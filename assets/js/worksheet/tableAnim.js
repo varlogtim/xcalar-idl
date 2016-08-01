@@ -45,8 +45,6 @@ window.TblAnim = (function($, TblAnim) {
         $table.addClass('resizingCol');
         $('.xcTheadWrap').find('.dropdownBox').hide();
 
-        xcHelper.disableTextSelection();
-
         var cursorStyle = '<div id="resizeCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
 

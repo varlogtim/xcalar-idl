@@ -420,6 +420,14 @@ WKBKTStr = {
                     'please choose another name.',
 };
 
+MonitorTStr = {
+    'Monitor': 'Monitor',
+    'System': 'System',
+    'Queries': 'Queries',
+    'Setup': 'Setup',
+    'Settings': 'Settings'
+}
+
 SchedTStr = {
     'SelectSched': 'Select a schedule',
     'NoScheds': 'No available schedules',

@@ -13,38 +13,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         populateNodeInformation();
         $monitorPanel = $('#monitorPanel');
 
-        $("#monitorTopBar").on("click", ".buttonArea", function() {
-            var $btn = $(this);
-
-            if ($btn.hasClass("active")) {
-                return;
-            }
-
-            $btn.siblings(".active").removeClass("active");
-            $monitorPanel.find(".monitorSection.active").removeClass("active");
-
-            $btn.addClass("active");
-
-            switch ($btn.attr("id")) {
-                case ("systemButton"):
-                    $("#monitor-system").addClass("active");
-                    break;
-                case ("queriesButton"):
-                    $("#monitor-queries").addClass("active");
-                    break;
-                case ("setupButton"):
-                    $("#monitor-setup").addClass("active");
-                    break;
-                case ("settingsButton"):
-                    $("#monitor-settings").addClass("active");
-                    break;
-                default:
-                    break;
-            }
-
-            QueryManager.check();
-        });
-
+        setupViewToggling();
 
         $('#asupBtn').click(function() {
             var $target = $(this);
@@ -162,6 +131,44 @@ window.MonitorPanel = (function($, MonitorPanel) {
             updateDonutStatsSection(el, index, allStats[index]);
         });
     };
+
+    function setupViewToggling() {
+        var $monitorPanel = $("#monitorPanel");
+
+        // main menu
+        $('#monitorTab').find('.subTab').click(function() {
+            var $button = $(this);
+            if ($button.hasClass('active')) {
+                return;
+            }
+            $monitorPanel.find(".monitorSection.active").removeClass("active");
+            var title = MonitorTStr.Monitor + '/';
+
+            switch ($button.attr("id")) {
+                case ("systemButton"):
+                    $("#monitor-system").addClass("active");
+                    title += MonitorTStr.System;
+                    break;
+                case ("queriesButton"):
+                    $("#monitor-queries").addClass("active");
+                    title += MonitorTStr.Queries;
+                    break;
+                case ("setupButton"):
+                    $("#monitor-setup").addClass("active");
+                    title += MonitorTStr.Setup;
+                    break;
+                case ("settingsButton"):
+                    $("#monitor-settings").addClass("active");
+                    title += MonitorTStr.Settings;
+                    break;
+                default:
+                    break;
+            }
+            $monitorPanel.find('.topBar .title').text(title);
+
+            QueryManager.check();
+        });
+    }
 
     function initializeDonuts() {
         var numDonuts = 3;

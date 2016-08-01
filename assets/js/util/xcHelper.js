@@ -1177,21 +1177,22 @@ window.xcHelper = (function($, xcHelper) {
         var tableOffset = $tableWrap.offset().left;
         var tableRight = tableOffset + tableWidth;
         var animateRight = false;
+        var mainMenuOffset = MainMenu.getOffset();
 
          // only centers the table if table is visible
         if (options.onlyIfOffScreen) {
             // if table is slightly visible we will apply animation
             // otherwise we go with whatever was passed in
-            if (tableRight < 150 && tableRight > 0) {
+            if (tableRight > mainMenuOffset && tableRight < (mainMenuOffset + 150)) {
                 // table is slightly visible on the left
                 animate = true;
             } else if (windowWidth - tableOffset < 150 &&
-                       windowWidth - tableOffset > 0) {
+                       windowWidth - tableOffset > mainMenuOffset) {
                 // table is slightly visible on the right
                 animateRight = true;
                 animate = true;
-            } else if (tableRight < 0 ||
-                (windowWidth - tableOffset) < 0) {
+            } else if (tableRight < mainMenuOffset ||
+                (windowWidth - tableOffset) < mainMenuOffset) {
                 // table is offscreen, proceed to center the table
             } else {
                 // table is in view
@@ -1205,7 +1206,7 @@ window.xcHelper = (function($, xcHelper) {
         if (animateRight) {
             scrollPosition = leftPosition;
         } else {
-            scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
+            scrollPosition = leftPosition - ((mainMenuOffset + windowWidth - tableWidth) / 2);
         }
 
         if (animate && !gMinModeOn) {

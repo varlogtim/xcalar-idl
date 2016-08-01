@@ -1079,46 +1079,46 @@ window.JSONModal = (function($, JSONModal) {
             '<div class="optionsBar bar">' +
                 '<div class="dragHandle jsonDragHandle"></div>' +
                 '<div class="vertLine"></div>' +
-                '<div class="btn btnDeselected sort single" ' +
+                '<div class="btn btn-small btn-secondary sort single" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.SortAsc + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon"></i>' +
                 '</div>' +
-                '<div class="btn btnDeselected compareIcon single" ' +
+                '<div class="btn btn-small btn-secondary compareIcon single" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.SelectOther + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon xi-tick"></i>' +
                 '</div>' +
-                '<div class="btn btnDeselected remove" data-toggle="tooltip" ' +
+                '<div class="btn btn-small btn-secondary remove" data-toggle="tooltip" ' +
                     'data-container="body" ' +
                     'title="' + JsonModalTStr.RemoveCol + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon xi-close"></i>' +
                 '</div>' +
-                '<div class="btn btnDeselected split" data-toggle="tooltip"' +
+                '<div class="btn btn-small btn-secondary split" data-toggle="tooltip"' +
                     'data-container="body" ' +
                     'title="' + JsonModalTStr.Duplicate + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon"></i>' +
                 '</div>' +
-                '<div class="btn btnDeselected binaryIcon" ' +
+                '<div class="btn btn-small btn-secondary binaryIcon" ' +
                 'data-toggle="tooltip" ' +
                     'data-container="body" ' +
                     'title="' + TooltipTStr.ComingSoon + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon"></i>' +
                 '</div>' +
-                '<div class="btn btnDeselected pullAll" ' +
+                '<div class="btn btn-small btn-secondary pullAll" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.PullAll + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon"></i>' +
                 '</div>' +
-                '<div class="btn btnDeselected clearAll disabled" ' +
+                '<div class="btn btn-small btn-secondary clearAll disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + 'deselect all columns' + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon"></i>' +
                 '</div>' +
-                '<div class="btn btnDeselected submitProject disabled" ' +
+                '<div class="btn btn-small btn-secondary submitProject disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + 'submit projection' + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon"></i>' +
                 '</div>' +
                 '<div class="text colsSelected disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
@@ -1169,7 +1169,7 @@ window.JSONModal = (function($, JSONModal) {
                 //     "Submit" +
                 // '</div>' +
                 '<div class="dropdownBox">' +
-                    '<div class="icon"></div>' +
+                    '<i class="icon"></i>' +
                 '</div>' +
             '</div>' +
             '<div class="infoBar bar">' +

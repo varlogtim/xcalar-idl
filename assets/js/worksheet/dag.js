@@ -120,7 +120,7 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             if (!wasOnWorksheetPanel) {
-                $panelSwitch.trigger('click');
+                $('#workspaceTab').trigger('click');
                 $panelSwitch.attr('data-original-title', TooltipTStr.CloseQG);
                 $('.tooltip').hide();
             }

@@ -5,7 +5,7 @@ window.MainMenu = (function($, MainMenu) {
     var slideTimeout; // setTimeout for setting closed state after animation finishes
     var isMenuOpen = false;
     var closedOffset = 65; // in pixels, how much the panels are horizonally 
-    // offset when a menu is closed
+    // offset when a menu is closed (includes 5px padding in .mainContent)
     var openOffset = 350; // when the menu is open
     MainMenu.setup = function() {
         $menuBar = $('#menuBar');

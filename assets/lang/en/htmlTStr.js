@@ -324,6 +324,8 @@ module.exports = {
     },
 
     "monitor": {
+        "Monitor": 'Monitor',
+        "Syst": "System",
         "SYS": "SYSTEM",
         "QUERIES": "QUERIES",
         "SETUP": "SETUP",
