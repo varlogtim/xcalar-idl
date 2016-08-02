@@ -37,7 +37,9 @@ StatusMessageTStr = {
 'Project': 'Projecting Columns',
 'ProjectFailed': 'Projection Failed',
 'Ext': 'Performing Extension <extension>',
-'ExtFailed': 'Performing Extension Failed'
+'ExtFailed': 'Performing Extension Failed',
+'StoredProc': 'Performing Stored Procedure',
+'StoredProcFailed': 'Stored Procedure execution failed'
 };
 
 TooltipTStr = {

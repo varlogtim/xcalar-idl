@@ -73,7 +73,8 @@ window.TblManager = (function($, TblManager) {
 
             if (oldTableNames.length > 0) {
                 // figure out which old table we will replace
-                setTablesToReplace(oldTableNames, worksheet, tablesToReplace, tablesToRemove);
+                setTablesToReplace(oldTableNames, worksheet, tablesToReplace,
+                                   tablesToRemove);
             }
 
             // append newly created table to the back, do not remove any tables
@@ -93,8 +94,8 @@ window.TblManager = (function($, TblManager) {
                     scrollAndFocusTable(newTableName);
                 } else {
                     var wsNum = WSManager.getActiveWS();
-                    if ($('.xcTableWrap.worksheet-' + wsNum).find('.tblTitleSelected')
-                                                        .length === 0) {
+                    if ($('.xcTableWrap.worksheet-' + wsNum).
+                                       find('.tblTitleSelected').length === 0) {
                         var tableId = xcHelper.getTableId(newTableName);
                         focusTable(tableId);
                     }

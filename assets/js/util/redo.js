@@ -54,6 +54,8 @@ window.Redo = (function($, Redo) {
                                             worksheet));
     };
 
+    redoFuncs[SQLOps.Query] = redoFuncs[SQLOps.Filter];
+
     redoFuncs[SQLOps.Map] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,

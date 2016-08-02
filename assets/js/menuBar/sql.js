@@ -318,7 +318,7 @@ window.SQL = (function($, SQL) {
             passed = true;
         })
         .fail(function(error) {
-            console.error("undo failed", error);
+            console.error("redo failed", error);
             deferred.reject(error);
         })
         .always(function() {
@@ -948,6 +948,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ProfileBucketing):
             case (SQLOps.Project):
             case (SQLOps.Ext):
+            case (SQLOps.Query):
                 return true;
             default:
                 console.warn("XXX! Operation unexpected", operation);
