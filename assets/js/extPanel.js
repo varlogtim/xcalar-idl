@@ -8,9 +8,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $panel = $("#extensionInstallPanel");
         $extLists = $("#extensionListSection");
 
-        // default is gridView, later will add usersettings
-        $panel.removeClass("listView").addClass("gridView");
-
         $panel.on("click", ".item .more", function() {
             $(this).closest(".item").toggleClass("fullSize");
         });
@@ -54,9 +51,18 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             }
         });
 
-        $("#extension-search").on("input", "input", function() {
+        $("#extension-search").on("input", function() {
             var searchKey = $(this).val().trim();
             refreshExtension(searchKey);
+        });
+
+        var $uploadSection = $("#extension-upload");
+        $("#uploadExtension").click(function() {
+            $uploadSection.removeClass("xc-hidden");
+        });
+
+        $uploadSection.on("click", ".close", function() {
+            $uploadSection.addClass("xc-hidden");
         });
     };
 
@@ -162,7 +168,9 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         if (html === "") {
             $panel.addClass("hint");
         } else {
-            $panel.append(html);
+            $panel.removeClass("hint").find(".category").remove()
+                .end()
+                .append(html);
         }
     }
 

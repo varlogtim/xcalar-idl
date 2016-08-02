@@ -432,6 +432,7 @@
 
             &:before {
                 display: inline-block;
+                // xi-arrow-up
                 content: "\e93a";
                 font-family: 'icomoon' !important;
                 .transform(rotate(180deg));
@@ -521,6 +522,7 @@
                 .icon {
                     color: @color-font-softBlue;
                     &:before {
+                        // xi-radio-selected
                         content: "\e963";
                     }
                 }
@@ -539,7 +541,8 @@
                 color: @color-font-pinkish-grey2;
 
                 &:before {
-                    content: "\e964"
+                    // xi-radio-empty
+                    content: "\e965";
                 }
             }
         }
@@ -664,7 +667,7 @@
 
     // default value is Unknown
     .type.icon:before {
-      content: "\e947";
+      content: "\e948";
     }
 
     &.type-object .type.icon:before {
@@ -680,10 +683,10 @@
       content: "\e943";
     }
     &.type-boolean .type.icon:before {
-      content: "\e944";
+      content: "\e945";
     }
     &.type-string .type.icon:before {
-      content: "\e945";
+      content: "\e947";
     }
     &.type-mixed .type.icon:before {
       content: "\e946";
