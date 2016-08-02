@@ -27,6 +27,7 @@
         height: 100%;
         width: 20px;
         margin-right: 5px;
+        opacity: @opacity-unhover;
 
         .icon {
             display: inline-block;
@@ -34,7 +35,7 @@
         }
 
         &:hover {
-            // .linear-gradient(top, @color-modal-close-dark, @color-modal-close-light);
+            opacity: @opacity-hover;
         }
 
         &:active {
@@ -81,6 +82,11 @@
 .cardMain {
     padding-top: 40px;
     .no-selection;
+}
+
+.cardBorder {
+    .size(@width: 100%, @height: 1px);
+    background-color: @color-bg-pinkish-grey2;
 }
 
 .cardBottom {

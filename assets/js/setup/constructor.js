@@ -3109,61 +3109,48 @@ ExtCategory.prototype = {
 };
 
 function ExtCategorySet() {
-    this.market = {};
-    this.custom = {};
+    this.set = {};
     return this;
 }
 
 ExtCategorySet.prototype = {
-    "get": function(categoryName, isCustom) {
-        if (isCustom) {
-            return this.custom[categoryName];
-        } else {
-            return this.market[categoryName];
-        }
+    "get": function(categoryName) {
+        return this.set[categoryName];
     },
 
-    "has": function(categoryName, isCustom) {
-        if (isCustom) {
-            return this.custom.hasOwnProperty(categoryName);
-        } else {
-            return this.market.hasOwnProperty(categoryName);
-        }
+    "has": function(categoryName) {
+        return this.set.hasOwnProperty(categoryName);
     },
 
     "addExtension": function(extension) {
         var categoryName = extension.category;
-        var isCustom = true;
-        if (extension.repository && extension.repository.type === "market") {
-            isCustom = false;
-        }
+        // var isCustom = true;
+        // if (extension.repository && extension.repository.type === "market") {
+        //     isCustom = false;
+        // }
 
         var extCategory;
 
-        if (this.has(categoryName, isCustom)) {
-            extCategory = this.get(categoryName, isCustom);
+        if (this.has(categoryName)) {
+            extCategory = this.get(categoryName);
         } else {
             extCategory = new ExtCategory(categoryName);
-            if (isCustom) {
-                this.custom[categoryName] = extCategory;
-            } else {
-                this.market[categoryName] = extCategory;
-            }
+            this.set[categoryName] = extCategory;
         }
         extCategory.addExtension(extension);
     },
 
-    "getExtension": function(categoryName, extensionName, isCustom) {
-        if (!this.has(categoryName, isCustom)) {
+    "getExtension": function(categoryName, extensionName) {
+        if (!this.has(categoryName)) {
             return null;
         }
 
-        var category = this.get(categoryName, isCustom);
+        var category = this.get(categoryName);
         return category.getExtension(extensionName);
     },
 
-    "getList": function(isCustom) {
-        var set = isCustom ? this.custom : this.market;
+    "getList": function() {
+        var set = this.set;
         var listToSort = [];
         for (var categoryName in set) {
             listToSort.push([set[categoryName], categoryName]);

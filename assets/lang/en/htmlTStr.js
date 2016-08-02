@@ -572,18 +572,6 @@ module.exports = {
         "instr": "Column names should be preceded by a $ sign, e.g. $column1."
     },
 
-    "extModal": {
-        "title": "Extension",
-        "instr": "You are viewing details of the extension",
-        "website": "VISIT WEBSITE",
-        "report": "REPORT ERROR",
-        "Version": "Version",
-        "Lang": "Language",
-        "extName": "Extension Name",
-        "categoryName": "Category Name",
-        "confirm": "INSTALL"
-    },
-
     "dfgParam": {
         "title": "Parameterize Query",
         "instr": "To convert this query into a parameterized query, please click the add new parameterized query button and drag and drop the parameters into their appropriate places.",
@@ -642,11 +630,12 @@ module.exports = {
     "extension": {
         "XCEXT": "XCALAR EXTENSIONS",
         "CUSTOM": "CUSTOM",
-        "EXTList": "EXTENSION LIST",
-        "Installed": "Installed",
-        "Updalod": "UPLOAD CUSTOM EXTENSION",
-        "Load": "Fetching Data",
-        "Hint": "No Extension Added/Found",
+        "EXTList": "Extension List",
+        "Installed": "Installed Extensions",
+        "Upload": "Upload Custom Extension",
+        "Load": "Loading Extension",
+        "NotFound": "No Extension Found",
+        "NotAdded": "No Extension Added",
         "SearchHint": "Search for Extension"
     },
 

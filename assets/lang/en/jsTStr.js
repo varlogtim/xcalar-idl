@@ -593,6 +593,19 @@ SideBarTStr = {
     'OverwriteErr': 'Cannot overwrite default UDF'
 };
 
+ExtTStr = {
+    "Website": "VISIT WEBSITE",
+    "Report": "REPORT ERROR",
+    "Version": "VERSION",
+    "Lang": "Language",
+    "extName": "Extension Name",
+    "categoryName": "Category Name",
+    "Install": "INSTALL",
+    "Installed": "INSTALLED",
+    "More": "VIEW MORE",
+    "Less": "HIDE DETAIL"
+};
+
 DaysTStr = {
     'Sunday': 'Sunday',
     'Monday': 'Monday',

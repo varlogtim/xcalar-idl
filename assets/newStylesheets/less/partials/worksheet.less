@@ -629,44 +629,8 @@
 
 /* === WORKSHEET TABS ==== */
 #worksheetListSection {
-    .listWrap {
-        &.active {
-            ul {
-                display: block;
-            }
-        }
-
-        > span {
-            display: inline-block;
-            .size(@height: 20px);
-        }
-
-        .listInfo {
-            font-weight: 700;
-            padding: 0 15px;
-        }
-
-        ul {
-            display: none;
-            margin: 8px 0;
-
-            li {
-                opacity: @opacity-unhover;
-                &:hover {
-                    opacity: @opacity-hover;
-                }
-            }
-        }
-    }
-
-    
     .worksheetTab {
-        .size(@width: 100%, @height: 30px);
-        padding: 5px 15px;
-        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
-
         &.active {
-            background-color: @color-bg-light-navy;
             .eye {
                 visibility: visible;
             }
@@ -699,15 +663,6 @@
                 cursor: auto !important;
                 opacity: @opacity-disabled;
             }
-        }
-
-        > i, > span, > input {
-            display: inline-block;
-            float: left;
-        }
-
-        .icon {
-            .position(relative, @top: 3px);
         }
 
         .draggableArea {

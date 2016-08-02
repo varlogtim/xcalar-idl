@@ -1,0 +1,75 @@
+<!-- Extension Panel -->
+<div id="extensionPanel" class="mainPanel no-selection">
+  <div class="topBar">
+    <input id="extension-search" type="text" placeholder="<%= dicts.extension.SearchHint %>...">
+    <div class="rightArea">
+      <i class="icon xi-search fa-22 center"></i>
+    </div>
+
+    <!-- <div id="xcExtensionButton" class="buttonArea active">
+      <div class="icon"></div>
+      <div class="text"><%= dicts.extension.XCEXT %></div>
+    </div>
+    <div id="customExtensionButton" class="buttonArea">
+      <div class="icon"></div>
+      <div class="text"><%= dicts.extension.CUSTOM %></div>
+    </div> -->
+  </div>
+  <!-- Extension View -->
+  <div id="extensionView" class="mainContent">
+    <section id="extension-upload" class="cardContainer">
+      <header class="cardHeader">
+        <div class="title"><%= dicts.extension.Upload %></div>
+        <div class="close">
+          <i class="icon xi-close fa-15"></i>
+        </div>
+        <div class="headerBtn fullScreen">
+          <i class="icon xi-fullscreen fa-18"></i>
+        </div>
+      </header>
+      <div class="cardInstruction">
+        <i class="icon xi-info-circle"></i>
+        <div calss="text"><%= dicts.extension.EXTList %></div>
+      </div>
+      <div class="cardMain">
+        <span class="text"><%= dicts.common.URL %>:</span>
+        <input type="text">
+        <button class="btn btnMid"><%= dicts.common.BROWSE %></button>
+      </div>
+      <div class="cardBorder"></div>
+      <div class="cardBottom">
+        <i class="icon xi-warning"></i>
+        <span class="text"><%= dicts.extension.NotFound %></span>
+      </div>
+    </section>
+    <section id="extensionInstallPanel">
+      <!-- infoCard -->
+      <div class="cardContainer infoCard">
+        <div class="cardHeader"></div>
+        <div class="cardMain">
+          <!-- waitSection -->
+          <div class="waitSection">
+            <div class="animatedEllipsisWrapper">
+              <div class="text"><%= dicts.extension.Load %></div>
+              <div class="animatedEllipsis">
+                <div>.</div>
+                <div>.</div>
+                <div>.</div>
+              </div>
+            </div>
+          </div>
+          <!-- errorSection -->
+          <div class="errorSection"></div>
+          <!-- hintSection -->
+          <div class="hintSection">
+            <i class="icon xi-warning"></i>
+            <span class="text"><%= dicts.extension.NotAdded %></span>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="categorySection error-hidden wait-hidden"></div> -->
+    </section>
+    <!-- End of Extension View -->
+  </div>
+</div>
+<!-- End of Extension Panel -->

@@ -241,7 +241,6 @@ window.StartManager = (function(StartManager, $) {
         DFGParamModal.setup();
         MultiCastModal.setup();
         DeleteTableModal.setup();
-        ExtensionInfoModal.setup();
         ExtensionOpModal.setup();
         ExtModal.setup();
     }
