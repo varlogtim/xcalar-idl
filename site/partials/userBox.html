@@ -1,13 +1,13 @@
 <% var userNameAttr = (dicts.tutor.name == "workbookDemo") ? 'data-introstep="9"' : '' %>
 <!-- userBox -->
 <div id="userBox">
-	<div id="userNameArea" class="xc-action clickable" <%= userNameAttr %>>
-    <i class="icon xi-user fa-18"></i>
-	</div>
-  <div id="autoSaveBtn" class="saveArea xc-action" title="<%= dicts.common.SaveWKBK %>" data-toggle="tooltip" data-container="body" data-placement="left">
-    <i class="icon xi-save fa-18"></i>
+	<button id="userNameArea" class="btn-icon clickable" <%= userNameAttr %>>
+    <i class="icon xi-user"></i>
+	</button>
+  <button id="autoSaveBtn" class="saveArea btn btn-small" title="<%= dicts.common.SaveWKBK %>" data-toggle="tooltip" data-container="body" data-placement="left">
+    <i class="icon xi-save fa-16"></i>
     <div class="dot"></div>
-  </div>
+  </button>
 </div>
 <div id="userMenu" class="menu">
   <ul>

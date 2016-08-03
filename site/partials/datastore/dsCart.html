@@ -20,7 +20,7 @@
     </div>
     <!-- buttons -->
     <% if (dicts.tutor.name !== "datastoreDemo2") { %>
-    <button id="dataCart-submit" class="btn btnLarge iconBtn btnInactive">
+    <button id="dataCart-submit" class="btn btnLarge iconBtn">
       <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
     </button>
     <% } else { %>
@@ -29,11 +29,11 @@
     </button>
     <% }%>
     <% if (dicts.tutor.name !== "datastoreDemo2") { %>
-    <button id="dataCart-clear" class="btn btnLarge iconBtn btnInactive">
+    <button id="dataCart-clear" class="btn btnLarge iconBtn btn-clear">
       <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
     </button>
     <% } else { %>
-    <button id="dataCart-clear" class="btn btnLarge iconBtn" data-introstep="8" data-introposition="left">
+    <button id="dataCart-clear" class="btn btnLarge iconBtn btn-clear" data-introstep="8" data-introposition="left">
       <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
     </button>
     <% }%>

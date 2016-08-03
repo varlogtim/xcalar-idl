@@ -284,15 +284,25 @@
     display: inline-block;
     border: 0;
     outline: 0;
-    .font(@family: @font-base, @color: @color-white, @weight: 600, @size: 14px, @line-height: 30px);
+    .font(@family: @font-base, @color: @color-white, @weight: 700, @size: 14px, @line-height: 30px);
     letter-spacing: 0.5px;
     .textOverflowOneLine;
     text-align: center;
     .size(150px, 36px);
     background-color: @color-bg-select-blue;
+    opacity: @opacity-unhover;
+    cursor: pointer;
 
-    &:hover, &:focus {
-        // xi2 to do
+    &:hover {
+        opacity: @opacity-hover;
+    }
+
+    &:focus {
+        outline: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+        box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
     }
 }
 
@@ -301,7 +311,32 @@
     line-height: 30px;
     i.icon {
         line-height: 30px;
-    } 
+    }
+}
+
+.btn-icon {
+    .size(30px, 30px);
+    .noSelection;
+    display: inline-block;
+    background-color: transparent;
+    outline: 0;
+    opacity: @opacity-unhover;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+
+    .icon {
+        .font(@size: 18px, @color: @color-font-warm-grey-two);
+    }
+
+    &:hover {
+        background-color: @color-bg-white-two;
+        opacity: @opacity-hover;
+    }
+
+    &:active {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
 }
 
 .btn-large {
@@ -309,15 +344,46 @@
 }
 
 .btn-cancel, .btn-secondary {
-    background-color: @color-bg-pinkish-grey;
-    &:hover, &:focus {
-        // xi2 to do
+    background-color: @color-bg-99-grey;
+    &:active {
+        box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.btn-clear {
+    background-color: @color-white;
+    color: @color-font-warm-grey-two;
+
+    .icon {
+        color: @color-font-warm-grey-two !important;
+    }
+
+    &:active {
+        box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.1);
     }
 }
 
 .btn-disabled {
     opacity: @opacity-disabled;
     pointer-events: none;
+}
+
+.iconBtn {
+    .position(relative);
+    padding: 0 30px 0 5px;
+    text-align: center;
+
+    .icon {
+        display: inline-block;
+        .size(@width: 25px, @height: 100%);
+        color: @color-white;
+        float: left;
+
+        &:before {
+            display: block;
+            .vertical-align;
+        }
+    }
 }
 
 /* DROP DOWN COLUMN STYLING */
@@ -408,10 +474,10 @@
     .no-selection;
 
     .text {
-        color: @color-text-darkGray;
+        color: @color-font-greyish-brown;
         background-color: @color-bg-white-three;
         border: 1px solid @color-bg-white-five;
-        .font(@size: 13px);
+        .font(@size: 14px);
         padding-left: 10px;
         float: left;
         .no-selection;
@@ -565,11 +631,11 @@
         padding: 0 10px;
         text-align: left;
         background-color: @color-bg-white-three;
-        opacity: @opacity-unhover;
 
         &:focus {
             outline: none;
-            opacity: @opacity-hover;
+            border-color: @color-border-softBlue;
+            background-color: @color-white;
         }
     }
 }

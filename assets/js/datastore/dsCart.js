@@ -175,18 +175,11 @@ window.DSCart = (function($, DSCart) {
         }
 
         var $cart = DSCart.getCartById(dsId);
-        if (gMinModeOn) {
-            $cart.remove();
-            refreshCart(dsId);
-        } else {
-            $cart.find("ul").slideUp(80, function() {
-                $cart.remove();
-                refreshCart(dsId);
-            });
-        }
-
         // remove cart
         delete innerCarts[dsId];
+
+        $cart.remove();
+        refreshCart(dsId);
         clearHighlightCol();
         $cartList.removeData("ws")
                 .find(".text").val("");

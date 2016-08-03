@@ -224,15 +224,10 @@ body {
     padding-right: 15px;
     padding-left: 5px;
 
-   .xc-action {
-        .size(@width: 24px, @height: 18px);
+   > button {
         display: inline-block;
         float: right;
         .vertical-align;
-
-        .icon {
-            color: @color-font-pinkish-grey;
-        }
     }
 }
 
@@ -257,10 +252,18 @@ body {
         }
     }
 
+    .rounded;
+    background-color: @color-bg-gold;
+    overflow: visible;
+
+    .icon {
+        .position(relative, @top: -1px);
+    }
+
     .dot {
         display: none;
         .size(8px, 8px);
-        .position(absolute, @top: -2px, @left: -2px);
+        .position(absolute, @top: -2px, @left: -1px);
         .rounded(100%);
         background-color: @color-bg-select-blue;
     }
@@ -414,20 +417,6 @@ body {
 
 .visible {
     visibility: visible;
-}
-
-.iconBtn {
-    .position(relative);
-    // padding-right = padding-left + icon width
-    padding: 0 30px 0 5px;
-    text-align: center;
-
-    .icon {
-        display: inline-block;
-        .size(@width: 25px, @height: 100%);
-        .position(relative, @top: 0, @left: 0);
-        float: left;
-    }
 }
 
 
