@@ -495,6 +495,7 @@ window.DagFunction = (function($, DagFunction) {
         var leftTree = null;
         var rightTree = null;
         if (!node) {
+            //debugger;
             return;
         }
 

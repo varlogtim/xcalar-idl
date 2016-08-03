@@ -364,7 +364,7 @@ window.Support = (function(Support, $) {
     function getStat(nodeId, statsId, data) {
         var deferred = jQuery.Deferred();
 
-        XcalarGetStatsByGroupId(nodeId, [statsId])
+        XcalarGetStatsByGroupId([nodeId], [statsId])
         .then(function(res) {
             if (!data[statsId]) {
                 data[statsId] = {};
