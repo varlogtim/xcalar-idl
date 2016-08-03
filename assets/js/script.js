@@ -77,7 +77,7 @@ window.StartManager = (function(StartManager, $) {
         gMinModeOn = true; // startup use min mode;
         $("body").addClass("xc-setup");
 
-        setupLogout();
+        setupUserBox();
         Compatible.check();
         setupThrift();
         // Support.setup() get username, so need to be at very eary time
@@ -245,11 +245,33 @@ window.StartManager = (function(StartManager, $) {
         ExtModal.setup();
     }
 
-    function setupLogout() {
+    function setupUserBox() {
+        var $menu = $("#userMenu");
+        addMenuBehaviors($menu );
+
+        $("#userNameArea").click(function() {
+            if ($menu.is(":visible")) {
+                $menu.hide();
+                return;
+            }
+
+            var $target = $(event.target);
+            xcHelper.dropdownOpen($target, $menu, {
+                "mouseCoors": {"x": 1803, "y": 37}
+            });
+        });
+
         var username = sessionStorage.getItem("xcalar-fullUsername");
         if (username == null) {
             username = sessionStorage.getItem("xcalar-username");
         }
+
+        $menu.on("click", ".help", function() {
+            var $tab = $("#helpTab");
+            if (!$tab.hasClass("active")) {
+                $tab.click();
+            }
+        });
 
         $("#userName").text(username);
 

@@ -217,38 +217,52 @@ body {
 
 /* =========== TOP RIGHT CORNER =========== */
 #userBox {
-    width: @width-userBox;
-    height: @height-homeBtn;
+    .size(@width: @width-userBox, @height: @height-homeBtn);
     background-color: @color-bg-topBarGray;
     .position(fixed, @top: 0, @right: 0);
     z-index: @z-index-topBar + 1;
+    padding-right: 15px;
+    padding-left: 5px;
+
+   .xc-action {
+        .size(@width: 24px, @height: 18px);
+        display: inline-block;
+        float: right;
+        .vertical-align;
+
+        .icon {
+            color: @color-font-pinkish-grey;
+        }
+    }
 }
 
-
 #userNameArea {
-    .font(@weight: 400, @color: @color-text-white);
-    float: right;
-    margin: 10px 25px 0 0;
-    display: inline-block;
-    max-width: ~"calc(100% - 860px)";
-    overflow: hidden;
-    white-space: nowrap;
+    margin-left: 5px;
+}
 
+#userMenu {
+    .size(@width: 100px);
+    text-align: center;
+    z-index: @z-index-useMenu;
+}
 
-    .text {
-        color: @color-text-topAction;
-        .textOverflowOneLine;
-        display: inline-block;
-        vertical-align: bottom;
-        max-width: ~"calc(100% - 65px)";
+#userName {
+    cursor: default;
+}
+
+#autoSaveBtn {
+    &.unsave {
+        .dot {
+            display: block;
+        }
     }
 
-    #signout {
-        display: inline-block;
-        width: 55px;
-        color: @color-text-signout-blue;
-        cursor: pointer;
-        .textOverflowOneLine
+    .dot {
+        display: none;
+        .size(8px, 8px);
+        .position(absolute, @top: -2px, @left: -2px);
+        .rounded(100%);
+        background-color: @color-bg-select-blue;
     }
 }
 /* =========== END TOP RIGHT CORNER =========== */

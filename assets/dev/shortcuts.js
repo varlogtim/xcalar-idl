@@ -268,13 +268,15 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $('#container').append(menu);
         $('#container').append(subMenu);
-        $('#userNameArea').prepend('<div id="shortcutMenuIcon"></div>');
+        $('#dfgPanelSwitch').before('<div id="shortcutMenuIcon"></div>');
 
         addMenuBehaviors($('#shortcutMenu'));
         addMenuActions();
 
         $('#shortcutMenuIcon').click(function(){
-            xcHelper.dropdownOpen($(this), $('#shortcutMenu'));
+            xcHelper.dropdownOpen($(this), $('#shortcutMenu'), {
+                "floating": true
+            });
         });
 
         toggleAutoLoginMenu(autoLogin);

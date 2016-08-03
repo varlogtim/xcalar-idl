@@ -126,7 +126,8 @@ window.KVStore = (function($, KVStore) {
             var d = new Date();
             var t = xcHelper.getDate("-", d) + " " + d.toLocaleTimeString();
             $("#autoSavedInfo").text(t);
-
+            // mark save state
+            $("#autoSaveBtn").removeClass("unsave");
             // save workbook
             return XcalarSaveWorkbooks("*");
         })
@@ -139,6 +140,10 @@ window.KVStore = (function($, KVStore) {
         });
 
         return (deferred.promise());
+    };
+
+    KVStore.logChange = function() {
+        $("#autoSaveBtn").addClass("unsave");
     };
 
     KVStore.restore = function() {

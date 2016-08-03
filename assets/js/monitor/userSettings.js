@@ -82,6 +82,7 @@ window.UserSettings = (function($, UserSettings) {
 
     UserSettings.logDSChange = function() {
         hasDSChange = true;
+        KVStore.logChange();
     };
 
     UserSettings.clear = function() {
@@ -126,9 +127,8 @@ window.UserSettings = (function($, UserSettings) {
                         break;
                     }
                 } else {
-                   shouldCommit = true;
+                    shouldCommit = true;
                 }
-
 
                 break;
             }
@@ -146,21 +146,17 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
-        memLimitSlider = new RangeSlider($('#memLimitSlider'), 'memoryLimit',
-                                            {
-                                                minVal: 50,
-                                                maxVal: 99
-                                            });
-        monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
-                                            'monitorGraphInterval',
-                                            {
-                                                minVal: 1,
-                                                maxVal: 60,
-                                                onChangeEnd: function(val) {
-                                                    MonitorGraph.updateInterval(val * 1000);
-                                                }
-                                            });
-
+        memLimitSlider = new RangeSlider($('#memLimitSlider'), 'memoryLimit', {
+            minVal: 50,
+            maxVal: 99
+        });
+        monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'), 'monitorGraphInterval', {
+            minVal     : 1,
+            maxVal     : 60,
+            onChangeEnd: function(val) {
+                MonitorGraph.updateInterval(val * 1000);
+            }
+        });
     }
 
     function restoreSettingsPanel() {

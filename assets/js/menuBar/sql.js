@@ -155,6 +155,11 @@ window.SQL = (function($, SQL) {
 
         SQL.scrollToBottom();
         updateUndoRedoState();
+
+        if (!isBackendOperation(sql)) {
+            // we use this to mark unsave state
+            KVStore.logChange();
+        }
     };
 
     SQL.errorLog = function(title, options, cli, error) {

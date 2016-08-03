@@ -77,7 +77,7 @@ module.exports = {
         "UserName": "User name",
         "Val": "Value",
         "WKBK": "Workbook",
-        "SaveWKBK": "Click to Save Now",
+        "SaveWKBK": "Save Progress",
         "Loading": "Loading"
     },
 
@@ -107,12 +107,11 @@ module.exports = {
         "ds": "Data Stores",
         "schde": "Scheduler",
         "exts": "Extensions",
-        "welcome": "Welcome",
         "user": "User",
         "tutorUser":  "John Smith",
-        "signInAs": "Signed in as",
         "unknown": "unknown",
-        "signOut": "Sign out"
+        "signOut": "Sign out",
+        "Help": "Help Docs",
     },
 
     "MenuTStr" : {
