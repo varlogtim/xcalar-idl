@@ -786,7 +786,7 @@
 #tableListSections {
     overflow-x: hidden;
     overflow-y: auto;
-    height: ~"calc(100% - 35px)";
+    height: 100%;
     margin: 0 auto;
 
     .tableListSection {
@@ -873,6 +873,7 @@
             padding: 5px 15px 0 10px;
             .font(@line-height: 25px, @size: 13px);
 
+
             &:hover {
                 background-color: rgba(0, 0, 0, 0.3);
             }
@@ -889,7 +890,17 @@
             &.highlight {
                 background: @color-white;
                 z-index: 100 !important;
+            }
 
+            &.active {
+                background-color: rgba(0, 0, 0, 0.3);
+                .tableListBox {
+                    color: @color-font-bright-light-blue;
+
+                    .icon {
+                        color: @color-font-bright-light-blue;
+                    }
+                }
             }
         }
 
@@ -928,20 +939,6 @@
             white-space: nowrap;
             overflow: hidden;
 
-            &.active {
-                color: @color-font-bright-light-blue;
-
-                .icon {
-                    color: @color-font-bright-light-blue;
-                }
-
-                .addTableBtn {
-                    &:hover {
-                        border: 1px solid @color-border-softBlue;
-                    }
-                }
-            }
-
             > span {
                 display: inline-block;
                 float: left;
@@ -953,32 +950,52 @@
 
             .addTableBtn {
                 .size(18px, 18px);
-                margin-right: 5px;
+                margin-right: 6px;
                 .vertical-align;
                 cursor: pointer;
-                font-size: 18px;
 
                 .icon {
-                    .position(relative, @top: -2px);
+                    &.xi-ckbox-empty, &.xi-tick {
+                        display: none;
+                    }
                 }
 
                 &:hover {
-                    border: 1px solid @color-border-pinkish-grey;
-                
-                    .icon:before {
-                        content: "";
+                    .icon {
+                        &.xi_table {
+                            display: none;
+                        }
+
+                        &.xi-ckbox-empty {
+                            display: inline-block;
+                        }
                     }
                 }
 
                 &.selected {
-                    border: none;
                     background-color: @color-bg-softBlue;
 
+                    &:hover {
+                        .icon {
+                            &.xi-ckbox-empty {
+                                display: none;
+                            }
+                        }
+                    }
+
                     .icon {
-                        font-size: 11px;
+                        color: @color-white !important;
+
+                        &.xi_table {
+                            display: none;
+                        }
+
+                        &.xi-tick {
+                            display: inline-block;
+                        }
+
                         &:before {
                             .position(relative, @top: -3px, @left: 2px);
-                            content: "\e95d";
                         }
                     }
 
@@ -992,6 +1009,11 @@
                 max-width: 200px;
                 .textOverflowOneLine;
                 margin-right: 2px;
+            }
+
+            .tableName, .numCols {
+                height: 25px;
+                line-height: 25px;
             }
         }
 

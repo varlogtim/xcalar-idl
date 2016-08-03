@@ -18,18 +18,18 @@ window.TableList = (function($, TableList) {
 
         // toggle table list box
         $tableListSections.on("click", ".tableListBox", function() {
-            var $box = $(this);
-            var $ol = $box.next();
+            var $li = $(this).closest(".tableInfo");
+            var $ul = $li.find(".columnList");
 
-            if ($ol.hasClass("open") && $box.hasClass("active")) {
-                $box.removeClass("active");
-                $ol.slideUp(200).removeClass("open");
+            if ($li.hasClass("active")) {
+                $li.removeClass("active");
+                $ul.slideUp(200);
             } else {
-                if ($ol.children().length === 0) {
+                if ($ul.children().length === 0) {
                     return;
                 }
-                $box.addClass("active");
-                $ol.slideDown(200).addClass("open");
+                $li.addClass("active");
+                $ul.slideDown(200);
             }
         });
 
@@ -194,11 +194,9 @@ window.TableList = (function($, TableList) {
 
         TableList.addTables([table], IsActive.Inactive);
 
-        $tableList.find(".tableListBox")
-                  .removeClass('active')
-                  .next()
-                  .slideUp(0)
-                  .removeClass('open');
+        $tableList.removeClass("active")
+                  .find(".columnList")
+                  .slideUp(0);
 
         $tableList.addClass("transition").slideUp(150, function() {
             $tableList.remove();
@@ -229,15 +227,8 @@ window.TableList = (function($, TableList) {
     TableList.updateTableInfo = function(tableId) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
-        var $box = $tableList.find('.tableListBox');
-        var $ol  = $box.next();
-        var wasOpen = false;
-
-        if ($ol.hasClass('open')) {
-            wasOpen = true;
-        }
+        var wasOpen = $tableList.hasClass("active");
         var position = $tableList.index();
-
         $tableList.remove();
 
         var table = gTables[tableId];
@@ -249,11 +240,10 @@ window.TableList = (function($, TableList) {
         if (wasOpen) {
             $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
-            $box = $tableList.find('.tableListBox');
-            $ol = $box.next();
-            if ($ol.children().length) {
-                $box.addClass("active");
-                $ol.addClass("open").show();
+            var $ul = $tableList.find(".columnList");
+            if ($ul.children().length > 0) {
+                $tableList.addClass("active");
+                $ul.show();
             }
         }
     };
@@ -781,6 +771,8 @@ window.TableList = (function($, TableList) {
                         '</span>' +
                         '<span class="addTableBtn">' +
                             '<i class="icon xi_table fa-18"></i>' +
+                            '<i class="icon xi-ckbox-empty fa-18"></i>' +
+                            '<i class="icon xi-tick fa-11"></i>' +
                         '</span>' +
                         '<span class="tableName textOverflowOneLine" title="' +
                             tableName + '">' +
@@ -864,6 +856,8 @@ window.TableList = (function($, TableList) {
                         '<div class="tableListBox xc-expand-list">' +
                             '<span class="addTableBtn">' +
                                 '<i class="icon xi_table fa-18"></i>' +
+                                '<i class="icon xi-ckbox-empty fa-18"></i>' +
+                                '<i class="icon xi-tick fa-11"></i>' +
                             '</span>' +
                             '<span title="' + tableName + '" ' +
                                 'data-toggle="tooltip" ' +
