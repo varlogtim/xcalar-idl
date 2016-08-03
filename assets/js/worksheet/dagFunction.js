@@ -32,8 +32,13 @@ window.DagFunction = (function($, DagFunction) {
         }
         var allEndPoints = [];
         var lineageStruct = {};
-        lineageStruct.tree = constructTree(valArray[0], valArray, {},
-                                           undefined, allEndPoints);
+        var tree = constructTree(valArray[0], valArray, {}, undefined,
+                                 allEndPoints);
+        if (!tree) {
+            console.info("No creatable tree");
+            return;
+        }
+        lineageStruct.tree = tree;
         lineageStruct.endPoints = allEndPoints;
         lineageStruct.orderedPrintArray = getOrderedDedupedNodes(allEndPoints,
                                           "TreeNode");
@@ -295,6 +300,10 @@ window.DagFunction = (function($, DagFunction) {
         var deepCopyTree = constructTree(valueArray[valueArray.length-1],
                                                     valueArray, {},
                                                     undefined, allEndPoints);
+        if (!deepCopyTree) {
+            console.info("Tree Empty!");
+            return;
+        }
         var treeNodeArray = getOrderedDedupedNodes(allEndPoints,
                              "TreeNode");
         if (treeNodeArray.length === 0) {
@@ -485,6 +494,9 @@ window.DagFunction = (function($, DagFunction) {
         var rightNode = null;
         var leftTree = null;
         var rightTree = null;
+        if (!node) {
+            return;
+        }
 
         var treeNode = new TreeNode(null, null, node);
         if (node.api === XcalarApisT.XcalarApiJoin) {
