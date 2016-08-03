@@ -571,9 +571,7 @@
     &.poppedOut {
         .size (@height: ~"calc(100% - 119px)");
         .position(@right: 5px, @bottom: 46px);
-        z-index: 30;
-        border: 1px solid @color-bar-border;
-        box-shadow: 0px 0px 3px 4px rgba(0,0,0,0.2);
+        z-index: @z-index-homeBtn + 1;
         .transition (right 0s);
 
         .heading {

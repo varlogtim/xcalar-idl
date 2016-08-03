@@ -1477,6 +1477,7 @@ window.WSManager = (function($, WSManager) {
         if (leftPos != null) {
             $mainFrame.scrollLeft(leftPos);
         }
+        StatusMessage.updateLocation();
     }
 
     // html of worksheet tab, helper function for makeWorksheet()

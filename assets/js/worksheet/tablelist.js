@@ -56,10 +56,11 @@ window.TableList = (function($, TableList) {
 
         $tableListSections.on("click", ".selectAll", function() {
             var $section = $(this).closest(".tableListSection");
-            $section.find(".submit").removeClass("xc-hidden")
-                    .end()
-                    .find(".tableInfo:not(.hiddenWS) .addTableBtn")
-                    .addClass("selected");
+            var $btn = $section.find(".tableInfo:not(.hiddenWS) .addTableBtn")
+                                .addClass("selected");
+            if ($btn.length > 0) {
+                $section.find(".submit").removeClass("xc-hidden");
+            }
         });
 
         $tableListSections.on("click", ".clearAll", function() {
@@ -70,9 +71,11 @@ window.TableList = (function($, TableList) {
         });
 
         $("#orphanedTableList .refresh").click(function() {
+            var $section = $("#orphanedTableList");
             searchHelper.clearSearch(function() {
-                clearTableListFilter($("#orphanedTableList"), null);
+                clearTableListFilter($section, null);
             });
+            $section.find(".clearAll").click();
             TableList.refreshOrphanList(true);
         });
 

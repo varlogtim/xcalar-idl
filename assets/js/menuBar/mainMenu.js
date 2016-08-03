@@ -112,11 +112,12 @@ window.MainMenu = (function($, MainMenu) {
     function panelSwitchingHandler($curTab, lastTabId) {
         $('.mainPanel').removeClass('active');
         var curTab = $curTab.attr('id');
-
+        $("#dfgPanelSwitch").addClass("xc-hidden");
         switch (curTab) {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
                 WSManager.focusOnWorksheet();
+                $("#dfgPanelSwitch").removeClass("xc-hidden");
                 break;
             case ("schedulerTab"):
                 $('#schedulerPanel').addClass("active");

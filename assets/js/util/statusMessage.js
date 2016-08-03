@@ -146,7 +146,7 @@ window.StatusMessage = (function($, StatusMessage) {
         }
         delete msgObjs[msgId];
         setTimeout(function() {
-           removeFailedMsg($('#stsMsg-' + msgId));
+            removeFailedMsg($('#stsMsg-' + msgId));
         }, 6000);
     };
 
@@ -170,7 +170,15 @@ window.StatusMessage = (function($, StatusMessage) {
             var panelName = "";
             switch (curTab) {
                 case ("workspaceTab"):
-                    panelName = "Worksheet";
+                    var ws = WSManager.getActiveWS();
+                    // XXX the restore of subTab triiger it too early
+                    // and will breaak it if not do the check
+                    if (ws) {
+                        panelName = "Worksheet: " + WSManager.getWSName(ws);
+                    } else {
+                        panelName = "Worksheet";
+                    }
+                    
                     break;
                 case ("schedulerTab"):
                     panelName = "Scheduler";
