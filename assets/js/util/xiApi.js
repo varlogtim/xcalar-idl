@@ -264,7 +264,7 @@ window.XIApi = (function(XIApi, $) {
                                 isIncSample, txId);
         })
         .then(function() {
-            if (isMultiGroupby) {
+            if (isMultiGroupby && !isIncSample) {
                 // multi group by should extract column from groupby table
                 return extractColFromMap(tableName, newTableName, groupByCols,
                                          indexedColName, finalCols,
