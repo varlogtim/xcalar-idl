@@ -21,6 +21,126 @@
     }
 }
 
+#monitorMenu-query {
+    .filterSection {
+        .size(@width: ~"calc(100% - 30px)", @height: 40px);
+        margin: 10px 15px 0 15px;
+        .flex-display;
+        .rounded;
+        box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.2);
+
+        .iconWrap {
+            .flex(0 0 25%);
+            .size(@height: 100%);
+            background-color: @color-bg-dusk-blue;
+            box-shadow: inset 1px 1px 0 0 rgba(255, 255, 255, 0.2);
+
+            &:first-child {
+                .rounded(3px 0 0 3px);
+            }
+
+            &:last-child {
+                .rounded(0 3px 3px 0);
+            }
+
+            &.active {
+                background-color: @color-bg-light-navy;
+            }
+        }
+    }
+}
+
+#monitor-queryList {
+    .size(@height: ~"calc(100% - 70px)");
+    overflow-y: auto;
+    margin-top: 20px;
+
+    .hint {
+        text-align: center;
+    }
+
+    .query {
+        .size(@width: 100%, @height: 60px);
+        cursor: default;
+        padding-top: 10px;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+        opacity: @opacity-unhover;
+
+        &:hover {
+            opacity: @opacity-hover;
+        }
+
+        &.active {
+            background-color: @color-bg-light-navy;
+        }
+
+        .queryIcon {
+            font-size: 15px;
+        }
+
+        .queryInfo {
+            .size(@height: 20px);
+            padding-left: 15px;
+            padding-right: 10px;
+            .font(@size: 11px, @weight: 400, @color: @color-font-softBlue);
+
+            .leftPart {
+                .size(@width: 30px, @height: 20px);
+                float: left;
+            }
+
+            .middlePart {
+                .size(@width: ~"calc(100% - 75px)", @height: 20px);
+                float: left;
+                margin-right: 5px;
+                line-height: 20px;
+                .textOverflowOneLine;
+            }
+
+            .rightPart {
+                .size(@width: 40px, @height: 20px);
+                float: right;
+
+                .icon {
+                    .font(@size: 14px, @color: @color-white);
+                    float: right;
+                    &:first-child {
+                        margin-left: 10px;
+                    }
+                }
+            }
+
+            .name {
+                .font(@size: 14px, @color: @color-white);
+                .position(relative, @top: -2px);
+                text-transform: capitalize;
+            }
+
+            .date {
+               .size(@width: ~"calc(100% - 85px)"); 
+            }
+
+            .querySteps {
+                .size(@width: 80px);
+                float: right;
+                .font(@size: 12px);
+                .textOverflowOneLine;
+                text-align: right;
+            }
+        }
+
+        .queryProgress {
+            margin-top: 4px;
+            .size(@height: 5px);
+            background-color: @color-bg-light-navy;
+
+            .progressBar {
+                .size(@height: 100%);
+            }
+        }
+    }
+}
+
 #monitorPanel {
     position: relative;
     .mainContent {
@@ -67,9 +187,6 @@
 
         &.active {
             display: block;
-            &#monitor-queries {
-                .flex-display;
-            }
         }
     }
 
@@ -678,308 +795,177 @@
     }
 }
 
-#monitor-queries {
-    // .flex-display;
+#monitor-queryDetail {
+    .size(@height: ~"calc(100% - 10px)");
 
-    .titleSection {
-        .size(@height: 45px);
-        .font(@line-height: 45px, @color: @color-text-blue);
-
-        h1 {
-            font-size: 18px;
-        }
-    }
-
-    .leftSection {
-        .flex(0 0 55%);
-        .size(@height: 100%);
-
-        .titleSection {
-            box-shadow: 0px 3px 2px 0px rgba(0, 0, 0, .2);
-            padding-left: 15px;
-        }
-
-        .queryListSection {
-            .size(@height: ~"calc(100% - 58px)");
-            // in order to show box-shadow
-            .position(relative, @top: 3px);
-            overflow-y: auto;
-
-            .hint {
-                .size(@width: inherit, @height: 60px);
-                text-align: center;
-                position: relative;
-                top: 30%;
-                .font(@size: 13px, @weight: bold, @color: @color-text-darkdarkGray);
-            }
-        }
-
-        .query {
-            .size(@height: 80px);
-            .position(relative);
-            .linear-gradient(top, @color-white, @color-table-midGray);
-            .noSelection;
-            cursor: default;
-            padding: 5px 10px 0 15px;
-            box-shadow: inset 0px -2px 1px 0px rgba(0, 0, 0, .1);
-
-            &.active {
-                background: #d8eff6;
-
-                .headBar {
-                    background-color: @color-text-blue;
-                }
-
-                .inspectIcon {
-                    background-color: #58c8fc !important;
-                }
-            }
-
-            .headBar {
-                .size(@width: 7px, @height: 80px);
-                .position(absolute, @top: 0, @left: 0);
-                background-color: transparent;
-            }
-
-            .queryInfo {
-                .size(@height: 20px);
-
-                .name {
-                    float: left;
-                    .font(@size: 13px, @weight: bold);
-                }
-
-                .date {
-                    float: right;
-                    .font(@size: 12px, @weight: bold, @color: @color-text-midlightGray);
-                }
-            }
-
-            .queryProgress {
-                margin-top: 6px;
-                .size(@height: 20px);
-                .flex-display;
-
-                .icon {
-                    .flex(0 0 20px);
-                    .size(@height: 20px);
-                    margin-right: 5px;
-                    cursor: pointer;
-                }
-
-                .barIcon {
-                    margin-right: 3px;
-                    pointer-events: none;
-                }
-
-                .refreshIcon {
-                    .position(relative, @top: -1px);
-                    margin-left: 10px;
-                }
-
-                .deleteIcon {
-                    .image("../../images/garbage-sm-blue.png", 50%, 50%);
-                }
-
-                .cancelIcon {
-                    .image("../../images/monitor/queries/cross_red.png", 50%, 50%);
-                    margin-right: 0;
-                    &.disabled {
-                        opacity: 0.5;
-                        pointer-events: none;
-                    }
-                }
-
-                .inspectIcon {
-                    .image("../../images/monitor/queries/inspect.png", 50%, 50%);
-                    .position(relative, @top: 1px);
-                    .rounded;
-                    margin-right: 0;
-                }
-
-                .divider {
-                    .flex(0 0 2px);
-                    background-color: @color-modal-dividerGray;
-                    border-right: 1px solid @color-white;
-                    margin-right: 4px;
-                }
-
-                .barContainer {
-                    .flex(1 1 auto);
-                    .size(@height: 100%);
-                    .rounded(4px);
-                    background-color: @color-monitor-progressBar;
-                    padding: 1px 1px;
-
-                    .progressBar {
-                        .size(@height: 100%);
-                        .rounded;
-                        background-repeat: repeat-x;
-                    }
-                }
-            }
-
-            .querySteps {
-                float: right;
-                .font(@size: 12px, @weight: bold, @color: @color-text-midlightGray);
-                margin-right: 90px;
-                margin-top: 4px;
-            }
-
-            &.processing {
-                .barIcon {
-                    .image("../../images/monitor/queries/inProgress.png", 50%, 50%);
-                }
-
-                .refreshIcon {
-                    .image("../../images/monitor/queries/refresh_inact.png", 50%, 50%);
-                    pointer-events: none;
-                }
-
-                .progressBar {
-                    .image("../../images/monitor/queries/activeBarUnit.png");
-                }
-            }
-
-            &.done {
-                .barIcon {
-                    .image("../../images/monitor/queries/done.png", 50%, 50%);
-                }
-
-                .refreshIcon {
-                    .image("../../images/monitor/queries/refresh_act.png", 50%, 50%);
-                }
-
-                .progressBar {
-                    .image("../../images/monitor/queries/doneBarUnit.png");
-                    .size(@width: 100%);
-                }
-
-                .cancelIcon {
-                   pointer-events: none;
-                   opacity: 0.5;
-                }
-            }
-
-            &.error {
-                opacity: 0.7;
-                pointer-events: none;
-            }
-        }
-    }
-
-    .rightSection {
-        .flex(0 0 45%);
-        .size(@height: 100%);
-        border-left: 1px solid rgba(0,0,0,.2);
-        background-color: @color-background-darkGray;
-
-        .flex-display;
-        .flex-flow(column);
-
-        > section {
-            padding-left: 15px;
-        }
+    .cardMain {
+        .size(@height: ~"calc(100% - @{height-card-header})");
+        padding-top: 0;
 
         .title {
-            margin: 5px 0;
+            .font(@size: 14px, @weight: 700, @color: @color-font-select-blue);
+        }
+    }
 
-            h2 {
-                font-size: 13px;
+    .querySection {
+        .size(@width: 100%, @height: 80px);
+        padding-right: 40px;
+
+        &.processing, &.canceled {
+            .queryIconWrap {
+                background-color: fadeout(@color-bg-softBlue, 80%);
+            }
+
+            .status.processing {
+                display: block;
+                color: @color-bg-softBlue;
             }
         }
 
-        .divider {
-            .flex(0 0 2px);
-            background-color: @color-modal-dividerGray;
-            border-bottom: 1px solid @color-white;
+        &.done {
+            .queryIconWrap {
+                background-color: fadeout(@color-bg-apple-green, 80%);
+            }
+
+            .status.done {
+                display: block;
+                color: @color-bg-apple-green;
+            }
         }
 
-        .titleSection {
-            .flex(0 0 50px);
+        &.error {
+            .queryIconWrap {
+                background-color: fadeout(@color-bg-tahiti-gold, 80%);
+            }
+
+            .status.error {
+                display: block;
+                color: @color-bg-tahiti-gold;
+            }
         }
 
-        .statusSection {
-            .flex(0 0 100px);
-            margin-bottom: 5px;
+        > div {
+            display: inline-block;
+            float: left;
+        }
+
+        .queryIconWrap {
+            .size(@width: 80px, @height: 100%);
+
+            .queryIcon {
+                font-size: 35px;
+                .center-align;
+            }
+        }
+
+        .op {
+            .size(@width: 200px, @height: 60px);
+            margin-top: 10px;
+            border-right: 1px solid @color-bg-pinkish-grey2;
+            padding-left: 15px;
+            padding-top: 5px;
+            .font(@weight: 700);
+
+            .text {
+                font-size: 16px;
+                margin-bottom: 7px;
+            }
 
             .status {
-                .font(@size: 12px, @weight: bold, @color: @color-text-signout-lightGray);
-
-                .name {
-                    display: inline-block;
-                    .size(@width: 150px);
-                }
+                display: none;
             }
         }
 
-        .outputSection {
-            .text {
-                color: @color-text-signout-lightGray;
-            }
+        .queryProgress {
+            .size(@width: ~"calc(100% - 340px)", @height: 100%);
+            padding: 0 20px;
 
-            .buttonArea {
-                margin: 2px 18px 0 0 ;
+            .progressBar {
+                .vertical-align;
+                .size(@height: 20px);
+            }
+        }
+
+        .actions {
+            .size(@width: 50px, @height: 100%);
+
+            .icon {
                 float: right;
+                color: @color-bg-99-grey;
+                .vertical-align;
 
-                .btn {
-                    margin-right: 12px;
-                    margin-bottom: 10px;
-                    padding-right: 10px;
-                }
-            }
-
-
-            #monitor-inspect {
-                .size(@width: 135px);
-                .icon {
-                    .image("../../images/monitor/queries/view_act.png", 50%, 50%);
-                }
-            }
-
-            #monitor-export {
-                .size(@width: 255px);
-                .icon {
-                    .image("../../images/monitor/queries/export_act.png", 50%, 50%);
+                &:first-child {
+                    margin-left: 10px;
                 }
             }
         }
+    }
 
-        .operationSection {
-            .flex(1 1 auto);
-            .size(@height: ~"calc(100% - 263px)");
-            padding: 0;
+    .infoSection {
+        .size(@height: 180px);
+        padding: 20px 20px 20px 0;
 
+        > div {
+            .size(@width: 50%, @height: 100%);
+            float: left;
+            padding-left: 20px;
 
-            .title {
-                .size(@height: 19px);
-                padding-left: 15px;
+            &:first-child {
+                border-right: 1px solid @color-bg-pinkish-grey2;
             }
+        }
+    }
 
-            .content {
-                .size(@width: 100%, @height: ~"calc(100% - 30px)");
-                background-color: @color-white;
-                box-shadow: inset 0px 2px 2px 1px rgba(0,0,0,0.2);
-                padding: 10px;
-                .auto-selection;
-                overflow: auto;
-                word-break: break-word;
-                // .sqlWrap {
-                //     .size(@width: 100%, @height: 100%);
-                //     .position(relative, @top: 3px, @left: 2px);
-                // }
+    .statusSection {
+        .content {
+            padding: 10px 20px 10px 50px;
 
-                // .lineMarkerArea {
-                //     .size(@width: 40px, @height: 100%);
-                //     float: left;
-                //     background-color: #f7f7f7;
-                // }
-
-                // .sqlArea {
-                //     .size(@width: ~"calc(100% - 40px)", @height: 100%);
-                //     float: left;
-                // }
+            .status {
+                margin-bottom: 5px;
             }
+        }
+    }
+
+    .outputSection {
+        .content {
+            .size(@height: ~"calc(100% - 51px)");
+            padding-top: 10px;
+        }
+
+        .buttonArea {
+            .btn {
+                margin-right: 12px;
+                padding-right: 10px;
+            }
+        }
+
+        #monitor-export {
+            .size(@width: 290px);
+        }
+    }
+
+    .divider {
+        .size(@width: 100%, @height: 1px);
+        background-color: @color-bg-pinkish-grey2;
+    }
+
+    .operationSection {
+        .size(@height: ~"calc(100% - 262px)");
+        padding: 20px;
+
+        .title {
+            .size(@height: 20px);
+            margin-bottom: 12px;
+        }
+
+        .content {
+            .size(@width: 100%, @height: ~"calc(100% - 32px)");
+            background-color: @color-bg-white-three;
+            border: 1px solid @color-bg-pinkish-grey2;
+            padding: 10px;
+            .auto-selection;
+            overflow: auto;
+            word-break: break-word;
         }
     }
 }

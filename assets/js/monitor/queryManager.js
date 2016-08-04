@@ -1,7 +1,6 @@
 window.QueryManager = (function(QueryManager, $) {
     var $queryList;   // $("#monitor-queryList")
     var $queryDetail; // $("#monitor-queryDetail")
-    var $statusDetail; // $queryDetail.find('.statusSection')
     var queryLists = {}; // will be populated by xcQuery objs with transaction id as key
     var queryCheckLists = {}; // setInterval timers
     var notCancelableList = ['load']; // list of nonCancelable operations
@@ -12,7 +11,6 @@ window.QueryManager = (function(QueryManager, $) {
     QueryManager.setup = function() {
         $queryList = $("#monitor-queryList");
         $queryDetail = $("#monitor-queryDetail");
-        $statusDetail = $queryDetail.find('.statusSection');
 
         addEventHandlers();
     };
@@ -47,22 +45,25 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         var mainQuery = new XcQuery({
-            "name"    : name,
-            "fullName": fullName,
-            "time"    : time,
-            "type"    : type,
-            "id"      : id,
-            "numSteps": numSteps,
+            "name"      : name,
+            "fullName"  : fullName,
+            "time"      : time,
+            "type"      : type,
+            "id"        : id,
+            "numSteps"  : numSteps,
             "cancelable": options.cancelable
         });
 
         queryLists[id] = mainQuery;
         var $query = $(getQueryHTML(mainQuery));
-        $queryList.find(".hint").hide()
-                  .end()
-                  .append($query);
+        $queryList.find(".hint").addClass("xc-hidden")
+                .end()
+                .append($query);
         focusOnQuery($query);
-        updateStatusDetail({start: time}, id);
+        updateStatusDetail({
+            "start": time,
+            "op"   : name,
+        }, id, QueryStatus.Run, true);
 
         if (type === "xcQuery") {
             runXcQuery(id, mainQuery, subQueries);
@@ -78,12 +79,12 @@ window.QueryManager = (function(QueryManager, $) {
         var time = new Date().getTime();
 
         var subQuery = new XcSubQuery({
-            "name"    : name,
-            "time"    : time,
-            "query"   : query,
-            "dstTable": dstTable,
-            "id"      : id,
-            "index"   : mainQuery.subQueries.length,
+            "name"     : name,
+            "time"     : time,
+            "query"    : query,
+            "dstTable" : dstTable,
+            "id"       : id,
+            "index"    : mainQuery.subQueries.length,
             "queryName": queryName
         });
         mainQuery.addSubQuery(subQuery);
@@ -111,10 +112,10 @@ window.QueryManager = (function(QueryManager, $) {
         clearInterval(queryCheckLists[id]);
         updateQueryBar(id, 100);
         updateStatusDetail({
-            start: getQueryTime(mainQuery.getTime()),
-            elapsed: getElapsedTimeStr(mainQuery.getElapsedTime()),
-            remaining: CommonTxtTstr.NA,
-            total: getElapsedTimeStr(mainQuery.getElapsedTime())
+            "start"    : getQueryTime(mainQuery.getTime()),
+            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+            "remaining": CommonTxtTstr.NA,
+            "total"    : getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
         updateOutputSection(id);
     };
@@ -179,11 +180,11 @@ window.QueryManager = (function(QueryManager, $) {
         if ($query.hasClass('active')) {
             updateQueryTextDisplay("");
             updateStatusDetail({
-                start: CommonTxtTstr.NA,
-                elapsed: CommonTxtTstr.NA,
-                remaining: CommonTxtTstr.NA,
-                total: CommonTxtTstr.NA,
-            });
+                "start"    : CommonTxtTstr.NA,
+                "elapsed"  : CommonTxtTstr.NA,
+                "remaining": CommonTxtTstr.NA,
+                "total"    : CommonTxtTstr.NA,
+            }, id, QueryStatus.RM);
             updateOutputSection(id, true);
         }
         $query.remove();
@@ -203,10 +204,10 @@ window.QueryManager = (function(QueryManager, $) {
         mainQuery.setElapsedTime();
         updateQueryBar(id, null, false, true);
         updateStatusDetail({
-            start: getQueryTime(mainQuery.getTime()),
-            elapsed: getElapsedTimeStr(mainQuery.getElapsedTime()),
-            remaining: CommonTxtTstr.NA,
-            total: getElapsedTimeStr(mainQuery.getElapsedTime())
+            "start"    : getQueryTime(mainQuery.getTime()),
+            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+            "remaining": CommonTxtTstr.NA,
+            "total"    : getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
         updateOutputSection(id, true);
         $('.query[data-id="' + id + '"]').addClass('canceled')
@@ -250,8 +251,8 @@ window.QueryManager = (function(QueryManager, $) {
     // XX used for testing;
     QueryManager.getAll = function() {
         return ({
-            queryLists: queryLists,
-            queryCheckLists: queryCheckLists
+            "queryLists"     : queryLists,
+            "queryCheckLists": queryCheckLists
         });
     };
 
@@ -438,11 +439,11 @@ window.QueryManager = (function(QueryManager, $) {
             mainQuery.setElapsedTime();
         }
         updateStatusDetail({
-            start: startTime,
-            elapsed: getElapsedTimeStr(mainQuery.getElapsedTime()),
-            remaining: CommonTxtTstr.NA,
-            total: totalTime
-        });
+            "start"    : startTime,
+            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+            "remaining": CommonTxtTstr.NA,
+            "total"    : totalTime
+        }, queryId);
         updateQueryTextDisplay(query);
         updateOutputSection(queryId);
     }
@@ -454,15 +455,39 @@ window.QueryManager = (function(QueryManager, $) {
         $queryDetail.find(".operationSection .content").html(query);
     }
 
-    function updateStatusDetail(info, id) {
+    function updateStatusDetail(info, id, status, reset) {
         if (id != null) {
             // do not update detail if not focused on this query bar
             if (!$queryList.find('.query[data-id="' + id + '"]').hasClass('active')) {
                 return;
             }
         }
+
+        var $statusDetail = $queryDetail.find(".statusSection");
+        var $query = $queryDetail.find(".querySection");
         for (var i in info) {
-            $statusDetail.find('.' + i).find('.text').text(info[i]);
+            if (i === "op") {
+                $query.find(".op .text").text(info[i]);
+            } else {
+                $statusDetail.find("." + i).find(".text").text(info[i]);
+            }
+        }
+
+        $query.removeClass("xc-hidden");
+        if (status != null) {
+            if (status === QueryStatus.RM) {
+                $query.addClass("xc-hidden");
+            } else {
+                $query.removeClass(QueryStatus.Run)
+                        .removeClass(QueryStatus.Done)
+                        .removeClass(QueryStatus.Error)
+                        .removeClass(QueryStatus.Cancel)
+                        .addClass(status);
+            }
+        }
+
+        if (reset) {
+            $query.find(".progressBar").width(0);
         }
     }
 
@@ -552,10 +577,10 @@ window.QueryManager = (function(QueryManager, $) {
                 updateQueryBar(id, res);
                 mainQuery.setElapsedTime();
                 updateStatusDetail({
-                    start: getQueryTime(mainQuery.getTime()),
-                    elapsed: getElapsedTimeStr(mainQuery.getElapsedTime()),
-                    remaining: CommonTxtTstr.NA,
-                    total: CommonTxtTstr.NA
+                    "start"    : getQueryTime(mainQuery.getTime()),
+                    "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+                    "remaining": CommonTxtTstr.NA,
+                    "total"    : CommonTxtTstr.NA
                 }, id);
             }
         })
@@ -579,6 +604,11 @@ window.QueryManager = (function(QueryManager, $) {
         var numSteps = mainQuery.numSteps;
 
         var $progressBar = $query.find(".progressBar");
+        var $extraProgressBar = null;
+        if ($query.hasClass("active")) {
+            $extraProgressBar = $queryDetail.find(".progressBar");
+        }
+
         var newClass = null;
 
         if (progress >= 100 && ((numSteps > 0 && currStep >= numSteps) ||
@@ -600,6 +630,9 @@ window.QueryManager = (function(QueryManager, $) {
         if (parseInt($progressBar.data('step')) !== currStep &&
             currStep !== numSteps) {
             $progressBar.stop().width(0).data('step', currStep);
+            if ($extraProgressBar != null) {
+                $extraProgressBar.stop().width(0);
+            }
         }
 
         // .stop() stops any previous animation;
@@ -613,9 +646,17 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             }
         });
+
+        if ($extraProgressBar != null) {
+            $extraProgressBar.stop().animate({"width": progress}, checkInterval, "linear", function() {
+                if (newClass != null) {
+                    $queryDetail.find(".query").removeClass("processing").addClass(newClass);
+                }
+            });
+        }
         
         var displayedStep;
-        if (currStep <= numSteps) {  
+        if (currStep <= numSteps) {
             displayedStep = Math.min(currStep + 1, numSteps);
             $query.find('.querySteps').text('step ' + displayedStep + ' of ' + numSteps);
         } else if (numSteps === -1) {
@@ -624,23 +665,23 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function getQueryByName(queryName) {
-        for (var i = 0, len = queryLists.length; i < len; i++) {
-            var xcQuery = queryLists[i];
-            if (xcQuery != null && xcQuery.getFullName() === queryName) {
-                return xcQuery;
-            }
-        }
+    // function getQueryByName(queryName) {
+    //     for (var i = 0, len = queryLists.length; i < len; i++) {
+    //         var xcQuery = queryLists[i];
+    //         if (xcQuery != null && xcQuery.getFullName() === queryName) {
+    //             return xcQuery;
+    //         }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    function getQueryList(queryName) {
-        var $query = $queryList.find(".query").filter(function() {
-            return $(this).data("query") === queryName;
-        });
-        return $query;
-    }
+    // function getQueryList(queryName) {
+    //     var $query = $queryList.find(".query").filter(function() {
+    //         return $(this).data("query") === queryName;
+    //     });
+    //     return $query;
+    // }
 
     function getQueryTime(time) {
         return xcHelper.getTime(null, time) + " " +
@@ -670,6 +711,10 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function addEventHandlers() {
+        $("#monitorMenu-query").on("click", ".filterSection .xc-action", function() {
+            filterQuery($(this));
+        });
+
         $queryList.on("click", ".query", function(event) {
             var $clickTarget = $(event.target);
             var id = $clickTarget.closest('.query').data('id');
@@ -681,6 +726,14 @@ window.QueryManager = (function(QueryManager, $) {
             } else {
                 focusOnQuery($(this));
             }
+        });
+
+        $queryDetail.on("click", ".cancelIcon", function() {
+            $queryList.find(".query.active .cancelIcon").click();
+        });
+
+        $queryDetail.on("click", ".deleteIcon", function() {
+            $queryList.find(".query.active .deleteIcon").click();
         });
 
         $("#monitor-inspect").on('click', function() {
@@ -775,10 +828,10 @@ window.QueryManager = (function(QueryManager, $) {
         function focusOutputErrorHandler(type, mainQuery) {
             var typeUpper = type[0].toUpperCase() + type.slice(1);
             var title = xcHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
-               "name": typeUpper 
+                "name": typeUpper
             });
             var desc = xcHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
-               "name": typeUpper 
+                "name": typeUpper
             });
 
             Alert.error(title, desc);
@@ -808,7 +861,6 @@ window.QueryManager = (function(QueryManager, $) {
             
             if (mainQuery.subQueries[currStep].queryName) {
                 var subQuery;
-                var subQueryName;
                 var statusesToIgnore;
                 var cancelSent = false;
                 for (var i = currStep; i < mainQuery.subQueries.length; i++) {
@@ -847,7 +899,7 @@ window.QueryManager = (function(QueryManager, $) {
                 // so that if we miss the table, xcfunctions will stop further
                 // actions
                 var statusesToIgnore = [StatusT.StatusOperationHasFinished];
-                XcalarCancelOp(mainQuery.subQueries[currStep].dstTable, 
+                XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
                                statusesToIgnore)
                 .then(function(ret) {
                     Transaction.isCanceled(id);
@@ -860,6 +912,24 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
+    function filterQuery($el) {
+        if ($el.hasClass("active")) {
+            return;
+        }
+
+        $el.addClass("active").siblings().removeClass("active");
+        var $queries = $queryList.find(".query").addClass("xc-hidden");
+        if ($el.hasClass("error")) {
+            $queryList.find(".query.error").removeClass("xc-hidden");
+        } else if ($el.hasClass("processing")) {
+            $queryList.find(".query.processing").removeClass("xc-hidden");
+        } else if ($el.hasClass("done")) {
+            $queryList.find(".query.done").removeClass("xc-hidden");
+        } else {
+            $queries.removeClass("xc-hidden");
+        }
+    }
+
     function getQueryHTML(xcQuery) {
         var id = xcQuery.getId();
         var time = xcQuery.getTime();
@@ -867,34 +937,35 @@ window.QueryManager = (function(QueryManager, $) {
         var queryName = xcQuery.getFullName();
         var cancelClass = xcQuery.cancelable ? "" : " disabled";
         var html =
-            '<div class="query processing" data-id="' + id +
+            '<div class="xc-query query no-selection processing" data-id="' + id +
                 '" data-query="' + queryName + '">' +
-                '<div class="headBar"></div>' +
                 '<div class="queryInfo">' +
-                    '<div class="name">' +
+                    '<div class="leftPart">' +
+                        '<i class="icon queryIcon processing xi-play-circle"></i>' +
+                        '<i class="icon queryIcon error xi-stop-circle"></i>' +
+                        '<i class="icon queryIcon done xi-pause-circle"></i>' +
+                    '</div>' +
+                    '<div class="middlePart name">' +
                         xcQuery.getName() +
                     '</div>' +
-                    '<div class="date">' +
+                    '<div class="rightPart">' +
+                        '<i class="icon xi-trash xc-action deleteIcon" ' +
+                        'data-container="body" data-toggle="tooltip" ' +
+                        'title="' + TooltipTStr.RemoveQuery + '"></i>' +
+                        '<i class="icon xi-stop xc-action cancelIcon ' +
+                        cancelClass + '" ' +
+                        'data-container="body" data-toggle="tooltip" ' +
+                        'title="' + TooltipTStr.CancelQuery + '"></i>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="queryInfo">' +
+                    '<div class="middlePart date">' +
                         CommonTxtTstr.StartTime + ": " + date +
                     '</div>' +
+                    '<div class="rightPart querySteps"></div>' +
                 '</div>' +
                 '<div class="queryProgress">' +
-                    '<div class="barIcon icon"></div>' +
-                    '<div class="barContainer">' +
-                        '<div class="progressBar" style="width:0%" data-step="0"></div>' +
-                    '</div>' +
-                    '<div class="refreshIcon icon"></div>' +
-                    '<div class="deleteIcon icon" data-container="body" ' +
-                        'data-toggle="tooltip" title="' +
-                        TooltipTStr.RemoveQuery + '"></div>' +
-                    '<div class="divider"></div>' +
-                    // '<div class="inspectIcon icon"></div>' +
-                    '<div class="cancelIcon icon ' + cancelClass +
-                        '" data-container="body" ' +
-                        'data-toggle="tooltip" title="' +
-                        TooltipTStr.CancelQuery + '"></div>' +
-                '</div>' +
-                '<div class="querySteps">' +
+                    '<div class="progressBar" style="width:0%" data-step="0"></div>' +
                 '</div>' +
             '</div>';
         return html;

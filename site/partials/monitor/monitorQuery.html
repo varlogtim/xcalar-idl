@@ -1,0 +1,75 @@
+<div id="monitor-queryDetail" class="cardContainer">
+  <header class="cardHeader">
+    <div class="title"><%= dicts.monitor.DetailQuery %></div>
+  </header>
+  <div class="cardMain">
+    <section class="xc-query query no-selection querySection xc-hidden">
+      <div class="queryIconWrap">
+        <i class="icon queryIcon processing xi-play-circle"></i>
+        <i class="icon queryIcon error xi-stop-circle"></i>
+        <i class="icon queryIcon done xi-pause-circle"></i>
+      </div>
+      <div class="op">
+        <div class="text"></div>
+        <div class="status processing"><%= dicts.query.Processing %></div>
+        <div class="status error"><%= dicts.query.Error %></div>
+        <div class="status done"><%= dicts.query.Done %></div>
+      </div>
+      <div class="queryProgress">
+        <div class="progressBar" style="width: 100%"; data-step="0"></div>
+      </div>
+      <div class="actions">
+        <i class="icon xi-trash xc-action deleteIcon"></i>
+        <i class="icon xi-stop xc-action cancelIcon"></i>
+      </div>
+    </section>
+    <div class="divider"></div>
+    <section class="infoSection">
+      <!-- Status Part -->
+      <div class="statusSection">
+        <header class="title"><%= dicts.monitor.Status %></header>
+        <div class="content">
+          <div class="status start">
+            <span class="name"><%= dicts.monitor.StartedTime %>:</span>
+            <span class="text">N/A</span>
+          </div>
+          <div class="status elapsed">
+            <span class="name"><%= dicts.monitor.ElaspedTime %>:</span>
+            <span class="text">N/A</span>
+          </div>
+          <div class="status remaining">
+            <span class="name"><%= dicts.monitor.RemainTime %>:</span>
+            <span class="text">N/A</span>
+          </div>
+          <div class="status total">
+            <span class="name"><%= dicts.monitor.TotalTime %>:</span>
+            <span class="text">N/A</span>
+          </div>
+        </div>
+      </div>
+      <!-- Output Detail -->
+      <div class="outputSection">
+        <header class="title"><%= dicts.monitor.Output %></header>
+        <div class="content">
+          <span class="text"><%= dicts.monitor.ip %>...</span>
+        </div>
+        <div class="buttonArea">
+          <button id="monitor-inspect" class="btn btnLarge iconBtn btnInactive">
+            <i class="icon xi-show"></i><%= dicts.monitor.VIEWOUTPUT %>
+          </button>
+          <button id="monitor-export" class="btn btnLarge iconBtn btnInactive">
+            <i class="icon xi-back-to-worksheet"></i><%= dicts.monitor.EXPORT %>
+          </button>
+        </div>
+      </div>
+    </section>
+    <div class="divider"></div>
+    <!-- SQL Part -->
+    <section class="operationSection">
+      <div class="title">
+        <h2><%= dicts.common.Op %></h2>
+      </div>
+      <div class="content"></div>
+    </section>
+  </div>
+</div>

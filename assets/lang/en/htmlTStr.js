@@ -240,6 +240,10 @@ module.exports = {
         "LockTable": "prevents table from being deleted",
         "SwitchToListView": "Switch to List view",
         "OpenDFGP": "click to view data flow graph",
+        "AllQueries": "Show all queries",
+        "ErrorQueries": "Show error queries",
+        "RunQueries": "Show running queries",
+        "DoneQueries": "Show finished queries"
     },
 
     "workspaceBar": {
@@ -352,14 +356,15 @@ module.exports = {
         "GTotal": "Global Total",
         "UTotal": "User Total",
         "RecentQueries": "Recent Queries",
+        "Queries": "Queries",
         "QueryHint": "No query added",
         "DetailQuery": "Detail of Query",
-        "STATUS": "STATUS",
+        "Status": "Status",
         "StartedTime": "Started Time",
         "ElaspedTime": "Elapsed Time",
         "RemainTime": "Remaining Time",
         "TotalTime": "Total Time",
-        "OUTPUT": "OUTPUT",
+        "Output": "Output",
         "ip": "in progress",
         "VIEWOUTPUT": "VIEW OUTPUT",
         "EXPORT": "EXPORT OUTPUT TO WORKSHEET",
@@ -375,6 +380,12 @@ module.exports = {
         "memThreshold": "MEMORY UTILIZATION THRESHOLD",
         "graphInterval": "MONITOR GRAPH INTERVAL",
         "MemoryThresholdHint": "Percentage of memory used before warning to delete tables"
+    },
+
+    "query": {
+        "Processing": "Processing",
+        "Done": "Completed",
+        "Error": "Error"
     },
 
     "ds": {

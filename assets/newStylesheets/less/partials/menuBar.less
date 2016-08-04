@@ -210,6 +210,18 @@
     .menuSection {
         .size(100%, 100%);
 
+        &.simple {
+            > .titleSection {
+                .size(@height: 42px);
+
+                div {
+                    .size(@width: 100px);
+                    .position(relative, @top: 7px);
+                    float: left;
+                }
+            }
+        }
+
         > .iconSection {
             .size(@height: 50px);
             padding: 0 15px;

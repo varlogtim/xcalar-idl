@@ -144,14 +144,18 @@ window.MonitorPanel = (function($, MonitorPanel) {
             }
             $monitorPanel.find(".monitorSection.active").removeClass("active");
             var title = MonitorTStr.Monitor + '/';
+            var $menu = $("#monitorMenu");
+            $menu.find(".menuSection").addClass("xc-hidden");
 
             switch ($button.attr("id")) {
                 case ("systemButton"):
                     $("#monitor-system").addClass("active");
+                    $menu.find(".menuSection.monitor").removeClass("xc-hidden");
                     title += MonitorTStr.System;
                     break;
                 case ("queriesButton"):
                     $("#monitor-queries").addClass("active");
+                    $menu.find(".menuSection.query").removeClass("xc-hidden");
                     title += MonitorTStr.Queries;
                     break;
                 case ("setupButton"):

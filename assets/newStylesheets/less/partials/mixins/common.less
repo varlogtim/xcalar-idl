@@ -284,7 +284,7 @@
     display: inline-block;
     border: 0;
     outline: 0;
-    .font(@family: @font-base, @color: @color-white, @weight: 700, @size: 14px, @line-height: 30px);
+    .font(@family: @font-base, @color: @color-white, @weight: 700, @size: 14px, @line-height: 36px);
     letter-spacing: 0.5px;
     .textOverflowOneLine;
     text-align: center;
@@ -940,6 +940,79 @@
         &.folder > .gridIcon {
             .image("../../images/datastore/folder-lg.png", 50%, 50%);
             background-size: 15px 15px;
+        }
+    }
+}
+
+.xc-query {
+    &.processing {
+        .queryIcon {
+            &.processing {
+                display: inline-block;
+                color: @color-bg-softBlue;
+            }
+        }
+
+        .cancelIcon {
+            display: inline-block;
+        }
+
+        .progressBar {
+            background-color: @color-bg-softBlue;
+        }
+    }
+
+    &.canceled {
+        .queryIcon {
+            &.processing {
+                display: inline-block;
+                color: @color-bg-softBlue;
+            }
+        }
+
+        .progressBar {
+            background-color: @color-bg-softBlue;
+        }
+    }
+
+    &.done {
+        .queryIcon {
+            &.done {
+                display: inline-block;
+                color: @color-bg-apple-green;
+            }
+        }
+
+        .progressBar {
+             background-color: @color-bg-apple-green;
+        }
+    }
+
+    &.error {
+        opacity: @opacity-disabled;
+        pointer-events: none;
+
+        .queryIcon {
+            &.error {
+                display: inline-block;
+                color: @color-bg-tahiti-gold;
+            }
+        }
+
+        .progressBar {
+             background-color: @color-bg-tahiti-gold;
+        }
+    }
+
+    .queryIcon {
+        display: none;
+    }
+
+    .cancelIcon {
+        display: none;
+        &.disabled {
+            pointer-events: none;
+            opacity: @opacity-disabled;
         }
     }
 }

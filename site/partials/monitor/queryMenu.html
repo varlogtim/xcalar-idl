@@ -1,0 +1,25 @@
+<!-- Monitor Query Menu -->
+<header class="titleSection">
+  <div><%= dicts.monitor.Queries %></div>
+  <i class="minimizeBtn icon xi-close fa-15"></i>
+</header>
+<div id="monitorMenu-query" class="mainSection">
+  <div class="filterSection">
+    <div class="xc-action iconWrap all active" title="<%= dicts.TooltipTStr.AllQueries %>" data-toggle="tooltip" data-container="body">
+      <i class="icon fa-15 xi-show-all"></i>
+    </div>
+    <div class="xc-action iconWrap error" title="<%= dicts.TooltipTStr.ErrorQueries %>" data-toggle="tooltip" data-container="body">
+      <i class="icon fa-15 xi-error done"></i>
+    </div>
+    <div class="xc-action iconWrap processing" title="<%= dicts.TooltipTStr.RunQueries %>" data-toggle="tooltip" data-container="body">
+      <i class="icon fa-15 xi-progress run"></i>
+    </div>
+    <div class="xc-action iconWrap done" title="<%= dicts.TooltipTStr.DoneQueries %>" data-toggle="tooltip" data-container="body">
+      <i class="icon fa-15 xi-success done"></i>
+    </div>
+  </div>
+  <!-- queryList section -->
+  <div id="monitor-queryList" class="queryListSection">
+    <div class="hint no-selection"><%= dicts.monitor.QueryHint %></div>
+  </div>
+</div>

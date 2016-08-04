@@ -1,8 +1,8 @@
 window.BottomMenu = (function($, BottomMenu) {
     var delay = 200;
     var clickable = true;
-    var $menuPanel //$("#bottomMenu");
-    var slideTimeout;
+    var $menuPanel; //$("#bottomMenu");
+    // var slideTimeout;
     var isMenuOpen;
 
     BottomMenu.setup = function() {
@@ -42,7 +42,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
     BottomMenu.isMenuOpen = function() {
         return (isMenuOpen);
-    }
+    };
 
     // setup buttons to open bottom menu
     function setupButtons() {
@@ -97,7 +97,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
         $menuPanel.resizable({
             "handles"  : "n, e, s, w, se",
-            "minWidth" : 264,
+            "minWidth" : 296,
             "minHeight": 300,
             "start"    : function() {
                 if (!$menuPanel.hasClass('poppedOut')) {
@@ -204,8 +204,11 @@ window.BottomMenu = (function($, BottomMenu) {
         if (topMenuOpening) {
             noAnim();
         } else if ($('#workspacePanel').hasClass('active')) {
-            moveTableTitles(null, {offset: -285, menuAnimating: true,
-                                    animSpeed: delay});
+            moveTableTitles(null, {
+                "offset"       : -285,
+                "menuAnimating": true,
+                "animSpeed"    : delay
+            });
         }
     }
 
@@ -225,7 +228,7 @@ window.BottomMenu = (function($, BottomMenu) {
                 closeMenu();
             }
         } else {
-            // bottom menu was closed or it was open and we're switching to 
+            // bottom menu was closed or it was open and we're switching to
             // this section
             var wasOpen = $menuPanel.hasClass('open');
             $sliderBtns.removeClass("active");
@@ -248,8 +251,11 @@ window.BottomMenu = (function($, BottomMenu) {
             // main menu was not open && bottom menu was not open
             if (!isBottomMenuOpening && !wasOpen) {
                 if ($('#workspacePanel').hasClass('active')) {
-                    moveTableTitles(null, {offset: 285, menuAnimating: true,
-                                animSpeed: delay});
+                    moveTableTitles(null, {
+                        "offset"       : 285,
+                        "menuAnimating": true,
+                        "animSpeed"    : delay
+                    });
                 }
             } else {
                 $('#container').addClass('noMenuAnim');

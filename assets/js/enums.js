@@ -163,6 +163,14 @@ var SetupStatus = {
     "Setup": "Setup"
 };
 
+var QueryStatus = {
+    "Run": "processing",
+    "Done": "done",
+    "Error": "error",
+    "Cancel": "canceled",
+    "RM": "removed"
+};
+
 var SQLType = {
     Fail: "fail handler",
     Error: "error",

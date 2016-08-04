@@ -11,72 +11,7 @@
     <!-- End Of System Section -->
     <!-- Queries Section -->
     <section id="monitor-queries" class="subPanel monitorSection">
-      <!-- Left Section, list of queries -->
-      <div class="leftSection">
-        <section class="titleSection">
-          <h1><%= dicts.monitor.RecentQueries %></h1>
-        </section>
-        <!-- Queery list Section -->
-        <section id="monitor-queryList" class="queryListSection">
-          <div class="hint no-selection"><%= dicts.monitor.QueryHint %></div>
-        </section>
-      </div>
-      <!-- Right section, queries detatils -->
-      <div id="monitor-queryDetail" class="rightSection">
-        <section class="titleSection">
-          <h1><%= dicts.monitor.DetailQuery %></h1>
-        </section>
-        <!-- Status Part -->
-        <section class="statusSection">
-          <div class="title">
-            <h2><%= dicts.monitor.STATUS %></h2>
-          </div>
-          <div class="conent">
-            <div class="status start">
-              <span class="name"><%= dicts.monitor.StartedTime %>:</span>
-              <span class="text">N/A</span>
-            </div>
-            <div class="status elapsed">
-              <span class="name"><%= dicts.monitor.ElaspedTime %>:</span>
-              <span class="text">N/A</span>
-            </div>
-            <div class="status remaining">
-              <span class="name"><%= dicts.monitor.RemainTime %>:</span>
-              <span class="text">N/A</span>
-            </div>
-            <div class="status total">
-              <span class="name"><%= dicts.monitor.TotalTime %>:</span>
-              <span class="text">N/A</span>
-            </div>
-          </div>
-        </section>
-        <div class="divider"></div>
-        <!-- Output Detail -->
-        <section class="outputSection">
-          <div class="title">
-            <h2><%= dicts.monitor.OUTPUT %></h2>
-          </div>
-          <div class="content">
-            <span class="text"><%= dicts.monitor.ip %>...</span>
-          </div>
-          <div class="buttonArea">
-            <button id="monitor-inspect" class="btn btnLarge iconBtn btnInactive">
-              <span class="icon"></span><%= dicts.monitor.VIEWOUTPUT %>
-            </button>
-            <button id="monitor-export" class="btn btnLarge iconBtn btnInactive">
-              <span class="icon"></span><%= dicts.monitor.EXPORT %>
-            </button>
-          </div>
-        </section>
-        <div class="divider"></div>
-        <!-- SQL Part -->
-        <section class="operationSection">
-          <div class="title">
-            <h2><%= dicts.common.OP %></h2>
-          </div>
-          <div class="content"></div>
-        </section>
-      </div>
+      include "monitorQuery.html"
     </section>
     <!-- End Of Queries Section -->
     <!-- Setup Section -->

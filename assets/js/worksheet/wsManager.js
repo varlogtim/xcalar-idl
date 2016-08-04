@@ -1494,7 +1494,7 @@ window.WSManager = (function($, WSManager) {
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +
                 ' spellcheck="false" value="' + name + '" disabled>' +
-                '<i class="wsMenu clickable icon xi-worksheet fa-15"></i>' +
+                '<i class="wsMenu clickable icon xi-ellipsis-h fa-15"></i>' +
             '</li>';
 
         return html;
