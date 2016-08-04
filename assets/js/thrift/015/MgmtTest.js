@@ -274,6 +274,8 @@
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
         loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
+        loadArgs.csv.quoteDelim = XcalarApiDefaultQuoteDelimT;
+        loadArgs.csv.linesToSkip = 0;
         loadArgs.csv.isCRLF = false;
 
         xcalarLoad(thriftHandle, "file://" + qaTestDir +
@@ -337,8 +339,8 @@
         .done(function(result) {
             printResult(result);
             loadOutput = result;
-            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'";
-            var errFile = "fileName: nfs://" + qaTestDir + "/edgeCases/bad.json";
+            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'(Failed to parse data format value)";
+            var errFile = "nfs://" + qaTestDir + "/edgeCases/bad.json";
             if (loadOutput.errorString == errStr &&
                 loadOutput.errorFile == errFile) {
                 test.pass();
@@ -951,8 +953,6 @@
             for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
                 stat = statOutput.stats[i];
 
-                console.log("\tstat[" + i.toString() + "].threadName = " +
-                        stat.threadName);
                 console.log("\tstat[" + i.toString() + "].statName = " +
                         stat.statName);
                 console.log("\tstat[" + i.toString() + "].statValue = " +
@@ -994,15 +994,15 @@
     }
 
     function testGetStatsByGroupId(test) {
-        xcalarGetStatsByGroupId(thriftHandle, 0, [1])
+        xcalarGetStatsByGroupId(thriftHandle, [0,1,2,3], [1,2])
         .then(function(statOutput) {
             printResult(statOutput);
 
+            test.assert(statOutput.numStats == 40, undefined,
+                        "Wrong number of stats returned");
             for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
                 stat = statOutput.stats[i];
 
-                console.log("\tstat[" + i.toString() + "].threadName = " +
-                        stat.threadName);
                 console.log("\tstat[" + i.toString() + "].statName = " +
                         stat.statName);
                 console.log("\tstat[" + i.toString() + "].statValue = " +
@@ -1014,7 +1014,6 @@
                 console.log("\tstat[" + i.toString() + "].groupId = " +
                         stat.groupId.toString());
             }
-            test.assert(statOutput.numStats, undefined, "No stats returned");
             test.pass();
         })
         .fail(test.fail);
@@ -1061,10 +1060,11 @@
                             makeResultSetOutput1.resultSetId, 5)
         .then(function(resultNextOutput1) {
             printResult(resultNextOutput1);
+            test.assert(resultNextOutput1.numKvPairs > 0)
 
-            for (var i = 0, kvPair = null; i < resultNextOutput1.numEntries;
+            for (var i = 0, kvPair = null; i < resultNextOutput1.numKvPairs;
                  i++) {
-                kvPair = resultNextOutput1.entries[i];
+                kvPair = resultNextOutput1.kvPair[i];
 
                 console.log("\trecord[" + i.toString() + "].key = " +
                             kvPair.key);
@@ -1096,10 +1096,11 @@
                             makeResultSetOutput2.resultSetId, 5)
         .then(function(resultNextOutput2) {
             printResult(resultNextOutput2);
+            test.assert(resultNextOutput2.numKvPairs > 0);
 
-            for (var i = 0, kvPair = null; i < resultNextOutput2.numEntries;
+            for (var i = 0, kvPair = null; i < resultNextOutput2.numKvPairs;
                  i ++) {
-                kvPair = resultNextOutput2.entries[i];
+                kvPair = resultNextOutput2.kvPair[i];
                 console.log("\trecord[" + i.toString() + "].key = " +
                             kvPair.key);
                 console.log("\trecord[" + i.toString() + "].value = " +
@@ -1115,10 +1116,11 @@
                             makeResultSetOutput3.resultSetId, 5)
         .then(function(resultNextOutput3) {
             printResult(resultNextOutput3);
+            test.assert(resultNextOutput3.numKvPairs > 0);
 
-            for (var i = 0, kvPair = null; i < resultNextOutput3.numEntries;
+            for (var i = 0, kvPair = null; i < resultNextOutput3.numKvPairs;
                  i++) {
-                kvPair = resultNextOutput3.entries[i];
+                kvPair = resultNextOutput3.kvPair[i];
                 console.log("\trecord[" + i.toString() + "].key = " +
                             kvPair.key);
                 console.log("\trecord[" + i.toString() + "].value = " +
@@ -1145,20 +1147,87 @@
     }
 
     function testFilter(test) {
-        test.trivial(xcalarFilter(thriftHandle, "gt(votes.funny, 900)",
-                                  origTable, "yelp/user-votes.funny-gt900"));
+        xcalarFilter(thriftHandle, "gt(votes.funny, 900)", origTable,
+                     "yelp/user-votes.funny-gt900")
+        .then(function(ret) {
+              test.assert(ret.tableName == "yelp/user-votes.funny-gt900");
+              return xcalarMakeResultSetFromTable(thriftHandle, "yelp/user-votes.funny-gt900");
+        })
+        .then(function(ret) {
+              test.assert(ret.numEntries == 488);
+              test.pass();
+        })
+        .fail(test.fail);
     }
 
     function testProject(test) {
-        test.trivial(xcalarProject(thriftHandle, 2, ["votes.funny", "user_id"],
-                     origTable, "yelp/user-votes.funny-projected"));
+        xcalarProject(thriftHandle, 2, ["votes.funny", "user_id"],
+                      origTable, "yelp/user-votes.funny-projected")
+        .then(function(ret) {
+            test.assert(ret.tableName == "yelp/user-votes.funny-projected");
+            return xcalarMakeResultSetFromTable(thriftHandle,
+                                                "yelp/user-votes.funny-projected");
+        })
+        .then(function(ret) {
+            test.assert(ret.metaOutput.numValues == 1);
+            test.assert(ret.metaOutput.numImmediates == 0);
+            return xcalarApiMap(thriftHandle, "votesFunnyPlusUseful",
+                                "add(votes.funny, votes.useful)",
+                                "yelp/user-votes.funny-gt900",
+                                "yelp/user-votes.funny-plus-useful-map");
+        })
+        .then(function(ret) {
+            test.assert(ret.tableName == "yelp/user-votes.funny-plus-useful-map");
+            return xcalarMakeResultSetFromTable(thriftHandle,
+                                                "yelp/user-votes.funny-plus-useful-map");
+        })
+        .then(function(ret) {
+            test.assert(ret.metaOutput.numValues == 2);
+            test.assert(ret.metaOutput.numImmediates == 1);
+            return xcalarApiMap(thriftHandle, "complimentsFunnyPlusCute",
+                                "add(compliments.funny, compliments.cute)",
+                                "yelp/user-votes.funny-plus-useful-map",
+                                "yelp/user-compliments.funny-plus-cute-map");
+        })
+        .then(function(ret) {
+            test.assert(ret.tableName == "yelp/user-compliments.funny-plus-cute-map");
+            return xcalarMakeResultSetFromTable(thriftHandle,
+                                                "yelp/user-compliments.funny-plus-cute-map");
+        })
+        .then(function(ret) {
+            test.assert(ret.metaOutput.numValues == 3);
+            test.assert(ret.metaOutput.numImmediates == 2);
+            return xcalarProject(thriftHandle, 2,
+                                 ["votesFunnyPlusUseful", "complimentsFunnyPlusCute"],
+                                 "yelp/user-compliments.funny-plus-cute-map",
+                                 "yelp/projected_two_immediate_columns");
+        })
+        .then(function(ret) {
+            test.assert(ret.tableName == "yelp/projected_two_immediate_columns");
+            return xcalarMakeResultSetFromTable(thriftHandle,
+                                                "yelp/projected_two_immediate_columns");
+        })
+        .then(function(ret) {
+            test.assert(ret.metaOutput.numValues == 2);
+            test.assert(ret.metaOutput.numImmediates == 2);
+            test.pass();
+        })
+        .fail(test.fail);
     }
 
     function testJoin(test) {
+        var leftRenameMap = [];
+        var map = new XcalarApiRenameMapT();
+        map.oldName = yelpUserDataset;
+        map.newName = "leftDataset";
+        map.type = DfFieldTypeT.DfFatptr;
+        leftRenameMap.push(map);
+
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
                    "yelp/user-votes.funny-gt900",
                    "yelp/user-dummyjoin",
-                   JoinOperatorT.InnerJoin)
+                   JoinOperatorT.InnerJoin,
+                   leftRenameMap)
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
@@ -1347,11 +1416,62 @@
         .fail(test.fail);
     }
 
-    function testApiMap(test) {
-        test.trivial(xcalarApiMap(thriftHandle, "votesFunnyPlusUseful",
-                     "add(votes.funny, votes.useful)",
-                     "yelp/user-votes.funny-gt900",
-                     "yelp/user-votes.funny-map"));
+    function testMap(test) {
+        var resultSetFromMapTable = -1;
+        xcalarApiMap(thriftHandle, "votedCoolTimesFunny",
+                     "mult(votes.cool, votes.funny)",
+                     origTable,
+                     "yelp/user-votes.cool-times-funny-map")
+        .then(function(ret) {
+            test.assert(ret.tableName === "yelp/user-votes.cool-times-funny-map")
+            // sorting the values to be able to predictably assert on the return from map
+            // NOTE: sorting must be done AFTER map command - sorting won't be preserved
+            // if we do sort, *then* map!!
+            return xcalarIndexTable(thriftHandle, ret.tableName,
+                                    "review_count", "yelp/voted.cool-times-funny-sortedby-most_reviewed", "",
+                                    XcalarOrderingT.XcalarOrderingDescending)
+        })
+        .then(function(ret) {
+            test.assert(ret.tableName === "yelp/voted.cool-times-funny-sortedby-most_reviewed");
+            return xcalarMakeResultSetFromTable(thriftHandle,
+                                                ret.tableName);
+        })
+        .then(function(ret) {
+            test.assert(ret.numEntries === 70817);
+            resultSetFromMapTable = ret;
+            return xcalarResultSetAbsolute(thriftHandle,
+                                           ret.resultSetId, 0)
+        })
+        .then(function(ret) {
+            return xcalarResultSetNext(thriftHandle,
+                                       resultSetFromMapTable.resultSetId, 10)
+        })
+        .then(function(ret) {
+            // assuming this dataset won't change
+            var expected_review_counts = [3286, 3195, 3166, 2826, 2819, 2603, 2548, 2471, 2454, 2431];
+
+            test.assert(ret.numKvPairs > 0);
+
+            var prevVal = JSON.parse(ret.kvPair[0].value);
+            console.log(prevVal.review_count);
+
+            for (var i = 0, kvPair = null; i < ret.numKvPairs;
+                 i ++) {
+                kvPair = ret.kvPair[i];
+                console.log("\trecord[" + i.toString() + "].key = " +
+                            kvPair.key);
+                console.log("\trecord[" + i.toString() + "].value = " +
+                            kvPair.value);
+                var curVal = JSON.parse(kvPair.value);
+                test.assert(curVal.review_count == kvPair.key); // indexed by "review_count"
+                test.assert(curVal.review_count == expected_review_counts[i]); // hard coded expectation
+                test.assert(curVal.review_count <= prevVal.review_count); // sorted descending
+                test.assert((curVal.votes.cool * curVal.votes.funny) == curVal.votedCoolTimesFunny);
+                prevVal = curVal;
+            }
+            test.pass();
+      })
+      .fail(test.fail);
     }
 
     function testApiGetRowNum(test) {
@@ -1800,8 +1920,7 @@
 
     function testApiFilterLongEvalString(test) {
         var evalString = "add(votes.funny, 1)";
-        while (evalString.length <=
-               XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+        while (evalString.length <= XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
             evalString = "add(1, " + evalString + ")";
         }
 
@@ -2756,7 +2875,7 @@
     addTestCase(testMakeResultSetFromAggregate, "result set of aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testResultSetNextAggregate, "result set next of aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFreeResultSetAggregate, "result set free of aggregate", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testApiMap, "map", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testMap, "map", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testAddExportTarget, "add export target", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");

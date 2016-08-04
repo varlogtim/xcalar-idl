@@ -79,9 +79,11 @@ XcalarApisT = {
   'XcalarApiCancelOp' : 70,
   'XcalarApiGetPerNodeOpStats' : 71,
   'XcalarApiGetOpStats' : 72,
-  'XcalarApiPreview' : 73,
-  'XcalarApiExportRetina' : 74,
-  'XcalarApiFunctionInvalid' : 75
+  'XcalarApiErrorpointSet' : 73,
+  'XcalarApiErrorpointList' : 74,
+  'XcalarApiPreview' : 75,
+  'XcalarApiExportRetina' : 76,
+  'XcalarApiFunctionInvalid' : 77
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -156,7 +158,9 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 70 : 'XcalarApiCancelOp',
 71 : 'XcalarApiGetPerNodeOpStats',
 72 : 'XcalarApiGetOpStats',
-73 : 'XcalarApiPreview',
-74 : 'XcalarApiExportRetina',
-75 : 'XcalarApiFunctionInvalid'
+73 : 'XcalarApiErrorpointSet',
+74 : 'XcalarApiErrorpointList',
+75 : 'XcalarApiPreview',
+76 : 'XcalarApiExportRetina',
+77 : 'XcalarApiFunctionInvalid'
 };
