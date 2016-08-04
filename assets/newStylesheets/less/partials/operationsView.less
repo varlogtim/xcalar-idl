@@ -35,7 +35,7 @@
 
 	.semiHidden {
 		height: 0px !important;
-		overflow: hidden;
+		overflow: hidden !important;
 	}
 
 	.mainContent {
@@ -215,6 +215,9 @@
 			visibility: hidden;
 			overflow: hidden;
 			height: 40px;
+			.row {
+				display: none;
+			}
 		}
 
 		.row {
@@ -261,7 +264,7 @@
 
 	            ul {
 	                position: fixed;
-	                width: 222px;
+	                width: 211px;
 	                margin-left: 38px;
 	                margin-top: -5px;
 	            }
@@ -354,8 +357,18 @@
 
 	.addArgWrap {
 		padding-left: 6px;
+		.btn {
+			.size(@listHeight, @listHeight);
+    		padding: 0px;
+    		line-height: @listHeight;
+			.icon {
+				line-height: @listHeight;
+				font-size: 14px;
+			}
+		}
 		.text {
-			font-size: 14px;
+			font-size: 13px;
+			margin-left: 6px;
 		} 
 	}
 

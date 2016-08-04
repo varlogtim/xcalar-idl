@@ -276,16 +276,19 @@
             }
         }
         .counter {
-            .position(absolute, @top: 9px, @right: 94px);
+            .position(absolute, @top: 9px, @right: 97px);
             .size (@height: 30px);
             .font(@color: @color-text-graySoft, @size: 14px);
             pointer-events: none;
         }
 
         .arrows {
-            right: 40px;
-            top: 7px;
+            right: 38px;
+            top: 9px;
             z-index: 3; // codeMirror has z-index of 2
+            .downArrow .icon {
+                margin-left: 0px;
+            }
         }
 
         .closeBox, .counter, .arrows {

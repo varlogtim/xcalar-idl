@@ -2651,9 +2651,11 @@ window.ColManager = (function($, ColManager) {
     function searchColNames(val, searchBar, initialTableId) {
         val = val.toLowerCase();
         var $functionArea = $('#functionArea');
-        var $headerInputs = $('.xcTable:visible').find('.editableHead');
-        var $searchableFields = $headerInputs.add($('.tableTitle:visible')
-                                             .find('.text'));
+        var $headerInputs = $('.xcTableWrap:visible:not(.tableOpSection)')
+                            .find('.editableHead');
+        var $tableTitles = $('.xcTableWrap:visible:not(.tableOpSection)')
+                            .find('.tableTitle .text');
+        var $searchableFields = $headerInputs.add($tableTitles);
         if (val === "") {
             searchBar.clearSearch(function() {
                 $('.xcTable:visible').find('.selectedCell')

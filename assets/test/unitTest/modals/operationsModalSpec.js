@@ -1,9 +1,9 @@
-describe('OperationsModal', function() {
+describe('OperationsView', function() {
 
     describe('function hasFuncFormat', function() {
         var func;
         before(function() {
-            func = OperationsModal.__testOnly__.hasFuncFormat;
+            func = OperationsView.__testOnly__.hasFuncFormat;
         });
 
         it ('hasFuncFormat(arg) should return correctly', function() {
@@ -33,7 +33,7 @@ describe('OperationsModal', function() {
     describe('function hasUnescapedParens', function() {
         var func;
         before(function() {
-            func = OperationsModal.__testOnly__.hasUnescapedParens;
+            func = OperationsView.__testOnly__.hasUnescapedParens;
         });
 
         it ('hasUnescapedParens(arg) should return correctly', function() {
@@ -67,9 +67,9 @@ describe('OperationsModal', function() {
         var someColumnNames = ["yelping_since", "friends", "compliments", "review_count", "four", "mixVal", "average_stars", "DATA"];
 
         before(function(done) {
-            getExistingTypes = OperationsModal.__testOnly__.getExistingTypes;
-            argumentFormatHelper = OperationsModal.__testOnly__.argumentFormatHelper;
-            parseType = OperationsModal.__testOnly__.parseType;
+            getExistingTypes = OperationsView.__testOnly__.getExistingTypes;
+            argumentFormatHelper = OperationsView.__testOnly__.argumentFormatHelper;
+            parseType = OperationsView.__testOnly__.parseType;
             $operationsModal = $('#operationsModal');
             $('.xcTableWrap').each(function() {
                 if ($(this).find('.tableName').val().indexOf('unitTest-fakeYelp') > -1) {
@@ -78,10 +78,10 @@ describe('OperationsModal', function() {
                 }
             });
 
-            OperationsModal.show(tableId, 1, 'group by')
+            OperationsView.show(tableId, 1, 'group by')
             .then(function() {
                 // console.log(tableId);
-                operatorsMap = OperationsModal.getOperatorsMap();
+                operatorsMap = OperationsView.getOperatorsMap();
                 setTimeout(function() {
                     $categoryInput = $('#categoryList').find('input');
                     $functionInput = $('#functionList').find('input');
@@ -284,7 +284,7 @@ describe('OperationsModal', function() {
             var arg1Type;
             var arg2Type;
             var hasValidTypes;
-            var hasValidColPrefix = OperationsModal.__testOnly__.hasValidColPrefix;
+            var hasValidColPrefix = OperationsView.__testOnly__.hasValidColPrefix;
 
             expect(testedGBTypes).to.not.include(groupByType);
             $functionInput.val(groupByType).trigger(fakeEvent.enter);

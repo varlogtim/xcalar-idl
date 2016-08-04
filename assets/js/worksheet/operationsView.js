@@ -1,4 +1,4 @@
-window.OperationsModal = (function($, OperationsModal) {
+window.OperationsView = (function($, OperationsView) {
     var $operationsModal; // $('#operationsModal')
     var $operationsView; // $('#operationsView');
     var $categoryInput;   // $('#categoryList').find('.autocomplete')
@@ -11,7 +11,6 @@ window.OperationsModal = (function($, OperationsModal) {
     var $genFunctionsMenus;   // $('.genFunctionsMenu')
     var $functionsUl;     // $genFunctionsMenu.find('ul')
     var $functionsUls;     // $genFunctionsMenus.find('ul')
-    var $menus;           // $('#categoryMenu, #functionsMenu')
     var $autocompleteInputs; // $operationsModal.find('.autocomplete');
     var $argInputs;
     var $activeOpSection; // $operationsView.find('.map or .filter or .groupby etc')
@@ -54,26 +53,27 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     // XXX can it be removed?
-    OperationsModal.getOperatorsMap = function() {
+    OperationsView.getOperatorsMap = function() {
         return (operatorsMap);
     };
 
-    OperationsModal.setup = function() {
+    OperationsView.setup = function() {
         $operationsModal = $('#operationsModal');
         $operationsView = $('#operationsView');
         $categoryInput = $('#categoryList').find('.autocomplete');
         $categoryUl = $('#categoryMenu').find('ul');
-        $functionInput = $operationsView.find('.functionInput');
+        $functionInput = $operationsView.find('.functionsInput');
         $genFunctionsMenu = $operationsView.find('.genFunctionsMenu');
         $genFunctionsMenus = $operationsView.find('.genFunctionsMenu');
         $functionsUl = $genFunctionsMenu.find('ul');
         $functionsUls = $genFunctionsMenus.find('ul');
-        $menus = $('#categoryMenu, #functionsMenu');
 
         // xi2
         
         $categoryList = $operationsView.find('.categoryMenu');
         $functionsList = $operationsView.find('.functionsMenu');
+
+        // GENERAL LISTENERS, not inputs
 
         modalHelper = new ModalHelper($operationsModal, {
             "noResize": true
@@ -92,8 +92,36 @@ window.OperationsModal = (function($, OperationsModal) {
             scrollTimeout = setTimeout(function() {
                 scrolling = false;
             }, scrollTime);
-        })
+        });
 
+        $operationsView.find('.cancel, .close').on('click', function() {
+            closeOpSection();
+        });
+
+        $operationsView.on('click', '.closeGroup', function() {
+            removeFilterGroup($(this).closest('.group'));
+        }); 
+
+
+        $operationsView.find('.submit').on('click', submitForm);
+
+
+        // INPUT AND DROPDOWN LISTENERS
+
+        // for map
+        $categoryList.on('click', 'li', function() {
+            updateFunctionsList($(this));
+        });
+
+        // for map
+        $functionsList.on('click', 'li', function() {
+            var $li = $(this);
+            $li.siblings().removeClass('active');
+            $li.addClass('active');
+            updateArgumentSection($li, 0);
+        });
+
+        // .functionsInput
         $operationsView.on({
             'mousedown': function(event) {
                 gMouseEvents.setMouseDownTarget($(this));
@@ -129,7 +157,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
 
                     if (value === "") {
-                        clearInput(inputNum);
+                        clearFunctionsInput($input.data('fninputnum')); 
                         return;
                     }
                     $input.blur();
@@ -161,8 +189,13 @@ window.OperationsModal = (function($, OperationsModal) {
                 $input.data('value', value);
 
          
-                if ($input.siblings('.list').find('li').length > 0) {
-                    clearInput(inputNum, true);
+                // xi2 not sure what this is for
+                // if ($input.siblings('.list').find('li').length > 0) {
+                //     clearFunctionsInput($input.data('fninputnum'), true);
+                //     return;
+                // }
+                if (!isOperationValid($input.data('fninputnum'))) {
+                    clearFunctionsInput($input.data('fninputnum'), true);
                     return;
                 }
 
@@ -172,23 +205,109 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }, '.functionsInput');
 
-        // for map
-        $categoryList.on('click', 'li', function() {
-            updateFunctionsList($(this));
-        });
-
-        // for map
-        $functionsList.on('click', 'li', function() {
-            var $li = $(this);
-            $li.siblings().removeClass('active');
-            $li.addClass('active');
-            updateArgumentSection($li, 0);
-        });
 
         $lastInputFocused = $operationsView.find('.arg:first');
+
         $operationsView.on('focus', '.arg', function() {
             $lastInputFocused = $(this);
         });
+
+              // click icon to toggle functions list
+
+        $operationsView.on('click', '.functionsList .dropdown', function() {
+            var $list = $(this).siblings('.list');
+            if ($list.is(':visible')) {
+                hideDropdowns();
+            } else {
+
+                hideDropdowns();
+                $operationsView.find('li.highlighted')
+                                .removeClass('highlighted');
+                // show all list options when use icon to trigger
+                $list.show().find('li').sort(sortHTML)
+                                       .prependTo($list.children('ul'))
+                                       .show();
+                $list.siblings('input').focus();
+ 
+                functionsListScroller.showOrHideScrollers();
+
+                var fnInputNum = parseInt($list.siblings('input').data('fninputnum'));
+                functionsListScrollers[fnInputNum].showOrHideScrollers();
+            }
+        });
+
+        $operationsView.on('mousedown', '.functionsList .dropdown', function() {
+            var $list = $(this).siblings('.list');
+            if ($list.is(':visible')) {
+                allowInputChange = false;
+            } else {
+                allowInputChange = true;
+            }
+        });
+
+        // only for category list and function menu list
+        $operationsView.on({
+            'mousedown': function() {
+                // do not allow input change
+                allowInputChange = false;
+            },
+            'mouseup': function(event) {
+                if (event.which !== 1) {
+                    return;
+                }
+                listMouseup(event, $(this));
+            }
+        }, '.functionsList .list li');
+
+        // for functions dropdown list
+        function listMouseup(event, $li) {
+            allowInputChange = true;
+            event.stopPropagation();
+            var value = $li.text();
+            var $input = $li.closest('.list').siblings('.autocomplete');
+            var fnInputNum = $input.data('fninputnum');
+            var originalInputValue = $input.val();
+            hideDropdowns();
+
+            // value didn't change && argSection is inactive (not showing)
+            if (originalInputValue === value && 
+                $activeOpSection.find('.group').eq(fnInputNum)
+                                .find('.argsSection.inactive').length === 0) {
+                return;
+            }
+
+            $input.val(value);
+
+            if (value === $genFunctionsMenu.data('category')) {
+                return;
+            }
+
+            $input.data('value', value.trim().toLowerCase());
+            enterFunctionsInput(fnInputNum);
+        }
+
+        // for all lists (including hint li in argument table)
+        $operationsView.on({
+            'mouseenter': function() {
+                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
+                    $(this).closest('.list').removeClass('disableMouseEnter');
+                    return;
+                }
+                $operationsView.find('li.highlighted')
+                                .removeClass('highlighted');
+                $(this).addClass('highlighted');
+                $(this).closest('.list').addClass('hovering');
+            },
+            'mouseleave': function() {
+                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
+                    return;
+                }
+                $(this).removeClass('highlighted');
+                $(this).closest('.list').removeClass('hovering');
+            }
+        }, '.list li');
+
+        var argumentTimer;
 
         // .arg (argument input)
         $operationsView.on({
@@ -248,7 +367,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             },
             'mousedown': function() {
-                $menus.hide();
+                $genFunctionsMenus.hide();
                 var $activeInput = $(this);
                 // close other input's open lists when active input is clicked
                 $('.openList').each(function() {
@@ -262,7 +381,6 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }, '.arg');
 
-         // toggle between mininizeTable and unMinimizeTable
         $operationsView.on('click', '.argIconWrap', function() {
             var $input = $(this).siblings('input');
             $input.focus();
@@ -274,38 +392,12 @@ window.OperationsModal = (function($, OperationsModal) {
             event.stopPropagation();
         });
 
-        $operationsView.find('.cancel, .close').on('click', function() {
-            closeOpSection();
-        });
-
-        $operationsView.on('click', '.closeGroup', function() {
-            removeFilterGroup($(this).closest('.group'));
-        }); 
-
 
         $operationsView.on('dblclick', 'input', function() {
             this.setSelectionRange(0, this.value.length);
         });
 
-        $operationsView.on('click', '.checkbox', function() {
-            var $checkbox = $(this);
-            if ($checkbox.hasClass('checked')) {
-                $checkbox.removeClass('checked');
-                // we want it to be :visible for jquery selector purposes in our code
-                $checkbox.parent().siblings('.inputWrap').removeClass('semiHidden');
-            } else {
-                $checkbox.addClass('checked');
-                $checkbox.parent().siblings('.inputWrap').addClass('semiHidden');
-            }
-       
-            checkIfStringReplaceNeeded();
-        });
-
-        $operationsView.find('.submit').on('click', submitForm);
-
-
         // add filter arguments button
-        
         $operationsView.find('.addFilterArg').click(function() {
             addFilterGroup();
         });
@@ -313,74 +405,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $autocompleteInputs = $operationsView.find('.autocomplete');
         
-
-        // click icon to toggle functions list
-
-        $operationsView.on('click', '.functionsList .dropdown', function() {
-            var $list = $(this).siblings('.list');
-            if ($list.is(':visible')) {
-                hideDropdowns();
-            } else {
-
-                hideDropdowns();
-                $operationsView.find('li.highlighted')
-                                .removeClass('highlighted');
-                // show all list options when use icon to trigger
-                $list.show().find('li').sort(sortHTML)
-                                       .prependTo($list.children('ul'))
-                                       .show();
-                $list.siblings('input').focus();
- 
-                functionsListScroller.showOrHideScrollers();
-
-                var fnInputNum = parseInt($list.siblings('input').data('fninputnum'));
-                functionsListScrollers[fnInputNum].showOrHideScrollers();
-            }
-        });
-
-        $operationsView.on('mousedown', '.firstList .dropdown', function() {
-            var $list = $(this).siblings('.list');
-            if ($list.is(':visible')) {
-                allowInputChange = false;
-            } else {
-                allowInputChange = true;
-            }
-        });
-
-        // only for category list and function menu list
-        $operationsView.on({
-            'mousedown': function() {
-                // do not allow input change
-                allowInputChange = false;
-            },
-            'mouseup': function(event) {
-                if (event.which !== 1) {
-                    return;
-                }
-                listMouseup(event, $(this));
-            }
-        }, '.functionsList .list li');
-
-        // for all lists (including hint li in argument table)
-        $operationsView.on({
-            'mouseenter': function() {
-                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
-                    $(this).closest('.list').removeClass('disableMouseEnter');
-                    return;
-                }
-                $operationsView.find('li.highlighted')
-                                .removeClass('highlighted');
-                $(this).addClass('highlighted');
-                $(this).closest('.list').addClass('hovering');
-            },
-            'mouseleave': function() {
-                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
-                    return;
-                }
-                $(this).removeClass('highlighted');
-                $(this).closest('.list').removeClass('hovering');
-            }
-        }, '.list li');
 
         // click on the hint list
         $operationsView.on('click', '.hint li', function() {
@@ -393,16 +417,24 @@ window.OperationsModal = (function($, OperationsModal) {
             checkIfStringReplaceNeeded();
         });
 
-        // xi2.0 commented out
-        // $lastInputFocused = $operationsModal.find('.argument:first');
-        // $operationsModal.on('focus', 'input', function() {
-        //     $lastInputFocused = $(this);
-        // });
-
-        var argumentTimer;
-        var $argSection = $operationsModal.find('.argumentSection');
 
         addCastDropDownListener();
+
+        $operationsView.on('click', '.checkbox', function() {
+            var $checkbox = $(this);
+            if ($checkbox.hasClass('checked')) {
+                $checkbox.removeClass('checked');
+                // we want it to be :visible for jquery selector purposes in our code
+                $checkbox.parent().siblings('.inputWrap').removeClass('semiHidden');
+                $checkbox.parent().siblings('.cast').removeClass('semiHidden');
+            } else {
+                $checkbox.addClass('checked');
+                $checkbox.parent().siblings('.inputWrap').addClass('semiHidden');
+                $checkbox.parent().siblings('.cast').addClass('semiHidden');
+            }
+       
+            checkIfStringReplaceNeeded();
+        });
 
         // incSample and keepInTable toggling
         $operationsView.on('change', 'input[type="checkbox"]', function() {
@@ -426,21 +458,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
         functionsListScrollers.push(functionsListScroller);
 
-        $operationsModal.draggable({
-            handle     : '.operationsModalHeader',
-            containment: 'window',
-            cursor     : '-webkit-grabbing',
-            cancel     : '.headerBtn, input',
-            start      : function() {
-                $operationsModal.find('.openList')
-                                 .removeClass("openList")
-                                 .hide()
-                                 .closest(".dropDownList")
-                                 .removeClass("open");
-            }
-
-        });
-
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
@@ -448,36 +465,10 @@ window.OperationsModal = (function($, OperationsModal) {
         .fail(function(error) {
             Alert.error("List XDFs failed", error.error);
         });
-
-        // shouldn't have any .hint when  new form
-
-        // for functions dropdown list
-        function listMouseup(event, $li) {
-            allowInputChange = true;
-            event.stopPropagation();
-            var value = $li.text();
-            var $input = $li.closest('.list').siblings('.autocomplete');
-            var originalInputValue = $input.val();
-            hideDropdowns();
-
-            // value didn't change
-            if (originalInputValue === value) {
-                return;
-            }
-
-            $input.val(value);
-
-            if (value === $genFunctionsMenu.data('category')) {
-                return;
-            }
-
-            $input.data('value', value.trim().toLowerCase());
-            enterFunctionsInput($input.data('fninputnum'));
-        }
     };
 
     // restore: boolean, if true, will not clear the form from it's last state
-    OperationsModal.show = function(currTableId, currColNum, operator, restore) {
+    OperationsView.show = function(currTableId, currColNum, operator, restore) {
         var deferred = jQuery.Deferred();
         isOpen = true;
 
@@ -489,14 +480,12 @@ window.OperationsModal = (function($, OperationsModal) {
             MainMenu.open();
         }
 
-
-        // $('#modalBackground').remove();
         if (restore) {
            $activeOpSection.removeClass('xc-hidden');
         } else {
             operatorName = operator.toLowerCase().trim();
+            // changes mainMenu and assigns activeOpSection
             showOpSection();
-           
             resetForm();
             tableId = currTableId;
             var tableCols = gTables[tableId].tableCols;
@@ -508,31 +497,10 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsView.find('.title').text(operatorName);
         $operationsView.find('.submit').text(operatorName.toUpperCase());
 
-        var $tableWrap = $('#xcTableWrap-' + tableId);
-        $tableWrap.addClass('columnPicker');
-        var $table = $("#xcTable-" + tableId);
-        $table.on('click.columnPicker', '.header, td.clickable', function(event) {
-            if (!$lastInputFocused) {
-                return;
-            }
-            var $target = $(event.target);
-            if ($target.closest('.dataCol').length ||
-                $target.closest('.jsonElement').length) {
-                return;
-            }
-            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
-        });
-        $table.on('mousedown', '.header, td.clickable', keepInputFocused);
-
-
         // highlight active column
         $('#xcTable-' + tableId).find('.col' + colNum)
                                 .addClass('modalHighlighted');
-
-
-
-
-        // we want the modal to show up ~ below the first row
+        operationsViewShowListeners();
 
         modalHelper.addWaitingBG();
         modalHelper.setup({
@@ -548,6 +516,58 @@ window.OperationsModal = (function($, OperationsModal) {
         if (!restore) {
             fillInputPlaceholder(0);
         }
+
+        // load updated UDFs if operator is map
+        if (operatorName === "map") {
+            XcalarListXdfs("*", "User*")
+            .then(function(listXdfsObj) {
+                udfUpdateOperatorsMap(listXdfsObj.fnDescs);
+                operationsViewShowHelper(restore);
+               
+
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                Alert.error("Listing of UDFs failed", error.error);
+                deferred.reject();
+            });
+        } else {
+            operationsViewShowHelper(restore);
+            deferred.resolve();
+        }
+
+        return (deferred.promise());
+    };
+
+    OperationsView.turnOffClickHandlers = function() {
+        $(document).off('click.OpSection');
+    }
+
+    OperationsView.closeOpSection = function() {
+        if (isOpen) {
+            closeOpSection(); 
+        }
+    };
+
+    // listeners added whenever operation view opens
+    function operationsViewShowListeners() {
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        $tableWrap.addClass('columnPicker');
+        var $table = $("#xcTable-" + tableId);
+
+        $table.on('click.columnPicker', '.header, td.clickable', function(event) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            var $target = $(event.target);
+            if ($target.closest('.dataCol').length ||
+                $target.closest('.jsonElement').length) {
+                return;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
+        });
+
+        $table.on('mousedown', '.header, td.clickable', keepInputFocused);
 
         $(document).on('click.OpSection', function(event) {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
@@ -569,67 +589,45 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             allowInputChange = true;
         });
-
-
-
-        XcalarListXdfs("*", "User*")
-        .then(function(listXdfsObj) {
-            udfUpdateOperatorsMap(listXdfsObj.fnDescs);
-
-            var aggs = Aggregates.getAggs();
-            aggNames = [];
-            for (var i in aggs) {
-                aggNames.push(aggs[i].dagName);
-            }
-
-            if (!restore) {
-                var colNames = [];
-                tableCols.forEach(function(col) {
-                    // skip data column
-                    if (col.name !== "DATA") {
-                        // Add $ since this is the current format of column
-                        colNames.push('$' + col.name);
-                    }
-                });
-
-                corrector = new Corrector(colNames);
-
-                populateInitialCategoryField(operatorName);
-                fillInputPlaceholder(0);
-
-                $categoryInput.focus();
-                if (operatorName === "map") {
-                    // handle map
-
-                } else {
-                    
-                    $autocompleteInputs.focus();
-                }
-            }
-
-            $operationsView.find('.list').removeClass('hovering');
-
-            modalHelper.removeWaitingBG();
-
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Alert.error("Listing of UDFs failed", error.error);
-            deferred.reject();
-        });
-        return (deferred.promise());
-    };
-
-    OperationsModal.turnOffClickHandlers = function() {
-        $(document).off('click.OpSection');
     }
 
-    OperationsModal.closeOpSection = function() {
-        if (isOpen) {
-            closeOpSection(); 
+    // functions that get called after list udfs is called during op view show
+    function operationsViewShowHelper(restore) {
+        var aggs = Aggregates.getAggs();
+        aggNames = [];
+        for (var i in aggs) {
+            aggNames.push(aggs[i].dagName);
         }
-        
-    };
+
+        if (!restore) {
+            var tableCols = gTables[tableId].tableCols;
+            var colNames = [];
+            tableCols.forEach(function(col) {
+                // skip data column
+                if (col.name !== "DATA") {
+                    // Add $ since this is the current format of column
+                    colNames.push('$' + col.name);
+                }
+            });
+
+            corrector = new Corrector(colNames);
+
+            populateInitialCategoryField(operatorName);
+            fillInputPlaceholder(0);
+
+            $categoryInput.focus();
+            if (operatorName === "map") {
+                // handle map
+
+            } else {
+                $activeOpSection.find('.functionsInput').focus();
+            }
+        }
+
+        $operationsView.find('.list').removeClass('hovering');
+
+        modalHelper.removeWaitingBG();
+    }
 
     function showOpSection() {
         switch (operatorName) {
@@ -750,7 +748,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             categoryName +
                         '</li>';
             }
-            //xi2
+        
             $categoryList.html(html);
         } else {
             var categoryIndex;
@@ -765,33 +763,20 @@ window.OperationsModal = (function($, OperationsModal) {
             var ops = operatorsMap[categoryIndex];
             functionsMap[0] = ops;
 
-             
             populateFunctionsListUl(0);
-            // var html = "";
-            // for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            //     html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
-            // }
-            // // var $list = $(html);
-            // $activeOpSection.find('.genFunctionsMenu ul').html(html);
-
-            // // html += '<li data-category="' + 0 + '">' +
-            // //             categoryName +
-            // //         '</li>';
-            // $categoryUl.html(html);
-           
         }
 
         
     }
 
-    function populateFunctionsListUl(index) {
+    function populateFunctionsListUl(groupIndex) {
         var categoryIndex = FunctionCategoryT.FunctionCategoryCondition;
         var ops = operatorsMap[categoryIndex];
         var html = "";
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
             html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
         }
-        $activeOpSection.find('.genFunctionsMenu ul[data-fnmenunum="' + index + '"]')
+        $activeOpSection.find('.genFunctionsMenu ul[data-fnmenunum="' + groupIndex + '"]')
                         .html(html);
     }
 
@@ -828,7 +813,8 @@ window.OperationsModal = (function($, OperationsModal) {
     function argSuggest($input) {
         var curVal = $input.val().trim();
         var $ul = $input.siblings(".list");
-        var index = $activeOpSection.find('.hint').index($ul);
+        var groupIndex = $ul.closest('.group').index();
+        var index = $ul.closest('.group').find('.hint').index($ul);
         var shouldSuggest = true;
         var corrected;
         var hasAggPrefix = false;
@@ -852,6 +838,7 @@ window.OperationsModal = (function($, OperationsModal) {
         // should not suggest if the input val is already a column name
         if (shouldSuggest) {
             $ul.find('ul').empty();
+
             if (hasAggPrefix) {
                 var lis = "";
                 var count = 0;
@@ -872,13 +859,13 @@ window.OperationsModal = (function($, OperationsModal) {
                     $lis.sort(sortHTML);
                     $ul.find('ul').append($lis).end().addClass('openList')
                                                      .show();
-                    suggestLists[index].showOrHideScrollers();
+                    suggestLists[groupIndex][index].showOrHideScrollers();
                 }
             } else {
                 $ul.find('ul').append('<li class="openli">' + corrected + '</li>')
                 .end().addClass("openList")
                 .show();
-                suggestLists[index].showOrHideScrollers();
+                suggestLists[groupIndex][index].showOrHideScrollers();
             }
 
 
@@ -935,12 +922,13 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsView.find('.cast .list li').show();
     }
 
+    // index is the argument group numbers
     function enterFunctionsInput(index) {
         index = index || 0;
         if (!isOperationValid(index)) {
-            showErrorMessage(inputNum);
+            showErrorMessage(0, index);
             var keep = true;
-            clearInput(inputNum, keep);
+            clearInput(0, index, keep);
             return;
         }
 
@@ -965,75 +953,40 @@ window.OperationsModal = (function($, OperationsModal) {
         $nextInput[0].selectionStart = $nextInput[0].selectionEnd = val.length;
     }
 
-    // xx check this func everywhere
-    function enterInput(inputNum, noFocus) {
-        inputNum = inputNum || 0;
-        if (!isOperationValid(inputNum)) {
-            showErrorMessage(inputNum);
-            var keep = true;
-            clearInput(inputNum, keep);
-            return;
-        }
-
-        if (inputNum === 0) {
-            // produceArgumentTable();
-            updateArgumentSection(null, 0);
-        }
-
-        if (!noFocus) {
-            var $nextInput;
-            if (inputNum === 0) {
-                if (operatorName === "aggregate") {
-                    $nextInput = $argInputs.eq(0);
-                } else {
-                    $argInputs.each(function() {
-                        if ($(this).val().trim().length === 0) {
-                            $nextInput = $(this);
-                            return false;
-                        }
-                    });
-                    if (!$nextInput) {
-                        $nextInput = $argInputs.last();
-                    }
-                }
-            } else {
-
-                var inputNumToFocus = inputNum + 1;
-                if (inputNum === 1 &&
-                    operatorName !== "aggregate" &&
-                    operatorName !== "group by" &&
-                    !isNewCol) {
-                    inputNumToFocus++;
-                }
-
-                $nextInput = $activeOpSection.find('input:not(.nonEditable)')
-                                         .eq(inputNumToFocus);
-            }
-            $nextInput.focus();
-            var val = $nextInput.val();
-            $nextInput[0].selectionStart = $nextInput[0].selectionEnd = val.length;
-        }
-    }
-
-    function clearInput(inputNum, keep) {
+    function clearInput(inputNum, groupNum, keep) {
         if (!keep) {
             $operationsView.find('.autocomplete')
                             .eq(inputNum).val("")
                             .attr('placeholder', "");
         }
         if (inputNum === 0) {
-            $genFunctionsMenu.data('category', 'null');
-            $operationsView.find('.argsSection')
+            var $group = $activeOpSection.find('.groupo').eq(groupNum);
+            $group.find('.functionsInput').data('category', 'null');
+            $group.find('.argsSection')
                        .addClass('inactive');
-            $activeOpSection.find('.descriptionText').empty();
-            $activeOpSection.find('.strPreview').empty();
+            $group.find('.descriptionText').empty();
+            updateStrPreview(true);
         }
         if (inputNum < 2) {
             $autocompleteInputs.eq(inputNum).data('value', "");
         }
 
         hideDropdowns();
+    }
 
+    function clearFunctionsInput(groupNum, keep) {
+        var $argsGroup =  $activeOpSection.find('.group').eq(groupNum);
+        if (!keep) {
+            $argsGroup.find('.functionsInput')
+                      .val("").attr('placeholder', "");
+        }
+
+        $argsGroup.find('.genFunctionsMenu').data('category', 'null');
+        $argsGroup.find('.argsSection').addClass('inactive');
+        $argsGroup.find('.descriptionText').empty();
+        $argsGroup.find('.functionsInput').data('value', "");
+        hideDropdowns();
+        updateStrPreview(true);
     }
 
     function closeListIfNeeded($input) {
@@ -1130,9 +1083,9 @@ window.OperationsModal = (function($, OperationsModal) {
         return (matches.length > 0);
     }
 
-    function showErrorMessage(inputNum) {
+    function showErrorMessage(inputNum, groupNum) {
         var text = ErrTStr.NoSupportOp;
-        var $target = $activeOpSection.find('input').eq(inputNum);
+        var $target = $activeOpSection.find('.group').eq(groupNum).find('input').eq(inputNum);
         if ($target.val().trim() === "") {
             text = ErrTStr.NoEmpty;
         }
@@ -1185,7 +1138,7 @@ window.OperationsModal = (function($, OperationsModal) {
             func = $argsGroup.find('.functionsInput').val().toLowerCase().trim();
         }
 
-        suggestLists = [];
+        suggestLists.push([]);// array of groups, groups has array of inputs
 
         funcName = func;
 
@@ -1234,7 +1187,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
 
-        addExtraArgRows(numInputsNeeded, $argsGroup);            
+        addExtraArgRows(numInputsNeeded, $argsGroup, groupIndex);            
 
         var $rows = $argsSection.find('.row'); // get rows now that more were added
        
@@ -1285,7 +1238,7 @@ window.OperationsModal = (function($, OperationsModal) {
         
     }
 
-    function addExtraArgRows(numInputsNeeded, $argsGroup) {
+    function addExtraArgRows(numInputsNeeded, $argsGroup, groupIndex) {
         var $argsSection = $argsGroup.find('.argsSection');
         var argsHtml = "";
         for (var i = 0; i < numInputsNeeded; i++) {
@@ -1300,7 +1253,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 bounds       : '#operationsView',
                 bottomPadding: 5
             });
-            suggestLists.push(scroller);
+            suggestLists[groupIndex].push(scroller);
             $(this).removeClass('new');
         });
     }
@@ -1759,7 +1712,9 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (operatorName === "map" || operatorName === "filter") {
             var oldText = $description.find('.descArgs').text();
-            var $groups = $activeOpSection.find(".group");
+            var $groups = $activeOpSection.find(".group").filter(function() {
+                return ($(this).find('.argsSection.inactive').length === 0);
+            });
             var numGroups = $groups.length;
 
             $groups.each(function(groupNum) {
@@ -1768,6 +1723,9 @@ window.OperationsModal = (function($, OperationsModal) {
                     funcName = $(this).find('.functionsInput').val().trim();
                 } else if (operatorName === "map") {
                     funcName = $functionsList.find('.active').text().trim();
+                }
+                if ($(this).find('.argsSection.inactive').length) {
+                    return;
                 }
                 
                 if (groupNum > 0) {
@@ -1817,7 +1775,9 @@ window.OperationsModal = (function($, OperationsModal) {
             }
 
             tempText = newText;
-            if (noHighlight) {
+            if (tempText.trim() === "") {
+                $description.empty();
+            } else if (noHighlight) {
                 newText = "";
                 for (var i = 0; i < tempText.length; i++) {
                     newText += "<span class='char'>" + tempText[i] + "</span>";
@@ -1986,6 +1946,9 @@ window.OperationsModal = (function($, OperationsModal) {
 
     // noHighlight: boolean; if true, will not highlight new changes
     function checkIfStringReplaceNeeded(noHighlight) {
+        if (!gTables[tableId]) {
+            return;
+        }
         quotesNeeded = [];
 
         $activeOpSection.find('.group').each(function() {
@@ -2078,21 +2041,19 @@ window.OperationsModal = (function($, OperationsModal) {
                     if (category === "string functions") {
                         if (funcName !== "cut" && funcName !== "substring") {
                             return (true);
-                        } else {
-                            if (funcName === "substring") {
-                                if (index === 0) {
-                                    return (true);
-                                }
-                            } else if (index !== 1) {
+                        } else if (funcName === "substring") {
+                            if (index === 0) {
                                 return (true);
                             }
+                        } else if (index !== 1) {
+                            return (true);
                         }
                     }
                 }
                 // allow blanks in eq and like filters
                 if (operatorName === "filter") {
-                    if ($activeOpSection.find('.functionInputs').eq(groupNum).val() === "eq" ||
-                        $activeOpSection.find('.functionInputs').eq(groupNum).val() === "like") {
+                    if ($activeOpSection.find('.functionsInput').eq(groupNum).val() === "eq" ||
+                        $activeOpSection.find('.functionsInput').eq(groupNum).val() === "like") {
                         return (true);
                     }
                 }
@@ -2117,11 +2078,11 @@ window.OperationsModal = (function($, OperationsModal) {
         // xi2 check if this is correct 
         
         if (allInputsFilled) {
-            var noFocus = true;
-            enterInput(0, noFocus);
             return (true);
         } else {
-            clearInput(2);
+            // clearInput(2);  
+            hideDropdowns(); 
+            // xx need to handle this
             return (true);
         }
     }
@@ -2174,16 +2135,41 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function submitForm() {
-        var isPassing = false;
+        var isPassing = true;
         modalHelper.submit();
 
-        if (!isOperationValid(0)) {
-            showErrorMessage(0);
-        } else {
+        if (!gTables[tableId]) {
+            // xx make a better alert
+            alert('Table no longer exists');
+            return false;
+        }
+
+        $activeOpSection.find('.group').each(function(i) {
+            // we'll ignore empty functions if not the first function input
+            // if (i > 0 && $(this).find('.functionsInput').val() !== "") {
+            //     if (!isOperationValid(i)) {
+            //         isPassing = false;
+            //          showErrorMessage(0, i);
+            //         return false;
+            //     }
+            // } else if (!isOperationValid(i)) {
+            //     isPassing = false;
+            //     showErrorMessage(0, i);
+            //     return false;
+            // }
+            if (!isOperationValid(i)) {
+                showErrorMessage(0, i);
+                isPassing = false;
+                return false;
+            }
+        });
+        // if (!isOperationValid(0)) {
+        //     showErrorMessage(0);
+        // } else {
             // xi2 temp
             // isPassing = checkArgumentParams(0);
-            isPassing = true;
-        }
+        //     isPassing = true;
+        // }
 
         if (!isPassing) {
             modalHelper.enableSubmit();
@@ -2215,12 +2201,15 @@ window.OperationsModal = (function($, OperationsModal) {
         var args = [];
         // get colType first
         $groups.each(function(i) {
+            if ($(this).find('.argsSection.inactive').length) {
+                return (true);
+            }
             var existingTypes = getExistingTypes(i);
             var argFormatHelper = argumentFormatHelper(existingTypes, i);
             isPassing = argFormatHelper.isPassing;
 
             if (!isPassing) {
-                modalHelper.enableSubmit();
+                
                 return false;
             }
             args = argFormatHelper.args;
@@ -2228,6 +2217,7 @@ window.OperationsModal = (function($, OperationsModal) {
         });
         
         if (!isPassing) {
+            modalHelper.enableSubmit();
             return;
         }
 
@@ -2301,7 +2291,11 @@ window.OperationsModal = (function($, OperationsModal) {
                 isPassing = aggregateCheck(args);
                 break;
             case ('filter'):
+                isPassing = true;
                 $activeOpSection.find('.group').each(function(i) {
+                    if ($(this).find('.argsSection.inactive').length) {
+                        return;
+                    }
                     var $input = $(this).find('.arg:visible').eq(0);
                     func = $(this).find('.functionsInput').val().toLowerCase().trim();
                     if (hasMultipleSets) {
@@ -2310,10 +2304,11 @@ window.OperationsModal = (function($, OperationsModal) {
                         isPassing = filterCheck(func, args, $input);
                     }
                     
-                    if (!isPassing) {
-                        return false;
-                    }
+                    
                 });
+                if (!isPassing) {
+                    return false;
+                }
                 break;
             case ('group by'):
                 isPassing = groupByCheck(args);
@@ -2593,24 +2588,20 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function showCastRow(allColTypes, groupNum) {
-        console.log('trying');
         var deferred = jQuery.Deferred();
 
         getProperCastOptions(allColTypes);
         var isCastAvailable = displayCastOptions(allColTypes, groupNum);
-        $activeOpSection.find('.group').eq(groupNum)
-                        .find('.cast .list li').show();
+        $activeOpSection.find('.cast .list li').show();
 
         if (isCastAvailable) {
-            var $castable = $activeOpSection.find('.group').eq(groupNum)
+            var $castable = $activeOpSection
                             .find('.cast .dropDownList:not(.hidden)').parent();
             $castable.addClass('showing');
-            // $activeOpSection.find('.cast').addClass('showing');
-            $activeOpSection.find('.group').eq(groupNum)
-                            .find('.descCell').addClass('castShowing');
+
+            $activeOpSection.find('.descCell').addClass('castShowing');
             setTimeout(function() {
-                if ($activeOpSection.find('.group').eq(groupNum)
-                                    .find('.cast.showing').length) {
+                if ($activeOpSection.find('.cast.showing').length) {
                     $castable.addClass('overflowVisible');
                 }
 
@@ -2661,7 +2652,6 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function displayCastOptions(allColTypes, groupNum) {
-
         var $castDropdowns = $activeOpSection.find('.group').eq(groupNum)
                                              .find('.cast')
                                              .find('.dropDownList');
@@ -2784,8 +2774,9 @@ window.OperationsModal = (function($, OperationsModal) {
             filterColNum = colNum;
         }
 
-
-        var filterString = formulateFilterString(operator, args, colTypeInfos, hasMultipleSets);
+        var filterString = formulateMapFilterString(operator, args,
+                                                    colTypeInfos,
+                                                    hasMultipleSets);
 
   
         xcFunction.filter(filterColNum, tableId, {
@@ -2896,7 +2887,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 {"buttons": [{
                     "name": OpModalTStr.ModifyMap,
                     "func": function() {
-                        OperationsModal.show(null, null, null, true);
+                        OperationsView.show(null, null, null, true);
                     }
                 }],
                 "onCancel": function() {
@@ -2906,8 +2897,7 @@ window.OperationsModal = (function($, OperationsModal) {
         });
     }
 
-    function formulateFilterString(operator, args, colTypeInfos, hasMultipleSets) {
-        // var str = operator + "(";
+    function formulateMapFilterString(operator, args, colTypeInfos, hasMultipleSets) {
         var str = "";
         var argNum;
         var argGroups = [];
@@ -2927,9 +2917,15 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
 
-
         for (var i = 0; i < argGroups.length; i++) {
-            var funcName =  $activeOpSection.find('.group').eq(i).find('.functionsInput').val().trim();
+            var funcName;
+            if (operatorName === "filter") {
+                funcName =  $activeOpSection.find('.group').eq(i)
+                                            .find('.functionsInput').val()
+                                            .trim();
+            } else {
+                funcName = operator;
+            }
 
             if (i > 0) {
                 str += ", ";
@@ -2942,7 +2938,8 @@ window.OperationsModal = (function($, OperationsModal) {
                   // check: if arg is blank and is not a string then do not add comma
                 // ex. add(6) instead of add(6, )
                 if (argGroups[i][j] === "") {
-                    var $input = $activeOpSection.find('.group').eq(i).find('.arg:visible').eq(i);
+                    var $input = $activeOpSection.find('.group').eq(i)
+                                                 .find('.arg:visible').eq(j);
                     var typeId = $input.data('typeid');
                     var types = parseType(typeId);
                     if (types.indexOf("string") > -1 ||
@@ -2962,39 +2959,6 @@ window.OperationsModal = (function($, OperationsModal) {
         for (var i = 0; i < argGroups.length - 1; i++) {
             str += ")";
         }
-        return (str);
-    }
-
-    function formulateMapFilterString(operator, args, colTypeInfos, hasMultipleSets) {
-        var str = operator + "(";
-        var argNum;
-        for (var i = 0; i < colTypeInfos.length; i++) {
-            argNum = colTypeInfos[i].argNum;
-            args[argNum] = xcHelper.castStrHelper(args[argNum],
-                                                 colTypeInfos[i].type);
-        }
-
-        for (var i = 0; i < args.length; i++) {
-            // check: if arg is blank and is not a string then do not add comma
-            // ex. add(6) instead of add(6, )
-            if (args[i] === "") {
-                var $input = $argInputs.eq(i);
-                var typeId = $input.data('typeid');
-                var types = parseType(typeId);
-                if (types.indexOf("string") > -1 ||
-                    !$input.closest('.row').find('.checked').length) {
-                    str += args[i] + ", ";
-                }
-            } else {
-                str += args[i] + ", ";
-            }
-        }
-        // remove last comma and space;
-        if (args.length > 0) {
-            str = str.slice(0, -2);
-        }
-
-        str += ")";
         return (str);
     }
 
@@ -3529,7 +3493,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function checkInputSize($input) {
         var currentWidth = $input.outerWidth();
-        // var textWidth = getTextWidth($input) + 20;
         var textWidth = $input[0].scrollWidth;
         var newWidth;
         if (currentWidth < textWidth) {
@@ -3609,7 +3572,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
-        OperationsModal.turnOffClickHandlers();
+        OperationsView.turnOffClickHandlers();
     }
 
     function closeModal(speed) {
@@ -3637,12 +3600,11 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function resetForm() {
-        $activeOpSection.find('.functionInput').attr('placeholder', "");
-        clearInput(0);
-        $autocompleteInputs.each(function() {
-            $(this).data('value', '');
-        });
-        $genFunctionsMenu.data('category', 'null');
+        $operationsView.find('.functionsInput').attr('placeholder', "")
+                                               .data('value', "")
+                                               .val("");
+ 
+        $operationsView.find('.genFunctionsMenu').data('category', 'null');
         $operationsView.find('.checkbox').removeClass('checked');
         $operationsView.find('.cast').find('.dropDownList')
                                      .addClass('hidden');
@@ -3650,7 +3612,7 @@ window.OperationsModal = (function($, OperationsModal) {
         $functionsList.empty();
         $operationsView.find('.argsSection')
                        .addClass('inactive');
-        $activeOpSection.find('.descriptionText').empty();
+        $operationsView.find('.descriptionText').empty();
         if (operatorName === "filter") {
             $activeOpSection.find('.group').each(function(i) {
                 if  (i !== 0) {
@@ -3660,6 +3622,9 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         
         $operationsView.find('.strPreview').empty();
+        suggestLists = [];
+        var numFnScrollers = functionsListScrollers.length;
+        delete functionsListScrollers.splice(1, numFnScrollers - 1);
         allowInputChange = true;
     }
 
@@ -3716,7 +3681,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 '<div class="description"></div>' +
                 '<div class="inputWrap">' +
                     '<div class="dropDownList">' +
-                      '<input class="arg" type="text" tabindex="10" spellcheck="false">' +
+                      '<input class="arg" type="text" tabindex="10" ' +
+                        'spellcheck="false">' +
                       '<div class="argIconWrap btn btn-small">' +
                         '<i class="icon xi-show"></i>' +
                       '</div>' +
@@ -3742,7 +3708,9 @@ window.OperationsModal = (function($, OperationsModal) {
                     '</div>' +
                 '</div>' +
                 '<div class="checkboxWrap xc-hidden">' +
-                    '<span class="checkbox" data-container="body" data-toggle="tooltip" title="' + OpModalTStr.EmptyHint + '"></span>' +
+                    '<span class="checkbox" data-container="body" ' +
+                    'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint +
+                    '"></span>' +
                     'Empty' +
                 '</div>' +
             '</div>';
@@ -3790,6 +3758,7 @@ window.OperationsModal = (function($, OperationsModal) {
             });
         }
         delete functionsListScrollers.splice(index, 1);
+        delete suggestLists.splice(index, 1);
         updateStrPreview(true);
     }
 
@@ -3799,8 +3768,11 @@ window.OperationsModal = (function($, OperationsModal) {
                             '<div>Filter Function</div>' +
                             '<i class="icon xi-close closeGroup"></i>' +
                         '</div>' +
-                        '<div data-fnlistnum="' + index + '" class="dropDownList firstList functionsList">' +
-                            '<input data-fninputnum="' + index + '"  class="text autocomplete functionsInput" tabindex="10" spellcheck="false" required>' +
+                        '<div data-fnlistnum="' + index + '" ' +
+                            'class="dropDownList firstList functionsList">' +
+                            '<input data-fninputnum="' + index +
+                            '"  class="text autocomplete functionsInput" ' +
+                            'tabindex="10" spellcheck="false" required>' +
                             '<div class="iconWrapper dropdown">' +
                               '<i class="icon xi-down"></i>' +
                             '</div>' +
@@ -3824,15 +3796,15 @@ window.OperationsModal = (function($, OperationsModal) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
-        OperationsModal.__testOnly__ = {};
-        OperationsModal.__testOnly__.hasFuncFormat = hasFuncFormat;
-        OperationsModal.__testOnly__.hasUnescapedParens = hasUnescapedParens;
-        OperationsModal.__testOnly__.getExistingTypes = getExistingTypes;
-        OperationsModal.__testOnly__.argumentFormatHelper = argumentFormatHelper;
-        OperationsModal.__testOnly__.parseType = parseType;
+        OperationsView.__testOnly__ = {};
+        OperationsView.__testOnly__.hasFuncFormat = hasFuncFormat;
+        OperationsView.__testOnly__.hasUnescapedParens = hasUnescapedParens;
+        OperationsView.__testOnly__.getExistingTypes = getExistingTypes;
+        OperationsView.__testOnly__.argumentFormatHelper = argumentFormatHelper;
+        OperationsView.__testOnly__.parseType = parseType;
     }
     /* End Of Unit Test Only */
 
-    return (OperationsModal);
+    return (OperationsView);
 }(jQuery, {}));
 

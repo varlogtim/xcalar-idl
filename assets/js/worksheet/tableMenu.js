@@ -715,7 +715,7 @@ window.TblMenu = (function(TblMenu, $) {
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
             var func = $(this).data('func');
-            OperationsModal.show(tableId, colNum, func);
+            OperationsView.show(tableId, colNum, func);
         });
 
         $colMenu.on('mouseup', '.profile', function(event) {

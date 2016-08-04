@@ -2758,7 +2758,6 @@ MenuHelper.prototype = {
     toggleList: function($curlDropDownList) {
         var self = this;
         var $list = self.$list;
-        console.log($curlDropDownList.hasClass("open"), 'toggle');
         if ($curlDropDownList.hasClass("open")) {    // close dropdown
             this.hideDropdowns($curlDropDownList);
         } else {

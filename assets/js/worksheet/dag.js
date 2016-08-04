@@ -952,7 +952,7 @@ window.Dag = (function($, Dag) {
     var dagTableWidth = 214; // includes the blue table and gray operation icon
     var dataStoreWidth = 64;
     var groupOutlineOffset = 20;
-    var condenseLimit = 3; // number of tables wide before we allow condensing
+    var condenseLimit = 15; // number of tables wide before we allow condensing
     var canvasLimit = 32767;
     var canvasAreaLimit = 268435456;
     var dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
@@ -2209,7 +2209,7 @@ window.Dag = (function($, Dag) {
         }
 
         var tableLeft = $dagTable[0].getBoundingClientRect().left + xOffset -
-                        dagPanelLeft;
+                        MainMenu.getOffset();
         var schemaLeft = $(window).width() - $schema.width() - 5;
         var left = tableLeft;
         if (tableLeft > schemaLeft) {

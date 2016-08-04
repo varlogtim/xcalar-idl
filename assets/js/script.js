@@ -235,7 +235,7 @@ window.StartManager = (function(StartManager, $) {
         ExportModal.setup();
         JoinModal.setup();
         AggModal.setup();
-        OperationsModal.setup();
+        OperationsView.setup();
         WorkbookModal.setup();
         DataFlowModal.setup();
         DFGParamModal.setup();
