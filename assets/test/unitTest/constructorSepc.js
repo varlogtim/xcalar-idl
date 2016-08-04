@@ -120,6 +120,7 @@ describe('Constructor Test', function() {
         expect(progCol.getBackColName()).to.equal('backTest');
         expect(progCol.getType()).to.equal('float');
         expect(progCol.isNumberCol()).to.be.true;
+        expect(progCol.isEmptyCol()).to.be.false;
 
         // case 2
         var progCol = new ProgCol({
@@ -288,7 +289,7 @@ describe('Constructor Test', function() {
     it('UserPref should be a constructor', function() {
         var userPref = new UserPref();
         expect(userPref).to.be.an('object');
-        expect(Object.keys(userPref).length).to.equal(10);
+        expect(Object.keys(userPref).length).to.equal(9);
 
         expect(userPref).to.have.property('datasetListView');
         expect(userPref).to.have.property('browserListView');
@@ -301,7 +302,10 @@ describe('Constructor Test', function() {
         .and.to.equal(70);
         expect(userPref).to.have.property('monitorGraphInterval')
         .and.to.equal(3);
-        expect(userPref).to.have.property('mainTabs');
+        expect(userPref).to.have.property('mainTabs')
+        .and.to.be.an('object');
+        expect(userPref).to.have.property('activeMainTab')
+        .and.to.equal('workspaceTab');
 
         userPref.update();
         expect(userPref.activeWorksheet).not.to.be.null;
@@ -331,10 +335,11 @@ describe('Constructor Test', function() {
             });
 
             expect(cartItem).to.be.an('object');
-            expect(Object.keys(cartItem).length).to.equal(2);
+            expect(Object.keys(cartItem).length).to.equal(3);
 
             expect(cartItem).to.have.property('colNum');
             expect(cartItem).to.have.property('value');
+            expect(cartItem).to.have.property('type');
         });
 
         it('Cart should be a constructor', function() {
@@ -913,12 +918,11 @@ describe('Constructor Test', function() {
             var extSet = new ExtCategorySet();
 
             expect(extSet).to.be.an('object');
-            expect(Object.keys(extSet).length).to.equal(2);
+            expect(Object.keys(extSet).length).to.equal(1);
 
+            expect(extSet.has('test')).to.be.false;
             extSet.addExtension(extItem);
-            expect(extSet.has('test', true)).to.be.true;
-            expect(extSet.has('test', false)).to.be.false;
-            expect(extSet.get('test', true).getName()).to.equal('test');
+            expect(extSet.get('test').getName()).to.equal('test');
 
             var item2 = new ExtItem({
                 'name'       : 'marketTestItem',
@@ -929,23 +933,20 @@ describe('Constructor Test', function() {
                 }
             });
 
+            expect(extSet.has('marketTest')).to.be.false;
             extSet.addExtension(item2);
-            expect(extSet.has('marketTest', true)).to.be.false;
-            expect(extSet.has('marketTest', false)).to.be.true;
+            expect(extSet.has('marketTest')).to.be.true;
             expect(extSet.get('marketTest').getName()).to.equal('marketTest');
-            var ext = extSet.getExtension('wrong category', 'test', false);
+            var ext = extSet.getExtension('wrong category', 'test');
             expect(ext).to.be.null;
-            ext = extSet.getExtension('marketTest', 'marketTestItem', false);
+            ext = extSet.getExtension('marketTest', 'marketTestItem');
             expect(ext).not.to.be.null;
             expect(ext.getName()).to.equal('marketTestItem');
 
             var list = extSet.getList(true);
-            expect(list.length).to.equal(1);
-            expect(list[0].getName()).to.equal('test');
-
-            var list = extSet.getList(false);
-            expect(list.length).to.equal(1);
+            expect(list.length).to.equal(2);
             expect(list[0].getName()).to.equal('marketTest');
+            expect(list[1].getName()).to.equal('test');
         });
     });
 });

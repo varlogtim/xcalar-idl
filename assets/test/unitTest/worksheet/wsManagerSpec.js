@@ -23,7 +23,7 @@ describe('Worksheet Interactivity', function() {
 
         it('new worksheet should be active', function() {
             var $lastTab = $('#worksheetTabs').find('.worksheetTab').last();
-            expect($lastTab.hasClass('inActive')).to.equal(false);
+            expect($lastTab.hasClass('active')).to.equal(true);
         });
     });
 
@@ -73,8 +73,8 @@ describe('Worksheet Interactivity', function() {
             WSManager.moveTable(tableId, wsId);
             var $tableWrap = $('#xcTableWrap-' + tableId + '.worksheet-' +
                                 wsId);
-            expect($lastTab.is('.inActive')).to.equal(false);
-            expect($('#worksheetTabs').find('.worksheetTab:not(.inActive)'))
+            expect($lastTab.is('.active')).to.equal(true);
+            expect($('#worksheetTabs').find('.worksheetTab.active'))
                                       .to.have.length.of(1);
             expect($tableWrap).to.have.length.of(1);
             expect($tableWrap.find('.tblTitleSelected')).to.have.length.of(1);

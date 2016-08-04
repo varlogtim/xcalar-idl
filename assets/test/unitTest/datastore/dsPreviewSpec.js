@@ -149,7 +149,7 @@ function dsPreviewModuleTest() {
                 "hasHeader": false,
                 "expectRes": '<thead>' +
                                 '<tr>' +
-                                    '<th>' +
+                                    '<th class="rowNumHead">' +
                                         '<div class="header"></div>' +
                                     '</th>' +
                                     '<th>' +

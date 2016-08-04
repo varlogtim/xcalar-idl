@@ -190,7 +190,7 @@ window.DSCart = (function($, DSCart) {
         innerCarts = {};
 
         $cartArea.empty();
-        $container.addClass("noCart");
+        $("#dataCartContainer").addClass("noCart");
     };
 
     DSCart.addQuery = function(mainQuery) {
@@ -621,7 +621,6 @@ window.DSCart = (function($, DSCart) {
     function checkCartArgs(cart) {
         var tableName = cart.getTableName();
         var error = null;
-
         var $listInput = $cartList.find(".text");
         var wsId = $cartList.data("ws");
         if (!$listInput.val().trim()) {
@@ -669,7 +668,8 @@ window.DSCart = (function($, DSCart) {
 
     function sendToWorksheet(cart) {
         if (cart == null || !checkCartArgs(cart)) {
-            return;
+            console.error("Wrong args");
+            return PromiseHelper.reject("Wrong args");
         }
 
         var deferred = jQuery.Deferred();

@@ -295,6 +295,39 @@ window.TestSuite = (function($, TestSuite) {
                             dsName + '"]:not(.inactive)';
     }
 
+    function createTable(dsName, check, wsId) {
+        var promise = jQuery.Deferred();
+        var $grid = $(getDSIcon(dsName));
+        var dsId = $grid.data("dsid");
+        var innerDeferred = jQuery.Deferred();
+
+        $grid.find(".gridIcon").click();
+        checkExists('#dsTable[data-dsid="' + dsId + '"]')
+        .then(function() {
+            $("#selectDSCols").click();
+            var $li;
+            if (wsId == null) {
+                $li = $("#dataCartWSMenu li:not(.new)").eq(0);
+            } else {
+                $li = $('#dataCartWSMenu li[data-ws="' + wsId + '"]');
+                if ($li.length === 0) {
+                    $li = $("#dataCartWSMenu li:not(.new)").eq(0);
+                }
+            }
+            $li.click();
+            
+            $("#dataCart-submit").click();
+
+            var header = ".xcTable .flexWrap.flex-mid" +
+                         " input[value='" + check + "']:eq(0)";
+            return checkExists(header);
+        })
+        .then(innerDeferred.resolve)
+        .fail(innerDeferred.reject);
+
+        return innerDeferred.promise();
+    }
+
     function flightTest(deferred, testName, currentTestNumber) {
         /** This test replicates a simple version of Cheng's flight demo
         This tests all major functionality
@@ -318,6 +351,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Import dataset
         function flightTestPart1(dsName1, dsName2) {
+            console.log("start flightTestPart1");
             $("#dataStoresTab").click();
 
             // Import flight dataset
@@ -364,39 +398,22 @@ window.TestSuite = (function($, TestSuite) {
 
         // Select columns in dataset and send to worksheet
         function flightTestPart2(dsName1, dsName2) {
-            var $grid1 = $(getDSIcon(dsName1));
-            var dsId1  = $grid1.data("dsid");
-            var $grid2 = $(getDSIcon(dsName2));
-            var dsId2  = $grid2.data("dsid");
-
-            $grid2.find(".gridIcon").click();
-            checkExists('#dsTable[data-dsid="' + dsId2 + '"]')
+            console.log("start flightTestPart2");
+            createTable(dsName1, "ArrDelay")
             .then(function() {
-                $("#selectDSCols").click();
-                $grid1.find(".gridIcon").click();
-                return (checkExists('#dsTable[data-dsid="' +
-                                    dsId1 + '"]'));
+                $("#dataStoresTab").click();
+                return createTable(dsName2, "iata")
             })
             .then(function() {
-                $("#selectDSCols").click();
-                // click on closeIcon on datacart not work
-                // since it has animation that dealy the display
-                $("#dsTable th .header .editableHead").slice(0, 5)
-                                                             .click();
-                $("#dataCart-submit").click();
-
                 var header = ".xcTable .flexWrap.flex-mid" +
                              " input[value='ArrDelay']:eq(0)";
-                return (checkExists(header));
-            })
-            .then(function() {
-                var $tableWrap = $(".xcTable .flexWrap.flex-mid input[value='ArrDelay']:eq(0)")
-                                    .closest(".xcTable");
+                var $tableWrap = $(header).closest(".xcTable");
                 if ($tableWrap.length > 1) {
                     TestSuite.fail(deferred, testName, currentTestNumber,
                                     "more tha one flight table in worksheet, cannot test");
                     return;
                 }
+
                 startTableId = xcHelper.parseTableId($tableWrap);
                 flightTestPart3();
             })
@@ -408,7 +425,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Change column type
         function flightTestPart3() {
-
+            console.log("start flightTestPart3");
             var $header = $($(".flexWrap.flex-mid input[value='ArrDelay']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
 
@@ -430,6 +447,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Add genUnique (map to get uniqueNum)
         function flightTestPart3_2() {
+            console.log("start flightTestPart3_2");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "map")
@@ -456,6 +474,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Filter flight table
         function flightTestPart4() {
+            console.log("start flightTestPart4");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "filter")
@@ -479,6 +498,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Upload python script
         function flightTestPart5() {
+            console.log("start flightTestPart5");
             $("#udfBtn").click();
             $("#udf-tabs div[data-tab='udf-fnSection'] .label").click();
             var editor = UDF.getEditor();
@@ -511,6 +531,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Map on flight table
         function flightTestPart6() {
+            console.log("start flightTestPart6");
             $("#alertActions .cancel").click();
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
@@ -544,6 +565,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Join flight table with airport table
         function flightTestPart7() {
+            console.log("start flightTestPart7");
             var $header = $(".flexWrap.flex-mid input[value='Dest']").eq(0);
             $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu .joinList");
@@ -580,6 +602,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Group by
         function flightTestPart8() {
+            console.log("start flightTestPart8");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "groupby")
@@ -611,6 +634,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Aggregate
         function flightTestPart9() {
+            console.log("start flightTestPart9");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
 
@@ -641,15 +665,23 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function newWorksheetTest(deferred, testName, currentTestNumber) {
+        console.log("start newWorksheetTest");
         // Tests add worksheet and rename new worksheet
-        $("#addWorksheet .icon").click();
+        $("#addWorksheet").click();
         var wsId = WSManager.getOrders()[1];
         checkExists("#worksheetTab-" + wsId)
         .then(function() {
-            $("#tableListBtn").click();
+            var $menu = $("#workspaceMenu");
+            if (!$menu.hasClass("active")) {
+                // open workspace menu
+                $("#workspaceTab .mainTab").click();
+            }
+            if ($menu.find(".tables").hasClass("xc-hidden")) {
+                $("#tableListTab").click();
+            }
             $(".tableListSectionTab:contains(Orphaned)").click();
             $('#orphanedTableList .refresh').click();
-            return (checkExists("#orphanedTableList-search:visible"));
+            return checkExists("#orphanedTableList-search:visible");
         })
         .then(function() {
             // move the flight table (the one that has id startTableId + 5)
@@ -662,12 +694,11 @@ window.TestSuite = (function($, TestSuite) {
             }
             $li.find(".addTableBtn").click();
 
-            $("#orphanedTableList .sumbit.active").click();
-            $("#rightSideBar .close").click();
+            $("#orphanedTableList .submit.active").click();
             $("#worksheetTabs .worksheetTab:first-child")
                                                 .trigger(fakeEvent.mousedown);
-            return (checkExists(".xcTableWrap:eq(2) .tableTitle " +
-                                ".dropdownBox .innerBox"));
+            return checkExists(".xcTableWrap:eq(2) .tableTitle " +
+                                ".dropdownBox .innerBox");
         })
         .then(function() {
             $("#mainFrame").scrollLeft("10000");
@@ -678,15 +709,16 @@ window.TestSuite = (function($, TestSuite) {
             $("#tableSubMenu .moveToWorksheet .wsName")
                 .trigger(fakeEvent.enter);
 
-            return (checkExists(".xcTableWrap.worksheet-" + wsId));
+            return checkExists(".xcTableWrap.worksheet-" + wsId);
         })
         .then(function() {
-            // rename
+            // rename worksheet
             $("#worksheetTab-" + wsId + " .text").val("Multi group by")
                                         .trigger(fakeEvent.enter);
             assert($("#worksheetTab-" + wsId + " .text").val() ===
                         "Multi group by");
-
+            // close workspace menu
+            $("#workspaceTab .mainTab").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function() {
@@ -696,6 +728,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
+        console.log("start multiGroupByTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         // var tableId = (WSManager.getWorksheets())[1].tables[0];
@@ -719,6 +752,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiJoinTest(deferred, testName, currentTestNumber) {
+        console.log("start multiJoinTest");
         var dsName = "schedule" + Math.floor(Math.random() * 1000);
         // Import schedule dataset
         $("#dataStoresTab").click();
@@ -730,32 +764,21 @@ window.TestSuite = (function($, TestSuite) {
         $("#fileFormat .iconWrapper .icon").click();
         $("#fileFormat li[name='JSON']").click();
         $("#importDataSubmit").click();
-
+        var wsId = WSManager.getOrders()[1];
         var dsIcon = getDSIcon(dsName);
         checkExists(dsIcon)
         .then(function() {
-            var $grid = $(dsIcon);
-            var dsId = $grid.data("dsid");
-            return (checkExists('#dsTable[data-dsid="' + dsId + '"]'));
-        }).then(function(){
-            $("#dsTable .header .flexContainer").each(function() {
-                var $ele = $(this);
-                var val = $ele.find(".editableHead").val();
-                if (val === "class_id" || val === "teacher_id") {
-                    $ele.click();
-                }
-            });
-            $("#dataCart-submit").click();
-            return (checkExists(".xcTable .flexWrap.flex-mid input[value=" +
-                                "'class_id']:eq(0)"));
-        }).then(function() {
-            var wsId = WSManager.getOrders()[1];
+            return createTable(dsName, 'class_id', wsId);
+        })
+        .then(function(){
             var tableId = WSManager.getWSById(wsId).tables[1];
             return (trigOpModal(tableId, "class_id", "joinList", "join"));
-        }).then(function() {
+        })
+        .then(function() {
             $("#multiJoinBtn .onBox").click();
             return (checkExists("#multiJoin .title"));
-        }).then(function() {
+        })
+        .then(function() {
             $(".joinClause").eq(1).click();
             $('.joinTableList').eq(1).find('li').eq(2).click();
             $(".leftClause").eq(0).val("class_id");
@@ -772,19 +795,22 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists(".xcTableWrap .tableName[value*='" +
                                 newName + "']",
                     30000));
-        }).then(function() {
+        })
+        .then(function() {
             if ($("#numPages").text().indexOf("1,953") > -1) {
                 TestSuite.pass(deferred, testName, currentTestNumber);
             } else {
                 TestSuite.fail(deferred, testName, currentTestNumber,
                                 'Num pages is not 1,953');
             }
-        }).fail(function(error) {
+        })
+        .fail(function(error) {
             TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
     function columnRenameTest(deferred, testName, currentTestNumber) {
+        console.log("start columnRenameTest");
         $("#mainFrame").scrollLeft("0");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
@@ -823,6 +849,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function tableRenameTest(deferred, testName, currentTestNumber) {
+        console.log("start tableRenameTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTableWrap-" + tableId + " .tableName").val("NewTableName")
@@ -849,6 +876,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function profileTest(deferred, testName, currentTestNumber) {
+        console.log("start profileTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         var $header = $("#xcTable-" + tableId +
@@ -894,6 +922,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function corrTest(deferred, testName, currentTestNumber) {
+        console.log("start corrTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
@@ -909,6 +938,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function aggTest(deferred, testName, currentTestNumber) {
+        console.log("start aggTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
@@ -926,6 +956,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function schedTest(deferred, testName, currentTestNumber) {
+        console.log("start schedTest");
         // Create a schedule
         $("#schedulerTab").click();
         $("#schedulesButton").click();
@@ -945,13 +976,13 @@ window.TestSuite = (function($, TestSuite) {
             .find(".freq1 .radioButton:eq(0)").click()
             .end()
             .find(".recurSection input").val(1);
-        $("#scheduleForm-save").click();
+        $("#newScheduleForm-save").click();
 
         checkExists("#scheduleLists .scheduleName:contains('" + schedName + "')")
         .then(function() {
-            $("#scheduleForm-edit").click();
+            $("#modScheduleForm-edit").click();
             $form.find(".freq1 .radioButton:eq(1)").click();
-            $("#scheduleForm-save").click();
+            $("#modScheduleForm-save").click();
             assert($("#scheduleInfos .scheduleInfo.frequency .text").text() === "hourly");
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
@@ -961,6 +992,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function dfgTest(deferred, testName, currentTestNumber) {
+        console.log("start dfgTest");
         // Create a dfg
         $("#workspaceTab").click();
 
@@ -995,6 +1027,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function retinaTest(deferred, testName, currentTestNumber) {
+        console.log("start retinaTest");
         // Create Parameter
         var $dataflowView = $("#dataflowView");
 
@@ -1046,6 +1079,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function addDFGToSchedTest(deferred, testName, currentTestNumber) {
+        console.log("start addDFGToSchedTest");
         // Attach schedule to dfg
         var $listBox = $("#dataflowView .dataFlowGroup .listBox").filter(function() {
             return $(this).find(".label").text() === dfgName;
@@ -1073,6 +1107,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function jsonModalTest(deferred, testName, currentTestNumber) {
+        console.log("start jsonModalTest");
         var $jsonModal = $('#jsonModal');
         $('#workspaceTab').click();
         $('.worksheetTab').eq(1).trigger(fakeEvent.mousedown);

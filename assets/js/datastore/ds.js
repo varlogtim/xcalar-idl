@@ -1306,7 +1306,8 @@ window.DS = (function ($, DS) {
         var targetDS = DS.getDSObj(targetId);
 
         if (ds.moveTo(targetDS, -1)) {
-            $grid.attr("data-dsParentId", targetId);
+            $grid.attr("data-dsParentId", targetId)
+                .data("dsParentId", targetId);
             refreshDS();
 
             UserSettings.logDSChange();
@@ -1338,7 +1339,8 @@ window.DS = (function ($, DS) {
         }
 
         if (isMoveTo) {
-            $grid.attr("data-dsParentId", parentId);
+            $grid.attr("data-dsParentId", parentId)
+                .data("dsParentId", parentId);
             if (isBefore) {
                 $sibling.before($grid);
             } else {
@@ -1356,10 +1358,10 @@ window.DS = (function ($, DS) {
         // target
         var grandPaId = DS.getDSObj(ds.parentId).parentId;
         var grandPaDs = DS.getDSObj(grandPaId);
-        var $grandPa = DS.getGrid(grandPaId);
 
         if (ds.moveTo(grandPaDs, -1)) {
-            $grid.attr("data-dsParentId", grandPaId);
+            $grid.attr("data-dsParentId", grandPaId)
+                    .data("dsParentId", grandPaId);
             refreshDS();
 
             UserSettings.logDSChange();

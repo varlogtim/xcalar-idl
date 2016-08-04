@@ -6,6 +6,20 @@ function dsCartModuleTest() {
     var testCartId;
     var fakeDSObj;
 
+    
+    // XXX add more test as code coverage is not enough now
+
+    function getCartsLen(carts) {
+        return Object.keys(carts).length;
+    }
+
+    function getFirstCart(carts) {
+        for (var dsId in carts) {
+            return carts[dsId];
+        }
+        return null;
+    }
+
     before(function(){
         previousCart = DSCart.getCarts();
 
@@ -49,9 +63,9 @@ function dsCartModuleTest() {
         DSCart.addItem(testCartId);
 
         var carts = DSCart.getCarts();
-        expect(carts).to.be.a('array').with.length(1);
+        expect(carts).to.be.an('object');
 
-        var cart = carts[0];
+        var cart = getFirstCart(carts);
         expect(cart).to.have.property('dsId').to.equal(testCartId);
         expect(cart).to.have.property('items').with.length(0);
         expect(cart).to.have.property('tableName');
@@ -60,39 +74,16 @@ function dsCartModuleTest() {
     it("Should get cart", function() {
         var $cart = DSCart.getCartById(testCartId);
         assert.equal($cart.length, 1, 'have only 1 cart');
-        assert.isTrue($cart.find(".cartEmptyHint").is(":visible"), 'Should see hint');
     });
-
-    // it("Should check if name is valid", function() {
-    //     var cart = DSCart.getCarts()[0];
-    //     var res = DSCart.__testOnly__.isCartNameValid(cart, {});
-    //     expect(res).to.be.true;
-
-    //     res = DSCart.__testOnly__.isCartNameValid(cart, {"testDS": 1});
-    //     expect(res).to.be.false;
-    //     assert.isTrue($("#statusBox").is(":visible"), "see error");
-    //     $("#statusBoxClose").mousedown();
-    //     assert.isFalse($("#statusBox").is(":visible"), "close error");
-
-    //     // manually change name
-    //     cart.tableName = "";
-    //     res = DSCart.__testOnly__.isCartNameValid(cart, null);
-    //     expect(res).to.be.false;
-    //     assert.isTrue($("#statusBox").is(":visible"), "see error");
-    //     $("#statusBoxClose").mousedown();
-    //     assert.isFalse($("#statusBox").is(":visible"), "close error");
-
-    //     cart.tableName = "testDS";
-    // });
 
     it('Should add item', function() {
         var items = [{"colNum": 1, "value": "testItem"}];
         DSCart.addItem(testCartId, items);
 
         var carts = DSCart.getCarts();
-        expect(carts).to.be.a('array').with.length(1);
+        expect(getCartsLen(carts)).to.equal(1);
 
-        var cart = carts[0];
+        var cart = getFirstCart(carts);
         expect(cart).to.have.property('items').with.length(1);
 
         var item = cart.items[0];
@@ -111,10 +102,10 @@ function dsCartModuleTest() {
         DSCart.addItem(testCartId, {"colNum": 2, "value": "testItem2"});
 
         var carts = DSCart.getCarts();
-        expect(carts).to.be.a('array').with.length(1);
+        expect(getCartsLen(carts)).to.equal(1);
 
         // now should have 2 items
-        var cart = carts[0];
+        var cart = getFirstCart(carts);
         expect(cart).to.have.property('items').with.length(2);
 
         // should have 1 item after remove
@@ -133,7 +124,7 @@ function dsCartModuleTest() {
         DSCart.removeCart(testCartId);
 
         var carts = DSCart.getCarts();
-        expect(carts).to.be.a('array').with.length(0);
+        expect(getCartsLen(carts)).to.equal(0);
 
         // UI check
         var $cart = DSCart.getCartById(testCartId);

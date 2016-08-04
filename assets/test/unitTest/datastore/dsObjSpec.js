@@ -101,13 +101,13 @@ function dsObjTest() {
         it("Should go to and out of folder", function() {
             var dsId = testFolder.getId();
             var $grid = DS.getGrid(dsId);
-            assert.isFalse($grid.hasClass("hidden"), "see folder");
+            assert.isFalse($grid.hasClass("xc-hidden"), "see folder");
 
             DS.goToDir(dsId);
-            assert.isTrue($grid.hasClass("hidden"), "cannot see folder");
+            assert.isTrue($grid.hasClass("xc-hidden"), "cannot see folder");
 
             DS.upDir();
-            assert.isFalse($grid.hasClass("hidden"), "see folder");
+            assert.isFalse($grid.hasClass("xc-hidden"), "see folder");
         });
 
         it("canCreateFolder() should work for this folder", function() {
@@ -228,10 +228,10 @@ function dsObjTest() {
 
         it("Should drop to folder", function() {
             DS.dropToFolder($ds, $folder);
-            expect($ds.parent().get(0)).to.equal($folder.get(0));
+            expect($ds.data("dsParentId")).to.equal($folder.data("dsid"));
 
             DS.dropToParent($ds);
-            expect($ds.parent().get(0)).not.to.equal($folder.get(0));
+            expect($ds.data("dsParentId")).not.to.equal($folder.data("dsid"));
         });
     });
 
@@ -270,7 +270,7 @@ function dsObjTest() {
 
         it("Should not delete folder with ds", function() {
             DS.dropToFolder($ds, $folder);
-            expect($ds.parent().get(0)).to.equal($folder.get(0));
+            expect($ds.data("dsParentId")).to.equal($folder.data("dsid"));
 
             DS.remove($folder);
             // see alert
@@ -286,7 +286,7 @@ function dsObjTest() {
             var dsId = testFolder.getId();
             // drop back to parent
             DS.dropToParent($ds);
-            expect($ds.parent().get(0)).not.to.equal($folder.get(0));
+            expect($ds.data("dsParentId")).not.to.equal($folder.data("dsid"));
 
             DS.remove($folder);
             // not alert
