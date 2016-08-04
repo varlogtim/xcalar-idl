@@ -27,43 +27,52 @@
 </div>
 
 <!-- monitors -->
-<div id="monitor-monitorsCard" class="cardContainer monitorCard">
-  <header class="cardHeader">
-    <div class="title"><%= dicts.monitor.Monitors %></div>
-  </header>
+<div id="monitor-graphCard" class="cardContainer monitorCard">
+  <header class="cardHeader"><span class="title">Statistics</span></header>
+  <!-- asupSub section -->
+  <div class="asupSubSection cardTopMain">
+     <div id="connectionInfo">
+        <span class="text" id="phyNodeText"><%= dicts.monitor.PhysicalNode %>: </span>
+        <span class="text" id="phyNode">localhost</span>
+        <span class="text" id="virNodeText"><%= dicts.monitor.VirtualNode %>: </span>
+        <span class="text" id="virNode">Node 0</span>
+      </div>
+      <div class="time">
+        <span class="text"><%= dicts.monitor.LastCheckTime %>: </span>
+        <span id="graphTime"></span>
+      </div>
+  </div>
+  <!-- end of asupsub section -->
   <div class="cardMain">
     <!-- top section -->
     <div class="topSection clearfix">
-      <div class="sideTabs">
-        <div id="cpuTab" class="sideTab active">
-          <div class="icon"></div>
-          <div class="text"><%= dicts.monitor.CPU %></div>
-        </div>
-        <div id="ramTab" class="sideTab">
-          <div class="icon"></div>
-          <div class="text"><%= dicts.monitor.RAM %></div>
-        </div>
-        <div id="diskTab" class="sideTab" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
-          <div class="icon"></div>
-          <div class="text"><%= dicts.monitor.NETWORK %></div>
+      <div class="graphSwitchBox">
+        <div class="header">Display Settings</div>
+        <div class="graphSwitches">
+          <div class="row clearfix">
+            <div class="text"><%= dicts.monitor.CPU %></div>
+            <div id="cpuTab" class="graphSwitch xc-switch switch on">
+              <div class="slider"></div>
+            </div>
+          </div>
+          <div class="row clearfix">
+            <div class="text"><%= dicts.monitor.RAM %></div>
+            <div id="ramTab" class="graphSwitch xc-switch switch">
+              <div class="slider"></div>
+            </div>
+          </div>
+          <div class="row clearfix">
+            <div class="text"><%= dicts.monitor.NETWORK %></div>
+            <div id="diskTab" class="graphSwitch xc-switch switch" data-toggle="tooltip" data-placement="bottom" data-container="body" title="<%= dicts.common.ComeSoon %>">
+              <div class="slider"></div>
+            </div>
+          </div>
+          
+          
         </div>
       </div>
+      
       <div class="graphSection">
-        <div class="graphTop">
-          <div id="connectionInfo">
-            <span class="text" id="phyNodeText"><%= dicts.monitor.PhysicalNode %>: </span>
-            <span class="text" id="phyNode">localhost</span>
-            <span class="text" id="virNodeText"><%= dicts.monitor.VirtualNode %>: </span>
-            <span class="text" id="virNode">Node 0</span>
-          </div>
-          <div class="time">
-            <span class="text"><%= dicts.monitor.LastCheckTime %>: </span>
-            <span id="graphTime"></span>
-          </div>
-       </div>
-      <!--<div class="graphText">
-              <div class="sampleText">SAMPLE</div>
-          </div> -->
         <div id="graphWrap">
           <div id="graph">
             <div id="grids"></div>
@@ -95,24 +104,20 @@
     <div class="bottomSection flex-container flex-row">
       <!-- donut0 -->
       <div id="donut0" class="donutSection">
-        <div class="icon"></div>
         <div class="donut">
-          <div class="innerCircle"></div>
           <div class="donutInfo first">
             <span class="percent userSize">
               <span class="num">0</span>
-              <sup>%</sup>
+              <span class="unit">%</span>
             </span>
           </div>
         </div>
         <div class="statsSection">
           <div class="statsTopHeading">
-            <span class="global"></span>
+            <span class="title"><%= dicts.monitor.CPU %></span>
             <span class="user"></span>
           </div>
           <div class="statsHeadingBar small open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.CPU %></span>
             <span class="percent">%</span>
             <span class="num avgNum">0</span>
           </div>
@@ -123,34 +128,31 @@
       </div>
       <!-- donut1 -->
       <div id="donut1" class="donutSection">
-        <div class="icon"></div>
         <div class="donut">
-          <div class="innerCircle"></div>
           <div class="donutInfo">
             <span class="userSize">
               <span class="num">1</span>
-              <sup>GB</sup>
+              <span class="unit">GB</span>
             </span>
             <hr/>
             <span class="totalSize">
               <span class="num">64</span>
-              <sup>GB</sup>
+              <span class="unit">GB</span>
             </span>
           </div>
         </div>
         <div class="statsSection">
           <div class="statsTopHeading">
-              <span class="global"><%= dicts.monitor.GTotal %></span>
+              <span class="title"><%= dicts.monitor.RAM %></span>
               <span class="user"><%= dicts.monitor.UTotal %></span>
           </div>
           <div class="statsHeadingBar open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.RAM %></span>
-            <span class="userSize">
-              <span class="avgNum">2 GB</span>
-            </span>
             <span class="totalSize">
               <span class="totNum">64 GB</span>
+            </span>
+            <span class="divider">/</span>
+            <span class="userSize">
+              <span class="avgNum">2 GB</span>
             </span>
           </div>
           <div class="listWrap open">
@@ -160,30 +162,26 @@
       </div>
       <!-- donut2 -->
       <div id="donut2" class="donutSection">
-        <div class="icon"></div>
         <div class="donut">
           <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
-          <div class="innerCircle"></div>
           <div class="donutInfo">
             <span class="userSize">
               <span class="num">100</span>
-              <sup>Mbps</sup>
+              <span class="unit">Mbps</span>
             </span>
             <hr/>
             <span class="totalSize">
               <span class="num">193</span>
-              <sup>Mbps</sup>
+              <span class="unit">Mbps</span>
             </span>
           </div>
         </div>
         <div class="statsSection">
           <div class="statsTopHeading">
-            <span class="global"><%= dicts.monitor.GTotal %></span>
+            <span class="title"><%= dicts.monitor.NETWORK %></span>
             <span class="user"><%= dicts.monitor.UTotal %></span>
           </div>
           <div class="statsHeadingBar open">
-            <span class="arrow"></span>
-            <span class="title"><%= dicts.monitor.NETWORK %></span>
             <span class="userSize">
               <span class="avgNum">45</span> Mbps
              </span>
@@ -199,5 +197,5 @@
     </div>
     <!-- end of bottom section -->
   </div>
-  <!-- end of card main -->
+  
 </div>

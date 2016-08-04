@@ -1,6 +1,8 @@
 // sets up monitor panel and donuts, not monitor graph
 window.MonitorPanel = (function($, MonitorPanel) {
     var isGenSub = false;
+    var diameter = 100; // for donuts
+    var donutThickness = 6;
 
     MonitorPanel.setup = function() {
         MonitorGraph.setup();
@@ -171,23 +173,32 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
     function initializeDonuts() {
         var numDonuts = 3;
-        var blueOuter = '#20a7eb';
-        var greenOuter = '#90c591';
-        var brownOuter = '#bbae84';
-        var grayOuter = '#cecece';
-        var colors = [blueOuter, greenOuter, brownOuter];
-        var diameter = 180;
+        var blue1= '#B4DCD5';
+        var blue2 = '#5DB9C4';
+        var blue3 = '#5A9FC8';
+        var grayOuter = '#eeeeee';
+        var transparent = 'rgba(0,0,0,0)';
+        var colors = [blue1, blue2, blue3];
         var radius = diameter / 2;
         var arc = d3.svg.arc()
                     .innerRadius(radius)
-                    .outerRadius(radius - 40);
+                    .outerRadius(radius - donutThickness);
         var pie = d3.layout.pie()
                 .sort(null);
 
         var color;
         var svg;
         for (var i = 0; i < numDonuts; i++) {
-            color = d3.scale.ordinal().range([colors[i], grayOuter]);
+            color = d3.scale.ordinal().range([colors[i], transparent]);
+            svg = makeSvg('#donut' + i + ' .donut');
+            drawPath(svg, color, pie, arc);
+        }
+        var smallRadius = radius - 2;
+        arc = d3.svg.arc()
+                    .innerRadius(smallRadius)
+                    .outerRadius(smallRadius - (donutThickness - 3));
+        for (var i = 0; i < numDonuts; i++) {
+            color = d3.scale.ordinal().range([grayOuter, grayOuter]);
             svg = makeSvg('#donut' + i + ' .donut');
             drawPath(svg, color, pie, arc);
         }
@@ -233,11 +244,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var data = [val, total - val];
         var donut = d3.select(el);
         var paths = donut.selectAll("path").data(pie(data));
-        var diameter = 180;
         var radius = diameter / 2;
         var arc = d3.svg.arc()
                     .innerRadius(radius)
-                    .outerRadius(radius - 40);
+                    .outerRadius(radius - donutThickness);
 
         paths.transition()
              .duration(duration)
@@ -317,9 +327,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
             if (index !== 2) {
                 $statsSection.find('.statsHeadingBar .totNum')
-                         .text(sumTotal[0] + " " + sumTotal[1]);
+                         .text(sumTotal[0] + sumTotal[1]);
                 $statsSection.find('.statsHeadingBar .avgNum')
-                         .text(sumUsed[0] + " " + sumUsed[1]);
+                         .text(sumUsed[0] + sumUsed[1]);
             }
             
 
@@ -340,12 +350,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
                                 '<span class="name">' +
                                     'Node ' + (i + 1) +
                                 '</span>' +
-                                '<span class="userSize">' +
-                                    used[0] + " " + usedUnits +
-                                '</span>' +
                                 '<span class="totalSize">' +
-                                    total[0] + " " + totalUnits +
+                                    total[0] + totalUnits +
                                 '</span>' +
+                                '<span class="userSize">' +
+                                    used[0] + usedUnits +
+                                '/</span>' +
+                                
                             '</li>';
             }
         }

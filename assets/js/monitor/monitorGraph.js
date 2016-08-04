@@ -23,19 +23,19 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
     MonitorGraph.setup = function() {
         var $monitorPanel = $('#monitorPanel');
-        $monitorPanel.find('.sideTab').click(function() {
-            var index = $(this).index();
+        $monitorPanel.find('.graphSwitch').click(function() {
+            var index = $(this).parent().index();
 
             if (index > 1) {
                 return;
             }
 
-            if ($(this).hasClass('active')) {
-                $(this).removeClass('active');
+            if ($(this).hasClass('on')) {
+                $(this).removeClass('on');
                 $monitorPanel.find('.line' + index).hide();
                 $monitorPanel.find('.area' + index).hide();
             } else {
-                $(this).addClass('active');
+                $(this).addClass('on');
                 var $area = $monitorPanel.find('.area' + index);
                 var $line = $monitorPanel.find('.line' + index);
 
@@ -49,10 +49,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var $area = $(this);
             var $line = $(this).prev();
 
-            if ($area.css('opacity') > 0.5) {
-                $area.css('opacity', 0.2);
+            if ($area.css('opacity') > 0.6) {
+                $area.css('opacity', 0.4);
             } else {
-                $area.css('opacity', 0.6);
+                $area.css('opacity', 0.8);
             }
 
             $('.mainSvg').children().append($line, $area);
@@ -62,7 +62,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     MonitorGraph.start = function() {
         datasets = [[0], [0]];
 
-        $('#ramTab, #cpuTab').addClass('active');
+        $('#ramTab, #cpuTab').addClass('on');
 
         setupLabelsPathsAndScales();
 
