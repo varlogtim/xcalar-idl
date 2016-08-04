@@ -1,18 +1,26 @@
 window.OperationsModal = (function($, OperationsModal) {
     var $operationsModal; // $('#operationsModal')
+    var $operationsView; // $('#operationsView');
     var $categoryInput;   // $('#categoryList').find('.autocomplete')
     var $categoryUl;      // $('#categoryMenu').find('ul')
-    var $functionInput;   // $('#functionList').find('.autocomplete')
-    var $functionsMenu;   // $('#functionsMenu')
-    var $functionsUl;     // $functionsMenu.find('ul')
+    var $categoryList; // for map
+    var $functionsList; // for map
+    var $functionInput;   // $('#functionList').find('.autocomplete');
+    var $functionInputs; // $operationsView.find('.functionsInput');
+    var $genFunctionsMenu;   // $('.genFunctionsMenu')
+    var $genFunctionsMenus;   // $('.genFunctionsMenu')
+    var $functionsUl;     // $genFunctionsMenu.find('ul')
+    var $functionsUls;     // $genFunctionsMenus.find('ul')
     var $menus;           // $('#categoryMenu, #functionsMenu')
     var $autocompleteInputs; // $operationsModal.find('.autocomplete');
     var $argInputs;
+    var $activeOpSection; // $operationsView.find('.map or .filter or .groupby etc')
     var currentCol;
     var colNum = "";
     var colName = "";
     var isNewCol;
     var operatorName = ""; // group by, map, filter, aggregate, etc..
+    var funcName = "";
     var operatorsMap = {};
     var categoryNames = [];
     var functionsMap = {};
@@ -25,6 +33,9 @@ window.OperationsModal = (function($, OperationsModal) {
     var corrector;
     var aggNames = [];
     var suggestLists = [];
+    var isOpen = false;
+    var allowInputChange = true;
+    var functionsListScrollers = [];
 
     var tableId;
 
@@ -49,21 +60,41 @@ window.OperationsModal = (function($, OperationsModal) {
 
     OperationsModal.setup = function() {
         $operationsModal = $('#operationsModal');
+        $operationsView = $('#operationsView');
         $categoryInput = $('#categoryList').find('.autocomplete');
         $categoryUl = $('#categoryMenu').find('ul');
-        $functionInput = $('#functionList').find('.autocomplete');
-        $functionsMenu = $('#functionsMenu');
-        $functionsUl = $functionsMenu.find('ul');
+        $functionInput = $operationsView.find('.functionInput');
+        $genFunctionsMenu = $operationsView.find('.genFunctionsMenu');
+        $genFunctionsMenus = $operationsView.find('.genFunctionsMenu');
+        $functionsUl = $genFunctionsMenu.find('ul');
+        $functionsUls = $genFunctionsMenus.find('ul');
         $menus = $('#categoryMenu, #functionsMenu');
+
+        // xi2
+        
+        $categoryList = $operationsView.find('.categoryMenu');
+        $functionsList = $operationsView.find('.functionsMenu');
 
         modalHelper = new ModalHelper($operationsModal, {
             "noResize": true
         });
 
-        var allowInputChange = true;
+        var scrolling = false;
+        var scrollTimeout;
+        var scrollTime = 300;
+        $operationsView.find('.mainContent').scroll(function() {
+            if (!scrolling) {
+                StatusBox.forceHide();// hides any error boxes;
+                $('.tooltip').hide();
+                scrolling = true;
+            }
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                scrolling = false;
+            }, scrollTime);
+        })
 
-        $autocompleteInputs = $operationsModal.find('.autocomplete');
-        $autocompleteInputs.on({
+        $operationsView.on({
             'mousedown': function(event) {
                 gMouseEvents.setMouseDownTarget($(this));
                 event.stopPropagation();
@@ -73,27 +104,25 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             },
             'click': function() {
-                var $list = $(this).siblings('.list');
+                var $input = $(this);
+                var $list = $input.siblings('.list');
                 if (!$list.is(':visible')) {
                     hideDropdowns();
-                    $operationsModal.find('li.highlighted')
+                    $activeOpSection.find('li.highlighted')
                                     .removeClass('highlighted');
                     // show all list options when use icon to trigger
                     $list.show().find('li').sort(sortHTML)
                                            .prependTo($list.children('ul'))
                                            .show();
-                    if ($list.attr('id') === "categoryMenu") {
-                        categoryListScroller.showOrHideScrollers();
-                    } else {
-                        functionsListScroller.showOrHideScrollers();
-                    }
+                    var fnInputNum = parseInt($input.data('fninputnum'));
+                    functionsListScrollers[fnInputNum].showOrHideScrollers();
                 }
             },
             'keydown': function(event) {
                 var $input = $(this);
                 if (event.which === keyCode.Enter || event.which ===
                     keyCode.Tab) {
-                    var inputNum = $autocompleteInputs.index($input);
+                    var inputNum = 0;
                     var value    = $input.val().trim().toLowerCase();
                     var prevValue = $input.data('value');
                     $input.data('value', value);
@@ -110,14 +139,8 @@ window.OperationsModal = (function($, OperationsModal) {
                         return;
                     }
 
-                    // when choose the same category as before
-                    if (inputNum === 0 &&
-                        value === $functionsMenu.data('category'))
-                    {
-                        $autocompleteInputs.eq(1).focus();
-                        return;
-                    }
-                    enterInput(inputNum);
+
+                    enterFunctionsInput($input.data('fninputnum'));
                     // prevent modal tabbing
                     return (false);
                 } else {
@@ -133,116 +156,48 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
                 var $input = $(this);
                 var inputNum = $autocompleteInputs.index($input);
+                var inputNum = 0;
                 var value = $input.val().trim().toLowerCase();
                 $input.data('value', value);
 
-                if (inputNum === 0) {
-                    // when $input is $categoryInput
-                    updateFunctionsList();
-                }
+         
                 if ($input.siblings('.list').find('li').length > 0) {
                     clearInput(inputNum, true);
                     return;
                 }
 
                 if ($input.val() !== "") {
-                    enterInput(inputNum);
+                    enterFunctionsInput($input.data('fninputnum'));
                 }
             }
+        }, '.functionsInput');
+
+        // for map
+        $categoryList.on('click', 'li', function() {
+            updateFunctionsList($(this));
         });
 
-        // click icon to toggle list
-        $operationsModal.find('.modalTopMain .dropdown').on('click', function() {
-            var $list = $(this).siblings('.list');
-            if ($list.is(':visible')) {
-                hideDropdowns();
-            } else {
-
-                hideDropdowns();
-                $operationsModal.find('li.highlighted')
-                                .removeClass('highlighted');
-                // show all list options when use icon to trigger
-                $list.show().find('li').sort(sortHTML)
-                                       .prependTo($list.children('ul'))
-                                       .show();
-                $list.siblings('input').focus();
-                if ($list.attr('id') === "categoryMenu") {
-                    categoryListScroller.showOrHideScrollers();
-                } else {
-                    functionsListScroller.showOrHideScrollers();
-                }
-            }
-        });
-
-        $operationsModal.find('.modalTopMain .dropdown').on('mousedown', function() {
-            var $list = $(this).siblings('.list');
-            if ($list.is(':visible')) {
-                allowInputChange = false;
-            } else {
-                allowInputChange = true;
-            }
-        });
-
-        // only for category list and function menu list
-        $operationsModal.find('.modalTopMain .list').on({
-            'mousedown': function() {
-                // do not allow input change
-                allowInputChange = false;
-            },
-            'mouseup': function(event) {
-                if (event.which !== 1) {
-                    return;
-                }
-                listMouseup(event, $(this));
-            }
-        }, 'li');
-
-        // for all lists (including hint li in argument table)
-        $operationsModal.on({
-            'mouseenter': function() {
-                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
-                    $(this).closest('.list').removeClass('disableMouseEnter');
-                    return;
-                }
-                $operationsModal.find('li.highlighted')
-                                .removeClass('highlighted');
-                $(this).addClass('highlighted');
-                $(this).closest('.list').addClass('hovering');
-            },
-            'mouseleave': function() {
-                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
-                    return;
-                }
-                $(this).removeClass('highlighted');
-                $(this).closest('.list').removeClass('hovering');
-            }
-        }, '.list li');
-
-        // click on the hint list
-        $operationsModal.on('click', '.hint li', function() {
+        // for map
+        $functionsList.on('click', 'li', function() {
             var $li = $(this);
-
-            $li.removeClass("openli")
-                .closest(".hint").removeClass("openList").hide()
-                .siblings(".argument").val($li.text())
-                .closest(".dropDownList").removeClass("open");
-            checkIfStringReplaceNeeded();
+            $li.siblings().removeClass('active');
+            $li.addClass('active');
+            updateArgumentSection($li, 0);
         });
 
-        $lastInputFocused = $operationsModal.find('.argument:first');
-        $operationsModal.on('focus', 'input', function() {
+        $lastInputFocused = $operationsView.find('.arg:first');
+        $operationsView.on('focus', '.arg', function() {
             $lastInputFocused = $(this);
         });
 
-        var argumentTimer;
-        var $argSection = $operationsModal.find('.argumentSection');
-        $operationsModal.on({
+        // .arg (argument input)
+        $operationsView.on({
             'keydown': function(event) {
                 var $input = $(this);
                 var $list = $input.siblings('.openList');
                 if (event.which === keyCode.Down && $list.length) {
 
-                    $operationsModal.find('li.highlighted')
+                    $operationsView.find('li.highlighted')
                                     .removeClass('highlighted');
                     $list.addClass('hovering').find('li')
                                               .addClass('highlighted');
@@ -256,12 +211,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             },
             'keypress': function(event) {
-                if (event.which === keyCode.Enter &&
-                    !modalHelper.checkBtnFocus())
-                {
-                    if ($argSection.hasClass('minimized')) {
-                        return;
-                    }
+                if (event.which === keyCode.Enter) {
                     var $input = $(this);
                     var $hintli = $input.siblings('.hint').find('li');
                     if ($hintli.hasClass('highlighted')) {
@@ -276,15 +226,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 hideDropdowns();
             },
             'blur': function() {
-                setTimeout(function() {
-                    var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
-                    if ($argSection.hasClass('minimized') ) {
-                        if ($mouseTarget.closest('.editableHead').length === 0) {
-                            $lastInputFocused.focus();
-                        }
-                        return;
-                    }
-                }, 0);
                 restoreInputSize($(this));
             },
             'input': function() {
@@ -301,7 +242,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     checkIfStringReplaceNeeded();
                 }, 200);
 
-                updateDescription();
+                updateStrPreview();
                 if ($input.siblings('.argIconWrap:visible').length) {
                     checkInputSize($input);
                 }
@@ -319,19 +260,152 @@ window.OperationsModal = (function($, OperationsModal) {
                     checkInputSize($activeInput);
                 }
             }
-        }, '.argument');
+        }, '.arg');
 
-        $operationsModal.on('dblclick', 'input', function() {
+         // toggle between mininizeTable and unMinimizeTable
+        $operationsView.on('click', '.argIconWrap', function() {
+            var $input = $(this).siblings('input');
+            $input.focus();
+            $lastInputFocused = $input;
+        });
+
+        $operationsView.on('mousedown', '.argIconWrap', function(event) {
+            event.preventDefault(); // prevents input from blurring
+            event.stopPropagation();
+        });
+
+        $operationsView.find('.cancel, .close').on('click', function() {
+            closeOpSection();
+        });
+
+        $operationsView.on('click', '.closeGroup', function() {
+            removeFilterGroup($(this).closest('.group'));
+        }); 
+
+
+        $operationsView.on('dblclick', 'input', function() {
             this.setSelectionRange(0, this.value.length);
         });
 
-        $operationsModal.on('click', '.checkbox', function() {
-            $(this).toggleClass("checked");
+        $operationsView.on('click', '.checkbox', function() {
+            var $checkbox = $(this);
+            if ($checkbox.hasClass('checked')) {
+                $checkbox.removeClass('checked');
+                // we want it to be :visible for jquery selector purposes in our code
+                $checkbox.parent().siblings('.inputWrap').removeClass('semiHidden');
+            } else {
+                $checkbox.addClass('checked');
+                $checkbox.parent().siblings('.inputWrap').addClass('semiHidden');
+            }
+       
             checkIfStringReplaceNeeded();
         });
 
+        $operationsView.find('.submit').on('click', submitForm);
+
+
+        // add filter arguments button
+        
+        $operationsView.find('.addFilterArg').click(function() {
+            addFilterGroup();
+        });
+
+
+        $autocompleteInputs = $operationsView.find('.autocomplete');
+        
+
+        // click icon to toggle functions list
+
+        $operationsView.on('click', '.functionsList .dropdown', function() {
+            var $list = $(this).siblings('.list');
+            if ($list.is(':visible')) {
+                hideDropdowns();
+            } else {
+
+                hideDropdowns();
+                $operationsView.find('li.highlighted')
+                                .removeClass('highlighted');
+                // show all list options when use icon to trigger
+                $list.show().find('li').sort(sortHTML)
+                                       .prependTo($list.children('ul'))
+                                       .show();
+                $list.siblings('input').focus();
+ 
+                functionsListScroller.showOrHideScrollers();
+
+                var fnInputNum = parseInt($list.siblings('input').data('fninputnum'));
+                functionsListScrollers[fnInputNum].showOrHideScrollers();
+            }
+        });
+
+        $operationsView.on('mousedown', '.firstList .dropdown', function() {
+            var $list = $(this).siblings('.list');
+            if ($list.is(':visible')) {
+                allowInputChange = false;
+            } else {
+                allowInputChange = true;
+            }
+        });
+
+        // only for category list and function menu list
+        $operationsView.on({
+            'mousedown': function() {
+                // do not allow input change
+                allowInputChange = false;
+            },
+            'mouseup': function(event) {
+                if (event.which !== 1) {
+                    return;
+                }
+                listMouseup(event, $(this));
+            }
+        }, '.functionsList .list li');
+
+        // for all lists (including hint li in argument table)
+        $operationsView.on({
+            'mouseenter': function() {
+                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
+                    $(this).closest('.list').removeClass('disableMouseEnter');
+                    return;
+                }
+                $operationsView.find('li.highlighted')
+                                .removeClass('highlighted');
+                $(this).addClass('highlighted');
+                $(this).closest('.list').addClass('hovering');
+            },
+            'mouseleave': function() {
+                if ($(this).closest('.list').hasClass('disableMouseEnter')) {
+                    return;
+                }
+                $(this).removeClass('highlighted');
+                $(this).closest('.list').removeClass('hovering');
+            }
+        }, '.list li');
+
+        // click on the hint list
+        $operationsView.on('click', '.hint li', function() {
+            var $li = $(this);
+
+            $li.removeClass("openli")
+                .closest(".hint").removeClass("openList").hide()
+                .siblings(".arg").val($li.text())
+                .closest(".dropDownList").removeClass("open");
+            checkIfStringReplaceNeeded();
+        });
+
+        // xi2.0 commented out
+        // $lastInputFocused = $operationsModal.find('.argument:first');
+        // $operationsModal.on('focus', 'input', function() {
+        //     $lastInputFocused = $(this);
+        // });
+
+        var argumentTimer;
+        var $argSection = $operationsModal.find('.argumentSection');
+
+        addCastDropDownListener();
+
         // incSample and keepInTable toggling
-        $operationsModal.on('change', 'input[type="checkbox"]', function() {
+        $operationsView.on('change', 'input[type="checkbox"]', function() {
             var $checkbox = $(this);
             if ($checkbox.prop("checked")) {
                 if ($checkbox.attr('id') === "incSample") {
@@ -342,85 +416,15 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-        // toggle between mininizeTable and unMinimizeTable
-        $operationsModal.on('click', '.argIconWrap', function() {
-            var $input = $(this).siblings('input');
-            if ($argSection.hasClass('minimized')) {
-                unminimizeTable();
-                $(this).siblings('.argument').focus();
-            } else {
-                // we want to target only headers that have editableheads
-                minimizeTableAndFocusInput($input);
-            }
-            $lastInputFocused = $input;
-        });
 
-        $operationsModal.on('click', '.minimize', function() {
-            minimizeTableAndFocusInput($lastInputFocused);
-        });
-        $operationsModal.on('click', '.maximize', function() {
-            unminimizeTable();
-        });
-
-        $operationsModal.on('mousedown', '.argIconWrap', function(event) {
-            event.preventDefault(); // prevents input from blurring
-            event.stopPropagation();
-        });
-
-        $operationsModal.find('.confirm').on('click', submitForm);
-
-        $operationsModal.find('.cancel, .close').on('click', function() {
-            closeModal();
-        });
-
-        $operationsModal.on('click', function() {
-            var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
-            // close if user clicks somewhere on the op modal, unless
-            // they're clicking on a dropdownlist
-            if ($mousedownTarget.closest('.dropDownList').length === 0) {
-                var dropdownHidden = false;
-                $menus.each(function() {
-                    if ($(this).is(':visible')) {
-                        var $selectedLi = $(this).find('.highlighted');
-                        if ($selectedLi.length > 0) {
-                            var e = $.Event("mouseup");
-                            listMouseup(e, $selectedLi);
-                            dropdownHidden = true;
-                        }
-                    }
-                });
-                if (!dropdownHidden) {
-                    hideDropdowns();
-                }
-            }
-            allowInputChange = true;
-        });
-
-        // focus on section's input if you click anywhere in the section except
-        // for the actual input and dropdown
-        $operationsModal.find('.modalTopMain').on('mousedown', '.step', function(event) {
-            var $section = $(this);
-            if ($(event.target).closest('.dropDownList').length === 0) {
-                event.stopPropagation();
-                event.preventDefault();
-                hideDropdowns();
-                $section.find('input').focus();
-            }
-        });
-
-        addCastDropDownListener();
-
-        categoryListScroller = new MenuHelper($('#categoryList'), {
+        // should only have 1 initially...
+        var functionsListScroller = new MenuHelper($('.functionsList'), {
             scrollerOnly : true,
-            bounds       : '#operationsModal',
+            bounds       : '#operationsView',
             bottomPadding: 5
         });
 
-        functionsListScroller = new MenuHelper($('#functionList'), {
-            scrollerOnly : true,
-            bounds       : '#operationsModal',
-            bottomPadding: 5
-        });
+        functionsListScrollers.push(functionsListScroller);
 
         $operationsModal.draggable({
             handle     : '.operationsModalHeader',
@@ -445,15 +449,9 @@ window.OperationsModal = (function($, OperationsModal) {
             Alert.error("List XDFs failed", error.error);
         });
 
-        $operationsModal.find('.hint').each(function() {
-            var scroller = new MenuHelper($(this), {
-                scrollerOnly : true,
-                bounds       : '#operationsModal',
-                bottomPadding: 5
-            });
-            suggestLists.push(scroller);
-        });
+        // shouldn't have any .hint when  new form
 
+        // for functions dropdown list
         function listMouseup(event, $li) {
             allowInputChange = true;
             event.stopPropagation();
@@ -469,24 +467,36 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $input.val(value);
 
-            if (value === $functionsMenu.data('category')) {
+            if (value === $genFunctionsMenu.data('category')) {
                 return;
             }
 
-            var inputNum = $autocompleteInputs.index($input);
-            if (inputNum < 2) {
-                $autocompleteInputs.eq(inputNum).data('value',
-                                                    value.trim().toLowerCase());
-            }
-            enterInput(inputNum);
+            $input.data('value', value.trim().toLowerCase());
+            enterFunctionsInput($input.data('fninputnum'));
         }
     };
 
     // restore: boolean, if true, will not clear the form from it's last state
     OperationsModal.show = function(currTableId, currColNum, operator, restore) {
         var deferred = jQuery.Deferred();
+        isOpen = true;
 
-        if (!restore) {
+        //xi2 hack
+        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
+        $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
+        $operationsView.removeClass('xc-hidden');
+        if (!MainMenu.isMenuOpen()) {
+            MainMenu.open();
+        }
+
+
+        // $('#modalBackground').remove();
+        if (restore) {
+           $activeOpSection.removeClass('xc-hidden');
+        } else {
+            operatorName = operator.toLowerCase().trim();
+            showOpSection();
+           
             resetForm();
             tableId = currTableId;
             var tableCols = gTables[tableId].tableCols;
@@ -494,31 +504,28 @@ window.OperationsModal = (function($, OperationsModal) {
             colNum = currColNum;
             colName = currentCol.name;
             isNewCol = currentCol.isNewCol;
-            $operationsModal.find('.operationsModalHeader .text')
-                        .text(operator);
-
-            // get modal's origin classes
-            var classes = $operationsModal.attr('class').split(' ');
-            for (var i = 0; i < classes.length; i++) {
-                if (classes[i].startsWith('numArgs')){
-                    classes.splice(i, 1);
-                    i--;
-                }
-            }
-
-            $operationsModal.attr('class', classes.join(' '));
-
-            operatorName = operator.toLowerCase().trim();
-            $operationsModal.removeClass('fewArgs numerousArgs');
-            if (operatorName === 'aggregate') {
-                $operationsModal.addClass('fewArgs');
-            } else if (operatorName === 'map') {
-                $operationsModal.addClass('numerousArgs');
-            } else if (operatorName === 'group by') {
-                $operationsModal.addClass('numerousArgs');
-            }
         }
+        $operationsView.find('.title').text(operatorName);
+        $operationsView.find('.submit').text(operatorName.toUpperCase());
 
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        $tableWrap.addClass('columnPicker');
+        var $table = $("#xcTable-" + tableId);
+        $table.on('click.columnPicker', '.header, td.clickable', function(event) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            var $target = $(event.target);
+            if ($target.closest('.dataCol').length ||
+                $target.closest('.jsonElement').length) {
+                return;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
+        });
+        $table.on('mousedown', '.header, td.clickable', keepInputFocused);
+
+
+        // highlight active column
         $('#xcTable-' + tableId).find('.col' + colNum)
                                 .addClass('modalHighlighted');
 
@@ -526,21 +533,44 @@ window.OperationsModal = (function($, OperationsModal) {
 
 
         // we want the modal to show up ~ below the first row
-        var modalTop = $('#xcTable-' + tableId).find('tbody tr').eq(0)
-                                               .offset().top +
-                                               gRescol.minCellHeight;
 
         modalHelper.addWaitingBG();
         modalHelper.setup({
-            "center": {"maxTop": modalTop},
             "open"  : function() {
                 // ops modal has its own opener
-                toggleModalDisplay(false);
-                if (!restore) {
-                    fillInputPlaceholder(0);
-                }
+                // toggleModalDisplay(false);
+                // if (!restore) {
+                //     fillInputPlaceholder(0);
+                // }
             }
         });
+        toggleModalDisplay(false);
+        if (!restore) {
+            fillInputPlaceholder(0);
+        }
+
+        $(document).on('click.OpSection', function(event) {
+            var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
+            // close if user clicks somewhere on the op modal, unless
+            // they're clicking on a dropdownlist
+            if ($mousedownTarget.closest('.dropDownList').length === 0) {
+                var dropdownHidden = false;
+                if ($genFunctionsMenus.is(":visible")) {
+                    var $selectedLi = $(this).find('.highlighted');
+                    if ($selectedLi.length > 0) {
+                        var e = $.Event("mouseup");
+                        listMouseup(e, $selectedLi);
+                        dropdownHidden = true;
+                    }
+                }
+                if (!dropdownHidden) {
+                    hideDropdowns();
+                }
+            }
+            allowInputChange = true;
+        });
+
+
 
         XcalarListXdfs("*", "User*")
         .then(function(listXdfsObj) {
@@ -568,16 +598,16 @@ window.OperationsModal = (function($, OperationsModal) {
                 fillInputPlaceholder(0);
 
                 $categoryInput.focus();
-                if ($categoryUl.find('li').length === 1) {
-                    var val = $categoryUl.find('li').text();
-                    $categoryInput.val(val).change();
-                    enterInput(0);
-                    $operationsModal.find('.circle1').addClass('filled');
-                    $functionInput.focus();
+                if (operatorName === "map") {
+                    // handle map
+
+                } else {
+                    
+                    $autocompleteInputs.focus();
                 }
             }
 
-            $operationsModal.find('.list').removeClass('hovering');
+            $operationsView.find('.list').removeClass('hovering');
 
             modalHelper.removeWaitingBG();
 
@@ -590,57 +620,62 @@ window.OperationsModal = (function($, OperationsModal) {
         return (deferred.promise());
     };
 
+    OperationsModal.turnOffClickHandlers = function() {
+        $(document).off('click.OpSection');
+    }
+
+    OperationsModal.closeOpSection = function() {
+        if (isOpen) {
+            closeOpSection(); 
+        }
+        
+    };
+
+    function showOpSection() {
+        switch (operatorName) {
+            case ('map'): 
+                $activeOpSection = $operationsView.find('.map');
+                $activeOpSection.removeClass('xc-hidden');
+                break;
+            case ('filter'):
+                $activeOpSection = $operationsView.find('.filter');
+                $activeOpSection.removeClass('xc-hidden');
+                break;
+            default:
+                break;
+        }
+    }
+
     function toggleModalDisplay(isHide, time) {
-        modalHelper.toggleBG(tableId, isHide, {"time": time});
+        //xi2
+        
+        // modalHelper.toggleBG(tableId, isHide, {"time": time, "opSection": true});
 
         var $table = $("#xcTable-" + tableId);
+        var $tableWrap = $("#xcTableWrap-" + tableId);
         if (isHide) {
+            
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
             $table.off('click.columnPicker');
             $('body').off('keydown', listHighlightListener);
-        } else {
-            if (gMinModeOn) {
-                $operationsModal.show();
-            } else {
-                $operationsModal.fadeIn(400);
-            }
 
-            $table.on('click.columnPicker', '.header, td.clickable', function(event) {
-                var $target = $(event.target);
-                xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
-            });
-            $table.on('mousedown', '.header, td.clickable', keepInputFocused);
+
+            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                             .removeClass('tableOpSection');
+            $tableWrap.removeClass('columnPicker');
+            $tableWrap.removeClass('modalOpen');
+
+        } else {
+
             $('body').on('keydown', listHighlightListener);
+            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                             .addClass('tableOpSection');
         }
     }
 
     function keepInputFocused(event) {
         event.preventDefault();
         event.stopPropagation();
-    }
-
-    function minimizeTableAndFocusInput($input) {
-        // is there a better way????
-        $operationsModal.find('div, p, b, thead').addClass('minimized');
-        $operationsModal.find('.modalHeader, .maximize, .close, .tableContainer,' +
-                              '.tableWrapper')
-                        .removeClass('minimized');
-        $operationsModal.find('.maximize').show();
-        $operationsModal.find('.argumentSection tbody div').removeClass('minimized');
-
-        $input.focus();
-        $('body').on('keydown', opModalKeyListener);
-        modalHelper.center();
-        $('#statusBox').trigger('mousedown');
-        checkInputSize($input);
-    }
-
-    function unminimizeTable() {
-        $operationsModal.find('.minimized').removeClass('minimized');
-        $operationsModal.find('.minimize').show();
-        $operationsModal.find('.maximize').hide();
-        $('body').off('keydown', opModalKeyListener);
-        modalHelper.center();
     }
 
     function opModalKeyListener(event) {
@@ -651,12 +686,11 @@ window.OperationsModal = (function($, OperationsModal) {
             event.stopPropagation();
             // prevent event in order to keep form from submitting or exiting
             // because there's a keypress listener trying to close the modal
-            unminimizeTable();
         }
     }
 
     function addCastDropDownListener() {
-        var $lists = $operationsModal.find(".cast.new .dropDownList");
+        var $lists = $operationsView.find(".cast.new .dropDownList");
         $lists.closest('.cast.new').removeClass('new');
         var castList = new MenuHelper($lists, {
             "onOpen": function($list) {
@@ -680,12 +714,12 @@ window.OperationsModal = (function($, OperationsModal) {
                 } else {
                     casted = true;
                 }
-                $input.closest('td').prev().find('input')
-                                           .data('casted', casted)
-                                           .data('casttype', type);
+                $input.closest('.row').find('input')
+                                       .data('casted', casted)
+                                       .data('casttype', type);
                 StatusBox.forceHide();
             },
-            "container": "#operationsModal"
+            "container": "#operationsView"
         });
         castList.setupListeners();
     }
@@ -716,6 +750,8 @@ window.OperationsModal = (function($, OperationsModal) {
                             categoryName +
                         '</li>';
             }
+            //xi2
+            $categoryList.html(html);
         } else {
             var categoryIndex;
             if (operator === "aggregate" || operator === "group by") {
@@ -726,13 +762,37 @@ window.OperationsModal = (function($, OperationsModal) {
 
             categoryName = FunctionCategoryTStr[categoryIndex].toLowerCase();
             categoryNames.push(categoryName);
-            functionsMap[0] = operatorsMap[categoryIndex];
-            html += '<li data-category="' + 0 + '">' +
-                        categoryName +
-                    '</li>';
+            var ops = operatorsMap[categoryIndex];
+            functionsMap[0] = ops;
+
+             
+            populateFunctionsListUl(0);
+            // var html = "";
+            // for (var i = 0, numOps = ops.length; i < numOps; i++) {
+            //     html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
+            // }
+            // // var $list = $(html);
+            // $activeOpSection.find('.genFunctionsMenu ul').html(html);
+
+            // // html += '<li data-category="' + 0 + '">' +
+            // //             categoryName +
+            // //         '</li>';
+            // $categoryUl.html(html);
+           
         }
 
-        $categoryUl.html(html);
+        
+    }
+
+    function populateFunctionsListUl(index) {
+        var categoryIndex = FunctionCategoryT.FunctionCategoryCondition;
+        var ops = operatorsMap[categoryIndex];
+        var html = "";
+        for (var i = 0, numOps = ops.length; i < numOps; i++) {
+            html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
+        }
+        $activeOpSection.find('.genFunctionsMenu ul[data-fnmenunum="' + index + '"]')
+                        .html(html);
     }
 
     function setupOperatorsMap(opArray) {
@@ -768,7 +828,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function argSuggest($input) {
         var curVal = $input.val().trim();
         var $ul = $input.siblings(".list");
-        var index = $operationsModal.find('.hint').index($ul);
+        var index = $activeOpSection.find('.hint').index($ul);
         var shouldSuggest = true;
         var corrected;
         var hasAggPrefix = false;
@@ -841,7 +901,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var value = $input.val().trim().toLowerCase();
         var $list = $input.siblings('.list');
 
-        $operationsModal.find('li.highlighted').removeClass('highlighted');
+        $operationsView.find('li.highlighted').removeClass('highlighted');
 
         $list.show().find('li').hide();
 
@@ -852,11 +912,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
 
-        if ($list.attr('id') === "categoryMenu") {
-            categoryListScroller.showOrHideScrollers();
-        } else {
-            functionsListScroller.showOrHideScrollers();
-        }
+        var fnInputNum = parseInt($input.data('fninputnum'));
+        functionsListScrollers[fnInputNum].showOrHideScrollers();
 
         if (value === "") {
             return;
@@ -873,53 +930,70 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function hideDropdowns() {
-        $operationsModal.find('.list').hide();
-        $operationsModal.find('.list li').hide();
-        $operationsModal.find('.cast .list li').show();
+        $operationsView.find('.list').hide();
+        $operationsView.find('.list li').hide();
+        $operationsView.find('.cast .list li').show();
     }
 
-    function enterInput(inputNum, noFocus) {
-        if (inputNum < 2) {
-            if (!isOperationValid(inputNum)) {
-                showErrorMessage(inputNum);
-                var keep = true;
-                clearInput(inputNum, keep);
-                return;
-            } else if (inputNum === 0) {
-                updateFunctionsList();
+    function enterFunctionsInput(index) {
+        index = index || 0;
+        if (!isOperationValid(index)) {
+            showErrorMessage(inputNum);
+            var keep = true;
+            clearInput(inputNum, keep);
+            return;
+        }
+
+        updateArgumentSection(null, index);
+
+        var $nextInput;
+        var $inputs = $activeOpSection.find('.group').eq(index).find('.arg');
+
+        $inputs.each(function() {
+            if ($(this).val().trim().length === 0) {
+                $nextInput = $(this);
+                return false;
             }
+        });
+        if (!$nextInput) {
+            $nextInput = $inputs.last();
         }
 
-        $operationsModal.find('.circle' + inputNum).addClass('done');
-        $operationsModal.find('.link' + inputNum).addClass('filled');
 
-        $operationsModal.find('.step:eq(' + (inputNum + 1) + ')')
-                        .removeClass('inactive')
-                        .find('.autocomplete')
-                        .attr('disabled', false);
+        $nextInput.focus();
+        var val = $nextInput.val();
+        $nextInput[0].selectionStart = $nextInput[0].selectionEnd = val.length;
+    }
 
-        if (!$operationsModal.find('.modalMain').hasClass('inactive')) {
-            $operationsModal.find('.minimize').show();
+    // xx check this func everywhere
+    function enterInput(inputNum, noFocus) {
+        inputNum = inputNum || 0;
+        if (!isOperationValid(inputNum)) {
+            showErrorMessage(inputNum);
+            var keep = true;
+            clearInput(inputNum, keep);
+            return;
         }
 
-        if (inputNum === 1) {
-            produceArgumentTable();
+        if (inputNum === 0) {
+            // produceArgumentTable();
+            updateArgumentSection(null, 0);
         }
 
         if (!noFocus) {
-            var $input;
-            if (inputNum === 1) {
+            var $nextInput;
+            if (inputNum === 0) {
                 if (operatorName === "aggregate") {
-                    $input = $argInputs.eq(0);
+                    $nextInput = $argInputs.eq(0);
                 } else {
                     $argInputs.each(function() {
                         if ($(this).val().trim().length === 0) {
-                            $input = $(this);
+                            $nextInput = $(this);
                             return false;
                         }
                     });
-                    if (!$input) {
-                        $input = $argInputs.last();
+                    if (!$nextInput) {
+                        $nextInput = $argInputs.last();
                     }
                 }
             } else {
@@ -932,28 +1006,27 @@ window.OperationsModal = (function($, OperationsModal) {
                     inputNumToFocus++;
                 }
 
-                $input = $operationsModal.find('input:not(.nonEditable)')
+                $nextInput = $activeOpSection.find('input:not(.nonEditable)')
                                          .eq(inputNumToFocus);
             }
-            $input.focus();
-            var val = $input.val();
-            $input[0].selectionStart = $input[0].selectionEnd = val.length;
+            $nextInput.focus();
+            var val = $nextInput.val();
+            $nextInput[0].selectionStart = $nextInput[0].selectionEnd = val.length;
         }
-
-        setTimeout(function() {
-            $operationsModal.find('.circle' + (inputNum + 1))
-                            .addClass('filled');
-        }, 300);
     }
 
     function clearInput(inputNum, keep) {
         if (!keep) {
-            $operationsModal.find('.autocomplete')
+            $operationsView.find('.autocomplete')
                             .eq(inputNum).val("")
                             .attr('placeholder', "");
         }
         if (inputNum === 0) {
-            $functionsMenu.data('category', 'null');
+            $genFunctionsMenu.data('category', 'null');
+            $operationsView.find('.argsSection')
+                       .addClass('inactive');
+            $activeOpSection.find('.descriptionText').empty();
+            $activeOpSection.find('.strPreview').empty();
         }
         if (inputNum < 2) {
             $autocompleteInputs.eq(inputNum).data('value', "");
@@ -961,30 +1034,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
         hideDropdowns();
 
-        $operationsModal.find('.outerCircle:eq(' + inputNum + ')')
-                        .removeClass('done');
-        $operationsModal.find('.outerCircle:gt(' + inputNum + ')')
-                        .removeClass('done filled');
-        $operationsModal.find('.step:gt(' + inputNum + ')')
-                        .addClass('inactive')
-                        .find('.autocomplete')
-                        .attr('disabled', true)
-                        .val("");
-
-        if ($operationsModal.find('.modalMain').hasClass('inactive')) {
-            $operationsModal.find('.minimize').hide();
-        }
-
-        $operationsModal.find('.innerLink:eq(' + (inputNum) + ')')
-                        .removeClass('filled');
-        $operationsModal.find('.innerLink:gt(' + (inputNum) + ')')
-                        .removeClass('filled');
     }
 
     function closeListIfNeeded($input) {
-        var parentId = $input.closest('.dropDownList').attr('id');
+        var parentNum = $input.closest('.dropDownList').data('fnlistnum');
         var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
-        if ($mousedownTarget.closest('#' + parentId).length === 0) {
+        if ($mousedownTarget.closest('[data-fnlistnum="' + parentNum + '"]').length === 0) {
             hideDropdowns();
         }
     }
@@ -1060,51 +1115,39 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function isOperationValid(inputNum) {
-        var category = $.trim($categoryInput.val().toLowerCase());
-        var func = $.trim($functionInput.val().toLowerCase());
-
-        if (inputNum === 0) {
-
-            return (categoryNames.indexOf(category) > -1 );
-        } else if (inputNum === 1) {
-            var categoryIndex = categoryNames.indexOf(category);
-            if (categoryIndex > -1) {
-                var matches = $functionsUl.find('li').filter(function() {
-                    return ($(this).text().toLowerCase() === func);
-                });
-                return (matches.length > 0);
-            } else {
-                return (false);
-            }
+    function isOperationValid(index) {
+        if (operatorName === "map") { // no custom input so no need to check
+            return (true);
         }
-        return (false);
+
+        var func = $.trim($activeOpSection.find('.group').eq(index).find('.functionsInput').val()
+                                           .toLowerCase());
+
+        var matches = $functionsUl.find('li').filter(function() {
+            return ($(this).text().toLowerCase() === func);
+        });
+
+        return (matches.length > 0);
     }
 
     function showErrorMessage(inputNum) {
         var text = ErrTStr.NoSupportOp;
-        var $target = $operationsModal.find('input').eq(inputNum);
+        var $target = $activeOpSection.find('input').eq(inputNum);
         if ($target.val().trim() === "") {
             text = ErrTStr.NoEmpty;
         }
         StatusBox.show(text, $target, false, {"offsetX": -5});
     }
 
-    function updateFunctionsList() {
-        var category = $categoryInput.val().trim().toLowerCase();
+    // for map
+    function updateFunctionsList($li) {
+        var category = $li.text().trim().toLowerCase();
+
+        $li.siblings().removeClass('active');
+        $li.addClass('active');
         var index = categoryNames.indexOf(category);
-
-        $functionsUl.empty();
-        clearInput(1);
-        // invalid category
-        if (index < 0) {
-            return;
-        }
-
-        var $categoryLi = $categoryUl.find('li').filter(function() {
-            return ($(this).text().toLowerCase() === category);
-        });
-        var categoryNum = $categoryLi.data('category');
+        
+        var categoryNum = $li.data('category');
         var ops = functionsMap[categoryNum];
 
         var html = "";
@@ -1112,10 +1155,269 @@ window.OperationsModal = (function($, OperationsModal) {
             html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
         }
         var $list = $(html);
+        $functionsList.empty();
+        $list.sort(sortHTML).prependTo($functionsList);
+        $functionsList.data('category', category);
 
-        $list.sort(sortHTML).prependTo($functionsUl);
-        $functionsMenu.data('category', category);
-        fillInputPlaceholder(1);
+        $operationsView.find('.argsSection')
+                       .addClass('inactive');
+        $activeOpSection.find('.descriptionText').empty();
+        $operationsView.find('.strPreview').empty();
+    }
+
+    // $li = map's function menu li
+    // groupIndex, the index of a group of arguments (multi filter)
+    function updateArgumentSection($li, groupIndex) {
+        
+        var category;
+        var categoryNum;
+        var func;
+        var $argsGroup = $activeOpSection.find('.group').eq(groupIndex);
+
+        if (operatorName === "map" && $li) {
+            var $categoryLi = $categoryList.find('.active');
+            category = $categoryLi.text().trim().toLowerCase();
+            categoryNum = $categoryLi.data('category');
+            func = $li.text().toLowerCase().trim();
+        } else { 
+            categoryNum = 0;
+            category = categoryNames[categoryNum];
+            func = $argsGroup.find('.functionsInput').val().toLowerCase().trim();
+        }
+
+        suggestLists = [];
+
+        funcName = func;
+
+        var ops = functionsMap[categoryNum];
+        var operObj = null;
+        var strPreview;
+
+        for (var i = 0, numOps = ops.length; i < numOps; i++) {
+            if (func === ops[i].fnName.toLowerCase()) {
+                operObj = ops[i];
+                break;
+            }
+        }
+
+        var $argsSection = $argsGroup.find('.argsSection');
+        $argsSection.removeClass('inactive');
+        $argsSection.empty();
+        
+
+        // resetArgSectionRows();
+
+        var defaultValue; // to autofill first arg
+
+        if (firstArgExceptions[category] &&
+            firstArgExceptions[category].indexOf(func) !== -1)
+        {
+            defaultValue = "";
+        } else if (isNewCol) {
+            defaultValue = "";
+        } else {
+            defaultValue = gColPrefix + colName;
+        }
+
+        var numArgs = operObj.numArgs;
+        if (numArgs < 0) {
+            numArgs = 1; // Refer to operObj.numArgs for min number
+        }
+        
+        
+        var numInputsNeeded;
+
+        if (operatorName === "group by") {
+            numInputsNeeded = (numArgs + 4);
+        } else {
+            numInputsNeeded = (numArgs + 1);
+        }
+
+
+        addExtraArgRows(numInputsNeeded, $argsGroup);            
+
+        var $rows = $argsSection.find('.row'); // get rows now that more were added
+       
+        hideCastColumn(groupIndex);
+
+
+        // sets up the args generated by backend, not front end arguments
+        setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue);
+        
+        var strPreview;
+        if (operatorName === 'map') {
+            // sets up the last input for map
+            strPreview = mapArgumentsSetup(numArgs, categoryNum, func, operObj);
+            numArgs++;
+        } else if (operatorName === "filter") {
+            strPreview = filterArgumentsSetup(operObj, $rows);
+        } else if (operatorName === "aggregate") {
+
+        } else if (operatorName === "group by") {
+
+        }
+
+        // hide any args that aren't being used
+        $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
+
+        var despText = operObj.fnDesc || "N/A";
+        $argsGroup.find('.descriptionText').html('<b>Description:</b> ' + despText);
+        $operationsView.find('.strPreview').html('<b>Preview:</b> ' + strPreview);
+   
+        $argInputs = $activeOpSection.find('.arg:visible');
+        $activeOpSection.find('.arg').parent().each(function(i) {
+            // xx this would be a bug if more than 100 arguments ¯\_(ツ)_/¯
+            $(this).css('z-index', 100 - i);
+        });
+        $activeOpSection.find('.cast').each(function(i) {
+            // xx this would be a bug if more than 100 arguments ¯\_(ツ)_/¯
+            $(this).css('z-index', 100 - i);
+        });
+        
+
+        modalHelper.refreshTabbing();
+
+        var noHighlight = true;
+        checkIfStringReplaceNeeded(noHighlight);
+        if (($activeOpSection.find('.group').length - 1) === groupIndex) {
+            scrollToBottom();
+        }
+        
+    }
+
+    function addExtraArgRows(numInputsNeeded, $argsGroup) {
+        var $argsSection = $argsGroup.find('.argsSection');
+        var argsHtml = "";
+        for (var i = 0; i < numInputsNeeded; i++) {
+            argsHtml += getArgHtml();
+        }
+        $argsSection.append(argsHtml);
+        addCastDropDownListener();
+
+        $operationsView.find('.hint.new').each(function() {
+            var scroller = new MenuHelper($(this), {
+                scrollerOnly : true,
+                bounds       : '#operationsView',
+                bottomPadding: 5
+            });
+            suggestLists.push(scroller);
+            $(this).removeClass('new');
+        });
+    }
+
+    // sets up the args generated by backend, not front end arguments
+    function setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue) {
+        var description;
+        var typId;
+        for (var i = 0; i < numArgs; i++) {
+            if (operObj.argDescs[i]) {
+                description = operObj.argDescs[i].argDesc;
+                typeId = operObj.argDescs[i].typesAccepted;
+            } else {
+                description = "";
+                var keyLen = Object.keys(DfFieldTypeT).length;
+                typeId = Math.pow(2, keyLen + 1) - 1;
+            }
+
+            var $input = $rows.eq(i).find('.arg');
+            if (i === 0 && operatorName !== "group by") {
+                $input.val(defaultValue);
+            } else {
+                $input.val("");
+            }
+            $input.data("typeid", typeId);
+            $rows.eq(i).find('.description').text(description + ':');
+        }
+    }
+
+    // unused for now
+    function resetArgSectionRows() {
+        var $argsSection = $activeOpSection.find('.argsSection');
+        var $rows = $argsSection.find('.row');
+        $rows.find('input').data('typeid', -1)
+                       .data('casted', false)
+                       .data('casttype', null)
+             .end()
+             .find('.checkboxSection')
+             .removeClass('checkboxSection')
+             .removeClass("disabled")
+             .removeAttr("data-toggle")
+             .removeAttr("data-placement")
+             .removeAttr("data-original-title")
+             .removeAttr("data-container")
+             .find('input').attr('type', 'text')
+             .prop("checked", false)
+             .removeAttr('id')
+             .end()
+             .find('.checkBoxText').remove();
+
+        var $args = $rows.find('.arg');
+
+        $args.off('input.aggPrefix');
+        $args.off('keydown.aggPrefix');
+        $args.off('focus.aggPrefix');
+        $args.off('blur.aggPrefix');
+
+        $argsSection.find('.checkbox').removeClass('checked')
+                                          .parent()
+                                          .removeClass('hidden');
+
+        // as rows order may change, update it here
+        $argsSection.find(".row.rowToListen")
+                    .removeClass("rowToListen")
+                    .off(".groupbyListener");
+        
+        var $colNameRow = $rows.filter(function() {
+            return ($(this).hasClass('colNameRow'));
+        });
+        $colNameRow.removeClass('colNameRow')
+                   .find('.colNameSection')
+                   .removeClass('colNameSection');
+
+        $rows.find('.cast input').val('default');
+    }
+
+    // sets up the last argument for map
+    function mapArgumentsSetup(numArgs, categoryNum, func, operObj) {
+        var description = OpModalTStr.ColNameDesc;
+        var tempName = colName;
+        var autoGenColName;
+        var $rows = $activeOpSection.find('.row');
+        if (colName === "") {
+            tempName = "mapped";
+        }
+        if (isNewCol && colName !== "") {
+            autoGenColName = currentCol.name;
+        } else {
+            if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
+                autoGenColName = getAutoGenColName(tempName + "_udf");
+            } else {
+                autoGenColName = getAutoGenColName(tempName + "_" +
+                                                   func);
+            }
+        }
+
+        autoGenColName = xcHelper.stripeColName(autoGenColName);
+
+        $rows.eq(numArgs).addClass('colNameRow')
+                        .find('.dropDownList')
+                        .addClass('colNameSection')
+                        .end()
+                        .find('.arg').val(autoGenColName)
+                        .end()
+                        .find('.description').text(description);
+        var strPreview =  operatorName + '(<span class="descArgs">' + operObj.fnName + 
+                            '(' + $rows.eq(0).find(".arg").val() +
+                            ')</span>)';
+        return (strPreview);
+    }
+
+    function filterArgumentsSetup(operObj, $rows) {
+        var $rows = $activeOpSection.find('.row');
+        var strPreview = operatorName + '(<span class="descArgs">' + operObj.fnName + '(' +
+                        + $rows.eq(0).find(".arg").val() +
+                        ')</span>)';
+        return (strPreview);
     }
 
     function produceArgumentTable() {
@@ -1470,6 +1772,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.find('.argument').parent().each(function(i) {
                 // xx this would be a bug if more than 100 arguments ¯\_(ツ)_/¯
                 $(this).css('z-index', 100 - i);
+
             });
 
             modalHelper.refreshTabbing();
@@ -1479,50 +1782,73 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function updateDescription(noHighlight) {
-        var $description = $operationsModal.find(".funcDescription");
-
-        var numArgs = $argInputs.length;
-        // var val;
-        var $inputs = $argInputs;
+    function updateStrPreview(noHighlight) {
+        var $description = $operationsView.find(".strPreview");
+        var $inputs = $activeOpSection.find('.arg:visible');
         var tempText;
         var newText = "";
+
         if (operatorName === "map" || operatorName === "filter") {
             var oldText = $description.find('.descArgs').text();
-            if (operatorName === "map") {
-                numArgs--;
-                $inputs = $argInputs.not(':last');
-            }
-            $inputs.each(function(i) {
-                var $input = $(this);
-                var val = $input.val();
-                val = parseAggPrefixes(val);
-                val = parseColPrefixes(val);
+            var $groups = $activeOpSection.find(".group");
+            var numGroups = $groups.length;
 
-                if (quotesNeeded[i]) {
-                    val = "\"" + val + "\"";
+            $groups.each(function(groupNum) {
+                var funcName;
+                if (operatorName === "filter") {
+                    funcName = $(this).find('.functionsInput').val().trim();
+                } else if (operatorName === "map") {
+                    funcName = $functionsList.find('.active').text().trim();
                 }
+                
+                if (groupNum > 0) {
+                    newText += ", ";
+                }
+                if (groupNum < numGroups - 1) {
+                    newText += "and("
+                }
+                newText += funcName + "(";
+                $inputs = $(this).find('.arg:visible');
+                if (operatorName === "map") {
+                    $inputs = $inputs.not(':last');
+                }
+                $inputs.each(function(i) {
+                    var $input = $(this);
+                    var val = $input.val();
+                    val = parseAggPrefixes(val);
+                    val = parseColPrefixes(val);
 
-                if (i > 0) {
-                    // check: if arg is blank and is not a string then do not add comma
-                    // ex. add(6) instead of add(6, )
-                    if (val === "") {
-                        var typeId = $input.data('typeid');
-                        var types = parseType(typeId);
-                        if (types.indexOf("string") > -1 ||
-                            !$input.closest('tr').find('.checked').length) {
+                    if (quotesNeeded[i]) {
+                        val = "\"" + val + "\"";
+                    }
+
+                    if (i > 0) {
+                        // check: if arg is blank and is not a string then do not add comma
+                        // ex. add(6) instead of add(6, )
+                        if (val === "") {
+                            var typeId = $input.data('typeid');
+                            var types = parseType(typeId);
+                            if (types.indexOf("string") > -1 ||
+                                !$input.closest('.row').find('.checked').length) {
+                                val = ", " + val;
+                            }
+                        } else {
                             val = ", " + val;
                         }
-                    } else {
-                        val = ", " + val;
                     }
-                }
 
-                newText += val;
+                    newText += val;
 
+                });
+                newText += ")";
             });
+
+            for (var i = 0; i < numGroups - 1; i++) {
+                newText += ")";
+            }
+
+            tempText = newText;
             if (noHighlight) {
-                tempText = newText;
                 newText = "";
                 for (var i = 0; i < tempText.length; i++) {
                     newText += "<span class='char'>" + tempText[i] + "</span>";
@@ -1537,11 +1863,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
         } else if (operatorName === "group by") {
             var aggColOldText = $description.find(".aggCols").text();
-            var aggColNewText = $argInputs.eq(0).val().trim();
+            var $inputs = $activeOpSection.find('.arg:visible')
+            var aggColNewText = $inputs.eq(0).val().trim();
             aggColNewText = parseAggPrefixes(aggColNewText);
             aggColNewText = parseColPrefixes(aggColNewText);
             var gbColOldText = $description.find(".groupByCols").text();
-            var gbColNewText = $argInputs.eq(1).val().trim();
+            var gbColNewText = $inputs.eq(1).val().trim();
             gbColNewText = parseAggPrefixes(gbColNewText);
             gbColNewText = parseColPrefixes(gbColNewText);
 
@@ -1575,6 +1902,8 @@ window.OperationsModal = (function($, OperationsModal) {
                                 $gbColSpans);
             }
         }
+
+        return (tempText);
     }
 
     function modifyDescText(oldText, newText, $spanWrap, $spans) {
@@ -1688,75 +2017,82 @@ window.OperationsModal = (function($, OperationsModal) {
 
     // noHighlight: boolean; if true, will not highlight new changes
     function checkIfStringReplaceNeeded(noHighlight) {
-        var existingTypes = {};
-
-        var typeIds = [];
         quotesNeeded = [];
-        $argInputs.each(function() {
-            var $input = $(this);
-            var arg    = $input.val().trim();
-            var type   = null;
 
-            // ignore new colname input
-            if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                return;
-            } else if (hasFuncFormat(arg)) {
-                // skip
-            } else if (xcHelper.hasValidColPrefix(arg)) {
-                arg = parseColPrefixes(arg);
-                if ($("#categoryList input").val().indexOf("user") !== 0) {
-                    type = getColumnTypeFromArg(arg);
-                }
-            } else if (arg[0] === aggPrefix) {
-                // skip
-            } else {
-                var parsedType = parseType($input.data('typeid'));
-                if (parsedType.length === 6) {
-                    type = null;
+        $activeOpSection.find('.group').each(function() {
+            var typeIds = [];
+            var existingTypes = {};
+            var $inputs = $(this).find('.arg:visible');
+
+            $inputs.each(function() {
+                var $input = $(this);
+                var arg    = $input.val().trim();
+                var type   = null;
+
+                // ignore new colname input
+                if ($input.closest(".dropDownList").hasClass("colNameSection")) {
+                    return;
+                } else if (hasFuncFormat(arg)) {
+                    // skip
+                } else if (xcHelper.hasValidColPrefix(arg)) {
+                    arg = parseColPrefixes(arg);
+                    if ($("#categoryList input").val().indexOf("user") !== 0) {
+                        type = getColumnTypeFromArg(arg);
+                    }
+                } else if (arg[0] === aggPrefix) {
+                    // skip
                 } else {
-                    var isString = formatArgumentInput(arg, $input.data('typeid'),
-                                                   existingTypes).isString;
-                    if (isString) {
-                        type = "string";
+                    var parsedType = parseType($input.data('typeid'));
+                    if (parsedType.length === 6) {
+                        type = null;
+                    } else {
+                        var isString = formatArgumentInput(arg, $input.data('typeid'),
+                                                       existingTypes).isString;
+                        if (isString) {
+                            type = "string";
+                        }
                     }
                 }
-            }
 
-            if (type != null) {
-                existingTypes[type] = true;
-            }
-            typeIds.push($input.data('typeid'));
-        });
+                if (type != null) {
+                    existingTypes[type] = true;
+                }
+                typeIds.push($input.data('typeid'));
+            });
 
-        $argInputs.each(function(i) {
-            var $input = $(this);
-            var arg = $(this).val().trim();
-            var parsedType = parseType(typeIds[i]);
-            if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
-                !xcHelper.hasValidColPrefix(arg) &&
-                arg[0] !== aggPrefix &&
-                parsedType.indexOf("string") !== -1 &&
-                !hasFuncFormat(arg)) {
+            $inputs.each(function(i) {
+                var $input = $(this);
+                var arg = $(this).val().trim();
+                var parsedType = parseType(typeIds[i]);
+                if (!$input.closest(".dropDownList").hasClass("colNameSection") &&
+                    !xcHelper.hasValidColPrefix(arg) &&
+                    arg[0] !== aggPrefix &&
+                    parsedType.indexOf("string") !== -1 &&
+                    !hasFuncFormat(arg)) {
 
-                if (parsedType.length === 1) {
-                    // if input only accepts strings
-                    quotesNeeded.push(true);
-                } else if (!$.isEmptyObject(existingTypes) &&
-                        existingTypes.hasOwnProperty("string")) {
-                    quotesNeeded.push(true);
+                    if (parsedType.length === 1) {
+                        // if input only accepts strings
+                        quotesNeeded.push(true);
+                    } else if (!$.isEmptyObject(existingTypes) &&
+                            existingTypes.hasOwnProperty("string")) {
+                        quotesNeeded.push(true);
+                    } else {
+                        quotesNeeded.push(false);
+                    }
                 } else {
                     quotesNeeded.push(false);
                 }
-            } else {
-                quotesNeeded.push(false);
-            }
+            });
         });
-        updateDescription(noHighlight);
+
+        
+        updateStrPreview(noHighlight);
     }
 
     function checkArgumentParams() {
         var allInputsFilled = true;
-        $argInputs.each(function(index) {
+        var $inputs = $activeOpSection.find('.group');
+        $inputs.each(function(index) {
             var $input = $(this);
 
             if ($input.closest('.dropDownList').hasClass('checkboxSection')) {
@@ -1766,15 +2102,15 @@ window.OperationsModal = (function($, OperationsModal) {
             if (!$input.closest('.dropDownList').hasClass('colNameSection')) {
                 // if map, some args can be blank
                 if (operatorName === "map") {
-                    if ($categoryInput.val() === "user-defined functions") {
+                    var category = $categoryList.find('.active').text().trim().toLowerCase();
+                    if (category === "user-defined functions") {
                         return (true);
                     }
-                    if ($categoryInput.val() === "string functions") {
-                        if ($functionInput.val() !== "cut" &&
-                            $functionInput.val() !== "substring") {
+                    if (category === "string functions") {
+                        if (funcName !== "cut" && funcName !== "substring") {
                             return (true);
                         } else {
-                            if ($functionInput.val() === "substring") {
+                            if (funcName === "substring") {
                                 if (index === 0) {
                                     return (true);
                                 }
@@ -1786,8 +2122,8 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
                 // allow blanks in eq and like filters
                 if (operatorName === "filter") {
-                    if ($functionInput.val() === "eq" ||
-                        $functionInput.val() === "like") {
+                    if ($activeOpSection.find('.functionInputs').eq(groupNum).val() === "eq" ||
+                        $activeOpSection.find('.functionInputs').eq(groupNum).val() === "like") {
                         return (true);
                     }
                 }
@@ -1809,9 +2145,11 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
+        // xi2 check if this is correct 
+        
         if (allInputsFilled) {
             var noFocus = true;
-            enterInput(2, noFocus);
+            enterInput(0, noFocus);
             return (true);
         } else {
             clearInput(2);
@@ -1819,12 +2157,13 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function getExistingTypes() {
+    function getExistingTypes(groupNum) {
         var existingTypes = {};
         var arg;
         var $input;
         var type;
-        $argInputs.each(function() {
+        var $group = $activeOpSection.find('.group').eq(groupNum);
+        $group.find('.arg:visible').each(function() {
             $input = $(this);
             arg = $input.val().trim();
             type = null;
@@ -1840,9 +2179,11 @@ window.OperationsModal = (function($, OperationsModal) {
                 // col types they are expecting in the python functions, we will
                 // skip this type check if the function category is user defined
                 // function.
-                if ($("#categoryList input").val().indexOf("user") !== 0) {
-                    type = getColumnTypeFromArg(arg);
+                if (operatorName !== "map" ||
+                    $categoryList.find('.active').text().indexOf('user') !== 0) {
+                        type = getColumnTypeFromArg(arg);
                 }
+                
             } else {
                 var parsedType = parseType($input.data('typeid'));
                 if (parsedType.length === 6) {
@@ -1869,10 +2210,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (!isOperationValid(0)) {
             showErrorMessage(0);
-        } else if (!isOperationValid(1)) {
-            showErrorMessage(1);
         } else {
-            isPassing = checkArgumentParams();
+            // xi2 temp
+            // isPassing = checkArgumentParams(0);
+            isPassing = true;
         }
 
         if (!isPassing) {
@@ -1889,6 +2230,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                               .length === 0;
             var errorMsg;
             if (hasEmptyOption) {
+                showEmptyOption(invalidInputs[0]);
                 errorMsg = ErrTStr.NoEmptyOrCheck;
             } else {
                 errorMsg = ErrTStr.NoEmpty;
@@ -1898,17 +2240,25 @@ window.OperationsModal = (function($, OperationsModal) {
             return;
         }
 
+        var multipleArgSets = [];
+
+        var $groups = $activeOpSection.find('.group');
         var args = [];
-
         // get colType first
-        var existingTypes = getExistingTypes();
-        var argFormatHelper = argumentFormatHelper(existingTypes);
+        $groups.each(function(i) {
+            var existingTypes = getExistingTypes(i);
+            var argFormatHelper = argumentFormatHelper(existingTypes, i);
+            isPassing = argFormatHelper.isPassing;
 
-        isPassing = argFormatHelper.isPassing;
-        args = argFormatHelper.args;
-
+            if (!isPassing) {
+                modalHelper.enableSubmit();
+                return false;
+            }
+            args = argFormatHelper.args;
+            multipleArgSets.push(args);
+        });
+        
         if (!isPassing) {
-            modalHelper.enableSubmit();
             return;
         }
 
@@ -1917,7 +2267,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var isPromise = false;
         switch (operatorName) {
             case ('map'):
-                $nameInput = $argInputs.eq(args.length - 1);
+                $nameInput = $activeOpSection.find('.arg:visible').eq(args.length - 1);
                 if (isNewCol && colName !== "" &&
                     ($nameInput.val().trim() === colName)) {
                     isPassing = true; // input name matches new column name
@@ -1930,7 +2280,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 break;
             case ('group by'):
                 // check new col name
-                $nameInput = $argInputs.eq(2);
+                $nameInput = $activeOpSection.find('.arg:visible').eq(2);
                 isPassing = !ColManager.checkColDup($nameInput, null, tableId);
                 break;
             case ('aggregate'):
@@ -1959,13 +2309,19 @@ window.OperationsModal = (function($, OperationsModal) {
             if (!isPassing) {
                 modalHelper.enableSubmit();
             } else {
-                submitFinalForm(args);
+                // if there are multiple sets of arguments such as filter
+                var hasMultipleSets = false;
+                if (multipleArgSets.length > 1){
+                    args = multipleArgSets;
+                    hasMultipleSets = true;
+                }
+                submitFinalForm(args, hasMultipleSets);
             }
         }
     }
 
-    function submitFinalForm(args) {
-        var func = $functionInput.val().trim();
+    function submitFinalForm(args, hasMultipleSets) {
+        var func = funcName;
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
         var isPassing;
@@ -1976,7 +2332,19 @@ window.OperationsModal = (function($, OperationsModal) {
                 isPassing = aggregateCheck(args);
                 break;
             case ('filter'):
-                isPassing = filterCheck(func, args);
+                $activeOpSection.find('.group').each(function(i) {
+                    var $input = $(this).find('.arg:visible').eq(0);
+                    func = $(this).find('.functionsInput').val().toLowerCase().trim();
+                    if (hasMultipleSets) {
+                        isPassing = filterCheck(func, args[i], $input);
+                    } else {
+                        isPassing = filterCheck(func, args, $input);
+                    }
+                    
+                    if (!isPassing) {
+                        return false;
+                    }
+                });
                 break;
             case ('group by'):
                 isPassing = groupByCheck(args);
@@ -1991,16 +2359,24 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (isPassing) {
-            closeModal({slow: true});
-
-            var colTypeInfos = getCastInfo(args);
+           
+            var colTypeInfos;
+            if (hasMultipleSets) {
+                colTypeInfos = [];
+                for (var i = 0; i < args.length; i++) {
+                    colTypeInfos.push(getCastInfo(args[i], i));
+                }
+            } else {
+                colTypeInfos = getCastInfo(args, 0);
+            }
+           
 
             switch (operatorName) {
                 case ('aggregate'):
                     aggregate(funcCapitalized, args, colTypeInfos);
                     break;
                 case ('filter'):
-                    filter(func, args, colTypeInfos);
+                    filter(func, args, colTypeInfos, hasMultipleSets);
                     break;
                 case ('group by'):
                     groupBy(funcCapitalized, args, colTypeInfos);
@@ -2014,18 +2390,21 @@ window.OperationsModal = (function($, OperationsModal) {
                     break;
             }
 
+            closeOpSection({slow: true});
+
         } else {
             modalHelper.enableSubmit();
         }
     }
 
     // returns an array of objects that include the new type and argument number
-    function getCastInfo(args) {
+    function getCastInfo(args, groupNum) {
         var table = gTables[tableId];
         var colTypeInfos = [];
 
         // set up colTypeInfos, filter out any that shouldn't be casted
-        $argInputs.each(function(i) {
+        $activeOpSection.find('.group').eq(groupNum)
+                        .find('.arg:visible').each(function(i) {
             var $input = $(this);
             isCasting = $input.data('casted');
             if (isCasting) {
@@ -2048,8 +2427,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return colTypeInfos;
     }
 
-    function argumentFormatHelper(existingTypes) {
-        console.log(arguments);
+    function argumentFormatHelper(existingTypes, groupNum) {
         var args = [];
         var isPassing = true;
         var colTypes;
@@ -2062,7 +2440,8 @@ window.OperationsModal = (function($, OperationsModal) {
         // a column name but still has an invalid type
 
         // XXX this part may still have potential bugs
-        $argInputs.each(function(inputNum) {
+        $activeOpSection.find('.group').eq(groupNum)
+                        .find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
 
             // Edge case. GUI-1929
@@ -2213,12 +2592,13 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (!isPassing) {
             if (errorType === "invalidColType") {
-                var castIsVisible = $operationsModal.find('.cast')
+                var castIsVisible = $activeOpSection.find('.group').eq(groupNum)
+                                                    .find('.cast')
                                                     .hasClass('showing');
-                showCastColumn(allColTypes)
+                showCastRow(allColTypes, groupNum)
                 .then(function() {
                     if (!castIsVisible) {
-                        var $castDropdown = $errorInput.closest('td').next()
+                        var $castDropdown = $errorInput.closest('.inputWrap').next()
                                             .find('.dropDownList:visible');
                         if ($castDropdown.length) {
                             $errorInput = $castDropdown.find('input');
@@ -2227,7 +2607,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     }
                 });
                 if (castIsVisible) {
-                    var $castDropdown = $errorInput.closest('td').next()
+                    var $castDropdown = $errorInput.closest('.inputWrap').next()
                                             .find('.dropDownList:visible');
                     if ($castDropdown.length) {
                         $errorInput = $castDropdown.find('input');
@@ -2243,19 +2623,26 @@ window.OperationsModal = (function($, OperationsModal) {
         return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
     }
 
-    function showCastColumn(allColTypes) {
+    function showCastRow(allColTypes, groupNum) {
+        console.log('trying');
         var deferred = jQuery.Deferred();
 
         getProperCastOptions(allColTypes);
-        var isCastAvailable = displayCastOptions(allColTypes);
-        $operationsModal.find('.cast .list li').show();
+        var isCastAvailable = displayCastOptions(allColTypes, groupNum);
+        $activeOpSection.find('.group').eq(groupNum)
+                        .find('.cast .list li').show();
 
         if (isCastAvailable) {
-            $operationsModal.find('.cast').addClass('showing');
-            $operationsModal.find('.descCell').addClass('castShowing');
+            var $castable = $activeOpSection.find('.group').eq(groupNum)
+                            .find('.cast .dropDownList:not(.hidden)').parent();
+            $castable.addClass('showing');
+            // $activeOpSection.find('.cast').addClass('showing');
+            $activeOpSection.find('.group').eq(groupNum)
+                            .find('.descCell').addClass('castShowing');
             setTimeout(function() {
-                if ($operationsModal.find('.cast.showing').length) {
-                    $operationsModal.find('.cast').addClass('overflowVisible');
+                if ($activeOpSection.find('.group').eq(groupNum)
+                                    .find('.cast.showing').length) {
+                    $castable.addClass('overflowVisible');
                 }
 
                 deferred.resolve();
@@ -2304,9 +2691,10 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function displayCastOptions(allColTypes) {
+    function displayCastOptions(allColTypes, groupNum) {
 
-        var $castDropdowns = $operationsModal.find('td.cast')
+        var $castDropdowns = $activeOpSection.find('.group').eq(groupNum)
+                                             .find('.cast')
                                              .find('.dropDownList');
         $castDropdowns.addClass('hidden');
         var lis;
@@ -2328,14 +2716,20 @@ window.OperationsModal = (function($, OperationsModal) {
 
     // $input is an $argInput
     function resetCastOptions($input) {
-        $input.closest('td').next().find('input').val('default');
+        $input.closest('.inputWrap').next().find('input').val('default');
         $input.data('casted', false);
         $input.data('casttype', null);
     }
 
-    function hideCastColumn() {
-        $operationsModal.find('.cast').removeClass('showing overflowVisible');
-        $operationsModal.find('.descCell').removeClass('castShowing');
+    function hideCastColumn(groupIndex) {
+        var $target;
+        if (groupIndex != null) {
+            $target = $activeOpSection.find('.group').eq(groupIndex);
+        } else {
+            $target = $operationsView;
+        }
+        $target.find('.cast').removeClass('showing overflowVisible');
+        $target.find('.descCell').removeClass('castShowing');
     }
 
     // function checkNoEmptyFields(args) {
@@ -2391,11 +2785,11 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function filterCheck(operator, args) {
+    function filterCheck(operator, args, $input) {
         if (!hasFuncFormat(args[0])) {
             var filterColNum = getColNum(args[0]);
             if (filterColNum < 1) {
-                StatusBox.show(ErrTStr.InvalidColName, $argInputs.eq(0));
+                StatusBox.show(ErrTStr.InvalidColName, $input);
                 return false;
             } else {
                 return true;
@@ -2405,16 +2799,26 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function filter(operator, args, colTypeInfos) {
+    function filter(operator, args, colTypeInfos, hasMultipleSets) {
         var filterColNum;
         // var colName;
-        if (!hasFuncFormat(args[0])) {
-            filterColNum = getColNum(args[0]);
+        var firstArg;
+        if (hasMultipleSets) {
+            firstArg = args[0][0];
+        } else {
+            firstArg = args[0];
+        }
+    
+        if (!hasFuncFormat(firstArg)) {
+            filterColNum = getColNum(firstArg);
         } else {
             filterColNum = colNum;
         }
 
-        var filterString = formulateMapFilterString(operator, args, colTypeInfos);
+
+        var filterString = formulateFilterString(operator, args, colTypeInfos, hasMultipleSets);
+
+  
         xcFunction.filter(filterColNum, tableId, {
             "filterString": filterString
         });
@@ -2533,7 +2937,66 @@ window.OperationsModal = (function($, OperationsModal) {
         });
     }
 
-    function formulateMapFilterString(operator, args, colTypeInfos) {
+    function formulateFilterString(operator, args, colTypeInfos, hasMultipleSets) {
+        // var str = operator + "(";
+        var str = "";
+        var argNum;
+        var argGroups = [];
+        var colTypeGroups = [];
+        if (!hasMultipleSets) {
+            argGroups.push(args);
+            colTypeGroups.push(colTypeInfos);
+        } else {
+            argGroups = args;
+            colTypeGroups = colTypeInfos;
+        }
+        for  (var i = 0; i < colTypeGroups.length; i++) {
+            for (var j = 0; j < colTypeGroups[i].length; j++) {
+                argNum = colTypeGroups[i][j].argNum;
+                argGroups[i][argNum] = xcHelper.castStrHelper(argGroups[i][argNum],
+                                                 colTypeGroups[i][j].type);
+            }
+        }
+
+
+        for (var i = 0; i < argGroups.length; i++) {
+            var funcName =  $activeOpSection.find('.group').eq(i).find('.functionsInput').val().trim();
+
+            if (i > 0) {
+                str += ", ";
+            }
+            if (i < argGroups.length - 1) {
+                str += "and(";
+            }
+            str += funcName + "(";
+            for (var j = 0; j < argGroups[i].length; j++) {
+                  // check: if arg is blank and is not a string then do not add comma
+                // ex. add(6) instead of add(6, )
+                if (argGroups[i][j] === "") {
+                    var $input = $activeOpSection.find('.group').eq(i).find('.arg:visible').eq(i);
+                    var typeId = $input.data('typeid');
+                    var types = parseType(typeId);
+                    if (types.indexOf("string") > -1 ||
+                        !$input.closest('.row').find('.checked').length) {
+                        str += argGroups[i][j] + ", ";
+                    }
+                } else {
+                    str += argGroups[i][j] + ", ";
+                }
+            }
+            if (argGroups[i].length > 0) {
+                str = str.slice(0, -2);
+            }
+            str += ")"; 
+        }
+
+        for (var i = 0; i < argGroups.length - 1; i++) {
+            str += ")";
+        }
+        return (str);
+    }
+
+    function formulateMapFilterString(operator, args, colTypeInfos, hasMultipleSets) {
         var str = operator + "(";
         var argNum;
         for (var i = 0; i < colTypeInfos.length; i++) {
@@ -2550,7 +3013,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 var typeId = $input.data('typeid');
                 var types = parseType(typeId);
                 if (types.indexOf("string") > -1 ||
-                    !$input.closest('tr').find('.checked').length) {
+                    !$input.closest('.row').find('.checked').length) {
                     str += args[i] + ", ";
                 }
             } else {
@@ -2812,10 +3275,10 @@ window.OperationsModal = (function($, OperationsModal) {
     function checkIfBlanksAreValid(invalidInputs) {
         var isValidBlanks = true;
         var check;
-        $argInputs.each(function() {
+        $activeOpSection.find('.arg:visible').each(function() {
             var $input   = $(this);
             var val   = $input.val().trim();
-            var $checkboxWrap = $input.closest('tr').find('.checkboxWrap');
+            var $checkboxWrap = $input.closest('.row').find('.checkboxWrap');
             check = false;
             if ($checkboxWrap.hasClass('hidden')) {
                 check = true;
@@ -2834,6 +3297,10 @@ window.OperationsModal = (function($, OperationsModal) {
         });
 
         return (isValidBlanks);
+    }
+
+    function showEmptyOption($input) {
+        $input.closest('.row').find('.checkboxWrap').removeClass('xc-hidden');
     }
 
     function formatArgumentInput(value, typeid, existingTypes) {
@@ -2946,14 +3413,15 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function fillInputPlaceholder(inputNum) {
         var placeholderText = "";
-        $operationsModal.find('.list').eq(inputNum).find('li').each(function() {
+        // xi2 broken
+        $activeOpSection.find('.list').eq(inputNum).find('li').each(function() {
             if ($(this).css('opacity') > 0.2) {
                 placeholderText = $(this).text();
                 return (false);
             }
         });
 
-        $operationsModal.find('.autocomplete').eq(inputNum)
+        $operationsView.find('.autocomplete').eq(inputNum)
                         .attr('placeholder', placeholderText);
     }
 
@@ -3017,7 +3485,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function listHighlightListener(event) {
-        var $list = $operationsModal.find('.modalTopMain')
+        var $list = $operationsView.find('.functionsList')
                                     .find('.list:visible');
         if ($list.length !== 0) {
             var $input = $list.siblings('input');
@@ -3146,6 +3614,35 @@ window.OperationsModal = (function($, OperationsModal) {
         return (true);
     }
 
+    function closeOpSection(speed) {
+        isOpen = false;
+        var time;
+        if (gMinModeOn) {
+            time = 0;
+        } else {
+            time = (speed && speed.slow) ? 300 : 150;
+        }
+
+        modalHelper.clear({"close": function() {
+            // ops modal has its owne closer
+            // highlighted column sticks out if we don't close it early
+            $("#xcTable-" + tableId).find('.modalHighlighted')
+                                    .removeClass('modalHighlighted');
+            toggleModalDisplay(true, time);
+            // $operationsView.fadeOut(time, function() {
+            //     modalHelper.removeWaitingBG();
+            // });
+            $operationsView.addClass('xc-hidden');
+            $activeOpSection.addClass('xc-hidden');
+            $('#workspaceMenu').find('.menuSection.lastOpened')
+                               .removeClass('lastOpened xc-hidden');
+        }});
+
+        StatusBox.forceHide();// hides any error boxes;
+        $('.tooltip').hide();
+        OperationsModal.turnOffClickHandlers();
+    }
+
     function closeModal(speed) {
         var time;
         if (gMinModeOn) {
@@ -3161,7 +3658,6 @@ window.OperationsModal = (function($, OperationsModal) {
                                     .removeClass('modalHighlighted');
             toggleModalDisplay(true, time);
             $operationsModal.fadeOut(time, function() {
-                unminimizeTable();
                 $operationsModal.find('.minimize').hide();
                 modalHelper.removeWaitingBG();
             });
@@ -3172,16 +3668,30 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function resetForm() {
-        $functionInput.attr('placeholder', "");
+        $activeOpSection.find('.functionInput').attr('placeholder', "");
         clearInput(0);
         $autocompleteInputs.each(function() {
             $(this).data('value', '');
         });
-        $functionsMenu.data('category', 'null');
-        $operationsModal.find('.checkbox').removeClass('checked');
-        $operationsModal.find('td.cast').find('.dropDownList')
-                                                .addClass('hidden');
+        $genFunctionsMenu.data('category', 'null');
+        $operationsView.find('.checkbox').removeClass('checked');
+        $operationsView.find('.cast').find('.dropDownList')
+                                     .addClass('hidden');
         hideCastColumn();
+        $functionsList.empty();
+        $operationsView.find('.argsSection')
+                       .addClass('inactive');
+        $activeOpSection.find('.descriptionText').empty();
+        if (operatorName === "filter") {
+            $activeOpSection.find('.group').each(function(i) {
+                if  (i !== 0) {
+                    removeFilterGroup($(this), true);
+                }
+            })
+        }
+        
+        $operationsView.find('.strPreview').empty();
+        allowInputChange = true;
     }
 
     function getArgRowHtml() {
@@ -3228,6 +3738,118 @@ window.OperationsModal = (function($, OperationsModal) {
               '</div>' +
             '</td>' +
         '</tr>';
+        return (html);
+    }
+
+    function getArgHtml() {
+        var html = 
+            '<div class="row clearfix">' +
+                '<div class="description"></div>' +
+                '<div class="inputWrap">' +
+                    '<div class="dropDownList">' +
+                      '<input class="arg" type="text" tabindex="10" spellcheck="false">' +
+                      '<div class="argIconWrap btn btn-small">' +
+                        '<i class="icon xi-show"></i>' +
+                      '</div>' +
+                      '<div class="list hint new">' +
+                        '<ul></ul>' +
+                        '<div class="scrollArea top">' +
+                          '<div class="arrow"></div>' +
+                        '</div>' +
+                        '<div class="scrollArea bottom">' +
+                          '<div class="arrow"></div>' +
+                        '</div>' +
+                      '</div>' +
+                   '</div>' +
+                '</div>' +
+                '<div class="cast new">' +
+                    '<span class="label">Cast: </span>' +
+                    '<div class="dropDownList hidden">' +
+                        '<input class="text nonEditable" value="default" disabled>' +
+                        '<div class="iconWrapper dropdown">' +
+                            '<span class="icon"></span>' +
+                        '</div>' +
+                        '<ul class="list"></ul>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="checkboxWrap xc-hidden">' +
+                    '<span class="checkbox" data-container="body" data-toggle="tooltip" title="' + OpModalTStr.EmptyHint + '"></span>' +
+                    'Empty' +
+                '</div>' +
+            '</div>';
+        return (html);
+    }
+
+    function addFilterGroup() {
+        var newGroupIndex = $activeOpSection.find('.group').length;
+        $activeOpSection.find('.group').last().after(getFilterGroupHtml(newGroupIndex));
+        populateFunctionsListUl(newGroupIndex);
+        var functionsListScroller = new MenuHelper(
+            $('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
+            {
+                scrollerOnly : true,
+                bounds       : '#operationsView',
+                bottomPadding: 5
+            }
+        );
+
+        functionsListScrollers.push(functionsListScroller); 
+
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        var animSpeed = 500;
+        var scrollTop = $activeOpSection.closest('.mainContent')[0].scrollHeight -
+                        $activeOpSection.closest('.mainContent').height();
+        // $activeOpSection.closest('.mainContent').scrollTop(scrollHeight);
+        $activeOpSection.closest('.mainContent')
+        .animate({scrollTop: scrollTop}, animSpeed, function() {
+
+        });
+    }
+
+    function removeFilterGroup($group, all) {
+        var index = $activeOpSection.find('.group').index($group);
+        $group.remove();
+        if (!all) {
+            $activeOpSection.find('.group').each(function(i){
+                var $group = $(this);
+                $group.find('.functionsList').data('fnlistnum', i);
+                $group.find('.functionsInput').data('fninputnum', i);
+                $group.find('.genFunctionsMenu ul').data('fnmenunum', i);
+            });
+        }
+        delete functionsListScrollers.splice(index, 1);
+        updateStrPreview(true);
+    }
+
+    function getFilterGroupHtml(index) {
+        var html = '<div class="group filterGroup">' +
+                        '<div class="catFuncHeadings clearfix">' +
+                            '<div>Filter Function</div>' +
+                            '<i class="icon xi-close closeGroup"></i>' +
+                        '</div>' +
+                        '<div data-fnlistnum="' + index + '" class="dropDownList firstList functionsList">' +
+                            '<input data-fninputnum="' + index + '"  class="text autocomplete functionsInput" tabindex="10" spellcheck="false" required>' +
+                            '<div class="iconWrapper dropdown">' +
+                              '<i class="icon xi-down"></i>' +
+                            '</div>' +
+                            '<div class="list genFunctionsMenu">' +
+                              '<ul data-fnmenunum="' + index + '"></ul>' +
+                              '<div class="scrollArea top">' +
+                                '<div class="arrow"></div>' +
+                              '</div>' +
+                              '<div class="scrollArea bottom">' +
+                                '<div class="arrow"></div>' +
+                              '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="descriptionText">' +
+                        '</div>' +
+                        '<div class="argsSection inactive">' +
+                        '</div>' +
+                    '</div>';
         return (html);
     }
 

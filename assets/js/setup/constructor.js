@@ -2331,7 +2331,9 @@ ModalHelper.prototype = {
             "top" : top
         });
     },
-
+    // options: 
+    // time - fade out or fade in time in ms
+    // opSection - if operations section is opening
     toggleBG: function(tableId, isHide, options) {
         var $modalBg = $("#modalBackground");
         var $mainFrame = $("#mainFrame");
@@ -2367,15 +2369,22 @@ ModalHelper.prototype = {
             });
 
             $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .removeClass('tableDarkened');
+                             .removeClass('tableDarkened tableOpSectionDarkened');
 
             $tableWrap.removeClass('modalOpen');
         } else {
             // when open the modal
             $tableWrap.addClass('modalOpen');
             if (tableId !== "all") {
-                $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                // special styling for when opSection is open
+                if (options.opSection) {
+                    $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                                 .addClass('tableDarkened tableOpSectionDarkened');
+                } else {
+                    $('.xcTableWrap').not('#xcTableWrap-' + tableId)
                                  .addClass('tableDarkened');
+                }
+                
             }
 
             $menuPanel.addClass('modalOpen');
@@ -2687,9 +2696,6 @@ MenuHelper.prototype = {
         if (options.onlyClickIcon) {
             $dropDownList.on("click", ".icon", function(event) {
                 event.stopPropagation();
-                if (options.onOpen) {
-                    options.onOpen();
-                }
                 self.toggleList($(this).closest(".dropDownList"));
             });
         } else {
@@ -2699,9 +2705,6 @@ MenuHelper.prototype = {
                     return;
                 }
                 event.stopPropagation();
-                if (options.onOpen) {
-                    options.onOpen();
-                }
                 self.toggleList($(this));
             });
         }
@@ -2755,6 +2758,7 @@ MenuHelper.prototype = {
     toggleList: function($curlDropDownList) {
         var self = this;
         var $list = self.$list;
+        console.log($curlDropDownList.hasClass("open"), 'toggle');
         if ($curlDropDownList.hasClass("open")) {    // close dropdown
             this.hideDropdowns($curlDropDownList);
         } else {

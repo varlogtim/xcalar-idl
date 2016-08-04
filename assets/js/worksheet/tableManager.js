@@ -1681,7 +1681,8 @@ window.TblManager = (function($, TblManager) {
         var $xcTableWrap = $('#xcTableWrap-' + tableId);
         var oldId = gActiveTableId;
         $xcTableWrap.mousedown(function() {
-            if (gActiveTableId === tableId) {
+            if (gActiveTableId === tableId ||
+                $xcTableWrap.hasClass('tableOpSection')) {
                 return;
             } else {
                 gActiveTableId = tableId;
@@ -1762,8 +1763,8 @@ window.TblManager = (function($, TblManager) {
         // listeners on thead
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
             var $el = $(this);
-
-            if ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal) {
+            if ($table.closest('.columnPicker').length || 
+                ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
                 // not focus when in modal unless bypassModa is true
                 return;
             } else if ($el.closest('.dataCol').length !== 0) {
@@ -1860,7 +1861,8 @@ window.TblManager = (function($, TblManager) {
         });
 
         $thead.on("click", ".dropdownBox", function(event) {
-            if ($("#mainFrame").hasClass("modalOpen")) {
+            if ($table.closest('.columnPicker').length ||
+                $("#mainFrame").hasClass("modalOpen")) {
                 // not focus when in modal
                 return;
             }
@@ -1996,7 +1998,8 @@ window.TblManager = (function($, TblManager) {
             var $td = $(this);
             var $el = $td.children('.clickable');
 
-            if ($("#mainFrame").hasClass("modalOpen")) {
+            if ($table.closest('.columnPicker').length || 
+                $("#mainFrame").hasClass("modalOpen")) {
                 // not focus when in modal
                 return;
             }
@@ -2124,7 +2127,8 @@ window.TblManager = (function($, TblManager) {
                 // when click sth like row marker cell, rowGrab
                 return false;
             }
-            if ($("#mainFrame").hasClass("modalOpen")) {
+            if ($table.closest('.columnPicker').length || 
+                $("#mainFrame").hasClass("modalOpen")) {
                 $el.trigger('click');
                 // not focus when in modal
                 return false;

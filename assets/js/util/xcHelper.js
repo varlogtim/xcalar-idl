@@ -1601,7 +1601,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.fillInputFromCell = function ($target, $input, prefix, type) {
         // if no prefix, must pass in "" instead of null
         // $input needs class "argument"
-        if (!$input.hasClass('argument') ||
+        if ((!$input.hasClass('argument') && !$input.hasClass('arg')) ||
             $input.closest('.colNameSection').length !== 0 ||
             $input.attr("type") !== "text")
         {
@@ -1621,7 +1621,6 @@ window.xcHelper = (function($, xcHelper) {
             }
             value = prefix + $target.val();
         }
-
         xcHelper.insertText($input, value);
         gMouseEvents.setMouseDownTarget($input);
     };

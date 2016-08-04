@@ -41,6 +41,10 @@ window.MainMenu = (function($, MainMenu) {
         return (isMenuOpen || BottomMenu.isMenuOpen());
     };
 
+    MainMenu.open = function() {
+        openMenu($menuBar.find(".topMenuBarTab.active"));
+    };
+
     MainMenu.getOffset = function() {
         if (isMenuOpen || BottomMenu.isMenuOpen()) {
             return (openOffset);
@@ -78,6 +82,7 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.find('.subTab').removeClass('active');
                     $subTab.addClass('active');
                 }
+                OperationsModal.closeOpSection();
                 return;
             }
             var $lastActiveTab = $tabs.filter(".active");
@@ -110,9 +115,12 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function panelSwitchingHandler($curTab, lastTabId) {
+        OperationsModal.closeOpSection();
         $('.mainPanel').removeClass('active');
         var curTab = $curTab.attr('id');
-        $("#dfgPanelSwitch").addClass("xc-hidden");
+
+        // $("#dfgPanelSwitch").addClass("xc-hidden");
+
         switch (curTab) {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
