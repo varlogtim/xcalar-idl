@@ -707,7 +707,8 @@ window.DagPanel = (function($, DagPanel) {
             var wsId = WSManager.getActiveWS();
             var tableType;
 
-            if (WSManager.getWSFromTable(tableId) == null) {
+            if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
+            {
                 tableType = TableType.Orphan;
             } else if (gTables[tableId].status === TableType.Orphan) {
                 tableType = TableType.Orphan;
@@ -725,7 +726,8 @@ window.DagPanel = (function($, DagPanel) {
             var tableId = $menu.data('tableId');
             var wsId;
             var worksheet;
-            if (WSManager.getWSFromTable(tableId) == null) {
+            if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
+            {
                 tableType = "noSheet";
                 wsId = WSManager.getActiveWS();
                 worksheet = wsId;

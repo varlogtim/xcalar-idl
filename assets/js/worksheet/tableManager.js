@@ -46,14 +46,20 @@ window.TblManager = (function($, TblManager) {
 
         var promise;
         if (!tableCols) {
-            if (gTables[newTableId] &&
+            if (!gTables[newTableId] || // Short circuit
                 gTables[newTableId].status === TableType.Orphan) {
                 TableList.removeTable(newTableName);
             } else {
                 TableList.removeTable(newTableId);
             }
             // if no tableCols provided, columns are already set
-            promise = setResultSet(newTableName);
+            if (gTables[newTableId]) {
+                promise = setResultSet(newTableName);
+            } else {
+                promise = TblManager.setgTable(newTableName,
+                                               ColManager.newDATACol(),
+                                               {"isActive": true});
+            }
         } else {
             var setOptions = {
                 "isActive"       : true,

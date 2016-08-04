@@ -523,14 +523,14 @@ window.TableList = (function($, TableList) {
         return (deferred.promise());
     };
 
-    TableList.removeTable = function(tableId, type) {
+    TableList.removeTable = function(tableIdOrName, type) {
         var tableType;
         var $li = $();
         var $listWrap;
         if (type) {
             tableType = type;
         } else {
-            var table = gTables[tableId];
+            var table = gTables[tableIdOrName];
             if (!table) {
                 tableType = TableType.Orphan;
             } else {
@@ -540,15 +540,15 @@ window.TableList = (function($, TableList) {
 
         if (tableType === "active") {
             $listWrap = $("#activeTableList");
-            $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
+            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         } else if (tableType === TableType.Orphan) {
-            // if orphan, tableId is actually tableName
+            // if orphan, tableIdOrName is actually tableName
             $listWrap = $('#orphanedTableList');
             $li = $listWrap.find('.tableInfo[data-tablename="' +
-                                                    tableId + '"]');
+                                                    tableIdOrName + '"]');
         } else {
             $listWrap = $('#archivedTableList');
-            $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
+            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         }
 
         var $timeLine = $li.closest(".timeLine");
@@ -575,7 +575,7 @@ window.TableList = (function($, TableList) {
 
         var tableId = xcHelper.getTableId(tableName);
         var newTableCols = [];
-        // get workshett before async call
+        // get worksheet before async call
         var worksheet = WSManager.getActiveWS();
 
         if (tableId != null && gTables.hasOwnProperty(tableId)) {
