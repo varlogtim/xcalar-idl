@@ -8,16 +8,6 @@ window.Help = (function($, Help) {
             toggleRefresh($(this));
         });
 
-        $("#helpGenSub").click(function() {
-            var $btn = $(this).blur();
-            xcHelper.toggleBtnInProgress($btn);
-
-            xcHelper.genSub()
-            .always(function() {
-                xcHelper.toggleBtnInProgress($btn);
-            });
-        });
-
         Intro.setOptions({
             onComplete: function() {
                 $('.intro-emptybox').remove();

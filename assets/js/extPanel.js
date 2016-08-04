@@ -202,7 +202,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                             category.getExtensionList()[i].getName() +
                         '</span>' +
                         '<i class="delete icon xi-trash fa-15 xc-action"></i>' +
-                        '<div class="switch ' + status + '">' +
+                        '<div class="xc-switch switch ' + status + '">' +
                             '<div class="slider"></div>' +
                         '</div>';
         }

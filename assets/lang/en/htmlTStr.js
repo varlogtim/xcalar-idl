@@ -78,7 +78,9 @@ module.exports = {
         "Val": "Value",
         "WKBK": "Workbook",
         "SaveWKBK": "Save Progress",
-        "Loading": "Loading"
+        "Loading": "Loading",
+        "Prefs": "Preferences",
+        "Supprots": "Supports"
     },
 
     "paths": {
@@ -323,15 +325,20 @@ module.exports = {
     },
 
     "monitor": {
-        "Monitor": 'Monitor',
+        "Monitor": "Monitor",
+        "Monitors": "Monitors",
         "Syst": "System",
         "SYS": "SYSTEM",
         "QUERIES": "QUERIES",
         "SETUP": "SETUP",
         "SETTINGS": "SETTINGS",
-        "AUTOSUPPORT": "AUTO SUPPORT SETTINGS",
-        "GENSUB": "SUPPORT BUNDLE",
-        "RELEASEMEM": "RELEASE MEMORY",
+        "AutoSupport": "Auto Support Settings",
+        "GenSub": "Generate Support Bundle",
+        "SubGen": "Support Bundle Generating",
+        "SubGened": "Support Bundle Generated",
+        "SubGenFail": "Support Bundle Generation Failed",
+        "SubInstr": "Please check your backend for a .tar.gz.file",
+        "ReleaseMem": "Release Memory",
         "DelTables": "Delete Tables",
         "CPU": "CPU",
         "RAM": "RAM",

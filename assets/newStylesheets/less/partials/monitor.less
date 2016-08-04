@@ -1,3 +1,26 @@
+#monitorMenu-sys {
+    .listWrap {
+        margin-bottom: 20px;
+
+        li {
+           .text {
+                margin-left: 7px;
+            } 
+        }
+        
+
+        &.support {
+            li .text {
+                margin-left: 20px;
+            }
+        }
+    }
+
+    .xc-switch, .xc-action {
+        float: right;
+    }
+}
+
 #monitorPanel {
     background-color: white;
     position: relative;
@@ -38,10 +61,7 @@
 
     .subPanel {
         display: none;
-        // exclude height of #statusBar
-        // .size(@width: 100%, @height: ~"calc(100% - 35px)");
-        .size(@height: ~"calc(100% - 35px)");
-        margin-top: -1px;
+        .size(@height: 100%);
 
         &.active {
             display: block;
@@ -74,611 +94,616 @@
         }
     }
 }
-    #monitor-system {
-        .asupSubSection {
-            .size(@width: 100%, @height: 50px);
-            background-color: @color-background-darkGray;
-            border-bottom: 1px solid @color-modal-dividerGray;
-            .flex-display;
 
-            > div {
-                .flex(1 1 auto);
-                .size(@max-width: 325px, @height: 50px);
-                float: left;
-                padding: 0 10px;
-                .font(@line-height: 50px);
-                border-left: 1px solid @color-modal-dividerGray;
-                border-right: 1px solid @color-white;
+#monitor-genSubCard {
+    &.done {
+        .done {
+            display: block;
 
-                &:first-child {
-                    border-left: 0;
-                }
-
-                &:last-child {
-                    border-right: 0;
-                }
-
-                > div {
-                    float: left;
-                    margin-right: 5px;
-                }
-
-                .btn, .onOffBtn  {
-                    .vertical-align;
-                    float: left;
-                    margin-left: 5px;
-                }
+            &.cardInstruction {
+                .flex-display;
             }
 
-            .title {
-                .font(@size: 13px, @weight: bold, @color: @color-boulder);
-            }
-
-            .asupSection {
-                .size(@max-width: 350px, @height: 50px);
-                .icon {
-                    .size(@width: 31px, @height: 100%);
-                    .image("../../images/monitor/asup.png", 50%, 50%);
-                }
-            }
-
-            .subSection {
-                .icon {
-                    .size(@width: 20px, @height: 100%);
-                    .image("../../images/monitor/sub.png", 60%, 50%);
-                }
+            &.title {
+                display: inline-block;
             }
         }
 
-        .topSection {
-            box-shadow: 0px 3px 3px 0px rgba(0,0,0,.3);
-            position: relative;
-            z-index: 5;
-            border-top: 1px solid @color-white;
+        .close {
+            display: inline-block;
+        }
 
-            .sideTabs {
+        .wait, .fail {
+            display: none;
+        }
+    }
+
+    &.fail {
+        .fail {
+            display: block;
+
+            &.title {
                 display: inline-block;
-                float: left;
+            }
+        }
 
-                .sideTab {
-                    display: block;
-                    .size (@width: 65px, @height: 100px);
-                    text-align: center;
-                    .linear-gradient(top, @color-background-columnList, #ACACAC);
-                    border-right: 1px solid @color-table-borderGray;
-                    border-bottom: 1px solid @color-table-borderGray;
-                    cursor: pointer;
-                    .noSelection;
+        .close {
+            display: inline-block;
+        }
 
-                    &.active {
-                        .action-gradient;
-                        .text {
-                            .font(@color: @color-white);
-                            text-shadow: 1px 1px #555555;
-                        }
-                    }
 
-                }
+        .wait, .done {
+            display: none;
+        }
+    }
 
-                .icon {
-                    display: block;
-                    .size (@height: 65px, @width: 100%);
-                }
+    .done, .close, .fail {
+        display: none;
+    }
 
-                #cpuTab {
-                    .icon {
-                        .image("../../images/monitor/cpu-white.png", 50%, 70%);
-                    }
-                }
 
-                #ramTab {
-                    .icon {
-                        .image("../../images/monitor/ram-white.png", 50%, 70%);
-                    }
-                }
+    .cardMain {
+        padding: 20px 50px;
+        .size(@height: 80px);
+        .font(@size: 14px, @color: @color-font-navy);
+    }
 
-                #diskTab {
+    .animatedEllipsisWrapper {
+        .size(@width: 100px, @height: 20px);
+        .vertical-align;
+    }
+}
+
+#monitor-monitorsCard {
+    .topSection {
+        box-shadow: 0px 3px 3px 0px rgba(0,0,0,.3);
+        position: relative;
+        z-index: 5;
+        border-top: 1px solid @color-white;
+
+        .sideTabs {
+            display: inline-block;
+            float: left;
+
+            .sideTab {
+                display: block;
+                .size (@width: 65px, @height: 100px);
+                text-align: center;
+                .linear-gradient(top, @color-background-columnList, #ACACAC);
+                border-right: 1px solid @color-table-borderGray;
+                border-bottom: 1px solid @color-table-borderGray;
+                cursor: pointer;
+                .noSelection;
+
+                &.active {
+                    .action-gradient;
                     .text {
-                        .font (@size: 12px);
+                        .font(@color: @color-white);
+                        text-shadow: 1px 1px #555555;
                     }
-                    .icon {
-                        .image("../../images/monitor/disk-white.png", 50%, 70%);
-                     }
-                 }
+                }
 
-                .text {
-                    .font (@size: 13px, @weight: bold, @color: @color-text-columnList);
+            }
+
+            .icon {
+                display: block;
+                .size (@height: 65px, @width: 100%);
+            }
+
+            #cpuTab {
+                .icon {
+                    .image("../../images/monitor/cpu-white.png", 50%, 70%);
                 }
             }
 
-            .graphSection {
-                .size(@width: ~"calc(100% - 65px)", @height: 300px);
-                .font(@color: @color-table-borderGray);
-                padding-left: 50px;
-                padding-right: 95px;
-                display: inline-block;
-                float: left;
-                background-color: @color-background-darkGray;
-                overflow: hidden;
-                position: relative;
-
-                #graphWrap {
-                    .size(@width: ~"calc(100% - 170px)", @height: 260px);
-                    .position(absolute, @left: 79px);
-                    z-index: 1;
-                    overflow-x: scroll;
-                    overflow-y: hidden;
-
-                    &::-webkit-scrollbar-track {
-                        border-radius: 20px;
-                    }
+            #ramTab {
+                .icon {
+                    .image("../../images/monitor/ram-white.png", 50%, 70%);
                 }
+            }
 
-                #graphParts {
-                    position: absolute;
-                    width: 100%;
+            #diskTab {
+                .text {
+                    .font (@size: 12px);
+                }
+                .icon {
+                    .image("../../images/monitor/disk-white.png", 50%, 70%);
+                 }
+             }
 
-                    .yAxis {
-                        .position(absolute, @top: 2px);
-                        white-space: nowrap;
-                        text-align: right;
+            .text {
+                .font (@size: 13px, @weight: bold, @color: @color-text-columnList);
+            }
+        }
+
+        .graphSection {
+            .size(@width: ~"calc(100% - 65px)", @height: 300px);
+            .font(@color: @color-table-borderGray);
+            padding-left: 50px;
+            padding-right: 95px;
+            display: inline-block;
+            float: left;
+            background-color: @color-background-darkGray;
+            overflow: hidden;
+            position: relative;
+
+            #graphWrap {
+                .size(@width: ~"calc(100% - 170px)", @height: 260px);
+                .position(absolute, @left: 79px);
+                z-index: 1;
+                overflow-x: scroll;
+                overflow-y: hidden;
+
+                &::-webkit-scrollbar-track {
+                    border-radius: 20px;
+                }
+            }
+
+            #graphParts {
+                position: absolute;
+                width: 100%;
+
+                .yAxis {
+                    .position(absolute, @top: 2px);
+                    white-space: nowrap;
+                    text-align: right;
+
+                    span {
+                        display: block;
+                        .font(@size: 11px, @weight: 500);
+                        height: 42px;
+                    }
+
+                    &.right {
+                        right: 136px;
+                        text-align: left;
+                        height: 210px;
 
                         span {
-                            display: block;
-                            .font(@size: 11px, @weight: 500);
-                            height: 42px;
+                            position: absolute;
+                            bottom: -42px;
                         }
 
-                        &.right {
-                            right: 136px;
-                            text-align: left;
-                            height: 210px;
+                        svg {
+                            top: 0px;
+                            stroke: none;
+                            fill: transparent;
+                            margin-left: -2px;
 
-                            span {
-                                position: absolute;
-                                bottom: -42px;
-                            }
-
-                            svg {
-                                top: 0px;
-                                stroke: none;
-                                fill: transparent;
-                                margin-left: -2px;
-
-                                text {
-                                    display: block;
-                                    fill: @color-table-borderGray;
-                                    .font(@size: 11px, @weight: 500);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                #graph {
-                    .size(@width: 100%, @height: 100%);
-                    z-index: 1;
-                    text-align: right;
-                    position: relative;
-                    .noSelection;
-
-                    .svgWrap {
-                        .size(@width: 100%, @height: 212px);
-                        position: relative;
-                    }
-
-                    .mainSvg {
-                        .position(relative, @top: 10px, @right: 0);
-                        background-color: #3b4952;
-                        display: inline-block;
-                        overflow: hidden;
-                    }
-
-                    .separator {
-                        display: block;
-                        .size(@width: 100%, @height: 1px);
-                    }
-                    .xLabelsWrap {
-                        .position(relative, @top: 6px, @right: 0, @bottom: 6px);
-                        display: inline-block;
-                        white-space: nowrap;
-                        text-align: left;
-                        overflow: hidden;
-
-                        .spacer {
-                            .size(@width: 40px, @height: 1px);
-                            float: left;
-                            display: inline-block;
-                        }
-                        .xLabels {
-                            position: relative;
-                            display: inline-block;
-
-                            span {
-                                display: inline-block;
-                                top: 0px;
-                                width: 240px;
+                            text {
+                                display: block;
+                                fill: @color-table-borderGray;
                                 .font(@size: 11px, @weight: 500);
-
                             }
                         }
-                    }
-                }
-
-                .graphBackground {
-                    .position(absolute, @left: 30px);
-                    .size(@width: ~"calc(100% - 170px)", @height: 210px);
-                    margin: 10px 0px 20px -1px;
-                    background-color: #3b4952;
-                }
-
-                .axis {
-                    stroke: @color-black;
-                    &.x {
-                        stroke: @color-tab-borderBlue;
-                    }
-
-                    &.y {
-                        stroke: rgba(255,255,255, 0.2);
-                    }
-                }
-
-                .line{
-                    fill: none;
-                    stroke-width: 2px;
-                    &.line0 {
-                        stroke: #6DCFF6;
-                    }
-                    &.line1 {
-                        stroke: #90C591;
-                    }
-                }
-
-                .area {
-                    opacity: 0.2;
-                    stroke-width: 0;
-                    &.area0 {
-                        fill: #6DCFF6;
-                    }
-                    &.area1 {
-                        fill: #90C591;
-                    }
-
-                    &.highlighted {
-                        opacity: 0.6;
-                    }
-                }
-
-                .graphTop {
-                    .size (@height: 32px);
-                    .font (@size: 13px);
-                    padding-top: 14px;
-
-                    .time {
-                        float: right;
-                        .size(@height: 100%, @width: 270px);
-                        .font(@weight: bold);
-                    }
-
-                    #graphTime {
-                        display: inline-block;
-                        min-width: 50px;
-                    }
-
-                    #connectionInfo {
-                        float: left;
-                        .textOverflowOneLine;
-                        width: ~"calc(100% - 310px)";
-                        #virNodeText {
-                            padding-left: 10px;
-                        }
-                    }
-
-                }
-
-                .graphText {
-                    .size(@width: 100%, @height: 80%);
-                    float: right;
-                    position: absolute;
-                    margin-top: 20px;
-                    z-index: 1;
-                    .sampleText {
-                        text-align: center;
-                        z-index: 5;
-                        .font(@size: 70px, @color: @color-white, @weight: bold);
-                        line-height: 110px;
-                        opacity: 0.15;
-                    }
-                }
-
-                #grids {
-                    overflow: hidden;
-                    position: absolute;
-                    .size(@width: 100%, @height: 220px);
-
-                    .gridSvg {
-                        .position(@top: 10px, @right: 0);
                     }
                 }
             }
+
+            #graph {
+                .size(@width: 100%, @height: 100%);
+                z-index: 1;
+                text-align: right;
+                position: relative;
+                .noSelection;
+
+                .svgWrap {
+                    .size(@width: 100%, @height: 212px);
+                    position: relative;
+                }
+
+                .mainSvg {
+                    .position(relative, @top: 10px, @right: 0);
+                    background-color: #3b4952;
+                    display: inline-block;
+                    overflow: hidden;
+                }
+
+                .separator {
+                    display: block;
+                    .size(@width: 100%, @height: 1px);
+                }
+                .xLabelsWrap {
+                    .position(relative, @top: 6px, @right: 0, @bottom: 6px);
+                    display: inline-block;
+                    white-space: nowrap;
+                    text-align: left;
+                    overflow: hidden;
+
+                    .spacer {
+                        .size(@width: 40px, @height: 1px);
+                        float: left;
+                        display: inline-block;
+                    }
+                    .xLabels {
+                        position: relative;
+                        display: inline-block;
+
+                        span {
+                            display: inline-block;
+                            top: 0px;
+                            width: 240px;
+                            .font(@size: 11px, @weight: 500);
+
+                        }
+                    }
+                }
+            }
+
+            .graphBackground {
+                .position(absolute, @left: 30px);
+                .size(@width: ~"calc(100% - 170px)", @height: 210px);
+                margin: 10px 0px 20px -1px;
+                background-color: #3b4952;
+            }
+
+            .axis {
+                stroke: @color-black;
+                &.x {
+                    stroke: @color-tab-borderBlue;
+                }
+
+                &.y {
+                    stroke: rgba(255,255,255, 0.2);
+                }
+            }
+
+            .line{
+                fill: none;
+                stroke-width: 2px;
+                &.line0 {
+                    stroke: #6DCFF6;
+                }
+                &.line1 {
+                    stroke: #90C591;
+                }
+            }
+
+            .area {
+                opacity: 0.2;
+                stroke-width: 0;
+                &.area0 {
+                    fill: #6DCFF6;
+                }
+                &.area1 {
+                    fill: #90C591;
+                }
+
+                &.highlighted {
+                    opacity: 0.6;
+                }
+            }
+
+            .graphTop {
+                .size (@height: 32px);
+                .font (@size: 13px);
+                padding-top: 14px;
+
+                .time {
+                    float: right;
+                    .size(@height: 100%, @width: 270px);
+                    .font(@weight: bold);
+                }
+
+                #graphTime {
+                    display: inline-block;
+                    min-width: 50px;
+                }
+
+                #connectionInfo {
+                    float: left;
+                    .textOverflowOneLine;
+                    width: ~"calc(100% - 310px)";
+                    #virNodeText {
+                        padding-left: 10px;
+                    }
+                }
+
+            }
+
+            .graphText {
+                .size(@width: 100%, @height: 80%);
+                float: right;
+                position: absolute;
+                margin-top: 20px;
+                z-index: 1;
+                .sampleText {
+                    text-align: center;
+                    z-index: 5;
+                    .font(@size: 70px, @color: @color-white, @weight: bold);
+                    line-height: 110px;
+                    opacity: 0.15;
+                }
+            }
+
+            #grids {
+                overflow: hidden;
+                position: absolute;
+                .size(@width: 100%, @height: 220px);
+
+                .gridSvg {
+                    .position(@top: 10px, @right: 0);
+                }
+            }
         }
+    }
 
-        .bottomSection {
-            .flex-display();
-            .size(@height: ~"calc(100% - 351px)");
-            overflow-x: hidden;
-            overflow-y: scroll;
-            margin-right: 10px;
+    .bottomSection {
+        .flex-display();
+        .size(@height: ~"calc(100% - 351px)");
+        overflow-x: hidden;
+        overflow-y: scroll;
+        margin-right: 10px;
 
-            .donutSection {
-                .flex(1 0 200px);
-                .size(@height: 100%, @min-height: 200px);
+        .donutSection {
+            .flex(1 0 200px);
+            .size(@height: 100%, @min-height: 200px);
+            position: relative;
+
+            &:nth-child(even) {
+                background-color: @color-monitor-whiteGray;
+                .statsSection {
+                    background-color: @color-monitor-whiteGray;
+                }
+            }
+
+            &> .icon {
+                .size (@width: 75px, @height: 75px);
+                .position(absolute, @top: 0, @right: 0);
+                display: inline-block;
+                z-index: 1;
+            }
+
+            .donut {
+                .size (@height: 180px, @width: 180px);
+                margin: 15px auto 5px;
                 position: relative;
 
-                &:nth-child(even) {
-                    background-color: @color-monitor-whiteGray;
-                    .statsSection {
-                        background-color: @color-monitor-whiteGray;
-                    }
+                .sampleText {
+                    .position(absolute, @top: 47px, @left: -29px);
+                    .font(@size: 60px, @color: black, @weight: bold);
+                    .transform(rotate(35deg));
+                    opacity: 0.15;
+                    z-index: 5;
                 }
 
-                &> .icon {
-                    .size (@width: 75px, @height: 75px);
-                    .position(absolute, @top: 0, @right: 0);
+                .innerCircle {
+                    .size (@width: 130px, @height: 130px);
+                    .position(absolute, @top: 25px, @left: 25px);
+                    .rounded(130px);
+                    background-color: rgba(255,255,255,0.5);
+                    z-index: 2;
+                    box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.15);
+                }
+
+                .donutInfo {
+                    .size(@width: 100%);
+                    .position(absolute, @top: 60px);
                     display: inline-block;
-                    z-index: 1;
-                }
+                    text-align: center;
+                    z-index: 3;
 
-                .donut {
-                    .size (@height: 180px, @width: 180px);
-                    margin: 15px auto 5px;
-                    position: relative;
-
-                    .sampleText {
-                        .position(absolute, @top: 47px, @left: -29px);
-                        .font(@size: 60px, @color: black, @weight: bold);
-                        .transform(rotate(35deg));
-                        opacity: 0.15;
-                        z-index: 5;
+                    sup {
+                        .font(@size: 12px);
                     }
 
-                    .innerCircle {
-                        .size (@width: 130px, @height: 130px);
-                        .position(absolute, @top: 25px, @left: 25px);
-                        .rounded(130px);
-                        background-color: rgba(255,255,255,0.5);
-                        z-index: 2;
-                        box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.15);
-                    }
-
-                    .donutInfo {
-                        .size(@width: 100%);
-                        .position(absolute, @top: 60px);
-                        display: inline-block;
-                        text-align: center;
-                        z-index: 3;
-
-                        sup {
-                            .font(@size: 12px);
-                        }
-
-                        hr {
-                            width: 73px;
-                            border: none;
-                            border-top: 1px solid @color-border-bottomGrayMed;
-                            display: block;
-                            .nomargin-padding;
-                            margin: 0 auto;
-                        }
-
-                        .userSize {
-                            .font(@size: 32px, @weight: bold, @line-height: 36px);
-                            margin-right: -6px;
-
-                            sup {
-                                margin-top: -6px;
-                                position: relative;
-                                top: -5px;
-                            }
-
-                        }
-
-                        .totalSize {
-                            .font(@size: 18px, @weight: bold, @color: @color-text-bottomGrayMed);
-                            margin-right: 8px;
-
-                            sup {
-                                .font(@size: 11px);
-                                position: absolute;
-                            }
-                        }
-                    }
-
-                    svg:first-of-type {
-                        z-index: 1;
-                    }
-                }
-
-                &#donut0 {
-                    &> .icon {
-                        .image("../../images/monitor/cpu-gray.png", 50%, 16px);
-                    }
-                    .donut {
-                        .userSize {
-                            .font(@color: #20a7eb);
-                        }
-                        sup {
-                            .font(@color: #20a7eb, @weight: bold);
-                        }
-                    }
-                    .donutInfo {
-                        top: 64px;
-                    }
-                }
-
-                &#donut1 {
-                    &> .icon {
-                        .image("../../images/monitor/ram-gray.png", 50%, 19px);
-                    }
-                    .donut {
-                        .userSize {
-                            .font(@color: #90c591);
-                        }
-                    }
-
-                    li .userSiz, .statsHeadingBar .userSize {
-                        background-color: #D6E6D6;
-                    }
-                }
-
-
-                &#donut2 {
-                    &> .icon {
-                        .image("../../images/monitor/disk-gray.png", 55%, 13px);
-                    }
-                    .donut {
-                        .userSize {
-                            .font(@color: #BBAE84);
-                        }
-                    }
- 
-                    li .userSize, .statsHeadingBar .userSize {
-                        background-color: #E3DFD2;
-                    }
-                }
-
-                .statsSection {
-
-                    .statsTopHeading {
-                        .font(@weight: 600, @size: 11px, @color: @color-text-midlightGray);
-                        .size(@max-width: 245px, @height: 20px);
+                    hr {
+                        width: 73px;
+                        border: none;
+                        border-top: 1px solid @color-border-bottomGrayMed;
+                        display: block;
+                        .nomargin-padding;
                         margin: 0 auto;
-                        padding: 2px 12px 0px 2px;
-
-                        .global {
-                            float: left;
-                        }
-
-                        .user {
-                            float: right;
-                        }
-                    }
-
-                    .statsHeadingBar {
-                        .font(@size: 13px, @color: @color-text-darkGray, @weight: bold, @line-height: 25px);
-                        .size(@width: 95%, @max-width: 245px, @height: 25px);
-                        background-color: #f4f4f4;
-                        .rounded;
-                        padding: 0 0 0 7px;
-                        margin: 0 auto;
-                        overflow: hidden;
-                        cursor: pointer;
-
-                        &.small {
-                            max-width: 210px;
-                            width: 95%;
-                        }
-
-                        .arrow {
-                            .image("../../images/arrowUpGray.png");
-                            .size(@width: 13px, @height: 8px);
-                            display: inline-block;
-                            float: left;
-                            margin: 8px 5px 0px 0px;
-                        }
-
-                        &.open {
-                            .arrow {
-                                .image("../../images/arrowDownBlue.png");
-                                margin-top: 10px
-                            }
-                        }
-
-                        .title {
-                            float: left;
-                        }
-
-                        .num {
-                            float: right;
-                        }
-
-                        .percent {
-                            float: right;
-                            display: inline-block;
-                            padding-right: 7px;
-                        }
                     }
 
                     .userSize {
-                        .size(@width: 70px, @height: 100%);
-                        .font (@weight: bold, @color: @color-text-darkGray);
-                        text-align: right;
+                        .font(@size: 32px, @weight: bold, @line-height: 36px);
+                        margin-right: -6px;
+
+                        sup {
+                            margin-top: -6px;
+                            position: relative;
+                            top: -5px;
+                        }
+
+                    }
+
+                    .totalSize {
+                        .font(@size: 18px, @weight: bold, @color: @color-text-bottomGrayMed);
+                        margin-right: 8px;
+
+                        sup {
+                            .font(@size: 11px);
+                            position: absolute;
+                        }
+                    }
+                }
+
+                svg:first-of-type {
+                    z-index: 1;
+                }
+            }
+
+            &#donut0 {
+                &> .icon {
+                    .image("../../images/monitor/cpu-gray.png", 50%, 16px);
+                }
+                .donut {
+                    .userSize {
+                        .font(@color: #20a7eb);
+                    }
+                    sup {
+                        .font(@color: #20a7eb, @weight: bold);
+                    }
+                }
+                .donutInfo {
+                    top: 64px;
+                }
+            }
+
+            &#donut1 {
+                &> .icon {
+                    .image("../../images/monitor/ram-gray.png", 50%, 19px);
+                }
+                .donut {
+                    .userSize {
+                        .font(@color: #90c591);
+                    }
+                }
+
+                li .userSiz, .statsHeadingBar .userSize {
+                    background-color: #D6E6D6;
+                }
+            }
+
+
+            &#donut2 {
+                &> .icon {
+                    .image("../../images/monitor/disk-gray.png", 55%, 13px);
+                }
+                .donut {
+                    .userSize {
+                        .font(@color: #BBAE84);
+                    }
+                }
+
+                li .userSize, .statsHeadingBar .userSize {
+                    background-color: #E3DFD2;
+                }
+            }
+
+            .statsSection {
+
+                .statsTopHeading {
+                    .font(@weight: 600, @size: 11px, @color: @color-text-midlightGray);
+                    .size(@max-width: 245px, @height: 20px);
+                    margin: 0 auto;
+                    padding: 2px 12px 0px 2px;
+
+                    .global {
+                        float: left;
+                    }
+
+                    .user {
+                        float: right;
+                    }
+                }
+
+                .statsHeadingBar {
+                    .font(@size: 13px, @color: @color-text-darkGray, @weight: bold, @line-height: 25px);
+                    .size(@width: 95%, @max-width: 245px, @height: 25px);
+                    background-color: #f4f4f4;
+                    .rounded;
+                    padding: 0 0 0 7px;
+                    margin: 0 auto;
+                    overflow: hidden;
+                    cursor: pointer;
+
+                    &.small {
+                        max-width: 210px;
+                        width: 95%;
+                    }
+
+                    .arrow {
+                        .image("../../images/arrowUpGray.png");
+                        .size(@width: 13px, @height: 8px);
+                        display: inline-block;
+                        float: left;
+                        margin: 8px 5px 0px 0px;
+                    }
+
+                    &.open {
+                        .arrow {
+                            .image("../../images/arrowDownBlue.png");
+                            margin-top: 10px
+                        }
+                    }
+
+                    .title {
+                        float: left;
+                    }
+
+                    .num {
+                        float: right;
+                    }
+
+                    .percent {
                         float: right;
                         display: inline-block;
                         padding-right: 7px;
                     }
+                }
 
-                    .totalSize {
-                        float: right;
-                        margin-right: 4px;
+                .userSize {
+                    .size(@width: 70px, @height: 100%);
+                    .font (@weight: bold, @color: @color-text-darkGray);
+                    text-align: right;
+                    float: right;
+                    display: inline-block;
+                    padding-right: 7px;
+                }
 
-                    }
+                .totalSize {
+                    float: right;
+                    margin-right: 4px;
 
-                    .listWrap {
-                        overflow-x: hidden;
-                        overflow-y: auto;
-                        height: ~"calc(100% - 25px)";
-                        width: 95%;
-                        margin: 0 auto 5px auto;
-                        ul {
-                            width: 100%;
-                            max-width: 245px;
-                            margin: 0 auto;
+                }
 
-                            li {
-                                .font(@size: 11px, @color: @color-text-midlightGray, @weight: bold);
-                                .size(@width: 100%, @max-width: 225px, @height: 17px);
-                                margin-top: 6px;
-                                padding-left: 6px;
-                                .rounded;
-                                background-color: @color-background-lightLightGray;
+                .listWrap {
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    height: ~"calc(100% - 25px)";
+                    width: 95%;
+                    margin: 0 auto 5px auto;
+                    ul {
+                        width: 100%;
+                        max-width: 245px;
+                        margin: 0 auto;
+
+                        li {
+                            .font(@size: 11px, @color: @color-text-midlightGray, @weight: bold);
+                            .size(@width: 100%, @max-width: 225px, @height: 17px);
+                            margin-top: 6px;
+                            padding-left: 6px;
+                            .rounded;
+                            background-color: @color-background-lightLightGray;
+                            float: right;
+                            overflow: hidden;     
+
+                            .statsNum {
                                 float: right;
-                                overflow: hidden;     
-
-                                .statsNum {
-                                    float: right;
-                                    margin-right: 9px;
-                                }
+                                margin-right: 9px;
                             }
+                        }
 
-                            &.small {
-                                width: 210px;
-                                li {
-                                    width: 190px;
-                                }
+                        &.small {
+                            width: 210px;
+                            li {
+                                width: 190px;
                             }
                         }
                     }
                 }
             }
         }
-
-        .c3-chart-arc path {
-            stroke: none;
-        }
-        .c3 line, .c3 path {
-            fill: none;
-            stroke: none;
-        }
-
-        svg {
-            position: absolute;
-        }
-
-        text {
-            display: none;
-        }
     }
+
+    .c3-chart-arc path {
+        stroke: none;
+    }
+    .c3 line, .c3 path {
+        fill: none;
+        stroke: none;
+    }
+
+    svg {
+        position: absolute;
+    }
+
+    text {
+        display: none;
+    }
+}
 
     #monitor-queries {
         // .flex-display;

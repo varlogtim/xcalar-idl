@@ -538,7 +538,7 @@ window.TableList = (function($, TableList) {
             }
         }
 
-        if (tableType === "active") {
+        if (tableType === TableType.Active) {
             $listWrap = $("#activeTableList");
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         } else if (tableType === TableType.Orphan) {

@@ -12,27 +12,8 @@
         }
 
         .switch {
-            .size(@width: 22px, @height: 10px);
-            .position(relative, @top: 5px);
-            float: right;
             margin-right: 6px;
-            .rounded(5px);
-            background-color: @color-bg-pinkish-grey;
-
-            .slider {
-                .size(@width: 12px, @height: 12px);
-                .rounded(100%);
-                .position(relative, @left: 0, @top: -1px);
-                background-color: @color-white;
-                .transition(left 0.2s);
-            }
-
-            &.on {
-                background-color: @color-bg-softBlue;
-                .slider {
-                    left: 11px;
-                }
-            }
+            float: right;
         }
 
         .delete {

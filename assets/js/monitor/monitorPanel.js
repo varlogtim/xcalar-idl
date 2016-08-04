@@ -1,43 +1,42 @@
 // sets up monitor panel and donuts, not monitor graph
 window.MonitorPanel = (function($, MonitorPanel) {
-    var failCount = 0;
+    var isGenSub = false;
 
     MonitorPanel.setup = function() {
         MonitorGraph.setup();
         QueryManager.setup();
         MonitorConfig.setup();
 
-        var $monitorPanel = $("#monitorPanel");
-
         initializeDonuts();
         populateNodeInformation();
-        $monitorPanel = $('#monitorPanel');
 
         setupViewToggling();
 
-        $('#asupBtn').click(function() {
+        $("#monitorMenu-sys").on("click", ".listInfo", function() {
+            $(this).closest(".listWrap").toggleClass("active");
+        });
+
+        $("#monitor-asup").click(function() {
             var $target = $(this);
 
-            if ($target.hasClass('off')) {
-                $target.removeClass('off');
+            if ($target.hasClass("on")) {
+                $target.removeClass("on");
             } else {
-                $target.addClass('off');
+                $target.addClass("on");
             }
         });
 
-        $("#subBtn").click(function() {
-            var $btn = $(this).blur();
-            xcHelper.toggleBtnInProgress($btn);
-
-            xcHelper.genSub()
-            .always(function() {
-                xcHelper.toggleBtnInProgress($btn);
-            });
+        $("#monitor-genSub").click(function() {
+            genSubHelper();
         });
 
         $("#monitor-delete").click(function() {
             $(this).blur();
             DeleteTableModal.show();
+        });
+
+        $("#monitor-genSubCard").on("click", ".close", function() {
+            $("#monitor-genSubCard").addClass("xc-hidden");
         });
 
         $('.statsHeadingBar').click(function() {
@@ -358,6 +357,32 @@ window.MonitorPanel = (function($, MonitorPanel) {
         // Insert information here regarding virtual nodes next time
     }
 
+    function genSubHelper() {
+        if (isGenSub) {
+            // it's generating
+            return;
+        }
+        var $card = $("#monitor-genSubCard");
+        $card.removeClass("done").removeClass("fail").removeClass("xc-hidden");
+
+        isGenSub = true;
+        XcalarSupportGenerate()
+        .then(function(filePath, bid) {
+            var msg = xcHelper.replaceMsg(CommonTxtTstr.SupportBundleMsg, {
+                "id"  : bid,
+                "path": filePath
+            });
+            $card.addClass("done")
+                .find(".infoSection").text(msg);
+        })
+        .fail(function(error) {
+            $card.addClass("fail")
+                .find("errorSection").text(error);
+        })
+        .always(function () {
+            isGenSub = false;
+        });
+    }
 
     return (MonitorPanel);
 }(jQuery, {}));

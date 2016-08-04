@@ -518,7 +518,7 @@ window.xcHelper = (function($, xcHelper) {
             contents = 'data:text/plain;charset=utf-8,' +
                        encodeURIComponent(fileContents);
         } else {
-            contents =  'data:text/plain;base64,' + btoa(fileContents);
+            contents = 'data:text/plain;base64,' + btoa(fileContents);
         }
         element.setAttribute('href', contents);
         element.setAttribute('download', fileName);
@@ -544,7 +544,7 @@ window.xcHelper = (function($, xcHelper) {
 
     // assigned unit is a unit (MB, GB etc) that you want to convert to
     /**
-     * @param  {boolean} unitSeparated true if want return an array of 
+     * @param  {boolean} unitSeparated true if want return an array of
      *                                 [int size, string unit]
      */
     xcHelper.sizeTranslator = function(size, unitSeparated, convertTo) {
@@ -1258,7 +1258,7 @@ window.xcHelper = (function($, xcHelper) {
         if (MainMenu.isMenuOpen) {
             mainFrameOffsetLeft = 350;
         } else {
-            mainFrameOffsetLeft = 65
+            mainFrameOffsetLeft = 65;
         }
 
         return (tableRight >= mainFrameOffsetLeft) && (tableLeft <= windowWidth);
@@ -1311,31 +1311,6 @@ window.xcHelper = (function($, xcHelper) {
         if (scrollDiff > 0) {
             $target.scrollTop(scrollDiff);
         }
-    };
-
-    xcHelper.genSub = function() {
-        var deferred = jQuery.Deferred();
-
-        XcalarSupportGenerate()
-        .then(function(filePath, bid) {
-            var msg = xcHelper.replaceMsg(CommonTxtTstr.SupportBundleMsg, {
-                "id"  : bid,
-                "path": filePath
-            });
-            Alert.show({
-                "title"  : CommonTxtTstr.SupportBundle,
-                "instr"  : CommonTxtTstr.SupportBundleInstr,
-                "msg"    : msg,
-                "isAlert": true
-            });
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Alert.error(CommonTxtTstr.GenBundleFail, error);
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
     };
 
     xcHelper.createSelection = function(element, atEnd) {
@@ -1419,7 +1394,7 @@ window.xcHelper = (function($, xcHelper) {
                 break;
         }
 
-        if (colType == "integer") {
+        if (colType === "integer") {
             mapStr += colName + ", 10)";
         } else {
             mapStr += colName + ")";
@@ -1658,7 +1633,7 @@ window.xcHelper = (function($, xcHelper) {
         var colName;
         for (var i = 0; i < colNames.length; i++) {
             colName = colNames[i];
-            if (colName.length < 2) { 
+            if (colName.length < 2) {
             // colName must be at least 2 characters long including the colPrefix
                 return false;
             }
