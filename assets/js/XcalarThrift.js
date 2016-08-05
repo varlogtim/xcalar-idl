@@ -2188,6 +2188,57 @@ function XcalarDeleteRetina(retName, txId) {
     return (deferred.promise());
 }
 
+function XcalarImportRetina(retinaName, overwrite, retina, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
+    }
+    var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite,
+                                                 retina);
+    var def1 = xcalarApiImportRetina(tHandle, retinaName, overwrite, retina);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // Transaction.log(txId, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarImportRetina", error1, error2);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+function XcalarExportRetina(retName, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (Transaction.isCanceled(txId)) {
+        return (deferred.reject().promise());
+    }
+    var workItem = xcalarApiExportRetinaWorkItem(retName);
+    var def1 = xcalarApiExportRetina(tHandle, retName);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // Transaction.log(txId, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarExportRetina", error1, error2);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
 function XcalarDeleteSched(schedName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);

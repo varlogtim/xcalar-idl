@@ -265,7 +265,7 @@ window.Support = (function(Support, $) {
     };
 
     Support.downloadLRQ = function(lrqName) {
-        xcalarApiExportRetina(tHandle, lrqName)
+        XcalarExportRetina(lrqName)
         .then(function(a) {
             xcHelper.downloadAsFile("retina-"+lrqName+".tar.gz", a.retina,
                                     true);

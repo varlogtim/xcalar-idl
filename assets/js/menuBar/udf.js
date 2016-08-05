@@ -196,7 +196,8 @@ window.UDF = (function($, UDF) {
         $browserBtn.change(function() {
             var path = $(this).val().replace(/C:\\fakepath\\/i, '');
             $filePath.val(path);
-            var moduleName = path.substring(0, path.indexOf(".")).toLowerCase();
+            var moduleName = path.substring(0, path.indexOf(".")).toLowerCase()
+                                 .replace(/ /g, "");
             $("#udf-upload-name").val(moduleName);
         });
         // clear file path
@@ -238,13 +239,28 @@ window.UDF = (function($, UDF) {
                     xcHelper.disableSubmit($submitBtn);
                     var entireString = event.target.result;
 
-                    uploadUDF(moduleName, entireString)
-                    .always(function() {
-                        xcHelper.enableSubmit($submitBtn);
-                    });
+                    if (path.indexOf(".tar.gz") > -1) {
+                        XcalarImportRetina(moduleName, true, entireString)
+                        .always(function() {
+                            xcHelper.enableSubmit($submitBtn);
+                            xcHelper.showSuccess();
+                        });
+                    } else {
+                        uploadUDF(moduleName, entireString)
+                        .always(function() {
+                            xcHelper.enableSubmit($submitBtn);
+                        });
+                    }
                 };
 
-                reader.readAsText(file);
+                if (path.indexOf(".tar.gz")) {
+                    // XXX this should really be read as data URL
+                    // But requires that backend changes import retina to not
+                    // do default base 64 encoding. Instead take it as flag
+                    reader.readAsBinaryString(file);
+                } else {
+                    reader.readAsText(file);
+                }
             }
         });
         /* end of upload file section */
