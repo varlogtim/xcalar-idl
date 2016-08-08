@@ -18,6 +18,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
+         $("#monitorMenu-setup").on("click", ".listInfo", function() {
+            $(this).closest(".listWrap").toggleClass("active");
+        });
+
         $("#monitor-asup").click(function() {
             var $target = $(this);
 
@@ -160,6 +164,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     break;
                 case ("setupButton"):
                     $("#monitor-setup").addClass("active");
+                    $menu.find(".menuSection.setup").removeClass("xc-hidden");
                     title += MonitorTStr.Setup;
                     break;
                 case ("settingsButton"):
