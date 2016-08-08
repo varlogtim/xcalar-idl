@@ -453,7 +453,10 @@ module.exports = {
         "Size": "Size",
         "Path": "Path",
         "DSPreview": "Dataset Preview",
-        "SelectLater": "Create A Table Without Picking Any Column"
+        "ClearAll": "Clear Columns",
+        "SelectAll": "Select All Columns",
+        "SelectLater": "Select Columns Later",
+        "SelectLaterHiint": "Create A Table Without Picking Any Column"
     },
 
     "dsCart": {

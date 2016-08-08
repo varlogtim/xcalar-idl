@@ -149,27 +149,61 @@ input {
                 color: @color-font-select-blue;
                 float: left;
             }
+        }
 
-            .buttonGroup {
-                float: right;
+        .infoSection {
+            .size(@width: ~"calc(100% - 190px)");
+            float: left;
 
-                .icon {
-                    color: @color-font-select-blue;
-                    margin-right: 5px;
-
-                    &:last-child {
-                        margin-right: 0;
-                    }
-                }
+            .contentSection {
+                .size(@height: 20px);
+                font-size: 14px;
+                margin-top: 10px;
+                .textOverflowOneLine;
             }
         }
 
-        .contentSection {
-            .size(@height: 20px);
-            font-size: 14px;
-            margin-top: 10px;
-            .textOverflowOneLine;
-        }
+        .buttonSection {
+            .size(@width: 190px);
+            float: right;
+
+            .buttonGroup {
+                .size(@height: 20px);
+                margin-top: 10px;
+                color: @color-font-select-blue;
+
+                > div {
+                    float: right;
+                }
+
+                .icon {
+                    color: @color-font-select-blue;
+                }
+
+                .hint {
+                    .size(@width: 14px, @height: 20px);
+                    margin-left: 5px;
+                }
+
+                .xc-action {
+                    i, span {
+                        display: inline-block;
+                        float: left;
+                    }
+
+                    span {
+                        line-height: 20px;
+                        margin-left: 5px;
+                    }
+                }
+
+                .divider {
+                    .size(@width: 1px, @height: 20px);
+                    margin: 0 10px;
+                    background-color: @color-bg-select-blue;
+                }
+            }
+        }        
     }
 
     .cardMain {
@@ -1219,6 +1253,7 @@ table.datasetTable {
 
                 .dsCount {
                     .font(@weight: 700, @color: @color-font-dusk-blue);
+                    .no-selection;
                 }
 
                 .edit, .delete {
@@ -1289,7 +1324,7 @@ table.datasetTable {
                     }
 
                     .dsCount {
-                        .position(absolute, @top: 13px);
+                        .position(absolute, @top: 15px);
                         .size(@width: @width-grid, @height: 20px);
                         .font(@size: 13px);
                     }
