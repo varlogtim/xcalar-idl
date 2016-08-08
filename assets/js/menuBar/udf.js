@@ -1,12 +1,5 @@
 // this is a sub module of bottomMenu
 window.UDF = (function($, UDF) {
-    var $fnName;       // $("#udf-fnName");
-    var $template;     // $("#udf-fnTemplate");
-    var $downloadBtn;  // $("#udf-fnDownload");
-    var $browserBtn;   // $("#udf-upload-fileBrowser");
-    var $filePath;     // $("#udf-upload-path");
-    var $listDropdown; // $("#udf-fnMenu");
-
     var editor;
     var storedUDF = {};
     var udfWidgets = [];
@@ -14,20 +7,16 @@ window.UDF = (function($, UDF) {
     // constant
     var udfDefault = "# PLEASE TAKE NOTE: \n" +
                     "# UDFs can only support\n" +
-                    "# return values of type String\n\n"+
-                    "# Function names that start with __ are\n" +
-                    "# considered private functions and\n"+
-                    "# will not be directly invokable\n\n";
+                    "# return values of \n" +
+                    "# type String\n\n"+
+                    "# Function names that \n" +
+                    "# start with __ are\n" +
+                    "# considered private\n"+
+                    "# functions and will not\n" +
+                    "# be directly invokable\n\n";
     var defaultModule = "default";
 
     UDF.setup = function() {
-        $fnName = $("#udf-fnName");
-        $template = $("#udf-fnTemplate");
-        $downloadBtn = $("#udf-fnDownload");
-        $browserBtn = $("#udf-upload-fileBrowser");
-        $filePath = $("#udf-upload-path");
-        $listDropdown = $("#udf-fnMenu");
-
         setupUDF();
     };
 
@@ -47,8 +36,8 @@ window.UDF = (function($, UDF) {
             editor.clearHistory();
         }
         storedUDF = {};
-        $listDropdown.find('ul').empty()
-                                .append('<li name="blank">Blank Function</li>');
+        $("#udf-fnMenu").find('li[name=blank]')
+                    .siblings().remove();
     };
 
     UDF.getEditor = function() {
@@ -61,40 +50,14 @@ window.UDF = (function($, UDF) {
 
     // used in extManager.js
     UDF.storePython = function(moduleName, entireString) {
-        if (storedUDF.hasOwnProperty(moduleName)) {
-            // the case of overwrite a module
-            $listDropdown.find('li').filter(function() {
-                return $(this).text() === moduleName;
-            }).remove();
-        }
-
-        var $blankFunc = $listDropdown.find('li[name=blank]');
-        var li = '<li>' + moduleName + '</li>';
-        $blankFunc.after(li);
         storedUDF[moduleName] = entireString;
+        updateUDF();
     };
 
     function initializeUDFList() {
         var deferred = jQuery.Deferred();
-        var $blankFunc = $listDropdown.find('li[name=blank]');
-        var li;
 
-        updateUDF()
-        .always(function() {
-            for (var udf in storedUDF) {
-                li = '<li>' + udf + '</li>';
-                $blankFunc.after(li);
-            }
-
-            deferred.resolve();
-        });
-
-        return deferred.promise();
-    }
-
-    function updateUDF() {
-        var deferred = jQuery.Deferred();
-
+        // update udf
         XcalarListXdfs("*", "User*")
         .then(function(listXdfsObj) {
             var len = listXdfsObj.numXdfs;
@@ -112,31 +75,15 @@ window.UDF = (function($, UDF) {
                 }
             }
 
+            updateUDF();
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            updateUDF(); // stil update
+            deferred.reject(error);
+        });
 
-        return (deferred.promise());
-    }
-
-    function getEntireUDF(moduleName) {
-        var deferred = jQuery.Deferred();
-
-        if (!storedUDF.hasOwnProperty(moduleName)) {
-            var error = "UDF: " + moduleName + " not exists";
-            throw error;
-        }
-
-        var entireString = storedUDF[moduleName];
-        if (entireString == null) {
-            XcalarDownloadPython(moduleName)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-        } else {
-            deferred.resolve(entireString);
-        }
-
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     // setup UDF section
@@ -149,6 +96,7 @@ window.UDF = (function($, UDF) {
                 "version"               : 3,
                 "singleLineStringErrors": false
             },
+            "theme"            : "rubyblue",
             "lineNumbers"      : true,
             "indentWithTabs"   : true,
             "indentUnit"       : 4,
@@ -164,20 +112,25 @@ window.UDF = (function($, UDF) {
             waiting = setTimeout(updateHints, 300);
         });
 
-        var wasActive = $('#udfSection').hasClass('active');
+        var $udfSection = $("#udfSection");
+        var wasActive = $udfSection.hasClass('active');
         // panel needs to be active to set editor value to udf default
-        $('#udfSection').addClass('active');
+        $udfSection.addClass("active");
         editor.refresh();
 
         if (!wasActive) { // only remove active class if it didnt start active
-            $('#udfSection').removeClass('active');
+            $udfSection.removeClass('active');
         }
 
         /* switch between UDF sections */
-        var $sections = $("#udfSection .mainSection");
-        xcHelper.optionButtonEvent($("#udf-tabs"), function(tabId) {
-            $sections.addClass("hidden");
-            $("#" + tabId).removeClass("hidden");
+        var $sections = $udfSection.find(".mainSection");
+        var $tabs = $udfSection.find(".tabSection");
+        $tabs.on("click", ".tab", function() {
+            var $tab = $(this);
+            $tab .addClass("active").siblings().removeClass("active");
+            var tabId = $tab.data("tab");
+            $sections.addClass("xc-hidden");
+            $("#" + tabId).removeClass("xc-hidden");
 
             if (tabId === "udf-fnSection") {
                 editor.refresh();
@@ -185,8 +138,8 @@ window.UDF = (function($, UDF) {
         });
         /* end of switch between UDF sections */
 
-        /* upload file section */
         // browser file
+        var $browserBtn = $("#udf-upload-fileBrowser");
         $("#udf-upload-browse").click(function() {
             $(this).blur();
             $browserBtn.click();
@@ -195,95 +148,34 @@ window.UDF = (function($, UDF) {
         // display the chosen file's path
         $browserBtn.change(function() {
             var path = $(this).val().replace(/C:\\fakepath\\/i, '');
-            $filePath.val(path);
             var moduleName = path.substring(0, path.indexOf(".")).toLowerCase()
-                                 .replace(/ /g, "");
-            $("#udf-upload-name").val(moduleName);
-        });
-        // clear file path
-        $("#udf-upload-clearPath").click(function() {
-            $browserBtn.val("");
-            $filePath.val("");
-            $filePath.focus();
-        });
-        // upload file
-        $("#udf-upload-submit").click(function() {
-            $(this).blur();
-            var val = $filePath.val().trim();
+                                .replace(/ /g, "");
             var file = $browserBtn[0].files[0];
-            var path;
 
-            if (typeof file !== "object") {
-                path = "";
+            if (path.indexOf(".tar.gz") > 0) {
+                readRetinaFromFile(file, moduleName);
             } else {
-                path = file.name;
-            }
-
-            var $uploadName = $("#udf-upload-name");
-            var moduleName = $uploadName.val().trim();
-            var $submitBtn = $(this);
-            var options = {"offsetX": 190};
-
-            if (val === "") {
-                StatusBox.show(ErrTStr.NoEmpty, $filePath, true, options);
-            } else if (path === "") {
-                StatusBox.show(ErrTStr.InvalidFilePath, $filePath, true, options);
-            } else if (moduleName === "") {
-                StatusBox.show(ErrTStr.NoEmpty, $uploadName, true, options);
-            } else if (moduleName.length >
-                       XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
-                StatusBox.show(ErrTStr.LongFileName, $filePath, true, options);
-            } else {
-                var reader = new FileReader();
-                reader.onload = function(event) {
-                    xcHelper.disableSubmit($submitBtn);
-                    var entireString = event.target.result;
-
-                    if (path.indexOf(".tar.gz") > -1) {
-                        XcalarImportRetina(moduleName, true, entireString)
-                        .always(function() {
-                            xcHelper.enableSubmit($submitBtn);
-                            xcHelper.showSuccess();
-                        });
-                    } else {
-                        uploadUDF(moduleName, entireString)
-                        .always(function() {
-                            xcHelper.enableSubmit($submitBtn);
-                        });
-                    }
-                };
-
-                if (path.indexOf(".tar.gz")) {
-                    // XXX this should really be read as data URL
-                    // But requires that backend changes import retina to not
-                    // do default base 64 encoding. Instead take it as flag
-                    reader.readAsBinaryString(file);
-                } else {
-                    reader.readAsText(file);
-                }
+                readUDFFromFile(file, moduleName);
             }
         });
-        /* end of upload file section */
 
-        /* function input section */
-        var $dropDownList = $("#udf-fnList");
-        var dropdownList = new MenuHelper($dropDownList, {
+        /* Template dropdown list */
+        new MenuHelper($("#udf-fnList"), {
             "onSelect": function($li) {
                 $li.parent().find("li").removeClass("selected");
                 $li.addClass("selected");
                 var moduleName = $li.text();
 
                 StatusBox.forceHide();
-                $template.val(moduleName);
+                $("#udf-fnList input").val(moduleName);
 
+                var $fnName = $("#udf-fnName");
                 if ($li.attr("name") === "blank") {
                     $fnName.val("");
-                    $downloadBtn.addClass("disabled");
                     editor.setValue(udfDefault);
                 } else {
                     // auto-fill moduleName
                     $fnName.val(moduleName);
-                    $downloadBtn.removeClass("disabled");
                     getEntireUDF(moduleName)
                     .then(function(entireString) {
                         if (entireString == null) {
@@ -300,24 +192,11 @@ window.UDF = (function($, UDF) {
             "container"    : "#udfSection",
             "bounds"       : '#udfSection',
             "bottomPadding": 2
-        });
-        dropdownList.setupListeners();
-
-
-        $downloadBtn.click(function() {
-            $(this).blur();
-            var moduleName = $template.val();
-
-            if (moduleName === "") {
-                // invalid case
-                return;
-            }
-            downLoadUDF(moduleName);
-        });
+        }).setupListeners();
         /* end of function input section */
 
-        /* upload written function section */
-        $fnName.keypress(function(event) {
+        /* upload udf section */
+        $("#udf-fnName").keypress(function(event) {
             if (event.which === keyCode.Enter) {
                 $('#udf-fnUpload').click();
                 $(this).blur();
@@ -326,6 +205,7 @@ window.UDF = (function($, UDF) {
 
         $("#udf-fnUpload").click(function() {
             $(this).blur();
+            var $fnName = $("#udf-fnName");
             var fileName = $fnName.val();
             var options = {"offsetX": 50};
             if (fileName === "") {
@@ -364,12 +244,171 @@ window.UDF = (function($, UDF) {
                 moduleName = fileName;
             }
 
-            uploadUDF(moduleName, entireString, true);
+            uploadUDF(moduleName, entireString);
         });
-        /* end of upload written function section */
+        /* end of upload udf section */
+
+        /* udf manager section */
+        var $udfManaer = $("#udf-manager");
+        // edit udf
+        $udfManaer.on("click", ".udf .edit", function() {
+            var moduleName = $(this).closest(".udf").find(".text").text();
+            // switch to first tab
+            $("#udfSection .tab:first-child").click();
+            $("#udf-fnMenu").find("li").filter(function() {
+                return $(this).text() === moduleName;
+            }).click();
+        });
+
+        // download udf
+        $udfManaer.on("click", ".udf .download", function() {
+            var moduleName = $(this).closest(".udf").find(".text").text();
+            downloadUDF(moduleName);
+        });
+
+        // delete udf
+        $udfManaer.on("click", ".udf .delete", function() {
+            var moduleName = $(this).closest(".udf").find(".text").text();
+            Alert.show({
+                "title"    : UDFTStr.DelTitle,
+                "msg"      : UDFTStr.DelMsg,
+                "onConfirm": function() {
+                    deleteUDF(moduleName);
+                }
+            });
+        });
+        /* end of udf manager section */
     }
 
-    function downLoadUDF(moduleName) {
+    function updateUDF() {
+        // store by name
+        var moduleNames = Object.keys(storedUDF).sort();
+        updateTemplateList(moduleNames);
+        updateManager(moduleNames);
+    }
+
+    function updateTemplateList(moduleNames) {
+        var $input = $("#udf-fnList input");
+        var $blankFunc = $("#udf-fnMenu").find('li[name=blank]');
+        var selectedModule = $input.val();
+        var hasSelectedModule = false;
+        var html = "";
+        for (var i = 0, len = moduleNames.length; i < len; i++) {
+            var module = moduleNames[i];
+            html += "<li>" + module + "</li>";
+            if (!hasSelectedModule && module === selectedModule) {
+                hasSelectedModule = true;
+            }
+        }
+
+        $blankFunc.siblings().remove();
+        $blankFunc.after(html);
+
+        if (!hasSelectedModule) {
+            $input.val("");
+            $blankFunc.click();
+        }
+    }
+
+    function updateManager(moduleNames) {
+        var $section = $("#udf-manager");
+        var len = moduleNames.length;
+        var html = "";
+
+        for (var i = 0; i < len; i++) {
+            var moduleName = moduleNames[i];
+            var udfClass = "udf";
+
+            if (!isEditableUDF(moduleName)) {
+                udfClass += " uneditable";
+            }
+
+            html +=
+                '<div class="' + udfClass + '">' +
+                    '<div class="iconWrap udfIcon">' +
+                    '<i class="icon xi-module fa-14"></i>' +
+                '</div>' +
+                '<div class="text">' +
+                  moduleName +
+                '</div>' +
+                '<div class="actions">' +
+                  '<i class="edit icon xi-edit xc-action fa-14" ' +
+                  'title="' + UDFTStr.Edit + '" data-toggle="tooltip" ' +
+                  'data-container="body"></i>' +
+                  '<i class="download icon xi-download xc-action fa-14" ' +
+                  'title="' + UDFTStr.Download + '" data-toggle="tooltip" ' +
+                  'data-container="body"></i>' +
+                  '<i class="delete icon xi-trash xc-action fa-14" ' +
+                  'title="' + UDFTStr.Del + '" data-toggle="tooltip" ' +
+                  'data-container="body"></i>' +
+                '</div>' +
+              '</div>';
+        }
+
+        $section.find(".numUDF").text(len)
+            .end()
+            .find(".udfListSection").html(html);
+    }
+
+    function getEntireUDF(moduleName) {
+        var deferred = jQuery.Deferred();
+
+        if (!storedUDF.hasOwnProperty(moduleName)) {
+            var error = "UDF: " + moduleName + " not exists";
+            throw error;
+        }
+
+        var entireString = storedUDF[moduleName];
+        if (entireString == null) {
+            XcalarDownloadPython(moduleName)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            deferred.resolve(entireString);
+        }
+
+        return deferred.promise();
+    }
+
+    function isEditableUDF(moduleName) {
+        if (moduleName === defaultModule && !gUdfDefaultNoCheck) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function readUDFFromFile(file, moduleName) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var entireString = event.target.result;
+            editor.setValue(entireString);
+        };
+
+        reader.readAsText(file);
+        $("#udf-fnName").val(moduleName);
+        $("#udf-fnList input").val("");
+    }
+
+    function readRetinaFromFile(file, moduleName) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var entireString = event.target.result;
+            editor.setValue(entireString);
+
+            XcalarImportRetina(moduleName, true, entireString)
+            .always(function() {
+                xcHelper.showSuccess();
+            });
+        };
+
+         // XXX this should really be read as data URL
+        // But requires that backend changes import retina to not
+        // do default base 64 encoding. Instead take it as flag
+        reader.readAsBinaryString(file);
+    }
+
+    function downloadUDF(moduleName) {
         getEntireUDF(moduleName)
         .then(function(entireString) {
             if (entireString == null) {
@@ -383,10 +422,27 @@ window.UDF = (function($, UDF) {
         });
     }
 
-    function uploadUDF(moduleName, entireString, isFnInputSection) {
+    function deleteUDF(moduleName) {
+        if (!storedUDF.hasOwnProperty(moduleName)) {
+            console.error("Delete UDF error");
+            return;
+        }
+
+        XcalarDeletePython(moduleName)
+        .then(function() {
+            delete storedUDF[moduleName];
+            updateUDF();
+            xcHelper.showSuccess();
+        })
+        .fail(function(error) {
+            Alert.error(UDFTStr.DelFail, error);
+        });
+    }
+
+    function uploadUDF(moduleName, entireString) {
         moduleName = moduleName.toLowerCase();
 
-        if (moduleName === defaultModule && !gUdfDefaultNoCheck) {
+        if (isEditableUDF(moduleName)) {
             Alert.error(SideBarTStr.UploadError, SideBarTStr.OverwriteErr);
             return PromiseHelper.reject(SideBarTStr.OverwriteErr);
         }
@@ -411,14 +467,12 @@ window.UDF = (function($, UDF) {
 
         function uploadHelper() {
             var isIconBtn = true;
-            var $fileUplodBtn = $("#udf-upload-submit");
             var $fnUpload = $("#udf-fnUpload");
             var hasToggleBtn = false;
 
             // if upload finish with in 1 second, do not toggle
             var timer = setTimeout(function() {
                 hasToggleBtn = true;
-                xcHelper.toggleBtnInProgress($fileUplodBtn, isIconBtn);
                 xcHelper.toggleBtnInProgress($fnUpload, isIconBtn);
             }, 1000);
 
@@ -427,22 +481,6 @@ window.UDF = (function($, UDF) {
                 UDF.storePython(moduleName, entireString);
                 KVStore.commit();
                 xcHelper.showSuccess();
-
-                // clearance
-                // if (isFnInputSection) {
-                //     $fnName.val("");
-                //     $template.val("");
-                //     $downloadBtn.addClass("disabled");
-                // } else {
-                //     $browserBtn.val("");
-                //     $filePath.val("");
-                // }
-
-                // keep in the module if isFnInputSection
-                if (!isFnInputSection) {
-                    $browserBtn.val("");
-                    $filePath.val("");
-                }
 
                 DSForm.update();
                 deferred.resolve();
@@ -468,7 +506,6 @@ window.UDF = (function($, UDF) {
             .always(function() {
                 if (hasToggleBtn) {
                     // toggle back
-                    xcHelper.toggleBtnInProgress($fileUplodBtn);
                     xcHelper.toggleBtnInProgress($fnUpload);
                 } else {
                     clearTimeout(timer);

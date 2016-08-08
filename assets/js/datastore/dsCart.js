@@ -105,10 +105,8 @@ window.DSCart = (function($, DSCart) {
 
         var li = '<li class="new" data-ws="xc-new">' + WSTStr.NewWS + '</li>' +
                 WSManager.getWSLists(true);
-        $cartList.removeData("ws")
-            .find(".text").val("")
-            .end()
-            .find(".list").html(li);
+        $("#dataCartWSMenu").html(li);
+        autoSelectWorksheet();
     };
 
     // restore the cart
@@ -181,8 +179,8 @@ window.DSCart = (function($, DSCart) {
         $cart.remove();
         refreshCart(dsId);
         clearHighlightCol();
-        $cartList.removeData("ws")
-                .find(".text").val("");
+        // $cartList.removeData("ws")
+        //         .find(".text").val("");
     };
 
     DSCart.clear = function() {
@@ -767,6 +765,11 @@ window.DSCart = (function($, DSCart) {
         .always(removeWaitCursor);
 
         return deferred.promise();
+    }
+
+    function autoSelectWorksheet() {
+        // now we try select the worksheet
+        $("#dataCartWSMenu li.new").click();
     }
 
     /* Unit Test Only */

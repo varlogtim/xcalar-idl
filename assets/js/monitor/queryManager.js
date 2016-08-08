@@ -941,9 +941,9 @@ window.QueryManager = (function(QueryManager, $) {
                 '" data-query="' + queryName + '">' +
                 '<div class="queryInfo">' +
                     '<div class="leftPart">' +
-                        '<i class="icon queryIcon processing xi-play-circle"></i>' +
-                        '<i class="icon queryIcon error xi-stop-circle"></i>' +
-                        '<i class="icon queryIcon done xi-pause-circle"></i>' +
+                        '<i class="icon queryIcon processing xi-progress"></i>' +
+                        '<i class="icon queryIcon error xi-error"></i>' +
+                        '<i class="icon queryIcon done xi-success"></i>' +
                     '</div>' +
                     '<div class="middlePart name">' +
                         xcQuery.getName() +

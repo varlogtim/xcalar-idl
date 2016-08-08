@@ -398,13 +398,27 @@ table.datasetTable {
         background-color: @color-bg-white-nine;
         padding: 15px 20px;
 
-        .dropDownList {
-            .styleDropDownList(@w: 100%, @h: 30px);
+        .dropDownWrap {
+            .size(@width: 100%, @height: 30px);
             margin-bottom: 10px;
 
-            li.new {
-                color: @color-font-gray36;
-                border-bottom: 1px solid @color-border-pinkish-grey2;
+            > div {
+                float: left;
+            }
+
+            .title {
+                .size(@width: 65px);
+                .font(@line-height: 30px);
+            }
+
+            .dropDownList {
+                .styleDropDownList(@w: ~"calc(100% - 65px)", @h: 30px);
+                
+
+                li.new {
+                    color: @color-font-gray36;
+                    border-bottom: 1px solid @color-border-pinkish-grey2;
+                }
             }
         }
 

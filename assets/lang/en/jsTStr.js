@@ -550,6 +550,15 @@ WSTStr = {
 
 };
 
+UDFTStr = {
+    "Edit": "Edit UDF",
+    "Del": "Delete UDF",
+    "Download": "Download UDF",
+    "DelTitle": "Delete UDF",
+    "DelMsg": "Are you sure you want to delete the udf module?",
+    "DelFail": "Delete UDF Failed"
+};
+
 TblTStr = {
     'Create': 'Create Table',
     'Del': 'Delete Tables',

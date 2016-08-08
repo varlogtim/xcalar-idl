@@ -125,7 +125,7 @@ window.MainMenu = (function($, MainMenu) {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
                 WSManager.focusOnWorksheet();
-                $("#dfgPanelSwitch").removeClass("xc-hidden");
+                // $("#dfgPanelSwitch").removeClass("xc-hidden");
                 break;
             case ("schedulerTab"):
                 $('#schedulerPanel').addClass("active");

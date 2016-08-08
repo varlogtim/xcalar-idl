@@ -676,7 +676,7 @@
         background-color: @color-bg-marine-transparent;
 
         h2 {
-            .size(@width: ~"calc(100% - 118px)");
+            .size(@width: ~"calc(100% - 90px)");
             .font(@line-height: 35px,  @weight: bold, @color: @color-white);
             display: inline-block;
             .textOverflowOneLine;
@@ -820,39 +820,30 @@
 /* ========== UDF Section ========== */
 #udfSection {
     overflow: visible !important;
-    .tabSectionContainer {
-        .size(@width: 100%, @height: 50px);
-        box-shadow: 0px 2px 2px 2px rgba(153,153,153,.7);
+    .tabSection {
+        .size(@width: 100%, @height: 35px);
 
-        .radioButtonGroup {
-            .size(@height: 100%, @width: 350px, @max-width: 92%);
-            margin: 0 auto;
-            .flex-flow(row wrap);
-        }
-        .radioButton {
-            margin-right: 8px;
-        }
-    }
+        .tab {
+            .size(@width: 50%, @height: 100%);
+            .font(@size: 14px, @weight: 700, @line-height: 35px, @color: @color-white);
+            text-align: center;
+            float: left;
+            background-color: @color-bg-light-navy;
+            cursor: pointer;
 
-    .mainSectionContainer {
-        .position(relative);
-        .size(@width: 100%, @height: ~"calc(100% - 50px)");
-        padding-bottom: 5px;
+            &:hover {
+                box-shadow: inset 0 2px 0 0 @color-bg-dusk-blue;
+            }
 
-        .mainSection {
-            &.hidden {
-                display: none;
+            &.active {
+                background-color: @color-bg-tiber-blue;
+                color: @color-font-bright-light-blue;
             }
         }
     }
 
-    .upload {
-        .position(relative);
-        .icon {
-            .position(absolute, @left: 4px);
-            .size(@width: 25px, @height: 30px);
-            .image("../../images/upload.png", 50%, 50%);
-        }
+    .mainSectionContainer {
+        .size(@width: 100%, @height: ~"calc(100% - 35px)");
     }
 }
 
@@ -870,133 +861,80 @@
     }
 }
 
-#udf-uploadSection {
-    margin: 0 auto;
-    padding-top: 15px;
-    .size(@width: 350px, @max-width: 92%, @height: 100%);
-    overflow: hidden;
-
-    .row {
-        margin-top: 10px;
-
-        &:first-child {
-            margin-top: 0;
-        }
-    }
-
-    .label {
-        display: block;
-        .font(@size: 13px, @weight: bold);
-        .noSelection;
-    }
-
-    .inputSection {
-        padding-top: 10px;
-        .position(relative);
-
-        .input-box(@w: 100%, @h: 30px);
-
-        input {
-            padding: 0 40px 0 5px;
-        }
-
-        .closeIcon(@topOff: 15px, @rightOff: 7px);
-    }
-
-    #udf-upload-name {
-        text-transform: lowercase;
-    }
-
-    .btnSection {
-        padding-top: 25px;
-        margin: 0 -15px;
-        .flex-display;
-        .flex-flow (row wrap);
-        .justify-content (center);
-
-        .btn {
-            .size(@width: 160px);
-            margin: 8px 15px;
-        }
-    }
-}
-
 #udf-fnSection {
-    .position(relative);
     .size(100%, 100%);
 
-    .templateSection {
-        .size(@width: 100%, @height: 60px);
-        padding: 15px 0;
-        .position(relative);
+    .action {
+        .size(@width: 255px, @height: 30px);
+        line-height: 30px;
+        margin: 0 auto;
+        display: block;
+    }
 
-        .sectionContainer {
-           .size(@width: 420px, @height: 100%, @max-width: 92%);
-            margin: 0 auto;
-        }
+    input {
+        color: @color-white;
+        background-color: @color-bg-limedSpruce;
+        .textOverflowOneLine;
+    }
 
-        .dropDownList {
+    .topSection, .bottomSection {
+        .size(@height: 100px);
+        padding: 15px 20px;
+        background-color: @color-bg-tiber-blue;
+    }
+
+    .template {
+        margin-top: 10px;
+        .size(@width: 255px, @height: 30px);
+        margin: 10px auto 0 auto;
+
+        > div {
             float: left;
-            .styleDropDownList(60%, 30px);
-
-            input {
-                text-overflow: ellipsis;
-            }
-
-            .list {
-                background-color: #F8F8F8;
-                text-transform: lowercase;
-            }
-            .selected {
-                background-color: @color-selectedCell-green;
-            }
         }
 
-        .downloadSection {
-            .size(@width: 35%);
-            float: right;
-
-            .btn {
-                .size(@max-width: 100%);
-                .position(relative);
-                overflow: hidden;
-
-                &.disabled {
-                    opacity: 0.5;
-                    pointer-events: none;
-                }
-
-                .iconWrap {
-                    position: static !important;
-                    float: left;
-                    margin-left: 5px;
-                    width: 1px !important;
-
-                    .icon {
-                        .size(@width: 25px, @height: 30px);
-                        .image("../../images/download.png", 50%, 35%);
-                        display: block;
-                        margin-left: -3px;
-                    }
-                }
-
-                .text {
-                    float: right;
-                    text-align: center;
-                    position: static !important;
-                    width: ~"calc(100% - 27px)";
-                    padding-right: 2px;
-                    .textOverflowOneLine;
-                }
-            }
+        .title {
+            .size(@width: 75px);
+            .font(@color: @color-white, @line-height: 30px);
         }
     }
 
+    .dropDownList {
+        // margin-top: 10px;
+        .styleDropDownList(~"calc(100% - 75px)", 30px);
+        // margin: 10px auto 0 auto;
+        // display: block;
+        // float: none;
+
+        input {
+            border: 1px solid @color-border-select-blue;
+        }
+
+        .list {
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+
+            li {
+                background-color: @color-bg-dusk-blue;
+                box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+                color: @color-white;
+                text-transform: lowercase;
+
+                &:hover {
+                    background-color: @color-bg-light-navy;
+                }
+
+                &[name="blank"] {
+                    text-transform: initial;
+                }
+            }
+        }
+        // .selected {
+        //     background-color: @color-selectedCell-green;
+        // }
+    }
 
     .editSection {
-        .size(@width: 100%, @height: ~"calc(100% - 120px)");
+        .size(@width: 100%, @height: ~"calc(100% - 200px)");
         .position(relative);
-        background-color: @color-white;
         padding-right: 10px;
         margin-bottom: 5px;
 
@@ -1009,70 +947,81 @@
         }
     }
 
-    .submitSection {
-        .size(@width: 100%, @height: 60px);
-        .position(relative);
-        box-shadow: 0px -3px 3px 0px rgba(153,153,153,.7);
-        padding: 15px 0;
+    .bottomSection {
+        input {
+            margin-bottom: 10px;
+            opacity: @opacity-unhover;
+            border: 1px solid transparent;
+            padding: 0 10px;
 
-        .sectionContainer {
-            .size(@width: 420px, @height: 100%, @max-width: 92%);
-            margin: 0 auto;
+            &:focus {
+                outline: none;
+                border: 1px solid @color-border-select-blue;
+                opacity: @opacity-hover;
+            }
         }
+    }
+}
 
-        .inputSection {
-            .size(@width: 60%, @height: 15px);
-            .position(relative);
-            .flex-display;
-            .align-content(center);
-            .justify-content(center);
-            .flex-flow(row wrap);
-            float: left;
+#udf-manager {
+    .titleSection {
+        .size(@height: 40px);
+        padding: 0 16px;
+        .font(@size: 16px, @line-height: 40px, @color: @color-font-bright-light-blue);
+        background-color: @color-bg-tiber-blue;
+        box-shadow: inset 0 -1px 0 0 @color-border-light-navy;
+    }
 
-            .label {
-                .size(@width: 100px, @height: 25px);
-                .font(@weight: 900, @size: 13px, @line-height: 30px);
-                .noSelection;
-                cursor: default;
-                float: left;
+    .udfListSection {
+        .size(@height: ~"calc(100% - 40px)");
+        padding: 10px;
+
+        .udf {
+            .size(@max-width: 500px, @height: 30px);
+            border: 1px solid @color-border-pinkish-grey;
+            margin: 0 auto 10px auto;
+            opacity: @opacity-unhover;
+
+            &:hover {
+                opacity: @opacity-hover;
             }
 
-            input {
-                .size(@width: 90px, @height: 30px);
-                .rounded;
-                .font(@line-height: 30px);
-                box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
-                .flex(1 0 90px);
-                text-transform: lowercase;
-                text-overflow: ellipsis;
-
-                &:focus {
-                    outline: none;
+            &.uneditable {
+                .edit, .delete {
+                    pointer-events: none;
+                    opacity: @opacity-disabled;
                 }
             }
-        }
 
-        .btnSection {
-            float: right;
-            .size(@width: 35%);
-            .position(relative);
-            .btn {
-                .size(@max-width: 100%);
-                float: right;
+            > div {
+                float: left;
             }
 
-            .icon {
-                position: static !important;
-                float: left;
-                margin-left: 3px;
+            .udfIcon {
+                .size(@width: 28px, @height: 100%);
+                background-color: @color-bg-pinkish-grey;
+            
+                .icon {
+                    .size(100%, 100%);
+                }
             }
 
             .text {
-                float: left;
-                .size(@width: ~"calc(100% - 30px)");
-                text-align: center;
-                padding-right: 12%;
-                .textOverflowOneLine;
+                .size(@width: ~"calc(100% - 110px)");
+                .font(@line-height: 28px, @color: @color-white);
+                padding: 0 10px;
+            }
+
+            .actions {
+                .size(@width: 80px, @height: 100%);
+                background-color: fadeout(#000000, 50%);
+                padding: 0 5px;
+
+                .icon {
+                    font-size: 14px;
+                    margin-left: 8px;
+                    .position(relative, @top: 5px);
+                }
             }
         }
     }

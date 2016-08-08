@@ -289,12 +289,11 @@
     .textOverflowOneLine;
     text-align: center;
     .size(150px, 36px);
-    background-color: @color-bg-select-blue;
-    opacity: @opacity-unhover;
+    background-color: fadeout(@color-bg-dusk-blue, 20%);
     cursor: pointer;
 
     &:hover {
-        opacity: @opacity-hover;
+            background-color: @color-bg-dusk-blue;
     }
 
     &:focus {
@@ -344,18 +343,26 @@
 }
 
 .btn-cancel, .btn-secondary {
-    background-color: @color-bg-99-grey;
+    background-color: fadeout(@color-bg-99-grey, 20%);
+    &:hover {
+        background-color: @color-bg-99-grey;
+    }
+
     &:active {
         box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
     }
 }
 
 .btn-clear {
-    background-color: @color-white;
+    background-color: fadeout(@color-white, 20%);
     color: @color-font-warm-grey-two;
 
     .icon {
         color: @color-font-warm-grey-two !important;
+    }
+
+    &:hover {
+        background-color: @color-white;
     }
 
     &:active {

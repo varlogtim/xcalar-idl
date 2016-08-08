@@ -8,15 +8,18 @@
   </div>
   <div class="buttonSection">
     <!-- worksheet list -->
-    <div id="dataCartWSList" class="dropDownList">
-      <input class="text" type="text" value="" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
-      <div class="iconWrapper">
-        <i class="icon"></i>
+    <div class="dropDownWrap">
+      <div class="title"><%= dicts.dsCart.SendTo %>:</div>
+      <div id="dataCartWSList" class="dropDownList">
+        <input class="text" type="text" value="" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
+        <div class="iconWrapper">
+          <i class="icon"></i>
+        </div>
+        <ul id="dataCartWSMenu" class="list">
+          <li class="new">New WS</li>
+          <li name="test">test</li>
+        </ul>
       </div>
-      <ul id="dataCartWSMenu" class="list">
-        <li class="new">New WS</li>
-        <li name="test">test</li>
-      </ul>
     </div>
     <!-- buttons -->
     <% if (dicts.tutor.name !== "datastoreDemo2") { %>

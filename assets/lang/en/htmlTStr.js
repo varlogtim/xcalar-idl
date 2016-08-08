@@ -250,19 +250,23 @@ module.exports = {
         "rowInput": "Skip to row"
     },
 
+    "UDF": {
+        "wholeTitle": "User Defined Function",
+        "Editor": "Editor",
+        "Manager": "Manager",
+        "Browse": "Browse File",
+        "Template": "Template",
+        "selectTemplate": "Select Template",
+        "blankFunc": "Blank Function",
+        "nameHint": "Module name (lowercase only)",
+        "upload": "Upload UDF",
+        "MyUDF": "My UDFs"
+    },
+
     "bottomMenu": {
         "popOutBtn": "undock",
         "toggleSqlBtn": "toggle machine/human Log",
         "copySqlBtn": "Copy Log",
-        "ChooseFile": "Choose File",
-        "UDF": "User Defined Function",
-        "udfWrite": "Write your function",
-        "udfUpload": "Upload your script",
-        "chooseTemplate": "Choose your template",
-        "blankFunc": "Blank Function",
-        "lowercase": "lowercase only",
-        "download": "DOWNLOAD",
-        "upload": "UPLOAD",
         "Help": "Help",
         "HelpTopics": "Help Topics",
         "Find": "Find",
@@ -455,6 +459,7 @@ module.exports = {
     "dsCart": {
         "Title": "Data Cart",
         "SelectWS": "Select Worksheet",
+        "SendTo": "Send To",
         "SENDTOWS": "SEND TO WORKSHEET",
         "CLEARALL":  "EMPTY DATA CART",
         "NoCartInstr": "To add a column to the data cart, select a dataset reference on the left and click on the column names that you are interested in inside the center panel."

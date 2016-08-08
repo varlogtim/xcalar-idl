@@ -28,46 +28,36 @@
     <section id="udfSection" class="menuSection no-selection">
       <!-- Heading -->
       <header class="heading draggable">
-        <h2><%= dicts.bottomMenu.UDF %></h2>
+        <h2><%= dicts.UDF.wholeTitle %></h2>
       </header>
       <!-- Content -->
       <div class="menuContent">
-        <!-- Section to switch between upload and input section -->
-        <section class="tabSectionContainer">
-          <div id="udf-tabs" class="radioButtonGroup center">
-            <!-- option for code input section -->
-            <div class="radioButton active" data-option="udf-fnSection">
-              <div class="radio">
-                <span class="dot"></span>
-              </div>
-              <div class="label"><%= dicts.bottomMenu.udfWrite %></div>
-            </div>
-            <!-- option for upload section -->
-            <div class="radioButton" data-option="udf-uploadSection">
-              <div class="radio">
-                <span class="dot"></span>
-              </div>
-              <div class="label"><%= dicts.bottomMenu.udfUpload %></div>
-            </div>
-          </div>
+        <!-- Section to switch between editor and manager section -->
+        <section class="tabSection">
+          <!-- option for editor section -->
+          <div class="tab active" data-tab="udf-fnSection"><%= dicts.UDF.Editor %></div>
+          <!-- option manager section -->
+          <div class="tab" data-tab="udf-manager"><%= dicts.UDF.Manager %></div>
         </section>
 
         <!-- Main Content -->
         <section class="mainSectionContainer">
           <!-- Section to write function -->
           <section id="udf-fnSection" class="mainSection">
-            <!-- Choose File Teamplate -->
-            <section class="templateSection">
-              <div class="sectionContainer">
-                <!-- template dropdown menu -->
+            <!-- topSection -->
+            <div class="topSection">
+              <button id="udf-upload-browse" class="btn action" type="button"><%= dicts.UDF.Browse %></button>
+              <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
+              <div class="template">
+                <div class="title"><%= dicts.UDF.Template %>:</div>
                 <div id="udf-fnList" class="dropDownList">
-                  <input id="udf-fnTemplate" class="text" spellcheck="false" placeholder="<%= dicts.bottomMenu.chooseTemplate %>" disabled>
+                  <input class="text" spellcheck="false" placeholder="<%= dicts.UDF.selectTemplate %>" disabled>
                   <div class="iconWrapper">
-                    <span class="icon"></span>
+                    <i class="icon"></i>
                   </div>
                   <div id="udf-fnMenu" class="list">
                     <ul>
-                      <li name="blank"><%= dicts.bottomMenu.blankFunc %></li>
+                      <li name="blank"><%= dicts.UDF.blankFunc %></li>
                     </ul>
                     <div class="scrollArea top">
                       <div class="arrow"></div>
@@ -77,90 +67,35 @@
                     </div>
                   </div>
                 </div>
-                <!-- Download Teamplate -->
-                <div class="downloadSection">
-                   <div class="btnSection">
-                    <button id="udf-fnDownload" class="btn btnMid disabled" type="button">
-                      <span class="iconWrap"><span class="icon"></span></span>
-                      <span class="text"><%= dicts.bottomMenu.download %></span>
-                    </button>
-                  </div>
-                </div>
               </div>
-            </section>
-            <!-- Edit section -->
-            <section class="editSection">
+            </div>
+            <!-- editSection -->
+            <div class="editSection">
               <div class="editArea">
                 <textarea id="udf-codeArea"></textarea>
               </div>
-            </section>
-            <!-- Submit Section -->
-            <section class="submitSection">
-              <div class="sectionContainer">
-                <div class="inputSection">
-                  <span class="label">
-                    <label for="udf-fnName"><%= dicts.common.ModuleName %>:</label>
-                  </span>
-                  <input id="udf-fnName" type="text" spellcheck="false" placeholder="<%= dicts.bottomMenu.lowercase %>">
-                </div>
-                <div class="btnSection">
-                  <button id="udf-fnUpload" class="btn btnMid upload" type="button">
-                    <span class="icon"></span>
-                    <span class="text"><%= dicts.bottomMenu.upload %></span>
-                  </button>
-                </div>
-              </div>
-            </section>
-          </section>
-          <!-- Section to upload file -->
-          <section id="udf-uploadSection" class="mainSection hidden">
-            <div class="row">
-              <!-- head part -->
-              <label class="label" for="udf-upload-path"><%= dicts.common.File %>:</label>
-              <!-- file path part -->
-              <div class="inputSection">
-                <input id="udf-upload-path" type="text" spellcheck="false">
-                <div id="udf-upload-clearPath" class="iconWrap clear">
-                  <span class="icon"></span>
-                </div>
-              </div>
             </div>
-            <div class="row">
-              <!-- head part -->
-              <label class="label" for="udf-upload-name"><%= dicts.common.ModuleName %>:</label>
-              <!-- file path part -->
-              <div class="inputSection">
-                <input id="udf-upload-name" type="text" spellcheck="false" placeholder="<%= dicts.bottomMenu.lowercase %>">
-              </div>
-            </div>
-            <!-- button part -->
-            <div class="btnSection">
-              <button id="udf-upload-browse" class="btn btnMid" type="button"><%= dicts.bottomMenu.ChooseFile %></button>
-              <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
-              <button id="udf-upload-submit" class="btn btnMid upload" type="button">
-                <span class="icon"></span>
-                <span class="text"><%= dicts.bottomMenu.upload %></span>
+            <!-- bottom section -->
+            <div class="bottomSection">
+              <input id="udf-fnName" class="action" type="text" spellcheck="false" placeholder="<%= dicts.UDF.nameHint %>">
+              <button id="udf-fnUpload" class="btn btnMid upload iconBtn action" type="button">
+                <i class="icon xi-add-udf fa-15"></i>
+                <span class="text"><%= dicts.UDF.upload %></span>
               </button>
             </div>
           </section>
-          <!-- End of Write Function Section -->
+          <!-- Section to manager udfs -->
+          <section id="udf-manager" class="mainSection hidden">
+            <div class="titleSection">
+              <header><%= dicts.UDF.MyUDF %> (<span class="numUDF">0</span>)</header>
+            </div>
+            <div class="udfListSection"></div>
+          </section>
+          <!-- End of manager Section -->
         </section>
         <!-- End of Main Section -->
       </div>
     </section>
-
-    <!-- CLI Section -->
-    <!-- <section id="cliSection" class="menuSection">
-      <header class="heading draggable">
-        <h2>CLI</h2>
-      </header>
-      <div class="menuContent">
-        <div class="textBoxContainer">
-          <div spellcheck="false" class="lineArea"></div>
-          <div class="cliArea"></div>
-        </div>
-      </div>
-    </section> -->
 
     <!-- Help Section -->
     <section id="helpSection" class="menuSection no-selection">
