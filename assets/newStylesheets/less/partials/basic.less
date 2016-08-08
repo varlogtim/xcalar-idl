@@ -15,6 +15,10 @@ table, tr, td, th, input, textarea, section, p {
     .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-text-darkGray);
 }
 
+section {
+    .font(@size: inherit);
+}
+
 h1, h2, h3, h4, h5, h6{
     .nomargin-padding;
     display: inline;
@@ -1208,7 +1212,14 @@ input {
     .image("../../images/qMark.png", 50%, 50%);
     display: inline-block;
 }
-
+i.qMark {
+    .size(12px, 12px);
+    background: @color-bg-select-blue;
+    border-radius: 100%;
+    font-size: 7px;
+    line-height: 12px;
+    text-align: center;
+}
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {

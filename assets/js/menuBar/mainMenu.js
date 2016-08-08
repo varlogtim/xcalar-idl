@@ -36,9 +36,18 @@ window.MainMenu = (function($, MainMenu) {
     };
 
     // checks main menu and bottom menu
-    // xx add option to check which menu is open
-    MainMenu.isMenuOpen = function() {
-        return (isMenuOpen || BottomMenu.isMenuOpen());
+    // or checks specific one if you pass in the id
+    MainMenu.isMenuOpen = function(menu) {
+        if (menu) {
+            if (menu === "mainMenu") {
+                return (isMenuOpen);
+            } else {
+                return (BottomMenu.isMenuOpen());
+            }
+        } else {
+            return (isMenuOpen || BottomMenu.isMenuOpen());
+        }
+        
     };
 
     MainMenu.open = function() {
@@ -83,6 +92,7 @@ window.MainMenu = (function($, MainMenu) {
                     $subTab.addClass('active');
                 }
                 OperationsView.closeOpSection();
+                JoinModal.close();
                 return;
             }
             var $lastActiveTab = $tabs.filter(".active");

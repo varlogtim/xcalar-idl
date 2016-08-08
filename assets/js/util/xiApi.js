@@ -149,7 +149,8 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.join = function(txId, joinType, lColNames, lTableName, rColNames,
-                          rTableName, newTableName) {
+                          rTableName, newTableName, pulledLColNames,
+                          pulledRColNames) {
         if (lColNames == null || lTableName == null ||
             rColNames == null || rTableName == null ||
             joinType == null || txId == null ||
@@ -213,7 +214,9 @@ window.XIApi = (function(XIApi, $) {
 
             var lTableId = xcHelper.getTableId(lTableName);
             var rTableId = xcHelper.getTableId(rTableName);
-            var joinedCols = createJoinedColumns(lTableId, rTableId);
+            var joinedCols = createJoinedColumns(lTableId, rTableId,
+                          pulledLColNames,
+                          pulledRColNames);
 
             deferred.resolve(newTableName, joinedCols);
         })
@@ -752,7 +755,8 @@ window.XIApi = (function(XIApi, $) {
     }
 
     // For xiApi.join, deepy copy of right table and left table columns
-    function createJoinedColumns(lTableId, rTableId) {
+    function createJoinedColumns(lTableId, rTableId, pulledLColNames,
+                                pulledRColNames) {
         // Combine the columns from the 2 current tables
         // Note that we have to create deep copies!!
         var newTableCols = [];
@@ -765,13 +769,34 @@ window.XIApi = (function(XIApi, $) {
         if (lTableId != null && gTables[lTableId] != null &&
             gTables[lTableId].tableCols != null)
         {
-            lCols = xcHelper.deepCopy(gTables[lTableId].tableCols);
+            
+            var table = gTables[lTableId];
+            lCols = xcHelper.deepCopy(table.tableCols);
+            if (pulledLColNames) { 
+                var tempCols = [];
+                for (var i = 0; i < pulledLColNames.length; i++) {
+                    var colNum = table.getColNumByBackName(pulledLColNames[i]) - 1; 
+                    tempCols.push(lCols[colNum]);
+                }
+                lCols = tempCols;
+            }
+            
         }
 
         if (rTableId != null && gTables[rTableId] != null &&
             gTables[rTableId].tableCols != null)
         {
-            rCols = xcHelper.deepCopy(gTables[rTableId].tableCols);
+            // rCols = xcHelper.deepCopy(gTables[rTableId].tableCols);
+            var table = gTables[lTableId];
+            rCols = xcHelper.deepCopy(table.tableCols);
+            if (pulledRColNames) { 
+                var tempCols = [];
+                for (var i = 0; i < pulledRColNames.length; i++) {
+                    var colNum = table.getColNumByBackName(pulledRColNames[i]) - 1; 
+                    tempCols.push(rCols[colNum]);
+                }
+                rCols = tempCols;
+            }
         }
 
         for (var i = 0; i < lCols.length; i++) {

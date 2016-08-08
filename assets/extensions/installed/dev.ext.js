@@ -26,6 +26,11 @@ window.UExtDev = (function(UExtDev) {
         "arrayOfFields": [
         {
             "type"      : "string",
+            "name"      : "Left Column",
+            "fieldClass": "lCol"
+        },
+        {
+            "type"      : "string",
             "name"      : "Right Full Tablename",
             "fieldClass": "rTable"
         },
@@ -85,18 +90,27 @@ window.UExtDev = (function(UExtDev) {
             var self = this;
 
             var args = self.getArgs();
-            var rColName = args.rCol;
-
-            // XXX We should allow clicking on tables other than the main table
-            // but since we don't, we will have to type. This means that the
-            // user will have to type the $. So we have to strip it if they did
-            if (rColName.trim().indexOf(gColPrefix) === 0) {
-                rColName = rColName.trim().substring(1);
-            }
+            
 
             var rTableName = args.rTable;
-            var lColName = self.getTriggerCol().getName();
-            var srcTableName = self.getTriggerTable().getName();
+            var lColName;
+            var lColNames;
+            if (typeof args.lCol === "object") {
+                lColNames = args.lCol;
+                lColName = args.lCol[0];
+            } else {
+                lColName = self.getTriggerCol().getName();
+                lColNames = [lColName];
+            }
+            
+            var srcTableName;
+            if (args.srcTableName) {
+                srcTableName = args.srcTableName;
+            } else {
+                // if args.srcTableName is not passed in, we get colname
+                // from column that triggered the action
+                srcTableName = self.getTriggerTable().getName();
+            }
             var leftLimit = args.leftLimit || 100;
             var rightLimit = args.rightLimit || 100;
             
@@ -108,8 +122,7 @@ window.UExtDev = (function(UExtDev) {
 
             var leftCount = -1;
             var rightCount = -1;
-
-            var leftPromise = ext.groupBy(AggrOp.Count, [lColName], lColName,
+            var leftPromise = ext.groupBy(AggrOp.Count, lColNames, lColName,
                                           false, srcTableName, leftGBColName,
                                           ext.createTempTableName())
             .then(function(tableName) {
@@ -131,7 +144,24 @@ window.UExtDev = (function(UExtDev) {
                 return PromiseHelper.reject();
             });
 
-            var rightPromise = ext.groupBy(AggrOp.Count, [rColName], rColName,
+            var rColName;
+            var rColNames;
+            if (typeof args.rCol === "object") {
+                rColNames = args.rCol;
+                rColName = args.rCol[0];
+            } else {
+                rColName = args.rCol;
+
+                // XXX We should allow clicking on tables other than the main table
+                // but since we don't, we will have to type. This means that the
+                // user will have to type the $. So we have to strip it if they did
+                if (rColName.trim().indexOf(gColPrefix) === 0) {
+                    rColName = rColName.trim().substring(1);
+                }
+                rColNames = [rColName];
+            }
+
+            var rightPromise = ext.groupBy(AggrOp.Count, rColNames, rColName,
                                            false, rTableName, rightGBColName,
                                            ext.createTempTableName())
             .then(function(tableName) {
@@ -201,13 +231,22 @@ window.UExtDev = (function(UExtDev) {
                 expSum += numKeysLeftInLeftTable * minRightValue/2;
                 expSum += numKeysLeftInRightTable * minLeftValue/2;
 
-                deferred.resolve();
-                Alert.show({
-                    "title" : "Estimated Join Size",
-                    "msg"   : "Max Rows: " + maxSum.toLocaleString() + "\n" +
-                              "Expected Rows: " + expSum.toLocaleString() + "\n" +
-                              "Min Rows: " + minSum.toLocaleString() + "\n"
+                deferred.resolve({
+                    maxSum: maxSum.toLocaleString(),
+                    expSum: expSum.toLocaleString(),
+                    minSum: minSum.toLocaleString()
                 });
+                // xx currently we only show alert modal if 1 left column is 
+                // passed in, multiple cols are passed in in the join modal
+                if (typeof args.lCol !== "object") {
+                    Alert.show({
+                        "title" : "Estimated Join Size",
+                        "msg"   : "Max Rows: " + maxSum.toLocaleString() + "\n" +
+                                  "Expected Rows: " + expSum.toLocaleString() + "\n" +
+                                  "Min Rows: " + minSum.toLocaleString() + "\n"
+                    });
+                }
+                
             })
             .fail(function(leftError, rightError) {
                 console.log(leftError, rightError);

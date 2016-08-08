@@ -2699,7 +2699,10 @@ MenuHelper.prototype = {
                 self.toggleList($(this).closest(".dropDownList"));
             });
         } else {
+            $dropDownList.addClass('yesclickable');
+        
             $dropDownList.on("click", function(event) {
+                // console.log('toggling', this.$list.parents());
                 if (self.exclude &&
                     $(event.target).closest(self.exclude).length) {
                     return;

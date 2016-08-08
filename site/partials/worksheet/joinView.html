@@ -1,0 +1,198 @@
+<section id="joinView" class="xc-hidden opView">
+	<header>
+		<div class="title"><%= dicts.joinModdal.header %></div>
+		<i class="close icon xi-close fa-15"></i>
+	</header>
+	<div class="mainContent">
+		<div class="join opSection">
+			<p class="instructions"><%=  dicts.joinModdal.instr %></p>
+			<!-- Join Modal Input Section -->
+			<section class="firstStep">
+				<section class="topDropdowns">
+					<div>
+						<div class="subHeading clearfix">
+							<div>Join Type:</div>
+						</div>
+						<div id="joinType" class="dropDownList">
+						  <div class="text"><%= dicts.joinModdal.InnerJoin %></div>
+						  <div class="iconWrapper">
+						      <div class="icon"></div>
+						  </div>
+						  <ul class="list">
+						    <li><%= dicts.joinModdal.InnerJoin %></li>
+						    <li><%= dicts.joinModdal.LeftJoin %></li>
+						    <li><%= dicts.joinModdal.RightJoin %></li>
+						    <li><%= dicts.joinModdal.FullJoin %></li>
+						  </ul>
+						</div>
+					</div>
+					<div class="tableListSections clearfix">
+						<div class="tableListSection">
+							<div class="subHeading clearfix">
+								<span class="text"><%= dicts.joinModdal.LeftTable %>:</span>
+							</div>
+						    <div id="joinLeftTableList" class="dropDownList joinTableList">
+						      <div class="text"></div>
+						      <div class="iconWrapper" title="<%= dicts.joinModdal.viewTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
+						          <div class="icon"></div>
+						      </div>
+						      <div class="list">
+						        <ul >
+						        </ul>
+						        <div class="scrollArea top">
+						          <div class="arrow"></div>
+						        </div>
+						        <div class="scrollArea bottom">
+						          <div class="arrow"></div>
+						        </div>
+						      </div>
+						    </div>
+						</div>
+						<div class="tableListSection">
+							<div class="subHeading clearfix">
+								<span class="text"><%= dicts.joinModdal.RightTable %>:</span>
+							</div>
+						    <div id="joinRightTableList" class="dropDownList joinTableList">
+						      <div class="text"></div>
+						      <div class="iconWrapper" title="<%= dicts.joinModdal.viewTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
+						          <div class="icon"></div>
+						      </div>
+						      <div class="list">
+						        <ul >
+						        </ul>
+						        <div class="scrollArea top">
+						          <div class="arrow"></div>
+						        </div>
+						        <div class="scrollArea bottom">
+						          <div class="arrow"></div>
+						        </div>
+						      </div>
+						    </div>
+						</div>
+					</div>
+					
+				</section><!-- Join Modal Main Section -->
+				<section id="mainJoin" class="clearfix modalMain">
+					
+					<!-- multi clause -->
+					<div id="multiJoin" class="joinContainer">
+					  <div class="subHeading clearfix">
+					  	<div><%= dicts.joinModdal.colSelectTitle %></div>
+					  </div>
+					  <p><%= dicts.joinModdal.colSelectInstr %></p>
+					  <div class="smartSuggestSection">
+					    <button class="smartSuggest btn" title="<%= dicts.joinModdal.SuggRightHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinModdal.SmartSuggBtn %></button>
+					    <span class="suggError">e</span>
+				      </div>
+					  <div class="subHeading">
+					  	<div>Left Columns</div>
+					  	<div>Right Columns</div>
+					  </div>
+					  <div class="mainTable">
+					    <div class="clauseArea">
+					      <div class="joinClause placeholder">
+					      	<button class="btn"><i class="icon xi-plus fa-14"></i>ADD ANOTHER CLAUSE</button>
+					      <!--   <div class="clause leftClause">
+					          <div class="iconWrapper">
+					            <span class="icon"></span>
+					          </div>
+					        </div>
+					        <div class="middleIcon">
+					          <div class="iconWrapper">
+					            <i class="icon xi-equal-circle fa-14"></i>
+					          </div>
+					        </div>
+					        <div class="clause rightClause">
+					          <div class="iconWrapper">
+					            <span class="icon"></span>
+					          </div>
+					        </div> -->
+					      </div>
+					    </div>
+					  </div>
+					</div>
+		<!-- 		  <div class="smartSuggestSection">
+				    <button class="smartSuggest btn" title="<%= dicts.joinModdal.SuggRightHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinModdal.SmartSuggBtn %></button>
+				    <span class="suggError">e</span>
+				  </div> -->
+				  <section class="joinPreviewArea">
+				  	<div class="subHeading clearfix">
+						<div class="text">Command Preview</div>
+					</div>
+					<p class="joinPreview"></p>
+				  </section>
+				</section>
+				<section class="bottomSection">
+					<button class="btn next btn-disabled" type="button"><%= dicts.common.NEXT %></button>
+				</section>
+			</section>
+			<section class="secondStep">
+				<div>
+					<div class="subHeading">
+						<div class="text"><%= dicts.joinModdal.NewTableName %>:</div>
+					</div>
+					<input id="joinTableNameInput" type="textbox" required spellcheck="false" autofocus>
+				</div>
+				<div class="colsToKeepSection noSelection">
+				 	<div class="subHeading clearfix">
+					  	<div><%= dicts.joinModdal.colKeepTitle %></div>
+					 </div>
+					<p><%= dicts.joinModdal.colKeepInstr %></p>
+					<div class="subHeading">
+					  	<div class="leftColHeading">Left Columns 
+						  	<div class="checkbox checked selectAll">
+						  		<i class="icon xi-ckbox-empty fa-13"></i>
+						  		<i class="icon xi-ckbox-selected fa-13"></i>
+						  	</div>
+					  	</div>
+					  	<div>Right Columns
+					  		<div class="checkbox checked selectAll">
+						  		<i class="icon xi-ckbox-empty fa-13"></i>
+						  		<i class="icon xi-ckbox-selected fa-13"></i>
+						  	</div>
+					  	</div>
+					 </div>
+					 <div class="columnsWrap clearfix">
+					 	<ul class="leftCols"></ul>
+					 	<ul class="rightCols"></ul>
+					 </div>
+				</div>
+				<div class="checkboxWrap keepTablesCBWrap subHeading clearfix">
+					<div>
+						<div class="text"><%= dicts.joinModdal.keepTables %></div>
+						<div class="checkbox">
+					  		<i class="icon xi-ckbox-empty fa-13"></i>
+					  		<i class="icon xi-ckbox-selected fa-13"></i>
+					  	</div>
+						
+					</div>
+					<i class="hint qMark icon xi-unknown" data-container="body" data-toggle="tooltip" title="<%= dicts.joinModdal.keepTablesHint %>"></i>
+				</div>
+				<div class="estimatorWrap">
+					<div class="subHeading clearfix">
+						<div class="title">Estimating join size...</div>
+					</div>
+					<div class="stats">
+						<div class="min">Min: <div class="value"></div></div>
+						<div class="med">Med: <div class="value"></div></div>
+						<div class="max">Max: <div class="value"></div></div>
+					</div>
+				</div>
+				<!-- <section class="joinPreviewArea">
+					<div class="subHeading clearfix">
+						<div class="text">Command Preview</div>
+					</div>
+					<p class="joinPreview"></p>
+				</section> -->
+				<section id="joinActions" class="modalBottom">
+					<button id="joinTables" class="btn confirm" type="button"><%= dicts.joinModdal.CONFIRM %></button>
+					<!-- <button id="cancelJoin" class="btn cancel" type="button"><%= dicts.common.CANCEL %></button> -->
+					<button class="btn btn-cancel back" type="button"><%= dicts.common.BACK %></button>
+				</section>
+			</section>
+			
+		</div>
+		
+		
+	</div>
+</section>

@@ -1,13 +1,13 @@
-<section id="operationsView" class="xc-hidden">
+<section id="operationsView" class="xc-hidden opView">
 	<header>
 		<div class="title">Map</div>
 		<i class="close icon xi-close fa-15"></i>
 	</header>
 	<div class="mainContent">
-		<div class="instructions"><%= dicts.opsModal.instr %></div>
-		<div class="map opSection xc-hidden">	
+		<div class="map opSection xc-hidden">
+			<div class="instructions"><%= dicts.opsModal.mapInstr %></div>	
 			<div class="group mapGroup">
-				<div class="catFuncHeadings clearfix">
+				<div class="catFuncHeadings clearfix subHeading">
 					<div>Category</div>
 					<div>Function</div>
 				</div>
@@ -24,15 +24,15 @@
 				</div>
 				<div class="argsSection inactive">
 				</div>
-			</div>	
-			
+			</div>
 		</div>
 		<!-- end map op section -->
 
 		<div class="filter opSection xc-hidden">
+			<div class="instructions"><%= dicts.opsModal.filterInstr %></div>
 			<div class="group filterGroup">
-				<div class="catFuncHeadings clearfix">
-					<div>Filter Function</div>
+				<div class="catFuncHeadings clearfix subHeading">
+					<div>Filter Function:</div>
 				</div>
 				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
 			        <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
@@ -60,14 +60,12 @@
 				<button class="btn btn-small addArg addFilterArg">
 					<i class="icon xi-plus"></i>
 				</button>
-				<span class="text">Additonal Arguments</span>
+				<span class="text">Additonal Conditions</span>
 			</div>
 			
 		</div>
 		<!-- end filter opSection -->
 
-		<div class="join opSection xc-hidden">
-		</div>
 		<div class="strPreview"></div>
 		<button class="btn submit">MAP</button>
 		

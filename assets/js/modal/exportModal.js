@@ -263,7 +263,8 @@ window.ExportModal = (function($, ExportModal) {
         }
 
         var frontColumnNames = columnsVal.split(",");
-        var backColumnNames = convertFrontColNamesToBack(frontColumnNames);
+        var backColumnNames = xcHelper.convertFrontColNamesToBack(
+                                    frontColumnNames, tableId, validTypes);
         // convertFrontColnamesToBack will return an array of column names if
         // successful, or will return an error object with the first invalid column name
 
@@ -387,131 +388,6 @@ window.ExportModal = (function($, ExportModal) {
         }
 
         return (deferred.promise());
-    }
-
-    // returns array if all columns valid or returns an error object with
-    // first invalid column name and reason why it's invalid
-    function convertFrontColNamesToBack(frontColNames) {
-        var backCols = [];
-        var tableCols = gTables[tableId].tableCols;
-        var foundColsArray = [];
-        var numColsFound = 0;
-        var numFrontColNames = frontColNames.length;
-        var i;
-        // var numFoundCols;
-        // var isObj;
-        var frontColName;
-
-        // take all of gTables columns and filter out arrays, data, newcols, objs etc
-        // put these columns into colsArray
-        var splitCols = splitIntoValidAndInvalidProgCols(tableCols);
-        var colsArray =  splitCols.validProgCols;
-        var invalidProgCols = splitCols.invalidProgCols;
-        var numTableCols = colsArray.length;
-
-        // after we've set up colsArray, we check the user's columns against it
-        for (i = 0; i < numFrontColNames; i++) {
-            var colFound = false;
-            var tableCol;
-            var j;
-            frontColName = frontColNames[i];
-
-            for (j = 0; j < numTableCols; j++) {
-                tableCol = colsArray[j];
-                // if we find a match, we push the backcolumn name into backCols
-                // and remove the column from colsArray and put it into
-                // foundColsArray. If we later have a duplicate backcolumn name
-                // it will no longer be in colsArray and we will search for it
-                // in foundColsArray
-                if (frontColName === tableCol.name) {
-                    if (tableCol.backName) {
-                        backCols.push(tableCol.backName);
-                    }
-                    var foundCol = colsArray.splice(j, 1)[0];
-                    foundColsArray.push(foundCol);
-                    j--;
-                    numTableCols--;
-                    colFound = true;
-                    numColsFound++;
-                    break;
-                }
-            }
-
-            // If column was not found,
-            // column could be a duplicate so check against the columns we
-            // already found and had removed
-            if (!colFound) {
-
-                for (j = 0; j < numColsFound; j++) {
-                    tableCol = foundColsArray[j];
-                    if (frontColName === tableCol.name) {
-                        backCols.push(tableCol.backName);
-                        colFound = true;
-                        break;
-                    }
-                }
-                // column name is not a duplicate and is not found in the
-                // valid column array so we check if it's in one of the invalid
-                // progCols
-
-                if (!colFound) {
-                    var numInvalidCols = invalidProgCols.length;
-                    for (j = 0; j < numInvalidCols; j++) {
-                        tableCol = invalidProgCols[j];
-                        if (frontColName === tableCol.name) {
-                            return {
-                                invalid: true,
-                                reason : 'type',
-                                type   : tableCol.type,
-                                name   : frontColName
-                            };
-                        }
-                    }
-                }
-            }
-            // if column name was not found in any of the progcols, then
-            // it doesn't exist
-            if (!colFound) {
-                return {
-                    invalid: true,
-                    reason : 'notFound',
-                    name   : frontColName
-                };
-            }
-        }
-        return (backCols);
-    }
-
-    // take all of gTables columns and filter out arrays, data, newcols, objs etc
-    // put these columns into one Array and the invalid columns in another array
-    function splitIntoValidAndInvalidProgCols(tableCols) {
-        var numTableCols = tableCols.length;
-        var colsArray = [];
-        var invalidProgCols = [];
-        var col;
-        for (var i = 0; i < numTableCols; i++) {
-            col = tableCols[i];
-            if (col.name !== "DATA" &&
-                !col.isNewCol)
-            {
-                if (gExportNoCheck) {
-                    colsArray.push(col);
-                } else {
-                    if (validTypes.indexOf(col.type) !== -1) {
-                        colsArray.push(col);
-                    } else {
-                        invalidProgCols.push(col);
-                    }
-                }
-            } else {
-                invalidProgCols.push(col);
-            }
-        }
-
-        return {
-            validProgCols  : colsArray,
-            invalidProgCols: invalidProgCols
-        };
     }
 
     function selectColumnsOnKeyPress() {

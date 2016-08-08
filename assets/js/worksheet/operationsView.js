@@ -13,7 +13,7 @@ window.OperationsView = (function($, OperationsView) {
     var $functionsUls;     // $genFunctionsMenus.find('ul')
     var $autocompleteInputs; // $operationsModal.find('.autocomplete');
     var $argInputs;
-    var $activeOpSection; // $operationsView.find('.map or .filter or .groupby etc')
+    var $activeOpSection = $(); // $operationsView.find('.map or .filter or .groupby etc')
     var currentCol;
     var colNum = "";
     var colName = "";
@@ -476,8 +476,10 @@ window.OperationsView = (function($, OperationsView) {
         $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $operationsView.removeClass('xc-hidden');
-        if (!MainMenu.isMenuOpen()) {
+        if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
+        } else {
+            BottomMenu.close(true);
         }
 
         if (restore) {
@@ -1332,7 +1334,7 @@ window.OperationsView = (function($, OperationsView) {
 
     // sets up the last argument for map
     function mapArgumentsSetup(numArgs, categoryNum, func, operObj) {
-        var description = OpModalTStr.ColNameDesc;
+        var description = OpModalTStr.ColNameDesc + ":";
         var tempName = colName;
         var autoGenColName;
         var $rows = $activeOpSection.find('.row');

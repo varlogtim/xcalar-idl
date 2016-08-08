@@ -394,7 +394,7 @@ window.xcFunction = (function($, xcFunction) {
         var startScrollPosition = $('#mainFrame').scrollLeft();
 
         XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
-                    newTableName, options)
+                    newTableName, options.keepLeftCols, options.keepRightCols)
         .then(function(finalTableName, finalTableCols) {
             var tablesToReplace = [];
             var refreshOptions = {};

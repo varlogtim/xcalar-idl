@@ -557,10 +557,10 @@ module.exports = {
     },
 
     "joinModdal": {
-        "header": "Join Tables",
-        "instr": "First, select the column from the left table that you would like to join on. <br> Next, select the table followed by the column from the right that you would like to join on.",
+        "header": "Join",
+        "instr": "First, select the column from the left table that you would like to join on. Next, select the table followed by the column from the right that you would like to join on.",
         "NewTableName": "New Table Name",
-        "keepTables": "Keep Tables",
+        "keepTables": "Keep original tables",
         "keepTablesHint": "Keep both left and right tables and append new table to the current worksheet",
         "InnerJoin": "Inner Join",
         "LeftJoin": "Left Outer Join",
@@ -574,7 +574,11 @@ module.exports = {
         "MultiJoinInstr": "Drag and drop columns to join",
         "RightTable": "Right Table",
         "CONFIRM": "JOIN TABLES",
-        "viewTables": "view other tables"
+        "viewTables": "view other tables",
+        "colSelectTitle": "Columns To Join",
+        "colSelectInstr": "Please select pairs of columns, one column from the left table and one column from the right table, to be joined together.",
+        "colKeepTitle": "Column Selector",
+        "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are collisions in column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table."
     },
 
     "jsonModal": {
@@ -592,7 +596,8 @@ module.exports = {
     },
 
     "opsModal": {
-        "instr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be preceded by a $ sign, e.g. $column1.",
+        "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be preceded by a $ sign, e.g. $column1.",
+        "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Arguments.\" Column names should be preceded by a $ sign, e.g. $column1.",
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "select to allow empty field",

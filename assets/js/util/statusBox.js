@@ -13,8 +13,22 @@ window.StatusBox = (function($, StatusBox){
         $statusBox = $("#statusBox");
         $doc = $(document);
         options = options || {};
-        // position the message
         var msgType = options.type || "error";
+        
+        // focus moves scrollbar position so focus first before we get
+        // the position of the input
+        if (isFormMode) {
+            $doc.mousedown({"target": $target, "type": msgType}, hideStatusBox);
+            $target.keydown({"target": $target, "type": msgType}, hideStatusBox);
+            $target.focus().addClass(msgType);
+        } else {
+            $doc.mousedown(hideStatusBox);
+            $doc.keydown(hideStatusBox);
+        }
+
+
+        // position the message
+        
         var bound = $target[0].getBoundingClientRect();
         var top   = bound.top - 30;
         var right = $(window).width() - bound.right - 200;
@@ -74,14 +88,7 @@ window.StatusBox = (function($, StatusBox){
             $(window).blur(hideStatusBox);
         }
 
-        if (isFormMode) {
-            $doc.mousedown({"target": $target, "type": msgType}, hideStatusBox);
-            $target.keydown({"target": $target, "type": msgType}, hideStatusBox);
-            $target.focus().addClass(msgType);
-        } else {
-            $doc.mousedown(hideStatusBox);
-            $doc.keydown(hideStatusBox);
-        }
+       
         open = true;
     };
 

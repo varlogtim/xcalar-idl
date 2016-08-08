@@ -317,6 +317,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         }
                     }
                 }
+                var runBeforeStartRet;
 
                 ext.initialize(col, tableName, worksheet, argList);
                 ext.runBeforeStart(extButton)
@@ -336,7 +337,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
                     return ext.run(txId);
                 })
-                .then(function() {
+                .then(function(ret) {
+                    runBeforeStartRet = ret;
                     return ext.runAfterFinish();
                 })
                 .then(function(finalTables, finalReplaces) {
@@ -362,7 +364,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         "msgTable": xcHelper.getTableId(finalTableName),
                         "sql"     : sql
                     });
-                    deferred.resolve();
+                    deferred.resolve(runBeforeStartRet);
                 })
                 .fail(function(error) {
                     if (error == null) {
