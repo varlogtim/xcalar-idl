@@ -326,7 +326,7 @@ window.UDF = (function($, UDF) {
             html +=
                 '<div class="' + udfClass + '">' +
                     '<div class="iconWrap udfIcon">' +
-                    '<i class="icon xi-module fa-14"></i>' +
+                    '<i class="icon xi-module center fa-15"></i>' +
                 '</div>' +
                 '<div class="text">' +
                   moduleName +
