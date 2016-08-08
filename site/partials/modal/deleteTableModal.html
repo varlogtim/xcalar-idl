@@ -9,10 +9,9 @@
   </header>
   <!-- Delete Table Instruction -->
   <section class="modalInstruction">
-    <div class="icon"></div>
+    <i class="icon xi-warning"></i>
     <div class="text"><%= dicts.deleteTable.instr %></div>
   </section>
-  <section class="modalTopMain"></section>
   <!-- Delete Table Main Section -->
   <section class="modalMain">
     <section class="loadingSection">
@@ -32,23 +31,26 @@
       <!-- title section -->
       <div class="titleSection">
         <!-- checkbox -->
-        <div class="title checkboxSection">
-          <div class="checkbox iconWrapper"></div>
+        <div class="checkboxSection">
+          <div class="checkbox">
+            <i class="icon xi-ckbox-empty"></i>
+            <i class="icon xi-ckbox-selected"></i>
+          </div>
         </div>
         <!-- category -->
         <div class="title name" data-sortkey="name">
           <span class="label"><%= dicts.deleteTable.Orphan %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
         <!-- table size -->
         <div class="title" data-sortkey="size">
           <span class="label"><%= dicts.common.Size %></span>
-          <span class="icon"></span>
+         <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
         <!-- date modified-->
         <div class="title" data-sortkey="date">
           <span class="label"><%= dicts.common.DateModified %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
       </div>
       <!-- orphan table list section -->
@@ -59,23 +61,26 @@
       <!-- title section -->
       <div class="titleSection">
         <!-- checkbox -->
-        <div class="title checkboxSection">
-          <div class="checkbox iconWrapper"></div>
+        <div class="checkboxSection">
+          <div class="checkbox">
+            <i class="icon xi-ckbox-empty"></i>
+            <i class="icon xi-ckbox-selected"></i>
+          </div>
         </div>
         <!-- category -->
         <div class="title name" data-sortkey="name">
           <span class="label"><%= dicts.deleteTable.Inactive %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
         <!-- table size -->
         <div class="title" data-sortkey="size">
           <span class="label"><%= dicts.common.Size %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
         <!-- date modified-->
         <div class="title" data-sortkey="date">
           <span class="label"><%= dicts.common.DateModified %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
       </div>
       <!-- table list section -->
@@ -86,23 +91,26 @@
       <!-- title section -->
       <div class="titleSection">
         <!-- checkbox -->
-        <div class="title checkboxSection">
-          <div class="checkbox iconWrapper"></div>
+        <div class="checkboxSection">
+          <div class="checkbox">
+            <i class="icon xi-ckbox-empty"></i>
+            <i class="icon xi-ckbox-selected"></i>
+          </div>
         </div>
         <!-- category -->
         <div class="title name" data-sortkey="name">
           <span class="label"><%= dicts.deleteTable.Active %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
         <!-- table size -->
         <div class="title" data-sortkey="size">
           <span class="label"><%= dicts.common.Size %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
         <!-- date modified-->
         <div class="title" data-sortkey="date">
           <span class="label"><%= dicts.common.DateModified %></span>
-          <span class="icon"></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
         </div>
       </div>
       <!-- table list section -->
@@ -113,8 +121,11 @@
   <section class="modalBottom">
     <button type="button" class="btn btnMid cancel"><%= dicts.common.CLOSE %></button>
     <button type="button" class="btn btnMid confirm"><%= dicts.deleteTable.CONFIRM %></button>
-    <div id="deleteTableModal-dontShow" class="checkboxSection">
-      <div class="checkbox iconWrapper"></div>
+    <div id="deleteTableModal-dontShow" class="checkboxSection bottomItem">
+      <div class="checkbox">
+        <i class="icon xi-ckbox-empty"></i>
+          <i class="icon xi-ckbox-selected"></i>
+      </div>
       <div class="text"><%= dicts.alertModal.checkBox %></div>
     </div>
   </section>

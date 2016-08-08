@@ -284,6 +284,8 @@
     display: inline-block;
     border: 0;
     outline: 0;
+    padding-top: 0px;
+    padding-bottom: 0px;
     .font(@family: @font-base, @color: @color-white, @weight: 700, @size: 14px, @line-height: 36px);
     letter-spacing: 0.5px;
     .textOverflowOneLine;
@@ -567,10 +569,30 @@
     .size(@width: 16px, @height: 100%);
     display: inline-block;
     cursor: pointer;
-    .image("../../images/checkbox/unchecked.png", 50%, 50%);
+
+    .icon {
+        .size(@width: 16px, @height: 16px);
+        font-size: 15px;
+        color: @color-font-softBlue;
+        .vertical-align;
+    }
+
+    .xi-ckbox-selected {
+        display: none;
+    }
+
+    .xi-ckbox-empty {
+        display: block;
+    }
 
     &.checked {
-        .image("../../images/checkbox/checked.png", 50%, 50%);
+        .xi-ckbox-empty {
+            display: none;
+        }
+        
+        .xi-ckbox-selected {
+            display: block;
+        }
     }
 }
 
@@ -872,6 +894,7 @@
         }
     }
 }
+
 
 .xc-grid {
     .grid-unit {

@@ -3,11 +3,8 @@
     display: none;
     .position(absolute, 0, 0, 0, 0);
     .size(@max-width: 99%, @max-height: 99%);
-    .rounded(5px 5px 4px 4px);
     z-index: @z-index-modal;
-    box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
     background-color: @color-white;
-    // .auto-selection;
 
     .modalHeader {
         background-color: @color-bg-select-blue;
@@ -59,22 +56,22 @@
     }
 
     .modalInstruction {
-        .size(@width: 100%, @height: 58px);
+        .size(@width: 100%, @height: @height-card-instr);
         background-color: @color-white;
         overflow: hidden;
-        padding: 12px;
-        padding-bottom: 10px;
+        padding: 10px;
+        border-bottom: 1px  solid @color-border-pinkish-grey2;
         .flex-display;
         .flex-direction(row);
 
         .icon {
-            .flex(0 0 58px);
-            .background('../../images/exclamation.png', 32px, 32px);
+            .flex(0 0 36px);
+            .font(@size: 24px, @color: @color-bg-select-blue);
         }
 
         .text {
-            .flex(0 0 ~"calc(100% - 58px)");
-            .font(@weight: bold, @size: 12px, @color: @color-text-instructions);
+            .flex(1 1 auto);
+            .font(@weight: 600, @size: 12px);
             overflow: hidden;
         }
 
@@ -85,7 +82,6 @@
 
     .modalTopMain {
         .size(@width: 100%);
-        border-top: 3px solid rgba(1, 1, 1, 0.18);
         background: @color-modal-whiteGray;
         color: @color-text-darkGray;
         .no-selection;
@@ -105,18 +101,20 @@
 
     .modalBottom {
         .size(@width: 100%, @height: 50px);
-        .rounded(0 0 4px 4px);
         .no-selection;
 
-        .btn {
+        .bottomItem, .btn {
             float: right;
+            .vertical-align;
+            margin-right: 10px;
+        }
+
+        .btn {
+            .size(@height: 30px);
+            line-height: 30px;
 
             &.cancel {
-                color: @color-text-white;
-                .gray-gradient;
-                &:hover, &:focus {
-                    .gray-inverse-gradient;
-                }
+                .btn-cancel;
             }
         }
     }
@@ -1728,7 +1726,6 @@ html.microsoft {
     .modalBottom {
         .btn {
             .size(@width: 130px);
-            margin: 10px 10px 0px 0;
         }
     }
 }
@@ -2410,21 +2407,14 @@ html.microsoft {
         }
     }
 
-    .modalTopMain {
-        // only show the box-shadow
-        .size(@height: 0px);
-    }
-
     .modalMain {
         .size(@height: ~"calc(100% - 144px)");
         position: relative;
-        padding: 15px 8px 0 8px;
+        padding: 8px;
 
         .section {
             .size(@width: 100%, @height: ~"calc(33% - 10px)");
-            border: 1px solid  @color-border-topGrayMed;
-            background-color: @color-background-listSectionGray;
-            padding: 4px 8px;
+            border: 1px solid @color-bg-pinkish-grey2;
             margin-top: 10px;
 
             &.orphan {
@@ -2434,36 +2424,32 @@ html.microsoft {
 
         .titleSection {
             padding-right: 10px;
+            background-color: @color-bg-white-seven;
+            box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
 
             .title {
-                .gray-gradient;
-                .rounded;
-                color: @color-workbook-title-font;
+                span, i {
+                    display: inline-block;
+                    float: left;
+                }
 
                 .label {
-                    .size(@width: ~"calc(95% - 15px)");
-                    display: inline-block;
-                    white-space: nowrap;
-                    .textOverflow;
+                    .size(@width: ~"calc(100% - 20px)");
+                    .textOverflowOneLine;
                 }
 
                 .icon {
-                    .position(absolute, @right: 2px);
                     .size(@width: 20px, @height: 30px);
-                    .image("../../images/sort.png", 50%, 50%);
-                    background-size: 10px 20px;
-                }
+                    color: @color-font-greyish-brown;
 
-                &:hover {
-                    .gray-inverse-gradient;
+                    &:before {
+                        .vertical-align;
+                        display: block;
+                    }
                 }
 
                 &.active {
-                    .action-gradient;
-                    color: @color-white;
-                    &:hover {
-                        .action-inverse-gradient;
-                    }
+
                 }
             }
         }
@@ -2473,13 +2459,7 @@ html.microsoft {
             overflow-y: scroll;
 
             .grid-unit {
-                &:nth-child(even) > div {
-                    background-color: @color-workbook-grid-even;
-                }
-
-                &:nth-child(odd) > div {
-                    background-color: @color-background-darkGray;
-                }
+                box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
             }
         }
 
@@ -2489,12 +2469,11 @@ html.microsoft {
             > div {
                 display: inline-block;
                 .position(relative);
-                .size(@width: ~"calc(30% - 25px)", @height: 30px);
+                .size(@width: ~"calc(30% - 15px)", @height: 30px);
                 float: left;
                 cursor: default;
-                margin-left: 5px;
                 padding-left: 10px;
-                .font(@weight: bold, @size: 12px, @line-height: 30px);
+                .font(@size: 12px, @line-height: 30px);
                 .textOverflowOneLine;
 
                 &:first-child {
@@ -2502,7 +2481,6 @@ html.microsoft {
                 }
 
                 &.checkboxSection {
-                    background: transparent !important;
                     .size(@width: 30px);
                 }
 
@@ -2510,17 +2488,6 @@ html.microsoft {
                     .size(@width: 40%);
                 }
             }
-        }
-    }
-
-    .modalBottom {
-        .checkboxSection {
-            float: right;
-            margin-right: 20px;
-        }
-
-        .btn {
-            margin: 0 20px 10px 0;
         }
     }
 }

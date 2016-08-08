@@ -61,8 +61,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         });
 
         // click title to sort
-        $modal.on("click", ".title:not(.checkboxSection)", function() {
-            var $title = $(this);
+        $modal.on("click", ".title .xi-sort", function() {
+            var $title = $(this).closest(".title");
             var sortKey = $title.data("sortkey");
             var $section = $title.closest(".section");
             $section.find(".title.active").removeClass("active");
@@ -108,9 +108,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         $modal.addClass("load");
         $modal.find(".loadingSection .text").text(StatusMessageTStr.Loading);
 
-        TableList.refreshOrphanList(false)
-        .always(function() {
-            return getTableSizeMap();
+        getTableSizeMap()
+        .then(function() {
+            return TableList.refreshOrphanList(false);
         })
         .always(function() {
             $modal.removeClass("load");
@@ -328,7 +328,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             var tableName = table.getName();
             var tableId = table.getId() || "";
             if (date !== unknown) {
-                date = xcHelper.getTime(null, date);
+                date = xcHelper.getTime(null, date) + " " +
+                        xcHelper.getDate(null, null, date);
             }
             var size = unknown;
             if (tableSizeMap.hasOwnProperty(tableName)) {
@@ -337,7 +338,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
             html += '<div class="grid-unit" data-id="' + tableId + '">' +
                         '<div class="checkboxSection">' +
-                            '<div class="checkbox iconWrapper"></div>' +
+                            '<div class="checkbox">' +
+                                '<i class="icon xi-ckbox-empty"></i>' +
+                                '<i class="icon xi-ckbox-selected"></i>' +
+                            '</div>' +
                         '</div>' +
                         '<div class="name">' + tableName + '</div>' +
                         '<div>' + size + '</div>' +
