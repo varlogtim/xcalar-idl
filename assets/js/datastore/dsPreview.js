@@ -2,54 +2,69 @@
  * Module for data preview
  */
 window.DSPreview = (function($, DSPreview) {
+    var $previewCard; // $("#dsForm-preview");
     var $previeWrap;      // $("#dsPreviewWrap")
     var $previewTable;    // $("#previewTable")
-    var $highLightBtn;    // $("#preview-highlight")
-    var $rmHightLightBtn; // $("#preview-rmHightlight")
+
+    var $highlightBtns; // $("#dsForm-highlighter");
+
+    var $form;          // $("#importDataForm")
+    var $formatText;    // $("#fileFormat .text")
+
+    var $fieldText;     // $("#fieldText");
+    var $lineText;      // $("#lineText");
+    var $quote;         // $("#dsForm-quote");
+
+    var $udfModuleList; // $("#udfArgs-moduleList")
+    var $udfFuncList;   // $("#udfArgs-funcList")
+
+    var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
 
     var tableName = null;
-    var rawData   = null;
+    var rawData = null;
 
-    var hasHeader   = false;
-    var delimiter   = "";
     var highlighter = "";
-    var dsFormat    = "CSV";
-    var moduleName  = "";
-    var funcName    = "";
+
+    var loadArgs = null;
+    var detectArgs = {};
+
+    // UI cache
+    var lastUDFModule = null;
+    var lastUDFFunc = null;
 
     // constant
     var rowsToFetch = 40;
     var numBytesRequest = 15000;
+    var excelModule = "default";
+    var excelFunc = "openExcel";
 
-    var promoteHeader =
-            '<div class="header" ' +
-                'title="Undo Promote Header" ' +
-                'data-toggle="tooltip" ' +
-                'data-placement="top" data-container="body">' +
-                '<span class="icon"></span>' +
-            '</div>';
-    var promoteTd =
-            '<td class="lineMarker promote" ' +
-                'title="Promote Header" data-toggle="tooltip" ' +
-                'data-placement="top" data-container="body">' +
-                '<div class="promoteWrap">' +
-                    '<div class="iconWrapper">' +
-                        '<span class="icon"></span>' +
-                    '</div>' +
-                    '<div class="divider"></div>' +
-                '</div>' +
-            '</td>';
+    var formatMap = {
+        "JSON"  : "JSON",
+        "CSV"   : "CSV",
+        "RANDOM": "rand",
+        "TEXT"  : "raw",
+        "EXCEL" : "Excel",
+    };
+
 
     DSPreview.setup = function() {
+        $previewCard = $("#dsForm-preview");
         $previeWrap = $("#dsPreviewWrap");
         $previewTable = $("#previewTable");
-        $highLightBtn = $("#preview-highlight");
-        $rmHightLightBtn = $("#preview-rmHightlight");
+        $highlightBtns = $("#dsForm-highlighter");
 
-        // promot header
-        $previewTable.on("click", ".promote, .undo-promote", function() {
-            togglePromote();
-        });
+        $fieldText = $("#fieldText");
+        $lineText = $("#lineText");
+        $quote = $("#dsForm-quote");
+
+        // form part
+        $form = $("#importDataForm");
+        $formatText = $("#fileFormat .text");
+
+        $udfModuleList = $("#udfArgs-moduleList");
+        $udfFuncList = $("#udfArgs-funcList");
+
+        $headerCheckBox = $("#promoteHeaderCheckbox");
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -70,29 +85,17 @@ window.DSPreview = (function($, DSPreview) {
             applyHighlight(selection.toString());
         });
 
-        $("#preview-apply").click(applyPreviewChange);
-
-        // close preview
-        $("#preview-close").click(function() {
-            clearAll();
-        });
-
-        // hightlight and remove highlight button
-        $highLightBtn.click(function() {
-            if (!$highLightBtn.hasClass("active") || highlighter === "") {
+        $highlightBtns.on("click", ".highlight", function() {
+            if (highlighter === "") {
                 return;
             }
-            applyDelim(highlighter);
+            applyFieldDelim(highlighter);
+            getPreviewTable();
         });
 
-        $rmHightLightBtn.click(function() {
-            if (!$rmHightLightBtn.hasClass("active") || delimiter !== "") {
-                // case of remove delimiter
-                applyDelim("");
-            } else {
-                // case of remove highlighter
-                applyHighlight("");
-            }
+        $highlightBtns.on("click", ".rmHightLight", function() {
+            // case of remove highlighter
+            applyHighlight("");
         });
 
         // resize column
@@ -104,164 +107,50 @@ window.DSPreview = (function($, DSPreview) {
             dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
 
-        var $suggSection = $("#previewSugg");
-        $suggSection.on("click", ".apply-highlight", function() {
-            $highLightBtn.click();
-        });
-
-        $suggSection.on("click", ".rm-highlight", function() {
-            $rmHightLightBtn.click();
-        });
-
-        $suggSection.on("click", ".promote", function() {
-            togglePromote();
-        });
-
-        $suggSection.on("click", ".commaDelim", function() {
-            applyDelim(",");
-        });
-
-        $suggSection.on("click", ".tabDelim", function() {
-            applyDelim("\t");
-        });
-
-        $suggSection.on("click", ".pipeDelim", function() {
-            applyDelim("|");
-        });
-
-        $suggSection.on("click", ".jsonLoad", function() {
-            dsFormat = "JSON";
-            moduleName = "";
-            funcName = "";
-            applyPreviewChange();
-        });
-
-        $suggSection.on("click", ".jsonLoadWithUDF", function() {
-            dsFormat = "JSON";
-            moduleName = "default";
-            funcName = "convertNewLineJsonToArrayJson";
-            applyPreviewChange();
-        });
-
-        $suggSection.on("click", ".excelLoad", function() {
-            dsFormat = "Excel";
-            if ($(this).hasClass("hasHeader")) {
-                hasHeader = true;
-            }
-
-            applyPreviewChange();
-        });
-
-        $suggSection.on("click", ".apply-all", function() {
-            applyPreviewChange();
-        });
+        setupForm();
     };
 
-    DSPreview.show = function(loadURL, dsName, udfModule, udfFunc, isRecur) {
-        var deferred = jQuery.Deferred();
-        var hasUDF = false;
+    DSPreview.show = function(options) {
+        options = options || {};
+        $previewCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
 
-        if (udfModule && udfFunc) {
-            moduleName = udfModule;
-            funcName = udfFunc;
-            hasUDF = true;
-        } else if (!udfModule && !udfFunc) {
-            moduleName = "";
-            funcName = "";
-            hasUDF = false;
+        resetForm();
+        loadArgs = $.extend(options, loadArgs);
+        if (loadArgs.format === formatMap.EXCEL) {
+            // XXX only a hack
+            $formatText.data("format", "Excel").val("Excel");
+            previewData(excelModule, excelFunc);
         } else {
-            // when udf module == null or udf func == null
-            // it's an error case
-            return PromiseHelper.reject("Error Case!");
+            // all other rest format first
+            // otherwise, cannot detect speical format(like special json)
+            loadArgs.format = null;
+            previewData(null, null);
         }
+    };
 
-        var $loadHiddenSection = $previeWrap.find(".loadHidden").hide();
-        var $waitSection = $previeWrap.find(".waitSection")
-                                    .removeClass("hidden");
-        var $errorSection = $previeWrap.find(".errorSection")
-                                    .addClass("hidden");
-        var sql = {
-            "operation" : SQLOps.PreviewDS,
-            "dsPath"    : loadURL,
-            "dsName"    : dsName,
-            "moduleName": moduleName,
-            "funcName"  : funcName,
-            "isRecur"   : isRecur
-        };
+    DSPreview.update = function() {
+        var moduleName = $udfModuleList.find("input").val();
+        var funcName = $udfFuncList.find("input").val();
 
-        var txId = Transaction.start({
-            "operation": SQLOps.PreviewDS,
-            "sql"      : sql
-        });
-
-        showPreviewPanel(loadURL, dsName, hasUDF)
-        .then(function() {
-            if (hasUDF) {
-                return loadDataWithUDF(txId, loadURL, dsName, isRecur);
-            } else {
-                return loadData(loadURL, isRecur);
-            }
-        })
-        .then(function(result) {
-            $waitSection.addClass("hidden");
-            rawData = result;
-
-            if (gMinModeOn) {
-                $loadHiddenSection.show();
-            } else {
-                $loadHiddenSection.fadeIn(500);
-            }
-
-            getPreviewTable();
-            // auto apply some suggestion if possible
-            var $firstSugg = $("#previewSugg .action:first-child");
-            if ($firstSugg.hasClass("delim")) {
-                $firstSugg.click();
-
-                var $promote = $("#previewSugg .promote");
-                if ($promote.length > 0) {
-                    // promote the first row as header
-                    $promote.click();
+        listUDFSection()
+        .always(function() {
+            // reselect old udf
+            if (validateUDFModule(moduleName)) {
+                selectUDFModule(moduleName);
+                if (!validateUDFFunc(moduleName, funcName)) {
+                    funcName = "";
                 }
+                selectUDFFunc(funcName);
+            } else {
+                // if udf module not exists
+                selectUDFModule("");
+                selectUDFFunc("");
             }
-
-            addPreviewEvent();
-
-            // not cache to sql log, only show when fail
-            Transaction.done(txId, {
-                "noCommit": true,
-                "noSql"   : true
-            });
-
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Transaction.fail(txId, {
-                "error"  : error,
-                "noAlert": true
-            });
-
-            $waitSection.addClass("hidden");
-            // error handler
-            var sugg = null;
-            if (error.status === StatusT.StatusAllFilesEmpty ||
-                error.status === StatusT.StatusNoEnt)
-            {
-                sugg = DSPreviewTStr.UseValidPath;
-            }
-
-            $errorSection.html(error.error).removeClass("hidden");
-            errorSuggestHelper(loadURL, sugg);
-            $("#preview-close").show();
-
-            deferred.reject(error);
         });
-
-        return deferred.promise();
     };
 
     DSPreview.clear = function() {
-        if ($previeWrap.hasClass("hidden")) {
+        if ($("#dsForm-preview").hasClass("xc-hidden")) {
             // when preview table not shows up
             return PromiseHelper.resolve(null);
         } else {
@@ -269,24 +158,453 @@ window.DSPreview = (function($, DSPreview) {
         }
     };
 
+    function setupForm() {
+        // setup udf
+        $("#dsForm-refresh").click(function() {
+            refreshPreview();
+        });
+
+        // udf checkbox
+        $("#udfCheckbox").on("click", function() {
+            var $checkbox = $(this).find(".checkbox");
+
+            if ($checkbox.hasClass("checked")) {
+                // uncheck box
+                toggleUDF(false);
+            } else {
+                // check the box
+                toggleUDF(true);
+            }
+        });
+
+        // dropdown list for udf modules and function names
+        new MenuHelper($udfModuleList, {
+            "onSelect": function($li) {
+                var module = $li.text();
+                selectUDFModule(module);
+            },
+            "container": "#importDataForm-content",
+            "bounds"   : "#importDataForm-content"
+        }).setupListeners();
+
+        new MenuHelper($udfFuncList, {
+            "onSelect": function($li) {
+                var func = $li.text();
+                selectUDFFunc(func);
+            },
+            "container": "#importDataForm-content",
+            "bounds"   : "#importDataForm-content"
+        }).setupListeners();
+
+
+        // set up format dropdownlist
+        new MenuHelper($("#fileFormat"), {
+            "onSelect": function($li) {
+                var format = $li.attr("name");
+                var text = $li.text();
+                toggleFormat(format, text);
+            },
+            "container": "#importDataForm-content",
+            "bounds"   : "#importDataForm-content"
+        }).setupListeners();
+
+        // setup delimiter
+        // set up dropdown list for csv de
+        var $csvDelim = $("#lineDelim, #fieldDelim");
+        // setUp both line delimiter and field delimiter
+        new MenuHelper($csvDelim, {
+            "onSelect": function($li) {
+                var $input = $li.closest(".dropDownList").find(".text");
+                var isField = ($input.attr("id") === "fieldText");
+
+                switch ($li.attr("name")) {
+                    case "default":
+                        if (isField) {
+                            $input.val("\\t");
+                        } else {
+                            $input.val("\\n");
+                        }
+                        $input.removeClass("nullVal");
+                        break;
+                    case "comma":
+                        $input.val(",").removeClass("nullVal");
+                        break;
+                    case "null":
+                        $input.val("Null").addClass("nullVal");
+                        break;
+                    default:
+                        console.error("error case");
+                        break;
+                }
+
+                if (isField) {
+                    setFieldDelim();
+                } else {
+                    setLineDelim();
+                }
+            },
+            "container": "#importDataForm-content",
+            "bounds"   : "#importDataForm-content"
+        }).setupListeners();
+
+        $csvDelim.on("input", "input", function() {
+            var $input = $(this);
+            $input.removeClass("nullVal");
+
+            var isField = ($input.attr("id") === "fieldText");
+            if (isField) {
+                setFieldDelim();
+            } else {
+                setLineDelim();
+            }
+        });
+
+        // quote
+        $quote.on("input", function() {
+            setQuote();
+        });
+
+        // header
+        $headerCheckBox.on("click", function() {
+            var $checkbox = $headerCheckBox.find(".checkbox");
+            if ($checkbox.hasClass("checked")) {
+                // remove header
+                $checkbox.removeClass("checked");
+                toggleHeader(false);
+            } else {
+                $checkbox.addClass("checked");
+                toggleHeader(true);
+            }
+        });
+
+        // auto detect
+        $("#dsForm-detect").click(function() {
+            autoPreview();
+        });
+
+        // back button
+        $form.on("click", ".cancel", function() {
+            var path = loadArgs.path;
+            var protocol;
+            for (var key in FileProtocol) {
+                protocol = FileProtocol[key];
+                if (path.startsWith(protocol)) {
+                    path = path.substring(protocol.length);
+                    break;
+                }
+            }
+
+            resetForm();
+            clearAll();
+            FileBrowser.show(protocol, path);
+        });
+
+        // submit the form
+        $form.submit(function(event) {
+            event.preventDefault();
+            var $submitBtn = $(this).blur();
+            xcHelper.disableSubmit($submitBtn);
+
+            submitForm()
+            .always(function() {
+                xcHelper.enableSubmit($submitBtn);
+            });
+        });
+    }
+
+    // function promoptHeaderAlert(format, hasHeader) {
+    //     var deferred = jQuery.Deferred();
+    //     if (!hasHeader &&
+    //         (format === formatMap.CSV ||
+    //         format === formatMap.TEXT ||
+    //         format === formatMap.EXCEL)) {
+
+    //         Alert.show({
+    //             "title"    : DSFormTStr.LoadConfirm,
+    //             "msg"      : DSFormTStr.NoHeader,
+    //             "onConfirm": function() { deferred.resolve(); },
+    //             "onCancel" : function() { deferred.reject("canceled"); }
+    //         });
+    //     } else {
+    //         deferred.resolve();
+    //     }
+
+    //     return deferred.promise();
+    // }
+
+    function listUDFSection() {
+        var deferred = jQuery.Deferred();
+
+        // update python module list
+        XcalarListXdfs("*", "User*")
+        .then(updateUDFList)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            console.error("List UDF Fails!", error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function updateUDFList(listXdfsObj) {
+        var i;
+        var len = listXdfsObj.numXdfs;
+        var udfs = listXdfsObj.fnDescs;
+        var moduleMap = {};
+        var modules = [];
+
+        for (i = 0; i < len; i++) {
+            modules.push(udfs[i].fnName);
+        }
+
+        modules.sort();
+
+        var moduleLi = "";
+        var fnLi = "";
+        for (i = 0; i < len; i++) {
+            var udf = modules[i].split(":");
+            var moduleName = udf[0];
+            var fnName = udf[1];
+
+            if (!moduleMap.hasOwnProperty(moduleName)) {
+                moduleMap[moduleName] = true;
+                moduleLi += "<li>" + moduleName + "</li>";
+            }
+
+            fnLi += '<li data-module="' + moduleName + '">' +
+                        fnName +
+                    '</li>';
+        }
+
+        $udfModuleList.find("ul").html(moduleLi);
+        $udfFuncList.find("ul").html(fnLi);
+    }
+
+    function validateUDFModule(module) {
+        // check if udf module exists
+        var $li = $udfFuncList.find(".list li").filter(function() {
+            return ($(this).data("module") === module);
+        });
+        return ($li.length > 0);
+    }
+
+    function validateUDFFunc(module, func) {
+        // check if udf exists
+        var $li = $udfFuncList.find(".list li").filter(function() {
+            var $el = $(this);
+            return ($el.data("module") === module &&
+                    $el.text() === func);
+        });
+        return ($li.length > 0);
+    }
+
+    function resetUdfSection() {
+        // restet the udf lists, otherwise the if clause in
+        // selectUDFModule() and selectUDFFunc() will
+        // stop the reset from triggering
+
+        // only when cached moduleName and funcName is not null
+        // we restore it
+        if (lastUDFModule != null && lastUDFFunc != null &&
+            validateUDFFunc(lastUDFModule, lastUDFFunc)) {
+
+            selectUDFModule(lastUDFModule);
+            selectUDFFunc(lastUDFFunc);
+        } else {
+            // when cannot restore it
+            lastUDFModule = null;
+            lastUDFFunc = null;
+
+            selectUDFModule("");
+            selectUDFFunc("");
+        }
+    }
+
+    function selectUDFModule(module) {
+        if (module == null) {
+            module = "";
+        }
+
+        $udfModuleList.find("input").val(module);
+
+        if (module === "") {
+            $udfFuncList.addClass("disabled")
+                    .find("input").val("");
+            $udfFuncList.parent().tooltip({
+                "title"    : TooltipTStr.ChooseUdfModule,
+                "placement": "top",
+                "container": "#dsFormView"
+            });
+        } else {
+            $udfFuncList.parent().tooltip("destroy");
+            $udfFuncList.removeClass("disabled")
+                .find("input").val("")
+                .end()
+                .find(".list li").addClass("hidden")
+                .filter(function() {
+                    return $(this).data("module") === module;
+                }).removeClass("hidden");
+        }
+    }
+
+    function selectUDFFunc(func) {
+        if (func == null) {
+            func = "";
+        }
+
+        $udfFuncList.find("input").val(func);
+    }
+
+    function getNameFromPath(path) {
+        var pathLen = path.length;
+        if (path.charAt(pathLen - 1) === "/") {
+            // remove the last /
+            path = path.substring(0, pathLen - 1);
+        }
+
+        var slashIndex = path.lastIndexOf("/");
+        var name = path.substring(slashIndex + 1);
+
+        var index = name.lastIndexOf(".");
+        // Also, we need to strip special characters. For now,
+        // we only keeo a-zA-Z0-9. They can always add it back if they want
+
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+
+        name = name.replace(/[^a-zA-Z0-9]/g, "");
+        var originalName = name;
+        var tries = 1;
+        var validNameFound = false;
+        while (!validNameFound && tries < 20) {
+            if (DS.has(name)) {
+                validNameFound = false;
+            } else {
+                validNameFound = true;
+            }
+
+            if (!validNameFound) {
+                name = originalName + tries;
+                tries++;
+            }
+        }
+
+        if (!validNameFound) {
+            while (DS.has(name) && tries < 100) {
+                name = xcHelper.randName(name, 4);
+                tries++;
+            }
+        }
+
+        return name;
+    }
+
+    function toggleFormat(format, text) {
+        if (format && $formatText.data("format") === format.toUpperCase()) {
+            return;
+        }
+
+        var $lineDelim = $("#lineDelim").parent().removeClass("xc-hidden");
+        var $fieldDelim = $("#fieldDelim").parent().removeClass("xc-hidden");
+        var $udfArgs = $("#udfArgs").removeClass("xc-hidden");
+        var $headerRow = $headerCheckBox.parent().removeClass("xc-hidden");
+        var $quoteRow = $quote.closest(".row").removeClass("xc-hidden");
+        var $skipRows = $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
+
+        if (format == null) {
+            // reset case
+            $lineDelim.addClass("xc-hidden");
+            $fieldDelim.addClass("xc-hidden");
+            $headerRow.addClass("xc-hidden");
+            $formatText.data("format", "").val("");
+            return;
+        }
+
+        format = format.toUpperCase();
+        if (text == null) {
+            text = $('#fileFormatMenu li[name="' + format + '"]').text();
+        }
+
+        $formatText.data("format", format).val(text);
+
+        switch (format) {
+            case "CSV":
+                $skipRows.removeClass("");
+                setFieldDelim();
+                break;
+            case "TEXT":
+                // no field delimiter when format is text
+                $fieldDelim.addClass("xc-hidden");
+                loadArgs.fieldDelim = "";
+                break;
+            case "EXCEL":
+                $lineDelim.addClass("xc-hidden");
+                $fieldDelim.addClass("xc-hidden");
+                // excel not use udf section
+                $udfArgs.addClass("xc-hidden");
+                break;
+
+            // json and random
+            case "JSON":
+            case "RANDOM":
+                // json and random
+                // Note: random is setup in shortcuts.js,
+                // so prod build will not have it
+                $headerRow.addClass("xc-hidden");
+                $lineDelim.addClass("xc-hidden");
+                $fieldDelim.addClass("xc-hidden");
+                $skipRows.addClass("xc-hidden");
+                $quoteRow.addClass("xc-hidden");
+                break;
+            default:
+                throw new ReferenceError("Format Not Support");
+        }
+
+        loadArgs.format = formatMap[format];
+    }
+
+    function resetDelimiter() {
+        // to show \t, \ should be escaped
+        $("#fieldText").val("Null").addClass("nullVal");
+        $("#lineText").val("\\n").removeClass("nullVal");
+    }
+
+    function resetForm() {
+        $form.find("input").val("");
+        $("#dsForm-skipRows").val(0);
+        $form.find(".checkbox.checked").removeClass("checked");
+        // keep the current protocol
+        resetUdfSection();
+        toggleFormat();
+        resetDelimiter();
+        resetLoadArgs();
+        detectArgs = {
+            "fieldDelim": "",
+            "lineDelim" : "\n",
+            "hasHeader" : false,
+            "skipRows"  : 0,
+            "quote"     : "\""
+        };
+        applyHighlight(""); // remove highlighter
+    }
+
+    function resetLoadArgs() {
+        loadArgs = {
+            "fieldDelim": "",
+            "lineDelim" : "\n",
+            "hasHeader" : false,
+            "quote"     : "\"",
+        };
+    }
+
     function clearAll() {
         var deferred = jQuery.Deferred();
 
-        $previeWrap.addClass("hidden").removeClass("fullSize");
         $previewTable.removeClass("has-delimiter").empty();
-        $("#preview-review").find(".delimiter .text").text("Not Applied");
-        $("#preview-review").find(".header .text").text("No");
-
-        $(window).off("resize", resizePreivewTable);
-        $("#importDataForm").off("keypress.preview");
 
         rawData = null;
-        hasHeader = false;
-        delimiter = "";
-        dsFormat = "CSV";
-        moduleName = "";
-        funcName = "";
-        applyHighlight(""); // remove highlighter
 
         if (tableName != null) {
             var dsName = tableName;
@@ -347,39 +665,101 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function showPreviewPanel(loadURL, dsName, hasUDF) {
+    function previewData(udfModule, udfFunc, noDetect) {
         var deferred = jQuery.Deferred();
 
+        var loadURL = loadArgs.path;
+        var dsName = getNameFromPath(loadURL);
+        $("#dsForm-dsName").val(dsName);
+
+        if (loadArgs.pattern) {
+            loadURL += loadArgs.pattern;
+        }
+
+        var isRecur = loadArgs.isRecur;
+        var hasUDF = false;
+
+        if (udfModule && udfFunc) {
+            hasUDF = true;
+        } else if (!udfModule && !udfFunc) {
+            hasUDF = false;
+        } else {
+            // when udf module == null or udf func == null
+            // it's an error case
+            return PromiseHelper.reject("Error Case!");
+        }
+
+        var $loadHiddenSection = $previeWrap.find(".loadHidden").addClass("hidden");
+        var $waitSection = $previeWrap.find(".waitSection")
+                                    .removeClass("hidden");
+        $previeWrap.find(".errorSection").addClass("hidden");
+        var sql = {
+            "operation" : SQLOps.PreviewDS,
+            "dsPath"    : loadURL,
+            "dsName"    : dsName,
+            "moduleName": udfModule,
+            "funcName"  : udfFunc,
+            "isRecur"   : isRecur
+        };
+
+        var txId = Transaction.start({
+            "operation": SQLOps.PreviewDS,
+            "sql"      : sql
+        });
+
         $("#preview-url").text(loadURL);
-        $("#preview-dsName").val(dsName);
 
+        var promise;
         if (hasUDF) {
-            $("#preview-udf").show()
-                             .find(".text").text(moduleName + ":" + funcName);
+            promise = loadDataWithUDF(txId, loadURL, dsName,
+                                        udfModule, udfFunc, isRecur);
         } else {
-            $("#preview-udf").hide()
-                             .find(".text").text("");
+            promise = loadData(loadURL, isRecur);
         }
 
-        // move the panel to bottom before display
-        $previeWrap.removeClass("hidden");
-        if (gMinModeOn) {
-            $previeWrap.addClass("fullSize");
+        promise
+        .then(function(result) {
+            $waitSection.addClass("hidden");
+            rawData = result;
+
+            $loadHiddenSection.removeClass("hidden");
+
+            getPreviewTable();
+
+            if (!noDetect) {
+                smartDetect();
+            }
+
+            // not cache to sql log, only show when fail
+            Transaction.done(txId, {
+                "noCommit": true,
+                "noSql"   : true
+            });
+
             deferred.resolve();
-        } else {
-            setTimeout(function() {
-                // without this setTimeout, previewWrap with go from top: 100%
-                // to top: 7px without animation
-                $previeWrap.addClass("fullSize");
+        })
+        .fail(function(error) {
+            Transaction.fail(txId, {
+                "error"  : error,
+                "noAlert": true
+            });
 
-                setTimeout(function() {
-                    // this setTimout it for the anmtion time btw
-                    // top: 100% to top: 7px
-                    deferred.resolve();
-                }, 1000);
-            }, 100);
-        }
+            errorHandler(error);
+            deferred.reject(error);
+        });
+
         return deferred.promise();
+    }
+
+    function errorHandler(error) {
+        if (typeof error === "object") {
+            error = JSON.stringify(error);
+        }
+
+        $previeWrap.find(".waitSection").addClass("hidden");
+        $previeWrap.find(".errorSection")
+                .html(error).removeClass("hidden");
+        $previeWrap.find(".loadHidden").addClass("hidden");
     }
 
     function loadData(loadURL, isRecur) {
@@ -387,38 +767,24 @@ window.DSPreview = (function($, DSPreview) {
 
         XcalarPreview(loadURL, isRecur, numBytesRequest)
         .then(function(res) {
-            var data = [];
-            var row = [];
-            var buffer = res.buffer;
-            for (var i = 0, len = buffer.length; i < len; i++) {
-                var c = buffer.charAt(i);
-                if (c === '\n') {
-                    data.push(row);
-                    row = [];
-                } else {
-                    row.push(c);
-                }
-            }
-            deferred.resolve(data);
+            deferred.resolve(res.buffer);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
 
-    function loadDataWithUDF(txId, loadURL, dsName, isRecur) {
+    function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur) {
         var deferred = jQuery.Deferred();
         var loadError = null;
 
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        var previewSize = $("#previewSize").val();
-        var unit = $("#previewSizeUnit input").val();
-        previewSize = xcHelper.getPreviewSize(previewSize, unit);
+        var previewSize = loadArgs.previewSize;
 
         XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
-                    hasHeader, moduleName, funcName, isRecur,
+                    false, udfModule, udfFunc, isRecur,
                     previewSize, txId)
         .then(function(ret, error) {
             loadError = error;
@@ -445,7 +811,7 @@ window.DSPreview = (function($, DSPreview) {
                 console.warn(loadError);
             }
 
-            var res = [];
+            var buffer = [];
 
             var value;
             var json;
@@ -459,11 +825,13 @@ window.DSPreview = (function($, DSPreview) {
                         if (key === "recordNum") {
                             continue;
                         }
-                        res.push(json[key].split(""));
+                        buffer.push(json[key]);
                     }
                 }
 
-                deferred.resolve(res);
+                var bufferStr = buffer.join("\n");
+                // deferred.resolve(res, bufferStr);
+                deferred.resolve(bufferStr);
             } catch (err) {
                 console.error(err, value);
                 deferred.reject({"error": DSTStr.NoParse});
@@ -474,78 +842,302 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function addPreviewEvent() {
-        $("#importDataForm").on("keypress.preview", function(event) {
-            if (event.which === keyCode.Enter) {
-                applyPreviewChange();
-                return false;
-            }
-        });
+    function submitForm() {
+        var res = validateForm();
+        if (res == null) {
+            return PromiseHelper.reject("Checking Invalid");
+        }
 
-        $(window).on("resize", resizePreivewTable);
+        var dsName = res.dsName;
+        var format = res.format;
+
+        var udfModule = res.udfModule;
+        var udfFunc = res.udfFunc;
+
+        var fieldDelim = res.fieldDelim;
+        var lineDelim = res.lineDelim;
+
+        // XXX not wired
+        var quote = res.quote;
+        var skipRows = res.skipRows;
+
+        var header = isUseHeader();
+
+        var loadURL = loadArgs.path;
+        if (loadArgs.pattern) {
+            // XXX not sure if it's right
+            loadURL += loadArgs.pattern;
+        }
+
+        var isRecur = loadArgs.isRecur;
+        // XXX not wired
+        var isRegEx = loadArgs.isRegEx;
+        var previewSize = loadArgs.previewSize;
+
+        console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
+            header, loadURL, quote, skipRows, isRecur, isRegEx, previewSize)
+
+        cacheUDF(udfModule, udfFunc);
+
+        return DS.load(dsName, format, loadURL,
+                        fieldDelim, lineDelim, header,
+                        udfModule, udfFunc,
+                        isRecur, previewSize);
     }
 
-    function applyPreviewChange() {
-        if (!DSForm.validate($("#preview-dsName"))) {
+    function validateForm() {
+        var $dsName = $("#dsForm-dsName");
+        var dsName = $dsName.val().trim();
+        // validate name
+        var isValid = xcHelper.validate([
+            {
+                "$selector": $dsName
+            },
+            {
+                "$selector": $dsName,
+                "check"    : function() {
+                    return (dsName.length >=
+                            XcalarApisConstantsT.XcalarApiMaxTableNameLen);
+                },
+                "formMode": true,
+                "text"    : ErrTStr.TooLong
+            },
+            {
+                "$selector": $dsName,
+                "check"    : DS.has,
+                "formMode" : true,
+                "text"     : ErrTStr.DSNameConfilct
+            },
+            {
+                "$selector": $dsName,
+                "formMode" : true,
+                "text"     : ErrTStr.NoSpecialCharOrSpace,
+                "check"    : function() {
+                    return (!/^\w+$/.test(dsName));
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return null;
+        }
+
+        // validate format
+        var format = getFormat();
+        isValid = xcHelper.validate([{
+            "$selector": $formatText,
+            "text"     : ErrTStr.NoEmptyList,
+            "check"    : function() {
+                return (format == null);
+            }
+        }]);
+
+        if (!isValid) {
+            return null;
+        }
+
+        // validate UDF
+        var hasUDF = isUseUDF();
+        var udfModule = "";
+        var udfFunc = "";
+
+        if (hasUDF) {
+            var $moduleInput = $udfModuleList.find("input");
+            var $funcInput = $udfFuncList.find("input");
+
+            isValid = xcHelper.validate([
+                {
+                    "$selector": $moduleInput,
+                    "text"     : ErrTStr.NoEmptyList
+                },
+                {
+                    "$selector": $funcInput,
+                    "text"     : ErrTStr.NoEmptyList
+                }
+            ]);
+
+            if (!isValid) {
+                return null;
+            }
+
+            udfModule = $moduleInput.val();
+            udfFunc = $funcInput.val();
+        }
+
+        // validate delimiter
+        var fieldDelim = getFieldDelim();
+        var lineDelim = getLineDelim();
+
+
+        isValid = xcHelper.validate([
+            {
+                "$selector": $fieldText,
+                "text"     : DSFormTStr.InvalidDelim,
+                "formMode" : true,
+                "check"    : function() {
+                    return (typeof fieldDelim === "object");
+                }
+            },
+            {
+                "$selector": $lineText,
+                "text"     : DSFormTStr.InvalidDelim,
+                "formMode" : true,
+                "check"    : function() {
+                    return (typeof lineDelim === "object");
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return null;
+        }
+
+        var quote = getQuote();
+        isValid = xcHelper.validate([
+            {
+                "$selector": $quote
+            },
+            {
+                "$selector": $quote,
+                "text"     : DSFormTStr.InvalidQuote,
+                "check"    : function() {
+                    return (quote.length > 1);
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return null;
+        }
+
+        // validate skipRows
+        var skipRows = getSkipRows();
+        isValid = xcHelper.validate([
+            {
+                "$selector": $("#dsForm-skipRows"),
+                "text"     : ErrTStr.NoNegativeNumber,
+                "formMode" : true,
+                "check"    : function() {
+                    return (skipRows < 0);
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return null;
+        }
+
+        // speical case: special json:
+        if (detectArgs.isSpecialJSON === true) {
+            if (udfModule !== "" || udfFunc !== "") {
+                // should never happen
+                throw "error case!";
+            }
+            udfModule = "default";
+            udfFunc = "convertNewLineJsonToArrayJson";
+            format = formatMap.JSON;
+        }
+
+        return {
+            "dsName"    : dsName,
+            "format"    : format,
+            "udfModule" : udfModule,
+            "udfFunc"   : udfFunc,
+            "fieldDelim": fieldDelim,
+            "lineDelim" : lineDelim,
+            "quote"     : quote,
+            "skipRows"  : skipRows
+        };
+    }
+
+    function cacheUDF(udfModule, udfFunc) {
+        // cache udf module and func name
+        if (udfModule !== "" && udfFunc !== "") {
+            lastUDFModule = udfModule;
+            lastUDFFunc = udfFunc;
+        }
+    }
+
+    function autoPreview() {
+        var formatText;
+        for (formatText in formatMap) {
+            if (formatMap[formatText] === detectArgs.format) {
+                break;
+            }
+        }
+
+        toggleFormat(formatText);
+        applyFieldDelim(detectArgs.fieldDelim);
+        applyLineDelim(detectArgs.lineDelim);
+        applyQuote(detectArgs.quote);
+        toggleHeader(detectArgs.hasHeader);
+
+        $("#dsForm-skipRows").val(0);
+
+        if ($previeWrap.find(".errorSection").hasClass("hidden")) {
+            getPreviewTable();
+            xcHelper.showSuccess();
+        } else {
+            refreshPreview();
+        }
+    }
+
+    function refreshPreview() {
+        var res = validateForm();
+        if (res == null) {
             return;
         }
 
-        // add alert
-        if (dsFormat === "CSV" &&
-            (delimiter === "" && hasSpecialChar() || !hasHeader))
-        {
-            var msg;
-            if (delimiter === "" && !hasHeader) {
-                msg = DSPreviewTStr.NoDelimAndHeader;
-            } else if (delimiter === ""){
-                msg = DSPreviewTStr.NoDelim;
-            } else if (!hasHeader) {
-                msg = DSPreviewTStr.NoHeader;
-            }
-            msg += '\n' + AlertTStr.ContinueConfirm;
+        var udfModule = "";
+        var udfFunc = "";
 
-            Alert.show({
-                "title"    : DSFormTStr.LoadConfirm,
-                "msg"      : msg,
-                "onConfirm": function() { loadDS(); }
-            });
+        if (res.format === formatMap.EXCEL) {
+            udfModule = excelModule;
+            udfFunc = excelFunc;
         } else {
-            loadDS();
-        }
-    }
-
-    // load a dataset
-    function loadDS() {
-        var loadURL = $("#preview-url").text().trim();
-        var dsName = $("#preview-dsName").val().trim();
-        var promise;
-
-        if (dsFormat === "JSON") {
-            promise = DSForm.load(dsName, "JSON", loadURL,
-                                  "", "", false, moduleName, funcName);
-        } else if (dsFormat === "Excel") {
-            promise = DSForm.load(dsName, "Excel", loadURL,
-                                  "\t", "\n", hasHeader, "", "");
-        } else {
-            // only CSV should apply module and funcName
-            promise = DSForm.load(dsName, "CSV", loadURL,
-                                delimiter, "\n", hasHeader,
-                                moduleName, funcName);
+            udfModule = res.udfModule;
+            udfFunc = res.udfFunc;
         }
 
-        promise
+        // XXX this may need a loading state
+        clearAll()
         .then(function() {
-            clearAll();
+            return previewData(udfModule, udfFunc, true);
         })
-        .fail(function(error) {
-            if (error.status != null) {
-                clearAll();
-            }
-        });
+        .fail(errorHandler);
     }
 
     function getPreviewTable() {
-        var $tbody = $(getTbodyHTML(rawData));
+        $previeWrap.find(".errorSection").addClass("hidden")
+        $previeWrap.find(".loadHidden").removeClass("hidden");
+        $highlightBtns.addClass("hidden");
+
+        var format = getFormat();
+        if (format === formatMap.JSON) {
+            getJSONTable(rawData);
+            return;
+        }
+
+        // line delimiter
+        var lineDelim = getLineDelim();
+        var data = [];
+        if (lineDelim === "") {
+            data.push(rawData);
+        } else {
+            data = rawData.split(lineDelim);
+        }
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            data[i] = data[i].split("");
+        }
+
+        var fieldDelim = getFieldDelim();
+        if (format === formatMap.CSV && fieldDelim === "") {
+            $highlightBtns.removeClass("hidden")
+                        .find("button").removeClass("xc-disabled");
+        }
+
+        var $tbody = $(getTbodyHTML(data, fieldDelim));
         var $trs = $tbody.find("tr");
         var maxTdLen = 0;
         // find the length of td and fill up empty space
@@ -565,14 +1157,17 @@ window.DSPreview = (function($, DSPreview) {
             $tr.append(trs);
         });
 
-        var $tHead = $(getTheadHTML(rawData, maxTdLen));
+        var $tHead = $(getTheadHTML(data, fieldDelim, maxTdLen));
         var $tHrow = $tHead.find("tr");
         var thLen  = $tHead.find("th").length;
         var ths = "";
 
         for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
-            ths += '<th><div class="header"><div class="text">' +
-                        '</div></div></th>';
+            ths += '<th>' +
+                        '<div class="header">' +
+                            '<div class="text"></div>' +
+                        '</div>' +
+                    '</th>';
         }
         $tHrow.append(ths);
 
@@ -584,39 +1179,51 @@ window.DSPreview = (function($, DSPreview) {
         $previewTable.empty().append($tHead, $tbody);
         $previewTable.closest(".datasetTbodyWrap").scrollTop(0);
 
-        if (delimiter !== "") {
+        if (fieldDelim !== "") {
             $previewTable.addClass("has-delimiter");
         } else {
             $previewTable.removeClass("has-delimiter");
         }
-
-        suggestHelper();
-        resizePreivewTable();
     }
 
-    function resizePreivewTable() {
-        // size line divider to fit table
-        var tableWidth = $previewTable.width();
-        $previewTable.find('.divider').width(tableWidth - 10);
+    function toggleUDF(usUDF) {
+        var $checkbox = $("#udfCheckbox").find(".checkbox");
+        var $udfArgs = $("#udfArgs");
 
-        // // size linmarker div to fit td
-        // var lineMarkerHeight = $previewTable.find('.lineMarker').eq(0).height();
-        // $previewTable.find('.lineMarker').eq(0).find('.promoteWrap')
-        //                                        .height(lineMarkerHeight);
+        if (usUDF) {
+            $checkbox.addClass("checked");
+            $udfArgs.addClass("active");
+        } else {
+            $checkbox.removeClass("checked");
+            $udfArgs.removeClass("active");
+        }
     }
 
-    function togglePromote() {
-        $(".tooltip").hide();
-        hasHeader = !hasHeader;
+    function toggleHeader(promote, changePreview) {
+        if (promote == null) {
+            loadArgs.hasHeader = !loadArgs.hasHeader;
+        } else if (promote) {
+            loadArgs.hasHeader = true;
+        } else {
+            loadArgs.hasHeader = false;
+        }
 
-        var text = hasHeader ? "Yes" : "No";
-        $("#preview-review").find(".header .text").text(text);
+        if (loadArgs.hasHeader) {
+            $headerCheckBox.find(".checkbox").addClass("checked");
+        } else {
+            $headerCheckBox.find(".checkbox").removeClass("checked");
+        }
+
+        if (!changePreview) {
+            return;
+        }
+
         var $trs = $previewTable.find("tbody tr");
         var $tds = $trs.eq(0).find("td"); // first row tds
         var $headers = $previewTable.find("thead tr .header");
         var html;
 
-        if (hasHeader) {
+        if (loadArgs.hasHeader) {
             // promote header
             for (var i = 1, len = $tds.length; i < len; i++) {
                 $headers.eq(i).find(".text").html($tds.eq(i).html());
@@ -628,8 +1235,7 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             $trs.eq(0).remove();
-            $previewTable.find("th.col0").html(promoteHeader)
-                        .addClass("undo-promote");
+            $previewTable.find("th.col0").html('<div class="header"></div>');
         } else {
             // change line marker
             for (var i = 0, j = 2, len = $trs.length; i < len; i++, j++) {
@@ -637,7 +1243,7 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             // undo promote
-            html = '<tr>' + promoteTd;
+            html = '<tr><td class="lineMarker">1</td>';
 
             for (var i = 1, len = $headers.length; i < len; i++) {
                 var $text = $headers.eq(i).find(".text");
@@ -651,56 +1257,122 @@ window.DSPreview = (function($, DSPreview) {
             $headers.eq(0).empty()
                     .closest("th").removeClass("undo-promote");
         }
-
-        suggestHelper();
-        resizePreivewTable();
     }
 
-    function applyDelim(strToDelimit) {
-        var text;
-        delimiter = strToDelimit;
-        highlighter = "";
+    function isUseUDF() {
+        return $("#udfCheckbox").find(".checkbox").hasClass("checked");
+    }
 
-        $highLightBtn.removeClass("active");
+    function isUseHeader() {
+        return loadArgs.hasHeader;
+    }
 
-        if (delimiter === "") {
-            // this is the case trigger from remove delimiter
-            $rmHightLightBtn.removeClass("active")
-                        .attr("title", DSPreviewTStr.RMHighlights)
-                        .attr("data-original-title", DSPreviewTStr.RMHighlights);
-            text = "Not Applied";
-        } else {
-            $rmHightLightBtn.addClass("active")
-                        .attr("title", DSPreviewTStr.RMDelim)
-                        .attr("data-original-title", DSPreviewTStr.RMDelim);
-            text = delimiter.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+    function getFormat() {
+        return loadArgs.format;
+    }
+
+    function setFieldDelim() {
+        var fieldDelim = xcHelper.delimiterTranslate($fieldText);
+
+        if (typeof fieldDelim === "object") {
+            // error case
+            return;
         }
 
-        $("#preview-review .delimiter .text").text(text);
-        getPreviewTable();
+        loadArgs.fieldDelim = fieldDelim;
+    }
+
+    function setLineDelim() {
+        var lineDelim = xcHelper.delimiterTranslate($lineText);
+
+        if (typeof lineDelim === "object") {
+            // error case
+            return;
+        }
+
+        loadArgs.lineDelim = lineDelim;
+    }
+
+    function setQuote() {
+        var quote = xcHelper.delimiterTranslate($quote);
+
+        if (typeof quote === "object") {
+            // error case
+            return;
+        }
+
+        if (quote.length !== 1) {
+            return;
+        }
+
+        loadArgs.quote = quote;
+    }
+
+    function getFieldDelim() {
+        return loadArgs.fieldDelim;
+    }
+
+    function getLineDelim() {
+        return loadArgs.lineDelim;
+    }
+
+    function getQuote() {
+        return loadArgs.quote;
+    }
+
+    function getSkipRows() {
+        var skipRows = Number($("#dsForm-skipRows").val());
+        if (isNaN(skipRows) || skipRows < 0) {
+            skipRows = 0;
+        }
+        return skipRows;
+    }
+
+    function applyFieldDelim(strToDelimit) {
+        // may have error case
+        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+        highlighter = "";
+
+        if (strToDelimit === "") {
+            $fieldText.val("Null").addClass("nullVal");
+        } else {
+            $fieldText.val(strToDelimit).removeClass("nullVal");
+        }
+        
+        setFieldDelim();
+    }
+
+    function applyLineDelim(strToDelimit) {
+        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+    
+        if (strToDelimit === "") {
+            $lineText.val("Null").addClass("nullVal");
+        } else {
+            $lineText.val(strToDelimit).removeClass("nullVal");
+        }
+
+        setLineDelim();
+    }
+
+    function applyQuote(quote) {
+        $quote.val(quote);
+        setQuote();
     }
 
     function applyHighlight(str) {
         $previewTable.find(".highlight").removeClass("highlight");
-
         highlighter = str;
 
         if (highlighter === "") {
-            // when no delimiter to highlight
-            $highLightBtn.removeClass("active");
-            $rmHightLightBtn.removeClass("active");
+            // when remove highlighter
+            $highlightBtns.find("button").addClass("xc-disabled");
         } else {
+            $highlightBtns.find("button").removeClass("xc-disabled");
             xcHelper.removeSelectionRange();
-
             // when has valid delimiter to highlight
-            $highLightBtn.addClass("active");
-            $rmHightLightBtn.addClass("active");
-
             var $cells = $previewTable.find("thead .text, tbody .cell");
             highlightHelper($cells, highlighter);
         }
-
-        suggestHelper();
     }
 
     function highlightHelper($cells, strToHighlight) {
@@ -743,16 +1415,125 @@ window.DSPreview = (function($, DSPreview) {
         return name;
     }
 
-    function getTheadHTML(datas, tdLen) {
+    function getJSONTable(datas) {
+        var startIndex = datas.indexOf("{");
+        var endIndex = datas.lastIndexOf("}");
+        if (startIndex === -1 || endIndex === -1) {
+            errorHandler(DSPreviewTStr.NoParseJSON);
+        }
+
+        var record = [];
+        var bracketCnt = 0;
+        var hasBackSlash = false;
+        var hasQuote = false;
+
+        for (var i = startIndex; i <= endIndex; i++) {
+            var c = datas.charAt(i);
+            if (!hasBackSlash && !hasQuote) {
+                if (c === "{") {
+                    bracketCnt++;
+                } else if (c === "}") {
+                    bracketCnt--;
+                    if (bracketCnt === 0) {
+                        record.push(datas.substring(startIndex, i + 1));
+                        startIndex = datas.indexOf("{", i);
+                        if (startIndex < 0) {
+                            break;
+                        }
+                    } else if (bracketCnt < 0) {
+                        // error cse
+                        errorHandler(DSPreviewTStr.NoParseJSON);
+                    }
+                }
+            } else if (hasBackSlash) {
+                // skip
+                hasBackSlash = false;
+            } else if (c === '\\') {
+                hasBackSlash = true;
+            } else if (c === '"') {
+                // toggle escape of quote
+                hasQuote = !hasQuote;
+            }
+        }
+
+        if (bracketCnt === 0 && startIndex >= 0 && startIndex <= endIndex) {
+            record.push(datas.substring(startIndex, endIndex + 1));
+        }
+
+        var string = "[" + record.join(",") + "]";
+
+        try {
+            var json = $.parseJSON(string);
+            $previewTable.html(getJSONTableHTML(json))
+                        .addClass("has-delimiter");
+        } catch (error) {
+            errorHandler(DSPreviewTStr.NoParseJSON + ": " + error);
+        }
+    }
+
+    function getJSONTableHTML(json) {
+        var rowLen = json.length;
+        var keys = {};
+        for (var i = 0; i < rowLen; i++) {
+            for (var key in json[i]) {
+                keys[key] = true;
+            }
+        }
+
+        var headers = Object.keys(keys);
+        var colLen = headers.length;
+        var colGrab = '<div class="colGrab" data-sizetoheader="true"></div>';
+        var html = '<thead><tr>' +
+                    '<th class="rowNumHead">' +
+                        '<div class="header"></div>' +
+                    '</th>';
+
+        for (var i = 0; i < colLen; i++) {
+            html += '<th>' +
+                        '<div class="header">' +
+                            colGrab +
+                            '<div class="text">' +
+                                headers[i] +
+                            '</div>' +
+                        '</div>' +
+                    '</th>';
+        }
+
+        html += '</tr></thead><tbody>';
+
+        for (var i = 0; i < rowLen; i++) {
+            html += '<tr>' +
+                        '<td class="lineMarker">' +
+                            (i + 1) +
+                        '</td>';
+            var jsonRow = json[i];
+            for (var j = 0; j < colLen; j++) {
+                var val = jsonRow[headers[j]] || "";
+                if (typeof val === "object") {
+                    val = JSON.stringify(val);
+                }
+
+                html += '<td class="cell">' + val + '</td>';
+            }
+
+            html += '</tr>';
+        }
+
+        html += '</tbody>';
+
+        return html;
+    }
+
+    function getTheadHTML(datas, delimiter, tdLen) {
         var thead = "<thead><tr>";
         var colGrab = (delimiter === "") ? "" : '<div class="colGrab" ' +
                                             'data-sizetoheader="true"></div>';
 
         // when has header
-        if (hasHeader) {
+        if (isUseHeader()) {
             thead +=
-                '<th class="undo-promote">' +
-                    promoteHeader +
+                '<th class="rowNumHead">' +
+                    '<div class="header"></div>' +
                 '</th>' +
                 parseTdHelper(datas[0], delimiter, true);
         } else {
@@ -777,22 +1558,15 @@ window.DSPreview = (function($, DSPreview) {
         return (thead);
     }
 
-    function getTbodyHTML(datas) {
+    function getTbodyHTML(datas, delimiter) {
         var tbody = "<tbody>";
-        var i = hasHeader ? 1 : 0;
-
+        var i = isUseHeader() ? 1 : 0;
+        i += getSkipRows();
         for (j = 0, len = datas.length; i < len; i++, j++) {
-            tbody += '<tr>';
-
-            if (i === 0) {
-                // when the header has not promoted
-                tbody += promoteTd;
-            } else {
-                tbody +=
-                    '<td class="lineMarker">' +
-                        (j + 1) +
-                    '</td>';
-            }
+            tbody += '<tr>' +
+                        '<td class="lineMarker">' +
+                            (j + 1) +
+                        '</td>';
             tbody += parseTdHelper(datas[i], delimiter) + '</tr>';
         }
 
@@ -806,6 +1580,7 @@ window.DSPreview = (function($, DSPreview) {
         var hasBackSlash = false;
         var dels = strToDelimit.split("");
         var delLen = dels.length;
+        var quote = getQuote();
 
         var hasDelimiter = (delLen !== 0);
         var colGrab = hasDelimiter ? '<div class="colGrab" ' +
@@ -868,7 +1643,7 @@ window.DSPreview = (function($, DSPreview) {
                         hasBackSlash = false;
                     } else if (d === '\\') {
                         hasBackSlash = true;
-                    } else if (d === '"') {
+                    } else if (d === quote) {
                         // toggle escape of quote
                         hasQuote = !hasQuote;
                     }
@@ -919,181 +1694,110 @@ window.DSPreview = (function($, DSPreview) {
         return (html);
     }
 
-    function suggestHelper() {
-        var $suggSection = $("#previewSugg");
-        var $content = $suggSection.find(".content");
-        var html = "";
-
-        if (sepicalJSONDetect()) {
-            html = '<span class="action active jsonLoadWithUDF">' +
-                        DSPreviewTStr.LoadJSONWithUDF +
-                    '</span>' +
-                    '<span class="action active jsonLoad">' +
-                        DSPreviewTStr.LoadJSON +
-                    '</span>';
-            $content.html(html);
-            return;
+    function smartDetect() {
+        if (detectArgs.format == null) {
+            detectArgs.format = detectFormat();
         }
 
-        if (delimiter === "") {
-            if (highlighter === "") {
-                var $cells = $previewTable.find("tbody tr:first-child .td");
-                if (/\[{?/.test($cells.text())) {
-                    html = '<span class="action active jsonLoad">' +
-                                DSPreviewTStr.LoadJSON +
-                            '</span>' +
-                            '<span class="action active jsonLoadWithUDF">' +
-                                DSPreviewTStr.LoadJSONWithUDF +
-                            '</span>';
-                    $content.html(html);
-                    return;
-                }
+        var format = detectArgs.format;
+        if (format === formatMap.EXCEL) {
+            detectArgs.fieldDelim = "\t";
+        } else if (format === formatMap.CSV && detectArgs.fieldDelim === "") {
+            detectArgs.fieldDelim = detectFieldDelim();
+        }
 
-                // case to choose a highlighter
-                var commaLen = $previewTable.find(".has-comma").length;
-                var tabLen = $previewTable.find(".has-tab").length;
-                var commaHtml =
-                    '<span class="action active delim commaDelim">' +
-                        DSPreviewTStr.CommaAsDelim +
-                    '</span>';
-                var tabHtml =
-                    '<span class="action active delim tabDelim">' +
-                        DSPreviewTStr.TabAsDelim +
-                    '</span>';
+        var formatText;
+        for (var key in formatMap) {
+            if (formatMap[key] === format) {
+                formatText = key;
+                break;
+            }
+        }
 
-                if (commaLen > 0 && tabLen > 0) {
-                    if (commaLen >= tabLen) {
-                        html = commaHtml + tabHtml;
-                    } else {
-                        html = tabHtml + commaHtml;
-                    }
-                } else {
-                    // one of comma and tab or both are 0
-                    if (commaLen > 0) {
-                        html = commaHtml;
-                    } else if (tabLen > 0) {
-                        html = tabHtml;
-                    }
-                }
+        toggleFormat(formatText, null);
+        applyLineDelim("\n");
+        applyQuote("\"");
 
-                // when has pip
-                var pipLen = $previewTable.find(".has-pipe").length;
-                if (pipLen >= rowsToFetch) {
-                    var pipHtml = '<span class="action active delim pipeDelim">' +
-                                    DSPreviewTStr.PipeAsDelim +
-                                  '</span>';
+        if (detectArgs.format === formatMap.EXCEL ||
+            detectArgs.format === formatMap.CSV) {
+            // need to reset first
+            loadArgs.hasHeader = false;
 
-                    if (pipLen > commaLen && pipLen > tabLen) {
-                        html = pipHtml + html;
-                    } else {
-                        html = html + pipHtml;
-                    }
-                }
+            if (detectArgs.fieldDelim !== "") {
+                applyFieldDelim(detectArgs.fieldDelim);
+            }
 
-                if (html === "") {
-                    html = promoteSugg(html);
+            // only after update the table, can do the detect
+            getPreviewTable();
+            detectArgs.hasHeader = detectHeader();
+        } else {
+            detectArgs.hasHeader = false;
+            getPreviewTable();
+        }
 
-                    if (hasSpecialChar()) {
-                        // select char
-                        html += '<span class="action hint">' +
-                                    DSPreviewTStr.Or + " " +
-                                    DSPreviewTStr.HighlightDelimHint +
-                               '</span>';
-                    }
-                } else {
-                    // select another char
-                    html +=
-                        '<span class="action hint">' +
-                            DSPreviewTStr.Or + " " +
-                            DSPreviewTStr.HighlightAnyDelimHint +
-                        '</span>';
-                }
+        if (detectArgs.hasHeader) {
+            toggleHeader(true, true);
+        } else {
+            toggleHeader(false);
+        }
+    }
+
+    function detectFieldDelim() {
+        var commaLen = $previewTable.find(".has-comma").length;
+        var tabLen = $previewTable.find(".has-tab").length;
+        var pipLen = $previewTable.find(".has-pipe").length;
+
+        // when has pip
+        if (pipLen >= rowsToFetch && pipLen > commaLen && pipLen > tabLen) {
+            return "|";
+        }
+
+        if (commaLen > 0 && tabLen > 0) {
+            if (commaLen >= tabLen) {
+                return ",";
             } else {
-                // case to remove or apply highlighter
-                html =
-                    '<span class="action active apply-highlight">' +
-                        DSPreviewTStr.ApplyHighlights +
-                    '</span>' +
-                    '<span class="action active rm-highlight">' +
-                        DSPreviewTStr.RMHighlights +
-                    '</span>';
+                return "\t";
             }
         } else {
-            // case to apply/replay delimiter promote/unpromote header
-            html = promoteSugg(html);
-        }
-
-        $content.html(html);
-    }
-
-    function errorSuggestHelper(loadURL, suggest) {
-        var $suggSection = $("#previewSugg");
-        var html = "";
-
-        if (suggest) {
-            html += '<span class="action hint">' +
-                        DSPreviewTStr.UseValidPath +
-                    '</span>';
-        } else if (loadURL.endsWith("xlsx")) {
-            html += '<span class="action active excelLoad hasHeader">' +
-                        DSPreviewTStr.LoadExcelWithHeader +
-                    '</span>' +
-                    '<span class="action active excelLoad">' +
-                        DSPreviewTStr.LoadExcel +
-                    '</span>';
-        } else if (loadURL.endsWith("json")) {
-            html += '<span class="action active jsonLoad">' +
-                        DSPreviewTStr.LoadJSON +
-                    '</span>';
-        } else {
-            html += '<span class="action hint">' +
-                        DSPreviewTStr.LoadUDF +
-                    '</span>';
-        }
-
-        $suggSection.show()
-                    .find(".content").html(html);
-    }
-
-    function promoteSugg(html) {
-        // case to apply/replay delimiter promote/unpromote header
-        if (html == null) {
-            html = "";
-        }
-        var shouldPromote = headerPromoteDetect();
-        if (hasHeader) {
-            if (!shouldPromote) {
-                html +=
-                    '<span class="action active promote">' +
-                        DSPreviewTStr.UnPromote +
-                    '</span>';
-            }
-        } else {
-            if (shouldPromote) {
-                html +=
-                    '<span class="action active promote">' +
-                        DSPreviewTStr.Promote +
-                    '</span>';
+            // one of comma and tab or both are 0
+            if (commaLen > 0) {
+                return ",";
+            } else if (tabLen > 0) {
+                return "\t";
             }
         }
 
-        html +=
-            '<span class="action active apply-all">' +
-                DSPreviewTStr.Save +
-            '</span>';
-
-        if (delimiter !== "") {
-            html +=
-                '<span class="action active rm-highlight">' +
-                    DSPreviewTStr.RMDelim +
-                '</span>';
-        }
-
-        return html;
+        // cannot detect
+        return "";
     }
 
-    function sepicalJSONDetect() {
-        var isSpecialJSON = false;
+    function detectFormat() {
+        var format = getFormat();
+        if (format === formatMap.JSON || format === formatMap.EXCEL) {
+            return format;
+        } else if (isJSONArray()) {
+            return formatMap.JSON;
+        } else if (isSpecialJSON()) {
+            detectArgs.isSpecialJSON = true;
+            return formatMap.JSON;
+        } else {
+            return formatMap.CSV;
+        }
+    }
+
+    function isJSONArray() {
+        var $cells = $previewTable.find("tbody tr:first-child .td");
+        return /\[{?/.test($cells.text());
+    }
+
+    function isSpecialJSON() {
+        if (isUseUDF()) {
+            // speical json should use udf to parse,
+            // so if already use udf, cannot be speical json
+            return false;
+        }
+
+        var isValid = false;
         // format is {"test": ...},\n{"test2": ...}
         $previewTable.find("tbody tr").each(function() {
             var $cell = $(this).find(".cell");
@@ -1104,37 +1808,33 @@ window.DSPreview = (function($, DSPreview) {
                     // continue the loop
                     // only when it has at least one valid case
                     // we make it true
-                    isSpecialJSON = true;
+                    isValid = true;
                     return true;
                 }
+            } else if (text === "") {
+                return true;
+            } else {
+                // not qualified, end loop
+                isValid = false;
+                return false;
             }
-            // not qualified, end loop
-            isSpecialJSON = false;
-            return false;
         });
-        return isSpecialJSON;
+        return isValid;
     }
 
-    function hasSpecialChar() {
-        var $specialChars = $previewTable.find(".has-specialChar");
-        return ($specialChars.length > 0);
-    }
-
-    function headerPromoteDetect() {
+    function detectHeader() {
         var col;
         var row;
         var $trs = $previewTable.find("tbody tr");
         var rowLen = $trs.length;
         var headers = [];
         var text;
-        var $headers = hasHeader ? $previewTable.find("thead tr .header") :
-                                    $trs.eq(0).children();
+        var $headers = $trs.eq(0).children();
         var colLen = $headers.length;
         var score = 0;
 
         for (col = 1; col < colLen; col++) {
-            text = hasHeader ? $headers.eq(col).find(".text").text() :
-                                $headers.eq(col).text();
+            text = $headers.eq(col).text();
             if ($.isNumeric(text)) {
                 // if row has number
                 // should not be header
@@ -1149,7 +1849,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var tds = [];
-        var rowStart = hasHeader ? 0 : 1;
+        var rowStart = 1;
 
         for (row = rowStart; row < rowLen; row++) {
             tds[row] = [];
@@ -1205,25 +1905,21 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.getTbodyHTML = getTbodyHTML;
         DSPreview.__testOnly__.getTheadHTML = getTheadHTML;
         DSPreview.__testOnly__.highlightHelper = highlightHelper;
-        DSPreview.__testOnly__.suggestHelper = suggestHelper;
-        DSPreview.__testOnly__.errorSuggestHelper = errorSuggestHelper;
-        DSPreview.__testOnly__.headerPromoteDetect = headerPromoteDetect;
+        // DSPreview.__testOnly__.headerPromoteDetect = headerPromoteDetect;
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
-        DSPreview.__testOnly__.applyDelim = applyDelim;
-        DSPreview.__testOnly__.togglePromote = togglePromote;
+        // DSPreview.__testOnly__.applyDelim = applyDelim;
+        // DSPreview.__testOnly__.togglePromote = togglePromote;
         DSPreview.__testOnly__.clearAll = clearAll;
 
         DSPreview.__testOnly__.get = function() {
             return {
                 "delimiter"  : delimiter,
-                "hasHeader"  : hasHeader,
                 "highlighter": highlighter
             };
         };
 
         DSPreview.__testOnly__.set = function(newDelim, newHeader, newHighlight, newData) {
             delimiter = newDelim || "";
-            hasHeader = newHeader || false;
             highlighter = newHighlight || "";
             rawData = newData || null;
         };

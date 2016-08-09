@@ -493,7 +493,7 @@ DSFormTStr = {
                 'table header from the default after this.',
     'InvalidDelim': 'Invalid delimiter.',
     'InvalidRecursivePath': 'Invalid path, please specify a directory when point to data resursively',
-
+    'InvalidQuote': 'Cannot have more than 1 quote character'
 };
 
 DataCartStr = {
@@ -526,7 +526,8 @@ DSPreviewTStr = {
     'NoDelim': 'You have not chosen a delimiter.',
     'NoHeader': 'You have not chosen a header row.',
     'NoDelimAndHeader': 'You have not chosen a delimiter and header row.',
-    'UseValidPath': 'Retry with a valid path'
+    'UseValidPath': 'Retry with a valid path',
+    'NoParseJSON': "Cannot parse data as json"
 };
 
 DSExportTStr = {

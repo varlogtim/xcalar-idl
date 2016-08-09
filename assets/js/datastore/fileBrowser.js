@@ -469,42 +469,6 @@ window.FileBrowser = (function($, FileBrowser) {
         return String($grid.find('.label').data("name"));
     }
 
-    function getShortName(name) {
-        var index = name.lastIndexOf(".");
-        // Also, we need to strip special characters. For now,
-        // we only keeo a-zA-Z0-9. They can always add it back if they want
-
-        if (index >= 0) {
-            name = name.substring(0, index);
-        }
-
-        name = name.replace(/[^a-zA-Z0-9]/g, "");
-        var originalName = name;
-        var tries = 1;
-        var validNameFound = false;
-        while (!validNameFound && tries < 20) {
-            if (DS.has(name)) {
-                validNameFound = false;
-            } else {
-                validNameFound = true;
-            }
-
-            if (!validNameFound) {
-                name = originalName + tries;
-                tries++;
-            }
-        }
-
-        if (!validNameFound) {
-            while (DS.has(name) && tries < 100) {
-                name = xcHelper.randName(name, 4);
-                tries++;
-            }
-        }
-
-        return name;
-    }
-
     function appendPath(path, noPathUpdate) {
         var shortPath = getShortPath(path);
 
@@ -739,13 +703,12 @@ window.FileBrowser = (function($, FileBrowser) {
 
         historyPath = curDir;
  
-        var fileName = null;
         var isFolder = null;
         var path = null;
         var format = null;
 
         if ($ds != null && $ds.length > 0) {
-            fileName = $ds.find(".fileName").data("name");
+            var fileName = $ds.find(".fileName").data("name");
             isFolder = $ds.hasClass("folder");
             path = curDir + fileName;
             format = xcHelper.getFormat(fileName);
@@ -753,13 +716,7 @@ window.FileBrowser = (function($, FileBrowser) {
             // load the whole folder
             path = curDir;
             isFolder = true;
-            // last char for curDir is "/"
-            var temp = curDir.substring(0, curDir.length - 1);
-            var slashIndex = temp.lastIndexOf("/");
-            fileName = temp.substring(slashIndex + 1);
         }
-
-        fileName = getShortName(fileName);
 
         // advanced options
         var $patternOpt = $("#fileBrowser-pattern");
@@ -773,20 +730,25 @@ window.FileBrowser = (function($, FileBrowser) {
         var $limitOpt = $("#fileBrowser-limit");
         var previewSize = $limitOpt.find(".size").val();
         var unit = $limitOpt.find(".unit").val();
+        // validate preview size
+        if (previewSize !== "" && unit === "") {
+            StatusBox.show(ErrTStr.NoEmptyList, $limitOpt.find(".unit"), false);
+            return;
+        }
+
         previewSize = xcHelper.getPreviewSize(previewSize, unit);
 
         var options = {
-            "path"     : path,
-            "name"     : fileName,
-            "format"   : format,
-            "isFolder" : isFolder,
-            "limitSize": previewSize,
-            "pattern"  : pattern,
-            "isRecur"  : isRecur,
-            "isRegex"  : isRegex
+            "path"       : path,
+            "format"     : format,
+            "isFolder"   : isFolder,
+            "previewSize": previewSize,
+            "pattern"    : pattern,
+            "isRecur"    : isRecur,
+            "isRegex"    : isRegex
         };
-        console.log(options)
-        // XXX wire with step 3
+
+        DSPreview.show(options);
         closeAll();
     }
 
@@ -1379,7 +1341,6 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
         FileBrowser.__testOnly__.getShortPath = getShortPath;
         FileBrowser.__testOnly__.getGridUnitName = getGridUnitName;
-        FileBrowser.__testOnly__.getShortName = getShortName;
         FileBrowser.__testOnly__.appendPath = appendPath;
         FileBrowser.__testOnly__.filterFiles = filterFiles;
         FileBrowser.__testOnly__.sortFiles = sortFiles;

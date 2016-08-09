@@ -234,6 +234,10 @@ window.DS = (function ($, DS) {
             "isRecur"    : isRecur,
             "previewSize": previewSize
         };
+        var msgId = StatusMessage.addMsg({
+            "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
+            "operation": SQLOps.DSLoad
+        });
         var txId = Transaction.start({
             "operation" : SQLOps.DSLoad,
             "sql"       : sql,
@@ -266,6 +270,11 @@ window.DS = (function ($, DS) {
                 }
             }
 
+            StatusMessage.success(msgId, false, null, {
+                "newDataSet": true,
+                "dataSetId" : dsObj.getId()
+            });
+
             UserSettings.logDSChange();
             Transaction.done(txId);
             deferred.resolve(dsObj);
@@ -280,10 +289,10 @@ window.DS = (function ($, DS) {
             }
 
             Transaction.fail(txId, {
-                "error"  : error,
-                "noAlert": true
+                "error"  : error
             });
 
+            StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
             deferred.reject(error);
         });
 

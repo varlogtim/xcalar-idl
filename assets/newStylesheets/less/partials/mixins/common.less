@@ -596,6 +596,21 @@
     }
 }
 
+.checkboxSection {
+    .size(@height: 30px);
+    .font(@size: 13px, @line-height: 30px);
+    .noSelection;
+    cursor: pointer;
+
+    > div {
+        float: left;
+
+        &:nth-child(2) {
+            margin-left: 8px;
+        }
+    }
+}
+
 // style for radio check
 .radioButtonGroup {
     .flex-display;

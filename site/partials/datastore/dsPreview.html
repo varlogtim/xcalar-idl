@@ -1,64 +1,30 @@
-<!-- Preview Section -->
-<section id="dsPreviewWrap" class="hidden">
-  <div class="container">
-    <div class="infoSection">
-      <!-- Info Section 1 -->
-      <div class="infoPart">
-        <section class="titleSection textOverflowOneLine">
-          <span class="title"><%= dicts.dsPreview.Previewing %>:</span>
-          <span id="preview-url" class="text"></span>
-          <span id="preview-udf" class="title"><%= dicts.common.UDF %>:
-            <span class="text"></span>
-          </span>
-        </section>
+<div id="dsForm-preview" class="cardContainer xc-hidden">
+  <header class="cardHeader">
+    <div class="title"><%= dicts.ds.Point %></div>
+  </header>
+  <div id="dsPreviewWrap" class="cardMain">
+    <!-- Preview Section -->
+    <header class="titleSection">
+      <div class="title"><%= dicts.dsPreview.Previewing %></div>
+      <div class="info">
+        <div id="preview-url" class="url"></div>
+        <div id="dsForm-highlighter" class="buttonGroup loadHidden">
+          <button class="rmHightLight btn btn-small" title="<%= dicts.dsPreview.RmHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
+            <i class="icon xi-undo-highlight fa-15"></i>
+          </button>
+          <button class="highlight btn btn-small" title="<%= dicts.dsPreview.ApplyHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
+            <i class="icon xi-highlight fa-15"></i>
+          </button>
+        </div>
       </div>
-      <!-- Info Section 2 -->
-      <div class="infoPart">
-        <section class="inputSection">
-          <span class="title"><%= dicts.dsForm.DSName %></span>
-          <input id="preview-dsName" type="text" spellcheck="false">
-        </section>
-        <section class="btnSection">
-          <button id="preview-close" class="btn btnMid btn-cancel close" type="button"><%= dicts.common.EXIT %></button>
-          <button id="preview-apply" class="btn btnMid save loadHidden" type="button"><%= dicts.common.SAVEEXIT %></button>
-        </section>
-      </div>
-    </div>
+    </header>
     <!-- Waiting Part -->
     <div class="waitSection hidden">
       <div class="icon"></div>
       <div class="text"><%= dicts.common.Loading %>...</div>
     </div>
     <!-- Error Message Part -->
-    <div class="errorSection loadError hidden"></div>
-    <div class="reviewSection loadHidden no-selection">
-      <section id="preview-review" class="previewPart">
-        <div class="delimiter">
-          <span class="title"><%= dicts.dsForm.Delim %>:</span>
-          <span class="text">Not Applied</span>
-        </div>
-        <div class="header">
-          <span class="title"><%= dicts.dsForm.Header %>:</span>
-          <span class="text">No</span>
-        </div>
-      </section>
-      <!-- highlight icon -->
-        <section class="iconPart">
-          <!-- remove highlight icon -->
-          <div id="preview-rmHightlight" class="rmHightLight iconWrapper" title="<%= dicts.dsPreview.RmHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
-            <span class="icon"></span>
-          </div>
-          <!-- apply highlight icon -->
-          <div id="preview-highlight" class="highlight iconWrapper" title="<%= dicts.dsPreview.ApplyHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
-            <span class="icon"></span>
-          </div>
-        </section>
-    </div>
-    <!-- Suggestion Section -->
-    <div id="previewSugg" class="suggestSection loadHidden no-selection">
-      <div class="title"><%= dicts.common.Sugg %>:</div>
-      <div class="content"></div>
-    </div>
+    <div class="errorSection hidden"></div>
     <!-- Preview -->
     <div class="previewSection">
       <div id="dsPreviewTableWrap" class="datasetTableWrap">
@@ -69,6 +35,173 @@
         </div>
       </div>
     </div>
+    <!-- End Of Preview Section -->
   </div>
-</section>
-<!-- End Of Preview Section -->
+  <div class="cardBottom">
+    <form id="importDataForm" target="_blank">
+      <div id="importDataForm-content" class="contentSection">
+        <!-- row -->
+        <div class="row">
+          <label for="dsForm-dsName"><%= dicts.dsForm.DSName %>:</label>
+          <div class="inputWrap">
+            <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
+          </div>
+          <!-- refresh -->
+          <button id="dsForm-refresh" type="button" class="btn iconBtn">
+            <i class="icon xi-refresh fa-17"></i>
+            <%= dicts.dsForm.Refresh %>
+          </button>
+        </div>
+        <!-- row -->
+        <div id="udfArgs" class="row udf clearfix">
+          <div id="udfCheckbox" class="checkboxSection">
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty"></i>
+              <i class="icon xi-ckbox-selected"></i>
+            </div>
+            <div class="text"><%= dicts.dsForm.UDF %></div>
+          </div>
+          <div class="listSection">
+            <!-- udf module -->
+            <div id="udfArgs-moduleList" class="rowContent dropDownList">
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+            <!-- udf function -->
+            <div id="udfArgs-funcList" class="dropDownList disabled">
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <!-- row -->
+        <div class="row">
+          <label><%= dicts.dsForm.Format %>:</label>
+          <div id="fileFormat" class="dropDownList rowContent" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="5"' : '' %>>
+            <input class="text" type="text" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <i class="icon"></i>
+            </div>
+            <!-- Format Menu -->
+            <div id="fileFormatMenu" class="list">
+              <ul>
+                <li name="CSV"><%= dicts.dsFormat.CSV %></li>
+                <li name="JSON"><%= dicts.dsFormat.JSON %></li>
+                <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
+                <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+          <!-- auto detect -->
+          <button id="dsForm-detect" type="button" class="btn iconBtn">
+            <i class="icon xi-magic-wand fa-17"></i>
+            <%= dicts.dsForm.REDETECT %>
+          </button>
+        </div>
+        <!-- row -->
+        <div class="row">
+          <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
+            <div class="text"><%= dicts.dsForm.Header %></div>
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty"></i>
+              <i class="icon xi-ckbox-selected"></i>
+            </div>
+          </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+          <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
+          <div id="lineDelim" class="dropDownList">
+            <input id="lineText" class="text" type="text" spellcheck="false" autocomplete="off">
+            <div class="iconWrapper">
+              <i class="icon"></i>
+            </div>
+            <!-- dropdown menu -->
+            <div class="list">
+              <ul>
+                <li name="default"><%= dicts.common.Default %> (\n)</li>
+                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+          <label for="fieldText"><%= dicts.dsForm.FieldDelim %>:</label>
+          <!-- Field Delimiter -->
+          <div id="fieldDelim" class="dropDownList">
+            <input id="fieldText" class="text" type="text" spellcheck="false" autocomplete="off">
+            <div class="iconWrapper">
+              <i class="icon"></i>
+            </div>
+            <!-- dropdown menu -->
+            <div class="list">
+              <ul>
+                <li name="default"><%= dicts.common.Default %> (\t)</li>
+                <li name="comma"><%= dicts.common.Comma %> (,)</li>
+                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
+              </ul>
+              <div class="scrollArea top"><div class="arrow"></div></div>
+              <div class="scrollArea bottom"><div class="arrow"></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+          <label><%= dicts.dsForm.Quoting %>:</label>
+          <!-- Field Delimiter -->
+          <div class="inputWrap">
+            <input id="dsForm-quote" class="text" type="text" spellcheck="false">
+          </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+          <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %>:</label>
+          <div class="inputWrap">
+            <input id="dsForm-skipRows" class="text" type="number" value="0">
+          </div>
+        </div>
+      </div>
+      <!-- buttons -->
+      <div class="buttonSection">
+        <button type="submit" class="btn confirm"><%= dicts.dsForm.FINALIZE %></button>
+        <button type="button" class="btn btn-cancel cancel"><%= dicts.common.BACK %></button>
+      </div>
+    </form>
+  </div>
+</div>

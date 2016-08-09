@@ -143,7 +143,6 @@ window.DSTable = (function($, DSTable) {
         // clear preview table and ref count,
         // always resolve it
         DSForm.hide();
-        DSPreview.clear();
     }
 
     function getSampleTable(dsObj, jsonKeys, jsons) {

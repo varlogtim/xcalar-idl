@@ -217,16 +217,16 @@ window.Shortcuts = (function($, Shortcuts) {
 
                 $fileName.val(file + Math.ceil(Math.random() * 1000));
 
-                if (file === "sp500" || file === "gdelt") {
-                    $formatDropdown.find('li[name="CSV"]').click();
-                } else {
-                    $formatDropdown.find('li[name="JSON"]').click();
-                }
+                // if (file === "sp500" || file === "gdelt") {
+                //     $formatDropdown.find('li[name="CSV"]').click();
+                // } else {
+                //     $formatDropdown.find('li[name="JSON"]').click();
+                // }
 
-                $fileName.focus();
-                if (filePathGiven) {
-                    $("#dsForm-path .browse").click();
-                }
+                // $fileName.focus();
+                // if (filePathGiven) {
+                //     $("#dsForm-path .browse").click();
+                // }
             }
         });
         // random format only in dev mode

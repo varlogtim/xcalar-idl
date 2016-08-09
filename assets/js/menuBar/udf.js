@@ -482,7 +482,7 @@ window.UDF = (function($, UDF) {
                 KVStore.commit();
                 xcHelper.showSuccess();
 
-                DSForm.update();
+                DSPreview.update();
                 deferred.resolve();
             })
             .fail(function(error) {

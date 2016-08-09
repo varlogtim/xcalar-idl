@@ -71,11 +71,17 @@ function dsFormModuleTest() {
             $formatText.data("format", "test");
         });
 
-        it("Should Use DSForm.clear() to reset", function() {
-            DSForm.clear();
-            expect($filePath.val()).to.be.empty;
-            expect($fileName.val()).to.be.empty;
-            expect($formatText.data("format")).to.equal("");
+        it("Should Use DSForm.clear() to reset", function(done) {
+            DSForm.clear()
+            .then(function() {
+                expect($filePath.val()).to.be.empty;
+                expect($fileName.val()).to.be.empty;
+                expect($formatText.data("format")).to.equal("");
+                done()
+            })
+            .fail(function() {
+                throw "error case";
+            });
         });
     });
 
@@ -177,75 +183,75 @@ function dsFormModuleTest() {
         });
     });
 
-    describe("Allow Preview Test", function() {
-        beforeEach(function() {
-            $("#statusBoxClose").mousedown();
-            assert.isFalse($statusBox.is(":visible"), "no statux box");
-        });
+    // describe("Allow Preview Test", function() {
+    //     beforeEach(function() {
+    //         $("#statusBoxClose").mousedown();
+    //         assert.isFalse($statusBox.is(":visible"), "no statux box");
+    //     });
 
-        it("Should not allow preivew of empty path", function() {
-            $filePath.val("");
-            $formatText.data("format", "CSV");
-            var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.false;
+    //     it("Should not allow preivew of empty path", function() {
+    //         $filePath.val("");
+    //         $formatText.data("format", "CSV");
+    //         var isValid = DSForm.__testOnly__.isValidToPreview();
+    //         expect(isValid).to.be.false;
 
-            // check status box
-            assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmpty);
-        });
+    //         // check status box
+    //         assert.isTrue($statusBox.is(":visible"), "see statux box");
+    //         assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmpty);
+    //     });
 
-        it("Should not allow preivew of invalid format", function() {
-            $filePath.val("test");
-            $formatText.data("format", "wrongformat");
-            var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.false;
+    //     it("Should not allow preivew of invalid format", function() {
+    //         $filePath.val("test");
+    //         $formatText.data("format", "wrongformat");
+    //         var isValid = DSForm.__testOnly__.isValidToPreview();
+    //         expect(isValid).to.be.false;
 
-            // check status box
-            assert.isTrue($statusBox.is(":visible"), "see statux box");
-            assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
-        });
+    //         // check status box
+    //         assert.isTrue($statusBox.is(":visible"), "see statux box");
+    //         assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
+    //     });
 
-        it("Should allow preivew json", function() {
-            $filePath.val("test");
-            $formatText.data("format", "JSON");
-            var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.true;
+    //     it("Should allow preivew json", function() {
+    //         $filePath.val("test");
+    //         $formatText.data("format", "JSON");
+    //         var isValid = DSForm.__testOnly__.isValidToPreview();
+    //         expect(isValid).to.be.true;
 
-            // check status box
-            assert.isFalse($statusBox.is(":visible"), "see statux box");
-        });
+    //         // check status box
+    //         assert.isFalse($statusBox.is(":visible"), "see statux box");
+    //     });
 
-        it("Should allow preivew excel", function() {
-            $formatText.data("format", "EXCEL");
-            var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.true;
+    //     it("Should allow preivew excel", function() {
+    //         $formatText.data("format", "EXCEL");
+    //         var isValid = DSForm.__testOnly__.isValidToPreview();
+    //         expect(isValid).to.be.true;
 
-            // check status box
-            assert.isFalse($statusBox.is(":visible"), "see statux box");
-        });
+    //         // check status box
+    //         assert.isFalse($statusBox.is(":visible"), "see statux box");
+    //     });
 
-        it("Should allow empty format", function() {
-            $formatText.data("format", "");
-            var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.true;
+    //     it("Should allow empty format", function() {
+    //         $formatText.data("format", "");
+    //         var isValid = DSForm.__testOnly__.isValidToPreview();
+    //         expect(isValid).to.be.true;
 
-            // check status box
-            assert.isFalse($statusBox.is(":visible"), "no statux box");
-        });
+    //         // check status box
+    //         assert.isFalse($statusBox.is(":visible"), "no statux box");
+    //     });
 
-        it("Should allow other case", function() {
-            $formatText.data("format", "CSV");
-            var isValid = DSForm.__testOnly__.isValidToPreview();
-            expect(isValid).to.be.true;
+    //     it("Should allow other case", function() {
+    //         $formatText.data("format", "CSV");
+    //         var isValid = DSForm.__testOnly__.isValidToPreview();
+    //         expect(isValid).to.be.true;
 
-            // check status box
-            assert.isFalse($statusBox.is(":visible"), "no statux box");
-        });
+    //         // check status box
+    //         assert.isFalse($statusBox.is(":visible"), "no statux box");
+    //     });
 
-        after(function() {
-            DSForm.__testOnly__.resetForm();
-        });
-    });
+    //     after(function() {
+    //         DSForm.__testOnly__.resetForm();
+    //     });
+    // });
 
     describe("Check UDF Test", function() {
         var checkUDF;
@@ -380,45 +386,46 @@ function dsFormModuleTest() {
             });
         });
     });
+    
+    // remove to dsPreview
+    // describe("UDF Func Test", function() {
+    //     before(function() {
+    //         DSForm.__testOnly__.toggleFormat("CSV");
+    //         $udfCheckbox.find(".checkbox").click();
+    //     });
 
-    describe("UDF Func Test", function() {
-        before(function() {
-            DSForm.__testOnly__.toggleFormat("CSV");
-            $udfCheckbox.find(".checkbox").click();
-        });
+    //     it("Should have default udf", function() {
+    //         assert.isTrue($udfArgs.is(":visible"), "should see udf section");
+    //         expect($udfModuleList.find("input").val()).to.be.empty;
+    //         expect($udfFuncList.find("input").val()).to.be.empty;
 
-        it("Should have default udf", function() {
-            assert.isTrue($udfArgs.is(":visible"), "should see udf section");
-            expect($udfModuleList.find("input").val()).to.be.empty;
-            expect($udfFuncList.find("input").val()).to.be.empty;
+    //         // module default:openExcel should exists
+    //         expect($udfModuleList.find('li:contains(default)')).not.to.be.empty;
+    //         expect($udfFuncList.find('li:contains(openExcel)')).not.to.be.empty;
+    //     });
 
-            // module default:openExcel should exists
-            expect($udfModuleList.find('li:contains(default)')).not.to.be.empty;
-            expect($udfFuncList.find('li:contains(openExcel)')).not.to.be.empty;
-        });
+    //     it("Should select a udf module", function() {
+    //         DSForm.__testOnly__.selectUDFModule("default");
+    //         expect($udfModuleList.find("input").val()).to.equal("default");
+    //         expect($udfFuncList.find("input").val()).to.be.empty;
+    //     });
 
-        it("Should select a udf module", function() {
-            DSForm.__testOnly__.selectUDFModule("default");
-            expect($udfModuleList.find("input").val()).to.equal("default");
-            expect($udfFuncList.find("input").val()).to.be.empty;
-        });
+    //     it("Should select a udf func", function() {
+    //         DSForm.__testOnly__.selectUDFFunc("openExcel");
+    //         expect($udfModuleList.find("input").val()).to.equal("default");
+    //         expect($udfFuncList.find("input").val()).to.equal("openExcel");
+    //     });
 
-        it("Should select a udf func", function() {
-            DSForm.__testOnly__.selectUDFFunc("openExcel");
-            expect($udfModuleList.find("input").val()).to.equal("default");
-            expect($udfFuncList.find("input").val()).to.equal("openExcel");
-        });
+    //     it("Should reset udf", function() {
+    //         DSForm.__testOnly__.resetUdfSection();
+    //         expect($udfModuleList.find("input").val()).to.be.empty;
+    //         expect($udfFuncList.find("input").val()).to.be.empty;
+    //     });
 
-        it("Should reset udf", function() {
-            DSForm.__testOnly__.resetUdfSection();
-            expect($udfModuleList.find("input").val()).to.be.empty;
-            expect($udfFuncList.find("input").val()).to.be.empty;
-        });
-
-        after(function() {
-            DSForm.__testOnly__.resetForm();
-        });
-    });
+    //     after(function() {
+    //         DSForm.__testOnly__.resetForm();
+    //     });
+    // });
 
     describe("Submit Form Test", function() {
         var testDS;

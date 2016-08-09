@@ -64,42 +64,43 @@ describe('Filebrowser', function() {
             expect(res).to.equal("test");
         });
 
-        it('Should get short name', function(done) {
-            var getShortName = FileBrowser.__testOnly__.getShortName;
-            var testName = xcHelper.randName("testName");
-            var oldhas = DS.has;
+        // XXX moved to dsPreview.js (getNameFromPath)
+        // it('Should get short name', function(done) {
+        //     var getShortName = FileBrowser.__testOnly__.getShortName;
+        //     var testName = xcHelper.randName("testName");
+        //     var oldhas = DS.has;
 
-            // basic
-            getShortName(testName)
-            .then(function(res) {
-                expect(res).to.equal(testName);
-                var test2 = testName + ".test";
-                return getShortName(testName);
-            })
-            .then(function(res) {
-                // should stripe the dot
-                expect(res).to.equal(testName);
-            })
-            .then(function() {
-                DS.has = function(name) {
-                    if (name === testName) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                };
+        //     // basic
+        //     getShortName(testName)
+        //     .then(function(res) {
+        //         expect(res).to.equal(testName);
+        //         var test2 = testName + ".test";
+        //         return getShortName(testName);
+        //     })
+        //     .then(function(res) {
+        //         // should stripe the dot
+        //         expect(res).to.equal(testName);
+        //     })
+        //     .then(function() {
+        //         DS.has = function(name) {
+        //             if (name === testName) {
+        //                 return true;
+        //             } else {
+        //                 return false;
+        //             }
+        //         };
 
-                return getShortName(testName);
-            })
-            .then(function(res) {
-                expect(res).to.equal(testName + "1");
-                DS.has = oldhas;
-                done();
-            })
-            .fail(function() {
-                throw "Error case";
-            });
-        });
+        //         return getShortName(testName);
+        //     })
+        //     .then(function(res) {
+        //         expect(res).to.equal(testName + "1");
+        //         DS.has = oldhas;
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         throw "Error case";
+        //     });
+        // });
 
         it('Should append path', function() {
             var testPath = "nfs:///test";
@@ -231,7 +232,7 @@ describe('Filebrowser', function() {
 
     after(function() {
         // reset data form
-        $("#importDataReset").click();
+        // $("#importDataReset").click();
         gMinModeOn = minModeCache;
     });
 });

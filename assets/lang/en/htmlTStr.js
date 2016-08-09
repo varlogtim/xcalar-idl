@@ -433,10 +433,10 @@ module.exports = {
         "DelimHint": "If you parse data with UDF, field and line delimiters are applied after data is parsed",
         "Delim": "Delimiter",
         "FieldDelim": "Field Delimiter",
-        "LineDelim": "Line Delimiter",
+        "LineDelim": "Record Delimiter",
         "CONFIRM": "POINT TO DATA",
         "Header": "Promote First Row As Header",
-        "DSType": "Format",
+        "Format": "Format",
         "UDF": "Parse Data With UDF",
         "Recur": "Point to Data Source Recursively",
         "PREVIEW": "SMART PREVIEW",
@@ -444,6 +444,11 @@ module.exports = {
         "Recursive": "Recursive",
         "Regex": "Regex",
         "SizeLimit": "Dataset Size Limit",
+        "Quoting": "Quoting Character",
+        "SkipRows": "Skip Rows",
+        "FINALIZE": "FINALIZE",
+        "Refresh": "Refresh Preview",
+        "REDETECT": "REDETECT"
     },
 
     "dsFormat": {
