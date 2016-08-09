@@ -743,6 +743,46 @@ function xcalarQueryState(thriftHandle, queryName) {
     return (deferred.promise());
 }
 
+function xcalarQueryCancelWorkItem(queryName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.queryStateInput = new XcalarApiQueryStateInputT();
+
+    workItem.api = XcalarApisT.XcalarApiQueryCancel;
+    workItem.input.queryStateInput.queryName = queryName;
+    return (workItem);
+}
+
+function xcalarQueryCancel(thriftHandle, queryName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarQueryCancel(query name = " + queryName + ")");
+    }
+
+    var workItem = xcalarQueryCancelWorkItem(queryName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarQueryCancel() caught exception:", error);
+
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
 function xcalarGetOpStatsWorkItem(dstDagName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();

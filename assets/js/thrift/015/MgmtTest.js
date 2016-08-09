@@ -1357,6 +1357,44 @@
         test.trivial(xcalarQueryState(thriftHandle, queryName));
     }
 
+    function testQueryCancel(test) {
+        var query = "index --key votes.funny --dataset " + datasetPrefix +
+            "yelp" + " --dsttable cancelledTable2 --sorted;" +
+            "index --key votes.funny --dataset " + datasetPrefix +
+            "yelp" + " --dsttable cancelledTable3 --sorted;" +
+            "index --key votes.funny --dataset " + datasetPrefix +
+            "yelp" + " --dsttable cancelledTable4 --sorted;";
+
+        queryName = "testQuery2";
+        var time = Math.random() * 1000 + 500;
+        console.log("interval " + time);
+        xcalarQuery(thriftHandle, queryName, query, true)
+        .then(function() {
+            return (xcalarQueryCancel(thriftHandle, queryName));
+        })
+        .then(function(cancelStatus) {
+            (function wait() {
+            setTimeout(function() {
+                xcalarQueryState(thriftHandle, queryName)
+                .done(function(result) {
+                    var qrStateOutput = result;
+                    if (qrStateOutput.queryState != QueryStateT.qrCancelled) {
+                        test.fail("not canceled qrStateOutput.queryState = " +
+                                  QueryStateTStr[qrStateOutput.queryState]);
+                    }
+
+                    test.pass();
+
+                 })
+                 .fail(test.fail);
+             }, time);
+         })();
+        })
+        .fail(function(reason) {
+            test.fail("status: " + StatusTStr[reason]);
+        });
+    }
+
     function waitForDag(test) {
         var queryStateOutput;
 
@@ -2868,6 +2906,7 @@
     addTestCase(testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testQueryCancel, "test cancel query", defaultTimeout, TestCaseEnabled, "");
     addTestCase(waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
     addTestCase(testGroupBy, "groupBy", defaultTimeout, TestCaseEnabled, "");

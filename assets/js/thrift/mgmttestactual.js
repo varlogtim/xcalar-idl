@@ -18053,6 +18053,7 @@ XcalarApiGetTableMetaOutputT = function(args) {
   this.numValues = null;
   this.numImmediates = null;
   this.valueAttrs = null;
+  this.ordering = null;
   this.numMetas = null;
   this.metas = null;
   if (args) {
@@ -18073,6 +18074,9 @@ XcalarApiGetTableMetaOutputT = function(args) {
     }
     if (args.valueAttrs !== undefined) {
       this.valueAttrs = args.valueAttrs;
+    }
+    if (args.ordering !== undefined) {
+      this.ordering = args.ordering;
     }
     if (args.numMetas !== undefined) {
       this.numMetas = args.numMetas;
@@ -18167,13 +18171,20 @@ XcalarApiGetTableMetaOutputT.prototype.read = function(input) {
       }
       break;
       case 7:
+      if (ftype == Thrift.Type.I32) {
+        this.ordering = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 8:
       if (ftype == Thrift.Type.I64) {
         this.numMetas = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 8:
+      case 9:
       if (ftype == Thrift.Type.LIST) {
         var _size142 = 0;
         var _rtmp3146;
@@ -18253,13 +18264,18 @@ XcalarApiGetTableMetaOutputT.prototype.write = function(output) {
     output.writeListEnd();
     output.writeFieldEnd();
   }
+  if (this.ordering !== null && this.ordering !== undefined) {
+    output.writeFieldBegin('ordering', Thrift.Type.I32, 7);
+    output.writeI32(this.ordering);
+    output.writeFieldEnd();
+  }
   if (this.numMetas !== null && this.numMetas !== undefined) {
-    output.writeFieldBegin('numMetas', Thrift.Type.I64, 7);
+    output.writeFieldBegin('numMetas', Thrift.Type.I64, 8);
     output.writeI64(this.numMetas);
     output.writeFieldEnd();
   }
   if (this.metas !== null && this.metas !== undefined) {
-    output.writeFieldBegin('metas', Thrift.Type.LIST, 8);
+    output.writeFieldBegin('metas', Thrift.Type.LIST, 9);
     output.writeListBegin(Thrift.Type.STRUCT, this.metas.length);
     for (var iter151 in this.metas)
     {
@@ -25570,56 +25586,57 @@ XcalarApisT = {
   'XcalarApiAggregate' : 25,
   'XcalarApiQuery' : 26,
   'XcalarApiQueryState' : 27,
-  'XcalarApiAddExportTarget' : 28,
-  'XcalarApiListExportTargets' : 29,
-  'XcalarApiExport' : 30,
-  'XcalarApiGetDag' : 31,
-  'XcalarApiListFiles' : 32,
-  'XcalarApiStartNodes' : 33,
-  'XcalarApiMakeRetina' : 34,
-  'XcalarApiListRetinas' : 35,
-  'XcalarApiGetRetina' : 36,
-  'XcalarApiDeleteRetina' : 37,
-  'XcalarApiUpdateRetina' : 38,
-  'XcalarApiListParametersInRetina' : 39,
-  'XcalarApiExecuteRetina' : 40,
-  'XcalarApiImportRetina' : 41,
-  'XcalarApiKeyLookup' : 42,
-  'XcalarApiKeyAddOrReplace' : 43,
-  'XcalarApiKeyDelete' : 44,
-  'XcalarApiGetNumNodes' : 45,
-  'XcalarApiTop' : 46,
-  'XcalarApiMemory' : 47,
-  'XcalarApiListXdfs' : 48,
-  'XcalarApiRenameNode' : 49,
-  'XcalarApiSessionNew' : 50,
-  'XcalarApiSessionList' : 51,
-  'XcalarApiSessionRename' : 52,
-  'XcalarApiSessionSwitch' : 53,
-  'XcalarApiSessionDelete' : 54,
-  'XcalarApiSessionInact' : 55,
-  'XcalarApiSessionPersist' : 56,
-  'XcalarApiGetQuery' : 57,
-  'XcalarApiCreateDht' : 58,
-  'XcalarApiKeyAppend' : 59,
-  'XcalarApiKeySetIfEqual' : 60,
-  'XcalarApiDeleteDht' : 61,
-  'XcalarApiSupportGenerate' : 62,
-  'XcalarApiSchedTaskCreate' : 63,
-  'XcalarApiSchedTaskList' : 64,
-  'XcalarApiDeleteSchedTask' : 65,
-  'XcalarApiUdfAdd' : 66,
-  'XcalarApiUdfUpdate' : 67,
-  'XcalarApiUdfGet' : 68,
-  'XcalarApiUdfDelete' : 69,
-  'XcalarApiCancelOp' : 70,
-  'XcalarApiGetPerNodeOpStats' : 71,
-  'XcalarApiGetOpStats' : 72,
-  'XcalarApiErrorpointSet' : 73,
-  'XcalarApiErrorpointList' : 74,
-  'XcalarApiPreview' : 75,
-  'XcalarApiExportRetina' : 76,
-  'XcalarApiFunctionInvalid' : 77
+  'XcalarApiQueryCancel' : 28,
+  'XcalarApiAddExportTarget' : 29,
+  'XcalarApiListExportTargets' : 30,
+  'XcalarApiExport' : 31,
+  'XcalarApiGetDag' : 32,
+  'XcalarApiListFiles' : 33,
+  'XcalarApiStartNodes' : 34,
+  'XcalarApiMakeRetina' : 35,
+  'XcalarApiListRetinas' : 36,
+  'XcalarApiGetRetina' : 37,
+  'XcalarApiDeleteRetina' : 38,
+  'XcalarApiUpdateRetina' : 39,
+  'XcalarApiListParametersInRetina' : 40,
+  'XcalarApiExecuteRetina' : 41,
+  'XcalarApiImportRetina' : 42,
+  'XcalarApiKeyLookup' : 43,
+  'XcalarApiKeyAddOrReplace' : 44,
+  'XcalarApiKeyDelete' : 45,
+  'XcalarApiGetNumNodes' : 46,
+  'XcalarApiTop' : 47,
+  'XcalarApiMemory' : 48,
+  'XcalarApiListXdfs' : 49,
+  'XcalarApiRenameNode' : 50,
+  'XcalarApiSessionNew' : 51,
+  'XcalarApiSessionList' : 52,
+  'XcalarApiSessionRename' : 53,
+  'XcalarApiSessionSwitch' : 54,
+  'XcalarApiSessionDelete' : 55,
+  'XcalarApiSessionInact' : 56,
+  'XcalarApiSessionPersist' : 57,
+  'XcalarApiGetQuery' : 58,
+  'XcalarApiCreateDht' : 59,
+  'XcalarApiKeyAppend' : 60,
+  'XcalarApiKeySetIfEqual' : 61,
+  'XcalarApiDeleteDht' : 62,
+  'XcalarApiSupportGenerate' : 63,
+  'XcalarApiSchedTaskCreate' : 64,
+  'XcalarApiSchedTaskList' : 65,
+  'XcalarApiDeleteSchedTask' : 66,
+  'XcalarApiUdfAdd' : 67,
+  'XcalarApiUdfUpdate' : 68,
+  'XcalarApiUdfGet' : 69,
+  'XcalarApiUdfDelete' : 70,
+  'XcalarApiCancelOp' : 71,
+  'XcalarApiGetPerNodeOpStats' : 72,
+  'XcalarApiGetOpStats' : 73,
+  'XcalarApiErrorpointSet' : 74,
+  'XcalarApiErrorpointList' : 75,
+  'XcalarApiPreview' : 76,
+  'XcalarApiExportRetina' : 77,
+  'XcalarApiFunctionInvalid' : 78
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -25649,56 +25666,57 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 25 : 'XcalarApiAggregate',
 26 : 'XcalarApiQuery',
 27 : 'XcalarApiQueryState',
-28 : 'XcalarApiAddExportTarget',
-29 : 'XcalarApiListExportTargets',
-30 : 'XcalarApiExport',
-31 : 'XcalarApiGetDag',
-32 : 'XcalarApiListFiles',
-33 : 'XcalarApiStartNodes',
-34 : 'XcalarApiMakeRetina',
-35 : 'XcalarApiListRetinas',
-36 : 'XcalarApiGetRetina',
-37 : 'XcalarApiDeleteRetina',
-38 : 'XcalarApiUpdateRetina',
-39 : 'XcalarApiListParametersInRetina',
-40 : 'XcalarApiExecuteRetina',
-41 : 'XcalarApiImportRetina',
-42 : 'XcalarApiKeyLookup',
-43 : 'XcalarApiKeyAddOrReplace',
-44 : 'XcalarApiKeyDelete',
-45 : 'XcalarApiGetNumNodes',
-46 : 'XcalarApiTop',
-47 : 'XcalarApiMemory',
-48 : 'XcalarApiListXdfs',
-49 : 'XcalarApiRenameNode',
-50 : 'XcalarApiSessionNew',
-51 : 'XcalarApiSessionList',
-52 : 'XcalarApiSessionRename',
-53 : 'XcalarApiSessionSwitch',
-54 : 'XcalarApiSessionDelete',
-55 : 'XcalarApiSessionInact',
-56 : 'XcalarApiSessionPersist',
-57 : 'XcalarApiGetQuery',
-58 : 'XcalarApiCreateDht',
-59 : 'XcalarApiKeyAppend',
-60 : 'XcalarApiKeySetIfEqual',
-61 : 'XcalarApiDeleteDht',
-62 : 'XcalarApiSupportGenerate',
-63 : 'XcalarApiSchedTaskCreate',
-64 : 'XcalarApiSchedTaskList',
-65 : 'XcalarApiDeleteSchedTask',
-66 : 'XcalarApiUdfAdd',
-67 : 'XcalarApiUdfUpdate',
-68 : 'XcalarApiUdfGet',
-69 : 'XcalarApiUdfDelete',
-70 : 'XcalarApiCancelOp',
-71 : 'XcalarApiGetPerNodeOpStats',
-72 : 'XcalarApiGetOpStats',
-73 : 'XcalarApiErrorpointSet',
-74 : 'XcalarApiErrorpointList',
-75 : 'XcalarApiPreview',
-76 : 'XcalarApiExportRetina',
-77 : 'XcalarApiFunctionInvalid'
+28 : 'XcalarApiQueryCancel',
+29 : 'XcalarApiAddExportTarget',
+30 : 'XcalarApiListExportTargets',
+31 : 'XcalarApiExport',
+32 : 'XcalarApiGetDag',
+33 : 'XcalarApiListFiles',
+34 : 'XcalarApiStartNodes',
+35 : 'XcalarApiMakeRetina',
+36 : 'XcalarApiListRetinas',
+37 : 'XcalarApiGetRetina',
+38 : 'XcalarApiDeleteRetina',
+39 : 'XcalarApiUpdateRetina',
+40 : 'XcalarApiListParametersInRetina',
+41 : 'XcalarApiExecuteRetina',
+42 : 'XcalarApiImportRetina',
+43 : 'XcalarApiKeyLookup',
+44 : 'XcalarApiKeyAddOrReplace',
+45 : 'XcalarApiKeyDelete',
+46 : 'XcalarApiGetNumNodes',
+47 : 'XcalarApiTop',
+48 : 'XcalarApiMemory',
+49 : 'XcalarApiListXdfs',
+50 : 'XcalarApiRenameNode',
+51 : 'XcalarApiSessionNew',
+52 : 'XcalarApiSessionList',
+53 : 'XcalarApiSessionRename',
+54 : 'XcalarApiSessionSwitch',
+55 : 'XcalarApiSessionDelete',
+56 : 'XcalarApiSessionInact',
+57 : 'XcalarApiSessionPersist',
+58 : 'XcalarApiGetQuery',
+59 : 'XcalarApiCreateDht',
+60 : 'XcalarApiKeyAppend',
+61 : 'XcalarApiKeySetIfEqual',
+62 : 'XcalarApiDeleteDht',
+63 : 'XcalarApiSupportGenerate',
+64 : 'XcalarApiSchedTaskCreate',
+65 : 'XcalarApiSchedTaskList',
+66 : 'XcalarApiDeleteSchedTask',
+67 : 'XcalarApiUdfAdd',
+68 : 'XcalarApiUdfUpdate',
+69 : 'XcalarApiUdfGet',
+70 : 'XcalarApiUdfDelete',
+71 : 'XcalarApiCancelOp',
+72 : 'XcalarApiGetPerNodeOpStats',
+73 : 'XcalarApiGetOpStats',
+74 : 'XcalarApiErrorpointSet',
+75 : 'XcalarApiErrorpointList',
+76 : 'XcalarApiPreview',
+77 : 'XcalarApiExportRetina',
+78 : 'XcalarApiFunctionInvalid'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -25729,12 +25747,14 @@ QueryStateT = {
   'qrNotStarted' : 0,
   'qrProcessing' : 1,
   'qrFinished' : 2,
-  'qrError' : 3
+  'qrError' : 3,
+  'qrCancelled' : 4
 };
 QueryStateTStr = {0 : 'qrNotStarted',
 1 : 'qrProcessing',
 2 : 'qrFinished',
-3 : 'qrError'
+3 : 'qrError',
+4 : 'qrCancelled'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -26987,9 +27007,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 50760665
+  'XcalarApiVersionSignature' : 39582618
 };
-XcalarApiVersionTStr = {50760665 : '3068bd9888b8f062fc65d4f5f4c32fcc'
+XcalarApiVersionTStr = {39582618 : '25bfb9aa05ca2096dc4fd1a3672c25c3'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -27779,6 +27799,46 @@ function xcalarQueryState(thriftHandle, queryName) {
     })
     .fail(function(error) {
         console.log("xcalarQueryState() caught exception:", error);
+
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarQueryCancelWorkItem(queryName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.queryStateInput = new XcalarApiQueryStateInputT();
+
+    workItem.api = XcalarApisT.XcalarApiQueryCancel;
+    workItem.input.queryStateInput.queryName = queryName;
+    return (workItem);
+}
+
+function xcalarQueryCancel(thriftHandle, queryName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarQueryCancel(query name = " + queryName + ")");
+    }
+
+    var workItem = xcalarQueryCancelWorkItem(queryName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarQueryCancel() caught exception:", error);
 
         deferred.reject(error);
     });
@@ -31664,6 +31724,44 @@ function xcalarApiExportRetina(thriftHandle, retinaName) {
         test.trivial(xcalarQueryState(thriftHandle, queryName));
     }
 
+    function testQueryCancel(test) {
+        var query = "index --key votes.funny --dataset " + datasetPrefix +
+            "yelp" + " --dsttable cancelledTable2 --sorted;" +
+            "index --key votes.funny --dataset " + datasetPrefix +
+            "yelp" + " --dsttable cancelledTable3 --sorted;" +
+            "index --key votes.funny --dataset " + datasetPrefix +
+            "yelp" + " --dsttable cancelledTable4 --sorted;";
+
+        queryName = "testQuery2";
+        var time = Math.random() * 1000 + 500;
+        console.log("interval " + time);
+        xcalarQuery(thriftHandle, queryName, query, true)
+        .then(function() {
+            return (xcalarQueryCancel(thriftHandle, queryName));
+        })
+        .then(function(cancelStatus) {
+            (function wait() {
+            setTimeout(function() {
+                xcalarQueryState(thriftHandle, queryName)
+                .done(function(result) {
+                    var qrStateOutput = result;
+                    if (qrStateOutput.queryState != QueryStateT.qrCancelled) {
+                        test.fail("not canceled qrStateOutput.queryState = " +
+                                  QueryStateTStr[qrStateOutput.queryState]);
+                    }
+
+                    test.pass();
+
+                 })
+                 .fail(test.fail);
+             }, time);
+         })();
+        })
+        .fail(function(reason) {
+            test.fail("status: " + StatusTStr[reason]);
+        });
+    }
+
     function waitForDag(test) {
         var queryStateOutput;
 
@@ -33175,6 +33273,7 @@ function xcalarApiExportRetina(thriftHandle, retinaName) {
     addTestCase(testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testQueryCancel, "test cancel query", defaultTimeout, TestCaseEnabled, "");
     addTestCase(waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
     addTestCase(testGroupBy, "groupBy", defaultTimeout, TestCaseEnabled, "");
