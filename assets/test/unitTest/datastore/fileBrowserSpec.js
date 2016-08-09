@@ -1,9 +1,8 @@
-describe('FilebrowserModal', function() {
+describe('Filebrowser', function() {
     var minModeCache;
     var $testGrid;
     var $fileBrowser;
     var $pathLists;
-    var $fileName;
     var testFiles;
 
     before(function(){
@@ -15,9 +14,8 @@ describe('FilebrowserModal', function() {
                             '<div class="label" data-name="test"></div>' +
                         '</div>';
         $testGrid = $(testHtml);
-        $fileBrowser = $("#fileBrowserModal");
+        $fileBrowser = $("#fileBrowser");
         $pathLists = $("#fileBrowserPathMenu");
-        $fileName = $("#fileBrowserInputName");
 
         testFiles = [
         {
@@ -112,12 +110,6 @@ describe('FilebrowserModal', function() {
             expect($pathText.val()).to.equal("test");
             $li.remove();
             $pathText.val("");
-        });
-
-        it('Should update file name', function() {
-            FileBrowser.__testOnly__.updateFileName($testGrid);
-            expect($fileName.val()).to.equal("test");
-            $fileName.val("");
         });
 
         it('Should filter files', function() {
@@ -217,12 +209,10 @@ describe('FilebrowserModal', function() {
 
         it('Should focus on grid', function() {
             FileBrowser.__testOnly__.focusOn(null);
-            expect($fileName.val()).to.equal("");
             FileBrowser.__testOnly__.focusOn("sp500.csv", true);
             var $grid = $("#fileBrowserContainer .grid-unit.active");
             expect($grid.length).to.equal(1);
             expect($grid.find(".label").data("name")).to.equal("sp500.csv");
-            expect($fileName.val()).to.equal("sp500.csv");
         });
 
         it('Should get the focused grid', function() {

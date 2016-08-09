@@ -49,6 +49,7 @@ window.DSForm = (function($, DSForm) {
         $recurCheckbox = $("#recurCheckbox");
 
         setupPathCard();
+        FileBrowser.setup();
         setupFormUDF();
         setupFormDelimiter();
 
@@ -202,10 +203,10 @@ window.DSForm = (function($, DSForm) {
             // when switch from data sample table to data form
             // preview table may still open, so close it
             $("#preview-close").click();
-
-            $pathCard.removeClass("xc-hidden");
-            $filePath.focus();
         }
+
+        $pathCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
+        $filePath.focus();
     };
 
     DSForm.hide = function() {

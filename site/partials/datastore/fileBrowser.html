@@ -1,0 +1,167 @@
+<!-- File Browser -->
+<div id="fileBrowser" class="cardContainer xc-hidden">
+  <!-- File Browser Header -->
+  <header class="cardHeader">
+    <div class="title"><%= dicts.fileBrowser.header %></div>
+  </header>
+  <!-- File Browser Instruction -->
+  <section class="cardInstruction">
+    <i class="icon xi-info-circle"></i>
+    <div class="text"><%= dicts.fileBrowser.instr %></div>
+  </section>
+  <!-- File Browser Menu Bar -->
+  <section class="cardTopMain">
+    <!-- Location -->
+    <div class="label"><%= dicts.fileBrowser.location %>:</div>
+    <!-- up -->
+    <button id="fileBrowserUp" class="btn btn-small icon-up disabled" title="<%= dicts.fileBrowser.Up %>" data-toggle="tooltip" data-placement="top" data-container="body">
+      <span class="icon"></span>
+    </button>
+    <div id="fileBrowserPath" class="dropDownList">
+      <div class="defaultPath">nfs:///</div>
+      <input class="text" spellcheck="false">
+      <div class="iconWrapper" title="<%= dicts.fileBrowser.filePathHint %>" data-toggle="tooltip" data-placement="top" data-container="body">
+        <i class="icon"></i>
+      </div>
+      <ul id="fileBrowserPathMenu" class="list"></ul>
+    </div>
+    <!-- search section -->
+    <div id="fileBrowserSearch" class="searchSection">
+      <input type="text" placeholder="<%= dicts.fileBrowser.SearchHint %>">
+      <div class="clear">
+        <i class="icon fa-9 xi-close xc-action"></i>
+      </div>
+    </div>
+    <!-- Icon Options -->
+    <div class="iconSection">
+      <!-- sort -->
+      <button id="fileBrowserSort" class="btn btn-small sort clickable" title="<%= dicts.MenuTStr.Sort %>" data-toggle="tooltip" data-placement="top" data-container="body">
+        <i class="icon xi-sort fa-17"></i>
+        <ul id="fileBrowserSortMenu" class="menu">
+          <li data-sortkey="name">
+            <span class="label"><%= dicts.common.Name %></span>
+            <i class="icon xi-tick fa-12"></i>
+          </li>
+          <li data-sortkey="size">
+            <span class="label"><%= dicts.common.Size %></span>
+            <i class="icon xi-tick fa-12"></i>
+          </li>
+          <li data-sortkey="type">
+              <span class="label"><%= dicts.common.Type %></span>
+              <i class="icon xi-tick fa-12"></i>
+          </li>
+          <li data-sortkey="date">
+            <span class="label"><%= dicts.common.Date %></span>
+            <i class="icon xi-tick fa-12"></i>
+          </li>
+        </ul>
+      </button>
+      <!-- toggle view -->
+      <button id="fileBrowserGridView" class="btn btn-small gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body">
+        <i class="icon xi-list-view fa-15"></i>
+      </button>
+      <!-- refresh -->
+      <button id="fileBrowserRefresh" class="btn btn-small refresh" title="<%= dicts.common.Refresh %>" data-toggle="tooltip" data-placement="top" data-container="body">
+        <i class="icon xi-refresh fa-17"></i>
+      </button>
+    </div>
+  </section>
+  <!-- File Browser Main Section -->
+  <section id="fileBrowserMain" class="cardMain gridView">
+      <!-- Loading Sectoin -->
+      <section class="loadingSection">
+        <div class="waitingIcon"></div>
+      </section>
+      <!-- Titles -->
+      <section class="titleSection">
+        <div class="title gridIcon"></div>
+        <!-- file name -->
+        <div class="title fileName" data-sortkey="name">
+          <span class="label"><%= dicts.common.Name %></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+        <!-- file date -->
+        <div class="title fileDate" data-sortkey="date">
+          <span class="label"><%= dicts.common.DateModified %></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+        <!-- file size -->
+        <div class="title fileSize" data-sortkey="size">
+          <span class="label"><%= dicts.common.Size %></span>
+         <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+      </section>
+      <!-- Main Content -->
+      <section id="fileBrowserContainer" class="mainSection">
+        <div id="innerFileBrowserContainer" class="clearfix"></div>
+      </section>
+  </section>
+  <section class="cardBorder"></section>
+  <!-- File Info Section -->
+  <section class="cardSubMain clearfix">
+    <div id="fileBrowserAdvance" class="listWrap xc-expand-list active">
+      <div class="listInfo no-selection">
+        <span class="expand">
+          <i class="icon xi-arrow-down fa-10"></i>
+        </span>
+        <span class="text"><%= dicts.common.AdvancedOpts %></span>
+      </div>
+      <ul>
+        <!-- pattern -->
+        <li id="fileBrowser-pattern" class="pattern option">
+          <div class="label"><%= dicts.dsForm.Pattern %>:</div>
+          <input type="text" class="input textOverflowOneLine" spellcheck="false">
+          <div class="recursive checkboxSection">
+            <div><%= dicts.dsForm.Recursive %></div>
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty"></i>
+              <i class="icon xi-ckbox-selected"></i>
+            </div>
+          </div>
+          <div class="regex checkboxSection">
+            <div><%= dicts.dsForm.Regex %></div>
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty"></i>
+              <i class="icon xi-ckbox-selected"></i>
+            </div>
+          </div>
+        </li>
+        <!-- preview limit -->
+        <li id="fileBrowser-limit" class="limit option">
+          <div class="label"><%= dicts.dsForm.SizeLimit %>:</div>
+          <div class="inputWrap">
+            <input class="size textOverflowOneLine" type="number">
+          </div>
+          <div class="divider"></div>
+          <div class="dropDownList">
+            <input class="text unit" type="text" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <div class="list">
+              <ul>
+                <li>B</li>
+                <li>KB</li>
+                <li>MB</li>
+                <li>GB</li>
+                <li>TB</li>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+  <!-- Button Section -->
+  <section class="cardBottom">
+    <button type="button" class="btn confirm"><%= dicts.common.NEXT %></button>
+    <button type="button" class="btn btn-cancel cancel"><%= dicts.common.BACK %></button>
+  </section>
+</div>
+<!-- End File Browser -->

@@ -123,10 +123,10 @@ ErrTStr = {
 
     'InvalidField': 'Invalid Field.',
 
-    'InvalidFilePath': 'Invalid file path',
+    'InvalidFilePath': 'Invalid file path.',
 
-    'InvalidFileName': 'Invalid file name, ' +
-                       'cannot find the file in current directory.',
+    'InvalidFile': 'Please select a file or a folder',
+
     'InvalidTableName': 'Table name cannot contain any of the ' +
                         'following characters: *#\'\"',
 

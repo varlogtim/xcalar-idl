@@ -81,7 +81,8 @@ module.exports = {
         "SaveWKBK": "Save Progress",
         "Loading": "Loading",
         "Prefs": "Preferences",
-        "Supprots": "Supports"
+        "Supprots": "Supports",
+        "AdvancedOpts": "Advanced Options"
     },
 
     "paths": {
@@ -421,7 +422,7 @@ module.exports = {
     "dsForm": {
         "previewSize": "Preview Size",
         "previewSizeHint": "Change preview size if point to large datasource",
-        "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click next.",
+        "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click \"NEXT\" button.",
         "Instr": "INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET REFERENCE NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.",
         "dsLocation": "Data Source",
         "filePath": "Data Source Path",
@@ -437,7 +438,11 @@ module.exports = {
         "DSType": "Format",
         "UDF": "Parse Data With UDF",
         "Recur": "Point to Data Source Recursively",
-        "PREVIEW": "SMART PREVIEW"
+        "PREVIEW": "SMART PREVIEW",
+        "Pattern": "Pattern",
+        "Recursive": "Recursive",
+        "Regex": "Regex",
+        "SizeLimit": "Dataset Size Limit",
     },
 
     "dsFormat": {
@@ -528,7 +533,6 @@ module.exports = {
         "keepOrder": "Keep Order",
         "orderHint": "Check to preserve table's row order",
         "RecordDelim": "Record Delimiter",
-        "AdvancedOpts": "Advanced Options",
         "OneFile": "One File",
         "MultiFiles": "Multiple Files",
         "EveryFile": "Every File",
@@ -541,10 +545,11 @@ module.exports = {
 
     "fileBrowser": {
         "header": "Browse Dataset",
-        "instr": "Select the data source that you want to point to and then click the \"SELECT DATA SOURCE\" button to point to it.",
+        "instr": "Select the data source that you want to point to and then click the \"NEXT\" button.",
         "location": "location",
         "Up": "Go back",
         "filePathHint": "Click to see history",
+        "SearchHint": "Search",
         "CONFIRM": "SELECT DATA SOURCE",
         "FileName": "File Name",
         "FileFormat": "File Format",

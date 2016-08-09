@@ -2694,7 +2694,7 @@ MenuHelper.prototype = {
         var $dropDownList = self.$dropDownList;
         // toggle list section
         if (options.onlyClickIcon) {
-            $dropDownList.on("click", ".icon", function(event) {
+            $dropDownList.on("click", ".iconWrapper", function(event) {
                 event.stopPropagation();
                 self.toggleList($(this).closest(".dropDownList"));
             });

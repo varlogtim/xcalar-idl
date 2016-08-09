@@ -230,7 +230,6 @@ window.StartManager = (function(StartManager, $) {
     function setupModals() {
         Alert.setup();
         JSONModal.setup();
-        FileBrowser.setup();
         Profile.setup();
         ExportModal.setup();
         JoinModal.setup();

@@ -507,7 +507,6 @@
             .size(@width: 10px, @height: 10px);
             .center-align;
             display: block;
-            top: 60%;
             opacity: @opacity-unhover;
             font-size: 8px;
             color: @color-white;
@@ -526,7 +525,7 @@
         .position(absolute, @left: 0);
         background-color: @color-white;
         cursor: default;
-        box-shadow: 0px 1px 1px 1px rgba(0,0,0,0.2);
+        box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
         z-index: 10;
         display: none;
 
@@ -560,14 +559,6 @@
 
     &.listView .icon {
         .image("../../images/view-grid.png", 50%, 50%);
-    }
-}
-
-// style for refresh icon
-.refresh {
-    .icon {
-        .image("../../images/refresh.png", 50%, 50%);
-        background-size: 18px 18px;
     }
 }
 

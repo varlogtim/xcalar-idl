@@ -146,7 +146,6 @@ function autoAddTable() {
         dsName = "testsuiteschedule" + Math.floor(Math.random() * 10000);
         var $formatDropdown = $("#fileFormatMenu");
         $("#importDataButton").click();
-        $("#fileBrowserModal .close").click();
         $("#filePath").val('var/tmp/qa/indexJoin/schedule');
         $formatDropdown.find('li[name="JSON"]').click();
         $('#fileName').val(dsName);

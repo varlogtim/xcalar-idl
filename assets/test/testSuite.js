@@ -356,7 +356,6 @@ window.TestSuite = (function($, TestSuite) {
 
             // Import flight dataset
             $("#importDataButton").click();
-            $("#fileBrowserModal .close").click();
             $("#fileProtocol input").val(FileProtocol.nfs);
             $("#filePath").val(testDataLoc + "flight" + "/airlines_2007.csv");
             $("#fileName").val(dsName1);
@@ -372,7 +371,6 @@ window.TestSuite = (function($, TestSuite) {
                 // XXXX run it too quick will result in some werid bug
                 // who wants to fix it can remove the setTimeout and run on cantor
                 $("#importDataButton").click();
-                $("#fileBrowserModal .close").click();
                 $("#fileProtocol input").val(FileProtocol.nfs);
                 $("#filePath").val(testDataLoc + "flight" + "/airports.csv");
                 $("#fileName").val(dsName2);
@@ -757,7 +755,6 @@ window.TestSuite = (function($, TestSuite) {
         // Import schedule dataset
         $("#dataStoresTab").click();
         $("#importDataButton").click();
-        $("#fileBrowserModal .close").click();
         $("#fileProtocol input").val(FileProtocol.nfs);
         $("#filePath").val(testDataLoc + "indexJoin/schedule/schedule.json");
         $("#fileName").val(dsName);
