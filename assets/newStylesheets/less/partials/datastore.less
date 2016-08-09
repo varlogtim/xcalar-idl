@@ -95,12 +95,12 @@ input {
         cursor: default;
     }
 
-    .btn {
-        margin-left: 20px;
-        padding: 0;
-        float: right;
-        text-shadow: 1px 1px rgba(0,0,0,.2);
-    }
+    // .btn {
+    //     margin-left: 20px;
+    //     padding: 0;
+    //     float: right;
+    //     text-shadow: 1px 1px rgba(0,0,0,.2);
+    // }
 }
 
 #dsTableView {    
@@ -563,41 +563,60 @@ table.datasetTable {
     }
 }
 // End of Data Cart Section
+#dsForm-path {
+    .cardMain {
+        .size(@height: 100px);
+        padding-top: 30px;
 
-.formHelp {
-    .position(relative);
-    .size(@height: 93px);
-    padding: 15px 10px 5px 10px;
-    font-weight: 700;
-    box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
-    text-align: left;
-   .textOverflow;
+        .content {
+            .size(@width: 80%);
+            margin: 15px auto 0 auto;
 
-    .contentViewMidWrap {
-        .size (@width: 90%, @max-width: 960px);
+            &:first-child {
+                margin-top: 0;
+            }
+
+            > label, > div, > button, > input {
+                float: left;
+            }
+
+            > label {
+                .size(@width: 150px);
+            }
+
+            .dropDownList {
+                .styleDropDownList(~"calc(100% - 310px)", 30px);
+                
+                .list {
+                    left: 1px;
+                }
+            }
+
+            &.protocol {
+                .size(@height: 30px);
+                line-height: 30px;
+            }
+
+            &.path {
+                .size(@height: 36px);
+                .input-box(~"calc(100% - 310px)", 30px);
+                line-height: 36px;
+
+                input {
+                    .vertical-align;
+                }
+
+                .btn {
+                    float: right;
+                }
+            }
+        }
     }
 
-    h2 {
-        .font(@size: 18px, @color: @color-text-blue);
-        display: block;
-        margin-bottom: 10px;
-        .textOverflow;
-    }
-
-    p {
-        .size(@width: ~"calc(100% - 50px)", @height: 30px);
-        .font(@weight: 700, @size: 12px, @color: @color-text-lightGray);
-        overflow: hidden;
-        display: inline-block;
-        white-space: normal;
-        float: left;
-    }
-
-    .icon {
-        .background("../../images/info-icon-large.png", 28px, 28px);
-        display: inline-block;
-        float: left;
-        margin-right: 10px;
+    .cardBottom {
+        margin: 0 10%;
+        padding-right: 0;
+        padding-bottom: 20px;
     }
 }
 

@@ -225,7 +225,7 @@ window.Shortcuts = (function($, Shortcuts) {
 
                 $fileName.focus();
                 if (filePathGiven) {
-                    $('#fileBrowserBtn').click();
+                    $("#dsForm-path .browse").click();
                 }
             }
         });

@@ -1,11 +1,48 @@
-<!-- Form Help -->
-<div id="importHelp" class="formHelp no-selection">
-  <div class="contentViewMidWrap">
-    <h2><%= dicts.ds.Point %></h2>
-    <span class="icon"></span>
-    <p><%= dicts.dsForm.Instr %></p>
+<div id="dsForm-path" class="cardContainer">
+  <header class="cardHeader">
+    <div class="title"><%= dicts.ds.Point %></div>
+  </header>
+  <div class="cardInstruction">
+    <i class="icon xi-info-circle"></i>
+    <div class="text"><%= dicts.dsForm.PathInstr %></div>
+  </div>
+  <div class="cardMain">
+    <div class="content protocol">
+      <label><%= dicts.ds.Protocol %>:</label>
+      <!-- protocol dropdown -->
+      <div id="fileProtocol" class="dropDownList">
+        <input class="text" type="text" spellcheck="false" disabled>
+        <div class="iconWrapper">
+          <i class="icon"></i>
+        </div>
+        <!-- protocol Menu -->
+        <div id="fileProtocolMenu" class="list">
+          <ul>
+            <li name="nfs"><%= dicts.FileProtocol.nfs %></li>
+            <li name="hdfs"><%= dicts.FileProtocol.hdfs %></li>
+          </ul>
+          <div class="scrollArea top">
+            <div class="arrow"></div>
+          </div>
+          <div class="scrollArea bottom">
+            <div class="arrow"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content path">
+      <label for="filePath"><%= dicts.dsForm.filePath %>:</label>
+      <input id="filePath" type="text">
+      <button class="btn browse" type="button"><%= dicts.common.BROWSE %></button>
+    </div>
+  </div>
+  <div class="cardBottom">
+    <button class="btn confirm"><%= dicts.common.NEXT %></button>
+    <button class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
   </div>
 </div>
+
+
 <!-- Data Form -->
 <form id="importDataForm" class="dsForm" target="_blank">
   <!-- Top Form -->

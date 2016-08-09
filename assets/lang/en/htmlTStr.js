@@ -395,7 +395,6 @@ module.exports = {
 
     "ds": {
         "Point": "Point To New Dataset",
-        "POINT": "POINT TO NEW DATASET",
         "Datasets": "Dataset Refs",
         "DATASET": "DATASET",
         "DSIn": "DATASTORE/IN",
@@ -403,7 +402,7 @@ module.exports = {
         "IN": "IN",
         "OUT": "OUT",
         "Format": "Format",
-        "Protocol": "Protocol"
+        "Protocol": "Data Source Protocol"
     },
 
 // keep in sync with the FileProtocol in enums.js
@@ -422,6 +421,7 @@ module.exports = {
     "dsForm": {
         "previewSize": "Preview Size",
         "previewSizeHint": "Change preview size if point to large datasource",
+        "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click next.",
         "Instr": "INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET REFERENCE NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.",
         "dsLocation": "Data Source",
         "filePath": "Data Source Path",

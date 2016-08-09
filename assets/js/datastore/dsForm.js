@@ -2,6 +2,8 @@
  * Module for the dataset form part
  */
 window.DSForm = (function($, DSForm) {
+    var $pathCard; // $("#dsForm-path");
+
     var $filePath;        // $("#filePath")
     var $filePathPattern; // $("#filePath-pattern")
 
@@ -32,6 +34,7 @@ window.DSForm = (function($, DSForm) {
     };
 
     DSForm.setup = function() {
+        $pathCard = $("#dsForm-path");
         $filePath = $("#filePath");
         $filePathPattern = $("#filePath-pattern");
 
@@ -45,6 +48,7 @@ window.DSForm = (function($, DSForm) {
         $udfCheckbox = $("#udfCheckbox");
         $recurCheckbox = $("#recurCheckbox");
 
+        setupPathCard();
         setupFormUDF();
         setupFormDelimiter();
 
@@ -52,16 +56,6 @@ window.DSForm = (function($, DSForm) {
         $("#importDataButton").click(function() {
             $(this).blur();
             DSForm.show();
-            var protocol = getProtocol();
-            FileBrowser.show(protocol);
-        });
-
-        $filePath.on('input', function() {
-            var fileName = $filePath.val().trim();
-            var ext = xcHelper.getFormat(fileName);
-            if (ext != null && $formatText.data('format') !== ext) {
-                toggleFormat(ext);
-            }
         });
 
         //recur checkbox
@@ -96,15 +90,6 @@ window.DSForm = (function($, DSForm) {
             $headerCheckBox.find(".checkbox").toggleClass("checked");
         });
 
-        //set up dropdown list for protocol
-        new MenuHelper($("#fileProtocol"), {
-            "onSelect": function($li) {
-                setProtocol($li.text());
-            },
-            "container": "#dsFormView",
-            "bounds"   : "#dsFormView"
-        }).setupListeners();
-
         //set up dropdown list preview size
         new MenuHelper($("#previewSizeUnit"), {
             "onSelect": function($li) {
@@ -128,17 +113,6 @@ window.DSForm = (function($, DSForm) {
             "container": "#dsFormView",
             "bounds"   : "#dsFormView"
         }).setupListeners();
-
-        // open file browser
-        $("#fileBrowserBtn").click(function() {
-            $(this).blur();
-
-            var protocol = getProtocol();
-            var path = getFilePath();
-            if (isValidPathToBrowse(protocol, path)) {
-                FileBrowser.show(protocol, path);
-            }
-        });
 
         // preview dataset
         $("#previewBtn").click(function() {
@@ -228,7 +202,9 @@ window.DSForm = (function($, DSForm) {
             // when switch from data sample table to data form
             // preview table may still open, so close it
             $("#preview-close").click();
-            $("#filePath").focus();
+
+            $pathCard.removeClass("xc-hidden");
+            $filePath.focus();
         }
     };
 
@@ -800,6 +776,39 @@ window.DSForm = (function($, DSForm) {
 
         $udfModuleList.find("ul").html(moduleLi);
         $udfFuncList.find("ul").html(fnLi);
+    }
+
+    function setupPathCard() {
+        //set up dropdown list for protocol
+        new MenuHelper($("#fileProtocol"), {
+            "onSelect": function($li) {
+                setProtocol($li.text());
+            },
+            "container": "#dsFormView",
+            "bounds"   : "#dsFormView"
+        }).setupListeners();
+
+
+        // open file browser
+        $pathCard.on("click", ".browse", function() {
+            $(this).blur();
+
+            var protocol = getProtocol();
+            var path = getFilePath();
+            if (isValidPathToBrowse(protocol, path)) {
+                FileBrowser.show(protocol, path);
+            }
+        });
+
+        $pathCard.on("click", ".confirm", function() {
+            console.log("confirm");
+        });
+
+        $pathCard.on("click", ".cancel", resetPathCard);
+    }
+
+    function resetPathCard() {
+        $filePath.val("").focus();
     }
 
     function setupFormUDF() {
