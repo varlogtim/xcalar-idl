@@ -625,15 +625,21 @@
         }
 
         .radio {
-            .size(@width: 14px, @height: 100%);
+            .size(@width: 12px, @height: 12px);
             .position(relative, @top: 1px);
             float: left;
             display: inline-block;
             margin: 0 5px 0 0px;
+            background-color: @color-white;
+            border-radius: 100%;
+            .vertical-align;
+
 
             .icon {
                 font-size: 12px;
                 color: @color-font-pinkish-grey2;
+                vertical-align: top;
+                line-height: 12px;
 
                 &:before {
                     // xi-radio-empty

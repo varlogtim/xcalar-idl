@@ -1071,7 +1071,43 @@ html.firefox, html.microsoft {
                 color: @color-white;
             }
         }
-    }    
+    } 
+
+    // basic highlighted column settings
+    th.modalHighlighted {
+        .header {
+            .type.icon {
+                color: @color-white;
+            }
+        }
+        .flexContainer{
+            background-color: @color-bg-select-blue;
+            input {
+                color: @color-white !important;
+            }
+        }
+        .type-boolean .flex-left::after {
+            border-top: @height-colHeader solid @color-border-colIconBlue;
+        }
+    }
+
+    tbody tr {
+        &:nth-child(odd) {
+            td.modalHighlighted {
+                background-color: @color-selectedCell-dark;
+            }
+        }
+        &:nth-child(even) {
+            td.modalHighlighted {
+                background-color: @color-selectedCell-light;
+            }
+        }
+        &:hover {
+            td.modalHighlighted {
+                background-color: @color-heather !important;
+            }
+        }
+    }   
 }
 
 .xcTable, .joinTable {

@@ -1,0 +1,251 @@
+<!-- Export View -->
+<div id="exportView" class="xc-hidden opView">
+  <!-- Export Header -->
+  <header>
+    <div class="title"><%= dicts.exportModal.header %></div>
+    <i class="close icon xi-close fa-15"></i>
+  </header>
+  
+  <div class="mainContent">
+    <div class="export opSection">
+      <p class="instructions"><%= dicts.exportModal.instr %></p>
+      <!-- Export Modal Top Section-->
+      <section class="modalTopMain">
+        <!-- export name section -->
+        <div class="exportNameSection formRow">
+          <div class="subHeading clearfix">
+            <div class="label">Export Filename:</div>
+          </div>
+            
+          <input id="exportName" class="text" type="text" spellcheck="false" required>
+          
+        </div>
+        <!-- export path section -->
+        <div class="exportPathSection formRow">
+          <div class="subHeading clearfix">
+            <div class="label">Export <%= dicts.exportModal.Location %>:</div>
+          </div>
+          <div id="exportLists" class="dropDownList">
+              <input id="exportPath" class="text" type="text" value="" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                  <span class="icon"></span>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="exportColumnsSection formRow">
+          <div class="subHeading clearfix">
+            <div class="label"><%= dicts.exportModal.Columns %> To Export:</div>
+          </div>
+          <p><%= dicts.exportModal.colInstr %></p>
+          <input id="exportColumns" type="text" placeholder="<%= dicts.exportModal.ColumnsHint %>" spellcheck="false" required>
+          <div class="checkboxWrap selectAllWrap">
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-13"></i>
+              <i class="icon xi-ckbox-selected fa-13"></i>
+            </div>
+            <div class="text">Select All</div>
+          </div>
+          <div class="columnsWrap clearfix">
+            <ul class="cols"></ul>
+          </div>
+          <div class="clearInput iconWrap">
+            <span class="icon"></span>
+          </div>
+        </div>
+
+        <div class="exportRowOrderSection formRow">
+          <div class="checkboxWrap keepOrderedCBWrap">
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-13"></i>
+              <i class="icon xi-ckbox-selected fa-13"></i>
+            </div>
+            <div class="text">Export Rows in Sorted Order (slow)</div>
+           <!--  <div class="hint qMark" data-container="body" data-toggle="tooltip"
+                  title="<%= dicts.exportModal.orderHint %>"></div> -->
+          </div>
+        </div>
+         <!-- advanced section -->
+        <div class="advancedSection collapsed">
+          <div class="advancedTitle minimized subHeading clearfix">
+            <div>
+              <i class="icon xi-plus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
+              <i class="icon xi-minus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
+              <span class="text"><%= dicts.common.AdvancedOpts %></span>
+            </div>
+           
+          </div>
+          <div class="formRow buttonRow typeRow">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.common.Type %>:</div>
+            </div>
+            <div class="radioButtonGroup">
+              <div class="radioButton active" data-option="DfFormatCsv">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label">CSV</div>
+              </div>
+              <div class="radioButton" data-option="DfFormatSql">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label">SQL</div>
+              </div>
+            </div>
+          </div>
+          <div class="formRow csvRow csvHidden">
+              <div class="subHeading clearfix">
+                <div class="label"><%= dicts.dsForm.FieldDelim %>:</div>
+              </div>
+              <div class="dropDownList">
+                <input class="fieldDelim text" type="text" spellcheck="false" disabled="">
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <!-- dropdown menu -->
+                <div class="list">
+                  <ul>
+                    <li name="default"><%= dicts.common.Default %> (\t)</li>
+                    <li name="comma"><%= dicts.common.Comma %> (,)</li>
+                    <li name="other" class="other">
+                      <span><%= dicts.common.Other %></span>
+                      <div class="inputWrap">
+                        <input class="delimVal" type="text" spellcheck="false">
+                        <div class="inputAction">
+                          <span class="icon"></span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                  <div class="scrollArea top">
+                    <div class="arrow"></div>
+                  </div>
+                  <div class="scrollArea bottom">
+                    <div class="arrow"></div>
+                  </div>
+                </div>
+              </div>
+          </div>
+          <div class="formRow csvRow csvHidden">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.exportModal.RecordDelim %>:</div>
+            </div>
+            <div class="dropDownList">
+              <input class="text recordDelim" type="text" spellcheck="false" disabled="">
+              <div class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+              <!-- dropdown menu -->
+              <div class="list">
+                <ul>
+                  <li name="default"><%= dicts.common.Default %> (\n)</li>
+                  <!-- no other delimiter but \n currently works -->
+                 <!--  <li name="other" class="other">
+                    <span><%= dicts.common.Other %></span>
+                    <div class="inputWrap">
+                      <input class="delimVal" type="text" spellcheck="false">
+                      <div class="inputAction">
+                        <span class="icon"></span>
+                      </div>
+                    </div>
+                  </li> -->
+                </ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="formRow buttonRow splitType">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.common.File %>:</div>
+            </div>
+            <div class="radioButtonGroup">
+              <div class="radioButton active" data-option="ExSFFileSplitForceSingle">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label"><%= dicts.exportModal.OneFile %></div>
+              </div>
+              <div class="radioButton" data-option="ExSFFileSplitNone">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label"><%= dicts.exportModal.MultiFiles %></div>
+              </div>
+            </div>
+          </div>
+          <div class="formRow buttonRow headerType">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.common.Header %>:</div>
+            </div>
+            <div class="radioButtonGroup">
+                <div class="radioButton active" data-option="ExSFHeaderEveryFile">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label"><%= dicts.exportModal.EveryFile %></div>
+              </div>
+              <div class="radioButton" data-option="ExSFHeaderSeparateFile">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label"><%= dicts.exportModal.SeparateFile %></div>
+              </div>
+            </div>
+          </div>
+          <div class="formRow buttonRow overwrite createRule">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.exportModal.Overwrite %>:</div>
+            </div>
+            <div class="radioButtonGroup">
+              <div class="radioButton active" data-option="ExExportCreateOnly">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label"><%= dicts.exportModal.DoNotOverwrite %></div>
+              </div>
+              <div class="radioButton" data-option="ExExportDeleteAndReplace">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label"><%= dicts.exportModal.OverwriteExisting %></div>
+              </div>
+              <div class="radioButton" data-option="ExExportAppendOnly">
+                <div class="radio">
+                  <i class="icon"></i>
+                </div>
+                <div class="label"><%= dicts.exportModal.AppendExisting %></div>
+              </div>
+            </div>
+          </div>
+          <div class="restore" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.Restore %>">
+            <i class="icon xi-refresh"></i>
+            RESTORE DEFAULTS
+          </div>
+        </div>
+      </section>
+      <!-- Button Section -->
+      <section class="bottomSection">
+        <button type="button" class="btn confirm"><%= dicts.exportModal.CONFIRM %></button>
+        <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+      </section>
+    </div>
+    
+  </div>
+  <!-- Export Modal Instruction -->
+  
+</div>
+<!-- End of Export Modal -->

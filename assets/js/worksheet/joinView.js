@@ -35,7 +35,7 @@ window.JoinView = (function($, JoinView) {
         $rightTableDropdown = $('#joinRightTableList');
         $joinTypeSelect = $("#joinType");
         $joinTableName = $("#joinTableNameInput");
-        $clauseContainer = $mainJoin.find('.joinContainer');
+        $clauseContainer = $mainJoin.find('.clauseContainer');
         // constant
         var minHeight = 600;
         var minWidth  = 800;
@@ -636,7 +636,8 @@ window.JoinView = (function($, JoinView) {
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
             if (allCols[i].type !== "newColumn" && allCols[i].backName !== "DATA") {
-                html += '<li class="checked"><span class="text">' + allCols[i].name + 
+                html += '<li class="checked">' +
+                            '<span class="text">' + allCols[i].name + 
                             '</span>' +
                             '<div class="checkbox checked">' +
                                 '<i class="icon xi-ckbox-empty fa-13"></i>' +
