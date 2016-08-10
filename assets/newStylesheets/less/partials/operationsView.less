@@ -77,6 +77,9 @@
 			padding-left: 6px;
 			font-weight: 700;
 		}
+		.altFnTitle {
+			display: none;
+		}
 	}
 
 	&#operationsView {
@@ -206,16 +209,146 @@
 			.closeGroup {
 				display: none;
 			}
+			.minGroup {
+				margin-top: 0px;
+			}
 		}
 
-		.closeGroup {
+		.closeGroup, .minGroup {
 			float: right;
-			color:  gray;
+			color: @color-font-warm-grey-two;
 			font-size: 12px;
 			margin-top: -5px;
 			margin-right: 5px;
 			cursor: pointer;
+			opacity: @opacity-unhover;
+			&:hover {
+				opacity: @opacity-hover;
+			}
 		}
+
+		.minGroup {
+			margin-right: 10px;
+		}
+
+		// start minimized group styling
+		&.minimized {
+			.clearfix;
+			padding-top: 4px;
+			padding-bottom: 10px;
+
+			.subHeading, .descriptionText, .description, .argIconWrap, .minGroup  {
+				display: none;
+			}
+			+ .addArgWrap {
+				margin-top: 20px;
+			}
+
+
+			.catFuncHeadings {
+				display: block;
+				margin-top: 0px;
+				padding-top: 6px;
+				position: relative;
+				.filterFnTitle {
+					display: none;
+				}
+
+				.icon {
+					position: absolute;
+					right: 0px;
+				}
+			}
+
+			.functionsList {
+				// width: 25% !important;
+				background-color: transparent !important; 
+				float: left !important;
+				display: inline-block;
+				width: auto;
+				max-width: ~"calc(100% - 30px)";
+
+				.functionsInput {
+					width: 100% !important;
+					padding-right: 6px !important;
+					background-color: transparent !important;
+					border: none !important;
+					outline: none;
+					font-size: 11px !important;
+					font-weight: 700;
+					pointer-events: none;
+				}
+				.iconWrapper {
+					display: none;
+				}
+			}
+			.argsSection {
+				float: left;
+				width: 100%;
+				margin-bottom: 0px;
+			}
+
+			.row {
+				float: left;
+				margin-top: 0px;
+				.arg {
+					width: 100%;
+					border-left: 1px solid @color-border-pinkish-grey2;
+					padding: 2px;
+					text-align: center;
+					text-overflow: ellipsis;
+				}
+				&:first-child {
+					.arg {
+						border-left-width: 0px;
+					}
+				}
+			}
+
+			&.fnInputEmpty {
+				.altFnTitle {
+					display: block;
+				}
+				.argsSection {
+					display: none;
+				}
+				.functionsList {
+					visibility: hidden;
+					height: 0px !important;
+					overflow: hidden !important;
+					position: relative;
+					top: -28px; // so error messages will be positioned properly
+				}
+			}
+
+			&[data-numargs="0"] {
+				.argsSection {
+					display: none;
+				}
+			}
+
+			&[data-numargs="1"] {
+				.row {
+					width: 100%
+				}
+			}
+			&[data-numargs="2"] {
+				.row {
+					width: 50%
+				}
+			}
+			&[data-numargs="3"] {
+				.row {
+					width: 33.3%
+				}
+			}
+			&[data-numargs="4"] {
+				.row {
+					width: 25%
+				}
+			}
+		}
+		// end minimized group styling
 	}
 
 	.argsSection {
@@ -461,7 +594,8 @@
 
 	}
 
-	#multiJoin {
+	// start .clauseContainer
+	.clauseContainer {
         .position(relative);
         .flex(0 0 auto);
         overflow: hidden;
@@ -604,19 +738,13 @@
             }
         }
     }
-
-
+    // end .clauseContainer
 
     .smartSuggestSection {
     	background-color: @color-bg-white-two;
     	padding-top: 15px;
     	padding-bottom: 15px;
     }
-
-    // .smartSuggest {
-    // 	display: block;
-    // 	margin: 0 auto;
-    // }
 
     .suggError {
     	visibility: hidden;

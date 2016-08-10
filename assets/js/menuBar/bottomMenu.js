@@ -274,7 +274,7 @@ window.BottomMenu = (function($, BottomMenu) {
             //     CLIBox.realignNl();
             // }
             OperationsView.closeOpSection();
-            JoinModal.close();
+            JoinView.close();
 
         }
 

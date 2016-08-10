@@ -1,19 +1,12 @@
-window.JoinModal = (function($, JoinModal) {
+window.JoinView = (function($, JoinView) {
     var $mainJoin;       // $("#mainJoin")
-    var $joinModal;      // $("#joinModal")
     var $joinView;      // $("#joinView")
     var $tableDropDown;  // $mainJoin.find('.joinTableList')
     var $leftTableDropdown;  // $('#joinLeftTableList');
     var $rightTableDropdown;  // $('#joinRightTableList');
-
-    var $joinSelect;     // $("#joinType")
-
+    var $joinTypeSelect;     // $("#joinType")
     var $joinTableName;  // $("#joinTableNameInput")
-    var $leftJoinTable;  // $("#leftJoin")
-    var $rightJoinTable; // $("#rightJoin")
-
-    var $multiJoinBtn;   // $("#multiJoinBtn")
-    var $multiJoin;      // $("#multiJoin")
+    var $clauseContainer;      // $("#multiJoin")
     var $lastInputFocused;
     var isNextNew = true; // if true, will run join estimator
 
@@ -34,45 +27,39 @@ window.JoinModal = (function($, JoinModal) {
     var dragSide = null;
     var isOpenTime;
 
-    JoinModal.setup = function () {
+    JoinView.setup = function () {
         $mainJoin = $("#mainJoin");
-        // $joinModal = $("#joinModal");
-        $joinModal = $("#joinView");
         $joinView = $("#joinView");
         $tableDropDown = $mainJoin.find('.joinTableList');
         $leftTableDropdown = $('#joinLeftTableList');
         $rightTableDropdown = $('#joinRightTableList');
-        $joinSelect = $("#joinType");
+        $joinTypeSelect = $("#joinType");
         $joinTableName = $("#joinTableNameInput");
-        $leftJoinTable = $("#leftJoin");
-        $rightJoinTable = $("#rightJoin");
-        $multiJoinBtn = $("#multiJoinBtn");
-        $multiJoin = $("#multiJoin");
-
+        $clauseContainer = $mainJoin.find('.joinContainer');
         // constant
         var minHeight = 600;
         var minWidth  = 800;
 
-        modalHelper = new ModalHelper($joinModal, {
+        modalHelper = new ModalHelper($joinView, {
             "minHeight": minHeight,
             "minWidth" : minWidth
         });
 
         
         $joinView.find('.cancel, .close').on('click', function() {
-            closeJoinView();
+            JoinView.close();
         });
 
         $joinView.find('.next, .back').click(function() {
             toggleNextView();
         });
 
-        $joinModal.on("mouseenter", ".tooltipOverflow", function(){
+        $joinView.on("mouseenter", ".tooltipOverflow", function(){
             xcHelper.autoTooltip(this);
         });
 
         $("#closeJoin, #cancelJoin").click(function() {
-            closeJoinView();
+            JoinView.close();
             resetJoinView();
         });
 
@@ -88,10 +75,10 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
-        var joinTypeList = new MenuHelper($joinSelect, {
+        var joinTypeList = new MenuHelper($joinTypeSelect, {
             "onSelect": function($li) {
                 var joinType = $li.text();
-                $joinSelect.find(".text").text(joinType);
+                $joinTypeSelect.find(".text").text(joinType);
                 updatePreviewText();
                 checkNextBtn();
             }
@@ -150,17 +137,17 @@ window.JoinModal = (function($, JoinModal) {
         });
 
         // toggle keep tables
-        $joinModal.find('.keepTablesCBWrap').click(function() {
+        $joinView.find('.keepTablesCBWrap').click(function() {
             $(this).find(".checkbox").toggleClass("checked");
         });
 
         // add multi clause
-        $multiJoin.on("click", ".placeholder", function() {
+        $clauseContainer.on("click", ".placeholder", function() {
             addClause($(this));
         });
 
         // delete multi clause
-        $multiJoin.on("click", ".joinClause .middleIcon", function() {
+        $clauseContainer.on("click", ".joinClause .middleIcon", function() {
             var $joinClause = $(this).closest(".joinClause");
             if ($joinClause.hasClass("placeholder")) {
                 return;
@@ -205,7 +192,6 @@ window.JoinModal = (function($, JoinModal) {
                     } else {
                         $joinView.find('.rightColHeading .selectAll').removeClass('checked');
                     }
-                    
                 }
             } else {
                 $checkbox.addClass('checked');
@@ -231,831 +217,7 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
-        addModalTabListeners($leftJoinTable, true);
-        // addModalTabListeners($rightJoinTable, false);
-    };
-
-    JoinModal.restore = function() {
-        var keepJoinTables = UserSettings.getPref('keepJoinTables');
-        if (keepJoinTables) {
-            $joinModal.find('.keepTablesCBWrap .checkbox').addClass('checked');
-        }
-    };
-
-    JoinModal.show = function(tableId, colNum, restore) {
-        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
-        $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
-        $joinView.removeClass('xc-hidden');
-        if (!MainMenu.isMenuOpen("mainMenu")) {
-            MainMenu.open();
-        } else {
-            BottomMenu.close(true);
-        }
-        
-        if (!restore) {
-            resetJoinView();
-            fillTableLists(tableId); 
-            updatePreviewText();
-            addClause($joinView.find('.placeholder'), true, tableId, colNum);
-        }
-
-        $("body").on("keypress.joinModal", function(event) {
-            switch (event.which) {
-                case keyCode.Enter:
-                    // when focus on a button, no trigger
-                    if (modalHelper.checkBtnFocus()) {
-                        break;
-                    }
-                    $('#joinTables').click();
-                    break;
-                default:
-                    break;
-            }
-        });
-        $("body").on("mouseup.joinModal", function() {
-            $("#moveCursor").remove();
-        });
-
-
-        columnPickers();
-    };
-
-    JoinModal.close = function() {
-        closeJoinView();
-    };
-
-    function toggleNextView() {
-        if ($joinView.hasClass('nextStep')) {
-            // go to step 1
-            $joinView.removeClass('nextStep');
-        } else {
-            // go to step 2
-            if (checkFirstView()) {
-                if (isNextNew) {
-                    estimateJoinSize();
-                    displayAllColumns();
-                    isNextNew = false;
-                }  
-
-                $joinView.addClass('nextStep');
-                if ($joinTableName.val().trim() === "") {
-                    $joinTableName.focus();
-                }
-            } else {
-               // checkfirstview is handling errors 
-            }
-        }
-        $joinView.scrollTop(0);
-    }
-
-    function checkFirstView() {
-        var joinType = $joinSelect.find(".text").text();
-        var newTableName = newTableName + Authentication.getHashId();
-
-
-        var lCols = [];
-        var rCols = [];
-        var $invalidClause = null;
-
-        // check validation
-        $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
-            var $joinClause = $(this);
-            var lClause = $joinClause.find(".leftClause").val().trim();
-            var rClause = $joinClause.find(".rightClause").val().trim();
-
-            if (lClause !== "" && rClause !== "") {
-                lCols.push(lClause);
-                rCols.push(rClause);
-                return true;
-            } else if (!(lClause === "" && rClause === "")){
-                $invalidClause = $joinClause;
-                return false;   // stop loop
-            }
-        });
-
-        if ($invalidClause != null || lCols.length === 0) {
-            invalidMultiCaluseTooltip($invalidClause);
-            return false;
-        }
-
-        var validTypes = ['integer', 'float', 'string', 'float'];
-        var tableIds = getTableIds();
-        var leftColRes = xcHelper.convertFrontColNamesToBack(lCols, tableIds[0],
-                                                    validTypes);
-
-        // xx need to refactor below 
-    
-        if (leftColRes.invalid) {
-            var errorTitle;
-            var errorText;
-            var $input = 
-                $multiJoin.find('.joinClause .leftClause').filter(function() {
-                    return ($(this).val() === leftColRes.name);
-                }).eq(0);
-            if (leftColRes.reason === 'notFound') {
-
-                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                    "name": leftColRes.name
-                });
-            } else if (leftColRes.reason === 'type') {
-                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
-                    "name": leftColRes.name,
-                    "type": leftColRes.type
-                });
-            }
-            showErrorTooltip($input, {
-                "title"    : errorText,
-                "placement": "top",
-                "animation": "true",
-                "container": "body",
-                "trigger"  : "manual",
-                "template" : TooltipTemplate.Error
-            });
-            return false;
-        } else {
-            var rightColRes = xcHelper.convertFrontColNamesToBack(rCols, tableIds[1],
-                                                    validTypes);
-            if (rightColRes.invalid) {
-                var errorTitle;
-                var errorText;
-                var $input = 
-                    $multiJoin.find('.joinClause .rightClause').filter(function() {
-                        return ($(this).val() === rightColRes.name);
-                    }).eq(0);
-                if (rightColRes.reason === 'notFound') {
-
-                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                        "name": rightColRes.name
-                    });
-                } else if (rightColRes.reason === 'type') {
-                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
-                        "name": rightColRes.name,
-                        "type": rightColRes.type
-                    });
-                }
-                showErrorTooltip($input, {
-                    "title"    : errorText,
-                    "placement": "top",
-                    "animation": "true",
-                    "container": "body",
-                    "trigger"  : "manual",
-                    "template" : TooltipTemplate.Error
-                });
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        return true
-    }
-
-    function estimateJoinSize() {
-        var tableIds = getTableIds();
-        var functionName = 'UExtDev::estimateJoin';
-        var colNames = getClauseColNames();
-        var colNum = gTables[tableIds[0]].getColNumByBackName(colNames[0][0]);
-
-        var argList = {
-            leftLimit: 100,
-            rightLimit: 100,
-            lCol: colNames[0],
-            rCol: colNames[1],
-            rTable: gTables[tableIds[1]].tableName
-        };
-
-        var $estimatorWrap = $joinView.find('.estimatorWrap');
-        $estimatorWrap.find('.title').text('Estimating join size...');
-        $estimatorWrap.find('.value').empty();
-
-        ExtensionManager.trigger(colNum, tableIds[0], functionName, argList)
-        .then(function(ret) {
-            $joinView.find('.estimatorWrap .title').text('Estimated join size:');
-            $estimatorWrap.find('.min .value').text(ret.minSum);
-            $estimatorWrap.find('.med .value').text(ret.expSum);
-            $estimatorWrap.find('.max .value').text(ret.maxSum);
-        })
-        .fail(function(error) {
-            $joinView.find('.estimatorWrap .title').text('Estimated join size:');
-            $estimatorWrap.find('.value').text('N/A');
-        });
-    }
-
-    // generates all left and right table columns to keep
-    function displayAllColumns() {
-        var tableIds = getTableIds();
-        var lHtml = getTableColList(tableIds[0]);
-        var rHtml = getTableColList(tableIds[1]);
-        $joinView.find('.leftCols').html(lHtml);
-        $joinView.find('.rightCols').html(rHtml);
-        $joinView.find('.selectAll').addClass('checked');
-    }
-
-    function hasValidTableNames() {
-        var tableIds = getTableIds();
-        return (gTables[tableIds[0]] && gTables[tableIds[1]]);
-    }
-
-    // returns array of 2 table ids
-    function getTableIds() {
-        var lTableName = $leftTableDropdown.find('.text').text();
-        var rTableName = $rightTableDropdown.find('.text').text();
-        var lTableId = xcHelper.getTableId(lTableName);
-        var rTableId = xcHelper.getTableId(rTableName);
-        return ([lTableId, rTableId]);
-    }
-
-    function hasColsAndTableNames() {
-        if (hasValidTableNames()) {
-            var columnPairs = [];
-            var pair;
-            var lClause;
-            var rClause;
-
-            $joinView.find(".joinClause:not(.placeholder)").each(function() {
-                var $joinClause = $(this);
-                lClause = $joinClause.find(".leftClause").val().trim();
-                rClause = $joinClause.find(".rightClause").val().trim();
-                pair = [lClause, rClause];
-                columnPairs.push(pair);
-            });
-
-            var numPairs = columnPairs.length;
-            var leftColText;
-            var rightColText;
-            var validColPairFound = false;
-
-            for (var i = 0; i < numPairs; i++) {
-                if ((columnPairs[i][0] && !columnPairs[i][1]) ||
-                    (columnPairs[i][1] && !columnPairs[i][1])) {
-                    validColPairFound = false;
-                    break;
-                }
-                if (columnPairs[i][0] && columnPairs[i][1]) {
-                    validColPairFound = true;
-                }        
-            }
-            return (validColPairFound);
-        } else {
-            return (false);
-        }
-    }
-
-
-    function getClauseColNames() {
-        var tableIds = getTableIds();
-        var lTableId = tableIds[0];
-        var rTableId = tableIds[1];
-        var lCols = [];
-        var rCols = [];
-        var lColNames = [];
-        var rColNames = [];
-         $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
-            var $joinClause = $(this);
-            var lClause = $joinClause.find(".leftClause").val().trim();
-            var rClause = $joinClause.find(".rightClause").val().trim();
-
-            if (lClause !== "" && rClause !== "") {
-                lCols.push(lClause);
-                rCols.push(rClause);
-            }
-        });
-
-        var lTable = gTables[lTableId];
-        for (var i = 0; i < lCols.length; i++) {
-            var col = lTable.getColByFrontName(lCols[i]);
-            lColNames[i] = col.backName;
-        }
-
-        var rTable = gTables[rTableId];
-        for (var i = 0; i < rCols.length; i++) {
-            var col = rTable.getColByFrontName(rCols[i]);
-            rColNames[i] = col.backName;
-        }
-        return ([lColNames, rColNames]);
-    }
-
-    function checkNextBtn() {
-        var $nextBtn = $joinView.find('.next');
-        var isDisabled = $nextBtn.hasClass('btn-disabled');
-        if (hasColsAndTableNames()) {
-            $nextBtn.removeClass('btn-disabled');
-            if (isDisabled) {
-                isNextNew = true;
-            }
-        } else {
-            $nextBtn.addClass('btn-disabled');
-            if (!isDisabled) {
-                isNextNew = true;
-            }
-        }
-    }
-
-    function getTableColList(tableId) {
-        var html = "";
-        var allCols = gTables[tableId].tableCols;
-        for (var i = 0; i < allCols.length; i++) {
-            if (allCols[i].type !== "newColumn" && allCols[i].backName !== "DATA") {
-                html += '<li class="checked"><span class="text">' + allCols[i].name + 
-                            '</span>' +
-                            '<div class="checkbox checked">' +
-                                '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                                '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                            '</div>' +
-                        '</li>';
-            }
-        }
-        return (html);
-    }
-
-    function columnPickers() {
-        var $tables = $(".xcTable:visible").addClass('columnPicker');
-
-        $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
-            if (!$lastInputFocused) {
-                return;
-            }
-            var $target = $(event.target);
-            if ($target.closest('.dataCol').length ||
-                $target.closest('.jsonElement').length) {
-                return;
-            }
-            xcHelper.fillInputFromCell($target, $lastInputFocused);
-        });
-    }
-
-
-    function multiClauseOpener() {
-        var leftClause  = "";
-        var rightClause = "";
-
-        var $leftSelectedCol  = $leftJoinTable.find("th.colSelected");
-        var $rightSelectedCol = $rightJoinTable.find("th.colSelected");
-
-        if ($leftSelectedCol.length > 0) {
-            leftClause = $leftSelectedCol.text();
-        }
-
-        if ($rightSelectedCol.length > 0) {
-            rightClause = $rightSelectedCol.text();
-        }
-
-        var $multiClause = $(multiClauseTemplate);
-
-        $multiClause.find(".leftClause").val(leftClause);
-        $multiClause.find(".rightClause").val(rightClause);
-
-        $multiJoin.find(".joinClause.placeholder").before($multiClause);
-    }
-
-    function multiClauseCloser() {
-        var lCols = [];
-        var rCols = [];
-
-        $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
-            var $joinClause = $(this);
-            var lClause = $joinClause.find(".leftClause").val().trim();
-            var rClause = $joinClause.find(".rightClause").val().trim();
-
-            if (lClause !== "") {
-                lCols.push(lClause);
-            }
-
-            if (rClause !== "") {
-                rCols.push(rClause);
-            }
-        });
-
-        if (lCols.length <= 1 && rCols.length <= 1) {
-            // only when left Clause and rightClause has less that 1 column,
-            // then do the rehighlight
-            if (lCols.length === 1) {
-                var lTableId = $leftJoinTable.find(".joinTableList .text").data("id");
-                highlightColumn(lTableId, lCols[0], true);
-            }
-
-            if (rCols.length === 1) {
-                var rTableId = $rightJoinTable.find(".joinTableList .text").data("id");
-                highlightColumn(rTableId, rCols[0], false);
-            }
-            return;
-        }
-
-        updatePreviewText();
-
-        function highlightColumn(tableId, colName, isLeft) {
-            var $container = isLeft ? $leftJoinTable : $rightJoinTable;
-            var $table = $container.find(".joinTable").filter(function() {
-                return $(this).data("id") === tableId;
-            });
-
-            var $th = $table.find("th").filter(function() {
-                return $(this).find(".columnTab .text").text() === colName;
-            });
-
-            if ($th.length > 0) {
-                $th.click();
-                // XXX Not sure we should scroll or not
-                // scrollToColumn($th);
-            }
-        }
-    }
-
-    // function checkFirstView() {
-    //     var joinType = $joinSelect.find(".text").text();
-    //     var newTableName = newTableName + Authentication.getHashId();
-
-
-    //     var lCols = [];
-    //     var rCols = [];
-    //     var $invalidClause = null;
-
-    //     // check validation
-    //     $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
-    //         var $joinClause = $(this);
-    //         var lClause = $joinClause.find(".leftClause").val().trim();
-    //         var rClause = $joinClause.find(".rightClause").val().trim();
-
-    //         if (lClause !== "" && rClause !== "") {
-    //             lCols.push(lClause);
-    //             rCols.push(rClause);
-    //             return true;
-    //         } else if (!(lClause === "" && rClause === "")){
-    //             $invalidClause = $joinClause;
-    //             return false;   // stop loop
-    //         }
-    //     });
-
-    //     if ($invalidClause != null || lCols.length === 0) {
-    //         invalidMultiCaluseTooltip($invalidClause);
-    //         return false;
-    //     } else {
-    //         return true;
-    //     }
-    // }
-
-    function submitJoin() {
-        // check validation
-        // if submit is enabled, that means first view is already valid
-        
-        var newTableName = $joinTableName.val().trim();
-
-        if (newTableName === "") {
-            StatusBox.show(ErrTStr.NoEmpty, $joinTableName, true);
-            return;
-        }
-        if (/^ | $|[*#'"]/.test(newTableName) === true) {
-            StatusBox.show(ErrTStr.InvalidTableName, $joinTableName, true);
-            return;
-        }
-        if (newTableName.length >=
-            XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
-            StatusBox.show(ErrTStr.TooLong, $joinTableName, true);
-            return;
-        }
-
-
-        var validTableName = xcHelper.checkDupTableName(newTableName);
-        if (validTableName) {
-            modalHelper.submit();
-            var joinType = $joinSelect.find(".text").text();
-            var tabeName = newTableName + Authentication.getHashId();
-            var isValid = multiJoinHelper(joinType, tabeName);
-
-            if (!isValid) {
-                modalHelper.enableSubmit();
-            }
-        } else {
-            StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
-        }
-    }
-
-    function singleJoinHelper(joinType, newTableName) {
-        var $leftCol = $leftJoinTable.find("th.colSelected");
-        var lColNum  = xcHelper.parseColNum($leftCol) - 1;
-        var lTableId = $leftCol.closest(".joinTable").data("id");
-
-        var $rightCol = $rightJoinTable.find('th.colSelected');
-        var rColNum   = xcHelper.parseColNum($rightCol) - 1;
-        var rTableId  = $rightCol.closest(".joinTable").data("id");
-
-        var lCol = gTables[lTableId].getCol(lColNum + 1);
-        var rCol = gTables[rTableId].getCol(rColNum + 1);
-
-        if (lCol.isNumberCol() && rCol.isNumberCol() ||
-            lCol.getType() === rCol.getType()) {
-            resetJoinTables();
-            var options = {
-                keepTables: $joinModal.find('.keepTablesCBWrap')
-                                      .find('.checkbox').hasClass('checked')
-            };
-            xcFunction.join([lColNum], lTableId, [rColNum], rTableId,
-                            joinType, newTableName, options);
-            return true;
-        } else {
-            showErrorTooltip($rightCol.find(".colPadding"), {
-                "title"    : JoinTStr.TypeMistch,
-                "placement": "top",
-                "animation": "true",
-                "container": "#rightJoin",
-                "trigger"  : "manual",
-                "template" : TooltipTemplate.Error
-            });
-
-            return false;
-        }
-    }
-
-    function multiJoinHelper(joinType, newTableName) {
-        var lCols = [];
-        var rCols = [];
-        var $invalidClause = null;
-
-        // check validation
-        $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
-            var $joinClause = $(this);
-            var lClause = $joinClause.find(".leftClause").val().trim();
-            var rClause = $joinClause.find(".rightClause").val().trim();
-
-            if (lClause !== "" && rClause !== "") {
-                lCols.push(lClause);
-                rCols.push(rClause);
-                return true;
-            } else if (!(lClause === "" && rClause === "")){
-                $invalidClause = $joinClause;
-                return false;   // stop loop
-            }
-        });
-
-        if ($invalidClause != null || lCols.length === 0) {
-            invalidMultiCaluseTooltip($invalidClause);
-            return false;
-        }
-
-        // left table
-        var $lTText = $leftJoinTable.find(".joinTableList .text");
-        var lTableId = $lTText.data('id');
-        var $lTable  = $leftJoinTable.find('.joinTable[data-id="' +
-                                            lTableId + '"]');
-
-        // right table
-        var $rTText = $rightJoinTable.find(".joinTableList .text");
-        var rTableId = $rTText.data('id');
-        var $rTable  = $rightJoinTable.find('.joinTable[data-id="' +
-                                                rTableId + '"]');
-
-
-        var lTableName = $leftTableDropdown.find('.text').text();
-        var rTableName = $rightTableDropdown.find('.text').text();
-        var lTableId = xcHelper.getTableId(lTableName);
-        var rTableId = xcHelper.getTableId(rTableName);
-
-        var lColNums = [];
-        var rColNums = [];
-        
-        
-        // set up "joining on" columns
-        var lTable = gTables[lTableId];
-        for (var i = 0; i < lCols.length; i++) {
-            var col = lTable.getColByFrontName(lCols[i]);
-            lColNums[i] = lTable.getColNumByBackName(col.backName) - 1;
-        }
-
-        var rTable = gTables[rTableId];
-        for (var i = 0; i < rCols.length; i++) {
-            var col = rTable.getColByFrontName(rCols[i]);
-            rColNums[i] = rTable.getColNumByBackName(col.backName) - 1;
-        }
-
-        // set up "keeping" columns
-        var $colLis = $joinView.find('.leftCols li.checked');
-        var keepLeftCols = [];
-        $colLis.each(function(i) {
-            var name = $(this).text();
-            var col = lTable.getColByFrontName(name);
-            // keepLeftCols[i] = rTable.getColNumByBackName(col.backName);
-            keepLeftCols[i] = col.backName;
-        });
-
-
-        $colLis = $joinView.find('.rightCols li.checked');
-        var keepRightCols = [];
-         $colLis.each(function(i) {
-            var name = $(this).text();
-            var col = rTable.getColByFrontName(name);
-            // keepLeftCols[i] = rTable.getColNumByBackName(col.backName);
-            keepRightCols[i] = col.backName;
-        });
-
-
-        var options = {
-            keepTables: $joinView.find('.keepTablesCBWrap')
-                                  .find('.checkbox').hasClass('checked'),
-            keepLeftCols: keepLeftCols,
-            keepRightCols: keepRightCols
-        };
-        xcFunction.join(lColNums, lTableId, rColNums, rTableId,
-                        joinType, newTableName, options);
-        closeJoinView();
-        return true;
-    }
-
-    function addClause($placeholder, noAnimation, tableId, colNum) {
-        var $div = $(multiClauseTemplate).insertBefore($placeholder);
-        if (tableId) {
-           var colName = gTables[tableId].tableCols[colNum - 1].name;
-            $div.find('.arg').eq(0).val(colName); 
-        } else {
-            $div.find('.arg').eq(0).focus();
-        }
-        
-        if (!noAnimation) {
-            $div.hide().slideDown(100);
-        }
-    }
-
-    function getColNum($table, colName) {
-        var $colTab = $table.find(".columnTab").filter(function() {
-            return ($(this).find(".text").text() === colName);
-        });
-
-        var colNum = xcHelper.parseColNum($colTab.closest("th")) - 1;
-
-        return (colNum);
-    }
-
-    function closeJoinView() {
-        $joinView.addClass('xc-hidden');
-        $('#workspaceMenu').find('.menuSection.lastOpened')
-                           .removeClass('lastOpened xc-hidden'); 
-        // modalHelper.clear();
-        $("body").off(".joinModal");
-        $('.xcTable').off('click.columnPicker').removeClass('columnPicker');
-        $lastInputFocused = null;
-        StatusBox.forceHide();// hides any error boxes;
-        $('.tooltip').hide();
-    }
-
-    function resetJoinView() {
-        $multiJoin.find(".joinClause:not(.placeholder)").remove();
-        $multiJoin.find('.clause').val("");
-        $joinView.find('.next').addClass('btn-disabled');
-        $rightTableDropdown.find('.text').empty();
-        isNextNew = true;
-
-        updatePreviewText();
-        $joinView.removeClass('nextStep');
-        updateJoinTableName();
-    }
-
-    // xx xi2 to remove
-    function resetJoinTables() {
-        modalHelper.clear();
-        $("body").off(".joinModal");
-        $('.xcTable').off('click.columnPicker').removeClass('columnPicker');
-        $lastInputFocused = null;
-
-        // clean up multi clause section
-
-        // $multiJoinBtn.find(".active").removeClass("active")
-        //             .end()  // back to $("#multiJoinBtn")
-        //             .find(".offBox").addClass("active");
-        $multiJoin.find(".placeholder").siblings().remove();
-
-        // $tableDropDown.find('.text').text("").data('id', "").end()
-        //               .find('ul').empty();
-        // $joinModal.find('.joinTable').remove();
-        
-    }
-
-    function updateJoinTableName() {
-        var joinTableName = "";
-        $joinTableName.val(joinTableName);
-    }
-
-    function fillTableLists(origTableId) {
-        var wsOrders = WSManager.getOrders();
-        var tableLis = "";
-        // group table tab by worksheet (only show active table)
-        for (var i = 0, len = wsOrders.length; i < len; i++) {
-            var wsId = wsOrders[i];
-            var ws = WSManager.getWSById(wsId);
-            var wsTables = ws.tables;
-
-            for (var j = 0; j < wsTables.length; j++) {
-                var tableId = wsTables[j];
-                var table = gTables[tableId];
-                if (j === 0 && wsOrders.length > 1) {
-                    tableLis += '<div class="sectionLabel">' +
-                                    ws.name +
-                                '</div>';
-                }
-
-                tableLis += '<li data-ws="' + wsId + '" data-id="' +
-                            tableId + '">' +
-                                table.getName() +
-                            '</li>';
-            }
-        }
-
-        $leftTableDropdown.find('ul').html(tableLis);
-        $rightTableDropdown.find('ul').html(tableLis);
-        var tableName = gTables[origTableId].getName();
-        $leftTableDropdown.find('.text').text(tableName);
-        $leftTableDropdown.find('li').filter(function() {
-            return ($(this).text() === tableName)
-        }).addClass('selected');
-    }
-
-
-    function joinModalHTMLHelper($modal) {
-        var $columnArea = $modal.find(".joinTableArea");
-        var wsOrders = WSManager.getOrders();
-        var tableLis = "";
-        // group table tab by worksheet (only show active table)
-        for (var i = 0, len = wsOrders.length; i < len; i++) {
-            var wsId = wsOrders[i];
-            var ws = WSManager.getWSById(wsId);
-            var wsTables = ws.tables;
-
-            for (var j = 0; j < wsTables.length; j++) {
-                var tableId = wsTables[j];
-                var table = gTables[tableId];
-                if (j === 0 && wsOrders.length > 1) {
-                    tableLis += '<div class="sectionLabel">' +
-                                    ws.name +
-                                '</div>';
-                }
-
-                tableLis += '<li data-ws="' + wsId + '" data-id="' +
-                            tableId + '">' +
-                                table.getName() +
-                            '</li>';
-                appendColHTML(tableId, table.tableCols);
-            }
-        }
-
-        $joinModal.find('.joinTableList').eq(1).find('ul').html(tableLis);
-
-
-        function appendColHTML(id, tableCols) {
-            var colHtml = '<table class="dataTable joinTable" ' +
-                            'data-id="' + id + '">' +
-                            '<thead>' +
-                                '<tr>';
-
-            for (var t = 0; t < tableCols.length; t++) {
-                var colName = tableCols[t].name;
-
-                if (colName === "DATA") {
-                    continue;
-                }
-
-                var type = tableCols[t].type;
-                var thClass = "col" + (t + 1) + " type-" + type;
-
-                if (type === "object" || type === "undefined") {
-                    thClass += " unselectable";
-                }
-
-                colHtml += '<th class="' + thClass + '">' +
-                                '<div class="colPadding"></div>' +
-                                '<div class="columnTab">' +
-                                    '<div class="iconWrap">' +
-                                        '<span class="icon"></span>' +
-                                    '</div>' +
-                                    '<div title="' + colName + '"' +
-                                    ' data-container="body"' +
-                                    ' data-toggle="tooltip"' +
-                                    ' data-placement="top"' +
-                                    ' class="text textOverflowOneLine' +
-                                    ' tooltipOverflow">' +
-                                        colName +
-                                    '</div>' +
-                                '</div>' +
-                            '</th>';
-            }
-
-            colHtml += '</tr></thead>';
-
-            var $tbody = $('#xcTable-' + id).find('tbody').clone(true);
-
-            $tbody.find('tr:gt(14)').remove();
-            $tbody.find('.col0').remove();
-            $tbody.find('.jsonElement').remove();
-            $tbody.find('.indexedColumn').removeClass('indexedColumn');
-            $tbody.find(".tdText.clickable").removeClass("clickable");
-            $tbody.find(".selectedCell").removeClass("selectedCell");
-
-            colHtml += ($tbody.html() || "");
-            colHtml += '</table>';
-
-            $columnArea.append(colHtml);
-        }
-    }
-
-    function addModalTabListeners($modal, isLeft) {
-
+        // smart suggest button
         $joinView.find('.smartSuggest').click(function() {
             var $inputToCheck;
             var $inputToFill;
@@ -1139,211 +301,560 @@ window.JoinModal = (function($, JoinModal) {
             checkNextBtn();
             updatePreviewText();
         });
+    };
 
-        // $modal.on("click", ".smartSuggest", function() {
-        //     $(".tooltip").hide();
-        //     var $btn = $(this).blur();
-        //     var $suggErrorArea = $btn.siblings(".suggError");
-        //     var $checkSection = isLeft ? $rightJoinTable :
-        //                                  $leftJoinTable; // check section is the section we're searching in
-        //     var $tableText = $checkSection.find('.joinTableList .text');  // the section we're searching in
-        //     var text;
-
-        //     if ($tableText.text() !== "") {
-        //         var tableId = $tableText.data("id");
-        //         var $th = $checkSection.find('.joinTable[data-id="' + tableId +
-        //                                 '"] th.colSelected');  // selected col in the section we're searching in
-        //         if ($th.length > 0) {
-        //             var $suggSection = isLeft ? $leftJoinTable :
-        //                                         $rightJoinTable; // the section we have a column in
-        //             var $suggTableText = $suggSection.find('.joinTableList .text'); // the name of the table we're searching in
-        //             if ($suggTableText.text() === "") {
-        //                 console.error("Error, none of the lable is active!");
-        //                 return;
-        //             }
-
-        //             var suggTableId = $suggTableText.data("id");  
-        //                   // tableId is the right table
-        //             // $th is the right table
-        //             // $suggSection is the left table
-        //             // suggTableId is the left table
-        //             var isFind = suggestJoinKey(tableId, $th,
-        //                                         $suggSection, suggTableId);
-
-        //             if (!isFind) {
-        //                 text = isLeft ? JoinTStr.NoMatchRight :
-        //                                 JoinTStr.NoMatchLeft;
-        //                 showErrorTooltip($suggErrorArea, {
-        //                     "title"    : text,
-        //                     "placement": "left",
-        //                     "animation": "true",
-        //                     "container": "#" + $modal.attr("id"),
-        //                     "trigger"  : "manual",
-        //                     "template" : TooltipTemplate.Error
-        //                 });
-        //             }
-        //         } else {
-        //             text = isLeft ? JoinTStr.NoKeyRight :
-        //                             JoinTStr.NoKeyLeft;
-        //             showErrorTooltip($suggErrorArea, {
-        //                 "title"    : text,
-        //                 "placement": "left",
-        //                 "animation": "true",
-        //                 "container": "#" + $modal.attr("id"),
-        //                 "trigger"  : "manual",
-        //                 "template" : TooltipTemplate.Error
-        //             });
-        //         }
-        //     } else {
-        //         console.error("Error, none of the label is active!");
-        //     }
-        // });
-
-        // $modal.on('click', 'th', function() {
-        //     var $th = $(this);
-
-        //     if ($mainJoin.hasClass("multiClause")) {
-        //         return;
-        //     }
-
-        //     if ($th.hasClass("unselectable")) {
-        //         noJoinTooltip($th, isLeft);
-        //         return;
-        //     }
-
-        //     var colNum = xcHelper.parseColNum($th);
-        //     var $table = $th.closest('table');
-
-        //     var tableId = $table.data("id");
-
-        //     if ($th.hasClass('colSelected')) {
-        //          // unselect column
-        //         $th.removeClass('colSelected');
-        //         $table.find('.col' + colNum).removeClass('colSelected');
-        //     } else {
-        //         // select column
-        //         $modal.find('.colSelected').removeClass('colSelected');
-        //         $table.find('.col' + colNum).addClass('colSelected');
-
-        //         if (isLeft && isOpenTime) {
-        //             // suggest on right table
-        //             suggestJoinKey(tableId, $th, $rightJoinTable);
-        //         }
-        //     }
-        //     updatePreviewText();
-        // });
-
-        // var dragImage;
-        // $modal.on("mousedown", ".columnTab", function() {
-        //     if ($mainJoin.hasClass('multiClause')) {
-        //         var $th = $(this).closest("th");
-        //         if ($th.hasClass("unselectable")) {
-        //             noJoinTooltip($th, isLeft);
-        //             return;
-        //         }
-
-        //         var cursorStyle =
-        //             '<style id="moveCursor" type="text/css">*' +
-        //                 '{cursor:move !important; cursor: -webkit-grabbing !important;' +
-        //                 'cursor: -moz-grabbing !important;}' +
-        //                 '.tooltip{display: none !important;}' +
-        //             '</style>';
-        //         $(document.head).append(cursorStyle);
-
-        //         if (isBrowseChrome) {
-        //             var canvas = buildTabCanvas($(this));
-        //             dragImage = document.createElement("img");
-        //             dragImage.src = canvas.toDataURL();
-        //         }
-        //     }
-        // });
-
-        // $modal.on("dragstart", ".columnTab", function(event) {
-        //     var originEvent = event.originalEvent;
-        //     dragSide = isLeft ? "left" : "right";
-
-        //     // XXX canvas not work for firfox, IE do not test
-        //     if (isBrowseChrome) {
-        //         if (dragImage != null) {
-        //             originEvent.dataTransfer.setDragImage(dragImage, 0, 0);
-        //         } else {
-        //             console.error("Lose drag image!");
-        //         }
-        //     }
-
-        //     originEvent.dataTransfer.effectAllowed = "copy";
-        //     originEvent.dataTransfer.setData("text", $(this).text());
-
-        //     if (isLeft) {
-        //         $multiJoin.find(".clause.rightClause").addClass("inActive");
-        //     } else {
-        //         $multiJoin.find(".clause.leftClause").addClass("inActive");
-        //     }
-        // });
-
-        // $modal.on("dragend", ".columnTab", function() {
-        //     $('#moveCursor').remove();
-        // });
-    }
-
-    function buildTabCanvas($tab) {
-        if ($tab == null) {
-            $tab = $joinModal.find(".columnTab").eq(0);
+    JoinView.restore = function() {
+        var keepJoinTables = UserSettings.getPref('keepJoinTables');
+        if (keepJoinTables) {
+            $joinView.find('.keepTablesCBWrap .checkbox').addClass('checked');
         }
-        var w = $tab.width();
-        var h = $tab.height();
+    };
 
-        $("#joinCanvas").width(w);
-        $("#joinCanvas").height(h);
-
-        var c = $("#joinCanvas")[0];
-        var ctx = c.getContext("2d");
-
-        ctx.save();
-
-        var grd = ctx.createLinearGradient(0, 0, 0, h);
-        grd.addColorStop(0, "#CCCCCC");
-        grd.addColorStop(1, "#AEAEAE");
-
-        ctx.font = "600 12px Open Sans";
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.fillStyle = grd;
-
-        ctx.fillRect(0, 0, w, h);
-
-        ctx.fillStyle = "#6e6e6e";
-        var text = $tab.find(".text").text();
-
-        var textW = ctx.measureText(text).width;
-        var charLen = text.length;
-        var charW = textW / charLen;
-        var ellipsis = '…';
-        var maxLen = Math.max(1, Math.floor(w / charW) - 3);
-
-        if (charLen > maxLen) {
-            text = text.substring(0, maxLen + 1) + ellipsis;
+    JoinView.show = function(tableId, colNum, restore) {
+        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
+        $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
+        $joinView.removeClass('xc-hidden');
+        if (!MainMenu.isMenuOpen("mainMenu")) {
+            MainMenu.open();
+        } else {
+            BottomMenu.close(true);
+        }
+        
+        if (!restore) {
+            resetJoinView();
+            fillTableLists(tableId); 
+            updatePreviewText();
+            addClause($joinView.find('.placeholder'), true, tableId, colNum);
         }
 
-        ctx.fillText(text, w / 2, h / 2);
-        ctx.restore();
+        $("body").on("keypress.joinModal", function(event) {
+            switch (event.which) {
+                case keyCode.Enter:
+                    // when focus on a button, no trigger
+                    if (modalHelper.checkBtnFocus()) {
+                        break;
+                    }
+                    $('#joinTables').click();
+                    break;
+                default:
+                    break;
+            }
+        });
+        $("body").on("mouseup.joinModal", function() {
+            $("#moveCursor").remove();
+        });
 
-        return (c);
+
+        columnPickers();
+    };
+
+    JoinView.close = function() {
+        $joinView.addClass('xc-hidden');
+        $('#workspaceMenu').find('.menuSection.lastOpened')
+                           .removeClass('lastOpened xc-hidden'); 
+        // modalHelper.clear();
+        $("body").off(".joinModal");
+        $('.xcTable').off('click.columnPicker').removeClass('columnPicker');
+        $lastInputFocused = null;
+        StatusBox.forceHide();// hides any error boxes;
+        $('.tooltip').hide();
+    };
+
+    function toggleNextView() {
+        if ($joinView.hasClass('nextStep')) {
+            // go to step 1
+            $joinView.removeClass('nextStep');
+        } else {
+            // go to step 2
+            if (checkFirstView()) {
+                if (isNextNew) {
+                    estimateJoinSize();
+                    displayAllColumns();
+                    isNextNew = false;
+                }  
+
+                $joinView.addClass('nextStep');
+                if ($joinTableName.val().trim() === "") {
+                    $joinTableName.focus();
+                }
+            } else {
+               // checkfirstview is handling errors 
+            }
+        }
+        $joinView.scrollTop(0);
     }
 
-    function scrollToColumn($th) {
-        if (!$th || $th.length === 0) {
+    function checkFirstView() {
+        var joinType = $joinTypeSelect.find(".text").text();
+        var newTableName = newTableName + Authentication.getHashId();
+
+
+        var lCols = [];
+        var rCols = [];
+        var $invalidClause = null;
+
+        // check validation
+        $clauseContainer.find(".joinClause:not(.placeholder)").each(function() {
+            var $joinClause = $(this);
+            var lClause = $joinClause.find(".leftClause").val().trim();
+            var rClause = $joinClause.find(".rightClause").val().trim();
+
+            if (lClause !== "" && rClause !== "") {
+                lCols.push(lClause);
+                rCols.push(rClause);
+                return true;
+            } else if (!(lClause === "" && rClause === "")){
+                $invalidClause = $joinClause;
+                return false;   // stop loop
+            }
+        });
+
+        if ($invalidClause != null || lCols.length === 0) {
+            invalidMultiCaluseTooltip($invalidClause);
+            return false;
+        }
+
+        var validTypes = ['integer', 'float', 'string', 'float'];
+        var tableIds = getTableIds();
+        var leftColRes = xcHelper.convertFrontColNamesToBack(lCols, tableIds[0],
+                                                    validTypes);
+
+        // xx need to refactor below 
+    
+        if (leftColRes.invalid) {
+            var errorTitle;
+            var errorText;
+            var $input = 
+                $clauseContainer.find('.joinClause .leftClause').filter(function() {
+                    return ($(this).val() === leftColRes.name);
+                }).eq(0);
+            if (leftColRes.reason === 'notFound') {
+
+                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                    "name": leftColRes.name
+                });
+            } else if (leftColRes.reason === 'type') {
+                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
+                    "name": leftColRes.name,
+                    "type": leftColRes.type
+                });
+            }
+            showErrorTooltip($input, {
+                "title"    : errorText,
+                "placement": "top",
+                "animation": "true",
+                "container": "body",
+                "trigger"  : "manual",
+                "template" : TooltipTemplate.Error
+            });
+            return false;
+        } else {
+            var rightColRes = xcHelper.convertFrontColNamesToBack(rCols, tableIds[1],
+                                                    validTypes);
+            if (rightColRes.invalid) {
+                var errorTitle;
+                var errorText;
+                var $input = 
+                    $clauseContainer.find('.joinClause .rightClause').filter(function() {
+                        return ($(this).val() === rightColRes.name);
+                    }).eq(0);
+                if (rightColRes.reason === 'notFound') {
+
+                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                        "name": rightColRes.name
+                    });
+                } else if (rightColRes.reason === 'type') {
+                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
+                        "name": rightColRes.name,
+                        "type": rightColRes.type
+                    });
+                }
+                showErrorTooltip($input, {
+                    "title"    : errorText,
+                    "placement": "top",
+                    "animation": "true",
+                    "container": "body",
+                    "trigger"  : "manual",
+                    "template" : TooltipTemplate.Error
+                });
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        return true
+    }
+
+    function estimateJoinSize() {
+        var tableIds = getTableIds();
+        var functionName = 'UExtDev::estimateJoin';
+        var colNames = getClauseColNames();
+        var colNum = gTables[tableIds[0]].getColNumByBackName(colNames[0][0]);
+
+        var argList = {
+            leftLimit: 100,
+            rightLimit: 100,
+            lCol: colNames[0],
+            rCol: colNames[1],
+            rTable: gTables[tableIds[1]].tableName
+        };
+
+        var $estimatorWrap = $joinView.find('.estimatorWrap');
+        $estimatorWrap.find('.title').text(JoinTStr.EstimatingJoin + ':');
+        $estimatorWrap.find('.value').empty();
+
+        // xx handle canceling of estimateJoinSize
+
+        ExtensionManager.trigger(colNum, tableIds[0], functionName, argList)
+        .then(function(ret) {
+            $joinView.find('.estimatorWrap .title')
+                     .text(JoinTStr.EstimatedJoin + ':');
+            $estimatorWrap.find('.min .value').text(ret.minSum);
+            $estimatorWrap.find('.med .value').text(ret.expSum);
+            $estimatorWrap.find('.max .value').text(ret.maxSum);
+        })
+        .fail(function(error) {
+            $joinView.find('.estimatorWrap .title')
+                     .text(JoinTStr.EstimatedJoin + ':');
+            $estimatorWrap.find('.value').text('N/A');
+        });
+    }
+
+    // generates all left and right table columns to keep
+    function displayAllColumns() {
+        var tableIds = getTableIds();
+        var lHtml = getTableColList(tableIds[0]);
+        var rHtml = getTableColList(tableIds[1]);
+        $joinView.find('.leftCols').html(lHtml);
+        $joinView.find('.rightCols').html(rHtml);
+        $joinView.find('.selectAll').addClass('checked');
+    }
+
+    function hasValidTableNames() {
+        var tableIds = getTableIds();
+        return (gTables[tableIds[0]] && gTables[tableIds[1]]);
+    }
+
+    // returns array of 2 table ids
+    function getTableIds() {
+        var lTableName = $leftTableDropdown.find('.text').text();
+        var rTableName = $rightTableDropdown.find('.text').text();
+        var lTableId = xcHelper.getTableId(lTableName);
+        var rTableId = xcHelper.getTableId(rTableName);
+        return ([lTableId, rTableId]);
+    }
+
+    function hasColsAndTableNames() {
+        if (hasValidTableNames()) {
+            var columnPairs = [];
+            var pair;
+            var lClause;
+            var rClause;
+
+            $joinView.find(".joinClause:not(.placeholder)").each(function() {
+                var $joinClause = $(this);
+                lClause = $joinClause.find(".leftClause").val().trim();
+                rClause = $joinClause.find(".rightClause").val().trim();
+                pair = [lClause, rClause];
+                columnPairs.push(pair);
+            });
+
+            var numPairs = columnPairs.length;
+            var leftColText;
+            var rightColText;
+            var validColPairFound = false;
+
+            for (var i = 0; i < numPairs; i++) {
+                if ((columnPairs[i][0] && !columnPairs[i][1]) ||
+                    (columnPairs[i][1] && !columnPairs[i][1])) {
+                    validColPairFound = false;
+                    break;
+                }
+                if (columnPairs[i][0] && columnPairs[i][1]) {
+                    validColPairFound = true;
+                }        
+            }
+            return (validColPairFound);
+        } else {
+            return (false);
+        }
+    }
+
+
+    function getClauseColNames() {
+        var tableIds = getTableIds();
+        var lTableId = tableIds[0];
+        var rTableId = tableIds[1];
+        var lCols = [];
+        var rCols = [];
+        var lColNames = [];
+        var rColNames = [];
+        $clauseContainer.find(".joinClause:not(.placeholder)").each(function() {
+            var $joinClause = $(this);
+            var lClause = $joinClause.find(".leftClause").val().trim();
+            var rClause = $joinClause.find(".rightClause").val().trim();
+
+            if (lClause !== "" && rClause !== "") {
+                lCols.push(lClause);
+                rCols.push(rClause);
+            }
+        });
+
+        var lTable = gTables[lTableId];
+        for (var i = 0; i < lCols.length; i++) {
+            var col = lTable.getColByFrontName(lCols[i]);
+            lColNames[i] = col.backName;
+        }
+
+        var rTable = gTables[rTableId];
+        for (var i = 0; i < rCols.length; i++) {
+            var col = rTable.getColByFrontName(rCols[i]);
+            rColNames[i] = col.backName;
+        }
+        return ([lColNames, rColNames]);
+    }
+
+    function checkNextBtn() {
+        var $nextBtn = $joinView.find('.next');
+        var isDisabled = $nextBtn.hasClass('btn-disabled');
+        if (hasColsAndTableNames()) {
+            $nextBtn.removeClass('btn-disabled');
+            if (isDisabled) {
+                isNextNew = true;
+            }
+        } else {
+            $nextBtn.addClass('btn-disabled');
+            if (!isDisabled) {
+                isNextNew = true;
+            }
+        }
+    }
+
+    function getTableColList(tableId) {
+        var html = "";
+        var allCols = gTables[tableId].tableCols;
+        for (var i = 0; i < allCols.length; i++) {
+            if (allCols[i].type !== "newColumn" && allCols[i].backName !== "DATA") {
+                html += '<li class="checked"><span class="text">' + allCols[i].name + 
+                            '</span>' +
+                            '<div class="checkbox checked">' +
+                                '<i class="icon xi-ckbox-empty fa-13"></i>' +
+                                '<i class="icon xi-ckbox-selected fa-13"></i>' +
+                            '</div>' +
+                        '</li>';
+            }
+        }
+        return (html);
+    }
+
+    function columnPickers() {
+        var $tables = $(".xcTable:visible").addClass('columnPicker');
+
+        $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            var $target = $(event.target);
+            if ($target.closest('.dataCol').length ||
+                $target.closest('.jsonElement').length) {
+                return;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused);
+        });
+    }
+
+    function submitJoin() {
+        // check validation
+        // if submit is enabled, that means first view is already valid
+        
+        var newTableName = $joinTableName.val().trim();
+
+        if (newTableName === "") {
+            StatusBox.show(ErrTStr.NoEmpty, $joinTableName, true);
             return;
         }
-        var $tableArea = $th.closest('.joinTableArea');
-        $tableArea.scrollLeft(0);
-        var tableOffset = $tableArea.offset().left;
-        var tableAreaWidth = $tableArea.width();
-        var thWidth = $th.width();
-        var thOffset = $th.offset().left;
-        var position = (thOffset - tableOffset) - (tableAreaWidth * 0.5) +
-                           (thWidth * 0.5);
-        $tableArea.scrollLeft(position);
+        if (/^ | $|[*#'"]/.test(newTableName) === true) {
+            StatusBox.show(ErrTStr.InvalidTableName, $joinTableName, true);
+            return;
+        }
+        if (newTableName.length >=
+            XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
+            StatusBox.show(ErrTStr.TooLong, $joinTableName, true);
+            return;
+        }
+
+        var validTableName = xcHelper.checkDupTableName(newTableName);
+        if (validTableName) {
+            modalHelper.submit();
+            var joinType = $joinTypeSelect.find(".text").text();
+            var tabeName = newTableName + Authentication.getHashId();
+            var isValid = joinSubmitHelper(joinType, tabeName);
+
+            if (!isValid) {
+                modalHelper.enableSubmit();
+            }
+        } else {
+            StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
+        }
+    }
+
+    function joinSubmitHelper(joinType, newTableName) {
+        var lCols = [];
+        var rCols = [];
+        var $invalidClause = null;
+
+        // check validation
+        $clauseContainer.find(".joinClause:not(.placeholder)").each(function() {
+            var $joinClause = $(this);
+            var lClause = $joinClause.find(".leftClause").val().trim();
+            var rClause = $joinClause.find(".rightClause").val().trim();
+
+            if (lClause !== "" && rClause !== "") {
+                lCols.push(lClause);
+                rCols.push(rClause);
+                return true;
+            } else if (!(lClause === "" && rClause === "")){
+                $invalidClause = $joinClause;
+                return false;   // stop loop
+            }
+        });
+
+        if ($invalidClause != null || lCols.length === 0) {
+            invalidMultiCaluseTooltip($invalidClause);
+            return false;
+        }
+
+        var tableIds = getTableIds();
+        var lTableId = tableIds[0];
+        var rTableId = tableIds[1];
+        var lTable = gTables[lTableId];
+        var rTable = gTables[rTableId];
+        var lColNums = [];
+        var rColNums = [];
+        var $colLis;
+        var lColsToKeep = [];
+        var rColsToKeep = [];
+        
+        
+        // set up "joining on" columns
+        for (var i = 0; i < lCols.length; i++) {
+            var col = lTable.getColByFrontName(lCols[i]);
+            lColNums[i] = lTable.getColNumByBackName(col.backName) - 1;
+        }
+        
+        for (var i = 0; i < rCols.length; i++) {
+            var col = rTable.getColByFrontName(rCols[i]);
+            rColNums[i] = rTable.getColNumByBackName(col.backName) - 1;
+        }
+
+        // set up "keeping" columns
+        $colLis = $joinView.find('.leftCols li.checked');
+        $colLis.each(function(i) {
+            var name = $(this).text();
+            var col = lTable.getColByFrontName(name);
+            lColsToKeep[i] = col.backName;
+        });
+
+
+        $colLis = $joinView.find('.rightCols li.checked');
+        $colLis.each(function(i) {
+            var name = $(this).text();
+            var col = rTable.getColByFrontName(name);
+            rColsToKeep[i] = col.backName;
+        });
+
+
+        var options = {
+            keepTables: $joinView.find('.keepTablesCBWrap')
+                                  .find('.checkbox').hasClass('checked'),
+            keepLeftCols: lColsToKeep,
+            keepRightCols: rColsToKeep
+        };
+
+        JoinView.close();
+        xcFunction.join(lColNums, lTableId, rColNums, rTableId, joinType,
+                        newTableName, options);
+        
+        return true;
+    }
+
+    function addClause($placeholder, noAnimation, tableId, colNum) {
+        var $div = $(multiClauseTemplate).insertBefore($placeholder);
+        if (tableId) {
+           var colName = gTables[tableId].tableCols[colNum - 1].name;
+            $div.find('.arg').eq(0).val(colName); 
+        } else {
+            $div.find('.arg').eq(0).focus();
+        }
+        
+        if (!noAnimation) {
+            $div.hide().slideDown(100);
+        }
+    }
+
+    function getColNum($table, colName) {
+        var $colTab = $table.find(".columnTab").filter(function() {
+            return ($(this).find(".text").text() === colName);
+        });
+
+        var colNum = xcHelper.parseColNum($colTab.closest("th")) - 1;
+
+        return (colNum);
+    }
+
+
+    function resetJoinView() {
+        $clauseContainer.find(".joinClause:not(.placeholder)").remove();
+        $clauseContainer.find('.clause').val("");
+        $joinView.find('.next').addClass('btn-disabled');
+        $rightTableDropdown.find('.text').empty();
+        isNextNew = true;
+
+        updatePreviewText();
+        $joinView.removeClass('nextStep');
+        updateJoinTableName();
+    }
+
+    function updateJoinTableName() {
+        var joinTableName = "";
+        $joinTableName.val(joinTableName);
+    }
+
+    function fillTableLists(origTableId) {
+        var wsOrders = WSManager.getOrders();
+        var tableLis = "";
+        // group table tab by worksheet (only show active table)
+        for (var i = 0, len = wsOrders.length; i < len; i++) {
+            var wsId = wsOrders[i];
+            var ws = WSManager.getWSById(wsId);
+            var wsTables = ws.tables;
+
+            for (var j = 0; j < wsTables.length; j++) {
+                var tableId = wsTables[j];
+                var table = gTables[tableId];
+                if (j === 0 && wsOrders.length > 1) {
+                    tableLis += '<div class="sectionLabel">' +
+                                    ws.name +
+                                '</div>';
+                }
+
+                tableLis += '<li data-ws="' + wsId + '" data-id="' +
+                            tableId + '">' +
+                                table.getName() +
+                            '</li>';
+            }
+        }
+
+        $leftTableDropdown.find('ul').html(tableLis);
+        $rightTableDropdown.find('ul').html(tableLis);
+
+        // select li and fill left table name dropdown
+        var tableName = gTables[origTableId].getName();
+        $leftTableDropdown.find('.text').text(tableName);
+        $leftTableDropdown.find('li').filter(function() {
+            return ($(this).text() === tableName)
+        }).addClass('selected');
     }
 
     function getType($th) {
@@ -1389,7 +900,7 @@ window.JoinModal = (function($, JoinModal) {
         var title = JoinTStr.InvalidClause;
         if ($invalidClause == null) {
             // when no clause to join
-            $invalidClause = $multiJoin.find(".joinClause").eq(0);
+            $invalidClause = $clauseContainer.find(".joinClause").eq(0);
         }
 
         showErrorTooltip($invalidClause, {
@@ -1402,93 +913,18 @@ window.JoinModal = (function($, JoinModal) {
         });
     }
 
+    var tooltipTimer;
+
     function showErrorTooltip($el, options) {
+        $el.tooltip("destroy");
+        clearTimeout(tooltipTimer);
         $(".tooltip").hide();
         $el.tooltip(options);
         $el.tooltip("show");
-        setTimeout(function() {
+        tooltipTimer = setTimeout(function() {
             $el.tooltip("destroy");
         }, 2000);
     }
-
-    // function suggestJoinKey(tableId, $th, $suggSection, suggTableId) {
-    //     var type     = getType($th);
-    //     var colNum   = xcHelper.parseColNum($th);
-    //     var colName  = $th.find(".columnTab .text").text();
-    //     var context1 = contextCheck($th.closest('table'), colNum, type);
-
-    //     var $thToClick;
-    //     var tableIdToClick;
-
-    //     // only score that more than -50 will be suggested, can be modified
-    //     var maxScore = -50;
-    //     var $suggTables = $suggSection.find("table");
-
-    //     if (suggTableId != null) {
-    //         $suggTables = $suggTables.filter(function() {
-    //             return ($(this).data("id") === suggTableId);
-    //         });
-    //     }
-
-    //     $suggTables.each(function() {
-    //         var $suggTable = $(this);
-    //         var curTaleId = $suggTable.data("id");
-
-    //         if (curTaleId === tableId) {
-    //             return;  // skip same table
-    //         }
-
-    //         $suggTable.find("th").each(function(index) {
-    //             var $curTh = $(this);
-
-    //             if (getType($curTh) === type) {
-    //                 var context2 = contextCheck($suggTable, index + 1, type);
-
-    //                 var curColName = $curTh.find(".columnTab .text").text();
-    //                 var dist = getTitleDistance(colName, curColName);
-    //                 var score = getScore(context1, context2, dist, type);
-
-    //                 if (score > maxScore) {
-    //                     maxScore = score;
-    //                     $thToClick = $curTh;
-    //                     tableIdToClick = curTaleId;
-    //                 }
-    //             }
-    //         });
-    //     });
-
-    //     // if find the suggeest join key
-    //     if (tableIdToClick != null) {
-    //         $suggSection.find($tableDropDown).find('li').filter(function() {
-    //             return ($(this).data("id") === tableIdToClick);
-    //         }).click();
-
-    //         if (!$thToClick.hasClass("colSelected")) {
-    //             $thToClick.click();
-    //         }
-
-    //         scrollToColumn($thToClick);
-
-    //         if (!isOpenTime) {
-    //             $thToClick.tooltip({
-    //                 "title"    : TooltipTStr.SuggKey,
-    //                 "placement": "top",
-    //                 "animation": "true",
-    //                 "container": "#" + $suggSection.attr("id"),
-    //                 "trigger"  : "manual"
-    //             });
-
-    //             $thToClick.tooltip("show");
-    //             setTimeout(function() {
-    //                 $thToClick.tooltip("destroy");
-    //             }, 1000);
-    //         }
-
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
 
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
         var tableCols = gTables[tableId].tableCols;
@@ -1498,8 +934,6 @@ window.JoinModal = (function($, JoinModal) {
         var frontColName = col.name;
         var colNum = gTables[tableId].getColNumByBackName(backColName);
 
-        // var colNum   = xcHelper.parseColNum($th);
-        // var colName  = $th.find(".columnTab .text").text();
         var context1 = contextCheck($('#xcTable-' + tableId), colNum, type);
 
         var $thToClick;
@@ -1512,7 +946,6 @@ window.JoinModal = (function($, JoinModal) {
         $suggTable.find(".header").each(function(index) {
             var $curTh = $(this);
 
-            // if (index !== 0 && !$curTh.hasClass('dataCol') && getType($curTh) === type) {
             if (index !== 0 && !$curTh.hasClass('dataCol') && getType($curTh) === type) {
                 var context2 = contextCheck($suggTable, index, type);
 
@@ -1534,22 +967,6 @@ window.JoinModal = (function($, JoinModal) {
 
             var suggColName = $thToClick.find('.editableHead').val();
             $inputToFill.val(suggColName);
-            // scrollToColumn($thToClick);
-
-            if (!isOpenTime) {
-                // $thToClick.tooltip({
-                //     "title"    : TooltipTStr.SuggKey,
-                //     "placement": "top",
-                //     "animation": "true",
-                //     "container": "#" + $suggSection.attr("id"),
-                //     "trigger"  : "manual"
-                // });
-
-                // $thToClick.tooltip("show");
-                // setTimeout(function() {
-                //     $thToClick.tooltip("destroy");
-                // }, 1000);
-            }
 
             return true;
         }
@@ -1769,7 +1186,7 @@ window.JoinModal = (function($, JoinModal) {
 
 
     function updatePreviewText() {
-        var joinType = $joinSelect.find(".text").text();
+        var joinType = $joinTypeSelect.find(".text").text();
         var lTableName = $leftTableDropdown.find(".text").text();
         var rTableName = $rightTableDropdown.find(".text").text();
         var previewText = '<span class="joinType keyword">' + joinType +
@@ -1820,5 +1237,5 @@ window.JoinModal = (function($, JoinModal) {
         $joinView.find('.joinPreview').html(previewText);
     }
 
-    return (JoinModal);
+    return (JoinView);
 }(jQuery, {}));

@@ -705,7 +705,7 @@ window.TblMenu = (function(TblMenu, $) {
 
             var colNum  = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            JoinModal.show(tableId, colNum);
+            JoinView.show(tableId, colNum);
         });
 
         $colMenu.on('mouseup', '.functions', function(event) {

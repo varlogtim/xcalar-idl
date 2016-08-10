@@ -104,7 +104,7 @@ window.StartManager = (function(StartManager, $) {
             BottomMenu.initialize();
             WorkbookModal.initialize();
             // restore user settings
-            JoinModal.restore();
+            JoinView.restore();
             FileBrowser.restore();
 
             setupExtensions();
@@ -232,7 +232,7 @@ window.StartManager = (function(StartManager, $) {
         JSONModal.setup();
         Profile.setup();
         ExportModal.setup();
-        JoinModal.setup();
+        JoinView.setup();
         AggModal.setup();
         OperationsView.setup();
         WorkbookModal.setup();

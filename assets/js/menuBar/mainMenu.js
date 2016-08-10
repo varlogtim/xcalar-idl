@@ -92,7 +92,7 @@ window.MainMenu = (function($, MainMenu) {
                     $subTab.addClass('active');
                 }
                 OperationsView.closeOpSection();
-                JoinModal.close();
+                JoinView.close();
                 return;
             }
             var $lastActiveTab = $tabs.filter(".active");

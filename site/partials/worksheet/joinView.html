@@ -6,7 +6,7 @@
 	<div class="mainContent">
 		<div class="join opSection">
 			<p class="instructions"><%=  dicts.joinModdal.instr %></p>
-			<!-- Join Modal Input Section -->
+	
 			<section class="firstStep">
 				<section class="topDropdowns">
 					<div>
@@ -70,12 +70,10 @@
 						    </div>
 						</div>
 					</div>
-					
-				</section><!-- Join Modal Main Section -->
-				<section id="mainJoin" class="clearfix modalMain">
-					
-					<!-- multi clause -->
-					<div id="multiJoin" class="joinContainer">
+				</section>
+				<!-- Join Main Section -->
+				<section id="mainJoin" class="clearfix">
+					<div class="clauseContainer">
 					  <div class="subHeading clearfix">
 					  	<div><%= dicts.joinModdal.colSelectTitle %></div>
 					  </div>
@@ -92,21 +90,6 @@
 					    <div class="clauseArea">
 					      <div class="joinClause placeholder">
 					      	<button class="btn"><i class="icon xi-plus fa-14"></i>ADD ANOTHER CLAUSE</button>
-					      <!--   <div class="clause leftClause">
-					          <div class="iconWrapper">
-					            <span class="icon"></span>
-					          </div>
-					        </div>
-					        <div class="middleIcon">
-					          <div class="iconWrapper">
-					            <i class="icon xi-equal-circle fa-14"></i>
-					          </div>
-					        </div>
-					        <div class="clause rightClause">
-					          <div class="iconWrapper">
-					            <span class="icon"></span>
-					          </div>
-					        </div> -->
 					      </div>
 					    </div>
 					  </div>
@@ -126,6 +109,8 @@
 					<button class="btn next btn-disabled" type="button"><%= dicts.common.NEXT %></button>
 				</section>
 			</section>
+			<!-- end of first step -->
+			<!-- start of second step -->
 			<section class="secondStep">
 				<div>
 					<div class="subHeading">

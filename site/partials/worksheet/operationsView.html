@@ -5,7 +5,7 @@
 	</header>
 	<div class="mainContent">
 		<div class="map opSection xc-hidden">
-			<div class="instructions"><%= dicts.opsModal.mapInstr %></div>	
+			<p class="instructions"><%= dicts.opsModal.mapInstr %></p>	
 			<div class="group mapGroup">
 				<div class="catFuncHeadings clearfix subHeading">
 					<div>Category</div>
@@ -29,10 +29,12 @@
 		<!-- end map op section -->
 
 		<div class="filter opSection xc-hidden">
-			<div class="instructions"><%= dicts.opsModal.filterInstr %></div>
+			<p class="instructions"><%= dicts.opsModal.filterInstr %></p>
 			<div class="group filterGroup">
 				<div class="catFuncHeadings clearfix subHeading">
-					<div>Filter Function:</div>
+					<div class="filterFnTitle">Filter Function:</div>
+					<div class="altFnTitle">No Function Chosen</div>
+					<i class="icon xi-minus minGroup"></i>
 				</div>
 				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
 			        <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>

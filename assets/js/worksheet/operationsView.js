@@ -31,7 +31,7 @@ window.OperationsView = (function($, OperationsView) {
     var modalHelper;
     var corrector;
     var aggNames = [];
-    var suggestLists = [];
+    var suggestLists = [[]]; // groups of arguments
     var isOpen = false;
     var allowInputChange = true;
     var functionsListScrollers = [];
@@ -67,8 +67,6 @@ window.OperationsView = (function($, OperationsView) {
         $genFunctionsMenus = $operationsView.find('.genFunctionsMenu');
         $functionsUl = $genFunctionsMenu.find('ul');
         $functionsUls = $genFunctionsMenus.find('ul');
-
-        // xi2
         
         $categoryList = $operationsView.find('.categoryMenu');
         $functionsList = $operationsView.find('.functionsMenu');
@@ -100,6 +98,10 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.on('click', '.closeGroup', function() {
             removeFilterGroup($(this).closest('.group'));
+        }); 
+        
+        $operationsView.on('click', '.minGroup', function() {
+            minimizeGroups($(this).closest('.group'));
         }); 
 
 
@@ -210,9 +212,14 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.on('focus', '.arg', function() {
             $lastInputFocused = $(this);
+            $(this).closest('.group').removeClass('minimized fnInputEmpty');
         });
 
-              // click icon to toggle functions list
+        $operationsView.on('mouseup', '.group', function() {
+            $(this).removeClass('minimized fnInputEmpty');
+        })
+
+        // click icon to toggle functions list
 
         $operationsView.on('click', '.functionsList .dropdown', function() {
             var $list = $(this).siblings('.list');
@@ -744,6 +751,11 @@ window.OperationsView = (function($, OperationsView) {
                 }
 
                 categoryName = FunctionCategoryTStr[i].toLowerCase();
+                var searchStr = " functions";
+                var categoryNameLen = categoryName.length;
+                if (categoryName.lastIndexOf(searchStr) === (categoryNameLen - searchStr.length)) {
+                    categoryName = categoryName.substring(0, categoryNameLen - searchStr.length);
+                }
                 categoryNames.push(categoryName);
                 functionsMap[i] = operatorsMap[i];
                 html += '<li data-category="' + i + '">' +
@@ -815,7 +827,7 @@ window.OperationsView = (function($, OperationsView) {
     function argSuggest($input) {
         var curVal = $input.val().trim();
         var $ul = $input.siblings(".list");
-        var groupIndex = $ul.closest('.group').index();
+        var groupIndex = $ul.closest('.group').index() - 1;
         var index = $ul.closest('.group').find('.hint').index($ul);
         var shouldSuggest = true;
         var corrected;
@@ -1139,8 +1151,6 @@ window.OperationsView = (function($, OperationsView) {
             category = categoryNames[categoryNum];
             func = $argsGroup.find('.functionsInput').val().toLowerCase().trim();
         }
-
-        suggestLists.push([]);// array of groups, groups has array of inputs
 
         funcName = func;
 
@@ -3577,6 +3587,7 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.turnOffClickHandlers();
     }
 
+    // xx xi2 to remove soon
     function closeModal(speed) {
         var time;
         if (gMinModeOn) {
@@ -3624,7 +3635,7 @@ window.OperationsView = (function($, OperationsView) {
         }
         
         $operationsView.find('.strPreview').empty();
-        suggestLists = [];
+        suggestLists = [[]];
         var numFnScrollers = functionsListScrollers.length;
         delete functionsListScrollers.splice(1, numFnScrollers - 1);
         allowInputChange = true;
@@ -3720,6 +3731,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function addFilterGroup() {
+        minimizeGroups();
         var newGroupIndex = $activeOpSection.find('.group').length;
         $activeOpSection.find('.group').last().after(getFilterGroupHtml(newGroupIndex));
         populateFunctionsListUl(newGroupIndex);
@@ -3731,10 +3743,32 @@ window.OperationsView = (function($, OperationsView) {
                 bottomPadding: 5
             }
         );
-
         functionsListScrollers.push(functionsListScroller); 
-
+        suggestLists.push([]);// array of groups, groups has array of inputs
         scrollToBottom();
+        $activeOpSection.find('.group').last().find('.functionsInput').focus();
+    }
+
+    // $group is optional, will minimize all groups if not passed in
+    function minimizeGroups($group) {
+        if (!$group) {
+            $activeOpSection.find('.group')
+                            .addClass('minimized').each(function () {
+                var $group = $(this);
+                var numArgs = $group.find('.arg:visible').length;
+                $group.attr('data-numargs', numArgs);
+                if ($group.find('.functionsInput').val().trim() === "") {
+                    $group.addClass('fnInputEmpty');
+                }
+            });
+        } else {
+            $group.addClass('minimized');
+            var numArgs = $group.find('.arg:visible').length;
+            $group.attr('data-numargs', numArgs);
+            if ($group.find('.functionsInput').val().trim() === "") {
+                $group.addClass('fnInputEmpty');
+            }
+        }
     }
 
     function scrollToBottom() {
@@ -3766,9 +3800,11 @@ window.OperationsView = (function($, OperationsView) {
 
     function getFilterGroupHtml(index) {
         var html = '<div class="group filterGroup">' +
-                        '<div class="catFuncHeadings clearfix">' +
-                            '<div>Filter Function</div>' +
+                        '<div class="catFuncHeadings clearfix subHeading">' +
+                            '<div class="filterFnTitle">Filter Function</div>' +
+                            '<div class="altFnTitle">No Function Chosen</div>' +
                             '<i class="icon xi-close closeGroup"></i>' +
+                            '<i class="icon xi-minus minGroup"></i>' +
                         '</div>' +
                         '<div data-fnlistnum="' + index + '" ' +
                             'class="dropDownList firstList functionsList">' +

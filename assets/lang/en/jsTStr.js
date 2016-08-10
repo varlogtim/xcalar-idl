@@ -371,7 +371,9 @@ JoinTStr = {
     'ToSingleJoin': 'switch to single join',
     'ToMultiJoin': 'switch to multi clause join',
     'InvalidClause': 'Invalid Clause to join',
-    'TypeMistch': 'Left selected column and right selected column has type mistch, cannot join'
+    'TypeMistch': 'Left selected column and right selected column has type mistch, cannot join',
+    'EstimatedJoin': 'Estimated join size',
+    'EstimatingJoin': 'Estimating join size...'
 };
 
 ExportTStr = {
