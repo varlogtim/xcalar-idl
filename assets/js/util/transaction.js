@@ -205,7 +205,11 @@ window.Transaction = (function(Transaction, $) {
         }
     };
 
-    Transaction.isCanceled = function(txId) {
+    Transaction.checkCanceled = function(txId) {
+        return (txId in canceledTxCache);
+    };
+
+    Transaction.checkAndSetCanceled = function(txId) {
         if (canceledTxCache[txId]) {
             return true;
         } else if (pendingCancelTxCache[txId]) {

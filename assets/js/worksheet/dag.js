@@ -3023,6 +3023,11 @@ window.Dag = (function($, Dag) {
     function drawDagLines($dagImage, ctx, parentChildMap, index, canvasWidth) {
         var nodeInfo = parentChildMap[index];
         var parents = nodeInfo.parents;
+        if (!parents) {
+            // Should not draw for starting nodes with no parents
+            // i.e. load nodes
+            return;
+        }
         var numParents = parents.length;
 
         if (numParents !== 2) { // exclude joins
