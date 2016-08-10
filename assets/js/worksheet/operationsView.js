@@ -978,13 +978,13 @@ window.OperationsView = (function($, OperationsView) {
             $group.find('.functionsInput').data('category', 'null');
             $group.find('.argsSection')
                        .addClass('inactive');
+            $group.find('.icvMode').addClass('inactive');
             $group.find('.descriptionText').empty();
             updateStrPreview(true);
         }
         if (inputNum < 2) {
             $autocompleteInputs.eq(inputNum).data('value', "");
         }
-
         hideDropdowns();
     }
 
@@ -997,6 +997,7 @@ window.OperationsView = (function($, OperationsView) {
 
         $argsGroup.find('.genFunctionsMenu').data('category', 'null');
         $argsGroup.find('.argsSection').addClass('inactive');
+        $argsGroup.find('.icvMode').addClass('inactive');
         $argsGroup.find('.descriptionText').empty();
         $argsGroup.find('.functionsInput').data('value', "");
         hideDropdowns();
@@ -1128,6 +1129,7 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.find('.argsSection')
                        .addClass('inactive');
+        $operationsView.find('.icvMode').addClass('inactive');
         $activeOpSection.find('.descriptionText').empty();
         $operationsView.find('.strPreview').empty();
     }
@@ -1168,7 +1170,8 @@ window.OperationsView = (function($, OperationsView) {
         var $argsSection = $argsGroup.find('.argsSection');
         $argsSection.removeClass('inactive');
         $argsSection.empty();
-        
+
+        $argsGroup.find('.icvMode').removeClass('inactive');
 
         // resetArgSectionRows();
 
@@ -2875,8 +2878,7 @@ window.OperationsView = (function($, OperationsView) {
 
         var startTime = Date.now();
 
-        // XXX Temporary
-        var icvMode = false;
+        var icvMode = $(".map .icvMode .checkbox").hasClass("checked");
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
         .fail(function(error) {
             // show alert to go back to op modal
@@ -3627,6 +3629,7 @@ window.OperationsView = (function($, OperationsView) {
         $functionsList.empty();
         $operationsView.find('.argsSection')
                        .addClass('inactive');
+        $operationsView.find('.icvMode').addClass('inactive');
         $operationsView.find('.descriptionText').empty();
         if (operatorName === "filter") {
             $activeOpSection.find('.group').each(function(i) {

@@ -126,6 +126,31 @@
 				margin-bottom: 20px;
 			}
 		}
+		&.map {
+			.icvContainer {
+				width: 100%;
+				height: 30px;
+			}
+			.icvMode {
+				float: right;
+				padding-right: 10px;
+				&.inactive {
+					visibility: hidden;
+				}
+				.text {
+					display: inline;
+					margin-right: 5px;
+					font-weight: 600;
+					line-height: 23px;
+					font-size: 11px;
+				}
+				
+				.icon {
+					color: @color-font-softBlue;
+					cursor: pointer;
+				}
+			}
+		}
 	}
 
 	.subHeading {
