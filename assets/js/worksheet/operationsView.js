@@ -2875,7 +2875,9 @@ window.OperationsView = (function($, OperationsView) {
 
         var startTime = Date.now();
 
-        xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions)
+        // XXX Temporary
+        var icvMode = false;
+        xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
         .fail(function(error) {
             // show alert to go back to op modal
             var endTime = Date.now();

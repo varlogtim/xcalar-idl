@@ -126,7 +126,8 @@ window.XIApi = (function(XIApi, $) {
         return XIApi.sort(txId, order, colName, tableName, newTableName);
     };
 
-    XIApi.map = function(txId, mapStr, tableName, newColName, newTableName) {
+    XIApi.map = function(txId, mapStr, tableName, newColName, newTableName,
+                         icvMode) {
         if (txId == null || mapStr == null ||
             tableName == null || newColName == null)
         {
@@ -139,7 +140,8 @@ window.XIApi = (function(XIApi, $) {
             newTableName = getNewTableName(tableName);
         }
 
-        XcalarMap(newColName, mapStr, tableName, newTableName, txId)
+        XcalarMap(newColName, mapStr, tableName, newTableName, txId, false,
+                  icvMode)
         .then(function() {
             deferred.resolve(newTableName);
         })
@@ -227,7 +229,7 @@ window.XIApi = (function(XIApi, $) {
 
     XIApi.groupBy = function(txId, operator, groupByCols, aggColName,
                             isIncSample, tableName,
-                            newColName, newTableName)
+                            newColName, newTableName, icvMode)
     {
         if (txId == null || operator == null || groupByCols == null ||
             aggColName == null || isIncSample == null || tableName == null ||
@@ -264,7 +266,7 @@ window.XIApi = (function(XIApi, $) {
 
             return XcalarGroupBy(operator, newColName, aggColName,
                                 indexedTable, newTableName,
-                                isIncSample, txId);
+                                isIncSample, icvMode, txId);
         })
         .then(function() {
             if (isMultiGroupby && !isIncSample) {
@@ -617,7 +619,7 @@ window.XIApi = (function(XIApi, $) {
         newTableNames.push(tableName);
 
         for (var i = colNums.length - 1; i >= 0; i--) {
-            promises.push(chagneTypeHelper.bind(this, i));
+            promises.push(changeTypeHelper.bind(this, i));
         }
 
         PromiseHelper.chain(promises)
@@ -633,7 +635,7 @@ window.XIApi = (function(XIApi, $) {
 
         return deferred.promise();
 
-        function chagneTypeHelper(index) {
+        function changeTypeHelper(index) {
             var innerDeferred = jQuery.Deferred();
 
             var curTableName = newTableNames[index + 1];

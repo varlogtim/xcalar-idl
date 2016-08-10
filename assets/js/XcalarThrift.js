@@ -1489,7 +1489,7 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
 }
 
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
-                   txId, doNotUnsort) {
+                   txId, doNotUnsort, icvMode) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -1518,10 +1518,12 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
             return (deferred.reject().promise());
         }
         var workItem = xcalarApiMapWorkItem(evalStr, unsortedSrcTablename,
-                                            dstTablename, newFieldName);
+                                            dstTablename, newFieldName,
+                                            icvMode);
 
         var def1 = xcalarApiMap(tHandle, newFieldName, evalStr,
-                                unsortedSrcTablename, dstTablename);
+                                unsortedSrcTablename, dstTablename,
+                                icvMode);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'map', dstTablename, query);
@@ -1666,7 +1668,7 @@ function XcalarJoin(left, right, dst, joinType, txId) {
 }
 
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
-                       newTableName, incSample, txId) {
+                       newTableName, incSample, icvMode, txId) {
     var deferred = jQuery.Deferred();
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
@@ -1686,9 +1688,10 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
             return (deferred.reject().promise());
         }
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
-                                             evalStr, newColName, incSample);
+                                             evalStr, newColName, incSample,
+                                             icvMode);
         var def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
-                                 evalStr, newColName, incSample);
+                                 evalStr, newColName, incSample, icvMode);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'groupBy', newTableName, query);

@@ -836,7 +836,7 @@ window.Profile = (function($, Profile, d3) {
 
             return XcalarGroupBy(operator, newColName, colName,
                                 indexedTableName, groupbyTable,
-                                isIncSample, txId);
+                                isIncSample, false, txId);
         })
         .then(function() {
             finalTable = getNewName(tableName, ".profile.final", true);
@@ -1878,7 +1878,7 @@ window.Profile = (function($, Profile, d3) {
 
             return XcalarGroupBy(operator, newColName, statsColName,
                                     indexTable, groupbyTable,
-                                    isIncSample, txId);
+                                    isIncSample, false, txId);
         })
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);

@@ -494,6 +494,7 @@ window.xcFunction = (function($, xcFunction) {
         options = options || {};
         var isIncSample = options.isIncSample || false;
         var isJoin = options.isJoin || false;
+        var icvMode = options.icvMode || false;
 
         // extract groupByCols
         var groupByCols = indexedCols.split(",");
@@ -524,7 +525,7 @@ window.xcFunction = (function($, xcFunction) {
         var startScrollPosition = $('#mainFrame').scrollLeft();
 
         XIApi.groupBy(txId, operator, groupByCols, aggColName,
-                      isIncSample, tableName, newColName)
+                      isIncSample, tableName, newColName, icvMode)
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
                 var dataColNum = gTables[tableId].getColNumByBackName("DATA");
@@ -642,7 +643,8 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // map a column
-    xcFunction.map = function(colNum, tableId, fieldName, mapString, mapOptions) {
+    xcFunction.map = function(colNum, tableId, fieldName, mapString, mapOptions,
+                              icvMode) {
         var deferred = jQuery.Deferred();
 
         mapOptions = mapOptions || {};
@@ -671,7 +673,7 @@ window.xcFunction = (function($, xcFunction) {
 
         xcHelper.lockTable(tableId);
 
-        XIApi.map(txId, mapString, tableName, fieldName)
+        XIApi.map(txId, mapString, tableName, fieldName, undefined, icvMode)
         .then(function(tableAfterMap) {
             finalTableName = tableAfterMap;
             finalTableId = xcHelper.getTableId(finalTableName);

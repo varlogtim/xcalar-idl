@@ -137,7 +137,7 @@ window.XcSDK.Extension.prototype = (function() {
 
             XIApi.groupBy(txId, operator, groupByCols, aggColName,
                             isIncSample, tableName,
-                            newColName, newTableName)
+                            newColName, newTableName, false)
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);
                 deferred.resolve(dstTable);

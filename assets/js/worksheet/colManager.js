@@ -1142,7 +1142,7 @@ window.ColManager = (function($, ColManager) {
 
                 var options = {replaceColumn: true};
                 xcFunction.map(colNum, tableId, fieldName,
-                                mapString, options)
+                                mapString, options, gIcvMode)
                 .then(deferred.resolve)
                 .fail(function(error) {
                     console.error("execCol fails!", error);
