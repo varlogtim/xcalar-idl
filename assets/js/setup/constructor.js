@@ -2096,15 +2096,22 @@ XcSubQuery.prototype = {
     "check": function() {
         var self = this;
         var deferred = jQuery.Deferred();
-        XcalarGetOpStats(self.dstTable)
-        .then(function(ret) {
-            var stats = ret.opDetails;
-            deferred.resolve(parseFloat((100 * (stats.numWorkCompleted /
-                                         stats.numWorkTotal)).toFixed(2)));
-        })
-        .fail(function(error) {
-            
-        });
+        if (!self.dstTable) {
+            // XXX This happens if the call is a "drop"
+            // Since we don't have a dstDag call, we will just return 50%
+            deferred.resolve(50);
+            xcHelper.assert(self.name === "drop", "Unexpected operation!");
+        } else {
+            XcalarGetOpStats(self.dstTable)
+            .then(function(ret) {
+                var stats = ret.opDetails;
+                deferred.resolve(parseFloat((100 * (stats.numWorkCompleted /
+                                             stats.numWorkTotal)).toFixed(2)));
+            })
+            .fail(function(error) {
+                //    
+            });
+        }
 
         return deferred.promise();
     }

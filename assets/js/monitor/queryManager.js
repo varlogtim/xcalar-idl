@@ -303,7 +303,8 @@ window.QueryManager = (function(QueryManager, $) {
 
                 var step = res.numCompletedWorkItem;
                 mainQuery.currStep = step;
-                if (state === QueryStateT.qrError) {
+                if (state === QueryStateT.qrError ||
+                    state === QueryStateT.qrCancelled) {
                     clearInterval(queryCheckLists[id]);
                     updateQueryBar(id, res, true);
                 } else {
@@ -380,7 +381,8 @@ window.QueryManager = (function(QueryManager, $) {
                         }
                     }
                     return;
-                } else if (state === QueryStateT.qrError) {
+                } else if (state === QueryStateT.qrError ||
+                           state === QueryStateT.qrCancelled) {
                     clearInterval(queryCheckLists[id]);
                     updateQueryBar(id, res, true);
                 } else {
@@ -439,6 +441,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (mainQuery !== null) {
             mainQuery.setElapsedTime();
         }
+        updateHeadingSection(mainQuery);
         updateStatusDetail({
             "start"    : startTime,
             "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
@@ -447,6 +450,22 @@ window.QueryManager = (function(QueryManager, $) {
         }, queryId);
         updateQueryTextDisplay(query);
         updateOutputSection(queryId);
+    }
+
+    function updateHeadingSection(mainQuery) {
+        console.log(mainQuery);
+        var state = mainQuery.getState();
+        var id = mainQuery.id;
+        var $text = $queryDetail.find(".op .text");
+        $text.text(mainQuery.name);
+        if (state === QueryStateT.qrNotStarted ||
+            state === QueryStateT.qrProcessing) {
+            outerQueryCheck(id);
+        } else if (state === QueryStateT.qrFinished || state === "done") {
+            updateQueryBar(id, 100, false, false, true);
+        } else if (state === QueryStateT.qrCancelled || state === "canceled") {
+            updateQueryBar(id, null, false, true, true);
+        }
     }
 
     function updateQueryTextDisplay(query) {
@@ -592,7 +611,7 @@ window.QueryManager = (function(QueryManager, $) {
         });
     }
 
-    function updateQueryBar(id, progress, isError, isCanceled) {
+    function updateQueryBar(id, progress, isError, isCanceled, doNotAnimate) {
         var $query = $queryList.find('.query[data-id="' + id + '"]');
         if (progress == null && !isCanceled) {
             if (isError) {
@@ -636,8 +655,7 @@ window.QueryManager = (function(QueryManager, $) {
             }
         }
 
-        // .stop() stops any previous animation;
-        $progressBar.stop().animate({"width": progress}, checkInterval, "linear", function() {
+        function progressBarContinuation() {
             if (newClass != null) {
                 $query.removeClass("processing").addClass(newClass);
                 if (newClass === "done") {
@@ -646,14 +664,34 @@ window.QueryManager = (function(QueryManager, $) {
                     delete queryCheckLists[id];
                 }
             }
-        });
+        }
+
+        function extraProgressBarContinuation() {
+            if (newClass != null) {
+                $queryDetail.find(".query").removeClass("processing")
+                            .addClass(newClass);
+            }
+        }
+
+        // .stop() stops any previous animation;
+        if (doNotAnimate) {
+            $progressBar.stop().width(progress);
+            progressBarContinuation();
+        } else {
+            $progressBar.stop().animate({"width": progress}, checkInterval,
+                                        "linear", progressBarContinuation);
+        }
 
         if ($extraProgressBar != null) {
-            $extraProgressBar.stop().animate({"width": progress}, checkInterval, "linear", function() {
-                if (newClass != null) {
-                    $queryDetail.find(".query").removeClass("processing").addClass(newClass);
-                }
-            });
+            if (doNotAnimate) {
+                $extraProgressBar.stop().width(progress);
+                extraProgressBarContinuation();
+            } else {
+                $extraProgressBar.stop().animate({"width": progress},
+                                                 checkInterval,
+                                                 "linear",
+                                                 extraProgressBarContinuation);
+            }
         }
         
         var displayedStep;
