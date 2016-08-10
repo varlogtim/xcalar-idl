@@ -442,7 +442,7 @@ window.UDF = (function($, UDF) {
     function uploadUDF(moduleName, entireString) {
         moduleName = moduleName.toLowerCase();
 
-        if (isEditableUDF(moduleName)) {
+        if (!isEditableUDF(moduleName)) {
             Alert.error(SideBarTStr.UploadError, SideBarTStr.OverwriteErr);
             return PromiseHelper.reject(SideBarTStr.OverwriteErr);
         }

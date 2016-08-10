@@ -3686,6 +3686,8 @@ window.OperationsView = (function($, OperationsView) {
               '<div class="checkboxWrap">' +
                 '<span class="checkbox" data-container="body" ' +
                     'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint + '">' +
+                    '<i class="icon xi-ckbox-empty fa-13"></i>'+
+                    '<i class="icon xi-ckbox-selected fa-13"></i>'+
                 '</span>' +
               '</div>' +
             '</td>' +
@@ -3728,7 +3730,10 @@ window.OperationsView = (function($, OperationsView) {
                 '<div class="checkboxWrap xc-hidden">' +
                     '<span class="checkbox" data-container="body" ' +
                     'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint +
-                    '"></span>' +
+                    '">'+
+                        '<i class="icon xi-ckbox-empty fa-13"></i>'+
+                        '<i class="icon xi-ckbox-selected fa-13"></i>'+
+                    '</span>' +
                     'Empty' +
                 '</div>' +
             '</div>';
