@@ -430,7 +430,8 @@ function XcalarPreview(url, isRecur, numBytesRequested) {
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
-                    hasHeader, moduleName, funcName, isRecur, maxSampleSize, txId) {
+                    hasHeader, moduleName, funcName, isRecur, maxSampleSize,
+                    quoteChar, skipRows, isRegex, txId) {
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.
@@ -512,6 +513,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
     loadArgs.csv.isCRLF = true;
+    loadArgs.csv.linesToSkip = skipRows;
+    loadArgs.csv.quoteDelim = quoteChar;
     loadArgs.recursive = isRecur;
     var fileNameArray = getNamePattern(url, isRecur);
     loadArgs.fileNamePattern = fileNameArray[1];
@@ -532,6 +535,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
 
     if (maxSampleSize > 0) {
         console.log("Max sample size set to: ", maxSampleSize);
+    }
+
+    if (isRegex) {
+        // Temporarily diabled. Uncomment when backend supports
+        // loadArgs.fileNamePattern = "re:"+loadArgs.fileNamePattern;
     }
 
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,

@@ -785,7 +785,7 @@ window.DSPreview = (function($, DSPreview) {
 
         XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
                     false, udfModule, udfFunc, isRecur,
-                    previewSize, txId)
+                    previewSize, gExportQDelim, 0, false, txId)
         .then(function(ret, error) {
             loadError = error;
         })
@@ -875,14 +875,14 @@ window.DSPreview = (function($, DSPreview) {
         var previewSize = loadArgs.previewSize;
 
         console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
-            header, loadURL, quote, skipRows, isRecur, isRegEx, previewSize)
+            header, loadURL, quote, skipRows, isRecur, isRegEx, previewSize);
 
         cacheUDF(udfModule, udfFunc);
 
         return DS.load(dsName, format, loadURL,
                         fieldDelim, lineDelim, header,
                         udfModule, udfFunc,
-                        isRecur, previewSize);
+                        isRecur, previewSize, quote, skipRows, isRegEx);
     }
 
     function validateForm() {

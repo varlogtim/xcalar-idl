@@ -191,7 +191,8 @@ window.DS = (function ($, DS) {
     // Load dataset
     // promise returns $grid element
     DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                        hasHeader, moduleName, funcName, isRecur, previewSize) {
+                        hasHeader, moduleName, funcName, isRecur, previewSize,
+                        quoteChar, skipRows, isRegEx) {
         var deferred = jQuery.Deferred();
 
         // Here null means the attr is a placeholder, will
@@ -229,6 +230,9 @@ window.DS = (function ($, DS) {
             "hasHeader"  : hasHeader,
             "fieldDelim" : fieldDelim,
             "lineDelim"  : lineDelim,
+            "quoteChar"  : quoteChar,
+            "skipRows"   : skipRows,
+            "isRegEx"    : isRegEx,
             "moduleName" : moduleName,
             "funcName"   : funcName,
             "isRecur"    : isRecur,
@@ -247,7 +251,8 @@ window.DS = (function ($, DS) {
 
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
-                   moduleName, funcName, isRecur, previewSize, txId)
+                   moduleName, funcName, isRecur, previewSize,
+                   quoteChar, skipRows, isRegEx, txId)
         .then(function(ret, error) {
             if (error != null) {
                 dsObj.setError(error);
