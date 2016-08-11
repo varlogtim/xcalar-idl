@@ -2140,12 +2140,19 @@ window.Dag = (function($, Dag) {
         var $dagWrap = $dagTable.closest('.dagWrap');
         var tableName;
         var numCols;
+        var numRows = "Unknown";
         if (!table) {
             tableName = $dagTable.find('.tableTitle').text();
             numCols = 1;
         } else {
             tableName = table.tableName;
             numCols = table.tableCols.length;
+        }
+
+        if (gTables && tableId in gTables) {
+            if (gTables[tableId].resultSetCount > -1) {
+                numRows = gTables[tableId].resultSetCount;
+            }
         }
 
         var html = '<div id="dagSchema" style="left:0;top:0;">' +
@@ -2158,6 +2165,11 @@ window.Dag = (function($, Dag) {
                         '</span>' +
                     '</div>' +
                     '<span class="background"></span>' +
+                    '<div class="rowCount">' +
+                        '<div class="text">Num Rows:</div>' +
+                        '<div class="value">' + numRows + '</div>' +
+                        '<div class="sample"></div>' +
+                    '</div>' +
                     '<div class="heading">' +
                         '<div class="type">type</div>' +
                         '<div class="field">field</div>' +
@@ -2174,8 +2186,7 @@ window.Dag = (function($, Dag) {
             html += '<li>' +
                         '<div>' +
                         '<span class="iconWrap">' +
-                            '<span class="typeIcon ' +
-                            'typeIcon-' + type + '"></span>' +
+                            '<i class="icon fa-13 xi-' + type + '"></i>' +
                         '</span>' +
                         '<span class="text">' + type + '</span>' +
                         '</div>' +

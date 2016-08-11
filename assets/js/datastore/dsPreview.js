@@ -785,7 +785,7 @@ window.DSPreview = (function($, DSPreview) {
 
         XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
                     false, udfModule, udfFunc, isRecur,
-                    previewSize, gExportQDelim, 0, false, txId)
+                    previewSize, gDefaultQDelim, 0, false, txId)
         .then(function(ret, error) {
             loadError = error;
         })

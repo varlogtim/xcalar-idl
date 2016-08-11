@@ -745,11 +745,43 @@ html.firefox, html.microsoft {
             height: 44px;
         }
 
+        .rowCount {
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: -1px;
+            height: 21px;
+            border-bottom: 1px solid @color-border-topGrayMed;
+            &> div {
+                display: inline-block;
+                float: left;
+                margin: 0 4px;
+                white-space: nowrap;
+                text-align: left;
+                width: 70px;
+                line-height: 20px;
+                .textOverflow;
+
+                &:first-child {
+                    text-indent: 5px;
+                    color: @color-dag-textBlue;
+                }
+
+                &:nth-child(2) {
+                    text-indent: 4px;
+                    width: 100px;
+                }
+
+                &:last-child {
+                    display: none; //sample title
+                }
+            }
+        }
+
         .heading {
             font-size: 11px;
             font-weight: bold;
             margin-top: -1px;
-            height: 20px;
+            height: 21px;
             border-bottom: 1px solid @color-border-topGrayMed;
             &> div {
                 display: inline-block;
@@ -806,7 +838,7 @@ html.firefox, html.microsoft {
                 overflow: hidden;
                 cursor: auto;
                 &:hover {
-                    background-color: @color-dag-schema-hover;
+                    background-color: @color-bg-light-blue-grey;
                 }
                 &.selected {
                     outline: 1px solid @color-border-topGrayMed;
@@ -856,55 +888,16 @@ html.firefox, html.microsoft {
             width: 20px;
             display: inline-block;
             margin-right: 4px;
-        }
-
-        .sprite-typeIcon(@x: 0, @y: 0, @width: 0, @height: 0, @top: 0) {
-            background-position: @x @y;
-            width: @width;
-            height: @height;
-            top: @top;
-        }
-
-        .typeIcon {
-            background-image: url(../../images/sprites/typeIcons.png);    background-repeat: no-repeat;
-            display: block;
-            position: relative;
-            margin: 0 auto;
-
-            &.typeIcon-array {
-                .sprite-typeIcon(-5px, -5px, 12px, 14px, 2px);
-            }
-
-            &.typeIcon-boolean {
-                .sprite-typeIcon(-27px, -5px, 18px, 16px, 2px);
-            }
-
-            &.typeIcon-mixed {
-                .sprite-typeIcon(-55px, -5px, 15px, 15px, 2px);
-            }
-
-            &.typeIcon-integer {
-                .sprite-typeIcon(-80px, -5px, 10px, 12px, 1px);
-            }
-
-            &.typeIcon-float {
-                .sprite-typeIcon(-80px, -5px, 10px, 12px, 1px);
-            }
-
-            &.typeIcon-object {
-                .sprite-typeIcon(-100px, -5px, 14px, 14px, 3px);
-            }
-
-            &.typeIcon-string {
-                .sprite-typeIcon(-124px, -5px, 16px, 10px, 1px);
-            }
-
-            &.typeIcon-undefined, &.typeIcon-unknown {
-                .sprite-typeIcon(-150px, -5px, 10px, 14px, 2px);
+            .icon {
+                color: @color-font-select-blue;
+                display: block;
+                position: relative;
+                margin: 0 auto;
+                left: 3px;
+                top: 3px;
             }
         }
     }
-
 }
 
 .parameterTable() {
