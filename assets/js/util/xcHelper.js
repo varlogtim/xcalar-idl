@@ -618,6 +618,8 @@ window.xcHelper = (function($, xcHelper) {
         if (!gMinModeOn) {
             var $checkMark = $successMessage.find('.checkMark');
             var $text = $successMessage.find('.successMessage');
+            var $largeText = $successMessage.find('.largeText');
+            $text = $text.add($largeText);
             var $textAndCheckMark = $checkMark.add($text);
             $textAndCheckMark.addClass('hidden');
             $checkMark.hide();
@@ -634,15 +636,15 @@ window.xcHelper = (function($, xcHelper) {
 
             setTimeout(function() {
                 $textAndCheckMark.addClass('hidden');
-            }, 1800);
+            }, 2000);
 
             setTimeout(function() {
                 $successMessage.hide();
-            }, 2400);
+            }, 2600);
         } else {
             setTimeout(function() {
                 $successMessage.hide();
-            }, 1600);
+            }, 1800);
         }
     };
 

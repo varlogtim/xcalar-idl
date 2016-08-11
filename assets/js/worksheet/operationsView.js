@@ -289,7 +289,7 @@ window.OperationsView = (function($, OperationsView) {
                 return;
             }
 
-            $input.data('value', value.trim().toLowerCase());
+            $input.data('value', value.trim());
             enterFunctionsInput(fnInputNum);
         }
 
@@ -1088,8 +1088,9 @@ window.OperationsView = (function($, OperationsView) {
             return (true);
         }
 
-        var func = $.trim($activeOpSection.find('.group').eq(index).find('.functionsInput').val()
-                                           .toLowerCase());
+        var func = $.trim($activeOpSection.find('.group').eq(index)
+                                          .find('.functionsInput').val()
+                                          .toLowerCase());
 
         var matches = $functionsUl.find('li').filter(function() {
             return ($(this).text().toLowerCase() === func);
@@ -1147,11 +1148,11 @@ window.OperationsView = (function($, OperationsView) {
             var $categoryLi = $categoryList.find('.active');
             category = $categoryLi.text().trim().toLowerCase();
             categoryNum = $categoryLi.data('category');
-            func = $li.text().toLowerCase().trim();
+            func = $li.text().trim();
         } else { 
             categoryNum = 0;
             category = categoryNames[categoryNum];
-            func = $argsGroup.find('.functionsInput').val().toLowerCase().trim();
+            func = $argsGroup.find('.functionsInput').val().trim();
         }
 
         funcName = func;
@@ -1161,7 +1162,7 @@ window.OperationsView = (function($, OperationsView) {
         var strPreview;
 
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            if (func === ops[i].fnName.toLowerCase()) {
+            if (func === ops[i].fnName) {
                 operObj = ops[i];
                 break;
             }
@@ -1230,7 +1231,7 @@ window.OperationsView = (function($, OperationsView) {
 
         var despText = operObj.fnDesc || "N/A";
         $argsGroup.find('.descriptionText').html('<b>Description:</b> ' + despText);
-        $operationsView.find('.strPreview').html('<b>Preview:</b> ' + strPreview);
+        $operationsView.find('.strPreview').html('<b>Preview:</b> <br>' + strPreview);
    
         $argInputs = $activeOpSection.find('.arg:visible');
         $activeOpSection.find('.arg').parent().each(function(i) {
@@ -1390,7 +1391,7 @@ window.OperationsView = (function($, OperationsView) {
 
     function produceArgumentTable() {
         var category = $categoryInput.val().toLowerCase().trim();
-        var func = $functionInput.val().toLowerCase().trim();
+        var func = $functionInput.val().trim();
 
         var categoryIndex = categoryNames.indexOf(category);
 
@@ -1406,7 +1407,7 @@ window.OperationsView = (function($, OperationsView) {
         var operObj = null;
 
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            if (func === ops[i].fnName.toLowerCase()) {
+            if (func === ops[i].fnName) {
                 operObj = ops[i];
                 break;
             }
@@ -2049,7 +2050,8 @@ window.OperationsView = (function($, OperationsView) {
             if (!$input.closest('.dropDownList').hasClass('colNameSection')) {
                 // if map, some args can be blank
                 if (operatorName === "map") {
-                    var category = $categoryList.find('.active').text().trim().toLowerCase();
+                    var category = $categoryList.find('.active').text().trim()
+                                                .toLowerCase();
                     if (category === "user-defined functions") {
                         return (true);
                     }
@@ -2296,8 +2298,10 @@ window.OperationsView = (function($, OperationsView) {
 
     function submitFinalForm(args, hasMultipleSets) {
         var func = funcName;
-        var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
-        var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
+        var funcLower = func;
+        var funcCapitalized = func;
+        // var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
+        // var funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
         var isPassing;
 
         // all operation have their own way to show error StatusBox
@@ -2312,7 +2316,7 @@ window.OperationsView = (function($, OperationsView) {
                         return;
                     }
                     var $input = $(this).find('.arg:visible').eq(0);
-                    func = $(this).find('.functionsInput').val().toLowerCase().trim();
+                    func = $(this).find('.functionsInput').val().trim();
                     if (hasMultipleSets) {
                         isPassing = filterCheck(func, args[i], $input);
                     } else {

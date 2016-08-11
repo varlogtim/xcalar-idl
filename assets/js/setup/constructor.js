@@ -2109,7 +2109,8 @@ XcSubQuery.prototype = {
                                              stats.numWorkTotal)).toFixed(2)));
             })
             .fail(function(error) {
-                //    
+                console.error(error);
+                deferred.reject();
             });
         }
 

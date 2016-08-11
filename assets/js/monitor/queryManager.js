@@ -219,7 +219,7 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.removeQuery(id);
     };
 
-    QueryManager.check = function(forceStop) {
+    QueryManager.check = function(forceStop, doNotAnimate) {
         if (forceStop || !$("#monitor-queries").hasClass("active") ||
             !$('#monitorTab').hasClass('active')) {
             for (var timer in queryCheckLists) {
@@ -234,15 +234,19 @@ window.QueryManager = (function(QueryManager, $) {
                         for (var i = 0; i < query.subQueries.length; i++) {
                             if (query.subQueries[i].state !== "done") {
                                 if (query.subQueries[i].queryName) {
-                                    outerQueryCheck(query.getId());
+                                    outerQueryCheck(query.getId(), doNotAnimate);
                                 } else {
-                                    subQueryCheck(query.subQueries[i]);
+                                    subQueryCheck(query.subQueries[i],
+                                                  doNotAnimate);
+                                }
+                                if (doNotAnimate) {
+                                    clearInterval(queryCheckLists[query.getId()]);
                                 }
                                 break;
                             }
                         }
                     } else {
-                        mainQueryCheck(query.getId());
+                        mainQueryCheck(query.getId(), doNotAnimate);
                     }
                 }
             }
@@ -282,7 +286,7 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // used for xcalarQuery
-    function mainQueryCheck(id) {
+    function mainQueryCheck(id, doNotAnimate) {
         var mainQuery = queryLists[id];
         clearInterval(queryCheckLists[id]);
         check();
@@ -303,17 +307,19 @@ window.QueryManager = (function(QueryManager, $) {
 
                 var step = res.numCompletedWorkItem;
                 mainQuery.currStep = step;
-                if (state === QueryStateT.qrError ||
-                    state === QueryStateT.qrCancelled) {
+                if (state === QueryStateT.qrError) {
                     clearInterval(queryCheckLists[id]);
-                    updateQueryBar(id, res, true);
+                    updateQueryBar(id, res, true, false, doNotAnimate);
+                } if (state === QueryStateT.qrCancelled) {
+                    clearInterval(queryCheckLists[id]);
+                    updateQueryBar(id, res, false, true, doNotAnimate);
                 } else {
                     subQueryCheckHelper(mainQuery.subQueries[step], id, step);
                 }
             })
             .fail(function(error) {
                 console.error("Check failed", error);
-                updateQueryBar(id, null, error);
+                updateQueryBar(id, null, error, false, doNotAnimate);
                 clearInterval(queryCheckLists[id]);
             });
         }
@@ -345,7 +351,7 @@ window.QueryManager = (function(QueryManager, $) {
 
     // checks a group of subqueries by checking the single query name they're
     // associated with
-    function outerQueryCheck(id) {
+    function outerQueryCheck(id, doNotAnimate) {
         if (!queryLists[id]) {
             console.error("error case");
             return;
@@ -375,23 +381,25 @@ window.QueryManager = (function(QueryManager, $) {
                     clearInterval(queryCheckLists[id]);
                     if (mainQuery.subQueries[mainQuery.currStep]) {
                         if (mainQuery.subQueries[mainQuery.currStep].queryName) {
-                            outerQueryCheck(id);
+                            outerQueryCheck(id, doNotAnimate);
                         } else {
-                            subQueryCheck(mainQuery.subQueries[mainQuery.currStep]);
+                            subQueryCheck(mainQuery.subQueries[mainQuery.currStep],
+                                          doNotAnimate);
                         }
                     }
                     return;
                 } else if (state === QueryStateT.qrError ||
                            state === QueryStateT.qrCancelled) {
                     clearInterval(queryCheckLists[id]);
-                    updateQueryBar(id, res, true);
+                    updateQueryBar(id, res, true, false, doNotAnimate);
                 } else {
-                    subQueryCheckHelper(mainQuery.subQueries[currStep], id, currStep);
+                    subQueryCheckHelper(mainQuery.subQueries[currStep], id,
+                                        currStep, doNotAnimate);
                 }
             })
             .fail(function(error) {
                 console.error("Check failed", error, queryName);
-                updateQueryBar(id, null, error);
+                updateQueryBar(id, null, error, false, doNotAnimate);
                 clearInterval(queryCheckLists[id]);
             });
         }
@@ -458,12 +466,30 @@ window.QueryManager = (function(QueryManager, $) {
         var id = mainQuery.id;
         var $text = $queryDetail.find(".op .text");
         $text.text(mainQuery.name);
+
         if (state === QueryStateT.qrNotStarted ||
             state === QueryStateT.qrProcessing) {
-            outerQueryCheck(id);
+            state = QueryStatus.Run;
         } else if (state === QueryStateT.qrFinished || state === "done") {
-            updateQueryBar(id, 100, false, false, true);
+            state = QueryStatus.Done;
         } else if (state === QueryStateT.qrCancelled || state === "canceled") {
+            state = QueryStatus.Cancel;
+        } else if (state === QueryStateT.qrError) {
+            state = QueryStatus.Error;
+        }
+
+        $queryDetail.find(".querySection")
+                    .removeClass(QueryStatus.Run)
+                    .removeClass(QueryStatus.Done)
+                    .removeClass(QueryStatus.Error)
+                    .removeClass(QueryStatus.Cancel)
+                    .removeClass(QueryStatus.RM)
+                    .addClass(state);
+        if (state === QueryStatus.Run) {
+            QueryManager.check(false, true);
+        } else if (state === QueryStatus.Done) {
+            updateQueryBar(id, 100, false, false, true);
+        } else if (state === QueryStatus.Cancel) {
             updateQueryBar(id, null, false, true, true);
         }
     }
@@ -548,7 +574,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function subQueryCheck(subQuery) {
+    function subQueryCheck(subQuery, doNotAnimate) {
         var id = subQuery.getId();
         if (!queryLists[id]) {
             console.error("error case");
@@ -562,15 +588,15 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
         clearInterval(queryCheckLists[id]);
-        checkFuc();
-        queryCheckLists[id] = setInterval(checkFuc, checkInterval);
+        checkFunc();
+        queryCheckLists[id] = setInterval(checkFunc, checkInterval);
 
-        function checkFuc() {
-            subQueryCheckHelper(subQuery, id, subQuery.index);
+        function checkFunc() {
+            subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate);
         }
     }
 
-    function subQueryCheckHelper(subQuery, id, step) {
+    function subQueryCheckHelper(subQuery, id, step, doNotAnimate) {
         if (subQuery.state === "done") {
             return;
         }
@@ -594,7 +620,7 @@ window.QueryManager = (function(QueryManager, $) {
                 }
                 return;
             } else {
-                updateQueryBar(id, res);
+                updateQueryBar(id, res, false, false, doNotAnimate);
                 mainQuery.setElapsedTime();
                 updateStatusDetail({
                     "start"    : getQueryTime(mainQuery.getTime()),

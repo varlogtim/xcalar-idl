@@ -249,9 +249,9 @@ window.UDF = (function($, UDF) {
         /* end of upload udf section */
 
         /* udf manager section */
-        var $udfManaer = $("#udf-manager");
+        var $udfManager = $("#udf-manager");
         // edit udf
-        $udfManaer.on("click", ".udf .edit", function() {
+        $udfManager.on("click", ".udf .edit", function() {
             var moduleName = $(this).closest(".udf").find(".text").text();
             // switch to first tab
             $("#udfSection .tab:first-child").click();
@@ -261,13 +261,13 @@ window.UDF = (function($, UDF) {
         });
 
         // download udf
-        $udfManaer.on("click", ".udf .download", function() {
+        $udfManager.on("click", ".udf .download", function() {
             var moduleName = $(this).closest(".udf").find(".text").text();
             downloadUDF(moduleName);
         });
 
         // delete udf
-        $udfManaer.on("click", ".udf .delete", function() {
+        $udfManager.on("click", ".udf .delete", function() {
             var moduleName = $(this).closest(".udf").find(".text").text();
             Alert.show({
                 "title"    : UDFTStr.DelTitle,
