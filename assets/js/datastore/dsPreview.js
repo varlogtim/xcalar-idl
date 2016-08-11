@@ -1431,15 +1431,15 @@ window.DSPreview = (function($, DSPreview) {
             var c = datas.charAt(i);
             if (!hasBackSlash && !hasQuote) {
                 if (c === "{") {
+                    if (startIndex === -1) {
+                        startIndex = i;
+                    }
                     bracketCnt++;
                 } else if (c === "}") {
                     bracketCnt--;
                     if (bracketCnt === 0) {
                         record.push(datas.substring(startIndex, i + 1));
-                        startIndex = datas.indexOf("{", i);
-                        if (startIndex < 0) {
-                            break;
-                        }
+                        startIndex = -1;
                     } else if (bracketCnt < 0) {
                         // error cse
                         errorHandler(DSPreviewTStr.NoParseJSON);
