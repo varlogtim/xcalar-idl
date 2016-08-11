@@ -88,12 +88,12 @@ window.Help = (function($, Help) {
         });
 
         function toggleRefresh($target) {
-            if ($target.hasClass('off')) {
-                $('#helpOnOff').removeClass('off');
-                Tips.display();
-            } else {
-                $('#helpOnOff').addClass('off');
+            if ($target.hasClass('on')) {
+                $('#helpOnOff').removeClass('on');
                 Tips.destroy();
+            } else {
+                $('#helpOnOff').addClass('on');
+                Tips.display();
             }
         }
     };

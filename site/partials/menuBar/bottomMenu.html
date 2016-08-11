@@ -103,7 +103,7 @@
     <!-- Help Section -->
     <section id="helpSection" class="menuSection no-selection">
       <header class="heading draggable">
-        <h2><%= dicts.bottomMenu.Help %></h2>
+        <h2><%= dicts.bottomMenu.HelpSupport %></h2>
       </header>
       <div class="menuContent">
         <!-- Help Search -->
@@ -112,10 +112,10 @@
           <input id="helpSearch" type="text"
             spellcheck="false" placeholder="Type in your question..."
             autocomplete="off">
-            <div id="helpSubmit" class="icon">
+            <div id="helpSubmit">
+              <i class="icon xi-search"></i>
             </div>
         </form>
-        <div class="border"></div>
         <!-- Help Result -->
         <div id="helpResults" class="helpBox">
           <div class="categoryArea">
@@ -128,12 +128,16 @@
         </div>
         <!-- Help On Off Button -->
         <div class="helpOnOffWrap">
-          <div id="helpOnOff" class="onOffBtn on off">
+          <div class="text"><%= dicts.bottomMenu.InPageHelp %></div>
+          <div id="helpOnOff" class="xc-switch switch">
+              <div class="slider"></div>
+          </div>
+         <!--  <div id="helpOnOff" class="onOffBtn on off">
             <div class="slider"></div>
             <div class="text offText"><%= dicts.common.OFF %></div>
             <div class="text onText"><%= dicts.common.ON %></div>
-          </div>
-          <div class="text"><%= dicts.bottomMenu.InPageHelp %></div>
+          </div> -->
+          
         </div>
         <!-- Intro Tutorials -->
         <div id="helpTopics" class="helpBox">
@@ -153,13 +157,13 @@
           </div>
         </div>
         <!-- Generate Sub Button -->
-        <div class="henpGenSubPart">
+       <!--  <div class="henpGenSubPart">
           <div class="wrap">
             <div class="icon"></div>
             <div class="text"><%= dicts.monitor.GenSub %></div>
             <button id="helpGenSub" class="btn btnMid"><%= dicts.common.GEN %></button>
           </div>
-        </div>
+        </div> -->
       </div>
     </section>
   </div>

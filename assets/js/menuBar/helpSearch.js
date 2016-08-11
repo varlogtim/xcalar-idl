@@ -86,9 +86,10 @@ window.HelpSearch = (function($, HelpSearch) {
 
         for (var i = 0; i < categories.length; i++) {
 
-            html += '<div class="categoryBlock clearfix">' +
-                        '<div class="subHeading">' +
-                    categories[i].title + '</div>';
+            html += '<div class="categoryBlock">' +
+                        '<div class="categoryWrap">' +
+                            '<div class="subHeading">' +
+                                categories[i].title + '</div>';
             subTopic = categories[i].subTopics;
 
             sortByTitles(subTopic);
@@ -128,7 +129,7 @@ window.HelpSearch = (function($, HelpSearch) {
                          moreText + '</a></div>';
             }
 
-            html += '</div>';
+            html += '</div></div>';
         }
         $('#helpResults').find('.categoryArea .mainHeading').after(html);
     }
