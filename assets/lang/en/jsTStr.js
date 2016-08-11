@@ -608,7 +608,7 @@ SideBarTStr = {
 ExtTStr = {
     "Website": "VISIT WEBSITE",
     "Report": "REPORT ERROR",
-    "Version": "VERSION",
+    "Version": "Version",
     "Lang": "Language",
     "extName": "Extension Name",
     "categoryName": "Category Name",

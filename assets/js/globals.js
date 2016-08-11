@@ -58,9 +58,9 @@ var gEnableCopyCols = false;
 var gEnableJoinKeyCheck = false;
 var gShowDroppedTablesImage = false;
 var gChangeNfsToFile = false;
-var gExportFDelim = "\t";
-var gExportRDelim = "\n";
-var gExportQDelim = '"';
+var gDefaultFDelim = "\t";
+var gDefaultRDelim = "\n";
+var gDefaultQDelim = '"';
 var gLongTestSuite = 1;
 var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
                         // datasets will abide by this limit. If you don't want

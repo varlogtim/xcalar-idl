@@ -260,8 +260,8 @@ module.exports = {
         "Template": "Template",
         "selectTemplate": "Select Template",
         "blankFunc": "Blank Function",
-        "nameHint": "Module name (lowercase only)",
-        "upload": "Upload UDF",
+        "nameHint": "Module name (lowercase)",
+        "upload": "ADD UDF",
         "MyUDF": "My UDFs"
     },
 
@@ -276,7 +276,7 @@ module.exports = {
         "noRes": "There are no help results",
         "useSearch": "Search for a topic or",
         "visitHelp": "click here to visit our help guide",
-        "InPageHelp": "GET IN TOUCH",
+        "InPageHelp": "IN-PAGE HELP",
         "Walkthrough": "Start a Walkthrough",
         "wkbkTutor": "Workbook Tutorial",
         "dsTutor1": "Data Stores Tutorial - Part 1",
