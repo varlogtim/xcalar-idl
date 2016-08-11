@@ -251,7 +251,9 @@ ErrTStr = {
 
     'SuggestProject': 'Please project to reduce the number of columns and retry.',
 
-    'UserCanceled': 'User Canceled'
+    'UserCanceled': 'User Canceled',
+
+    'NoColumns': 'No Columns Selected'
 
 };
 

@@ -584,10 +584,11 @@ window.StatusMessage = (function($, StatusMessage) {
         var $table = $("#xcTable-" + tableId);
         var rect = $table[0].getBoundingClientRect();
         // XXX GUI-4745 Fix it!!
-        var windowWidth = $('#bottomMenu').offset().left - 10;
+        var windowWidth = $(window).width() - 5;
         var position;
-        if (rect.left < 40) {
-            if (rect.right > 40) {
+        var leftBoundary = MainMenu.getOffset() + 40;
+        if (rect.left < leftBoundary) {
+            if (rect.right > leftBoundary) {
                 position = 'visible';
             } else {
                 position = 'left';

@@ -273,7 +273,7 @@ window.BottomMenu = (function($, BottomMenu) {
             // if ($section.attr("id") === "cliSection") {
             //     CLIBox.realignNl();
             // }
-            OperationsView.closeOpSection();
+            OperationsView.close();
             JoinView.close();
 
         }

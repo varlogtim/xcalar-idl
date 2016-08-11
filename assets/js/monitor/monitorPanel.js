@@ -169,6 +169,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     break;
                 case ("settingsButton"):
                     $("#monitor-settings").addClass("active");
+                     $menu.find(".menuSection.settings").removeClass("xc-hidden");
                     title += MonitorTStr.Settings;
                     break;
                 default:

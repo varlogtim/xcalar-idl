@@ -38,7 +38,7 @@ window.ExportModal = (function($, ExportModal) {
         // click cancel or close button
         $exportModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
-            closeExportView();
+            ExportModal.close();
         });
 
         // click confirm button
@@ -115,48 +115,11 @@ window.ExportModal = (function($, ExportModal) {
 
         var keyupTimeout;
 
-        $exportColumns.keyup(function(event) {
-            clearTimeout(keyupTimeout);
-            if (event.which === keyCode.Comma) {
-                selectColumnsOnKeyPress();
-            } else {
-                keyupTimeout = setTimeout(function() {
-                    selectColumnsOnKeyPress();
-                }, 400);
-            }
-        });
-        $exportColumns.on('change', function() {
-            selectColumnsOnKeyPress();
-        });
-
         $exportView.find('.cols').on('click', 'li', function() {
-            // var $li = $(this);
-            // var colName = $li.text().trim();
-            // var $colInput = $selectableThs.find('.editableHead').filter(function() {
-            //     return ($(this).val() === colName);
-            // });
             if ($(this).hasClass('checked')) {
-                // if ($colInput.length !== 0) {
-                    deselectColFromLi($(this));
-                    // var $table = $("#xcTable-" + tableId);
-                    // var $th = $colInput.closest('th');
-                    // $th.removeClass('modalHighlighted');
-                    // var colNum = xcHelper.parseColNum($th);
-                    // var $tds = $table.find('td.col' + colNum);
-                    // $tds.removeClass('modalHighlighted');
-                    // $li.removeClass('checked').find('.checkbox').removeClass('checked');
-                // }
+                deselectColFromLi($(this));
             } else {
-                // if ($colInput.length !== 0) {
-                    selectColFromLi($(this));
-                    // var $table = $("#xcTable-" + tableId);
-                    // var $th = $colInput.closest('th');
-                    // $th.addClass('modalHighlighted');
-                    // var colNum = xcHelper.parseColNum($th);
-                    // var $tds = $table.find('td.col' + colNum);
-                    // $tds.addClass('modalHighlighted');
-                    // $li.addClass('checked').find('.checkbox').addClass('checked');
-                // }
+                selectColFromLi($(this));
             }
             var totalCols = $exportView.find('.cols li').length;
             var selectedCols = $exportView.find('.cols li.checked').length;
@@ -195,22 +158,6 @@ window.ExportModal = (function($, ExportModal) {
             $tds.removeClass('modalHighlighted');
             $li.removeClass('checked').find('.checkbox').removeClass('checked');
         }
-        
-
-        $exportColumns.keydown(function(event) {
-            if (event.which === keyCode.Backspace ||
-                event.which === keyCode.Delete) {
-                deselectColumnsOnKeyPress(event);
-            }
-        });
-        $exportColumns.on('cut', function(e) {
-            deselectColumnsOnKeyPress(e);
-        });
-        $exportColumns.on('paste', function() {
-            setTimeout(function(){
-                selectColumnsOnKeyPress();
-            });
-        });
 
         $exportModal.find('.clearInput').click(clearAllCols);
 
@@ -220,6 +167,7 @@ window.ExportModal = (function($, ExportModal) {
         $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $exportView.removeClass('xc-hidden');
+        $('#container').addClass('columnPicker exportState');
         if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
         } else {
@@ -268,7 +216,6 @@ window.ExportModal = (function($, ExportModal) {
             allColNames += $(this).find('.editableHead').val() + ", ";
         });
 
-        $exportColumns.val(allColNames.substr(0, allColNames.length - 2));
 
         var colHtml = getTableColList(tableId);
         $exportView.find('.cols').html(colHtml);
@@ -286,6 +233,44 @@ window.ExportModal = (function($, ExportModal) {
         });
     };
 
+    ExportModal.close = function() {
+        // xx some of this code can be reused for all operation views
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        $exportView.addClass('xc-hidden');
+        $('#workspaceMenu').find('.menuSection.lastOpened')
+                           .removeClass('lastOpened xc-hidden');
+        $('#container').removeClass('columnPicker exportState');
+
+        $tableWrap.removeClass('exportModalOpen');
+        $tableWrap.removeClass('columnPicker');
+
+        $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                             .removeClass('tableOpSection');
+
+
+        $tableWrap.find('.modalHighlighted')
+                                .removeClass('modalHighlighted');
+           
+
+        exportTableName = null;
+        exportTargInfo = null;
+        $exportPath.val("");
+        $exportColumns.val("");
+        $('.exportable').removeClass('exportable');
+        $selectableThs = null;
+        $(document).off(".exportModal");
+        $exportView.find('.checkbox').removeClass('checked');
+        $exportView.find('.checked').removeClass('checked');
+
+        restoreAdvanced();
+        restoreColumns();
+        $advancedSection.addClass('collapsed').removeClass('expanded');
+
+
+        StatusBox.forceHide();// hides any error boxes;
+        $('.tooltip').hide();
+    }
+
     function submitForm() {
         var deferred = jQuery.Deferred();
 
@@ -296,19 +281,12 @@ window.ExportModal = (function($, ExportModal) {
         }
 
         var exportName = $exportName.val().trim();
-        var columnsVal = $exportColumns.val().split(",");
-        jQuery.each(columnsVal, function(i, val) {
-            columnsVal[i] = jQuery.trim(val);
+        var columnsVal = [];
+        var columnsValStr = ""; // used to search for invalid characters
+        $exportView.find('.cols li.checked').each(function() {
+            columnsVal.push($(this).text().trim());
+            columnsValStr += $(this).text().trim();
         });
-        columnsVal = columnsVal.join(",");
-
-        //remove commas at either ends
-        if (columnsVal.indexOf(",") === 0) {
-            columnsVal = columnsVal.substring(1, columnsVal.length);
-        }
-        if (columnsVal.lastIndexOf(",") === (columnsVal.length - 1)) {
-            columnsVal = columnsVal.substring(0, columnsVal.length - 1);
-        }
 
         var isValid = xcHelper.validate([
             {
@@ -330,17 +308,18 @@ window.ExportModal = (function($, ExportModal) {
                 }
             },
             {
-                "$selector": $exportColumns
+                "$selector": $exportView.find('.columnsWrap'),
+                "text"     : ErrTStr.NoColumns,
+                "check"    : function() {
+                    return (columnsVal.length === 0);
+                }
             },
             {
-                "$selector": $exportColumns,
+                "$selector": $exportView.find('.columnsWrap'),
                 "text"     : ErrTStr.InvalidColName,
                 "check"    : function() {
-                    if (gExportNoCheck) {
-                        return (columnsVal.length === 0);
-                    } else {
-                        return (columnsVal.length === 0 ||
-                            columnsVal.indexOf('[') !== -1);
+                    if (!gExportNoCheck) {
+                        return (columnsValStr.indexOf('[') !== -1);
                     }
                 }
             }
@@ -351,7 +330,7 @@ window.ExportModal = (function($, ExportModal) {
             return (deferred.promise());
         }
 
-        var frontColumnNames = columnsVal.split(",");
+        var frontColumnNames = columnsVal;
         var backColumnNames = xcHelper.convertFrontColNamesToBack(
                                     frontColumnNames, tableId, validTypes);
         // convertFrontColnamesToBack will return an array of column names if
@@ -420,7 +399,7 @@ window.ExportModal = (function($, ExportModal) {
                 .then(function() {
                     closeModal = false;
                     if (!modalClosed) {
-                        closeExportView();
+                        ExportModal.close();
                     }
 
                     deferred.resolve();
@@ -433,7 +412,7 @@ window.ExportModal = (function($, ExportModal) {
                 setTimeout(function() {
                     if (closeModal) {
                         modalClosed = true;
-                        closeExportView();
+                        ExportModal.close();
                     }
                 }, 200);
             }
@@ -662,7 +641,8 @@ window.ExportModal = (function($, ExportModal) {
             // event.target is not reliable here for some reason so that is
             // why we're using last mousedown target
             var $mousedownTarg = gMouseEvents.getLastMouseDownTarget();
-            if ($mousedownTarg.hasClass('colGrab')) {
+            if ($mousedownTarg.hasClass('colGrab') || 
+                $mousedownTarg.closest('.dropdownBox').length) {
                 return;
             }
 
@@ -733,7 +713,8 @@ window.ExportModal = (function($, ExportModal) {
         }
         var currColName = gTables[tableId].tableCols[colNum - 1].name;
         $cells.addClass('modalHighlighted');
-        xcHelper.insertText($exportColumns, currColName);
+
+        // xcHelper.insertText($exportColumns, currColName);
         $exportView.find('.cols').find('li').filter(function() {
             return ($(this).text() === currColName);
         }).addClass('checked').find('.checkbox').addClass('checked');
@@ -742,51 +723,6 @@ window.ExportModal = (function($, ExportModal) {
     function deselectColumn($cells, colNum) {
         $cells.removeClass('modalHighlighted');
         var currColName = gTables[tableId].tableCols[colNum - 1].name;
-        var colNameLength = currColName.length;
-        var colLength = currColName.length;
-        var inputVal = $exportColumns.val();
-        var inputValLength = inputVal.length;
-        var colNameIndex = -1;
-        var delimiters = [" ", ",", undefined];
-        // find index of colname by looking for match and checking previous
-        // and next character are delimiters
-        for (var i = 0; i < inputValLength; i++) {
-            if (inputVal.substr(i, colNameLength) === currColName) {
-                if (delimiters.indexOf(inputVal[i + colNameLength]) !== -1 &&
-                    delimiters.indexOf(inputVal[i - 1]) !== -1) {
-                    colNameIndex = i;
-                    break;
-                }
-            }
-        }
-
-        var beginIndex = 0;
-
-        // find comma prefix and set beginIndex to that location
-        for (var i = (colNameIndex - 1); i > -1; i--) {
-            if (inputVal[i] === ",") {
-                beginIndex = i;
-                break;
-            } else if (inputVal[i] !== " ") {
-                beginIndex = colNameIndex;
-                break;
-            }
-        }
-
-        var colNameEndIndex = colNameIndex + colLength;
-        var endIndex = colNameEndIndex;
-
-        if (beginIndex === 0) {
-            for (var i = (colNameEndIndex); i < inputVal.length; i++) {
-                if (inputVal[i] !== " " && inputVal[i] !== ",") {
-                    endIndex = i;
-                    break;
-                }
-            }
-        }
-        var newVal = inputVal.slice(0, beginIndex) + inputVal.substr(endIndex);
-        $exportColumns.val(newVal);
-
 
         $exportView.find('.cols').find('li').filter(function() {
             return ($(this).text() === currColName);
@@ -995,43 +931,6 @@ window.ExportModal = (function($, ExportModal) {
 
     function resetExportView() {
 
-    }
-
-    function closeExportView() {
-        // xx some of this code can be reused for all operation views
-        var $tableWrap = $('#xcTableWrap-' + tableId);
-        $exportView.addClass('xc-hidden');
-        $('#workspaceMenu').find('.menuSection.lastOpened')
-                           .removeClass('lastOpened xc-hidden');
-
-        $tableWrap.removeClass('exportModalOpen');
-        $tableWrap.removeClass('columnPicker');
-
-        $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .removeClass('tableOpSection');
-
-
-        $tableWrap.find('.modalHighlighted')
-                                .removeClass('modalHighlighted');
-           
-
-        exportTableName = null;
-        exportTargInfo = null;
-        $exportPath.val("");
-        $exportColumns.val("");
-        $('.exportable').removeClass('exportable');
-        $selectableThs = null;
-        $(document).off(".exportModal");
-        $exportView.find('.checkbox').removeClass('checked');
-        $exportView.find('.checked').removeClass('checked');
-
-        restoreAdvanced();
-        restoreColumns();
-        $advancedSection.addClass('collapsed').removeClass('expanded');
-
-
-        StatusBox.forceHide();// hides any error boxes;
-        $('.tooltip').hide();
     }
 
     return (ExportModal);

@@ -91,7 +91,7 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.find('.subTab').removeClass('active');
                     $subTab.addClass('active');
                 }
-                OperationsView.closeOpSection();
+                OperationsView.close();
                 JoinView.close();
                 return;
             }
@@ -125,7 +125,7 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function panelSwitchingHandler($curTab, lastTabId) {
-        OperationsView.closeOpSection();
+        OperationsView.close();
         $('.mainPanel').removeClass('active');
         var curTab = $curTab.attr('id');
 

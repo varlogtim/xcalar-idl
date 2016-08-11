@@ -488,6 +488,11 @@
         }
     }
 
+    // lis dealing with exiting FASJ
+    .exitOp {
+        display: none;
+    }
+
     .tdDropdown {
         display: none;
     }
@@ -503,6 +508,48 @@
 
         .tdDropdown {
             display: list-item;
+        }
+    }
+}
+
+// colmenu dropdown option when in FASJ mode
+#container.columnPicker {
+    #colMenu, #tableMenu {
+        li, .divider {
+            display: none !important;
+        } 
+    }
+    &.joinState {
+        #colMenu {
+            .exitJoin {
+                display: list-item !important;
+            }
+        }
+    }
+    &.mapState {
+        #colMenu {
+            .exitMap {
+                display: list-item !important;
+            }
+        }
+    }
+    &.filterState {
+        #colMenu {
+            .exitFilter {
+                display: list-item !important;
+            }
+        }
+    }
+    &.exportState {
+        #colMenu {
+            .exitExport {
+                display: list-item !important;
+            }
+        }
+        #tableMenu {
+            .exitExport {
+                display: list-item !important;
+            }
         }
     }
 }

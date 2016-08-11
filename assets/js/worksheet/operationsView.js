@@ -511,6 +511,10 @@ window.OperationsView = (function($, OperationsView) {
                                 .addClass('modalHighlighted');
         operationsViewShowListeners();
 
+        // used for css class
+        var opNameNoSpace = operatorName.replace(/ /g, "");
+        $('#container').addClass('columnPicker ' + opNameNoSpace + 'State');
+
         modalHelper.addWaitingBG();
         modalHelper.setup({
             "open"  : function() {
@@ -552,7 +556,7 @@ window.OperationsView = (function($, OperationsView) {
         $(document).off('click.OpSection');
     }
 
-    OperationsView.closeOpSection = function() {
+    OperationsView.close = function() {
         if (isOpen) {
             closeOpSection(); 
         }
@@ -570,7 +574,8 @@ window.OperationsView = (function($, OperationsView) {
             }
             var $target = $(event.target);
             if ($target.closest('.dataCol').length ||
-                $target.closest('.jsonElement').length) {
+                $target.closest('.jsonElement').length ||
+                $target.closest('.dropdownBox').length) {
                 return;
             }
             xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
@@ -3588,6 +3593,9 @@ window.OperationsView = (function($, OperationsView) {
             $activeOpSection.addClass('xc-hidden');
             $('#workspaceMenu').find('.menuSection.lastOpened')
                                .removeClass('lastOpened xc-hidden');
+             // used for css class
+            var opNameNoSpace = operatorName.replace(/ /g, "");
+            $('#container').removeClass('columnPicker ' + opNameNoSpace + 'State');
         }});
 
         StatusBox.forceHide();// hides any error boxes;

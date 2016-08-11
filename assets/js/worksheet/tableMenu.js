@@ -67,6 +67,30 @@ window.TblMenu = (function(TblMenu, $) {
             ExportModal.show(tableId);
         });
 
+        $tableMenu.on('mouseup', '.exitOp', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var exitType = $(this).data('exittype');
+            switch (exitType) {
+                case ('export'):
+                    ExportModal.close();
+                    break;
+                case ('filter'):
+                    OperationsView.close();
+                    break;
+                case ('map'):
+                    OperationsView.close();
+                    break;
+                case ('join'):
+                    JoinView.close();
+                    break;
+                default:
+                    break;
+            }
+            
+        });
+
         $tableMenu.on('mouseup', '.copyColNames', function(event) {
             if (event.which !== 1) {
                 return;
@@ -888,6 +912,30 @@ window.TblMenu = (function(TblMenu, $) {
             var columns = $colMenu.data('columns');
             var tableId = $colMenu.data('tableId');
             ColManager.unhideCols(columns, tableId, {"autoResize": true});
+        });
+
+        $colMenu.on('mouseup', '.exitOp', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var exitType = $(this).data('exittype');
+            switch (exitType) {
+                case ('export'):
+                    ExportModal.close();
+                    break;
+                case ('filter'):
+                    OperationsView.close();
+                    break;
+                case ('map'):
+                    OperationsView.close();
+                    break;
+                case ('join'):
+                    JoinView.close();
+                    break;
+                default:
+                    break;
+            }
+            
         });
     }
 

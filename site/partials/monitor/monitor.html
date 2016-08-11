@@ -21,21 +21,26 @@
     <!-- End of Setup Section -->
     <!-- Settings Section -->
     <section id="monitor-settings" class="subPanel monitorSection">
-      <div class="topSection"><%= dicts.monitor.UserSettings %></div>
-      <div class="mainSection no-selection">
-        <div class="heading"><%= dicts.monitor.GeneralSettings %></div>
-        <div class="optionsContainer">
+      <div class="mainSection no-selection cardContainer">
+        <header class="cardHeader">
+          <div class="title"><%= dicts.monitor.GeneralSettings %></div>
+        </header>
+        <div class="optionsContainer cardMain">
           <div class="optionSet">
             <div class="label"><%= dicts.monitor.showDataCol %></div>
             <div class="optionSelector">
-              <div class="onOffBtn">
+              <div id="showDataColBox" class="checkbox">
+                <i class="icon xi-ckbox-empty fa-13"></i>
+                <i class="icon xi-ckbox-selected fa-13"></i>
+              </div>
+<!--               <div class="onOffBtn">
                   <input type='checkbox' class="checkbox" id="showDataColBox" checked>
                   <label for="showDataColBox">
                     <div class="slider"></div>
                     <div class="text offText">OFF</div>
                     <div class="text onText">ON</div>
                   </label>
-              </div>
+              </div> -->
             </div>
           </div>
           <div class="optionSet">

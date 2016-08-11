@@ -1867,7 +1867,8 @@ window.TblManager = (function($, TblManager) {
         });
 
         $thead.on("click", ".dropdownBox", function(event) {
-            if ($table.closest('.columnPicker').length ||
+            // if ($table.closest('.columnPicker').length ||
+            if (
                 $("#mainFrame").hasClass("modalOpen")) {
                 // not focus when in modal
                 return;

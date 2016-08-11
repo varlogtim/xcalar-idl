@@ -30,6 +30,9 @@
     <li class="resizeCols parentMenu" data-submenu="resizeCols">
       <%= dicts.MenuTStr.ResizeAllCols %>
     </li>
+    <li class="exitExport exitOp" data-exittype="export">
+      <%= dicts.MenuTStr.ExitExport %>
+    </li>
   </ul>
   <div class="scrollArea top">
     <div class="arrow"></div>
@@ -92,32 +95,32 @@
   <% var types = ['Boolean', 'Integer', 'Float', 'String']; %>
 
 <div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">
-    <ul>
-      <li class="addColumn parentMenu" data-submenu="addColumn">
-        <%= dicts.MenuTStr.AddCol %>
-      </li>
-      <li class="deleteColumn"><%= dicts.MenuTStr.DelCol %></li>
-      <li class="duplicate"><%= dicts.MenuTStr.DupCol %></li>
-      <li class="deleteDuplicates">
-        <%= dicts.MenuTStr.DelOtherDups %>
-      </li>
-      <li class="hide"><%=  dicts.MenuTStr.HideCol %></li>
-      <li class="unhide"><%=  dicts.MenuTStr.UnHideCol %></li>
-      <li class="textAlign parentMenu" data-submenu="textAlign">
-        <%= dicts.MenuTStr.TxtAlign %>
-      </li>
-      <li class="resize parentMenu" data-submenu="resize">
-        <%= dicts.MenuTStr.Resize %>
-      </li>
-      <div class="divider identityDivider thDropdown"></div>
-      <li class="rename parentMenu" data-submenu="rename">
-        <%= dicts.MenuTStr.RenameCol %>
-      </li>
-      <li class="splitCol parentMenu" data-submenu="splitCol">
-        <%= dicts.MenuTStr.SplitCol %>
-      </li>
-      <li class="changeDataType parentMenu"
-      data-submenu="changeDataType">
+  <ul>
+    <li class="addColumn parentMenu" data-submenu="addColumn">
+      <%= dicts.MenuTStr.AddCol %>
+    </li>
+    <li class="deleteColumn"><%= dicts.MenuTStr.DelCol %></li>
+    <li class="duplicate"><%= dicts.MenuTStr.DupCol %></li>
+    <li class="deleteDuplicates">
+      <%= dicts.MenuTStr.DelOtherDups %>
+    </li>
+    <li class="hide"><%=  dicts.MenuTStr.HideCol %></li>
+    <li class="unhide"><%=  dicts.MenuTStr.UnHideCol %></li>
+    <li class="textAlign parentMenu" data-submenu="textAlign">
+      <%= dicts.MenuTStr.TxtAlign %>
+    </li>
+    <li class="resize parentMenu" data-submenu="resize">
+      <%= dicts.MenuTStr.Resize %>
+    </li>
+    <div class="divider identityDivider thDropdown"></div>
+    <li class="rename parentMenu" data-submenu="rename">
+      <%= dicts.MenuTStr.RenameCol %>
+    </li>
+    <li class="splitCol parentMenu" data-submenu="splitCol">
+      <%= dicts.MenuTStr.SplitCol %>
+    </li>
+    <li class="changeDataType parentMenu"
+    data-submenu="changeDataType">
       <%= dicts.MenuTStr.ChangeType %>
     </li>
     <li class="format parentMenu" data-submenu="format">
@@ -178,6 +181,18 @@
     </li>
     <li class="multiColumn extensions parentMenu" data-submenu="extensions">
       <%= dicts.MenuTStr.Exts %>
+    </li>
+    <li class="exitExport exitOp" data-exittype="export">
+      <%= dicts.MenuTStr.ExitExport %>
+    </li>
+    <li class="exitFilter exitOp" data-exittype="filter">
+      <%= dicts.MenuTStr.ExitFilter %>
+    </li>
+    <li class="exitMap exitOp" data-exittype="map">
+      <%= dicts.MenuTStr.ExitMap %>
+    </li>
+    <li class="exitJoin exitOp" data-exittype="join">
+      <%= dicts.MenuTStr.ExitJoin %>
     </li>
   </ul>
   <div class="scrollArea top">

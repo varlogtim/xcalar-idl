@@ -313,6 +313,9 @@ window.JoinView = (function($, JoinView) {
     JoinView.show = function(tableId, colNum, restore) {
         $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
+        // $('#colMenu').addClass('exitOpState exitJoinState');
+        $('#container').addClass('columnPicker joinState');
+
         $joinView.removeClass('xc-hidden');
         if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
@@ -354,7 +357,9 @@ window.JoinView = (function($, JoinView) {
                            .removeClass('lastOpened xc-hidden'); 
         // modalHelper.clear();
         $("body").off(".joinModal");
-        $('.xcTable').off('click.columnPicker').removeClass('columnPicker');
+        $('.xcTable').off('click.columnPicker').closest(".xcTableWrap").removeClass('columnPicker');
+        $('#container').removeClass('columnPicker joinState');
+        // $('#colMenu').removeClass('exitOpState exitJoinState');
         $lastInputFocused = null;
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
@@ -650,7 +655,8 @@ window.JoinView = (function($, JoinView) {
     }
 
     function columnPickers() {
-        var $tables = $(".xcTable:visible").addClass('columnPicker');
+        $(".xcTableWrap:visible").addClass('columnPicker');
+        var $tables = $(".xcTable:visible");
 
         $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
             if (!$lastInputFocused) {
@@ -658,7 +664,8 @@ window.JoinView = (function($, JoinView) {
             }
             var $target = $(event.target);
             if ($target.closest('.dataCol').length ||
-                $target.closest('.jsonElement').length) {
+                $target.closest('.jsonElement').length ||
+                $target.closest('.dropdownBox').length) {
                 return;
             }
             xcHelper.fillInputFromCell($target, $lastInputFocused);

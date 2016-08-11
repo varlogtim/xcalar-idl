@@ -137,9 +137,10 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     function addEventListeners() {
-        $('#showDataColBox').change(function() {
-            var $checkbox = $(this);
-            if ($checkbox.is(":checked")) {
+        $('#showDataColBox').click(function() {
+            var $checkbox = $(this); 
+            $checkbox.toggleClass('checked'); 
+            if ($checkbox.hasClass("checked")) {
                 userPrefs.hideDataCol = false;
             } else {
                 userPrefs.hideDataCol = true;
@@ -160,7 +161,10 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     function restoreSettingsPanel() {
-        $('#showDataColBox').prop('checked', !userPrefs.hideDataCol);
+        if (!userPrefs.hideDataCol) {
+            $('#showDataColBox').addClass('checked');
+        }
+       
         memLimitSlider.setSliderValue(userPrefs.memoryLimit);
         monIntervalSlider.setSliderValue(userPrefs.monitorGraphInterval);
     }

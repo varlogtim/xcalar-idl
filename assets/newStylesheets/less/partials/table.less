@@ -741,6 +741,8 @@ html.firefox, html.microsoft {
         td.modalHighlighted {
             pointer-events: all;
             border-color: @color-table-border-darkened !important;
+            position: relative;
+            z-index:36;
         }
 
         .header {
@@ -793,8 +795,14 @@ html.firefox, html.microsoft {
         .dragArea {
             display: none;
         }
-        .dropdownBox {
+        .tableTitle .dropdownBox {
             pointer-events: none;
+        }
+        &.exportModalOpen {
+            .tableTitle .dropdownBox {
+                // allow exiting of export through dropdown menu
+                pointer-events: initial;
+            }
         }
 
         th:first-child, td:first-child {
@@ -807,7 +815,7 @@ html.firefox, html.microsoft {
 
         th.modalHighlighted {
             .header {
-                z-index: 2 !important;
+                // z-index: 2 !important;
                 .type.icon {
                     color: @color-white;
                 }
@@ -823,10 +831,10 @@ html.firefox, html.microsoft {
             }
         }
 
-        td.modalHighlighted {
-            position: relative;
-            z-index: 0;
-        }
+        // td.modalHighlighted {
+        //     position: relative;
+        //     z-index: 0;
+        // }
 
 
         tbody tr {
@@ -1014,11 +1022,14 @@ html.firefox, html.microsoft {
     }
 
     td.modalHighlighted {
-        position: relative;
-        z-index:36;
+        // xi2 commented out
+        // position: relative;
+        // z-index:36;
         .transition(border-color 0.3s);
         &.jsonModalOpen {
             border-color: @color-table-border-gray !important;
+            position: relative;
+            z-index:36;
         }
     }
     .dataCol {
