@@ -614,9 +614,10 @@ module.exports = {
     },
 
     "opsModal": {
-        "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be preceded by a $ sign, e.g. $column1.",
-        "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be preceded by a $ sign, e.g. $column1.",
-        "groupbyInstr": "Enter one or multiple fields group on. Then, select a function, e.g. count. Finally, enter in any arguments if applicable. Column names should be preceded by a $ sign, e.g. $column1.",
+        "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
+        "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
+        "groupbyInstr": "Enter one or multiple fields group on. Then, select a function, e.g. count. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
+        "aggInstr": "Select a function, e.g. sum. Then, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Optional resultant aggregate names should be prefixed by a ^ sign.",
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "select to allow empty field",
@@ -624,7 +625,7 @@ module.exports = {
     },
 
     "extOpsModal": {
-        "instr": "Column names should be preceded by a $ sign, e.g. $column1."
+        "instr": "Column names should be prefixed by a $ sign, e.g. $column1."
     },
 
     "dfgParam": {

@@ -603,7 +603,7 @@ window.xcFunction = (function($, xcFunction) {
         function groupByJoinHelper(nTableName, nTableCols, dataColNum) {
             var innerDeferred = jQuery.Deferred();
 
-            var joinType = joinLookUp["Full Outer Join"];
+            var joinType = joinLookUp["Left Outer Join"];
             var joinedTableId = Authentication.getHashId();
             finalTableName = xcHelper.getTableName(nTableName) + joinedTableId;
             var lTable     = gTables[tableId];

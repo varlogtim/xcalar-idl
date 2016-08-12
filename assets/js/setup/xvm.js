@@ -32,7 +32,8 @@ window.XVM = (function(XVM) {
                       XcalarApiVersionT.XcalarApiVersionSignature);
                     console.log("Frontend's thrift version is: "+versionNum);
                     console.log("Frontend's git SHA is: "+gGitVersion);
-                    deferred.reject({error: ThriftTStr.Update});
+                    // deferred.reject({error: ThriftTStr.Update});
+                    deferred.resolve();
                 } else {
                     deferred.resolve();
                 }

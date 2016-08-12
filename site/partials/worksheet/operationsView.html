@@ -79,7 +79,7 @@
 
 		<div class="groupby opSection xc-hidden">
 			<p class="instructions"><%= dicts.opsModal.groupbyInstr %></p>
-			<div class="group filterGroup">
+			<div class="group groupbyGroup">
 				<div class="argsSection groupOnSection">
 					<div class="row gbOnRow clearfix">
 		                <div class="description">Fields to group on:</div>
@@ -172,8 +172,39 @@
 		</div>
 		<!-- end group by op section -->
 
-		<div class="strPreview"></div>
-		<button class="btn submit">MAP</button>
+		<div class="aggregate opSection xc-hidden">
+			<p class="instructions"><%= dicts.opsModal.aggInstr %></p>
+			<div class="group aggregateGroup">
+				<div class="catFuncHeadings clearfix subHeading">
+					<div class="filterFnTitle">Aggregate Function:</div>
+					<div class="altFnTitle">No Function Chosen</div>
+				</div>
+				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
+			        <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
+			        <div class="iconWrapper dropdown">
+			          <i class="icon xi-down"></i>
+			        </div>
+			        <div class="list genFunctionsMenu">
+			          <ul data-fnmenunum="0"></ul>
+			          <div class="scrollArea top">
+			            <div class="arrow"></div>
+			          </div>
+			          <div class="scrollArea bottom">
+			            <div class="arrow"></div>
+			          </div>
+			        </div>
+			    </div>
+				<div class="descriptionText">
+					
+				</div>
+				<div class="argsSection inactive">
+				</div>
+			</div> 
+		</div>
+		<!-- end aggregate op section -->
+
+		<div class="strPreview"></div> <!-- this gets filled by JS -->
+		<button class="btn submit"></button> <!-- this gets filled by JS -->
 		
 			
 	</div>

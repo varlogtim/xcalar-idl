@@ -391,14 +391,17 @@
     }
 
     &.type-string, &.type-array {
-        .aggregate {
-            display: none;
-        }
         .type-string {
             display: none;
         }
 
         .format {
+            display: none;
+        }
+    }
+
+    &.type-array {
+        .aggregate {
             display: none;
         }
     }
@@ -526,7 +529,7 @@
             }
         }
     }
-    &.agregateState {
+    &.aggregateState {
         #colMenu {
             .exitAggregate {
                 display: list-item !important;
