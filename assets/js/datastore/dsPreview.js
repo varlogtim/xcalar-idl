@@ -967,7 +967,7 @@ window.DSPreview = (function($, DSPreview) {
         // validate delimiter
         var fieldDelim = getFieldDelim();
         var lineDelim = getLineDelim();
-
+        var quoteChar = getQuote();
 
         isValid = xcHelper.validate([
             {
@@ -985,7 +985,18 @@ window.DSPreview = (function($, DSPreview) {
                 "check"    : function() {
                     return (typeof lineDelim === "object");
                 }
-            }
+            },
+            /**
+            {
+                "$selector": $quote,
+                "text"     : DSFormTStr.InvalidDelim,
+                "formMode" : true,
+                "check"    : function() {
+                    return (typeof quoteChar === "object") ||
+                           (JSON.parse.length > 1);
+                }
+
+            } */
         ]);
 
         if (!isValid) {
