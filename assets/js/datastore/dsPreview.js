@@ -967,7 +967,7 @@ window.DSPreview = (function($, DSPreview) {
         // validate delimiter
         var fieldDelim = getFieldDelim();
         var lineDelim = getLineDelim();
-        var quoteChar = getQuote();
+        var quote = getQuote();
 
         isValid = xcHelper.validate([
             {
@@ -986,33 +986,14 @@ window.DSPreview = (function($, DSPreview) {
                     return (typeof lineDelim === "object");
                 }
             },
-            /**
-            {
-                "$selector": $quote,
-                "text"     : DSFormTStr.InvalidDelim,
-                "formMode" : true,
-                "check"    : function() {
-                    return (typeof quoteChar === "object") ||
-                           (JSON.parse.length > 1);
-                }
 
-            } */
-        ]);
-
-        if (!isValid) {
-            return null;
-        }
-
-        var quote = getQuote();
-        isValid = xcHelper.validate([
-            {
-                "$selector": $quote
-            },
             {
                 "$selector": $quote,
                 "text"     : DSFormTStr.InvalidQuote,
+                "formMode" : true,
                 "check"    : function() {
-                    return (quote.length > 1);
+                    return (typeof quote === "object") ||
+                           (xcHelper.delimiterTranslate($quote).length > 1);
                 }
             }
         ]);
