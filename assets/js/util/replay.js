@@ -448,7 +448,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
         argsMap[SQLOps.ChangeFormat] = ["colNums", "tableId", "formats"];
         argsMap[SQLOps.RoundToFixed] = ["colNums", "tableId", "decimals"];
-        argsMap[SQLOps.Ext] = ["colNum", "tableId", "functionName", "argList"];
+        argsMap[SQLOps.Ext] = ["tableId", "modName", "funcName", "argList"];
     }
 
     function createTabMap() {

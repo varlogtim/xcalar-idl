@@ -158,10 +158,6 @@ window.MainMenu = (function($, MainMenu) {
                 $('#monitorPanel').addClass("active");
                 MonitorPanel.active();
                 break;
-            case ("extensionTab"):
-                $('#extensionPanel').addClass("active");
-                ExtensionPanel.active();
-                break;
             default:
                 $(".underConstruction").addClass("active");
         }

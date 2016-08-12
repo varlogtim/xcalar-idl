@@ -182,10 +182,6 @@ window.BottomMenu = (function($, BottomMenu) {
             // containment: "document"
         });
 
-        // $menuPanel.on("resize", function() {
-        //     CLIBox.realignNl();
-        // });
-
         $("#bottomMenuBarTabs").on("click", ".sliderBtn", function() {
             if (!clickable) {
                 return;
@@ -210,6 +206,8 @@ window.BottomMenu = (function($, BottomMenu) {
                 "animSpeed"    : delay
             });
         }
+
+        ExtensionManager.closeView();
     }
 
     function toggleSection(sectionIndex) {
@@ -264,18 +262,22 @@ window.BottomMenu = (function($, BottomMenu) {
                 }, delay);
             }
 
-            if ($section.attr("id") === "sqlSection") {
+            var sectoinId = $section.attr("id");
+            if (sectoinId === "sqlSection") {
                 SQL.scrollToBottom();
                 $("#sqlButtonWrap").removeClass("xc-hidden");
             } else {
                 $("#sqlButtonWrap").addClass("xc-hidden");
             }
-            // if ($section.attr("id") === "cliSection") {
-            //     CLIBox.realignNl();
-            // }
+
+            if (sectoinId === "extension-ops") {
+                ExtensionManager.openView();
+            } else {
+                ExtensionManager.closeView();
+            }
+
             OperationsView.close();
             JoinView.close();
-
         }
 
         // dealay the next click as the menu open/close has animation
@@ -314,7 +316,6 @@ window.BottomMenu = (function($, BottomMenu) {
                 .attr('data-original-title', SideBarTStr.PopOut)
                 .removeClass("xi_popin").addClass("xi_popout");
         $('.tooltip').hide();
-        // CLIBox.realignNl();
         $('#container').removeClass('bottomMenuOut');
     }
 

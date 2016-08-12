@@ -1,73 +1,18 @@
-window.ExtButton = (function(ExtButton, $) {
-    function genSimpleButton(modName, fnName, buttonText) {
-        // var html = '<div class="sectionLabel">' + fnName + '</div>';
-        var html = '';
-        html += '<li class="extensions ' + modName + '::' + fnName + '" ' +
-                 'data-modName="' + modName + '" data-fnName="' + fnName + '">';
-        html += buttonText;
-        html += '</li>';
-        return (html);
-    }
-
-    function genComplexButton(modName, fnName, buttonText, arrayOfFields) {
-        var html = '<li class="extensions complex ' + modName + '::' + fnName +
-                    '" data-modName="' + modName + '"' +
-                    ' data-fnName="' + fnName + '">';
-        html += '<span class="extTitle">' + buttonText + "</span>...";
-        html += '</li>';
-        ExtensionOpModal.addButton(modName, fnName, arrayOfFields);
-
-        return (html);
-    }
-
-    function newButtonHTML(modName, fnName, buttonText, arrayOfFields) {
-        // buttonText: this is the text that is on the button
-        // arrayOfFields: this is an array of field that are texts for args
-        // each entry in arrayOfFields contain descriptions for the types of
-        // values that are allowable in the input boxes.
-
-        // For example, for window, buttonText = "window"
-        // arrayOfFields = [lagObj, leadObj]
-        // lagObj = {"type": "number", <-kind of argument
-        //           "name": "Lag",    <-text to be display above input
-        //           "fieldClass": "lag"} <-class to be applied for fn to use
-        // leadObj = {"type": "number",
-        //            "name": "Lead",
-        //            "fieldClass": "lead"}
-
-        // For horizontal partitioning, buttonText = "horizontal partition"
-        // arrayOfFields = [{"type": "number",
-        //                   "name": "No. of Partitions",
-        //                   "fieldClass": "partitionNums"}]
-        if (arrayOfFields === undefined || arrayOfFields.length === 0) {
-            // Simple button, no input
-            return (genSimpleButton(modName, fnName, buttonText));
-        } else {
-            return (genComplexButton(modName, fnName, buttonText,
-                                     arrayOfFields));
-        }
-    }
-
-    ExtButton.getButtonHTML = function(modName) {
-        var buttonList = window[modName].buttons;
-        var buttonsHTML = "";
-        for (var i = 0; i < buttonList.length; i++) {
-            buttonsHTML += newButtonHTML(modName, buttonList[i].fnName,
-                                         buttonList[i].buttonText,
-                                         buttonList[i].arrayOfFields);
-        }
-        return (buttonsHTML);
-    };
-
-    return (ExtButton);
-
-}({}, jQuery));
-
 window.ExtensionManager = (function(ExtensionManager, $) {
-    var extList = [];
+    
+    var extMap = {};
     var extFileNames = [];
     var numChecksLeft = 0;
+    var triggerCol;
+
+    // for the opsView
+    var $extOpsView;              // $("#extension-ops");
+    var $extTriggerTableDropdown; //$("#extension-ops-mainTable");
+    var isViewOpen = false;
+    var $lastInputFocused;
+
     function setupPart4() {
+        var extList = [];
         // get list of extensions currently loaded into system
         for (var objs in window) {
             if (objs.indexOf("UExt") === 0 ) {
@@ -82,16 +27,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
             }
         }
-        // console.log("Extensions list: " + extList);
-
-        for (var i = 0; i < extList.length; i++) {
-            // var buttonList = window[extList[i]].buttons;
-            $("ul.extensions").eq(0).append(ExtButton.getButtonHTML(extList[i]));
-            // if (i < extList.length - 1) {
-            //     $("ul.extensions").eq(0).append(
-            //     '<div class="divider identityDivider thDropdown"></div>');
-            // }
-        }
+        
+        extList.sort();
+        generateExtList(extList);
     }
 
     function removeExt(extName) {
@@ -168,7 +106,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function setupPart2() {
         // check that python modules have been uploaded
-        var extLoaded = $("ul.extensions script");
+        var extLoaded = $("#extension-ops-script script");
         for (var i = 0; i < extLoaded.length; i++) {
             var jsFile = extLoaded[i].src;
 
@@ -215,10 +153,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     ExtensionManager.setup = function() {
+        $extOpsView = $("#extension-ops");
+        $extTriggerTableDropdown = $("#extension-ops-mainTable");
+
+        setupView();
         // extensions.html should be autopopulated by the backend
-        $("ul.extensions").empty(); // Clean up for idempotency
+        $("#extension-ops-script").empty(); // Clean up for idempotency
         // XXX change to async call later
-        $("ul.extensions").load("assets/extensions/extensions.html",
+        $("#extension-ops-script").load("assets/extensions/extensions.html",
                                 undefined, setupPart2);
     };
     // This registers an extension.
@@ -245,61 +187,73 @@ window.ExtensionManager = (function(ExtensionManager, $) {
          // Might not support in 1.0
     };
 
-    ExtensionManager.trigger = function(colNum, tableId, functionName, argList) {
+    ExtensionManager.openView = function(colNum, tableId) {
+        if (colNum != null && tableId != null) {
+            var table = gTables[tableId];
+            var progCol = gTables[tableId].getCol(colNum);
+            triggerCol = table.getCol(colNum);
+            $extTriggerTableDropdown.find(".text").val(table.getName());
+        }
+
+        var $tab = $("#extensionTab");
+        if (!$tab.hasClass("active")) {
+            // the click will trigger the openView
+            $tab.click();
+            return;
+        }
+
+        if (!isViewOpen) {
+            isViewOpen = true;
+            $("#container").addClass("columnPicker extState");
+            columnPickers();
+        }
+    };
+
+    ExtensionManager.closeView = function() {
+        if (!isViewOpen) {
+            return;
+        }
+
+        isViewOpen = false;
+        clearArgs();
+        $lastInputFocused = null;
+        triggerCol = null;
+        $extTriggerTableDropdown.find(".text").val("");
+        $("#container").removeClass("columnPicker extState");
+        $(".xcTable").off("click.columnPicker")
+                    .closest(".xcTableWrap").removeClass("columnPicker");
+    };
+
+    ExtensionManager.trigger = function(tableId, modName, funcName, argList) {
         var deferred = jQuery.Deferred();
-        // function names must be of the form modName::funcName
-        var args = functionName.split("::");
-        if (args.length < 2) {
-            // XXX alert error
+
+        if (modName == null || funcName == null || modName.indexOf("UExt") !== 0) {
+            throw "error extension!";
             return;
         }
-        var modName = args[0];
-        var funcName = args[1];
-        if (modName.indexOf("UExt") !== 0) {
-            // XXX alert error
-            return;
-        }
-
-        var $tableMenu = $('#colMenu');
-        var $subMenu = $('#colSubMenu');
-        // var $allMenus = $tableMenu.add($subMenu);
-        var colArray = $("#colMenu").data("columns");
-        var colNames = [];
-
-        if (colArray != null && colArray.length > 1) {
-            colNum = colArray;
-        }
-        // argList.allMenus = $allMenus;
 
         if (modName !== "UExtATags" && modName !== "UExtGLM" &&
-            modName !== "UExtIntel" && modName !== "UExtKMeans" &&
-            modName !== "UExtTableau") {
+            modName !== "UExtIntel" && modName !== "UExtKMeans") {
             var worksheet = WSManager.getWSFromTable(tableId);
             var table = gTables[tableId];
             var tableName = table.getName();
-            var progCol = table.tableCols[colNum - 1];
-            var colType = progCol.type;
-            var colName = progCol.name;
-            var backColName = progCol.getBackColName();
 
             var hasStart = false;
             var txId;
             // in case argList is changed by ext writer
             var copyArgList = xcHelper.deepCopy(argList);
             var sql = {
-                "operation"   : SQLOps.Ext,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "colNum"      : colNum,
-                "colName"     : colName,
-                "functionName": functionName,
-                "argList"     : copyArgList,
-                "htmlExclude" : ["argList"]
+                "operation"  : SQLOps.Ext,
+                "tableName"  : tableName,
+                "tableId"    : tableId,
+                "modName"    : modName,
+                "funcName"   : funcName,
+                "argList"    : copyArgList,
+                "htmlExclude": ["argList"]
             };
 
             // Note Use try catch in case user has come error in extension code
             try {
-                var col = new XcSDK.Column(backColName, colType);
                 var ext = window[modName].actionFn(funcName);
 
                 if (ext == null || !(ext instanceof XcSDK.Extension)) {
@@ -319,22 +273,22 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
                 var runBeforeStartRet;
 
-                ext.initialize(col, tableName, worksheet, argList);
+                ext.initialize(tableName, worksheet, argList);
                 ext.runBeforeStart(extButton)
                 .then(function() {
-                    hasStart = true;
                     xcHelper.lockTable(tableId);
 
                     var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
-                        "extension": functionName
+                        "extension": funcName
                     });
                     txId = Transaction.start({
-                        "msg"      : msg,
-                        "operation": SQLOps.Ext,
-                        "steps"    : -1,
-                        "functionName": functionName
+                        "msg"         : msg,
+                        "operation"   : SQLOps.Ext,
+                        "steps"       : -1,
+                        "functionName": funcName
                     });
 
+                    hasStart = true;
                     return ext.run(txId);
                 })
                 .then(function(ret) {
@@ -384,7 +338,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     }
                     deferred.reject(error);
                 });
-            } catch(error) {
+            } catch (error) {
                 if (hasStart) {
                     xcHelper.unlockTable(tableId);
 
@@ -404,29 +358,29 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var table = gTables[tableId];
         var copyArgList = xcHelper.deepCopy(argList);
         var sql = {
-            "operation"   : SQLOps.Ext,
-            "tableName"   : table.getName(),
-            "tableId"     : tableId,
-            "colNum"      : colNum,
-            "functionName": functionName,
-            "argList"     : copyArgList,
-            "htmlExclude" : ["argList"]
+            "operation"  : SQLOps.Ext,
+            "tableName"  : table.getName(),
+            "tableId"    : tableId,
+            "modName"    : modName,
+            "funcName"   : funcName,
+            "argList"    : copyArgList,
+            "htmlExclude": ["argList"]
         };
 
         xcHelper.lockTable(tableId);
 
         var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
-            "extension": functionName
+            "extension": funcName
         });
         var txId = Transaction.start({
-            "msg"      : msg,
-            "operation": SQLOps.Ext,
-            "steps"    : -1,
-            "functionName": functionName
+            "msg"         : msg,
+            "operation"   : SQLOps.Ext,
+            "steps"       : -1,
+            "functionName": funcName
         });
 
         try {
-            window[modName].actionFn(txId, colNum, tableId, funcName, argList)
+            window[modName].actionFn(txId, tableId, funcName, argList)
             .then(function(newTables) {
                 xcHelper.unlockTable(tableId);
                 var finalTableId;
@@ -469,5 +423,395 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         return deferred.promise();
     };
+
+    function setupView() {
+        var $extLists = $extOpsView.find(".extLists");
+        var $extArgs = $extOpsView.find(".extArgs");
+
+        $extLists.on("click", ".moduleInfo", function() {
+            $(this).closest(".module").toggleClass("active");
+        });
+
+        $extLists.on("click", ".func .action", function() {
+            var $func = $(this).closest(".func");
+            if ($func.hasClass("selected")) {
+                return;
+            }
+
+            var fnName = $func.data("name");
+            var modName = $func.closest(".module").data("name");
+
+            $extLists.find(".func.selected").removeClass("selected");
+            $func.addClass("selected");
+            updateArgs(modName, fnName);
+        });
+
+        $("#extension-ops-close").click(function() {
+            clearArgs();
+        });
+
+        new MenuHelper($extTriggerTableDropdown, {
+            "onSelect": function($li) {
+                var tableName = $li.text();
+                var $input = $extTriggerTableDropdown.find(".text");
+
+                if ($input.val() !== tableName) {
+                    // if switch table, then no trigger col
+                    triggerCol = null;
+                    $input.val(tableName);
+                    $li.addClass("selected")
+                        .siblings().removeClass("selected");
+                    var tableId = xcHelper.getTableId(tableName);
+                    focusTable(tableId);
+                }
+            }
+        }).setupListeners();
+
+        $("#extension-ops-submit").click(function() {
+            submitArgs();
+        });
+
+        $extArgs.on("focus", ".argument.type-column", function() {
+            $lastInputFocused = $(this);
+        });
+    }
+
+    function generateExtList(exts) {
+        var html = "";
+        for (var i = 0, len = exts.length; i < len; i++) {
+            html += getExtListHTML(exts[i]);
+        }
+
+        $extOpsView.find(".extLists").html(html);
+        $extOpsView.find(".numExt").text($extOpsView.find(".func").length);
+    }
+
+    function getExtListHTML(modName) {
+        var funcList = window[modName].buttons || [];
+        var modText = modName;
+        if (modText.startsWith("UExt")) {
+            modText = modText.substring(4);
+        }
+        var html =
+            '<li class="module xc-expand-list active" ' +
+            'data-name="' + modName + '">' +
+                '<div class="moduleInfo no-selection">' +
+                    '<span class="expand">' +
+                        '<i class="icon xi-arrow-down fa-7"></i>' +
+                    '</span>' +
+                    '<i class="icon xi-menu-extension fa-15"></i>' +
+                    '<span class="name">' +
+                        modText +
+                    '</span>' +
+                '</div>' +
+                '<div class="funcLists">';
+        extMap[modName] = {};
+        for (var i = 0, len = funcList.length; i < len; i++) {
+            var func = funcList[i];
+            var fnName = func.fnName;
+            var funcClass = "func";
+            var arrayOfFields = func.arrayOfFields;
+
+            if (arrayOfFields == null || arrayOfFields.length === 0) {
+                funcClass += " simple";
+            } else {
+                // cache arryOfField
+                extMap[modName][fnName] = func.arrayOfFields;
+            }
+
+            html +=
+                '<div class="' + funcClass + '" data-name="' + fnName + '">' +
+                    '<div class="name">' +
+                        func.buttonText +
+                    '</div>' +
+                    '<div class="action xc-action">' +
+                        '<i class="icon xi-arrow-right fa-8"></i>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        html += '</div></li>';
+
+        return html;
+    }
+
+    function submitArgs() {
+        var $extArgs = $extOpsView.find(".extArgs");
+        var modName = $extArgs.data("mod");
+        var fnName = $extArgs.data("fn");
+        var $input = $extTriggerTableDropdown.find(".text");
+        var tableName = $input.val();
+        
+        if (tableName === "") {
+            StatusBox.show(ErrTStr.NoEmptyList, $input);
+            return;
+        }
+
+        var tableId = xcHelper.getTableId(tableName);
+
+        var argList = getArgList(modName, fnName, tableId);
+        if (argList == null) {
+            // error message is being handled in getArgList
+            return;
+        }
+
+        ExtensionManager.trigger(tableId, modName, fnName, argList);
+        // close tab, do this because if new table created, they don't have the
+        // event listener
+        // XXXX should change event listerer to pop up
+        $("#extensionTab").click();
+    }
+
+    function updateArgs(modName, fnName) {
+        $extOpsView.addClass("hasArgs");
+        var $extArgs = $extOpsView.find(".extArgs");
+
+        $extArgs.data("mod", modName)
+                .data("fn", fnName);
+        $extArgs.find(".titleSection .title").text(modName + ": " + fnName);
+
+        var tableList = xcHelper.getWSTableList();
+        $extTriggerTableDropdown.find(".list ul").html(tableList);
+
+        var $input = $extTriggerTableDropdown.find(".text");
+        if ($input.val() === "") {
+            var focusedTable = xcHelper.getFocusedTable();
+            if (focusedTable != null) {
+                $extTriggerTableDropdown.find("li").filter(function() {
+                    return $(this).data("id") === focusedTable;
+                }).click();
+            }
+        }
+
+        var args = extMap[modName][fnName] || [];
+   
+        var html = "";
+        for (var i = 0, len = args.length; i < len; i++) {
+            var inputType = "text";
+            var inputVal = "";
+            var inputHint = "";
+            var argType = args[i].type;
+
+            if (argType === "number") {
+                inputType = "number";
+            } else {
+                if (argType === "column") {
+                    if (args[i].autofill && triggerCol != null) {
+                        inputVal = gColPrefix + triggerCol.getFronColName();
+                    }
+                } else {
+                    if (args[i].autofill != null) {
+                        inputVal = args[i].autofill;
+                    }
+                }
+            }
+
+            html +=
+                '<div class="field">' +
+                    '<div class="desc">' +
+                        args[i].name +
+                    '</div>' +
+                    '<div class="inputWrap">' +
+                        '<input class="argument type-' + argType + '"' +
+                        ' type="' + inputType + '"' +
+                        ' value="' + inputVal + '"' +
+                        ' placeholder="' + inputHint + '"' +
+                        ' spellcheck="false">' +
+                        '<div class="picker">' +
+                            '<i class="icon fa-13 xi-select-column"></i>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        $extArgs.find(".argSection").html(html);
+    }
+
+    function clearArgs() {
+        $extOpsView.find(".selected").removeClass("selected");
+        $extOpsView.removeClass("hasArgs");
+        var $extArgs = $extOpsView.find(".extArgs");
+        $extArgs.removeData("mod")
+                .removeData("fn");
+        $extArgs.find(".titleSection .title").text("");
+        $extArgs.find(".argSection").html("");
+        $extTriggerTableDropdown.find(".text").val("");
+    }
+
+    function getArgList(modName, fnName, tableId) {
+        var argList = {};
+        var $arguments = $extOpsView.find(".extArgs .argument");
+        var args = extMap[modName][fnName];
+        var invalidArg = false;
+
+        $arguments.each(function(i) {
+            var argInfo = args[i];
+            var res = checkArg(argInfo, $(this), tableId);
+            if (!res.valid) {
+                invalidArg = true;
+                return false;
+            }
+            argList[argInfo.fieldClass] = res.arg;
+        });
+
+        if (invalidArg) {
+            return null;
+        } else {
+            return argList;
+        }
+    }
+
+    function checkArg(argInfo, $input, tableId) {
+        var arg;
+        var argType = argInfo.type;
+        var typeCheck = argInfo.typeCheck || {};
+        var error;
+
+        if (argType !== "string") {
+            arg = $input.val().trim();
+        } else {
+            arg = $input.val(); // We cannot trim in this case
+        }
+
+        if (typeCheck.allowEmpty) {
+            if (argType === "string") {
+                return ({
+                    "valid": true,
+                    "arg"  : arg
+                });
+            } else {
+                if (arg.length === 0) {
+                    return ({
+                        "valid": true,
+                        "arg"  : undefined
+                    });
+                }
+            }
+        }
+
+        if (arg === "") {
+            StatusBox.show(ErrTStr.NoEmpty, $input);
+            return { "vaild": false };
+        }
+
+        if (argType === "column") {
+            if (!xcHelper.hasValidColPrefix(arg)) {
+                StatusBox.show(ErrTStr.ColInModal, $input);
+                return { "vaild": false };
+            }
+
+            arg = getColInfo(arg, typeCheck.columnType, $input, tableId);
+            if (arg == null) {
+                return { "vaild": false };
+            } else if (!typeCheck.multiColumn &&
+                        arg instanceof Array &&
+                        arg.length > 0) {
+                StatusBox.show(ErrTStr.NoMultiCol, $input);
+                return { "vaild": false };
+            }
+
+            if (typeCheck.multiColumn && !(arg instanceof Array)) {
+                // if set multiColumn to be true, then always return array
+                arg = [arg];
+            }
+        } else if (argType === "number") {
+            arg = Number(arg);
+
+            if (isNaN(arg)) {
+                StatusBox.show(ErrTStr.OnlyNumber, $input);
+                return { "vaild": false };
+            } else if (typeCheck.integer && !Number.isInteger(arg)) {
+                StatusBox.show(ErrTStr.OnlyInt, $input);
+                return { "vaild": false };
+            } else if (typeCheck.min != null && arg < typeCheck.min) {
+                error = xcHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
+                    "num": typeCheck.min
+                });
+
+                StatusBox.show(error, $input);
+                return { "vaild": false };
+            } else if (typeCheck.max != null && arg > typeCheck.max) {
+                error = xcHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
+                    "num": typeCheck.max
+                });
+
+                StatusBox.show(error, $input);
+                return { "vaild": false };
+            }
+        }
+
+        return {
+            "valid": true,
+            "arg"  : arg
+        };
+    }
+
+    function getColInfo(arg, validType, $input, exTableId) {
+        arg = arg.replace(/\$/g, '');
+        var tempColNames = arg.split(",");
+        // var backColNames = "";
+        var table = gTables[exTableId];
+        var cols = [];
+        var error;
+
+        if (validType != null && !(validType instanceof Array)) {
+            validType = [validType];
+        }
+
+        for (var i = 0, len = tempColNames.length; i < len; i++) {
+            var progCol = table.getColByFrontName(tempColNames[i].trim());
+            if (progCol != null) {
+                var colType = progCol.getType();
+                var type = colType;
+                if (colType === "integer" || colType === "float") {
+                    type = "number";
+                }
+
+                if (validType != null && validType.indexOf(type) < 0) {
+                    error = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                        "type1": validType.join(","),
+                        "type2": type
+                    });
+                    StatusBox.show(error, $input);
+                    return null;
+                }
+
+                var backColName = progCol.getBackColName();
+                cols.push(new XcSDK.Column(backColName, colType));
+            } else {
+                error = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                    "name": tempColNames[i]
+                });
+                StatusBox.show(error, $input);
+                return null;
+            }
+        }
+
+        if (cols.length === 1) {
+            return cols[0];
+        } else {
+            return cols;
+        }
+    }
+
+    function columnPickers() {
+        $(".xcTableWrap").addClass('columnPicker');
+        var $tables = $(".xcTable");
+
+        $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            var $target = $(event.target);
+            if ($target.closest('.dataCol').length ||
+                $target.closest('.jsonElement').length ||
+                $target.closest('.dropdownBox').length) {
+                return;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
+        });
+    }
+
+
     return (ExtensionManager);
 }({}, jQuery));

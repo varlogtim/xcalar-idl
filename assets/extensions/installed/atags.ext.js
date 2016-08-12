@@ -5,7 +5,7 @@ window.UExtATags = (function(UExtATags, $) {
         "arrayOfFields": []
     }];
 
-    UExtATags.actionFn = function(txId, colNum, tableId, functionName, argList) {
+    UExtATags.actionFn = function(txId, tableId, functionName, argList) {
         var $cellMenu = $("#cellMenu");
         if ($cellMenu.find(".tdLink").length === 0) {
             // Add the follow link feature

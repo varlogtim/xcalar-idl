@@ -1,4 +1,4 @@
-#extensionListSection {
+#extension-lists {
     .listInfo {
         .text {
             margin-left: 10px;
@@ -22,27 +22,25 @@
     }
 }
 
-#extensionPanel {
-    .topBar {
-        .input-box(@w: ~"calc(100% - 60px)", @h: 35px);
-        input {
-            float: left;
-            .vertical-align;
-            background-color: @color-white;
-        }
+#extension-search {
+    .size(@width: ~"calc(100% - 250px)", @height: 100%);
+    float: left;
+    padding-left: 20px;
 
-        .rightArea {
-            padding-right: 15px;
-        }
-
-        .icon {
-            color: @color-bg-pinkish-grey;
-        }
+    .input-box(@w: ~"calc(100% - 60px)", @h: 35px);
+    input {
+        float: left;
+        .vertical-align;
+        background-color: @color-white;
     }
-}
 
-#extensionView {
-    overflow-y: scroll;
+    .rightArea {
+        padding-right: 15px;
+    }
+
+    .icon {
+        color: @color-bg-pinkish-grey;
+    }
 }
 
 #extension-upload {
@@ -311,4 +309,227 @@
     }
 }
 
+#extension-ops-script {
+    display: none;
+}
+
+#extension-ops {
+    .font(@weight: 600, @color: @color-white);
+
+    &.hasArgs {
+        .extLists {
+            .size(@height: 40%);
+        }
+
+        .extArgs {
+            display: block;
+            .size(@height: 60%);
+        }
+    }
+
+    .extLists {
+        .size(@height: 100%);
+        padding-left: 5px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        .transition(height 0.3s);
+
+        .module {
+            background-color: @color-bg-dark-marine;
+            padding: 10px 20px;
+            box-shadow: inset 0 -1px 0 0 @color-border-light-navy;
+
+            &.active {
+                .moduleInfo {
+                    color: @color-font-bright-light-blue;
+
+                    .icon {
+                        color: @color-font-bright-light-blue;
+                    }
+                }
+
+                .funcLists {
+                    display: block;
+                }
+            }
+
+            .moduleInfo {
+                .icon {
+                    margin-right: 5px;
+                }
+            }
+
+            .funcLists {
+                display: none;
+                .size(@width: 100%);
+                padding-left: 40px;
+
+                .func {
+                    margin-top: 12px;
+                    .size(@height: 24px);
+                    cursor: default;
+                    opacity: @opacity-unhover;
+
+                    &:hover {
+                        opacity: @opacity-hover;
+                    }
+
+                    &.selected {
+                        opacity: @opacity-hover;
+                        color: @color-font-bright-light-blue;
+
+                        .name, .action {
+                            border-color: @color-font-bright-light-blue;
+                        }
+
+                        .icon {
+                            color: @color-font-bright-light-blue;
+                        }
+                    }
+
+                    .name {
+                        .size(@width: ~"calc(100% - 30px)", @height: 100%);
+                        float: left;
+                        .font(@size: 13px, @line-height: 22px);
+                        border: 1px solid @color-white;
+                        padding: 0 10px;
+                        .textOverflowOneLine;
+                    }
+
+                    .action {
+                        .size(24px, 24px);
+                        float: right;
+                        .rounded(2px);
+                        border: 1px solid @color-white;
+                    
+                        .icon {
+                            .horizontal-align;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .extArgs {
+        display: none;
+        .size(@height: 0);
+        padding: 10px 0;
+
+        .titleSection {
+            .size(@height: 20px);
+            font-weight: 700;
+            padding-left: 20px;
+            padding-right: 5px;
+
+            .title {
+                .size(@width: ~"calc(100% - 20px)");
+                float: left;
+            }
+
+            .icon {
+                display: inline-block;
+                float: right;
+                .size(@width: 20px, @height: 20px);
+                .position(relative, @top: 2px);
+            }
+        }
+
+        .tableSection {
+            .size(@width: 100%, @height: 30px);
+            margin: 15px 0;
+            padding: 0 20px;
+
+            .label {
+                .size(@width: 40px);
+                float: left;
+                line-height: 30px;
+                margin-right: 10px;
+            }
+
+            .tableList {
+                .vertical-align;
+                .styleDropDownList(@w: ~"calc(100% - 50px)", @h: 26px);
+                z-index: 100;
+
+                input {
+                    .size(@height: 26px);
+                    font-size: 13px;
+                }
+
+                .list {
+                    color: @color-font-greyish-brown;
+                }
+
+                .selected {
+                    color: @color-font-select-blue;
+                }
+            }
+        }
+
+        .argSection {
+            .size(@height: ~"calc(100% - 130px)");
+            overflow-x: hidden;
+            overflow-y: auto;
+            .font(@size: 12px);
+
+            .desc {
+                .size(@height: 30px);
+                line-height: 30px;
+                padding: 0 10px;
+                .textOverflowOneLine;
+            }
+
+            .inputWrap {
+                .size(@width: 100%, @height: 30px);
+                background-color: @color-bg-dark-marine;
+
+                input {
+                    display: inline-block;
+                    float: left;
+                    outline: 0;
+                    .size(@width: 100%, @height: 30px);
+                    .font(@line-height: 30px, @color: @color-white);
+                    background-color: transparent;
+                    .textOverflowOneLine;
+                    
+                    padding: 0 10px;
+                    opacity: @opacity-unhover;
+
+                    &:focus {
+                        opacity: @opacity-hover;
+                    }
+
+                    &.type-column {
+                        .size(@width: ~"calc(100% - 30px)", @height: 30px);
+                        ~ .picker {
+                            display: inline-block;
+                        }
+                    }
+                }
+
+                .picker {
+                    display: none;
+                    float: right;
+                    .size(30px, 30px);
+                    background-color: @color-bg-select-blue;
+                    
+                    .icon {
+                        .center-align;
+                    }
+                }
+            }
+        }
+
+        .bottomSection {
+            padding: 7px 0;
+            .size(@height: 50px);
+
+            .btn {
+                display: block;
+                margin: 0 auto;
+            }
+        }
+    }
+}
 

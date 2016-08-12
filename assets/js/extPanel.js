@@ -1,12 +1,12 @@
 window.ExtensionPanel = (function(ExtensionPanel, $) {
     var $panel;    // $("#extensionInstallPanel");
-    var $extLists; // $("#extensionListSection");
+    var $extLists; // $("#extension-lists");
     var extSet;
     var isFirstTouch = true;
 
     ExtensionPanel.setup = function() {
         $panel = $("#extensionInstallPanel");
-        $extLists = $("#extensionListSection");
+        $extLists = $("#extension-lists");
 
         $panel.on("click", ".item .more", function() {
             $(this).closest(".item").toggleClass("fullSize");
@@ -51,7 +51,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             }
         });
 
-        $("#extension-search").on("input", function() {
+        $("#extension-search").on("input", "input", function() {
             var searchKey = $(this).val().trim();
             refreshExtension(searchKey);
         });

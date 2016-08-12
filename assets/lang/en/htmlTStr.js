@@ -148,6 +148,7 @@ module.exports = {
        "ExitGroupby": "Exit Group By",
        "ExitMap": "Exit Map",
        "ExitJoin": "Exit Join",
+       "ExitExt": "Exit Extension",
        "ExpandAllDags": "Expand Hidden Tables",
        "ExportTbl": "Export Table",
        "Exts": "Extensions",
@@ -693,7 +694,9 @@ module.exports = {
         "Load": "Loading Extension",
         "NotFound": "No Extension Found",
         "NotAdded": "No Extension Added",
-        "SearchHint": "Search for Extension"
+        "SearchHint": "Search for Extension",
+        "MyExt": "My Extensions",
+        "Table": "Table"
     },
 
     "tutor": {

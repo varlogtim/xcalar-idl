@@ -624,32 +624,6 @@ window.TblMenu = (function(TblMenu, $) {
             }, 0);
         });
 
-        $subMenu.on('mouseup', 'li.extensions', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            var $li = $(this);
-            var colNum = $colMenu.data('colNum');
-            var tableId = $colMenu.data('tableId');
-            var classNames = $li[0].className.split(/\s+/);
-            var modName = $li.data('modname');
-            var fnName = $li.data('fnname');
-
-            for (var i = 0; i < classNames.length; i++) {
-                if (classNames[i].indexOf("::") > -1) {
-                    if ($li.hasClass('complex')) {
-                        var title = $li.find('.extTitle').text();
-                        ExtensionOpModal.show(colNum, tableId, modName, fnName,
-                                              title);
-                    } else {
-                        ExtensionManager.trigger(colNum, tableId,
-                                                classNames[i], {});
-                    }
-                    break;
-                }
-            }
-        });
-
         $subMenu.on('mouseup', '.typeList', function(event) {
             if (event.which !== 1) {
                 return;
@@ -730,6 +704,16 @@ window.TblMenu = (function(TblMenu, $) {
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
             Profile.show(tableId, colNum);
+        });
+
+        $colMenu.on('mouseup', '.extensions', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var colNum = $colMenu.data('colNum');
+            var tableId = $colMenu.data('tableId');
+            
+            ExtensionManager.openView(colNum, tableId);
         });
 
         $cellMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
@@ -919,6 +903,8 @@ window.TblMenu = (function(TblMenu, $) {
                 case ('join'):
                     JoinView.close();
                     break;
+                case ('ext'):
+                    BottomMenu.close();
                 default:
                     break;
             }

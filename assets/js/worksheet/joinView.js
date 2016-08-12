@@ -9,6 +9,7 @@ window.JoinView = (function($, JoinView) {
     var $clauseContainer;      // $("#multiJoin")
     var $lastInputFocused;
     var isNextNew = true; // if true, will run join estimator
+    var isOpen = false;
 
     var modalHelper;
     var multiClauseTemplate =
@@ -323,6 +324,7 @@ window.JoinView = (function($, JoinView) {
     };
 
     JoinView.show = function(tableId, colNum, restore) {
+        isOpen = true;
         $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         // $('#colMenu').addClass('exitOpState exitJoinState');
@@ -364,6 +366,11 @@ window.JoinView = (function($, JoinView) {
     };
 
     JoinView.close = function() {
+        if (!isOpen) {
+            return;
+        }
+
+        isOpen = false;
         $joinView.addClass('xc-hidden');
         $('#workspaceMenu').find('.menuSection.lastOpened')
                            .removeClass('lastOpened xc-hidden'); 
@@ -505,9 +512,7 @@ window.JoinView = (function($, JoinView) {
 
     function estimateJoinSize() {
         var tableIds = getTableIds();
-        var functionName = 'UExtDev::estimateJoin';
         var colNames = getClauseColNames();
-        var colNum = gTables[tableIds[0]].getColNumByBackName(colNames[0][0]);
 
         var argList = {
             leftLimit: 100,
@@ -523,7 +528,7 @@ window.JoinView = (function($, JoinView) {
 
         // xx handle canceling of estimateJoinSize
 
-        ExtensionManager.trigger(colNum, tableIds[0], functionName, argList)
+        ExtensionManager.trigger(tableIds[0], "UExtDev", "estimateJoin", argList)
         .then(function(ret) {
             $joinView.find('.estimatorWrap .title')
                      .text(JoinTStr.EstimatedJoin + ':');
@@ -856,29 +861,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function fillTableLists(origTableId) {
-        var wsOrders = WSManager.getOrders();
-        var tableLis = "";
-        // group table tab by worksheet (only show active table)
-        for (var i = 0, len = wsOrders.length; i < len; i++) {
-            var wsId = wsOrders[i];
-            var ws = WSManager.getWSById(wsId);
-            var wsTables = ws.tables;
-
-            for (var j = 0; j < wsTables.length; j++) {
-                var tableId = wsTables[j];
-                var table = gTables[tableId];
-                if (j === 0 && wsOrders.length > 1) {
-                    tableLis += '<div class="sectionLabel">' +
-                                    ws.name +
-                                '</div>';
-                }
-
-                tableLis += '<li data-ws="' + wsId + '" data-id="' +
-                            tableId + '">' +
-                                table.getName() +
-                            '</li>';
-            }
-        }
+        var tableLis = xcHelper.getWSTableList();
 
         $leftTableDropdown.find('ul').html(tableLis);
         $rightTableDropdown.find('ul').html(tableLis);

@@ -108,6 +108,9 @@
       <div id="settingsButton" class="subTab">
         <i class="icon xi-setting"></i>
       </div>
+      <div id="extensionSettingButton" class="subTab">
+        <i class="icon xi-menu-extension"></i>
+      </div>
     </div>
     <% } %>
 
@@ -123,17 +126,18 @@
         <i class="icon xi-schedules"></i>
       </div>
     </div>
-    <!-- extension tab -->
-    <div id="extensionTab" class="topMenuBarTab mainMenuOpen">
-      <div class="mainTab">
-        <i class="icon xi-menu-extension fa-20"></i>
-      </div>
-    </div>
   </div>
   <!-- end main menu -->
 
   <!-- start bottom menu -->
   <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix">
+    <!-- extension tab -->
+    <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
+      <div class="mainTab">
+        <i class="icon xi-menu-extension fa-25"></i>
+      </div>
+    </div>
+
     <!-- sql -->
     <div id="sqlTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL">
       <div class="mainTab">

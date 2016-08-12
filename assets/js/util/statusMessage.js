@@ -189,9 +189,6 @@ window.StatusMessage = (function($, StatusMessage) {
                 case ("monitorTab"):
                     panelName = "Monitor";
                     break;
-                case ("extensionTab"):
-                    panelName = "Extensions";
-                    break;
                 default:
                     break;
             }

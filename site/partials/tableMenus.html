@@ -142,8 +142,8 @@
       <%= dicts.MenuTStr.Profile %>...
     </li>
     <div class="divider functionsDivider"></div>
-    <li class="extensions parentMenu" data-submenu="extensions">
-      <%= dicts.MenuTStr.Exts %>
+    <li class="extensions">
+      <%= dicts.MenuTStr.Exts %>...
     </li>
     <li class="multiColumn hideColumns">
       <%= dicts.MenuTStr.HideColPlura %>
@@ -169,9 +169,6 @@
     <li class="multiColumn multiChangeDataType parentMenu" data-submenu="multiChangeDataType">
       <%= dicts.MenuTStr.ChangeType %>
     </li>
-    <li class="multiColumn extensions parentMenu" data-submenu="extensions">
-      <%= dicts.MenuTStr.Exts %>
-    </li>
     <li class="exitAggregate exitOp" data-exittype="aggregate">
       <%= dicts.MenuTStr.ExitAggregate %>
     </li>
@@ -189,6 +186,9 @@
     </li>
     <li class="exitJoin exitOp" data-exittype="join">
       <%= dicts.MenuTStr.ExitJoin %>
+    </li>
+    <li class="exitExt exitOp" data-exittype="ext">
+      <%= dicts.MenuTStr.ExitExt %>
     </li>
   </ul>
   <div class="scrollArea top">
@@ -232,8 +232,6 @@
     <li class="resize sizeToFitAll">
       <%= dicts.MenuTStr.ResizeToAll %>
     </li>
-  </ul>
-  <ul class="extensions">
   </ul>
   <ul class="rename">
     <li style="text-align: center" class="rename clickable">

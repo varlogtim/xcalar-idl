@@ -39,7 +39,7 @@ window.UExtGLM = (function(UExtGLM, $) {
         }]
     }];
 
-    UExtGLM.actionFn = function(txId, colNum, tableId, functionName, argList) {
+    UExtGLM.actionFn = function(txId, tableId, functionName, argList) {
         var table = gTables[tableId];
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];

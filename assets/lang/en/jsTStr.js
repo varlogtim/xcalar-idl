@@ -427,7 +427,8 @@ MonitorTStr = {
     'System': 'System',
     'Queries': 'Queries',
     'Setup': 'Setup',
-    'Settings': 'Settings'
+    'Settings': 'Settings',
+    'Ext': 'Extension'
 }
 
 SchedTStr = {

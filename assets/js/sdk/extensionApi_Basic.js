@@ -85,10 +85,6 @@ window.XcSDK.Extension.prototype = (function() {
             return this.args;
         },
 
-        "getTriggerCol": function() {
-            return this.col;
-        },
-
         "getTriggerTable": function() {
             return this.table;
         },
@@ -154,9 +150,8 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         // basically execution function
-        "initialize": function(triggerCol, tableName, worksheet, args) {
+        "initialize": function(tableName, worksheet, args) {
             // Important: User cannot change this function!!!
-            this.col = triggerCol;
             this.args = args;
             this.worksheet = worksheet;
             this.table = new XcSDK.Table(tableName, worksheet);

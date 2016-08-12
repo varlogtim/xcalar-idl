@@ -80,7 +80,6 @@ window.UExtDev = (function(UExtDev) {
         // ext.afterFinish() to do any operations
         // Note that all the interfaces are optionally to implement
         // but usually you should impelement ext.start at least.
-
         ext.start = function() {
             // seach "js promise" online if you do not understand it
             // check promiseApi.js to see the api.
@@ -93,16 +92,9 @@ window.UExtDev = (function(UExtDev) {
             
 
             var rTableName = args.rTable;
-            var lColName;
-            var lColNames;
-            if (typeof args.lCol === "object") {
-                lColNames = args.lCol;
-                lColName = args.lCol[0];
-            } else {
-                lColName = self.getTriggerCol().getName();
-                lColNames = [lColName];
-            }
-            
+            var lColName = args.lCol;
+            var lColNames = args.lCol[0];
+
             var srcTableName;
             if (args.srcTableName) {
                 srcTableName = args.srcTableName;

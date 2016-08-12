@@ -2,6 +2,12 @@
 <div id="monitorPanel" class="mainPanel no-selection">
   <div id="monitorTopBar" class="topBar">
     <div class="title"><%= dicts.monitor.Monitor %>/<%= dicts.monitor.Syst %></div>
+    <div id="extension-search" class="searchBar xc-hidden">
+      <input type="text" placeholder="<%= dicts.extension.SearchHint %>...">
+      <div class="rightArea">
+        <i class="icon xi-search fa-22 center"></i>
+      </div>
+    </div>
   </div>
   <div class="mainContent">
     <!-- System Section -->
@@ -72,6 +78,10 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section id="monitor-extension" class="subPanel monitorSection">
+      include "../extension/extensionPanel.html"
     </section>
     <!-- End of Settings Section -->
   </div>

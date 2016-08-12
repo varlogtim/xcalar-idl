@@ -1,79 +1,55 @@
 // XXX Do not use alertModal! Write your own for extensions!!!!
 window.UExtTableau = (function(UExtTableau, $) {
+    var viz;
+
     UExtTableau.buttons = [{
         "buttonText"   : "Visualize",
         "fnName"       : "visualize",
-        "arrayOfFields": []
+        "arrayOfFields": [{
+            "type"      : "column",
+            "name"      : "Column To Visualize",
+            "fieldClass": "col",
+            "autofill"  : true,
+            "typeCheck" : ["number", "string", "boolean"]
+        }]
     }];
 
-    UExtTableau.actionFn = function(txId, colNum, tableId, functionName, argList) {
-        var waitTime = 45;
+    UExtTableau.actionFn = function(functionName) {
         switch (functionName) {
             case ("visualize"):
-                return visualizeInTableau(colNum, tableId);
+                return visualizeInTableau();
             default:
-                return PromiseHelper.reject("Invalid Function");
+                return null;
         }
+    }
 
-        function initializeViz(vizName) {
-            // First remove current div. This is because tableau sucks shit
-            $("#extContent").empty();
-            $("#extContent").append("<div id='"+vizName+
-                                    "' class='vizArea'></div>");
-            var $placeHolder = $("#"+vizName);
-            var placeholderDiv = $placeHolder[0];
-            var url = "https://10ay.online.tableau.com/t/xcalartableaucloud/views/"+
-                       "Graphs/Bar&:original_view=yes&:showShareOptions=true"+
-                       "&:showVizHome=yes&:embeded=yes&:refresh=yes";
-            var options = {
-                width: $placeHolder.width(),
-                height: $placeHolder.height() - 20,
-                hideTabs: false,
-                hideToolbar: false,
-                onFirstInteractive: function()
-                {
-                    workbook = viz.getWorkbook();
-                    activeSheet = workbook.getActiveSheet();
-                }
-            };
-            viz = new tableau.Viz(placeholderDiv, url, options);
-        }
+    function visualizeInTableau() {
+        var ext = new XcSDK.Extension();
 
-        function visualizeInTableau(colNum, tableId) {
-            var isValidParam = (colNum != null && tableId != null);
-            xcHelper.assert(isValidParam, "Invalid Parameters");
-            var deferred    = jQuery.Deferred();
-            var worksheet   = WSManager.getWSFromTable(tableId);
-            var table       = gTables[tableId];
-            var tableName   = table.tableName;
-            var tableCols   = table.tableCols;
-            var colType     = tableCols[colNum - 1].type;
-            var colName     = tableCols[colNum - 1].name;
-            var backColName = tableCols[colNum - 1].getBackColName();
-            var newTables = [];
-
-            if (colType !== "integer" && colType !== "float" &&
-                colType !== "string" && colType !== "boolean") {
-                console.error("Invalid col type!");
-                xcHelper.assert(false,
-                                "Sorry cannot visualize this column type");
-            }
-
+        ext.start = function() {
+            var self = this;
+            var deferred = XcSDK.Promise.deferred();
+            var table = self.getTriggerTable();
+            var waitTime = 45;
+            // XXXX this is a hack, should change to the SDK way
+            var tableName = table.getName();
+            var col = self.getArgs().col;
+            var colName = col.getName();
             var tempExportName = xcHelper.randName("tempGraph");
 
             var options = {
-                "format": DfFormatTypeT.DfFormatCsv,
-                "splitType": ExSFFileSplitTypeT.ExSFFileSplitForceSingle,
+                "format"    : DfFormatTypeT.DfFormatCsv,
+                "splitType" : ExSFFileSplitTypeT.ExSFFileSplitForceSingle,
                 "headerType": ExSFHeaderTypeT.ExSFHeaderEveryFile,
                 "createRule": ExExportCreateRuleT.ExExportCreateOnly,
-                "csvArgs": {
+                "csvArgs"   : {
                     "fieldDelim": "\t",
                     "recordDelim": "\n"
                 }
             };
 
             xcFunction.exportTable(tableName, tempExportName, "Default",
-                                   1, [backColName],["Value"], false, true,
+                                   1, [colName],["Value"], false, true,
                                    options)
             .then(function() {
                 deferred.resolve();
@@ -87,7 +63,33 @@ window.UExtTableau = (function(UExtTableau, $) {
 
             return deferred.promise();
         }
-    };
+
+        return ext;
+    }
+
+    function initializeViz(vizName) {
+        // First remove current div. This is because tableau sucks shit
+        $("#extContent").empty();
+        $("#extContent").append("<div id='" + vizName +
+                                "' class='vizArea'></div>");
+        var $placeHolder = $("#" + vizName);
+        var placeholderDiv = $placeHolder[0];
+        var url = "https://10ay.online.tableau.com/t/xcalartableaucloud/views/"+
+                   "Graphs/Bar&:original_view=yes&:showShareOptions=true"+
+                   "&:showVizHome=yes&:embeded=yes&:refresh=yes";
+        var options = {
+            width: $placeHolder.width(),
+            height: $placeHolder.height() - 20,
+            hideTabs: false,
+            hideToolbar: false,
+            onFirstInteractive: function()
+            {
+                workbook = viz.getWorkbook();
+                activeSheet = workbook.getActiveSheet();
+            }
+        };
+        viz = new tableau.Viz(placeholderDiv, url, options);
+    }
 
     function showModal(colName, waitTime) {
         $("#extHeader .text").text("GENERATING VISUALIZATION");

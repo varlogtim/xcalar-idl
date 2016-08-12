@@ -114,6 +114,7 @@
             }
         }
         .icon {
+            font-size: 17px;
             .center-align;
         }
 
@@ -134,10 +135,10 @@
     content: "";
     display: block;
     .position(absolute, @top: 0, @left: 0);
-    height: 100%;
+    height: ~"calc(100% - @{height-mainTab})";
     width: 5px;
     background-color: @color-border-mainTab-active;
-    top: 0;
+    top: @height-mainTab;
     left: 0;
 }
 .subTab.active::after {

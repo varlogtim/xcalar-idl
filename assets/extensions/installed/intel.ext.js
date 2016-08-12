@@ -38,8 +38,9 @@ window.UExtIntel = (function(UExtIntel, $) {
         "arrayOfFields": []
     }];
 
-    UExtIntel.actionFn = function(txId, colNum, tableId, functionName, argList) {
+    UExtIntel.actionFn = function(txId, tableId, functionName, argList) {
         var table = gTables[tableId];
+        // XXX this one is broken becaues colNum is removed
         var colName = table.tableCols[colNum - 1].name;
         var tableName = table.tableName;
         var tableNameRoot = tableName.split("#")[0];

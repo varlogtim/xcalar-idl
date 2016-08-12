@@ -52,7 +52,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
         }]
     }];
 
-    UExtKMeans.actionFn = function(txId, colNum, tableId, functionName, argList) {
+    UExtKMeans.actionFn = function(txId, tableId, functionName, argList) {
         var table = gTables[tableId];
         var colNames = [];
         var tableName = table.tableName;

@@ -11,6 +11,45 @@
   </div>
   <!-- End Of Top Buttons -->
   <div class="bottomMenuContainer">
+    <!-- extension sectoin -->
+    <section id="extension-ops" class="menuSection">
+      <header class="heading draggable">
+        <h2><%= dicts.extension.MyExt %> (<span class="numExt">0</span>)</h2>
+      </header>
+      <div class="menuContent">
+        <ul class="extLists"></ul>
+        <div class="extArgs">
+          <div class="titleSection">
+            <div class="title textOverflowOneLine"></div>
+            <i id="extension-ops-close" class="icon xi-close xc-action fa-15"></i>
+          </div>
+          <div class="tableSection">
+            <div class="label"><%= dicts.extension.Table %>:</div>
+            <div id="extension-ops-mainTable" class="dropDownList tableList">
+              <input class="text" type="text" disabled>
+              <div class="iconWrapper">
+                <i class="icon"></i>
+              </div>
+              <div class="list">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- args -->
+          <div class="argSection"></div>
+          <div class="bottomSection">
+            <button id="extension-ops-submit" class="btn confirm"><%= dicts.opsModal.CONFIRM %></button>
+          </div>
+        </div>
+      </div>
+      <div id="extension-ops-script"></div>
+    </section>
     <!-- SQL Section -->
     <section id="sqlSection" class="menuSection">
       <header class="heading draggable">

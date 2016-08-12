@@ -3,6 +3,15 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
         "buttonText"   : "Horizontal Partition",
         "fnName"       : "hPartition",
         "arrayOfFields": [{
+            "type"      : "column",
+            "name"      : "Partition On",
+            "fieldClass": "partitionCol",
+            "autofill"  : true,
+            "typeCheck" : {
+                "columnType": ["number", "string"]
+            }
+        },
+        {
             "type"      : "number",
             "name"      : "No. of Partitions",
             "fieldClass": "partitionNums",
@@ -488,7 +497,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
 
     function getUniqueValues(ext) {
         var deferred = XcSDK.Promise.deferred();
-        var keyCol = ext.getTriggerCol().getName();
+        var keyCol = ext.getArgs().partitionCol.getName();
         var srcTable = ext.getTriggerTable().getName();
         var rowsToFetch = ext.getArgs().partitionNums;
 
@@ -523,7 +532,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
         var deferred = XcSDK.Promise.deferred();
         var srcTable = ext.getTriggerTable().getName();
         var filterTable = ext.createTableName(null, "-HP" + (index + 1));
-        var col = ext.getTriggerCol();
+        var col = ext.getArgs().partitionCol;
         var colName = col.getName();
         var colType = col.getType();
         var fltStr;

@@ -187,9 +187,6 @@ window.UserSettings = (function($, UserSettings) {
                                         .find('.subTab.active').attr('id');
         userPrefs.mainTabs.scheduler = $('#schedulerTab')
                                         .find('.subTab.active').attr('id');
-        userPrefs.mainTabs.extensions = $('#extensionPanel')
-                                        .find('.topBar .buttonArea.active')
-                                        .attr('id');
     }
     UserSettings.restoreMainTabs = restoreMainTabs;
 

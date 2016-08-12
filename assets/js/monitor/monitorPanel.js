@@ -164,6 +164,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var title = MonitorTStr.Monitor + '/';
             var $menu = $("#monitorMenu");
             $menu.find(".menuSection").addClass("xc-hidden");
+            var $extSearch = $("#extension-search").addClass("xc-hidden");
 
             switch ($button.attr("id")) {
                 case ("systemButton"):
@@ -183,8 +184,15 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     break;
                 case ("settingsButton"):
                     $("#monitor-settings").addClass("active");
-                     $menu.find(".menuSection.settings").removeClass("xc-hidden");
+                    $menu.find(".menuSection.settings").removeClass("xc-hidden");
                     title += MonitorTStr.Settings;
+                    break;
+                case ("extensionSettingButton"):
+                    $("#monitor-extension").addClass("active");
+                    $extSearch.removeClass("xc-hidden");
+                    $menu.find(".menuSection.extension").removeClass("xc-hidden");
+                    ExtensionPanel.active();
+                    title += MonitorTStr.Ext;
                     break;
                 default:
                     break;

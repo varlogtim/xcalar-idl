@@ -170,6 +170,34 @@ window.xcHelper = (function($, xcHelper) {
         return previewSize;
     };
 
+    xcHelper.getWSTableList = function() {
+        var wsOrders = WSManager.getOrders();
+        var tableLis = "";
+        // group table tab by worksheet (only show active table)
+        for (var i = 0, len = wsOrders.length; i < len; i++) {
+            var wsId = wsOrders[i];
+            var ws = WSManager.getWSById(wsId);
+            var wsTables = ws.tables;
+
+            for (var j = 0; j < wsTables.length; j++) {
+                var tableId = wsTables[j];
+                var table = gTables[tableId];
+                if (j === 0 && wsOrders.length > 1) {
+                    tableLis += '<div class="sectionLabel">' +
+                                    ws.name +
+                                '</div>';
+                }
+
+                tableLis += '<li data-ws="' + wsId + '" data-id="' +
+                            tableId + '">' +
+                                table.getName() +
+                            '</li>';
+            }
+        }
+
+        return tableLis;
+    };
+
     xcHelper.getMultiJoinMapString = function(args) {
         var mapStr = "";
         var len = args.length;
@@ -1168,6 +1196,15 @@ window.xcHelper = (function($, xcHelper) {
         if (widthDiff > 0) {
             $input.scrollLeft(initialScrollPosition + newValWidth);
         }
+    };
+
+    xcHelper.getFocusedTable = function() {
+        var $table = $(".xcTableWrap .tblTitleSelected").closest(".xcTableWrap");
+        if ($table.length === 0) {
+            return null;
+        }
+
+        return $table.data("id");
     };
 
     // animate: boolean indicating whether to animate the scrolling
