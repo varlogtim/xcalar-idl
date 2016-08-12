@@ -99,6 +99,7 @@ window.JoinView = (function($, JoinView) {
                     $joinView.find('.leftClause').val("");
                     checkNextBtn();
                     updatePreviewText();
+                    focusTable(getTableIds(0));
                 } else {
                     return;
                 }
@@ -116,18 +117,29 @@ window.JoinView = (function($, JoinView) {
                 if (originalText !== tableName) {
                     // $tableNameText.text(tableName).data('id', tableId);
                     $textBox.text(tableName);
+                    $rightTableDropdown.siblings('.subHeading').find('.iconWrap')
+                                       .removeClass('inactive');
                   
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
                     $joinView.find('.rightClause').val("");  
                     checkNextBtn();
                     updatePreviewText();
+                    focusTable(getTableIds(1));
                 } else {
                     return;
                 }
             }
         });
         rightTableList.setupListeners();
+
+        $joinView.find('.tableListSections .focusTable').click(function() {
+            var tableIds = getTableIds();
+            var index = $joinView.find('.tableListSections .focusTable')
+                                 .index($(this));
+            var tableId = tableIds[index];
+            xcHelper.centerFocusedTable(tableId, true);
+        });
 
 
         // This submits the joined tables
@@ -541,13 +553,25 @@ window.JoinView = (function($, JoinView) {
         return (gTables[tableIds[0]] && gTables[tableIds[1]]);
     }
 
-    // returns array of 2 table ids
-    function getTableIds() {
-        var lTableName = $leftTableDropdown.find('.text').text();
-        var rTableName = $rightTableDropdown.find('.text').text();
-        var lTableId = xcHelper.getTableId(lTableName);
-        var rTableId = xcHelper.getTableId(rTableName);
-        return ([lTableId, rTableId]);
+    // returns array of 2 table ids if no args passed in
+    // or returns corresponding id if index passed in
+    function getTableIds(index) {
+        if (index != null) {
+            var tableName;
+            if (index === 0) {
+                tableName = $leftTableDropdown.find('.text').text();
+            } else {
+                tableName = $rightTableDropdown.find('.text').text();
+            } 
+            return xcHelper.getTableId(tableName);
+        } else {
+            var lTableName = $leftTableDropdown.find('.text').text();
+            var rTableName = $rightTableDropdown.find('.text').text();
+            var lTableId = xcHelper.getTableId(lTableName);
+            var rTableId = xcHelper.getTableId(rTableName);
+            return ([lTableId, rTableId]);
+        }
+        
     }
 
     function hasColsAndTableNames() {
@@ -655,8 +679,8 @@ window.JoinView = (function($, JoinView) {
     }
 
     function columnPickers() {
-        $(".xcTableWrap:visible").addClass('columnPicker');
-        var $tables = $(".xcTable:visible");
+        $(".xcTableWrap").addClass('columnPicker');
+        var $tables = $(".xcTable");
 
         $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
             if (!$lastInputFocused) {
@@ -817,6 +841,8 @@ window.JoinView = (function($, JoinView) {
         $clauseContainer.find('.clause').val("");
         $joinView.find('.next').addClass('btn-disabled');
         $rightTableDropdown.find('.text').empty();
+        $rightTableDropdown.siblings('.subHeading').find('.iconWrap')
+                                       .addClass('inactive');
         isNextNew = true;
 
         updatePreviewText();

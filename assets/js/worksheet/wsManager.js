@@ -850,6 +850,9 @@ window.WSManager = (function($, WSManager) {
         // make table undraggable if only one in worksheet
         checkTableDraggable();
 
+        // show dataflow groups corresponding to current worksheet
+        DagPanel.focusOnWorksheet(activeWorksheet);
+
         // refresh table and scrollbar
         if (notfocusTable || $curActiveTables.length === 0) {
             // no table to focus
@@ -886,6 +889,8 @@ window.WSManager = (function($, WSManager) {
                 }
             }
         }
+
+        StatusMessage.updateLocation();
     };
 
     // Focus on the last table in the worksheet
@@ -952,6 +957,20 @@ window.WSManager = (function($, WSManager) {
             WSManager.addTable(tableId, wsId);
         });
     };
+
+    WSManager.switchWS = function(wsId) {
+        var curWS = activeWorksheet;
+        var $mainFrame = $("#mainFrame");
+        // cache current scroll bar position
+        wsScollBarPosMap[curWS] = $mainFrame.scrollLeft();
+        WSManager.focusOnWorksheet(wsId);
+
+        // change to origin position
+        var leftPos = wsScollBarPosMap[wsId];
+        if (leftPos != null) {
+            $mainFrame.scrollLeft(leftPos);
+        }
+    }
 
     // Add worksheet events, helper function for WSManager.setup()
     function addEventListeners() {
@@ -1039,7 +1058,7 @@ window.WSManager = (function($, WSManager) {
 
             // switch to that worksheet first
             if (!$tab.hasClass("active")) {
-                switchWSHelper(wsId);
+                WSManager.switchWS(wsId);
             }
             xcHelper.dropdownOpen($wsMenu, $tabMenu, {
                 "offsetX"      : -7,
@@ -1073,7 +1092,7 @@ window.WSManager = (function($, WSManager) {
 
             if (!$tab.hasClass("active")) {
                 var wsId = $tab.data("ws");
-                switchWSHelper(wsId);
+                WSManager.switchWS(wsId);
             }
         });
 
@@ -1464,21 +1483,6 @@ window.WSManager = (function($, WSManager) {
         // move from scrTables to desTables
         srcTables.splice(tableIndex, 1);
         desTables.splice(index, 0, tableId);
-    }
-
-    function switchWSHelper(wsId) {
-        var curWS = activeWorksheet;
-        var $mainFrame = $("#mainFrame");
-        // cache current scroll bar position
-        wsScollBarPosMap[curWS] = $mainFrame.scrollLeft();
-        WSManager.focusOnWorksheet(wsId);
-
-        // change to origin position
-        var leftPos = wsScollBarPosMap[wsId];
-        if (leftPos != null) {
-            $mainFrame.scrollLeft(leftPos);
-        }
-        StatusMessage.updateLocation();
     }
 
     // html of worksheet tab, helper function for makeWorksheet()

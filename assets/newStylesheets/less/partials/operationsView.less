@@ -1,3 +1,6 @@
+// Currently, this less sheet is used for all worksheet forms
+// map, filter, agg, groupby, join, export etc
+
 // general styling
 .opView {
 	height: 100%;
@@ -739,10 +742,6 @@
 	    }
     }
 
-    // .firstStep, .secondStep {
-    // 	margin-top: 4px;
-    // }
-
     .joinContainer {
     	margin-top: 8px;
     }
@@ -766,6 +765,22 @@
 		float: left;
 		width: 50%;
 
+		.iconWrap {
+			float: right;
+			width: @listHeight;
+			margin-right: @listHeight;
+			line-height: @listHeight + 10px;
+			cursor: pointer;
+
+			&.inactive {
+				opacity: @opacity-disabled;
+				pointer-events: none;
+			}
+		}
+		.xi-show {
+			font-size: 14px;
+			color: @color-font-darkGray;
+		}
 	}
 
 	// start .clauseContainer

@@ -1173,7 +1173,24 @@ window.xcHelper = (function($, xcHelper) {
     // animate: boolean indicating whether to animate the scrolling
     // options:
     //      onlyIfOffScreen: boolean, if true, will only animate table if visible
-    xcHelper.centerFocusedTable = function($tableWrap, animate, options) {
+    xcHelper.centerFocusedTable = function(tableWrapOrId, animate, options) {
+        var $tableWrap;
+        var tableId;
+        if (typeof tableWrapOrId === "string") {
+            $tableWrap = $('#xcTableWrap-' + tableWrapOrId);
+            tableId = tableWrapOrId;
+        } else {
+            $tableWrap = tableWrapOrId;
+            tableId = $tableWrap.data('id');
+        }
+       
+        var wsId = WSManager.getWSFromTable(tableId);
+        if (wsId !== WSManager.getActiveWS()) {
+            WSManager.switchWS(wsId);
+        } 
+
+        focusTable(tableId);
+        
         options = options || {};
         var windowWidth = $(window).width();
         var tableWidth = $tableWrap.width();

@@ -63,6 +63,12 @@ window.DagPanel = (function($, DagPanel) {
         }
     };
 
+    DagPanel.focusOnWorksheet = function(wsId) {
+        var $dags = $dagPanel.find(".dagWrap");
+        $dags.addClass("inActive");
+        $dags.filter(".worksheet-" + wsId).removeClass("inActive");
+    };
+
     var dagTopPct = 0; // open up dag to 100% by default;
     var clickDisabled = false;
     // opening and closing of dag is temporarily disabled during animation
