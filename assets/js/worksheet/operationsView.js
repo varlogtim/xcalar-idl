@@ -120,6 +120,23 @@ window.OperationsView = (function($, OperationsView) {
             $li.siblings().removeClass('active');
             $li.addClass('active');
             updateArgumentSection($li, 0);
+
+            // focus on the next empty input
+            var $nextInput;
+            var $inputs = $activeOpSection.find('.group').eq(0)
+                                          .find('.arg:visible');
+            $inputs.each(function() {
+                if ($(this).val().trim().length === 0) {
+                    $nextInput = $(this);
+                    return false;
+                }
+            });
+               
+            if (!$nextInput) {
+                $nextInput = $inputs.last();
+            }
+
+            $nextInput.focus();
         });
 
         // .functionsInput
@@ -801,8 +818,9 @@ window.OperationsView = (function($, OperationsView) {
                             categoryName +
                         '</li>';
             }
-        
-            $categoryList.html(html);
+            var $list = $(html);
+            $list.sort(sortHTML);
+            $categoryList.html($list);
         } else {
             var categoryIndex;
             if (operator === "aggregate" || operator === "group by") {
@@ -818,8 +836,6 @@ window.OperationsView = (function($, OperationsView) {
 
             populateFunctionsListUl(0);
         }
-
-        
     }
 
     // map should not call this function
