@@ -19,12 +19,16 @@
       <div id="formArea">
         <form id="loginForm" autocomplete="off">
           <div class="section">
-            <input id="loginNameBox" type="text" class="input" autofocus required autocomplete="off">
-            <div class="label">USERNAME</div>
+            <label for="loginNameBox">
+              <input id="loginNameBox" type="text" class="input" autofocus required  autocomplete="false">
+              <div class="label">USERNAME</div>
+            </label>
           </div>
           <div class="section">
-            <input id="loginPasswordBox" class="input" type="password" autocomplete="off">
-            <div class="label">PASSWORD</div>
+            <label for="loginPasswordBox">
+              <input id="loginPasswordBox" class="input" type="password" autocomplete="off">
+              <div class="label">PASSWORD</div>
+            </label>
           </div>
           <!-- <div class="passwordForgot">Forgot your password?</div> -->
           <input id="loginButton" class="btn login" type="submit" value="LOG IN">
