@@ -1445,7 +1445,8 @@ window.WSManager = (function($, WSManager) {
         });
 
         $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsId)
-                .removeClass("active").text(SideBarTStr.NoSheet);
+                .removeClass(".worksheet-" + wsId)
+                .addClass("inactive").text(SideBarTStr.NoSheet);
     }
 
     function toggleTableArchive(tableId, srcTables, desTables, index) {

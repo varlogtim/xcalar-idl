@@ -987,7 +987,7 @@ window.TableList = (function($, TableList) {
                         TableList.activeTables(tableType, noSheetTables, wsToSent);
                     }
                 },
-                "cancel": function() {
+                "onCancel": function() {
                     $noSheetTables.removeClass("highlight");
                     $("#bottomMenu.faux").remove();
                 }
