@@ -1260,11 +1260,17 @@ window.Dag = (function($, Dag) {
                 map[i].joined = false;
             }
             map[i].parents = [];
+            
             for (var j = 0; j < numParents; j++) {
+                // save parents indices for current node
                 map[i].parents.push(++parentIndex);
 
-                map[parentIndex] = {};
+                // go to node's parents and save child index
+                if (!map[parentIndex]) {
+                    map[parentIndex] = {};
+                }
                 map[parentIndex].child = i;
+                  
                 if (numParents === 2) {
                     map[parentIndex].joined = true;
                 } else {

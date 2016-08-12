@@ -620,7 +620,7 @@ window.xcFunction = (function($, xcFunction) {
             TblManager.setOrphanTableMeta(nTableName, nTableCols);
 
             XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
-                        finalTableName, options)
+                        finalTableName)
             .then(function(finalTableName, finalTableCols) {
                 // remove the duplicated columns that were joined
                 finalTableCols.splice(finalTableCols.length -

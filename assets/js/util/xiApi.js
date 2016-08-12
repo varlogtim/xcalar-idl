@@ -789,7 +789,7 @@ window.XIApi = (function(XIApi, $) {
             gTables[rTableId].tableCols != null)
         {
             // rCols = xcHelper.deepCopy(gTables[rTableId].tableCols);
-            var table = gTables[lTableId];
+            var table = gTables[rTableId];
             rCols = xcHelper.deepCopy(table.tableCols);
             if (pulledRColNames) { 
                 var tempCols = [];
