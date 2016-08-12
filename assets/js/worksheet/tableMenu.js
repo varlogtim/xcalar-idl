@@ -136,22 +136,13 @@ window.TblMenu = (function(TblMenu, $) {
             MultiCastModal.show(tableId);
         });
 
-        $subMenu.on('mouseup', '.aggregates', function(event) {
+        $tableMenu.on('mouseup', '.corrAgg', function(event) {
             if (event.which !== 1) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
-            AggModal.quickAgg(tableId);
+            AggModal.corrAgg(tableId);
         });
-
-        $subMenu.on('mouseup', '.correlation', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            var tableId = $tableMenu.data('tableId');
-            AggModal.corr(tableId);
-        });
-
 
         // opeartion for move to worksheet and copy to worksheet
         $tableMenu.on('mouseenter', '.moveToWorksheet', function() {

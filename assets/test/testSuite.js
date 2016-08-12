@@ -918,12 +918,13 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
+    // untested
     function corrTest(deferred, testName, currentTestNumber) {
         console.log("start corrTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
-        $("#tableSubMenu .correlation").trigger(fakeEvent.mouseup);
+        $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
         checkExists(".aggTableField:contains('-0.4')", 20000)
         .then(function() {
             $("#aggModal .close").click();
@@ -934,6 +935,8 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
+    // Disabled due to new aggregate and correlation. Needs to be triggered
+    // via toggle of tabs
     function aggTest(deferred, testName, currentTestNumber) {
         console.log("start aggTest");
         var wsId = WSManager.getOrders()[1];
@@ -1162,7 +1165,7 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(corrTest, "CorrelationTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(aggTest, "QuickAggregateTest",
-                  defaultTimeout, TestCaseEnabled);
+                  defaultTimeout, TestCaseDisabled);
     TestSuite.add(schedTest, "ScheduleTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(dfgTest, "DFGTest",

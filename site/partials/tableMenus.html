@@ -14,9 +14,7 @@
     </li>
     <li class="copyColNames"><%=dicts.MenuTStr.CPColNames  %></li>
     <li class="delAllDuplicateCols"><%= dicts.MenuTStr.DelAllDups %></li>
-    <li class="quickAgg parentMenu" data-submenu="quickAgg">
-      <%= dicts.MenuTStr.QuickAgg %>
-    </li>
+    <li class="corrAgg"><%= dicts.MenuTStr.QuickAgg %></li>
     <li class="multiCast"><%= dicts.MenuTStr.SmartCast %>...</li>
     <li class="moveToWorksheet parentMenu"
     data-submenu="moveToWorksheet" data-toggle="tooltip"
@@ -43,14 +41,6 @@
 </div>
 
 <div id="tableSubMenu" class="menu subMenu">
-  <ul class="quickAgg">
-    <li class="aggregates">
-      <%= dicts.MenuTStr.QuckAggaggFunc %>
-    </li>
-    <li class="correlation">
-      <%= dicts.MenuTStr.QuickAggcorrFunc %>
-    </li>
-  </ul>
   <ul class="moveToWorksheet">
     <li style="text-align: center" class="clickable">
       <span><%= dicts.WSTStr.WSName %></span>

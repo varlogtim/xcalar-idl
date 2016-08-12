@@ -174,8 +174,7 @@ module.exports = {
        "Profile": "Profile",
        "PullAllCell": "Pull all",
        "QuckAggaggFunc": "Aggregate Functions",
-       "QuickAgg": "Quick Aggregates",
-       "QuickAggcorrFunc": "Correlation Coefficient",
+       "QuickAgg": "Correlation",
        "Refresh": "Refresh",
        "Rename": "Rename",
        "RenameCol": "Rename column",
@@ -513,10 +512,12 @@ module.exports = {
     },
 
     "aggModal": {
-        "header": "Quick Aggregates",
+        'CorrAggTitle' : 'Correlation and Quick Aggregates',
+        'CorrAggInstr' : 'Viewing correlation coefficients for every pair of '+
+                     'numerical columns. To view common aggregate functions '+
+                     'on all numerical columns, please click on the vertical '+
+                     'tab.',
         "TableName": "Table Name",
-        "QuickAgg": "Quick aggregates for each individual column",
-        "Corr": "Correlation coefficients for every pair of columns"
     },
 
     "alertModal": {

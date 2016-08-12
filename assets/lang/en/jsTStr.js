@@ -340,10 +340,6 @@ ScrollTStr = {
 };
 
 AggTStr = {
-    'QuickAggTitle': 'Quick Aggregates',
-    'QuickAggInstr': 'Viewing common aggregate functions on all of the columns in the active table.',
-    'CorrTitle': 'Correlation Coefficients',
-    'CorrInstr': 'Viewing correlation coefficient for every pair of numerical columns',
     'NoSupport': 'Not Supported',
     'DivByZeroExplain': 'Only one distinct value',
     'AggTitle': 'Aggregate: <op>',

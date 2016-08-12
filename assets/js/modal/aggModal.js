@@ -8,10 +8,12 @@ window.AggModal = (function($, AggModal) {
     var aggFunctions;  // [AggrOp.Sum, AggrOp.Avg, AggrOp.Min, AggrOp.Max, AggrOp.Count]
     var aggCols = [];
 
-    // UI cahce, not save to KVStore
+    // UI cache, not saving to kvStore
     var aggCache  = {};
     var corrCache = {};
     var aggOpMap  = {};
+
+    var cachedTableId = "";
 
     AggModal.setup = function() {
         $aggModal = $("#aggModal");
@@ -57,6 +59,18 @@ window.AggModal = (function($, AggModal) {
         });
 
 
+        $aggModal.on("click", ".tab", function() {
+            $aggModal.find(".tabs").find(".active").removeClass("active");
+            $(this).addClass("active");
+            $(this).find(".icon").addClass("active");
+            var mode = $(this).attr("id");
+            if (mode === "aggTab") {
+                AggModal.quickAgg(cachedTableId);
+            } else {
+                AggModal.corr(cachedTableId);
+            }
+        });
+
         $quickAgg.find(".aggContainer").scroll(function() {
             scrollHelper($(this), $quickAgg);
         });
@@ -83,13 +97,20 @@ window.AggModal = (function($, AggModal) {
         }
     };
 
+    // Triggered from tableMenu
+    AggModal.corrAgg = function(tableId) {
+        // Default to correlation
+        cachedTableId = tableId;
+        $aggModal.find(".tab#corrTab").click();
+    };
+
+    // Need this broken down for replay
     AggModal.quickAgg = function(tableId) {
         var deferred = jQuery.Deferred();
-
         var table = gTables[tableId];
         var tableName = table.getName();
 
-        showAggModal(tableName, "quickAgg");
+        showAggModal(tableName, "aggTab");
 
         aggColsInitialize(tableId);
         aggTableInitialize();
@@ -121,12 +142,12 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     };
 
+
     AggModal.corr = function(tableId) {
         var deferred = jQuery.Deferred();
-
         var table = gTables[tableId];
         var tableName = table.getName();
-        showAggModal(tableName, "corr");
+        showAggModal(tableName, "corrTab");
 
         aggColsInitialize(tableId);
         corrTableInitialize();
@@ -159,21 +180,14 @@ window.AggModal = (function($, AggModal) {
     };
 
     function showAggModal(tableName, mode) {
-        var $header = $aggModal.find(".modalHeader .text");
-        var $aggInstr = $aggModal.find(".modalInstruction .text");
-
-        if (mode === "quickAgg") {
+        if (mode === "aggTab") {
             // when it's quick aggregation
             $quickAgg.show();
             $corr.hide();
-            $header.text(AggTStr.QuickAggTitle);
-            $aggInstr.text(AggTStr.QuickAggInstr);
-        } else if (mode === "corr") {
+        } else if (mode === "corrTab") {
             // when it's correlation
             $quickAgg.hide();
             $corr.show();
-            $header.text(AggTStr.CorrTitle);
-            $aggInstr.text(AggTStr.CorrInstr);
         } else {
             // error case
             throw "Invalid mode in quick agg!";
