@@ -296,7 +296,12 @@
                 background-color: @color-json-active-bar;
             }
             .compareIcon {
-                .action-gradient !important;
+                .xi-ckbox-empty {
+                    display: none;
+                }
+                .xi-ckbox-selected {
+                    display: block;
+                }
             }
         }
 
@@ -359,7 +364,7 @@
                     }
                 }
             }
-            .split, .pullAll, .btn.compareIcon, .sort {
+            .split, .pullAll, .compareIcon, .sort {
                 opacity: 0.5;
                 pointer-events: none;
                 display: none;
@@ -396,15 +401,29 @@
     .optionsBar {
 
         .dragHandle {
-            .image("../../images/jsonModal/drag-handle.png", 50%, 45%);
+            // .image("../../images/jsonModal/drag-handle.png", 50%, 45%);
             .size(20px, 100%);
             .cursor-move;
+            margin-left: 2px;
+            .icon {
+                color:  @color-border-bottomGrayMed;
+                font-size: 14px;
+                line-height: 29px;
+            }
+        }
+
+
+        .compareIcon {
+             margin-right: 4px;
+            .icon {
+                font-size: 16px;
+            }
         }
 
         .vertLine {
             border-left: 1px solid @color-border-bottomGrayMed;
-            height: 16px;
-            margin-top: 6px;
+            height: 20px;
+            margin-top: 4px;
             margin-right: 3px;
             pointer-events: none;
         }
@@ -414,12 +433,6 @@
             margin: 4px 2px 0px 3px;
             line-height: 20px;
             padding-left: 1px;
-
-
-            &:active {
-                box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
-                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
-            }
 
             .icon {
                 .size(100%, 100%);
@@ -437,29 +450,25 @@
 
             &.sort {
                 .icon {
-                    .image("../../images/dagIcons/dagTabArrow.png", 50%, 50%);
-                    .transform(rotate(180deg));
-                    opacity: 0.9; // looks too bright to be 1
+
                 }
                 &.desc {
                     .icon {
-                        .transform(rotate(0deg));
-                        margin-top: 1px;
+                        .transform(rotate(180deg));
+                        position: relative;
+                        top: -2px;
+                        left: -2px;
                     }
                 }
 
             }
 
-            &.compareIcon .icon {
-                
-            }
-
             &.remove .icon {
-                // margin-top: 1px;
+
             }
 
             &.split .icon {
-                .image("../../images/jsonModal/split.png", 50%, 50%);
+               
             }
 
             &.binaryIcon {
@@ -470,21 +479,19 @@
                 .image("../../images/jsonModal/binary.png", 50%, 50%);
             }
             &.pullAll .icon {
-                .image("../../images/jsonModal/pullAll.png", 50%, 50%);
                 margin-left: 1px;
-                background-size: 90% 90%;
+                font-size: 14px;
             }
             &.clearAll {
                 display: none;
                 .icon {
-                    .image("../../images/select-none-white-sm.png", 50%, 50%);
+                    font-size: 14px;
                 }
             }
             &.submitProject {
                 display: none;
                 .icon {
-                    .image("../../images/datastore/send-single.png", 50%, 50%);
-                    background-size: 90% 90%;
+                    font-size: 14px;
                 }
             }
         }
@@ -621,17 +628,17 @@
             .size(@width: 20px, @height: 20px);
             margin-top: 4px;
             margin-right: 4px;
-            background-color: @color-json-button;
             float: right;
-            .transition(0.1s background-color);
-            &:hover {
-                background-color: @color-menu-dropdownbox-white;
-            }
+
             .icon {
-                .image("../../images/arrow-down-gray-flat.png", 50%, 50%);
-                height: 100%;
-                width: 100%;
+               color: @color-white; 
             }
+
+            // .icon {
+            //     .image("../../images/arrow-down-gray-flat.png", 50%, 50%);
+            //     height: 100%;
+            //     width: 100%;
+            // }
         }
 
         .selectBtn, .submitProject {
@@ -647,7 +654,7 @@
     .infoBar {
         border-top: 1px solid @color-white;
         .flex-display;
-        padding: 0px 5px 0px 22px;
+        padding: 0px 10px 0px 10px;
 
         .text {
             color: @color-text-blue;
@@ -659,7 +666,7 @@
             padding-right: 5px;
         }
         .rowNum {
-            .flex(3 1 auto);
+            .flex(0 1 auto);
         }
     }
 

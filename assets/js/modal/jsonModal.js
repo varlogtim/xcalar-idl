@@ -1077,17 +1077,20 @@ window.JSONModal = (function($, JSONModal) {
         if (isDataCol) {
             html +=
             '<div class="optionsBar bar">' +
-                '<div class="dragHandle jsonDragHandle"></div>' +
+                '<div class="dragHandle jsonDragHandle">' +
+                    '<i class="icon xi-drag-handle"></i>' +
+                '</div>' +
+                '<div class="compareIcon single checkbox" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
+                    'title="' + JsonModalTStr.SelectOther + '">' +
+                    '<i class="icon xi-ckbox-empty"></i>' +
+                    '<i class="icon xi-ckbox-selected"></i>' +
+                '</div>' +
                 '<div class="vertLine"></div>' +
                 '<div class="btn btn-small btn-secondary sort single" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.SortAsc + '">' +
-                    '<i class="icon"></i>' +
-                '</div>' +
-                '<div class="btn btn-small btn-secondary compareIcon single" ' +
-                    'data-toggle="tooltip" data-container="body" ' +
-                    'title="' + JsonModalTStr.SelectOther + '">' +
-                    '<i class="icon xi-tick"></i>' +
+                    '<i class="icon xi-arrow-down"></i>' +
                 '</div>' +
                 '<div class="btn btn-small btn-secondary remove" data-toggle="tooltip" ' +
                     'data-container="body" ' +
@@ -1097,7 +1100,7 @@ window.JSONModal = (function($, JSONModal) {
                 '<div class="btn btn-small btn-secondary split" data-toggle="tooltip"' +
                     'data-container="body" ' +
                     'title="' + JsonModalTStr.Duplicate + '">' +
-                    '<i class="icon"></i>' +
+                    '<i class="icon xi_split"></i>' +
                 '</div>' +
                 '<div class="btn btn-small btn-secondary binaryIcon" ' +
                 'data-toggle="tooltip" ' +
@@ -1108,17 +1111,17 @@ window.JSONModal = (function($, JSONModal) {
                 '<div class="btn btn-small btn-secondary pullAll" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.PullAll + '">' +
-                    '<i class="icon"></i>' +
+                    '<i class="icon xi-pull-all-field"></i>' +
                 '</div>' +
                 '<div class="btn btn-small btn-secondary clearAll disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + 'deselect all columns' + '">' +
-                    '<i class="icon"></i>' +
+                    '<i class="icon xi-select-none"></i>' +
                 '</div>' +
                 '<div class="btn btn-small btn-secondary submitProject disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + 'submit projection' + '">' +
-                    '<i class="icon"></i>' +
+                    '<i class="icon xi-back-to-worksheet"></i>' +
                 '</div>' +
                 '<div class="text colsSelected disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
@@ -1168,8 +1171,8 @@ window.JSONModal = (function($, JSONModal) {
                 // '<div class="submitProject hidden">' +
                 //     "Submit" +
                 // '</div>' +
-                '<div class="dropdownBox">' +
-                    '<i class="icon"></i>' +
+                '<div class="dropdownBox btn btn-small btn-secondary">' +
+                    '<i class="icon xi-down"></i>' +
                 '</div>' +
             '</div>' +
             '<div class="infoBar bar">' +
