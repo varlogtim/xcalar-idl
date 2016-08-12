@@ -1,4 +1,4 @@
-<!--Profile Modal -->
+<!-- Profile Modal -->
 <div id="profileModal" class="modalContainer">
   <!-- Profile Modal Header -->
   <header class="modalHeader">
@@ -9,11 +9,93 @@
   </header>
   <!-- Profile Modal Instruction -->
   <section class="modalInstruction">
-    <div class="icon"></div>
+    <i class="icon xi-info-circle"></i>
     <div class="text"></div>
   </section>
-  <!-- Profile Modal Top Section, for statistics groupby info-->
+  <!-- Profile Modal Top Main Section, profile icons -->
   <section class="modalTopMain">
+    <div class="sortAndRangeSection">
+      <!-- sortSection -->
+      <div class="sortSection loadDisabled">
+        <div class="title"><%= dicts.profile.SortBy %></div>
+        <div class="radioButtonGroup">
+          <div class="radioButton xc-action asc" data-option="asc">
+            <div class="radio">
+              <i class="icon"></i>
+            </div>
+            <i class="sortIcon icon xi-ascending fa-15"></i>
+            <div class="text"><%= dicts.profile.asc %></div>
+          </div>
+          <div class="radioButton xc-action origin" data-option="origin">
+            <div class="radio">
+              <i class="icon"></i>
+            </div>
+            <i class="sortIcon icon xi-original fa-15"></i>
+            <div class="text"><%= dicts.profile.orig %></div>
+          </div>
+          <div class="radioButton xc-action desc" data-opton="desc">
+            <div class="radio">
+              <i class="icon"></i>
+            </div>
+            <i class="sortIcon icon xi-descending fa-15"></i>
+            <div class="text"><%= dicts.profile.desc %></div>
+          </div>
+        </div>
+      </div>
+      <!-- range section -->
+      <div class="rangeSection loadDisabled">
+        <div class="title"><%= dicts.profile.BucketTitle %></div>
+        <div class="radioButtonGroup">
+          <div class="radioButton xc-action single active" data-option="single">
+            <div class="radio">
+              <i class="icon"></i>
+            </div>
+            <div class="text"><%= dicts.profile.Single %></div>
+          </div>
+          <div class="radioButton xc-action range" data-option="range">
+            <div class="radio">
+              <i class="icon"></i>
+            </div>
+            <div class="text"><%= dicts.profile.Range %></div>
+            <input id="profile-range" type="number" step="1" min="1" spellcheck="false" placeholder="<%= dicts.profile.BucketInstr %>">
+          </div>
+          <div class="radioButton xc-action fitAll" data-option="fitAll">
+            <div class="radio">
+              <i class="icon"></i>
+            </div>
+            <div class="text"><%= dicts.profile.FitAll %></div>
+          </div>
+        </div>
+      </div> 
+    </div>
+    <!-- inputsection -->
+    <div class="inputSection">
+      <!-- rowInput -->
+      <div class="rowInput">
+        <label for="profile-rowInput"><%= dicts.profile.SkipTo %></label>
+        <input id="profile-rowInput" class="min-range loadDisabled
+          " val="1" spellcheck="false">
+        <label class="loadHidden highlight"><%= dicts.common.of %></label>
+        <label for="profile-rowInput" class="max-range loadHidden highlight"></label>
+      </div>
+      <!-- info section -->
+      <div class="disaplyInput loadDisabled">
+        <div class="text"><%= dicts.profile.Showing %></div>
+        <input class="numRows" type="number" disabled>
+        <div class="control">
+          <div class="more xc-action action">
+            <i class="icon fa-7 xi-arrow-up"></i>
+          </div>
+          <div class="less xc-action action">
+            <i class="icon fa-7 xi-arrow-down"></i>
+          </div>
+        </div>
+        <div class="text"><%= dicts.profile.results %></div>
+      </div>
+    </div>
+  </section>
+  <!-- Profile Modal Section, chart-->
+  <section id="profile-chart" class="modalMain">
     <!-- loading section -->
     <div class="loadingSection">
       <div class="waitingIcon"></div>
@@ -23,44 +105,28 @@
       <div class="title"><%= dicts.profile.fail %></div>
       <div class="text"></div>
     </div>
-    <!-- info section -->
-    <div class="helpInfoSection loadHidden">
-     <!--  <div class="filterInfo hidden">
-        <span class="text filter"><%= dicts.profile.filter %></span>
-        <span class="text exclude"><%= dicts.profile.exclude %></span>
-        <span class="text cancel"><%= dicts.profile.cancelFilter %></span>
-      </div> -->
-      <div class="numInfo">
-        <div title="<%= dicts.profile.RowMore %>" class="icon more">
-          <div class="plus"></div>
-          <div class="plus vertical"></div>
-        </div>
-        <div class="text"></div>
-        <div title="<%= dicts.profile.RowLess %>" class="icon less">
-          <div class="plus"></div>
-        </div>
-      </div>
-    </div>
     <!-- groupby section -->
     <div class="groubyInfoSection loadHidden">
       <svg class="groupbyChart"></svg>
-      <div class="arrow left-arrow"></div>
-      <div class="arrow right-arrow"></div>
+      <i class="arrow left-arrow icon xi-arrow-left xc-action fa-15"></i>
+      <i class="arrow right-arrow icon xi-arrow-right xc-action fa-15"></i>
     </div>
     <div id="profile-filterOption" class="filterOption">
-      <div class="option filter">
-        <div class="textWrapper"><%= dicts.profile.filter %>...</div>
+      <div class="option filter xc-action">
+        <i class="icon xi-filter fa-10"></i>
+        <span class="text"><%= dicts.profile.filter %></span>
       </div>
-      <div class="option exclude">
-        <div class="textWrapper"><%= dicts.profile.exclude %>...</div>
+      <div class="option exclude xc-action">
+        <i class="icon xi-exclude fa-10"></i>
+        <span class="text"><%= dicts.profile.exclude %></span>
       </div>
-      <div class="option cancel">
-        <div class="textWrapper"><%= dicts.profile.cancelFilter %></div>
+      <div class="option cancel xc-action">
+        <i class="icon xi-trash fa-10"></i>
+        <span class="text"><%= dicts.profile.cancelFilter %></span>
       </div>
     </div>
   </section>
-  <!-- Profile Modal Main Section, for agg info -->
-  <section class="modalMain">
+  <section class="modalBottom">
     <!-- scroll section -->
     <div class="scrollSection loadHidden">
       <div class="rowScrollArea">
@@ -69,131 +135,69 @@
         </div>
       </div>
     </div>
-    <div class="sortAndInputSection loadHidden">
-      <!-- sortSection -->
-      <div class="sortSection radioButtonGroup">
-        <div class="label"><%= dicts.profile.SortBy %>:</div>
-        <div class="sort">
-          <div class="radioButton asc">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <span class="icon"></span>
-            <span class="text"><%= dicts.profile.asc %></span>
-          </div>
-        </div>
-        <div class="sort">
-          <div class="radioButton origin">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <span class="icon"></span>
-            <span class="text"><%= dicts.profile.orig %></span>
-          </div>
-        </div>
-        <div class="sort">
-          <div class="radioButton desc">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <span class="icon"></span>
-            <span class="text"><%= dicts.profile.desc %></span>
-          </div>
-        </div>
+  </section>
+  <!-- statistic section -->
+  <section id="profile-stats" class="infoSection">
+    <div class="popBar xc-action">
+      <i class="icon xi-next fa-12"></i>
+      <i class="icon xi-previous fa-12"></i>
+    </div>
+    <!-- agginfo -->
+    <div class="container aggInfo">
+      <div class="title"><%= dicts.profile.AggSummary %></div>
+      <div class="info">
+        <span class="label"><%= dicts.common.count %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text count tooltipOverflow"></span>
       </div>
-      <!-- row input -->
-      <div class="rowInputSection">
-        <div class="rowInput">
-          <label><%= dicts.profile.SkipTo %></label>
-          <input id="stats-rowInput" class="min-range" val="1" spellcheck="false">
-          <label><%= dicts.common.of %> </label>
-          <label for="stats-rowInput" class="max-range"></label>
-        </div>
+      <div class="info">
+        <span class="label"><%= dicts.common.average %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text average tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label"><%= dicts.common.min %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text min tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label"><%= dicts.common.max %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text max tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label"><%= dicts.common.sum %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text sum tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label"><%= dicts.common.sd %>:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text sd tooltipOverflow"></span>
       </div>
     </div>
-    <!-- range section -->
-    <div class="rangeSection loadDisable">
-      <div class="title"><%= dicts.profile.BucketTitle %></div>
-      <div class="content">
-        <!-- slider -->
-        <div class="sliderSection">
-          <div class="sliderBar">
-            <div class="wrap single" data-val="single"></div>
-            <div class="wrap range" data-val="range"></div>
-            <div class="wrap fitAll" data-val="fitAll"></div>
-            <span class="slider"></span>
-          </div>
-        </div>
-        <!-- options -->
-        <div class="optionSection">
-          <div class="rangePart active" data-val="single">
-            <span class="text"><%= dicts.profile.Single %></span>
-          </div>
-          <div class="rangePart" data-val="range">
-            <span class="text"><%= dicts.profile.Range %></span>
-            <input id="stats-step" type="number" step="1" min="1" spellcheck="false" placeholder="<%= dicts.profile.BucketInstr %>">
-          </div>
-          <div class="rangePart" data-val="fitAll">
-            <span class="text"><%= dicts.profile.FitAll %></span>
-          </div>
-        </div>
+    <!-- stats info -->
+    <div class="container statsInfo">
+      <div class="title"><%= dicts.profile.QuartileSummary %></div>
+      <div class="instruction"><%= dicts.profile.QuartileInstr %></div>
+      <div class="info">
+        <span class="label">0%:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text zeroQuartile tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label">25%:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text lowerQuartile tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label">50%:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text median tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label">75%:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text upperQuartile tooltipOverflow"></span>
+      </div>
+      <div class="info">
+        <span class="label">100%:</span>
+        <span data-toggle="tooltip" data-placement="top" data-container="body" class="text fullQuartile tooltipOverflow"></span>
       </div>
     </div>
-    <!-- info section -->
-    <div class="infoSection">
-      <!-- agginfo -->
-      <div class="infoContainer aggInfo">
-        <div class="title"><%= dicts.profile.AggSummary %></div>
-        <div class="info">
-          <span class="label"><%= dicts.common.count %>:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text count tooltipOverflow"></span>
-        </div>
-         <div class="info">
-          <span class="label"><%= dicts.common.min %>:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text min tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label"><%= dicts.common.max %>:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text max tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label"><%= dicts.common.average %>:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text average tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label"><%= dicts.common.sum %>:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text sum tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label"><%= dicts.common.sd %>:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text sd tooltipOverflow"></span>
-        </div>
-      </div>
-      <!-- stats info -->
-      <div class="infoContainer statsInfo">
-        <div class="title"><%= dicts.profile.QuartileSummary %></div>
-        <div class="instruction"><%= dicts.profile.QuartileInstr %></div>
-        <div class="info">
-          <span class="label">0%:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text zeroQuartile tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label">25%:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text lowerQuartile tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label">50%:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text median tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label">75%:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text upperQuartile tooltipOverflow"></span>
-        </div>
-        <div class="info">
-          <span class="label">100%:</span>
-          <span data-toggle="tooltip" data-placement="top" data-container="body" class="text fullQuartile tooltipOverflow"></span>
-        </div>
-      </div>
+    <div class="container corr">
+      <div class="title"><%= dicts.aggModal.CorrTitle %></div>
+      <button id="profile-corr" class="btn"><%= dicts.profile.LAUNCH %></button>
     </div>
   </section>
 </div>

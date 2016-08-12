@@ -1336,7 +1336,7 @@ window.Replay = (function($, Replay) {
         .then(function() {
             var $modal = $("#profileModal");
             var $rangeSection = $modal.find(".rangeSection");
-            var $input = $("#stats-step");
+            var $input = $("#profile-range");
             $rangeSection.find(".text.range").click();
             $input.val(bucketSize);
             $input.trigger(fakeEvent.enter);

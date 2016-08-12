@@ -1,7 +1,8 @@
 window.Profile = (function($, Profile, d3) {
     var $modal;        // $("#profileModal");
     var $rangeSection; // $modal.find(".rangeSection");
-    var $rangeInput;   // $("#stats-step");
+    var $rangeInput;   // $("#profile-range");
+    var $skipInput;    // $("#profile-rowInput")
 
     var modalHelper;
     // constants
@@ -61,7 +62,8 @@ window.Profile = (function($, Profile, d3) {
     Profile.setup = function() {
         $modal = $("#profileModal");
         $rangeSection = $modal.find(".rangeSection");
-        $rangeInput = $("#stats-step");
+        $rangeInput = $("#profile-range");
+        $skipInput = $("#profile-rowInput");
 
         // constant
         var minHeight = 425;
@@ -77,24 +79,7 @@ window.Profile = (function($, Profile, d3) {
             "minHeight"  : minHeight,
             "minWidth"   : minWidth,
             "containment": "document",
-            "resize"     : function() {
-                if (statsCol.groupByInfo &&
-                    statsCol.groupByInfo.isComplete === true)
-                {
-                    buildGroupGraphs(null, true);
-                    var $scroller = $modal.find(".scrollSection .scroller");
-                    resizeScroller();
-                    var curRowNum = Number($("#stats-rowInput").val());
-                    // if not add scolling class,
-                    // will have a transition to cause a lag
-                    $scroller.addClass("scrolling");
-                    positionScrollBar(null, curRowNum);
-                    // without setTimout will still have lag
-                    setTimeout(function() {
-                        $scroller.removeClass("scrolling");
-                    }, 1);
-                }
-            }
+            "resize"     : resizeChart
         });
 
         $modal.draggable({
@@ -129,7 +114,11 @@ window.Profile = (function($, Profile, d3) {
         $modal.on("mouseover", resetTooltip);
 
         var $groupbySection = $modal.find(".groubyInfoSection");
-        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function() {
+        $groupbySection.on("mousedown", ".bar-extra, .bar, .xlabel", function() {
+            if (event.which !== 1) {
+                return;
+            }
+
             if (filterDragging) {
                 filterDragging = false;
                 return;
@@ -139,12 +128,17 @@ window.Profile = (function($, Profile, d3) {
             highlightBar();
         });
 
-        $groupbySection.on("click", ".arrow", function() {
+        $groupbySection.on("mousedown", ".arrow", function() {
+            if (event.which !== 1) {
+                return;
+            }
+
             var isLeft = $(this).hasClass("left-arrow");
             clickArrowEvent(isLeft);
+            return false;
         });
 
-        $modal.on("mousedown", ".modalTopMain", function(event) {
+        $("#profile-chart").on("mousedown", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -153,10 +147,10 @@ window.Profile = (function($, Profile, d3) {
 
         // event on sort section
         var $sortSection = $modal.find(".sortSection");
-        xcHelper.optionButtonEvent($sortSection, function(option, $radio) {
-            if ($radio.hasClass("asc")) {
+        xcHelper.optionButtonEvent($sortSection, function(option) {
+            if (option === "asc") {
                 sortData(sortMap.asc, statsCol);
-            } else if ($radio.hasClass("desc")) {
+            } else if (option === "desc") {
                 sortData(sortMap.desc, statsCol);
             } else {
                 sortData(sortMap.origin, statsCol);
@@ -164,12 +158,8 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // event on range section
-        $rangeSection.on("click", ".rangePart", function() {
-            toggleRange($(this).data("val"));
-        });
-
-        $rangeSection.on("click", ".sliderSection .wrap", function() {
-            toggleRange($(this).data("val"));
+        xcHelper.optionButtonEvent($rangeSection, function(option) {
+            toggleRange(option);
         });
 
         $rangeInput.keypress(function(event) {
@@ -200,18 +190,34 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
-        // event on helpInfoSection
-        var $helpInfoSection = $modal.find(".helpInfoSection");
-        $helpInfoSection.on("click", ".numInfo .icon", function() {
-            var $icon = $(this);
-            if ($icon.hasClass("disabled")) {
-                return;
-            }
+        var skipInputTimer;
+        $skipInput.on("keypress", function(event) {
+            if (event.which === keyCode.Enter) {
+                var $input = $(this);
+                var num = Number($input.val());
 
+                if (!isNaN(num)) {
+                    clearTimeout(skipInputTimer);
+                    skipInputTimer = setTimeout(function() {
+                        num = Math.min(num, totalRows);
+                        num = Math.max(num, 1);
+                        positionScrollBar(null, num);
+                    }, 100);
+                } else {
+                    // when input is invalid
+                    $input.val($input.data("rowNum"));
+                }
+                $input.blur();
+            }
+        });
+
+        // event on disaplyInput
+        var $disaplyInput = $modal.find(".disaplyInput");
+        $disaplyInput.on("click", ".action", function() {
             var diff = 10;
             var newRowsToFetch;
 
-            if ($icon.hasClass("more")) {
+            if ($(this).hasClass("more")) {
                 // 52 should return 60, 50 should reutrn 60
                 newRowsToFetch = (Math.floor(numRowsToFetch / diff) + 1) * diff;
             } else {
@@ -235,6 +241,18 @@ window.Profile = (function($, Profile, d3) {
             } else {
                 toggleFilterOption(true);
             }
+        });
+
+        $("#profile-stats").on("click", ".popBar", function() {
+            $modal.toggleClass("collapse");
+            resizeChart();
+        });
+
+        // do correlation
+        $("#profile-corr").click(function() {
+            var tableId = curTableId;
+            closeProfileModal();
+            AggModal.corr(tableId);
         });
     };
 
@@ -347,9 +365,6 @@ window.Profile = (function($, Profile, d3) {
         // turn off scroll bar event
         $modal.find(".scrollBar").off();
         $(document).off(".profileModal");
-        $("#stats-rowInput").off();
-
-        $rangeInput.val("");
 
         numRowsToFetch = defaultRowsToFetch;
         toggleFilterOption(true);
@@ -358,18 +373,20 @@ window.Profile = (function($, Profile, d3) {
 
     function generateProfile(table, txId) {
         var deferred = jQuery.Deferred();
-        var type = statsCol.type;
         var promises = [];
+        var isNum = isTypeNumber(statsCol.type);
 
-        // do aggreagte
-        if (type === "integer" || type === "float") {
-            for (var i = 0, len = aggKeys.length; i < len; i++) {
+        for (var i = 0, len = aggKeys.length; i < len; i++) {
+            var aggkey = aggKeys[i];
+            if (aggkey !== "count" && !isNum) {
+                statsCol.aggInfo[aggkey] = "--";
+                refreshAggInfo(aggkey);
+            } else {
                 promises.push(runAgg(table, aggKeys[i], statsCol, txId));
             }
-
-            // do stats
-            promises.push(runStats(table, statsCol));
         }
+
+        promises.push(runStats(table, statsCol));
 
         // do group by
         if (statsCol.groupByInfo.isComplete === true) {
@@ -422,7 +439,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function showProfile() {
-        if (statsCol.type === "integer" || statsCol.type === "float") {
+        if (isTypeNumber(statsCol.type)) {
             $modal.addClass("type-number");
         } else {
             $modal.removeClass("type-number");
@@ -441,20 +458,24 @@ window.Profile = (function($, Profile, d3) {
 
     // refresh profile
     function refreshProfile() {
-        var instruction = ProfileTStr.ProfileOf +
-                          " <b>" + statsCol.frontColName + ".</b><br>";
+        var instr = xcHelper.replaceMsg(ProfileTStr.Info, {
+            "col" : statsCol.frontColName,
+            "type": statsCol.type
+        });
+
+        instr += "<br>";
 
         // update instruction
         if (statsCol.groupByInfo.isComplete === true) {
-            instruction += ProfileTStr.Instr;
+            instr += ProfileTStr.Instr;
         } else {
-            instruction += ProfileTStr.LoadInstr;
+            instr += ProfileTStr.LoadInstr;
         }
 
-        $modal.find(".modalInstruction .text").html(instruction);
+        $modal.find(".modalInstruction .text").html(instr);
 
-        refreshAggInfo(statsCol.type);
-        refreshStatsInfo(statsCol.type);
+        refreshAggInfo();
+        refreshStatsInfo();
 
         return refreshGroupbyInfo();
     }
@@ -465,7 +486,7 @@ window.Profile = (function($, Profile, d3) {
         $modal.addClass("loading");
 
         var $loadHiddens = $modal.find(".loadHidden");
-        var $loadDisables = $modal.find(".loadDisable");
+        var $loadDisables = $modal.find(".loadDisabled");
         var $errorSection = $modal.find(".errorSection");
 
         if (resetRefresh) {
@@ -527,64 +548,59 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function refreshAggInfo(type, aggKeysToRefesh) {
+    function refreshAggInfo(aggKeysToRefesh) {
         // update agg info
-        if (type === "integer" || type === "float") {
-            var $infoSection = $modal.find(".infoSection");
+        var $infoSection = $("#profile-stats");
+        aggKeysToRefesh = aggKeysToRefesh || aggKeys;
+        if (!(aggKeysToRefesh instanceof Array)) {
+            aggKeysToRefesh = [aggKeysToRefesh];
+        }
 
-            aggKeysToRefesh = aggKeysToRefesh || aggKeys;
-            if (!(aggKeysToRefesh instanceof Array)) {
-                aggKeysToRefesh = [aggKeysToRefesh];
+        aggKeysToRefesh.forEach(function(aggkey) {
+            var aggVal = statsCol.aggInfo[aggkey];
+            if (aggVal == null) {
+                // when aggregate is still running
+                $infoSection.find("." + aggkey).html("...")
+                            .attr("title", "...")
+                            .addClass("animatedEllipsis");
+            } else {
+                var text = aggVal.toLocaleString();
+                $infoSection.find("." + aggkey)
+                            .removeClass("animatedEllipsis")
+                            .attr("title", text)
+                            .text(text);
             }
+        });
+    }
 
-            aggKeysToRefesh.forEach(function(aggkey) {
-                var aggVal = statsCol.aggInfo[aggkey];
-                if (aggVal == null) {
-                    // when aggregate is still running
-                    $infoSection.find("." + aggkey).html("...")
+    function refreshStatsInfo() {
+        // update stats info
+        var $infoSection = $("#profile-stats");
+        var $statsInfo = $infoSection.find(".statsInfo");
+
+        if (statsCol.statsInfo.unsorted) {
+            $statsInfo.find(".info").hide()
+                    .end()
+                    .find(".instruction").show();
+        } else {
+            $statsInfo.find(".instruction").hide()
+                    .end()
+                    .find(".info").show();
+
+            for (var key in statsKeyMap) {
+                var statsKey = statsKeyMap[key];
+                var statsVal = statsCol.statsInfo[statsKey];
+                if (statsVal == null) {
+                    // when stats is still running
+                    $infoSection.find("." + statsKey).html("...")
                                 .attr("title", "...")
                                 .addClass("animatedEllipsis");
                 } else {
-                    var text = aggVal.toLocaleString();
-                    $infoSection.find("." + aggkey)
+                    var text = statsVal.toLocaleString();
+                    $infoSection.find("." + statsKey)
                                 .removeClass("animatedEllipsis")
                                 .attr("title", text)
                                 .text(text);
-                }
-            });
-        }
-    }
-
-    function refreshStatsInfo(type) {
-        // update stats info
-        if (type === "integer" || type === "float") {
-            var $infoSection = $modal.find(".infoSection");
-            var $statsInfo = $infoSection.find(".statsInfo");
-
-            if (statsCol.statsInfo.unsorted) {
-                $statsInfo.find(".info").hide()
-                        .end()
-                        .find(".instruction").show();
-            } else {
-                $statsInfo.find(".instruction").hide()
-                        .end()
-                        .find(".info").show();
-
-                for (var key in statsKeyMap) {
-                    var statsKey = statsKeyMap[key];
-                    var statsVal = statsCol.statsInfo[statsKey];
-                    if (statsVal == null) {
-                        // when stats is still running
-                        $infoSection.find("." + statsKey).html("...")
-                                    .attr("title", "...")
-                                    .addClass("animatedEllipsis");
-                    } else {
-                        var text = statsVal.toLocaleString();
-                        $infoSection.find("." + statsKey)
-                                    .removeClass("animatedEllipsis")
-                                    .attr("title", text)
-                                    .text(text);
-                    }
                 }
             }
         }
@@ -634,7 +650,7 @@ window.Profile = (function($, Profile, d3) {
 
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                refreshAggInfo(curStatsCol.type, aggkey);
+                refreshAggInfo(aggkey);
             }
         });
 
@@ -664,12 +680,13 @@ window.Profile = (function($, Profile, d3) {
             return deferred.resolve().promise();
         }
 
+        var isNum = isTypeNumber(curStatsCol.type);
         var tableName = table.getName();
         XIApi.checkOrder(tableName)
         .then(getStats)
         .then(function() {
             if (isModalVisible(curStatsCol)) {
-                refreshStatsInfo(curStatsCol.type);
+                refreshStatsInfo();
             }
             deferred.resolve();
         })
@@ -703,14 +720,14 @@ window.Profile = (function($, Profile, d3) {
                 var lowerRowEnd;
                 var upperRowStart;
 
-                if (numEntries % 2 === 0) {
+                if (!isNum || numEntries % 2 !== 0) {
+                    // odd rows or not number
+                    lowerRowEnd = (numEntries + 1) / 2;
+                    upperRowStart = lowerRowEnd;
+                } else {
                     // even rows
                     lowerRowEnd = numEntries / 2;
                     upperRowStart = lowerRowEnd + 1;
-                } else {
-                    // odd rows
-                    lowerRowEnd = (numEntries + 1) / 2;
-                    upperRowStart = lowerRowEnd;
                 }
 
                 promises.push(getMedian.bind(this, resultId, 1, 1, zeroKey));
@@ -736,13 +753,14 @@ window.Profile = (function($, Profile, d3) {
             var rowNum;
             var rowsToFetch;
 
-            if (numRows % 2 === 0) {
+            if (!isNum || numEntries % 2 !== 0) {
+                // odd rows or not number
+                rowNum = startRow + (numRows + 1) / 2 - 1;
+                rowsToFetch = 1;
+            } else {
                 // even rows
                 rowNum = startRow + numRows / 2 - 1;
                 rowsToFetch = 2;
-            } else {
-                rowNum = startRow + (numRows + 1) / 2 - 1;
-                rowsToFetch = 1;
             }
 
             // row position start with 0
@@ -755,18 +773,22 @@ window.Profile = (function($, Profile, d3) {
                 var kvPairs = tableOfEntries.kvPair;
 
                 if (numKvPairs === rowsToFetch) {
-                    var sum = 0;
-                    for (var i = 0; i < rowsToFetch; i++) {
-                        sum += Number(kvPairs[i].key);
-                    }
+                    if (isNum) {
+                        var sum = 0;
+                        for (var i = 0; i < rowsToFetch; i++) {
+                            sum += Number(kvPairs[i].key);
+                        }
 
-                    var median = sum / rowsToFetch;
-                    if (isNaN(rowsToFetch)) {
-                        // handle case
-                        console.warn("Invalid median");
-                        curStatsCol.statsInfo[statsKey] = '--';
+                        var median = sum / rowsToFetch;
+                        if (isNaN(rowsToFetch)) {
+                            // handle case
+                            console.warn("Invalid median");
+                            curStatsCol.statsInfo[statsKey] = '--';
+                        } else {
+                            curStatsCol.statsInfo[statsKey] = median;
+                        }
                     } else {
-                        curStatsCol.statsInfo[statsKey] = median;
+                        curStatsCol.statsInfo[statsKey] = kvPairs[0].key;
                     }
                 } else {
                     // when the data not return correctly, don't recursive try.
@@ -1286,6 +1308,26 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
+
+    function resizeChart() {
+        if (statsCol.groupByInfo &&
+            statsCol.groupByInfo.isComplete === true)
+        {
+            buildGroupGraphs(null, true);
+            var $scroller = $modal.find(".scrollSection .scroller");
+            resizeScroller();
+            var curRowNum = Number($skipInput.val());
+            // if not add scolling class,
+            // will have a transition to cause a lag
+            $scroller.addClass("scrolling");
+            positionScrollBar(null, curRowNum);
+            // without setTimout will still have lag
+            setTimeout(function() {
+                $scroller.removeClass("scrolling");
+            }, 1);
+        }
+    }
+
     function formatNumber(num) {
         if (num === "" || num == null) {
             console.warn("cannot format empty or null value");
@@ -1385,28 +1427,6 @@ window.Profile = (function($, Profile, d3) {
                 }
             }
         });
-
-        var timer;
-        var $rowInput = $("#stats-rowInput");
-        $rowInput.on("keypress", function(event) {
-            if (event.which === keyCode.Enter) {
-                var $input = $(this);
-                var num = Number($input.val());
-
-                if (!isNaN(num)) {
-                    clearTimeout(timer);
-                    timer = setTimeout(function() {
-                        num = Math.min(num, totalRows);
-                        num = Math.max(num, 1);
-                        positionScrollBar(null, num);
-                    }, 100);
-                } else {
-                    // when input is invalid
-                    $input.val($input.data("rowNum"));
-                }
-                $input.blur();
-            }
-        });
     }
 
     function getPosition(percent, $scroller, $scrollerBar) {
@@ -1426,7 +1446,6 @@ window.Profile = (function($, Profile, d3) {
         var $section = $modal.find(".scrollSection");
         var $scrollBar = $section.find(".scrollBar");
         var $scroller = $scrollBar.find(".scroller");
-        var $rowInput = $("#stats-rowInput");
 
         if (rowNum != null) {
             isFromInput = true;
@@ -1437,10 +1456,10 @@ window.Profile = (function($, Profile, d3) {
         }
         var tempRowNum = rowNum;
 
-        if ($rowInput.data("rowNum") === rowNum) {
+        if ($skipInput.data("rowNum") === rowNum) {
             // case of going to same row
             // put the row scoller in right place
-            $rowInput.val(rowNum);
+            $skipInput.val(rowNum);
             left = getPosition(rowPercent, $scroller, $scrollBar);
             $scroller.css("left", left);
 
@@ -1486,7 +1505,7 @@ window.Profile = (function($, Profile, d3) {
             rowsToFetch = numRowsToFetch;
         }
 
-        $rowInput.val(tempRowNum).data("rowNum", tempRowNum);
+        $skipInput.val(tempRowNum).data("rowNum", tempRowNum);
 
         // disable another fetching data event till this one done
         $section.addClass("disabled");
@@ -1548,7 +1567,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function clickArrowEvent(isLeft) {
-        var curRowNum = Number($("#stats-rowInput").val());
+        var curRowNum = Number($skipInput.val());
 
         if (isLeft) {
             curRowNum -= numRowsToFetch;
@@ -1568,7 +1587,7 @@ window.Profile = (function($, Profile, d3) {
 
         numRowsToFetch = newRowsToFetch;
 
-        var curRowNum = Number($("#stats-rowInput").val());
+        var curRowNum = Number($skipInput.val());
         resetRowsInfo();
         resetScrollBar(true);
         positionScrollBar(null, curRowNum, true);
@@ -1583,44 +1602,45 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function resetRowsInfo() {
-        var $numInfo = $modal.find(".helpInfoSection .numInfo");
-        var $activeRange = $rangeSection.find(".rangePart.active");
+        var $disaplyInput = $modal.find(".disaplyInput");
+        var $activeRange = $rangeSection.find(".radioButton.active");
+        var rowsToShow;
+        var $moreBtn = $disaplyInput.find(".more").removeClass("xc-disabled");
+        var $lessBtn = $disaplyInput.find(".less").removeClass("xc-disabled");
 
-        if ($activeRange.data("val") === "fitAll" ||
+        if ($activeRange.data("option") === "fitAll" ||
             totalRows <= minRowsToFetch)
         {
             // case that cannot show more or less results
-            $numInfo.hide();
+            rowsToShow = totalRows;
+            $moreBtn.addClass("xc-disabled");
+            $lessBtn.addClass("xc-disabled");
         } else {
             numRowsToFetch = Math.min(numRowsToFetch, totalRows);
-            $numInfo.show();
-            var $moreIcon = $numInfo.find(".more").removeClass("disabled");
-            var $lessIcon = $numInfo.find(".less").removeClass("disabled");
 
             if (numRowsToFetch <= minRowsToFetch) {
-                $lessIcon.addClass("disabled");
+                $lessBtn.addClass("xc-disabled");
             }
 
             if (numRowsToFetch >= maxRowsToFetch || numRowsToFetch >= totalRows) {
-                $moreIcon.addClass("disabled");
+                $moreBtn.addClass("xc-disabled");
             }
 
-            var html = xcHelper.replaceMsg(ProfileTStr.RowInfo, {
-                "row": numRowsToFetch
-            });
-            $numInfo.find(".text").html(html);
+            rowsToShow = numRowsToFetch;
         }
+
+        $disaplyInput.find(".numRows").val(rowsToShow);
     }
 
     function resetRowInput() {
         // total row might be 0 in error case
         var rowNum = (totalRows <= 0) ? 0 : 1;
-        var $rowInput = $("#stats-rowInput").val(rowNum).data("rowNum", rowNum);
-        var $maxRange = $rowInput.siblings(".max-range");
+        $skipInput.val(rowNum).data("rowNum", rowNum);
+        var $maxRange = $skipInput.siblings(".max-range");
 
         // set width of elements
         $maxRange.text(totalRows.toLocaleString());
-        $rowInput.width($maxRange.width() + 5); // 5 is for input padding
+        $skipInput.width($maxRange.width() + 5); // 5 is for input padding
     }
 
     function resetSortInfo() {
@@ -1734,20 +1754,6 @@ window.Profile = (function($, Profile, d3) {
 
     function toggleRange(rangeOption, reset) {
         var bucketSize;
-        var $rangePart = $rangeSection.find(".rangePart").filter(function() {
-            return $(this).data("val") === rangeOption;
-        });
-
-        if ($rangePart.hasClass("active")) {
-            return;
-        }
-
-        $rangeSection.find(".active").removeClass("active");
-        $rangePart.addClass("active");
-
-        $rangeSection.find(".slider")
-                    .removeClass()
-                    .addClass("slider " + rangeOption);
 
         switch (rangeOption) {
             case "range":
@@ -1783,6 +1789,11 @@ window.Profile = (function($, Profile, d3) {
 
         if (!reset) {
             bucketData(bucketSize, statsCol);
+        } else {
+            $rangeSection.find(".active").removeClass("active")
+                        .end()
+                        .find(".single").addClass("active");
+            $rangeInput.val("");
         }
     }
 
@@ -1920,7 +1931,7 @@ window.Profile = (function($, Profile, d3) {
 
     function highlightBar(rowNum) {
         if (rowNum == null) {
-            rowNum = Number($("#stats-rowInput").val());
+            rowNum = Number($skipInput.val());
         }
         var $chart = $modal.find(".groubyInfoSection .groupbyChart .barChart");
 
@@ -1938,9 +1949,9 @@ window.Profile = (function($, Profile, d3) {
 
 
     function createFilterSelection(startX, startY) {
-        var $modalTopMain = $modal.find(".modalTopMain");
-        var $chart = $modalTopMain.find(".groupbyChart");
-        var bound = $modalTopMain.get(0).getBoundingClientRect();
+        var $section = $("#profile-chart");
+        var $chart = $section.find(".groupbyChart");
+        var bound = $section.get(0).getBoundingClientRect();
 
         function FilterSelection(x, y) {
             var self = this;
@@ -1955,7 +1966,7 @@ window.Profile = (function($, Profile, d3) {
 
             $("#profile-filterSelection").remove();
             $("#profile-filterOption").fadeOut(200);
-            $modalTopMain.append(html);
+            $section.append(html);
             $modal.addClass("drawing");
             addSelectRectEvent(self);
 
@@ -2093,7 +2104,7 @@ window.Profile = (function($, Profile, d3) {
             });
             $filterOption.fadeOut(200);
         } else {
-            var bound = $modal.find(".modalTopMain").get(0).getBoundingClientRect();
+            var bound = $("#profile-chart").get(0).getBoundingClientRect();
             var barBound = $bars.get(-1).getBoundingClientRect();
             var right = bound.right - barBound.right;
             var bottom = bound.bottom - barBound.bottom;
@@ -2150,7 +2161,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         var options;
-        var isNumber = statsCol.type === "integer" || statsCol.type === "float";
+        var isNumber = isTypeNumber(statsCol.type);
         if (isNumber && noSort) {
             // this suit for numbers
             options = getNumFltOpt(operator, colName,
@@ -2329,6 +2340,10 @@ window.Profile = (function($, Profile, d3) {
         return (name);
     }
 
+    function isTypeNumber(type) {
+        return (type === "integer" || type === "float");
+    }
+
     function isModalVisible(curStatsCol) {
         return ($modal.is(":visible") &&
                 $modal.data("id") === curStatsCol.modalId);
@@ -2350,7 +2365,7 @@ window.Profile = (function($, Profile, d3) {
 
             $modal.removeClass("loading");
             $modal.find(".loadHidden").removeClass("hidden").removeClass("disabled");
-            $modal.find(".loadDisable").removeClass("disabled");
+            $modal.find(".loadDisabled").removeClass("disabled");
             $modal.find(".groubyInfoSection").addClass("hidden");
             $modal.find(".errorSection").removeClass("hidden")
                 .find(".text").text(error);

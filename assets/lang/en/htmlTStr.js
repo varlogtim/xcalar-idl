@@ -450,7 +450,7 @@ module.exports = {
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
         "FINALIZE": "FINALIZE",
-        "Refresh": "Refresh Preview",
+        "Refresh": "REFRESH REVIEW",
         "REDETECT": "REDETECT"
     },
 
@@ -517,6 +517,8 @@ module.exports = {
                      'numerical columns. To view common aggregate functions '+
                      'on all numerical columns, please click on the vertical '+
                      'tab.',
+        "CorrTitle": "Correlation",
+        "header": "Quick Aggregates",
         "TableName": "Table Name",
     },
 
@@ -634,24 +636,25 @@ module.exports = {
     "profile": {
         "header": "Profile",
         "SortBy": "Sort by",
-        "asc": "ascending",
-        "orig": "original",
-        "desc": "descending",
+        "asc": "Ascending",
+        "orig": "Original",
+        "desc": "Descending",
         "SkipTo": "Skip to",
-        "BucketTitle": "Range Bucketing",
+        "BucketTitle": "Range bucketing",
         "Single": "Single",
         "Range": "Range",
         "FitAll": "Fit All",
-        "BucketInstr": "Input range size (e.g. 0.5, 10)",
+        "BucketInstr": "Input range size (e.g. 0.5)",
         "AggSummary": "Aggregate Summary",
         "QuartileSummary": "Quartile Summary",
         "QuartileInstr": "Quartile statistics can only be calculated when the column is sorted",
         "fail": "Cannot profile the data",
-        "RowMore": "Show More Results",
-        "RowLess": "Show Less Results",
-        "filter": "Filter",
+        "Showing": "Showing",
+        "results": "results",
+        "filter": "Filter these value",
         "exclude": "Exclude",
-        "cancelFilter": "clear all"
+        "cancelFilter": "Clear all",
+        "LAUNCH": "LAUNCH"
     },
 
     "workbook": {
