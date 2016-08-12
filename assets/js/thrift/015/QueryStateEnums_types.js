@@ -9,10 +9,12 @@ QueryStateT = {
   'qrNotStarted' : 0,
   'qrProcessing' : 1,
   'qrFinished' : 2,
-  'qrError' : 3
+  'qrError' : 3,
+  'qrCancelled' : 4
 };
 QueryStateTStr = {0 : 'qrNotStarted',
 1 : 'qrProcessing',
 2 : 'qrFinished',
-3 : 'qrError'
+3 : 'qrError',
+4 : 'qrCancelled'
 };

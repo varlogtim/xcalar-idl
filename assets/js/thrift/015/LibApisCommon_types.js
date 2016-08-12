@@ -5924,6 +5924,7 @@ XcalarApiGetTableMetaOutputT = function(args) {
   this.numValues = null;
   this.numImmediates = null;
   this.valueAttrs = null;
+  this.ordering = null;
   this.numMetas = null;
   this.metas = null;
   if (args) {
@@ -5944,6 +5945,9 @@ XcalarApiGetTableMetaOutputT = function(args) {
     }
     if (args.valueAttrs !== undefined) {
       this.valueAttrs = args.valueAttrs;
+    }
+    if (args.ordering !== undefined) {
+      this.ordering = args.ordering;
     }
     if (args.numMetas !== undefined) {
       this.numMetas = args.numMetas;
@@ -6038,13 +6042,20 @@ XcalarApiGetTableMetaOutputT.prototype.read = function(input) {
       }
       break;
       case 7:
+      if (ftype == Thrift.Type.I32) {
+        this.ordering = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 8:
       if (ftype == Thrift.Type.I64) {
         this.numMetas = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 8:
+      case 9:
       if (ftype == Thrift.Type.LIST) {
         var _size142 = 0;
         var _rtmp3146;
@@ -6124,13 +6135,18 @@ XcalarApiGetTableMetaOutputT.prototype.write = function(output) {
     output.writeListEnd();
     output.writeFieldEnd();
   }
+  if (this.ordering !== null && this.ordering !== undefined) {
+    output.writeFieldBegin('ordering', Thrift.Type.I32, 7);
+    output.writeI32(this.ordering);
+    output.writeFieldEnd();
+  }
   if (this.numMetas !== null && this.numMetas !== undefined) {
-    output.writeFieldBegin('numMetas', Thrift.Type.I64, 7);
+    output.writeFieldBegin('numMetas', Thrift.Type.I64, 8);
     output.writeI64(this.numMetas);
     output.writeFieldEnd();
   }
   if (this.metas !== null && this.metas !== undefined) {
-    output.writeFieldBegin('metas', Thrift.Type.LIST, 8);
+    output.writeFieldBegin('metas', Thrift.Type.LIST, 9);
     output.writeListBegin(Thrift.Type.STRUCT, this.metas.length);
     for (var iter151 in this.metas)
     {
