@@ -1069,6 +1069,13 @@
         .size(@width: 100%, @height: 1px);
         border-bottom: 1px solid @color-border-midGrayMed;
     }
+    .helpBg {
+        width: 100%;
+        height: ~"calc(100% - 151px)";
+        position: absolute;
+        top: 82px;
+        background: @color-bg-dark-marine;
+    }
 }
 
 #helpSearchArea {
@@ -1270,6 +1277,8 @@
         }
     }
 }
+
+
 
 #bottomMenu.small #helpResults .categoryArea {
     .linkWrap {

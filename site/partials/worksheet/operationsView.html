@@ -77,6 +77,101 @@
 		</div>
 		<!-- end filter opSection -->
 
+		<div class="groupby opSection xc-hidden">
+			<p class="instructions"><%= dicts.opsModal.groupbyInstr %></p>
+			<div class="group filterGroup">
+				<div class="argsSection groupOnSection">
+					<div class="row gbOnRow clearfix">
+		                <div class="description">Fields to group on:</div>
+		                <div class="inputWrap original">
+		                    <div class="dropDownList">
+		                      <input class="arg gbOnArg" type="text" tabindex="10" 
+		                        spellcheck="false">
+		                      <div class="argIconWrap btn btn-small">
+		                        <i class="icon xi-select-column"></i>
+		                      </div>
+		                      <div class="list hint">
+		                       <ul></ul>
+		                        <div class="scrollArea top">
+		                          <div class="arrow"></div>
+		                        </div>
+		                        <div class="scrollArea bottom">
+		                          <div class="arrow"></div>
+		                        </div>
+		                      </div>
+		                   </div>
+		                </div>
+		            </div>
+		            <div class="addArgWrap">
+						<button class="btn addArg addGroupArg">
+							<i class="icon xi-plus"></i>
+							<span class="text">ADD ANOTHER COLUMN</span>
+						</button>
+						
+					</div>
+				</div>
+				<div class="catFuncHeadings clearfix subHeading">
+					<div class="groupbyFnTitle">Function to apply to group:</div>
+					<div class="altFnTitle">No Function Chosen</div>
+				</div>
+				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
+			        <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
+			        <div class="iconWrapper dropdown">
+			          <i class="icon xi-down"></i>
+			        </div>
+			        <div class="list genFunctionsMenu">
+			          <ul data-fnmenunum="0"></ul>
+			          <div class="scrollArea top">
+			            <div class="arrow"></div>
+			          </div>
+			          <div class="scrollArea bottom">
+			            <div class="arrow"></div>
+			          </div>
+			        </div>
+			    </div>
+				<div class="descriptionText">
+					
+				</div>
+				<div class="argsSection inactive">
+				</div>
+				<div class="gbCheckboxes inactive clearfix">
+					<div class="keepTable checkboxSection clearfix">
+						<div class="text">Join table back to original</div>
+						<div class="checkbox">
+							<i class="icon xi-ckbox-empty fa-11"></i>
+							<i class="icon xi-ckbox-selected fa-11"></i>
+						</div>
+					</div>
+					<div class="incSample checkboxSection clearfix">
+						<div class="text">Include a sample of the rest of the fields</div>
+						<div class="checkbox">
+							<i class="icon xi-ckbox-empty fa-11"></i>
+							<i class="icon xi-ckbox-selected fa-11"></i>
+						</div>
+					</div>
+				</div>
+				<div class="icvContainer">
+					<div class="icvMode checkboxSection inactive">
+						<div class="text">View only erroneous rows</div>
+						<div class="checkbox">
+							<i class="icon xi-ckbox-empty fa-11"></i>
+							<i class="icon xi-ckbox-selected fa-11"></i>
+						</div>
+					</div>
+				</div>
+			</div> 
+			<!-- end filter group -->
+			<!-- <div class="addArgWrap">
+				<button class="btn addArg addGroupArg">
+					<i class="icon xi-plus"></i>
+					<span class="text">ADD ANOTHER COLUMN</span>
+				</button>
+				
+			</div> -->
+			
+		</div>
+		<!-- end group by op section -->
+
 		<div class="strPreview"></div>
 		<button class="btn submit">MAP</button>
 		

@@ -634,9 +634,9 @@ OpModalTStr = {
     'EmptyHint': 'select to allow empty field',
     'ColNameDesc': 'New Resultant Column Name',
     'AggNameDesc': 'New Resultant Aggregate Name (optional)',
-    'IncSample': 'Include Sample',
+    'IncSample': 'Include a sample of the rest of the fields',
     'IncSampleDesc': 'If checked, a sample of all fields will be included',
-    'KeepInTable': 'Join Back',
+    'KeepInTable': 'Join table back to original',
     'KeepInTableDesc': 'If checked, group by will augment original table',
     'ModifyMapDesc': 'Would you like to modify the map?',
     'ModifyMap': 'Modify Map'

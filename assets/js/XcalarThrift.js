@@ -1552,7 +1552,9 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
 
 function generateAggregateString(fieldName, op) {
     var evalStr = "";
-
+    if (op && op.length) {
+        op = op.slice(0, 1).toUpperCase() + op.slice(1);
+    }
     switch (op) {
         case (AggrOp.Max):
             evalStr += "max(";

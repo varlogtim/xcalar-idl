@@ -142,8 +142,10 @@ module.exports = {
        "ExamCell": "Examine",
        "ExceedsSize": "Image Exceeds Size Limit",
        "ExclCell": "Exclude this value",
+       "ExitAggregate": "Exit Aggregate",
        "ExitExport": "Exit Export",
        "ExitFilter": "Exit Filter",
+       "ExitGroupby": "Exit Group By",
        "ExitMap": "Exit Map",
        "ExitJoin": "Exit Join",
        "ExpandAllDags": "Expand Hidden Tables",
@@ -611,7 +613,8 @@ module.exports = {
 
     "opsModal": {
         "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be preceded by a $ sign, e.g. $column1.",
-        "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Arguments.\" Column names should be preceded by a $ sign, e.g. $column1.",
+        "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be preceded by a $ sign, e.g. $column1.",
+        "groupbyInstr": "Enter one or multiple fields group on. Then, select a function, e.g. count. Finally, enter in any arguments if applicable. Column names should be preceded by a $ sign, e.g. $column1.",
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "select to allow empty field",

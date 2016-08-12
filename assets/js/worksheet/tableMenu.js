@@ -71,24 +71,14 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var exitType = $(this).data('exittype');
+            var exitType = $(this).data('exittype')
             switch (exitType) {
                 case ('export'):
                     ExportModal.close();
                     break;
-                case ('filter'):
-                    OperationsView.close();
-                    break;
-                case ('map'):
-                    OperationsView.close();
-                    break;
-                case ('join'):
-                    JoinView.close();
-                    break;
                 default:
                     break;
             }
-            
         });
 
         $tableMenu.on('mouseup', '.copyColNames', function(event) {
@@ -911,10 +901,16 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var exitType = $(this).data('exittype');
             switch (exitType) {
+                case ('aggregate'):
+                    OperationsView.close();
+                    break;
                 case ('export'):
                     ExportModal.close();
                     break;
                 case ('filter'):
+                    OperationsView.close();
+                    break;
+                case ('groupby'):
                     OperationsView.close();
                     break;
                 case ('map'):
