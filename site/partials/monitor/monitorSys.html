@@ -99,10 +99,11 @@
         </div>
       </div>
     </div>
-    <!-- end of top sectoin -->
+    <!-- end of top section -->
     <!-- bottom section -->
     <div class="bottomSection flex-container flex-row">
       <!-- donut0 -->
+      
       <div id="donut0" class="donutSection">
         <div class="donut">
           <div class="donutInfo first">
@@ -144,7 +145,7 @@
         <div class="statsSection">
           <div class="statsTopHeading">
               <span class="title"><%= dicts.monitor.RAM %></span>
-              <span class="user"><%= dicts.monitor.UTotal %></span>
+              <span class="user"><%= dicts.monitor.UTotal %>/<%= dicts.monitor.GTotal %></span>
           </div>
           <div class="statsHeadingBar open">
             <span class="totalSize">
@@ -163,30 +164,33 @@
       <!-- donut2 -->
       <div id="donut2" class="donutSection">
         <div class="donut">
-          <div class="sampleText"><%= dicts.monitor.SAMPLE %></div>
           <div class="donutInfo">
-            <span class="userSize">
-              <span class="num">100</span>
-              <span class="unit">Mbps</span>
+            <span class="userSize network">
+              <i class="icon xi-up fa-15"></i>
+              <span class="num network">100</span>
+              <span class="unit network">B</span>
             </span>
-            <hr/>
-            <span class="totalSize">
-              <span class="num">193</span>
-              <span class="unit">Mbps</span>
+            <hr class="network"/>
+            <span class="totalSize network">
+              <i class="icon xi-down fa-15"></i>
+              <span class="num network">193</span>
+              <span class="unit network">B</span>
             </span>
           </div>
         </div>
         <div class="statsSection">
           <div class="statsTopHeading">
             <span class="title"><%= dicts.monitor.NETWORK %></span>
-            <span class="user"><%= dicts.monitor.UTotal %></span>
+            <span class="user"><%= dicts.monitor.NSent %> / <%= dicts.monitor.NRecv %></span>
           </div>
           <div class="statsHeadingBar open">
-            <span class="userSize">
-              <span class="avgNum">45</span> Mbps
-             </span>
              <span class="totalSize">
-              <span class="totNum">128</span> Mbps
+              <i class="icon xi-down fa-11"></i>
+              <span class="totNum">128</span>
+             </span>
+             <span class="userSize">
+              <i class="icon xi-up fa-11"></i>
+              <span class="avgNum">45</span>
              </span>
           </div>
           <div class="listWrap open">

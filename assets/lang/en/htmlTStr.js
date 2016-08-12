@@ -367,6 +367,8 @@ module.exports = {
         "LastCheckTime": "Last Check Time",
         "GTotal": "Global Total",
         "UTotal": "User Total",
+        "NSent": "Bytes Sent",
+        "NRecv": "Bytes Recv",
         "RecentQueries": "Recent Queries",
         "Queries": "Queries",
         "QueryHint": "No query added",

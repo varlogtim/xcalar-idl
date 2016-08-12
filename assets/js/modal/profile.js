@@ -252,7 +252,7 @@ window.Profile = (function($, Profile, d3) {
         $("#profile-corr").click(function() {
             var tableId = curTableId;
             closeProfileModal();
-            AggModal.corr(tableId);
+            AggModal.corrAgg(tableId);
         });
     };
 
@@ -730,11 +730,16 @@ window.Profile = (function($, Profile, d3) {
                     upperRowStart = lowerRowEnd + 1;
                 }
 
-                promises.push(getMedian.bind(this, resultId, 1, 1, zeroKey));
-                promises.push(getMedian.bind(this, resultId, 1, numEntries, medianKey));
-                promises.push(getMedian.bind(this, resultId, 1, lowerRowEnd, lowerKey));
-                promises.push(getMedian.bind(this, resultId, upperRowStart, numEntries, upperKey));
-                promises.push(getMedian.bind(this, resultId, numEntries, numEntries, fullKey));
+                promises.push(getMedian.bind(this, resultId, 1, 1, zeroKey,
+                                             numEntries));
+                promises.push(getMedian.bind(this, resultId, 1, numEntries,
+                                             medianKey, numEntries));
+                promises.push(getMedian.bind(this, resultId, 1, lowerRowEnd,
+                                             lowerKey, numEntries));
+                promises.push(getMedian.bind(this, resultId, upperRowStart,
+                                             numEntries, upperKey, numEntries));
+                promises.push(getMedian.bind(this, resultId, numEntries,
+                                             numEntries, fullKey, numEntries));
 
                 return PromiseHelper.chain(promises);
             })
@@ -747,7 +752,7 @@ window.Profile = (function($, Profile, d3) {
             return innerDeferred.promise();
         }
 
-        function getMedian(resultId, startRow, endRow, statsKey) {
+        function getMedian(resultId, startRow, endRow, statsKey, numEntries) {
             var innerDeferred = jQuery.Deferred();
             var numRows = endRow - startRow + 1;
             var rowNum;

@@ -49,6 +49,7 @@
 
     @media screen and (max-width: 945px) {
         #monitor-system {
+            height: ~"calc(100% - 149px)";
             .asupSubSection {
                 > div {
                     line-height: 25px !important;
@@ -274,7 +275,9 @@
 }
 
 #monitor-graphCard {
-
+    
+    height: ~"calc(100% - 5px)";
+    
     .cardTopMain {
         border-bottom: 1px solid @color-modal-dividerGray;
         padding-top: 16px;
@@ -493,7 +496,7 @@
                 }
 
                 .area {
-                    // opacity: 0.5;
+                    opacity: 0.75;
                     stroke-width: 0;
                     &.area0 {
                         fill: @color-bg-graph-one;
@@ -584,6 +587,10 @@
                             display: block;
                             .nomargin-padding;
                             margin: 0 auto;
+                            &.network {
+                                width: 80px;
+                                margin: 0;
+                            }
                         }
 
                         .userSize {
@@ -596,7 +603,7 @@
 
                         }
 
-                         > .userSize {
+                        > .userSize {
                             line-height: 25px;
                             margin-right: -5px;
                         }
@@ -607,6 +614,26 @@
 
                             .unit {
                                 .font(@size: 11px);
+                            }
+                        }
+                        .network {
+                            .font(@size: 18px, @weight: 500) !important;
+                            .icon {
+                                color: @color-bg-graph-three;
+                            }
+                            &.userSize, &.totalSize {
+                                i, span {
+                                    &.xi-down {
+                                        padding-top: 5px;
+                                        padding-left: 1px;
+                                        padding-right: 10px;
+                                    }
+                                    &.xi-up {
+                                        padding-top: 5px;
+                                        padding-right: 10px;
+                                    }
+                                    float: left;
+                                }
                             }
                         }
                     }

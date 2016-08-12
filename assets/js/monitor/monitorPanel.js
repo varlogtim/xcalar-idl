@@ -3,6 +3,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     var isGenSub = false;
     var diameter = 100; // for donuts
     var donutThickness = 6;
+    var defDurationForD3Anim = 800;
 
     MonitorPanel.setup = function() {
         MonitorGraph.setup();
@@ -78,10 +79,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
             this.sumTot = 0;
         };
 
-        var cpu = new StatsObj();
-        var ram = new StatsObj();
-        var flash = new StatsObj();
-        var disk = new StatsObj();
+        var cpu     = new StatsObj();
+        var ram     = new StatsObj();
+        var network = new StatsObj(); // For network, send is used, recv is tot
+        var disk    = new StatsObj();
         for (var i = 0; i < numNodes; i++) {
             var cpuPct = apiTopResult.topOutputPerNode[i].cpuUsageInPercent;
             cpuPct = Math.round(cpuPct * 100) / 100;
@@ -91,7 +92,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
             var ramUsed = apiTopResult.topOutputPerNode[i].memUsedInBytes;
             var ramTot =
-                apiTopResult.topOutputPerNode[i].totalAvailableMemInBytes;
+                apiTopResult.topOutputPerNode[i].memUsedInBytes*100/
+                apiTopResult.topOutputPerNode[i].memUsageInPercent;
             ramUsed = ramUsed;
             ramTot = ramTot;
             ram.used.push(ramUsed);
@@ -99,12 +101,14 @@ window.MonitorPanel = (function($, MonitorPanel) {
             ram.sumUsed += ramUsed;
             ram.sumTot += ramTot;
 
-            var flashUsed = nodes[i].usedFlash;
-            var flashTot = nodes[i].totFlash;
-            flash.used.push(flashUsed);
-            flash.tot.push(flashTot);
-            flash.sumUsed += flashUsed;
-            flash.sumTot += flashTot;
+            var networkUsed = apiTopResult.topOutputPerNode[i]
+                                          .networkSendInBytesPerSec;
+            var networkTot = apiTopResult.topOutputPerNode[i]
+                                         .networkRecvInBytesPerSec;
+            network.used.push(networkUsed);
+            network.tot.push(networkTot);
+            network.sumUsed += networkUsed;
+            network.sumTot += networkTot;
 
             var diskUsed = nodes[i].usedDisk * 5;
             var diskTot = nodes[i].totDisk * 5;
@@ -113,7 +117,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             disk.sumUsed += diskUsed;
             disk.sumTot += diskTot;
         }
-        var allStats = [cpu, ram, disk, flash];
+        var allStats = [cpu, ram, network, disk];
 
         return (allStats);
     };
@@ -131,8 +135,18 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 used = allStats[index].sumUsed;
                 total = allStats[index].sumTot;
             }
+            if (index !== 2) {
+                updateOneDonut(el, used, total);
+            } else {
+                updateDonutNums('#donut' + index + ' .userSize .num', 
+                                allStats[index].sumUsed,
+                                defDurationForD3Anim, index);
 
-            updateOneDonut(el, used, total);
+                updateDonutNums('#donut' + index + ' .totalSize .num', 
+                                allStats[index].sumTot,
+                                defDurationForD3Anim, index);
+    
+            }
             updateDonutStatsSection(el, index, allStats[index]);
         });
     };
@@ -182,7 +196,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     }
 
     function initializeDonuts() {
-        var numDonuts = 3;
+        var numDonuts = 2;
         var blue1= '#B4DCD5';
         var blue2 = '#5DB9C4';
         var blue3 = '#5A9FC8';
@@ -240,7 +254,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     }
 
     function updateOneDonut(el, val, total) {
-        var duration = 800;
+        var duration = defDurationForD3Anim;
         var index = parseInt($(el).closest('.donutSection')
                                   .attr('id').substring(5));
         var pie = d3.layout.pie().sort(null);
@@ -291,7 +305,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var size = xcHelper.sizeTranslator(num, true);
                 var i;
 
-                if (index === 1) {
+                if (index !== 0) {
                     startNum = xcHelper.textToBytesTranslator(startNum + type);
                     i = d3.interpolate(startNum, num);
                 } else {
@@ -304,7 +318,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     if (num >= 10 || index === 0) {
                         num = Math.round(num);
                     }
-                    if (index === 1) {
+                    if (index !== 0) {
                         $sizeType.html(size[1]);
                     }
                     this.textContent = num;
@@ -335,13 +349,18 @@ window.MonitorPanel = (function($, MonitorPanel) {
         } else {
             var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
             var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
-            if (index !== 2) {
+
+            if (index === 2) {
                 $statsSection.find('.statsHeadingBar .totNum')
-                         .text(sumTotal[0] + sumTotal[1]);
+                             .text(sumTotal[0] + sumTotal[1] + "ps");
                 $statsSection.find('.statsHeadingBar .avgNum')
-                         .text(sumUsed[0] + sumUsed[1]);
+                             .text(sumUsed[0] + sumUsed[1] + "ps");
+            } else {
+                $statsSection.find('.statsHeadingBar .totNum')
+                             .text(sumTotal[0] + sumTotal[1]);
+                $statsSection.find('.statsHeadingBar .avgNum')
+                             .text(sumUsed[0] + sumUsed[1]);
             }
-            
 
             for (var i = 0; i < numNodes; i++) {
                 var total = xcHelper.sizeTranslator(stats.tot[i], true);
@@ -350,7 +369,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var totalUnits;
 
                 if (index === 2) {
-                    usedUnits = totalUnits = "Mbps";
+                    usedUnits = used[1] + "ps";
+                    totalUnits = total[1] + "ps";
                 } else {
                     usedUnits = used[1];
                     totalUnits = total[1];
@@ -366,7 +386,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
                                 '<span class="userSize">' +
                                     used[0] + usedUnits +
                                 '/</span>' +
-                                
                             '</li>';
             }
         }
