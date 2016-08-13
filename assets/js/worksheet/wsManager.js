@@ -913,6 +913,7 @@ window.WSManager = (function($, WSManager) {
     // Get html list of worksheets
     WSManager.getWSLists = function(isAll) {
         var html = "";
+        var activeIcon = "";
 
         for (var i = 0, len = wsOrder.length; i < len; i++) {
             var wsId = wsOrder[i];
@@ -920,9 +921,11 @@ window.WSManager = (function($, WSManager) {
                 continue;
             }
 
-            html += '<li data-ws="' + wsId + '">' +
-                        wsLookUp[wsId].name +
-                    '</li>';
+            html += '<li data-ws="' + wsId + '">' + wsLookUp[wsId].name 
+            if (wsId === activeWorksheet) {
+                html += '<i class="icon xi-show"></i>';
+            } 
+            html += '</li>';
         }
 
         return (html);

@@ -71,7 +71,7 @@ window.TblManager = (function($, TblManager) {
         promise
         .then(function() {
             if (options.focusWorkspace) {
-                focusOnWorkspace();
+                focusOnWorkspace(worksheet);
             }
             var addTableOptions;
             var tablesToReplace = [];
@@ -1356,7 +1356,8 @@ window.TblManager = (function($, TblManager) {
         return (deferred.promise());
     }
 
-    function focusOnWorkspace() {
+    // wsId may not always be passed in
+    function focusOnWorkspace(wsId) {
         if (!$('#workspaceTab').hasClass('active')) {
             $("#workspaceTab").trigger('click');
 
@@ -1368,6 +1369,9 @@ window.TblManager = (function($, TblManager) {
             }
         }
         $("#workspaceTab").trigger('click');
+        if (wsId) {
+            WSManager.switchWS(wsId);
+        }
     }
 
     function scrollAndFocusTable(tableName) {

@@ -423,6 +423,23 @@ table.datasetTable {
             .dropDownList {
                 .styleDropDownList(@w: ~"calc(100% - 65px)", @h: 30px);
                 
+                li {
+                    .icon {
+                        float: right;
+                        color: @color-font-gray36;
+                        font-size: 14px;
+                        line-height: 30px;
+                        position: absolute;
+                        right: 10px;
+                        background-color: white;
+                    }
+
+                    &:hover {
+                        .icon {
+                            background-color: @color-selectedCell-light;
+                        }
+                    }
+                }
 
                 li.new {
                     color: @color-font-gray36;
