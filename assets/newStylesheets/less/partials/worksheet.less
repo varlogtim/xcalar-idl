@@ -545,9 +545,6 @@
                     width: 15px;
                     height: 20px;
                 }
-                .triangle {
-                    display: none;// xi2 change
-                }
 
                 .rangeBar {
                     height: @height-innerScroller - 2px;
@@ -574,12 +571,12 @@
                     .triangle {
                         width: 0;
                         height: 0;
-                        border-left: 8px solid transparent;
-                        border-right: 8px solid transparent;
-                        border-top: 8px solid white;
+                        border-left: 7px solid transparent;
+                        border-right: 7px solid transparent;
+                        border-top: 8px solid @color-tooltip-border;
                         position: absolute;
                         top:1px;
-                        display: none;
+    
                     }
                     .bar {
                         top: 9px;
@@ -587,18 +584,18 @@
                 }
                 .bottom {
                     position: absolute;
-                    top: 6px;
+                    top: 13px;
                     right: -7px;
                     .triangle {
                         width: 0;
                         height: 0;
-                        border-left: 8px solid transparent;
-                        border-right: 8px solid transparent;
+                        border-left: 7px solid transparent;
+                        border-right: 7px solid transparent;
 
-                        border-bottom: 8px solid white;
+                        border-bottom: 8px solid @color-tooltip-border;
                         position: absolute;
                         top: 11px;
-                        left: -1px;
+                        left: 1px;
                     }
                     .bar {
                         top: 0px;
