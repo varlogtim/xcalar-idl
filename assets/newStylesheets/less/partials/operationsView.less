@@ -767,10 +767,18 @@
 		float: left;
 		width: 50%;
 
+		.subHeading .text {
+			width: ~"calc(100% - @{listHeight})";
+		}
+
+		.tooltipWrap {
+			width: @listHeight;
+		}
+
 		.iconWrap {
 			float: right;
 			width: @listHeight;
-			margin-right: @listHeight;
+			padding-left: 6px;
 			line-height: @listHeight + 10px;
 			cursor: pointer;
 
@@ -859,6 +867,7 @@
                         float: left;
                         cursor: pointer;
                         .horizontal-align(absolute);
+                        z-index: 1;
                         
                         .iconWrapper {
                         	.size(14px, 14px);

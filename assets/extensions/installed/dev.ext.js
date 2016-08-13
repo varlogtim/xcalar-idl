@@ -27,7 +27,7 @@ window.UExtDev = (function(UExtDev) {
         {
             "type"      : "string",
             "name"      : "Left Column",
-            "fieldClass": "lCol"
+            "fieldClass": "lCol",
         },
         {
             "type"      : "string",

@@ -1657,6 +1657,35 @@ window.xcHelper = (function($, xcHelper) {
         gMouseEvents.setMouseDownTarget($input);
     };
 
+    xcHelper.removeTooltip = function($element, selector) {
+        $elementToChange = $element;
+        if (selector) {
+            $elementToChange = $element.find(selector);
+        }
+
+        $elementToChange.removeAttr("title")
+                        .removeAttr("data-toggle")
+                        .removeAttr("data-container");
+        $(".tooltip").hide();
+        return ($element);
+    };
+
+    xcHelper.addTooltip = function($element, selector, options) {
+        var title = options.title; // You must have this!
+        var toggle = "tooltip";
+        var container = options.container || "body";
+
+        $elementToChange = $element;
+        if (selector) {
+            $elementToChange = $element.find(selector);
+        }
+
+        $elementToChange.attr("title", title)
+                        .attr("data-toggle", toggle)
+                        .attr("data-container", container);
+        return ($element);
+    };
+
     // not only looks for gColPrefix but checks to make sure it's not preceded by
     // anything other than a comma
     xcHelper.hasValidColPrefix = function(str) {

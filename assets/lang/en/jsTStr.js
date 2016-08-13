@@ -130,11 +130,6 @@ ErrTStr = {
     'InvalidTableName': 'Table name cannot contain any of the ' +
                         'following characters: *#\'\"',
 
-    'InvalidAggName': 'Aggregate name must be prefixed with ' + gAggVarPrefix,
-
-    'InvalidAggLength': 'Aggregate name must be prefixed with ' + gAggVarPrefix
-                        + ' and followed by the name',
-
     'NoHashTag': 'Please input a valid name with no # symbols.',
 
     'NoSpecialChar': 'Please input a valid name with no special characters.',
@@ -283,12 +278,17 @@ ErrWRepTStr = {
 
     'TableNotDeleted': 'Table <name> was not deleted.',
 
-    'AggConflict': 'Aggregate "' + gAggVarPrefix + '<name>" already exists, ' +
+    'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists, ' +
                     'please choose another name.',
 
     'OutputNotFound': '<name> Not Found',
 
-    'OutputNotExists': '<name> no longer exists.'
+    'OutputNotExists': '<name> no longer exists.',
+
+    'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
+
+    'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
+                        ' and followed by the name'
 };
 
 TipsTStr = {
@@ -362,6 +362,7 @@ IndexTStr = {
 
 JoinTStr = {
     'NoJoin': 'Cannot join <type>',
+    'NoRightTable': 'Select right table first',
     'NoKeyLeft': 'Left table has no selected key',
     'NoKeyRight': 'Right table has no selected key',
     'NoMatchLeft': 'Sorry, cannot find a good key to match the left table',

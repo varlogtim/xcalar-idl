@@ -3313,13 +3313,17 @@ window.OperationsView = (function($, OperationsView) {
         var errorTitle;
         var invalid = false;
         if (val[0] !== gAggVarPrefix) {
-            errorTitle = ErrTStr.InvalidAggName;
+            errorTitle = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggName, {
+                "aggPrefix": gAggVarPrefix
+            });
             invalid = false;
         } else if (/^ | $|[,\(\)'"]/.test(val) === true) {
             errorTitle = ColTStr.RenamSpecialChar;
             invalid = true;
         } else if (val.length < 2) {
-            errorTitle = ErrTStr.InvalidAggLength;
+            errorTitle = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggLength, {
+                "aggPrefix": gAggVarPrefix
+            });
             invalid = true;
         }
 
@@ -3334,7 +3338,8 @@ window.OperationsView = (function($, OperationsView) {
             .then(function(ret) {
                 if (ret.length) {
                     errorTitle = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
-                        "name": val
+                        "name": val,
+                        "aggPrefix": gAggVarPrefix
                     });
                     showInvalidAggregateName($input, errorTitle);
                     deferred.resolve(false);
