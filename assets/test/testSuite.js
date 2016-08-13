@@ -205,8 +205,15 @@ window.TestSuite = (function($, TestSuite) {
         }
     }
 
-    // elemSelectors can be a string or array of element selectors
-    // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
+    // elemSelectors 
+    /**
+     * checkExists
+     * @param  {string or array} elemSelectors can be a string or array of element selectors
+                                      example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
+     * @param  {integer} timeLimit    length of time to search for before giving up
+     * @param  {object} options       // to do
+     * 
+     */
     function checkExists(elemSelectors, timeLimit, options) {
         var deferred = jQuery.Deferred();
         timeLimit = timeLimit * slowInternetFactor || defaultCheckTimeout;
@@ -217,7 +224,8 @@ window.TestSuite = (function($, TestSuite) {
         var notExist = options.notExist; // if true, we're actualy doing a
         // check to make sure the element DOESN"T exist
         var optional = options.optional; // if true, existence of element is
-        // optional and we return deferred.resolve regardless
+        // optional and we return deferred.resolve regardless 
+        // (example: a confirm box that appears in some cases)
 
         if (typeof elemSelectors === "string") {
             elemSelectors = [elemSelectors];
@@ -352,12 +360,16 @@ window.TestSuite = (function($, TestSuite) {
         // Import dataset
         function flightTestPart1(dsName1, dsName2) {
             console.log("start flightTestPart1");
-            $("#dataStoresTab").click();
+            $("#dataStoresTab").click(); // main menu tab
 
             // Import flight dataset
-            $("#importDataButton").click();
+            $("#importDataButton").click(); // button to initiate point to dataset
             $("#fileProtocol input").val(FileProtocol.nfs);
             $("#filePath").val(testDataLoc + "flight" + "/airlines_2007.csv");
+            $("#dsForm-path").find('.confirm').click();
+
+
+
             $("#fileName").val(dsName1);
             $("#fileFormat .iconWrapper .icon").click();
             $("#fileFormat li[name='CSV']").click();

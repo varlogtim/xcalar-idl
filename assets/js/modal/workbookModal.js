@@ -46,7 +46,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         // open workbook modal
-        $("#workbookBtn").click(function() {
+        $("#homeBtn").click(function() {
             $(this).blur();
             WorkbookModal.show();
         });
