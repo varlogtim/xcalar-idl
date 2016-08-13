@@ -3854,7 +3854,7 @@ window.OperationsView = (function($, OperationsView) {
                                      .addClass('hidden');
         hideCastColumn();
         $functionsList.empty();
-        $operationsView.find('.argsSection').last()
+        $operationsView.find('.argsSection:not(.groupOnSection)')
                        .addClass('inactive');
         $operationsView.find('.icvMode').addClass('inactive');
         $operationsView.find('.gbCheckboxes').addClass('inactive');

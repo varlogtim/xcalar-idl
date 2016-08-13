@@ -256,11 +256,14 @@
         min-height: 160px;
 
         .runNowBtn {
-            .size(@width: 95px, @height: 25px);
+            .size(@width: 25px, @height: 25px);
             float: right;
-            .font(@size: 12px, @weight: bold, @line-height: 25px);
-            padding: 0 10px;
-            background-color: @color-bg-select-blue;
+            padding: 0px;
+            padding-left: 1px;
+            text-align: center;
+            margin-bottom: 0px;
+            position: relative;
+            top: -5px;
 
             &.inActive {
                 opacity: 0.7;
@@ -273,12 +276,7 @@
             }
 
             .icon {
-                width: 16px;
-                .image("../../images/schedule/run.png", 0, 50%);
-            }
-
-            .text {
-                width: 60px;
+                font-size: 14px;
             }
         }
 
@@ -655,6 +653,7 @@
         .tabArea {
             @tabSize: 40px;
             width: @tabSize;
+            min-height: 160px;
             background-color: @color-bg-white-three;
             border-right: 1px solid @color-border-pinkish-grey2;
             .tab {
@@ -683,7 +682,6 @@
                     .xi-info-rectangle {
                         color: @color-bg-select-blue;
                     }
-
                 }
 
                 &.default {
@@ -704,11 +702,8 @@
                 }
 
                 &.xc-disabled {
-                    .icon {
-                        font-size: 20px;
-                        background-color: @color-white;
-                        color: @color-bg-pinkish-grey;
-                    }
+                    opacity: 1 !important;
+                    border-bottom-width: 0px;
                 }
             }
 
@@ -835,6 +830,10 @@
             border: 1px solid @color-border-white-two;
             background-color: @color-bg-white-seven;
         }
+        .mainSection {
+            margin-bottom: 40px;
+        }
+
         .title, .grid-unit > div {
             width: 33%;
             border-left: 1px solid @color-border-white-two;
@@ -843,6 +842,7 @@
             height: @rowHeight;
             line-height: @rowHeight;
             text-align: center;
+            .textOverflowOneLine;
 
             &:first-child {
                 border-left: none;

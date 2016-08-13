@@ -297,9 +297,8 @@ window.DFGCard = (function($, DFGCard) {
             var runNowBtn = "";
 
             if (i === 0) {
-                runNowBtn = '<button class="runNowBtn btn iconBtn">' +
+                runNowBtn = '<button class="runNowBtn btn btn-small iconBtn">' +
                                 '<i class="icon xi-arrow-right"></i>' +
-                                '<span class="text">Run Now</span>' +
                             '</button>';
             }
 
