@@ -732,7 +732,6 @@ input {
         .position(relative);
         .size(@width: 185px, @min-height: 100px, @max-height: 300px);
         padding: 7px;
-        .rounded;
         box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
         background-color: @color-background-white;
         z-index: 3;
@@ -1383,8 +1382,7 @@ input[type=number]::-webkit-outer-spin-button {
 
     .tooltip-arrow {
         background-color: transparent !important;
-        // border-top-color: @color-error-border;
-        border-left-color: #FDB8B8;
+        border-left-color: @color-error-border;
     }
 
     .tooltip-inner {
@@ -1395,7 +1393,7 @@ input[type=number]::-webkit-outer-spin-button {
 
     &.top {
         .tooltip-arrow {
-            border-top-color: #FDB8B8;
+            border-top-color: @color-error-border;
             border-left-color: transparent;
         }
     }

@@ -234,6 +234,9 @@
                 cursor: not-allowed;
             }
         }
+        .columnPickerTip {
+            display: none;
+        }
     }
 
     #undo {
@@ -241,6 +244,22 @@
     }
     #redo {
          .image("../../images/new/workspace/redo.png", 50%, 50%);
+    }
+
+    #container.columnPicker {
+        #undoRedoArea {
+            .columnPickerTip {
+                width: 50px;
+                .position(absolute, @top: 0, @left: 20px);
+                display: block;
+                cursor: not-allowed;
+            }
+        }
+        #undo, #redo {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
     }
 
     #functionArea {
@@ -387,16 +406,16 @@
         &:not(.searching) {
             .CodeMirror:not(.disabled) {
                 .cm-keyword {
-                    color: @color-text-fnBar-blue;
+                    color: @color-sql-blue;
                 }
                 .cm-xckeyword {
-                    // color: orange;
+                    color: @color-sql-blue;
                 }
                 .cm-xcspecial { // booleans and null
-                    color: @color-json-num;
+                    color: @color-sql-orange;
                 }
                 .cm-string {
-                    color: @color-json-string;
+                    color: @color-sql-pink;
                 }
                 .cm-backslash { // not actually a string
                     color: @color-text-blue;
@@ -405,25 +424,25 @@
                     }
                 }
                 .cm-number {
-                    color: @color-json-num;
+                    color: @color-sql-orange;
                 }
                 .cm-bracket {
-                    color: @color-text-fnBar-blue;
+                    color: @color-font-warm-grey-two;
                 }
                 .CodeMirror-nonmatchingbracket {
                     color: red;
                 }
                 .cm-variable-2, .cm-error {
-                    color: @color-text-blue;
+                    color: @color-sql-brown;
                     &+ .cm-operator, &+ .cm-atom, &+ .cm-unknown {
-                       color: @color-text-blue;
+                        color: @color-sql-brown;
                     }
                 }
                 .cm-atom {
                     color: @color-text-fnBar-blue;
                 }
                 .cm-comma {
-                    color: @color-text-darkGray !important;
+                    color: @color-font-warm-grey-two !important;
                 }
 
             }

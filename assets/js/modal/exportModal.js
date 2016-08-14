@@ -61,7 +61,8 @@ window.ExportModal = (function($, ExportModal) {
         $exportView.find('.advancedTitle').click(function() {
             if ($advancedSection.hasClass('collapsed')) {
                 $advancedSection.addClass('expanded').removeClass('collapsed');
-                var modalBottom = $exportModal[0].getBoundingClientRect().bottom;
+                var modalBottom = $exportModal[0].getBoundingClientRect()
+                                                 .bottom;
                 var winBottom = $(window).height();
                 if (modalBottom > winBottom) {
                     var diff = modalBottom - winBottom;
@@ -122,7 +123,8 @@ window.ExportModal = (function($, ExportModal) {
         });
         expList.setupListeners();
 
-        xcHelper.optionButtonEvent($exportModal.find(".formRow"), function(option, $radio) {
+        xcHelper.optionButtonEvent($exportModal.find(".formRow"), 
+            function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
                 if (option !== "DfFormatCsv") {
                     $advancedSection.find('.csvRow').removeClass('csvSelected')
@@ -189,7 +191,8 @@ window.ExportModal = (function($, ExportModal) {
     };
 
     ExportModal.show = function(tablId) {
-        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
+        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)')
+                           .addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $exportView.removeClass('xc-hidden');
         $('#container').addClass('columnPicker exportState');
@@ -349,7 +352,8 @@ window.ExportModal = (function($, ExportModal) {
         var backColumnNames = xcHelper.convertFrontColNamesToBack(
                                     frontColumnNames, tableId, validTypes);
         // convertFrontColnamesToBack will return an array of column names if
-        // successful, or will return an error object with the first invalid column name
+        // successful, or will return an error object with the first 
+        // invalid column name
 
         if (backColumnNames.invalid) {
             var errorText;
@@ -650,23 +654,23 @@ window.ExportModal = (function($, ExportModal) {
         var totalCols = $exportView.find('.cols li').length;
         var selectedCols = $exportView.find('.cols li.checked').length;
         if (selectedCols === 0) {
-            $exportView.find('.selectAllWrap').find('.checkbox').removeClass('checked');
+            $exportView.find('.selectAllWrap').find('.checkbox')
+                                              .removeClass('checked');
         } else if (selectedCols === totalCols) {
-            $exportView.find('.selectAllWrap').find('.checkbox').addClass('checked');
+            $exportView.find('.selectAllWrap').find('.checkbox')
+                                              .addClass('checked');
         }
     }
 
     function restoreXcTableColumns() {
-        // removes listeners and classes
+        // removes listeners and classes for .xcTable
         var $tables = $('.xcTable');
         var $ths = $tables.find('th');
         $tables.off('click.addColToExport');
         $ths.off('mousedown.addColToExport');
         $ths.removeClass('modalHighlighted');
-        $table.find('td:not(.jsonElement):not(:first-child)')
-              .removeClass('modalHighlighted');
+        $tables.find('td').removeClass('modalHighlighted');
 
-        // $ths.find('input').removeAttr('disabled');
         $ths.find('input').css('pointer-events', 'initial');
         focusedHeader = null;
     }
@@ -813,14 +817,14 @@ window.ExportModal = (function($, ExportModal) {
     function refreshTableColList() {
         var colHtml = getTableColList();
         $exportView.find('.cols').html(colHtml);
-        $exportView.find('.selectAllWrap').find('.checkbox').addClass('checked');
+        $exportView.find('.selectAllWrap').find('.checkbox')
+                                          .addClass('checked');
     }
 
     function getTableColList() {
         var html = "";
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
-            // if (allCols[i].type !== "newColumn" && allCols[i].backName !== "DATA") {
             if (validTypes.indexOf(allCols[i].type) > -1) {
                 html += '<li class="checked">' +
                             '<span class="text">' + allCols[i].name + 
@@ -843,13 +847,16 @@ window.ExportModal = (function($, ExportModal) {
         options.format = DfFormatTypeT[$advancedSection.find('.typeRow')
                                                 .find('.radioButton.active')
                                                 .data('option')];
-        options.splitType = ExSFFileSplitTypeT[$advancedSection.find('.splitType')
+        options.splitType = ExSFFileSplitTypeT[$advancedSection
+                                                .find('.splitType')
                                                 .find('.radioButton.active')
                                                 .data('option')];
-        options.headerType = ExSFHeaderTypeT[$advancedSection.find('.headerType')
+        options.headerType = ExSFHeaderTypeT[$advancedSection
+                                                .find('.headerType')
                                                 .find('.radioButton.active')
                                                 .data('option')];
-        options.createRule = ExExportCreateRuleT[$advancedSection.find('.createRule')
+        options.createRule = ExExportCreateRuleT[$advancedSection
+                                                .find('.createRule')
                                                 .find('.radioButton.active')
                                                 .data('option')];
 

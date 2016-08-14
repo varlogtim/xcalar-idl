@@ -208,10 +208,18 @@ window.TestSuite = (function($, TestSuite) {
     // elemSelectors 
     /**
      * checkExists
-     * @param  {string or array} elemSelectors can be a string or array of element selectors
-                                      example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
-     * @param  {integer} timeLimit    length of time to search for before giving up
-     * @param  {object} options       // to do
+     * @param  {string or array} elemSelectors can be a string or array of 
+     *                                element selectors example: ".xcTable" or 
+     *                                ["#xcTable-ex1", "#xcTable-ex2"]
+     * @param  {integer} timeLimit    length of time to search for before giving
+     *                                up
+     * @param  {object} options       notExists - boolean, if true, we want to 
+     *                                check that this element doesn't exist
+     *                                optional - boolean, if true, existence of
+     *                                element is optional and we return 
+     *                                deferred.resolve regardless 
+                                      (example: a confirm box that appears 
+                                      in some cases) 
      * 
      */
     function checkExists(elemSelectors, timeLimit, options) {
@@ -366,7 +374,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#importDataButton").click(); // button to initiate point to dataset
             $("#fileProtocol input").val(FileProtocol.nfs);
             $("#filePath").val(testDataLoc + "flight" + "/airlines_2007.csv");
-            $("#dsForm-path").find('.confirm').click();
+            $("#dsForm-path").find('.confirm').click(); // go to the next step
 
 
 
