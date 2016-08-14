@@ -13,6 +13,7 @@ window.JoinView = (function($, JoinView) {
     var isOpen = false;
     var lImmediatesCache;
     var rImmediatesCache;
+    var turnOnPrefix = false;
 
     var modalHelper;
     var multiClauseTemplate =
@@ -803,17 +804,22 @@ window.JoinView = (function($, JoinView) {
     }
 
     function joinSubmitHelper(joinType, newTableName) {
-        function proceedWithJoin() {
+        function proceedWithJoin(leftRenames, rightRenames) {
             var options = {
                 keepTables: $joinView.find('.keepTablesCBWrap')
-                                      .find('.checkbox').hasClass('checked'),
+                                     .find('.checkbox').hasClass('checked'),
                 keepLeftCols: lColsToKeep,
                 keepRightCols: rColsToKeep
             };
 
             JoinView.close();
+
             xcFunction.join(lColNums, lTableId, rColNums, rTableId, joinType,
-                            newTableName, options);
+                            newTableName, leftRenames, rightRenames, options);
+        }
+
+        function removeNoChanges(elem) {
+            return (!(elem.orig === elem.new));
         }
 
         var lCols = [];
@@ -891,58 +897,92 @@ window.JoinView = (function($, JoinView) {
             // XXX Handle the case where the new name clashes with another
             // name that was not part of the initial clashing array
             var $leftRenames = $("#leftTableRenames .rename");
-            var leftOrigNames = $leftRenames.find(".origName");
-            var leftNewNames = $leftRenames.find(".newName");
+            var $leftOrigNames = $leftRenames.find(".origName");
+            var $leftNewNames = $leftRenames.find(".newName");
             var $rightRenames = $("#rightTableRenames .rename");
-            var rightOrigNames = $rightRenames.find(".origName");
-            var rightNewNames = $rightRenames.find(".newName");
+            var $rightOrigNames = $rightRenames.find(".origName");
+            var $rightNewNames = $rightRenames.find(".newName");
             var lImmediates = xcHelper.deepCopy(lImmediatesCache);
             var rImmediates = xcHelper.deepCopy(rImmediatesCache);
 
             // Check that none are empty
-            for (var i = 0; i<leftNewNames.length; i++) {
-                if ($(leftNewNames[i]).val().trim().length === 0) {
+            for (var i = 0; i<$leftNewNames.length; i++) {
+                if ($($leftNewNames[i]).val().trim().length === 0) {
                     StatusBox.show(ErrTStr.NoEmpty, $leftRenames.eq(i), true);
                     return false;
                 }
             }
 
-            for (var i = 0; i<rightNewNames.length; i++) {
-                if ($(rightNewNames[i]).val().trim().length === 0) {
+            for (var i = 0; i<$rightNewNames.length; i++) {
+                if ($($rightNewNames[i]).val().trim().length === 0) {
                     StatusBox.show(ErrTStr.NoEmpty, $rightRenames.eq(i), true);
                     return false;
                 }
             }
 
-            // Get array of all new immediates by updating the old with the new
-            for (var i = 0; i<leftOrigNames.length; i++) {
-                var index = lImmediates.indexOf($(leftOrigNames[i]).val());
-                lImmediates[index] = $(leftNewNames[i]).val();
+            // Convert to array of old and newNames
+            var leftRenameArray = [];
+            var rightRenameArray = [];
+            for (var i = 0; i<$leftOrigNames.length; i++) {
+                var origName = $($leftOrigNames[i]).val();
+                var newName = $($leftNewNames[i]).val();
+                leftRenameArray.push({"orig": origName, "new": newName});
             }
-            for (var i = 0; i<rightOrigNames.length; i++) {
-                var index = rImmediates.indexOf($(rightOrigNames[i]).val());
-                rImmediates[index] = $(rightNewNames[i]).val();
+
+            for (var i = 0; i<$rightOrigNames.length; i++) {
+                var origName = $($rightOrigNames[i]).val();
+                var newName = $($rightNewNames[i]).val();
+                rightRenameArray.push({"orig": origName, "new": newName});
+            }
+
+            // Get array of all new immediates by updating the old with the new
+            for (var i = 0; i<$leftOrigNames.length; i++) {
+                var index = lImmediates.indexOf(leftRenameArray[i].orig);
+                lImmediates[index] = leftRenameArray[i].new;
+            }
+            for (var i = 0; i<$rightOrigNames.length; i++) {
+                var index = rImmediates.indexOf(rightRenameArray[i].orig);
+                rImmediates[index] = rightRenameArray[i].new;
             }
 
             // Find out whether any of the immediate names still clash
             for (var i = 0; i<$leftRenames.length; i++) {
                 if (rImmediates.indexOf($leftRenames.eq(i).val()) > -1) {
-                    StatusBox.show(ErrTStr.NoEmpty, $leftRenames.eq(i), true);
+                    StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
+                                   true);
                     return false;
                 }
-                // Check with itself as well
+                var firstIdx = lImmediates.indexOf($leftRenames.eq(i).val());
+                if (lImmediates.indexOf($leftRenames.eq(i).val(), firstIdx) >
+                    -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
+                                   true);
+                    return false;
+                }
 
             }
 
             for (var i = 0; i<$rightRenames.length; i++) {
                 if (lImmediates.indexOf($rightRenames.eq(i).val()) > -1) {
-                    StatusBox.show(ErrTStr.NoEmpty, $rightRenames.eq(i), true);
+                    StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
+                                   true);
                     return false;
                 }
-                // Check with itself as well
+                var firstIdx = rImmediates.indexOf($rightRenames.eq(i).val());
+                if (rImmediates.indexOf($rightRenames.eq(i).val(), firstIdx) >
+                    -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
+                                   true);
+                    return false;
+                }
             }
 
-            proceedWithJoin();
+
+            // Dedup left and right rename arrays since checks are all passed
+            leftRenameArray = leftRenameArray.filter(removeNoChanges);
+            rightRenameArray = rightRenameArray.filter(removeNoChanges);
+
+            proceedWithJoin(leftRenameArray, rightRenameArray);
             return true;
         }
 
@@ -1026,8 +1066,8 @@ window.JoinView = (function($, JoinView) {
 
             // Now that we have all the columns that we want to rename, we
             // display the columns and ask the user to rename them
-            if (lImmediatesToRename.length > 0 ||
-                rImmediatesToRename.length > 0) {
+            if (turnOnPrefix && (lImmediatesToRename.length > 0 ||
+                rImmediatesToRename.length > 0)) {
                 $renameSection.show();
             } else {
                 proceedWithJoin();

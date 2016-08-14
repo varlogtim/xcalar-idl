@@ -1639,7 +1639,7 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
     return (deferred.promise());
 }
 
-function XcalarJoin(left, right, dst, joinType, txId) {
+function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -1654,10 +1654,36 @@ function XcalarJoin(left, right, dst, joinType, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             return (deferred.reject().promise());
         }
+
+        var leftRenameMap = [];
+        var rightRenameMap = [];
+        if (leftRename) {
+            for (var i = 0; i<leftRename.length; i++) {
+                var map = new XcalarApiRenameMapT();
+                map.oldName = leftRename[i].orig;
+                map.newName = leftRename[i].new;
+                map.type = DfFieldTypeT.DfUnknown; // Bohan says this works for
+                                                   // all immediates
+                leftRenameMap.push(map);
+            }
+        }
+
+        if (rightRename) {
+            for (var i = 0; i<rightRename.length; i++) {
+                var map = new XcalarApiRenameMapT();
+                map.oldName = rightRename[i].orig;
+                map.newName = rightRename[i].new;
+                map.type = DfFieldTypeT.DfUnknown; // Bohan says this works for
+                                                   // all immediates
+                rightRenameMap.push(map);
+            }
+        }
+
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
-                                          joinType);
+                                          joinType, leftRenameMap,
+                                          rightRenameMap, false);
         var def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
-                              joinType);
+                              joinType, leftRenameMap, rightRenameMap, false);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'join', dst, query);

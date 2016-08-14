@@ -317,7 +317,8 @@ window.xcFunction = (function($, xcFunction) {
 
     // join two tables
     xcFunction.join = function(lColNums, lTableId, rColNums, rTableId,
-                                joinStr, newTableName, options)
+                                joinStr, newTableName, lRename, rRename,
+                                options)
     {
         var deferred = jQuery.Deferred();
         var joinType = joinLookUp[joinStr];
@@ -360,6 +361,8 @@ window.xcFunction = (function($, xcFunction) {
             "rTableId"    : rTableId,
             "rTablePos"   : rTablePos,
             "rColNums"    : rColNums,
+            "lRename"     : lRename,
+            "rRename"     : rRename,
             "newTableName": newTableName,
             "joinStr"     : joinStr,
             "worksheet"   : worksheet,
@@ -394,7 +397,8 @@ window.xcFunction = (function($, xcFunction) {
         var startScrollPosition = $('#mainFrame').scrollLeft();
 
         XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
-                    newTableName, options.keepLeftCols, options.keepRightCols)
+                    newTableName, options.keepLeftCols, options.keepRightCols,
+                    lRename, rRename)
         .then(function(finalTableName, finalTableCols) {
             var tablesToReplace = [];
             var refreshOptions = {};

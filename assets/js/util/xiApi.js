@@ -152,7 +152,7 @@ window.XIApi = (function(XIApi, $) {
 
     XIApi.join = function(txId, joinType, lColNames, lTableName, rColNames,
                           rTableName, newTableName, pulledLColNames,
-                          pulledRColNames) {
+                          pulledRColNames, lRename, rRename) {
         if (lColNames == null || lTableName == null ||
             rColNames == null || rTableName == null ||
             joinType == null || txId == null ||
@@ -205,7 +205,7 @@ window.XIApi = (function(XIApi, $) {
             }
             // Step 3: join left table and right table
             return XcalarJoin(lInexedTable, rIndexedTable, newTableName,
-                                joinType, txId);
+                                joinType, lRename, rRename, txId);
         })
         .then(function() {
             if (checkJoinKey) {
@@ -217,8 +217,10 @@ window.XIApi = (function(XIApi, $) {
             var lTableId = xcHelper.getTableId(lTableName);
             var rTableId = xcHelper.getTableId(rTableName);
             var joinedCols = createJoinedColumns(lTableId, rTableId,
-                          pulledLColNames,
-                          pulledRColNames);
+                                                 pulledLColNames,
+                                                 pulledRColNames,
+                                                 lRename,
+                                                 rRename);
 
             deferred.resolve(newTableName, joinedCols);
         })
@@ -758,7 +760,7 @@ window.XIApi = (function(XIApi, $) {
 
     // For xiApi.join, deepy copy of right table and left table columns
     function createJoinedColumns(lTableId, rTableId, pulledLColNames,
-                                pulledRColNames) {
+                                pulledRColNames, lRename, rRename) {
         // Combine the columns from the 2 current tables
         // Note that we have to create deep copies!!
         var newTableCols = [];
@@ -777,11 +779,21 @@ window.XIApi = (function(XIApi, $) {
             if (pulledLColNames) { 
                 var tempCols = [];
                 for (var i = 0; i < pulledLColNames.length; i++) {
-                    var colNum = table.getColNumByBackName(pulledLColNames[i]) - 1; 
+                    var colNum = table.getColNumByBackName(pulledLColNames[i]) - 1;
+                    if (lRename && lRename.length > 0) {
+                        for (var j = 0; j<lRename.length; j++) {
+                            if (lRename[j].orig === lCols[colNum].backName)
+                            {
+                                lCols[colNum].backName = lRename[j].new;
+                                lCols[colNum].name = lRename[j].new;
+                            }
+                        }
+                    }
                     tempCols.push(lCols[colNum]);
                 }
                 lCols = tempCols;
             }
+
             
         }
 
@@ -794,7 +806,16 @@ window.XIApi = (function(XIApi, $) {
             if (pulledRColNames) { 
                 var tempCols = [];
                 for (var i = 0; i < pulledRColNames.length; i++) {
-                    var colNum = table.getColNumByBackName(pulledRColNames[i]) - 1; 
+                    var colNum = table.getColNumByBackName(pulledRColNames[i]) - 1;
+                    if (rRename && rRename.length > 0) {
+                        for (var j = 0; j<rRename.length; j++) {
+                            if (rRename[j].orig === rCols[colNum].backName)
+                            {
+                                rCols[colNum].backName = rRename[j].new;
+                                rCols[colNum].name = rRename[j].new;
+                            }
+                        }
+                    } 
                     tempCols.push(rCols[colNum]);
                 }
                 rCols = tempCols;
