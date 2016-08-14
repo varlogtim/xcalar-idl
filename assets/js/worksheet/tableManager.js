@@ -662,12 +662,13 @@ window.TblManager = (function($, TblManager) {
 
         var disabledProp;
         var disabledClass;
+        var editableClass;
         if (columnName === "") {
             disabledProp = "";
-            disabledClass = " editable";
+            editableClass = " editable";
         } else {
             disabledProp = "disabled";
-            disabledClass = "";
+            editableClass = "";
         }
         columnName = columnName.replace(/\"/g, "&quot;");
 
@@ -677,7 +678,7 @@ window.TblManager = (function($, TblManager) {
         var columnHeadTd =
             '<th class="th' + color + columnClass +
             ' col' + newColid + '" style="width:' + width + 'px;">' +
-                '<div class="header">' +
+                '<div class="header' + editableClass + ' ">' +
                     '<div class="dragArea">' +
                         '<div class="iconHelper" ' +
                             'data-toggle="tooltip" ' +
@@ -691,7 +692,7 @@ window.TblManager = (function($, TblManager) {
                             '<div class="iconHidden"></div>' +
                             '<span class="type icon"></span>' +
                         '</div>' +
-                        '<div class="flexWrap flex-mid' + disabledClass +
+                        '<div class="flexWrap flex-mid' + editableClass +
                             '"' + tooltip + '>' +
                             '<input class="editableHead col' + newColid + '"' +
                                 ' type="text"  value="' + columnName + '"' +
@@ -1978,6 +1979,8 @@ window.TblManager = (function($, TblManager) {
                     ColManager.checkColDup($input, null, tableId, false, colNum))
                 {
                     return false;
+                } else {
+                    StatusBox.forceHide(); // hide previous error mesage if any
                 }
 
                 ColManager.renameCol(colNum, tableId, colName);

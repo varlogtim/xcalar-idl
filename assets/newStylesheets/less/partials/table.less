@@ -216,6 +216,12 @@ html.firefox, html.microsoft {
             opacity: 0;
         }
 
+        &.editable {
+            &.flex-mid {
+                pointer-events: initial;
+            }
+        }
+
         .flexContainer {
             overflow: hidden;
             background-color: @color-table-header-darkGray;
@@ -241,6 +247,9 @@ html.firefox, html.microsoft {
                     height: 18px;
                     margin-top: 4px;
                     z-index: @z-index-tableHeaderInput;
+                    pointer-events: none; 
+                    // make unclickable to allow dragging area to take
+                    //  precedence
 
                     &.editable {
                         .editableHead {

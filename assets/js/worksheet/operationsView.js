@@ -783,6 +783,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function keepInputFocused(event) {
+        closeMenu($('#colMenu'));
         event.preventDefault();
         event.stopPropagation();
     }

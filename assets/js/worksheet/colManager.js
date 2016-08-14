@@ -882,12 +882,13 @@ window.ColManager = (function($, ColManager) {
         var wasEditable = $th.find('.flexWrap.editable').length;
         var $editableHead = $th.find('.editableHead');
         if (!options.keepEditable) {
-            $th.find('.flexWrap.editable').removeClass('editable');
+            $th.find('.editable').removeClass('editable');
             $editableHead.prop("disabled", true);
 
             FnBar.focusOnCol($editableHead, tableId, colNum, true);
         } else {
             $th.find('.flexWrap.flex-mid').addClass('editable');
+            $th.find('.header').addClass('editable');
             $th.find('.editableHead').prop("disabled", false);
         }
 
