@@ -484,7 +484,7 @@
                 .size(@width: 100%, @height: 30px);
                 background-color: @color-bg-dark-marine;
 
-                input {
+                input:not(.type-boolean) {
                     display: inline-block;
                     float: left;
                     outline: 0;
@@ -506,6 +506,11 @@
                             display: inline-block;
                         }
                     }
+                }
+
+                .argDropdown {
+                    .styleDropDownList(@w: 100%, @h: 30px);
+                    color: @color-font-greyish-brown;
                 }
 
                 .picker {

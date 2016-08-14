@@ -594,6 +594,30 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var inputHint = "";
             var argType = args[i].type;
 
+            if (argType === "boolean") {
+                html +=
+                    '<div class="field">' +
+                        '<div class="desc">' +
+                            args[i].name +
+                        '</div>' +
+                        '<div class="inputWrap">' +
+                            '<div class="dropDownList argDropdown">' +
+                                '<input class="argument type-boolean text" disabled>' +
+                                '<div class="iconWrapper">' +
+                                    '<i class="icon"></i>' +
+                                '</div>' +
+                                '<div class="list">' +
+                                    '<ul>' +
+                                        '<li>true</li>' +
+                                        '<li>false</li>' +
+                                    '</ul>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                continue;
+            }
+
             if (argType === "number") {
                 inputType = "number";
             } else {
@@ -626,7 +650,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 '</div>';
         }
 
-        $extArgs.find(".argSection").html(html);
+        var $argSection = $extArgs.find(".argSection");
+        $argSection.html(html);
+
+        new MenuHelper($argSection.find(".dropDownList"), {
+            "onSelect": function($li) {
+                $li.closest(".dropDownList").find("input").val($li.text());
+            }
+        }).setupListeners();
+
     }
 
     function clearArgs() {
@@ -738,6 +770,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 });
 
                 StatusBox.show(error, $input);
+                return { "vaild": false };
+            }
+        } else if (argType === "boolean") {
+            if (arg.toLowerCase() === "true") {
+                arg = true;
+            } else if (arg.toLowerCase() === "false") {
+                arg = false;
+            } else {
+                StatusBox.show(ErrTStr.NoEmptyList, $input);
                 return { "vaild": false };
             }
         }
