@@ -51,6 +51,13 @@ window.ExportModal = (function($, ExportModal) {
             $(this).find('.checkbox').toggleClass('checked');
         });
 
+        $exportView.on('click', '.focusTable', function() {
+            if (!gTables[tableId]) {
+                return;
+            }
+            xcHelper.centerFocusedTable(tableId, true);
+        });
+
         $exportView.find('.advancedTitle').click(function() {
             if ($advancedSection.hasClass('collapsed')) {
                 $advancedSection.addClass('expanded').removeClass('collapsed');
@@ -69,16 +76,36 @@ window.ExportModal = (function($, ExportModal) {
 
         $exportView.find('.selectAllWrap').click(function() {
             if ($(this).find('.checkbox').hasClass('checked')) {
-                $exportView.find('.cols li').each(function() {
-                    deselectColFromLi($(this));
-                });
+                clearAllCols();
             } else {
-                $exportView.find('.cols li').each(function() {
-                    selectColFromLi($(this));
-                });
+                selectAllCols();
             }
-            $(this).find('.checkbox').toggleClass('checked');
         });
+
+        var tableListScroller = new MenuHelper(
+            $exportView.find('.tableList'), {
+            "onSelect": function($li) {
+                var tableName = $li.text();
+                var $textBox = $exportView.find('.tableList').find(".text");
+                var originalText = $textBox.text();
+
+                if (originalText !== tableName) {
+                    $textBox.text(tableName);
+                    $li.siblings().removeClass('selected');
+                    $li.addClass('selected');
+                    tableId = $li.data('id');
+                    clearAllCols();
+                    refreshTableColList();
+                    selectAllCols();
+                    // xx should we focus on the table that was selected?
+                     xcHelper.centerFocusedTable(tableId, true);
+                } else {
+                    return;
+                }
+            }
+        });
+        tableListScroller.setupListeners();
+
 
         var expList = new MenuHelper($("#exportLists"), {
             "onSelect": function($li) {
@@ -121,22 +148,19 @@ window.ExportModal = (function($, ExportModal) {
             } else {
                 selectColFromLi($(this));
             }
-            var totalCols = $exportView.find('.cols li').length;
-            var selectedCols = $exportView.find('.cols li.checked').length;
-            if (selectedCols === 0) {
-                $exportView.find('.selectAllWrap').find('.checkbox').removeClass('checked');
-            } else if (selectedCols === totalCols) {
-                $exportView.find('.selectAllWrap').find('.checkbox').addClass('checked');
-            }
-
+            checkToggleSelectAllBox();
         });
 
+
         function selectColFromLi($li) {
-            var colName = $li.text().trim();
-            var $colInput = $selectableThs.find('.editableHead').filter(function() {
+            var colName = $li.text().trim(); 
+            var $table = $("#xcTable-" + tableId);
+            
+            var $colInput = $table.find('.editableHead').filter(function() {
                 return ($(this).val() === colName);
             });
-            var $table = $("#xcTable-" + tableId);
+
+
             var $th = $colInput.closest('th');
             $th.addClass('modalHighlighted');
             var colNum = xcHelper.parseColNum($th);
@@ -147,10 +171,11 @@ window.ExportModal = (function($, ExportModal) {
 
         function deselectColFromLi($li) {
             var colName = $li.text().trim();
-            var $colInput = $selectableThs.find('.editableHead').filter(function() {
+            var $table = $("#xcTable-" + tableId);
+            var $colInput = $table.find('.editableHead').filter(function() {
                 return ($(this).val() === colName);
             });
-            var $table = $("#xcTable-" + tableId);
+            
             var $th = $colInput.closest('th');
             $th.removeClass('modalHighlighted');
             var colNum = xcHelper.parseColNum($th);
@@ -173,21 +198,19 @@ window.ExportModal = (function($, ExportModal) {
         } else {
             BottomMenu.close(true);
         }
-        
 
         tableId = tablId;
 
-        var $table = $('#xcTableWrap-' + tableId);
-        $table.addClass('exportModalOpen');
-        $table.addClass('columnPicker');
-        $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .addClass('tableOpSection');
+        var $tables = $('.xcTableWrap');
+        $tables.addClass('exportModalOpen');
+        $tables.addClass('columnPicker');
 
         var tableName = gTables[tableId].tableName;
         exportTableName = tableName;
         $exportName.val(tableName.split('#')[0].replace(/[\W_]+/g, "")).focus();
         $exportName[0].select();
         restoreAdvanced();
+        fillTableList();
 
         addColumnSelectListeners();
 
@@ -208,18 +231,10 @@ window.ExportModal = (function($, ExportModal) {
         //     }
         // }});
 
-        $selectableThs.addClass('modalHighlighted');
-        var allColNames = "";
-        $selectableThs.each(function() {
-            var colNum = xcHelper.parseColNum($(this));
-            $table.find('td.col' + colNum).addClass('modalHighlighted');
-            allColNames += $(this).find('.editableHead').val() + ", ";
-        });
-
-
-        var colHtml = getTableColList(tableId);
-        $exportView.find('.cols').html(colHtml);
-        $exportView.find('.selectAllWrap').find('.checkbox').addClass('checked');
+        // $selectableThs.addClass('modalHighlighted');
+        // 
+        selectAllCols(); 
+        refreshTableColList();
 
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
@@ -235,21 +250,21 @@ window.ExportModal = (function($, ExportModal) {
 
     ExportModal.close = function() {
         // xx some of this code can be reused for all operation views
-        var $tableWrap = $('#xcTableWrap-' + tableId);
+        var $tableWraps = $('.xcTableWrap');
         $exportView.addClass('xc-hidden');
         $('#workspaceMenu').find('.menuSection.lastOpened')
                            .removeClass('lastOpened xc-hidden');
         $('#container').removeClass('columnPicker exportState');
 
-        $tableWrap.removeClass('exportModalOpen');
-        $tableWrap.removeClass('columnPicker');
+        $tableWraps.removeClass('exportModalOpen');
+        $tableWraps.removeClass('columnPicker');
 
         $('.xcTableWrap').not('#xcTableWrap-' + tableId)
                              .removeClass('tableOpSection');
 
 
-        $tableWrap.find('.modalHighlighted')
-                                .removeClass('modalHighlighted');
+        $tableWraps.find('.modalHighlighted')
+                  .removeClass('modalHighlighted');
            
 
         exportTableName = null;
@@ -263,7 +278,7 @@ window.ExportModal = (function($, ExportModal) {
         $exportView.find('.checked').removeClass('checked');
 
         restoreAdvanced();
-        restoreColumns();
+        restoreXcTableColumns();
         $advancedSection.addClass('collapsed').removeClass('expanded');
 
 
@@ -458,122 +473,6 @@ window.ExportModal = (function($, ExportModal) {
         return (deferred.promise());
     }
 
-    function selectColumnsOnKeyPress() {
-        var colNames = $exportColumns.val().split(",");
-        jQuery.each(colNames, function(i, val) {
-            colNames[i] = jQuery.trim(val);
-        });
-
-        var numColNames = colNames.length;
-        var $table = $("#xcTable-" + tableId);
-
-        $('.modalHighlighted').removeClass('modalHighlighted');
-        for (var i = 0; i < numColNames; i++) {
-            var $colInput = $selectableThs.find('.editableHead').filter(function() {
-                return ($(this).val() === colNames[i]);
-            });
-            if ($colInput.length !== 0) {
-                var $th = $colInput.closest('th');
-                $th.addClass('modalHighlighted');
-                var colNum = xcHelper.parseColNum($th);
-                var $tds = $table.find('td.col' + colNum);
-                $tds.addClass('modalHighlighted');
-            }
-        }
-    }
-
-    function deselectColumnsOnKeyPress(e) {
-        var $table = $("#xcTable-" + tableId);
-        var value = $exportColumns.val();
-        var originalStart = $exportColumns[0].selectionStart;
-        var originalEnd = $exportColumns[0].selectionEnd;
-        var selectLen = originalEnd - originalStart;
-        var start = originalStart;
-        var end = originalEnd;
-        // var end;
-
-        if (originalEnd === 0) {
-            return;
-        }
-
-        if (value[originalStart - 1] === " ") {
-            var endText = value.slice(originalStart - 1).trim();
-            if (endText.length === 0) {
-                return;
-            }
-        }
-
-        e.preventDefault();
-
-        if (value[originalStart] === "," && selectLen === 1) {
-            // only the comma is selected, just return
-            return;
-        }
-
-        if (value[originalStart] === "," && selectLen > 0) {
-            // shift the start up by one so we don't delete the string to the left
-            originalStart++;
-            start++;
-        }
-
-        var selectStart = 0;
-        var selectEnd = value.length;
-        if (originalStart === originalEnd && value[originalStart - 1] === ",") {
-            start--;
-        }
-        for (var i = start - 1; i > -1; i--) {
-            if (value[i] === ",") {
-                selectStart = i;
-                break;
-            }
-        }
-
-        if (value[originalEnd - 1] === ",") {
-            selectEnd = originalEnd - 1;
-        } else {
-            for (var i = end; i < value.length; i++) {
-                if (value[i] === ",") {
-                    selectEnd = i;
-                    break;
-                }
-            }
-        }
-
-        var substring = value.substring(selectStart, selectEnd);
-        var colNames = substring.split(",");
-
-        jQuery.each(colNames, function(i, val) {
-            colNames[i] = jQuery.trim(val);
-        });
-        for (var i = 0; i < colNames.length; i++) {
-            var $colInput = $selectableThs.find('.editableHead').filter(function() {
-                return ($(this).val() === colNames[i]);
-            });
-            if ($colInput.length !== 0) {
-                var $th = $colInput.closest('th');
-                $th.removeClass('modalHighlighted');
-                var colNum = xcHelper.parseColNum($th);
-                var $tds = $table.find('td.col' + colNum);
-                $tds.removeClass('modalHighlighted');
-            }
-        }
-        var newValue = value.slice(0, selectStart) + value.slice(selectEnd);
-
-        // slice off any spaces or commas in the front
-        for (var i = 0; i < value.length; i++) {
-            if (newValue[i] !== "," && newValue[i] !== " ") {
-                newValue = newValue.slice(i);
-                if (i > 0) {
-                    selectStart--;
-                }
-                break;
-            }
-        }
-
-        $exportColumns.val(newValue);
-        $exportColumns[0].setSelectionRange(selectStart + 1, selectStart + 1);
-    }
-
     function restoreExportPaths(targs) {
         var targets = targs.targets;
         var numTargets = targs.numTargets;
@@ -591,14 +490,15 @@ window.ExportModal = (function($, ExportModal) {
     }
 
     function addColumnSelectListeners() {
-        var $table = $('#xcTable-' + tableId);
-        var tableCols = gTables[tableId].tableCols;
+        var $tables = $('.xcTable');
 
         // select ths that are not arrays or objects
-        var $ths = $table.find('.header').filter(function() {
+        var $ths = $tables.find('.header').filter(function() {
             var $header = $(this);
             var $th = $header.parent();
             var colNum = xcHelper.parseColNum($th) - 1;
+            var tblId = $th.closest('.xcTable').data('id');
+            var tableCols = gTables[tblId].tableCols;
             if (colNum === -1) {
                 return true;
             }
@@ -629,6 +529,7 @@ window.ExportModal = (function($, ExportModal) {
         $ths.addClass('exportable');
 
         $ths.on('mousedown.addColToExport', function(event) {
+            closeMenu($('#colMenu'));
             if ($(event.target).hasClass('colGrab')) {
                 return;
             }
@@ -637,7 +538,10 @@ window.ExportModal = (function($, ExportModal) {
             gMouseEvents.setMouseDownTarget($(event.target));
         });
 
-        $table.on('click.addColToExport', '.exportable', function(event) {
+
+        $tables.on('click.addColToExport', '.exportable', function(event) {
+            var $table = $(this).closest('.xcTable');
+
             // event.target is not reliable here for some reason so that is
             // why we're using last mousedown target
             var $mousedownTarg = gMouseEvents.getLastMouseDownTarget();
@@ -661,14 +565,7 @@ window.ExportModal = (function($, ExportModal) {
             var $currCells;
 
             if ($th.hasClass('rowNumHead')) {
-
-                for (var i = 1; i < $table.find('th').length; i++) {
-                    $currCells = $table.find('th.col' + i + ', td.col' + i);
-                    if (!$currCells.hasClass('modalHighlighted') &&
-                        !$currCells.hasClass('dataCol')) {
-                        selectColumn($currCells, i);
-                    }
-                }
+                selectAllCols();
                 return;
             }
 
@@ -704,6 +601,22 @@ window.ExportModal = (function($, ExportModal) {
             }
             focusedHeader = $th;
         });
+
+    }
+
+    function fillTableList() {
+        var tableLis = xcHelper.getWSTableList();
+        var $tableListSection = $exportView.find('.tableListSection');
+
+        $tableListSection.find('ul').html(tableLis);
+
+        // select li and fill left table name dropdown
+        var tableName = gTables[tableId].getName();
+        $tableListSection.find('.dropDownList .text').text(tableName);
+
+        $tableListSection.find('li').filter(function() {
+            return ($(this).text() === tableName);
+        }).addClass('selected');
     }
 
     function selectColumn($cells, colNum) {
@@ -718,6 +631,8 @@ window.ExportModal = (function($, ExportModal) {
         $exportView.find('.cols').find('li').filter(function() {
             return ($(this).text() === currColName);
         }).addClass('checked').find('.checkbox').addClass('checked');
+
+        checkToggleSelectAllBox();
     }
 
     function deselectColumn($cells, colNum) {
@@ -727,14 +642,25 @@ window.ExportModal = (function($, ExportModal) {
         $exportView.find('.cols').find('li').filter(function() {
             return ($(this).text() === currColName);
         }).removeClass('checked').find('.checkbox').removeClass('checked');
+        checkToggleSelectAllBox();
     }
 
+    // if all lis are checked, select all checkbox will be checked as well
+    function checkToggleSelectAllBox() {
+        var totalCols = $exportView.find('.cols li').length;
+        var selectedCols = $exportView.find('.cols li.checked').length;
+        if (selectedCols === 0) {
+            $exportView.find('.selectAllWrap').find('.checkbox').removeClass('checked');
+        } else if (selectedCols === totalCols) {
+            $exportView.find('.selectAllWrap').find('.checkbox').addClass('checked');
+        }
+    }
 
-    function restoreColumns() {
+    function restoreXcTableColumns() {
         // removes listeners and classes
-        var $table = $('#xcTable-' + tableId);
-        var $ths = $table.find('th:not(.dataCol):not(:first-child)');
-        $table.off('click.addColToExport');
+        var $tables = $('.xcTable');
+        var $ths = $tables.find('th');
+        $tables.off('click.addColToExport');
         $ths.off('mousedown.addColToExport');
         $ths.removeClass('modalHighlighted');
         $table.find('td:not(.jsonElement):not(:first-child)')
@@ -745,11 +671,32 @@ window.ExportModal = (function($, ExportModal) {
         focusedHeader = null;
     }
 
+    function selectAllCols() {
+        $selectableThs.each(function() {
+            var colNum = xcHelper.parseColNum($(this));
+            var $table = $(this).closest('.xcTable');
+            var tblId = $table.data('id');
+            if (tblId === tableId) {
+                $(this).addClass('modalHighlighted');
+               $table.find('td.col' + colNum).addClass('modalHighlighted'); 
+            }
+        });
+        $exportView.find('.cols li').addClass('checked')
+                   .find('.checkbox').addClass('checked');
+        $exportView.find('.selectAllWrap').find('.checkbox')
+                                          .addClass('checked');
+        
+        focusedHeader = null;
+    }
+
     function clearAllCols() {
-        $exportColumns.val("");
-        $('#xcTable-' + tableId)
-                    .find('th.modalHighlighted, td.modalHighlighted')
+        $('.xcTable').find('th.modalHighlighted, td.modalHighlighted')
                     .removeClass('modalHighlighted');
+        $exportView.find('.cols li').removeClass('checked')
+                   .find('.checkbox').removeClass('checked');
+        $exportView.find('.selectAllWrap').find('.checkbox')
+                                          .removeClass('checked');
+        focusedHeader = null;
     }
 
     function setupFormDelimiter() {
@@ -863,7 +810,13 @@ window.ExportModal = (function($, ExportModal) {
         resetDelimiter();
     }
 
-    function getTableColList(tableId) {
+    function refreshTableColList() {
+        var colHtml = getTableColList();
+        $exportView.find('.cols').html(colHtml);
+        $exportView.find('.selectAllWrap').find('.checkbox').addClass('checked');
+    }
+
+    function getTableColList() {
         var html = "";
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {

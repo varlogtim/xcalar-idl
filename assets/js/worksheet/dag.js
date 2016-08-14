@@ -336,16 +336,18 @@ window.DagPanel = (function($, DagPanel) {
             $menu.data('tableelement', $dagTable);
             var activeFound = false;
             var tableWSId;
+            var inColumnPickerMode = $('#container').hasClass('columnPicker');
 
             $menu.find('.deleteTable').removeClass('hidden');
 
+            
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
                 if ($li.data('id') === tableId) {
                     $menu.find('.addTable, .revertTable').addClass('hidden');
                     $menu.find('.focusTable, .archiveTable').removeClass('hidden');
-                    if (!tableLocked) {
+                    if (!tableLocked && !inColumnPickerMode) {
                         $menu.find('.archiveTable, .deleteTable')
                              .removeClass('hidden');
                     } else {
@@ -632,9 +634,10 @@ window.DagPanel = (function($, DagPanel) {
         } else {
             $menu.find('.collapseAll').hide();
         }
+        var inColumnPickerMode = $('#container').hasClass('columnPicker');
 
-
-        if (gTables[dagId] && gTables[dagId].hasLock()) {
+        if ((gTables[dagId] && gTables[dagId].hasLock()) ||
+            inColumnPickerMode) {
             $menu.find('.archiveTable, .deleteTable').hide();
         } else {
             $menu.find('.archiveTable, .deleteTable').show();

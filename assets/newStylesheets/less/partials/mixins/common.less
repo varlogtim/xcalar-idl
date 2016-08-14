@@ -291,11 +291,12 @@
     .textOverflowOneLine;
     text-align: center;
     .size(150px, 36px);
-    background-color: fadeout(@color-bg-dusk-blue, 20%);
+    // background-color: fadeout(@color-bg-dusk-blue, 20%);
+    background-color: @color-bg-select-blue;
     cursor: pointer;
 
     &:hover {
-            background-color: @color-bg-dusk-blue;
+        background-color: @color-bg-dusk-blue;
     }
 
     &:focus {
@@ -499,6 +500,7 @@
         cursor: pointer;
 
         &:hover {
+            background-color: @color-bg-dusk-blue;
             .icon {
                 opacity: @opacity-hover;
             }

@@ -637,6 +637,25 @@
 		}
     }
 
+    .tableListSection {
+    	.tableList {
+    		z-index: 12;
+    	}
+		.iconWrap {
+			float: right;
+			width: @listHeight;
+			line-height: @listHeight + 10px;
+			cursor: pointer;
+		}
+		.xi-show {
+			font-size: 14px;
+			color: @color-font-darkGray;
+		}
+		.selected {
+	    	color: @color-font-select-blue;
+	    }
+	}
+
     .groupby {
     	.groupbyFnTitle {
     		width: 100%;
@@ -1050,6 +1069,22 @@
 		display: block;
 		margin: 0 auto;
 		text-transform: uppercase;
+	}
+
+	.tableListSection {
+		.iconWrap {
+			float: right;
+			width: @listHeight;
+			line-height: @listHeight + 10px;
+			cursor: pointer;
+		}
+		.xi-show {
+			font-size: 14px;
+			color: @color-font-darkGray;
+		}
+		.selected {
+	    	color: @color-font-select-blue;
+	    }
 	}
 
 	#exportColumns {

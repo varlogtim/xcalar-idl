@@ -500,10 +500,16 @@ window.OperationsView = (function($, OperationsView) {
             }
         });
 
-
+        $operationsView.on('click', '.focusTable', function() {
+            if (!gTables[tableId]) {
+                return;
+            }
+            xcHelper.centerFocusedTable(tableId, true);
+        });
 
         // should only have 1 initially...
-        var functionsListScroller = new MenuHelper($('.filter .functionsList'), {
+        var functionsListScroller = new MenuHelper($('.filter .functionsList'),
+        {
             scrollerOnly : true,
             bounds       : '#operationsView',
             bottomPadding: 5
@@ -517,11 +523,39 @@ window.OperationsView = (function($, OperationsView) {
             bottomPadding: 5
         });
        
-        aggFunctionsListScroller = new MenuHelper($('.aggregate .functionsList'), {
+        aggFunctionsListScroller = new MenuHelper(
+            $('.aggregate .functionsList'), {
             scrollerOnly : true,
             bounds       : '#operationsView',
             bottomPadding: 5
         });
+
+        $operationsView.find('.tableList').each(function() {
+            var $list = $(this);
+            var tableListScroller = new MenuHelper($list, {
+                "onSelect": function($li) {
+                    var tableName = $li.text();
+                    var $textBox = $list.find(".text");
+                    var originalText = $textBox.text();
+
+                    if (originalText !== tableName) {
+                        $textBox.text(tableName);
+                        $li.siblings().removeClass('selected');
+                        $li.addClass('selected');
+                        tableId = $li.data('id');
+                        // xx should we focus on the table that was selected?
+                        // focusTable(xcHelper.getTableId(tableName));
+                    } else {
+                        return;
+                    }
+                }
+            });
+            tableListScroller.setupListeners();
+        });
+
+        
+
+
 
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
@@ -551,10 +585,11 @@ window.OperationsView = (function($, OperationsView) {
            $activeOpSection.removeClass('xc-hidden');
         } else {
             operatorName = operator.toLowerCase().trim();
+            tableId = currTableId;
             // changes mainMenu and assigns activeOpSection
             showOpSection();
             resetForm();
-            tableId = currTableId;
+            
             var tableCols = gTables[tableId].tableCols;
             currentCol = tableCols[currColNum - 1];
             colNum = currColNum;
@@ -622,9 +657,11 @@ window.OperationsView = (function($, OperationsView) {
 
     // listeners added whenever operation view opens
     function operationsViewShowListeners() {
-        var $tableWrap = $('#xcTableWrap-' + tableId);
+        var $tableWrap = $('.xcTableWrap');
+        // var $tableWrap = $('#xcTableWrap-' + tableId);
         $tableWrap.addClass('columnPicker');
         var $table = $("#xcTable-" + tableId);
+        var $table = $('.xcTable');
 
         $table.on('click.columnPicker', '.header, td.clickable', function(event) {
             if (!$lastInputFocused) {
@@ -716,6 +753,8 @@ window.OperationsView = (function($, OperationsView) {
 
         var $table = $("#xcTable-" + tableId);
         var $tableWrap = $("#xcTableWrap-" + tableId);
+        var $table = $('.xcTable');
+        var $tableWrap = $('.xcTableWrap');
         if (isHide) {
             
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
@@ -731,8 +770,8 @@ window.OperationsView = (function($, OperationsView) {
         } else {
 
             $('body').on('keydown', listHighlightListener);
-            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .addClass('tableOpSection');
+            // $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+            //                  .addClass('tableOpSection');
         }
     }
 
@@ -1004,6 +1043,7 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.list').hide();
         $operationsView.find('.list li').hide();
         $operationsView.find('.cast .list li').show();
+        $operationsView.find('.tableList .list li').show();
     }
 
     // index is the argument group numbers
@@ -1225,6 +1265,21 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.icvMode').addClass('inactive');
         $activeOpSection.find('.descriptionText').empty();
         $operationsView.find('.strPreview').empty();
+    }
+
+    function fillTableList() {
+        var tableLis = xcHelper.getWSTableList();
+        var $tableListSection = $activeOpSection.find('.tableListSection');
+
+        $tableListSection.find('ul').html(tableLis);
+
+        // select li and fill left table name dropdown
+        var tableName = gTables[tableId].getName();
+        $tableListSection.find('.dropDownList .text').text(tableName);
+
+        $tableListSection.find('li').filter(function() {
+            return ($(this).text() === tableName);
+        }).addClass('selected');
     }
 
     // $li = map's function menu li
@@ -2342,7 +2397,8 @@ window.OperationsView = (function($, OperationsView) {
 
         if (!gTables[tableId]) {
             // xx make a better alert
-            alert('Table no longer exists');
+            // alert('Table no longer exists');
+            StatusBox.show('Table no longer exists', $activeOpSection.find('.tableList'));
             return false;
         }
 
@@ -2599,6 +2655,9 @@ window.OperationsView = (function($, OperationsView) {
         return colTypeInfos;
     }
 
+    // returns an object that contains an array of formated arguments,  
+    // an object of each argument's column type
+    // and a flag of whether all arguments are valid or not
     function argumentFormatHelper(existingTypes, groupNum) {
         var args = [];
         var isPassing = true;
@@ -3622,6 +3681,9 @@ window.OperationsView = (function($, OperationsView) {
 
     function getAutoGenColName(name) {
         var takenNames = {};
+        if (!gTables[tableId]) {
+            return "";
+        }
         var tableCols  = gTables[tableId].tableCols;
         var numCols = tableCols.length;
         for (var i = 0; i < numCols; i++) {
@@ -3866,6 +3928,10 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.descriptionText').empty();
         $operationsView.find('.arg').val("");
         $operationsView.find('.inputWrap.extra').remove();
+
+        // xx list is only being refreshed when operations view opens
+        fillTableList();
+
         if (operatorName === "filter") {
             $activeOpSection.find('.group').each(function(i) {
                 if  (i !== 0) {

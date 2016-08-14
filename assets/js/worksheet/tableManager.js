@@ -1858,7 +1858,8 @@ window.TblManager = (function($, TblManager) {
         };
 
         $thead.find('.rowNumHead').mousedown(function() {
-            if ($thead.closest('.modalOpen').length) {
+            if ($thead.closest('.modalOpen').length || 
+                $thead.closest('.xcTableWrap').hasClass('columnPicker')) {
                 return;
             }
             $thead.find('.editableHead').each(function() {
