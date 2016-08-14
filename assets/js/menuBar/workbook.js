@@ -1,4 +1,4 @@
-window.WorkbookModal = (function($, WorkbookModal) {
+window.Workbook = (function($, Workbook) {
     var $workbookModal; // $("#workbookModal")
     var $optionSection; // $workbookModal.find(".optionSection")
     var $workbookInput; // $("#workbookInput")
@@ -16,7 +16,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var sortkey = "name";
     var activeActionNo = 0;
 
-    WorkbookModal.setup = function() {
+    Workbook.setup = function() {
         $workbookModal = $("#workbookModal");
         $optionSection = $workbookModal.find(".optionSection");
         $workbookInput = $("#workbookInput");
@@ -32,29 +32,29 @@ window.WorkbookModal = (function($, WorkbookModal) {
             "minHeight"  : minHeight
         });
 
-        $workbookModal.resizable({
-            handles    : "n, e, s, w, se",
-            minHeight  : minHeight,
-            minWidth   : minWidth,
-            containment: "document"
-        });
+        // $workbookModal.resizable({
+        //     handles    : "n, e, s, w, se",
+        //     minHeight  : minHeight,
+        //     minWidth   : minWidth,
+        //     containment: "document"
+        // });
 
-        $workbookModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
-            "containment": 'window'
-        });
+        // $workbookModal.draggable({
+        //     "handle"     : ".modalHeader",
+        //     "cursor"     : "-webkit-grabbing",
+        //     "containment": 'window'
+        // });
 
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
-            WorkbookModal.show();
+            Workbook.show();
         });
 
         addWorkbookEvents();
     };
 
-    WorkbookModal.initialize = function() {
+    Workbook.initialize = function() {
         try {
             getWorkbookInfo();
         } catch (error) {
@@ -63,7 +63,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
     };
 
-    WorkbookModal.show = function(isForceShow) {
+    Workbook.show = function(isForceShow) {
         $(document).on("keypress", workbookKeyPress);
 
         var extraOptions;
@@ -80,19 +80,19 @@ window.WorkbookModal = (function($, WorkbookModal) {
         modalHelper.setup(extraOptions);
     };
 
-    WorkbookModal.forceShow = function() {
+    Workbook.forceShow = function() {
         $workbookModal.find(".cancel, .close").hide();
         var $logoutBtn = xcHelper.supportButton();
         $workbookModal.find(".modalBottom").append($logoutBtn);
 
-        WorkbookModal.show(true);
+        Workbook.show(true);
         // deafult value for new workbook
         $workbookInput.val("untitled");
         var input = $workbookInput.get(0);
         input.setSelectionRange(0, input.value.length);
     };
 
-    function resetWorkbookModal() {
+    function resetWorkbook() {
         $workbookModal.find(".active").removeClass("active");
         // default select all workbooks and sort by name
         reverseLookup = {
@@ -106,17 +106,17 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $workbookInput.val("").focus();
     }
 
-    function closeWorkbookModal() {
+    function closeWorkbook() {
         modalHelper.clear();
         $(document).off("keypress", workbookKeyPress);
-        resetWorkbookModal();
+        resetWorkbook();
     }
 
     function addWorkbookEvents() {
         // click cancel or close button
         $workbookModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
-            closeWorkbookModal();
+            closeWorkbook();
         });
 
         // click confirm button
@@ -522,5 +522,5 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $("#workbookModalWaitingIcon").remove();
     }
 
-    return (WorkbookModal);
+    return (Workbook);
 }(jQuery, {}));

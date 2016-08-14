@@ -102,7 +102,7 @@ window.StartManager = (function(StartManager, $) {
             documentReadyGeneralFunction();
             WSManager.initialize();
             BottomMenu.initialize();
-            WorkbookModal.initialize();
+            Workbook.initialize();
             // restore user settings
             JoinView.restore();
             FileBrowser.restore();
@@ -131,7 +131,7 @@ window.StartManager = (function(StartManager, $) {
             if (error === WKBKTStr.NoWkbk){
                 // when it's new workbook
                 $('#initialLoadScreen').remove();
-                WorkbookModal.forceShow();
+                Workbook.forceShow();
                 var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
                 StatusMessage.updateLocation(true, text);
             } else if (error === WKBKTStr.Hold) {
@@ -235,7 +235,7 @@ window.StartManager = (function(StartManager, $) {
         JoinView.setup();
         AggModal.setup();
         OperationsView.setup();
-        WorkbookModal.setup();
+        Workbook.setup();
         DataFlowModal.setup();
         DFGParamModal.setup();
         MultiCastModal.setup();

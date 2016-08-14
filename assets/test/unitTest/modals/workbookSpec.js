@@ -12,7 +12,7 @@ describe('Workbook Test', function() {
 
     describe('Workbook Modal Test', function() {
         it("Should show workbook", function() {
-            WorkbookModal.show();
+            Workbook.show();
             assert.isTrue($workbookModal.is(":visible"));
         });
 
