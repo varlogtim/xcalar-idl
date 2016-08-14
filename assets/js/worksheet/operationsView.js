@@ -2430,7 +2430,7 @@ window.OperationsView = (function($, OperationsView) {
 
     function submitForm() {
         var isPassing = true;
-        modalHelper.submit();
+        modalHelper.disableSubmit();
 
         if (!gTables[tableId]) {
             // xx make a better alert

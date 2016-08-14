@@ -398,7 +398,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
 
         $workbookInput.blur();
-        modalHelper.submit();
+        modalHelper.disableSubmit();
 
         Support.commitCheck()
         .then(function() {

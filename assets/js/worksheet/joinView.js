@@ -8,8 +8,11 @@ window.JoinView = (function($, JoinView) {
     var $joinTableName;  // $("#joinTableNameInput")
     var $clauseContainer;      // $("#multiJoin")
     var $lastInputFocused;
+    var $renameSection; // $("#joinView .renameSection")
     var isNextNew = true; // if true, will run join estimator
     var isOpen = false;
+    var lImmediatesCache;
+    var rImmediatesCache;
 
     var modalHelper;
     var multiClauseTemplate =
@@ -27,6 +30,19 @@ window.JoinView = (function($, JoinView) {
                 'spellcheck="false" disabled/>' +
         '</div>';
 
+    var renameTemplate =
+        '<div class="rename">' +
+            '<input class="columnName origName arg" type="text" ' +
+            'spellcheck="false" disabled/>' +
+            '<div class="middleIcon">' +
+                '<div class="iconWrapper">' +
+                    '<i class="icon xi-play-circle fa-14"></i>' +
+                '</div>' +
+            '</div>' +
+            '<input class="columnName newName arg" type="text" ' +
+              'spellcheck="false"/>' +
+        '</div>';
+
     var dragSide = null;
     var isOpenTime;
 
@@ -39,6 +55,7 @@ window.JoinView = (function($, JoinView) {
         $joinTypeSelect = $("#joinType");
         $joinTableName = $("#joinTableNameInput");
         $clauseContainer = $mainJoin.find('.clauseContainer');
+        $renameSection = $("#joinView .renameSection");
         // constant
         var minHeight = 600;
         var minWidth  = 800;
@@ -109,7 +126,6 @@ window.JoinView = (function($, JoinView) {
             }
         });
         leftTableList.setupListeners();
-
 
         var rightTableList = new MenuHelper($rightTableDropdown, {
             "onSelect": function($li) {
@@ -213,15 +229,18 @@ window.JoinView = (function($, JoinView) {
                 $li.removeClass('checked');
                 if ($li.siblings('.checked').length === 0) {
                     if ($li.closest('ul').hasClass('leftCols')) {
-                        $joinView.find('.leftColHeading .selectAll').removeClass('checked');
+                        $joinView.find('.leftColHeading .selectAll')
+                                 .removeClass('checked');
                     } else {
-                        $joinView.find('.rightColHeading .selectAll').removeClass('checked');
+                        $joinView.find('.rightColHeading .selectAll')
+                                 .removeClass('checked');
                     }
                 }
             } else {
                 $checkbox.addClass('checked');
                 $li.addClass('checked');
             }
+            resetRenames();
 
         });
 
@@ -251,7 +270,8 @@ window.JoinView = (function($, JoinView) {
             // var $suggErrorArea = $(this);
             if (hasValidTableNames()) {
                 
-                $joinView.find('.joinClause:not(.placeholder)').each(function() {
+                $joinView.find('.joinClause:not(.placeholder)')
+                         .each(function() {
                     var $row = $(this);
                     
                     if ($row.find('.arg').eq(0).val().trim() !== "" && 
@@ -273,10 +293,13 @@ window.JoinView = (function($, JoinView) {
                     var otherTableName;
                     if (isLeftTableVal) {
                         tableName = $leftTableDropdown.find('.text').text();
-                        otherTableName = $rightTableDropdown.find('.text').text();
+                        otherTableName = $rightTableDropdown.find('.text')
+                                                            .text();
                     } else {
-                        tableName = $rightTableDropdown.find('.text').text();
-                        otherTableName = $leftTableDropdown.find('.text').text();
+                        tableName = $rightTableDropdown.find('.text')
+                                                       .text();
+                        otherTableName = $leftTableDropdown.find('.text')
+                                                           .text();
                     }
                     var tableId = xcHelper.getTableId(tableName);
                     var suggTableId = xcHelper.getTableId(otherTableName);
@@ -286,8 +309,9 @@ window.JoinView = (function($, JoinView) {
                     // $th is the left table
                     // $suggSection is the right table
                     // suggTableId is the right table
-                    var isFind = suggestJoinKey(tableId, $inputToCheck.val().trim(),
-                                            $inputToFill, suggTableId);
+                    var isFind = suggestJoinKey(tableId,
+                                                $inputToCheck.val().trim(),
+                                                $inputToFill, suggTableId);
 
                      if (!isFind) {
                         text = isLeftTableVal ? JoinTStr.NoMatchRight :
@@ -326,6 +350,12 @@ window.JoinView = (function($, JoinView) {
             checkNextBtn();
             updatePreviewText();
         });
+
+        $renameSection.on("click", ".iconWrapper", function() {
+            var $colToRename = $(this).closest(".rename");
+            var origName = $colToRename.find(".origName").val();
+            $colToRename.find(".newName").val(origName);
+        });
     };
 
     JoinView.restore = function() {
@@ -337,7 +367,8 @@ window.JoinView = (function($, JoinView) {
 
     JoinView.show = function(tableId, colNum, restore) {
         isOpen = true;
-        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)').addClass('lastOpened');
+        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)')
+                           .addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         // $('#colMenu').addClass('exitOpState exitJoinState');
         $('#container').addClass('columnPicker joinState');
@@ -388,7 +419,8 @@ window.JoinView = (function($, JoinView) {
                            .removeClass('lastOpened xc-hidden'); 
         // modalHelper.clear();
         $("body").off(".joinModal");
-        $('.xcTable').off('click.columnPicker').closest(".xcTableWrap").removeClass('columnPicker');
+        $('.xcTable').off('click.columnPicker').closest(".xcTableWrap")
+                     .removeClass('columnPicker');
         $('#container').removeClass('columnPicker joinState');
         // $('#colMenu').removeClass('exitOpState exitJoinState');
         $lastInputFocused = null;
@@ -407,6 +439,7 @@ window.JoinView = (function($, JoinView) {
                     estimateJoinSize();
                     displayAllColumns();
                     isNextNew = false;
+                    resetRenames();
                 }  
 
                 $joinView.addClass('nextStep');
@@ -461,7 +494,8 @@ window.JoinView = (function($, JoinView) {
             var errorTitle;
             var errorText;
             var $input = 
-                $clauseContainer.find('.joinClause .leftClause').filter(function() {
+                $clauseContainer.find('.joinClause .leftClause')
+                                .filter(function() {
                     return ($(this).val() === leftColRes.name);
                 }).eq(0);
             if (leftColRes.reason === 'notFound') {
@@ -485,13 +519,15 @@ window.JoinView = (function($, JoinView) {
             });
             return false;
         } else {
-            var rightColRes = xcHelper.convertFrontColNamesToBack(rCols, tableIds[1],
-                                                    validTypes);
+            var rightColRes = xcHelper.convertFrontColNamesToBack(rCols,
+                                                                  tableIds[1],
+                                                                  validTypes);
             if (rightColRes.invalid) {
                 var errorTitle;
                 var errorText;
                 var $input = 
-                    $clauseContainer.find('.joinClause .rightClause').filter(function() {
+                    $clauseContainer.find('.joinClause .rightClause')
+                                    .filter(function() {
                         return ($(this).val() === rightColRes.name);
                     }).eq(0);
                 if (rightColRes.reason === 'notFound') {
@@ -500,7 +536,8 @@ window.JoinView = (function($, JoinView) {
                         "name": rightColRes.name
                     });
                 } else if (rightColRes.reason === 'type') {
-                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
+                    errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType,
+                    {
                         "name": rightColRes.name,
                         "type": rightColRes.type
                     });
@@ -513,13 +550,13 @@ window.JoinView = (function($, JoinView) {
                     "trigger"  : "manual",
                     "template" : TooltipTemplate.Error
                 });
-                return false;
+                return (false);
             } else {
-                return true;
+                return (true);
             }
         }
 
-        return true
+        return (true);
     }
 
     function estimateJoinSize() {
@@ -531,7 +568,8 @@ window.JoinView = (function($, JoinView) {
             rightLimit: 100,
             lCol: colNames[0],
             rCol: colNames[1],
-            rTable: gTables[tableIds[1]].tableName
+            rTable: gTables[tableIds[1]].tableName,
+            unlock: true
         };
 
         var $estimatorWrap = $joinView.find('.estimatorWrap');
@@ -540,7 +578,8 @@ window.JoinView = (function($, JoinView) {
 
         // xx handle canceling of estimateJoinSize
 
-        ExtensionManager.trigger(tableIds[0], "UExtDev", "estimateJoin", argList)
+        ExtensionManager.trigger(tableIds[0], "UExtDev", "estimateJoin",
+                                 argList)
         .then(function(ret) {
             $joinView.find('.estimatorWrap .title')
                      .text(JoinTStr.EstimatedJoin + ':');
@@ -563,6 +602,13 @@ window.JoinView = (function($, JoinView) {
         $joinView.find('.leftCols').html(lHtml);
         $joinView.find('.rightCols').html(rHtml);
         $joinView.find('.selectAll').addClass('checked');
+    }
+
+    function resetRenames() {
+        $("#leftTableRenames").find(".rename").remove();
+        $("#rightTableRenames").find(".rename").remove();
+        $renameSection.find(".tableRenames").hide();
+        $renameSection.hide();
     }
 
     function hasValidTableNames() {
@@ -681,7 +727,8 @@ window.JoinView = (function($, JoinView) {
         var html = "";
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
-            if (allCols[i].type !== "newColumn" && allCols[i].backName !== "DATA") {
+            if (allCols[i].type !== "newColumn" &&
+                allCols[i].backName !== "DATA") {
                 html += '<li class="checked">' +
                             '<span class="text">' + allCols[i].name + 
                             '</span>' +
@@ -699,7 +746,8 @@ window.JoinView = (function($, JoinView) {
         $(".xcTableWrap").addClass('columnPicker');
         var $tables = $(".xcTable");
 
-        $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
+        $tables.on('click.columnPicker', '.header, td.clickable',
+                   function(event) {
             if (!$lastInputFocused) {
                 return;
             }
@@ -734,21 +782,40 @@ window.JoinView = (function($, JoinView) {
         }
 
         var validTableName = xcHelper.checkDupTableName(newTableName);
-        if (validTableName) {
-            modalHelper.submit();
-            var joinType = $joinTypeSelect.find(".text").text();
-            var tabeName = newTableName + Authentication.getHashId();
-            var isValid = joinSubmitHelper(joinType, tabeName);
-
-            if (!isValid) {
-                modalHelper.enableSubmit();
-            }
-        } else {
+        if (!validTableName) {
             StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
+            return;
         }
+
+        modalHelper.disableSubmit();
+        var joinType = $joinTypeSelect.find(".text").text();
+        var tableName = newTableName + Authentication.getHashId();
+        var isValid = joinSubmitHelper(joinType, tableName);
+
+        // XXX some bugs here
+        modalHelper.enableSubmit();
+        /**
+        if (!isValid) {
+            // JJJ StatusBox.show(Errblah)
+            modalHelper.enableSubmit();
+        } */
+
     }
 
     function joinSubmitHelper(joinType, newTableName) {
+        function proceedWithJoin() {
+            var options = {
+                keepTables: $joinView.find('.keepTablesCBWrap')
+                                      .find('.checkbox').hasClass('checked'),
+                keepLeftCols: lColsToKeep,
+                keepRightCols: rColsToKeep
+            };
+
+            JoinView.close();
+            xcFunction.join(lColNums, lTableId, rColNums, rTableId, joinType,
+                            newTableName, options);
+        }
+
         var lCols = [];
         var rCols = [];
         var $invalidClause = null;
@@ -785,7 +852,6 @@ window.JoinView = (function($, JoinView) {
         var lColsToKeep = [];
         var rColsToKeep = [];
         
-        
         // set up "joining on" columns
         for (var i = 0; i < lCols.length; i++) {
             var col = lTable.getColByFrontName(lCols[i]);
@@ -813,19 +879,185 @@ window.JoinView = (function($, JoinView) {
             rColsToKeep[i] = col.backName;
         });
 
+        // 1) We check whether the column name resolution is already there
+        // 2) If it is, then we check whether the resolution is satisfactory.
+        // 3) If it is, then we skip the checking and go straight to join
+        // Else, we trigger the resolution again
 
-        var options = {
-            keepTables: $joinView.find('.keepTablesCBWrap')
-                                  .find('.checkbox').hasClass('checked'),
-            keepLeftCols: lColsToKeep,
-            keepRightCols: rColsToKeep
-        };
+        // XXX When a column is deselected or selected, we should only remove
+        // that one column from prefix. Currently just going to remove all
+        if ($renameSection.is(":visible")) {
+            // Already in rename mode. Verify that the renames are correct
+            // XXX Handle the case where the new name clashes with another
+            // name that was not part of the initial clashing array
+            var $leftRenames = $("#leftTableRenames .rename");
+            var leftOrigNames = $leftRenames.find(".origName");
+            var leftNewNames = $leftRenames.find(".newName");
+            var $rightRenames = $("#rightTableRenames .rename");
+            var rightOrigNames = $rightRenames.find(".origName");
+            var rightNewNames = $rightRenames.find(".newName");
+            var lImmediates = xcHelper.deepCopy(lImmediatesCache);
+            var rImmediates = xcHelper.deepCopy(rImmediatesCache);
 
-        JoinView.close();
-        xcFunction.join(lColNums, lTableId, rColNums, rTableId, joinType,
-                        newTableName, options);
-        
+            // Check that none are empty
+            for (var i = 0; i<leftNewNames.length; i++) {
+                if ($(leftNewNames[i]).val().trim().length === 0) {
+                    StatusBox.show(ErrTStr.NoEmpty, $leftRenames.eq(i), true);
+                    return false;
+                }
+            }
+
+            for (var i = 0; i<rightNewNames.length; i++) {
+                if ($(rightNewNames[i]).val().trim().length === 0) {
+                    StatusBox.show(ErrTStr.NoEmpty, $rightRenames.eq(i), true);
+                    return false;
+                }
+            }
+
+            // Get array of all new immediates by updating the old with the new
+            for (var i = 0; i<leftOrigNames.length; i++) {
+                var index = lImmediates.indexOf($(leftOrigNames[i]).val());
+                lImmediates[index] = $(leftNewNames[i]).val();
+            }
+            for (var i = 0; i<rightOrigNames.length; i++) {
+                var index = rImmediates.indexOf($(rightOrigNames[i]).val());
+                rImmediates[index] = $(rightNewNames[i]).val();
+            }
+
+            // Find out whether any of the immediate names still clash
+            for (var i = 0; i<$leftRenames.length; i++) {
+                if (rImmediates.indexOf($leftRenames.eq(i).val()) > -1) {
+                    StatusBox.show(ErrTStr.NoEmpty, $leftRenames.eq(i), true);
+                    return false;
+                }
+                // Check with itself as well
+
+            }
+
+            for (var i = 0; i<$rightRenames.length; i++) {
+                if (lImmediates.indexOf($rightRenames.eq(i).val()) > -1) {
+                    StatusBox.show(ErrTStr.NoEmpty, $rightRenames.eq(i), true);
+                    return false;
+                }
+                // Check with itself as well
+            }
+
+            proceedWithJoin();
+            return true;
+        }
+
+        // XXX We should consider caching tableMeta
+        var lTableName = xcHelper.getTableNameFromId(lTableId);
+        var rTableName = xcHelper.getTableNameFromId(rTableId);
+        PromiseHelper.when(XcalarGetTableMeta(lTableName),
+                           XcalarGetTableMeta(rTableName))
+        .then(function(lTableMeta, rTableMeta) {
+            function getFatPtr(valueAttr) {
+                if (valueAttr.type === DfFieldTypeT.DfFatptr) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            function getImmediates(valueAttr) {
+                if (valueAttr.type === DfFieldTypeT.DfFatptr) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            function lColsToKeepFilt(valueAttr) {
+                if (lColsToKeep.indexOf(valueAttr.name) > -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            function rColsToKeepFilt(valueAttr) {
+                if (rColsToKeep.indexOf(valueAttr.name) > -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            function keepOnlyNames(valueAttr) {
+                return (valueAttr.name);
+            }
+
+            // Split valueAttrs into fatPtrs and immediates
+            var lFatptr = lTableMeta.valueAttrs.filter(getFatPtr);
+            var rFatptr = rTableMeta.valueAttrs.filter(getFatPtr);
+            var lImmediate = lTableMeta.valueAttrs.filter(getImmediates);
+            var rImmediate = rTableMeta.valueAttrs.filter(getImmediates);
+
+            // Filter out the lImmediates and rImmediates to the ones that the
+            // user wants to keep
+            lImmediate = lImmediate.filter(lColsToKeepFilt);
+            rImmediate = rImmediate.filter(rColsToKeepFilt);
+
+            // Today we are only handing immediate collisions. Later we will
+            // handle fatptr collisions and prefix renaming for those
+
+            // Only kepe column names since we are not doing anything with types
+            lImmediate = lImmediate.map(keepOnlyNames);
+            rImmediate = rImmediate.map(keepOnlyNames);
+
+            lImmediatesCache = lImmediate;
+            rImmediatesCache = rImmediate;
+
+            var lImmediatesToRename = [];
+            var rImmediatesToRename = [];
+
+            for (var i = 0; i<lImmediate.length; i++) {
+                if (rImmediate.indexOf(lImmediate[i]) > -1) {
+                    lImmediatesToRename.push(lImmediate[i]);
+                }
+            }
+
+            for (var i = 0; i<rImmediate.length; i++) {
+                if (lImmediate.indexOf(rImmediate[i]) > -1) {
+                    rImmediatesToRename.push(rImmediate[i]);
+                }
+            }
+
+            // Now that we have all the columns that we want to rename, we
+            // display the columns and ask the user to rename them
+            if (lImmediatesToRename.length > 0 ||
+                rImmediatesToRename.length > 0) {
+                $renameSection.show();
+            } else {
+                proceedWithJoin();
+                return true;
+            }
+
+            if (lImmediatesToRename.length > 0) {
+                $("#leftTableRenames").show();
+                addRenameRows($("#leftRenamePlaceholder"), lImmediatesToRename);
+            }
+
+            if (rImmediatesToRename.length > 0) {
+                $("#rightTableRenames").show();
+                addRenameRows($("#rightRenamePlaceholder"),
+                              rImmediatesToRename);
+            }
+
+            return false;
+        });
+
+        // Should not reach here
         return true;
+    }
+
+    function addRenameRows($placeholder, renames) {
+        for (var i = 0; i<renames.length; i++) {
+            $rename = $(renameTemplate);
+            $rename.find(".origName").val(renames[i]);
+            $rename.insertBefore($placeholder);
+        }
     }
 
     function addClause($placeholder, noAnimation, tableId, colNum) {
@@ -875,6 +1107,7 @@ window.JoinView = (function($, JoinView) {
         updatePreviewText();
         $joinView.removeClass('nextStep');
         updateJoinTableName();
+        resetRenames();
     }
 
     function updateJoinTableName() {
@@ -985,7 +1218,8 @@ window.JoinView = (function($, JoinView) {
         $suggTable.find(".header").each(function(index) {
             var $curTh = $(this);
 
-            if (index !== 0 && !$curTh.hasClass('dataCol') && getType($curTh) === type) {
+            if (index !== 0 && !$curTh.hasClass('dataCol') &&
+                getType($curTh) === type) {
                 var context2 = contextCheck($suggTable, index, type);
 
                 var curColName = $curTh.find(".editableHead").val();
@@ -1182,7 +1416,8 @@ window.JoinView = (function($, JoinView) {
             var m = a.length;
             var n = b.length;
 
-            // make sure a.length >= b.length to use O(min(n,m)) space, whatever that is
+            // make sure a.length >= b.length to use O(min(n,m)) space, whatever
+            // that is
             if (m < n) {
                 var c = a; a = b; b = c;
                 var o = m; m = n; n = o;
@@ -1259,7 +1494,7 @@ window.JoinView = (function($, JoinView) {
                 leftColText = "\"\"";
             }
             if (columnPairs[i][1]) {
-                rightColText = '<span class="highlighted">' + columnPairs[i][1] +
+                rightColText = '<span class="highlighted">' + columnPairs[i][1]+
                               '</span>';
             } else {
                 rightColText = "\"\"";

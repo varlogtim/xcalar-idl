@@ -174,7 +174,19 @@
 			display: none;
 		}
 	}
-  
+
+	.subSubHeading {
+		margin-top: 6px;
+		> div, > span {
+			float: left;
+			width: 50%;
+			height: @headingHeight - 10px;
+			line-height: @headingHeight - 6;
+			padding-bottom: 4px;
+			padding-left: 9px;
+			font-weight: 700;
+		}
+	}
 
 	.catFuncMenus {
 		border: 1px solid @color-border-pinkish-grey2;
@@ -1048,6 +1060,57 @@
     			display: inline-block;
     		}
     	}
+    }
+
+    .renameSection {
+    	.tableRenames {
+    		display: none;
+    	}
+	    .rename {
+	        .position(relative);
+	        .size(@width: 100%, @height: @listHeight);
+
+	        .columnName {
+	            .size(@width: ~"calc(50% + 1px)", @height: @listHeight);
+	            .font(@size: @standardFontSize, @line-height: @listHeight);
+	            padding: 0px 8px;
+	            text-align: center;
+	            float: left;
+	            outline: none;
+	            border-bottom: 1px solid @color-border-pinkish-grey2;
+
+	            &.newName {
+	            	.size(@width: ~"calc(50% - 1px)");
+	            }
+
+	            &:first-child {
+	            	border-right: 1px solid @color-border-pinkish-grey2;
+
+	            }
+	        
+	        }
+
+	        .middleIcon {
+	            .size(@width: 25px, @height: @listHeight);
+	            float: left;
+	            cursor: pointer;
+	            .horizontal-align(absolute);
+	            z-index: 1;
+	            
+	            .iconWrapper {
+	            	.size(14px, 14px);
+	            	border-radius: 100%;
+	            	background-color: @color-white;
+	            	.center-align;
+	            	top: 13px;
+	            	margin-left: 1px;
+	            }
+
+	            .icon {
+	            	color: @color-font-select-blue;
+	            }  
+	        }
+	    }
     }
 }
 

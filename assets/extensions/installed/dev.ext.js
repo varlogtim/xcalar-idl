@@ -58,6 +58,12 @@ window.UExtDev = (function(UExtDev) {
                 "integer": true,
                 "min"    : 1
             }
+        },
+        {
+            "type"      : "boolean",
+            "name"      : "Unlock Table",
+            "fieldClass": "unlock",
+            "autofill"  : false,
         }
         ],
     }];
@@ -74,6 +80,9 @@ window.UExtDev = (function(UExtDev) {
         }
     };
 
+    // XXX: Handle multicolumn join estimator
+    // XXX: If multicolumn-estimated, then we should just use that to continue
+    // with the operation
     function estimateJoin() {
         var ext = new XcSDK.Extension();
         // Implement ext.beforeStart(), ext.start() and
@@ -89,11 +98,26 @@ window.UExtDev = (function(UExtDev) {
             var self = this;
 
             var args = self.getArgs();
-            
+
 
             var rTableName = args.rTable;
-            var lColName = args.lCol;
-            var lColNames = args.lCol[0];
+            var lColName;
+            var lColNames;
+
+            if (typeof args.lCol === "object") {
+                lColNames = args.lCol;
+                lColName = args.lCol[0];
+            } else {
+                lColName = args.lCol;
+
+                // XXX We should allow clicking on tables other than the main table
+                // but since we don't, we will have to type. This means that the
+                // user will have to type the $. So we have to strip it if they did
+                if (lColName.trim().indexOf(gColPrefix) === 0) {
+                    lColName = lColName.trim().substring(1);
+                }
+                lColNames = [lColName];
+            }
 
             var srcTableName;
             if (args.srcTableName) {
@@ -103,6 +127,16 @@ window.UExtDev = (function(UExtDev) {
                 // from column that triggered the action
                 srcTableName = self.getTriggerTable().getName();
             }
+
+            // XXX ExtManager currently passes in bools as strings
+            if ((typeof args.unlock === "boolean" && args.unlock) ||
+                (typeof args.unlock === "string" && args.unlock === "true")) {
+                // XXX Here we are double unlocking. It currently works since 
+                // the second unlock becomes a noop. But this is not future
+                // proof.
+                xcHelper.unlockTable(xcHelper.getTableId(srcTableName));
+            }
+
             var leftLimit = args.leftLimit || 100;
             var rightLimit = args.rightLimit || 100;
             

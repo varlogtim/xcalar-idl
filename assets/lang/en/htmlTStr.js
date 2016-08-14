@@ -597,7 +597,8 @@ module.exports = {
         "colSelectTitle": "Columns To Join",
         "colSelectInstr": "Please select pairs of columns, one column from the left table and one column from the right table, to be joined together.",
         "colKeepTitle": "Column Selector",
-        "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are collisions in column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table."
+        "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are collisions in column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table.",
+        "colRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns."
     },
 
     "jsonModal": {

@@ -161,7 +161,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             $modal.find(".loadingSection .text").text(StatusMessageTStr.DeleteTable);
         }, 500);
 
-        modalHelper.submit();
+        modalHelper.disableSubmit();
         PromiseHelper.when(orphanDef, archivedDef, activeDef)
         .fail(function(error1, error2, error3) {
             var error = error1 || error2 || error3;

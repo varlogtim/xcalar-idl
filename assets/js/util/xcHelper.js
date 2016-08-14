@@ -960,6 +960,18 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.getTableNameFromId = function(tableId) {
+
+        if (!gTables) {
+            return "";
+        }
+
+        if (!(tableId in gTables)) {
+            return "";
+        }
+        return (gTables[tableId].tableName);
+    };
+
     xcHelper.getBackTableSet = function() {
         var deferred = jQuery.Deferred();
 

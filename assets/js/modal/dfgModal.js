@@ -315,7 +315,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
                                         .text();
         }
 
-        modalHelper.submit();
+        modalHelper.disableSubmit();
 
         // XXX This part is buggy,
         // thrift call maybe slow, and next time open the modal

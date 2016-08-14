@@ -2234,10 +2234,13 @@ ModalHelper.prototype = {
         return (this.$modal.find(".btn:focus").length > 0);
     },
 
-    submit: function() {
+    // This function prevents the user from clicking the submit button multiple
+    // times
+    disableSubmit: function() {
         xcHelper.disableSubmit(this.$modal.find(".confirm"));
     },
 
+    // This function reenables the submit button after the checks are done
     enableSubmit: function() {
         xcHelper.enableSubmit(this.$modal.find(".confirm"));
     },
