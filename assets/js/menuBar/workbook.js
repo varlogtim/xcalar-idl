@@ -1,6 +1,6 @@
 window.Workbook = (function($, Workbook) {
-    var $workbookModal; // $("#workbookModal")
-    var $optionSection; // $workbookModal.find(".optionSection")
+    var $workbookPanel; // $("#workbookPanel")
+    var $optionSection; // $workbookPanel.find(".optionSection")
     var $workbookInput; // $("#workbookInput")
     var $workbookLists; // $("#workbookLists")
 
@@ -17,8 +17,8 @@ window.Workbook = (function($, Workbook) {
     var activeActionNo = 0;
 
     Workbook.setup = function() {
-        $workbookModal = $("#workbookModal");
-        $optionSection = $workbookModal.find(".optionSection");
+        $workbookPanel = $("#workbookPanel");
+        $optionSection = $workbookPanel.find(".optionSection");
         $workbookInput = $("#workbookInput");
         $workbookLists = $("#workbookLists");
 
@@ -26,32 +26,22 @@ window.Workbook = (function($, Workbook) {
         var minHeight = 400;
         var minWidth  = 750;
 
-        modalHelper = new ModalHelper($workbookModal, {
-            "focusOnOpen": true,
-            "minWidth"   : minWidth,
-            "minHeight"  : minHeight
-        });
-
-        // $workbookModal.resizable({
-        //     handles    : "n, e, s, w, se",
-        //     minHeight  : minHeight,
-        //     minWidth   : minWidth,
-        //     containment: "document"
-        // });
-
-        // $workbookModal.draggable({
-        //     "handle"     : ".modalHeader",
-        //     "cursor"     : "-webkit-grabbing",
-        //     "containment": 'window'
+        // modalHelper = new ModalHelper($workbookPanel, {
+        //     "focusOnOpen": true,
+        //     "minWidth"   : minWidth,
+        //     "minHeight"  : minHeight
         // });
 
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
-            Workbook.show();
-        });
-
-        addWorkbookEvents();
+            if ($workbookPanel.is(":visible")) {
+                Workbook.hide();
+            } else {
+                Workbook.show();
+                addWorkbookEvents();
+            }
+        });    
     };
 
     Workbook.initialize = function() {
@@ -64,26 +54,24 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.show = function(isForceShow) {
-        $(document).on("keypress", workbookKeyPress);
-
+        // $(document).on("keypress", workbookKeyPress);
+        $workbookPanel.show();
         var extraOptions;
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
-            extraOptions = {"noEsc": true};
-            $workbookModal.draggable("destroy");
-            $workbookModal.resizable("destroy");
         }
 
-        // default choose first option (new workbook)
-        $optionSection.find(".radioButton").eq(0).click();
         addWorkbooks();
-        modalHelper.setup(extraOptions);
+    };
+
+    Workbook.hide = function() {
+        $workbookPanel.hide();
     };
 
     Workbook.forceShow = function() {
-        $workbookModal.find(".cancel, .close").hide();
+        $workbookPanel.find(".cancel, .close").hide();
         var $logoutBtn = xcHelper.supportButton();
-        $workbookModal.find(".modalBottom").append($logoutBtn);
+        $workbookPanel.find(".modalBottom").append($logoutBtn);
 
         Workbook.show(true);
         // deafult value for new workbook
@@ -93,7 +81,7 @@ window.Workbook = (function($, Workbook) {
     };
 
     function resetWorkbook() {
-        $workbookModal.find(".active").removeClass("active");
+        $workbookPanel.find(".active").removeClass("active");
         // default select all workbooks and sort by name
         reverseLookup = {
             "name"    : false,
@@ -114,13 +102,13 @@ window.Workbook = (function($, Workbook) {
 
     function addWorkbookEvents() {
         // click cancel or close button
-        $workbookModal.on("click", ".close, .cancel", function(event) {
+        $workbookPanel.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
             closeWorkbook();
         });
 
         // click confirm button
-        $workbookModal.on("click", ".confirm", function(event) {
+        $workbookPanel.on("click", ".confirm", function(event) {
             $(this).blur();
             event.stopPropagation();
             submitForm();
@@ -176,7 +164,7 @@ window.Workbook = (function($, Workbook) {
                 if (modalHelper.checkBtnFocus()) {
                     break;
                 }
-                $workbookModal.find(".confirm").click();
+                $workbookPanel.find(".confirm").click();
                 break;
             default:
                 break;
@@ -184,7 +172,7 @@ window.Workbook = (function($, Workbook) {
     }
 
     function getWorkbookInfo(isForceMode) {
-        var $instr = $workbookModal.find(".modalInstruction .text");
+        var $instr = $workbookPanel.find(".modalInstruction .text");
         var user = Support.getUser();
         var html;
 
@@ -222,13 +210,13 @@ window.Workbook = (function($, Workbook) {
     function switchAction(no) {
         xcHelper.assert((no >= 0 && no <= 3), "Invalid action");
 
-        var $inputSection = $workbookModal.find(".inputSection");
-        var $mainSection = $workbookModal.find(".modalMain");
+        var $inputSection = $workbookPanel.find(".inputSection");
+        var $mainSection = $workbookPanel.find(".modalMain");
 
         activeActionNo = no;
 
         $workbookLists.find(".active").removeClass("active");
-        $workbookModal.removeClass("no-0")
+        $workbookPanel.removeClass("no-0")
                     .removeClass("no-1")
                     .removeClass("no-2")
                     .removeClass("no-3")
@@ -240,7 +228,7 @@ window.Workbook = (function($, Workbook) {
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled"); // for tab key switch
                 $mainSection.addClass("unavailable");
-                $workbookModal.find(".modalBottom .confirm")
+                $workbookPanel.find(".modalBottom .confirm")
                             .text(CommonTxtTstr.Create.toUpperCase());
                 break;
             // continue workbook
@@ -248,7 +236,7 @@ window.Workbook = (function($, Workbook) {
                 $inputSection.addClass("unavailable");
                 $workbookInput.attr("disabled", "disabled");
                 $mainSection.removeClass("unavailable");
-                $workbookModal.find(".modalBottom .confirm")
+                $workbookPanel.find(".modalBottom .confirm")
                             .text(CommonTxtTstr.Continue.toUpperCase());
                 break;
             // copy workbook
@@ -256,7 +244,7 @@ window.Workbook = (function($, Workbook) {
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled");
                 $mainSection.removeClass("unavailable");
-                $workbookModal.find(".modalBottom .confirm")
+                $workbookPanel.find(".modalBottom .confirm")
                             .text(CommonTxtTstr.Copy.toUpperCase());
                 break;
             // rename workbook
@@ -264,7 +252,7 @@ window.Workbook = (function($, Workbook) {
                 $inputSection.removeClass("unavailable");
                 $workbookInput.removeAttr("disabled"); // for tab key switch
                 $mainSection.removeClass("unavailable");
-                $workbookModal.find(".modalBottom .confirm")
+                $workbookPanel.find(".modalBottom .confirm")
                             .text(CommonTxtTstr.Rename.toUpperCase());
             default:
                 break;
@@ -406,7 +394,7 @@ window.Workbook = (function($, Workbook) {
             workbookAction(activeActionNo, workbookName)
             .then(innerDeferred.resolve)
             .fail(function(error) {
-                if ($workbookModal.is(":visible")) {
+                if ($workbookPanel.is(":visible")) {
                     // if error is commit key not match,
                     // then not show it
                     StatusBox.show(error.error, $workbookInput);
@@ -505,12 +493,12 @@ window.Workbook = (function($, Workbook) {
     }
 
     function goWaiting(hasIcon) {
-        $workbookModal.addClass('inactive');
+        $workbookPanel.addClass('inactive');
 
         if (hasIcon) {
-            $('body').append('<div id="workbookModalWaitingIcon" ' +
+            $('body').append('<div id="workbookPanelWaitingIcon" ' +
                             'class="waitingIcon"></div>');
-            $('#workbookModalWaitingIcon').css({
+            $('#workbookPanelWaitingIcon').css({
                 left: '50%',
                 top : '50%'
             }).fadeIn();
@@ -518,8 +506,8 @@ window.Workbook = (function($, Workbook) {
     }
 
     function cancelWaiting() {
-        $workbookModal.removeClass('inactive');
-        $("#workbookModalWaitingIcon").remove();
+        $workbookPanel.removeClass('inactive');
+        $("#workbookPanelWaitingIcon").remove();
     }
 
     return (Workbook);
