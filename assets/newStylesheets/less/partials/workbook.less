@@ -1,6 +1,7 @@
 #workbookPanel {
-	.mainContent {
+	> .mainContent {
 		overflow: auto;
+		min-width: 1200px;
 	}
 	.flexSection {
 		.flex-display;
@@ -10,14 +11,79 @@
 
 	.box {
 		background-color: @color-white;
-		border: 1px solid black;
-		margin-right: 5px;
+		margin-right: 10px;
 		margin-bottom: 10px;
-	}
-	.box-small {
-		.size(330px, 200px);
+		box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+		.flex-display;
+
+		p, div {
+			font-size: 13px;
+		}
+
+		.leftBar {
+			height: 100%;
+			.flex(1 1 50px);
+		}
+
+		.content {
+			margin: 10px;
+		}
+
+		.heading, .subHeading {
+			color: @color-font-select-blue;
+			font-weight: 500;
+		}
+
+		.heading {
+			font-size: 32px;
+		}
+		.subHeading {
+			font-size: 22px;
+			b {
+				font-weight: 600;
+			}
+		}
 	}
 	.box-large {
-		.size(445px, 300px);
+		.size(350px, 240px);
+		.flex(1 0 350px);
+
+		.leftBar {
+			background-color: @color-bg-wkbk-blue;
+		}
+
+		.content {
+			width: 300px;
+		}
+	}
+
+	.box-small {
+		.size(250px, 180px);
+		.flex(1 0 250px);
+
+		&.dummyBox {
+			visibility: hidden;
+			height: 0px;
+			margin-bottom: 0px;
+		}
+
+		.content {
+			width: 200px;
+
+			.input-box(@w:100%, @h: 30px);
+			input {
+				margin-top: 10px;
+				margin-bottom: 10px;
+			}
+			.btn {
+				margin-bottom: 10px;
+			}
+		}
+	}
+
+	.newWorkboxBox {
+		.leftBar {
+			background-color: @color-bg-newWB-orange;
+		}
 	}
 }
