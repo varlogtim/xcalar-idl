@@ -222,6 +222,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $("#container").removeClass("columnPicker extState");
         $(".xcTable").off("click.columnPicker")
                     .closest(".xcTableWrap").removeClass("columnPicker");
+
+        $('.xcTheadWrap').off("click.columnPicker");
     };
 
     ExtensionManager.trigger = function(tableId, modName, funcName, argList) {
@@ -809,6 +811,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return;
             }
             xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
+        });
+
+        $(".xcTheadWrap").on("click.columnPicker", function(event) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            var $target = $(event.target).closest('.xcTheadWrap');
+            xcHelper.fillInputFromCell($target, $lastInputFocused, "", "table")
         });
     }
 

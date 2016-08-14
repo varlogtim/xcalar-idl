@@ -25,17 +25,17 @@ window.UExtDev = (function(UExtDev) {
         "fnName"       : "estimateJoin",
         "arrayOfFields": [
         {
-            "type"      : "string",
+            "type"      : "column",
             "name"      : "Left Column",
             "fieldClass": "lCol",
         },
         {
-            "type"      : "string",
+            "type"      : "column",
             "name"      : "Right Full Tablename",
             "fieldClass": "rTable"
         },
         {
-            "type"      : "string",
+            "type"      : "column",
             "name"      : "Right Column",
             "fieldClass": "rCol"
         },
