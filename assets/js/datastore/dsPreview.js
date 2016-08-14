@@ -1112,12 +1112,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // line delimiter
         var lineDelim = getLineDelim();
-        var data = [];
-        if (lineDelim === "") {
-            data.push(rawData);
-        } else {
-            data = rawData.split(lineDelim);
-        }
+        var data = lineSplitHelper(rawData, lineDelim);
 
         for (var i = 0, len = data.length; i < len; i++) {
             data[i] = data[i].split("");
@@ -1565,6 +1560,62 @@ window.DSPreview = (function($, DSPreview) {
         tbody += "</tbody>";
 
         return (tbody);
+    }
+
+    function lineSplitHelper(data, delim) {
+        // XXX this O^2 plus the fieldDelim O^2 may be too slow
+        // may need a better way to do it
+        var dels = delim.split("");
+        var delLen = dels.length;
+        if (delLen === 0) {
+            return [data];
+        }
+
+        var hasQuote = false;
+        var hasBackSlash = false;
+        var quote = getQuote();
+        var dataLen = data.length
+        var res = [];
+        var i = 0;
+        var startIndex = 0;
+        while (i < dataLen) {
+            var c = data.charAt(i);
+            var isDelimiter = false;
+
+            if (!hasBackSlash && !hasQuote && c === dels[0]) {
+                isDelimiter = true;
+
+                for (var j = 1; j < delLen; j++) {
+                    if (i + j >= dataLen || data.charAt(i + j) !== dels[j]) {
+                        isDelimiter = false;
+                        break;
+                    }
+                }
+            }
+
+            if (isDelimiter) {
+                res.push(data.substring(startIndex, i));
+                i = i + delLen;
+                startIndex = i;
+            } else {
+                if (hasBackSlash) {
+                    // when previous char is \. espace this one
+                    hasBackSlash = false;
+                } else if (c === '\\') {
+                    hasBackSlash = true;
+                } else if (c === quote) {
+                    // toggle escape of quote
+                    hasQuote = !hasQuote;
+                }
+                i++;
+            }
+        }
+
+        if (i === dataLen && startIndex !== dataLen) {
+            res.push(data.substring(startIndex, dataLen));
+        }
+
+        return res;
     }
 
     function parseTdHelper(data, strToDelimit, isTh) {
