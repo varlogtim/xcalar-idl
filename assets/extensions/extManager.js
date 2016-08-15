@@ -442,7 +442,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             if (!$("#workspacePanel").hasClass("active")) {
                 // need to switch to worspace tab if not
-                $("#workspaceTab").click();
+                // if has .maninMenuOpen, it will close bottom menu
+                $("#workspaceTab").removeClass(".mainMenuOpen").click();
             }
 
             var fnName = $func.data("name");
@@ -864,7 +865,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return;
             }
             var $target = $(event.target).closest('.xcTheadWrap');
-            xcHelper.fillInputFromCell($target, $lastInputFocused, "", "table")
+            xcHelper.fillInputFromCell($target, $lastInputFocused, "", "table");
         });
     }
 
