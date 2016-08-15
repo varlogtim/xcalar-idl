@@ -2,11 +2,21 @@
 	> .mainContent {
 		overflow: auto;
 		min-width: 1200px;
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 0px;
 	}
 	.flexSection {
 		.flex-display;
 		.flex-flow(row wrap);
 		.justify-content(flex-start);
+		padding: 5px;
+	}
+
+	.topSection {
+		box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.4);
+		padding-bottom: 5px;
+		margin-bottom: 10px;
 	}
 
 	.box {
@@ -20,13 +30,16 @@
 			font-size: 13px;
 		}
 
-		.leftBar {
+		.vertBar {
 			height: 100%;
-			.flex(1 1 50px);
+			width: 70px;
+			
 		}
 
 		.content {
-			margin: 10px;
+			margin: 5px 10px 10px;
+			.flex-display;
+			.justify-content(center);
 		}
 
 		.heading, .subHeading {
@@ -53,6 +66,10 @@
 		}
 
 		.content {
+			.flex(1 0 300px);
+		}
+
+		.innerContent {
 			width: 300px;
 		}
 	}
@@ -68,22 +85,184 @@
 		}
 
 		.content {
-			width: 200px;
+			.flex(1 0 200px);
+		}
 
-			.input-box(@w:100%, @h: 30px);
-			input {
-				margin-top: 10px;
-				margin-bottom: 10px;
-			}
-			.btn {
-				margin-bottom: 10px;
-			}
+		.innerContent {
+			width: 200px;
+			
+		}
+
+		.input-box(@w:100%, @h:30px);
+		input {
+			margin-top: 10px;
+			margin-bottom: 15px;
+		}
+
+		.subHeading {
+			margin-bottom: 5px;
 		}
 	}
 
-	.newWorkboxBox {
+	.newsBox {
+		.section {
+			margin-bottom: 10px;
+			&:first-child {
+				border-bottom: 1px solid d@color-border-white-five;
+			}
+		}
+		.description {
+			margin-top: 10px;
+		}
+	}
+
+	.tutBox {
+
+	  	.helpText {
+	  		color: @color-font-select-blue;
+	  		margin-top: 4px;
+	  	}
+
+	  	.tutBlock {
+	  		.size(~"calc(100% - 5px)", 45px);
+	  		line-height: 45px;
+	  		border: 1px solid @color-border-white-five;
+	  		margin-top: 10px;
+	  		margin-left: 5px;
+
+	  		&:first-child {
+	  			margin-top: 14px;
+	  		}
+	  	}
+	  	.tutBtn {
+	  		float: left;
+	  		.size(45px, 100%);
+	  		background-color: @color-bg-white-five;
+	  		text-align: center;
+	  		.icon {
+	  			color: @color-black;
+	  			font-size: 24px;
+	  			line-height: 45px;
+	  		}
+	  	}
+	  	.tutText {
+	  		float: left;
+	  		.size(~"calc(100% - 45px)", 100%);
+	  		padding-left: 10px;
+	  		padding-right: 10px;
+	  	}
+	}
+
+	.newWorkbookBox {
 		.leftBar {
 			background-color: @color-bg-newWB-orange;
 		}
+	}
+
+	.workbookBox {
+		@tabHeight: 45px;
+
+		.topInfo {
+			border-bottom: 1px solid @color-border-pinkish-grey2;
+			padding-bottom: 10px;
+			margin-bottom: 10px;
+		}
+
+		.row {
+			margin-top: 5px;
+		}
+
+		.label {
+			width: 100px;
+			display: inline-block;
+			float: left;
+		}
+		.info {
+			width: ~"calc(100% - 100px)";
+			display: inline-block;
+			float: left;
+			color: @color-font-wkbkInfo-blue;
+			.textOverflowOneLine;
+		}
+
+		// <div class="infoSection topInfo">
+	 //  						<div class="row">
+	 //  							<div class="label">Created by:</div>
+	 //  							<div class="info">Rudy Gagneron</div>
+	 //  						</div>
+	  						
+	 //  					</div>
+
+		.rightBar {
+			background-color: @color-bg-white-three;
+			overflow: hidden;
+			width: @tabHeight;
+			.tab {
+				background-color: @color-bg-select-blue;
+				.size(100%, 25%);
+				border-top: 1px solid @color-bg-dusk-blue;
+				display: block;
+
+				.transform(translateX(100%));
+				.transition(0.2s transform);
+
+				&:hover {
+					.icon {
+						opacity: @opacity-hover;
+					}
+				}
+
+				&:nth-child(1) {
+					transition-delay: 0.31s;
+					border-top-width: 0px;
+				}
+
+				&:nth-child(2) {
+					transition-delay: 0.21s;
+				}
+
+				&:nth-child(3) {
+					transition-delay: 0.11s;
+				}
+
+				&:nth-child(3) {
+					transition-delay: 0.01s;
+				}
+			}
+
+			
+
+			.icon {
+				line-height: @tabHeight;
+				opacity: @opacity-unhover;
+
+				&.xi-edit, &.xi-duplicate, &.xi-trash {
+					font-size: 16px;
+				}
+				&.xi-duplicate {
+					font-size: 18px;
+				}
+			}
+		}
+
+		&:hover {
+			.tab {
+				transform: translateY(0%);
+				&:nth-child(1) {
+					transition-delay: 0.01s;
+				}
+				&:nth-child(2) {
+					transition-delay: 0.11s;
+				}
+				&:nth-child(3) {
+					transition-delay: 0.21s;
+				}
+				&:nth-child(4) {
+					transition-delay: 0.31s;
+				}
+			}
+		}
+
+
 	}
 }
