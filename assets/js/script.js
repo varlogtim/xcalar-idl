@@ -130,7 +130,7 @@ window.StartManager = (function(StartManager, $) {
             setupStatus = SetupStatus.Fail;
             if (error === WKBKTStr.NoWkbk){
                 // when it's new workbook
-                $('#initialLoadScreen').remove();
+                $('#initialLoadScreen').hide();
                 Workbook.forceShow();
                 var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
                 StatusMessage.updateLocation(true, text);
@@ -186,11 +186,11 @@ window.StartManager = (function(StartManager, $) {
 
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {
-                    $("#initialLoadScreen").remove();
+                    $("#initialLoadScreen").hide();
                     RowScroller.genFirstVisibleRowNum();
                 });
             } else {
-                $("#initialLoadScreen").remove();
+                $("#initialLoadScreen").hide();
                 RowScroller.genFirstVisibleRowNum();
             }
         });

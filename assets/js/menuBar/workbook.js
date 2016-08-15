@@ -6,16 +6,16 @@ window.Workbook = (function($, Workbook) {
     var $newWorkbookInput; // $newWorkbookCard.find("input")
     var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
     var sortkey = "modified"; // No longer user configurable
+    var $lastFocusedInput; // Should always get reset to empty
 
     Workbook.setup = function() {
-        console.log('setting up');
         $workbookPanel = $("#workbookPanel");
         $workbookTopbar = $workbookPanel.find(".topSection");
         $workbookSection = $workbookPanel.find(".bottomSection");
         $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
         $newWorkbookInput = $newWorkbookCard.find("input");
         $welcomeCard = $workbookTopbar.find(".welcomeBox");
-        addTopBarEvents();
+        addTopbarEvents();
         addWorkbookEvents();
         // open workbook modal
         $("#homeBtn").click(function() {
@@ -39,7 +39,7 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.show = function(isForceShow) {
-        // $(document).on("keypress", workbookKeyPress);
+        $(document).on("keypress", workbookKeyPress);
         $workbookPanel.show();
         setTimeout(function() {
             $workbookPanel.removeClass('hidden');
@@ -50,15 +50,20 @@ window.Workbook = (function($, Workbook) {
         }
 
         addWorkbooks();
-        $('#menuBar').addClass('workbookMode');
+        // JJJ Temp $('#menuBar').addClass('workbookMode');
     };
 
-    Workbook.hide = function() {
+    Workbook.hide = function(immediate) {
         $workbookPanel.addClass('hidden');
-        $('#menuBar').addClass('workbookMode');
-        setTimeout(function() {
+        $workbookSection.find('.workbookBox').remove();
+        // JJJ $('#menuBar').addClass('workbookMode');
+        if (immediate) {
             $workbookPanel.hide();
-        }, 600);
+        } else {
+            setTimeout(function() {
+                $workbookPanel.hide();
+            }, 600);
+        }
     };
 
     Workbook.forceShow = function() {
@@ -75,6 +80,8 @@ window.Workbook = (function($, Workbook) {
     function resetWorkbook() {
         // $workbookPanel.find(".active").removeClass("active");
         $newWorkbookInput.val("").focus();
+        $lastFocusedInput = "";
+        // JJJ also remove all the actives from all theworkbookBoxes
     }
 
     function closeWorkbookPanel() {
@@ -82,7 +89,7 @@ window.Workbook = (function($, Workbook) {
         resetWorkbook();
     }
 
-    function addTopBarEvents() {
+    function addTopbarEvents() {
         // Events for the top bar, welcome message, news, etc
         // Welcome message listener
         // News-Help listener
@@ -92,81 +99,59 @@ window.Workbook = (function($, Workbook) {
 
     function addWorkbookEvents() {
         // New Workbook card
-        $newWorkbookCard.on("click", "button", function() {
-            var workbookName = $newWorkbookInput.val();
-            var err1 = xcHelper.replaceMsg(WKBKTStr.Conflict, {
-                "name": workbookName
-            });
-
-            isValid = xcHelper.validate([
-                {
-                    "$selector": $newWorkbookInput,
-                    "formMode" : true
-                },
-                {
-                    "$selector": $newWorkbookInput,
-                    "formMode" : true,
-                    "text"     : err1,
-                    "check"    : function() {
-                        var workbooks = WorkbookManager.getWorkbooks();
-                        for (var wkbkId in workbooks) {
-                            if (workbooks[wkbkId].name === workbookName) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                }
-            ]);
-
-            if (!isValid) {
-                return;
-            }
-
-            createNewWorkbook(workbookName)
-            .then(function(id) {
-                var workbook = WorkbookManager.getWorkbook(id);
-                var numWorksheets = -1; // JJJ fill in later
-
-                var html = createWorkbookCard(id, workbookName,
-                                              workbook.created,
-                                              workbook.modified,
-                                              workbook.srcUser,
-                                              numWorksheets,
-                                              false, "", true);
-                $newWorkbookCard.after(html);
-
-                // need to remove "new" class from workbookcard a split second
-                // after it's appended or it won't animate
-                setTimeout(function() {
-                    $newWorkbookCard.next().removeClass('new');
-                }, 200);
-                
-            })
-            .fail(function() {
-                // JJJ handle. Just deferred reject and let the outer catch
-                // and show new workbook
-
-            });
-
-        });
+        $newWorkbookCard.on("click", "button", createNewWorkbookListener);
 
         $newWorkbookInput.on("focus", function() {
             // Close the rest of the inputs (currently only from renaming of
             // another workbook)
-            console.log("focus");
+            $lastFocusedInput = $(this);
         });
 
+        $workbookSection.on("focus", ".workbookBox input", function() {
+            $lastFocusedInput = $(this);
+        });
     
         // Events for the actual workbooks
         // Play button
+        $workbookSection.on("click", ".activate", function() {
+            var $workbookBox = $(this).closest(".workbookBox");
+            var workbookId = $workbookBox.data("workbook-id");
+            if (WorkbookManager.getActiveWKBK() === workbookId) {
+                Workbook.hide();
+            } else {
+                WorkbookManager.switchWKBK(workbookId);
+            }
+        });
 
         // Edit button
         // JJJ When editing, remove focus from all other inputs (other card's
         // edits + new workbook) by cancelling
-        // Duplicate button
-        // Delete button
+        $workbookSection.on("click", ".modify", function() {
+            var $workbookBox = $(this).closest(".workbookBox");
+            var $workbookName = $workbookBox.find("input");
+            $workbookName.addClass("active");
+            $lastFocusedInput = $workbookName;
+        });
 
+        // Duplicate button
+        $workbookSection.on("click", ".duplicate", function() {
+            var $workbookBox = $(this).closest(".workbookBox");
+            var workbookId = $workbookBox.data("workbook-id");
+            console.log("XXX TODO!");
+        });
+
+        // Delete button
+        $workbookSection.on("click", ".delete", function() {
+            var $workbookBox = $(this).closest(".workbookBox");
+            var workbookId = $workbookBox.data("workbook-id");
+            WorkbookManager.deleteWKBK(workbookId)
+            .then(function() {
+                $workbookBox.remove();
+            })
+            .fail(function(error) {
+                StatusBox.show(error.error, $workbookBox);
+            });
+        });
     }
 
     function workbookKeyPress(event) {
@@ -175,15 +160,40 @@ window.Workbook = (function($, Workbook) {
                 // Invariant: Due to activating one input field will cause the
                 // others to close, there will be only one active input field
                 // at any point in time.
-                if ($newWorkbookInput.is(":focus")) {
-                    // create new workbook
-                    $newWorkbookCard.click();
-                } else if ($workBookSection.find(".workbookCard").is(":focus"))
-                {
-                    // edit name for current workbook
-                } 
-                // If focus on new workbook's input create new workbook
-                // If focus on edit workbook's input, confirm new workbook name
+                if ($lastFocusedInput) {
+                    if ($lastFocusedInput.closest(".newWorkbookBox").length > 0)
+                    {
+                        // New workbook
+                        $newWorkbookCard.find("button").click();
+                        
+                    } else if ($lastFocusedInput.closest(".duplicate")
+                                                .length > 0) {
+                        // Creating a duplicate
+                        // JJJ todo
+                    } else {
+                        // Must be editting a current name
+                        var $workbookBox = $lastFocusedInput.
+                                                        closest(".workbookBox");
+                        var workbookId = $workbookBox.data('workbook-id'); 
+                        var oldWorkbookName = WorkbookManager
+                                                       .getWorkbook(workbookId)
+                                                       .name;
+                        WorkbookManager.renameWKBK(workbookId,
+                                                   $lastFocusedInput.val())
+                        .then(function(newWorkbookId) {
+                            $workbookBox.attr('data-workbook-id',
+                                               newWorkbookId);
+                        })
+                        .fail(function(error) {
+                            StatusBox.show(error.error, $workbookBox);
+                            $workbookBox.find(".subHeading input")
+                                        .val(oldWorkbookName);
+                        });
+                        $workbookBox.find(".subHeading input")
+                                    .removeClass("active");
+                    }
+                    $lastFocusedInput = "";
+                }
                 break;
             default:
                 break;
@@ -191,7 +201,6 @@ window.Workbook = (function($, Workbook) {
     }
 
     function getWorkbookInfo(isForceMode) {
-        console.log($welcomeCard);
         var $welcomeMsg = $welcomeCard.find(".description");
         var $welcomeUser = $welcomeCard.find(".heading .username");
         var user = Support.getUser();
@@ -221,76 +230,151 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
+    function createNewWorkbookListener() {
+        var workbookName = $newWorkbookInput.val();
+        var err1 = xcHelper.replaceMsg(WKBKTStr.Conflict, {
+            "name": workbookName
+        });
+
+        isValid = xcHelper.validate([
+            {
+                "$selector": $newWorkbookInput,
+                "formMode" : true
+            },
+            {
+                "$selector": $newWorkbookInput,
+                "formMode" : true,
+                "text"     : err1,
+                "check"    : function() {
+                    var workbooks = WorkbookManager.getWorkbooks();
+                    for (var wkbkId in workbooks) {
+                        if (workbooks[wkbkId].name === workbookName) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return;
+        }
+
+        // JJJ Need to commit check first
+        // Support.commitCheck()
+        // .then(function() {
+        //     var innerDeferred = jQuery.Deferred();
+        //     workbookAction(activeActionNo, workbookName)
+        //     .then(innerDeferred.resolve)
+        //     .fail(function(error) {
+        //         if ($workbookPanel.is(":visible")) {
+        //             // if error is commit key not match,
+        //             // then not show it
+        //             StatusBox.show(error.error, $workbookInput);
+        //         }
+        //         innerDeferred.reject(error);
+        //     });
+
+        createNewWorkbook(workbookName)
+        .then(function(id) {
+            var workbook = WorkbookManager.getWorkbook(id);
+            var numWorksheets = -1; // JJJ fill in later
+
+            var html = createWorkbookCard(id, workbookName,
+                                          workbook.created,
+                                          workbook.modified,
+                                          workbook.srcUser,
+                                          numWorksheets,
+                                          ["new"]);
+            $newWorkbookCard.after(html);
+
+            // need to remove "new" class from workbookcard a split second
+            // after it's appended or it won't animate
+            setTimeout(function() {
+                $newWorkbookCard.next().removeClass('new');
+                $newWorkbookInput.val("");
+                $lastFocusedInput = "";
+            }, 200);         
+        })
+        .fail(function(error) {
+            StatusBox.show(error, $newWorkbookInput);
+        });
+    }
+
     function createWorkbookCard(workbookId, workbookName, createdTime,
                                 modifiedTime, username, numWorksheets,
-                                isActive, gridClass, isNew) {
+                                extraClasses) {
         if (createdTime) {
-            createdTime = xcHelper.getTime(null, createdTime) + ' ' +
-                          xcHelper.getDate("-", null, createdTime);
+            createdTime = xcHelper.getDate("-", null, createdTime) + ' ' +
+                          xcHelper.getTime(null, createdTime);
         }
 
         if (modifiedTime) {
-            modifiedTime = xcHelper.getTime(null, modifiedTime) + ' ' +
-                           xcHelper.getDate("-", null, modifiedTime);
+            modifiedTime = xcHelper.getDate("-", null, modifiedTime) + ' ' +
+                           xcHelper.getTime(null, modifiedTime);
         }
 
-        if (isActive) {
+        if (extraClasses.indexOf("active") > -1) {
             isActive = "Active";
         } else {
             isActive = "Inactive";
         }
 
-        var isNewClass;
-        if (isNew) {
-            isNewClass = " new";
-        } else {
-            isNewClass = "";
-        }
 
-        return '<div class="box box-small workbookBox ' + isNewClass + '">' +
+        return '<div class="box box-small workbookBox ' +
+                    extraClasses.join(" ") + '" data-workbook-id="' +
+                    workbookId +'">' +
                     '<div class="innerBox">' +
                         '<div class="content">' +
                             '<div class="innerContent">' +
                                 '<div class="subHeading">' +
-                                    '<input type="text" value="' + workbookName + '" />' +
+                                    '<input type="text" value="' +
+                                    workbookName + '" />' +
                                 '</div>' +
                                 '<div class="infoSection topInfo">' +
                                     '<div class="row clearfix">' +
                                         '<div class="label">Created by:</div>' +
-                                        '<div class="info">' + username + '</div>' +
+                                        '<div class="info">' + username +
+                                        '</div>' +
                                     '</div>'+
                                     '<div class="row clearfix">'+
                                         '<div class="label">Created on:</div>'+
-                                        '<div class="info">' + createdTime +'</div>'+
+                                        '<div class="info">' + createdTime +
+                                        '</div>'+
                                     '</div>'+
                                     '<div class="row clearfix">'+
-                                        '<div class="label">Last Modified:</div>'+
-                                        '<div class="info">' + modifiedTime + '</div>'+
+                                        '<div class="label">Last Modified:' +
+                                        '</div>'+
+                                        '<div class="info">' + modifiedTime +
+                                        '</div>'+
                                     '</div>'+
                                 '</div>'+
                                 '<div class="infoSection bottomInfo">'+
                                     '<div class="row clearfix">'+
-                                        '<div class="label">Worksheets:</div>'+
-                                        '<div class="info">' + numWorksheets + '</div>'+
+                                        '<div class="label">Worksheets:</div>' +
+                                        '<div class="info">' + numWorksheets +
+                                        '</div>'+
                                     '</div>'+
                                     '<div class="row clearfix">'+
                                         '<div class="label">Status:</div>'+
-                                        '<div class="info">' + isActive + '</div>'+
+                                        '<div class="info">' + isActive +
+                                        '</div>'+
                                     '</div>'+
                                 '</div>'+
                             '</div>'+
                         '</div>'+
                         '<div class="rightBar vertBar">'+
-                            '<div class="tab btn btn-small">'+
+                            '<div class="tab btn btn-small activate">'+
                                 '<i class="icon xi-play-circle"></i>'+
                             '</div>'+
-                            '<div class="tab btn btn-small">'+
+                            '<div class="tab btn btn-small modify">'+
                                 '<i class="icon xi-edit"></i>'+
                             '</div>'+
-                            '<div class="tab btn btn-small">'+
+                            '<div class="tab btn btn-small duplicate">'+
                                 '<i class="icon xi-duplicate"></i>'+
                             '</div>'+
-                            '<div class="tab btn btn-small">'+
+                            '<div class="tab btn btn-small delete">'+
                                 '<i class="icon xi-trash"></i>'+
                             '</div>'+
                         '</div>'+
@@ -315,139 +399,49 @@ window.Workbook = (function($, Workbook) {
             var wkbkId    = workbook.id;
             var created   = workbook.created;
             var modified  = workbook.modified;
-            var gridClass = "grid-unit";
+            var extraClasses = [];
             var name = workbook.name;
             var isActive = false;
 
             if (wkbkId === activeWKBKId) {
                 isActive = true;
-                gridClass += " activeWKBK";
+                extraClasses.push("active");
             }
 
             if (workbook.noMeta) {
-                gridClass += " noMeta";
+                extraClasses.push("noMeta");
                 name += " (" + WKBKTStr.NoMeta + ")";
             }
 
             var createdTime = "";
             if (created) {
-                createdTime = xcHelper.getTime(null, created) + ' ' +
-                                xcHelper.getDate("-", null, created);
+                createdTime = xcHelper.getDate("-", null, created) + ' ' +
+                              xcHelper.getTime(null, created);
             }
 
             var modifiedTime = "";
             if (modified) {
-                modifiedTime = xcHelper.getTime(null, modified) + ' ' +
-                                xcHelper.getDate("-", null, modified);
+                modifiedTime = xcHelper.getDate("-", null, modified) + ' ' +
+                               xcHelper.getTime(null, modified);
+                                
             }
 
+            // JJJ Handle this later
             var numWorksheets = "";
-            numWorksheets = 
-            html += createWorkbookCard(wkbkId, name, createdTime, modifiedTime,
-                                      workbook.srcUser, numWorksheets, isActive,
-                                      gridClass);
+            numWorksheets = -1;
+
+            html = createWorkbookCard(wkbkId, name, createdTime, modifiedTime,
+                                       workbook.srcUser, numWorksheets,
+                                       extraClasses) + html;
 
         });
 
-        // JJJ Commented out since no longer necessary
+        // JJJ Handle it later
         // if (!sorted.length) {
-        //     var text = WKBKTStr.WKBKnotExists;
-        //     $optionSection.find('.radioButton').not(':first-child')
-        //                                     .addClass('disabled')
-        //                                     .attr("data-toggle", "tooltip")
-        //                                     .attr("data-original-title", text)
-        //                                     .attr("data-container", "body")
-        //                                     .attr("title", text);
-        // } else {
-        //     $optionSection.find('.radioButton').removeClass('disabled')
-        //                                 .removeAttr("data-toggle")
-        //                                 .removeAttr("data-placement")
-        //                                 .removeAttr("data-original-title")
-        //                                 .removeAttr("data-container")
-        //                                 .removeAttr("title");
+        //  Basically no workbooks nothing. New user? No kv?
         // }
 
-        // JJJ This should become something like $workbookSection.html(html);
-        //$workbookSection.html(html);
-    }
-
-    function submitForm() {
-        var isValid;
-        var workbookName = $workbookInput.val().trim();
-
-        // Validation check
-        // continue workbook, copy workbook and rename workbook must select one wkbk
-        if (activeActionNo === 1 ||
-            activeActionNo === 2 ||
-            activeActionNo === 3)
-        {
-            isValid = xcHelper.validate({
-                "$selector": $workbookLists,
-                "text"     : ErrTStr.NoWKBKSelect,
-                "check"    : function() {
-                    return ($workbookLists.find(".active").length === 0);
-                }
-            });
-
-            if (!isValid) {
-                return;
-            }
-        }
-
-        // new workbook and copy workbook must have new workbook name
-        // and should not have duplicate name
-        if (activeActionNo !== 1) {
-            var err1 = xcHelper.replaceMsg(WKBKTStr.Conflict, {
-                "name": workbookName
-            });
-            isValid = xcHelper.validate([
-                {
-                    "$selector": $workbookInput,
-                    "formMode" : true
-                },
-                {
-                    "$selector": $workbookInput,
-                    "formMode" : true,
-                    "text"     : err1,
-                    "check"    : function() {
-                        var workbooks = WorkbookManager.getWorkbooks();
-                        for (var wkbkId in workbooks) {
-                            if (workbooks[wkbkId].name === workbookName) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                }
-            ]);
-
-            if (!isValid) {
-                return;
-            }
-        }
-
-        $workbookInput.blur();
-        modalHelper.disableSubmit();
-
-        Support.commitCheck()
-        .then(function() {
-            var innerDeferred = jQuery.Deferred();
-            workbookAction(activeActionNo, workbookName)
-            .then(innerDeferred.resolve)
-            .fail(function(error) {
-                if ($workbookPanel.is(":visible")) {
-                    // if error is commit key not match,
-                    // then not show it
-                    StatusBox.show(error.error, $workbookInput);
-                }
-                innerDeferred.reject(error);
-            });
-
-            return innerDeferred.promise();
-        })
-        .always(function() {
-            modalHelper.enableSubmit();
-        });
+        $newWorkbookCard.after(html);
     }
 
     function createNewWorkbook(workbookName) {
@@ -466,81 +460,6 @@ window.Workbook = (function($, Workbook) {
         return deferred.promise();
     }
 
-    function activateWorkbook(workbookName) {
-        var workbookId = WorkbookManager.getWorkbookIdByName;
-        return WorkbookManager.switchWKBK(workbookId)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            cancelWaiting();
-            deferred.reject(error);
-        });
-    }
-
-    function workbookAction(actionNo, workbookName) {
-        var deferred = jQuery.Deferred();
-        var workbookId = $workbookLists.find(".active").data("wkbkid");
-
-        if (actionNo === 0) {
-            // create new workbook part
-            goWaiting();
-
-            WorkbookManager.newWKBK(workbookName)
-            .then(function(id) {
-                return WorkbookManager.switchWKBK(id);
-            })
-            .then(deferred.resolve)
-            .fail(function(error) {
-                cancelWaiting();
-                deferred.reject(error);
-            })
-            .always(function() {
-                modalHelper.enableSubmit();
-            });
-        } else if (actionNo === 1) {
-            // continue workbook part
-            goWaiting();
-
-            WorkbookManager.switchWKBK(workbookId)
-            .then(deferred.resolve)
-            .fail(function(error) {
-                cancelWaiting();
-                deferred.reject(error);
-            });
-        } else if (actionNo === 2) {
-            // copy workbook part
-            goWaiting(true);
-
-            WorkbookManager.copyWKBK(workbookId, workbookName)
-            .then(function(id) {
-                return WorkbookManager.switchWKBK(id);
-            })
-            .then(deferred.resolve)
-            .fail(function(error) {
-                cancelWaiting();
-                deferred.reject(error);
-            });
-        } else if (actionNo === 3) {
-            goWaiting();
-            WorkbookManager.renameWKBK(workbookId, workbookName)
-            .then(function() {
-                $workbookInput.val("");
-                getWorkbookInfo();
-                addWorkbooks();
-                focusWorkbook(workbookName);
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                deferred.reject(error);
-            })
-            .always(cancelWaiting);
-        } else {
-            // code should not go here
-            deferred.reject({"error": "Invalid WorkBook Option!"});
-        }
-
-        return deferred.promise();
-    }
-
     function sortObj(objs, key, isNum) {
         if (isNum) {
             objs.sort(function(a, b) {
@@ -555,23 +474,6 @@ window.Workbook = (function($, Workbook) {
         return objs;
     }
 
-    function goWaiting(hasIcon) {
-        $workbookPanel.addClass('inactive');
-
-        if (hasIcon) {
-            $('body').append('<div id="workbookPanelWaitingIcon" ' +
-                            'class="waitingIcon"></div>');
-            $('#workbookPanelWaitingIcon').css({
-                left: '50%',
-                top : '50%'
-            }).fadeIn();
-        }
-    }
-
-    function cancelWaiting() {
-        $workbookPanel.removeClass('inactive');
-        $("#workbookPanelWaitingIcon").remove();
-    }
 
     return (Workbook);
 }(jQuery, {}));

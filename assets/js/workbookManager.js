@@ -21,7 +21,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         WorkbookManager.getWKBKsAsync()
         .then(syncSessionInfo)
-        .then(activeWKBk)
+        .then(activateWorkbook)
         .then(function(wkbkId) {
             activeWKBKId = wkbkId;
             // retive key from username and wkbkId
@@ -140,22 +140,23 @@ window.WorkbookManager = (function($, WorkbookManager) {
             deferred.resolve(wkbk.id);
         })
         .fail(function(error) {
-            console.error("Create workbook fails!", error);
+            console.error("Create workbook failed!", error);
             deferred.reject(error);
         });
 
         return deferred.promise();
     };
 
-    // swtich to another workbook
+    // switch to another workbook
     WorkbookManager.switchWKBK = function(wkbkId) {
         // validation
         if (wkbkId == null) {
-            return PromiseHelper.reject({"error": "Invalid wookbook Id!"});
+            return PromiseHelper.reject({"error": "Invalid workbook Id!"});
         }
 
         if (wkbkId === activeWKBKId) {
-            return PromiseHelper.reject({"error": "Switch to itself"});
+            return PromiseHelper.reject({"error": "Cannot switch to same " +
+                                                  "workbook"});
         }
 
         var deferred = jQuery.Deferred();
@@ -195,6 +196,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         Support.stopHeartbeatCheck();
 
         // to switch workbook, should release all ref count first
+
+        switchWorkbookAnimation();
+        $("#initialLoadScreen").show();
+
         freeAllResultSetsSync()
         .then(function() {
             return saveCurrentWKBK();
@@ -210,11 +215,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             removeUnloadPrompt();
+
             location.reload();
             deferred.resolve();
         })
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
+            $("#initialLoadScreen").hide();
             // restart if fails
             Support.heartbeatCheck();
             deferred.reject(error);
@@ -286,7 +293,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var srcWKBK = wkbkSet.get(srcWKBKId);
 
         // should follow theses order:
-        // 1. stop hear beat check (in case key is changed)
+        // 1. stop heart beat check (in case key is changed)
         // 2. copy meta to new wkbkb,
         // 3. rename wkbk
         // 4. delete meta in current wkbk
@@ -327,6 +334,47 @@ window.WorkbookManager = (function($, WorkbookManager) {
             if (isCurrentWKBK) {
                 return resetActiveWKBK(newWKBKId);
             }
+        })
+        .then(function() {
+            deferred.resolve(newWKBKId);
+        })
+        .fail(deferred.reject)
+        .always(Support.heartbeatCheck);
+
+        return deferred.promise();
+    };
+
+    WorkbookManager.deleteWKBK = function(workbookId) {
+        var deferred = jQuery.Deferred();
+        var isCurrentWKBK = (workbookId === activeWKBKId);
+        var workbook = wkbkSet.get(workbookId);
+
+        // 1. Stop heart beat check (Heartbeat key may change due to active
+        //                           worksheet changing)
+        // 2. Delete workbook form backend
+        // 2. Delete the meta data for the current workbook
+        // 3. Remove KV store key for active workbook if deleted workbook is
+        //    previously the active one
+        // 4. Restart heart beat check
+        Support.stopHeartbeatCheck();
+
+        XcalarDeleteWorkbook(workbook.name)
+        .then(function() {
+            var innerDeferred = jQuery.Deferred();
+            delWKBKHelper(workbookId)
+            .always(innerDeferred.resolve);
+            return innerDeferred.promise();
+        })
+        .then(function() {
+            if (isCurrentWKBK) {
+                return XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK);
+            } else {
+                PromiseHelper.resolve(null);
+            }
+        })
+        .then(function() {
+            wkbkSet.delete(workbook.id);
+            return KVStore.commit();
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -419,7 +467,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK)
             .then(function() {
                 if (loseOldMeta) {
-                    // when loose the whole oldWorkbooks, make active key to be null
+                    // If we fail to get our old meta data, set activeWorkbook
+                    // to null
                     return PromiseHelper.resolve(null);
                 } else {
                     return KVStore.get(activeWKBKKey, gKVScope.WKBK);
@@ -437,7 +486,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function activeWKBk(wkbkId, sessionInfo) {
+    function activateWorkbook(wkbkId, sessionInfo) {
         var deferred = jQuery.Deferred();
 
         try {
@@ -620,10 +669,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function switchWorkbookAnimation() {
-        // First hide all the main workspace stuff like tables and such
-        // Then show the goWaiting stuff
-        // Then animate the closing of the workbookBrowser
-        // Once we are done, we will refresh the page to the new workbook
+        Workbook.hide(true);
     }
 
     return (WorkbookManager);
