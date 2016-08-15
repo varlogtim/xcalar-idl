@@ -50,10 +50,12 @@ window.Workbook = (function($, Workbook) {
         }
 
         addWorkbooks();
+        $('#menuBar').addClass('workbookMode');
     };
 
     Workbook.hide = function() {
         $workbookPanel.addClass('hidden');
+        $('#menuBar').addClass('workbookMode');
         setTimeout(function() {
             $workbookPanel.hide();
         }, 600);

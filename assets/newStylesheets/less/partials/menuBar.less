@@ -59,6 +59,15 @@
     z-index: @z-index-menuBar;
     margin-right: @width-sideMenuMinimized;
     padding-top: @height-homeBtn;
+
+    &.workbookMode {
+        .topMenuBarTab, .bottomMenuBarTab {
+            display: none;
+        }
+        #monitorTab {
+            display: block;
+        }
+    }
 }
 
 

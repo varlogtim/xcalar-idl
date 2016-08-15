@@ -5,6 +5,10 @@
 		padding-left: 0px;
 		padding-right: 0px;
 		padding-top: 0px;
+		
+	}
+
+	.contentWrap {
 		.transition (0.5s transform ease-out);
     	transform-origin: top left;
 	}
@@ -17,8 +21,8 @@
 	}
 
 	&.hidden{
-		> .mainContent {
-			.transform(scale(0));
+		.contentWrap {
+			.transform(scale(0) translate3d(-20px, -20px, 0px));
 		}
 		#workbookTopBar {
 			.title {
@@ -162,6 +166,7 @@
 		hr {
 			position: absolute;
 			width: ~"calc(100% - 2px)";
+			left: 0px;
 			top: 50%;
 			border: 1px solid @color-border-white-five;
 			margin: 0px;
@@ -257,31 +262,57 @@
 		.noSelection;
 		cursor: default;
 
+
 		&.active {
-			background-color: @color-bg-activeWB-blue;
-			color: @color-white;
-			.subHeading, .info {
+			.innerBox {
+				background-color: @color-bg-activeWB-blue;
 				color: @color-white;
+				.subHeading input, .info {
+					color: @color-white;
+				}
+				input {
+					background-color: transparent;
+					border-color: transparent;
+				}
+			}
+		}
+
+		&.noMeta {
+			.subHeading {
+				input {
+					color: @color-font-greyish-brown;
+					opacity: 0.5;
+				}
+			}
+			.info {
+				color: @color-font-greyish-brown;
+				opacity: 0.5;
+			}
+		}
+
+		.content {
+			.flex(1 0 225px);
+			.innerContent {
+				width: 215px;
 			}
 		}
 
 		.subHeading {
-			.input-box(@w:~"calc(100% + 10px)", @h:30px);
+			.input-box(@w:100%, @h:30px);
 			input {
 				color: @color-font-select-blue;
 				font-size: 22px;
 				font-weight: 500;
 				background-color: white;
 				border-color: @color-white;
-				// border-width: 0px;
-				//
 				margin-top: -10px;
-				margin-left: -10px;
+				padding-left: 0px;
 				pointer-events: none;
 
 				&.active {
 					border-color: @color-border-white-five;
 					background-color: @color-bg-white-three;
+					color: @color-font-select-blue !important;
 					pointer-events: initial;
 
 					&:focus {
