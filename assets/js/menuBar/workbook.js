@@ -7,6 +7,8 @@ window.Workbook = (function($, Workbook) {
     var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
     var sortkey = "modified"; // No longer user configurable
     var $lastFocusedInput; // Should always get reset to empty
+    var wasMonitorActive = false; // track previous monitor panel state for when 
+                                  // workbook closes
 
     Workbook.setup = function() {
         $workbookPanel = $("#workbookPanel");
@@ -20,13 +22,16 @@ window.Workbook = (function($, Workbook) {
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
-            // if ($workbookPanel.is(":visible")) {
-            //     closeWorkbookPanel();
-            //     Workbook.hide();
-            // } else {
-            //     Workbook.show();
-            // }
-            if (!$workbookPanel.is(":visible")) {
+            if ($('#container').hasClass('workbookMode')) {
+                var hideImmediate = false;
+                if (!$workbookPanel.is(":visible")) {
+                   hideImmediate = true;
+                   // on monitor view or something else
+                }
+                closeWorkbookPanel();
+                Workbook.hide(hideImmediate);
+                $('#container').removeClass('monitorMode');
+            } else {
                 Workbook.show();
             }
         });    
@@ -44,11 +49,20 @@ window.Workbook = (function($, Workbook) {
     Workbook.show = function(isForceShow) {
         $(document).on("keypress", workbookKeyPress);
         $workbookPanel.show();
-        MainMenu.close(true, true);
-        MonitorPanel.inActive();
+        // MainMenu.close(true, true);
+        // MonitorPanel.inActive();
+        $('#container').addClass('workbookMode');
+
+        if (!MonitorPanel.isGraphActive()) {
+            wasMonitorActive = false;
+            MonitorPanel.active();
+        } else {
+            wasMonitorActive = true;
+        }
 
         setTimeout(function() {
             $workbookPanel.removeClass('hidden');
+
         }, 100);
         var extraOptions;
         if (isForceShow) {
@@ -62,13 +76,18 @@ window.Workbook = (function($, Workbook) {
     Workbook.hide = function(immediate) {
         $workbookPanel.addClass('hidden');
         $workbookSection.find('.workbookBox').remove();
-        // JJJ $('#menuBar').addClass('workbookMode');
+        
         if (immediate) {
             $workbookPanel.hide();
+            $('#container').removeClass('workbookMode');
         } else {
             setTimeout(function() {
                 $workbookPanel.hide();
+                $('#container').removeClass('workbookMode');
             }, 600);
+        }
+        if (!wasMonitorActive) {
+            MonitorPanel.inActive();
         }
     };
 
@@ -101,6 +120,25 @@ window.Workbook = (function($, Workbook) {
         // Welcome message listener
         // News-Help listener
         // Tutorial listener
+        // 
+
+        // go to monitor panel
+        $workbookTopbar.find('.monitorBtn, .monitorLink').click(function(e) {
+            e.preventDefault(); // prevent monitor link from actually navigating
+            $('#container').addClass('monitorMode');
+
+            $('#mainMenu').addClass('noAnim');
+            $('#container').addClass('noMenuAnim')
+            setTimeout(function() {
+                $('#mainMenu').removeClass('noAnim');
+                $('#container').removeClass('noMenuAnim');
+            }, 200);
+        });
+
+        // from monitor to workbook panel
+        $('#monitorPanel').find('.backToWB').click(function() {
+            $('#container').removeClass('monitorMode'); 
+        });
 
     }
 

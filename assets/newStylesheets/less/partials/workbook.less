@@ -1,17 +1,34 @@
 #workbookPanel {
+	z-index: @z-index-menuBar;
+	.position(absolute, @top: 0px);
+	.size(100%, 100%);
+	background-color: @color-bg-body-gray;
+	box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.3);
+	top: 50px;
+
+	> .topBar {
+		padding-left: 95px;
+		position: fixed;
+		top: 0px;
+	}
+
 	> .mainContent {
 		overflow: auto;
 		min-width: 1222px;
 		padding-left: 0px;
 		padding-right: 0px;
 		padding-top: 0px;
-		
-	}
+		margin-left: 0px !important; // override menuopen styling
+		width: 100% !important;
 
-	.contentWrap {
-		.transition (0.5s transform ease-out);
-    	transform-origin: top left;
 	}
+	// .transition(0.5s transform ease-out);
+
+	// .contentWrap {
+		// .transition (0.5s transform ease-out);
+		.transition (0.5s top ease-out);
+    	transform-origin: top left;
+	// }
 
 	#workbookTopBar {
 		.title {
@@ -21,9 +38,11 @@
 	}
 
 	&.hidden{
-		.contentWrap {
-			.transform(scale(0) translate3d(-20px, -20px, 0px));
-		}
+		// .contentWrap {
+			// .transform(scale(0) translate3d(-20px, -20px, 0px));
+			// .transform(translateY(-100%));
+			top: -100%;
+		// }
 		#workbookTopBar {
 			.title {
 				opacity: 0;
@@ -42,6 +61,12 @@
 		box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.4);
 		padding-bottom: 5px;
 		margin-bottom: 10px;
+		padding-top: 10px;
+		padding-left: 10px;
+	}
+
+	.bottomSection {
+		padding-left: 10px;
 	}
 
 	.box {
@@ -83,7 +108,7 @@
 		}
 	}
 	.box-large {
-		.size(350px, 240px);
+		.size(350px, 250px);
 		.flex(1 0 350px);
 		margin-right: 10px;
 		margin-bottom: 10px;
@@ -158,10 +183,14 @@
 		}
 	}
 
-	.newsBox {
+	.newsBox, .tutBox {
 		.content {
 			margin: 5px 0px 10px;
 			position: relative;
+		}
+		.section {
+			margin-bottom: 10px;
+			height: 50%;
 		}
 		hr {
 			position: absolute;
@@ -171,10 +200,10 @@
 			border: 1px solid @color-border-white-five;
 			margin: 0px;
 		}
-		.section {
-			margin-bottom: 10px;
-			height: 50%;
-		}
+	}
+
+	.newsBox {
+		
 		.description {
 			margin-top: 8px;
 			li {
@@ -194,10 +223,10 @@
 	}
 
 	.tutBox {
-
 	  	.helpText {
 	  		color: @color-font-select-blue;
-	  		margin-top: 4px;
+	  		margin-top: 2px;
+	  		margin-left: 5px;
 	  		a {
 	  			color: @color-font-select-blue;
 	  			text-decoration: none;
@@ -211,14 +240,10 @@
 	  		.size(~"calc(100% - 5px)", 45px);
 	  		line-height: 45px;
 	  		border: 1px solid @color-border-white-five;
-	  		margin-top: 10px;
+	  		margin-top: 6px;
 	  		margin-left: 5px;
 	  		.noSelection;
 	  		cursor: pointer;
-
-	  		&:first-child {
-	  			margin-top: 14px;
-	  		}
 
 	  		a {
 	  			color: @color-font-darkGray !important;

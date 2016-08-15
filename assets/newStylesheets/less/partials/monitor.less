@@ -6,35 +6,19 @@
 
     .topBar {
 
-        .buttonArea {
+        .backToWB {
+            float: left;
+            margin-right: 12px;
+            line-height: 58px;
+            display: none;
+            cursor: pointer;
             .icon {
-                margin: 6px 4px 0 10px;
+               color: @color-bg-unselect-gray;
             }
+        }
 
-            &#systemButton {
-                .icon {
-                    .background("../../images/monitor/gear.png", 23px, 23px);
-                }
-            }
-
-            &#queriesButton {
-                .icon {
-                    .background("../../images/monitor/query.png", 28px, 24px);
-                }
-            }
-
-            &#setupButton {
-                .icon {
-                    .background("../../images/monitor/tools.png", 22px, 23px);
-                }
-            }
-
-            .text {
-                // float: left;
-                // .font (@color: white, @size: 14px);
-                // margin: 8px 0 0 3px;
-                text-shadow: 1px 1px #555555;
-            }
+        .wkbkTitle {
+            display: none;
         }
     }
 

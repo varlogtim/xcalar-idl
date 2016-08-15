@@ -78,6 +78,69 @@ body {
             display: none;
         }
     }
+
+    &.workbookMode {
+        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        
+        #userBox {
+            z-index: @z-index-homeBtn;
+        }
+
+        #userMenu .help {
+            display: none;
+        }
+
+        &.monitorMode {
+            #mainMenu {
+                left: 0px;
+                z-index: 31;
+                .mainContent {
+                    display: block;
+                }
+                .commonSection {
+                    display: none;
+                }
+                #monitorMenu {
+                    display: block;
+                    .minimizeBtn {
+                        display: none;
+                    }
+                }
+            }
+
+            #monitorPanel {
+                z-index: @z-index-menuBar;
+                .position(absolute, @top: 0px);
+                .size(100%, 100%);
+                display: block;
+
+                > .topBar {
+                    padding-left: 70px;
+                    // visibility: hidden;
+                    .backToWB {
+                        display: block;
+                    }
+                    .title {
+                        display: none;
+                    }
+                    .wkbkTitle {
+                        display: block;
+                    }
+                }
+
+                > .mainContent {
+                    .size(@width: ~"calc(100% - @{width-bottomMenu})");
+                    margin-left: @menuWidth + 10px;
+                    background-color: @color-bg-body-gray; 
+                }         
+            }
+
+            #workbookPanel {
+                display: none !important;
+            }
+        }
+
+    }
 }
 
 .clearfix:after {

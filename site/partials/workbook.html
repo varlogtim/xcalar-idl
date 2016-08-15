@@ -23,22 +23,22 @@
 	  			<div class="leftBar vertBar"></div>
 	  			<div class="content">
 	  				<div class="innerContent">
-	  					<div class="section">
+	  					<section class="section">
 	  						<div class="subHeading">News</div>
 			  				<div class="description">
 			  					<ul>
 			  						<li><a href="http://www.xcalar.com" target="_blank">Visit Xcalar.com</a></li>
 			  					</ul>
 			  				</div>
-	  					</div>
-	  					<div class="section">
+	  					</section>
+	  					<section class="section">
 	  						<div class="subHeading">Help</div>
 			  				<div class="description">
 			  					<ul>
-			  						<li><a href="assets/help/Content/Home.htm" target="xchelp">View our new help documentation</a></li>
+			  						<li><a href="<%= dicts.paths.helpDocs %>" target="xchelp">View our new help documentation</a></li>
 			  					</ul>
 			  				</div>
-	  					</div>
+	  					</section>
 	  				</div>
 	  				<hr>
 	  			</div>
@@ -47,29 +47,46 @@
 	  			<div class="leftBar vertBar"></div>
 	  			<div class="content">
 	  				<div class="innerContent">
-	  					<div class="subHeading">Tutorials</div>
-	  					<div class="helpText"><a href="assets/help/Content/Home.htm" target="xchelp" >Learn more about Xcalar Insight</a></div>
-		  				<div class="tutBlock">
-		  					<div class="tutBtn">
-		  						<i class="icon xi-play-circle"></i>
+	  					<section class="section">
+	  						<div class="subHeading">Tutorials</div>
+		  					<div class="helpText">
+		  						<a href="assets/help/Content/Home.htm" target="xchelp" >Learn more about Xcalar Insight</a>
 		  					</div>
-		  					<div class="tutText">Tutorials To Get You Started</div>
-		  				</div>
-		  				<div class="tutBlock">
-		  					<a href="assets/help/Content/Home.htm" target="xchelp" >
-		  						<div class="tutBtn">
-		  						<i class="icon xi-worksheet"></i>
+	<!-- 		  				<div class="tutBlock">
+			  					<div class="tutBtn">
+			  						<i class="icon xi-play-circle"></i>
 			  					</div>
-			  					<div class="tutText">Related Tutorials Help Docs</div>
-		  					</a>
-		  				</div>
-		  				<div class="tutBlock">
-		  					<div class="tutBtn">
-		  						<i class="icon xi-worksheet"></i>
+			  					<div class="tutText">Tutorials To Get You Started</div>
+			  				</div> -->
+			  				<div class="tutBlock">
+			  					<a href="<%= dicts.paths.helpDocs %>" target="xchelp" >
+			  						<div class="tutBtn">
+			  						<i class="icon xi-worksheet"></i>
+				  					</div>
+				  					<div class="tutText">Related Tutorials Help Docs</div>
+			  					</a>
+			  				</div>
+			  				<!-- <div class="tutBlock">
+			  					<div class="tutBtn">
+			  						<i class="icon xi-worksheet"></i>
+			  					</div>
+			  					<div class="tutText">Step-by-Step Tour</div>
+			  				</div> -->
+	  					</section>
+	  					<section class="section">
+	  						<div class="subHeading">Monitor</div>
+		  					<div class="helpText">
+		  						<a href="" class="monitorLink">Monitor the status of your Xcalar Cluster</a>
 		  					</div>
-		  					<div class="tutText">Step-by-Step Tour</div>
-		  				</div>
+			  				<div class="tutBlock monitorBtn">
+		  						<div class="tutBtn">
+		  							<i class="icon xi-menu-monitoring"></i>
+			  					</div>
+			  					<div class="tutText">Monitor Cluster Health</div>
+			  				</div>
+	  					</section>
 	  				</div>
+	  				<hr>
 	  			</div>
 	  		</div>
 	  	</div>

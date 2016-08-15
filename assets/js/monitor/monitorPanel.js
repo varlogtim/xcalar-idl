@@ -4,6 +4,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     var diameter = 100; // for donuts
     var donutThickness = 6;
     var defDurationForD3Anim = 800;
+    var graphIsActive = false;
 
     MonitorPanel.setup = function() {
         MonitorGraph.setup();
@@ -64,11 +65,17 @@ window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.active = function() {
         MonitorGraph.start();
         QueryManager.check();
+        graphIsActive = true;
     };
 
     MonitorPanel.inActive = function() {
         MonitorGraph.clear();
         QueryManager.check(true);
+        graphIsActive = false;
+    };
+
+    MonitorPanel.isGraphActive = function() {
+        return (graphIsActive);
     };
 
     MonitorPanel.processNodeStats = function(nodes, apiTopResult, numNodes) {

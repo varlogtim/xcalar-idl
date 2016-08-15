@@ -102,7 +102,8 @@ module.exports = {
         "roundedRect"   : "assets/images/dagIcons/rounded-rect.png",
         "hourglass"     : "assets/images/hourglass-white.png",
         "waitIcon"      : "assets/images/waiting-1.gif",
-        "installer"     : "setup.html"
+        "installer"     : "setup.html",
+        "helpDocs"      : "assets/help/Content/Home.htm"
     },
 
     "menuBar": {
