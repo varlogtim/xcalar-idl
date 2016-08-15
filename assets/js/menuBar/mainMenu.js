@@ -27,8 +27,8 @@ window.MainMenu = (function($, MainMenu) {
         // TableList.clear();
     };
 
-    MainMenu.close = function(bottomOpening, makeInactive) {
-        closeMenu($menuBar.find(".topMenuBarTab.active"), bottomOpening,
+    MainMenu.close = function(noAnim, makeInactive) {
+        closeMenu($menuBar.find(".topMenuBarTab.active"), noAnim,
                   makeInactive);
     };
 
@@ -51,9 +51,10 @@ window.MainMenu = (function($, MainMenu) {
         
     };
 
-    MainMenu.open = function() {
-        openMenu($menuBar.find(".topMenuBarTab.active"));
+    MainMenu.open = function(noAnim) {
+        openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
     };
+
 
     MainMenu.getOffset = function() {
         if (isMenuOpen || BottomMenu.isMenuOpen()) {

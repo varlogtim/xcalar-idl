@@ -2,15 +2,13 @@ if (localStorage.shortcuts) {
     $(document).ready(function() {
         if (window.location.pathname.indexOf('login.html') > -1) {
             Shortcuts.login();
-        }
-
-        if (window.location.pathname.indexOf('index.html') > -1) {
+        } else {
             Shortcuts.createWorkbook();
 
             var count = 0;
             var interval = setInterval(function() {
                 // initial load screen leaving signifies start up is done
-                if ($("#initialLoadScreen").length === 0) {
+                if ($("#initialLoadScreen:visible").length === 0) {
                     Shortcuts.setup();
                     clearInterval(interval);
                 } else if (count > 20) {

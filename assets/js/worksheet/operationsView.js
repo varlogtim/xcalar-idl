@@ -466,8 +466,8 @@ window.OperationsView = (function($, OperationsView) {
 
         addCastDropDownListener();
 
-        $operationsView.on('click', '.checkbox', function() {
-            var $checkbox = $(this);
+        $operationsView.on('click', '.checkboxSection', function() {
+            var $checkbox = $(this).find('.checkbox');
             if ($checkbox.hasClass('checked')) {
                 $checkbox.removeClass('checked');
                 // we want it to be :visible for jquery selector purposes 
@@ -2254,7 +2254,8 @@ window.OperationsView = (function($, OperationsView) {
                     // skip
                 } else if (xcHelper.hasValidColPrefix(arg)) {
                     arg = parseColPrefixes(arg);
-                    if ($("#categoryList input").val().indexOf("user") !== 0) 
+                    if (operatorName !== "map" ||
+                        $categoryList.find('.active').text() !== "user-defined") 
                     {
                         type = getColumnTypeFromArg(arg);
                     }
@@ -2755,7 +2756,8 @@ window.OperationsView = (function($, OperationsView) {
                 // col types they are expecting in the python functions, we will
                 // skip this type check if the function category is user defined
                 // function.
-                if ($("#categoryList input").val().indexOf("user") !== 0) {
+                if (operatorName !== "map" ||
+                    $categoryList.find('.active').text() !== "user-defined") {
                     var types;
                     if (tempColNames.length > 1 &&
                         (operatorName !== "group by" ||
