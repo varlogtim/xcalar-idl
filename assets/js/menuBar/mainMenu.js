@@ -27,8 +27,9 @@ window.MainMenu = (function($, MainMenu) {
         // TableList.clear();
     };
 
-    MainMenu.close = function(bottomOpening) {
-        closeMenu($menuBar.find(".topMenuBarTab.active"), bottomOpening);
+    MainMenu.close = function(bottomOpening, makeInactive) {
+        closeMenu($menuBar.find(".topMenuBarTab.active"), bottomOpening,
+                  makeInactive);
     };
 
     MainMenu.switchSubTab = function(newTab) {
@@ -75,6 +76,7 @@ window.MainMenu = (function($, MainMenu) {
         var $tabs = $menuBar.find(".topMenuBarTab");
 
         $tabs.click(function(event) {
+            Workbook.hide(true);
             var $curTab = $(this);
             var $target = $(event.target);
 
@@ -199,21 +201,31 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
-            moveTableTitles(null, {offset: 285, menuAnimating: true, animSpeed: delay});
+            moveTableTitles(null, {offset: 285, menuAnimating: true, 
+                            animSpeed: delay});
         }
     }
 
-    function closeMenu($curTab, noAnim) {
+    // makeInactive is used in "noWorkbook" mode
+    function closeMenu($curTab, noAnim, makeInactive) {
         $mainMenu.removeClass("open");
         $mainMenu.find(".commonSection").removeClass("active");
         checkAnim(noAnim);
         $('#container').removeClass('mainMenuOpen');
-        isMenuOpen = false;
         $curTab.removeClass('mainMenuOpen');
+        isMenuOpen = false;
+        
+        
         setCloseTimer(noAnim);
+
+        if (makeInactive) {
+            $curTab.removeClass('active');
+        }
+
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
-            moveTableTitles(null, {offset: -285, menuAnimating: true, animSpeed: delay});
+            moveTableTitles(null, {offset: -285, menuAnimating: true, 
+                            animSpeed: delay});
         }
     }
 

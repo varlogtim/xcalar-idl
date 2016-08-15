@@ -20,10 +20,13 @@ window.Workbook = (function($, Workbook) {
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
-            if ($workbookPanel.is(":visible")) {
-                closeWorkbookPanel();
-                Workbook.hide();
-            } else {
+            // if ($workbookPanel.is(":visible")) {
+            //     closeWorkbookPanel();
+            //     Workbook.hide();
+            // } else {
+            //     Workbook.show();
+            // }
+            if (!$workbookPanel.is(":visible")) {
                 Workbook.show();
             }
         });    
@@ -41,6 +44,9 @@ window.Workbook = (function($, Workbook) {
     Workbook.show = function(isForceShow) {
         $(document).on("keypress", workbookKeyPress);
         $workbookPanel.show();
+        MainMenu.close(true, true);
+        MonitorPanel.inActive();
+
         setTimeout(function() {
             $workbookPanel.removeClass('hidden');
         }, 100);
@@ -69,6 +75,7 @@ window.Workbook = (function($, Workbook) {
     Workbook.forceShow = function() {
         // When it's forceShow, no older workbooks are displayed
         Workbook.show(true);
+        $('#container').addClass('noWorkbook');
         // Create a new workbook with the name already selected - Prompting
         // the user to click Create Workbook
         var uName = Support.getUser();
@@ -446,14 +453,14 @@ window.Workbook = (function($, Workbook) {
 
     function createNewWorkbook(workbookName) {
         var deferred = jQuery.Deferred();
-        goWaiting();
+        // goWaiting();
         WorkbookManager.newWKBK(workbookName)
         .then(function(id) {
-            cancelWaiting();
+            // cancelWaiting();
             deferred.resolve(id);
         })
         .fail(function(error) {
-            cancelWaiting();
+            // cancelWaiting();
             console.error(error);
             deferred.reject(error);
         });

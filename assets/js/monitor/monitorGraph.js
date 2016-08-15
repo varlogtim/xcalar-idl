@@ -107,7 +107,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
         firstTime = true;
 
         getStatsAndUpdateGraph();
-        var interval = (UserSettings.getPref('monitorGraphInterval') * 1000) || interval;
+        interval = (UserSettings.getPref('monitorGraphInterval') * 1000) || 
+                    interval;
         graphCycle = setInterval(getStatsAndUpdateGraph, interval);
     }
 

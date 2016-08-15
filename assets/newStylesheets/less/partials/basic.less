@@ -53,6 +53,30 @@ body {
     display: none;
 }
 
+#container {
+    &.noWorkbook {
+
+        #autoSaveBtn {
+            display: none;
+        }
+
+        #menuBar {
+            #workspaceTab, #dataStoresTab, #schedulerTab {
+                display: none;
+            }
+            .bottomMenuBarTab {
+                display: none;
+            }
+
+            #monitorTab {
+                .subTab:not(:nth-child(2)) {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
 .clearfix:after {
    content: ".";
    visibility: hidden;

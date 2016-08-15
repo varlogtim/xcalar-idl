@@ -73,6 +73,9 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     UserSettings.getPref = function(pref) {
+        if (!userPrefs) {
+            return null;
+        }
         return userPrefs[pref];
     };
 
