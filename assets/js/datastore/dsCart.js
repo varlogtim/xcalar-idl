@@ -94,19 +94,23 @@ window.DSCart = (function($, DSCart) {
         }).setupListeners();
     };
 
-    DSCart.refresh = function(dsId) {
-        if (dsId != null) {
-            $cartArea.find(".selectedTable").addClass("xc-hidden");
-            DSCart.getCartById(dsId).removeClass("xc-hidden");
-
-            refreshCart(dsId);
+    DSCart.switchToCart = function(dsId) {
+        if (dsId == null) {
+            // error case
+            return;
         }
-        
 
+        $cartArea.find(".selectedTable").addClass("xc-hidden");
+        DSCart.getCartById(dsId).removeClass("xc-hidden");
+        refreshCart(dsId);
+    };
+
+    DSCart.refresh = function() {
         var li = '<li class="new" data-ws="xc-new">' + WSTStr.NewWS + '</li>' +
                 WSManager.getWSLists(true);
-        $("#dataCartWSMenu").html(li);
-        autoSelectWorksheet();
+        // auto select active worksheet
+        $("#dataCartWSMenu").html(li)
+                            .find("li.activeWS").click();
     };
 
     // restore the cart
@@ -765,11 +769,6 @@ window.DSCart = (function($, DSCart) {
         .always(removeWaitCursor);
 
         return deferred.promise();
-    }
-
-    function autoSelectWorksheet() {
-        // now we try select the worksheet
-        $("#dataCartWSMenu li.new").click();
     }
 
     /* Unit Test Only */

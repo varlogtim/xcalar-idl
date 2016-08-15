@@ -26,6 +26,30 @@ window.StatusMessage = (function($, StatusMessage) {
         $statusText.on('click', '.close', function() {
             removeFailedMsg($(this).parent());
         });
+
+        var $statusMenu = $("#pageStatusMenu");
+        $statusText.on("click", ".menuIcon", function() {
+            if ($statusMenu.is(":visible")) {
+                $statusMenu.hide();
+                return;
+            }
+
+            xcHelper.dropdownOpen($(this), $statusMenu, {
+                "ignoreSideBar": true,
+                "floating"     : true
+            });
+        });
+
+        addMenuBehaviors($statusMenu);
+        $statusMenu.on("mouseup", "li", function() {
+            var $li = $(this);
+            if ($li.hasClass("activeWS")) {
+                return;
+            }
+
+            var ws = $li.data("ws");
+            WSManager.switchWS(ws);
+        });
     };
 
     // msgObj should have these properties: msg, operation
@@ -116,7 +140,7 @@ window.StatusMessage = (function($, StatusMessage) {
         showDoneNotification(msgId, fail);
         failMessage = failMessage || StatusMessageTStr.Error;
         var failHTML = '<span class="text fail">' + failMessage + '</span>' +
-                       '<span class="icon close"></span>';
+                       '<i class="icon close xi-close fa-15 xc-action"></i>';
 
         var $statusSpan = $('#stsMsg-' + msgId);
         $statusSpan.html(failHTML);
@@ -135,7 +159,7 @@ window.StatusMessage = (function($, StatusMessage) {
         var txt = msgObjs[msgId].operation[0].toUpperCase() +
                   msgObjs[msgId].operation.slice(1) + " canceled";
         var cancelHTML = '<span class="text fail">' + txt + '</span>' +
-                       '<span class="icon close"></span>';
+                       '<i class="icon close xi-close fa-15 xc-action"></i>';
         var $statusSpan = $('#stsMsg-' + msgId);
         $statusSpan.html(cancelHTML);
         if (messages.indexOf(msgId) === 0) {
@@ -174,7 +198,12 @@ window.StatusMessage = (function($, StatusMessage) {
                     // XXX the restore of subTab triiger it too early
                     // and will breaak it if not do the check
                     if (ws) {
-                        panelName = "Worksheet: " + WSManager.getWSName(ws);
+                        $("#pageStatusMenu").html(WSManager.getWSLists(true));
+                        panelName = "Worksheet: " + WSManager.getWSName(ws) +
+                                    '<div class="menuIcon xc-action clickable">' +
+                                        '<i class="icon xi-arrow-up fa-7"></i>' +
+                                        '<i class="icon xi-arrow-down fa-7"></i>' +
+                                    '</div>';
                     } else {
                         panelName = "Worksheet";
                     }

@@ -921,14 +921,19 @@ window.WSManager = (function($, WSManager) {
                 continue;
             }
 
-            html += '<li data-ws="' + wsId + '">' + wsLookUp[wsId].name 
             if (wsId === activeWorksheet) {
-                html += '<i class="icon xi-show"></i>';
-            } 
-            html += '</li>';
+                html += '<li class="activeWS" data-ws="' + wsId + '">' +
+                            wsLookUp[wsId].name +
+                            '<i class="icon xi-show"></i>' +
+                        '</li>';
+            } else {
+                html += '<li data-ws="' + wsId + '">' +
+                            wsLookUp[wsId].name +
+                        '</li>';
+            }
         }
 
-        return (html);
+        return html;
     };
 
     WSManager.lockTable = function(tableId) {

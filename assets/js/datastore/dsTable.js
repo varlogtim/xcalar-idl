@@ -59,7 +59,7 @@ window.DSTable = (function($, DSTable) {
                 $tableWrap.html(""); // make html smaller
             }, 300);
         }
-        DSCart.refresh(dsId);
+        DSCart.switchToCart(dsId);
 
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
