@@ -131,7 +131,7 @@ window.DSForm = (function($, DSForm) {
                 DSPreview.show({
                     "path"  : protocol + path,
                     "format": xcHelper.getFormat(path)
-                });
+                }, true);
             }
         });
 

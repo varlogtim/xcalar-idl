@@ -31,6 +31,7 @@ window.DSPreview = (function($, DSPreview) {
     // UI cache
     var lastUDFModule = null;
     var lastUDFFunc = null;
+    var backToFormCard = false;
 
     // constant
     var rowsToFetch = 40;
@@ -110,20 +111,25 @@ window.DSPreview = (function($, DSPreview) {
         setupForm();
     };
 
-    DSPreview.show = function(options) {
+    DSPreview.show = function(options, fromFormCard) {
         options = options || {};
         $previewCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
+
+        if (fromFormCard) {
+            backToFormCard = true;
+        } else {
+            backToFormCard = false;
+        }
 
         resetForm();
         loadArgs = $.extend(options, loadArgs);
         if (loadArgs.format === formatMap.EXCEL) {
-            // XXX only a hack
-            $formatText.data("format", "Excel").val("Excel");
+            toggleFormat("EXCEL");
             previewData(excelModule, excelFunc);
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)
-            loadArgs.format = null;
+            delete loadArgs.format;
             previewData(null, null);
         }
     };
@@ -195,7 +201,6 @@ window.DSPreview = (function($, DSPreview) {
             "container": "#importDataForm-content",
             "bounds"   : "#importDataForm-content"
         }).setupListeners();
-
 
         // set up format dropdownlist
         new MenuHelper($("#fileFormat"), {
@@ -296,7 +301,11 @@ window.DSPreview = (function($, DSPreview) {
 
             resetForm();
             clearAll();
-            FileBrowser.show(protocol, path);
+            if (backToFormCard) {
+                DSForm.show({"noReset": true});
+            } else {
+                FileBrowser.show(protocol, path);
+            }
         });
 
         // submit the form
@@ -519,6 +528,7 @@ window.DSPreview = (function($, DSPreview) {
             $fieldDelim.addClass("xc-hidden");
             $headerRow.addClass("xc-hidden");
             $formatText.data("format", "").val("");
+            delete loadArgs.format;
             return;
         }
 
@@ -576,9 +586,6 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-skipRows").val(0);
         $form.find(".checkbox.checked").removeClass("checked");
         // keep the current protocol
-        resetUdfSection();
-        toggleFormat();
-        resetDelimiter();
         resetLoadArgs();
         detectArgs = {
             "fieldDelim": "",
@@ -587,6 +594,9 @@ window.DSPreview = (function($, DSPreview) {
             "skipRows"  : 0,
             "quote"     : "\""
         };
+        resetUdfSection();
+        toggleFormat();
+        resetDelimiter();
         applyHighlight(""); // remove highlighter
     }
 
@@ -709,6 +719,11 @@ window.DSPreview = (function($, DSPreview) {
 
         $("#preview-url").text(loadURL);
 
+        var initialLoadArgStr;
+        if (!noDetect) {
+            initialLoadArgStr = JSON.stringify(loadArgs);
+        }
+
         var promise;
         if (hasUDF) {
             promise = loadDataWithUDF(txId, loadURL, dsName,
@@ -727,7 +742,11 @@ window.DSPreview = (function($, DSPreview) {
             getPreviewTable();
 
             if (!noDetect) {
-                smartDetect();
+                var currentLoadArgStr = JSON.stringify(loadArgs);
+                // when user not do any modification, then do smart detect
+                if (initialLoadArgStr === currentLoadArgStr) {
+                    smartDetect();
+                }
             }
 
             // not cache to sql log, only show when fail
@@ -1086,12 +1105,13 @@ window.DSPreview = (function($, DSPreview) {
         if (res.format === formatMap.EXCEL) {
             udfModule = excelModule;
             udfFunc = excelFunc;
+            applyFieldDelim("\t");
+            applyLineDelim("\n");
         } else {
             udfModule = res.udfModule;
             udfFunc = res.udfFunc;
         }
 
-        // XXX this may need a loading state
         clearAll()
         .then(function() {
             return previewData(udfModule, udfFunc, true);
@@ -1100,7 +1120,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getPreviewTable() {
-        $previeWrap.find(".errorSection").addClass("hidden")
+        $previeWrap.find(".errorSection").addClass("hidden");
         $previeWrap.find(".loadHidden").removeClass("hidden");
         $highlightBtns.addClass("hidden");
 
@@ -1574,7 +1594,7 @@ window.DSPreview = (function($, DSPreview) {
         var hasQuote = false;
         var hasBackSlash = false;
         var quote = getQuote();
-        var dataLen = data.length
+        var dataLen = data.length;
         var res = [];
         var i = 0;
         var startIndex = 0;
