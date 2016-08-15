@@ -302,7 +302,9 @@ module.exports = {
         "hide": "Hide Worksheet",
         "del": "Delete Worksheet",
         "create": "Created On",
-        "save": "Last Saved On"
+        "save": "Last Saved On",
+        "MoveUp": "Move Up",
+        "MoveDown": "Move Down"
     },
 
     "sched": {

@@ -913,7 +913,6 @@ window.WSManager = (function($, WSManager) {
     // Get html list of worksheets
     WSManager.getWSLists = function(isAll) {
         var html = "";
-        var activeIcon = "";
 
         for (var i = 0, len = wsOrder.length; i < len; i++) {
             var wsId = wsOrder[i];
@@ -978,7 +977,7 @@ window.WSManager = (function($, WSManager) {
         if (leftPos != null) {
             $mainFrame.scrollLeft(leftPos);
         }
-    }
+    };
 
     // Add worksheet events, helper function for WSManager.setup()
     function addEventListeners() {
@@ -1057,9 +1056,9 @@ window.WSManager = (function($, WSManager) {
         $workSheetTabs.on("click", ".wsMenu", function() {
             var $tab = $(this).closest(".worksheetTab");
             var wsId = $tab.data("ws");
-            var numTabs = $workSheetTabs.find('.worksheetTab').length;
+            var numTabs = $workSheetTabs.find(".worksheetTab").length;
             var $wsMenu = $(this);
-            if ($tabMenu.is(':visible') && $tabMenu.data('ws') === wsId) {
+            if ($tabMenu.is(":visible") && $tabMenu.data("ws") === wsId) {
                 $tabMenu.hide();
                 return;
             }
@@ -1074,13 +1073,25 @@ window.WSManager = (function($, WSManager) {
                 "floating"     : true,
                 "callback"     : function() {
                     if (numTabs === 1) {
-                        $tabMenu.find('.delete').addClass('unavailable');
-                        $tabMenu.find('.hide').addClass('unavailable');
+                        $tabMenu.find(".delete").addClass("unavailable");
+                        $tabMenu.find(".hide").addClass("unavailable");
                     } else {
-                        $tabMenu.find('.delete').removeClass('unavailable');
-                        $tabMenu.find('.hide').removeClass('unavailable');
+                        $tabMenu.find(".delete").removeClass("unavailable");
+                        $tabMenu.find(".hide").removeClass("unavailable");
                     }
-                    $tabMenu.data('ws', wsId);
+
+                    if ($tab.prev().length === 0) {
+                        $tabMenu.find(".moveUp").addClass("unavailable");
+                    } else {
+                        $tabMenu.find(".moveUp").removeClass("unavailable");
+                    }
+
+                    if ($tab.next().length === 0) {
+                        $tabMenu.find(".moveDown").addClass("unavailable");
+                    } else {
+                        $tabMenu.find(".moveDown").removeClass("unavailable");
+                    }
+                    $tabMenu.data("ws", wsId);
                 }
             });
         });
@@ -1135,17 +1146,36 @@ window.WSManager = (function($, WSManager) {
 
         addMenuBehaviors($tabMenu);
 
-        $tabMenu.find('li').click(function() {
+        $tabMenu.find("li").click(function() {
             var $li = $(this);
-            var wsId = $tabMenu.data('ws');
-            if ($li.hasClass('unavailable')) {
+            var wsId = $tabMenu.data("ws");
+            if ($li.hasClass("unavailable")) {
                 return;
-            } else if ($li.hasClass('rename')) {
-                $('#worksheetTab-' + wsId).find(".text").trigger("dblclick");
-            } else if ($li.hasClass('hide')) {
+            } else if ($li.hasClass("rename")) {
+                $("#worksheetTab-" + wsId).find(".text").trigger("dblclick");
+            } else if ($li.hasClass("hide")) {
                 WSManager.hideWS(wsId);
-            } else if ($li.hasClass('delete')) {
+            } else if ($li.hasClass("delete")) {
                 delWSCheck(wsId);
+            } else if ($li.hasClass("moveUp")) {
+                moveTab(true);
+            } else if ($li.hasClass("moveDown")) {
+                moveTab(false);
+            }
+
+            function moveTab(isUp) {
+                var $tab = $("#worksheetTab-" + wsId);
+                var index = $tab.index();
+                var newIndex;
+                if (isUp) {
+                    $tab.insertBefore($tab.prev().eq(0));
+                    newIndex = index - 1;
+                } else {
+                    $tab.insertAfter($tab.next().eq(0));
+                    newIndex = index + 1;
+                }
+
+                reorderWSHelper(index, newIndex);
             }
         });
 
