@@ -53,6 +53,7 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.forceShow = function() {
+        // When it's forceShow, no older workbooks are displayed
         Workbook.show(true);
         // Create a new workbook with the name already selected - Prompting
         // the user to click Create Workbook
@@ -81,6 +82,66 @@ window.Workbook = (function($, Workbook) {
     }
 
     function addWorkbookEvents() {
+        // New Workbook card
+        $newWorkbookCard.on("click", "button", function() {
+            var workbookName = $newWorkbookInput.val();
+            var err1 = xcHelper.replaceMsg(WKBKTStr.Conflict, {
+                "name": workbookName
+            });
+
+            isValid = xcHelper.validate([
+                {
+                    "$selector": $newWorkbookInput,
+                    "formMode" : true
+                },
+                {
+                    "$selector": $newWorkbookInput,
+                    "formMode" : true,
+                    "text"     : err1,
+                    "check"    : function() {
+                        var workbooks = WorkbookManager.getWorkbooks();
+                        for (var wkbkId in workbooks) {
+                            if (workbooks[wkbkId].name === workbookName) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                }
+            ]);
+
+            if (!isValid) {
+                return;
+            }
+
+            createNewWorkbook(workbookName)
+            .then(function(id) {
+                var workbook = WorkbookManager.getWorkbook(id);
+                var numWorksheets = -1; // JJJ fill in later
+
+                var html = createWorkbookCard(id, workbookName,
+                                              workbook.created,
+                                              workbook.modified,
+                                              workbook.srcUser,
+                                              numWorksheets,
+                                              false);
+                $newWorkbookCard.after(html);
+
+            })
+            .fail(function() {
+                // JJJ handle. Just deferred reject and let the outer catch
+                // and show new workbook
+
+            });
+
+        });
+
+        $newWorkbookInput.on("focus", function() {
+            // Close the rest of the inputs (currently only from renaming of
+            // another workbook)
+            console.log("focus");
+        });
+    
         // Events for the actual workbooks
         // Play button
 
@@ -100,6 +161,7 @@ window.Workbook = (function($, Workbook) {
                 // at any point in time.
                 if ($newWorkbookInput.is(":focus")) {
                     // create new workbook
+                    $newWorkbookCard.click();
                 } else if ($workBookSection.find(".workbookCard").is(":focus"))
                 {
                     // edit name for current workbook
@@ -114,27 +176,22 @@ window.Workbook = (function($, Workbook) {
 
     function getWorkbookInfo(isForceMode) {
         console.log($welcomeCard);
-        var $instr = $welcomeCard.find(".description");
+        var $welcomeMsg = $welcomeCard.find(".description");
+        var $welcomeUser = $welcomeCard.find(".heading .username");
         var user = Support.getUser();
+        $welcomeUser.text(user);
         var html;
 
         if (isForceMode) {
             // forceMode does not have any workbook info
-            html = xcHelper.replaceMsg(WKBKTStr.NewWKBKInstr, {"user": user});
-            $instr.html(html);
+            $welcomeMsg.text(WKBKTStr.NewWKBKInstr);
             return;
         }
 
         var workbooks = WorkbookManager.getWorkbooks();
         var activeWKBKId = WorkbookManager.getActiveWKBK();
         var workbook = workbooks[activeWKBKId];
-
-        html = xcHelper.replaceMsg(WKBKTStr.CurWKBKInstr, {
-            "user"    : user,
-            "workbook": workbook.name
-        });
-
-        $instr.html(html);
+        $welcomeMsg.text(WKBKTStr.CurWKBKInstr);
     }
 
     function focusWorkbook(workbookName) {
@@ -151,13 +208,66 @@ window.Workbook = (function($, Workbook) {
     function createWorkbookCard(workbookId, workbookName, createdTime,
                                 modifiedTime, username, numWorksheets,
                                 isActive, gridClass) {
-        // Generate HTML for workbook card based on the input args
-        return '<div class="' + gridClass + '" data-wkbkid="' + workbookId + '">' +
-                    '<div class="name">' + workbookName + '</div>' +
-                    '<div>' + createdTime + '</div>' +
-                    '<div>' + modifiedTime + '</div>' +
-                    '<div>' + (username || "") + '</div>' +
-                    '<div>' + (username || "") + '</div>' +
+        if (createdTime) {
+            createdTime = xcHelper.getTime(null, createdTime) + ' ' +
+                          xcHelper.getDate("-", null, createdTime);
+        }
+
+        if (modifiedTime) {
+            modifiedTime = xcHelper.getTime(null, modifiedTime) + ' ' +
+                           xcHelper.getDate("-", null, modifiedTime);
+        }
+
+        if (isActive) {
+            isActive = "Active";
+        } else {
+            isActive = "Inactive";
+        }
+
+        return '<div class="box box-small workbookBox">' +
+                    '<div class="content">' +
+                        '<div class="innerContent">' +
+                            '<div class="subHeading">' + workbookName + '</div>' +
+                            '<div class="infoSection topInfo">' +
+                                '<div class="row clearfix">' +
+                                    '<div class="label">Created by:</div>' +
+                                    '<div class="info">' + username + '</div>' +
+                                '</div>'+
+                                '<div class="row clearfix">'+
+                                    '<div class="label">Created on:</div>'+
+                                    '<div class="info">' + createdTime +'</div>'+
+                                '</div>'+
+                                '<div class="row clearfix">'+
+                                    '<div class="label">Last Modified:</div>'+
+                                    '<div class="info">' + modifiedTime + '</div>'+
+                                '</div>'+
+                            '</div>'+
+                            '<div class="infoSection bottomInfo">'+
+                                '<div class="row clearfix">'+
+                                    '<div class="label">Worksheets:</div>'+
+                                    '<div class="info">' + numWorksheets + '</div>'+
+                                '</div>'+
+                                '<div class="row clearfix">'+
+                                    '<div class="label">Status:</div>'+
+                                    '<div class="info">' + isActive + '</div>'+
+                                '</div>'+
+                            '</div>'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="rightBar vertBar">'+
+                        '<div class="tab btn btn-small">'+
+                            '<i class="icon xi-play-circle"></i>'+
+                        '</div>'+
+                        '<div class="tab btn btn-small">'+
+                            '<i class="icon xi-edit"></i>'+
+                        '</div>'+
+                        '<div class="tab btn btn-small">'+
+                            '<i class="icon xi-duplicate"></i>'+
+                        '</div>'+
+                        '<div class="tab btn btn-small">'+
+                            '<i class="icon xi-trash"></i>'+
+                        '</div>'+
+                    '</div>'+
                 '</div>';
     }
 
@@ -314,13 +424,19 @@ window.Workbook = (function($, Workbook) {
     }
 
     function createNewWorkbook(workbookName) {
+        var deferred = jQuery.Deferred();
         goWaiting();
         WorkbookManager.newWKBK(workbookName)
-        .then(deferred.resolve)
+        .then(function(id) {
+            cancelWaiting();
+            deferred.resolve(id);
+        })
         .fail(function(error) {
             cancelWaiting();
+            console.error(error);
             deferred.reject(error);
         });
+        return deferred.promise();
     }
 
     function activateWorkbook(workbookName) {

@@ -45,6 +45,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return wkbkSet.getAll();
     };
 
+    WorkbookManager.getWorkbook = function(workbookId) {
+        var allWorkbooks = wkbkSet.getAll();
+        if (!allWorkbooks) {
+            return;
+        }
+        if (!(workbookId in allWorkbooks)) {
+            return;
+        }
+
+        return allWorkbooks[workbookId];
+    };
+
     WorkbookManager.getWorkbookIdByName = function(workbookName) {
         // Get full workbookId by relative name
         return getWKBKId(workbookName);
