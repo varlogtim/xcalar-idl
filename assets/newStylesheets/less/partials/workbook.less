@@ -5,6 +5,27 @@
 		padding-left: 0px;
 		padding-right: 0px;
 		padding-top: 0px;
+		.transition (0.5s transform ease-out);
+    	transform-origin: top left;
+	}
+
+	#workbookTopBar {
+		.title {
+			opacity: 1;
+			.transition(1s opacity);
+		}
+	}
+
+	&.hidden{
+		> .mainContent {
+			.transform(scale(0));
+		}
+		#workbookTopBar {
+			.title {
+				opacity: 0;
+				.transition(0.5s opacity);
+			}
+		}
 	}
 	.flexSection {
 		.flex-display;
@@ -20,10 +41,10 @@
 	}
 
 	.box {
-		background-color: @color-white;
-		margin-right: 10px;
-		margin-bottom: 10px;
-		box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+		// background-color: @color-white;
+		// margin-right: 10px;
+		// margin-bottom: 10px;
+		// box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
 		.flex-display;
 
 		p, div {
@@ -60,6 +81,10 @@
 	.box-large {
 		.size(350px, 240px);
 		.flex(1 0 350px);
+		margin-right: 10px;
+		margin-bottom: 10px;
+		box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+		background-color: @color-white;
 
 		.leftBar {
 			background-color: @color-bg-wkbk-blue;
@@ -75,8 +100,25 @@
 	}
 
 	.box-small {
-		.size(@height: 180px);
-		.flex(1 0 290px);
+		.size(@height: 190px);
+		.flex(1 0 300px);
+		overflow: hidden; 
+
+		.innerBox {
+			width: 100%;
+			margin-right: 10px;
+			margin-bottom: 10px;
+			box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+			.flex-display;
+			background-color: @color-white;
+			.transition(0.7s transform);
+		}
+
+		&.new {
+			.innerBox {
+				.transform(translateX(-110%));
+			}
+		}
 
 		&.dummyBox {
 			visibility: hidden;
@@ -94,10 +136,6 @@
 		}
 
 		.input-box(@w:100%, @h:30px);
-		input {
-			margin-top: 10px;
-			margin-bottom: 15px;
-		}
 
 		.subHeading {
 			margin-bottom: 5px;
@@ -109,7 +147,7 @@
 			.textOverflowOneLine;
 		}
 		.username {
-			font-weight: 700;
+			font-weight: 600;
 		}
 		.description {
 			padding-left: 15px;
@@ -205,6 +243,10 @@
 		.leftBar {
 			background-color: @color-bg-newWB-orange;
 		}
+		input {
+			margin-top: 10px;
+			margin-bottom: 15px;
+		}
 		.btn {
 			width: 100%;
 		}
@@ -221,6 +263,34 @@
 			.subHeading, .info {
 				color: @color-white;
 			}
+		}
+
+		.subHeading {
+			.input-box(@w:~"calc(100% + 10px)", @h:30px);
+			input {
+				color: @color-font-select-blue;
+				font-size: 22px;
+				font-weight: 500;
+				background-color: white;
+				border-color: @color-white;
+				// border-width: 0px;
+				//
+				margin-top: -10px;
+				margin-left: -10px;
+				pointer-events: none;
+
+				&.active {
+					border-color: @color-border-white-five;
+					background-color: @color-bg-white-three;
+					pointer-events: initial;
+
+					&:focus {
+						border-color: @color-border-softBlue;
+						background-color: @color-white;
+					}
+				}
+			}
+
 		}
 
 		.topInfo {

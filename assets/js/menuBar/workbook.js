@@ -8,12 +8,15 @@ window.Workbook = (function($, Workbook) {
     var sortkey = "modified"; // No longer user configurable
 
     Workbook.setup = function() {
+        console.log('setting up');
         $workbookPanel = $("#workbookPanel");
         $workbookTopbar = $workbookPanel.find(".topSection");
         $workbookSection = $workbookPanel.find(".bottomSection");
         $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
         $newWorkbookInput = $newWorkbookCard.find("input");
         $welcomeCard = $workbookTopbar.find(".welcomeBox");
+        addTopBarEvents();
+        addWorkbookEvents();
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
@@ -22,8 +25,6 @@ window.Workbook = (function($, Workbook) {
                 Workbook.hide();
             } else {
                 Workbook.show();
-                addTopBarEvents();
-                addWorkbookEvents();
             }
         });    
     };
@@ -40,6 +41,9 @@ window.Workbook = (function($, Workbook) {
     Workbook.show = function(isForceShow) {
         // $(document).on("keypress", workbookKeyPress);
         $workbookPanel.show();
+        setTimeout(function() {
+            $workbookPanel.removeClass('hidden');
+        }, 100);
         var extraOptions;
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
@@ -49,7 +53,10 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.hide = function() {
-        $workbookPanel.hide();
+        $workbookPanel.addClass('hidden');
+        setTimeout(function() {
+            $workbookPanel.hide();
+        }, 600);
     };
 
     Workbook.forceShow = function() {
@@ -124,9 +131,15 @@ window.Workbook = (function($, Workbook) {
                                               workbook.modified,
                                               workbook.srcUser,
                                               numWorksheets,
-                                              false);
+                                              false, "", true);
                 $newWorkbookCard.after(html);
 
+                // need to remove "new" class from workbookcard a split second
+                // after it's appended or it won't animate
+                setTimeout(function() {
+                    $newWorkbookCard.next().removeClass('new');
+                }, 200);
+                
             })
             .fail(function() {
                 // JJJ handle. Just deferred reject and let the outer catch
@@ -141,6 +154,7 @@ window.Workbook = (function($, Workbook) {
             // another workbook)
             console.log("focus");
         });
+
     
         // Events for the actual workbooks
         // Play button
@@ -207,7 +221,7 @@ window.Workbook = (function($, Workbook) {
 
     function createWorkbookCard(workbookId, workbookName, createdTime,
                                 modifiedTime, username, numWorksheets,
-                                isActive, gridClass) {
+                                isActive, gridClass, isNew) {
         if (createdTime) {
             createdTime = xcHelper.getTime(null, createdTime) + ' ' +
                           xcHelper.getDate("-", null, createdTime);
@@ -224,48 +238,59 @@ window.Workbook = (function($, Workbook) {
             isActive = "Inactive";
         }
 
-        return '<div class="box box-small workbookBox">' +
-                    '<div class="content">' +
-                        '<div class="innerContent">' +
-                            '<div class="subHeading">' + workbookName + '</div>' +
-                            '<div class="infoSection topInfo">' +
-                                '<div class="row clearfix">' +
-                                    '<div class="label">Created by:</div>' +
-                                    '<div class="info">' + username + '</div>' +
+        var isNewClass;
+        if (isNew) {
+            isNewClass = " new";
+        } else {
+            isNewClass = "";
+        }
+
+        return '<div class="box box-small workbookBox ' + isNewClass + '">' +
+                    '<div class="innerBox">' +
+                        '<div class="content">' +
+                            '<div class="innerContent">' +
+                                '<div class="subHeading">' +
+                                    '<input type="text" value="' + workbookName + '" />' +
+                                '</div>' +
+                                '<div class="infoSection topInfo">' +
+                                    '<div class="row clearfix">' +
+                                        '<div class="label">Created by:</div>' +
+                                        '<div class="info">' + username + '</div>' +
+                                    '</div>'+
+                                    '<div class="row clearfix">'+
+                                        '<div class="label">Created on:</div>'+
+                                        '<div class="info">' + createdTime +'</div>'+
+                                    '</div>'+
+                                    '<div class="row clearfix">'+
+                                        '<div class="label">Last Modified:</div>'+
+                                        '<div class="info">' + modifiedTime + '</div>'+
+                                    '</div>'+
                                 '</div>'+
-                                '<div class="row clearfix">'+
-                                    '<div class="label">Created on:</div>'+
-                                    '<div class="info">' + createdTime +'</div>'+
-                                '</div>'+
-                                '<div class="row clearfix">'+
-                                    '<div class="label">Last Modified:</div>'+
-                                    '<div class="info">' + modifiedTime + '</div>'+
+                                '<div class="infoSection bottomInfo">'+
+                                    '<div class="row clearfix">'+
+                                        '<div class="label">Worksheets:</div>'+
+                                        '<div class="info">' + numWorksheets + '</div>'+
+                                    '</div>'+
+                                    '<div class="row clearfix">'+
+                                        '<div class="label">Status:</div>'+
+                                        '<div class="info">' + isActive + '</div>'+
+                                    '</div>'+
                                 '</div>'+
                             '</div>'+
-                            '<div class="infoSection bottomInfo">'+
-                                '<div class="row clearfix">'+
-                                    '<div class="label">Worksheets:</div>'+
-                                    '<div class="info">' + numWorksheets + '</div>'+
-                                '</div>'+
-                                '<div class="row clearfix">'+
-                                    '<div class="label">Status:</div>'+
-                                    '<div class="info">' + isActive + '</div>'+
-                                '</div>'+
+                        '</div>'+
+                        '<div class="rightBar vertBar">'+
+                            '<div class="tab btn btn-small">'+
+                                '<i class="icon xi-play-circle"></i>'+
                             '</div>'+
-                        '</div>'+
-                    '</div>'+
-                    '<div class="rightBar vertBar">'+
-                        '<div class="tab btn btn-small">'+
-                            '<i class="icon xi-play-circle"></i>'+
-                        '</div>'+
-                        '<div class="tab btn btn-small">'+
-                            '<i class="icon xi-edit"></i>'+
-                        '</div>'+
-                        '<div class="tab btn btn-small">'+
-                            '<i class="icon xi-duplicate"></i>'+
-                        '</div>'+
-                        '<div class="tab btn btn-small">'+
-                            '<i class="icon xi-trash"></i>'+
+                            '<div class="tab btn btn-small">'+
+                                '<i class="icon xi-edit"></i>'+
+                            '</div>'+
+                            '<div class="tab btn btn-small">'+
+                                '<i class="icon xi-duplicate"></i>'+
+                            '</div>'+
+                            '<div class="tab btn btn-small">'+
+                                '<i class="icon xi-trash"></i>'+
+                            '</div>'+
                         '</div>'+
                     '</div>'+
                 '</div>';
