@@ -211,15 +211,18 @@ window.TestSuite = (function($, TestSuite) {
      * @param  {string or array} elemSelectors can be a string or array of 
      *                                element selectors example: ".xcTable" or 
      *                                ["#xcTable-ex1", "#xcTable-ex2"]
+     *                                can use :contains for 
      * @param  {integer} timeLimit    length of time to search for before giving
      *                                up
      * @param  {object} options       notExists - boolean, if true, we want to 
      *                                check that this element doesn't exist
+     *                                
      *                                optional - boolean, if true, existence of
      *                                element is optional and we return 
      *                                deferred.resolve regardless 
                                       (example: a confirm box that appears 
                                       in some cases) 
+
      * 
      */
     function checkExists(elemSelectors, timeLimit, options) {
@@ -234,10 +237,12 @@ window.TestSuite = (function($, TestSuite) {
         var optional = options.optional; // if true, existence of element is
         // optional and we return deferred.resolve regardless 
         // (example: a confirm box that appears in some cases)
+        var text = options.text;
 
         if (typeof elemSelectors === "string") {
             elemSelectors = [elemSelectors];
         }
+        console.log(arguments);
 
         var caller = checkExists.caller.name;
 
@@ -363,6 +368,7 @@ window.TestSuite = (function($, TestSuite) {
         var dsName1 = "flight" + randInt();
         var dsName2 = "airport" + randInt();
 
+
         flightTestPart1(dsName1, dsName2);
 
         // Import dataset
@@ -370,41 +376,17 @@ window.TestSuite = (function($, TestSuite) {
             console.log("start flightTestPart1");
             $("#dataStoresTab").click(); // main menu tab
 
-            // Import flight dataset
-            $("#importDataButton").click(); // button to initiate point to dataset
-            $("#fileProtocol input").val(FileProtocol.nfs);
-            $("#filePath").val(testDataLoc + "flight" + "/airlines_2007.csv");
-            $("#dsForm-path").find('.confirm').click(); // go to the next step
-
-
-
-            $("#fileName").val(dsName1);
-            $("#fileFormat .iconWrapper .icon").click();
-            $("#fileFormat li[name='CSV']").click();
-            $("#promoteHeaderCheckbox .icon").click();
-            $("#fieldDelim .icon").click();
-            $("#fieldDelim .list li[name='comma']").click();
-            $("#importDataSubmit").click();
-
-            // import airports dataset
-            setTimeout(function() {
-                // XXXX run it too quick will result in some werid bug
-                // who wants to fix it can remove the setTimeout and run on cantor
-                $("#importDataButton").click();
-                $("#fileProtocol input").val(FileProtocol.nfs);
-                $("#filePath").val(testDataLoc + "flight" + "/airports.csv");
-                $("#fileName").val(dsName2);
-                $("#fileFormat .iconWrapper .icon").click();
-                $("#fileFormat li[name='CSV']").click();
-                $("#fieldDelim .icon").click();
-                $("#fieldDelim .list li[name='comma']").click();
-                $("#importDataSubmit").click();
-            }, 2000);
-
-            var ds1Icon = getDSIcon(dsName1);
-            var ds2Icon = getDSIcon(dsName2);
-
-            checkExists([ds1Icon, ds2Icon])
+             // Import flight dataset
+            flightTestPart1Load1(dsName1)
+            .then(function() {
+                // import airports dataset
+                return flightTestPart1Load2(dsName2);
+            })
+            .then(function() {
+                var ds1Icon = getDSIcon(dsName1);
+                var ds2Icon = getDSIcon(dsName2);
+                return checkExists([ds1Icon, ds2Icon]);
+            })
             .then(function() {
                 flightTestPart2(dsName1, dsName2);
             })
@@ -412,6 +394,62 @@ window.TestSuite = (function($, TestSuite) {
                 console.error(error, "flightTestPart1");
                 TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
+        }
+
+        function flightTestPart1Load1(dsName1) {
+            var deferred = jQuery.Deferred();
+             // Import flight dataset
+            $("#importDataButton").click(); // button to initiate point to dataset
+            $("#fileProtocol input").val(FileProtocol.nfs);
+            $("#filePath").val(testDataLoc + "flight/airlines_2007.csv");
+            $("#dsForm-path").find('.confirm').click(); // go to the next step
+
+            checkExists('#previewTable td:eq(1):contains(19403)', 5000)
+            .then(function() {
+                $("#fileName").val(dsName1);
+                $("#fileFormat .iconWrapper .icon").click();
+                $("#fileFormat li[name='CSV']").click();
+                $("#promoteHeaderCheckbox .icon").click();
+                $("#fieldDelim .icon").click();
+                $("#fieldDelim .list li[name='comma']").click();
+                $("#importDataSubmit").click();
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                deferred.reject(error);
+            });
+            return deferred.promise();
+        }
+
+        function flightTestPart1Load2(dsName2) {
+            var deferred = jQuery.Deferred();
+               // import airports dataset
+            setTimeout(function() {
+                // XXXX run it too quick will result in some werid bug
+                // who wants to fix it can remove the setTimeout and run on cantor
+                $("#importDataButton").click();
+                $("#fileProtocol input").val(FileProtocol.nfs);
+                $("#filePath").val(testDataLoc + "flight/airports.csv");
+
+                $("#dsForm-path").find('.confirm').click(); // go to the next step
+
+                checkExists('#previewTable td:eq(1):contains(00M)', 5000)
+                .then(function() {
+                    $("#fileName").val(dsName2);
+                    $("#fileFormat .iconWrapper .icon").click();
+                    $("#fileFormat li[name='CSV']").click();
+                    $("#fieldDelim .icon").click();
+                    $("#fieldDelim .list li[name='comma']").click();
+                    $("#importDataSubmit").click();
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    deferred.reject(error);
+                });
+
+            }, 2000);
+
+            return deferred.promise();
         }
 
         // Select columns in dataset and send to worksheet
