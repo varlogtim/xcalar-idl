@@ -153,7 +153,11 @@ window.Workbook = (function($, Workbook) {
             var workbookId = $workbookBox.data("workbook-id");
             WorkbookManager.deleteWKBK(workbookId)
             .then(function() {
-                $workbookBox.remove();
+                $workbookBox.addClass('removing');
+                setTimeout(function() {
+                    $workbookBox.remove();
+                }, 700);
+                
             })
             .fail(function(error) {
                 StatusBox.show(error.error, $workbookBox);

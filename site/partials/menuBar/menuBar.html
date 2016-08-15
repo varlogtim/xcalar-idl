@@ -15,7 +15,7 @@
     <!-- workspance tab -->
     <% if (!dicts.isTutor) { %>
     <div id="workspaceTab" class="topMenuBarTab active">
-      <div class="mainTab">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
         <i class="icon xi-menu-worksheet fa-25"></i>
       </div>
     </div>
@@ -26,8 +26,8 @@
       </div>
     </div>
     <% } else { %>
-    <div id="workspaceTab" class="topMenuBarTab">
-      <div class="mainTab">
+    <div id="workspaceTab">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
         <i class="icon xi-menu-worksheet fa-25"></i>
       </div>
     </div>
@@ -36,7 +36,7 @@
     <!-- data store tab -->
     <% if (!dicts.isTutor) { %>
     <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen">
-      <div class="mainTab">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
       <div id="inButton" class="subTab active">
@@ -60,7 +60,7 @@
     </div>
     <% } else { %>
     <div id="dataStoresTab" class="topMenuBarTab active mainMenuOpen">
-      <div class="mainTab">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
       <div id="inButton" class="subTab active">
@@ -93,7 +93,7 @@
     </div>
     <% } else { %>
     <div id="monitorTab" class="topMenuBarTab mainMenuOpen">
-      <div class="mainTab">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.monitor %>">
         <i class="icon xi-menu-monitoring fa-20"></i>
       </div>
        <div id="systemButton" class="subTab active">
@@ -115,8 +115,8 @@
     <% } %>
 
     <!-- scheduler tab -->
-    <div id="schedulerTab" class="topMenuBarTab mainMenuOpen">
-      <div class="mainTab">
+    <div id="schedulerTab" class="topMenuBarTab mainMenuOpen" >
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.schde %>">
         <i class="icon xi-menu-scheduler fa-20"></i>
       </div>
       <div id="dataflowButton" class="subTab active">

@@ -106,7 +106,8 @@ module.exports = {
     },
 
     "menuBar": {
-        "ws": "Worksheet",
+        "wb": "Workbooks",
+        "ws": "Worksheets",
         "monitor": "Monitor",
         "ds": "Data Stores",
         "schde": "Scheduler",
