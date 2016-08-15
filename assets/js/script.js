@@ -160,7 +160,7 @@ window.StartManager = (function(StartManager, $) {
                     "buttons"   : [{
                         "name": WKBKTStr.NewWKBK,
                         "func": function() {
-                            WKBKManager.inActiveAllWKBK();
+                            WorkbookManager.inActiveAllWKBK();
                         }
                     }],
                     "hideButtons": ['copySql']
@@ -205,7 +205,7 @@ window.StartManager = (function(StartManager, $) {
     function setupSession() {
         var deferred = jQuery.Deferred();
 
-        WKBKManager.setup()
+        WorkbookManager.setup()
         .then(Support.holdSession)
         .then(Authentication.setup)
         .then(KVStore.restore)

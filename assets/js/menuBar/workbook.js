@@ -1,44 +1,27 @@
 window.Workbook = (function($, Workbook) {
     var $workbookPanel; // $("#workbookPanel")
-    var $optionSection; // $workbookPanel.find(".optionSection")
-    var $workbookInput; // $("#workbookInput")
-    var $workbookLists; // $("#workbookLists")
-
-    var modalHelper;
-    // default select all workbooks and sort by name
-    var reverseLookup = {
-        "name"    : false,
-        "created" : false,
-        "modified": false,
-        "srcUser" : false,
-        "curUser" : false
-    };
-    var sortkey = "name";
-    var activeActionNo = 0;
+    var $workbookTopbar; // $
+    var $workbookSection; // $
+    var $newWorkbookCard; // $
+    var $newWorkbookInput; // $
+    var sortkey = "modified"; // No longer user configurable
 
     Workbook.setup = function() {
         $workbookPanel = $("#workbookPanel");
-        $optionSection = $workbookPanel.find(".optionSection");
-        $workbookInput = $("#workbookInput");
-        $workbookLists = $("#workbookLists");
-
-        // constant
-        var minHeight = 400;
-        var minWidth  = 750;
-
-        // modalHelper = new ModalHelper($workbookPanel, {
-        //     "focusOnOpen": true,
-        //     "minWidth"   : minWidth,
-        //     "minHeight"  : minHeight
-        // });
+        $workbookInput = $("#workbookPanel"); // XXX temp
+        $workbookLists = $("#workbookPanel"); // XXX temp
+        $newWorkbookCard = $("#workbookPanel"); // XXX temp
+        $newWorkbookInput = $newWorkbookCard.find("input");
 
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
             if ($workbookPanel.is(":visible")) {
+                closeWorkbookPanel();
                 Workbook.hide();
             } else {
                 Workbook.show();
+                addTopBarEvents();
                 addWorkbookEvents();
             }
         });    
@@ -69,102 +52,59 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.forceShow = function() {
-        $workbookPanel.find(".cancel, .close").hide();
-        var $logoutBtn = xcHelper.supportButton();
-        $workbookPanel.find(".modalBottom").append($logoutBtn);
-
         Workbook.show(true);
-        // deafult value for new workbook
-        $workbookInput.val("untitled");
-        var input = $workbookInput.get(0);
+        // Create a new workbook with the name already selected - Prompting
+        // the user to click Create Workbook
+        var uName = Support.getUser();
+        $newWorkbookInput.val("untitled-"+uName);
+        var input = $newWorkbookInput.get(0);
         input.setSelectionRange(0, input.value.length);
     };
 
     function resetWorkbook() {
         $workbookPanel.find(".active").removeClass("active");
-        // default select all workbooks and sort by name
-        reverseLookup = {
-            "name"    : false,
-            "created" : false,
-            "modified": false,
-            "srcUser" : false,
-            "curUser" : false
-        };
-        sortkey = "name";
         $workbookInput.val("").focus();
     }
 
-    function closeWorkbook() {
-        modalHelper.clear();
+    function closeWorkbookPanel() {
         $(document).off("keypress", workbookKeyPress);
         resetWorkbook();
     }
 
+    function addTopBarEvents() {
+        // Events for the top bar, welcome message, news, etc
+        // Welcome message listener
+        // News-Help listener
+        // Tutorial listener
+
+    }
+
     function addWorkbookEvents() {
-        // click cancel or close button
-        $workbookPanel.on("click", ".close, .cancel", function(event) {
-            event.stopPropagation();
-            closeWorkbook();
-        });
+        // Events for the actual workbooks
+        // Play button
 
-        // click confirm button
-        $workbookPanel.on("click", ".confirm", function(event) {
-            $(this).blur();
-            event.stopPropagation();
-            submitForm();
-        });
+        // Edit button
+        // JJJ When editing, remove focus from all other inputs (other card's
+        // edits + new workbook) by cancelling
+        // Duplicate button
+        // Delete button
 
-        // click title to srot
-        var $titleSection = $workbookLists.siblings(".titleSection");
-        $titleSection.on("click", ".title", function() {
-            var $title = $(this);
-
-            $titleSection.find(".title.active").removeClass("active");
-            $title.addClass("active");
-
-            var key = $title.data("sortkey");
-            if (key === sortkey) {
-                reverseLookup[key] = !reverseLookup[key];
-            } else {
-                sortkey = key;
-                reverseLookup[key] = false;
-            }
-            addWorkbooks();
-        });
-
-        // select a workbook
-        $workbookLists.on("click", ".grid-unit", function(event) {
-            event.stopPropagation();
-            $workbookLists.find(".active").removeClass("active");
-            $(this).addClass("active");
-        });
-
-        // deselect workbook
-        // $workbookLists.click(function() {
-        //     $workbookLists.find(".active").removeClass("active");
-        // });
-
-        // choose an option
-        xcHelper.optionButtonEvent($optionSection, function(option) {
-            var no = Number(option);
-            switchAction(no);
-        });
-
-        // scroll the title with when the body is scrolled
-        $workbookLists.scroll(function() {
-            var scrollLeft = $(this).scrollLeft();
-            $workbookLists.siblings(".titleSection").scrollLeft(scrollLeft);
-        });
     }
 
     function workbookKeyPress(event) {
         switch (event.which) {
             case keyCode.Enter:
-                // when focus on a button, no trigger
-                if (modalHelper.checkBtnFocus()) {
-                    break;
-                }
-                $workbookPanel.find(".confirm").click();
+                // Invariant: Due to activating one input field will cause the
+                // others to close, there will be only one active input field
+                // at any point in time.
+                if ($newWorkbookInput.is(":focus")) {
+                    // create new workbook
+                } else if ($workBookSection.find(".workbookCard").is(":focus"))
+                {
+                    // edit name for current workbook
+                } 
+                // If focus on new workbook's input create new workbook
+                // If focus on edit workbook's input, confirm new workbook name
                 break;
             default:
                 break;
@@ -177,14 +117,14 @@ window.Workbook = (function($, Workbook) {
         var html;
 
         if (isForceMode) {
-            // forceMode has no any workbook info
+            // forceMode does not have any workbook info
             html = xcHelper.replaceMsg(WKBKTStr.NewWKBKInstr, {"user": user});
             $instr.html(html);
             return;
         }
 
-        var workbooks = WKBKManager.getWKBKS();
-        var activeWKBKId = WKBKManager.getActiveWKBK();
+        var workbooks = WorkbookManager.getWorkbooks();
+        var activeWKBKId = WorkbookManager.getActiveWKBK();
         var workbook = workbooks[activeWKBKId];
 
         html = xcHelper.replaceMsg(WKBKTStr.CurWKBKInstr, {
@@ -206,69 +146,16 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
-    // helper function for toggle in option section
-    function switchAction(no) {
-        xcHelper.assert((no >= 0 && no <= 3), "Invalid action");
-
-        var $inputSection = $workbookPanel.find(".inputSection");
-        var $mainSection = $workbookPanel.find(".modalMain");
-
-        activeActionNo = no;
-
-        $workbookLists.find(".active").removeClass("active");
-        $workbookPanel.removeClass("no-0")
-                    .removeClass("no-1")
-                    .removeClass("no-2")
-                    .removeClass("no-3")
-                    .addClass("no-" + no);
-
-        switch (no) {
-            // new workbook
-            case 0:
-                $inputSection.removeClass("unavailable");
-                $workbookInput.removeAttr("disabled"); // for tab key switch
-                $mainSection.addClass("unavailable");
-                $workbookPanel.find(".modalBottom .confirm")
-                            .text(CommonTxtTstr.Create.toUpperCase());
-                break;
-            // continue workbook
-            case 1:
-                $inputSection.addClass("unavailable");
-                $workbookInput.attr("disabled", "disabled");
-                $mainSection.removeClass("unavailable");
-                $workbookPanel.find(".modalBottom .confirm")
-                            .text(CommonTxtTstr.Continue.toUpperCase());
-                break;
-            // copy workbook
-            case 2:
-                $inputSection.removeClass("unavailable");
-                $workbookInput.removeAttr("disabled");
-                $mainSection.removeClass("unavailable");
-                $workbookPanel.find(".modalBottom .confirm")
-                            .text(CommonTxtTstr.Copy.toUpperCase());
-                break;
-            // rename workbook
-            case 3:
-                $inputSection.removeClass("unavailable");
-                $workbookInput.removeAttr("disabled"); // for tab key switch
-                $mainSection.removeClass("unavailable");
-                $workbookPanel.find(".modalBottom .confirm")
-                            .text(CommonTxtTstr.Rename.toUpperCase());
-            default:
-                break;
-        }
-    }
-
     function addWorkbooks() {
         var html = "";
         var sorted = [];
-        var workbooks = WKBKManager.getWKBKS();
+        var workbooks = WorkbookManager.getWorkbooks();
 
         for (var id in workbooks) {
             sorted.push(workbooks[id]);
         }
 
-        var activeWKBKId = WKBKManager.getActiveWKBK();
+        var activeWKBKId = WorkbookManager.getActiveWKBK();
         // sort by workbook.name
         var isNum = (sortkey === "created" || sortkey === "modified");
         sorted = sortObj(sorted, sortkey, isNum);
@@ -310,24 +197,26 @@ window.Workbook = (function($, Workbook) {
                 '</div>';
         });
 
-        if (!sorted.length) {
-            var text = WKBKTStr.WKBKnotExists;
-            $optionSection.find('.radioButton').not(':first-child')
-                                            .addClass('disabled')
-                                            .attr("data-toggle", "tooltip")
-                                            .attr("data-original-title", text)
-                                            .attr("data-container", "body")
-                                            .attr("title", text);
-        } else {
-            $optionSection.find('.radioButton').removeClass('disabled')
-                                        .removeAttr("data-toggle")
-                                        .removeAttr("data-placement")
-                                        .removeAttr("data-original-title")
-                                        .removeAttr("data-container")
-                                        .removeAttr("title");
-        }
+        // JJJ Commented out since no longer necessary
+        // if (!sorted.length) {
+        //     var text = WKBKTStr.WKBKnotExists;
+        //     $optionSection.find('.radioButton').not(':first-child')
+        //                                     .addClass('disabled')
+        //                                     .attr("data-toggle", "tooltip")
+        //                                     .attr("data-original-title", text)
+        //                                     .attr("data-container", "body")
+        //                                     .attr("title", text);
+        // } else {
+        //     $optionSection.find('.radioButton').removeClass('disabled')
+        //                                 .removeAttr("data-toggle")
+        //                                 .removeAttr("data-placement")
+        //                                 .removeAttr("data-original-title")
+        //                                 .removeAttr("data-container")
+        //                                 .removeAttr("title");
+        // }
 
-        $workbookLists.html(html);
+        // JJJ This should become something like $workbookSection.html(html);
+        //$workbookLists.html(html);
     }
 
     function submitForm() {
@@ -369,7 +258,7 @@ window.Workbook = (function($, Workbook) {
                     "formMode" : true,
                     "text"     : err1,
                     "check"    : function() {
-                        var workbooks = WKBKManager.getWKBKS();
+                        var workbooks = WorkbookManager.getWorkbooks();
                         for (var wkbkId in workbooks) {
                             if (workbooks[wkbkId].name === workbookName) {
                                 return true;
@@ -409,6 +298,26 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
+    function createNewWorkbook(workbookName) {
+        goWaiting();
+        WorkbookManager.newWKBK(workbookName)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            cancelWaiting();
+            deferred.reject(error);
+        });
+    }
+
+    function activateWorkbook(workbookName) {
+        var workbookId = WorkbookManager.getWorkbookIdByName;
+        return WorkbookManager.switchWKBK(workbookId)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            cancelWaiting();
+            deferred.reject(error);
+        });
+    }
+
     function workbookAction(actionNo, workbookName) {
         var deferred = jQuery.Deferred();
         var workbookId = $workbookLists.find(".active").data("wkbkid");
@@ -417,9 +326,9 @@ window.Workbook = (function($, Workbook) {
             // create new workbook part
             goWaiting();
 
-            WKBKManager.newWKBK(workbookName)
+            WorkbookManager.newWKBK(workbookName)
             .then(function(id) {
-                return WKBKManager.switchWKBK(id);
+                return WorkbookManager.switchWKBK(id);
             })
             .then(deferred.resolve)
             .fail(function(error) {
@@ -433,7 +342,7 @@ window.Workbook = (function($, Workbook) {
             // continue workbook part
             goWaiting();
 
-            WKBKManager.switchWKBK(workbookId)
+            WorkbookManager.switchWKBK(workbookId)
             .then(deferred.resolve)
             .fail(function(error) {
                 cancelWaiting();
@@ -443,9 +352,9 @@ window.Workbook = (function($, Workbook) {
             // copy workbook part
             goWaiting(true);
 
-            WKBKManager.copyWKBK(workbookId, workbookName)
+            WorkbookManager.copyWKBK(workbookId, workbookName)
             .then(function(id) {
-                return WKBKManager.switchWKBK(id);
+                return WorkbookManager.switchWKBK(id);
             })
             .then(deferred.resolve)
             .fail(function(error) {
@@ -454,7 +363,7 @@ window.Workbook = (function($, Workbook) {
             });
         } else if (actionNo === 3) {
             goWaiting();
-            WKBKManager.renameWKBK(workbookId, workbookName)
+            WorkbookManager.renameWKBK(workbookId, workbookName)
             .then(function() {
                 $workbookInput.val("");
                 getWorkbookInfo();
@@ -483,10 +392,6 @@ window.Workbook = (function($, Workbook) {
             objs.sort(function(a, b) {
                 return a[key].localeCompare(b[key]);
             });
-        }
-
-        if (reverseLookup[key] === true) {
-            objs.reverse();
         }
 
         return objs;

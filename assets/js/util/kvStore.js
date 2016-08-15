@@ -236,7 +236,7 @@ window.KVStore = (function($, KVStore) {
             // but session is still there
             deferred.resolve();
 
-            // WKBKManager.emptyAll()
+            // WorkbookManager.emptyAll()
             // .then(function() {
             //     return (Authentication.clear());
             // })
