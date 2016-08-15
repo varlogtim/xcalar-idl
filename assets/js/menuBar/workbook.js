@@ -1,18 +1,19 @@
 window.Workbook = (function($, Workbook) {
     var $workbookPanel; // $("#workbookPanel")
-    var $workbookTopbar; // $
-    var $workbookSection; // $
-    var $newWorkbookCard; // $
-    var $newWorkbookInput; // $
+    var $workbookTopbar; // $workbookPanel.find(".topSection")
+    var $workbookSection; // $workbookPanel.find(".bottomSection")
+    var $newWorkbookCard; // $workbookPanel.find(".newWorkbookBox")
+    var $newWorkbookInput; // $newWorkbookCard.find("input")
+    var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
     var sortkey = "modified"; // No longer user configurable
 
     Workbook.setup = function() {
         $workbookPanel = $("#workbookPanel");
-        $workbookInput = $("#workbookPanel"); // XXX temp
-        $workbookLists = $("#workbookPanel"); // XXX temp
-        $newWorkbookCard = $("#workbookPanel"); // XXX temp
+        $workbookTopbar = $workbookPanel.find(".topSection");
+        $workbookSection = $workbookPanel.find(".bottomSection");
+        $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
         $newWorkbookInput = $newWorkbookCard.find("input");
-
+        $welcomeCard = $workbookTopbar.find(".welcomeBox");
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
@@ -62,8 +63,8 @@ window.Workbook = (function($, Workbook) {
     };
 
     function resetWorkbook() {
-        $workbookPanel.find(".active").removeClass("active");
-        $workbookInput.val("").focus();
+        // $workbookPanel.find(".active").removeClass("active");
+        $newWorkbookInput.val("").focus();
     }
 
     function closeWorkbookPanel() {
@@ -112,7 +113,8 @@ window.Workbook = (function($, Workbook) {
     }
 
     function getWorkbookInfo(isForceMode) {
-        var $instr = $workbookPanel.find(".modalInstruction .text");
+        console.log($welcomeCard);
+        var $instr = $welcomeCard.find(".description");
         var user = Support.getUser();
         var html;
 
@@ -146,6 +148,19 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
+    function createWorkbookCard(workbookId, workbookName, createdTime,
+                                modifiedTime, username, numWorksheets,
+                                isActive, gridClass) {
+        // Generate HTML for workbook card based on the input args
+        return '<div class="' + gridClass + '" data-wkbkid="' + workbookId + '">' +
+                    '<div class="name">' + workbookName + '</div>' +
+                    '<div>' + createdTime + '</div>' +
+                    '<div>' + modifiedTime + '</div>' +
+                    '<div>' + (username || "") + '</div>' +
+                    '<div>' + (username || "") + '</div>' +
+                '</div>';
+    }
+
     function addWorkbooks() {
         var html = "";
         var sorted = [];
@@ -165,8 +180,10 @@ window.Workbook = (function($, Workbook) {
             var modified  = workbook.modified;
             var gridClass = "grid-unit";
             var name = workbook.name;
+            var isActive = false;
 
             if (wkbkId === activeWKBKId) {
+                isActive = true;
                 gridClass += " activeWKBK";
             }
 
@@ -187,14 +204,12 @@ window.Workbook = (function($, Workbook) {
                                 xcHelper.getDate("-", null, modified);
             }
 
-            html +=
-                 '<div class="' + gridClass + '" data-wkbkid="' + wkbkId + '">' +
-                    '<div class="name">' + name + '</div>' +
-                    '<div>' + createdTime + '</div>' +
-                    '<div>' + modifiedTime + '</div>' +
-                    '<div>' + (workbook.srcUser || "") + '</div>' +
-                    '<div>' + (workbook.curUser || "") + '</div>' +
-                '</div>';
+            var numWorksheets = "";
+            numWorksheets = 
+            html += createWorkbookCard(wkbkId, name, createdTime, modifiedTime,
+                                      workbook.srcUser, numWorksheets, isActive,
+                                      gridClass);
+
         });
 
         // JJJ Commented out since no longer necessary
@@ -216,7 +231,7 @@ window.Workbook = (function($, Workbook) {
         // }
 
         // JJJ This should become something like $workbookSection.html(html);
-        //$workbookLists.html(html);
+        //$workbookSection.html(html);
     }
 
     function submitForm() {
