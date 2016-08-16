@@ -417,7 +417,7 @@ module.exports = {
         "OUT": "OUT",
         "Format": "Format",
         "Protocol": "Data Source Protocol",
-        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modified the tabale name and then click \"SENT TO WORKSHEET\" button. You can also click the \"Select column later\" button and pull out columns after the table is created."
+        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modified the tabale name and then click \"SENT TO WORKSHEET\" button. You can also click the \"Select columns later\" button and pull out columns after the table is created."
     },
 
 // keep in sync with the FileProtocol in enums.js

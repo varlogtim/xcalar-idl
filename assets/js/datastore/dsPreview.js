@@ -25,7 +25,7 @@ window.DSPreview = (function($, DSPreview) {
 
     var highlighter = "";
 
-    var loadArgs = null;
+    var loadArgs = new DSFomrController();
     var detectArgs = {};
 
     // UI cache
@@ -112,7 +112,6 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     DSPreview.show = function(options, fromFormCard) {
-        options = options || {};
         $previewCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
 
         if (fromFormCard) {
@@ -122,14 +121,15 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         resetForm();
-        loadArgs = $.extend(options, loadArgs);
-        if (loadArgs.format === formatMap.EXCEL) {
+        loadArgs.set(options);
+
+        if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
             previewData(excelModule, excelFunc);
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)
-            delete loadArgs.format;
+            loadArgs.setFormat(null);
             previewData(null, null);
         }
     };
@@ -289,7 +289,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // back button
         $form.on("click", ".cancel", function() {
-            var path = loadArgs.path;
+            var path = loadArgs.getPath();
             var protocol;
             for (var key in FileProtocol) {
                 protocol = FileProtocol[key];
@@ -528,7 +528,7 @@ window.DSPreview = (function($, DSPreview) {
             $fieldDelim.addClass("xc-hidden");
             $headerRow.addClass("xc-hidden");
             $formatText.data("format", "").val("");
-            delete loadArgs.format;
+            loadArgs.setFormat(null);
             return;
         }
 
@@ -547,7 +547,7 @@ window.DSPreview = (function($, DSPreview) {
             case "TEXT":
                 // no field delimiter when format is text
                 $fieldDelim.addClass("xc-hidden");
-                loadArgs.fieldDelim = "";
+                loadArgs.setFieldDelim("");
                 break;
             case "EXCEL":
                 $lineDelim.addClass("xc-hidden");
@@ -572,7 +572,7 @@ window.DSPreview = (function($, DSPreview) {
                 throw new ReferenceError("Format Not Support");
         }
 
-        loadArgs.format = formatMap[format];
+        loadArgs.setFormat(formatMap[format]);
     }
 
     function resetDelimiter() {
@@ -586,7 +586,7 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-skipRows").val(0);
         $form.find(".checkbox.checked").removeClass("checked");
         // keep the current protocol
-        resetLoadArgs();
+        loadArgs.reset();
         detectArgs = {
             "fieldDelim": "",
             "lineDelim" : "\n",
@@ -598,15 +598,6 @@ window.DSPreview = (function($, DSPreview) {
         toggleFormat();
         resetDelimiter();
         applyHighlight(""); // remove highlighter
-    }
-
-    function resetLoadArgs() {
-        loadArgs = {
-            "fieldDelim": "",
-            "lineDelim" : "\n",
-            "hasHeader" : false,
-            "quote"     : "\"",
-        };
     }
 
     function clearAll() {
@@ -678,15 +669,15 @@ window.DSPreview = (function($, DSPreview) {
     function previewData(udfModule, udfFunc, noDetect) {
         var deferred = jQuery.Deferred();
 
-        var loadURL = loadArgs.path;
+        var loadURL = loadArgs.getPath();
         var dsName = getNameFromPath(loadURL);
         $("#dsForm-dsName").val(dsName);
-
-        if (loadArgs.pattern) {
-            loadURL += loadArgs.pattern;
+        var pattern = loadArgs.getPattern();
+        if (pattern != null) {
+            loadURL += pattern;
         }
 
-        var isRecur = loadArgs.isRecur;
+        var isRecur = loadArgs.useRecur();
         var hasUDF = false;
 
         if (udfModule && udfFunc) {
@@ -800,7 +791,7 @@ window.DSPreview = (function($, DSPreview) {
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        var previewSize = loadArgs.previewSize;
+        var previewSize = loadArgs.getPreviewSize();
 
         XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
                     false, udfModule, udfFunc, isRecur,
@@ -880,18 +871,18 @@ window.DSPreview = (function($, DSPreview) {
         var quote = res.quote;
         var skipRows = res.skipRows;
 
-        var header = isUseHeader();
+        var header = loadArgs.useHeader();
 
-        var loadURL = loadArgs.path;
-        if (loadArgs.pattern) {
+        var loadURL = loadArgs.getPath();
+        var pattern = loadArgs.getPattern();
+        if (pattern) {
             // XXX not sure if it's right
-            loadURL += loadArgs.pattern;
+            loadURL += patternn;
         }
 
-        var isRecur = loadArgs.isRecur;
-        // XXX not wired
-        var isRegEx = loadArgs.isRegEx;
-        var previewSize = loadArgs.previewSize;
+        var isRecur = loadArgs.useRecur();
+        var isRegEx = loadArgs.useRegEx();
+        var previewSize = loadArgs.getPreviewSize();
 
         console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
             header, loadURL, quote, skipRows, isRecur, isRegEx, previewSize);
@@ -942,7 +933,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         // validate format
-        var format = getFormat();
+        var format = loadArgs.getFormat();
         isValid = xcHelper.validate([{
             "$selector": $formatText,
             "text"     : ErrTStr.NoEmptyList,
@@ -984,9 +975,9 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         // validate delimiter
-        var fieldDelim = getFieldDelim();
-        var lineDelim = getLineDelim();
-        var quote = getQuote();
+        var fieldDelim = loadArgs.getFieldDelim();
+        var lineDelim = loadArgs.getLineDelim();
+        var quote = loadArgs.getQuote();
 
         isValid = xcHelper.validate([
             {
@@ -1124,21 +1115,21 @@ window.DSPreview = (function($, DSPreview) {
         $previeWrap.find(".loadHidden").removeClass("hidden");
         $highlightBtns.addClass("hidden");
 
-        var format = getFormat();
+        var format = loadArgs.getFormat();
         if (format === formatMap.JSON) {
             getJSONTable(rawData);
             return;
         }
 
         // line delimiter
-        var lineDelim = getLineDelim();
+        var lineDelim = loadArgs.getLineDelim();
         var data = lineSplitHelper(rawData, lineDelim);
 
         for (var i = 0, len = data.length; i < len; i++) {
             data[i] = data[i].split("");
         }
 
-        var fieldDelim = getFieldDelim();
+        var fieldDelim = loadArgs.getFieldDelim();
         if (format === formatMap.CSV && fieldDelim === "") {
             $highlightBtns.removeClass("hidden")
                         .find("button").removeClass("xc-disabled");
@@ -1207,15 +1198,9 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function toggleHeader(promote, changePreview) {
-        if (promote == null) {
-            loadArgs.hasHeader = !loadArgs.hasHeader;
-        } else if (promote) {
-            loadArgs.hasHeader = true;
-        } else {
-            loadArgs.hasHeader = false;
-        }
-
-        if (loadArgs.hasHeader) {
+        loadArgs.setHeader(promote);
+        var hasHeader = loadArgs.useHeader();
+        if (hasHeader) {
             $headerCheckBox.find(".checkbox").addClass("checked");
         } else {
             $headerCheckBox.find(".checkbox").removeClass("checked");
@@ -1230,7 +1215,7 @@ window.DSPreview = (function($, DSPreview) {
         var $headers = $previewTable.find("thead tr .header");
         var html;
 
-        if (loadArgs.hasHeader) {
+        if (hasHeader) {
             // promote header
             for (var i = 1, len = $tds.length; i < len; i++) {
                 $headers.eq(i).find(".text").html($tds.eq(i).html());
@@ -1270,14 +1255,6 @@ window.DSPreview = (function($, DSPreview) {
         return $("#udfCheckbox").find(".checkbox").hasClass("checked");
     }
 
-    function isUseHeader() {
-        return loadArgs.hasHeader;
-    }
-
-    function getFormat() {
-        return loadArgs.format;
-    }
-
     function setFieldDelim() {
         var fieldDelim = xcHelper.delimiterTranslate($fieldText);
 
@@ -1286,7 +1263,7 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        loadArgs.fieldDelim = fieldDelim;
+        loadArgs.setFieldDelim(fieldDelim);
     }
 
     function setLineDelim() {
@@ -1297,7 +1274,7 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        loadArgs.lineDelim = lineDelim;
+        loadArgs.setLineDelim(lineDelim);
     }
 
     function setQuote() {
@@ -1312,19 +1289,7 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        loadArgs.quote = quote;
-    }
-
-    function getFieldDelim() {
-        return loadArgs.fieldDelim;
-    }
-
-    function getLineDelim() {
-        return loadArgs.lineDelim;
-    }
-
-    function getQuote() {
-        return loadArgs.quote;
+        loadArgs.setQuote(quote);
     }
 
     function getSkipRows() {
@@ -1537,7 +1502,7 @@ window.DSPreview = (function($, DSPreview) {
                                             'data-sizetoheader="true"></div>';
 
         // when has header
-        if (isUseHeader()) {
+        if (loadArgs.useHeader()) {
             thead +=
                 '<th class="rowNumHead">' +
                     '<div class="header"></div>' +
@@ -1567,7 +1532,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function getTbodyHTML(datas, delimiter) {
         var tbody = "<tbody>";
-        var i = isUseHeader() ? 1 : 0;
+        var i = loadArgs.useHeader() ? 1 : 0;
         i += getSkipRows();
         for (j = 0, len = datas.length; i < len; i++, j++) {
             tbody += '<tr>' +
@@ -1593,7 +1558,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var hasQuote = false;
         var hasBackSlash = false;
-        var quote = getQuote();
+        var quote = loadArgs.getQuote();
         var dataLen = data.length;
         var res = [];
         var i = 0;
@@ -1643,7 +1608,7 @@ window.DSPreview = (function($, DSPreview) {
         var hasBackSlash = false;
         var dels = strToDelimit.split("");
         var delLen = dels.length;
-        var quote = getQuote();
+        var quote = loadArgs.getQuote();
 
         var hasDelimiter = (delLen !== 0);
         var colGrab = hasDelimiter ? '<div class="colGrab" ' +
@@ -1784,7 +1749,7 @@ window.DSPreview = (function($, DSPreview) {
         if (detectArgs.format === formatMap.EXCEL ||
             detectArgs.format === formatMap.CSV) {
             // need to reset first
-            loadArgs.hasHeader = false;
+            loadArgs.setHeader(false);
 
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);
@@ -1835,7 +1800,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function detectFormat() {
-        var format = getFormat();
+        var format = loadArgs.getFormat();
         if (format === formatMap.JSON || format === formatMap.EXCEL) {
             return format;
         } else if (isJSONArray()) {

@@ -514,6 +514,93 @@ UserPref.prototype = {
 };
 
 // datastore.js
+function DSFomrController() {
+    return this;
+}
+
+DSFomrController.prototype = {
+    "set": function(options) {
+        var self = this;
+        optoins = options || {};
+        for (var key in options) {
+            if (options[key] != null) {
+                self[key] = options[key];
+            }
+        }
+    },
+
+    "reset": function() {
+        this.fieldDelim = "";
+        this.lineDelim = "\n";
+        this.hasHeader = false;
+        this.quote = "\"";
+    },
+
+    "getPath": function() {
+        return this.path;
+    },
+
+    "getPattern": function() {
+        return this.pattern;
+    },
+
+    "getPreviewSize": function() {
+        return this.previewSize;
+    },
+
+    "getFormat": function() {
+        return this.format;
+    },
+
+    "setFormat": function(format) {
+        this.format = format;
+    },
+
+    "useRegEx": function() {
+        return this.isRegEx;
+    },
+
+    "useRecur": function() {
+        return this.isRecur;
+    },
+
+    "useHeader": function() {
+        return this.hasHeader;
+    },
+
+    "setHeader": function(hasHeader) {
+        if (hasHeader == null) {
+            this.hasHeader = !this.hasHeader;
+        }
+
+        this.hasHeader = hasHeader;
+    },
+
+    "setFieldDelim": function(fieldDelim) {
+        this.fieldDelim = fieldDelim;
+    },
+
+    "getFieldDelim": function() {
+        return this.fieldDelim;
+    },
+
+    "setLineDelim": function(lineDelim) {
+        this.lineDelim = lineDelim;
+    },
+
+    "getLineDelim": function() {
+        return this.lineDelim;
+    },
+
+    "setQuote": function(quote) {
+        this.quote = quote;
+    },
+
+    "getQuote": function() {
+        return this.quote;
+    }
+};
+
 function Cart(options) {
     options = options || {};
     this.dsId = options.dsId;
@@ -2342,7 +2429,7 @@ ModalHelper.prototype = {
             "top" : top
         });
     },
-    // options: 
+    // options:
     // time - fade out or fade in time in ms
     // opSection - if operations section is opening
     toggleBG: function(tableId, isHide, options) {
