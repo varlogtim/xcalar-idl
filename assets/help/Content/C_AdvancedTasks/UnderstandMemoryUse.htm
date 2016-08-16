@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Understanding memory usage</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/foundation.5.5.0.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.topic-ratings-button
+{
+	-pie-background: transparent url('../../Skins/Default/Stylesheets/Images/star-full.png') no-repeat center center;
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.edit-user-profile-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/edit-profile.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.5.5.0_custom.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.offcanvas.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap">
+            <div class="off-canvas-wrap" data-offcanvas="">
+                <section class="inner-wrap">
+                    <nav class="tab-bar" data-mc-ignore="true">
+                        <section class="middle tab-bar-section outer-row clearfix">
+                            <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
+                                <div class="navigation-wrapper">
+                                    <ul class="navigation clearfix">
+                                        <li class="has-children"><a href="../A_IntroductionTopics/Getting Started.htm">Getting started</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../A_IntroductionTopics/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                </li>
+                                                <li><a href="../A_IntroductionTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                </li>
+                                                <li><a href="../A_IntroductionTopics/FirstSteps.htm">First steps</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../B_CommonTasks/Tasks.htm">Common tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../B_CommonTasks/CreateTable.htm">Creating a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/ChangeDataType.htm">Changing the data type for a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/ManipulateColumns.htm">Manipulating table columns</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/CountOccurrencesOfValues.htm">Counting occurrences of values in a table column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/UndoRedo.htm">Undoing and redoing an operation</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/FilterValue.htm">Filtering in a table column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/JoinTables.htm">Joining tables</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/GroupBy.htm">Grouping data in a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/Map.htm">Using the map function to create new values from selected columns</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="AdvancedTopics.htm">Advanced tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="Extensions.htm">Using extensions</a>
+                                                </li>
+                                                <li><a href="UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="OperationalizeQueries.htm">Operationalizing queries</a>
+                                                </li>
+                                                <li><a href="FunctionBar.htm">Using the function bar</a>
+                                                </li>
+                                                <li><a href="#" class="selected">Understanding memory usage</a>
+                                                </li>
+                                                <li><a href="OptimizeMemory.htm">Optimizing memory usage</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../D_RefInformation/InsightWindow.htm">Xcalar Insight window</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/WkbkBrowser.htm">Workbook Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/DataBrowser.htm">Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_RefInformation/QueryGraph.htm">Query graph viewer</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/Table_options.htm">Table options</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div><a class="menu-icon right-off-canvas-toggle" href="#"><span></span></a>
+                            </div>
+                        </section>
+                        <div class="nav-search row outer-row">
+                            <form class="search" action="#">
+                                <div class="search-bar search-bar-container needs-pie">
+                                    <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                    <div class="search-filter-wrapper">
+                                        <div class="search-filter">
+                                            <div class="search-filter-content">
+                                                <ul>
+                                                    <li>All Files</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-submit-wrapper" dir="ltr">
+                                        <div class="search-submit" title="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
+                    <aside class="right-off-canvas-menu" data-mc-ignore="true">
+                        <ul class="off-canvas-list" data-mc-back-link="Back" data-mc-css-tree-node-expanded="has-submenu" data-mc-css-tree-node-collapsed="has-submenu" data-mc-css-sub-menu="right-submenu" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="True" data-mc-defer-expand-event="True" data-mc-expand-event="click.fndtn.offcanvas" data-mc-toc="True">
+                        </ul>
+                    </aside>
+                    <section class="main-section">
+                        <div class="row outer-row" data-mc-content-body="True">
+                            <div id="contentBody">
+                                <div class="row collapse">
+                                    <div class="sideContent">
+                                        <div class="clearfix">
+                                            <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component">
+                                                <div class="button-group-container-left">
+                                                    <div class="button-group star-buttons loading feedback-topic-required">
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="button-separator feedback-topic-required">
+                                                    </div>
+                                                    <button class="button feedback-required login-button" id="normalLoginBtn" data-state1-class="login-button" data-state2-class="edit-user-profile-button" title="Login" data-state1-title="Login">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="login" />
+                                                    </button>
+                                                    <button class="button needs-pie print-button" title="Print">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="menu _Skins_SideMenu mc-component">
+                                            <li class="has-children"><a href="AdvancedTopics.htm">Advanced tasks</a>
+                                                <ul class="sub-menu">
+                                                    <li><a href="Extensions.htm">Using extensions</a>
+                                                    </li>
+                                                    <li><a href="UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="OperationalizeQueries.htm">Operationalizing queries</a>
+                                                    </li>
+                                                    <li><a href="FunctionBar.htm">Using the function bar</a>
+                                                    </li>
+                                                    <li><a href="#" class="selected">Understanding memory usage</a>
+                                                    </li>
+                                                    <li><a href="OptimizeMemory.htm">Optimizing memory usage</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTopics.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Understanding memory usage</span>
+                                    </div>
+                                    <div class="bodyProxyNarrow">
+                                        <h1>Understanding memory usage</h1>
+                                        <p>All <span class="GeneralProductName">Xcalar Insight</span> users share the same memory resources on the <span class="GeneralCompanyNameShort">Xcalar</span> cluster. Every user's memory consumption has an effect on all other users. Therefore, make sure that you understand the importance of conserving memory to ensure that the cluster can function properly and effectively.</p>
+                                        <h2>Understanding the low-memory notification</h2>
+                                        <p>If the cluster is low on memory, <span class="GeneralProductName">Xcalar Insight</span> automatically displays a modal window similar to the following  for every user who is logged in:</p>
+                                        <p>
+                                            <img src="../Resources/Images/Insight_screenshots/memory-low-notification.png" />
+                                        </p>
+                                        <p>The tables shown in the modal window are the same as the ones listed in the <span class="UIelement">Tables</span> list. They are tables from all worksheets in your active workbook. As illustrated in this example, the tables listed do not consume a large amount of memory, and yet the user receives the notification because the cluster as a whole has little available memory. See <a href="OptimizeMemory.htm" class="MCXref xref">Optimizing memory usage</a>&#160;for information about what you can do to release or conserve memory.</p>
+                                        <h2>Determining which table to delete</h2>
+                                        <p>The following list describes the considerations when you determine which table to delete:</p>
+                                        <ul>
+                                            <li value="1">From the <span class="UIelement">Delete Tables</span>&#160;modal window, you can see the amount of memory consumed by each table. The size information helps you decide the amount of memory that will be released due to the deletion.</li>
+                                            <li value="2">Orphaned tables are created when you perform operations in a worksheet to cleanse data, transform data, and so on. They can accumulate fast over time, and it is likely that you do not need most of the orphaned tables. For example, it is likely that you no longer need the orphaned table resulting from a data type change. For more information about orphaned tables, see <a href="../B_CommonTasks/ChangeTableStatus.htm" class="MCXref xref">Understanding and changing table statuses</a>.</li>
+                                            <li value="3">Archived tables are the ones you removed from the worksheet to make the worksheet easier to manage. Re-evaluate whether the table will ever be used again. Delete the archived tables that are no longer useful for modeling your queries. For more information about archived tables, see <a href="../B_CommonTasks/ChangeTableStatus.htm" class="MCXref xref">Understanding and changing table statuses</a>.</li>
+                                            <li value="4">You might have multiple active tables across worksheets in your workbook. It is least likely that you want to delete active tables because they are the ones that you currently work on or worked on recently. However, it is acceptable to delete an active table if it is not needed anymore, for example, because another active table contains similar data. </li>
+                                        </ul>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Deleting any kind of table is not reversible. You cannot undo a table deletion.</div>
+                                        <h2>Deleting a table from the Delete&#160;Tables modal window</h2>
+                                        <p class="InPageSummary">All <span class="GeneralProductName">Xcalar Insight</span> users share the same memory resources on the <span class="GeneralCompanyNameShort">Xcalar</span> cluster. Every user's memory consumption has an effect on all other users. Therefore, make sure that you understand the importance of conserving memory to ensure that the cluster can function properly and effectively. Use the Delete Tables modal window to check the memory used by each table and to delete unnecessary tables.</p>
+                                        <p class="hashtag">MonitorTab</p>
+                                        <p class="hashtag">Monitor</p>
+                                        <p class="hashtag">MemoryUsedByTables</p>
+                                        <p class="hashtag">MemoryUse</p>
+                                        <p class="hashtag">Memory</p>
+                                        <p class="hashtag">MemoryConsumed</p>
+                                        <p class="hashtag">LowMemoryNotification</p>
+                                        <p class="hashtag">LowMemory</p>
+                                        <p class="hashtag">DeleteTables</p>
+                                        <p class="hashtag">TableDeletion</p>
+                                        <p class="hashtag">DeleteTablesModal</p>
+                                        <p class="hashtag">ArchivedTable</p>
+                                        <p class="hashtag">ActiveTable</p>
+                                        <p class="hashtag">OrphanedTable</p>
+                                        <p class="hashtag">MemoryUsage</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a class="exit-off-canvas"></a>
+                </section>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

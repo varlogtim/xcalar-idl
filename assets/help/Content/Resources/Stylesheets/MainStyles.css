@@ -1,6 +1,29 @@
 @namespace MadCap url(http://www.madcapsoftware.com/Schemas/MadCap.xsd);
 /*<meta />*/
 
+@font-face
+{
+    font-family: "Open Sans";
+    src: url(../../Fonts/open-sans.regular.ttf),
+	url(../../Fonts/OpenSans-Bold.ttf),
+	url(../../Fonts/OpenSans-BoldItalic.ttf),
+	url(../../Fonts/OpenSans-ExtraBold.ttf),
+	url(../../Fonts/OpenSans-ExtraBoldItalic.ttf),
+	url(../../Fonts/OpenSans-Italic.ttf),
+	url(../../Fonts/OpenSans-Light.ttf),
+	url(../../Fonts/OpenSans-LightItalic.ttf),
+	url(../../Fonts/OpenSans-Semibold.ttf),
+	url(../../Fonts/OpenSans-SemiboldItalic.ttf);
+    font-weight: normal;
+} 
+
+@font-face
+{
+    font-family: "Open Sans Semibold";
+    src: url(../../Fonts/OpenSans-Semibold.ttf);
+    font-weight: normal;
+} 
+
 body
 {
 	color: #404040;
@@ -107,7 +130,7 @@ div.sideContent
 	float: right;
 	margin-left: 10px;
 	margin-bottom: 10px;
-	width: 33.33%;
+	width: 28%;
 }
 
 html.templateTopic div.sideContent
@@ -126,18 +149,7 @@ p.userInput
 img.BigImage
 {
 	mc-thumbnail: popup;
-}
-
-p.Note
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	border-top: solid 2px #6495ed;
-	border-bottom: solid 2px #1e90ff;
-	border-bottom-color: #6495ed;
-	mc-auto-number-format: '{b}{color blue}NOTE: {/color}{/b}';
-	border-top-width: 3px;
-	border-bottom-width: 3px;
+	mc-thumbnail-max-height: 150px;
 }
 
 p.hashtag	/*Tag keywords for building dictionary for use in in-page help*/
@@ -170,7 +182,7 @@ ul.InPageSummary
 
 ul
 {
-
+	
 }
 
 MadCap|dropDownBody
@@ -194,7 +206,6 @@ p.Example
 	font-size: 18px;
 	padding: 14px;
 	mc-auto-number-format: '{b}Example: {/b}';
-	background-color: #b6daf5;
 }
 
 p.CLIoutput
@@ -202,18 +213,6 @@ p.CLIoutput
 	font-family: 'Courier New';
 	margin-bottom: 5px;
 	margin-top: 5px;
-}
-
-p.Important
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	border-top: solid 2px #6495ed;
-	border-bottom: solid 2px #1e90ff;
-	border-bottom-color: #6495ed;
-	border-top-width: 3px;
-	border-bottom-width: 3px;
-	mc-auto-number-format: '{b}{color blue}IMPORTANT: {/color}{/b}';
 }
 
 p.faqQuestion
@@ -237,26 +236,117 @@ p.faqAnswer
 	mc-auto-number-format: '{b}Answer: {/b}';
 }
 
-p.Tip
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	font-weight: normal;
-	color: #454040;
-	font-size: 18px;
-	padding: 14px;
-	background-color: #b6daf5;
-	mc-auto-number-format: '{b}TIP: {/b}';
-}
-
 ul.navigation ul
 {
 	border: #000000 1px none;
 	border-radius: 10px;
-	border-top-right-radius: 0px;
 }
 
 span.SearchHighlight
 {
 	background-color: #ede54b;
 }
+
+p.sampleCode
+{
+	font-family: 'Courier New';
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
+
+div.sampleCode
+{
+	background-color: #cccccc;
+	font-family: 'Courier New';
+	padding-left: 5px;
+	padding-right: 5px;
+	border: solid 1px #000000;
+}
+
+div
+{
+	
+}
+
+div.Example
+{
+	border-top-color: #6495ed;
+	border-bottom-color: #6495ed;
+	border-bottom: none 2px #000000;
+	border-top: none 2px #000000;
+	border-left: solid 5px #5cb2e8;
+	margin: 0px;
+	margin-left: 40px;
+	padding: 3px 3px 3px 7px;
+	margin-top: 33px;
+	margin-bottom: 33px;
+	margin-right: 34px;
+}
+
+span.label
+{
+	font-weight: bold;
+	margin-top: 5px;
+}
+
+div.Note
+{
+	border-top-color: #6495ed;
+	border-bottom-color: #6495ed;
+	border-bottom: none 2px #000000;
+	border-top: none 2px #000000;
+	border-left: solid 5px #5cb2e8;
+	margin: 0px;
+	margin-left: 40px;
+	padding: 3px 3px 3px 7px;
+	margin-top: 33px;
+	margin-bottom: 33px;
+	margin-right: 34px;
+}
+
+p.Title
+{
+	font-size: 30pt;
+	font-weight: bold;
+}
+
+p.subTitle
+{
+	font-size: 30pt;
+	font-weight: bold;
+}
+
+img
+{
+	mc-thumbnail-max-height: 500px;
+}
+
+MadCap|dropDown
+{
+	mc-closed-image: url('../Images/Insight_assets/xi-plus-circle-outline.png');
+	mc-open-image: url('../Images/Insight_assets/xi-minus-circle-outline.png');
+}
+
+ul.navigation
+{
+	text-transform: uppercase;
+}
+
+ul.sub-menu
+{
+	text-transform: none;
+}
+
+@media print
+{
+	p.subTitle
+	{
+		font-size: 24pt;
+	}
+}
+
+div.bodyProxyNarrow
+{
+	width: 65%;
+}
+

@@ -37,24 +37,12 @@
 .MCExpandingHotSpot
 {
 	cursor: pointer;
-	background-position: left center;
 	background-repeat: no-repeat;
-	padding-left: 18px;
 }
 
 .MCExpanding_Image_Icon
 {
 	border: none;
-}
-
-.MCExpanding_Open .MCExpandingHotSpot
-{
-	background-image: url("Images/minus.png");
-}
-
-.MCExpanding_Closed .MCExpandingHotSpot
-{
-	background-image: url("Images/plus.png");
 }
 
 .MCExpandingBody
@@ -98,19 +86,7 @@
 .MCDropDownHotSpot
 {
 	cursor: pointer;
-	background-position: left center;
 	background-repeat: no-repeat;
-	padding-left: 18px;
-}
-
-.MCDropDown_Open .MCDropDownHotSpot
-{
-	background-image: url("Images/minus.png");
-}
-
-.MCDropDown_Closed .MCDropDownHotSpot
-{
-	background-image: url("Images/plus.png");
 }
 
 .MCDropDown_Closed a.MCDropDownHotSpot,
@@ -166,19 +142,7 @@
 .MCTogglerHotSpot
 {
 	cursor: pointer;
-	background-position: left center;
 	background-repeat: no-repeat;
-	padding-left: 18px;
-}
-
-.MCToggler_Open.MCTogglerHotSpot
-{
-	background-image: url("Images/minus.png");
-}
-
-.MCToggler_Closed.MCTogglerHotSpot
-{
-	background-image: url("Images/plus.png");
 }
 
 a.MCToggler_Closed.MCTogglerHotSpot,

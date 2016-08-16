@@ -509,23 +509,20 @@ div.MCBreadcrumbsBox_0
 	text-decoration: none;
 }
 
-.MCDropDownHotSpot_
+.MCDropDown_Open .MCDropDownHotSpot_.MCHotSpotImage
 {
 	background-position: left;
+	background-image: url('xi-minus-circle-outline.png');
+	padding-left: 5px;
+	padding-right: 0;
 }
 
-.MCDropDown_Open .MCDropDownHotSpot_
+.MCDropDown_Closed .MCDropDownHotSpot_.MCHotSpotImage
 {
-	background-image: url('DropDownOpen.gif');
-	padding-left: 1px;
-	padding-right: 0px;
-}
-
-.MCDropDown_Closed .MCDropDownHotSpot_
-{
-	background-image: url('DropDownClosed.gif');
-	padding-left: 0px;
-	padding-right: 0px;
+	background-position: left;
+	background-image: url('xi-plus-circle-outline.png');
+	padding-left: 5px;
+	padding-right: 0;
 }
 
 .dropDownHead

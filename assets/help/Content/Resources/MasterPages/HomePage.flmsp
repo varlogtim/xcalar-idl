@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:lastBlockDepth="6" MadCap:lastHeight="163" MadCap:lastWidth="1058">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:lastBlockDepth="7" MadCap:lastHeight="153" MadCap:lastWidth="1060">
     <head>
         <meta charset="utf-8" />
         <meta name="description" content="" />
@@ -9,12 +9,13 @@
     <body>
         <div id="contentBody" class="off-canvas-main">
             <MadCap:bodyProxy />
-            <div class="footer center" style="padding-top: 10px;">
+            <div class="footer center">
                 <div class="HomeMasterPageFooter outer-row">
                     <div>
+                        <div class="footer-links"><a href="../../Back_matter.htm">Legal notices</a>
+                        </div>
                         <div class="footer-links"><a href="../../D_RefInformation/CompanyInfo.htm">Contact us</a>
                         </div>
-                        <p class="Copyright">Copyright © <MadCap:variable name="General.Year" /> <MadCap:variable name="General.CompanyName" /></p>
                     </div>
                 </div>
             </div>

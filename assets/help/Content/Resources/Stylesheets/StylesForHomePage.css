@@ -4,10 +4,34 @@
 
 /* Home Page General Styles*/
 
+@font-face
+{
+    font-family: "Open Sans";
+    src: url(../../Fonts/open-sans.regular.ttf),
+	url(../../Fonts/OpenSans-Bold.ttf),
+	url(../../Fonts/OpenSans-BoldItalic.ttf),
+	url(../../Fonts/OpenSans-ExtraBold.ttf),
+	url(../../Fonts/OpenSans-ExtraBoldItalic.ttf),
+	url(../../Fonts/OpenSans-Italic.ttf),
+	url(../../Fonts/OpenSans-Light.ttf),
+	url(../../Fonts/OpenSans-LightItalic.ttf),
+	url(../../Fonts/OpenSans-Semibold.ttf),
+	url(../../Fonts/OpenSans-SemiboldItalic.ttf);
+    font-weight: normal;
+} 
+
+@font-face
+{
+    font-family: "Open Sans Semibold";
+    src: url(../../Fonts/OpenSans-Semibold.ttf)
+    font-weight: normal;
+} 
+
 body
 {
 	font-family: "Open Sans", Arial, sans-serif;
 	line-height: 1.5em;
+	font-size: 19px;
 }
 
 a.BlackText
@@ -225,7 +249,7 @@ div.footer
 {
 	padding-bottom: 20px;
 	padding-top: 20px;
-	background-color: #36454e;
+	background-color: #0a3549;
 }
 
 div.footer a
@@ -569,6 +593,11 @@ span.SearchHighlight
 	background-color: #ede54b;
 }
 
+img
+{
+	mc-thumbnail: popup;
+}
+
 /* Medium Layout */
 
 @media only screen and (max-width: 791px)
@@ -780,5 +809,15 @@ ul.navigation ul
 {
 	border: #000000 1px none;
 	border-radius: 10px;
+}
+
+ul.navigation
+{
+	text-transform: uppercase;
+}
+
+ul.sub-menu
+{
+	text-transform: none;
 }
 
