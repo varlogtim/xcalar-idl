@@ -631,7 +631,9 @@ window.OperationsView = (function($, OperationsView) {
     };
 
     // for functions dropdown list
-    function fnListMouseup(event, $li) {
+    // forceUpdate is a boolean, if true, we trigger an update even if 
+    // input's val didn't change
+    function fnListMouseup(event, $li, forceUpdate) {
         allowInputChange = true;
         event.stopPropagation();
         var value = $li.text();
@@ -641,7 +643,7 @@ window.OperationsView = (function($, OperationsView) {
         hideDropdowns();
 
         // value didn't change && argSection is inactive (not showing)
-        if (originalInputValue === value && 
+        if (!forceUpdate && originalInputValue === value && 
             $activeOpSection.find('.group').eq(fnInputNum)
                             .find('.argsSection.inactive').length === 0) {
             return;
@@ -688,17 +690,19 @@ window.OperationsView = (function($, OperationsView) {
             // close if user clicks somewhere on the op modal, unless
             // they're clicking on a dropdownlist
             // if dropdown had a higlighted li, trigger a fnListMouseup and thus
-            // selecting it
+            // select it for the functions dropdown list
             if ($mousedownTarget.closest('.dropDownList').length === 0) {
                 var dropdownHidden = false;
-                if ($genFunctionsMenus.is(":visible")) {
+                $activeOpSection.find('.genFunctionsMenu:visible')
+                .each(function() {
                     var $selectedLi = $(this).find('.highlighted');
                     if ($selectedLi.length > 0) {
                         var e = $.Event("mouseup");
-                        fnListMouseup(e, $selectedLi);
+                        fnListMouseup(e, $selectedLi, true);
                         dropdownHidden = true;
+                        return false; // exit loop
                     }
-                }
+                });
                 if (!dropdownHidden) {
                     hideDropdowns();
                 }

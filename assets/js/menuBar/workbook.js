@@ -60,12 +60,15 @@ window.Workbook = (function($, Workbook) {
             wasMonitorActive = true;
         }
 
-        setTimeout(function() {
-            $workbookPanel.removeClass('hidden');
-        }, 100);
+        
         var extraOptions;
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
+            $workbookPanel.removeClass('hidden'); // no animation if force show
+        } else {
+            setTimeout(function() {
+                $workbookPanel.removeClass('hidden');
+            }, 100);
         }
 
         addWorkbooks();
@@ -91,8 +94,17 @@ window.Workbook = (function($, Workbook) {
 
     Workbook.forceShow = function() {
         // When it's forceShow, no older workbooks are displayed
-        Workbook.show(true);
         $('#container').addClass('noWorkbook');
+
+        $('#monitorTab').click(); // xx currently when there are no workbooks,
+        // monitor tab is the only accessible panel so we should make it active
+        // by default so we see it when the user navigates away from workbooks 
+        // 
+        // 
+        Workbook.show(true);
+        
+       
+
         // Create a new workbook with the name already selected - Prompting
         // the user to click Create Workbook
         var uName = Support.getUser();
