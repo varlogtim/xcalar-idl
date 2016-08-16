@@ -1385,7 +1385,7 @@ window.Replay = (function($, Replay) {
         var deferred = jQuery.Deferred();
         var args = getArgs(options);
 
-        AggModal.corr.apply(window, args)
+        AggModal.corrAgg.apply(window, args)
         .then(function() {
             var callback = function() {
                 $("#aggModal .close").click();

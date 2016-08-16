@@ -957,6 +957,11 @@
                     &#corrTab {
                         border-top: 0px !important;
                     }
+
+                    .icon {
+                        color: @color-font-select-blue;
+                        opacity: 1.0;
+                    }
                 }
             }
             .icon {
@@ -964,10 +969,6 @@
                 margin-top: 10px;
                 color: @color-background-sidebar;
                 opacity: 0.5;
-                &.active {
-                    color: @color-font-select-blue;
-                    opacity: 1.0;
-                }
             }
         }
 
@@ -1022,6 +1023,12 @@
 
                 .aggContainer {
                     .flex(1 1 auto); // has flex width
+
+                    .hint {
+                        .size(@width: 340px, @height: 20px);
+                        .center-align;
+                        color: @color-font-gray36;
+                    }
                 }
 
                 .labelContainer {

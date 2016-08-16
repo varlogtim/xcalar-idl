@@ -60,14 +60,11 @@ window.AggModal = (function($, AggModal) {
 
 
         $aggModal.on("click", ".tab", function() {
-            $aggModal.find(".tabs").find(".active").removeClass("active");
-            $(this).addClass("active");
-            $(this).find(".icon").addClass("active");
             var mode = $(this).attr("id");
             if (mode === "aggTab") {
                 AggModal.quickAgg(cachedTableId);
             } else {
-                AggModal.corr(cachedTableId);
+                AggModal.corrAgg(cachedTableId);
             }
         });
 
@@ -97,19 +94,13 @@ window.AggModal = (function($, AggModal) {
         }
     };
 
-    // Triggered from tableMenu
-    AggModal.corrAgg = function(tableId) {
-        // Default to correlation
-        cachedTableId = tableId;
-        $aggModal.find(".tab#corrTab").click();
-    };
-
     // Need this broken down for replay
     AggModal.quickAgg = function(tableId) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
 
+        cachedTableId = tableId;
         showAggModal(tableName, "aggTab");
 
         aggColsInitialize(tableId);
@@ -143,10 +134,12 @@ window.AggModal = (function($, AggModal) {
     };
 
 
-    AggModal.corr = function(tableId) {
+    AggModal.corrAgg = function(tableId) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
+
+        cachedTableId = tableId;
         showAggModal(tableName, "corrTab");
 
         aggColsInitialize(tableId);
@@ -182,10 +175,14 @@ window.AggModal = (function($, AggModal) {
     function showAggModal(tableName, mode) {
         if (mode === "aggTab") {
             // when it's quick aggregation
+            $("#aggTab").addClass("active")
+                    .siblings().removeClass("active");
             $quickAgg.show();
             $corr.hide();
         } else if (mode === "corrTab") {
             // when it's correlation
+            $("#corrTab").addClass("active")
+                    .siblings().removeClass("active");
             $quickAgg.hide();
             $corr.show();
         } else {
@@ -256,6 +253,12 @@ window.AggModal = (function($, AggModal) {
             wholeTable += "</div>";
         }
 
+        if (wholeTable === "") {
+            wholeTable = '<div class="hint">' +
+                                AggTStr.NoAgg +
+                            '</div>';
+        }
+
         $quickAgg.find(".headerContainer").html(getColLabelHTML(colLabels));
         $quickAgg.find(".labelContainer").html(getRowLabelHTML(aggFunctions));
         $quickAgg.find(".aggContainer").html(wholeTable);
@@ -301,6 +304,12 @@ window.AggModal = (function($, AggModal) {
         var vertLabels = [];
         for (var i = colLen - 1; i >= 0; i--) {
             vertLabels.push(aggCols[i].col.getFronColName());
+        }
+
+        if (wholeTable === "") {
+            wholeTable = '<div class="hint">' +
+                                AggTStr.NoCorr +
+                            '</div>';
         }
 
         $corr.find(".headerContainer").html(getColLabelHTML(colLabels));

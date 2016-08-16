@@ -251,8 +251,12 @@ window.Profile = (function($, Profile, d3) {
         // do correlation
         $("#profile-corr").click(function() {
             var tableId = curTableId;
+            var tmp = gMinModeOn;
+            // use gMinMode to aviod blink in open/close modal
+            gMinModeOn = true;
             closeProfileModal();
             AggModal.corrAgg(tableId);
+            gMinModeOn = tmp;
         });
     };
 

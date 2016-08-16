@@ -345,7 +345,9 @@ AggTStr = {
     'AggTitle': 'Aggregate: <op>',
     'AggInstr': 'This is the aggregate result for column "<col>". ' +
                 '\r\n The aggregate operation is "<op>".',
-    'AggMsg': '{"Value":<val>}'
+    'AggMsg': '{"Value":<val>}',
+    'NoCorr': 'No columns of type number for correlation',
+    'NoAgg': 'No columns of type number for quick aggregation'
 };
 
 IndexTStr = {
