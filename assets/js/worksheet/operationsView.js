@@ -289,36 +289,9 @@ window.OperationsView = (function($, OperationsView) {
                 if (event.which !== 1) {
                     return;
                 }
-                listMouseup(event, $(this));
+                fnListMouseup(event, $(this));
             }
         }, '.functionsList .list li');
-
-        // for functions dropdown list
-        function listMouseup(event, $li) {
-            allowInputChange = true;
-            event.stopPropagation();
-            var value = $li.text();
-            var $input = $li.closest('.list').siblings('.autocomplete');
-            var fnInputNum = $input.data('fninputnum');
-            var originalInputValue = $input.val();
-            hideDropdowns();
-
-            // value didn't change && argSection is inactive (not showing)
-            if (originalInputValue === value && 
-                $activeOpSection.find('.group').eq(fnInputNum)
-                                .find('.argsSection.inactive').length === 0) {
-                return;
-            }
-
-            $input.val(value);
-
-            if (value === $genFunctionsMenu.data('category')) {
-                return;
-            }
-
-            $input.data('value', value.trim());
-            enterFunctionsInput(fnInputNum);
-        }
 
         // for all lists (including hint li in argument table)
         $operationsView.on({
@@ -472,7 +445,8 @@ window.OperationsView = (function($, OperationsView) {
 
         addCastDropDownListener();
 
-        $operationsView.on('click', '.checkboxSection', function() {
+        $operationsView.on('click', '.checkboxSection, .checkboxWrap',
+            function() {
             var $checkbox = $(this).find('.checkbox');
             if ($checkbox.hasClass('checked')) {
                 $checkbox.removeClass('checked');
@@ -499,17 +473,6 @@ window.OperationsView = (function($, OperationsView) {
             checkIfStringReplaceNeeded();
         });
 
-        // incSample and keepInTable toggling
-        $operationsView.on('change', 'input[type="checkbox"]', function() {
-            var $checkbox = $(this);
-            if ($checkbox.prop("checked")) {
-                if ($checkbox.attr('id') === "incSample") {
-                    $("#keepInTable").prop("checked", false);
-                } else if ($checkbox.attr('id') === "keepInTable") {
-                    $("#incSample").prop("checked", false);
-                }
-            }
-        });
 
         $operationsView.on('click', '.focusTable', function() {
             if (!gTables[tableId]) {
@@ -667,6 +630,33 @@ window.OperationsView = (function($, OperationsView) {
         }
     };
 
+    // for functions dropdown list
+    function fnListMouseup(event, $li) {
+        allowInputChange = true;
+        event.stopPropagation();
+        var value = $li.text();
+        var $input = $li.closest('.list').siblings('.autocomplete');
+        var fnInputNum = $input.data('fninputnum');
+        var originalInputValue = $input.val();
+        hideDropdowns();
+
+        // value didn't change && argSection is inactive (not showing)
+        if (originalInputValue === value && 
+            $activeOpSection.find('.group').eq(fnInputNum)
+                            .find('.argsSection.inactive').length === 0) {
+            return;
+        }
+
+        $input.val(value);
+
+        if (value === $genFunctionsMenu.data('category')) {
+            return;
+        }
+
+        $input.data('value', value.trim());
+        enterFunctionsInput(fnInputNum);
+    }
+
     // listeners added whenever operation view opens
     function operationsViewShowListeners() {
         var $tableWrap = $('.xcTableWrap');
@@ -697,13 +687,15 @@ window.OperationsView = (function($, OperationsView) {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
             // close if user clicks somewhere on the op modal, unless
             // they're clicking on a dropdownlist
+            // if dropdown had a higlighted li, trigger a fnListMouseup and thus
+            // selecting it
             if ($mousedownTarget.closest('.dropDownList').length === 0) {
                 var dropdownHidden = false;
                 if ($genFunctionsMenus.is(":visible")) {
                     var $selectedLi = $(this).find('.highlighted');
                     if ($selectedLi.length > 0) {
                         var e = $.Event("mouseup");
-                        listMouseup(e, $selectedLi);
+                        fnListMouseup(e, $selectedLi);
                         dropdownHidden = true;
                     }
                 }
@@ -4138,7 +4130,6 @@ window.OperationsView = (function($, OperationsView) {
         var html = getArgInputHtml();
         $btn.parent().prev().find('.inputWrap').last().after(html);
         $btn.parent().prev().find('.inputWrap').last().find('input').focus();
-        debugger;
     }
 
     function getArgInputHtml() {

@@ -544,8 +544,11 @@
 
 		.checkboxWrap {
 		 	float: left;
-			.size(100%, @listHeight);
+			.size(@height: @listHeight);
+			display: inline-block;
 	    	line-height: @listHeight;
+	    	cursor: pointer;
+	    	
 	    	.checkbox {
 	    		margin-left: 6px;
 	    		margin-right: 6px;

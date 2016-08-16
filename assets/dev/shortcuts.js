@@ -336,7 +336,6 @@ window.Shortcuts = (function($, Shortcuts) {
             $('#shortcutMenu').find('.autoLoginOff').hide();
             $('#shortcutMenu').find('.autoLoginOn').show();
         }
-        // debugger;
     }
 
     function startTest(testName, option) {
@@ -359,38 +358,56 @@ window.Shortcuts = (function($, Shortcuts) {
 
     function secretAddTable(name, noCols) {
         name = name.trim();
-        var ds1Icon;
-        var dsName1;
+        var dsIcon;
+        var dsName;
         var exists = $('#dsListSection .gridItems')
                     .find('[data-dsname*="'+ name + '"]').length;
         if (exists) {
-            ds1Icon = '#dsListSection .gridItems ' +
+            dsIcon = '#dsListSection .gridItems ' +
                  '[data-dsname*="' + name + '"]:eq(0)';
         } else {
-            dsName1 = name.replace(/\s+/g, "") + Math.floor(Math.random() * 10000);
+            dsName = name.replace(/\s+/g, "") + Math.floor(Math.random() * 10000);
             var $formatDropdown = $("#fileFormatMenu");
             var filePath = filePathMap[name];
 
             $("#filePath").val(filePath);
+            $("#dsForm-path").find('.confirm').click(); // go to next step
             $formatDropdown.find('li[name="JSON"]').click();
-            $('#fileName').val(dsName1);
-            $("#importDataSubmit").click();
-            ds1Icon = ".ds.grid-unit[data-dsname='" + dsName1 + "']:not(.inactive)";
+            $('#dsForm-dsName').val(dsName);
+
+            $('#dsForm-preview').find('.confirm').click();
+            dsIcon = ".ds.grid-unit[data-dsname='" + dsName + "']:not(.inactive)";
         }
 
-        checkExists(ds1Icon)
+        checkExists(dsIcon)
         .then(function() {
-            $(ds1Icon).click();
+            $(dsIcon).click();
             setTimeout(function() {
                 if (noCols) {
                     $('#noDScols').click();
                 } else {
                     $("#selectDSCols").click();
                 }
-
-                setTimeout(function() {
+                
+                setTimeout(function() { // there's some delay in populating 
+                    // the datacart list
+                    var $activeTab = $('#topMenuBarTabs')
+                                        .find('.topMenuBarTab.active');
+                    var isDiffTab;
+                    if ($activeTab.attr('id') !== "dataStoresTab") {
+                        // switch to datastores panel
+                        $('#dataStoresTab').click();
+                        isDiffTab = true;
+                    }   
+                   
+                    if  (!$('#inButton').hasClass('active')) {
+                        $('#inButton').click();
+                    }
                     $("#dataCart-submit").click();
-                }, 400);
+                    if (isDiffTab) {
+                        $activeTab.click(); // go back to previous tab
+                    }
+                }, 1);
             }, 400);
         });
     }
