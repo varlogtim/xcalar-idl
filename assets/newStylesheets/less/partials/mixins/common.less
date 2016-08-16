@@ -292,11 +292,12 @@
     text-align: center;
     .size(150px, 36px);
     // background-color: fadeout(@color-bg-dusk-blue, 20%);
-    background-color: @color-bg-select-blue;
+    background-color: fadeout(@color-bg-btn-hover-blue, 20%);
     cursor: pointer;
 
     &:hover {
-        background-color: @color-bg-dusk-blue;
+        // background-color: @color-bg-dusk-blue;
+        background-color: @color-bg-btn-hover-blue;
     }
 
     &:focus {
@@ -304,7 +305,7 @@
     }
 
     &:active {
-        box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
+        box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.2);
     }
 }
 

@@ -60,7 +60,6 @@ window.Workbook = (function($, Workbook) {
 
         setTimeout(function() {
             $workbookPanel.removeClass('hidden');
-
         }, 100);
         var extraOptions;
         if (isForceShow) {
@@ -82,7 +81,7 @@ window.Workbook = (function($, Workbook) {
             setTimeout(function() {
                 $workbookPanel.hide();
                 $('#container').removeClass('workbookMode');
-            }, 600);
+            }, 400);
         }
         if (!wasMonitorActive) {
             MonitorPanel.inActive();

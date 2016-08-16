@@ -105,6 +105,13 @@ body {
                     .minimizeBtn {
                         display: none;
                     }
+
+                    .menuSection {
+                        display: none;
+                        &.monitor {
+                            display: block !important;
+                        }
+                    }
                 }
             }
 
@@ -132,7 +139,15 @@ body {
                     .size(@width: ~"calc(100% - @{width-bottomMenu})");
                     margin-left: @menuWidth + 10px;
                     background-color: @color-bg-body-gray; 
-                }         
+                } 
+
+                .monitorSection {
+                    display: none;
+
+                    &#monitor-system {
+                        display: block;
+                    }
+                }        
             }
 
             #workbookPanel {
