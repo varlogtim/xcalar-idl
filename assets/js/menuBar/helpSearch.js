@@ -5,45 +5,13 @@ window.HelpSearch = (function($, HelpSearch) {
         var $categoryArea = $('#helpResults').find('.categoryArea');
         var $resultsArea = $('#helpResults').find('.resultsArea');
 
-        $searchInput.tipuesearch({
-            "newWindow"     : true,
-            "showTitleCount": false
-            // debug: true
-        });
-
         $('#helpSubmit').click(function() {
             $('#helpResults').find('.noResults').hide();
             $searchInput.trigger({"type": "keyup", "keyCode": keyCode.Enter});
         });
 
-        // XX the following code is for searching without pressing enter
-
-        // var inputTimer;
-        // var storedVal = "";
-        // $('#helpSearch').on('input', function(event) {
-        //     console.log(event);
-        //     clearTimeout(inputTimer);
-        //     // var val = $(this).val();
-        //     inputTimer = setTimeout(function() {
-        //         // if ($('#helpSearch').val() !== storedVal && $("#helpSearch").val().length > 2) {
-        //             $('#helpResults').find('.noResults').hide();
-        //             // $('#tipue_search_warning').remove();
-        //             $('#helpSearch').trigger({"type": "keyup", "keyCode": 13});
-        //             storedVal = $('#helpSearch').val();
-        //         // }
-
-        //     }, 200);
-        // });
-
-        // var keydownTimer;
-        // $('#helpSearch').on('keydown', function(event) {
-        //     clearTimeout(keydownTimer);
-        //     // if (event.which === keyCode.)
-        // });
-
         $('#helpSearchArea').submit(function() {
             $('#helpResults').find('.noResults').hide();
-            $('#tipue_search_warning').remove();
             return false;
         });
 
@@ -54,7 +22,31 @@ window.HelpSearch = (function($, HelpSearch) {
                     $resultsArea.hide();
                 } else {
                     $categoryArea.hide();
-                    $resultsArea.show();
+                    $resultsArea.hide();
+
+                    var $iframe = $('#mcfResults');
+                    $iframe.attr('src', 
+                        'http://localhost:8888/assets/help/Content/' +
+                        'Search.htm#search-' + $searchInput.val());
+                    // Have to wait for MCP to load
+                    setTimeout(function() {
+                        var innerDoc = $iframe[0].contentDocument ||
+                                       $iframe[0].contentWindow.document;
+                        var ourCSS = '<link href="../../newStylesheets/css/' +
+                                                   'mcf.css" rel="stylesheet">';
+                        $(innerDoc).find("head").append(ourCSS);
+                        $(innerDoc).find(".tab-bar").hide();
+                        
+                    }, 200);
+                    // Have to wait for MCP's search to complete
+                    setTimeout(function() {
+                        var innerDoc = $iframe[0].contentDocument ||
+                                       $iframe[0].contentWindow.document;
+                        $(innerDoc).find("h3 a").attr("target", "_blank");
+                        $titles = $(innerDoc).find(".title");
+                        $resultsArea.show();
+                    }, 500);
+
                 }
             }
         });

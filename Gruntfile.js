@@ -69,7 +69,8 @@ module.exports = function(grunt) {
           'assets/stylesheets/css/style.css': 'assets/stylesheets/less/style.less',
           'assets/stylesheets/css/login.css': 'assets/stylesheets/less/login.less',
           'assets/newStylesheets/css/login.css': 'assets/newStylesheets/less/login.less',
-          'assets/newStylesheets/css/style.css': 'assets/newStylesheets/less/style.less'
+          'assets/newStylesheets/css/style.css': 'assets/newStylesheets/less/style.less',
+          'assets/newStylesheets/css/mcf.css': 'assets/newStylesheets/less/mcf.less'
         }
       }
     },

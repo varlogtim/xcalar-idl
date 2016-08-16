@@ -138,6 +138,7 @@ window.Workbook = (function($, Workbook) {
             $('#container').removeClass('monitorMode'); 
         });
 
+        // JJJ TODO
     }
 
     function addWorkbookEvents() {
@@ -493,14 +494,11 @@ window.Workbook = (function($, Workbook) {
 
     function createNewWorkbook(workbookName) {
         var deferred = jQuery.Deferred();
-        // goWaiting();
         WorkbookManager.newWKBK(workbookName)
         .then(function(id) {
-            // cancelWaiting();
             deferred.resolve(id);
         })
         .fail(function(error) {
-            // cancelWaiting();
             console.error(error);
             deferred.reject(error);
         });
