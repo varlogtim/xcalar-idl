@@ -1024,37 +1024,6 @@
     .cardMain {
         padding: 30px 60px;
     }
-    .visualArea {
-        height: 100%;
-        width: 32%;
-        display: none; // temporary
-        float: left;
-        background-color: @color-background-darkGray;
-        border-right: 1px solid @color-bar-darkGray-top;
-        overflow: auto;
-
-        .clusterIcon {
-            .size(45px, 45px);
-            .rounded;
-            .linear-gradient(top, @color-background-topAction, @color-table-selected-darkBlue);
-            margin: 10px;
-            .icon {
-                .size(100%, 100%);
-                .image("../../images/monitor/cluster.png", 50%, 30%);
-            }
-        }
-
-        .nodeIcon {
-            .size(45px, 45px);
-            .rounded(100%);
-            margin: 10px;
-            .linear-gradient(top, @color-background-topAction, @color-table-selected-darkBlue);
-            .icon {
-                .size(100%, 100%);
-                .image("../../images/monitor/node.png", 50%, 50%);
-            }
-        }
-    }
     .optionsArea {
         @rowHeight: 48px;
         .optionRow {
