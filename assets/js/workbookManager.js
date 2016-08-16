@@ -252,7 +252,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.copyWKBK = function(srcWKBKId, wkbkName) {
         var deferred = jQuery.Deferred();
         var newId;
-        WorkbookManager.newWKBK(wkbkName, srcWKBKId)
+
+        KVStore.commit()
+        .then(function() {
+            return WorkbookManager.newWKBK(wkbkName, srcWKBKId);
+        })
         .then(function(id) {
             newId = id;
             return copyHelper(srcWKBKId, newId);
