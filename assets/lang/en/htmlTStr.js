@@ -434,25 +434,16 @@ module.exports = {
     },
 
     "dsForm": {
-        "previewSize": "Preview Size",
-        "previewSizeHint": "Change preview size if point to large datasource",
-        "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click \"NEXT\" button.",
-        "Instr": "INPUT DATA SOURCE PATH, SELECT FORMAT AND THEN INPUT DATASET REFERENCE NAME TO POINT TO DATA. POINTED DATA WILL BE LISTED ON THE LEFT.",
-        "dsLocation": "Data Source",
+        "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button.",
         "filePath": "Data Source Path",
         "filePattern": "Recursive Pattern",
         "DSName": "Dataset Reference Name",
         "fileNameTitle": "A valid name with no special characters",
-        "DelimHint": "If you parse data with UDF, field and line delimiters are applied after data is parsed",
-        "Delim": "Delimiter",
         "FieldDelim": "Field Delimiter",
         "LineDelim": "Record Delimiter",
-        "CONFIRM": "POINT TO DATA",
         "Header": "Promote First Row As Header",
         "Format": "Format",
         "UDF": "Parse Data With UDF",
-        "Recur": "Point to Data Source Recursively",
-        "PREVIEW": "SMART PREVIEW",
         "Pattern": "Pattern",
         "Recursive": "Recursive",
         "Regex": "Regex",
@@ -460,8 +451,17 @@ module.exports = {
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
         "FINALIZE": "FINALIZE",
-        "Refresh": "REFRESH REVIEW",
+        "Refresh": "REFRESH PREVIEW",
         "REDETECT": "REDETECT"
+    },
+
+    "fileBrowser": {
+        "header": "Browse Dataset",
+        "instr": "Select the data source that you want to point to and then click the \"NEXT\" button.",
+        "location": "location",
+        "Up": "Go back",
+        "filePathHint": "Click to see history",
+        "SearchHint": "Search"
     },
 
     "dsFormat": {
@@ -565,19 +565,6 @@ module.exports = {
         "OverwriteExisting": "Overwrite Existing",
         "AppendExisting": "Append To Existing",
         "colInstr": "Select the columns to export by checking the box next to the column name. Alternatively, you can also click on the column headers in the table directly. If a column cannot be selected, or you do not see it in the list below, then it cannot be exported."
-    },
-
-    "fileBrowser": {
-        "header": "Browse Dataset",
-        "instr": "Select the data source that you want to point to and then click the \"NEXT\" button.",
-        "location": "location",
-        "Up": "Go back",
-        "filePathHint": "Click to see history",
-        "SearchHint": "Search",
-        "CONFIRM": "SELECT DATA SOURCE",
-        "FileName": "File Name",
-        "FileFormat": "File Format",
-        "NewTraget": "New Target"
     },
 
     "joinModdal": {
