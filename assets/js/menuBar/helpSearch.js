@@ -34,7 +34,6 @@ window.HelpSearch = (function($, HelpSearch) {
                         var ourCSS = '<link href="../../newStylesheets/css/' +
                                                    'mcf.css" rel="stylesheet">';
                         $(innerDoc).find("head").append(ourCSS);
-                        $(innerDoc).find(".tab-bar").hide();
                         
                     }, 200);
                     // Have to wait for MCP's search to complete
@@ -42,7 +41,6 @@ window.HelpSearch = (function($, HelpSearch) {
                         var innerDoc = $iframe[0].contentDocument ||
                                        $iframe[0].contentWindow.document;
                         $(innerDoc).find("h3 a").attr("target", "_blank");
-                        $titles = $(innerDoc).find(".title");
                         $resultsArea.show();
                     }, 500);
 
