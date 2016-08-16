@@ -461,7 +461,6 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function updateHeadingSection(mainQuery) {
-        console.log(mainQuery);
         var state = mainQuery.getState();
         var id = mainQuery.id;
         var $text = $queryDetail.find(".op .text");

@@ -13,7 +13,7 @@ window.JoinView = (function($, JoinView) {
     var isOpen = false;
     var lImmediatesCache;
     var rImmediatesCache;
-    var turnOnPrefix = false;
+    var turnOnPrefix = true; // Set to false if backend crashes
 
     var modalHelper;
     var multiClauseTemplate =
@@ -904,16 +904,17 @@ window.JoinView = (function($, JoinView) {
             var $rightNewNames = $rightRenames.find(".newName");
             var lImmediates = xcHelper.deepCopy(lImmediatesCache);
             var rImmediates = xcHelper.deepCopy(rImmediatesCache);
+            var i = -1;
 
             // Check that none are empty
-            for (var i = 0; i<$leftNewNames.length; i++) {
+            for (i = 0; i<$leftNewNames.length; i++) {
                 if ($($leftNewNames[i]).val().trim().length === 0) {
                     StatusBox.show(ErrTStr.NoEmpty, $leftRenames.eq(i), true);
                     return false;
                 }
             }
 
-            for (var i = 0; i<$rightNewNames.length; i++) {
+            for (i = 0; i<$rightNewNames.length; i++) {
                 if ($($rightNewNames[i]).val().trim().length === 0) {
                     StatusBox.show(ErrTStr.NoEmpty, $rightRenames.eq(i), true);
                     return false;
@@ -923,30 +924,30 @@ window.JoinView = (function($, JoinView) {
             // Convert to array of old and newNames
             var leftRenameArray = [];
             var rightRenameArray = [];
-            for (var i = 0; i<$leftOrigNames.length; i++) {
+            for (i = 0; i<$leftOrigNames.length; i++) {
                 var origName = $($leftOrigNames[i]).val();
                 var newName = $($leftNewNames[i]).val();
                 leftRenameArray.push({"orig": origName, "new": newName});
             }
 
-            for (var i = 0; i<$rightOrigNames.length; i++) {
+            for (i = 0; i<$rightOrigNames.length; i++) {
                 var origName = $($rightOrigNames[i]).val();
                 var newName = $($rightNewNames[i]).val();
                 rightRenameArray.push({"orig": origName, "new": newName});
             }
 
             // Get array of all new immediates by updating the old with the new
-            for (var i = 0; i<$leftOrigNames.length; i++) {
+            for (i = 0; i<$leftOrigNames.length; i++) {
                 var index = lImmediates.indexOf(leftRenameArray[i].orig);
                 lImmediates[index] = leftRenameArray[i].new;
             }
-            for (var i = 0; i<$rightOrigNames.length; i++) {
+            for (i = 0; i<$rightOrigNames.length; i++) {
                 var index = rImmediates.indexOf(rightRenameArray[i].orig);
                 rImmediates[index] = rightRenameArray[i].new;
             }
 
             // Find out whether any of the immediate names still clash
-            for (var i = 0; i<$leftRenames.length; i++) {
+            for (i = 0; i<$leftRenames.length; i++) {
                 if (rImmediates.indexOf($leftRenames.eq(i).val()) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
                                    true);
@@ -962,7 +963,7 @@ window.JoinView = (function($, JoinView) {
 
             }
 
-            for (var i = 0; i<$rightRenames.length; i++) {
+            for (i = 0; i<$rightRenames.length; i++) {
                 if (lImmediates.indexOf($rightRenames.eq(i).val()) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
                                    true);
@@ -1042,7 +1043,7 @@ window.JoinView = (function($, JoinView) {
             // Today we are only handing immediate collisions. Later we will
             // handle fatptr collisions and prefix renaming for those
 
-            // Only kepe column names since we are not doing anything with types
+            // Only keep column names since we are not doing anything with types
             lImmediate = lImmediate.map(keepOnlyNames);
             rImmediate = rImmediate.map(keepOnlyNames);
 
@@ -1165,7 +1166,7 @@ window.JoinView = (function($, JoinView) {
         var tableName = gTables[origTableId].getName();
         $leftTableDropdown.find('.text').text(tableName);
         $leftTableDropdown.find('li').filter(function() {
-            return ($(this).text() === tableName)
+            return ($(this).text() === tableName);
         }).addClass('selected');
     }
 

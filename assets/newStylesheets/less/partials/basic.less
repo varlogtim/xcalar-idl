@@ -212,6 +212,20 @@ body {
     pointer-events: all;
 }
 
+.dialog {
+    .size(@width: 600px, @height: 75px, @min-width: 180px, @max-width: 95%);
+    .horizontal-align;
+    top: 30%;
+    text-align: center;
+    background-color: rgba(47, 47, 47, 0.6);
+    >span {
+        margin: auto;
+        font-weight: 600;
+        color: @color-white;
+        line-height: 75px;
+    }
+}
+
 #initialLoadScreen {
     .size(@width: 100%, @height:  ~"calc(100% - 50px)", @min-height: 147px);
     .position(fixed, @top: 50px);
@@ -219,26 +233,17 @@ body {
     cursor: progress;
     background-color: rgba(0, 0, 0, 0.15);
 
-    .dialog {
-        .size(@width: 600px, @height: 75px, @min-width: 180px, @max-width: 95%);
+    .dialog .animatedEllipsisWrapper {
+        .size(@width: 130px, @height: 100%);
         .horizontal-align;
-        top: 30%;
-        .rounded;
-        text-align: center;
-        background-color: rgba(47, 47, 47, 0.6);
 
-        .animatedEllipsisWrapper {
-            .size(@width: 130px, @height: 100%);
-            .horizontal-align;
+        .text {
+            .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
+        }
 
-            .text {
-                .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
-            }
-
-            .animatedEllipsis {
-                > div {
-                   .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
-                }
+        .animatedEllipsis {
+            > div {
+               .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
             }
         }
     }

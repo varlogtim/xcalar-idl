@@ -31,9 +31,18 @@ window.Workbook = (function($, Workbook) {
                 } else if ($('#container').hasClass('noWorkbook')) {
                     // do not allow user to exit without entering a workbook
                     $workbookPanel.addClass('closeAttempt');
+                    $workbookPanel.find("#dialogWrap")
+                                  .removeClass("doneCloseAttempt");
+                    $workbookPanel.find("#dialogWrap").addClass('closeAttempt');
                     setTimeout(function() {
                         $workbookPanel.removeClass('closeAttempt');
+
                     }, 200);
+                    setTimeout(function() {
+                        $workbookPanel.find("#dialogWrap")
+                                      .removeClass('closeAttempt')
+                                      .addClass('doneCloseAttempt');
+                    }, 1000);
                 } else { // default, exit the workbook
                     closeWorkbookPanel();
                     Workbook.hide();

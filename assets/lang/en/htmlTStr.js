@@ -422,7 +422,7 @@ module.exports = {
         "out": "out",
         "Format": "Format",
         "Protocol": "Data Source Protocol",
-        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modified the tabale name and then click \"SENT TO WORKSHEET\" button. You can also click the \"Select columns later\" button and pull out columns after the table is created."
+        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modified the table name and then click \"SEND TO WORKSHEET\" button. You can also click the \"Select columns later\" button and pull out columns after the table is created."
     },
 
 // keep in sync with the FileProtocol in enums.js
@@ -609,7 +609,7 @@ module.exports = {
         "ColName": "Column Name",
         "NewType": "New Type",
         "SmartBtn": "SMART CAST",
-        "CONFIRM": "CAST ALL SELECTED"
+        "CONFIRM": "CAST SELECTED"
     },
 
     "opsModal": {
@@ -676,6 +676,7 @@ module.exports = {
     },
 
     "workbook": {
+        "noActive": "No active worksheets. Please create one first.",
         "header": "Workbook Browser",
         "newWKBK": "New Workbook",
         "continue": "Continue from Workbook",
