@@ -331,12 +331,13 @@
 
             &.active, &.inFocus {
                 background-color: @color-white;
-                // box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+               
             }
 
             &.CodeMirror-focused {
                 background-color: @color-white;
-                color: @color-text-fnBar-blue;
+                color: @color-text-fnBar-blue; 
+                border: 1px solid @color-border-softBlue;
                 // box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
             }
 
@@ -491,20 +492,22 @@
     #rowInputArea {
         border-left: 1px solid @color-tab-divider;
         margin-top: 11px;
+        .input-box(@w:60px, @h:32px);
     }
 
     #rowInput {
-        .size(@width: 60px, @height: 32px);
+
+        // .size(@width: 60px, @height: 32px);
         position:relative;
         top: -1px;
         margin-top: -3px;
-        background-color: @color-bg-white-nine;
-        border: 1px solid @color-border-pinkish-grey2;
+        background-color: @color-bg-white-nine !important;
+        // border: 1px solid @color-border-pinkish-grey2;
         &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
             -webkit-appearance: none;
         }
         &:focus {
-            background-color: @color-white;
+            background-color: @color-white !important;
         }
     }
 

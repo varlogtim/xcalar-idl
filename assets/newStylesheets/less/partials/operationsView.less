@@ -12,6 +12,8 @@
 	@headingHeight: 30px;
 	@standardFontSize: 12px;
 
+	.input-box (100%, @listHeight);
+
 	> header {
 		background-color: @color-bg-marine;
 		height: @title-height;
@@ -59,13 +61,13 @@
 
 	input {
 		font-size: @standardFontSize;
+		background-color: @color-white;
 	}
 
 	.dropDownList {
         .styleDropDownList(100%, @listHeight);
         .text {
 	    	background-color: @color-white;
-	    	border: 1px solid @color-border-pinkish-grey2;
 	    	font-size: @standardFontSize;
 	    }
 	    li {
@@ -510,7 +512,7 @@
 				padding-left: 6px;
 				font-size: @standardFontSize;
 				float: left;
-				border: 1px solid @color-border-pinkish-grey2;
+				// border: 1px solid @color-border-pinkish-grey2;
 				border-width: 1px 0px 1px 0px;
 			}
 			.argIconWrap {
@@ -596,7 +598,6 @@
             text-transform: capitalize;
             background-color: @color-white;
             font-size: @standardFontSize;
-    		border: 1px solid @color-border-pinkish-grey2;
         }
 
         .list {
@@ -885,6 +886,10 @@
                         &:first-child {
                         	border-right: 1px solid @color-border-pinkish-grey2;
 
+                        }
+
+                        &:focus {
+                        	border-color: @color-border-pinkish-grey2;
                         }
                         
 
@@ -1240,7 +1245,7 @@
                 display: block;
             }
             .restore {
-                display: block;
+                display: inline-block;
             }
         }
 
