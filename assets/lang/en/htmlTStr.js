@@ -228,12 +228,12 @@ module.exports = {
         "Tables": "Tables",
         "ActiveList": "Active",
         "InActiveList": "Archived",
-        "OrphanList": "Orphaned",
+        "OrphanList": "Temporary",
         "active": "Add To Worksheet",
         "archive": "Archive Tables",
         "selectAll": "select all",
         "deselectAll": "deselect all",
-        "filterOrphan": "Filter Orphaned Table",
+        "filterOrphan": "Filter Temporary Tables",
     },
 
     "CommonTxtTstr" : {
@@ -673,7 +673,7 @@ module.exports = {
         "header": "Delete Tables",
         "instr": "You are running low on space. To free space on this application please delete old or unnecessary tables",
         "CONFIRM": "DELETE TABLES",
-        "Orphan": "Orphaned Tables",
+        "Orphan": "Temporary Tables",
         "Inactive": "Archived Tables",
         "Active": "Active Tables"
     },

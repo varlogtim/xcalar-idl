@@ -23,27 +23,26 @@ window.HelpSearch = (function($, HelpSearch) {
                 } else {
                     $categoryArea.hide();
                     $resultsArea.hide();
-
+                    // Must remove and reattach. Else the .load trick doesn't
+                    // work 
                     var $iframe = $('#mcfResults');
+                    $iframe.remove();
+                    $(".resultsArea").append(
+                                           '<iframe id="mcfResults"></iframe>');
+                    $iframe = $("#mcfResults");
                     $iframe.attr('src','assets/help/Content/Search.htm#search-'+
                                  $searchInput.val());
-                    // Have to wait for MCP to load
-                    setTimeout(function() {
-                        var innerDoc = $iframe[0].contentDocument ||
-                                       $iframe[0].contentWindow.document;
-                        var ourCSS = '<link href="../../newStylesheets/css/' +
-                                                   'mcf.css" rel="stylesheet">';
+                    $iframe.load(function() {
+                        var innerDoc = $iframe[0].contentDocument ||
+                                      $iframe[0].contentWindow.document;
+                        var ourCSS = '<link href="../../newStylesheets/css/' +
+                                     'mcf.css" rel="stylesheet">';
                         $(innerDoc).find("head").append(ourCSS);
-                        
-                    }, 200);
-                    // Have to wait for MCP's search to complete
-                    setTimeout(function() {
-                        var innerDoc = $iframe[0].contentDocument ||
-                                       $iframe[0].contentWindow.document;
-                        $(innerDoc).find("h3 a").attr("target", "_blank");
+                        $(innerDoc).on("click", "h3 a", function() {
+                            $(this).attr("target", "xchelp");
+                        });
                         $resultsArea.show();
-                    }, 500);
-
+                   });
                 }
             }
         });
