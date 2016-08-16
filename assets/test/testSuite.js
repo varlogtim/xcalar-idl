@@ -205,25 +205,24 @@ window.TestSuite = (function($, TestSuite) {
         }
     }
 
-    // elemSelectors 
+    // elemSelectors
     /**
      * checkExists
-     * @param  {string or array} elemSelectors can be a string or array of 
-     *                                element selectors example: ".xcTable" or 
+     * @param  {string or array} elemSelectors can be a string or array of
+     *                                element selectors example: ".xcTable" or
      *                                ["#xcTable-ex1", "#xcTable-ex2"]
-     *                                can use :contains for 
+     *                                can use :contains for
      * @param  {integer} timeLimit    length of time to search for before giving
      *                                up
-     * @param  {object} options       notExists - boolean, if true, we want to 
+     * @param  {object} options       notExists - boolean, if true, we want to
      *                                check that this element doesn't exist
-     *                                
+     *
      *                                optional - boolean, if true, existence of
-     *                                element is optional and we return 
-     *                                deferred.resolve regardless 
-                                      (example: a confirm box that appears 
-                                      in some cases) 
-
-     * 
+     *                                element is optional and we return
+     *                                deferred.resolve regardless
+                                      (example: a confirm box that appears
+                                      in some cases)
+     *
      */
     function checkExists(elemSelectors, timeLimit, options) {
         var deferred = jQuery.Deferred();
@@ -235,14 +234,14 @@ window.TestSuite = (function($, TestSuite) {
         var notExist = options.notExist; // if true, we're actualy doing a
         // check to make sure the element DOESN"T exist
         var optional = options.optional; // if true, existence of element is
-        // optional and we return deferred.resolve regardless 
+        // optional and we return deferred.resolve regardless
         // (example: a confirm box that appears in some cases)
-        var text = options.text;
+        // var text = options.text;
 
         if (typeof elemSelectors === "string") {
             elemSelectors = [elemSelectors];
         }
-        console.log(arguments);
+        // console.log(arguments);
 
         var caller = checkExists.caller.name;
 
@@ -296,18 +295,15 @@ window.TestSuite = (function($, TestSuite) {
         var $header = $("#xcTbodyWrap-" + tableId)
                        .find(".flexWrap.flex-mid input[value='" + columnName +
                        "']").eq(0);
-        $header.parent().parent().find(".flex-right .innerBox").click();
+        $header.closest(".flexContainer").find(".flex-right .innerBox").click();
 
         var $colMenu = $("#colMenu ." + funcClassName);
         $colMenu.trigger(fakeEvent.mouseup);
 
         if (whichModal === "join") {
-            return (checkExists("#joinModal:visible"));
+            return checkExists("#joinView:not(.xc-hidden)");
         } else {
-            return (checkExists("#operationsModal:hidden, " +
-                                "#operationsModal #modalWaitingBG", null, {
-                                    notExist: true
-                                }));
+            return checkExists("#operationsView:not(.xc-hidden)");
         }
     }
 // ======================== TEST DEFINITIONS GO HERE ======================= //
@@ -316,8 +312,7 @@ window.TestSuite = (function($, TestSuite) {
                             dsName + '"]:not(.inactive)';
     }
 
-    function createTable(dsName, check, wsId) {
-        var promise = jQuery.Deferred();
+    function createTable(dsName, check) {
         var $grid = $(getDSIcon(dsName));
         var dsId = $grid.data("dsid");
         var innerDeferred = jQuery.Deferred();
@@ -326,22 +321,33 @@ window.TestSuite = (function($, TestSuite) {
         checkExists('#dsTable[data-dsid="' + dsId + '"]')
         .then(function() {
             $("#selectDSCols").click();
-            var $li;
-            if (wsId == null) {
-                $li = $("#dataCartWSMenu li:not(.new)").eq(0);
-            } else {
-                $li = $('#dataCartWSMenu li[data-ws="' + wsId + '"]');
-                if ($li.length === 0) {
-                    $li = $("#dataCartWSMenu li:not(.new)").eq(0);
-                }
-            }
-            $li.click();
-            
             $("#dataCart-submit").click();
 
             var header = ".xcTable .flexWrap.flex-mid" +
                          " input[value='" + check + "']:eq(0)";
             return checkExists(header);
+        })
+        .then(innerDeferred.resolve)
+        .fail(innerDeferred.reject);
+
+        return innerDeferred.promise();
+    }
+
+    function loadDS(dsName, url, check) {
+        var innerDeferred = jQuery.Deferred();
+        $("#importDataButton").click(); // button to initiate point to dataset
+        $("#fileProtocol input").val(FileProtocol.nfs);
+        $("#filePath").val(url);
+        $("#dsForm-path").find(".confirm").click(); // go to the next step
+
+        checkExists(check, 5000)
+        .then(function() {
+            $("#dsForm-dsName").val(dsName);
+            // auto detect should fill in the form
+            $("#importDataForm .buttonSection .confirm").click();
+            
+            var dsIcon = getDSIcon(dsName);
+            return checkExists(dsIcon);
         })
         .then(innerDeferred.resolve)
         .fail(innerDeferred.reject);
@@ -368,12 +374,11 @@ window.TestSuite = (function($, TestSuite) {
         var dsName1 = "flight" + randInt();
         var dsName2 = "airport" + randInt();
 
-
         flightTestPart1(dsName1, dsName2);
 
         // Import dataset
         function flightTestPart1(dsName1, dsName2) {
-            console.log("start flightTestPart1");
+            console.log("start flightTestPart1", "point to dataset");
             $("#dataStoresTab").click(); // main menu tab
 
              // Import flight dataset
@@ -381,11 +386,6 @@ window.TestSuite = (function($, TestSuite) {
             .then(function() {
                 // import airports dataset
                 return flightTestPart1Load2(dsName2);
-            })
-            .then(function() {
-                var ds1Icon = getDSIcon(dsName1);
-                var ds2Icon = getDSIcon(dsName2);
-                return checkExists([ds1Icon, ds2Icon]);
             })
             .then(function() {
                 flightTestPart2(dsName1, dsName2);
@@ -397,68 +397,26 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         function flightTestPart1Load1(dsName1) {
-            var deferred = jQuery.Deferred();
-             // Import flight dataset
-            $("#importDataButton").click(); // button to initiate point to dataset
-            $("#fileProtocol input").val(FileProtocol.nfs);
-            $("#filePath").val(testDataLoc + "flight/airlines_2007.csv");
-            $("#dsForm-path").find('.confirm').click(); // go to the next step
-
-            checkExists('#previewTable td:eq(1):contains(19403)', 5000)
-            .then(function() {
-                $("#fileName").val(dsName1);
-                $("#fileFormat .iconWrapper .icon").click();
-                $("#fileFormat li[name='CSV']").click();
-                $("#promoteHeaderCheckbox .icon").click();
-                $("#fieldDelim .icon").click();
-                $("#fieldDelim .list li[name='comma']").click();
-                $("#importDataSubmit").click();
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                deferred.reject(error);
-            });
-            return deferred.promise();
+            console.log("point to airline dataset");
+            var check = "#previewTable td:eq(1):contains(19403)";
+            var url = testDataLoc + "flight/airlines_2007.csv";
+            return loadDS(dsName1, url, check);
         }
 
         function flightTestPart1Load2(dsName2) {
-            var deferred = jQuery.Deferred();
-               // import airports dataset
-            setTimeout(function() {
-                // XXXX run it too quick will result in some werid bug
-                // who wants to fix it can remove the setTimeout and run on cantor
-                $("#importDataButton").click();
-                $("#fileProtocol input").val(FileProtocol.nfs);
-                $("#filePath").val(testDataLoc + "flight/airports.csv");
-
-                $("#dsForm-path").find('.confirm').click(); // go to the next step
-
-                checkExists('#previewTable td:eq(1):contains(00M)', 5000)
-                .then(function() {
-                    $("#fileName").val(dsName2);
-                    $("#fileFormat .iconWrapper .icon").click();
-                    $("#fileFormat li[name='CSV']").click();
-                    $("#fieldDelim .icon").click();
-                    $("#fieldDelim .list li[name='comma']").click();
-                    $("#importDataSubmit").click();
-                    deferred.resolve();
-                })
-                .fail(function(error) {
-                    deferred.reject(error);
-                });
-
-            }, 2000);
-
-            return deferred.promise();
+            console.log("point to airport dataset");
+            var check = "#previewTable td:eq(1):contains(00M)";
+            var url = testDataLoc + "flight/airports.csv";
+            return loadDS(dsName2, url, check);
         }
 
         // Select columns in dataset and send to worksheet
         function flightTestPart2(dsName1, dsName2) {
-            console.log("start flightTestPart2");
+            console.log("start flightTestPart2", "send to worksheet");
             createTable(dsName1, "ArrDelay")
             .then(function() {
                 $("#dataStoresTab").click();
-                return createTable(dsName2, "iata")
+                return createTable(dsName2, "iata");
             })
             .then(function() {
                 var header = ".xcTable .flexWrap.flex-mid" +
@@ -481,9 +439,9 @@ window.TestSuite = (function($, TestSuite) {
 
         // Change column type
         function flightTestPart3() {
-            console.log("start flightTestPart3");
-            var $header = $($(".flexWrap.flex-mid input[value='ArrDelay']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").click();
+            console.log("start flightTestPart3", "change column type");
+            var $header = $(".flexWrap.flex-mid input[value='ArrDelay']").eq(0);
+            $header.closest(".flexContainer").find(".flex-right .innerBox").click();
 
             var $colMenu = $("#colMenu .changeDataType");
             var $colSubMenu = $('#colSubMenu');
@@ -503,21 +461,20 @@ window.TestSuite = (function($, TestSuite) {
 
         // Add genUnique (map to get uniqueNum)
         function flightTestPart3_2() {
-            console.log("start flightTestPart3_2");
+            console.log("start flightTestPart3_2", "map to get uniqueNum");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "map")
             .then(function() {
-                $("#categoryList .dropdown .icon").trigger(fakeEvent.click);
-                $("#categoryMenu li[data-category='5']")
-                        .trigger(fakeEvent.mouseup);
-                $("#functionList .dropdown .icon").trigger(fakeEvent.click);
-                $("#functionsMenu li:contains('genUnique')")
-                        .trigger(fakeEvent.mouseup);
-                $($(".argumentTable .argument")[0]).val("uniqueNum");
-                $("#operationsModal .modalBottom .confirm").click();
-                return (checkExists(".flexWrap.flex-mid" +
-                        " input[value='uniqueNum']:eq(0)"));
+                var $section = $("#operationsView .opSection.map");
+                $section.find(".categoryMenu li[data-category='5']")
+                        .trigger(fakeEvent.click);
+                $section.find(".functionsMenu li:contains('genUnique')")
+                        .trigger(fakeEvent.click);
+                $section.find(".colNameSection .arg").val("uniqueNum");
+                $("#operationsView .submit").click();
+                return checkExists(".flexWrap.flex-mid" +
+                                    " input[value='uniqueNum']:eq(0)");
             })
             .then(function() {
                 flightTestPart4();
@@ -530,18 +487,19 @@ window.TestSuite = (function($, TestSuite) {
 
         // Filter flight table
         function flightTestPart4() {
-            console.log("start flightTestPart4");
+            console.log("start flightTestPart4", "filter flight table");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "filter")
             .then(function() {
-                $("#functionList input").val("gt");
-                $("#functionList input").trigger(fakeEvent.enterKeydown);
-                $($(".argumentTable tr")[1]).find("input").val("0");
-                $("#operationsModal .modalBottom .confirm").click();
-                // var tableId = $(".xcTable:eq(0)").data("id");
-                return (checkExists("#xcTable-" + tableId, null,
-                                    {notExist: true}));
+                var $section = $("#operationsView .opSection.filter");
+                $section.find(".functionsList input").val("gt")
+                                .trigger(fakeEvent.enterKeydown);
+                $section.find(".arg").eq(1).val("0");
+                $("#operationsView .submit").click();
+
+                return checkExists("#xcTable-" + tableId, null,
+                                    {notExist: true});
             })
             .then(function() {
                 flightTestPart5();
@@ -554,9 +512,9 @@ window.TestSuite = (function($, TestSuite) {
 
         // Upload python script
         function flightTestPart5() {
-            console.log("start flightTestPart5");
-            $("#udfBtn").click();
-            $("#udf-tabs div[data-tab='udf-fnSection'] .label").click();
+            console.log("start flightTestPart5", "upload python");
+            $("#udfTab").click();
+            $("#udfSection .tab[data-tab='udf-fnSection']").click();
             var editor = UDF.getEditor();
             editor.setValue('def ymd(year, month, day):\n' +
                             '    if int(month) < 10:\n' +
@@ -564,7 +522,7 @@ window.TestSuite = (function($, TestSuite) {
                             '    if int(day) < 10:\n' +
                             '        day = "0" + day\n' +
                             '    return year + month + day');
-            $(".submitSection #udf-fnName").val("ymd");
+            $("#udf-fnName").val("ymd");
             $("#udf-fnUpload").click();
 
             checkExists("#alertHeader:visible " +
@@ -587,28 +545,27 @@ window.TestSuite = (function($, TestSuite) {
 
         // Map on flight table
         function flightTestPart6() {
-            console.log("start flightTestPart6");
-            $("#alertActions .cancel").click();
+            console.log("start flightTestPart6", "map on flight table with udf");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
 
             trigOpModal(tableId, "Year", "map")
             .then(function() {
-                $("#categoryList .dropdown .icon").trigger(fakeEvent.click);
-                $("#categoryMenu li[data-category='9']")
-                    .trigger(fakeEvent.mouseup);
-                $("#functionList .dropdown .icon").trigger(fakeEvent.click);
-                $("#functionsMenu li:contains('ymd:ymd')")
-                    .trigger(fakeEvent.mouseup);
-                $($(".argumentTable .argument")[0]).val(gColPrefix + "Year");
-                $($(".argumentTable .argument")[1]).val(gColPrefix + "Month");
-                $($(".argumentTable .argument")[2]).val(gColPrefix + "DayofMonth");
-                $($(".argumentTable .argument")[3]).val("YearMonthDay");
-                $("#operationsModal .modalBottom .confirm").click();
+                var $section = $("#operationsView .opSection.map");
+                $section.find(".categoryMenu li[data-category='9']")
+                        .trigger(fakeEvent.click);
+                $section.find(".functionsMenu li:contains('ymd:ymd')")
+                        .trigger(fakeEvent.click);
 
-                // var tableId = $('.xcTable:eq(0)').data('id');
-                return (checkExists("#xcTable-" + tableId, null,
-                                    {notExist: true}));
+                var $args = $section.find(".arg");
+                $args.eq(0).val(gColPrefix + "Year");
+                $args.eq(1).val(gColPrefix + "Month");
+                $args.eq(2).val(gColPrefix + "DayofMonth");
+                $args.eq(3).val("YearMonthDay");
+                $("#operationsView .submit").click();
+
+                return checkExists("#xcTable-" + tableId, null,
+                                    {notExist: true});
             })
             .then(function() {
                 flightTestPart7();
@@ -621,66 +578,56 @@ window.TestSuite = (function($, TestSuite) {
 
         // Join flight table with airport table
         function flightTestPart7() {
-            console.log("start flightTestPart7");
-            var $header = $(".flexWrap.flex-mid input[value='Dest']").eq(0);
-            $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu .joinList");
-            $colMenu.trigger(fakeEvent.mouseup);
-            setTimeout(function() {
-                $('.joinTableList').eq(1).find("li:contains('airport')")
+            console.log("start flightTestPart7", "join flight and airport table");
+
+            var wsId = WSManager.getOrders()[0];
+            var tableId = WSManager.getWSById(wsId).tables[0];
+
+            trigOpModal(tableId, "Dest", "joinList", "join")
+            .then(function() {
+                // fisrt step of join
+                $("#joinRightTableList").find("li:contains('airport')")
                                         .trigger(fakeEvent.click);
-                var $th = $("#rightJoin .columnTab:contains('iata')");
-                if (!$th.parent().hasClass("colSelected")) {
-                    $th.trigger(fakeEvent.click);
-                }
-
-                setTimeout(function() {
-
-                    var lTableName = $('.joinTableList').eq(0).find('.text').text();
-                    var rTableName = $('.joinTableList').eq(1).find('.text').text();
-                    var newName = xcHelper.getTableName(lTableName) + '-' +
-                          xcHelper.getTableName(rTableName);
-                    $('#joinRoundedInput').val(newName);
-                    $("#joinTables").click();
-                    checkExists(".xcTableWrap .tableName[value*='" + newName +
-                                "']")
-                    .then(function() {
-                        flightTestPart8();
-                    })
-                    .fail(function(error) {
-                        console.error(error, "flightTestPart7");
-                        TestSuite.fail(deferred, testName, currentTestNumber,
-                                       error);
-                    });
-                }, 500);
-            }, 500);
+                $("#mainJoin .rightClause").val("iata").change();
+                var lTableName = $("#joinLeftTableList").find(".text").text();
+                var rTableName = $("#joinRightTableList").find(".text").text();
+                var newName = xcHelper.getTableName(lTableName) + '-' +
+                              xcHelper.getTableName(rTableName);
+                $("#joinView .btn.next").click();
+                $("#joinTableNameInput").val(newName);
+                $("#joinTables").click();
+                return checkExists(".xcTableWrap .tableName[value*='" + newName +
+                                    "']");
+            })
+            .then(function() {
+                flightTestPart8();
+            })
+            .fail(function(error) {
+                console.error(error, "flightTestPart7");
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
+            });
         }
 
         // Group by
         function flightTestPart8() {
-            console.log("start flightTestPart8");
+            console.log("start flightTestPart8", "groupby joined table");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "groupby")
             .then(function() {
-                $("#functionList .dropdown .icon").trigger(fakeEvent.click);
-                $($("#functionsMenu li")[0]).trigger(fakeEvent.mouseup);
-                $($(".argumentTable .argument")[0]).val(gColPrefix + "ArrDelay_integer");
-                $($(".argumentTable .argument")[1]).val(gColPrefix + "UniqueCarrier");
-                $($(".argumentTable .argument")[2]).val("AvgDelay");
-                $("#operationsModal .modalBottom .confirm").click();
+                // group on UniqueCarrier having avg ArrDely_integer
+                var $section = $("#operationsView .opSection.groupby");
+                $section.find(".gbOnArg").val(gColPrefix + "UniqueCarrier");
+                // test input of the field
+                $section.find(".functionsList .functionsInput").val("avg")
+                        .trigger(fakeEvent.enterKeydown);
+                $section.find(".colNameSection .arg").val("AvgDelay");
+                $("#operationsView .submit").click();
 
-                return (checkExists(".xcTableWrap " +
-                                    ".tableName[value*='GB']"));
+                return checkExists(".xcTableWrap .tableName[value*='GB']");
             })
             .then(function() {
-
-                //if ($("#numPages").text().indexOf("17") > -1) {
-                    flightTestPart9();
-                //} else {
-                //    TestSuite.fail(deferred, testName, currentTestNumber,
-                //                    "num pages not 17");
-                //}
+                flightTestPart9();
             })
             .fail(function(error) {
                 console.error(error, "flightTestPart8");
@@ -690,15 +637,24 @@ window.TestSuite = (function($, TestSuite) {
 
         // Aggregate
         function flightTestPart9() {
-            console.log("start flightTestPart9");
+            console.log("start flightTestPart9",
+                        "aggregate the joined table on avg of ArrDelay_integer");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
 
             trigOpModal(tableId, "ArrDelay_integer", "aggregate")
             .then(function() {
-                $("#functionList .dropdown .icon").trigger(fakeEvent.click);
-                $("#functionsMenu li").eq(0).trigger(fakeEvent.mouseup);
-                $("#operationsModal .modalBottom .confirm").click();
+                var $section = $("#operationsView .opSection.aggregate");
+                // XXX cannot trigger dropdown list for a bug
+                // use this as a test of dropdown list when fixed
+
+                // $section.find(".functionsList .iconWrapper").click();
+                // $section.find(".functionsList li:contains('avg')")
+                //         .trigger(fakeEvent.mouseup);
+
+                $section.find(".functionsInput").val("avg")
+                        .trigger(fakeEvent.enterKeydown);
+                $("#operationsView .submit").click();
 
                 return checkExists("#alertHeader:visible .text:contains(Agg)");
             })
@@ -723,24 +679,27 @@ window.TestSuite = (function($, TestSuite) {
     function newWorksheetTest(deferred, testName, currentTestNumber) {
         console.log("start newWorksheetTest");
         // Tests add worksheet and rename new worksheet
+        console.log("newWorksheetTest: add new worksheet");
+        var $menu = $("#workspaceMenu");
+        if (!$menu.hasClass("active")) {
+            // open workspace menu
+            $("#workspaceTab .mainTab").click();
+        }
+
         $("#addWorksheet").click();
         var wsId = WSManager.getOrders()[1];
         checkExists("#worksheetTab-" + wsId)
         .then(function() {
-            var $menu = $("#workspaceMenu");
-            if (!$menu.hasClass("active")) {
-                // open workspace menu
-                $("#workspaceTab .mainTab").click();
-            }
             if ($menu.find(".tables").hasClass("xc-hidden")) {
                 $("#tableListTab").click();
             }
-            $(".tableListSectionTab:contains(Orphaned)").click();
-            $('#orphanedTableList .refresh').click();
+            $(".tableListSectionTab:contains(Temporary)").click();
+            $("#orphanedTableList .refresh").click();
             return checkExists("#orphanedTableList-search:visible");
         })
         .then(function() {
             // move the flight table (the one that has id startTableId + 5)
+            console.log("send a orphaned flight table to worksheet");
             var idCount = parseInt(startTableId.substring(2));
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 return $(this).data("id").endsWith(idCount + 5);
@@ -751,14 +710,17 @@ window.TestSuite = (function($, TestSuite) {
             $li.find(".addTableBtn").click();
 
             $("#orphanedTableList .submit.active").click();
+            // switch back to worksheet list
+            $("#worksheetListTab").click();
             $("#worksheetTabs .worksheetTab:first-child")
                                                 .trigger(fakeEvent.mousedown);
             return checkExists(".xcTableWrap:eq(2) .tableTitle " +
                                 ".dropdownBox .innerBox");
         })
         .then(function() {
+            console.log("move table to another worksheet");
             $("#mainFrame").scrollLeft("10000");
-            $(".xcTableWrap .tableTitle .dropdownBox .innerBox").eq(2).click();
+            $(".xcTableWrap:eq(2) .tableTitle .dropdownBox .innerBox").click();
             $("#tableMenu .moveToWorksheet").trigger(fakeEvent.mouseenter);
             $("#tableSubMenu .wsName").click();
             $("#tableSubMenu .moveToWorksheet .list li").click();
@@ -769,6 +731,7 @@ window.TestSuite = (function($, TestSuite) {
         })
         .then(function() {
             // rename worksheet
+            console.log("rename worksheet");
             $("#worksheetTab-" + wsId + " .text").val("Multi group by")
                                         .trigger(fakeEvent.enter);
             assert($("#worksheetTab-" + wsId + " .text").val() ===
@@ -784,19 +747,24 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
-        console.log("start multiGroupByTest");
+        console.log("start multiGroupByTest",
+                    "group by Dest and AirTime onn count of ArrDelay_integer");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
-        // var tableId = (WSManager.getWorksheets())[1].tables[0];
 
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
-            $("#functionsMenu li").eq(2).trigger(fakeEvent.mouseup);
-            $(".argumentTable .argument").eq(1).val(gColPrefix + "Dest, " +
-                                                    gColPrefix + "AirTime");
-            $("#operationsModal .modalBottom .confirm").click();
-            return (checkExists(".xcTableWrap " +
-                                ".tableName[value*='GB']"));
+            var $section = $("#operationsView .opSection.groupby");
+            $section.find(".gbOnArg").val(gColPrefix + "Dest, " +
+                                          gColPrefix + "AirTime");
+
+            $section.find(".functionsList .functionsInput").val("count")
+                        .trigger(fakeEvent.enterKeydown);
+            $("#operationsView .submit").click();
+            // need to check in this worksheet because
+            // there is another groupby table
+            return checkExists(".xcTableWrap.worksheet-" + wsId +
+                               " .tableName[value*='GB']");
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -809,47 +777,55 @@ window.TestSuite = (function($, TestSuite) {
 
     function multiJoinTest(deferred, testName, currentTestNumber) {
         console.log("start multiJoinTest");
-        var dsName = "schedule" + Math.floor(Math.random() * 1000);
-        // Import schedule dataset
+        // point to schedule dataset
+        console.log("point to schedule dataset");
         $("#dataStoresTab").click();
-        $("#importDataButton").click();
-        $("#fileProtocol input").val(FileProtocol.nfs);
-        $("#filePath").val(testDataLoc + "indexJoin/schedule/schedule.json");
-        $("#fileName").val(dsName);
-        $("#fileFormat .iconWrapper .icon").click();
-        $("#fileFormat li[name='JSON']").click();
-        $("#importDataSubmit").click();
+        var dsName = "schedule" + Math.floor(Math.random() * 1000);
+        var url = testDataLoc + "indexJoin/schedule/schedule.json";
+        var check = "#previewTable td:eq(1):contains(1)";
         var wsId = WSManager.getOrders()[1];
-        var dsIcon = getDSIcon(dsName);
-        checkExists(dsIcon)
+        var ws = WSManager.getWSById(wsId);
+
+        loadDS(dsName, url, check)
         .then(function() {
-            return createTable(dsName, 'class_id', wsId);
+            var innerDeferred = jQuery.Deferred();
+            // XXX there is a point to ds error when not do setTimeout
+            // need to fix later
+            setTimeout(function() {
+                createTable(dsName, "class_id")
+                .then(innerDeferred.resolve)
+                .fail(innerDeferred.reject);
+            }, 1000);
+
+            return innerDeferred.promise();
         })
         .then(function(){
-            var tableId = WSManager.getWSById(wsId).tables[1];
-            return (trigOpModal(tableId, "class_id", "joinList", "join"));
+            console.log("multi join with flight-airport table");
+            var tableId = ws.tables[2];
+            return trigOpModal(tableId, "class_id", "joinList", "join");
         })
         .then(function() {
-            $("#multiJoinBtn .onBox").click();
-            return (checkExists("#multiJoin .title"));
-        })
-        .then(function() {
-            $(".joinClause").eq(1).click();
-            $('.joinTableList').eq(1).find('li').eq(2).click();
-            $(".leftClause").eq(0).val("class_id");
-            $(".leftClause").eq(1).val("teacher_id");
-            $(".rightClause").eq(0).val("DayofMonth");
-            $(".rightClause").eq(1).val("DayOfWeek");
+            var rightTableId = ws.tables[0];
+            $("#joinRightTableList").find("li[data-id='" + rightTableId + "']")
+                                    .trigger(fakeEvent.click);
+            $("#mainJoin .leftClause").eq(0).val("class_id").change();
+            $("#mainJoin .rightClause").eq(0).val("DayofMonth").change();
+            // add another clause
+            $("#mainJoin .joinClause.placeholder .btn").click();
+            $("#mainJoin .leftClause").eq(1).val("teacher_id").change();
+            $("#mainJoin .rightClause").eq(1).val("DayOfWeek").change();
 
-            var lTableName = $('.joinTableList').eq(0).find('.text').text();
-            var rTableName = $('.joinTableList').eq(1).find('.text').text();
+            var lTableName = $("#joinLeftTableList").find(".text").text();
+            var rTableName = $("#joinRightTableList").find(".text").text();
             var newName = xcHelper.getTableName(lTableName) + '-' +
-                          xcHelper.getTableName(rTableName);
-            $('#joinRoundedInput').val(newName);
+                            xcHelper.getTableName(rTableName);
+
+            $("#joinView .btn.next").click();
+            $("#joinTableNameInput").val(newName);
             $("#joinTables").click();
-            return (checkExists(".xcTableWrap .tableName[value*='" +
-                                newName + "']",
-                    30000));
+
+            return checkExists(".xcTableWrap .tableName[value*='" +
+                                newName + "']", 30000);
         })
         .then(function() {
             if ($("#numPages").text().indexOf("1,953") > -1) {
@@ -872,7 +848,7 @@ window.TestSuite = (function($, TestSuite) {
 
         var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='class_id']");
-        $header.parent().parent().find(".flex-right .innerBox").click();
+        $header.closest(".flexContainer").find(".flex-right .innerBox").click();
         var $colMenu = $("#colMenu .renameCol");
         var $colSubMenu = $('#colSubMenu');
         $colMenu.mouseover();
@@ -962,8 +938,9 @@ window.TestSuite = (function($, TestSuite) {
             assert($(".infoSection .max").eq(0).text() ===
                     Number(12).toLocaleString());
 
-            $("#profileModal .sort .asc").click();
-            return checkExists([".barArea:first-child .xlabel:contains('134')"], 30000);
+            $("#profileModal .sortSection .asc").click();
+            return checkExists(".barArea:first-child .xlabel:contains('134')",
+                                30000);
         })
         .then(function() {
             assert($(".barArea .xlabel").eq(0).text() === "134");
@@ -985,7 +962,6 @@ window.TestSuite = (function($, TestSuite) {
         $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
         checkExists(".aggTableField:contains('-0.4')", 20000)
         .then(function() {
-            $("#aggModal .close").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
@@ -997,10 +973,7 @@ window.TestSuite = (function($, TestSuite) {
     // via toggle of tabs
     function aggTest(deferred, testName, currentTestNumber) {
         console.log("start aggTest");
-        var wsId = WSManager.getOrders()[1];
-        var tableId = WSManager.getWSById(wsId).tables[0];
-        $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
-        $("#tableSubMenu .aggregates").trigger(fakeEvent.mouseup);
+        $("#aggTab").click();
         checkExists(".spinny", null, {notExist: true})
         .then(function() {
             assert($(".aggTableField:contains('4574')"));
@@ -1017,7 +990,10 @@ window.TestSuite = (function($, TestSuite) {
         console.log("start schedTest");
         // Create a schedule
         $("#schedulerTab").click();
-        $("#schedulesButton").click();
+        var $subTab = $("#schedulesButton");
+        if (!$subTab.hasClass("active")) {
+            $subTab.click();
+        }
 
         // on schedule form
         schedName = "testSched" + randInt(); // globals in the module
@@ -1025,7 +1001,7 @@ window.TestSuite = (function($, TestSuite) {
         $("#addSchedule").click();
 
         var $form = $("#newScheduleForm");
-        $form.find(".name").val(schedName)
+        $form.find(".name").val(schedName).blur()
             .end()
             .find(".datePickerPart input").focus().focus().click()
             .end()
@@ -1039,7 +1015,7 @@ window.TestSuite = (function($, TestSuite) {
         checkExists("#scheduleLists .scheduleName:contains('" + schedName + "')")
         .then(function() {
             $("#modScheduleForm-edit").click();
-            $form.find(".freq1 .radioButton:eq(1)").click();
+            $("#scheduleDetail").find(".freq1 .radioButton:eq(1)").click();
             $("#modScheduleForm-save").click();
             assert($("#scheduleInfos .scheduleInfo.frequency .text").text() === "hourly");
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -1053,9 +1029,8 @@ window.TestSuite = (function($, TestSuite) {
         console.log("start dfgTest");
         // Create a dfg
         $("#workspaceTab").click();
-
-        var $worksheetTab = $(".worksheetTab:not(.inActive)");
-        $worksheetTab.find(".dagTab").click();
+        var $worksheetTab = $(".worksheetTab.active");
+        $("#dfgPanelSwitch").click();
         var worksheetId = $worksheetTab.attr("id").substring(13);
         var tId = WSManager.getAllMeta().wsInfos[worksheetId].tables[0];
         $("#dagWrap-" + tId + " .addDataFlow").click();
@@ -1073,10 +1048,12 @@ window.TestSuite = (function($, TestSuite) {
         $("#schedulerTab").click();
         $("#dataflowButton").click();
 
-        var selector = "#dataflowView .dataFlowGroup .listBox " +
-                        ".label:contains('" + dfgName + "')";
+        var selector = "#dfgMenu .dataFlowGroup .listBox " +
+                        ".groupName:contains('" + dfgName + "')";
         checkExists(selector)
         .then(function() {
+            // focus on that dfg
+            $(selector).click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
@@ -1087,14 +1064,10 @@ window.TestSuite = (function($, TestSuite) {
     function retinaTest(deferred, testName, currentTestNumber) {
         console.log("start retinaTest");
         // Create Parameter
-        var $dataflowView = $("#dataflowView");
-
-        // select dfg
-        $dataflowView.find(".listBox .label:contains('" + dfgName + "')").click();
-
+        var $dfgViz = $("#dfgViz");
         // add param to retina
-        var $retTab = $dataflowView.find(".retTab");
-        var $retPopup = $dataflowView.find(".retPopUp");
+        var $retTab = $dfgViz.find(".retTab");
+        var $retPopup = $dfgViz.find(".retPopUp");
         paramName = "param" + randInt();  // globals in the module
 
         $retTab.trigger(fakeEvent.mousedown);
@@ -1103,8 +1076,8 @@ window.TestSuite = (function($, TestSuite) {
         $retTab.trigger(fakeEvent.mousedown);
 
         // Add parameter to export
-        $dataflowView.find(".dagTable.export").click();
-        $dataflowView.find(".createParamQuery").trigger(fakeEvent.mouseup);
+        $dfgViz.find(".dagTable.export").click();
+        $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
 
         var $dfgParamModal = $("#dfgParameterModal");
         $dfgParamModal.find(".editableRow .defaultParam").click();
@@ -1114,7 +1087,7 @@ window.TestSuite = (function($, TestSuite) {
         );
         $dfgParamModal.find("input.editableParamDiv").trigger('input');
 
-        var $row = $("#dagModleParamList").find(".unfilled:first");
+        // var $row = $("#dagModleParamList").find(".unfilled:first");
         fileName = "file" + randInt();
 
         checkExists("#dagModleParamList tr:first .paramName:contains('" +
@@ -1139,22 +1112,21 @@ window.TestSuite = (function($, TestSuite) {
     function addDFGToSchedTest(deferred, testName, currentTestNumber) {
         console.log("start addDFGToSchedTest");
         // Attach schedule to dfg
-        var $listBox = $("#dataflowView .dataFlowGroup .listBox").filter(function() {
-            return $(this).find(".label").text() === dfgName;
+        var $listBox = $("#dfgMenu .dataFlowGroup .listBox").filter(function() {
+            return $(this).find(".groupName").text() === dfgName;
         });
 
         $listBox.find(".addGroup").click();
 
         // select schedule
-        var $addSchedModal = $("#addScheduleModal");
-        var $schedList = $addSchedModal.find(".scheduleList");
+        var $addScheduleCard = $("#addScheduleCard");
+        var $schedList = $addScheduleCard.find(".scheduleList");
         $schedList.find(".iconWrapper").click()
                 .end()
                 .find("ul li:contains('" + schedName + "')").click();
-        $addSchedModal.find(".modalBottom .confirm").click();
+        $addScheduleCard.find("button.confirm").click();
 
-        var selector = "#dataflowView .midContentHeader " +
-                    ".schedulesList:contains('schedules: " + schedName + "')";
+        var selector = "#dfgViz .schedulesList:contains('1')";
         checkExists(selector)
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -1188,7 +1160,7 @@ window.TestSuite = (function($, TestSuite) {
                    $jsonModal.find('.matched').eq(2).text() &&
                    $jsonModal.find('.matched').eq(1).text() ===
                    $jsonModal.find('.matched').eq(2).text());
-            assert($jsonModal.find('.partial:eq(0)').text() !=
+            assert($jsonModal.find('.partial:eq(0)').text() !==
                     $jsonModal.find('.partial:eq(1)').text());
             assert($jsonModal.find('.partial:eq(0) > div').length ===
                     $jsonModal.find('.partial:eq(1) > div').length);
@@ -1211,7 +1183,7 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(newWorksheetTest, "NewWorksheetTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(multiGroupByTest, "MultiGroupByTest",
-                  defaultTimeout, TestCaseDisabled);
+                  defaultTimeout, TestCaseEnabled);
     TestSuite.add(multiJoinTest, "MultiJoinTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(columnRenameTest, "ColumnRenameTest",
@@ -1223,7 +1195,7 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(corrTest, "CorrelationTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(aggTest, "QuickAggregateTest",
-                  defaultTimeout, TestCaseDisabled);
+                  defaultTimeout, TestCaseEnabled);
     TestSuite.add(schedTest, "ScheduleTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(dfgTest, "DFGTest",

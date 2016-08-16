@@ -201,7 +201,9 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#newScheduleForm-save").click(function() {
             $(this).blur();
-            saveScheduleForm($newScheduleForm);
+            if (saveScheduleForm($newScheduleForm)) {
+                $newScheduleForm.addClass('xc-hidden');
+            }
         });
 
         $("#modScheduleForm-save").click(function() {
@@ -212,7 +214,6 @@ window.Scheduler = (function(Scheduler, $) {
         $("#newScheduleForm-cancel").click(function() {
             $(this).blur();
             resetScheduleForm($newScheduleForm);
-            $newScheduleForm.addClass('xc-hidden');
         });
         $("#modScheduleForm-cancel").click(function() {
             $(this).blur();
@@ -382,7 +383,7 @@ window.Scheduler = (function(Scheduler, $) {
             $tabs.removeClass('active');
             var index = $tab.index();
             $tab.addClass('active');
-            $scheduleInfos.find('.scheduleInfoSection').addClass('xc-hidden')
+            $scheduleInfos.find('.scheduleInfoSection').addClass('xc-hidden');
             $scheduleInfos.find('.scheduleInfoSection').eq(index)
                                                 .removeClass('xc-hidden');
             if (index === 0) {
@@ -421,15 +422,39 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function saveScheduleForm($form) {
+        var isNewSchedule = $form.attr("id") === "newScheduleForm";
+
         var $scheduleName  = $form.find(".nameSection input");
         var $scheduleDate  = $form.find(".timeSection .date");
         var $scheduleTime  = $form.find(".timeSection .time");
         var $scheduleRecur = $form.find(".recurSection input");
+        var name;
         // validation
-        var isValid = xcHelper.validate([
-            {
-                "$selector": $scheduleName
-            },
+        var isValid;
+        if (isNewSchedule) {
+            name = $scheduleName.val().trim();
+
+            isValid = xcHelper.validate([
+                {
+                    "$selector": $scheduleName,
+                },
+                {
+                    "$selector": $scheduleName,
+                    "text"     : ErrTStr.ScheduleConflict,
+                    "check"    : function() {
+                        return (scheduleLookUpMap[name] != null);
+                    }
+                }
+            ]);
+
+            if (!isValid) {
+                return false;
+            }
+        } else {
+            name = $form.data("schedule");
+        }
+
+        isValid = xcHelper.validate([
             {
                 "$selector": $scheduleDate,
                 "text"     : ErrTStr.NoEmpty,
@@ -451,21 +476,7 @@ window.Scheduler = (function(Scheduler, $) {
         ]);
 
         if (!isValid) {
-            return;
-        }
-
-        var srcScheduleName = $form.data("schedule");
-        // var isNewSchedule = (srcScheduleName == null);
-        var isNewSchedule = $form.attr('id') === 'newScheduleForm';
-        var schedule = isNewSchedule ? null : scheduleLookUpMap[srcScheduleName];
-
-        var name = $scheduleName.val().trim();
-
-        if (isNewSchedule && scheduleLookUpMap[name] != null ||
-            name !== srcScheduleName && scheduleLookUpMap[name] != null)
-        {
-            StatusBox.show(ErrTStr.ScheduleConflict, $scheduleName);
-            return;
+            return false;
         }
 
         var recur   = Number($scheduleRecur.val().trim());
@@ -528,9 +539,11 @@ window.Scheduler = (function(Scheduler, $) {
                 triggerAddScheModal(dfg, name);
             }
         } else {
+            var schedule = scheduleLookUpMap[name];
             updateSchedule(schedule, options);
         }
         xcHelper.showSuccess();
+        return true;
     }
 
     function resetScheduleForm($form) {
@@ -716,10 +729,10 @@ window.Scheduler = (function(Scheduler, $) {
         // update schedule form
         var $form;
         if (isNew) {
-            $form = $newScheduleForm
+            $form = $newScheduleForm;
             $form.data("schedule", null);
         } else {
-            $form = $modScheduleForm
+            $form = $modScheduleForm;
             $form.addClass("inActive").data("schedule", schedule.name);
         }
 
@@ -905,7 +918,7 @@ window.Scheduler = (function(Scheduler, $) {
 
         hours = hours < 10 ? "0" + hours : hours;
         minutes = minutes < 10 ? "0" + minutes : minutes;
-        var $timePicker = $form.find('.timePicker')
+        var $timePicker = $form.find('.timePicker');
         var $inputSection = $timePicker.find(".inputSection");
 
         if (!noHourRest) {
