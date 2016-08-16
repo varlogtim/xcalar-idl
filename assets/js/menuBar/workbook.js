@@ -193,7 +193,8 @@ window.Workbook = (function($, Workbook) {
             var $workbookBox = $(this).closest(".workbookBox");
             var $workbookName = $workbookBox.find("input");
             $workbookName.addClass("active");
-            $lastFocusedInput = $workbookName;
+            // sets focus and puts cursor at end of input
+            $workbookName.focus().val($workbookName.val());
             $(".tooltip").remove();
         });
 

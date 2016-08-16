@@ -70,10 +70,6 @@
 	}
 
 	.box {
-		// background-color: @color-white;
-		// margin-right: 10px;
-		// margin-bottom: 10px;
-		// box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
 		.flex-display;
 
 		p, div {
@@ -250,6 +246,13 @@
 	  			color: @color-font-darkGray !important;
 	  			// over ride default link color
 	  		}
+
+	  		&:hover {
+	  			border: 1px solid @color-bg-white-nine;
+	  			.tutBtn {
+	  				background-color: @color-bg-white-nine;
+	  			}
+	  		}
 	  	}
 	  	.tutBtn {
 	  		float: left;
@@ -329,10 +332,11 @@
 				color: @color-font-select-blue;
 				font-size: 22px;
 				font-weight: 500;
-				background-color: white;
+				background-color: @color-white;
 				border-color: @color-white;
 				margin-top: -10px;
-				padding-left: 0px;
+				margin-left: -5px;
+				padding-left: 5px;
 				pointer-events: none;
 				.textOverflowOneLine;
 

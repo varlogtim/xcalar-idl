@@ -38,6 +38,7 @@ module.exports = {
         "FuncName": "Function Name",
         "GEN": "GENERATE",
         "Header": "Header",
+        "Help": "Help",
         "max": "max",
         "maximize": "maximize",
         "min": "min",
@@ -615,7 +616,20 @@ module.exports = {
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
         "EmptyHint": "select to allow empty field",
-        "CONFIRM": "APPLY"
+        "map": "Map",
+        "table": "Table",
+        "category": "Category",
+        "function": "Function",
+        "erroneousRows": "View only erroneous rows",
+        "filterFunc": "Filter Function",
+        "noFunc": "No Function Chosen",
+        "additional": "Additional Conditions",
+        "fieldsToGroup": "Fields to group on",
+        "AddAnotherColumn": "ADD ANOTHER COLUMN",
+        "funcToGroup": "Function to apply to group",
+        "joinBack": "Join table back to original",
+        "includeSample": "Include a sample of the rest of the fields",
+        "aggFunc": "Aggregate Function"
     },
 
     "extOpsModal": {
@@ -666,7 +680,20 @@ module.exports = {
         "newName": "New Workbook Name",
         "CreateBy": "Created By",
         "ModifiedBy": "Last Modified By",
-        "CONFIRM": "CREATE"
+        "CONFIRM": "CREATE",
+        "hello" : "Hello",
+        "welcomeXI": "Welcome to <b>Xcalar Insight</b>",
+        "news": "News",
+        "visit": "Visit",
+        "viewNewHelpDoc": "View our new help documentation",
+        "tuts": "Tutorials",
+        "learnMore": "Learn more about Xcalar Insight",
+        "relatedDocs": "Related Tutorials Help Docs",
+        "monitorStatus": "Monitor the status of your Xcalar Cluster",
+        "monitorClusterHealth": "Monitor Cluster Health",
+        "createWKBKdesc": "Create a new workbook with data and worksheets",
+        "createWKBK": "Create Workbook"
+
     },
 
     "deleteTable": {

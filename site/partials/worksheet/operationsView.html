@@ -1,6 +1,6 @@
 <section id="operationsView" class="xc-hidden opView">
 	<header>
-		<div class="title">Map</div>
+		<div class="title"><%= dicts.opsModal.map %></div>
 		<i class="close icon xi-close fa-15"></i>
 	</header>
 	<div class="mainContent">
@@ -9,7 +9,7 @@
 			<div class="group mapGroup">
 				<div class="tableListSection clearfix">
 					<div class="subHeading clearfix">
-						<span class="text">Table:</span>
+						<span class="text"><%= dicts.opsModal.table %>:</span>
 						<div class="iconWrap focusTable">
 							<i class="icon xi-show"></i>
 						</div>
@@ -32,8 +32,8 @@
 					</div>
 				</div>
 				<div class="catFuncHeadings clearfix subHeading">
-					<div>Category</div>
-					<div>Function</div>
+					<div><%= dicts.opsModal.category %></div>
+					<div><%= dicts.opsModal.function %></div>
 				</div>
 				<div class="catFuncMenus clearfix">
 					<ul class="categoryMenu">
@@ -50,7 +50,7 @@
 				</div>
 				<div class="icvContainer">
 					<div class="icvMode checkboxSection inactive">
-						<div class="text">View only erroneous rows</div>
+						<div class="text"><%= dicts.opsModal.erroneousRows %></div>
 						<div class="checkbox">
 							<i class="icon xi-ckbox-empty fa-11"></i>
 							<i class="icon xi-ckbox-selected fa-11"></i>
@@ -65,7 +65,7 @@
 			<p class="instructions"><%= dicts.opsModal.filterInstr %></p>
 			<div class="tableListSection clearfix">
 				<div class="subHeading clearfix">
-					<span class="text">Table:</span>
+					<span class="text"><%= dicts.opsModal.table %>:</span>
 					<div class="iconWrap focusTable">
 						<i class="icon xi-show"></i>
 					</div>
@@ -89,8 +89,8 @@
 			</div>
 			<div class="group filterGroup">
 				<div class="catFuncHeadings clearfix subHeading">
-					<div class="filterFnTitle">Filter Function:</div>
-					<div class="altFnTitle">No Function Chosen</div>
+					<div class="filterFnTitle"><%= dicts.opsModal.filterFunc %>:</div>
+					<div class="altFnTitle"><%= dicts.opsModal.noFunc %></div>
 					<i class="icon xi-minus minGroup"></i>
 				</div>
 				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
@@ -119,7 +119,7 @@
 				<button class="btn btn-small addArg addFilterArg">
 					<i class="icon xi-plus"></i>
 				</button>
-				<span class="text">Additonal Conditions</span>
+				<span class="text"><%= dicts.opsModal.additional %></span>
 			</div>
 			
 		</div>
@@ -130,7 +130,7 @@
 			<div class="group groupbyGroup">
 				<div class="tableListSection clearfix">
 					<div class="subHeading clearfix">
-						<span class="text">Table:</span>
+						<span class="text"><%= dicts.opsModal.table %>:</span>
 						<div class="iconWrap focusTable">
 							<i class="icon xi-show"></i>
 						</div>
@@ -154,7 +154,7 @@
 				</div>
 				<div class="argsSection groupOnSection">
 					<div class="row gbOnRow clearfix">
-		                <div class="description">Fields to group on:</div>
+		                <div class="description"><%= dicts.opsModal.fieldsToGroup %>:</div>
 		                <div class="inputWrap original">
 		                    <div class="dropDownList">
 		                      <input class="arg gbOnArg" type="text" tabindex="10" 
@@ -177,14 +177,14 @@
 		            <div class="addArgWrap">
 						<button class="btn addArg addGroupArg">
 							<i class="icon xi-plus"></i>
-							<span class="text">ADD ANOTHER COLUMN</span>
+							<span class="text"><%= dicts.opsModal.AddAnotherColumn %></span>
 						</button>
 						
 					</div>
 				</div>
 				<div class="catFuncHeadings clearfix subHeading">
-					<div class="groupbyFnTitle">Function to apply to group:</div>
-					<div class="altFnTitle">No Function Chosen</div>
+					<div class="groupbyFnTitle"><%= dicts.opsModal.funcToGroup %>:</div>
+					<div class="altFnTitle"><%= dicts.opsModal.noFunc %></div>
 				</div>
 				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
 			        <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
@@ -208,14 +208,14 @@
 				</div>
 				<div class="gbCheckboxes inactive clearfix">
 					<div class="keepTable checkboxSection clearfix">
-						<div class="text">Join table back to original</div>
+						<div class="text"><%= dicts.opsModal.joinBack %></div>
 						<div class="checkbox">
 							<i class="icon xi-ckbox-empty fa-11"></i>
 							<i class="icon xi-ckbox-selected fa-11"></i>
 						</div>
 					</div>
 					<div class="incSample checkboxSection clearfix">
-						<div class="text">Include a sample of the rest of the fields</div>
+						<div class="text"><%= dicts.opsModal.includeSample %></div>
 						<div class="checkbox">
 							<i class="icon xi-ckbox-empty fa-11"></i>
 							<i class="icon xi-ckbox-selected fa-11"></i>
@@ -224,7 +224,7 @@
 				</div>
 				<div class="icvContainer">
 					<div class="icvMode checkboxSection inactive">
-						<div class="text">View only erroneous rows</div>
+						<div class="text"><%= dicts.opsModal.erroneousRows %></div>
 						<div class="checkbox">
 							<i class="icon xi-ckbox-empty fa-11"></i>
 							<i class="icon xi-ckbox-selected fa-11"></i>
@@ -249,7 +249,7 @@
 			<div class="group aggregateGroup">
 				<div class="tableListSection clearfix">
 					<div class="subHeading clearfix">
-						<span class="text">Table:</span>
+						<span class="text"><%= dicts.opsModal.table %>:</span>
 						<div class="iconWrap focusTable">
 							<i class="icon xi-show"></i>
 						</div>
@@ -272,8 +272,8 @@
 					</div>
 				</div>
 				<div class="catFuncHeadings clearfix subHeading">
-					<div class="filterFnTitle">Aggregate Function:</div>
-					<div class="altFnTitle">No Function Chosen</div>
+					<div class="filterFnTitle"><%= dicts.opsModal.aggFunc %>:</div>
+					<div class="altFnTitle"><%= dicts.opsModal.noFunc %></div>
 				</div>
 				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
 			        <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>

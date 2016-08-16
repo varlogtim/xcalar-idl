@@ -12,8 +12,8 @@
 	  			<div class="leftBar vertBar"></div>
 	  			<div class="content">
 	  				<div class="innerContent">
-	  					<header class="heading">Hello <span class="username">User</span>!</header>
-		  				<div class="subHeading">Welcome to <b>Xcalar Insight</b></div>
+	  					<header class="heading"><%= dicts.workbook.hello%> <span class="username">User</span>!</header>
+		  				<div class="subHeading"><%= dicts.workbook.welcomeXI %></div>
 		  				<p class="description">
 		  				</p>
 	  				</div>
@@ -24,18 +24,18 @@
 	  			<div class="content">
 	  				<div class="innerContent">
 	  					<section class="section">
-	  						<div class="subHeading">News</div>
+	  						<div class="subHeading"><%= dicts.workbook.news %></div>
 			  				<div class="description">
 			  					<ul>
-			  						<li><a href="http://www.xcalar.com" target="_blank">Visit Xcalar.com</a></li>
+			  						<li><a href="http://www.xcalar.com" target="_blank"><%= dicts.workbook.visit %> Xcalar.com</a></li>
 			  					</ul>
 			  				</div>
 	  					</section>
 	  					<section class="section">
-	  						<div class="subHeading">Help</div>
+	  						<div class="subHeading"><%= dicts.common.Help %></div>
 			  				<div class="description">
 			  					<ul>
-			  						<li><a href="<%= dicts.paths.helpDocs %>" target="xchelp">View our new help documentation</a></li>
+			  						<li><a href="<%= dicts.paths.helpDocs %>" target="xchelp"><%= dicts.workbook.viewNewHelpDoc %></a></li>
 			  					</ul>
 			  				</div>
 	  					</section>
@@ -48,41 +48,29 @@
 	  			<div class="content">
 	  				<div class="innerContent">
 	  					<section class="section">
-	  						<div class="subHeading">Tutorials</div>
+	  						<div class="subHeading"><%= dicts.workbook.tuts %></div>
 		  					<div class="helpText">
-		  						<a href="assets/help/Content/Home.htm" target="xchelp" >Learn more about Xcalar Insight</a>
+		  						<a href="assets/help/Content/Home.htm" target="xchelp"><%= dicts.workbook.learnMore %></a>
 		  					</div>
-	<!-- 		  				<div class="tutBlock">
-			  					<div class="tutBtn">
-			  						<i class="icon xi-play-circle"></i>
-			  					</div>
-			  					<div class="tutText">Tutorials To Get You Started</div>
-			  				</div> -->
 			  				<div class="tutBlock">
 			  					<a href="<%= dicts.paths.helpDocs %>" target="xchelp" >
 			  						<div class="tutBtn">
 			  						<i class="icon xi-worksheet"></i>
 				  					</div>
-				  					<div class="tutText">Related Tutorials Help Docs</div>
+				  					<div class="tutText"><%= dicts.workbook.relatedDocs %></div>
 			  					</a>
 			  				</div>
-			  				<!-- <div class="tutBlock">
-			  					<div class="tutBtn">
-			  						<i class="icon xi-worksheet"></i>
-			  					</div>
-			  					<div class="tutText">Step-by-Step Tour</div>
-			  				</div> -->
 	  					</section>
 	  					<section class="section">
-	  						<div class="subHeading">Monitor</div>
+	  						<div class="subHeading"><%= dicts.monitor.Monitor %></div>
 		  					<div class="helpText">
-		  						<a href="" class="monitorLink">Monitor the status of your Xcalar Cluster</a>
+		  						<a href="" class="monitorLink"><%= dicts.workbook.monitorStatus %></a>
 		  					</div>
 			  				<div class="tutBlock monitorBtn">
 		  						<div class="tutBtn">
 		  							<i class="icon xi-menu-monitoring"></i>
 			  					</div>
-			  					<div class="tutText">Monitor Cluster Health</div>
+			  					<div class="tutText"><%= dicts.workbook.monitorClusterHealth %></div>
 			  				</div>
 	  					</section>
 	  				</div>
@@ -96,10 +84,10 @@
 	  				<div class="leftBar vertBar"></div>
 		  			<div class="content">
 		  				<div class="innerContent">
-		  					<div class="subHeading">New Workbook</div>
-			  				<div class="description">Create a new workbook with data and worksheets</div>
-			  				<input type="text" placeholder="Workbook name ...">
-			  				<button class="btn">Create Workbook</button>
+		  					<div class="subHeading"><%= dicts.workbook.newWKBK %></div>
+			  				<div class="description"><%= dicts.workbook.createWKBKdesc %></div>
+			  				<input type="text" placeholder="Workbook name ..." spellcheck="false">
+			  				<button class="btn"><%= dicts.workbook.createWKBK %>k</button>
 		  				</div>
 		  			</div>
 	  			</div>

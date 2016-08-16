@@ -482,6 +482,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extArgs.on("focus", ".argument.type-column", function() {
             $lastInputFocused = $(this);
         });
+
+        // select entire text on double click, if we don't do this, double click
+        // won't select the $ sign that preceeds a column name
+        $extArgs.on('dblclick', 'input', function() {
+            this.setSelectionRange(0, this.value.length);
+        });
     }
 
     function generateExtList(exts) {
