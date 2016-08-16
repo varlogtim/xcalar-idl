@@ -67,7 +67,6 @@ window.Workbook = (function($, Workbook) {
         }
 
         addWorkbooks();
-        // JJJ Temp $('#menuBar').addClass('workbookMode');
     };
 
     Workbook.hide = function(immediate) {
@@ -89,6 +88,7 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.forceShow = function() {
+        // JJJ Test!
         // When it's forceShow, no older workbooks are displayed
         Workbook.show(true);
         $('#container').addClass('noWorkbook');
@@ -104,6 +104,7 @@ window.Workbook = (function($, Workbook) {
         // $workbookPanel.find(".active").removeClass("active");
         $newWorkbookInput.val("").focus();
         $lastFocusedInput = "";
+
         // JJJ also remove all the actives from all theworkbookBoxes
     }
 
@@ -117,15 +118,13 @@ window.Workbook = (function($, Workbook) {
         // Welcome message listener
         // News-Help listener
         // Tutorial listener
-        // 
 
         // go to monitor panel
         $workbookTopbar.find('.monitorBtn, .monitorLink').click(function(e) {
             e.preventDefault(); // prevent monitor link from actually navigating
             $('#container').addClass('monitorMode');
-
             $('#mainMenu').addClass('noAnim');
-            $('#container').addClass('noMenuAnim')
+            $('#container').addClass('noMenuAnim');
             setTimeout(function() {
                 $('#mainMenu').removeClass('noAnim');
                 $('#container').removeClass('noMenuAnim');
@@ -137,7 +136,6 @@ window.Workbook = (function($, Workbook) {
             $('#container').removeClass('monitorMode'); 
         });
 
-        // JJJ TODO
     }
 
     function addWorkbookEvents() {
@@ -219,9 +217,10 @@ window.Workbook = (function($, Workbook) {
                         // JJJ todo
                     } else {
                         // Must be editting a current name
+                        $lastFocusedInput.blur();
                         var $workbookBox = $lastFocusedInput.
                                                         closest(".workbookBox");
-                        var workbookId = $workbookBox.data('workbook-id'); 
+                        var workbookId = $workbookBox.attr('data-workbook-id'); 
                         var oldWorkbookName = WorkbookManager
                                                        .getWorkbook(workbookId)
                                                        .name;
@@ -230,6 +229,7 @@ window.Workbook = (function($, Workbook) {
                         .then(function(newWorkbookId) {
                             $workbookBox.attr('data-workbook-id',
                                                newWorkbookId);
+                            $lastFocusedInput = "";
                         })
                         .fail(function(error) {
                             StatusBox.show(error.error, $workbookBox);
@@ -308,31 +308,18 @@ window.Workbook = (function($, Workbook) {
             return;
         }
 
-        // JJJ Need to commit check first
-        // Support.commitCheck()
-        // .then(function() {
-        //     var innerDeferred = jQuery.Deferred();
-        //     workbookAction(activeActionNo, workbookName)
-        //     .then(innerDeferred.resolve)
-        //     .fail(function(error) {
-        //         if ($workbookPanel.is(":visible")) {
-        //             // if error is commit key not match,
-        //             // then not show it
-        //             StatusBox.show(error.error, $workbookInput);
-        //         }
-        //         innerDeferred.reject(error);
-        //     });
-
-        createNewWorkbook(workbookName)
+        Support.commitCheck()
+        .then(function() {
+            return createNewWorkbook(workbookName);
+        })
         .then(function(id) {
             var workbook = WorkbookManager.getWorkbook(id);
-            var numWorksheets = -1; // JJJ fill in later
 
             var html = createWorkbookCard(id, workbookName,
                                           workbook.created,
                                           workbook.modified,
                                           workbook.srcUser,
-                                          numWorksheets,
+                                          workbook.numWorksheets,
                                           ["new"]);
             $newWorkbookCard.after(html);
 
@@ -345,7 +332,7 @@ window.Workbook = (function($, Workbook) {
             }, 200);         
         })
         .fail(function(error) {
-            StatusBox.show(error, $newWorkbookInput);
+            StatusBox.show(error.error, $newWorkbookInput);
         });
     }
 
@@ -443,12 +430,13 @@ window.Workbook = (function($, Workbook) {
         var isNum = (sortkey === "created" || sortkey === "modified");
         sorted = sortObj(sorted, sortkey, isNum);
         sorted.forEach(function(workbook) {
-            var wkbkId    = workbook.id;
-            var created   = workbook.created;
-            var modified  = workbook.modified;
-            var extraClasses = [];
-            var name = workbook.name;
-            var isActive = false;
+            var wkbkId        = workbook.id;
+            var created       = workbook.created;
+            var modified      = workbook.modified;
+            var numWorksheets = workbook.numWorksheets;
+            var extraClasses  = [];
+            var name          = workbook.name;
+            var isActive      = false;
 
             if (wkbkId === activeWKBKId) {
                 isActive = true;
@@ -472,10 +460,6 @@ window.Workbook = (function($, Workbook) {
                                xcHelper.getTime(null, modified);
                                 
             }
-
-            // JJJ Handle this later
-            var numWorksheets = "";
-            numWorksheets = -1;
 
             html = createWorkbookCard(wkbkId, name, createdTime, modifiedTime,
                                        workbook.srcUser, numWorksheets,

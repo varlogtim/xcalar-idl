@@ -694,6 +694,7 @@ function WKBK(options) {
     this.curUser = options.curUser;
     this.created = options.created || time;
     this.modified = options.modified || time;
+    this.numWorksheets = options.numWorksheets || 1;
 
     return this;
 }

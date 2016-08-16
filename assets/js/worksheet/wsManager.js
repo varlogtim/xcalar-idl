@@ -156,7 +156,7 @@ window.WSManager = (function($, WSManager) {
             "worksheetId"     : wsId,
             "currentWorksheet": currentWorksheet
         });
-
+        WorkbookManager.addWorksheetToWorkbook(WorkbookManager.getActiveWKBK());
         return wsId;
     };
 
@@ -174,6 +174,8 @@ window.WSManager = (function($, WSManager) {
             "delType"       : delType
         };
 
+        WorkbookManager.removeWorksheetFromWorkbook(
+                                               WorkbookManager.getActiveWKBK());
         if (delType === DelWSType.Empty) {
             // this may be redundant, but it's safe to check again
             if (ws.tables.length === 0 && ws.archivedTables.length === 0 &&

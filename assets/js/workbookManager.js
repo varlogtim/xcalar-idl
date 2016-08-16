@@ -147,6 +147,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    WorkbookManager.addWorksheetToWorkbook = function(wkbkId) {
+        var workbook = wkbkSet.get(wkbkId);
+        workbook.numWorksheets++;
+        wkbkSet.put(wkbkId, workbook);
+        KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+    };
+
+    WorkbookManager.removeWorksheetFromWorkbook = function(wkbkId) {
+        var workbook = wkbkSet.get(wkbkId);
+        workbook.numWorksheets--;
+        wkbkSet.put(wkbkId, workbook);
+        KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+    };
+
     // switch to another workbook
     WorkbookManager.switchWKBK = function(wkbkId) {
         // validation
