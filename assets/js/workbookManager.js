@@ -122,6 +122,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "curUser": username
             };
 
+            if (isCopy) {
+                options.numWorksheets = copySrc.numWorksheets;
+            }
+
             wkbk = new WKBK(options);
             wkbkSet.put(wkbk.id, wkbk);
 

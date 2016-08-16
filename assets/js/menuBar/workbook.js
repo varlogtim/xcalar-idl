@@ -7,7 +7,7 @@ window.Workbook = (function($, Workbook) {
     var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
     var sortkey = "modified"; // No longer user configurable
     var $lastFocusedInput; // Should always get reset to empty
-    var wasMonitorActive = false; // track previous monitor panel state for when 
+    var wasMonitorActive = false; // Track previous monitor panel state for when 
                                   // workbook closes
 
     Workbook.setup = function() {
@@ -17,8 +17,10 @@ window.Workbook = (function($, Workbook) {
         $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
         $newWorkbookInput = $newWorkbookCard.find("input");
         $welcomeCard = $workbookTopbar.find(".welcomeBox");
+
         addTopbarEvents();
         addWorkbookEvents();
+
         // open workbook modal
         $("#homeBtn").click(function() {
             $(this).blur();
@@ -135,7 +137,17 @@ window.Workbook = (function($, Workbook) {
         $('#monitorPanel').find('.backToWB').click(function() {
             $('#container').removeClass('monitorMode'); 
         });
+    }
 
+    function clearActives() {
+        $(".workbookBox").find("input.active").each(function(input) {
+            var workbookId = $(this).closest(".workbookBox")
+                                    .attr("data-workbook-id");
+            var workbookName = WorkbookManager.getWorkbook(workbookId).name;
+            $(this).val(workbookName);
+            $(this).removeClass("active");
+        });
+        $lastFocusedInput = "";
     }
 
     function addWorkbookEvents() {
@@ -145,16 +157,22 @@ window.Workbook = (function($, Workbook) {
         $newWorkbookInput.on("focus", function() {
             // Close the rest of the inputs (currently only from renaming of
             // another workbook)
+            clearActives();
             $lastFocusedInput = $(this);
         });
 
         $workbookSection.on("focus", ".workbookBox input", function() {
             $lastFocusedInput = $(this);
         });
+
+        $workbookSection.on("blur", ".workbookBox input", function() {
+            clearActives();
+        });
     
         // Events for the actual workbooks
         // Play button
         $workbookSection.on("click", ".activate", function() {
+            clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
             var workbookId = $workbookBox.data("workbook-id");
             if (WorkbookManager.getActiveWKBK() === workbookId) {
@@ -165,9 +183,8 @@ window.Workbook = (function($, Workbook) {
         });
 
         // Edit button
-        // JJJ When editing, remove focus from all other inputs (other card's
-        // edits + new workbook) by cancelling
         $workbookSection.on("click", ".modify", function() {
+            clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
             var $workbookName = $workbookBox.find("input");
             $workbookName.addClass("active");
@@ -176,13 +193,55 @@ window.Workbook = (function($, Workbook) {
 
         // Duplicate button
         $workbookSection.on("click", ".duplicate", function() {
+            clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
             var workbookId = $workbookBox.data("workbook-id");
-            console.log("XXX TODO!");
+            // Create workbook names in a loop until we find a workbook name
+            // that we can use
+            var currentWorkbookName = $workbookBox.find("input").val();
+            var currentWorkbooks = WorkbookManager.getWorkbooks();
+            var found = false;
+            for (var i = 0; i<10; i++) {
+                currentWorkbookName = 
+                              xcHelper.createNextName(currentWorkbookName, "-");
+                found = true;
+                for (var workbook in currentWorkbooks) {
+                    if (currentWorkbooks[workbook].name ===
+                        currentWorkbookName) {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found) {
+                    break;
+                }
+            }
+
+            if (!found) {
+                // Add some random 5 digit number and call it a dya
+                currentWorkbookName += "-" + Math.floor(Math.random()*100000);
+            }
+
+            WorkbookManager.copyWKBK(workbookId, currentWorkbookName)
+            .then(function(newId) {
+                var newWorkbook = WorkbookManager.getWorkbook(newId);
+                var dup = createWorkbookCard(newId, currentWorkbookName,
+                                             newWorkbook.created,
+                                             newWorkbook.modified,
+                                             newWorkbook.srcUser,
+                                             newWorkbook.numWorksheets,
+                                             ["new"]);
+                $workbookBox.after(dup);
+                setTimeout(function() {
+                    var $newCard = $workbookBox.next();
+                    $newCard.removeClass('new');
+                }, 200);
+            });
         });
 
         // Delete button
         $workbookSection.on("click", ".delete", function() {
+            clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
             var workbookId = $workbookBox.data("workbook-id");
             WorkbookManager.deleteWKBK(workbookId)
@@ -211,10 +270,6 @@ window.Workbook = (function($, Workbook) {
                         // New workbook
                         $newWorkbookCard.find("button").click();
                         
-                    } else if ($lastFocusedInput.closest(".duplicate")
-                                                .length > 0) {
-                        // Creating a duplicate
-                        // JJJ todo
                     } else {
                         // Must be editting a current name
                         $lastFocusedInput.blur();
@@ -336,6 +391,21 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
+    function modifyWorkbookCard($card, options) {
+        if (options.workbookId) {
+            $card.attr("data-workbook-id", options.workbookId);
+        }
+        if (options.workbookName) {
+            $card.find(".workbookName").val(workbookName);
+        }
+        delete options.workbookName;
+        delete options.workbookId;
+
+        for (var key in options) {
+            $card.find("."+key).text(options.key);
+        }
+    }
+
     function createWorkbookCard(workbookId, workbookName, createdTime,
                                 modifiedTime, username, numWorksheets,
                                 extraClasses) {
@@ -363,36 +433,41 @@ window.Workbook = (function($, Workbook) {
                         '<div class="content">' +
                             '<div class="innerContent">' +
                                 '<div class="subHeading">' +
-                                    '<input type="text" value="' +
-                                    workbookName + '" />' +
+                                    '<input type="text" class="workbookName" ' +
+                                    'value="' + workbookName + '" />' +
                                 '</div>' +
                                 '<div class="infoSection topInfo">' +
                                     '<div class="row clearfix">' +
                                         '<div class="label">Created by:</div>' +
-                                        '<div class="info">' + username +
+                                        '<div class="info username">' +
+                                        username +
                                         '</div>' +
                                     '</div>'+
                                     '<div class="row clearfix">'+
                                         '<div class="label">Created on:</div>'+
-                                        '<div class="info">' + createdTime +
+                                        '<div class="info createdTime">' +
+                                        createdTime +
                                         '</div>'+
                                     '</div>'+
                                     '<div class="row clearfix">'+
                                         '<div class="label">Last Modified:' +
                                         '</div>'+
-                                        '<div class="info">' + modifiedTime +
+                                        '<div class="info modifiedTime">' +
+                                        modifiedTime +
                                         '</div>'+
                                     '</div>'+
                                 '</div>'+
                                 '<div class="infoSection bottomInfo">'+
                                     '<div class="row clearfix">'+
                                         '<div class="label">Worksheets:</div>' +
-                                        '<div class="info">' + numWorksheets +
+                                        '<div class="info numWorksheets">' +
+                                        numWorksheets +
                                         '</div>'+
                                     '</div>'+
                                     '<div class="row clearfix">'+
                                         '<div class="label">Status:</div>'+
-                                        '<div class="info">' + isActive +
+                                        '<div class="info isActive">' +
+                                        isActive +
                                         '</div>'+
                                     '</div>'+
                                 '</div>'+
@@ -467,10 +542,9 @@ window.Workbook = (function($, Workbook) {
 
         });
 
-        // JJJ Handle it later
-        // if (!sorted.length) {
-        //  Basically no workbooks nothing. New user? No kv?
-        // }
+        if (!sorted.length) {
+            Workbook.forceShow();
+        }
 
         $newWorkbookCard.after(html);
     }

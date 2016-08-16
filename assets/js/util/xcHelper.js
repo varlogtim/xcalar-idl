@@ -1333,6 +1333,18 @@ window.xcHelper = (function($, xcHelper) {
         return (tableRight >= mainFrameOffsetLeft) && (tableLeft <= windowWidth);
     };
 
+    xcHelper.createNextName = function(str, delimiter) {
+        var parts = str.split(delimiter);
+        var rets = /([0-9])+/.exec(parts[parts.length-1]);
+        if (rets.index === 0 &&
+            rets[0].length === parts[parts.length-1].length) {
+            parts[parts.length-1] = parseInt(parts[parts.length-1]) + 1;
+            return parts.join(delimiter);
+        } else {
+            return str+delimiter+"1";
+        }
+    };
+
     xcHelper.hasSpecialChar = function(str, allowSpace) {
         if (allowSpace) {
             return /[^a-zA-Z\d\s:]/.test(str);
