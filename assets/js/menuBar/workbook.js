@@ -90,7 +90,6 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.forceShow = function() {
-        // JJJ Test!
         // When it's forceShow, no older workbooks are displayed
         Workbook.show(true);
         $('#container').addClass('noWorkbook');
@@ -105,9 +104,7 @@ window.Workbook = (function($, Workbook) {
     function resetWorkbook() {
         // $workbookPanel.find(".active").removeClass("active");
         $newWorkbookInput.val("").focus();
-        $lastFocusedInput = "";
-
-        // JJJ also remove all the actives from all theworkbookBoxes
+        clearActives();
     }
 
     function closeWorkbookPanel() {
@@ -541,10 +538,6 @@ window.Workbook = (function($, Workbook) {
                                        extraClasses) + html;
 
         });
-
-        if (!sorted.length) {
-            Workbook.forceShow();
-        }
 
         $newWorkbookCard.after(html);
     }
