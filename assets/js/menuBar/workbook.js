@@ -178,8 +178,9 @@ window.Workbook = (function($, Workbook) {
         $workbookSection.on("click", ".activate", function() {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.data("workbook-id");
+            var workbookId = $workbookBox.attr("data-workbook-id");
             if (WorkbookManager.getActiveWKBK() === workbookId) {
+                $(".tooltip").remove();
                 Workbook.hide();
             } else {
                 WorkbookManager.switchWKBK(workbookId);
@@ -193,13 +194,14 @@ window.Workbook = (function($, Workbook) {
             var $workbookName = $workbookBox.find("input");
             $workbookName.addClass("active");
             $lastFocusedInput = $workbookName;
+            $(".tooltip").remove();
         });
 
         // Duplicate button
         $workbookSection.on("click", ".duplicate", function() {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.data("workbook-id");
+            var workbookId = $workbookBox.attr("data-workbook-id");
             // Create workbook names in a loop until we find a workbook name
             // that we can use
             var currentWorkbookName = $workbookBox.find("input").val();
@@ -241,13 +243,14 @@ window.Workbook = (function($, Workbook) {
                     $newCard.removeClass('new');
                 }, 200);
             });
+            $(".tooltip").remove();
         });
 
         // Delete button
         $workbookSection.on("click", ".delete", function() {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.data("workbook-id");
+            var workbookId = $workbookBox.attr("data-workbook-id");
             WorkbookManager.deleteWKBK(workbookId)
             .then(function() {
                 $workbookBox.addClass('removing');
@@ -259,6 +262,7 @@ window.Workbook = (function($, Workbook) {
             .fail(function(error) {
                 StatusBox.show(error.error, $workbookBox);
             });
+            $(".tooltip").remove();
         });
     }
 
