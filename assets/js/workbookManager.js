@@ -303,7 +303,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var newWKBKId = getWKBKId(newName);
 
         if (wkbkSet.has(newWKBKId)) {
-            return PromiseHelper.reject('Workbook already exists');
+            var errStr = xcHelper.replaceMsg(ErrTStr.WorkbookExists,
+                                             {'workbookName': newName});
+            return PromiseHelper.reject(errStr);
         }
 
         var deferred = jQuery.Deferred();

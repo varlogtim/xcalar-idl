@@ -248,7 +248,9 @@ ErrTStr = {
 
     'UserCanceled': 'User Canceled',
 
-    'NoColumns': 'No Columns Selected'
+    'NoColumns': 'No Columns Selected',
+
+    'WorkbookExists': 'A workbook named <workbookName> already exists. Please choose another name.'
 
 };
 

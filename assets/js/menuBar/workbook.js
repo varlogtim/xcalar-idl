@@ -49,7 +49,7 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.show = function(isForceShow) {
-        $(document).on("keypress", workbookKeyPress);
+        
         $workbookPanel.show();
         $('#container').addClass('workbookMode');
 
@@ -151,14 +151,20 @@ window.Workbook = (function($, Workbook) {
     }
 
     function addWorkbookEvents() {
+        // Keypress
+        $(document).on("keypress", workbookKeyPress);
+        $newWorkbookInput.on("keypress", function() {
+            clearActives();
+            $lastFocusedInput = $(this);
+        });
+
         // New Workbook card
         $newWorkbookCard.on("click", "button", createNewWorkbookListener);
 
         $newWorkbookInput.on("focus", function() {
-            // Close the rest of the inputs (currently only from renaming of
-            // another workbook)
             clearActives();
             $lastFocusedInput = $(this);
+
         });
 
         $workbookSection.on("focus", ".workbookBox input", function() {
@@ -298,7 +304,7 @@ window.Workbook = (function($, Workbook) {
                             $lastFocusedInput = "";
                         })
                         .fail(function(error) {
-                            StatusBox.show(error.error, $workbookBox);
+                            StatusBox.show(error, $workbookBox);
                             $workbookBox.find(".subHeading input")
                                         .val(oldWorkbookName);
                         })
@@ -577,10 +583,12 @@ window.Workbook = (function($, Workbook) {
         WorkbookManager.newWKBK(workbookName)
         .then(function(id) {
             deferred.resolve(id);
+            $newWorkbookInput.blur();
         })
         .fail(function(error) {
             console.error(error);
             deferred.reject(error);
+            $lastFocusedInput = $newWorkbookInput;
         });
         return deferred.promise();
     }
