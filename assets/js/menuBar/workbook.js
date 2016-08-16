@@ -49,8 +49,6 @@ window.Workbook = (function($, Workbook) {
     Workbook.show = function(isForceShow) {
         $(document).on("keypress", workbookKeyPress);
         $workbookPanel.show();
-        // MainMenu.close(true, true);
-        // MonitorPanel.inActive();
         $('#container').addClass('workbookMode');
 
         if (!MonitorPanel.isGraphActive()) {

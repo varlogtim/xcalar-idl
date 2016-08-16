@@ -212,12 +212,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
     function initializeDonuts() {
         var numDonuts = 2;
-        var blue1= '#B4DCD5';
-        var blue2 = '#5DB9C4';
-        var blue3 = '#5A9FC8';
-        var grayOuter = '#eeeeee';
-        var transparent = 'rgba(0,0,0,0)';
-        var colors = [blue1, blue2, blue3];
         var radius = diameter / 2;
         var arc = d3.svg.arc()
                     .innerRadius(radius)
@@ -225,21 +219,18 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var pie = d3.layout.pie()
                 .sort(null);
 
-        var color;
         var svg;
         for (var i = 0; i < numDonuts; i++) {
-            color = d3.scale.ordinal().range([colors[i], transparent]);
             svg = makeSvg('#donut' + i + ' .donut');
-            drawPath(svg, color, pie, arc);
+            drawPath(svg, pie, arc);
         }
         var smallRadius = radius - 2;
         arc = d3.svg.arc()
                     .innerRadius(smallRadius)
                     .outerRadius(smallRadius - (donutThickness - 3));
         for (var i = 0; i < numDonuts; i++) {
-            color = d3.scale.ordinal().range([grayOuter, grayOuter]);
             svg = makeSvg('#donut' + i + ' .donut');
-            drawPath(svg, color, pie, arc);
+            drawPath(svg, pie, arc);
         }
 
         function makeSvg (selector) {
@@ -252,16 +243,14 @@ window.MonitorPanel = (function($, MonitorPanel) {
             return (svg);
         }
 
-        function drawPath(svg, color, pie, arc) {
+        function drawPath(svg, pie, arc) {
             var data = [0, 100];
             svg.selectAll("path")
                 .data(pie(data))
                 .enter()
                 .append("path")
-                .attr("fill", function(d, i) {
-                    return (color(i));
-                })
                 .attr("d", arc)
+                .attr("class", "myclass")
                 .each(function(d) {
                     this._current = d; // store the initial angles
                 });

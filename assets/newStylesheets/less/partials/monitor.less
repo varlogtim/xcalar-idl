@@ -624,6 +624,15 @@
 
                     svg:first-of-type {
                         z-index: 1;
+                        path:last-child {
+                            fill: rgba(0,0,0,0);
+                        }
+                    }
+
+                    svg:last-child {
+                        path {
+                            fill: @color-bg-graph-gray;
+                        }
                     }
                 }
 
@@ -646,6 +655,12 @@
                     .statsHeadingBar {
                         background-color: @color-bg-graph-one;
                     }
+                    svg:first-of-type {
+                        path:first-child {
+                            fill: @color-bg-graph-one;
+                        }
+                    }
+
                 }
 
                 &#donut1 {
@@ -660,6 +675,11 @@
                     .statsHeadingBar {
                         background-color: @color-bg-graph-two;
                         
+                    }
+                    svg:first-of-type {
+                        path:first-child {
+                            fill: @color-bg-graph-two;
+                        }
                     }
                 }
 
