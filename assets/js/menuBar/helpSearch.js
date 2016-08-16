@@ -25,9 +25,8 @@ window.HelpSearch = (function($, HelpSearch) {
                     $resultsArea.hide();
 
                     var $iframe = $('#mcfResults');
-                    $iframe.attr('src', 
-                        'http://localhost:8888/assets/help/Content/' +
-                        'Search.htm#search-' + $searchInput.val());
+                    $iframe.attr('src','assets/help/Content/Search.htm#search-'+
+                                 $searchInput.val());
                     // Have to wait for MCP to load
                     setTimeout(function() {
                         var innerDoc = $iframe[0].contentDocument ||
