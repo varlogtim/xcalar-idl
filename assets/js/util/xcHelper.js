@@ -526,12 +526,22 @@ window.xcHelper = (function($, xcHelper) {
         return date;
     };
 
-    xcHelper.getTime = function(d, timeStamp) {
+    xcHelper.getTime = function(d, timeStamp, noSeconds) {
         if (d == null) {
             d = (timeStamp == null) ? new Date() : new Date(timeStamp);
         }
+        if (noSeconds) {
+            return (d.toLocaleTimeString(navigator.language, 
+                {
+                    hour: '2-digit', 
+                    minute:'2-digit'
+                }
+            ));
+        } else {
+            return (d.toLocaleTimeString());
+        }
 
-        return (d.toLocaleTimeString());
+        
     };
 
     xcHelper.getCurrentTimeStamp = function() {

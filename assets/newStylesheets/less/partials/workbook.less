@@ -5,6 +5,7 @@
 	background-color: @color-bg-body-gray;
 	box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.3);
 	top: 50px;
+	.transition (0.4s top ease-out);
 
 	> .topBar {
 		padding-left: 95px;
@@ -22,13 +23,7 @@
 		width: 100% !important;
 
 	}
-	// .transition(0.5s transform ease-out);
 
-	// .contentWrap {
-		// .transition (0.5s transform ease-out);
-		.transition (0.4s top ease-out);
-    	transform-origin: top left;
-	// }
 
 	#workbookTopBar {
 		.title {
@@ -38,11 +33,7 @@
 	}
 
 	&.hidden{
-		// .contentWrap {
-			// .transform(scale(0) translate3d(-20px, -20px, 0px));
-			// .transform(translateY(-100%));
-			top: -100%;
-		// }
+		top: -100%;
 		#workbookTopBar {
 			.title {
 				opacity: 0;
@@ -50,6 +41,11 @@
 			}
 		}
 	}
+
+	&.closeAttempt {
+		top: -5%;
+	}
+
 	.flexSection {
 		.flex-display;
 		.flex-flow(row wrap);
@@ -322,7 +318,7 @@
 		.content {
 			.flex(1 0 225px);
 			.innerContent {
-				width: 215px;
+				width: 220px;
 			}
 		}
 

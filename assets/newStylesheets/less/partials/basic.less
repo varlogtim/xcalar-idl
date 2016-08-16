@@ -61,18 +61,22 @@ body {
         }
 
         #menuBar {
-            #workspaceTab, #dataStoresTab, #schedulerTab {
-                display: none;
-            }
-            .bottomMenuBarTab {
-                display: none;
-            }
+            display: none;
+            // #workspaceTab, #dataStoresTab, #schedulerTab {
+            //     display: none;
+            // }
+            // .bottomMenuBarTab {
+            //     display: none;
+            // }
 
-            #monitorTab {
-                .subTab:not(:nth-child(2)) {
-                    display: none;
-                }
-            }
+            // #monitorTab {
+            //     .subTab:not(:nth-child(2)) {
+            //         display: none;
+            //     }
+            // }
+        }
+        #mainMenu {
+            left: -@width-fullMenu; // do not show any of the main menu
         }
         #dfgPanelSwitch {
             display: none;

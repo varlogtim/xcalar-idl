@@ -21,18 +21,24 @@ window.Workbook = (function($, Workbook) {
         addTopbarEvents();
         addWorkbookEvents();
 
-        // open workbook modal
+        // open or close workbook view
         $("#homeBtn").click(function() {
             $(this).blur();
             if ($('#container').hasClass('workbookMode')) {
-                var hideImmediate = false;
                 if (!$workbookPanel.is(":visible")) {
-                   hideImmediate = true;
-                   // on monitor view or something else
+                    // on monitor view or something else
+                   $('#container').removeClass('monitorMode');
+                } else if ($('#container').hasClass('noWorkbook')) {
+                    // do not allow user to exit without entering a workbook
+                    $workbookPanel.addClass('closeAttempt');
+                    setTimeout(function() {
+                        $workbookPanel.removeClass('closeAttempt');
+                    }, 200);
+                } else { // default, exit the workbook
+                    closeWorkbookPanel();
+                    Workbook.hide();
+                    $('#container').removeClass('monitorMode');
                 }
-                closeWorkbookPanel();
-                Workbook.hide(hideImmediate);
-                $('#container').removeClass('monitorMode');
             } else {
                 Workbook.show();
             }
@@ -75,6 +81,9 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.hide = function(immediate) {
+        if ($workbookPanel.hasClass('hidden')) {
+            return;
+        }
         $workbookPanel.addClass('hidden');
         $workbookSection.find('.workbookBox').remove();
         
@@ -95,15 +104,7 @@ window.Workbook = (function($, Workbook) {
     Workbook.forceShow = function() {
         // When it's forceShow, no older workbooks are displayed
         $('#container').addClass('noWorkbook');
-
-        $('#monitorTab').click(); // xx currently when there are no workbooks,
-        // monitor tab is the only accessible panel so we should make it active
-        // by default so we see it when the user navigates away from workbooks 
-        // 
-        // 
         Workbook.show(true);
-        
-       
 
         // Create a new workbook with the name already selected - Prompting
         // the user to click Create Workbook
@@ -260,7 +261,7 @@ window.Workbook = (function($, Workbook) {
                 setTimeout(function() {
                     var $newCard = $workbookBox.next();
                     $newCard.removeClass('new');
-                }, 200);
+                }, 100);
             });
             $(".tooltip").remove();
         });
@@ -275,7 +276,7 @@ window.Workbook = (function($, Workbook) {
                 $workbookBox.addClass('removing');
                 setTimeout(function() {
                     $workbookBox.remove();
-                }, 700);
+                }, 600);
                 
             })
             .fail(function(error) {
@@ -441,14 +442,15 @@ window.Workbook = (function($, Workbook) {
     function createWorkbookCard(workbookId, workbookName, createdTime,
                                 modifiedTime, username, numWorksheets,
                                 extraClasses) {
+        var noSeconds = true;
         if (createdTime) {
             createdTime = xcHelper.getDate("-", null, createdTime) + ' ' +
-                          xcHelper.getTime(null, createdTime);
+                          xcHelper.getTime(null, createdTime, noSeconds);
         }
 
         if (modifiedTime) {
             modifiedTime = xcHelper.getDate("-", null, modifiedTime) + ' ' +
-                           xcHelper.getTime(null, modifiedTime);
+                           xcHelper.getTime(null, modifiedTime, noSeconds);
         }
 
         if (extraClasses.indexOf("active") > -1) {
