@@ -1336,7 +1336,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.createNextName = function(str, delimiter) {
         var parts = str.split(delimiter);
         var rets = /([0-9])+/.exec(parts[parts.length-1]);
-        if (rets.index === 0 &&
+        if (rets && rets.index === 0 &&
             rets[0].length === parts[parts.length-1].length) {
             parts[parts.length-1] = parseInt(parts[parts.length-1]) + 1;
             return parts.join(delimiter);

@@ -136,15 +136,18 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
-    function clearActives() {
+    function clearActives(doNotRevert) {
+        $lastFocusedInput = "";
         $(".workbookBox").find("input.active").each(function(input) {
+            $(this).removeClass("active");
+            if (doNotRevert) {
+                return;
+            }
             var workbookId = $(this).closest(".workbookBox")
                                     .attr("data-workbook-id");
             var workbookName = WorkbookManager.getWorkbook(workbookId).name;
             $(this).val(workbookName);
-            $(this).removeClass("active");
         });
-        $lastFocusedInput = "";
     }
 
     function addWorkbookEvents() {
@@ -163,7 +166,11 @@ window.Workbook = (function($, Workbook) {
         });
 
         $workbookSection.on("blur", ".workbookBox input", function() {
-            clearActives();
+            if ($(this).closest(".workbookBox.edit").length > 0) {
+                clearActives(true);
+            } else {
+                clearActives();
+            }
         });
     
         // Events for the actual workbooks
@@ -269,15 +276,17 @@ window.Workbook = (function($, Workbook) {
                         
                     } else {
                         // Must be editting a current name
-                        $lastFocusedInput.blur();
                         var $workbookBox = $lastFocusedInput.
                                                         closest(".workbookBox");
+                        $workbookBox.addClass("edit");
+                        var newName = $lastFocusedInput.val();
+                        $lastFocusedInput.blur();
                         var workbookId = $workbookBox.attr('data-workbook-id'); 
                         var oldWorkbookName = WorkbookManager
                                                        .getWorkbook(workbookId)
                                                        .name;
                         WorkbookManager.renameWKBK(workbookId,
-                                                   $lastFocusedInput.val())
+                                                   newName)
                         .then(function(newWorkbookId) {
                             $workbookBox.attr('data-workbook-id',
                                                newWorkbookId);
@@ -287,6 +296,9 @@ window.Workbook = (function($, Workbook) {
                             StatusBox.show(error.error, $workbookBox);
                             $workbookBox.find(".subHeading input")
                                         .val(oldWorkbookName);
+                        })
+                        .always(function() {
+                            $workbookBox.removeClass("edit");
                         });
                         $workbookBox.find(".subHeading input")
                                     .removeClass("active");
@@ -431,7 +443,8 @@ window.Workbook = (function($, Workbook) {
                             '<div class="innerContent">' +
                                 '<div class="subHeading">' +
                                     '<input type="text" class="workbookName" ' +
-                                    'value="' + workbookName + '" />' +
+                                    'value="' + workbookName +
+                                    '" spellcheck="false"/>' +
                                 '</div>' +
                                 '<div class="infoSection topInfo">' +
                                     '<div class="row clearfix">' +
@@ -471,16 +484,28 @@ window.Workbook = (function($, Workbook) {
                             '</div>'+
                         '</div>'+
                         '<div class="rightBar vertBar">'+
-                            '<div class="tab btn btn-small activate">'+
+                            '<div class="tab btn btn-small activate" ' +
+                            'data-toggle="tooltip" data-container="body" ' +
+                            'data-placement="right"' +
+                            'title="Activate Workbook">'+
                                 '<i class="icon xi-play-circle"></i>'+
                             '</div>'+
-                            '<div class="tab btn btn-small modify">'+
+                            '<div class="tab btn btn-small modify" '+
+                            'data-toggle="tooltip" data-container="body" ' +
+                            'data-placement="right"' +
+                            'title="Edit Workbook Name">'+
                                 '<i class="icon xi-edit"></i>'+
                             '</div>'+
-                            '<div class="tab btn btn-small duplicate">'+
+                            '<div class="tab btn btn-small duplicate" '+
+                            'data-toggle="tooltip" data-container="body" ' +
+                            'data-placement="right"' +
+                            'title="Duplicate Workbook">'+
                                 '<i class="icon xi-duplicate"></i>'+
                             '</div>'+
-                            '<div class="tab btn btn-small delete">'+
+                            '<div class="tab btn btn-small delete" '+
+                            'data-toggle="tooltip" data-container="body" ' +
+                            'data-placement="right"' +
+                            'title="Delete Workbook">'+
                                 '<i class="icon xi-trash"></i>'+
                             '</div>'+
                         '</div>'+
