@@ -496,12 +496,14 @@
     }
 
     .iconWrapper {
-        background-color: @color-bg-select-blue;
-        float: right;
+        // background-color: @color-bg-select-blue;
+        background-color: fadeout(@color-bg-btn-hover-blue, 20%);
         cursor: pointer;
+        float: right;
 
         &:hover {
-            background-color: @color-bg-dusk-blue;
+            // background-color: @color-bg-dusk-blue;
+            background-color: @color-bg-btn-hover-blue;
             .icon {
                 opacity: @opacity-hover;
             }

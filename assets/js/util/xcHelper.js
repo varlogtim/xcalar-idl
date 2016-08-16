@@ -1132,13 +1132,21 @@ window.xcHelper = (function($, xcHelper) {
 
     // inserts text into an input field and adds commas
     // detects where the current cursor is and if some text is already selected
-    xcHelper.insertText = function($input, textToInsert) {
+    xcHelper.insertText = function($input, textToInsert, options) {
         var inputType = $input.attr('type');
         if (inputType !== "text") {
             console.warn('inserting text on inputs of type: "' + inputType +
                             '" is not supported');
             return;
         }
+        options = options || {};
+
+        if (!options.append) {
+            $input.val(textToInsert);
+            $input.focus();
+            return;
+        }
+
         var value  = $input.val();
         var valLen = value.length;
         var newVal;
@@ -1654,7 +1662,15 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.fillInputFromCell = function ($target, $input, prefix, type) {
+    /**
+     * @param  {$element} $target $element you're picking/clicking
+     * @param  {$element} $input  input to be filled in with picked text
+     * @param  {string} prefix  prefix to prepend to picked text
+     * @param  {object} options:
+     *         type: string, if "table", will pick from table header
+     *         append: boolean, if true, will append text rather than replace
+     */
+    xcHelper.fillInputFromCell = function ($target, $input, prefix, options) {
         // $input needs class "argument"
         if ((!$input.hasClass('argument') && !$input.hasClass('arg')) ||
             $input.closest('.colNameSection').length !== 0 ||
@@ -1662,9 +1678,10 @@ window.xcHelper = (function($, xcHelper) {
         {
             return;
         }
+        options = options || {};
         prefix = prefix || "";
 
-        if (type === "table") {
+        if (options.type === "table") {
             $target = $target.find('.text');
             value = prefix + $target.data('title');
         } else {
@@ -1677,7 +1694,7 @@ window.xcHelper = (function($, xcHelper) {
             }
             value = prefix + $target.val();
         }
-        xcHelper.insertText($input, value);
+        xcHelper.insertText($input, value, {append: options.append});
         gMouseEvents.setMouseDownTarget($input);
     };
 

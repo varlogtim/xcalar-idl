@@ -865,7 +865,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return;
             }
             var $target = $(event.target).closest('.xcTheadWrap');
-            xcHelper.fillInputFromCell($target, $lastInputFocused, "", "table");
+            var options = {table: true};
+            xcHelper.fillInputFromCell($target, $lastInputFocused, "", options);
         });
     }
 

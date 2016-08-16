@@ -324,7 +324,6 @@
             line-height: 32px;
             font-size: 14px;
             font-family: @font-base;
-            // background-color: @color-input-background;
             color: @color-text-darkGray;
             background-color: @color-bg-white-nine;
             border: 1px solid @color-border-pinkish-grey2;
@@ -363,6 +362,10 @@
         .CodeMirror-sizer {
             border-width: 0px !important;
             overflow: hidden;
+
+            &+ div {
+                height: 0px !important; // prevent vertical scrolling
+            }
         }
         .CodeMirror-scroll {
             overflow: hidden !important;
@@ -493,21 +496,18 @@
         border-left: 1px solid @color-tab-divider;
         margin-top: 11px;
         .input-box(@w:60px, @h:32px);
-    }
-
-    #rowInput {
-
-        // .size(@width: 60px, @height: 32px);
-        position:relative;
-        top: -1px;
-        margin-top: -3px;
-        background-color: @color-bg-white-nine !important;
-        // border: 1px solid @color-border-pinkish-grey2;
-        &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-        }
-        &:focus {
-            background-color: @color-white !important;
+        input {
+            position:relative;
+            top: -1px;
+            margin-top: -3px;
+            background-color: @color-bg-white-nine;
+            padding: 0px 4px;
+            &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+            }
+            &:focus {
+                background-color: @color-white;
+            }
         }
     }
 

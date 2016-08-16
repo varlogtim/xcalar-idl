@@ -440,12 +440,18 @@ window.OperationsView = (function($, OperationsView) {
             addFilterGroup();
         });
 
+        // static button
         $operationsView.find('.addGroupArg').click(function() {
            addGroupOnArg(); 
         });
 
+        // dynamic button
+        $operationsView.on('click', '.addMapArg', function() {
+            addMapArg($(this)); 
+        });
+
         $operationsView.on('click', '.inputWrap.extra .xi-close', function() {
-           removeGroupOnArg($(this).closest('.inputWrap')) ;
+           removeExtraArg($(this).closest('.inputWrap')) ;
         });
 
 
@@ -682,6 +688,7 @@ window.OperationsView = (function($, OperationsView) {
                 }
                 xcHelper.fillInputFromCell($target, $lastInputFocused,
                                             gColPrefix);
+                updateStrPreview();
         });
 
         $table.on('mousedown', '.header, td.clickable', keepInputFocused);
@@ -1461,6 +1468,18 @@ window.OperationsView = (function($, OperationsView) {
             }
             $input.data("typeid", typeId);
             $rows.eq(i).find('.description').text(description + ':');
+ 
+            // add "addArg" button if *arg is found in the description
+            if (description.indexOf("*") === 0 &&
+                description.indexOf("**") === -1) {
+                $rows.eq(i).after(
+                    '<div class="addArgWrap">' +
+                        '<button class="btn addArg addMapArg">' +
+                          '<i class="icon xi-plus"></i>' +
+                          '<span class="text">ADD ANOTHER ARGUMENT</span>' +
+                        '</button>' +
+                      '</div>'); 
+            }
         }
     }
 
@@ -2434,26 +2453,12 @@ window.OperationsView = (function($, OperationsView) {
         modalHelper.disableSubmit();
 
         if (!gTables[tableId]) {
-            // xx make a better alert
-            // alert('Table no longer exists');
             StatusBox.show('Table no longer exists', 
                             $activeOpSection.find('.tableList'));
             return false;
         }
 
         $activeOpSection.find('.group').each(function(groupNum) {
-            // we'll ignore empty functions if not the first function input
-            // if (i > 0 && $(this).find('.functionsInput').val() !== "") {
-            //     if (!isOperationValid(i)) {
-            //         isPassing = false;
-            //          showErrorMessage(0, i);
-            //         return false;
-            //     }
-            // } else if (!isOperationValid(i)) {
-            //     isPassing = false;
-            //     showErrorMessage(0, i);
-            //     return false;
-            // }
             if (!isOperationValid(groupNum)) {
                 var inputNum = 0;
                 if (operatorName === "group by") {
@@ -2465,14 +2470,7 @@ window.OperationsView = (function($, OperationsView) {
                 return false;
             }
         });
-        // if (!isOperationValid(0)) {
-        //     showErrorMessage(0);
-        // } else {
-            // xi2 temp
-            // isPassing = checkArgumentParams(0);
-        //     isPassing = true;
-        // }
-
+  
         if (!isPassing) {
             modalHelper.enableSubmit();
             return;
@@ -2708,7 +2706,6 @@ window.OperationsView = (function($, OperationsView) {
         var invalidNonColumnType = false; // when an input does not have a
         // a column name but still has an invalid type
 
-        // XXX this part may still have potential bugs
         $activeOpSection.find('.group').eq(groupNum)
                         .find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
@@ -3270,6 +3267,7 @@ window.OperationsView = (function($, OperationsView) {
             }
         }
 
+        // loop throguh groups
         for (var i = 0; i < argGroups.length; i++) {
             var funcName;
             if (operatorName === "filter") {
@@ -3287,6 +3285,7 @@ window.OperationsView = (function($, OperationsView) {
                 str += "and(";
             }
             str += funcName + "(";
+            // loop through arguments within a group
             for (var j = 0; j < argGroups[i].length; j++) {
                   // check: if arg is blank and is not a string then do not 
                   // add comma
@@ -4130,31 +4129,49 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function addGroupOnArg() {
-        var html = '<div class="inputWrap extra">' + 
-                            '<div class="dropDownList">' +
-                              '<input class="arg gbOnArg" type="text" ' +
-                              'tabindex="10" ' +
-                                'spellcheck="false" data-typeid="-1">' +
-                              '<div class="argIconWrap btn btn-small">' +
-                                '<i class="icon xi-select-column"></i>' +
-                              '</div>' +
-                              '<div class="list hint new">' +
-                               '<ul></ul>' +
-                                '<div class="scrollArea top">' +
-                                  '<div class="arrow"></div>' +
-                                '</div>' +
-                                '<div class="scrollArea bottom">' +
-                                  '<div class="arrow"></div>' +
-                                '</div>' +
-                             '</div>' +
-                           '</div>' + 
-                           '<i class="icon xi-close"></i>' +
-                        '</div>';
+        var html = getArgInputHtml();
         $activeOpSection.find('.gbOnRow').append(html);
         $activeOpSection.find('.gbOnArg').last().focus();
     }
 
-    function removeGroupOnArg($inputWrap) {
+    function addMapArg($btn) {
+        var html = getArgInputHtml();
+        $btn.parent().prev().find('.inputWrap').last().after(html);
+        $btn.parent().prev().find('.inputWrap').last().find('input').focus();
+        debugger;
+    }
+
+    function getArgInputHtml() {
+        var inputClass = "";
+        if (operatorName === "map") {
+            inputClass = "mapExtraArg";
+        } else if (operatorName === "group by") {
+            inputClass = "gbOnArg";
+        }
+        var html = '<div class="inputWrap extra">' + 
+                        '<div class="dropDownList">' +
+                          '<input class="arg ' + inputClass + 
+                          '" type="text" tabindex="10" ' +
+                            'spellcheck="false" data-typeid="-1">' +
+                          '<div class="argIconWrap btn btn-small">' +
+                            '<i class="icon xi-select-column"></i>' +
+                          '</div>' +
+                          '<div class="list hint new">' +
+                           '<ul></ul>' +
+                            '<div class="scrollArea top">' +
+                              '<div class="arrow"></div>' +
+                            '</div>' +
+                            '<div class="scrollArea bottom">' +
+                              '<div class="arrow"></div>' +
+                            '</div>' +
+                         '</div>' +
+                        '</div>' +
+                        '<i class="icon xi-close"></i>' +     
+                    '</div>';
+        return html;
+    }
+
+    function removeExtraArg($inputWrap) {
         $inputWrap.remove();
     }
 
