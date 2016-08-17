@@ -520,10 +520,6 @@
 
             &:before {
                 display: inline-block;
-                // xi-arrow-up
-                content: "\e93a";
-                font-family: 'icomoon' !important;
-                .transform(rotate(180deg));
             }
         }
     }
@@ -624,10 +620,12 @@
         &.active {
             .radio {
                 .icon {
-                    color: @color-font-softBlue;
-                    &:before {
-                        // xi-radio-selected
-                        content: "\e963";
+                    &.xi-radio-selected {
+                        display: inline-block;
+                    }
+
+                    &.xi-radio-empty {
+                        display: none;
                     }
                 }
             }
@@ -643,16 +641,15 @@
             border-radius: 100%;
             .vertical-align;
 
-
             .icon {
                 font-size: 12px;
                 color: @color-font-pinkish-grey2;
                 vertical-align: top;
                 line-height: 12px;
 
-                &:before {
-                    // xi-radio-empty
-                    content: "\e965";
+                &.xi-radio-selected {
+                    color: @color-font-softBlue;
+                    display: none;
                 }
             }
         }

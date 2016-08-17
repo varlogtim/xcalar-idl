@@ -616,7 +616,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '<div class="dropDownList argDropdown">' +
                                 '<input class="argument type-boolean text" disabled>' +
                                 '<div class="iconWrapper">' +
-                                    '<i class="icon"></i>' +
+                                    '<i class="icon xi-arrow-down"></i>' +
                                 '</div>' +
                                 '<div class="list">' +
                                     '<ul>' +

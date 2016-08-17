@@ -4075,7 +4075,7 @@ window.OperationsView = (function($, OperationsView) {
               '<div class="dropDownList">' +
                   '<input class="text nonEditable" value="default" disabled>' +
                   '<div class="iconWrapper dropdown">' +
-                    '<span class="icon"></span>' +
+                    '<i class="icon xi-arrow-down"></i>' +
                   '</div>' +
                   '<ul class="list">' +
                   '</ul>' +
@@ -4126,7 +4126,7 @@ window.OperationsView = (function($, OperationsView) {
                         '<input class="text nonEditable" value="default"' +
                             ' disabled>' +
                         '<div class="iconWrapper dropdown">' +
-                            '<span class="icon"></span>' +
+                            '<i class="icon xi-arrow-down"></i>' +
                         '</div>' +
                         '<ul class="list"></ul>' +
                     '</div>' +

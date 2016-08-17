@@ -404,7 +404,7 @@ window.MultiCastModal = (function($, MultiCastModal) {
                                 '<input class="text no-selection initialType" ' +
                                 'value="' + type + '" disabled>' +
                                 '<div class="iconWrapper dropdown">' +
-                                    '<span class="icon"></span>' +
+                                    '<i class="icon xi-arrow-down"></i>' +
                                 '</div>' +
                                 '<ul class="list" data-col="' + colNum + '">' +
                                     list +
