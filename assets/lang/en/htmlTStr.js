@@ -603,8 +603,17 @@ module.exports = {
     },
 
     "multiCastModal": {
-        "header": "Smart Cast",
-        "instr": "Select the columns you want to cast by clicking on the dropdown menu. \"Smart Cast\" will scan through all the columns and recommend casts. Casts that are machine recommended will be in blue. User casts are in green. To remove a column from the cast operation, click on the column name.",
+        "header": "SMART CAST",
+        "instr": "Cast columns from one type to another by selecting the columns from the current table. Click on the DETECT button to get Xcalar Insight to detect the appropriate types.",
+        "detect": "DETECT",
+        "clearAll": "CLEAR ALL",
+        "colInstrHeader": "Select Columns to Cast",
+        "colInstrText": "To cast a column, first select the column on the table. You will see a row appended for the column. Next click on the drop down and select its new type. To remove a column from being casted, click on the column in the table to deselect it. You can jump to the column by click on the column name in the table.",
+        "colName": "Column Name",
+        "newType": "New Type",
+        "cast" : "CAST",
+
+        // Old stuff
         "CastResult": "Cast Result",
         "ColName": "Column Name",
         "NewType": "New Type",
