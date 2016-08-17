@@ -1304,248 +1304,9 @@ html.microsoft {
 }
 /* End Of Alert Modal */
 
-/* Workbook Modal */
-#workbookModal, #dataFlowModal {
-    .size(@width: 1000px, @height: 625px);
-
-    .modalTopMain {
-        .size(@height: 100px);
-        padding: 15px 0;
-        background-color: @color-white;
-
-        > div {
-            .size(@height: 30px);
-        }
-
-        .optionSection {
-            margin: 0 auto;
-
-            .radioButton.disabled {
-                opacity: 0.4;
-                pointer-events: none;
-            }
-        }
-
-        .inputSection {
-            .position(relative);
-            margin: 10px auto 0 auto;
-
-            &.unavailable {
-                opacity: 0.4;
-                pointer-events: none;
-            }
-
-            .label {
-                .size(@width: 150px, @height: 25px);
-                .font(@weight: bold, @size: 13px, @line-height: 25px);
-                float: left;
-                margin-right: 10px;
-            }
-        }
-    }
-
-    .modalMain {
-        .position(relative);
-        padding: 10px;
-
-        &.unavailable {
-            opacity: 0.4;
-            pointer-events: none;
-
-            .listBox .iconWrap {
-                background: @color-background-columnList !important;
-            }
-
-            .list li {
-                color: @color-text-columnList !important;
-                background: @color-background-columnList !important;
-            }
-
-            .grid-unit {
-                > div {
-                    border: 1px solid transparent !important;
-                    color: @color-workbook-grid-default !important;
-                }
-
-                &:nth-child(even) > div {
-                    background-color: @color-workbook-grid-even !important;
-                }
-
-                &:nth-child(odd) > div {
-                    background-color: @color-background-darkGray !important;
-                }
-            }
-        }
-
-        .workbookSection, .previewSection {
-            .position(relative);
-            .size(@height: 100%);
-            overflow: hidden;
-
-            .titleSection > section, .listSection .grid-unit {
-                > div {
-                    .position(relative);
-                    .size(@height: 30px);
-                    cursor: default;
-                    margin-left: 5px;
-                    padding-left: 10px;
-                    .font(@weight: bold, @size: 12px, @line-height: 30px);
-
-                    &:first-child {
-                        margin-left: 0;
-                    }
-                }
-            }
-
-            .titleSection {
-                .flex-order(1);
-                height: 42px;
-                background: @color-background-darkGray;
-                border: 1px solid @color-workbook-title-border;
-                border-left-color: transparent;
-                overflow: hidden;
-
-                > section {
-                    padding: 5px 10px;
-                }
-
-                .title {
-                    .gray-gradient;
-                    color: @color-workbook-title-font;
-                    display: inline-block;
-                    width: ~"calc(20% - 5px)";
-                    float: left;
-
-                    .label {
-                        .size(@width: ~"calc(95% - 15px)");
-                        display: inline-block;
-                        white-space: nowrap;
-                        .textOverflow;
-                    }
-
-                    .icon {
-                        .position(absolute, @right: 2px);
-                        .size(@width: 20px, @height: 30px);
-                        .image("../../images/sort.png", 50%, 50%);
-                        background-size: 10px 20px;
-                    }
-                    &:hover {
-                        .gray-inverse-gradient;
-                    }
-
-                    &.active {
-                        .action-gradient;
-                        color: @color-white;
-                        &:hover {
-                            .action-inverse-gradient;
-                        }
-                    }
-
-                }
-            }
-
-            .listSection {
-                .flex-order(1);
-                background: @color-workbook-listSection;
-                overflow: auto;
-                box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
-                height: ~"calc(100% - 42px)";
-
-                .grid-unit {
-                    white-space: nowrap;
-                    padding: 0 11px;
-                    > div {
-                        color: @color-workbook-list-grid;
-                        padding-right: 5px;
-                        border: 1px solid transparent;
-                        .font(@line-height: 28px);
-                        display: inline-block;
-                        white-space: nowrap;
-                        .textOverflow;
-                        width: ~"calc(20% - 5px)";
-                        float: left;
-                    }
-
-                    &:nth-child(even) > div {
-                        background-color: @color-workbook-grid-even;
-                    }
-
-                    &:nth-child(odd) > div {
-                        background-color: @color-background-darkGray;
-                    }
-
-                    &.active > div {
-                        border: 1px solid @color-border-topAction;
-                        background: @colorOpaque-blue;
-                        color: @color-text-blue;
-                    }
-                }
-            }
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin: 15px 15px 0 0;
-        }
-    }
-
-    &.no-1 {
-        .activeWKBK {
-            pointer-events: none;
-            opacity: 0.5;
-        }
-    }
-}
-
-#workbookModal {
-    &::after {
-        content: "";
-        opacity: 0;
-    }
-    &.inactive::after {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: block;
-        background-color: white;
-        top: 0px;
-        opacity: 0.3;
-        .transition(opacity 0.4s);
-    }
-
-    .radioButton {
-        .flex(1 1 35%);
-        .justify-content(center);
-        &:first-child {
-           .flex(1 1 30%);
-        }
-    }
-
-    .modalTopMain {
-        > div {
-            .size(@width: 85%);
-        }
-
-        .inputSection {
-            .input-box(@w: ~"calc(100% - 230px)", @h: 25px);
-        }
-    }
-
-    .modalMain {
-        .size(@height: ~"calc(100% - 260px)");
-
-        .workbookSection {
-            .size(@width: 100%);
-        }
-    }
-}
-/* End of Workbook Modal */
-
 /* Dataflow Modal */
 #dataFlowModal {
-    // display: block;
-    height: 600px;
+    .size(@width: 1000px, @height: 600px);
 
     &.exportMode {
         .sideListSection, .modalTopMain {
@@ -1565,28 +1326,74 @@ html.microsoft {
         display: none;
     }
 
+    .modalInstruction {
+        line-height: 35px;
+    }
+
     .modalTopMain {
+        .size(@height: 100px);
+        padding: 15px 0;
+        background-color: @color-white;
+
         > div {
-            .size(@width: 80%);
+            .size(@width: 80%, @height: 30px);
         }
 
         .optionSection {
+            margin: 0 auto;
+
             .radioButton {
                 .flex(0 1 33%);
                 &:nth-child(2) {
                     .flex(0 1 66%);
                 }
             }
+
+            .radioButton.disabled {
+                opacity: 0.4;
+                pointer-events: none;
+            }
         }
 
         .inputSection {
-            .input-box(@w: ~"calc(100% - 235px)", @h: 25px);
+            .position(relative);
+            margin: 10px auto 0 auto;
+            .input-box(@w: ~"calc(100% - 205px)", @h: 25px);
+        
+            &.unavailable {
+                opacity: 0.4;
+                pointer-events: none;
+            }
+
+            .label {
+                .size(@width: 120px, @height: 25px);
+                .font(@size: 13px, @line-height: 25px);
+                float: left;
+                margin-right: 10px;
+            }
         }
     }
+
     .modalMain {
-        .size(@height: ~"calc(100% - 250px)");
+        .size(@height: ~"calc(100% - 242px)");
         .flex-display;
         .flex-flow(row);
+        .position(relative);
+        padding: 10px;
+
+        &.unavailable {
+            opacity: 0.4;
+            pointer-events: none;
+
+            .listBox .iconWrap {
+                background: @color-background-columnList !important;
+            }
+
+            .list li {
+                color: @color-text-columnList !important;
+                background: @color-background-columnList !important;
+            }
+        }
 
         .sideListSection {
             .position(relative);
@@ -1611,12 +1418,10 @@ html.microsoft {
 
             .sideLists {
                 .position(relative);
-                .rounded(0 0 0 3px);
                 .flex-order(2);
                 .size(@height: ~"calc(100% - 42px)");
                 background: @color-background-darkGray;
                 padding: 10px;
-                box-shadow: inset -1px -1px 1px 1px rgba(0, 0, 0, 0.2);
 
                 .searchArea {
                     .position(relative);
@@ -1627,13 +1432,13 @@ html.microsoft {
                     .input-box(@w: 100%, @h: 25px);
 
                     input {
-                        .font(@weight: bold, @color: @color-text-midGray);
-
-                        .input-placeholder(@color-text-midGray);
                         padding-right: 25px;
                     }
 
-                    .closeIcon(@topOff: 3px, @rightOff: 3px);
+                    .clear {
+                        .font(@color: @color-font-greyish-brown);
+                        .position(absolute, @top: 8px, @right: 5px);
+                    }
                 }
 
                 .listSection {
@@ -1740,15 +1545,19 @@ html.microsoft {
         }
 
         .previewSection {
-            .size(@width: ~"calc(100% - 170px)");
+            .position(relative);
+            overflow: hidden;
+            .size(@width: ~"calc(100% - 170px)", @height: 100%);
+
             .titleSection {
                 padding: 10px;
-                .font(@color: @color-text-columnList);
+                background: @color-background-darkGray;
+                border: 1px solid @color-border-pinkish-grey2;
+                overflow: hidden;
 
                 .titleWrap {
                     .size(@width: ~"calc(100% - 180px)");
-                    .font(@weight: bold);
-                    white-space: nowrap;
+                    .textOverflowOneLine;
                     float: left;
                 }
 
@@ -1762,31 +1571,29 @@ html.microsoft {
                         .size(@height: 100%);
                         float: right;
                         cursor: pointer;
+                        color: @color-font-select-blue;
 
                         .icon {
                             .size(19px, 19px);
+                            color: @color-font-select-blue;
                         }
 
                         .text {
                             .position(relative, @top: -2px);
                         }
 
-                        &.selectAll {
-                            .icon {
-                                .size(19px, 19px);
-                                .image("../../images/select-all.png", 50%, 50%);
-                            }
-                        }
-
                         &.clear {
                             margin-right: 10px;
-
-                            .icon {
-                                .image("../../images/select-none.png", 50%, 50%);
-                            }
                         }
                     }
                 }
+            }
+
+            .listSection {
+                background: @color-workbook-listSection;
+                overflow: auto;
+                box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
+                height: ~"calc(100% - 42px)";
             }
 
             .tableSection {
@@ -1902,12 +1709,6 @@ html.microsoft {
                     border-left-color: @color-modal-title-border !important;
                 }
             }
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin-top: 8px;
         }
     }
 
@@ -2687,7 +2488,7 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@height: ~"calc(100% - 158px)");
+        .size(@height: ~"calc(100% - 147px)");
         padding: 5px 10px 0 10px;
 
         > div {
@@ -2699,7 +2500,7 @@ html.microsoft {
                 line-height: 40px;
 
                 .label {
-                    .font(@size: 13px, @weight: 700, @color: @color-text-midGray);
+                    .font(@size: 13px, @weight: 700);
                 }
             }
         }
@@ -2708,7 +2509,7 @@ html.microsoft {
             .size(@width: 303px, @height: 100%);
             padding-right: 7px;
             margin-right: 7px;
-            border-right: 1px solid @color-join-divider;
+            border-right: 1px solid @color-border-pinkish-grey2;
 
             .title {
                 .modifyButton {
@@ -2720,13 +2521,13 @@ html.microsoft {
                     }
 
                     .icon {
-                        .position(relative, @top: 10px);
+                        .position(relative, @top: 2px, @left: -2px);
                        .size(19px, 19px);
-                       .image("../../images/select-none.png", 50%, 50%);
+                       color: @color-font-select-blue;
                     }
 
                     .text {
-                        .font(@weight: 600, @color: @color-text-blue);
+                        .font(@weight: 600, @color: @color-font-select-blue);
                         text-align: right;
                         margin-right: 10px;
                     }
@@ -2739,7 +2540,6 @@ html.microsoft {
                 background: @color-background-darkGray;
                 border: 1px solid @color-silver;
                 .rounded(3px 3px 0 0);
-                box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.2);
 
                 .row {
                     .size(@height: 41px);
@@ -2825,14 +2625,12 @@ html.microsoft {
                     .position(relative, @top: 8px);
                     .size(@width: 120px, @height: 25px);
                     float: right;
-                    text-align: left;
-                    padding-right: 15px;
+                    padding-right: 10px;
                     line-height: 25px;
-                    font-size: 11px;
+                    font-size: 12px;
 
                     .icon {
-                        .image("../../images/smart-cast.png", 3px, 50%);
-                        background-size: 13px 20px;
+                        .position(relative, @top: -2px);
                     }
                 }
             }
@@ -2948,12 +2746,6 @@ html.microsoft {
                     }
                 }
             }
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin: 15px 15px 0 0;
         }
     }
 }
