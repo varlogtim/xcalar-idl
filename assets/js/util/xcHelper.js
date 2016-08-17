@@ -1152,7 +1152,8 @@ window.xcHelper = (function($, xcHelper) {
         options = options || {};
 
         if (!options.append) {
-            $input.val(textToInsert);
+            $input.val(textToInsert).trigger('input'); 
+            // fires input event in case any listeners react to it
             $input.focus();
             return;
         }

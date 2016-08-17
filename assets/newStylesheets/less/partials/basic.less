@@ -1068,12 +1068,13 @@ input {
     position: absolute;
     z-index:1000;
     font-weight: bold;
-    height: ~"calc(50% + 50px)";
+    height: ~"calc(50% + 55px)";
     text-align: center;
-    width: 400px;
+    width: 410px;
     overflow: hidden;
     display: none;
     pointer-events: none;
+    padding-left: 5px;
 
     .checkMark {
         .size(60px, 60px);
@@ -1081,7 +1082,7 @@ input {
         display: inline-block;
         left: 170px;
         position: absolute;
-        bottom: 180px;
+        bottom: 185px;
         z-index: 1;
         .icon {
             font-size: 50px;
@@ -1092,25 +1093,27 @@ input {
         }
     }
 
+    @boxHeight: 270px;
     .successMessage {
-        height: 270px;
+        height: @boxHeight;
         width: 400px;
         position: absolute;
-        bottom: 0px;
+        bottom: 5px;
         .transition(bottom 0.6s);
         &.hidden {
             bottom: -400px;
         }
         background-color: @color-sql-lightGreen;
+        box-shadow: 0px 1px 4px 0px @color-textBox-shadow;
     }
 
     .textBox {
-        box-shadow: 0px 1px 5px 0px @color-textBox-shadow;
-        height: 50%;
+        @marginTop: 150px;
+        height: @boxHeight - @marginTop;
         width: 100%;
         color: @color-successMsg-Gray;
         background-color: @color-white;
-        margin-top: 150px;
+        margin-top: @marginTop; 
         padding-top: 45px;
         .font(@size: 18px, @weight: 300, @color: @color-font-greyish-brown);
 
@@ -1123,7 +1126,7 @@ input {
         bottom: 0px;
         .font(@size: 40px, @color: @color-white, @weight: 500);
         z-index: 2;
-        padding-top: 90px;
+        padding-top: 85px;
         display: block;
         .transition(bottom 0.6s);
         &.hidden {
