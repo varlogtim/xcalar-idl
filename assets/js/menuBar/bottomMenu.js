@@ -278,6 +278,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
             OperationsView.close();
             JoinView.close();
+            ExportModal.close();
         }
 
         // dealay the next click as the menu open/close has animation

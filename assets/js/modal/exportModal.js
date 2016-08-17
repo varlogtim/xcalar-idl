@@ -99,7 +99,7 @@ window.ExportModal = (function($, ExportModal) {
                     refreshTableColList();
                     selectAllCols();
                     // xx should we focus on the table that was selected?
-                     xcHelper.centerFocusedTable(tableId, true);
+                    xcHelper.centerFocusedTable(tableId, true);
                 } else {
                     return;
                 }

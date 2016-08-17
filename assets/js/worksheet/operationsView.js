@@ -518,7 +518,10 @@ window.OperationsView = (function($, OperationsView) {
                         $li.addClass('selected');
                         tableId = $li.data('id');
                         // xx should we focus on the table that was selected?
-                        // focusTable(xcHelper.getTableId(tableName));
+                        if (!gTables[tableId]) {
+                            return;
+                        }
+                        xcHelper.centerFocusedTable(tableId, true);
                     } else {
                         return;
                     }
@@ -943,8 +946,10 @@ window.OperationsView = (function($, OperationsView) {
     function argSuggest($input) {
         var curVal = $input.val().trim();
         var $ul = $input.siblings(".list");
-        var groupIndex = $ul.closest('.group').index() - 1;
-        var index = $ul.closest('.group').find('.hint').index($ul);
+        var $allGroups = $activeOpSection.find('.group');
+        var groupIndex = $allGroups.index($ul.closest('.group'));
+        // var groupIndex = $ul.closest('.group').index() - 1;
+        var argIndex = $ul.closest('.group').find('.hint').index($ul);
         var shouldSuggest = true;
         var corrected;
         var hasAggPrefix = false;
@@ -989,14 +994,14 @@ window.OperationsView = (function($, OperationsView) {
                     $lis.sort(sortHTML);
                     $ul.find('ul').append($lis).end().addClass('openList')
                                                      .show();
-                    suggestLists[groupIndex][index].showOrHideScrollers();
+                    suggestLists[groupIndex][argIndex].showOrHideScrollers();
                 }
             } else {
                 $ul.find('ul').append('<li class="openli">' + corrected +
                                       '</li>')
                 .end().addClass("openList")
                 .show();
-                suggestLists[groupIndex][index].showOrHideScrollers();
+                suggestLists[groupIndex][argIndex].showOrHideScrollers();
             }
 
 
@@ -1343,9 +1348,11 @@ window.OperationsView = (function($, OperationsView) {
 
         var defaultValue; // to autofill first arg
 
-        if (firstArgExceptions[category] &&
-            firstArgExceptions[category].indexOf(func) !== -1)
+        if ((firstArgExceptions[category] &&
+            firstArgExceptions[category].indexOf(func) !== -1) ||
+            groupIndex > 0)
         {
+            // do not give default value if not the first group of args
             defaultValue = "";
         } else if (isNewCol) {
             defaultValue = "";
@@ -1357,8 +1364,10 @@ window.OperationsView = (function($, OperationsView) {
         if (numArgs < 0) {
             numArgs = 1; // Refer to operObj.numArgs for min number
         }
-        
-        var numInputsNeeded = numArgs + 1;
+        var numInputsNeeded = numArgs;
+        if (operatorName !== "filter") {
+            numInputsNeeded++;
+        }
 
         addExtraArgRows(numInputsNeeded, $argsGroup, groupIndex);            
 
@@ -1430,7 +1439,7 @@ window.OperationsView = (function($, OperationsView) {
         $argsSection.append(argsHtml);
         addCastDropDownListener();
 
-        $operationsView.find('.hint.new').each(function() {
+        $activeOpSection.find('.hint.new').each(function() {
             var scroller = new MenuHelper($(this), {
                 scrollerOnly : true,
                 bounds       : '#operationsView',
@@ -1445,7 +1454,7 @@ window.OperationsView = (function($, OperationsView) {
     function setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue) 
     {
         var description;
-        var typId;
+        var typeId;
         for (var i = 0; i < numArgs; i++) {
             if (operObj.argDescs[i]) {
                 description = operObj.argDescs[i].argDesc;
@@ -1577,7 +1586,6 @@ window.OperationsView = (function($, OperationsView) {
         // new col name field
         description = 'New Column Name for the groupBy' +
                         ' resultant column';
-                        console.log(operObj);
         autoGenColName = getAutoGenColName(colName + "_" + operObj.fnName );
         autoGenColName = xcHelper.stripeColName(autoGenColName);
 
@@ -1654,335 +1662,336 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // xx not being used for xi2 but used to check some code, will remove soon
-    function produceArgumentTable() {
-        var category = $categoryInput.val().toLowerCase().trim();
-        var func = $functionInput.val().trim();
+    // function produceArgumentTable() {
+    //     var category = $categoryInput.val().toLowerCase().trim();
+    //     var func = $functionInput.val().trim();
 
-        var categoryIndex = categoryNames.indexOf(category);
+    //     var categoryIndex = categoryNames.indexOf(category);
 
-        if (categoryIndex < 0) {
-            return;
-        }
+    //     if (categoryIndex < 0) {
+    //         return;
+    //     }
 
-        var $categoryLi = $categoryUl.find('li').filter(function() {
-            return ($(this).text() === categoryNames[categoryIndex]);
-        });
-        var categoryNum = $categoryLi.data('category');
-        var ops = functionsMap[categoryNum];
-        var operObj = null;
+    //     var $categoryLi = $categoryUl.find('li').filter(function() {
+    //         return ($(this).text() === categoryNames[categoryIndex]);
+    //     });
+    //     var categoryNum = $categoryLi.data('category');
+    //     var ops = functionsMap[categoryNum];
+    //     var operObj = null;
 
-        for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            if (func === ops[i].fnName) {
-                operObj = ops[i];
-                break;
-            }
-        }
+    //     for (var i = 0, numOps = ops.length; i < numOps; i++) {
+    //         if (func === ops[i].fnName) {
+    //             operObj = ops[i];
+    //             break;
+    //         }
+    //     }
 
-        if (operObj != null) {
-            var defaultValue = gColPrefix + colName;
+    //     if (operObj != null) {
+    //         var defaultValue = gColPrefix + colName;
 
-            if (firstArgExceptions[category] &&
-                firstArgExceptions[category].indexOf(func) !== -1)
-            {
-                defaultValue = "";
-            } else if (isNewCol) {
-                defaultValue = "";
-            }
+    //         if (firstArgExceptions[category] &&
+    //             firstArgExceptions[category].indexOf(func) !== -1)
+    //         {
+    //             defaultValue = "";
+    //         } else if (isNewCol) {
+    //             defaultValue = "";
+    //         }
 
-            var numArgs = operObj.numArgs;
-            if (numArgs < 0) {
-                numArgs = 1; // Refer to operObj.numArgs for min number
-            }
-            var $tbody = $operationsView.find('.argumentTable tbody');
-            var numRowsInTable = $tbody.find('tr').length;
-            var numRowsNeeded;
-            if (operatorName === "group by") {
-                numRowsNeeded = (numArgs + 4) - numRowsInTable;
-            } else {
-                numRowsNeeded = (numArgs + 1) - numRowsInTable;
-            }
+    //         var numArgs = operObj.numArgs;
+    //         if (numArgs < 0) {
+    //             numArgs = 1; // Refer to operObj.numArgs for min number
+    //         }
+    //         var $tbody = $operationsView.find('.argumentTable tbody');
+    //         var numRowsInTable = $tbody.find('tr').length;
+    //         var numRowsNeeded;
+    //         if (operatorName === "group by") {
+    //             numRowsNeeded = (numArgs + 4) - numRowsInTable;
+    //         } else {
+    //             numRowsNeeded = (numArgs + 1) - numRowsInTable;
+    //         }
 
-            if (numRowsNeeded) {
-                var rowHtml = "";
-                for (var i = 0; i < numRowsNeeded; i++) {
-                    rowHtml += getArgRowHtml();
-                }
-                $tbody.append(rowHtml);
-                addCastDropDownListener();
-                var scroller = new MenuHelper(
-                            $operationsView.find('.hint').last(), {
-                                scrollerOnly : true,
-                                bounds       : 'body',
-                                bottomPadding: 5
-                            });
-                suggestLists.push(scroller);
-            }
+    //         if (numRowsNeeded) {
+    //             var rowHtml = "";
+    //             for (var i = 0; i < numRowsNeeded; i++) {
+    //                 rowHtml += getArgRowHtml();
+    //             }
+    //             $tbody.append(rowHtml);
+    //             addCastDropDownListener();
+    //             var scroller = new MenuHelper(
+    //                         $operationsView.find('.hint').last(), {
+    //                             scrollerOnly : true,
+    //                             // bounds       : 'body',
+    //                             bounds       : 'body',
+    //                             bottomPadding: 5
+    //                         });
+    //             suggestLists.push(scroller);
+    //         }
 
-            $operationsView.find('.checkbox').removeClass('checked')
-                                              .parent()
-                                              .removeClass('hidden');
+    //         $operationsView.find('.checkbox').removeClass('checked')
+    //                                           .parent()
+    //                                           .removeClass('hidden');
 
-            // as rows order may change, update it here
-            $tbody.find("tr.gbOnRow").removeClass("gbOnRow")
-            var $rows = $tbody.find('tr');
-            var $colNameRow = $rows.filter(function() {
-                return ($(this).hasClass('colNameRow'));
-            });
-            $colNameRow.removeClass('colNameRow')
-                       .find('.colNameSection')
-                       .removeClass('colNameSection');
+    //         // as rows order may change, update it here
+    //         $tbody.find("tr.gbOnRow").removeClass("gbOnRow")
+    //         var $rows = $tbody.find('tr');
+    //         var $colNameRow = $rows.filter(function() {
+    //             return ($(this).hasClass('colNameRow'));
+    //         });
+    //         $colNameRow.removeClass('colNameRow')
+    //                    .find('.colNameSection')
+    //                    .removeClass('colNameSection');
 
-            $rows.find('.cast input').val('default');
-            hideCastColumn();
+    //         $rows.find('.cast input').val('default');
+    //         hideCastColumn();
 
-            $rows.find('input').data('typeid', -1)
-                               .data('casted', false)
-                               .data('casttype', null)
-                 .end()
-                 .find('.checkboxSection')
-                 .removeClass('checkboxSection')
-                 .removeClass("disabled")
-                 .removeAttr("data-toggle")
-                 .removeAttr("data-placement")
-                 .removeAttr("data-original-title")
-                 .removeAttr("data-container")
-                 .find('input').attr('type', 'text')
-                 .prop("checked", false)
-                 .removeAttr('id')
-                 .end()
-                 .find('.checkBoxText').remove();
+    //         $rows.find('input').data('typeid', -1)
+    //                            .data('casted', false)
+    //                            .data('casttype', null)
+    //              .end()
+    //              .find('.checkboxSection')
+    //              .removeClass('checkboxSection')
+    //              .removeClass("disabled")
+    //              .removeAttr("data-toggle")
+    //              .removeAttr("data-placement")
+    //              .removeAttr("data-original-title")
+    //              .removeAttr("data-container")
+    //              .find('input').attr('type', 'text')
+    //              .prop("checked", false)
+    //              .removeAttr('id')
+    //              .end()
+    //              .find('.checkBoxText').remove();
 
-            $rows.find('.argument').off('input.aggPrefix');
-            $rows.find('.argument').off('keydown.aggPrefix');
-            $rows.find('.argument').off('focus.aggPrefix');
-            $rows.find('.argument').off('blur.aggPrefix');
+    //         $rows.find('.argument').off('input.aggPrefix');
+    //         $rows.find('.argument').off('keydown.aggPrefix');
+    //         $rows.find('.argument').off('focus.aggPrefix');
+    //         $rows.find('.argument').off('blur.aggPrefix');
 
-            var description;
-            var autoGenColName;
-            var typeId;
-            var despText = operObj.fnDesc;
+    //         var description;
+    //         var autoGenColName;
+    //         var typeId;
+    //         var despText = operObj.fnDesc;
 
-            for (var i = 0; i < numArgs; i++) {
-                if (operObj.argDescs[i]) {
-                    description = operObj.argDescs[i].argDesc;
-                    typeId = operObj.argDescs[i].typesAccepted;
-                } else {
-                    description = "";
-                    var keyLen = Object.keys(DfFieldTypeT).length;
-                    typeId = Math.pow(2, keyLen + 1) - 1;
-                }
+    //         for (var i = 0; i < numArgs; i++) {
+    //             if (operObj.argDescs[i]) {
+    //                 description = operObj.argDescs[i].argDesc;
+    //                 typeId = operObj.argDescs[i].typesAccepted;
+    //             } else {
+    //                 description = "";
+    //                 var keyLen = Object.keys(DfFieldTypeT).length;
+    //                 typeId = Math.pow(2, keyLen + 1) - 1;
+    //             }
 
-                var $input = $rows.eq(i).find('.argument');
-                if (i === 0 && operatorName !== "group by") {
-                    $input.val(defaultValue);
-                } else {
-                    $input.val("");
-                }
-                $input.data("typeid", typeId);
-                $rows.eq(i).find('.description').text(description);
-            }
+    //             var $input = $rows.eq(i).find('.argument');
+    //             if (i === 0 && operatorName !== "group by") {
+    //                 $input.val(defaultValue);
+    //             } else {
+    //                 $input.val("");
+    //             }
+    //             $input.data("typeid", typeId);
+    //             $rows.eq(i).find('.description').text(description);
+    //         }
 
-            if (operatorName === 'map') {
-                description = OpModalTStr.ColNameDesc;
-                var tempName = colName;
-                if (colName === "") {
-                    tempName = "mapped";
-                }
-                if (isNewCol && colName !== "") {
-                    autoGenColName = currentCol.name;
-                } else {
-                    if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
-                        autoGenColName = getAutoGenColName(tempName + "_udf");
-                    } else {
-                        autoGenColName = getAutoGenColName(tempName + "_" +
-                                                           func);
-                    }
-                }
+    //         if (operatorName === 'map') {
+    //             description = OpModalTStr.ColNameDesc;
+    //             var tempName = colName;
+    //             if (colName === "") {
+    //                 tempName = "mapped";
+    //             }
+    //             if (isNewCol && colName !== "") {
+    //                 autoGenColName = currentCol.name;
+    //             } else {
+    //                 if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
+    //                     autoGenColName = getAutoGenColName(tempName + "_udf");
+    //                 } else {
+    //                     autoGenColName = getAutoGenColName(tempName + "_" +
+    //                                                        func);
+    //                 }
+    //             }
 
-                autoGenColName = xcHelper.stripeColName(autoGenColName);
+    //             autoGenColName = xcHelper.stripeColName(autoGenColName);
 
-                $rows.eq(numArgs).addClass('colNameRow')
-                                .find('.dropDownList')
-                                .addClass('colNameSection')
-                                .end()
-                                .find('.argument').val(autoGenColName)
-                                .end()
-                                .find('.description').text(description);
-                ++numArgs;
-                despText = '<p>' + despText + '</p>' +
-                            '<b>String Preview:</b>' +
-                            '<p class="funcDescription textOverflow">' +
-                                operatorName + '(' + operObj.fnName + '(' +
-                                '<span class="descArgs">' +
-                                    $rows.eq(0).find(".argument").val() +
-                                '</span>)' +
-                                ')' +
-                            '</p>';
-            } else if (operatorName === 'group by') {
-                var $gbOnRow;
-                description = 'Fields to group on';
+    //             $rows.eq(numArgs).addClass('colNameRow')
+    //                             .find('.dropDownList')
+    //                             .addClass('colNameSection')
+    //                             .end()
+    //                             .find('.argument').val(autoGenColName)
+    //                             .end()
+    //                             .find('.description').text(description);
+    //             ++numArgs;
+    //             despText = '<p>' + despText + '</p>' +
+    //                         '<b>String Preview:</b>' +
+    //                         '<p class="funcDescription textOverflow">' +
+    //                             operatorName + '(' + operObj.fnName + '(' +
+    //                             '<span class="descArgs">' +
+    //                                 $rows.eq(0).find(".argument").val() +
+    //                             '</span>)' +
+    //                             ')' +
+    //                         '</p>';
+    //         } else if (operatorName === 'group by') {
+    //             var $gbOnRow;
+    //             description = 'Fields to group on';
 
-                $gbOnRow = $rows.eq(numArgs).addClass("gbOnRow");
-                $gbOnRow.find('.argument').val(defaultValue)
-                            .end()
-                            .find('.description').text(description);
+    //             $gbOnRow = $rows.eq(numArgs).addClass("gbOnRow");
+    //             $gbOnRow.find('.argument').val(defaultValue)
+    //                         .end()
+    //                         .find('.description').text(description);
 
-                ++numArgs;
+    //             ++numArgs;
 
-                // new col name field
-                description = 'New Column Name for the groupBy' +
-                                ' resultant column';
-                autoGenColName = getAutoGenColName(colName + "_" + func);
-                autoGenColName = xcHelper.stripeColName(autoGenColName);
+    //             // new col name field
+    //             description = 'New Column Name for the groupBy' +
+    //                             ' resultant column';
+    //             autoGenColName = getAutoGenColName(colName + "_" + func);
+    //             autoGenColName = xcHelper.stripeColName(autoGenColName);
 
-                $rows.eq(numArgs).addClass('colNameRow')
-                                 .find('.dropDownList')
-                                    .addClass('colNameSection')
-                                .end()
-                                .find('.argument').val(autoGenColName)
-                                .end()
-                                .find('.description').text(description);
-                ++numArgs;
+    //             $rows.eq(numArgs).addClass('colNameRow')
+    //                              .find('.dropDownList')
+    //                                 .addClass('colNameSection')
+    //                             .end()
+    //                             .find('.argument').val(autoGenColName)
+    //                             .end()
+    //                             .find('.description').text(description);
+    //             ++numArgs;
 
-                // check box for include sample
-                description = OpModalTStr.IncSampleDesc;
-                var checkboxText =
-                    '<label class="checkBoxText" for="incSample">' +
-                    OpModalTStr.IncSample + '</span>';
+    //             // check box for include sample
+    //             description = OpModalTStr.IncSampleDesc;
+    //             var checkboxText =
+    //                 '<label class="checkBoxText" for="incSample">' +
+    //                 OpModalTStr.IncSample + '</span>';
 
-                $rows.eq(numArgs).addClass('colNameRow')
-                        .find('.dropDownList').addClass('checkboxSection')
-                        .end()
-                        .find('.argument').val("").attr("type", "checkbox")
-                                                .attr("checked", false)
-                                                .attr("id", "incSample")
-                            .after(checkboxText)
-                        .end()
-                        .find('.description').text(description)
-                        .end()
-                        .find('.checkboxWrap').addClass('hidden');
-                ++numArgs;
+    //             $rows.eq(numArgs).addClass('colNameRow')
+    //                     .find('.dropDownList').addClass('checkboxSection')
+    //                     .end()
+    //                     .find('.argument').val("").attr("type", "checkbox")
+    //                                             .attr("checked", false)
+    //                                             .attr("id", "incSample")
+    //                         .after(checkboxText)
+    //                     .end()
+    //                     .find('.description').text(description)
+    //                     .end()
+    //                     .find('.checkboxWrap').addClass('hidden');
+    //             ++numArgs;
 
-                // check box for join group by table
-                description = OpModalTStr.KeepInTableDesc;
-                var checkboxText =
-                    '<label class="checkBoxText" for="keepInTable">' +
-                     OpModalTStr.KeepInTable + '</span>';
+    //             // check box for join group by table
+    //             description = OpModalTStr.KeepInTableDesc;
+    //             var checkboxText =
+    //                 '<label class="checkBoxText" for="keepInTable">' +
+    //                  OpModalTStr.KeepInTable + '</span>';
 
-                $rows.eq(numArgs).addClass('colNameRow')
-                        .find('.dropDownList').addClass('checkboxSection')
-                        .end()
-                        .find('.argument').val("").attr("type", "checkbox")
-                                                .attr("checked", false)
-                                                .attr("id", "keepInTable")
-                            .after(checkboxText)
-                        .end()
-                        .find('.description').text(description)
-                        .end()
-                        .find('.checkboxWrap').addClass('hidden');
-                ++numArgs;
+    //             $rows.eq(numArgs).addClass('colNameRow')
+    //                     .find('.dropDownList').addClass('checkboxSection')
+    //                     .end()
+    //                     .find('.argument').val("").attr("type", "checkbox")
+    //                                             .attr("checked", false)
+    //                                             .attr("id", "keepInTable")
+    //                         .after(checkboxText)
+    //                     .end()
+    //                     .find('.description').text(description)
+    //                     .end()
+    //                     .find('.checkboxWrap').addClass('hidden');
+    //             ++numArgs;
 
-                despText = '<p>' + despText + '</p>' +
-                            '<b>String Preview:</b>' +
-                            '<p class="funcDescription textOverflow">' +
-                                operObj.fnName + '(' +
-                                '<span class="aggCols">' +
-                                    $rows.eq(0).find(".argument").val() +
-                                '</span>' +
-                                '), GROUP BY ' +
-                                '<span class="groupByCols">' +
-                                    defaultValue +
-                                '</span>' +
-                            '</p>';
+    //             despText = '<p>' + despText + '</p>' +
+    //                         '<b>String Preview:</b>' +
+    //                         '<p class="funcDescription textOverflow">' +
+    //                             operObj.fnName + '(' +
+    //                             '<span class="aggCols">' +
+    //                                 $rows.eq(0).find(".argument").val() +
+    //                             '</span>' +
+    //                             '), GROUP BY ' +
+    //                             '<span class="groupByCols">' +
+    //                                 defaultValue +
+    //                             '</span>' +
+    //                         '</p>';
 
-                $("#incSample").click(function() {
-                    // cache previous checked state
-                    prevCheck = $(this).prop("checked") || false;
-                });
-            } else if (operatorName === "filter") {
-                despText = '<p>' + despText + '</p>' +
-                            '<b>String Preview:</b>' +
-                            '<p class="funcDescription textOverflow">' +
-                                operatorName + '(' + operObj.fnName + '(' +
-                                '<span class="descArgs">' +
-                                    $rows.eq(0).find(".argument").val() +
-                                '</span>)' +
-                                ')' +
-                            '</p>';
-            } else if (operatorName === "aggregate") {
-                var description = OpModalTStr.AggNameDesc;
+    //             $("#incSample").click(function() {
+    //                 // cache previous checked state
+    //                 prevCheck = $(this).prop("checked") || false;
+    //             });
+    //         } else if (operatorName === "filter") {
+    //             despText = '<p>' + despText + '</p>' +
+    //                         '<b>String Preview:</b>' +
+    //                         '<p class="funcDescription textOverflow">' +
+    //                             operatorName + '(' + operObj.fnName + '(' +
+    //                             '<span class="descArgs">' +
+    //                                 $rows.eq(0).find(".argument").val() +
+    //                             '</span>)' +
+    //                             ')' +
+    //                         '</p>';
+    //         } else if (operatorName === "aggregate") {
+    //             var description = OpModalTStr.AggNameDesc;
 
-                $rows.eq(numArgs).addClass('colNameRow')
-                                .find('.dropDownList')
-                                .addClass('colNameSection')
-                                .end()
-                                .find('.argument').val("")
-                                .end()
-                                .find('.description').text(description);
+    //             $rows.eq(numArgs).addClass('colNameRow')
+    //                             .find('.dropDownList')
+    //                             .addClass('colNameSection')
+    //                             .end()
+    //                             .find('.argument').val("")
+    //                             .end()
+    //                             .find('.description').text(description);
 
-                var $nameInput =  $rows.eq(numArgs).find('.argument');
+    //             var $nameInput =  $rows.eq(numArgs).find('.argument');
 
-                // focus, blur, keydown, input listeners ensures the aggPrefix
-                // is always the first chracter in the colname input
-                // and is only visible when focused or changed
-                $nameInput.on('focus.aggPrefix', function() {
-                    var $input = $(this);
-                    if ($input.val().trim() === "") {
-                        $input.val(gAggVarPrefix);
-                    }
-                });
-                $nameInput.on('blur.aggPrefix', function() {
-                    var $input = $(this);
-                    if ($input.val().trim() === gAggVarPrefix) {
-                        $input.val("");
-                    }
-                });
-                $nameInput.on('keydown.aggPrefix', function(event) {
-                    var $input = $(this);
-                    if ($input.caret() === 0 &&
-                        $input[0].selectionEnd === 0) {
-                        event.preventDefault();
-                        $input.caret(1);
-                        return false;
-                    }
-                });
-                $nameInput.on('input.aggPrefix', function() {
-                    var $input = $(this);
-                    var val = $input.val();
-                    var trimmedVal = $input.val().trim();
-                    if (trimmedVal[0] !== gAggVarPrefix) {
-                        var caretPos = $input.caret();
-                        $input.val(gAggVarPrefix + val);
-                        if (caretPos === 0) {
-                            $input.caret(1);
-                        }
-                    }
-                });
-                ++numArgs;
-            }
+    //             // focus, blur, keydown, input listeners ensures the aggPrefix
+    //             // is always the first chracter in the colname input
+    //             // and is only visible when focused or changed
+    //             $nameInput.on('focus.aggPrefix', function() {
+    //                 var $input = $(this);
+    //                 if ($input.val().trim() === "") {
+    //                     $input.val(gAggVarPrefix);
+    //                 }
+    //             });
+    //             $nameInput.on('blur.aggPrefix', function() {
+    //                 var $input = $(this);
+    //                 if ($input.val().trim() === gAggVarPrefix) {
+    //                     $input.val("");
+    //                 }
+    //             });
+    //             $nameInput.on('keydown.aggPrefix', function(event) {
+    //                 var $input = $(this);
+    //                 if ($input.caret() === 0 &&
+    //                     $input[0].selectionEnd === 0) {
+    //                     event.preventDefault();
+    //                     $input.caret(1);
+    //                     return false;
+    //                 }
+    //             });
+    //             $nameInput.on('input.aggPrefix', function() {
+    //                 var $input = $(this);
+    //                 var val = $input.val();
+    //                 var trimmedVal = $input.val().trim();
+    //                 if (trimmedVal[0] !== gAggVarPrefix) {
+    //                     var caretPos = $input.caret();
+    //                     $input.val(gAggVarPrefix + val);
+    //                     if (caretPos === 0) {
+    //                         $input.caret(1);
+    //                     }
+    //                 }
+    //             });
+    //             ++numArgs;
+    //         }
 
-            $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
-            $operationsView.find('.descriptionText').html(despText);
-            if (numArgs > 4) {
-                $operationsView.find('.tableContainer').addClass('manyArgs');
-            } else {
-                $operationsView.find('.tableContainer')
-                                .removeClass('manyArgs');
-            }
-            $argInputs = $operationsView
-                         .find('.argumentSection .argument:visible');
-            $operationsView.find('.argument').parent().each(function(i) {
-                // xx this would be a bug if more than 100 arguments ¯\_(ツ)_/¯
-                $(this).css('z-index', 100 - i);
+    //         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
+    //         $operationsView.find('.descriptionText').html(despText);
+    //         if (numArgs > 4) {
+    //             $operationsView.find('.tableContainer').addClass('manyArgs');
+    //         } else {
+    //             $operationsView.find('.tableContainer')
+    //                             .removeClass('manyArgs');
+    //         }
+    //         $argInputs = $operationsView
+    //                      .find('.argumentSection .argument:visible');
+    //         $operationsView.find('.argument').parent().each(function(i) {
+    //             // xx this would be a bug if more than 100 arguments ¯\_(ツ)_/¯
+    //             $(this).css('z-index', 100 - i);
 
-            });
+    //         });
 
-            modalHelper.refreshTabbing();
+    //         modalHelper.refreshTabbing();
 
-            var noHighlight = true;
-            checkIfStringReplaceNeeded(noHighlight);
-        }
-    }
+    //         var noHighlight = true;
+    //         checkIfStringReplaceNeeded(noHighlight);
+    //     }
+    // }
 
     function updateStrPreview(noHighlight) {
         var $description = $operationsView.find(".strPreview");

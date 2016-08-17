@@ -78,6 +78,11 @@ window.MainMenu = (function($, MainMenu) {
 
         $tabs.click(function(event) {
             Workbook.hide(true);
+            OperationsView.close();
+            JoinView.close();
+            ExportModal.close();
+
+
             var $curTab = $(this);
             var $target = $(event.target);
 
@@ -94,8 +99,7 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.find('.subTab').removeClass('active');
                     $subTab.addClass('active');
                 }
-                OperationsView.close();
-                JoinView.close();
+               
                 return;
             }
             var $lastActiveTab = $tabs.filter(".active");
@@ -128,7 +132,6 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function panelSwitchingHandler($curTab, lastTabId) {
-        OperationsView.close();
         $('.mainPanel').removeClass('active');
         var curTab = $curTab.attr('id');
 

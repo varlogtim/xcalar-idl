@@ -490,13 +490,13 @@
 
 			.dropDownList {
 				.list.hint {
-					.size(@width: 269px);
-				    top: 27px;
+					// .size(@width: 269px);
+				 //    top: 27px;
 				    text-align: left;
 				    padding-left: 0px;
 				    text-transform: none;
-				    position: fixed;
-				    margin-top: -1px;
+				    // position: fixed;
+				    // margin-top: -1px;
 				}
 			}
 		}
@@ -612,7 +612,10 @@
             }
 
             &.hint {
-            	width: 269px;
+            	.size (@width: ~"calc(100% - @{listHeight})");
+            	position: absolute;
+            	top: @listHeight !important;
+            	left: 0px !important; 
             	text-transform: none;
             }
             li {

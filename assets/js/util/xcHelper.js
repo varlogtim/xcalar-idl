@@ -1241,6 +1241,7 @@ window.xcHelper = (function($, xcHelper) {
     // animate: boolean indicating whether to animate the scrolling
     // options:
     //      onlyIfOffScreen: boolean, if true, will only animate table if visible
+    //      alignLeft: boolean, if true, will align table to left of screen 
     xcHelper.centerFocusedTable = function(tableWrapOrId, animate, options) {
         var $tableWrap;
         var tableId;
@@ -1260,41 +1261,64 @@ window.xcHelper = (function($, xcHelper) {
         focusTable(tableId);
         
         options = options || {};
-        var windowWidth = $(window).width();
+     
         var tableWidth = $tableWrap.width();
-        var tableOffset = $tableWrap.offset().left;
-        var tableRight = tableOffset + tableWidth;
-        var animateRight = false;
+        var tableLeft = $tableWrap.offset().left;
+        var tableRight = tableLeft + tableWidth;
         var mainMenuOffset = MainMenu.getOffset();
+        var $mainFrame = $('#mainFrame')
+        var mainFrameWidth = $mainFrame.width();
+        var mainFrameRight = $mainFrame[0].getBoundingClientRect().right;
+        // cases to center: if table is small enough to fit entirely within the
+        // window. 
+        // otherwise align table to the left of the window
+        // cases to alignRight - if table is partially visible from the left
+        // side of the screen
+        // alignCenter takes precedence over alignRight and alignLeft
+        
+        if (tableLeft < mainMenuOffset && tableRight > mainFrameRight) {
+            // table takes up the entire screen and more
+            // no need to center
+            return;
+        }
 
-         // only centers the table if table is visible
+        // if this option is passed, it will not focus on the table if at least
+        // 150 px of it is visible. If the table is offscreen, no animation will
+        // be applied to the scrolling. If it's partially visible (0 - 150px),
+        // animation will be applied
         if (options.onlyIfOffScreen) {
-            // if table is slightly visible we will apply animation
-            // otherwise we go with whatever was passed in
-            if (tableRight > mainMenuOffset && tableRight < (mainMenuOffset + 150)) {
+            if (tableRight > mainMenuOffset && 
+                tableRight < (mainMenuOffset + 150)) {
                 // table is slightly visible on the left
                 animate = true;
-            } else if (windowWidth - tableOffset < 150 &&
-                       windowWidth - tableOffset > mainMenuOffset) {
+            } else if (tableLeft < mainFrameRight && 
+                      tableLeft > mainFrameRight - 150) {
                 // table is slightly visible on the right
-                animateRight = true;
                 animate = true;
             } else if (tableRight < mainMenuOffset ||
-                (windowWidth - tableOffset) < mainMenuOffset) {
+                        tableLeft > mainFrameRight) {
                 // table is offscreen, proceed to center the table
+                // no animation
             } else {
-                // table is in view
+                // table is in view and at least 150 pixels are visible
                 return;
             }
         }
 
         var currentScrollPosition = $('#mainFrame').scrollLeft();
-        var leftPosition = currentScrollPosition + tableOffset;
+        var leftPosition = currentScrollPosition + tableLeft - mainMenuOffset;
 
-        if (animateRight) {
-            scrollPosition = leftPosition;
+
+        if (tableWidth < mainFrameWidth) {
+            // table fits completely within window so we center it
+            scrollPosition = leftPosition + ((tableWidth - mainFrameWidth) / 2);
+        } else if (tableRight > mainMenuOffset && tableRight < mainFrameRight) {
+            // table is partially visible from the left side of the screen
+            // so we align the right edge of the table to the right of window
+            scrollPosition = leftPosition + (tableWidth - mainFrameWidth);
         } else {
-            scrollPosition = leftPosition - ((mainMenuOffset + windowWidth - tableWidth) / 2);
+            // align left by default
+            scrollPosition = leftPosition;
         }
 
         if (animate && !gMinModeOn) {

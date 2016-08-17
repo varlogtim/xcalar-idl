@@ -400,7 +400,8 @@ window.TblAnim = (function($, TblAnim) {
     // checks if mouse has moved and will initiate the column dragging
     function checkColDrag(event) {
         dragInfo.pageX = event.pageX;
-        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 0) {
+        // mouse must move at least 3 pixels horizontally to trigger draggin
+        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 2) {
             $(document).off('mousemove.checkColDrag');
             $(document).on('mousemove.onColDrag', onColDrag);
             gMouseStatus = "dragging";
