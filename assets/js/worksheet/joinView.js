@@ -13,7 +13,9 @@ window.JoinView = (function($, JoinView) {
     var isOpen = false;
     var lImmediatesCache;
     var rImmediatesCache;
-    var turnOnPrefix = true; // Set to false if backend crashes
+    var allClashingImmediatesCache;
+
+    var turnOnPrefix = false; // Set to false if backend crashes
 
     var modalHelper;
     var multiClauseTemplate =
@@ -978,16 +980,21 @@ window.JoinView = (function($, JoinView) {
                 }
             }
 
-
             // Dedup left and right rename arrays since checks are all passed
             leftRenameArray = leftRenameArray.filter(removeNoChanges);
             rightRenameArray = rightRenameArray.filter(removeNoChanges);
+
+            // Remove user's renames from autoRename array and auto rename the
+            // rest
+            autoResolveImmediatesCollisions(allClashingImmediatesCache,
+                                            lColsToKeep, rColsToKeep,
+                                            leftRenameArray, rightRenameArray);
 
             proceedWithJoin(leftRenameArray, rightRenameArray);
             return true;
         }
 
-        // XXX We should consider caching tableMeta
+        // XXX We should consider caching tableMeta as part of gTables
         var lTableName = xcHelper.getTableNameFromId(lTableId);
         var rTableName = xcHelper.getTableNameFromId(rTableId);
         PromiseHelper.when(XcalarGetTableMeta(lTableName),
@@ -1010,7 +1017,7 @@ window.JoinView = (function($, JoinView) {
             }
 
             function lColsToKeepFilt(valueAttr) {
-                if (lColsToKeep.indexOf(valueAttr.name) > -1) {
+                if (lColsToKeep.indexOf(valueAttr) > -1) {
                     return true;
                 } else {
                     return false;
@@ -1018,7 +1025,7 @@ window.JoinView = (function($, JoinView) {
             }
 
             function rColsToKeepFilt(valueAttr) {
-                if (rColsToKeep.indexOf(valueAttr.name) > -1) {
+                if (rColsToKeep.indexOf(valueAttr) > -1) {
                     return true;
                 } else {
                     return false;
@@ -1034,11 +1041,6 @@ window.JoinView = (function($, JoinView) {
             var rFatptr = rTableMeta.valueAttrs.filter(getFatPtr);
             var lImmediate = lTableMeta.valueAttrs.filter(getImmediates);
             var rImmediate = rTableMeta.valueAttrs.filter(getImmediates);
-
-            // Filter out the lImmediates and rImmediates to the ones that the
-            // user wants to keep
-            lImmediate = lImmediate.filter(lColsToKeepFilt);
-            rImmediate = rImmediate.filter(rColsToKeepFilt);
 
             // Today we are only handing immediate collisions. Later we will
             // handle fatptr collisions and prefix renaming for those
@@ -1056,22 +1058,34 @@ window.JoinView = (function($, JoinView) {
             for (var i = 0; i<lImmediate.length; i++) {
                 if (rImmediate.indexOf(lImmediate[i]) > -1) {
                     lImmediatesToRename.push(lImmediate[i]);
+                    rImmediatesToRename.push(lImmediate[i]);
                 }
             }
 
-            for (var i = 0; i<rImmediate.length; i++) {
-                if (lImmediate.indexOf(rImmediate[i]) > -1) {
-                    rImmediatesToRename.push(rImmediate[i]);
-                }
-            }
+            // If none of the columns collide are part of the user's selection
+            // then we resolve it underneath the covers and let the user go 
+            allClashingImmediatesCache = xcHelper.deepCopy(lImmediatesToRename);
+            lImmediatesToRename = lImmediatesToRename.filter(lColsToKeepFilt);
+            rImmediatesToRename = rImmediatesToRename.filter(rColsToKeepFilt);
 
             // Now that we have all the columns that we want to rename, we
             // display the columns and ask the user to rename them
-            if (turnOnPrefix && (lImmediatesToRename.length > 0 ||
-                rImmediatesToRename.length > 0)) {
+            // XXX Remove when backend fixes their stuff
+            if (!turnOnPrefix) {
+                proceedWithJoin();
+                return true;
+            }
+
+            if (lImmediatesToRename.length > 0) {
                 $renameSection.show();
             } else {
-                proceedWithJoin();
+                var leftAutoRenames = [];
+                var rightAutoRenames = [];
+                autoResolveImmediatesCollisions(allClashingImmediatesCache,
+                                                lColsToKeep, rColsToKeep,
+                                                leftAutoRenames,
+                                                rightAutoRenames);
+                proceedWithJoin(leftAutoRenames, rightAutoRenames);
                 return true;
             }
 
@@ -1092,6 +1106,59 @@ window.JoinView = (function($, JoinView) {
         // Should not reach here
         return true;
     }
+
+    function autoResolveImmediatesCollisions(clashes,
+                                             leftColsToKeep, rightColsToKeep,
+                                             leftRenameOut, rightRenameOut) {
+        var suff = Math.floor(Math.random() * 1000);
+        var i;
+        // Remove all leftColsToKeep from clashes
+        var leftClashArray = xcHelper.deepCopy(clashes);
+        var rightClashArray = xcHelper.deepCopy(clashes);
+
+        for (i = 0; i<leftColsToKeep.length; i++) {
+            var idx = leftClashArray.indexOf(leftColsToKeep[i]);
+            if (idx > -1) {
+                leftClashArray[idx] = undefined;
+            }
+        }
+
+        for (i = 0; i<rightColsToKeep.length; i++) {
+            var idx = rightClashArray.indexOf(rightColsToKeep[i]);
+            if (idx > -1) {
+                rightClashArray[idx] = undefined;
+            }
+        }
+
+        // Now that we have undefed all columns that the user has selected,
+        // for every idx where both left and right are there, we clear out the
+        // right one and rename the left one
+        // If both are undefed, this means that the user has resolved this
+        // already do we don't have to do anything.
+        // If only one is undefed, then we rename the other defined one
+
+        for (i = 0; i<leftClashArray.length; i++) {
+            if (leftClashArray[i] === undefined) {
+                if (rightClashArray[i] === undefined) {
+                    // Both undefined, do nothing
+                } else {
+                    // Push right clash into rename
+                    rightRenameOut.push(
+                        {"orig": rightClashArray[i],
+                         "new" : rightClashArray[i]+"_"+suff});
+                }
+            } else {
+                // For both cases where only left is def or both are def
+                // we rename the left
+                leftRenameOut.push(
+                    {"orig": rightClashArray[i],
+                     "new" : rightClashArray[i]+"_"+suff});
+            }
+        }
+
+        return;
+    }
+
 
     function addRenameRows($placeholder, renames) {
         for (var i = 0; i<renames.length; i++) {

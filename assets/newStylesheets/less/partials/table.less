@@ -71,6 +71,10 @@ html.firefox, html.microsoft {
                 .transition(border-color 0s);
             }
         }
+
+        &.dataCol .flexRow {
+            background-color: @color-background-darkGray !important;
+        }
     }
 
     td {
@@ -890,6 +894,7 @@ html.firefox, html.microsoft {
         display: block;
         background: @color-bg-unselect-gray;
         overflow: hidden;
+        color: @color-white;
         .transition(opacity 0.3s);
 
         .tableGrab {
@@ -968,6 +973,7 @@ html.firefox, html.microsoft {
             padding: 1px 0px;
             margin: 1px 0px;
             min-width: 15px !important;
+            color: @color-white;
 
             &:focus {
                 background-color: @color-white;
