@@ -15,7 +15,7 @@ window.JoinView = (function($, JoinView) {
     var rImmediatesCache;
     var allClashingImmediatesCache;
 
-    var turnOnPrefix = false; // Set to false if backend crashes
+    var turnOnPrefix = true; // Set to false if backend crashes
 
     var modalHelper;
     var multiClauseTemplate =
@@ -262,6 +262,7 @@ window.JoinView = (function($, JoinView) {
                  $cols.find('li').addClass('checked')
                       .find('.checkbox').addClass('checked');
             }
+            resetRenames();
         });
 
         // smart suggest button
@@ -896,8 +897,6 @@ window.JoinView = (function($, JoinView) {
         // that one column from prefix. Currently just going to remove all
         if ($renameSection.is(":visible")) {
             // Already in rename mode. Verify that the renames are correct
-            // XXX Handle the case where the new name clashes with another
-            // name that was not part of the initial clashing array
             var $leftRenames = $("#leftTableRenames .rename");
             var $leftOrigNames = $leftRenames.find(".origName");
             var $leftNewNames = $leftRenames.find(".newName");
@@ -950,30 +949,33 @@ window.JoinView = (function($, JoinView) {
 
             // Find out whether any of the immediate names still clash
             for (i = 0; i<$leftRenames.length; i++) {
-                if (rImmediates.indexOf($leftRenames.eq(i).val()) > -1) {
+                if (rImmediates.indexOf($leftRenames.eq(i).find(".newName")
+                                                    .val()) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
                                    true);
                     return false;
                 }
-                var firstIdx = lImmediates.indexOf($leftRenames.eq(i).val());
-                if (lImmediates.indexOf($leftRenames.eq(i).val(), firstIdx) >
-                    -1) {
+                var firstIdx = lImmediates.indexOf($leftRenames.eq(i)
+                                                       .find(".newName").val());
+                if (lImmediates.indexOf($leftRenames.eq(i).find(".newName")
+                                                   .val(), firstIdx + 1) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
                                    true);
                     return false;
                 }
-
             }
 
             for (i = 0; i<$rightRenames.length; i++) {
-                if (lImmediates.indexOf($rightRenames.eq(i).val()) > -1) {
+                if (lImmediates.indexOf($rightRenames.eq(i).find(".newName")
+                                                     .val()) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
                                    true);
                     return false;
                 }
-                var firstIdx = rImmediates.indexOf($rightRenames.eq(i).val());
-                if (rImmediates.indexOf($rightRenames.eq(i).val(), firstIdx) >
-                    -1) {
+                var firstIdx = rImmediates.indexOf($rightRenames.eq(i)
+                                                       .find(".newName").val());
+                if (rImmediates.indexOf($rightRenames.eq(i).find(".newName")
+                                                   .val(), firstIdx + 1) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
                                    true);
                     return false;
@@ -1016,16 +1018,9 @@ window.JoinView = (function($, JoinView) {
                 }
             }
 
-            function lColsToKeepFilt(valueAttr) {
-                if (lColsToKeep.indexOf(valueAttr) > -1) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-            function rColsToKeepFilt(valueAttr) {
-                if (rColsToKeep.indexOf(valueAttr) > -1) {
+            function userChosenColCollision(colName) {
+                if (lColsToKeep.indexOf(colName) > -1 &&
+                    rColsToKeep.indexOf(colName) > -1) {
                     return true;
                 } else {
                     return false;
@@ -1065,8 +1060,9 @@ window.JoinView = (function($, JoinView) {
             // If none of the columns collide are part of the user's selection
             // then we resolve it underneath the covers and let the user go 
             allClashingImmediatesCache = xcHelper.deepCopy(lImmediatesToRename);
-            lImmediatesToRename = lImmediatesToRename.filter(lColsToKeepFilt);
-            rImmediatesToRename = rImmediatesToRename.filter(rColsToKeepFilt);
+            lImmediatesToRename = 
+                      allClashingImmediatesCache.filter(userChosenColCollision);
+            rImmediatesToRename = xcHelper.deepCopy(lImmediatesToRename);
 
             // Now that we have all the columns that we want to rename, we
             // display the columns and ask the user to rename them
@@ -1151,8 +1147,8 @@ window.JoinView = (function($, JoinView) {
                 // For both cases where only left is def or both are def
                 // we rename the left
                 leftRenameOut.push(
-                    {"orig": rightClashArray[i],
-                     "new" : rightClashArray[i]+"_"+suff});
+                    {"orig": leftClashArray[i],
+                     "new" : leftClashArray[i]+"_"+suff});
             }
         }
 

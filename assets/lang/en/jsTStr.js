@@ -160,7 +160,7 @@ ErrTStr = {
 
     'ExportConflict': 'This file name is taken, please choose another name.',
 
-    'ColumnConfilct': 'Column with the same name already exists, ' +
+    'ColumnConflict': 'Column with the same name already exists, ' +
                         'please choose another name.',
 
     'DFGConflict': 'Dataflow group with the same name already exists, ' +

@@ -1190,7 +1190,7 @@ window.ColManager = (function($, ColManager) {
 
         var name = $input.val().trim();
         var isDuplicate = false;
-        var title = ErrTStr.ColumnConfilct;
+        var title = ErrTStr.ColumnConflict;
 
         if (parseCol) {
             name = name.replace(/^\$/, '');
@@ -1237,7 +1237,7 @@ window.ColManager = (function($, ColManager) {
                     (!tableCols[i].isDATACol() &&
                      tableCols[i].getBackColName() === name))
                 {
-                    title = ErrTStr.ColumnConfilct;
+                    title = ErrTStr.ColumnConflict;
                     isDuplicate = true;
                     break;
                 }

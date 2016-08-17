@@ -116,7 +116,7 @@ ErrTStr = {
 'DSNameConfilct': '数据集具有相同名称已经退出。请选择其他名称。',
 'TableConflict': '表具有相同的名称已经存在，请选择其他名称。',
 'ExportConflict': '此文件名取，请选择其他名称。',
-'ColumnConfilct': '列具有相同名称已经存在，请选择其他名称。',
+'ColumnConflict': '列具有相同名称已经存在，请选择其他名称。',
 'DFGConflict': '数据流组具有相同名称已经存在，请选择其他名称。',
 'ScheduleConflict': '时间表具有相同名称已经存在，请选择其他名称。',
 'InvalidWSInList': '无效的工作表的名称，请从弹出列表中选择一个工作表。',
