@@ -7938,6 +7938,8 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.memUsageInPercent = null;
   this.memUsedInBytes = null;
   this.totalAvailableMemInBytes = null;
+  this.networkRecvInBytesPerSec = null;
+  this.networkSendInBytesPerSec = null;
   if (args) {
     if (args.nodeId !== undefined) {
       this.nodeId = args.nodeId;
@@ -7953,6 +7955,12 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.totalAvailableMemInBytes !== undefined) {
       this.totalAvailableMemInBytes = args.totalAvailableMemInBytes;
+    }
+    if (args.networkRecvInBytesPerSec !== undefined) {
+      this.networkRecvInBytesPerSec = args.networkRecvInBytesPerSec;
+    }
+    if (args.networkSendInBytesPerSec !== undefined) {
+      this.networkSendInBytesPerSec = args.networkSendInBytesPerSec;
     }
   }
 };
@@ -8005,6 +8013,20 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 6:
+      if (ftype == Thrift.Type.I64) {
+        this.networkRecvInBytesPerSec = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 7:
+      if (ftype == Thrift.Type.I64) {
+        this.networkSendInBytesPerSec = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -8039,6 +8061,16 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.totalAvailableMemInBytes !== null && this.totalAvailableMemInBytes !== undefined) {
     output.writeFieldBegin('totalAvailableMemInBytes', Thrift.Type.I64, 5);
     output.writeI64(this.totalAvailableMemInBytes);
+    output.writeFieldEnd();
+  }
+  if (this.networkRecvInBytesPerSec !== null && this.networkRecvInBytesPerSec !== undefined) {
+    output.writeFieldBegin('networkRecvInBytesPerSec', Thrift.Type.I64, 6);
+    output.writeI64(this.networkRecvInBytesPerSec);
+    output.writeFieldEnd();
+  }
+  if (this.networkSendInBytesPerSec !== null && this.networkSendInBytesPerSec !== undefined) {
+    output.writeFieldBegin('networkSendInBytesPerSec', Thrift.Type.I64, 7);
+    output.writeI64(this.networkSendInBytesPerSec);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

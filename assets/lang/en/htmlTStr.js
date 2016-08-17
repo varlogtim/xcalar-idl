@@ -411,7 +411,7 @@ module.exports = {
     },
 
     "ds": {
-        "Point": "Point To New Dataset",
+        "Point": "Point To New Data Source",
         "Datasets": "Dataset Refs",
         "DATASET": "DATASET",
         "DSIn": "DATASTORE/IN",
