@@ -32,6 +32,7 @@ StatusMessageTStr = {
 'GroupByFailed' : 'Group By failed',
 'Filter' : 'Filtering column',
 'FilterFailed' : 'Filter column failed',
+'FilterFailedAlt' : 'Filter failed',
 'Profile' : 'Profile of',
 'ProfileFailed' : 'Profile failed',
 'Project': 'Projecting Columns',
@@ -642,7 +643,10 @@ OpModalTStr = {
     'KeepInTable': 'Join table back to original',
     'KeepInTableDesc': 'If checked, group by will augment original table',
     'ModifyMapDesc': 'Would you like to modify the map?',
-    'ModifyMap': 'Modify Map'
+
+    // with replace
+    'ModifyDesc': 'Would you like to modify the <name>?',
+    'ModifyBtn': 'MODIFY <name>'
 };
 
 JsonModalTStr = {

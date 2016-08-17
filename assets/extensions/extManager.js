@@ -871,7 +871,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return;
             }
             var $target = $(event.target).closest('.xcTheadWrap');
-            var options = {table: true};
+            var options = {type: "table"};
             xcHelper.fillInputFromCell($target, $lastInputFocused, "", options);
         });
     }

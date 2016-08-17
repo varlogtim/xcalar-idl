@@ -502,6 +502,11 @@ window.xcFunction = (function($, xcFunction) {
 
         // extract groupByCols
         var groupByCols = indexedCols.split(",");
+        // trim each groupbycol 
+        for (var i = 0; i < groupByCols.length; i++) {
+            groupByCols[i] = groupByCols[i].trim();
+        }
+
         var tableName = gTables[tableId].tableName;
         var finalTableName;
         var finalTableCols;
@@ -607,7 +612,7 @@ window.xcFunction = (function($, xcFunction) {
         function groupByJoinHelper(nTableName, nTableCols, dataColNum) {
             var innerDeferred = jQuery.Deferred();
 
-            var joinType = joinLookUp["Left Outer Join"];
+            var joinType = JoinOperatorT.FullOuterJoin;
             var joinedTableId = Authentication.getHashId();
             finalTableName = xcHelper.getTableName(nTableName) + joinedTableId;
             var lTable     = gTables[tableId];

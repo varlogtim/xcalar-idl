@@ -3041,7 +3041,11 @@ window.OperationsView = (function($, OperationsView) {
             aggName = null;
         }
 
-        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName);
+        var startTime = Date.now();
+        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName)
+        .fail(function(error) {
+            submissionFailHandler(startTime, error);
+        });
         return true;
     }
 
@@ -3089,9 +3093,13 @@ window.OperationsView = (function($, OperationsView) {
                                                     colTypeInfos,
                                                     hasMultipleSets);
 
-  
+        var startTime = Date.now();
+
         xcFunction.filter(filterColNum, tableId, {
             "filterString": filterString
+        })
+        .fail(function(error) {
+            submissionFailHandler(startTime, error);
         });
 
         return true;
@@ -3146,8 +3154,12 @@ window.OperationsView = (function($, OperationsView) {
             options.isIncSamples = false;
         }
 
+        var startTime = Date.now();
         xcFunction.groupBy(operator, tableId, indexedColNames, groupByColName,
-                            newColName, options);
+                            newColName, options)
+        .fail(function(error) {
+             submissionFailHandler(startTime, error);
+        });;
     }
 
     function groupByCheck(args) {
@@ -3208,37 +3220,58 @@ window.OperationsView = (function($, OperationsView) {
                         .hasClass("checked");
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
         .fail(function(error) {
-            // show alert to go back to op modal
-            var endTime = Date.now();
-            var elapsedTime = endTime - startTime;
-            var timeSinceLastClick = endTime - gMouseEvents
-                                               .getLastMouseDownTime();
-
-            if (timeSinceLastClick < elapsedTime) {
-                return;
-            }
-            // overwrite thriftlog alert modal if user has not clicked
-            var origMsg = $("#alertContent .text").text().trim();
-            if (origMsg.length && origMsg[origMsg.length - 1] !== ".") {
-                origMsg += ".";
-            }
-            var newMsg = origMsg;
-            if (origMsg.length) {
-                newMsg +=  "\n";
-            }
-            newMsg += OpModalTStr.ModifyMapDesc;
-            Alert.error(StatusMessageTStr.MapFailed, newMsg,
-                {"buttons": [{
-                    "name": OpModalTStr.ModifyMap,
-                    "func": function() {
-                        OperationsView.show(null, null, null, true);
-                    }
-                }],
-                "onCancel": function() {
-                    modalHelper.toggleBG(tableId, true, {"time": 300});
-                }
-            });
+            submissionFailHandler(startTime, error);     
         });
+    }
+    //show alert to go back to op view
+    function submissionFailHandler(startTime, error) {
+        var endTime = Date.now();
+        var elapsedTime = endTime - startTime;
+        var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
+        if (timeSinceLastClick < elapsedTime) {
+            return
+        }
+        var origMsg = $("#alertContent .text").text().trim();
+        if (origMsg.length && origMsg[origMsg.length - 1] !== ".") {
+            origMsg += "."
+        }
+        var newMsg = origMsg;
+        if (origMsg.length) {
+            newMsg += "\n"
+        }
+        newMsg += xcHelper.replaceMsg(OpModalTStr.ModifyDesc, {
+            name: operatorName
+        });
+        var btnText = xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
+            name: operatorName.toUpperCase()
+        });
+        var title;
+        switch (operatorName) {
+        case "filter":
+            title = StatusMessageTStr.FilterFailedAlt;
+            break;
+        case "map":
+            title = StatusMessageTStr.MapFailed;
+            break;
+        case "group by":
+            title = StatusMessageTStr.GroupByFailed;
+            break;
+        default:
+            return
+        }
+        Alert.error(title, newMsg, {
+            buttons: [{
+                name: btnText,
+                func: function() {
+                    OperationsView.show(null , null , null , true)
+                }
+            }],
+            onCancel: function() {
+                modalHelper.toggleBG(tableId, true, {
+                    time: 300
+                })
+            }
+        })
     }
 
     function formulateMapFilterString(operator, args, colTypeInfos, 
@@ -3962,36 +3995,53 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function resetForm() {
+        // clear function list input
         $operationsView.find('.functionsInput').attr('placeholder', "")
                                                .data('value', "")
                                                .val("");
- 
+        // clear functions list menu
         $operationsView.find('.genFunctionsMenu').data('category', 'null');
-        $operationsView.find('.checkbox').removeClass('checked');
+        $functionsList.empty();
+
+         // clear function description text
+        $operationsView.find('.descriptionText').empty();
+
+        // hide cast dropdownlists
         $operationsView.find('.cast').find('.dropDownList')
                                      .addClass('hidden');
         hideCastColumn();
-        $functionsList.empty();
+
         $operationsView.find('.argsSection:not(.groupOnSection)')
                        .addClass('inactive');
+
+        // empty all checkboxes
+        $operationsView.find('.checkbox').removeClass('checked');
         $operationsView.find('.icvMode').addClass('inactive');
         $operationsView.find('.gbCheckboxes').addClass('inactive');
-        $operationsView.find('.descriptionText').empty();
+
         $operationsView.find('.arg').val("");
+
+        // remove "additional arguments" inputs
         $operationsView.find('.inputWrap.extra').remove();
+
+        // for filter, unminimize first argument box
+        $operationsView.find('.group').removeClass('minimized fnInputEmpty');
 
         // xx list is only being refreshed when operations view opens
         fillTableList();
+
+        // clear string preview 
+        $operationsView.find('.strPreview').empty();
 
         if (operatorName === "filter") {
             $activeOpSection.find('.group').each(function(i) {
                 if  (i !== 0) {
                     removeFilterGroup($(this), true);
                 }
-            })
+            });
         }
         
-        $operationsView.find('.strPreview').empty();
+        // empty list scrollers and associated suggest lists
         suggestLists = [[]];
         var numFnScrollers = functionsListScrollers.length;
         delete functionsListScrollers.splice(1, numFnScrollers - 1);
