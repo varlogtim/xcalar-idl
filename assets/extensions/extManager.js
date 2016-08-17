@@ -440,12 +440,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return;
             }
 
-            if (!$("#workspacePanel").hasClass("active")) {
-                // need to switch to worspace tab if not
-                // if has .maninMenuOpen, it will close bottom menu
-                $("#workspaceTab").removeClass(".mainMenuOpen").click();
-            }
-
             var fnName = $func.data("name");
             var modName = $func.closest(".module").data("name");
 
