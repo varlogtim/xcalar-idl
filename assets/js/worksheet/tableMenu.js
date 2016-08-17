@@ -78,6 +78,7 @@ window.TblMenu = (function(TblMenu, $) {
                     break;
                 case ("smartCast"):
                     SmartCastView.close();
+                    break;
                 default:
                     break;
             }

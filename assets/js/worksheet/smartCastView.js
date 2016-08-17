@@ -7,6 +7,7 @@ window.SmartCastView = (function($, SmartCastView) {
     var colNames = [];
     var colTypes = [];
     var recTypes = [];
+    var isOpen = false;
 
     // constant
     var validTypes = ["string", "integer", "float", "boolean"];
@@ -98,6 +99,7 @@ window.SmartCastView = (function($, SmartCastView) {
         }
 
         curTableId = tableId;
+        isOpen = true;
 
         initialSugget(tableId);
         smartSuggest(tableId);
@@ -106,6 +108,11 @@ window.SmartCastView = (function($, SmartCastView) {
     };
 
     SmartCastView.close = function() {
+        if (!isOpen) {
+            return;
+        }
+
+        isOpen = false;
         $castView.addClass('xc-hidden');
         $("#workspaceMenu").find(".menuSection.lastOpened")
                            .removeClass("lastOpened xc-hidden");

@@ -81,6 +81,7 @@ window.MainMenu = (function($, MainMenu) {
             OperationsView.close();
             JoinView.close();
             ExportModal.close();
+            SmartCastView.close();
 
 
             var $curTab = $(this);
