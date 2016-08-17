@@ -1,0 +1,55 @@
+<!-- Smart Cast View -->
+<section id="smartCastView" class="xc-hidden opView">
+  <!-- Export Header -->
+  <header>
+    <div class="title"><%= dicts.smartCast.header %></div>
+    <i class="close icon xi-close fa-15"></i>
+  </header>
+  <div class="mainContent">
+    <div class="instructions">
+      <p><%= dicts.smartCast.instr %></p>
+    </div>
+    <div class="buttonSection">
+      <button class="btn iconBtn detect">
+        <i class="icon xi-magic-wand fa-17"></i>
+        <%= dicts.smartCast.detect %>
+      </button>
+      <button class="btn iconBtn clear">
+        <i class="icon xi-select-none fa-17"></i>
+        <%= dicts.smartCast.clearAll %>
+      </button>
+    </div>
+    <div class="subHeading clearfix">
+      <div class="label"><%= dicts.smartCast.colInstrHeader %></div>
+    </div>
+    <p><%= dicts.smartCast.colInstrText %></p>
+    <div id="smartCast-table" class="tableSection no-selection">
+      <div class="tableTitle">
+        <div class="col"><%= dicts.smartCast.colName %></div>
+        <div class="col"><%= dicts.smartCast.newType %></div>
+      </div>
+      <div class="hint"><%= dicts.smartCast.NoCast %></div>
+      <div class="tableContent"></div>
+      <div id="castMenu" class="menu">
+        <ul>
+          <li class="boolean" data-type="boolean">boolean</li>
+          <li class="float" data-type="float">float</li>
+          <li class="integer" data-type="integer">integer</li>
+          <li class="string" data-type="string">string</li>
+        </ul>
+        <div class="scrollArea top">
+          <div class="arrow"></div>
+        </div>
+        <div class="scrollArea bottom">
+          <div class="arrow"></div>
+        </div>
+      </div>
+    </div>
+    <!-- bottom section -->
+    <div class="bottomSection">
+      <button type="button" class="btn confirm"><%= dicts.smartCast.cast %></button>
+      <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+    </div>
+  </div>
+</section>
+<!-- End of Smart Cast View -->

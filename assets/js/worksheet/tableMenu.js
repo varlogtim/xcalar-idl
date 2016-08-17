@@ -76,6 +76,8 @@ window.TblMenu = (function(TblMenu, $) {
                 case ('export'):
                     ExportModal.close();
                     break;
+                case ("smartCast"):
+                    SmartCastView.close();
                 default:
                     break;
             }
@@ -123,7 +125,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
-            MultiCastModal.show(tableId);
+            SmartCastView.show(tableId);
         });
 
         $tableMenu.on('mouseup', '.corrAgg', function(event) {
@@ -890,6 +892,9 @@ window.TblMenu = (function(TblMenu, $) {
                     break;
                 case ('export'):
                     ExportModal.close();
+                    break;
+                case ('smartCast'):
+                    SmartCastView.close();
                     break;
                 case ('filter'):
                     OperationsView.close();

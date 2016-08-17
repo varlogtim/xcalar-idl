@@ -238,7 +238,7 @@ window.StartManager = (function(StartManager, $) {
         Workbook.setup();
         DataFlowModal.setup();
         DFGParamModal.setup();
-        MultiCastModal.setup();
+        SmartCastView.setup();
         DeleteTableModal.setup();
         ExtModal.setup();
     }

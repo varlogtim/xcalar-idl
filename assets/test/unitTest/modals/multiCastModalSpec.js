@@ -140,7 +140,7 @@ describe('MultiCast Modal', function() {
     describe("MultiCast UI test", function() {
         it("Should show the modal", function() {
             var tableId = findTestTableId();
-            MultiCastModal.show(tableId);
+            SmartCastView.show(tableId);
 
             assert.isTrue($modal.is(":visible"));
             // this table has now columns to suggest

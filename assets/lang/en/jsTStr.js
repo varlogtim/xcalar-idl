@@ -251,6 +251,8 @@ ErrTStr = {
 
     'NoColumns': 'No Columns Selected',
 
+    'NoCast': 'No column to cast.',
+
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please choose another name.'
 
 };
@@ -387,14 +389,6 @@ ExportTStr = {
                     'under the name: <file>',
     'ExportOfCol': 'Export columns of <table>',
     'InvalidType': 'Invalid type selected'
-};
-
-MultiCastTStr = {
-    'NoRec': 'No smart cast recommendation',
-    'SelectCol': 'please select columns you want to cast.',
-    'SmartRes': 'Smart Cast Result',
-    'CastRes': 'Cast Result',
-    'NoCast': 'No column to cast.'
 };
 
 ProfileTStr = {

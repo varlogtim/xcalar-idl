@@ -147,6 +147,7 @@ module.exports = {
        "ExclCell": "Exclude this value",
        "ExitAggregate": "Exit Aggregate",
        "ExitExport": "Exit Export",
+       "ExitSmartCast": "Exit Smart Cast",
        "ExitFilter": "Exit Filter",
        "ExitGroupby": "Exit Group By",
        "ExitMap": "Exit Map",
@@ -602,7 +603,7 @@ module.exports = {
         "header": "Data Browser"
     },
 
-    "multiCastModal": {
+    "smartCast": {
         "header": "SMART CAST",
         "instr": "Cast columns from one type to another by selecting the columns from the current table. Click on the DETECT button to get Xcalar Insight to detect the appropriate types.",
         "detect": "DETECT",
@@ -612,13 +613,7 @@ module.exports = {
         "colName": "Column Name",
         "newType": "New Type",
         "cast" : "CAST",
-
-        // Old stuff
-        "CastResult": "Cast Result",
-        "ColName": "Column Name",
-        "NewType": "New Type",
-        "SmartBtn": "SMART CAST",
-        "CONFIRM": "CAST SELECTED"
+        "NoCast": "No columns to cast"
     },
 
     "opsModal": {
