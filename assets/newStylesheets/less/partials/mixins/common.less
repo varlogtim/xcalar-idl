@@ -689,18 +689,18 @@
 .closeIcon(@topOff: 0px, @rightOff: 0px) {
    .clear, .closeBox {
         .position(absolute, @top: @topOff, @right: @rightOff);
-        .size(20px, 20px);
-        .rounded;
-        .gray-gradient;
+        .size(25px, 25px);
+        background: @color-bg-select-blue;
         cursor: pointer;
-
-        &:hover {
-            .gray-inverse-gradient;
-        }
-
         .icon {
-            .size(20px, 20px);
-            .image("../../images/close-icon.png", 50%, 50%);
+            margin-top: 6px;
+            margin-left: 6px;
+            font-size: 14px;
+            color: @color-white;
+            opacity: 0.7;
+            &:hover {
+                opacity: 1.0;
+            }
         }
     }
 }
@@ -1242,103 +1242,9 @@
     background: -ms-linear-gradient(@origin, @start, @middle, @stop);
 }
 
-.action-gradient() {
-    background: @color-bg-select-blue;
-    // .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
-}
-
-.action-inverse-gradient() {
-    background: @color-bg-select-blue;
-    // .linear-gradient(top, @color-background-bottomAction, @color-background-topAction);
-}
-
-.green-gradient() {
-    .linear-gradient(top, @color-background-topGreen, @color-background-bottomGreen);
-}
-
-.green-inverse-gradient() {
-    .linear-gradient(top, @color-background-bottomGreen, @color-background-topGreen);
-}
-
-.gray-gradient() {
-    background: @color-bg-pinkish-grey;
-    // xi2 no more gradient!
-    // .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
-}
-
-.gray-inverse-gradient() {
-    background: @color-bg-pinkish-grey;
-    // xi2 no more gradient!
-    // .linear-gradient(top, @color-background-bottomGrayMed, @color-background-topGrayMed);
-}
-
-.lightGray-gradient() {
-    .linear-gradient(top, @color-background-topGrayMed, @color-background-midGrayMed);
-}
-
-.darkGray-gradient() {
-    .linear-gradient(top, @color-background-midGrayMed, @color-background-bottomGrayMed);
-}
-
-.darkDarkGray-gradient() {
-    .linear-gradient(top, @color-bar-darkGray-top, @color-bar-darkGray-bot);
-}
-
-.red-gradient() {
-    .linear-gradient(top, @color-froly, @color-punch);
-}
-
-.colIcon-gray-gradient() {
-    .linear-gradient(top, @color-background-colIcon-lightGray, @color-background-colIcon-gray);
-}
-
-.colIcon-active-gradient() {
-    .linear-gradient(top, @color-background-colIcon-lightBlue, @color-background-colIcon-blue);
-}
-
-
-
-/* Dag */
-.dag-gradient() {
-    .linear-gradient(top, @color-dag-TopGray, @color-dag-bottomGray);
-}
-
-.dagDark-gradient() {
-    .linear-gradient(top, @color-silverChalice, @color-doveGray);
-}
 /* ========== End Of Gradient Color ========== */
 
 /* ========== New Table Color Theme ========== */
-// gradient color theme for furture th use
-.columnColorTheme-gradient(@startColor, @endColor, @alpha) {
-    .linear-gradient(top, fade(@startColor, @alpha),
-                          fade(@endColor, @alpha))  !important;
-}
-.normal-column-gradient(@alpha: 100%) {
-    .columnColorTheme-gradient(@color-table-normal-lightGray,
-                      @color-table-normal-darkGray, @alpha);
-}
-.inactive-column-gradient(@alpha: 100%) {
-    .columnColorTheme-gradient(@color-table-inactive-lightGray,
-                      @color-table-inactive-darkGray, @alpha);
-}
-.selected-column-gradient(@alpha: 100%) {
-    .columnColorTheme-gradient(@color-table-selected-lightBlue,
-                      @color-table-selected-darkBlue, @alpha);
-}
-.error-column-gradient(@alpha: 100%) {
-    .columnColorTheme-gradient(@color-table-error-lightRed,
-                      @color-table-error-darkRed, @alpha);
-}
-.go-column-gradient(@alpha: 100%) {
-    .columnColorTheme-gradient(@color-table-go-lightGreen,
-                      @color-table-go-darkGreen, @alpha);
-}
-.option-column-gradient(@alpha: 100%) {
-    .columnColorTheme-gradient(@color-table-option-lightBrown,
-                      @color-table-option-darkBrown, @alpha);
-}
-
 // solid color theme for td
 .columnColorTheme-solid(@color, @alpha) {
     background: fade(@color, @alpha),!important;

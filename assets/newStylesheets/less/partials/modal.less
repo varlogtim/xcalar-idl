@@ -1209,7 +1209,7 @@ html.microsoft {
 
     .funcBtn {
         &.inActive {
-            .gray-gradient;
+            background: @color-bg-pinkish-grey;
         }
     }
 
@@ -1406,7 +1406,7 @@ html.microsoft {
             .title {
                 .flex-order(1);
                 .flex(0 0 42px);
-                .gray-gradient;
+                background: @color-bg-pinkish-grey;
                 text-align: center;
                 cursor: default;
                 border-right: 1px solid @color-modal-title-border;
@@ -1483,17 +1483,17 @@ html.microsoft {
                             }
 
                             .iconWrap {
-                                .linear-gradient(top, @color-dataflow-icon-top, @color-dataflow-icon-bottom);
+                                background-color: @color-dataflow-icon-top;
                             }
                         }
 
                         &.active .iconWrap {
-                            .action-gradient;
+                            background: @color-bg-select-blue;
                         }
 
                         .iconWrap {
                             .flex(0 0 25px);
-                            .gray-gradient;
+                            background: @color-bg-pinkish-grey;
                             .rounded(3px 0 0 3px);
 
                             .icon {
@@ -1574,8 +1574,8 @@ html.microsoft {
                         color: @color-font-select-blue;
 
                         .icon {
-                            .size(19px, 19px);
-                            color: @color-font-select-blue;
+                            font-size: 17px;
+                            color: @color-border-colIconBlue;
                         }
 
                         .text {
@@ -1585,6 +1585,7 @@ html.microsoft {
                         &.clear {
                             margin-right: 10px;
                         }
+
                     }
                 }
             }
@@ -2863,7 +2864,7 @@ html.microsoft {
         padding: 2px 12px 2px 2px;
         margin: 5px;
         .rounded;
-        .action-gradient;
+        background: @color-bg-select-blue;
         cursor: pointer;
         color: @color-text-cyan;
         text-shadow: -1px 0px 1px rgba(0,0,0,0.6);

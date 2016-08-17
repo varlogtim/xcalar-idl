@@ -47,7 +47,6 @@ html.firefox, html.microsoft {
             .header {
                 z-index: @z-index-firstHeader;
                 border-left: 5px solid @color-table-header-gray;
-
                 &::before {
                     .transition(opacity 0.3s);
                     content: "";
@@ -65,7 +64,7 @@ html.firefox, html.microsoft {
                 .position(absolute, @left: 0);
                 .size(@width: ~"calc(100% + 10px)", @height: @height-colHeaderOuter);
                 border: @width-tableCellPadding solid @color-table-header-gray;
-                background: @color-table-header-darkGray;
+                background: @color-bg-topBarGray;
                 margin-left: -5px;
                 margin-top: -5px;
                 border-radius: 0;
@@ -224,8 +223,8 @@ html.firefox, html.microsoft {
 
         .flexContainer {
             overflow: hidden;
-            background-color: @color-table-header-darkGray;
-
+            background-color: @color-white;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
             .flexWrap {
                 &.flex-left {
                     .position(relative);
@@ -234,6 +233,7 @@ html.firefox, html.microsoft {
                     white-space: normal;
                     margin: 0;
                     overflow: hidden;
+                    background-color: @color-bg-white-three;
 
                     .iconHidden {
                         .size(@width: 1px, @height: @height-colHeader);
@@ -1085,20 +1085,25 @@ html.firefox, html.microsoft {
         }
     }
 
+    .selectedHeaderStyling {
+        .type.icon {
+            color: @color-white;
+        }
+        .flexWrap.flex-left {
+            background-color: @color-bg-select-blue;
+        }
+    }
+
     .selectedCell, .selectedCol {
         .header {
-            .type.icon {
-                color: @color-white;
-            }
+            .selectedHeaderStyling;
         }
     } 
 
     // basic highlighted column settings
     th.modalHighlighted {
         .header {
-            .type.icon {
-                color: @color-white;
-            }
+            .selectedHeaderStyling;
         }
         .flexContainer{
             background-color: @color-bg-select-blue;

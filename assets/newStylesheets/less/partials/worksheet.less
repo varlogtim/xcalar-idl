@@ -81,16 +81,12 @@
         border-right: none !important;
     }
     &.selectedCol {
-        .header .flexContainer{
-            .action-gradient;
+        .header .flexContainer {
+            background: @color-bg-select-blue;
 
             .editableHead {
                 color: @color-white !important;
                 text-overflow: clip;
-            }
-
-            .flexWrap.flex-left {
-                .colIcon-active-gradient();
             }
         }
 
@@ -800,7 +796,7 @@
         }
 
         &:hover {
-            box-shadow: inset 0 2px 0 0 @color-bg-dusk-blue;
+            box-shadow: inset 0 2px 0 0 @color-border-select-blue;
         }
 
         &.active {
@@ -1090,32 +1086,52 @@
 
 #orphanedTableList {
     .searchbarArea {
-        margin-left: 12%;
         margin-top: 10px;
+        padding-left: 25px;
         clear: both;
-        .size(@width: 75%, @height: 25px);
+        .size(@width: ~"calc(100% - 50px)", @height: 25px);
         .position(relative);
 
         .input-box(@w: 100%, @h: 25px);
         .input-placeholder(@color-text-midGray);
-        .closeIcon(@topOff: 3px, @rightOff: 4px);
+        .closeIcon;
 
         input {
             .font(@weight: bold, @color: @color-text-midGray);
             padding-right: 30px;
+            background-color: @color-background-darkGray;
         }
         .counter {
             top: 4px;
             right: 30px;
         }
         .arrows {
-            top: -3px;
-            right: -51px;
+            right: -50px;
+            top: 0px;
+            .icon {
+                font-size: 14px;
+                margin-left: 6px;
+                margin-top: 6px;
+                color: @color-white;
+                opacity: 0.7;
+            }
         }
         .iconWrap {
-            .size(@width: 20px, @height: 20px);
-            .icon {
-                .size(@width: 20px, @height: 20px);
+            .box-sizing;
+            width: 25px;
+            height: 25px;
+            top: 0px;
+            &.downArrow {
+                right: 0px;
+                .icon {
+                    margin-left: 0px;
+                }
+            }
+            &.upArrow {
+                right: 25px;
+                .icon {
+                    margin-left: 0px;
+                }
             }
         }
 
