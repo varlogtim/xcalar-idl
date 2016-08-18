@@ -294,7 +294,7 @@ window.DS = (function ($, DS) {
             }
 
             Transaction.fail(txId, {
-                "error"  : error
+                "error": error
             });
 
             StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
@@ -1094,19 +1094,19 @@ window.DS = (function ($, DS) {
                 ' ondragend="DS.onDragEnd(event)"' +
                 ' data-dsId="' + id + '"' +
                 ' data-dsParentId=' + parentId + '>' +
-                '<div id=' + (id + "leftWarp") +
+                '<div id="' + (id + "leftWarp") + '"' +
                     ' class="dragWrap leftTopDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
                     ' ondragover="DS.allowDrop(event)"' +
                     ' ondrop="DS.onDrop(event)">' +
                 '</div>' +
-                '<div  id=' + (id + "midWarp") +
+                '<div  id="' + (id + "midWarp") + '"' +
                     ' class="dragWrap midDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
                     ' ondragover="DS.allowDrop(event)"' +
                     ' ondrop="DS.onDrop(event)">' +
                 '</div>' +
-                '<div  id=' + (id + "rightWarp") +
+                '<div  id="' + (id + "rightWarp") + '"' +
                     ' class="dragWrap rightBottomDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
                     ' ondragover="DS.allowDrop(event)"' +
@@ -1132,13 +1132,13 @@ window.DS = (function ($, DS) {
                 ' data-dsname="' + name + '"' +
                 ' data-dsId="' + id + '"' +
                 ' data-dsParentId="' + parentId + '"">' +
-                '<div  id=' + (id + "leftWarp") +
+                '<div  id="' + (id + "leftWarp") + '"' +
                     ' class="dragWrap leftTopDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
                     ' ondragover="DS.allowDrop(event)"' +
                     ' ondrop="DS.onDrop(event)">' +
                 '</div>' +
-                '<div id=' + (id + "rightWarp") +
+                '<div id="' + (id + "rightWarp") + '"' +
                     ' class="dragWrap rightBottomDragWrap"' +
                     ' ondragenter="DS.onDragEnter(event)"' +
                     ' ondragover="DS.allowDrop(event)"' +
