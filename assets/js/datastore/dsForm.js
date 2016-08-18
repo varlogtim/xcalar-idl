@@ -147,16 +147,12 @@ window.DSForm = (function($, DSForm) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSForm.__testOnly__ = {};
-        // DSForm.__testOnly__.resetForm = resetForm;
-        DSForm.__testOnly__.submitForm = submitForm;
-        // DSForm.__testOnly__.toggleFormat = toggleFormat;
-        // DSForm.__testOnly__.checkUDF = checkUDF;
+        DSForm.__testOnly__.resetForm = resetForm;
+        DSForm.__testOnly__.getFilePath = getFilePath;
+        DSForm.__testOnly__.setProtocol = setProtocol;
+        DSForm.__testOnly__.getProtocol = getProtocol;
         DSForm.__testOnly__.isValidPathToBrowse = isValidPathToBrowse;
-        // DSForm.__testOnly__.promoptHeaderAlert = promoptHeaderAlert;
-        // DSForm.__testOnly__.resetDelimiter = resetDelimiter;
-        // DSForm.__testOnly__.resetUdfSection = resetUdfSection;
-        // DSForm.__testOnly__.selectUDFModule = selectUDFModule;
-        // DSForm.__testOnly__.selectUDFFunc = selectUDFFunc;
+        DSForm.__testOnly__.isValidToPreview = isValidToPreview;
     }
     /* End Of Unit Test Only */
 

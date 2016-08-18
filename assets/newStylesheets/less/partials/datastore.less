@@ -695,8 +695,8 @@ table.datasetTable {
                 .size(@height: 30px);
                 .flex(1 1 46px);
                 .font(@size: 12px, @line-height: 30px);
-                border-top: 1px solid @color-border-white-five;
-                border-bottom: 1px solid @color-border-white-five;
+                border-top: 1px solid @color-border-white-five-darker;
+                border-bottom: 1px solid @color-border-white-five-darker;
                 text-align: right;
             }
 
@@ -708,8 +708,8 @@ table.datasetTable {
                 background-color: @color-white;
                 .textOverflowOneLine;
                 .font(@size: 12px, @line-height: 28px);
-                border-top: 1px solid @color-border-white-five;
-                border-bottom: 1px solid @color-border-white-five;
+                border-top: 1px solid @color-border-white-five-darker;
+                border-bottom: 1px solid @color-border-white-five-darker;
                 border-left: none;
                 border-right: none;
             }
@@ -1022,12 +1022,8 @@ table.datasetTable {
                     .input-box(@w: 80px, @h: 30px);
                 }
 
-                .divider {
-                    .size(@width: 1px, @height: 30px);
-                    background-color: @color-bg-pinkish-grey2;
-                }
-
                 .dropDownList {
+                    margin-left: -1px;
                     .styleDropDownList(80px, 30px, @atTop: true);
 
                     ul {

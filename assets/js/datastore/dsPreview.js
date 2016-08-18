@@ -1939,6 +1939,15 @@ window.DSPreview = (function($, DSPreview) {
         // DSPreview.__testOnly__.togglePromote = togglePromote;
         DSPreview.__testOnly__.clearAll = clearAll;
 
+         // DSForm.__testOnly__.submitForm = submitForm;
+        // DSForm.__testOnly__.toggleFormat = toggleFormat;
+        // DSForm.__testOnly__.checkUDF = checkUDF;
+        // DSForm.__testOnly__.promoptHeaderAlert = promoptHeaderAlert;
+        // DSForm.__testOnly__.resetDelimiter = resetDelimiter;
+        // DSForm.__testOnly__.resetUdfSection = resetUdfSection;
+        // DSForm.__testOnly__.selectUDFModule = selectUDFModule;
+        // DSForm.__testOnly__.selectUDFFunc = selectUDFFunc;
+
         DSPreview.__testOnly__.get = function() {
             return {
                 "delimiter"  : delimiter,

@@ -98,7 +98,7 @@ window.UDF = (function($, UDF) {
             },
             "theme"            : "rubyblue",
             "lineNumbers"      : true,
-            "indentWithTabs"   : true,
+            "indentWithTabs"   : false,
             "indentUnit"       : 4,
             "matchBrackets"    : true,
             "autoCloseBrackets": true
