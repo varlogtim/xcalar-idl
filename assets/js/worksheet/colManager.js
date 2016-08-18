@@ -1245,14 +1245,17 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (isDuplicate) {
-            var container = $input.closest('.mainPanel').attr('id');
+            // var container = $input.closest('.mainPanel').attr('id');
+            // xx xi2.0 changing container to body because op view doesn't have
+            // a mainPanel parent. Not sure if this will cause tooltip placement
+            // bugs
             var $toolTipTarget = $input.parent();
 
             $toolTipTarget.tooltip({
                 "title"    : title,
                 "placement": "top",
                 "trigger"  : "manual",
-                "container": "#" + container,
+                "container": "body",
                 "template" : TooltipTemplate.Error
             });
 

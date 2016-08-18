@@ -630,6 +630,7 @@ DaysTStr = {
 
 OpModalTStr = {
     'EmptyHint': 'select to allow empty field',
+    'EmptyStringHint': 'select to allow empty strings',
     'ColNameDesc': 'New Resultant Column Name',
     'AggNameDesc': 'New Resultant Aggregate Name (optional)',
     'IncSample': 'Include a sample of the rest of the fields',
@@ -637,6 +638,8 @@ OpModalTStr = {
     'KeepInTable': 'Join table back to original',
     'KeepInTableDesc': 'If checked, group by will augment original table',
     'ModifyMapDesc': 'Would you like to modify the map?',
+    'NoArg': 'No Argument',
+    'EmptyString': 'Empty String',
 
     // with replace
     'ModifyDesc': 'Would you like to modify the <name>?',

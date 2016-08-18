@@ -809,12 +809,12 @@ html.firefox, html.microsoft {
             display: none;
         }
         .tableTitle .dropdownBox {
-            pointer-events: none;
+            display: none !important;
         }
         &.exportModalOpen {
             .tableTitle .dropdownBox {
                 // allow exiting of export through dropdown menu
-                pointer-events: initial;
+               display: block !important;
             }
         }
 

@@ -2,6 +2,8 @@
 // map, filter, agg, groupby, join, export etc
 
 // general styling
+// 
+
 .opView {
 	height: 100%;
 	background-color: @color-bg-white-five;
@@ -245,6 +247,10 @@
 			&.visible {
 				background-color: @color-bg-gold;
 			}
+			&.space {
+				display: inline-block;
+				width: 3px;
+			}
 		}
 	} 
 
@@ -355,6 +361,9 @@
 					.arg {
 						border-left-width: 0px;
 					}
+				}
+				.emptyOptions {
+					display: none;
 				}
 			}
 
@@ -540,6 +549,12 @@
             		display: none;
             	}
             }
+		}
+
+		.emptyOptions {
+			.checkboxWrap {
+				width: 50%;
+			}
 		}
 
 		.checkboxWrap {
@@ -749,6 +764,26 @@
     .map {
     	
     }
+}
+@media screen and (min-height: 750px) {
+	@listHeight: 26px;
+	.opView {
+		.catFuncMenus {
+			ul { 
+				height: @listHeight * 6 - 1px;
+			}
+		}
+	}
+}
+@media screen and (min-height: 900px) {
+	@listHeight: 26px;
+	.opView {
+		.catFuncMenus {
+			ul { 
+				height: @listHeight * 7 - 1px;
+			}
+		}
+	}
 }
 
 #joinView {

@@ -841,7 +841,6 @@ window.DagPanel = (function($, DagPanel) {
                 return;  
             } 
             Dag.showSchema($menu.data('tableelement'));
-            // console.log($menu.data());
         });
     }
 
@@ -1613,7 +1612,7 @@ window.Dag = (function($, Dag) {
         var schemaLeft = $(window).width() - $schema.width() - menuOffset - 10;
         var left = tableLeft;
         if (tableLeft > schemaLeft) {
-            left = schemaLeft; console.log($schema.width());
+            left = schemaLeft;
             $schema.addClass('shiftLeft');
         } else {
             left = tableLeft;
@@ -3119,7 +3118,6 @@ window.Dag = (function($, Dag) {
         }
         ctx.moveTo(x, y);
         ctx.lineTo(x - dist, y);
-        // console.log(x, y);
     }
 
     // used for testing
