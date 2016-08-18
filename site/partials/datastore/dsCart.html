@@ -1,9 +1,17 @@
 <!-- Datastore Cart -->
+<% if (dicts.tutor.name == "datastoreDemo2") { %>
+<div id="dataCartContainer">
+<% } else { %>
 <div id="dataCartContainer" class="noCart">
+<% }%>
   <div class="titleSection">
     <header class="title">
       <span><%= dicts.dsCart.Title %></span>
+      <% if (dicts.tutor.name == "datastoreDemo2") { %>
+       <span class="numWrap">(<span class="dataCartNum">2</span>)</span>
+      <% } else { %>
       <span class="numWrap">(<span class="dataCartNum"></span>)</span>
+      <% }%>
     </header>
   </div>
   <div class="buttonSection">
@@ -43,30 +51,39 @@
     <!-- end buttons -->
   </div>
   <!-- mainSection -->
+  <% if (dicts.tutor.name == "datastoreDemo2") { %>
+  <div id="dataCartWrap" class="mainSection">
+  <% } else { %>
   <div id="dataCartWrap" class="mainSection noCart">
+  <% }%>
     <div class="hint"><%= dicts.dsCart.NoCartInstr %></div>
     <div id="dataCart">
       <% if (dicts.tutor.name == "datastoreDemo2") { %>
-      <div id="selectedTable-yelpUsers" class="selectedTable">
+      <div class="selectedTable" data-dsid="John Smith.yelpUsers">
         <div class="cartTitleArea" data-introstep="7">
-          <input class="tableNameEdit" type="text" spellcheck="false" value="yelpUsers">
-          <div class="iconWrapper">
-            <span class="icon"></span>
-          </div>
+          <input class="tableNameEdit textOverflow" type="text" spellcheck="false" value="yelpUsers">
+          <i class="icon xi-edit fa-15 xc-action"></i>
         </div>
+        <div class="cartEmptyHint xc-hidden">No Columns Selected</div>
         <ul data-introstep="6">
-          <li style="font-size:13px;" class="colWrap" data-colnum="2">
-            <span class="colName">yelping_since</span>
-            <div class="removeCol">
-              <span class="closeIcon"></span>
+          <li data-colnum="2" style="display: list-item;">
+            <div class="itemWrap type-object">
+              <span class="iconWrap">
+                <i class="center icon fa-16 xi-object"></i>
+              </span>
+              <span class="colName textOverflow">compliments</span>
             </div>
+            <i class="removeCol icon xi-trash xc-action fa-15"></i>
           </li>
-          <li style="font-size:13px;" class="colWrap" data-colnum="3">
-            <span class="colName">compliments</span>
-            <div class="removeCol">
-              <span class="closeIcon"></span>
+          <li data-colnum="3" style="display: list-item;">
+            <div class="itemWrap type-array">
+              <span class="iconWrap">
+              <i class="center icon fa-16 xi-array"></i>
+              </span>
+              <span class="colName textOverflow">friends</span>
             </div>
-          </li>
+              <i class="removeCol icon xi-trash xc-action fa-15"></i>
+            </li>
         </ul>
       </div>
       <% } %>

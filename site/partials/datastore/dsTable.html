@@ -7,7 +7,59 @@
     <div class="text"><%= dicts.ds.TableInstr %></div>
   </div>
   <!-- cardTop -->
-  <div class="cardTopMain no-selection">
+  <% if (dicts.tutor.name == "datastoreDemo2") { %>
+  <div class="cardTopMain no-selection" data-introstep="2">
+    <div class="titleSection">
+      <header id="dsInfo-title" class="title">yelpUsers</header>
+    </div>
+    <div class="infoSection">
+      <div class="contentSection">
+        <span>Created by:</span>
+        <span id="dsInfo-author">John Smith</span>
+        <span class="divider">|</span>
+        <span>Modified Date:</span>
+        <span id="dsInfo-modifyDate">11:04:33 AM 6-20-2016</span>
+        <span class="divider">|</span>
+        <span>Records:</span>
+        <span id="dsInfo-records">70,817</span>
+        <span class="divider">|</span>
+        <span>Size:</span>
+        <span id="dsInfo-size">26MB</span>
+      </div>
+      <div class="contentSection">
+        <span>Format:</span>
+        <span id="schema-format">JSON</span>
+        <span class="divider">|</span>
+        <span>Path:</span>
+        <span id="dsInfo-path">nfs:///netstore/datasets/yelp/user/</span>
+      </div>
+    </div>
+    <!-- buttons -->
+    <div id="dsColsBtn" class="buttonSection" data-introstep="5">
+      <div class="buttonGroup">
+        <div class="hint" title="<%= dicts.dsTable.SelectLaterHiint %>" data-toggle="tooltip" data-container="body">
+          <i class="icon xi-help fa-12"></i>
+        </div>
+        <div id="noDScols" class="noCols xc-action">
+          <i class="icon xi-select-later"></i>
+          <span><%= dicts.dsTable.SelectLater %></span>
+        </div>
+      </div>
+      <div class="buttonGroup">
+        <div id="clearDsCols" class="clear xc-action">
+           <i id="clearDsCols" class="icon xi-select-none"></i>
+          <span><%= dicts.common.ClearAll %></span>
+        </div>
+        <div class="divider"></div>
+        <div id="selectDSCols" class="selectAll xc-action">
+          <i class="icon xi-select-all"></i>
+          <span><%= dicts.common.SelectAll %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } else { %>
+   <div class="cardTopMain no-selection">
     <div class="titleSection">
       <header id="dsInfo-title" class="title">
         <%= dicts.ds.Datasets %>
@@ -59,7 +111,11 @@
       </div>
     </div>
   </div>
+  <% } %>
   <!-- cardMain -->
+  <%  if (dicts.tutor.name == "datastoreDemo2") { %>
+    include "../demo/dsDemo2-dataTable.html"
+  <% } else { %>
   <div class="cardMain">
     <!-- Datastore Table -->
     <div id="dsTableContainer">
@@ -75,4 +131,5 @@
       <div id="dsTableWrap" class="datasetTableWrap"></div>
     </div>
   </div>
+  <% } %>
 </div>

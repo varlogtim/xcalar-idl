@@ -1,3 +1,15 @@
+<!-- Home / workbook button -->
+<% if (dicts.tutor.name == "workbookDemo") { %>
+<div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>" data-introstep="1">
+  <div class="logo"></div>
+</div>
+<% } else { %>
+<div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>">
+  <div class="logo"></div>
+</div>
+<% } %>
+<!-- End Home / workbook button -->
+
 <!-- Top Menu Bar -->
 <div id="menuBar" class="clearfix no-selection">
   <!-- maiu menu-->
@@ -10,13 +22,13 @@
       </div>
     </div>
     <% } else if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="workspaceTab" class="topMenuBarTab active" data-introstep="2">
+    <div id="workspaceTab" class="topMenuBarTab active mainMenuOpen" data-introstep="2">
       <div class="mainTab">
         <i class="icon xi-menu-worksheet fa-25"></i>
       </div>
     </div>
     <% } else { %>
-    <div id="workspaceTab">
+    <div id="workspaceTab" class="topMenuBarTab mainMenuOpen">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
         <i class="icon xi-menu-worksheet fa-25"></i>
       </div>
@@ -37,7 +49,7 @@
       </div>
     </div>
     <% } else if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="4">
+    <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="3">
       <div class="mainTab">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
@@ -64,7 +76,7 @@
 
     <!-- monitor tab -->
     <% if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="monitorTab" class="topMenuBarTab mainMenuOpen" data-introstep="3">
+    <div id="monitorTab" class="topMenuBarTab mainMenuOpen" data-introstep="4">
       <div class="mainTab">
         <i class="icon xi-menu-monitoring fa-20"></i>
       </div>
@@ -145,7 +157,7 @@
     <!-- help section -->
     <% if (dicts.tutor.name == "workbookDemo") { %>
 
-    <div id="helpTab" class="sliderBtn bottomMenuBarTab">
+    <div id="helpTab" class="sliderBtn bottomMenuBarTab" data-introstep="8">
       <div class="mainTab">
         <i class="icon xi-menu-info fa-25"></i>
       </div>

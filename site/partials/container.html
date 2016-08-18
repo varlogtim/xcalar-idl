@@ -4,16 +4,7 @@
         document.getElementById('container').style.display = 'block';
     }
   </script>
-  <% if (dicts.tutor.name == "workbookDemo") { %>
-  <div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>" data-introstep="1">
-    <div class="logo"></div>
-  </div>
-  <% } else { %>
-  <div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>">
-    <div class="logo"></div>
-  </div>
-  <% } %>
-  
+  <!-- homeBtn is in menuBar.html" -->
   include "menuBar/menuBar.html"
   include "userBox.html"
 

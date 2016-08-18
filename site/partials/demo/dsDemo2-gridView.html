@@ -1,15 +1,20 @@
 <!-- Grid View -->
-<div class="gridViewWrapper">
-  <div class="gridView gridItems">
-    <div id="dataset-yelpUsers" class="ds grid-unit active" data-introstep="1">
-      <div class="gridIcon"></div>
-      <div class="label" data-dsname="yelpUsers">yelpUsers</div>
-    </div>
-    <div class="folder grid-unit" data-introstep="11">
-      <div class="gridIcon"></div>
-      <div class="dsCount">0</div>
-      <div title="Click to rename" class="label">New Folder</div>
-    </div>
-  </div>
+<div class="ds grid-unit active" data-introstep="1">
+  <div class="dragWrap leftTopDragWrap"></div>
+  <div class="dragWrap rightBottomDragWrap"></div>
+  <div class="gridIcon"></div>
+  <div title="yelpUsers" class="label">yelpUsers</div>
+  <i class="icon xi-trash delete fa-15"></i>
 </div>
+<div class="folder grid-unit" data-introstep="11">
+  <div id="folder-0leftWarp" class="dragWrap leftTopDragWrap" ></div>
+  <div id="folder-0midWarp" class="dragWrap midDragWrap"></div>
+  <div id="folder-0rightWarp" class="dragWrap rightBottomDragWrap"></div>
+  <div class="gridIcon"></div>
+  <div class="dsCount">0</div>
+  <div title="New Folder" class="label" data-dsname="New Folder">New Folder</div>
+  <i class="icon xi-trash delete fa-15"></i>
+  <i class="icon xi-edit edit fa-15"></i>
+</div>
+<div class="intro-emptybox" style="position:absolute;height: 65px;margin-top:0px; margin-left: 65px;width: 65px;" data-introstep="12"></div>
 <!-- End of Grid View -->

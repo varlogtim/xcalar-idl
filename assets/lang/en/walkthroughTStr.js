@@ -1,14 +1,14 @@
-var WalkThroughtTStr = {
+var WalkThroughTStr = {
     'w1': [
         'This is your workbook browser button. Click to open if you want to switch to another workbook. Your current workbook will be automatically saved.',
         'This shows your current workbook. You can have multiple worksheets in a single workbook.',
-        'This is your monitor button, where you will be able to view your machine’s usage statistics such as RAM, CPU etc.',
         'This is the data stores button. Click this button to point to new datasets and add them to your current worksheet.',
-        'This is your current active worksheet. You can rename it by clicking the current name.',
-        'This is your inactive worksheet tab. You may have many inactive worksheets. Clicking on the cross to the left of the worksheet name will delete the worksheet.',
+        'This is your monitor button, where you will be able to view your machine’s usage statistics such as RAM, CPU etc.',
+        'This is your current active worksheet. You can rename it by double-clicking the current name or by clicking the ellipsis on the right.',
+        'This is your inactive worksheet tab. You may have many inactive worksheets. To delete the worksheet, click the ellipsis on the right.',
         'Clicking this icon will add new worksheets to your workbook.',
         'This is the help icon. You can type your question here to search through the help topics, watch videos or start a step-by-step walk through.',
-        'This is your username. You may sign out by clicking it.'
+        'This is the user icon. You may sign out by clicking it.'
     ],
     'w2': [
         'Click this button to point to a new dataset. Fill up the description to finish the process.',
@@ -26,12 +26,13 @@ var WalkThroughtTStr = {
         'To select a column that you want to add to your worksheet, click on the column header. The selected column gets highlighted and added to the data cart on the right.',
         'You can choose to select or deselect all of the columns in the dataset, or you can select the columns later.',
         'These are all the selected columns. Deselect a column by clicking on the cross beside the column name.',
-        'This is the name of the soon-to-be created table containing all the selected columns. Click on the existing name to make changes.<br/><br/>You can create more than one table by selecting columns from different datasets. To select a different dataset, you can click on Import New Dataset and follow the same procedure or click on another already loaded dataset.',
+        // 'This is the name of the soon-to-be created table containing all the selected columns. Click on the existing name to make changes.<br/><br/>You can create more than one table by selecting columns from different datasets. To select a different dataset, you can click on Import New Dataset and follow the same procedure or click on another already loaded dataset.',
+        'This is the name of the soon-to-be created table containing all the selected columns. Click on the existing name to make changes.',
         'Clicking this button will clear the data cart of columns previously selected.',
         'Clicking this button will create the tables using the selected columns and add them to your active worksheet.',
         'In order to organize your datasets, you can create new folders by clicking this icon.',
-        'This is a folder. The number on it specifies the number of datasets inside the folder. You can change the name of the folder by clicking on the existing name.',
-        'Click this button to delete a folder or dataset.',
-        'You can change the way the datasets and folders are displayed on the left by clicking on list or grid view.'
+        'This is a folder. The number on it specifies the number of datasets inside the folder. You can change the name of the folder by double-clicking on the existing name.',
+        'Right-click on a folder or dataset to delete it.',
+        'You can change the way the datasets and folders are displayed below by clicking on list or grid view.'
     ]
 };

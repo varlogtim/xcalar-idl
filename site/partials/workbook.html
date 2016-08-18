@@ -41,6 +41,16 @@
 			  				<div class="description">
 			  					<ul>
 			  						<li><a href="<%= dicts.paths.helpDocs %>" target="xchelp"><%= dicts.workbook.viewNewHelpDoc %></a></li>
+			  						<!-- INTRO TUTORIALS -->
+			  						<li id="workbookWT" class="walkthrough">
+						                <span><%= dicts.bottomMenu.wkbkTutor %></span>
+						            </li>
+						            <li id="datastoreWT1" class="walkthrough">
+						            	<span><%= dicts.bottomMenu.dsTutor1 %></span>
+						            </li>
+						            <li id="datastoreWT2" class="walkthrough">
+						            	<span><%= dicts.bottomMenu.dsTutor2 %></span>
+						            </li>
 			  					</ul>
 			  				</div>
 	  					</section>
@@ -57,13 +67,19 @@
 		  					<div class="helpText">
 		  						<a href="assets/help/Content/Home.htm" target="xchelp"><%= dicts.workbook.learnMore %></a>
 		  					</div>
-			  				<div class="tutBlock">
+			  				<!-- <div class="tutBlock">
 			  					<a href="<%= dicts.paths.helpDocs %>" target="xchelp" >
 			  						<div class="tutBtn">
 			  						<i class="icon xi-worksheet"></i>
 				  					</div>
 				  					<div class="tutText"><%= dicts.workbook.relatedDocs %></div>
 			  					</a>
+			  				</div> -->
+			  				<div class="tutBlock">
+		  						<div class="tutBtn">
+		  						<i class="icon xi-worksheet"></i>
+			  					</div>
+			  					<div class="tutText"><%= dicts.workbook.relatedDocs %></div>
 			  				</div>
 	  					</section>
 	  					<section class="section">

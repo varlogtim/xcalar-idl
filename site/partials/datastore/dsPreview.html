@@ -2,6 +2,9 @@
   <header class="cardHeader">
     <div class="title"><%= dicts.ds.Point %></div>
   </header>
+  <%  if (dicts.tutor.name == "datastoreDemo1") { %>
+    include "../demo/dsDemo2-previewTable.html"
+  <% } else { %>
   <div id="dsPreviewWrap" class="cardMain">
     <!-- Preview Section -->
     <header class="titleSection">
@@ -37,6 +40,7 @@
     </div>
     <!-- End Of Preview Section -->
   </div>
+  <% } %>
   <div class="cardBottom">
     <form id="importDataForm" target="_blank">
       <div id="importDataForm-content" class="contentSection">
@@ -44,7 +48,12 @@
         <div class="row">
           <label for="dsForm-dsName"><%= dicts.dsForm.DSName %>:</label>
           <div class="inputWrap">
-            <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
+            <% if (dicts.tutor.name == "datastoreDemo1") { %>
+             <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required data-introstep="4">
+            <% } else { %>
+             <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
+            <% } %>
+           
           </div>
           <!-- refresh -->
           <button id="dsForm-refresh" type="button" class="btn iconBtn">
@@ -140,7 +149,7 @@
         <!-- row -->
         <div class="row">
           <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
-          <div id="lineDelim" class="dropDownList">
+          <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="6"' : '' %>>
             <input id="lineText" class="text" type="text" spellcheck="false" autocomplete="off">
             <div class="iconWrapper">
               <i class="icon xi-arrow-down"></i>
@@ -164,6 +173,7 @@
         <div class="row">
           <label for="fieldText"><%= dicts.dsForm.FieldDelim %>:</label>
           <!-- Field Delimiter -->
+
           <div id="fieldDelim" class="dropDownList">
             <input id="fieldText" class="text" type="text" spellcheck="false" autocomplete="off">
             <div class="iconWrapper">

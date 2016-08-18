@@ -1,4 +1,5 @@
-@color-intro-blue: #60B1E3;
+// @color-intro-blue: #60B1E3;
+@color-intro-blue: @color-bg-select-blue;
 #intro-overlay {
     position: fixed;
     top: 0;
@@ -44,7 +45,6 @@
     position: fixed;
     background-color: transparent;
     cursor: auto;
-    
 }
 
 #intro-popover {
@@ -61,7 +61,6 @@
     .transition(~"all 0.4s ease-out, visibility 0.1ms");
     font-size: 12px;
     border: 2px solid @color-intro-blue;
-    border-radius: 5px;
 
     .textContainer {
         .transition(height 0.4s ease-out);
@@ -96,19 +95,29 @@
             float: left;
             height: 30px;
             width: 100%;
-
+            opacity: @opacity-unhover;
+            &:hover {
+                opacity: @opacity-hover;
+            }
         }
     }
     .close {
         display: none;
-        .image("../../images/close-med.png", 50%, 50%);
         &.available {
             display: block;
+        }
+        .icon {
+            font-size: 12px;
+            line-height: 20px;
         }
     }
 
     .next, .back {
-        .image("../../images/play.png", 50%, 50%);
+        .icon {
+           font-size: 12px;
+           line-height: 20px;
+           margin-left: 1px;
+        }
     }
     .back, .skipBack {
         .transform(rotateY(180deg));

@@ -1,19 +1,20 @@
-<div id="demoContainer" class="mainContainer" style="display:block !important;">
+<div id="demoContainer" class="mainContainer mainMenuOpen" style="display:block !important;">
   include "partials/menuBar/menuBar.html"
   <!-- DATASTORE PANEL -->
-  <div id="datastorePanel" class="mainPanel active">
+  <div id="datastorePanel" class="mainPanel in active">
     include "partials/datastore/dsHeader.html"
-    <!-- Import Data Form -->
-    <div id="dsFormView" class="dsFormView">
-      include "partials/datastore/dsForm.html"
-    </div>
-    <!-- Main Content -->
-    <div id="mainContent">
-      <!-- Explore View -->
-      <div id="datastore-in-view">
-        <div class="contentView">
-          <div class="contentViewMid hidden"></div>
-          <div class="contentViewRight no-selection">
+
+    <div class="mainContent">
+      <!-- Imporat View -->
+      <div id="datastore-in-view" class="subPanel in">
+        <div id="dsFormView" class="viewSection">
+          include "partials/datastore/dsForm.html"
+        </div>
+        <div id="dsTableView" class="viewSection xc-hidden">
+          <div class="leftSection">
+            include "partials/datastore/dsTable.html"
+          </div>
+          <div class="rightSection no-selection">
             include "partials/datastore/dsCart.html"
           </div>
         </div>

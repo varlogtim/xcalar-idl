@@ -217,13 +217,27 @@
 		.description {
 			margin-top: 8px;
 			li {
-				margin-bottom: 3px;
+				margin-bottom: 0px;
+			}
+		}
+
+		section:last-child {
+			.description {
+				margin-top: 4px;
 			}
 		}
 
 		a {
 			color: @color-font-darkGray;
 			text-decoration: none;
+			&:hover {
+				color: @color-font-select-blue;
+				text-decoration: underline;
+			}
+		}
+
+		li > span {
+			cursor: pointer;
 			&:hover {
 				color: @color-font-select-blue;
 				text-decoration: underline;

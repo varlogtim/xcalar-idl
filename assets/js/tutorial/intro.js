@@ -12,9 +12,13 @@ window.Intro = (function($, Intro) {
         loop              : false, // if true, returns to step 1 after last step
         includeNumbering  : false,
         closeOnModalClick : false, // close modal when background is clicked
+        ignoreHidden      : true, // will ignore data-intro elements that arent' visible 
         onStart           : "",
         onComplete        : "",
         onNextStep        : "",
+        onPrevStep        : "",
+        onSkipToEnd       : "",
+        onSkipToStart     : "",
         actionsRequired   : "",
         video             : false,
         videoBreakpoints  : []
@@ -43,6 +47,7 @@ window.Intro = (function($, Intro) {
         for (var option in userOptions) {
             options[option] = userOptions[option];
         }
+
         return (options);
     };
 
@@ -53,10 +58,15 @@ window.Intro = (function($, Intro) {
 
         steps.currentStep = -1;
 
-        $stepElems = $('[data-introstep]').filter(function() {
-            return $(this).is(':visible');
-        });
-
+        // ignore data-intro elements that aren't currently visible
+        if (options.ignoreHidden) {
+            $stepElems = $('[data-introstep]').filter(function() {
+                return $(this).is(':visible');
+            });
+        } else {
+            $stepElems = $('[data-introstep]');
+        }
+        
         if ($stepElems.length === 0) {
             return ('No steps defined');
         }
@@ -118,16 +128,24 @@ window.Intro = (function($, Intro) {
                                 '<div class="text"></div>' +
                             '</div>' +
                             '<div class="buttonContainer left clearfix">' +
-                                '<div class="back" title="back"></div>' +
+                                '<div class="back" title="back">' +
+                                    '<i class="icon xi-run"></i>' +
+                                '</div>' +
                                 '<div class="skipBack" ' +
                                     'title="skip to first step"></div>' +
-                                '<div class="close left" title="exit"></div>' +
+                                '<div class="close left" title="exit">' +
+                                    '<i class="icon xi-close"></i>' +
+                                '</div>' +
                             '</div>' +
                             '<div class="buttonContainer right clearfix">' +
-                                '<div class="next" title="next"></div>' +
+                                 '<div class="next" title="next">' +
+                                    '<i class="icon xi-run"></i>' +
+                                '</div>' +
                                 '<div class="skip" title="skip to last step">' +
                                 '</div>' +
-                                '<div class="close right" title="exit"></div>' +
+                                '<div class="close right" title="exit">' +
+                                    '<i class="icon xi-close"></i>' +
+                                '</div>' +
                             '</div>' +
                             '<div class="intro-arrow top"></div>' +
                             '<div class="intro-number">' +
@@ -182,14 +200,20 @@ window.Intro = (function($, Intro) {
     *  @param {Object} arg : options include skip: boolean, back: boolean
     */
     function nextStep(arg) {
+        var skip = false; // true if skipping to start or end
+        var back = false; // true if going next direction, 
+                            // false if going to prev direction
         if (arg) {
             if (arg.skip) {
+                skip = true;
                 if (arg.back) {
                     steps.currentStep = 0;
+                    back = true;
                 } else {
                     steps.currentStep = $stepElems.length;
                 }
             } else if (arg.back) {
+                back = true;
                 steps.currentStep--;
             }
         } else {
@@ -241,17 +265,42 @@ window.Intro = (function($, Intro) {
             showPopoverStartState();
         }
 
-        highlightNextElement();
+        highlightNextElement(back, skip);
     }
 
-    function highlightNextElement() {
+    function highlightNextElement(back, skip) {
         // clean up previous elements
         $stepElems.removeClass('intro-highlightedElement');
 
         $currElem = $stepElems.eq(steps.currentStep);
-        if (typeof options.onNextStep === "function") {
-            options.onNextStep($currElem);
+
+        // run callbacks for back, next, skip back, skip next
+        if (back) {
+            if (!skip &&  typeof options.onPrevStep === "function") {
+                options.onPrevStep({
+                    $currElem: $currElem, 
+                    currentStep: steps.currentStep + 1// return as 1 indexed
+                });
+            } else if (skip && typeof options.onSkipToStart === "function") {
+                options.onSkipToStart({
+                    $currElem: $currElem, 
+                    currentStep: steps.currentStep + 1 
+                });
+            }
+        } else {
+            if (!skip && typeof options.onNextStep === "function") {
+                options.onNextStep({
+                    $currElem: $currElem, 
+                    currentStep: steps.currentStep + 1 
+                });
+            } else if (skip && typeof options.onSkipToEnd === "function") {
+                options.onSkipToEnd({
+                    $currElem: $currElem, 
+                    currentStep: steps.currentStep + 1
+                });
+            }
         }
+
         $currElem.addClass('intro-highlightedElement');
 
         currElemRect = $currElem[0].getBoundingClientRect();
@@ -522,6 +571,9 @@ window.Intro = (function($, Intro) {
     }
 
     function adjustVideoClosePosition() {
+        if (!options.video) {
+            return;
+        }
         var $video = $(options.video);
         var offsetTop = $video.offset().top;
         var offsetLeft = $video.offset().left;

@@ -698,6 +698,7 @@ module.exports = {
         "tuts": "Tutorials",
         "learnMore": "Learn more about Xcalar Insight",
         "relatedDocs": "Related Tutorials Help Docs",
+        "stepTour": "Step-by-Step Tour",
         "monitorStatus": "Monitor the status of your Xcalar Cluster",
         "monitorClusterHealth": "Monitor Cluster Health",
         "createWKBKdesc": "Create a new workbook with data and worksheets",

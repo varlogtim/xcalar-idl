@@ -32,7 +32,11 @@
 </div>
 <div class="titleSection no-selection">
   <header>
+    <% if (dicts.tutor.name !== "datastoreDemo2") { %>
     <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)</span>
+    <% } else { %>
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">10</span>)</span>
+    <% } %>
   </header>
   <div id="forwardFolderBtn" class="xc-action xc-disabled" title="<%= dicts.dsView.Forward %>" data-container="body" data-toggle="tooltip" data-placement="top">
     <i class="icon xi-next fa-12"></i>
@@ -42,10 +46,18 @@
   </div>
 </div>
 <div id="dsListSection" class="mainSection">
+  <% if (dicts.tutor.name !== "datastoreDemo2") { %>
   <div class="pathSection"></div>
+  <% } else { %>
+  <div class="pathSection">Home / </div>
+  <% } %>
   <!-- Grid View -->
   <div class="gridViewWrapper">
-    <div class="gridView gridItems xc-grid"></div>
+    <div class="gridView gridItems xc-grid">
+      <% if (dicts.tutor.name === "datastoreDemo2") { %>
+        include "../demo/dsDemo2-gridView.html"
+      <% } %>
+    </div>
   </div>
 </div>
 include "gridViewMenu.html"

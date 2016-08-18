@@ -1,7 +1,15 @@
+<% if (dicts.isTutor) { %>
+<div id="mainMenu" class="open">
+<% } else { %>
 <div id="mainMenu" class="closed">
+<% } %>
 	<div class="mainContent">
 		<!-- content common to all inner sections -->
+		<% if (dicts.tutor.name == "workbookDemo") { %>
+		<div id="workspaceMenu" class="commonSection active" data-tab="workspaceTab">
+		<% } else { %>
 		<div id="workspaceMenu" class="commonSection" data-tab="workspaceTab">
+		<% } %>
 			<section class="menuSection worksheets">
 				include "../worksheet/worksheetTabs.html"
 			</section>
@@ -13,7 +21,11 @@
 			include "../worksheet/exportView.html"
 			include "../worksheet/smartCastView.html"
 		</div>
+		<% if (dicts.tutor.name == "datastoreDemo1" || (dicts.tutor.name == "datastoreDemo2")) { %>
+		<div id="datastoreMenu" class="commonSection active" data-tab="dataStoresTab">
+		<% } else { %>
 		<div id="datastoreMenu" class="commonSection" data-tab="dataStoresTab">
+		<% } %>
 			<section class="menuSection in">
 				include "../datastore/dsMenu.html"
 			</section>
