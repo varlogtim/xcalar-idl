@@ -1348,7 +1348,8 @@
 
 #smartCastView {
     .buttonSection {
-        padding: 12px;
+        padding-left: 20px;
+        padding-top: 12px;
         .size(@height: 60px);
 
         button {
@@ -1388,6 +1389,9 @@
             text-align: center;
             margin: 10px 0;
             color: @color-font-gray36;
+            background: @color-bg-white-two;
+            padding-top: 10px;
+            padding-bottom: 10px;
         }
 
         .tableContent {
@@ -1447,8 +1451,12 @@
                         .size(@width: 12px, @height: 7px);
                         .position(absolute, @right: 2px, @bottom: 2px);
                         border-top: 6px solid transparent;
-                        border-right: 6px solid @color-black;
+                        border-right: 6px solid @color-border-sidebar;
                     }
+                }
+
+                &:hover .innerBox {
+                	border-right: 6px solid @color-black;
                 }
             }
         }
