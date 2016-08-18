@@ -596,14 +596,34 @@ window.DS = (function ($, DS) {
         while (dirId !== homeDirId) {
             var dsObj = DS.getDSObj(dirId);
             // only the last two folder show the name
-            var name = (count < 2) ? dsObj.getName() : "...";
+            var name;
+            if (count < 2) {
+                if (dirId === curDirId) {
+                    name = dsObj.getName();
+                } else {
+                    name = '<span class="path" data-dir="' + dirId + '">' +
+                            dsObj.getName() +
+                        '</span>';
+                }
+            } else {
+                name = '...';
+            }
+
             path = name + " / " + path;
             dirId = dsObj.getParentId();
             count++;
         }
 
-        path = DSTStr.Home + " / " + path;
-        $("#dsListSection .pathSection").text(path);
+        if (curDirId === homeDirId) {
+            path = DSTStr.Home + "/" + path;
+        } else {
+            path = '<span class="path" data-dir="' + homeDirId + '">' +
+                        DSTStr.Home +
+                    '</span>' +
+                    " / " + path;
+        }
+        
+        $("#dsListSection .pathSection").html(path);
     }
 
     // Focus on the first dataset in the folder
@@ -820,6 +840,11 @@ window.DS = (function ($, DS) {
         // refresh dataset
         $("#refreshDS").click(function() {
             refreshHelper();
+        });
+
+        $("#dsListSection .pathSection").on("click", ".path", function() {
+            var dir = $(this).data("dir");
+            goToDirHelper(dir);
         });
 
         // click empty area on gridView
