@@ -544,6 +544,15 @@ module.exports = {
         "checkBox": "Don't show again"
     },
 
+    "dataflow": {
+        "header": "Dataflow",
+        "instr" : "Create a data flow based on your selected table. After you create a data flow, you will be able to parameterize it and run it on demand with different data sources.",
+        "dfName": "Dataflow Name",
+        "exportHeader": "Columns to Export",
+        "exportInstr": "Select that columns that you want to export at the end of your data flow. These are the only columns that you will see in your exported result after running the dataflow. The time your dataflow runs is affected by the number of columns you select here.",
+        "create": "CREATE"
+    },
+
     "dataFlowModal": {
         "header": "Add To Dataflow Group",
         "instr": "Add a dataflow to a dataflow group. Select the dataflow group that you would like to add the current dataflow to and click on the save button.",
