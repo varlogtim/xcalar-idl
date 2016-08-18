@@ -196,6 +196,7 @@ module.exports = {
        "Round": "Round",
        "RoundTitle": "Num. of decimals to keep",
        "SaveImage": "Save Image",
+       "ShowSchema": "Show Schema",
        "SmartCast": "Smart Type Casting",
        "Sort": "Sort",
        "SortAsc": "A-Z",
