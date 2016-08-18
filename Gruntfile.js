@@ -18,7 +18,8 @@ destMap = {
     "installerLogin.html": "assets/htmlFiles/installerLogin.html",
     "dologout.html": "assets/htmlFiles/dologout.html",
     "setup.html": "assets/htmlFiles/setup.html",
-    "tableau.html": "assets/htmlFiles/tableau.html"
+    "tableau.html": "assets/htmlFiles/tableau.html",
+    "install.html": "assets/htmlFiles/install.html"
 };
 
 count = 0;

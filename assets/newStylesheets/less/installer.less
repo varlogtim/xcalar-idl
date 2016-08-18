@@ -1,0 +1,311 @@
+@import "partials/mixins/common.less";
+@import "partials/icon.less";
+@div-width: 650px;
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    min-height: 600px;
+    min-width: 780px; 
+    font: 13px @font-base;
+    font-weight: 600;
+    .box-sizing;
+}
+
+table, tr, td, th, input, textarea, header, p, div {
+    margin: 0;
+    padding: 0;
+    .box-sizing;
+    border: none;
+}
+input {
+    font: 13px @font-base;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    color: @color-white;
+    // font-size: 0; /* Need to use this to get rid of stupid white space */
+    .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
+}
+
+form {
+    a {
+        color: @color-font-softBlue;
+        cursor: pointer;
+    }
+}
+
+#logo {
+    .size(@width:40px, @height:41px);
+    .image("../../images/new/logo/xi-logo.png");
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.container {
+    height: 500px;
+    .vertical-align;
+}
+
+.outerWrap {
+    width: 100%;
+
+    header {
+        .size(@width: @div-width, @height: 50px);
+        .position(relative, @top: 10px);
+        overflow: hidden;
+        margin: 0px auto 30px;
+        .font(@weight: 400, @size: 36px, @line-height: 36px, @family: @font-gotham);
+    }
+
+    .instruction {
+        .size(@width: @div-width, @height: 24px);
+        margin: 26px auto 18px auto;
+
+        .icon, .text {
+            display: inline-block;
+            float: left;
+        }
+
+        .icon {
+            font-size: 20px;
+            .vertical-align;
+            color: @color-bg-select-blue;
+        }
+
+        .text {
+            margin-left: 6px;
+            .font(@size: 14px, @line-height: 24px);
+        }
+    }
+}
+
+#loadingBar {
+    .size(@width: 100%, @height: 1px);
+    background-color: @color-border-softBlue;
+    margin-bottom: 26px;
+    position: relative;
+    overflow: hidden;
+
+    .innerBar {
+        height: 1px;
+        width: 200px;
+        background-color: @color-white;
+        position:absolute;
+        left: -200px;
+        // XX need to add this to mixin
+        background: linear-gradient(to right, @color-border-softBlue, #d6e4ec, @color-border-softBlue);
+        .keyframe(slideRight, {
+            0%   {left: -200px;}
+            100% {left: 100%;}
+        });
+        .keyframeAnim(slideRight 0.7s linear forwards 0.3s);
+
+        &.immediateAnimation {
+           .keyframeAnim(slideRight 0.7s linear forwards 0s);
+        }
+    }
+}
+
+
+
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active,
+input:-webkit-autofill:focus {
+    background-color: @color-border-searchBlue !important;
+    color: @color-white !important;
+    -webkit-box-shadow: 0 0 0 1000px  @color-border-searchBlue inset !important;
+    -webkit-text-fill-color: @color-white !important;
+}
+
+#formArea {
+   width: @div-width;
+   margin: 0 auto;
+   padding-left: 50px;
+
+   .title {
+        font-weight: 500;
+        .position(relative, @left: -50px);
+
+        > div {
+            span {
+                display: inline-block;
+
+                &:first-child {
+                    width: 78px;
+                    font-weight: 700;
+                }
+            }
+        }
+
+        .step {
+            .font(@size: 14px);
+        }
+
+        .hint {
+            .font(@size: 12px);
+            margin-top: 13px;
+        }
+   }
+
+   .section {
+        position: relative;
+        font-size: 13px;
+        height: 45px;
+        font-weight: 500;
+
+        .label {
+            position: absolute;
+            line-height: 30px;
+            left: 0px;
+            top: 15px;
+            text-indent: 4px;
+            .transition(color 0.5s);
+            pointer-events: none;
+            z-index: 0;
+            color: @color-font-softGrayBlue;
+            width: 100%;
+            text-transform: uppercase;
+
+            &::after {
+                content: "";
+                display: block;
+                position: absolute;
+                bottom: 0px;
+                .size(@width: 100%, @height: 1px);
+                background-color: @color-border-searchBlue;
+                .transition(all 0.5s);
+            }
+        }
+        label {
+            height: 100%;
+            width: 100%;
+            display: block;
+        }
+        .input {
+            width: 100%;
+            width: ~"calc(100% - 90px)";
+            // height: 100%;
+            height: 30px;
+            background-color: transparent;
+            outline: none;
+            margin-left: 90px;
+            padding-left: 10px;
+            .font(@weight: 500, @size: 13px, @line-height: 30px, @color: @color-white);
+            position: relative;
+            z-index: 1;
+            padding-top: 2px;
+            margin-top: 14px;
+
+            &::after {
+                content: "";
+                display: block;
+                position: absolute;
+                bottom: 0px;
+                .size(@width: 100%, @height: 1px);
+                background-color: @color-border-searchBlue;
+                .transition(all 0.5s);
+            }
+
+            &:focus {
+                .font(@color: @color-white);
+                outline: none;
+                padding-top: 4px;
+                margin-top: 13px;
+
+                &::after {
+                    background-color: @color-white;
+                    height: 2px;
+                    bottom: 0px;
+                }
+
+                ~ .label {
+                    color: @color-white;
+                    &:after {
+                        background-color: @color-white;
+                        height: 2px;
+                    }
+                }
+            }
+            &:active {
+                outline: none;
+            }
+        } 
+    }
+
+    .part {
+        display: inline-block;
+    }
+
+    .btn {
+        width: 150px;
+        height: 36px;
+        border: 1px solid @color-border-softBlue;
+        background-color: rgba(0,0,0,0);
+        .font(@weight: bold, @align: center, @color: @color-border-softBlue);
+        float: right;
+        margin-left: 10px;
+        margin-top: 36px;
+        .transition(all 0.2s);
+        outline: none;
+
+        &:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        &:active {
+            border-color: @color-border-activeBlue !important;
+        }
+    }
+
+    .submitSection {
+        height: auto;
+        .part {
+            float: right;
+        }
+        .termPart {
+            margin-top: 46px;
+            float: left;
+            .text {
+                text-transform: none;
+                float: right;
+                display: inline-block;
+                position: static;
+            }
+            .checkbox {
+                height: 16px;
+                float: right;
+                margin-right: 4px;
+                margin-top: 2px;
+            }
+        }
+
+        .text {
+            color: @color-white;
+            display: inline-block;
+            width: auto;
+            &::after {
+                display: none;
+            }
+        }
+    }
+
+    .loginSection {
+        text-align: right;
+        margin-top: 26px;
+        font-weight: 500;
+    }
+}
+
+
+   
+#loginButton, #signup-submit {
+    border: 1px solid @color-white;
+    .font(@color: @color-white);
+}

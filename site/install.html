@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Xcalar Insight</title>
+    <link href='../../3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
+    <link href='../../3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
+    <link href="../newStylesheets/css/installer.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div id="logo"></div>
+    <div id="installerContainer" class="container">
+      <div class="outerWrap">
+        <header class="title">Xcalar Insight Install Wizard</header>
+        <div class="instruction">
+          <i class="icon xi-info-circle"></i>
+          <span class="text">Lorum ipsum</span>
+        </div>
+      </div>
+      <div id="loadingBar">
+        <div class="innerBar"></div>
+      </div>
+      <div class="outerWrap">
+        <div id="formArea">
+          <form id="licenseForm" autocomplete="off">
+            <div class="title">
+              <div class="step">
+                <span>STEP1 </span>
+                <span>ADD LICENSE KEY</span>
+              </div>
+              <div class="hint">
+                <span></span>
+                <span>Input how many host you need</span>
+              </div>
+            </div>
+            <div class="section">
+              <label for="loginNameBox">
+                <input id="loginNameBox" type="text" class="input" autofocus required autocomplete="off">
+                <div class="label">USERNAME</div>
+              </label>
+            </div>
+            <div class="section">
+              <label for="loginPasswordBox">
+                <input id="loginPasswordBox" class="input" type="password" autocomplete="off">
+                <div class="label">PASSWORD</div>
+              </label>
+            </div>
+            <!-- <div class="passwordForgot">Forgot your password?</div> -->
+            <input id="loginButton" class="btn login" type="submit" value="LOG IN">
+            <!-- XX SIGN UP TEMPORARILY HIDDEN -->
+            <input id="signupButton" class="btn signup" type="button" name="signup" value="SIGN UP">
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
+  </body>
+</html>
