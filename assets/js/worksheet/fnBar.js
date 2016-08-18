@@ -7,6 +7,8 @@ window.FnBar = (function(FnBar, $) {
     var editor;
     var validOperators = ['pull', 'map', 'filter'];
 
+    var funcBarMode = "searchMode";
+
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
 
@@ -121,6 +123,43 @@ window.FnBar = (function(FnBar, $) {
                 $functionArea.removeClass('searching');
             }
         });
+
+        var $funcBarToggle = $("#funcBarMenuArea");
+        var $funcBarMenu = $("#funcBarMenu");
+        addMenuBehaviors($funcBarToggle);
+
+        $funcBarToggle.on("click", function() {
+            if ($funcBarMenu.is(":visible")) {
+                $funcBarMenu.hide();
+                return;
+            }
+            var $dd = $(this);
+            var bound = this.getBoundingClientRect();
+
+            $funcBarMenu.width($dd.width());
+
+            xcHelper.dropdownOpen($dd, $funcBarMenu, {
+                "mouseCoors"   : {"x": bound.left, "y": bound.bottom},
+                "classes"      : $dd[0].classList[0],
+                "ignoreSideBar": true,
+                "floating"     : true
+            });
+        });
+
+        $funcBarMenu.on("mouseup", "li", function() {
+            var classes = this.classList;
+            if (classes.contains("mapMode")) {
+                funcBarMode = "map";
+                $funcBarToggle.html("f(x)");
+            } else if (classes.contains("searchMode")) {
+                funcBarMode = "search";
+                $funcBarToggle.html('<i class="icon xi-search"></i>');
+            } else {
+                console.error("Illegal mode!");
+            }
+            $funcBarMenu.hide();
+        });
+
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {

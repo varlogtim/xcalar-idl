@@ -245,7 +245,7 @@ window.StartManager = (function(StartManager, $) {
 
     function setupUserBox() {
         var $menu = $("#userMenu");
-        addMenuBehaviors($menu );
+        addMenuBehaviors($menu);
 
         $("#userNameArea").click(function() {
             if ($menu.is(":visible")) {
