@@ -510,7 +510,7 @@ module.exports = {
         "Targets": "Targets",
         "createBtn": "CREATE EXPORT TARGET",
         "CreateTarget": "Create Export Target",
-        "CreateTargetInstr": "SELECT A TARGET TYPE AND CHOOSE A NAME FOR YOUR EXPORT TARGET. PROVIDE ANY ADDITIONAL INFORMATION AS NEEDED.",
+        "CreateTargetInstr": "Select a target type and choose a name for your export target. Provided any additional information as needed.",
         "TargetType": "Target Type",
         "LocalFS": "Local Filesystem",
         "AddConnector": "Add New Connector",
