@@ -58,11 +58,11 @@
   </ul>
   <ul class="sort">
     <li class="sortForward">
-      <span class="sortUp"></span>
+      <i class="icon blue fa-15 xi-arrow-up sortUp"></i>
       <%= dicts.MenuTStr.SortAsc %>
     </li>
     <li class="sortReverse">
-      <span class="sortDown"></span>
+      <i class="icon blue fa-15 xi-arrow-down sortDown"></i>
       <%= dicts.MenuTStr.SortDesc %>
     </li>
     <div class="subMenuArea"></div>
@@ -248,7 +248,9 @@
       <div class="inputWrap">
         <input class="colName" type="text"
         autocomplete="on" spellcheck="false"/>
-        <div class="icon inputAction"></div>
+        <div class="inputAction xc-action">
+          <i class="icon xi-tick fa-11"></i>
+        </div>
       </div>
     </li>
   </ul>
@@ -270,7 +272,9 @@
         <input class="digitsToRound" type="number"
         max="14" min="0" autocomplete="on"
         spellcheck="false" />
-        <div class="icon inputAction"></div>
+        <div class="inputAction xc-action">
+          <i class="icon xi-tick fa-11"></i>
+        </div>
       </div>
     </li>
     <div class="divider"></div>
@@ -286,7 +290,9 @@
     <div class="inputWrap">
       <input class="delimiter" type="text"
       spellcheck="false"/>
-      <div class="icon inputAction"></div>
+      <div class="inputAction xc-action">
+        <i class="icon xi-tick fa-11"></i>
+      </div>
     </div>
     <div>
       <%= dicts.MenuTStr.SplitColNum %>
@@ -310,10 +316,10 @@
 </ul>
 <ul class="sort">
   <li class="sort">
-    <span class="sortUp"></span><%= dicts.MenuTStr.SortAsc %>
+    <i class="icon blue xi-arrow-up fa-15 sortUp"></i><%= dicts.MenuTStr.SortAsc %>
   </li>
   <li class="revSort">
-    <span class="sortDown"></span><%= dicts.MenuTStr.SortDesc %>
+    <i class="icon blue xi-arrow-down fa-15 sortDown"></i><%= dicts.MenuTStr.SortDesc %>
   </li>
 </ul>
 <ul class="multiTextAlign">
@@ -348,7 +354,9 @@
       <input class="digitsToRound" type="number"
       max="14" min="0" autocomplete="on"
       spellcheck="false" />
-      <div class="icon inputAction"></div>
+      <div class="inputAction xc-action">
+        <i class="icon xi-tick fa-11"></i>
+      </div>
     </div>
   </li>
   <div class="divider"></div>

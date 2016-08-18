@@ -167,16 +167,10 @@
                 padding: 0 22px;
             }
 
-            .icon {
+            .inputAction {
                 .size(@width: 18px, @height: 18px);
                 .position(absolute, @top: 1px, @right: 0);
-                .image("../../images/checkbox-selected.png", 50%, 50%);
-                background-size: 18px 18px;
-                opacity: @opacity-unhover;
-
-                &:hover {
-                    opacity: @opacity-hover;
-                }
+                background-color: @color-bg-softBlue;
             }
         }
     }
@@ -256,12 +250,12 @@
         .indexedColumn & {
             display: none;
         }
-        .sortUp {
-            .image("../../images/arrowUp.png", 0, 50%);
+
+        .icon {
+            .position(relative, @top: 1px);
+            margin-right: 5px;
         }
-        .sortDown {
-            .image("../../images/arrowDown.png", 0, 50%);
-        }
+
         .tooltip {
             display: none !important;
         }

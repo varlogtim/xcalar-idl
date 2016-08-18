@@ -236,11 +236,12 @@
         }
     }
 
-    #undo {
-         .image("../../images/new/workspace/undo.png", 50%, 50%);
-    }
-    #redo {
-         .image("../../images/new/workspace/redo.png", 50%, 50%);
+    #undo, #redo {
+        padding: 7px 0;
+        .icon {
+            color: @color-font-greyish-brown;
+            .vertical-align;
+        }
     }
 
     #container.columnPicker {
