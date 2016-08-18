@@ -2672,10 +2672,16 @@ window.ColManager = (function($, ColManager) {
                 } else {
                     RowScroller.empty();
                 }
-                $functionArea.removeClass('searching');
             });
+            $functionArea.find('.position').hide();
+            $functionArea.find('.counter').hide();
+            $functionArea.find('.arrows').hide();
             return;
         }
+
+        $functionArea.find('.position').show();
+        $functionArea.find('.counter').show();
+        $functionArea.find('.arrows').show();
 
         var $matchedInputs = $searchableFields.filter(function() {
             if ($(this).is('.editableHead')) {

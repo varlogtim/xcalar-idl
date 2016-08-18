@@ -7,7 +7,7 @@ window.FnBar = (function(FnBar, $) {
     var editor;
     var validOperators = ['pull', 'map', 'filter'];
 
-    var funcBarMode = "searchMode";
+    var lastFocusedCol;
 
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
@@ -91,6 +91,18 @@ window.FnBar = (function(FnBar, $) {
         editor.on("beforeChange", function(instance, change) {
         // remove ALL \n
             var newtext = change.text.join("").replace(/\n/g, "");
+
+            if (newtext.trim().indexOf("=") === 0 &&
+                lastFocusedCol === undefined) {
+                // No active column, disallow user from typing in a
+                newtext = "";
+                xcHelper.addTooltip($('#funcBarMenuArea'), undefined,
+                                    {"title": "Please select a column first!",
+                                     "placement": "bottom"});
+                xcHelper.refreshTooltip($('#funcBarMenuArea'), 1000);
+
+
+            }
             if (change.update) {
                 change.update(change.from, change.to, [newtext]);
             }
@@ -103,15 +115,17 @@ window.FnBar = (function(FnBar, $) {
             var val = editor.getValue();
             var trimmedVal = val.trim();
             if ($fnBar.hasClass('disabled')) {
-                $functionArea.removeClass('searching');
+                // $functionArea.removeClass('searching');
                 return;
             }
             // only search if string does not begin with =
             // if string is empty, then it should at least have a class searching
             // otherwise we do not search
-            if (trimmedVal.indexOf('=') !== 0 &&
-                (trimmedVal.length || $functionArea.hasClass('searching'))) {
+            if (trimmedVal.indexOf('=') === 0) {
+                $functionArea.removeClass('searching');
+            } else {
                 $functionArea.addClass('searching');
+                lastFocusedCol = undefined;
                 var args = {
                     "value"         : trimmedVal,
                     "searchBar"     : searchHelper,
@@ -119,50 +133,12 @@ window.FnBar = (function(FnBar, $) {
                 };
                 ColManager.execCol("search", null, null, null, args);
                 $lastColInput = null;
-            } else {
-                $functionArea.removeClass('searching');
             }
         });
-
-        var $funcBarToggle = $("#funcBarMenuArea");
-        var $funcBarMenu = $("#funcBarMenu");
-        addMenuBehaviors($funcBarToggle);
-
-        $funcBarToggle.on("click", function() {
-            if ($funcBarMenu.is(":visible")) {
-                $funcBarMenu.hide();
-                return;
-            }
-            var $dd = $(this);
-            var bound = this.getBoundingClientRect();
-
-            $funcBarMenu.width($dd.width());
-
-            xcHelper.dropdownOpen($dd, $funcBarMenu, {
-                "mouseCoors"   : {"x": bound.left, "y": bound.bottom},
-                "classes"      : $dd[0].classList[0],
-                "ignoreSideBar": true,
-                "floating"     : true
-            });
-        });
-
-        $funcBarMenu.on("mouseup", "li", function() {
-            var classes = this.classList;
-            if (classes.contains("mapMode")) {
-                funcBarMode = "map";
-                $funcBarToggle.html("f(x)");
-            } else if (classes.contains("searchMode")) {
-                funcBarMode = "search";
-                $funcBarToggle.html('<i class="icon xi-search"></i>');
-            } else {
-                console.error("Illegal mode!");
-            }
-            $funcBarMenu.hide();
-        });
-
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
+        lastFocusedCol = gTables[tableId].tableCols[colNum - 1];
         if (!forceFocus && $lastColInput != null &&
             $colInput.get(0) === $lastColInput.get(0) &&
             !$fnBar.parent().hasClass('searching'))
@@ -197,6 +173,7 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.clear = function(noSave) {
+        lastFocusedCol = undefined;
         if (!noSave) {
             saveInput();
         }

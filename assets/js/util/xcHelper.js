@@ -1741,7 +1741,8 @@ window.xcHelper = (function($, xcHelper) {
 
         $elementToChange.removeAttr("title")
                         .removeAttr("data-toggle")
-                        .removeAttr("data-container");
+                        .removeAttr("data-container")
+                        .removeAttr("data-placement");
         $(".tooltip").hide();
         return ($element);
     };
@@ -1750,6 +1751,7 @@ window.xcHelper = (function($, xcHelper) {
         var title = options.title; // You must have this!
         var toggle = "tooltip";
         var container = options.container || "body";
+        var placement = options.placement || "top";
 
         $elementToChange = $element;
         if (selector) {
@@ -1758,7 +1760,8 @@ window.xcHelper = (function($, xcHelper) {
 
         $elementToChange.attr("title", title)
                         .attr("data-toggle", toggle)
-                        .attr("data-container", container);
+                        .attr("data-container", container)
+                        .attr("data-placement", placement);
         return ($element);
     };
 
