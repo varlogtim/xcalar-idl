@@ -3119,7 +3119,7 @@ window.Dag = (function($, Dag) {
         }
         ctx.moveTo(x, y);
         ctx.lineTo(x - dist, y);
-        console.log(x, y);
+        // console.log(x, y);
     }
 
     // used for testing

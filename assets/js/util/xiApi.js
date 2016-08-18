@@ -59,17 +59,25 @@ window.XIApi = (function(XIApi, $) {
             return PromiseHelper.reject("Invalid args in checkOrder");
         }
 
-        var deferred = jQuery.Deferred();
+        var tableId = xcHelper.getTableId(tableName);
+        var table = gTables[tableId];
 
-        XcalarGetDag(tableName)
-        .then(function(nodeArray) {
-            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
-                var indexInput = nodeArray.node[0].input.indexInput;
-                deferred.resolve(indexInput.ordering, indexInput.keyName);
-                return;
+        if (table != null) {
+            var keyName = table.getKeyName();
+            var ordering = table.getOrdering();
+            if (keyName != null && XcalarOrderingTStr.hasOwnProperty(ordering)) {
+                console.log("found in meta", keyName, ordering);
+                return PromiseHelper.resolve(ordering, keyName);
             }
+        }
 
-            deferred.resolve(XcalarOrderingT.XcalarOrderingUnordered, null);
+        var deferred = jQuery.Deferred();
+        XcalarMakeResultSetFromTable(tableName)
+        .then(function(resultSet) {
+            // Note that this !== self in this scope
+            XcalarSetFree(tableName);
+            deferred.resolve(resultSet.metaOutput.ordering,
+                             resultSet.keyAttrHeader.name);
         })
         .fail(deferred.reject);
 
@@ -776,7 +784,7 @@ window.XIApi = (function(XIApi, $) {
             
             var table = gTables[lTableId];
             lCols = xcHelper.deepCopy(table.tableCols);
-            if (pulledLColNames) { 
+            if (pulledLColNames) {
                 var tempCols = [];
                 for (var i = 0; i < pulledLColNames.length; i++) {
                     var colNum = table.getColNumByBackName(pulledLColNames[i]) - 1;
@@ -793,8 +801,6 @@ window.XIApi = (function(XIApi, $) {
                 }
                 lCols = tempCols;
             }
-
-            
         }
 
         if (rTableId != null && gTables[rTableId] != null &&
@@ -803,7 +809,7 @@ window.XIApi = (function(XIApi, $) {
             // rCols = xcHelper.deepCopy(gTables[rTableId].tableCols);
             var table = gTables[rTableId];
             rCols = xcHelper.deepCopy(table.tableCols);
-            if (pulledRColNames) { 
+            if (pulledRColNames) {
                 var tempCols = [];
                 for (var i = 0; i < pulledRColNames.length; i++) {
                     var colNum = table.getColNumByBackName(pulledRColNames[i]) - 1;
@@ -815,7 +821,7 @@ window.XIApi = (function(XIApi, $) {
                                 rCols[colNum].name = rRename[j].new;
                             }
                         }
-                    } 
+                    }
                     tempCols.push(rCols[colNum]);
                 }
                 rCols = tempCols;

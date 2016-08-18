@@ -171,6 +171,10 @@ TableMeta.prototype = {
             self.numPages = Math.ceil(self.resultSetCount / gNumEntriesPerPage);
             self.keyName = resultSet.keyAttrHeader.name;
 
+            if (resultSet.metaOutput != null) {
+                self.ordering = resultSet.metaOutput.ordering;
+            }
+
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -201,6 +205,14 @@ TableMeta.prototype = {
 
     getType: function() {
         return this.status;
+    },
+
+    getKeyName: function() {
+        return this.keyName;
+    },
+
+    getOrdering: function() {
+        return this.ordering;
     },
 
     beArchived: function() {
@@ -442,6 +454,7 @@ function METAConstructor(METAKeys) {
             delete table.keyName;
             delete table.resultSetCount;
             delete table.numPages;
+            delete table.ordering;
         }
 
         return persistTables;
