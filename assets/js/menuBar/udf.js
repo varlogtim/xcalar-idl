@@ -602,6 +602,7 @@ window.UDF = (function($, UDF) {
         'import time\n' +
         'import pytz\n' +
         'import re\n' +
+        'import dateutil.parser\n' +
         '\n' +
         "# %a    Locale's abbreviated weekday name.\n" +
         "# %A    Locale's full weekday name.\n" +
@@ -626,15 +627,20 @@ window.UDF = (function($, UDF) {
         "# %Z    Time zone name (no characters if no time zone exists).\n" +
         "# %%    A literal '%' character.\n" +
         '\n' +
-        'def convertFormats(colName, inputFormat, outputFormat):\n' +
-            '\ttimeStruct = time.strptime(colName, inputFormat)\n' +
+        'def convertFormats(colName, outputFormat, inputFormat="auto"):\n' +
+            '\tif inputFormat == "auto":\n' +
+                '\t\ttimeStruct = dateutil.parser.parse(colName).timetuple()\n' +
+            '\telse:\n' +
+                '\t\ttimeStruct = time.strptime(colName, inputFormat)\n' +
             '\toutString = time.strftime(outputFormat, timeStruct)\n' +
             '\treturn outString\n' +
         '\n' +
         'def convertFromUnixTS(colName, outputFormat):\n' +
             '\treturn datetime.datetime.fromtimestamp(float(colName)).strftime(outputFormat)\n' +
         '\n' +
-        'def convertToUnixTS(colName, inputFormat):\n' +
+        'def convertToUnixTS(colName, inputFormat="auto"):\n' +
+            '\tif inputFormat == "auto":\n' +
+                '\t\treturn str(float(time.mktime(dateutil.parser.parse(colName).timetuple())))\n' +
             '\treturn str(time.mktime(datetime.datetime.strptime(colName, inputFormat).timetuple()))\n' +
         '\n' +
         'def openExcel(stream, fullPath):\n' +
