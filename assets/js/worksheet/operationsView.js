@@ -26,7 +26,6 @@ window.OperationsView = (function($, OperationsView) {
     var functionsMap = {};
     var $lastInputFocused;
     var quotesNeeded = [];
-    var modalHelper;
     var corrector;
     var aggNames = [];
     var suggestLists = [[]]; // groups of arguments
@@ -37,6 +36,7 @@ window.OperationsView = (function($, OperationsView) {
     var gbFunctionsListScroller;
     var aggFunctionsListScroller;
     var tableId;
+    var formHelper;
 
     // shows valid cast types
     var castMap = {
@@ -53,9 +53,10 @@ window.OperationsView = (function($, OperationsView) {
     };
 
     // XXX can it be removed?
-    OperationsView.getOperatorsMap = function() {
-        return (operatorsMap);
-    };
+    // useful for debugging
+    // OperationsView.getOperatorsMap = function() {
+    //     return (operatorsMap);
+    // };
 
     OperationsView.setup = function() {
         $operationsModal = $('#operationsModal');
@@ -73,9 +74,7 @@ window.OperationsView = (function($, OperationsView) {
 
         // GENERAL LISTENERS, not inputs
 
-        modalHelper = new ModalHelper($operationsModal, {
-            "noResize": true
-        });
+        formHelper = new FormHelper($operationsView);
 
         var scrolling = false;
         var scrollTimeout;
@@ -437,7 +436,7 @@ window.OperationsView = (function($, OperationsView) {
             addMapArg($(this)); 
         });
 
-        $operationsView.on('click', '.inputWrap.extra .xi-close', function() {
+        $operationsView.on('click', '.inputWrap.extra .xi-cancel', function() {
            removeExtraArg($(this).closest('.inputWrap'));
         });
 
@@ -565,10 +564,6 @@ window.OperationsView = (function($, OperationsView) {
             tableListScroller.setupListeners();
         });
 
-        
-
-
-
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
@@ -621,29 +616,21 @@ window.OperationsView = (function($, OperationsView) {
         var opNameNoSpace = operatorName.replace(/ /g, "");
         $('#container').addClass('columnPicker ' + opNameNoSpace + 'State');
 
-        modalHelper.addWaitingBG();
-        modalHelper.setup({
-            "open"  : function() {
-                // ops modal has its own opener
-                // toggleModalDisplay(false);
-                // if (!restore) {
-                //     fillInputPlaceholder(0);
-                // }
-            }
-        });
-        toggleModalDisplay(false);
+
+        formHelper.setup({});
+
+        toggleOperationsViewDisplay(false);
         if (!restore) {
             fillInputPlaceholder(0);
         }
 
         // load updated UDFs if operator is map
         if (operatorName === "map") {
+            formHelper.addWaitingBG(20);
             XcalarListXdfs("*", "User*")
             .then(function(listXdfsObj) {
                 udfUpdateOperatorsMap(listXdfsObj.fnDescs);
                 operationsViewShowHelper(restore);
-               
-
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -654,7 +641,6 @@ window.OperationsView = (function($, OperationsView) {
             operationsViewShowHelper(restore);
             deferred.resolve();
         }
-
         return (deferred.promise());
     };
 
@@ -785,7 +771,8 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.find('.list').removeClass('hovering');
 
-        modalHelper.removeWaitingBG();
+        formHelper.removeWaitingBG();
+        formHelper.refreshTabbing();
     }
 
     function showOpSection() {
@@ -794,10 +781,8 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.removeClass('xc-hidden');
     }
 
-    function toggleModalDisplay(isHide, time) {
+    function toggleOperationsViewDisplay(isHide) {
         
-    // modalHelper.toggleBG(tableId, isHide, {"time": time, "opSection": true});
-
         var $table = $("#xcTable-" + tableId);
         var $tableWrap = $("#xcTableWrap-" + tableId);
         var $table = $('.xcTable');
@@ -1462,8 +1447,7 @@ window.OperationsView = (function($, OperationsView) {
             $(this).css('z-index', 100 - i);
         });
         
-
-        modalHelper.refreshTabbing();
+        formHelper.refreshTabbing();
 
         var noHighlight = true;
         checkIfStringReplaceNeeded(noHighlight);
@@ -2528,7 +2512,8 @@ window.OperationsView = (function($, OperationsView) {
 
     function submitForm() {
         var isPassing = true;
-        modalHelper.disableSubmit();
+        formHelper.disableSubmit(); // disabling it early because there are
+        // async calls to follow that shouldn't be triggered multiple times
 
         if (!gTables[tableId]) {
             StatusBox.show('Table no longer exists', 
@@ -2551,7 +2536,7 @@ window.OperationsView = (function($, OperationsView) {
         });
   
         if (!isPassing) {
-            modalHelper.enableSubmit();
+            formHelper.enableSubmit();
             return;
         }
 
@@ -2585,7 +2570,7 @@ window.OperationsView = (function($, OperationsView) {
 
         
         if (!isPassing) {
-            modalHelper.enableSubmit();
+            formHelper.enableSubmit();
             return;
         }
 
@@ -2616,13 +2601,13 @@ window.OperationsView = (function($, OperationsView) {
                     checkAggregateNameValidity()
                     .then(function(isPassing) {
                         if (!isPassing) {
-                            modalHelper.enableSubmit();
+                            formHelper.enableSubmit();
                         } else {
                             submitFinalForm(args);
                         }
                     })
                     .fail(function(err) {
-                        modalHelper.enableSubmit();
+                        formHelper.enableSubmit();
                     });
                 } else {
                     isPassing = true;
@@ -2634,7 +2619,7 @@ window.OperationsView = (function($, OperationsView) {
         }
         if (!isPromise) {
             if (!isPassing) {
-                modalHelper.enableSubmit();
+                formHelper.enableSubmit();
             } else {
                 // if there are multiple sets of arguments such as filter
                 var hasMultipleSets = false;
@@ -2721,7 +2706,7 @@ window.OperationsView = (function($, OperationsView) {
 
             closeOpSection({slow: true});
         } else {
-            modalHelper.enableSubmit();
+            formHelper.enableSubmit();
         }
     }
 
@@ -3357,9 +3342,9 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }],
             onCancel: function() {
-                modalHelper.toggleBG(tableId, true, {
-                    time: 300
-                })
+                // modalHelper.toggleBG(tableId, true, {
+                //     time: 300
+                // })
             }
         })
     }
@@ -3716,7 +3701,7 @@ window.OperationsView = (function($, OperationsView) {
             errorMsg = ErrTStr.NoEmpty;
         }
         StatusBox.show(errorMsg, invalidInputs[0]);
-        modalHelper.enableSubmit();
+        formHelper.enableSubmit();
     }
 
     function showEmptyOptions($input) {
@@ -4047,60 +4032,24 @@ window.OperationsView = (function($, OperationsView) {
 
     function closeOpSection(speed) {
         isOpen = false;
-        var time;
-        if (gMinModeOn) {
-            time = 0;
-        } else {
-            time = (speed && speed.slow) ? 300 : 150;
-        }
-
-        modalHelper.clear({"close": function() {
-            // ops modal has its owne closer
-            // highlighted column sticks out if we don't close it early
-            $("#xcTable-" + tableId).find('.modalHighlighted')
-                                    .removeClass('modalHighlighted');
-            toggleModalDisplay(true, time);
-            // $operationsView.fadeOut(time, function() {
-            //     modalHelper.removeWaitingBG();
-            // });
-            $operationsView.addClass('xc-hidden');
-            $activeOpSection.addClass('xc-hidden');
-            $('#workspaceMenu').find('.menuSection.lastOpened')
-                               .removeClass('lastOpened xc-hidden');
-             // used for css class
-            var opNameNoSpace = operatorName.replace(/ /g, "");
-            $('#container').removeClass('columnPicker ' + opNameNoSpace +
-                                        'State');
-        }});
-
+        // highlighted column sticks out if we don't close it early
+        $("#xcTable-" + tableId).find('.modalHighlighted')
+                                .removeClass('modalHighlighted');
+        toggleOperationsViewDisplay(true);
+        formHelper.removeWaitingBG();
+        $operationsView.addClass('xc-hidden');
+        $activeOpSection.addClass('xc-hidden');
+        $('#workspaceMenu').find('.menuSection.lastOpened')
+                           .removeClass('lastOpened xc-hidden');
+         // used for css class
+        var opNameNoSpace = operatorName.replace(/ /g, "");
+        $('#container').removeClass('columnPicker ' + opNameNoSpace +
+                                    'State');
+        formHelper.removeWaitingBG();
+        formHelper.clear();
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
         OperationsView.turnOffClickHandlers();
-    }
-
-    // xx xi2 to remove soon
-    function closeModal(speed) {
-        var time;
-        if (gMinModeOn) {
-            time = 0;
-        } else {
-            time = (speed && speed.slow) ? 300 : 150;
-        }
-
-        modalHelper.clear({"close": function() {
-            // ops modal has its owne closer
-            // highlighted column sticks out if we don't close it early
-            $("#xcTable-" + tableId).find('.modalHighlighted')
-                                    .removeClass('modalHighlighted');
-            toggleModalDisplay(true, time);
-            $operationsModal.fadeOut(time, function() {
-                $operationsModal.find('.minimize').hide();
-                modalHelper.removeWaitingBG();
-            });
-        }});
-
-        StatusBox.forceHide();// hides any error boxes;
-        $('.tooltip').hide();
     }
 
     function resetForm() {
@@ -4268,16 +4217,6 @@ window.OperationsView = (function($, OperationsView) {
         return (html);
     }
 
-    function getGroupAddBtnHtml() {
-        var html = '<div class="addArgWrap">' +
-                        '<button class="btn addArg addGroupArg">' +
-                            '<i class="icon xi-plus"></i>' +
-                            '<span class="text">ADD ANOTHER COLUMN</span>' +
-                        '</button>' +
-                    '</div>';
-        return (html);
-    }
-
     function addFilterGroup() {
         minimizeGroups();
         var newGroupIndex = $activeOpSection.find('.group').length;
@@ -4296,18 +4235,21 @@ window.OperationsView = (function($, OperationsView) {
         suggestLists.push([]);// array of groups, groups has array of inputs
         scrollToBottom();
         $activeOpSection.find('.group').last().find('.functionsInput').focus();
+        formHelper.refreshTabbing();
     }
 
     function addGroupOnArg() {
         var html = getArgInputHtml();
         $activeOpSection.find('.gbOnRow').append(html);
         $activeOpSection.find('.gbOnArg').last().focus();
+        formHelper.refreshTabbing();
     }
 
     function addMapArg($btn) {
         var html = getArgInputHtml();
         $btn.parent().prev().find('.inputWrap').last().after(html);
         $btn.parent().prev().find('.inputWrap').last().find('input').focus();
+        formHelper.refreshTabbing();
     }
 
     function getArgInputHtml() {
@@ -4335,7 +4277,7 @@ window.OperationsView = (function($, OperationsView) {
                             '</div>' +
                          '</div>' +
                         '</div>' +
-                        '<i class="icon xi-close"></i>' +     
+                        '<i class="icon xi-cancel"></i>' +     
                     '</div>';
         return html;
     }

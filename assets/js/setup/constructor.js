@@ -2640,10 +2640,258 @@ ModalHelper.prototype = {
                 throw "undefined element!";
             }
             return ($ele.is(":visible") && !$ele.is("[disabled]") &&
-                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable"));
+                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable") &&
+                    $ele.css('visibility') !== "hidden");
         }
     }
 };
+
+
+
+
+
+/* Form Helper */
+// an object used for global Form Actions
+function FormHelper($form, options) {
+    /* options include:
+     * focusOnOpen: if set true, will focus on confirm btn when open form
+     * noTabFocus: if set true, press tab will use browser's default behavior
+     * noEsc: if set true, no event listener on key esc,
+     */
+    this.$form = $form;
+    this.options = options || {};
+    this.id = $form.attr("id");
+
+    return this;
+}
+
+FormHelper.prototype = {
+    setup: function(extraOptions) {
+        var deferred = jQuery.Deferred();
+        var $form = this.$form;
+        var options = $.extend(this.options, extraOptions) || {};
+
+        $("body").addClass("no-selection");
+        xcHelper.removeSelectionRange();
+        // hide tooltip when open the form
+        $(".tooltip").hide();
+        $(".selectedCell").removeClass("selectedCell");
+        FnBar.clear();
+
+        // Note: to find the visiable btn, must show the form first
+        if (!options.noTabFocus) {
+            this.refreshTabbing();
+        }
+
+        $(document).on("keydown.xcForm", function(event) {
+            if (event.which === keyCode.Escape) {
+                if (options.noEsc) {
+                    return true;
+                }
+                $form.find(".close").click();
+                return false;
+            }
+        });
+
+        // this should be the last step
+        if (options.open != null && options.open instanceof Function) {
+            // if options.open is not a promise, make it a promise
+            jQuery.when(options.open())
+            .then(deferred.resolve)
+            .fail(deferred.reject)
+            .always(function() {
+                Tips.refresh();
+            });
+        } else {
+            $form.show();
+            Tips.refresh();
+            deferred.resolve();
+        }
+
+        return deferred.promise();
+    },
+
+    checkBtnFocus: function() {
+        // check if any button is on focus
+        return (this.$form.find(".btn:focus").length > 0);
+    },
+
+    // This function prevents the user from clicking the submit button multiple
+    // times
+    disableSubmit: function() {
+        xcHelper.disableSubmit(this.$form.find(".confirm"));
+    },
+
+    // This function reenables the submit button after the checks are done
+    enableSubmit: function() {
+        xcHelper.enableSubmit(this.$form.find(".confirm"));
+    },
+
+    clear: function(extraOptions) {
+        var deferred = jQuery.Deferred();
+        var options = $.extend(this.options, extraOptions) || {};
+        var $form = this.$form;
+
+        $(document).off("keydown.xcForm");
+        $(document).off("keydown.xcFormTabbing");
+        $form.find(".focusable").off(".xcForm")
+                                  .removeClass("focusable");
+        this.enableSubmit();
+        $("body").removeClass("no-selection");
+
+        if (options.close != null && options.close instanceof Function) {
+            jQuery.when(options.close())
+            .then(deferred.resolve)
+            .fail(deferred.reject)
+            .always(function() {
+                Tips.refresh();
+            });
+        } else {
+            var fadeOutTime = gMinModeOn ? 0 : 300;
+            $form.hide();
+            Tips.refresh();
+            if (options.afterClose != null &&
+                options.afterClose instanceof Function) {
+                options.afterClose();
+            }
+            deferred.resolve();
+        }
+
+        return deferred.promise();
+    },
+
+
+    addWaitingBG: function(heightAdjust) {
+        heightAdjust = heightAdjust || 0;
+        var $form = this.$form;
+        var waitingBg = '<div id="formWaitingBG">' +
+                            '<div class="waitingIcon"></div>' +
+                        '</div>';
+        $form.append(waitingBg);
+        var $waitingBg =  $('#formWaitingBG');
+        var modalHeaderHeight = $form.children('header').height() || 0;
+        var modalHeight = $form.height();
+
+        $waitingBg.height(modalHeight + heightAdjust - modalHeaderHeight)
+                  .css('top', modalHeaderHeight);
+        setTimeout(function() {
+            $waitingBg.find('.waitingIcon').fadeIn();
+        }, 200);
+    },
+
+    removeWaitingBG: function() {
+        if (gMinModeOn) {
+            $('#formWaitingBG').remove();
+        } else {
+            $('#formWaitingBG').fadeOut(200, function() {
+                $(this).remove();
+            });
+        }
+    },
+
+    refreshTabbing: function() {
+        var $form = this.$form;
+
+        $(document).off("keydown.xcFormTabbing");
+
+        $form.find(".focusable").off(".xcForm")
+                                 .removeClass("focusable");
+
+        var eleLists = [
+            $form.find("button.btn, input:visible")
+        ];
+
+        
+        var $focusables = [];
+        // make an array for all focusable element
+        eleLists.forEach(function($eles) {
+            $eles.each(function() {
+                $focusables.push($(this));
+            });
+        });
+
+        // check if element already has focus and set focusIndex;
+        var focusIndex;
+        if (eleLists[0].index($(':focus')) > -1) {
+            focusIndex = eleLists[0].index($(':focus')) + 1;
+        } else {
+            focusIndex  = 0;
+        }
+       
+
+        for (var i = 0, len = $focusables.length; i < len; i++) {
+            addFocusEvent($focusables[i], i);
+        }
+
+        // focus on the right most button
+        if (this.options.focusOnOpen) {
+            getEleToFocus();
+        }
+
+        $(document).on("keydown.xcFormTabbing", function(event) {
+            if (event.which === keyCode.Tab) {
+                 // for switch between modal tab using tab key
+                event.preventDefault();
+                getEleToFocus();
+
+                return false;
+            }
+        });
+
+        function addFocusEvent($focusable, index) {
+            $focusable.addClass("focusable").data("tabid", index);
+            $focusable.on("focus.xcForm", function() {
+                var $ele = $(this);
+                if (!isActive($ele)) {
+                    return;
+                }
+                focusOn($ele.data("tabid"));
+            });
+        }
+
+        // find the input or button that is visible and not disabled to focus
+        function getEleToFocus() {
+            // the current ele is not active, should no by focused
+            if (!isActive($focusables[focusIndex])) {
+                var start  = focusIndex;
+                focusIndex = (focusIndex + 1) % len;
+
+                while (focusIndex !== start &&
+                        !isActive($focusables[focusIndex]))
+                {
+                    focusIndex = (focusIndex + 1) % len;
+                }
+                // not find any active ele that could be focused
+                if (focusIndex === start) {
+                    focusIndex = -1;
+                }
+            }
+
+            if (focusIndex >= 0) {
+                $focusables[focusIndex].focus();
+            } else {
+                focusIndex = 0; // reset
+            }
+        }
+
+        function focusOn(index) {
+            focusIndex = index;
+            // go to next index
+            focusIndex = (focusIndex + 1) % len;
+        }
+
+        function isActive($ele) {
+            if ($ele == null) {
+                console.error("undefined element!");
+                throw "undefined element!";
+            }
+            return ($ele.is(":visible") && !$ele.is("[disabled]") &&
+                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable")
+                    && $ele.css('visibility') !== "hidden");
+        }
+    }
+};
+
 
 function RangeSlider($rangeSliderWrap, prefName, options) {
     options = options || {};

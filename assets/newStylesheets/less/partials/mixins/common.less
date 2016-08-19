@@ -295,7 +295,7 @@
     background-color: fadeout(@color-bg-btn-hover-blue, 20%);
     cursor: pointer;
 
-    &:hover {
+    &:hover, &:focus {
         // background-color: @color-bg-dusk-blue;
         background-color: @color-bg-btn-hover-blue;
     }
@@ -332,7 +332,7 @@
         .font(@size: 18px, @color: @color-font-warm-grey-two);
     }
 
-    &:hover {
+    &:hover, &:focus {
         background-color: @color-bg-white-two;
         opacity: @opacity-hover;
     }
@@ -348,7 +348,7 @@
 
 .btn-cancel, .btn-secondary {
     background-color: fadeout(@color-bg-99-grey, 20%);
-    &:hover {
+    &:hover, &:focus {
         background-color: @color-bg-99-grey;
     }
 

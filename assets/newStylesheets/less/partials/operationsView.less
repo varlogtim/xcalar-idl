@@ -385,6 +385,11 @@
 					position: relative;
 					top: -28px; // so error messages will be positioned properly
 				}
+				input {
+					// display: none; // we want to show so we can place error messages
+					// next to the input
+					visibility: hidden;
+				}
 			}
 
 			&[data-numargs="0"] {
@@ -744,12 +749,12 @@
     	.extra {
     		position: relative;
     		margin-top: 10px;
-    		.xi-close {
+    		.xi-cancel {
     			position: absolute;
     			left: 2px;
     			top: 7px;
     			color: @color-font-warm-grey-two;
-    			font-size: 12px;
+    			font-size: 14px;
     			opacity: @opacity-unhover;
     			cursor: pointer;
     			z-index: 100; // place in front of dropdown list which has index 99
@@ -761,7 +766,7 @@
     		}
 
     		input {
-				padding-left: 18px;
+				padding-left: 22px;
 			}
     	}
     }
