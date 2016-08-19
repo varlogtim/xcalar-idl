@@ -748,11 +748,11 @@ window.TblAnim = (function($, TblAnim) {
             movedCol = prevCol;
         }
 
-        // HACK: weird hack hide show or else .header won't reposition itself
-        dragInfo.$table.find('.header').css('height', '35px');
-        setTimeout(function() {
-            dragInfo.$table.find('.header').css('height', '36px');
-        }, 0);
+        // // HACK: weird hack hide show or else .header won't reposition itself
+        // dragInfo.$table.find('.header').css('height', '35px');
+        // setTimeout(function() {
+        //     dragInfo.$table.find('.header').css('height', '36px');
+        // }, 0);
 
         var left = dragInfo.element.position().left;
         $('#shadowDiv').css('left', left);

@@ -649,13 +649,12 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
     };
 
-    TblManager.generateColumnHeadHTML = function(columnClass, color, newColid,
-                                                  option) {
-        option = option || {};
+    TblManager.generateColumnHeadHTML = function(columnClass, color, newColid, options) {
+        options = options || {};
 
-        var columnName = option.name || "";
-        var width      = option.width || 0;
-        if (option.isHidden) {
+        var columnName = options.name || "";
+        var width = options.width || 0;
+        if (options.isHidden) {
             width = 15;
             columnClass += " userHidden";
         }
@@ -672,9 +671,18 @@ window.TblManager = (function($, TblManager) {
         }
         columnName = columnName.replace(/\"/g, "&quot;");
 
-        var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :
-                         ' title="Indexed Column" data-toggle="tooltip" ' +
-                         'data-placement="top" data-container="body"';
+        var indexed = columnClass.indexOf("indexedColumn") >= 0;
+        var tooltip = indexed ? ' title="Indexed Column" data-toggle="tooltip" ' +
+                         'data-placement="top" data-container="body"': "";
+        var sortIcon = "";
+        if (indexed) {
+            if (options.order === XcalarOrderingT.XcalarOrderingAscending) {
+                sortIcon = '<i class="sortIcon icon xi-arrow-up fa-12"></i>';
+            } else if (options.order === XcalarOrderingT.XcalarOrderingDescending) {
+                sortIcon = '<i class="sortIcon icon xi-arrow-down fa-12"></i>';
+            }
+        }
+
         var columnHeadTd =
             '<th class="th' + color + columnClass +
             ' col' + newColid + '" style="width:' + width + 'px;">' +
@@ -687,6 +695,13 @@ window.TblManager = (function($, TblManager) {
                         '</div>' +
                     '</div>' +
                     '<div class="colGrab"></div>' +
+                    '<div class="topHeader">' +
+                        sortIcon +
+                        '<div class="prefix">' +
+                            // XXX replace it when possible
+                            'Placeholder' +
+                        '</div>' +
+                    '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
                             '<div class="iconHidden"></div>' +
@@ -2257,11 +2272,13 @@ window.TblManager = (function($, TblManager) {
                 }
             }
 
+            var order = null;
             if (backName === table.keyName) {
                 columnClass = " indexedColumn";
                 if (!hasIndexStyle) {
                     columnClass += " noIndexStyle";
                 }
+                order = table.getOrdering();
             } else if (columns[i].name === "" || columns[i].func.name === "") {
                 columnClass = " newColumn";
             }
@@ -2281,8 +2298,14 @@ window.TblManager = (function($, TblManager) {
                 }
                 newTable += generateDataHeadHTML(newColid, thClass, width);
             } else {
+                var optoins = {
+                    "name"    : columns[i].name,
+                    "width"   : columns[i].width,
+                    "isHidden": columns[i].isHidden,
+                    "order"   : order
+                };
                 newTable += TblManager.generateColumnHeadHTML(columnClass,
-                                                    color, (i + 1), columns[i]);
+                                                color, (i + 1), optoins);
             }
         }
 
@@ -2299,17 +2322,18 @@ window.TblManager = (function($, TblManager) {
                     '<div class="dragArea"></div>' +
                     '<div class="colGrab"></div>' +
                     '<div class="flexContainer flexRow">' +
-                    '<div class="flexWrap flex-left"></div>' +
-                    '<div class="flexWrap flex-mid">' +
-                        '<input value="DATA" spellcheck="false" ' +
-                            ' class="dataCol col' + newColid + '"' +
-                            ' data-container="body"' +
-                            ' data-toggle="tooltip" data-placement="top" ' +
-                            '" title="raw data" disabled>' +
-                    '</div>' +
-                    '<div class="flexWrap flex-right">' +
-                        '<div class="dropdownBox">' +
-                            '<div class="innerBox"></div>' +
+                        '<div class="flexWrap flex-left"></div>' +
+                        '<div class="flexWrap flex-mid">' +
+                            '<input value="DATA" spellcheck="false" ' +
+                                ' class="dataCol col' + newColid + '"' +
+                                ' data-container="body"' +
+                                ' data-toggle="tooltip" data-placement="top" ' +
+                                '" title="raw data" disabled>' +
+                        '</div>' +
+                        '<div class="flexWrap flex-right">' +
+                            '<div class="dropdownBox">' +
+                                '<div class="innerBox"></div>' +
+                            '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +

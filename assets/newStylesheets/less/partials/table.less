@@ -474,7 +474,7 @@ html.firefox, html.microsoft {
 
                         .header {
                             width: 30px;
-                            height: @height-colHeaderOuter;
+                            height: @height-xcColHeaderOuter;
                             border-left: none;
                         }
 
@@ -665,7 +665,7 @@ html.firefox, html.microsoft {
                         z-index: 40;
                         opacity: 0.3;
                         width: ~"calc(100% + 10px)";
-                        height: @height-colHeaderOuter;
+                        height: @height-xcColHeaderOuter;
                         left: -5px;
                         top: -5px;
                     }
@@ -675,7 +675,7 @@ html.firefox, html.microsoft {
                     &::before {
                         content: "";
                         .position(absolute, @top: -5px, @left: 0px);
-                        .size(@width: ~"calc(100% + 5px)", @height: @height-colHeaderOuter);
+                        .size(@width: ~"calc(100% + 5px)", @height: @height-xcColHeaderOuter);
                         z-index: 21;
                         background-color: rgba(0, 0, 0, 1);
                         opacity: 0.3;
@@ -722,7 +722,7 @@ html.firefox, html.microsoft {
         }
 
         .tableCover {
-            .position(absolute, @top: @height-colHeaderOuter + 35px);
+            .position(absolute, @top: @height-xcColHeaderOuter + 35px);
             .size(@width: ~"calc(100% - 5px)", @height: auto);
             background-color: @color-table-cover;
             z-index: 5;
@@ -1105,8 +1105,17 @@ html.firefox, html.microsoft {
         .type.icon {
             color: @color-white;
         }
-        .flexWrap.flex-left {
+        .flexWrap.flex-left, .topHeader {
             background-color: @color-bg-select-blue;
+        }
+
+        .sortIcon  {
+            color: @color-white !important;
+        }
+
+        .prefix {
+            color: @color-white !important;
+            opacity: 1 !important;
         }
     }
 
@@ -1199,10 +1208,53 @@ html.firefox, html.microsoft {
         cursor: pointer; // for bookmark
     }
 
+    th {
+        height:  @height-xcColHeaderOuter;
+
+        &.rowNumHead input {
+            height:  @height-xcColHeaderOuter;
+        }
+
+        &.dataCol {
+            .header {
+                .flexContainer {
+                    .flexWrap.flex-mid {
+                        height: @height-xcColHeader;
+                        line-height: @height-xcColHeader;
+                    }
+                }
+            }
+        }
+    }
+
     .header {
         .position(absolute, @top: 35px);
         width: inherit;
         z-index: @z-index-tableHeaderInput;
+
+        &:after {
+            top: 55px;
+        }
+
+        .topHeader {
+            height: @height-xcColPrefix;
+            .flex-display;
+
+            .sortIcon {
+                .flex(0 1 20px);
+                color: @color-font-darkGray;
+                display: block;
+                .size(@height: 12px);
+                .vertical-align;
+            }
+
+            .prefix {
+                .flex(1 1 auto);
+                .font(@color: @color-font-greyish-brown);
+                opacity: 0.7;
+                line-height: @height-xcColPrefix;
+            }
+        }
 
         .flexContainer {
             .position(relative);

@@ -84,6 +84,7 @@ window.ColManager = (function($, ColManager) {
         var format      = options.format || null;
         var columnClass;
         var color;
+        var order;
 
 
         if (options.direction !== "L") {
@@ -99,6 +100,7 @@ window.ColManager = (function($, ColManager) {
             if (!table.showIndexStyle()) {
                 columnClass += " noIndexStyle";
             }
+            order = table.getOrdering();
         } else {
             columnClass = "";
         }
@@ -139,7 +141,8 @@ window.ColManager = (function($, ColManager) {
         options = {
             "name"    : name,
             "width"   : width,
-            "isHidden": isHidden
+            "isHidden": isHidden,
+            "order"   : order
         };
 
         var $th = $(TblManager.generateColumnHeadHTML(columnClass, color,
@@ -2084,11 +2087,13 @@ window.ColManager = (function($, ColManager) {
                 cols.splice(newColNum + 1, 0, newCol);
             }
 
+            var order = null;
             if (key === table.getKeyName()) {
                 columnClass += " indexedColumn";
                 if (!table.showIndexStyle()) {
                     columnClass += "noIndexStyle";
                 }
+                order = table.getOrdering();
             }
             newColNum++;
             var colHeadNum = newColNum;
@@ -2096,8 +2101,12 @@ window.ColManager = (function($, ColManager) {
                 colHeadNum++;
             }
             colNums.push(colHeadNum);
-            ths += TblManager.generateColumnHeadHTML(columnClass, color, colHeadNum,
-                                          {name: key, width: width});
+            ths += TblManager.generateColumnHeadHTML(columnClass, color,
+                                                    colHeadNum, {
+                "name" : key,
+                "width": width,
+                "order": order
+            });
         }
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
         var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
