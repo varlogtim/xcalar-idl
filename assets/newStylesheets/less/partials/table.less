@@ -397,21 +397,6 @@ html.firefox, html.microsoft {
     }
 }
 
-.multiCastTable, .joinTable, .dataFlowTable {
-    td:first-child {
-        border-left: 5px solid @color-white;
-    }
-
-    .colSelected .columnTab {
-        background-color: @color-bg-select-blue;
-        color: @color-white !important;
-    }
-
-    .columnTab {
-        background-color: @color-table-header-darkGray;
-    }
-}
-
 .xcTableWrap {
     .position(relative);
     .size(@width: auto, @height: 100%);
@@ -598,7 +583,7 @@ html.firefox, html.microsoft {
         }
     }
 
-    &.exportModalOpen {
+    &.exportViewOpen {
         td.col0 {
             position: relative;
             z-index: 37;
@@ -815,7 +800,7 @@ html.firefox, html.microsoft {
         .tableTitle .dropdownBox {
             display: none !important;
         }
-        &.exportModalOpen {
+        &.exportViewOpen {
             .tableTitle .dropdownBox {
                 // allow exiting of export through dropdown menu
                display: block !important;

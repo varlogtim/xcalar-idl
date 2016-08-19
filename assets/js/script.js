@@ -231,7 +231,7 @@ window.StartManager = (function(StartManager, $) {
         Alert.setup();
         JSONModal.setup();
         Profile.setup();
-        ExportModal.setup();
+        ExportView.setup();
         JoinView.setup();
         AggModal.setup();
         OperationsView.setup();

@@ -284,7 +284,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
             OperationsView.close();
             JoinView.close();
-            ExportModal.close();
+            ExportView.close();
             SmartCastView.close();
             DFCreateView.close();
         }

@@ -1,5 +1,4 @@
-window.ExportModal = (function($, ExportModal) {
-    var $exportModal;   // $("#exportView")
+window.ExportView = (function($, ExportView) {
     var $exportView;   // $("#exportView")
     var $exportName;    // $("#exportName")
     var $exportPath;    // $("#exportPath")
@@ -13,41 +12,29 @@ window.ExportModal = (function($, ExportModal) {
 
     var exportTargInfo;
 
-    var modalHelper;
-
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
 
-    ExportModal.setup = function() {
-        $exportModal = $("#exportView");
+    ExportView.setup = function() {
         $exportView = $("#exportView");
         $exportName = $("#exportName");
         $exportPath = $("#exportPath");
         $exportColumns = $("#exportColumns");
-        $advancedSection = $exportModal.find('.advancedSection');
-
-        var minHeight = 296;
-        var minWidth  = 660;
-
-        modalHelper = new ModalHelper($exportModal, {
-            "minHeight": minHeight,
-            "minWidth" : minWidth
-        });
-
+        $advancedSection = $exportView.find('.advancedSection');
 
         // click cancel or close button
-        $exportModal.on("click", ".close, .cancel", function(event) {
+        $exportView.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
-            ExportModal.close();
+            ExportView.close();
         });
 
         // click confirm button
-        $exportModal.on("click", ".confirm", function() {
+        $exportView.on("click", ".confirm", function() {
             // error is handled in xcfunction.export
             submitForm();
         });
 
-        $exportModal.find('.keepOrderedCBWrap').click(function() {
+        $exportView.find('.keepOrderedCBWrap').click(function() {
             $(this).find('.checkbox').toggleClass('checked');
         });
 
@@ -61,14 +48,14 @@ window.ExportModal = (function($, ExportModal) {
         $exportView.find('.advancedTitle').click(function() {
             if ($advancedSection.hasClass('collapsed')) {
                 $advancedSection.addClass('expanded').removeClass('collapsed');
-                var modalBottom = $exportModal[0].getBoundingClientRect()
+                var modalBottom = $exportView[0].getBoundingClientRect()
                                                  .bottom;
                 var winBottom = $(window).height();
                 if (modalBottom > winBottom) {
                     var diff = modalBottom - winBottom;
-                    var top = $exportModal[0].getBoundingClientRect().top;
+                    var top = $exportView[0].getBoundingClientRect().top;
                     top = Math.max(0, top - diff);
-                    $exportModal.css('top', top);
+                    $exportView.css('top', top);
                 }
             } else {
                 $advancedSection.addClass('collapsed').removeClass('expanded');
@@ -83,8 +70,7 @@ window.ExportModal = (function($, ExportModal) {
             }
         });
 
-        var tableListScroller = new MenuHelper(
-            $exportView.find('.tableList'), {
+        var tableListScroller = new MenuHelper($exportView.find('.tableList'), {
             "onSelect": function($li) {
                 var tableName = $li.text();
                 var $textBox = $exportView.find('.tableList').find(".text");
@@ -123,8 +109,7 @@ window.ExportModal = (function($, ExportModal) {
         });
         expList.setupListeners();
 
-        xcHelper.optionButtonEvent($exportModal.find(".formRow"), 
-            function(option, $radio) {
+        xcHelper.optionButtonEvent($exportView.find(".formRow"), function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
                 if (option !== "DfFormatCsv") {
                     $advancedSection.find('.csvRow').removeClass('csvSelected')
@@ -142,8 +127,6 @@ window.ExportModal = (function($, ExportModal) {
 
         setupFormDelimiter();
 
-        var keyupTimeout;
-
         $exportView.find('.cols').on('click', 'li', function() {
             if ($(this).hasClass('checked')) {
                 deselectColFromLi($(this));
@@ -155,7 +138,7 @@ window.ExportModal = (function($, ExportModal) {
 
 
         function selectColFromLi($li) {
-            var colName = $li.text().trim(); 
+            var colName = $li.text().trim();
             var $table = $("#xcTable-" + tableId);
             
             var $colInput = $table.find('.editableHead').filter(function() {
@@ -186,11 +169,11 @@ window.ExportModal = (function($, ExportModal) {
             $li.removeClass('checked').find('.checkbox').removeClass('checked');
         }
 
-        $exportModal.find('.clearInput').click(clearAllCols);
+        $exportView.find('.clearInput').click(clearAllCols);
 
     };
 
-    ExportModal.show = function(tablId) {
+    ExportView.show = function(tablId) {
         $('#workspaceMenu').find('.menuSection:not(.xc-hidden)')
                            .addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
@@ -205,7 +188,7 @@ window.ExportModal = (function($, ExportModal) {
         tableId = tablId;
 
         var $tables = $('.xcTableWrap');
-        $tables.addClass('exportModalOpen');
+        $tables.addClass('exportViewOpen');
         $tables.addClass('columnPicker');
 
         var tableName = gTables[tableId].tableName;
@@ -217,41 +200,26 @@ window.ExportModal = (function($, ExportModal) {
 
         addColumnSelectListeners();
 
-        $(document).on("keypress.exportModal", function(e) {
+        $(document).on("keypress.exportView", function(e) {
             if (e.which === keyCode.Enter) {
-                $exportModal.find(".confirm").trigger("click");
+                $exportView.find(".confirm").trigger("click");
             }
         });
 
-        // modalHelper.addWaitingBG();
-        // modalHelper.setup({"open": function() {
-        //     if (gMinModeOn) {
-        //         modalHelper.toggleBG(tableId, false, {time: 0});
-        //         $exportModal.show();
-        //     } else {
-        //         modalHelper.toggleBG(tableId, false, {time: 300});
-        //         $exportModal.fadeIn(400);
-        //     }
-        // }});
-
-        // $selectableThs.addClass('modalHighlighted');
-        // 
-        selectAllCols(); 
+        selectAllCols();
         refreshTableColList();
 
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
             exportTargInfo = targs;
             restoreExportPaths(targs);
-            modalHelper.removeWaitingBG();
         })
         .fail(function(error) {
-            modalHelper.removeWaitingBG();
             console.error(error);
         });
     };
 
-    ExportModal.close = function() {
+    ExportView.close = function() {
         // xx some of this code can be reused for all operation views
         var $tableWraps = $('.xcTableWrap');
         $exportView.addClass('xc-hidden');
@@ -259,7 +227,7 @@ window.ExportModal = (function($, ExportModal) {
                            .removeClass('lastOpened xc-hidden');
         $('#container').removeClass('columnPicker exportState');
 
-        $tableWraps.removeClass('exportModalOpen');
+        $tableWraps.removeClass('exportViewOpen');
         $tableWraps.removeClass('columnPicker');
 
         $('.xcTableWrap').not('#xcTableWrap-' + tableId)
@@ -276,7 +244,7 @@ window.ExportModal = (function($, ExportModal) {
         $exportColumns.val("");
         $('.exportable').removeClass('exportable');
         $selectableThs = null;
-        $(document).off(".exportModal");
+        $(document).off(".exportView");
         $exportView.find('.checkbox').removeClass('checked');
         $exportView.find('.checked').removeClass('checked');
 
@@ -287,13 +255,13 @@ window.ExportModal = (function($, ExportModal) {
 
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
-    }
+    };
 
     function submitForm() {
         var deferred = jQuery.Deferred();
 
         var keepOrder = false;
-        if ($exportModal.find('.keepOrderedCBWrap')
+        if ($exportView.find('.keepOrderedCBWrap')
                         .find('.checkbox.checked').length) {
             keepOrder = true;
         }
@@ -352,7 +320,7 @@ window.ExportModal = (function($, ExportModal) {
         var backColumnNames = xcHelper.convertFrontColNamesToBack(
                                     frontColumnNames, tableId, validTypes);
         // convertFrontColnamesToBack will return an array of column names if
-        // successful, or will return an error object with the first 
+        // successful, or will return an error object with the first
         // invalid column name
 
         if (backColumnNames.invalid) {
@@ -418,7 +386,7 @@ window.ExportModal = (function($, ExportModal) {
                 .then(function() {
                     closeModal = false;
                     if (!modalClosed) {
-                        ExportModal.close();
+                        ExportView.close();
                     }
 
                     deferred.resolve();
@@ -431,7 +399,7 @@ window.ExportModal = (function($, ExportModal) {
                 setTimeout(function() {
                     if (closeModal) {
                         modalClosed = true;
-                        ExportModal.close();
+                        ExportView.close();
                     }
                 }, 200);
             }
@@ -549,7 +517,7 @@ window.ExportModal = (function($, ExportModal) {
             // event.target is not reliable here for some reason so that is
             // why we're using last mousedown target
             var $mousedownTarg = gMouseEvents.getLastMouseDownTarget();
-            if ($mousedownTarg.hasClass('colGrab') || 
+            if ($mousedownTarg.hasClass('colGrab') ||
                 $mousedownTarg.closest('.dropdownBox').length) {
                 return;
             }
@@ -682,7 +650,7 @@ window.ExportModal = (function($, ExportModal) {
             var tblId = $table.data('id');
             if (tblId === tableId) {
                 $(this).addClass('modalHighlighted');
-               $table.find('td.col' + colNum).addClass('modalHighlighted'); 
+                $table.find('td.col' + colNum).addClass('modalHighlighted');
             }
         });
         $exportView.find('.cols li').addClass('checked')
@@ -708,7 +676,7 @@ window.ExportModal = (function($, ExportModal) {
 
         // setUp both line delimiter and field delimiter
         var delimLists = new MenuHelper(
-            $exportModal.find('.csvRow').find(".dropDownList"), {
+            $exportView.find('.csvRow').find(".dropDownList"), {
                 "container": "#exportView",
                 "bounds"   : "#exportView",
                 "onSelect" : function($li) {
@@ -739,7 +707,7 @@ window.ExportModal = (function($, ExportModal) {
         delimLists.setupListeners();
 
         // Input event on csv args input box
-        $exportModal.find('.csvRow').on({
+        $exportView.find('.csvRow').on({
             "keypress": function(event) {
                 // prevent form to be submitted
                 if (event.which === keyCode.Enter) {
@@ -757,7 +725,7 @@ window.ExportModal = (function($, ExportModal) {
             }
         }, ".delimVal");
 
-        $exportModal.find(".inputAction").on("mousedown", function() {
+        $exportView.find(".inputAction").on("mousedown", function() {
             var $input = $(this).siblings(".delimVal");
             applyOtherDelim($input);
         });
@@ -779,9 +747,9 @@ window.ExportModal = (function($, ExportModal) {
     }
 
     function hideDropdownMenu() {
-        $exportModal.find(".dropDownList").removeClass("open")
+        $exportView.find(".dropDownList").removeClass("open")
                             .find(".list").hide();
-        $exportModal.find('.csvRow').find(".delimVal").val("");
+        $exportView.find('.csvRow').find(".delimVal").val("");
     }
 
     function resetDelimiter() {
@@ -827,7 +795,8 @@ window.ExportModal = (function($, ExportModal) {
         for (var i = 0; i < allCols.length; i++) {
             if (validTypes.indexOf(allCols[i].type) > -1) {
                 html += '<li class="checked">' +
-                            '<span class="text">' + allCols[i].name + 
+                            '<span class="text">' +
+                                allCols[i].name +
                             '</span>' +
                             '<div class="checkbox checked">' +
                                 '<i class="icon xi-ckbox-empty fa-13"></i>' +
@@ -884,14 +853,10 @@ window.ExportModal = (function($, ExportModal) {
         } else {
             options.error = true;
             options.errorMsg = ExportTStr.InvalidType;
-            options.$target = $exportModal.find('.typeRow');
+            options.$target = $exportView.find('.typeRow');
         }
         return (options);
     }
 
-    function resetExportView() {
-
-    }
-
-    return (ExportModal);
+    return (ExportView);
 }(jQuery, {}));

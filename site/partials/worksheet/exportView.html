@@ -2,19 +2,19 @@
 <div id="exportView" class="xc-hidden opView">
   <!-- Export Header -->
   <header>
-    <div class="title"><%= dicts.exportModal.header %></div>
+    <div class="title"><%= dicts.exportView.header %></div>
     <i class="close icon xi-close fa-15"></i>
   </header>
   
   <div class="mainContent">
     <div class="export opSection">
-      <p class="instructions"><%= dicts.exportModal.instr %></p>
+      <p class="instructions"><%= dicts.exportView.instr %></p>
       <!-- Export Modal Top Section-->
       <section class="modalTopMain">
         
         <div class="tableListSection clearfix formRow">
           <div class="subHeading clearfix">
-            <span class="text"><%= dicts.exportModal.tableToExport %>:</span>
+            <span class="text"><%= dicts.exportView.tableToExport %>:</span>
             <div class="iconWrap focusTable">
               <i class="icon xi-show"></i>
             </div>
@@ -40,7 +40,7 @@
         <!-- export name section -->
         <div class="exportNameSection formRow">
           <div class="subHeading clearfix">
-            <div class="label"><%= dicts.exportModal.exportFilename %>:</div>
+            <div class="label"><%= dicts.exportView.exportFilename %>:</div>
           </div>
             
           <input id="exportName" class="text" type="text" spellcheck="false" required>
@@ -49,7 +49,7 @@
         <!-- export path section -->
         <div class="exportPathSection formRow">
           <div class="subHeading clearfix">
-            <div class="label">Export <%= dicts.exportModal.Location %>:</div>
+            <div class="label">Export <%= dicts.exportView.Location %>:</div>
           </div>
           <div id="exportLists" class="dropDownList">
               <input id="exportPath" class="text" type="text" value="" spellcheck="false" disabled>
@@ -69,10 +69,10 @@
         </div>
         <div class="exportColumnsSection formRow">
           <div class="subHeading clearfix">
-            <div class="label"><%= dicts.exportModal.colsToExport %>:</div>
+            <div class="label"><%= dicts.exportView.colsToExport %>:</div>
           </div>
-          <p><%= dicts.exportModal.colInstr %></p>
-          <input id="exportColumns" type="text" placeholder="<%= dicts.exportModal.ColumnsHint %>" spellcheck="false" required>
+          <p><%= dicts.exportView.colInstr %></p>
+          <input id="exportColumns" type="text" placeholder="<%= dicts.exportView.ColumnsHint %>" spellcheck="false" required>
           <div class="checkboxWrap selectAllWrap">
             <div class="checkbox">
               <i class="icon xi-ckbox-empty fa-13"></i>
@@ -94,7 +94,7 @@
               <i class="icon xi-ckbox-empty fa-13"></i>
               <i class="icon xi-ckbox-selected fa-13"></i>
             </div>
-            <div class="text"><%= dicts.exportModal.exportInOrder %></div>
+            <div class="text"><%= dicts.exportView.exportInOrder %></div>
           </div>
         </div>
          <!-- advanced section -->
@@ -163,7 +163,7 @@
           </div>
           <div class="formRow csvRow csvHidden">
             <div class="subHeading clearfix">
-              <div class="label"><%= dicts.exportModal.RecordDelim %>:</div>
+              <div class="label"><%= dicts.exportView.RecordDelim %>:</div>
             </div>
             <div class="dropDownList">
               <input class="text recordDelim" type="text" spellcheck="false" disabled="">
@@ -204,14 +204,14 @@
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
-                <div class="label"><%= dicts.exportModal.OneFile %></div>
+                <div class="label"><%= dicts.exportView.OneFile %></div>
               </div>
               <div class="radioButton" data-option="ExSFFileSplitNone">
                 <div class="radio">
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
-                <div class="label"><%= dicts.exportModal.MultiFiles %></div>
+                <div class="label"><%= dicts.exportView.MultiFiles %></div>
               </div>
             </div>
           </div>
@@ -225,20 +225,20 @@
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
-                <div class="label"><%= dicts.exportModal.EveryFile %></div>
+                <div class="label"><%= dicts.exportView.EveryFile %></div>
               </div>
               <div class="radioButton" data-option="ExSFHeaderSeparateFile">
                 <div class="radio">
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
-                <div class="label"><%= dicts.exportModal.SeparateFile %></div>
+                <div class="label"><%= dicts.exportView.SeparateFile %></div>
               </div>
             </div>
           </div>
           <div class="formRow buttonRow overwrite createRule">
             <div class="subHeading clearfix">
-              <div class="label"><%= dicts.exportModal.Overwrite %>:</div>
+              <div class="label"><%= dicts.exportView.Overwrite %>:</div>
             </div>
             <div class="radioButtonGroup">
               <div class="radioButton active" data-option="ExExportCreateOnly">
@@ -246,33 +246,33 @@
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
-                <div class="label"><%= dicts.exportModal.DoNotOverwrite %></div>
+                <div class="label"><%= dicts.exportView.DoNotOverwrite %></div>
               </div>
               <div class="radioButton" data-option="ExExportDeleteAndReplace">
                 <div class="radio">
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
-                <div class="label"><%= dicts.exportModal.OverwriteExisting %></div>
+                <div class="label"><%= dicts.exportView.OverwriteExisting %></div>
               </div>
               <div class="radioButton" data-option="ExExportAppendOnly">
                 <div class="radio">
                   <i class="icon xi-radio-selected"></i>
                   <i class="icon xi-radio-empty"></i>
                 </div>
-                <div class="label"><%= dicts.exportModal.AppendExisting %></div>
+                <div class="label"><%= dicts.exportView.AppendExisting %></div>
               </div>
             </div>
           </div>
           <div class="restore" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.Restore %>">
             <i class="icon xi-refresh"></i>
-            <%= dicts.exportModal.restoreDefaults %>
+            <%= dicts.exportView.restoreDefaults %>
           </div>
         </div>
       </section>
       <!-- Button Section -->
       <section class="bottomSection">
-        <button type="button" class="btn confirm"><%= dicts.exportModal.CONFIRM %></button>
+        <button type="button" class="btn confirm"><%= dicts.exportView.CONFIRM %></button>
         <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
       </section>
     </div>

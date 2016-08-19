@@ -558,15 +558,7 @@ module.exports = {
         "noColsHint": "No columns available for export"
     },
 
-    "dataFlowModal": {
-        "header": "Add To Dataflow Group",
-        "instr": "Add a dataflow to a dataflow group. Select the dataflow group that you would like to add the current dataflow to and click on the save button.",
-        "NewDFG": "New Dataflow Group",
-        "AppendDFG": "Append to Existing Dataflow",
-        "NewGroupName": "New Group Name"
-    },
-
-    "exportModal": {
+    "exportView": {
         "header": "Export Table",
         "instr": "Please fill in the file name, choose where to export, and select the colums you wish to export.",
         "ExportAs": "Export As",

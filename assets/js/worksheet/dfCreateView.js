@@ -1,7 +1,6 @@
 window.DFCreateView = (function($, DFCreateView) {
     var $dfView;          // $('#dfCreateView')
     var $newNameInput; //     $('#newDFNameInput')
-    var $confirmBtn;        // $("#dataFlowModalConfirm")
     var focusedColNum = null; // last table header clicked, for shift+click
     var $colList;           //$dfView.find('.cols')
     var $curDagWrap;
@@ -17,7 +16,6 @@ window.DFCreateView = (function($, DFCreateView) {
     DFCreateView.setup = function() {
         $dfView = $('#dfCreateView');
         $newNameInput = $('#newDFNameInput');
-        $confirmBtn = $("#dataFlowModalConfirm");
         $colList = $dfView.find('.cols');
 
         var minHeight = 400;
@@ -67,11 +65,7 @@ window.DFCreateView = (function($, DFCreateView) {
         selectInitialTableCols();
         setupTableColListeners();
      
-
-        // modalHelper.setup()
-        // .always(function() {
-            $newNameInput.focus();
-        // });
+        $newNameInput.focus();
     };
 
     DFCreateView.close = function() {
@@ -99,7 +93,8 @@ window.DFCreateView = (function($, DFCreateView) {
         for (var i = 0; i < allCols.length; i++) {
             if (validTypes.indexOf(allCols[i].type) > -1) {
                 html += '<li class="checked" data-colnum="' + i + '">' +
-                            '<span class="text">' + allCols[i].name + 
+                            '<span class="text">' +
+                                allCols[i].name +
                             '</span>' +
                             '<div class="checkbox checked">' +
                                 '<i class="icon xi-ckbox-empty fa-13"></i>' +
@@ -112,13 +107,12 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function selectAll() {
-        var allCols = gTables[tableId].tableCols;
+        // var allCols = gTables[tableId].tableCols;
         var $xcTable = $('#xcTable-' + tableId);
         $colList.find('li').each(function() {
             var $li = $(this);
-            var colNum
             if (!$li.hasClass('checked')) {
-                colNum = $li.data('colnum');
+                var colNum = $li.data('colnum');
                 $li.addClass('checked').find('.checkbox').addClass('checked');
                 $xcTable.find('.col' + (colNum + 1))
                         .addClass('modalHighlighted');
@@ -129,7 +123,7 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function deselectAll() {
-        var allCols = gTables[tableId].tableCols;
+        // var allCols = gTables[tableId].tableCols;
         var $xcTable = $('#xcTable-' + tableId);
         $colList.find('li.checked').each(function() {
             var $li = $(this);
@@ -156,9 +150,7 @@ window.DFCreateView = (function($, DFCreateView) {
     function setupTableColListeners() {
         
         $("#xcTableWrap-" + tableId).addClass("columnPicker allowSelectAll");
-        $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", 
-            function(event) {
-
+        $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", function(event) {
             var $target = $(event.target);
             if (isInvalidTableCol($target)) {
                 return;
@@ -210,7 +202,7 @@ window.DFCreateView = (function($, DFCreateView) {
         if (validTypes.indexOf(colType) === -1) {
             return;
         }
-        var currColName = gTables[tableId].tableCols[colNum].name;
+        // var currColName = gTables[tableId].tableCols[colNum].name;
         $('#xcTable-' + tableId).find('.col' + (colNum + 1))
                                 .addClass('modalHighlighted');
 
@@ -223,16 +215,14 @@ window.DFCreateView = (function($, DFCreateView) {
     function deselectCol(colNum) {
         $('#xcTable-' + tableId).find('.col' + (colNum + 1))
                                 .removeClass('modalHighlighted');
-        var currColName = gTables[tableId].tableCols[colNum].name;
+        // var currColName = gTables[tableId].tableCols[colNum].name;
 
         $colList.find('li[data-colnum="' + colNum + '"]').removeClass('checked')
                             .find('.checkbox').removeClass('checked');
         checkToggleSelectAllBox();
     }
-    
 
-
-       // if all lis are checked, select all checkbox will be checked as well
+    // if all lis are checked, select all checkbox will be checked as well
     function checkToggleSelectAllBox() {
         var totalCols = $colList.find('li').length;
         var selectedCols = $colList.find('li.checked').length;
@@ -320,9 +310,8 @@ window.DFCreateView = (function($, DFCreateView) {
         var colNums = [];
     
         $colList.find('li.checked').each(function() {
-           colNums.push($(this).data('colnum')); 
+            colNums.push($(this).data('colnum'));
         });
-
 
         if (colNums.length === 0) {
             $colList.tooltip({
@@ -338,7 +327,6 @@ window.DFCreateView = (function($, DFCreateView) {
                 $colList.tooltip("destroy");
             }, 1500);
             return;
-
         }
 
         var columns = [];
@@ -379,10 +367,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
 
     function closeDFView() {
-        // modalHelper.clear()
-        // .always(function() {
-            resetDFView();
-        // });
+        resetDFView();
         isOpen = false;
     }
 

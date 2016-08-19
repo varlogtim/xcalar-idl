@@ -80,7 +80,7 @@ window.MainMenu = (function($, MainMenu) {
             Workbook.hide(true);
             OperationsView.close();
             JoinView.close();
-            ExportModal.close();
+            ExportView.close();
             SmartCastView.close();
             DFCreateView.close();
 

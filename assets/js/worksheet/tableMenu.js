@@ -64,7 +64,7 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
-            ExportModal.show(tableId);
+            ExportView.show(tableId);
         });
 
         $tableMenu.on('mouseup', '.exitOp', function(event) {
@@ -74,7 +74,7 @@ window.TblMenu = (function(TblMenu, $) {
             var exitType = $(this).data('exittype')
             switch (exitType) {
                 case ('export'):
-                    ExportModal.close();
+                    ExportView.close();
                     break;
                 case ("smartCast"):
                     SmartCastView.close();
@@ -895,7 +895,7 @@ window.TblMenu = (function(TblMenu, $) {
                     OperationsView.close();
                     break;
                 case ('export'):
-                    ExportModal.close();
+                    ExportView.close();
                     break;
                 case ('smartCast'):
                     SmartCastView.close();

@@ -1037,12 +1037,15 @@ window.TestSuite = (function($, TestSuite) {
 
         // on dfgModal
         dfgName = "testDfg" + randInt(); // globals in the module
-        $("#newGroupNameInput").val(dfgName);
-        $("#dataFlowModalConfirm").click();
-        $("#dataFlowModal .clear.modifyDSButton").click();
-        $("#dataFlowTable .header:contains('newclassid_string')").click();
-        $("#dataFlowTable .header:contains('teacher_id')").click();
-        $("#dataFlowModalConfirm").click();
+        $("#newDFNameInput").val(dfgName);
+        
+        var $section = $("#dfCreateView");
+        $section.find(".selectAllWrap").click();
+        $section.find("li .text:contains('newclassid_string')")
+                .siblings(".checkbox").click();
+         $section.find("li .text:contains('teacher_id')")
+                .siblings(".checkbox").click();
+        $section.find(".confirm").click();
 
         // got to scheduler panel
         $("#schedulerTab").click();

@@ -2719,7 +2719,7 @@ window.OperationsView = (function($, OperationsView) {
                     break;
             }
 
-            // closeOpSection({slow: true});
+            closeOpSection({slow: true});
         } else {
             modalHelper.enableSubmit();
         }
@@ -3306,8 +3306,7 @@ window.OperationsView = (function($, OperationsView) {
         var icvMode = $("#operationsView .map .icvMode .checkbox")
                         .hasClass("checked");
 
-        console.log(mapStr);
-        return;
+        // console.log(mapStr);
 
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
         .fail(function(error) {
