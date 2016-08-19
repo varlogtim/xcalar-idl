@@ -369,6 +369,14 @@ window.OperationsView = (function($, OperationsView) {
                     return;
                 }
 
+                if ($input.val() !== "" && 
+                    $input.closest('.inputWrap').siblings('.inputWrap')
+                                                .length === 0) {
+                    // hide empty options if input is dirty, but only if
+                    // there are no sibling inputs from extra arguments
+                    hideEmptyOptions($input);
+                }
+
                 clearTimeout(argumentTimer);
                 argumentTimer = setTimeout(function() {
                     if (!$input.hasClass('gbOnArg')) {
@@ -451,21 +459,12 @@ window.OperationsView = (function($, OperationsView) {
 
         addCastDropDownListener();
 
-        $operationsView.on('click', '.checkboxSection, .checkboxWrap',
-            function() {
+        $operationsView.on('click', '.checkboxSection', function() {
             var $checkbox = $(this).find('.checkbox');
             if ($checkbox.hasClass('checked')) {
                 $checkbox.removeClass('checked');
-                // we want it to be :visible for jquery selector purposes 
-                // in our code
-                $checkbox.parent().siblings('.inputWrap')
-                         .removeClass('semiHidden');
-                $checkbox.parent().siblings('.cast').removeClass('semiHidden');
             } else {
                 $checkbox.addClass('checked');
-                $checkbox.parent().siblings('.inputWrap')
-                                  .addClass('semiHidden');
-                $checkbox.parent().siblings('.cast').addClass('semiHidden');
             }
 
              // incSample and keepInTable toggling
@@ -476,14 +475,36 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }
 
-            // no arg and empty str toggling
-            if ($checkbox.closest('.emptyOptions').length) {
-                if ($checkbox.hasClass('checked')) {
-                    $checkbox.closest('.checkboxWrap').siblings()
-                            .find('.checkbox').removeClass('checked');
+            checkIfStringReplaceNeeded();
+        });
+
+        // empty options checkboxes
+        $operationsView.on('click', '.checkboxWrap', function() {
+            var $checkbox = $(this).find('.checkbox');
+            var $emptyOptsWrap = $(this).parent();
+            if ($checkbox.hasClass('checked')) {
+                $checkbox.removeClass('checked');
+                $emptyOptsWrap.siblings('.inputWrap')
+                                  .removeClass('semiHidden');
+                $emptyOptsWrap.siblings('.cast')
+                                          .removeClass('semiHidden');
+            } else {
+                $checkbox.addClass('checked');
+                if ($emptyOptsWrap.siblings('.inputWrap').length === 1) {
+                    $emptyOptsWrap.siblings('.inputWrap')
+                                  .addClass('semiHidden')
+                                  .find('.arg').val("");
+                    $emptyOptsWrap.siblings('.cast')
+                                           .addClass('semiHidden');
                 }
             }
-       
+
+            // noArg and empty str toggling
+            if ($checkbox.hasClass('checked')) {
+                $checkbox.closest('.checkboxWrap').siblings()
+                        .find('.checkbox').removeClass('checked');
+
+            }
             checkIfStringReplaceNeeded();
         });
 
@@ -2022,6 +2043,142 @@ window.OperationsView = (function($, OperationsView) {
     //     }
     // }
 
+    function findStringDiff(oldText, newText) {
+
+        // Find the index at which the change began
+        var start = 0;
+        while (start < oldText.length && start < newText.length &&
+               oldText[start] === newText[start]) {
+            start++;
+        }
+
+        // Find the index at which the change ended 
+        // (relative to the end of the string)
+        var end = 0;
+        while (end < oldText.length &&
+            end < newText.length &&
+            oldText.length - end > start &&
+            newText.length - end > start &&
+            oldText[oldText.length - 1 - end] === newText[newText.length - 1 -
+            end])
+        {
+            end++;
+        }
+
+        // The change end of the new string (newEnd) and old string (oldEnd)
+        var newEnd = newText.length - end;
+        var oldEnd = oldText.length - end;
+
+        // The number of chars removed and added
+        var removed = oldEnd - start;
+        var added = newEnd - start;
+
+        var type;
+        switch (true) {
+            case (removed === 0 && added > 0):
+                type = 'add';
+                break;
+            case (removed > 0 && added === 0):
+                type = 'remove';
+                break;
+            case (removed > 0 && added > 0):
+                type = 'replace';
+                break;
+            default:
+                type = 'none';
+                start = 0;
+        }
+
+        return ({type: type, start: start, removed: removed, added: added});
+    }
+
+    // noHighlight: boolean; if true, will not highlight new changes
+    function checkIfStringReplaceNeeded(noHighlight) {
+        if (!gTables[tableId]) {
+            return;
+        }
+        quotesNeeded = [];
+
+        $activeOpSection.find('.group').each(function() {
+            var typeIds = [];
+            var existingTypes = {};
+            var $inputs = $(this).find('.arg:visible');
+
+            $inputs.each(function() {
+                var $input = $(this);
+                var arg    = $input.val().trim();
+                var type   = null;
+
+                // ignore new colname input
+                if ($input.closest(".dropDownList").hasClass("colNameSection"))
+                {
+                    return;
+                } else if (hasFuncFormat(arg)) {
+                    // skip
+                } else if (xcHelper.hasValidColPrefix(arg)) {
+                    arg = parseColPrefixes(arg);
+                    if (operatorName !== "map" ||
+                        $categoryList.find('.active').text() !== "user-defined") 
+                    {
+                        type = getColumnTypeFromArg(arg);
+                    }
+                } else if (arg[0] === gAggVarPrefix) {
+                    // skip
+                } else {
+                    var parsedType = parseType($input.data('typeid'));
+                    if (parsedType.length === 6) {
+                        type = null;
+                    } else {
+                        var isString = formatArgumentInput(arg, 
+                                                        $input.data('typeid'),
+                                                       existingTypes).isString;
+                        if (isString) {
+                            type = "string";
+                        }
+                    }
+                }
+
+                if (type != null) {
+                    existingTypes[type] = true;
+                }
+                typeIds.push($input.data('typeid'));
+            });
+
+            $inputs.each(function(i) {
+                var $input = $(this);
+                var $row = $input.closest('.row');
+                var arg = $input.val().trim();
+                var parsedType = parseType(typeIds[i]);
+                // var noArgsChecked = $row.find('.noArg.checked').length > 0;
+                var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
+                if (emptyStrChecked && arg === "") {
+                    quotesNeeded.push(true);
+                } else if (!$input.closest(".dropDownList") 
+                // if (!$input.closest(".dropDownList") 
+                            .hasClass("colNameSection") &&
+                            !xcHelper.hasValidColPrefix(arg) &&
+                            arg[0] !== gAggVarPrefix &&
+                            parsedType.indexOf("string") > -1 &&
+                            !hasFuncFormat(arg)) {
+
+                    if (parsedType.length === 1) {
+                        // if input only accepts strings
+                        quotesNeeded.push(true);
+                    } else if (existingTypes.hasOwnProperty("string")) {
+                        quotesNeeded.push(true);
+                    } else {
+                        quotesNeeded.push(false);
+                    }
+                } else {
+                    quotesNeeded.push(false);
+                }
+            });
+        });
+
+        
+        updateStrPreview(noHighlight);
+    }
+
     function updateStrPreview(noHighlight) {
         var $description = $operationsView.find(".strPreview");
         var $inputs = $activeOpSection.find('.arg:visible');
@@ -2249,142 +2406,6 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             return;
         }
-    }
-
-    function findStringDiff(oldText, newText) {
-
-        // Find the index at which the change began
-        var start = 0;
-        while (start < oldText.length && start < newText.length &&
-               oldText[start] === newText[start]) {
-            start++;
-        }
-
-        // Find the index at which the change ended 
-        // (relative to the end of the string)
-        var end = 0;
-        while (end < oldText.length &&
-            end < newText.length &&
-            oldText.length - end > start &&
-            newText.length - end > start &&
-            oldText[oldText.length - 1 - end] === newText[newText.length - 1 -
-            end])
-        {
-            end++;
-        }
-
-        // The change end of the new string (newEnd) and old string (oldEnd)
-        var newEnd = newText.length - end;
-        var oldEnd = oldText.length - end;
-
-        // The number of chars removed and added
-        var removed = oldEnd - start;
-        var added = newEnd - start;
-
-        var type;
-        switch (true) {
-            case (removed === 0 && added > 0):
-                type = 'add';
-                break;
-            case (removed > 0 && added === 0):
-                type = 'remove';
-                break;
-            case (removed > 0 && added > 0):
-                type = 'replace';
-                break;
-            default:
-                type = 'none';
-                start = 0;
-        }
-
-        return ({type: type, start: start, removed: removed, added: added});
-    }
-
-    // noHighlight: boolean; if true, will not highlight new changes
-    function checkIfStringReplaceNeeded(noHighlight) {
-        if (!gTables[tableId]) {
-            return;
-        }
-        quotesNeeded = [];
-
-        $activeOpSection.find('.group').each(function() {
-            var typeIds = [];
-            var existingTypes = {};
-            var $inputs = $(this).find('.arg:visible');
-
-            $inputs.each(function() {
-                var $input = $(this);
-                var arg    = $input.val().trim();
-                var type   = null;
-
-                // ignore new colname input
-                if ($input.closest(".dropDownList").hasClass("colNameSection"))
-                {
-                    return;
-                } else if (hasFuncFormat(arg)) {
-                    // skip
-                } else if (xcHelper.hasValidColPrefix(arg)) {
-                    arg = parseColPrefixes(arg);
-                    if (operatorName !== "map" ||
-                        $categoryList.find('.active').text() !== "user-defined") 
-                    {
-                        type = getColumnTypeFromArg(arg);
-                    }
-                } else if (arg[0] === gAggVarPrefix) {
-                    // skip
-                } else {
-                    var parsedType = parseType($input.data('typeid'));
-                    if (parsedType.length === 6) {
-                        type = null;
-                    } else {
-                        var isString = formatArgumentInput(arg, 
-                                                        $input.data('typeid'),
-                                                       existingTypes).isString;
-                        if (isString) {
-                            type = "string";
-                        }
-                    }
-                }
-
-                if (type != null) {
-                    existingTypes[type] = true;
-                }
-                typeIds.push($input.data('typeid'));
-            });
-
-            $inputs.each(function(i) {
-                var $input = $(this);
-                var $row = $input.closest('.row');
-                var arg = $input.val().trim();
-                var parsedType = parseType(typeIds[i]);
-                // var noArgsChecked = $row.find('.noArg.checked').length > 0;
-                var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
-                if (emptyStrChecked && arg === "") {
-                    quotesNeeded.push(true);
-                } else if (!$input.closest(".dropDownList") 
-                // if (!$input.closest(".dropDownList") 
-                            .hasClass("colNameSection") &&
-                            !xcHelper.hasValidColPrefix(arg) &&
-                            arg[0] !== gAggVarPrefix &&
-                            parsedType.indexOf("string") > -1 &&
-                            !hasFuncFormat(arg)) {
-
-                    if (parsedType.length === 1) {
-                        // if input only accepts strings
-                        quotesNeeded.push(true);
-                    } else if (existingTypes.hasOwnProperty("string")) {
-                        quotesNeeded.push(true);
-                    } else {
-                        quotesNeeded.push(false);
-                    }
-                } else {
-                    quotesNeeded.push(false);
-                }
-            });
-        });
-
-        
-        updateStrPreview(noHighlight);
     }
 
     function checkArgumentParams() {
@@ -2698,7 +2719,7 @@ window.OperationsView = (function($, OperationsView) {
                     break;
             }
 
-            closeOpSection({slow: true});
+            // closeOpSection({slow: true});
         } else {
             modalHelper.enableSubmit();
         }
@@ -2714,7 +2735,9 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.find('.group').eq(groupNum)
                         .find('.arg:visible').each(function(i) {
             var $input = $(this);
-            isCasting = $input.data('casted');
+            var hasEmpty = $input.closest('.row')
+                                 .find('.emptyOptions .checked');
+            var isCasting = $input.data('casted') && !hasEmpty;
             if (isCasting) {
                 var progCol = table.getColByBackName(args[i]);
                 if (progCol != null) {
@@ -3283,6 +3306,9 @@ window.OperationsView = (function($, OperationsView) {
         var icvMode = $("#operationsView .map .icvMode .checkbox")
                         .hasClass("checked");
 
+        console.log(mapStr);
+        return;
+
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
         .fail(function(error) {
             submissionFailHandler(startTime, error);     
@@ -3653,6 +3679,7 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.find('.arg:visible').each(function() {
             var $input   = $(this);
             var val   = $input.val().trim();
+            var untrimmedVal = $input.val();
             if (val !== "") { 
                 // not blank so no need to check. move on to next input.
                 return;
@@ -3660,12 +3687,13 @@ window.OperationsView = (function($, OperationsView) {
             var $row = $input.closest('.row');
             var noArgsChecked = $row.find('.noArg.checked').length > 0;
             var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
+            var hasEmptyStrCheckedOption = $row.find('.emptyStr').length;
 
             if (noArgsChecked || emptyStrChecked ||
                 (operatorName === "aggregate" &&
                 $input.closest('.colNameSection').length)) {
                // blanks are ok
-            } else {
+            } else if (untrimmedVal.length === 0 || !hasEmptyStrCheckedOption) {
                 hasValidBlanks = false;
                 invalidInputs.push($input);
                 // stop iteration
@@ -3683,7 +3711,7 @@ window.OperationsView = (function($, OperationsView) {
                                         .length === 0;
         var errorMsg;
         if (hasEmptyOption) {
-            showEmptyOption(invalidInputs[0]);
+            showEmptyOptions(invalidInputs[0]);
             errorMsg = ErrTStr.NoEmptyOrCheck;
         } else {
             errorMsg = ErrTStr.NoEmpty;
@@ -3692,8 +3720,13 @@ window.OperationsView = (function($, OperationsView) {
         modalHelper.enableSubmit();
     }
 
-    function showEmptyOption($input) {
+    function showEmptyOptions($input) {
         $input.closest('.row').find('.checkboxWrap').removeClass('xc-hidden');
+    }
+
+    function hideEmptyOptions($input) {
+        $input.closest('.row').find('.checkboxWrap').addClass('xc-hidden')
+                              .find('.checkbox').removeClass('checked');
     }
 
     function formatArgumentInput(value, typeid, existingTypes) {
