@@ -83,8 +83,9 @@ window.Profile = (function($, Profile, d3) {
         });
 
         $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing"
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": "window"
         });
 
         $modal.on("click", ".close", function() {

@@ -83,7 +83,8 @@ module.exports = {
         "Loading": "Loading",
         "Prefs": "Preferences",
         "Supprots": "Supports",
-        "AdvancedOpts": "Advanced Options"
+        "AdvancedOpts": "Advanced Options",
+        "APPLY": "APPLY"
     },
 
     "paths": {
