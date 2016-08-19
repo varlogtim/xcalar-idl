@@ -12,10 +12,10 @@
     <div id="logo"></div>
     <div id="installerContainer" class="container">
       <div class="outerWrap">
-        <header class="title">Xcalar Insight Install Wizard</header>
+        <header class="title">Xcalar Install Wizard</header>
         <div class="instruction">
           <i class="icon xi-info-circle"></i>
-          <span class="text">Lorum ipsum</span>
+          <span class="text">This install wizard will take you step by step through the installation process. Click on the question mark next to the fields for more explanation.</span>
         </div>
       </div>
       <div id="loadingBar">
@@ -23,10 +23,12 @@
       </div>
       <div class="outerWrap">
         <div id="formArea">
-          <form id="licenseForm" autocomplete="off">
+
+          <!-- Step 1: Enter in license key -->
+          <form id="licenseForm" autocomplete="off" class="hidden">
             <div class="title">
               <div class="step">
-                <span>STEP1 </span>
+                <span>STEP 1 </span>
                 <span>ADD LICENSE KEY</span>
               </div>
               <div class="hint">
@@ -42,7 +44,7 @@
               <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234">
               <span class="separator">-</span>
               <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234"> 
-              <div class="label">&nbsp;</div>       
+              <div class="bar">&nbsp;</div>       
             </div>
             <div class="section invalidLicense">
               <div class="leftBar">&nbsp;</div>
@@ -54,13 +56,234 @@
               <input id="clearButton" class="btn clear inactive" type="button" name="signup" value="CLEAR">
             </div>
           </form>
-          <!--
-          <form id="sharedStorageForm" autocomplete="off">
+
+
+          <!-- Step 2: Place Xcalar Root -->
+          <form id="sharedStorageForm" autocomplete="off" class="hidden">
+            <div class="title">
+              <div class="step">
+                <span>STEP 2</span>
+                <span>SETUP XCALAR ROOT</span>
+              </div>
+              <div class="hint">
+                <span></span>
+                <span>Select where to place Xcalar's root directory</span>
+              </div>
+            </div>
+            <div class="section nfsSection">
+              <div class="radioButtonGroup">
+                <div class="radioButton nfsOption" data-option="xcalarNfs">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  <!--<div class="background"></div>-->
+                  </div>
+                  <div class="label">Xcalar Deployed NFS</div>
+                </div>
+                <div class="radioButton nfsOption" data-option="customerNfs">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Pre-Existing NFS</div>
+                </div>
+              </div>
+              <div class="customerNfsOptions">
+                <div class="nfsMountPoint nfsSubOption">
+                  <div class="input" contenteditable="true" placeholder="[NFS Server]"></div>
+                  <span>:/</span>
+                  <div class="input" type="text" contenteditable="true" placeholder="[Mount Point]"></div>
+                  <div class="bar">NFS Path</div>
+                </div>
+                <div class="nfsUser nfsSubOption">
+                  <input class="input" type="text" autocomplete="off" placeholder="[user_id]  (optional)">
+                  <div class="bar">NFS Username</div>
+                </div>
+                <div class="nfsUser nfsSubOption">
+                  <input class="input" type="text" autocomplete="off" placeholder="[user_group]  (optional)">
+                  <div class="bar">NFS Group</div>
+                </div>
+              </div>      
+            </div>
+            <div class="section buttonSection">
+              <input id="nextButton" class="btn login" type="submit" value="NEXT">
+              <input id="clearButton" class="btn clear inactive" type="button" name="signup" value="CLEAR">
+            </div>
           </form>
-          -->
+
+          <!-- Step 3: Host Information -->
+          <form id="hostForm" autocomplete="off">
+            <div class="title">
+              <div class="step">
+                <span>STEP 3A</span>
+                <span>SETUP HOSTS</span>
+              </div>
+              <div class="hint">
+                <span></span>
+                <span>Input the name of the hosts that you want to install Xcalar on</span>
+              </div>
+            </div>
+            <div class="section hostnameSection">
+              <div class="row header">
+                <span class="leftCol">
+                  Hostnames
+                </span>
+                <span class="rightCol">
+                  Status
+                </span>
+              </div>
+                        <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 1.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 2.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.  
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 3.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 4.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.
+                  </span>
+                </div>
+              </div>
+              <!--
+                            <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 5.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.
+                  </span>
+                </div>
+              </div>
+                            <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 6.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.
+                  </span>
+                </div>
+              </div>
+                            <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 7.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.
+                  </span>
+                </div>
+              </div>
+                            <div class="row">
+                <div class="leftCol hostname">
+                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
+                  <div class="bar">Host 8.</div>
+                </div>
+                <div class="rightCol status">
+                  <span class="curStatus">
+                    Lollipop icing chocolate cake tart gingerbread carrot cake.
+                  </span>
+                </div>
+              </div>
+            -->
+            </div>
+            <div class="title">
+              <div class="step">
+                <span>STEP 3B</span>
+                <span>Credentials</span>
+              </div>
+              <div class="hint">
+                <span></span>
+                <span>Input the credentials for the above hosts</span>
+              </div>
+            </div>
+            <div class="section credentialSection">
+              <div class="hostUsername">
+                <input class="input" type="text" autocomplete="off" placeholder="[username]">
+                <div class="bar">Username</div>
+              </div>
+              <span class="header">Password Options</span>
+              <div class="radioButtonGroup">
+                <div class="radioButton passOption" data-option="password">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  <!--<div class="background"></div>-->
+                  </div>
+                  <div class="label">Password</div>
+                </div>
+                <div class="radioButton passOption" data-option="sshKey">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">SSH Key</div>
+                </div>
+              </div>
+              <!--
+              <div class="hostPassword">
+                <input class="input" type="password" autocomplete="off" placeholder="[password]">
+                <div class="bar">Password</div>
+              </div>
+              -->
+              <div class="hostSshKey">
+                <textarea rows="30" cols="68" autocomplete="off" placeholder="[Private SSH Key]"></textarea>
+              </div>
+            </div>             
+            <div class="section buttonSection">
+              <input id="nextButton" class="btn login" type="submit" value="NEXT">
+              <input id="clearButton" class="btn clear inactive" type="button" name="signup" value="CLEAR">
+            </div>
+          </form>
         </div>
       </div>
     </div>
     <script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+

@@ -4,11 +4,12 @@
 
 html, body {
     width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
-    min-height: 600px;
+    min-height: 100%;
     min-width: 780px; 
+    min-height: 100%;
+    min-width: 100%; 
     font: 13px @font-base;
     font-weight: 600;
     .box-sizing;
@@ -38,6 +39,11 @@ form {
     }
 }
 
+[contenteditable=true]:empty:before{
+  content: attr(placeholder);
+  display: block; /* For Firefox */
+}
+
 #logo {
     .size(@width:40px, @height:41px);
     .image("../../images/new/logo/xi-logo.png");
@@ -47,24 +53,26 @@ form {
 }
 
 .container {
-    height: 500px;
-    .vertical-align;
+    height: 700px;
+    
 }
 
 .outerWrap {
     width: 100%;
 
+
     header {
         .size(@width: @div-width, @height: 50px);
         .position(relative, @top: 10px);
         overflow: hidden;
-        margin: 0px auto 30px;
+        margin: 100px auto 10px;
         .font(@weight: 400, @size: 36px, @line-height: 36px, @family: @font-gotham);
     }
 
     .instruction {
-        .size(@width: @div-width, @height: 24px);
-        margin: 26px auto 18px auto;
+        .size(@width: @div-width, @height: 60px);
+        margin: 10px auto 18px auto;
+        padding-top: 10px;
 
         .icon, .text {
             display: inline-block;
@@ -78,6 +86,8 @@ form {
         }
 
         .text {
+            width: 90%;
+            padding-left: 10px;
             margin-left: 6px;
             .font(@size: 14px, @line-height: 24px);
         }
@@ -111,6 +121,70 @@ form {
     }
 }
 
+
+.radioButtonGroup {
+
+    &.center {
+        .align-content(center);
+        .align-items(center);
+    }
+
+    .radioButton {
+        .size(@height: 28px);
+        .font(@size: 17px, @line-height: 24px);
+        .noSelection;
+        cursor: pointer;
+
+        &.active {
+            .radio {
+                .icon {
+                    &.xi-radio-selected {
+                        display: inline-block;
+                    }
+
+                    &.xi-radio-empty {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .radio {
+            .size(@width: 16px, @height: 16px);
+            .position(relative, @top: 1px);
+            float: left;
+            display: inline-block;
+            margin: 0 5px 0 0px;
+            background-color: @color-white;
+            border-radius: 100%;
+            .vertical-align;
+
+            .icon {
+                font-size: 16px;
+                color: @color-font-pinkish-grey2;
+                vertical-align: top;
+                line-height: 16px;
+                display: inline-block;
+                
+                &.xi-radio-selected {
+                    color: @color-font-softBlue;
+                    display: none;
+                }
+            }
+        }
+
+        .label {
+            float: left;
+            padding-left: 5px;
+            .size(@width:~"calc(100% - 30px)");
+            text-align: left;
+            font-size: 14px;
+        }
+    }
+}
+
+
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:active,
@@ -122,16 +196,16 @@ input:-webkit-autofill:focus {
 }
 
 #formArea {
-   width: @div-width;
-   margin: 0 auto;
-   padding-left: 50px;
+    width: @div-width;
+    margin: 0 auto;
+    padding-left: 50px;
 
-   .title {
+    .title {
         font-weight: 500;
         .position(relative, @left: -50px);
 
         > div {
-            span {
+            span{
                 display: inline-block;
                 font-weight: 700;
                 &:first-child {
@@ -145,12 +219,28 @@ input:-webkit-autofill:focus {
         }
 
         .hint {
+            span {
+                font-weight: 600;
+            }
             .font(@size: 12px);
             margin-top: 9px;
         }
-   }
+    }
 
-   .section {
+    .header {
+        display: inline-block;
+        margin-top: 10px;
+        font-weight: 700;
+        color: @color-white;
+        font-size: 14px;
+    }
+
+    .hidden {
+        display: none;
+        .transition(all 0.5s);
+    }
+
+    .section {
         position: relative;
         font-size: 13px;
         height: 45px;
@@ -158,7 +248,7 @@ input:-webkit-autofill:focus {
         margin-top: 20px;
         padding-left: 5%;
 
-        .label {
+        .bar {
             position: absolute;
             line-height: 30px;
             left: 0px;
@@ -241,7 +331,7 @@ input:-webkit-autofill:focus {
                     bottom: 0px;
                 }
 
-                ~ .label {
+                ~ .bar {
                     color: @color-white;
                     &::after {
                         background-color: @color-white;
@@ -252,6 +342,148 @@ input:-webkit-autofill:focus {
             &:active {
                 outline: none;
             }
+        }
+
+        &.nfsSection {
+            height: auto;
+            .label {
+                padding-left: 10px;
+            }
+
+            .nfsSubOption {
+                width: 100%;
+                height: 50px;
+            }
+            .radioButtonGroup {
+                display: inline !important;
+                .radioButton {
+                    margin-top: 20px !important;
+                    margin-bottom: 20px !important;
+                }
+            }
+            .nfsOption {
+                width: 100%;
+                height: 20px;
+            }
+            .customerNfsOptions {
+                width: 100%;
+                position: relative;
+                .input {
+                    margin-left: 0px;
+                    float: left;
+                    padding-left: 0px;
+                    padding-right: 0px;
+                    margin-top: 0;
+                    width: auto;
+                    font-size: 14px;
+                    .input-placeholder(@color-white);
+                    &::after {
+                        height: 0px;
+                    }
+                }
+                span {
+                    margin-left: 10px;
+                    margin-right: 10px;
+                    margin-top: 8px;
+                    float: left;
+                    color: @color-font-softGrayBlue;
+                }
+                .nfsSubOption {
+                    position: relative;
+                    :first-child {
+                        margin-left: 150px;
+                    }
+                    &.nfsUser .input {
+                        width: 300px;
+                    }
+                    .bar {
+                        position: absolute;
+                        top: 1px;
+                    }
+                }
+            }
+        }
+
+        &.hostnameSection {
+            display: inline-block;
+            .row {
+                width: 100%;
+                position: relative;
+                display: inline-block;
+
+                &.header {
+                    font-size: 15px;
+                }
+
+                .bar {
+                    top: 0px;
+                    position: absolute;
+                    width: ~"calc(100% - 10px)";
+                    margin-left: 0px;
+                }
+                input {
+                    .input-placeholder(@color-white);
+                    font-size: 14px;
+                    width: ~"calc(100% - 40px)";
+                    padding-left: 40px;
+                    padding-bottom: 3px;
+                    margin-top: 0px;
+                }
+                .leftCol {
+                    position: relative;
+                    width: 50%;
+                    float: left;
+
+                }
+                .rightCol {
+                    width: 50%;
+                    float: left;
+                }
+            }
+        }
+
+        &.credentialSection {
+            position: relative;
+            display: inline-block;
+            margin-top: 0px;
+            width: 100%;
+            input {
+                .input-placeholder(@color-white);
+                margin-left: 70px;
+                margin-top: 10px;
+            }
+            .hostUsername {
+                height: 35px;
+                position: relative;
+                width: 100%;
+            }
+
+            textarea {
+                font-size: 14px;
+                margin-top: 20px;
+                display: inline-block;
+                font-family: "Source Code Pro";
+                background-color: rgba(0, 0, 0, 0.3);
+                color: @color-white;
+                box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.2);
+                resize: none;
+                overflow: auto;
+                &:focus {
+                    outline: none !important;
+                }
+            }
+            .hostPassword {
+                width: 100%;
+                position: relative;
+            }
+
+            .bar {
+                top: 12px;
+                position: absolute;
+                width: ~"calc(100% - 10px)";
+                margin-left: 0px;
+            }
+
         }
 
 
@@ -275,6 +507,7 @@ input:-webkit-autofill:focus {
     .buttonSection {
         padding-right: 40px;
         margin-top: 0px;
+        display: inline;
     }
 
     .part {
@@ -304,44 +537,5 @@ input:-webkit-autofill:focus {
             color: @color-bg-unselect-gray;
             border-color: @color-bg-unselect-gray;
         }
-    }
-
-    /**
-    .submitSection {
-        height: auto;
-        .part {
-            float: right;
-        }
-        .termPart {
-            margin-top: 46px;
-            float: left;
-            .text {
-                text-transform: none;
-                float: right;
-                display: inline-block;
-                position: static;
-            }
-            .checkbox {
-                height: 16px;
-                float: right;
-                margin-right: 4px;
-                margin-top: 2px;
-            }
-        }
-
-        .text {
-            color: @color-white;
-            display: inline-block;
-            width: auto;
-            &::after {
-                display: none;
-            }
-        }
-    }
-    */
-    .loginSection {
-        text-align: right;
-        margin-top: 26px;
-        font-weight: 500;
     }
 }
