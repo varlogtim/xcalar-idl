@@ -2116,7 +2116,7 @@ window.Profile = (function($, Profile, d3) {
             var bound = $("#profile-chart").get(0).getBoundingClientRect();
             var barBound = $bars.get(-1).getBoundingClientRect();
             var right = bound.right - barBound.right;
-            var bottom = bound.bottom - barBound.bottom;
+            var bottom = bound.bottom - barBound.bottom + 30;
             var w = $filterOption.width();
 
             if (w + 5 < right) {
