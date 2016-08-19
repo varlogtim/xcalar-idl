@@ -31,26 +31,33 @@
               </div>
               <div class="hint">
                 <span></span>
-                <span>Input how many host you need</span>
+                <span>Enter the license key below</span>
               </div>
             </div>
             <div class="section">
-              <label for="loginNameBox">
-                <input id="loginNameBox" type="text" class="input" autofocus required autocomplete="off">
-                <div class="label">USERNAME</div>
-              </label>
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234">
+              <span class="separator">-</span>
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234">
+              <span class="separator">-</span>
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234">
+              <span class="separator">-</span>
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234"> 
+              <div class="label">&nbsp;</div>       
             </div>
-            <div class="section">
-              <label for="loginPasswordBox">
-                <input id="loginPasswordBox" class="input" type="password" autocomplete="off">
-                <div class="label">PASSWORD</div>
-              </label>
+            <div class="section invalidLicense">
+              <div class="leftBar">&nbsp;</div>
+              <span>Invalid license key<br></span>
+              <span>The license key that you have entered is not valid. Please check the key and try again</span>
             </div>
-            <!-- <div class="passwordForgot">Forgot your password?</div> -->
-            <input id="loginButton" class="btn login" type="submit" value="LOG IN">
-            <!-- XX SIGN UP TEMPORARILY HIDDEN -->
-            <input id="signupButton" class="btn signup" type="button" name="signup" value="SIGN UP">
+            <div class="section buttonSection">
+              <input id="nextButton" class="btn login" type="submit" value="NEXT">
+              <input id="clearButton" class="btn clear inactive" type="button" name="signup" value="CLEAR">
+            </div>
           </form>
+          <!--
+          <form id="sharedStorageForm" autocomplete="off">
+          </form>
+          -->
         </div>
       </div>
     </div>

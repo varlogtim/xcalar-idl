@@ -87,7 +87,7 @@ form {
 #loadingBar {
     .size(@width: 100%, @height: 1px);
     background-color: @color-border-softBlue;
-    margin-bottom: 26px;
+    margin-bottom: 15px;
     position: relative;
     overflow: hidden;
 
@@ -111,10 +111,6 @@ form {
     }
 }
 
-
-
-
-
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:active,
@@ -137,10 +133,9 @@ input:-webkit-autofill:focus {
         > div {
             span {
                 display: inline-block;
-
+                font-weight: 700;
                 &:first-child {
                     width: 78px;
-                    font-weight: 700;
                 }
             }
         }
@@ -151,7 +146,7 @@ input:-webkit-autofill:focus {
 
         .hint {
             .font(@size: 12px);
-            margin-top: 13px;
+            margin-top: 9px;
         }
    }
 
@@ -160,6 +155,8 @@ input:-webkit-autofill:focus {
         font-size: 13px;
         height: 45px;
         font-weight: 500;
+        margin-top: 20px;
+        padding-left: 5%;
 
         .label {
             position: absolute;
@@ -171,8 +168,21 @@ input:-webkit-autofill:focus {
             pointer-events: none;
             z-index: 0;
             color: @color-font-softGrayBlue;
-            width: 100%;
+            width: 76%;
+            margin-left: 5%;
             text-transform: uppercase;
+
+            &.error {
+                &::after {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    bottom: 0px;
+                    .size(@width: 100%, @height: 1px);
+                    background-color: @color-sql-brown;
+                    .transition(all 0.5s);
+                }
+            }
 
             &::after {
                 content: "";
@@ -184,32 +194,37 @@ input:-webkit-autofill:focus {
                 .transition(all 0.5s);
             }
         }
+
         label {
             height: 100%;
             width: 100%;
             display: block;
         }
+
         .input {
-            width: 100%;
             width: ~"calc(100% - 90px)";
             // height: 100%;
             height: 30px;
             background-color: transparent;
             outline: none;
-            margin-left: 90px;
+            margin-left: 25px;
             padding-left: 10px;
-            .font(@weight: 500, @size: 13px, @line-height: 30px, @color: @color-white);
+            .font(@weight: 500, @size: 16px, @line-height: 30px, @color: @color-white);
             position: relative;
             z-index: 1;
             padding-top: 2px;
             margin-top: 14px;
+            &.licenseKey {
+                width: 80px;
+            }
 
             &::after {
                 content: "";
                 display: block;
                 position: absolute;
                 bottom: 0px;
-                .size(@width: 100%, @height: 1px);
+                margin-left: 5%;
+                .size(@width: 90%, @height: 1px);
                 background-color: @color-border-searchBlue;
                 .transition(all 0.5s);
             }
@@ -228,7 +243,7 @@ input:-webkit-autofill:focus {
 
                 ~ .label {
                     color: @color-white;
-                    &:after {
+                    &::after {
                         background-color: @color-white;
                         height: 2px;
                     }
@@ -237,7 +252,29 @@ input:-webkit-autofill:focus {
             &:active {
                 outline: none;
             }
-        } 
+        }
+
+
+    }
+
+    .invalidLicense {
+        color: @color-text-macaroniAndCheese;
+        height: 40px;
+        .leftBar {
+            position: absolute;
+            width: 5px;
+            height: 100%;
+            background-color: @color-text-macaroniAndCheese;
+        }
+        span {
+            padding-top: 1px;
+            padding-left: 20px;
+        }
+    }
+
+    .buttonSection {
+        padding-right: 40px;
+        margin-top: 0px;
     }
 
     .part {
@@ -247,9 +284,9 @@ input:-webkit-autofill:focus {
     .btn {
         width: 150px;
         height: 36px;
-        border: 1px solid @color-border-softBlue;
+        border: 1px solid @color-white;
         background-color: rgba(0,0,0,0);
-        .font(@weight: bold, @align: center, @color: @color-border-softBlue);
+        .font(@weight: bold, @align: center, @color: @color-white);
         float: right;
         margin-left: 10px;
         margin-top: 36px;
@@ -262,8 +299,14 @@ input:-webkit-autofill:focus {
         &:active {
             border-color: @color-border-activeBlue !important;
         }
+
+        &.inactive {
+            color: @color-bg-unselect-gray;
+            border-color: @color-bg-unselect-gray;
+        }
     }
 
+    /**
     .submitSection {
         height: auto;
         .part {
@@ -295,17 +338,10 @@ input:-webkit-autofill:focus {
             }
         }
     }
-
+    */
     .loginSection {
         text-align: right;
         margin-top: 26px;
         font-weight: 500;
     }
-}
-
-
-   
-#loginButton, #signup-submit {
-    border: 1px solid @color-white;
-    .font(@color: @color-white);
 }
