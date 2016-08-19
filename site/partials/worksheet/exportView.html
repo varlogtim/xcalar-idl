@@ -14,7 +14,7 @@
         
         <div class="tableListSection clearfix formRow">
           <div class="subHeading clearfix">
-            <span class="text">Table to export:</span>
+            <span class="text"><%= dicts.exportModal.tableToExport %>:</span>
             <div class="iconWrap focusTable">
               <i class="icon xi-show"></i>
             </div>
@@ -40,7 +40,7 @@
         <!-- export name section -->
         <div class="exportNameSection formRow">
           <div class="subHeading clearfix">
-            <div class="label">Export Filename:</div>
+            <div class="label"><%= dicts.exportModal.exportFilename %>:</div>
           </div>
             
           <input id="exportName" class="text" type="text" spellcheck="false" required>
@@ -69,7 +69,7 @@
         </div>
         <div class="exportColumnsSection formRow">
           <div class="subHeading clearfix">
-            <div class="label"><%= dicts.exportModal.Columns %> To Export:</div>
+            <div class="label"><%= dicts.exportModal.colsToExport %>:</div>
           </div>
           <p><%= dicts.exportModal.colInstr %></p>
           <input id="exportColumns" type="text" placeholder="<%= dicts.exportModal.ColumnsHint %>" spellcheck="false" required>
@@ -78,7 +78,7 @@
               <i class="icon xi-ckbox-empty fa-13"></i>
               <i class="icon xi-ckbox-selected fa-13"></i>
             </div>
-            <div class="text">Select All</div>
+            <div class="text"><%= dicts.common.SelectAll %></div>
           </div>
           <div class="columnsWrap clearfix">
             <ul class="cols"></ul>
@@ -94,7 +94,7 @@
               <i class="icon xi-ckbox-empty fa-13"></i>
               <i class="icon xi-ckbox-selected fa-13"></i>
             </div>
-            <div class="text">Export Rows in Sorted Order (slow)</div>
+            <div class="text"><%= dicts.exportModal.exportInOrder %></div>
           </div>
         </div>
          <!-- advanced section -->
@@ -266,7 +266,7 @@
           </div>
           <div class="restore" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.Restore %>">
             <i class="icon xi-refresh"></i>
-            RESTORE DEFAULTS
+            <%= dicts.exportModal.restoreDefaults %>
           </div>
         </div>
       </section>

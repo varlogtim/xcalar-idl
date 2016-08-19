@@ -286,6 +286,7 @@ window.BottomMenu = (function($, BottomMenu) {
             JoinView.close();
             ExportModal.close();
             SmartCastView.close();
+            DFCreateView.close();
         }
 
         // dealay the next click as the menu open/close has animation

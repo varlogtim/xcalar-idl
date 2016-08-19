@@ -155,15 +155,15 @@ ErrTStr = {
     'DSNameConfilct': 'Dataset reference with the same name already exits. ' +
                         'please choose another name.',
 
-    'TableConflict': 'Table with the same name already exists, ' +
+    'TableConflict': 'A table with the same name already exists, ' +
                         'please choose another name.',
 
     'ExportConflict': 'This file name is taken, please choose another name.',
 
-    'ColumnConflict': 'Column with the same name already exists, ' +
+    'ColumnConflict': 'A column with the same name already exists, ' +
                         'please choose another name.',
 
-    'DFGConflict': 'Dataflow group with the same name already exists, ' +
+    'DFGConflict': 'A dataflow with the same name already exists, ' +
                             'please choose another name.',
 
     'ScheduleConflict': 'Schedule with the same name already exists, ' +

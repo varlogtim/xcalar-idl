@@ -1,0 +1,67 @@
+<!-- Export View -->
+<div id="dfCreateView" class="xc-hidden opView">
+  <!-- Export Header -->
+  <header>
+    <div class="title"><%= dicts.dataflow.header %></div>
+    <i class="close icon xi-close fa-15"></i>
+  </header>
+  
+  <div class="mainContent">
+    <div class="export opSection">
+      <p class="instructions"><%= dicts.dataflow.instr %></p>
+      <!-- Export Modal Top Section-->
+      <section class="modalTopMain">
+
+        <!-- export name section -->
+        <div class="exportNameSection formRow">
+          <div class="subHeading clearfix">
+            <div class="label"><%= dicts.dataflow.dfName %>:</div>
+          </div>
+            
+          <input id="newDFNameInput" class="text" type="text" spellcheck="false" required>
+          
+        </div>
+
+        <div class="exportColumnsSection formRow empty">
+          <div class="subHeading clearfix">
+            <div class="label"><%= dicts.dataflow.exportHeader %>:</div>
+          </div>
+          <p><%= dicts.dataflow.exportInstr %></p>
+          <div class="checkboxWrap selectAllWrap">
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-13"></i>
+              <i class="icon xi-ckbox-selected fa-13"></i>
+            </div>
+            <div class="text"><%= dicts.common.SelectAll %></div>
+          </div>
+          <div class="columnsWrap clearfix">
+            <ul class="cols"></ul>
+            <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
+          </div>
+          <div class="clearInput iconWrap">
+            <span class="icon"></span>
+          </div>
+        </div>
+
+        <!-- <div class="exportRowOrderSection formRow">
+          <div class="checkboxWrap keepOrderedCBWrap">
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-13"></i>
+              <i class="icon xi-ckbox-selected fa-13"></i>
+            </div>
+            <div class="text">Export Rows in Sorted Order (slow)</div>
+          </div>
+        </div> -->
+      </section>
+      <!-- Button Section -->
+      <section class="bottomSection">
+        <button type="button" class="btn confirm"><%= dicts.dataflow.create %></button>
+        <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+      </section>
+    </div>
+    
+  </div>
+  <!-- Export Modal Instruction -->
+  
+</div>
+<!-- End of Export Modal -->

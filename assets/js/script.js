@@ -236,7 +236,7 @@ window.StartManager = (function(StartManager, $) {
         AggModal.setup();
         OperationsView.setup();
         Workbook.setup();
-        DataFlowModal.setup();
+        DFCreateView.setup();
         DFGParamModal.setup();
         SmartCastView.setup();
         DeleteTableModal.setup();

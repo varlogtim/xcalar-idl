@@ -552,7 +552,8 @@ module.exports = {
         "dfName": "Dataflow Name",
         "exportHeader": "Columns to Export",
         "exportInstr": "Select that columns that you want to export at the end of your data flow. These are the only columns that you will see in your exported result after running the dataflow. The time your dataflow runs is affected by the number of columns you select here.",
-        "create": "CREATE"
+        "create": "CREATE",
+        "noColsHint": "No columns available for export"
     },
 
     "dataFlowModal": {
@@ -582,7 +583,12 @@ module.exports = {
         "DoNotOverwrite": "Do Not Overwrite",
         "OverwriteExisting": "Overwrite Existing",
         "AppendExisting": "Append To Existing",
-        "colInstr": "Select the columns to export by checking the box next to the column name. Alternatively, you can also click on the column headers in the table directly. If a column cannot be selected, or you do not see it in the list below, then it cannot be exported."
+        "colInstr": "Select the columns to export by checking the box next to the column name. Alternatively, you can also click on the column headers in the table directly. If a column cannot be selected, or you do not see it in the list below, then it cannot be exported.",
+        "tableToExport": "Table to export",
+        "exportFilename": "Export Filename",
+        "colsToExport": "Columns to export",
+        "exportInOrder": "Export Rows in Sorted Order (slow)",
+        "restoreDefaults": "RESTORE DEFAULTS"
     },
 
     "joinModdal": {

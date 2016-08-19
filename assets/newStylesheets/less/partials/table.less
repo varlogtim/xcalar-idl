@@ -844,6 +844,10 @@ html.firefox, html.microsoft {
             }
         }
 
+        td.jsonElement {
+            pointer-events: none;
+        }
+
         // td.modalHighlighted {
         //     position: relative;
         //     z-index: 0;
@@ -873,6 +877,12 @@ html.firefox, html.microsoft {
         cursor: not-allowed;
         .xcTheadWrap, .xcTbodyWrap {
             pointer-events: none;
+        }
+    }
+
+    &.allowSelectAll {
+        th:first-child {
+            pointer-events: initial;
         }
     }
 

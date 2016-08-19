@@ -69,6 +69,42 @@ window.DagPanel = (function($, DagPanel) {
         $dags.filter(".worksheet-" + wsId).removeClass("inActive");
     };
 
+    DagPanel.heightForDFView = function(noAnimateDelay) {
+        var newHeight = 50; // in %
+        var animateDelay = noAnimateDelay ? 0 : 100;
+        setTimeout(function () {
+            $dagPanel.removeClass('noTransform');
+            if (dagTopPct > newHeight) {
+                $dagArea.css('height', newHeight + '%');
+            } else {
+                $('#mainFrame').height(newHeight + '%');
+            }
+            
+            if (dagTopPct === undefined) {
+                setDagTranslate(0);
+            } else {
+                setDagTranslate(newHeight - dagTopPct);
+            }
+     
+            $('#dagScrollBarWrap').hide();
+            clickDisabled = true;
+            setTimeout(function() {
+                // debugger;
+                $dagPanel.addClass('noTransform');
+                $dagPanel.css('top', newHeight + '%');
+                $dagArea.css('height', newHeight + '%');
+                $('#mainFrame').height(newHeight + '%');
+                dagTopPct = newHeight;
+                clickDisabled = false;
+                $('#maximizeDag').removeClass('unavailable');
+                RowScroller.updateViewRange(gActiveTableId);
+                var winHeight = $(window).height();
+                DagPanel.setScrollBarId(winHeight);
+                DagPanel.adjustScrollBarPositionAndSize();
+            }, 300);
+        }, animateDelay);
+    };
+
     var dagTopPct = 0; // open up dag to 100% by default;
     var clickDisabled = false;
     // opening and closing of dag is temporarily disabled during animation
@@ -419,7 +455,15 @@ window.DagPanel = (function($, DagPanel) {
 
     function setupDataFlowBtn() {
         $dagPanel.on('click', '.addDataFlow', function() {
-            DataFlowModal.show($(this).closest('.dagWrap'));
+            var formBusy = $('#workspaceMenu').children().filter(function() {
+                return !$(this).hasClass('xc-hidden') &&
+                        !$(this).hasClass('menuSection');
+            }).length > 0;
+
+            if (!formBusy) {
+                DFCreateView.show($(this).closest('.dagWrap'));
+            }
+            
         });
 
         $dagPanel.on('click', '.saveImageBtn', function() {
