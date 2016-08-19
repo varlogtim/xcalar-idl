@@ -262,15 +262,21 @@ window.BottomMenu = (function($, BottomMenu) {
                 }, delay);
             }
 
-            var sectoinId = $section.attr("id");
-            if (sectoinId === "sqlSection") {
+            var sectionId = $section.attr("id");
+            if (sectionId === "sqlSection") {
                 SQL.scrollToBottom();
                 $("#sqlButtonWrap").removeClass("xc-hidden");
             } else {
                 $("#sqlButtonWrap").addClass("xc-hidden");
             }
 
-            if (sectoinId === "extension-ops") {
+            if (sectionId === "helpSection") {
+                $("#helpButtonWrap").removeClass("xc-hidden");
+            } else {
+                $("#helpButtonWrap").addClass("xc-hidden");
+            }
+
+            if (sectionId === "extension-ops") {
                 ExtensionManager.openView();
             } else {
                 ExtensionManager.closeView();

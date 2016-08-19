@@ -256,7 +256,8 @@ module.exports = {
         "AllQueries": "Show all queries",
         "ErrorQueries": "Show error queries",
         "RunQueries": "Show running queries",
-        "DoneQueries": "Show finished queries"
+        "DoneQueries": "Show finished queries",
+        "SelectCol": "Please select a column first!",
     },
 
     "workspaceBar": {
@@ -280,6 +281,7 @@ module.exports = {
         "popOutBtn": "undock",
         "toggleSqlBtn": "toggle machine/human Log",
         "copySqlBtn": "Copy Log",
+        "helpCategories": "Categories",
         "Help": "Help",
         "HelpSupport": "HELP & SUPPORT",
         "HelpTopics": "Help Topics",

@@ -969,6 +969,7 @@
                 margin-top: 10px;
                 color: @color-background-sidebar;
                 opacity: 0.5;
+                .transform(rotate(90deg))
             }
         }
 
@@ -2420,10 +2421,15 @@ html.microsoft {
 
             &.corr {
                 .size(@height: 86px);
-
-                .title {
-                    .flex(0 0 20px);
+                button {
+                    margin-top: 18px;
+                    i {
+                        position: relative;
+                        left: -8px;
+                        top: 3px;
+                    }
                 }
+                
             }
 
             .title {
@@ -2458,10 +2464,6 @@ html.microsoft {
                         width: 2px !important;
                     }
                 }
-            }
-
-            button {
-                margin-top: 5px;
             }
         }
     }

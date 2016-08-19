@@ -15,6 +15,12 @@ window.HelpSearch = (function($, HelpSearch) {
             return false;
         });
 
+        $('#helpCategories').click(function() {
+            $categoryArea.show();
+            $resultsArea.hide();
+            $searchInput.val("");
+        });
+
         $searchInput.on('keyup', function(e) {
             if (e.keyCode === keyCode.Enter) {
                 if ($searchInput.val().trim() === "") {

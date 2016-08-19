@@ -96,12 +96,7 @@ window.FnBar = (function(FnBar, $) {
                 lastFocusedCol === undefined) {
                 // No active column, disallow user from typing in a
                 newtext = "";
-                xcHelper.addTooltip($('#funcBarMenuArea'), undefined,
-                                    {"title": "Please select a column first!",
-                                     "placement": "bottom"});
                 xcHelper.refreshTooltip($('#funcBarMenuArea'), 1000);
-
-
             }
             if (change.update) {
                 change.update(change.from, change.to, [newtext]);
