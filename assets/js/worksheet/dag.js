@@ -69,8 +69,15 @@ window.DagPanel = (function($, DagPanel) {
         $dags.filter(".worksheet-" + wsId).removeClass("inActive");
     };
 
-    DagPanel.heightForDFView = function(noAnimateDelay) {
-        var newHeight = 50; // in %
+    DagPanel.heightForDFView = function(noAnimateDelay, onlyIfNeeded) {
+        var newHeight = 50;
+        if (onlyIfNeeded) {
+            var pct = dagTopPct || 0;
+            if (Math.abs(pct - 50) < 25) {
+                return;
+            }
+        }
+         // in %
         var animateDelay = noAnimateDelay ? 0 : 100;
         setTimeout(function () {
             $dagPanel.removeClass('noTransform');

@@ -61,7 +61,8 @@ window.DFCreateView = (function($, DFCreateView) {
             }
         });
 
-        DagPanel.heightForDFView(wasMenuOpen);
+        var onlyIfNeeded = true;
+        DagPanel.heightForDFView(wasMenuOpen, onlyIfNeeded);
         createColumnsList();
         selectInitialTableCols();
         setupTableColListeners();

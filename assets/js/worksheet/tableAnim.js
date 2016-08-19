@@ -513,6 +513,7 @@ window.TblAnim = (function($, TblAnim) {
 
             return;
         }
+
         $(document).off('mousemove.onColDrag');
 
         gMouseStatus = null;
@@ -660,7 +661,8 @@ window.TblAnim = (function($, TblAnim) {
         var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
         $fauxTable.css('margin-top', firstRowOffset);
         $fauxTable.find('tr:first-child').css({'margin-top':
-                -($fauxTable.find('tr:first').outerHeight() + firstRowOffset - 1)});
+                -($fauxTable.find('tr:first').outerHeight() + firstRowOffset -
+                                                                    22)});
     }
 
     function createDropTargets(dropTargetIndex, swappedColIndex) {

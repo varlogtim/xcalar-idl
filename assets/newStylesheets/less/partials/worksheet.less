@@ -150,11 +150,11 @@
 
 .dragArea {
     .position(absolute, @top: -5px, @left: 0);
-    .size(@width: 100%, @height: 58px);
+    .size(@width: 100%, @height: @height-xcColHeaderOuter + 1);
     .cursor-move;
     z-index: 2;
     .iconHelper {
-        .position(absolute, @top: 8px, @left: 2px);
+        .position(absolute, @top: @height-xcColPrefix, @left: 2px);
         .size(20px, @height-colHeader);
     }
 }
@@ -338,6 +338,14 @@
         z-index: 3; // codeMirror has z-index of 2
         .downArrow .icon {
             margin-left: 0px;
+        }
+        .iconWrap {
+            background-color: @color-bg-99-grey;
+            opacity: @opacity-unhover;
+
+            &:hover {
+               opacity: @opacity-hover;
+            }
         }
     }
 

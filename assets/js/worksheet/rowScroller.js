@@ -347,7 +347,7 @@ window.RowScroller = (function($, RowScroller) {
         }
         var tableLeft = $table.offset().left;
         var tdXCoor = Math.max(0, tableLeft);
-        var tdYCoor = 130; //top rows's distance from top of window
+        var tdYCoor = 150; //top rows's distance from top of window
         var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
         var firstId = $(firstEl).closest('tr').attr('class');
 
@@ -360,8 +360,8 @@ window.RowScroller = (function($, RowScroller) {
             }
         } else {
             var offsetTop = $table.parent().offset().top;
-            // tdYCoor may need to be changed when query graph is open
-            tdYCoor += (offsetTop - 114);
+            // // tdYCoor may need to be changed when query graph is open
+            // tdYCoor += (offsetTop - 114);
             var $trs = $table.find('tbody tr');
             var $tr;
             var rowNum = null;

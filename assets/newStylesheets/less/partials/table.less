@@ -71,9 +71,12 @@ html.firefox, html.microsoft {
                 .transition(border-color 0s);
             }
         }
+        &.dataCol {
 
-        &.dataCol .flexRow {
-            background-color: @color-background-darkGray !important;
+            .flexRow {
+                background-color: @color-background-darkGray !important;
+                height: @height-xcColHeaderOuter - 10px;
+            }
         }
     }
 
@@ -99,6 +102,7 @@ html.firefox, html.microsoft {
         &:nth-child(odd) {
             td {
                 background-color: @color-table-oddRow-gray;
+                background-color: #EDEDED;
 
                 &.indexedColumn:not(.noIndexStyle) {
                     background-color: @color-table-indexed-blue;
@@ -1233,7 +1237,7 @@ html.firefox, html.microsoft {
         z-index: @z-index-tableHeaderInput;
 
         &:after {
-            top: 55px;
+            top: @height-xcColHeaderOuter - 6px;
         }
 
         .topHeader {
@@ -1253,6 +1257,7 @@ html.firefox, html.microsoft {
                 .font(@color: @color-font-greyish-brown);
                 opacity: 0.7;
                 line-height: @height-xcColPrefix;
+                .textOverflowOneLine;
             }
         }
 
