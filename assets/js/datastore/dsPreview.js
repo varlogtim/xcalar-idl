@@ -25,7 +25,7 @@ window.DSPreview = (function($, DSPreview) {
 
     var highlighter = "";
 
-    var loadArgs = new DSFomrController();
+    var loadArgs = new DSFormController();
     var detectArgs = {};
 
     // UI cache
@@ -1401,7 +1401,15 @@ window.DSPreview = (function($, DSPreview) {
 
         for (var i = startIndex; i <= endIndex; i++) {
             var c = datas.charAt(i);
-            if (!hasBackSlash && !hasQuote) {
+            if (hasBackSlash) {
+                // skip
+                hasBackSlash = false;
+            } else if (c === '\\') {
+                hasBackSlash = true;
+            } else if (c === '"') {
+                // toggle escape of quote
+                hasQuote = !hasQuote;
+            } else if (!hasBackSlash && !hasQuote) {
                 if (c === "{") {
                     if (startIndex === -1) {
                         startIndex = i;
@@ -1417,15 +1425,7 @@ window.DSPreview = (function($, DSPreview) {
                         errorHandler(DSPreviewTStr.NoParseJSON);
                     }
                 }
-            } else if (hasBackSlash) {
-                // skip
-                hasBackSlash = false;
-            } else if (c === '\\') {
-                hasBackSlash = true;
-            } else if (c === '"') {
-                // toggle escape of quote
-                hasQuote = !hasQuote;
-            }
+            } 
         }
 
         if (bracketCnt === 0 && startIndex >= 0 && startIndex <= endIndex) {
@@ -1932,8 +1932,11 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.parseTdHelper = parseTdHelper;
         DSPreview.__testOnly__.getTbodyHTML = getTbodyHTML;
         DSPreview.__testOnly__.getTheadHTML = getTheadHTML;
+        DSPreview.__testOnly__.getPreviewTableName = getPreviewTableName;
         DSPreview.__testOnly__.highlightHelper = highlightHelper;
-        // DSPreview.__testOnly__.headerPromoteDetect = headerPromoteDetect;
+        DSPreview.__testOnly__.detectFormat = detectFormat;
+        DSPreview.__testOnly__.detectFieldDelim = detectFieldDelim;
+        DSPreview.__testOnly__.detectHeader = detectHeader;
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
         // DSPreview.__testOnly__.applyDelim = applyDelim;
         // DSPreview.__testOnly__.togglePromote = togglePromote;
@@ -1950,13 +1953,13 @@ window.DSPreview = (function($, DSPreview) {
 
         DSPreview.__testOnly__.get = function() {
             return {
-                "delimiter"  : delimiter,
-                "highlighter": highlighter
+                "loadArgs"   : loadArgs,
+                "highlighter": highlighter,
+                "detectArgs" : detectArgs
             };
         };
 
-        DSPreview.__testOnly__.set = function(newDelim, newHeader, newHighlight, newData) {
-            delimiter = newDelim || "";
+        DSPreview.__testOnly__.set = function(newData, newHighlight) {
             highlighter = newHighlight || "";
             rawData = newData || null;
         };

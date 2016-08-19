@@ -1348,6 +1348,7 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.sortFiles = sortFiles;
         FileBrowser.__testOnly__.changeProtocol = changeProtocol;
         FileBrowser.__testOnly__.goToPath = goToPath;
+        FileBrowser.__testOnly__.toggleView = toggleView;
         FileBrowser.__testOnly__.focusOn = focusOn;
         FileBrowser.__testOnly__.getFocusGrid = getFocusGrid;
     }

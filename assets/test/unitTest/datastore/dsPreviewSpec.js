@@ -3,8 +3,6 @@ function dsPreviewModuleTest() {
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
     var $previewTable;
-    var $highLightBtn;
-    var $rmHightLightBtn;
 
     var $fileName;
     var $formatText;
@@ -22,10 +20,10 @@ function dsPreviewModuleTest() {
 
     var $statusBox;
 
+    var loadArgs;
+
     before(function(){
         $previewTable = $("#previewTable");
-        $highLightBtn = $("#preview-highlight");
-        $rmHightLightBtn = $("#preview-rmHightlight");
 
         $fileName = $("#dsForm-dsName");
         $formatText  = $("#fileFormat .text");
@@ -42,9 +40,10 @@ function dsPreviewModuleTest() {
         $udfCheckbox = $("#udfCheckbox"); // udf checkbox
 
         $statusBox = $("#statusBox");
+        loadArgs = DSPreview.__testOnly__.get().loadArgs;
     });
 
-    describe("Basic Function Test", function() {
+    describe("Basic Preview Function Test", function() {
         it('parseTdHelper should work', function() {
             var parseTdHelper = DSPreview.__testOnly__.parseTdHelper;
             var testCases = [{
@@ -120,17 +119,8 @@ function dsPreviewModuleTest() {
                 "hasHeader": false,
                 "expectRes": '<tbody>' +
                                 '<tr>' +
-                                    '<td class="lineMarker promote" ' +
-                                    'title="Promote Header" ' +
-                                    'data-toggle="tooltip" ' +
-                                    'data-placement="top" ' +
-                                    'data-container="body">' +
-                                        '<div class="promoteWrap">' +
-                                            '<div class="iconWrapper">' +
-                                                '<span class="icon"></span>' +
-                                            '</div>' +
-                                        '<div class="divider"></div>' +
-                                        '</div>' +
+                                    '<td class="lineMarker">' +
+                                        '1' +
                                     '</td>' +
                                     '<td class="cell">' +
                                         '<span class="td">t</span>' +
@@ -155,19 +145,17 @@ function dsPreviewModuleTest() {
                                     '</td>' +
                                 '</tr>' +
                             '</tbody>'
-            }
-            ];
+            }];
 
             testCases.forEach(function(testCase) {
-                var delimiter = testCase.delimiter
-                var hasHeader = testCase.hasHeader;
-
-                DSPreview.__testOnly__.set(delimiter, hasHeader, "");
-                var tbody = getTbodyHTML(testCase.datas);
+                var delimiter = testCase.delimiter;
+                loadArgs.setHeader(testCase.hasHeader);
+                loadArgs.setFieldDelim(delimiter);
+                var tbody = getTbodyHTML(testCase.datas, delimiter);
                 expect(tbody).to.equal(testCase.expectRes);
             });
 
-            DSPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set();
         });
 
         it("getTheadHTML should work", function() {
@@ -200,14 +188,8 @@ function dsPreviewModuleTest() {
                 "hasHeader": true,
                 "expectRes": '<thead>' +
                                 '<tr>' +
-                                    '<th class="undo-promote">' +
-                                        '<div class="header" ' +
-                                        'title="Undo Promote Header" ' +
-                                        'data-toggle="tooltip" ' +
-                                        'data-placement="top" ' +
-                                        'data-container="body">' +
-                                            '<span class="icon"></span>' +
-                                        '</div>' +
+                                    '<th class="rowNumHead">' +
+                                        '<div class="header"></div>' +
                                     '</th>' +
                                     '<th>' +
                                         '<div class="header">' +
@@ -219,19 +201,18 @@ function dsPreviewModuleTest() {
                                     '</th>' +
                                 '</tr>' +
                               '</thead>'
-            }
-            ];
+            }];
 
             testCases.forEach(function(testCase) {
-                var delimiter = testCase.delimiter
-                var hasHeader = testCase.hasHeader;
+                var delimiter = testCase.delimiter;
+                loadArgs.setHeader(testCase.hasHeader);
+                loadArgs.setFieldDelim(delimiter);
 
-                DSPreview.__testOnly__.set(delimiter, hasHeader, "");
-                var tHead = getTheadHTML(testCase.datas, testCase.tdLen);
+                var tHead = getTheadHTML(testCase.datas, delimiter, testCase.tdLen);
                 expect(tHead).to.equal(testCase.expectRes);
             });
 
-            DSPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set();
         });
 
         it("highlightHelper() should work", function() {
@@ -246,264 +227,259 @@ function dsPreviewModuleTest() {
                                 '<span class="td highlight">,</span>' +
                                 '<span class="td">i</span>');
         });
+
+        it("getPreviewName() should work", function() {
+            var getPreviewTableName = DSPreview.__testOnly__.getPreviewTableName;
+            var res = getPreviewTableName("test");
+            expect(res.indexOf("test-") > 0).to.be.true;
+            expect(res.endsWith(".preview")).to.be.true;
+
+            var res = getPreviewTableName();
+            expect(res.indexOf("previewTable") > 0).to.be.true;
+            expect(res.endsWith(".preview")).to.be.true;
+        });
     });
 
     describe("Suggest Test", function() {
-        var $content;
+        it("Should detect correct format", function() {
+            var detectFormat = DSPreview.__testOnly__.detectFormat;
+            loadArgs.setFormat("JSON");
+            expect(detectFormat()).to.equal("JSON");
 
-        before(function() {
-            $content = $("#previewSugg .content");
+            loadArgs.setFormat("Excel");
+            expect(detectFormat()).to.equal("Excel");
+
+            loadArgs.setFormat(null);
+            $previewTable.html('<tbody><tr><td class="td cell">[{"test"}</td></tr></tbody>');
+            expect(detectFormat()).to.equal("JSON");
+
+            loadArgs.setFormat(null);
+            $previewTable.html('<tbody><tr><td class="td cell">{"test": "val"}<td></tr></tbody>');
+            expect(detectFormat()).to.equal("JSON");
+
+            loadArgs.setFormat(null);
+            $previewTable.html('<tbody><tr><td class="td cell">abc<td></tr></tbody>');
+            expect(detectFormat()).to.equal("CSV");
         });
 
-        it("should suggest proper delimiter", function() {
-            var $actions;
+        it("should detect correct delimiter", function() {
+            var detectFieldDelim = DSPreview.__testOnly__.detectFieldDelim;
 
-            DSPreview.__testOnly__.set("", false, "");
+            DSPreview.__testOnly__.set();
 
             // when nothing to delimit
-            $previewTable.html('');
-            DSPreview.__testOnly__.suggestHelper();
-
-            $actions = $content.find(".action");
-            expect($actions.length).to.equal(1);
-            expect($actions.eq(0).hasClass("hint")).to.be.false;
-            expect($actions.eq(0).text()).equal('Save & Exit');
+            $previewTable.html("");
+            expect(detectFieldDelim()).equal("");
 
 
             // when delimiter on comma
             $previewTable.html('<span class="has-comma"></span>');
-            DSPreview.__testOnly__.suggestHelper();
-
-            $actions = $content.find(".action");
-            expect($actions.length).to.equal(2);
-            expect($actions.eq(0).hasClass("commaDelim")).to.be.true;
-            expect($actions.eq(0).text()).equal('Apply comma as delimiter');
-            expect($actions.eq(1).hasClass("hint")).to.be.true;
-            expect($actions.eq(1).text()).equal('or Highlight another character as delimiter');
+            expect(detectFieldDelim()).equal(",");
 
             // when delimiter on tab
             $previewTable.html('<span class="has-tab"></span>');
-            DSPreview.__testOnly__.suggestHelper();
+            expect(detectFieldDelim()).equal("\t");
 
-            $actions = $content.find(".action");
-            expect($actions.length).to.equal(2);
-            expect($actions.eq(0).hasClass("tabDelim")).to.be.true;
-            expect($actions.eq(0).text()).equal('Apply tab as delimiter');
-            expect($actions.eq(1).hasClass("hint")).to.be.true;
-            expect($actions.eq(1).text()).equal('or Highlight another character as delimiter');
+            // when has few pips
+            $previewTable.html('<span class="has-pipe"></span>');
+            expect(detectFieldDelim()).equal("");
+
+            // when has a lot of pips
+            var html = "";
+            for (var i = 0; i < 50; i ++) {
+                html += '<span class="has-pipe"></span>';
+            }
+            $previewTable.html(html);
+            expect(detectFieldDelim()).equal("|");
         });
 
-        it("Should suggest about highlight when has highlighter", function() {
-            DSPreview.__testOnly__.set("", false, ",");
-            DSPreview.__testOnly__.suggestHelper();
+        it("should detect correct header", function() {
+            var detectHeader = DSPreview.__testOnly__.detectHeader;
 
-            var $actions = $content.find(".action");
-            expect($actions.length).to.equal(2);
-            expect($actions.eq(0).hasClass("apply-highlight")).to.be.true;
-            expect($actions.eq(0).text()).equal('Apply hightlighted characters as delimiter');
-            expect($actions.eq(1).hasClass("rm-highlight")).to.be.true;
-            expect($actions.eq(1).text()).equal('Remove highlights');
-        });
+            DSPreview.__testOnly__.set();
 
-        it("Should suggest in error url", function() {
-            var $actions;
-            // load execl error
-            DSPreview.__testOnly__.errorSuggestHelper("test.xlsx");
+            // when nothing to delimit
+            $previewTable.html("");
+            expect(detectHeader()).to.be.false;
 
-            $actions = $content.find(".action");
-            expect($actions.length).to.equal(2);
-            expect($actions.eq(0).hasClass("excelLoad hasHeader")).to.be.true;
-            expect($actions.eq(0).text()).equal(DSPreviewTStr.LoadExcelWithHeader);
-            expect($actions.eq(1).hasClass("excelLoad")).to.be.true;
-            expect($actions.eq(1).text()).equal(DSPreviewTStr.LoadExcel);
 
-            // load json error
-            DSPreview.__testOnly__.errorSuggestHelper("test.json");
+            // when is not header
+            var html = '<tbody>' +
+                        '<tr>' +
+                            '<td></td><td>Col0</td>' +
+                        '</tr>' +
+                        '<tr>' +
+                            '<td></td><td>Col1</td>' +
+                        '</tr>';
+            $previewTable.html(html);
+            expect(detectHeader()).to.be.false;
 
-            $actions = $content.find(".action");
-            expect($actions.length).to.equal(1);
-            expect($actions.eq(0).hasClass("jsonLoad")).to.be.true;
-            expect($actions.eq(0).text()).equal(DSPreviewTStr.LoadJSON);
+            html = '<tbody>' +
+                    '<tr>' +
+                        '<td></td><td></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td></td><td>Col1</td>' +
+                    '</tr>';
+            $previewTable.html(html);
+            expect(detectHeader()).to.be.false;
 
-            // other kind of error
-            DSPreview.__testOnly__.errorSuggestHelper("test");
+            html = '<tbody>' +
+                    '<tr>' +
+                        '<td></td><td>0</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td></td><td>Col1</td>' +
+                    '</tr>';
+            $previewTable.html(html);
+            expect(detectHeader()).to.be.false;
 
-            $actions = $content.find(".action");
-            expect($actions.length).to.equal(1);
-            expect($actions.eq(0).hasClass("hint")).to.be.true;
-            expect($actions.eq(0).text()).equal(DSPreviewTStr.LoadUDF);
-        });
-
-        it("headerPromoteDetect() should work", function() {
-            // when no delimiter
-            DSPreview.__testOnly__.set("", false, "");
-            expect(DSPreview.__testOnly__.headerPromoteDetect()).to.be.false;
-
-            // when has delimiter
-            DSPreview.__testOnly__.set(",", false, "");
-            // case1
-            $previewTable.html('<table><tbody>' +
-                                    '<tr>' +
-                                        '<td>1</td>' +
-                                        '<td>2</td>' +
-                                    '<tr>' +
-                                    '<tr>' +
-                                        '<td>b</td>' +
-                                        '<td>b</td>' +
-                                    '<tr>' +
-                                '</tbody></table>');
-            expect(DSPreview.__testOnly__.headerPromoteDetect()).to.be.false;
-
-            // case2
-            $previewTable.html('<table><tbody>' +
-                                    '<tr>' +
-                                        '<td>H1</td>' +
-                                        '<td>H2</td>' +
-                                        '<td>H3</td>' +
-                                    '<tr>' +
-                                    '<tr>' +
-                                        '<td>1</td>' +
-                                        '<td>2</td>' +
-                                        '<td>3</td>' +
-                                    '<tr>' +
-                                '</tbody></table>');
-            expect(DSPreview.__testOnly__.headerPromoteDetect()).to.be.true;
-        });
-
-        after(function() {
-            DSPreview.__testOnly__.set("", false, "");
-            $previewTable.empty();
-            $content.empty();
+            // has header
+            html = '<tbody>' +
+                    '<tr>' +
+                        '<td></td><td>ThisisHeader</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td></td><td>1</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td></td><td>2</td>' +
+                    '</tr>';
+            $previewTable.html(html);
+            expect(detectHeader()).to.be.true;
         });
     });
 
     describe("Get Preview Table Test", function() {
+        before(function() {
+            $previewTable.html("");
+            loadArgs.reset();
+        });
+
         it ("Should get a table from raw data", function() {
-            var data = [["h", ",", "i"], ["t", "e", "s", "t"]];
-            DSPreview.__testOnly__.set("", false, "", data);
+            loadArgs.setFormat("CSV");
+            loadArgs.setFieldDelim("");
+
+            var data = "h,i\nte,st";
+            DSPreview.__testOnly__.set(data);
             DSPreview.__testOnly__.getPreviewTable();
 
-            // has 2 rows and 2 columns
+            // has 2 rows and 2 columns(include lineMaker)
             expect($previewTable.find("th").length).to.equal(2);
             expect($previewTable.find("tbody tr").length).to.equal(2);
+            expect($previewTable.hasClass("has-delimiter")).to.be.false;
 
-            DSPreview.__testOnly__.set(",", false, "", data);
+            loadArgs.setFieldDelim(",");
             DSPreview.__testOnly__.getPreviewTable();
-
             // has 2 rows and 3 columns
             expect($previewTable.find("th").length).to.equal(3);
             expect($previewTable.find("tbody tr").length).to.equal(2);
+            expect($previewTable.hasClass("has-delimiter")).to.be.true;
+
+            // error json
+            loadArgs.setFormat("JSON");
+            DSPreview.__testOnly__.getPreviewTable();
+            var res = $("#dsPreviewWrap").find(".errorSection").text();
+            expect(res).to.equal(DSPreviewTStr.NoParseJSON);
+
+            // valid json
+            var data = '{"a": "b"}';
+            DSPreview.__testOnly__.set(data);
+            DSPreview.__testOnly__.getPreviewTable();
+            // has 1 row and 2 columns(include lineMaker)
+            expect($previewTable.find("th").length).to.equal(2);
+            expect($previewTable.find("tbody tr").length).to.equal(1);
+
+            // valid json2
+            var data = '{"a": "\\{b"}';
+            DSPreview.__testOnly__.set(data);
+            DSPreview.__testOnly__.getPreviewTable();
+            // has 1 row and 2 columns(include lineMaker)
+            expect($previewTable.find("th").length).to.equal(2);
+            expect($previewTable.find("tbody tr").length).to.equal(1);
         });
 
         it("Should highlight delimiter", function() {
-            var data = [["h", ",", "i"]];
-            DSPreview.__testOnly__.set("", false, "", data);
+            var data = "h,i";
+            var $highLightBtn = $("#dsForm-highlighter .highlight");
+            var $rmHightLightBtn = $("#dsForm-highlighter .rmHightLight");
+
+            loadArgs.setFormat("CSV");
+            loadArgs.setFieldDelim("");
+            DSPreview.__testOnly__.set(data);
             DSPreview.__testOnly__.getPreviewTable();
 
+            expect($highLightBtn.hasClass("xc-disabled")).to.be.false;
+            expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.false;
             // can highlight
             DSPreview.__testOnly__.applyHighlight(",");
             expect(DSPreview.__testOnly__.get().highlighter).to.equal(",");
             expect($previewTable.find(".highlight").length).to.equal(1);
-            expect($highLightBtn.hasClass("active")).to.be.true;
-            expect($rmHightLightBtn.hasClass("active")).to.be.true;
+            expect($highLightBtn.hasClass("xc-disabled")).to.be.false;
+            expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.false;
 
             // can remove highlight
             DSPreview.__testOnly__.applyHighlight("");
             expect(DSPreview.__testOnly__.get().highlighter).to.equal("");
             expect($previewTable.find(".highlight").length).to.equal(0);
-            expect($highLightBtn.hasClass("active")).to.be.false;
-            expect($rmHightLightBtn.hasClass("active")).to.be.false;
+            expect($highLightBtn.hasClass("xc-disabled")).to.be.true;
+            expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.true;
         });
 
-        it("Should apply delimiter", function() {
-            var data = [["h", ",", "i"]];
-            DSPreview.__testOnly__.set("", false, "", data);
-            DSPreview.__testOnly__.getPreviewTable();
+      
+        // it("Should clear preview table", function() {
+        //     var data = [["h", ",", "i"]];
+        //     DSPreview.__testOnly__.set(",", true, "", data);
+        //     DSPreview.__testOnly__.getPreviewTable();
 
-            // can apply delimiter
-            DSPreview.__testOnly__.applyDelim(",");
-            var res = DSPreview.__testOnly__.get();
-            expect(res.delimiter).to.equal(",");
-            expect(res.highlighter).to.equal("");
-            expect($rmHightLightBtn.hasClass("active")).to.be.true;
-            expect($previewTable.find(".has-comma").length).to.equal(0);
+        //     DSPreview.__testOnly__.clearAll();
+        //     var res = DSPreview.__testOnly__.get();
+        //     expect(res.delimiter).to.equal("");
+        //     expect(res.highlighter).to.equal("");
+        //     expect(res.hasHeader).to.equal(false);
+        //     expect($previewTable.html()).to.equal("");
+        // });
 
-            // can remove delimiter
-            DSPreview.__testOnly__.applyDelim("");
-            expect(DSPreview.__testOnly__.get().delimiter).to.equal("");
-            expect($rmHightLightBtn.hasClass("active")).to.be.false;
-            expect($previewTable.find(".has-comma").length).to.equal(1);
-        });
-
-        it("Should toggle promote", function() {
-            var data = [["h", ",", "i"]];
-            DSPreview.__testOnly__.set("", false, "", data);
-            DSPreview.__testOnly__.getPreviewTable();
-
-            // toggle to have header
-            DSPreview.__testOnly__.togglePromote();
-            expect(DSPreview.__testOnly__.get().hasHeader).to.be.true;
-            expect($previewTable.find(".undo-promote").length).to.equal(1);
-
-            // toggle to remove header
-            DSPreview.__testOnly__.togglePromote();
-            expect(DSPreview.__testOnly__.get().hasHeader).to.be.false;
-            expect($previewTable.find(".undo-promote").length).to.equal(0);
-        });
-
-        it("Should clear preview table", function() {
-            var data = [["h", ",", "i"]];
-            DSPreview.__testOnly__.set(",", true, "", data);
-            DSPreview.__testOnly__.getPreviewTable();
-
-            DSPreview.__testOnly__.clearAll();
-            var res = DSPreview.__testOnly__.get();
-            expect(res.delimiter).to.equal("");
-            expect(res.highlighter).to.equal("");
-            expect(res.hasHeader).to.equal(false);
-            expect($previewTable.html()).to.equal("");
-        });
-
-        after(function() {
-            DSPreview.__testOnly__.set("", false, "");
-            $previewTable.empty();
-        });
+        // after(function() {
+        //     DSPreview.__testOnly__.set("", false, "");
+        //     $previewTable.empty();
+        // });
     });
 
-    describe("Preview API Test", function() {
-        it("DSPreview.show() should work", function(done) {
-            var loadUrl = testDatasets.sp500.protocol + testDatasets.sp500.path;
-            DSPreview.show(loadUrl)
-            .then(function() {
-                // expect($previewTable.is(":visible")).to.be.true;
-                expect($previewTable.html()).not.to.equal("");
-                done();
-            })
-            .fail(function() {
-                throw "Fail Case!";
-            });
-        });
+    // describe("Preview API Test", function() {
+    //     it("DSPreview.show() should work", function(done) {
+    //         var loadUrl = testDatasets.sp500.protocol + testDatasets.sp500.path;
+    //         DSPreview.show(loadUrl)
+    //         .then(function() {
+    //             // expect($previewTable.is(":visible")).to.be.true;
+    //             expect($previewTable.html()).not.to.equal("");
+    //             done();
+    //         })
+    //         .fail(function() {
+    //             throw "Fail Case!";
+    //         });
+    //     });
 
-        it("DSPreview.clear() should work", function(done) {
-            DSPreview.clear()
-            .then(function() {
-                var res = DSPreview.__testOnly__.get();
-                expect(res.delimiter).to.equal("");
-                expect(res.highlighter).to.equal("");
-                expect(res.hasHeader).to.equal(false);
-                done();
-            })
-            .fail(function() {
-                throw "Fail Case!";
-            });
-        });
+    //     it("DSPreview.clear() should work", function(done) {
+    //         DSPreview.clear()
+    //         .then(function() {
+    //             var res = DSPreview.__testOnly__.get();
+    //             expect(res.delimiter).to.equal("");
+    //             expect(res.highlighter).to.equal("");
+    //             expect(res.hasHeader).to.equal(false);
+    //             done();
+    //         })
+    //         .fail(function() {
+    //             throw "Fail Case!";
+    //         });
+    //     });
 
-        after(function() {
-            // DSPreview.clear() doesn't remove preview table's html,
-            // so call clearAll() to totally clear
-            DSPreview.__testOnly__.clearAll();
-        });
-    });
+    //     after(function() {
+    //         // DSPreview.clear() doesn't remove preview table's html,
+    //         // so call clearAll() to totally clear
+    //         DSPreview.__testOnly__.clearAll();
+    //     });
+    // });
 
     // XXX moved to dsPreview.js (getNameFromPath)
         // it('Should get short name', function(done) {
@@ -542,6 +518,43 @@ function dsPreviewModuleTest() {
         //         throw "Error case";
         //     });
         // });
+
+      // it("Should apply delimiter", function() {
+        //     var data = [["h", ",", "i"]];
+        //     DSPreview.__testOnly__.set("", false, "", data);
+        //     DSPreview.__testOnly__.getPreviewTable();
+
+        //     // can apply delimiter
+        //     DSPreview.__testOnly__.applyDelim(",");
+        //     var res = DSPreview.__testOnly__.get();
+        //     expect(res.delimiter).to.equal(",");
+        //     expect(res.highlighter).to.equal("");
+        //     expect($rmHightLightBtn.hasClass("active")).to.be.true;
+        //     expect($previewTable.find(".has-comma").length).to.equal(0);
+
+        //     // can remove delimiter
+        //     DSPreview.__testOnly__.applyDelim("");
+        //     expect(DSPreview.__testOnly__.get().delimiter).to.equal("");
+        //     expect($rmHightLightBtn.hasClass("active")).to.be.false;
+        //     expect($previewTable.find(".has-comma").length).to.equal(1);
+        // });
+
+        // it("Should toggle promote", function() {
+        //     var data = [["h", ",", "i"]];
+        //     DSPreview.__testOnly__.set("", false, "", data);
+        //     DSPreview.__testOnly__.getPreviewTable();
+
+        //     // toggle to have header
+        //     DSPreview.__testOnly__.togglePromote();
+        //     expect(DSPreview.__testOnly__.get().hasHeader).to.be.true;
+        //     expect($previewTable.find(".undo-promote").length).to.equal(1);
+
+        //     // toggle to remove header
+        //     DSPreview.__testOnly__.togglePromote();
+        //     expect(DSPreview.__testOnly__.get().hasHeader).to.be.false;
+        //     expect($previewTable.find(".undo-promote").length).to.equal(0);
+        // });
+
 
 
     // describe("Format Change Test", function() {

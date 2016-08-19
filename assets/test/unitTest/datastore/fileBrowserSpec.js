@@ -136,6 +136,7 @@ function fileBrowserModuleTest() {
 
         it('Should toggle view', function() {
             var $fileBrowserMain = $("#fileBrowserMain");
+            var toListView 
             var expect1, expect2;
             if ($fileBrowserMain.hasClass("listView")) {
                 expect1 = "gridView";
@@ -145,10 +146,10 @@ function fileBrowserModuleTest() {
                 expect2 = "gridView";
             }
             // toggle to another view
-            $("#fileBrowserGridView").click();
+            FileBrowser.__testOnly__.toggleView();
             assert.isTrue($fileBrowserMain.hasClass(expect1));
             // toggle back
-            $("#fileBrowserGridView").click();
+            FileBrowser.__testOnly__.toggleView();
             assert.isTrue($fileBrowserMain.hasClass(expect2));
         });
 
@@ -183,8 +184,12 @@ function fileBrowserModuleTest() {
 
         it('Should import dataset', function() {
             $fileBrowser.find(".confirm").click();
-            expect($("#filePath").val()).to.equal("netstore/datasets/sp500.csv");
+            expect($("#preview-url").text()).to.equal("nfs:///netstore/datasets/sp500.csv");
             assert.isFalse($fileBrowser.is(":visible"));
+        });
+
+        after(function() {
+            $("#importDataButton").click();
         });
     });
 }

@@ -527,11 +527,11 @@ UserPref.prototype = {
 };
 
 // datastore.js
-function DSFomrController() {
+function DSFormController() {
     return this;
 }
 
-DSFomrController.prototype = {
+DSFormController.prototype = {
     "set": function(options) {
         var self = this;
         optoins = options || {};

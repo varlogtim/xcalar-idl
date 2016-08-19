@@ -14,10 +14,10 @@ describe('Datastore Test', function() {
     });
 
     describe('Datastore Module Test', datastoreModuleTest);
-    // describe('Dsobj Test', dsObjTest);
+    describe('Dsobj Test', dsObjTest);
     describe('Dataset Form Module Test', dsFormModuleTest);
     describe('File Browser Module Test', fileBrowserModuleTest);
-    // describe('Dataset Preview Module Test', dsPreviewModuleTest);
+    describe('Dataset Preview Module Test', dsPreviewModuleTest);
     // describe('Data Cart Module Test', dsCartModuleTest);
     // describe('Dataset Sample Table Test', dsTableTest);
 
