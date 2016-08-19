@@ -677,9 +677,9 @@ window.TblManager = (function($, TblManager) {
         var sortIcon = "";
         if (indexed) {
             if (options.order === XcalarOrderingT.XcalarOrderingAscending) {
-                sortIcon = '<i class="sortIcon icon xi-arrow-up fa-12"></i>';
+                sortIcon = '<i class="sortIcon icon xi-arrowtail-up fa-12"></i>';
             } else if (options.order === XcalarOrderingT.XcalarOrderingDescending) {
-                sortIcon = '<i class="sortIcon icon xi-arrow-down fa-12"></i>';
+                sortIcon = '<i class="sortIcon icon xi-arrowtail-down fa-12"></i>';
             }
         }
 

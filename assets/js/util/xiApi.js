@@ -66,7 +66,6 @@ window.XIApi = (function(XIApi, $) {
             var keyName = table.getKeyName();
             var ordering = table.getOrdering();
             if (keyName != null && XcalarOrderingTStr.hasOwnProperty(ordering)) {
-                console.log("found in meta", keyName, ordering);
                 return PromiseHelper.resolve(ordering, keyName);
             }
         }
