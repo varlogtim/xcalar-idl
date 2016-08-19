@@ -215,6 +215,17 @@ TableMeta.prototype = {
         return this.ordering;
     },
 
+    showIndexStyle: function() {
+        var order = this.ordering;
+        if (!gEnableIndexStyle &&
+            order !== XcalarOrderingT.XcalarOrderingAscending &&
+            order !== XcalarOrderingT.XcalarOrderingDescending) {
+            return false;
+        } else {
+            return true;
+        }
+    },
+
     beArchived: function() {
         this.status = TableType.Archived;
         return this;

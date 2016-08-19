@@ -2239,6 +2239,7 @@ window.TblManager = (function($, TblManager) {
                 '</th>';
         var numCols = columns.length;
         var dataIndex = null;
+        var hasIndexStyle = table.showIndexStyle();
 
         for (var i = 0; i < numCols; i++) {
             var color = "";
@@ -2258,6 +2259,9 @@ window.TblManager = (function($, TblManager) {
 
             if (backName === table.keyName) {
                 columnClass = " indexedColumn";
+                if (!hasIndexStyle) {
+                    columnClass += " noIndexStyle";
+                }
             } else if (columns[i].name === "" || columns[i].func.name === "") {
                 columnClass = " newColumn";
             }

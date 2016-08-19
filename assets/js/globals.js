@@ -68,6 +68,7 @@ var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
 var gUdfDefaultNoCheck = false; // when set true, allow update default udf
 var gSessionNoCleanup = true;
 var gIcvMode = false;
+var gEnableIndexStyle = false;
 // ==================================== //
 
 var KB = 1024;

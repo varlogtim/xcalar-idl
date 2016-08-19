@@ -94,8 +94,11 @@ window.ColManager = (function($, ColManager) {
             name = "";
             select = true;
             columnClass = " newColumn";
-        } else if (name === table.keyName) {
+        } else if (name === table.getKeyName()) {
             columnClass = " indexedColumn";
+            if (!table.showIndexStyle()) {
+                columnClass += " noIndexStyle";
+            }
         } else {
             columnClass = "";
         }
@@ -180,7 +183,7 @@ window.ColManager = (function($, ColManager) {
                                 parseInt(idOfFirstRow.substring(3)) : 1;
         var endingIndex = parseInt(idOfLastRow.substring(3));
 
-        if (columnClass !== " indexedColumn") {
+        if (columnClass.indexOf("indexedColumn") < 0) {
             columnClass = ""; // we don't need to add class to td otherwise
         }
 
@@ -1664,6 +1667,7 @@ window.ColManager = (function($, ColManager) {
         var colTruncLen;
         var tdValLen;
         var isColTruncated = false;
+        var hasIndexStyle = table.showIndexStyle();
 
         startIndex = startIndex || 0;
 
@@ -1799,6 +1803,9 @@ window.ColManager = (function($, ColManager) {
                     // class for indexed col
                     if (indexedColNums.indexOf(col) > -1) {
                         tdClass += " indexedColumn";
+                        if (!hasIndexStyle  ) {
+                            tdClass += " noIndexStyle";
+                        }
                     }
                     // class for textAlign
                     if (tableCols[col].textAlign === "Left") {
@@ -2077,8 +2084,11 @@ window.ColManager = (function($, ColManager) {
                 cols.splice(newColNum + 1, 0, newCol);
             }
 
-            if (key === table.key) {
+            if (key === table.getKeyName()) {
                 columnClass += " indexedColumn";
+                if (!table.showIndexStyle()) {
+                    columnClass += "noIndexStyle";
+                }
             }
             newColNum++;
             var colHeadNum = newColNum;

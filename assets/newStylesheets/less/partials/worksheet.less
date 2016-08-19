@@ -126,7 +126,7 @@
     tr {
         &:nth-child(odd) {
             td {
-                &.indexedColumn {
+                &.indexedColumn:not(.noIndexStyle) {
                     background-color: @color-table-indexed-lightBlue !important;
                 }
                 &.jsonElement, &.dataCol {
@@ -137,7 +137,7 @@
         }
         &:nth-child(even) {
             td {
-                &.indexedColumn {
+                &.indexedColumn:not(.noIndexStyle) {
                     background-color: @color-table-indexed-blue !important;
                 }
                 &.jsonElement, &.dataCol {

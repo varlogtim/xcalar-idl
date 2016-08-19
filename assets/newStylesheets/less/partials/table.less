@@ -100,7 +100,7 @@ html.firefox, html.microsoft {
             td {
                 background-color: @color-table-oddRow-gray;
 
-                &.indexedColumn {
+                &.indexedColumn:not(.noIndexStyle) {
                     background-color: @color-table-indexed-blue;
                 }
                 &.selectedCell, &.selectedCol, &.colSelected {
@@ -119,7 +119,7 @@ html.firefox, html.microsoft {
             td {
                 background-color: @color-table-evenRow-gray;
 
-                &.indexedColumn {
+                &.indexedColumn:not(.noIndexStyle) {
                     background-color: @color-table-indexed-lightBlue;
                 }
                 &.selectedCell, &.selectedCol, &.colSelected {
@@ -141,7 +141,7 @@ html.firefox, html.microsoft {
             border-right: 5px solid @color-table-hoverBorder-gray;
             background-color: @color-table-hoverBg-gray;
 
-            &.indexedColumn {
+            &.indexedColumn:not(.noIndexStyle) {
                 background-color: @color-iron !important;
             }
             &.selectedCell, &.colSelected, &.selectedCol {
@@ -374,7 +374,7 @@ html.firefox, html.microsoft {
         white-space: pre;
     }
 
-    .indexedColumn {
+    .indexedColumn:not(.noIndexStyle) {
        background-color: @colorOpaque-blue !important;
     }
 

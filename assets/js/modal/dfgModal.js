@@ -471,7 +471,8 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $tbody.find("tr:gt(17)").remove();
         $tbody.find(".col0").remove();
         $tbody.find(".jsonElement").remove();
-        $tbody.find(".indexedColumn").removeClass('indexedColumn');
+        $tbody.find(".indexedColumn").removeClass('indexedColumn')
+                                    .removeClass('noIndexStyle');
         $tbody.find(".tdText.clickable").removeClass("clickable");
 
         html += $tbody.html();
