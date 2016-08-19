@@ -132,7 +132,9 @@ window.Intro = (function($, Intro) {
                                     '<i class="icon xi-run"></i>' +
                                 '</div>' +
                                 '<div class="skipBack" ' +
-                                    'title="skip to first step"></div>' +
+                                    'title="skip to first step">' +
+                                        '<i class="icon xi-fast-rewind"></i>' +
+                                    '</div>' +
                                 '<div class="close left" title="exit">' +
                                     '<i class="icon xi-close"></i>' +
                                 '</div>' +
@@ -142,6 +144,7 @@ window.Intro = (function($, Intro) {
                                     '<i class="icon xi-run"></i>' +
                                 '</div>' +
                                 '<div class="skip" title="skip to last step">' +
+                                 '<i class="icon xi-fast-forward"></i>' +
                                 '</div>' +
                                 '<div class="close right" title="exit">' +
                                     '<i class="icon xi-close"></i>' +

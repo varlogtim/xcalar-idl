@@ -216,6 +216,13 @@
         cursor: text;
     }
 
+    .ellipsis {
+        letter-spacing: 1px;
+        float: none !important;
+        display: inline !important;
+        margin-left: 1px !important;
+    }
+
     // START FASJ ICONS
     .fasjIcon {
         width: 23px;
@@ -227,14 +234,6 @@
         font-size: 14px;
     }
 
-    .map .fasjIcon {
-        margin-top: -1px;
-        margin-left: -3px;
-        width: 24px;
-        .image("../../images/new/map.png", 0, 50%);
-        -webkit-filter: invert(100%); // xx temporary until we get white icon
-        background-size: 18px;
-    }
     .sort .fasjIcon {
         font-size: 16px;
         margin-left: -3px;
@@ -242,8 +241,6 @@
         width: 24px;
         margin-right: 0px !important;
     }
-
-
     // END FASJ ICONS
 
     .changeDataType, .multiChangeDataType {

@@ -112,11 +112,17 @@ window.OperationsView = (function($, OperationsView) {
 
         // for map
         $categoryList.on('click', 'li', function() {
+            if ($(this).hasClass('active')) {
+                return; // do not update functions list if clicking on same li
+            }
             updateMapFunctionsList($(this));
         });
 
         // for map
         $functionsList.on('click', 'li', function() {
+            if ($(this).hasClass('active')) {
+                return; // do not update functions list if clicking on same li
+            }
             var $li = $(this);
             $li.siblings().removeClass('active');
             $li.addClass('active');
@@ -1273,6 +1279,7 @@ window.OperationsView = (function($, OperationsView) {
     // for map
     function updateMapFunctionsList($li) {
         var category = $li.text().trim().toLowerCase();
+        var isUDF = category.indexOf('user') === 0;
 
         $li.siblings().removeClass('active');
         $li.addClass('active');
@@ -1282,9 +1289,18 @@ window.OperationsView = (function($, OperationsView) {
         var ops = functionsMap[categoryNum];
 
         var html = "";
-        for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
+        if (isUDF) {
+            for (var i = 0, numOps = ops.length; i < numOps; i++) {
+                html += '<li class="textNoCap" data-container="body" ' +
+                'data-placement="right" data-toggle="tooltip" title="' 
+                + ops[i].fnName + '">' + ops[i].fnName + '</li>';
+            }
+        } else {
+            for (var i = 0, numOps = ops.length; i < numOps; i++) {
+                html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
+            }
         }
+
         var $list = $(html);
         $functionsList.empty();
         $list.sort(sortHTML).prependTo($functionsList);

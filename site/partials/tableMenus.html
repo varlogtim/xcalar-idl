@@ -15,7 +15,7 @@
     <li class="copyColNames"><%=dicts.MenuTStr.CPColNames  %></li>
     <li class="delAllDuplicateCols"><%= dicts.MenuTStr.DelAllDups %></li>
     <li class="corrAgg"><%= dicts.MenuTStr.QuickAgg %></li>
-    <li class="multiCast"><%= dicts.MenuTStr.SmartCast %>...</li>
+    <li class="multiCast"><%= dicts.MenuTStr.SmartCast %><span class="ellipsis">...</span></li>
     <li class="moveToWorksheet parentMenu"
     data-submenu="moveToWorksheet" data-toggle="tooltip"
     data-placement="top"
@@ -129,32 +129,27 @@
       <%= dicts.MenuTStr.Sort %>
     </li>
     <li class="functions aggregate" data-func="aggregate">
-    <i class="icon xi-aggregate fasjIcon"></i>
-      <%= dicts.MenuTStr.Agg %>...
+    <i class="icon xi-aggregate fasjIcon"></i><%= dicts.MenuTStr.Agg %><span class="ellipsis">...</span>
     </li>
     <li class="functions filter" data-func="filter">
-      <i class="icon xi-filter fasjIcon"></i>
-      <%= dicts.MenuTStr.Flt %>...
+      <i class="icon xi-filter fasjIcon"></i><%= dicts.MenuTStr.Flt %><span class="ellipsis">...</span>
     </li>
     <li class="functions groupby" data-func="group by">
       <i class="icon xi-groupby fasjIcon"></i>
-      <%= dicts.MenuTStr.GB %>...
+      <%= dicts.MenuTStr.GB %><span class="ellipsis">...</span>
     </li>
     <li class="functions map" data-func="map">
-      <i class="icon fasjIcon"></i>
-      <%= dicts.MenuTStr.Map %>...
+      <i class="icon xi-data-update fasjIcon"></i><%= dicts.MenuTStr.Map %><span class="ellipsis">...</span>
     </li>
     <li class="joinList">
-      <i class="icon xi-join-inner fasjIcon"></i>
-      <%= dicts.MenuTStr.Join %>...
+      <i class="icon xi-join-inner fasjIcon"></i><%= dicts.MenuTStr.Join %><span class="ellipsis">...</span>
     </li>
     <li class="profile">
-      <i class="icon xi-original fasjIcon"></i>
-      <%= dicts.MenuTStr.Profile %>...
+      <i class="icon xi-original fasjIcon"></i><%= dicts.MenuTStr.Profile %><span class="ellipsis">...</span>
     </li>
     <div class="divider functionsDivider"></div>
     <li class="extensions">
-      <%= dicts.MenuTStr.Exts %>...
+      <%= dicts.MenuTStr.Exts %><span class="ellipsis">...</span>
     </li>
     <li class="multiColumn hideColumns">
       <%= dicts.MenuTStr.HideColPlura %>

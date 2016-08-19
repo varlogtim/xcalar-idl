@@ -112,18 +112,27 @@
         }
     }
 
-    .next, .back {
+    .next, .back, .skip, .skipBack {
         .icon {
-           font-size: 12px;
+           font-size: 11px;
            line-height: 20px;
            margin-left: 1px;
         }
     }
-    .back, .skipBack {
-        .transform(rotateY(180deg));
+    .skip {
+        .icon {
+            margin-left: 4px;
+        }
+        
     }
-    .skip, .skipBack {
-        .image("../../images/fastforward.png", 50%, 50%);
+    .skipBack {
+        .icon {
+            margin-left: -4px;
+        }
+    }
+
+    .back {
+        .transform(rotateY(180deg));
     }
 
     .actionRequired {

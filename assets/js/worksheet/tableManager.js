@@ -2144,7 +2144,8 @@ window.TblManager = (function($, TblManager) {
                 // not focus when in modal
                 return false;
             }
-            var yCoor = Math.max(event.pageY, $div.offset().top + $div.height() - 10);
+            var yCoor = Math.max(event.pageY, $div.offset().top + 
+                                    $div.height() - 10);
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 
@@ -2163,7 +2164,8 @@ window.TblManager = (function($, TblManager) {
                 "classes"   : "tdMenu", // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": yCoor},
                 "isMutiCol" : isMultiColumn(),
-                "isDataTd"  : isDataTd
+                "isDataTd"  : isDataTd,
+                "floating"  : true
             });
 
             return false;
