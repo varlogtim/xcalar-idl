@@ -79,6 +79,9 @@ window.TblMenu = (function(TblMenu, $) {
                 case ("smartCast"):
                     SmartCastView.close();
                     break;
+                case ("dataflow"):
+                    DFCreateView.close();
+                    break;
                 default:
                     break;
             }
@@ -911,6 +914,10 @@ window.TblMenu = (function(TblMenu, $) {
                     break;
                 case ('ext'):
                     BottomMenu.close();
+                    break;
+                case ("dataflow"):
+                    DFCreateView.close();
+                    break;
                 default:
                     break;
             }

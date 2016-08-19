@@ -574,6 +574,9 @@ window.DagPanel = (function($, DagPanel) {
                 case ('deleteTable'):
                     deleteTable(dagId, tableName);
                     break;
+                case ('dataflow'):
+                    DFCreateView.show($dagWrap);
+                    break;
                 case ('none'):
                     // do nothing;
                     break;
@@ -682,9 +685,9 @@ window.DagPanel = (function($, DagPanel) {
 
         if ((gTables[dagId] && gTables[dagId].hasLock()) ||
             inColumnPickerMode) {
-            $menu.find('.archiveTable, .deleteTable').hide();
+            $menu.find('.archiveTable, .deleteTable, .dataflow').hide();
         } else {
-            $menu.find('.archiveTable, .deleteTable').show();
+            $menu.find('.archiveTable, .deleteTable, .dataflow').show();
         }
 
         $menu.removeClass('leftColMenu');

@@ -120,7 +120,15 @@ window.FnBar = (function(FnBar, $) {
                 $functionArea.removeClass('searching');
             } else {
                 $functionArea.addClass('searching');
+                if (!$fnBar.hasClass('inFocus')) {
+                    // change event can be triggered when removing focus from
+                    // a table column and switching to search mode when clicking
+                    // away. We do not want to trigger search if fnBar is not
+                    // in focus because user is not actually typing a change
+                    return;
+                }
                 lastFocusedCol = undefined;
+                
                 var args = {
                     "value"         : trimmedVal,
                     "searchBar"     : searchHelper,

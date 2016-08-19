@@ -42,7 +42,7 @@ window.DFCreateView = (function($, DFCreateView) {
                            .addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $dfView.removeClass('xc-hidden');
-        $('#container').addClass('columnPicker');
+        $('#container').addClass('columnPicker dataflowState');
         var wasMenuOpen = false;
         if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
@@ -386,7 +386,7 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function resetDFView() {
-        $('#container').removeClass('columnPicker');
+        $('#container').removeClass('columnPicker dataflowState');
         $("#xcTableWrap-" + tableId).removeClass("columnPicker allowSelectAll");
         $("#xcTable-" + tableId).off(".columnPicker");
         $("#xcTable-" + tableId).find('.modalHighlighted')
