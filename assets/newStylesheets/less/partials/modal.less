@@ -1177,15 +1177,11 @@ html.microsoft {
     .progressContainer {
         margin-top: 10px;
         .size(@width: 100%, @height: 20px);
-        .rounded(4px);
-        background-color: @color-monitor-progressBar;
-        padding: 1px;
+        background-color: @color-bg-light-navy;
 
         .progressBar {
             .size(@height: 100%);
-            .rounded(3px);
-            .image("../../images/monitor/queries/activeBarUnit.png");
-            background-repeat: repeat-x;
+            background-color: @color-bg-softBlue;
             .transition(width 1s linear);
         }
     }

@@ -374,15 +374,8 @@
             &.selected {
                background-color: @color-bg-light-navy;
 
-                .checkmark {
-                    .image("../../images/checkmark-white.png", 40%, 50%);
-                }
-
                 .label {
                     border-color: #7FB7D3;
-                }
-                .addGroup,.deleteGroup {
-
                 }
             }
 
@@ -481,13 +474,6 @@
         }
     }
 
-    .checkmark {
-        .flex(0 0 20px);
-        .image("../../images/checkmark-light.png", 40%, 50%);
-        margin-right: 3px;
-    }
-
-
     .scheduleListArea {
         .position(relative);
 
@@ -559,31 +545,6 @@
                 display: block !important;
             }
         }
-    }
-
-    &.small {
-        .henpGenSubPart {
-            .wrap {
-                left: 0px;
-                .transform(translateX(0));
-                width: 240px;
-                margin: 0 auto;
-            }
-            .icon {
-                display: none;
-            }
-
-            .text {
-                .font(@line-height: 18px);
-                width: 75px;
-                display: block;
-            }
-
-            .btn {
-                margin-left: 10px;
-            }
-        }
-        
     }
 
     &.poppedOut {
@@ -1288,36 +1249,6 @@
         line-height: 32px;
         float: left;
         color: @color-white;
-    }
-}
-
-.henpGenSubPart {
-    .size(@width: 100%, @height: 60px);
-    .position(absolute, @bottom: 0);
-    padding: 15px 0;
-    background-color: @color-background-sidebar;
-
-    .wrap {
-        .size(@width: 335px, @height: 30px);
-        .horizontal-align;
-
-        > div, > button {
-            float: left;
-        }
-
-        .icon {
-            .size(@width: 20px, @height: 100%);
-            .image("../../images/monitor/sub-white.png", 50%, 50%);
-            margin-right: 15px;
-        }
-
-        > .text {
-            .font(@line-height: 30px, @size: 14px, @weight: bold, @color: @color-white);
-        }
-
-        .btn {
-            margin-left: 20px;
-        }
     }
 }
 // ========== End Of Help Section in Right Side Bar ==========

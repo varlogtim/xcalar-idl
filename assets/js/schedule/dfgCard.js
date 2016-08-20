@@ -15,8 +15,8 @@ window.DFGCard = (function($, DFGCard) {
                             '<div class="paramVal textOverflowOneLine"></div>' +
                         '</td>' +
                         '<td class="paramActionWrap">' +
-                            '<div class="paramDelete">' +
-                            '</div>' +
+                            '<i class="paramDelete icon xi-close fa-12 xc-action">' +
+                            '</i>' +
                         '</td>' +
                    '</tr>';
 
@@ -543,7 +543,6 @@ window.DFGCard = (function($, DFGCard) {
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
                         '</i>' +
-                        // '<div class="checkmark"></div>' +
                       '</div>' +
                       '<ul class="subList">';
             for (var i = 0; i < listLen; i++) {
@@ -558,7 +557,7 @@ window.DFGCard = (function($, DFGCard) {
 
         if (numGroups === 0) {
             var hint = '<div class="hint no-selection">' +
-                        '<div class="icon"></div>' +
+                        '<i class="icon xi-warning"></i>' +
                         '<div class="text">' +
                             DFGTStr.NoDFG1 +
                             '<br>' +

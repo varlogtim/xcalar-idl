@@ -907,24 +907,27 @@ input {
     }
 
     .close {
-        .position(absolute, @top: 7px, @right: 7px);
+        .position(absolute, @top: 10px, @right: 7px);
         .size(14px, 14px);
-        .image("../../images/close-gray.png", 50%, 50%);
         display: inline-block;
-        cursor: pointer;
+        color: @color-font-greyish-brown;
     }
+
     .title {
-        .size(@height: 24px);
+        .size(@height: 15px);
+        margin-bottom: 10px;
         font-weight: bold;
         .icon {
-            .size(20px, 20px);
+            display: inline-block;
+            .size(20px, 15px);
             margin-right: 6px;
             float: left;
         }
+
         .titleText {
-            margin-top: 3px;
+            display: inline-block;
             float: left;
-            .font(@size: 14px, @line-height: 16px);
+            .font(@size: 14px, @line-height: 15px);
         }
     }
 
@@ -945,7 +948,7 @@ input {
 
         .title {
             .icon {
-                .image("../../images/error-blue-icon.png", 50%, 50%);
+                color: @color-text-blue;
             }
             .titleText {
                 color: @color-text-blue;
@@ -960,7 +963,7 @@ input {
 
         .title {
             .icon {
-                .image("../../images/error-icon.png", 50%, 50%);
+                color: @color-text-error;
             }
             .titleText {
                 color: @color-text-error;

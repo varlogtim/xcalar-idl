@@ -214,10 +214,8 @@
 
                             .paramDelete {
                                 .position(absolute, @top: 50%, @left: 50%);
-                                .size(15px, 15px);
-                                cursor: pointer;
+                                color: @color-font-greyish-brown;
                                 transform: translate(-50%, -50%);
-                                .image("../../images/close-darkgray.png", 50%, 50%);
                             }
                         }
                     }
@@ -328,18 +326,25 @@
             padding: 10px 0;
             background-color: rgba(255, 255, 255, 0.7);
 
-            > div {
+            > div, > i {
+                display: inline-block;
                 float: left;
             }
 
             .icon {
                 .size(@width: 60px, @height: 100%);
-                .image("../../images/exclamation_gray.png", 50%, 50%);
+                color: @color-font-greyish-brown;
+                font-size: 33px;
+
+                &:before {
+                    display: block;
+                    .position(relative, @left: 10px);
+                }
             }
 
             .text {
                 .size(@width: ~"calc(100% - 60px)", @height: 100%);
-                .font(@color: #838383, @size: 13px, @weight: bold);
+                .font(@size: 13px);
             }
         }
     }
