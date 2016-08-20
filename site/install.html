@@ -25,7 +25,7 @@
         <div id="formArea">
 
           <!-- Step 1: Enter in license key -->
-          <form id="licenseForm" autocomplete="off" class="hidden">
+          <form id="licenseForm" autocomplete="off">
             <div class="title">
               <div class="step">
                 <span>STEP 1 </span>
@@ -37,13 +37,13 @@
               </div>
             </div>
             <div class="section">
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234">
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4">
               <span class="separator">-</span>
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234">
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4">
               <span class="separator">-</span>
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234">
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4">
               <span class="separator">-</span>
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" value="1234"> 
+              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4"> 
               <div class="bar">&nbsp;</div>       
             </div>
             <div class="section invalidLicense">
@@ -52,8 +52,8 @@
               <span>The license key that you have entered is not valid. Please check the key and try again</span>
             </div>
             <div class="section buttonSection">
-              <input id="nextButton" class="btn login" type="submit" value="NEXT">
-              <input id="clearButton" class="btn clear inactive" type="button" name="signup" value="CLEAR">
+              <input class="btn next" type="button" value="NEXT">
+              <input class="btn clear inactive" type="button" name="signup" value="CLEAR">
             </div>
           </form>
 
@@ -71,12 +71,11 @@
               </div>
             </div>
             <div class="section nfsSection">
-              <div class="radioButtonGroup">
-                <div class="radioButton nfsOption" data-option="xcalarNfs">
+              <div class="radioButtonGroup" id="nfsOption">
+                <div class="radioButton nfsOption active" data-option="xcalarNfs">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
-                  <!--<div class="background"></div>-->
                   </div>
                   <div class="label">Xcalar Deployed NFS</div>
                 </div>
@@ -90,29 +89,29 @@
               </div>
               <div class="customerNfsOptions">
                 <div class="nfsMountPoint nfsSubOption">
-                  <div class="input" contenteditable="true" placeholder="[NFS Server]"></div>
+                  <div class="input" id="nfsServer" contenteditable="true" placeholder="[NFS Server]"></div>
                   <span>:/</span>
-                  <div class="input" type="text" contenteditable="true" placeholder="[Mount Point]"></div>
+                  <div class="input" id="nfsMountPoint" type="text" contenteditable="true" placeholder="[Mount Point]"></div>
                   <div class="bar">NFS Path</div>
                 </div>
                 <div class="nfsUser nfsSubOption">
-                  <input class="input" type="text" autocomplete="off" placeholder="[user_id]  (optional)">
+                  <input class="input" id="nfsUserName" type="text" autocomplete="off" placeholder="[user_id]  (optional)">
                   <div class="bar">NFS Username</div>
                 </div>
                 <div class="nfsUser nfsSubOption">
-                  <input class="input" type="text" autocomplete="off" placeholder="[user_group]  (optional)">
+                  <input class="input" id="nfsUserGroup" type="text" autocomplete="off" placeholder="[user_group]  (optional)">
                   <div class="bar">NFS Group</div>
                 </div>
               </div>      
             </div>
             <div class="section buttonSection">
-              <input id="nextButton" class="btn login" type="submit" value="NEXT">
-              <input id="clearButton" class="btn clear inactive" type="button" name="signup" value="CLEAR">
+              <input class="btn next" type="button" value="NEXT">
+              <input class="btn back" type="button" value="BACK">
             </div>
           </form>
 
           <!-- Step 3: Host Information -->
-          <form id="hostForm" autocomplete="off">
+          <form id="hostForm" autocomplete="off" class="hidden">
             <div class="title">
               <div class="step">
                 <span>STEP 3A</span>
@@ -132,96 +131,6 @@
                   Status
                 </span>
               </div>
-                        <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 1.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.
-                  </span>
-                </div>
-              </div>
-              <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 2.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.  
-                  </span>
-                </div>
-              </div>
-              <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 3.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.
-                  </span>
-                </div>
-              </div>
-              <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 4.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.
-                  </span>
-                </div>
-              </div>
-              <!--
-                            <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 5.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.
-                  </span>
-                </div>
-              </div>
-                            <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 6.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.
-                  </span>
-                </div>
-              </div>
-                            <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 7.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.
-                  </span>
-                </div>
-              </div>
-                            <div class="row">
-                <div class="leftCol hostname">
-                  <input class="input" type="text" autocomplete="off" value="123.456.789.123">
-                  <div class="bar">Host 8.</div>
-                </div>
-                <div class="rightCol status">
-                  <span class="curStatus">
-                    Lollipop icing chocolate cake tart gingerbread carrot cake.
-                  </span>
-                </div>
-              </div>
-            -->
             </div>
             <div class="title">
               <div class="step">
@@ -239,12 +148,11 @@
                 <div class="bar">Username</div>
               </div>
               <span class="header">Password Options</span>
-              <div class="radioButtonGroup">
-                <div class="radioButton passOption" data-option="password">
+              <div class="radioButtonGroup" id="passOption">
+                <div class="radioButton passOption active" data-option="password">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
-                  <!--<div class="background"></div>-->
                   </div>
                   <div class="label">Password</div>
                 </div>
@@ -256,25 +164,24 @@
                   <div class="label">SSH Key</div>
                 </div>
               </div>
-              <!--
               <div class="hostPassword">
                 <input class="input" type="password" autocomplete="off" placeholder="[password]">
                 <div class="bar">Password</div>
               </div>
-              -->
               <div class="hostSshKey">
                 <textarea rows="30" cols="68" autocomplete="off" placeholder="[Private SSH Key]"></textarea>
               </div>
             </div>             
             <div class="section buttonSection">
-              <input id="nextButton" class="btn login" type="submit" value="NEXT">
-              <input id="clearButton" class="btn clear inactive" type="button" name="signup" value="CLEAR">
+              <input class="btn submit" type="button" value="INSTALL">
+              <input class="btn back" type="button" value="BACK">
             </div>
           </form>
         </div>
       </div>
     </div>
     <script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../js/installer.js"></script>
   </body>
 </html>
 

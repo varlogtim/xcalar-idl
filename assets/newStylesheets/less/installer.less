@@ -229,7 +229,8 @@ input:-webkit-autofill:focus {
 
     .header {
         display: inline-block;
-        margin-top: 10px;
+        margin-top: 20px;
+        margin-bottom: 10px;
         font-weight: 700;
         color: @color-white;
         font-size: 14px;
@@ -245,7 +246,6 @@ input:-webkit-autofill:focus {
         font-size: 13px;
         height: 45px;
         font-weight: 500;
-        margin-top: 20px;
         padding-left: 5%;
 
         .bar {
@@ -366,6 +366,7 @@ input:-webkit-autofill:focus {
                 height: 20px;
             }
             .customerNfsOptions {
+                display: none;
                 width: 100%;
                 position: relative;
                 .input {
@@ -484,12 +485,17 @@ input:-webkit-autofill:focus {
                 margin-left: 0px;
             }
 
+            .hostSshKey {
+                display: none;
+            }
+
         }
 
 
     }
 
     .invalidLicense {
+        display: none;
         color: @color-text-macaroniAndCheese;
         height: 40px;
         .leftBar {
