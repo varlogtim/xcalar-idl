@@ -55,6 +55,7 @@ newUI: $(DESTDIR) generateHtml
 	@echo "=== Compile Less ==="
 	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/login.less > prod/assets/newStylesheets/css/login.css
 	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/style.less > prod/assets/newStylesheets/css/style.css
+	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/installer.less > prod/assets/newStylesheets/css/installer.css
 	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
 	@rm -rf $(DESTDIR)/prod/assets/dev
 	@echo "=== Minifying ==="

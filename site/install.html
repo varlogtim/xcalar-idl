@@ -46,7 +46,7 @@
               <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4"> 
               <div class="bar">&nbsp;</div>       
             </div>
-            <div class="section invalidLicense">
+            <div class="section invalidLicense error">
               <div class="leftBar">&nbsp;</div>
               <span>Invalid license key<br></span>
               <span>The license key that you have entered is not valid. Please check the key and try again</span>
@@ -103,6 +103,11 @@
                   <div class="bar">NFS Group</div>
                 </div>
               </div>      
+            </div>
+            <div class="section error">
+              <div class="leftBar">&nbsp;</div>
+              <span>Invalid license key<br></span>
+              <span>The license key that you have entered is not valid. Please check the key and try again</span>
             </div>
             <div class="section buttonSection">
               <input class="btn next" type="button" value="NEXT">
@@ -171,9 +176,14 @@
               <div class="hostSshKey">
                 <textarea rows="30" cols="68" autocomplete="off" placeholder="[Private SSH Key]"></textarea>
               </div>
-            </div>             
+            </div>
+            <div class="section error">
+              <div class="leftBar">&nbsp;</div>
+              <span>Invalid license key<br></span>
+              <span>The license key that you have entered is not valid. Please check the key and try again</span>
+            </div>        
             <div class="section buttonSection">
-              <input class="btn submit" type="button" value="INSTALL">
+              <input class="btn next" type="button" value="INSTALL">
               <input class="btn back" type="button" value="BACK">
             </div>
           </form>

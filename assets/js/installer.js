@@ -8,9 +8,37 @@ window.Installer = (function(Installer, $) {
         //           "nfsMountPoint": "/public/netstore",
         //           "nfsUsername": "jyang",
         //           "nfsGroup": "xcalarEmployee" }
-
+        "hostnames": [],
+        "username": "",
+        "credentials": {} // Either password or sshKey
     };
+
+    function ApiStruct(api, struct) {
+        this.api = api;
+        this.struct = struct;
+        return this;
+    }
+
+    var Api = {
+        "runPrecheck": 0,
+        "checkPrecheckStatus": 1,
+        "runInstaller": 2,
+        "checkInstallerStatus": 3,
+        "completeInstallation": 4
+    };
+
+    var Status = {
+        "Ok": 0,
+        "Done": 1,
+        "Running": 2,
+        "Error": -1,
+    };
+
+    var intervalTimer;
+    var checkInterval = 2000; // How often to check for status
+
     var $forms = $("form");
+    var lastStep = 2; // Last step of form 
 
     Installer.setup = function() {
         // Set up submit buttons and back buttons for all screens
@@ -33,10 +61,6 @@ window.Installer = (function(Installer, $) {
             var curStepId = findStepId(curFormId);
 
             Installer.showStep(curStepId - 1);
-        });
-
-        $("input.submit").click(function() {
-            console.log("Submit!");
         });
 
         // Set up listeners for radioButtons
@@ -63,6 +87,9 @@ window.Installer = (function(Installer, $) {
     };
 
     Installer.showStep = function(stepNum) {
+        if (stepNum > lastStep) {
+            return;
+        }
         $forms.addClass("hidden");
         $forms.eq(stepNum).removeClass("hidden");
     };
@@ -115,6 +142,17 @@ window.Installer = (function(Installer, $) {
         }
     }
 
+    function sendViaHttps(arrayToSend, successCB, failureCB) {
+        jQuery.ajax({
+            method     : "POST",
+            url        : "https://cantor.int.xcalar.com:12124",
+            data       : JSON.stringify(arrayToSend),
+            contentType: "application/json",
+            success    : successCB,
+            error: failureCB
+        });
+    }
+
     function setUpStep0() {
         $("input.licenseKey").on("keyup", function(e) {
             var keyCode = e.which;
@@ -141,6 +179,7 @@ window.Installer = (function(Installer, $) {
     }
 
     function validateCurrentStep(stepId) {
+        $(".error").hide();
         switch(stepId) {
         case (0):
             $(".invalidLicense").hide();
@@ -212,7 +251,50 @@ window.Installer = (function(Installer, $) {
     }
 
     function validateCredentials() {
+        var deferred = jQuery.Deferred();
+        if ($(".hostUsername input").val().trim().length === 0) {
+            deferred.reject("Empty Username",
+                            "Your SSH username cannot be empty.");
+        }
+        finalStruct.username = $(".hostUsername input").val().trim();
 
+        var passOption = $(".passOption.active").data("option");
+        if (passOption === "password") {
+            if ($(".hostPassword input").val().length === 0) {
+                deferred.reject("Empty Password",
+                                "For passwordless ssh, upload your ssh key");
+            } else {
+                finalStruct.credentials = {};
+                finalStruct.credentials.password = $(".hostPassword input")
+                                                                         .val();
+            }
+        } else if (passOption === "sshKey") {
+            if ($(".hostSshKey textarea").val().trim().length === 0) {
+                deferred.reject("Empty Ssh Key",
+                          "Your ssh key is generally located at ~/.ssh/id_rsa");
+            } else {
+                finalStruct.credentials = {};
+                finalStruct.credentials.sshKey = $(".hostSshKey textarea").val()
+                                                                        .trim();
+            }
+        } else {
+            deferred.reject("Illegal Password Option",
+                            "Not a legal password option");
+        }
+
+        var hostArray = $(".row .hostname input");
+        var allHosts = [];
+        for (var i = 0; i<hostArray.length; i++) {
+            var nameOrIP = hostArray.eq(i).val().trim();
+            if (nameOrIP.length > 0) {
+                allHosts.push(nameOrIP);
+            }
+        }
+
+        finalStruct.hostnames = allHosts;
+        deferred.resolve();
+
+        return deferred.promise();
     }
 
     function setupNextStep(curStepId, ret) {
@@ -226,7 +308,9 @@ window.Installer = (function(Installer, $) {
             $(".row.header").after(html);
             break;
         case (1):
+            return;
         case (2):
+            executeFinalArray();
             return;
         default:
             return;
@@ -234,12 +318,10 @@ window.Installer = (function(Installer, $) {
     }
 
     function showFailure(curStepId, args) {
-        switch(curStepId) {
-        case(0):
-            $(".invalidLicense").find("span").eq(0).html(args[0]+"<br>");
-            $(".invalidLicense").find("span").eq(1).html(args[1]);
-            $(".invalidLicense").show();
-        }
+        $error = $(".error").eq(curStepId);
+        $error.find("span").eq(0).html(args[0]+"<br>");
+        $error.find("span").eq(1).html(args[1]);
+        $error.show();
     }
 
     function hostnameHtml(id) {
@@ -268,6 +350,93 @@ window.Installer = (function(Installer, $) {
             deferred.resolve({"verified": false});
         }
         return deferred.promise();
+    }
+
+    function executeFinalArray() {
+        var deferred = jQuery.Deferred();
+        console.log(finalStruct);
+        // Send to backend for checking. clear up screen until we get ack / deny
+        $(".credentialSection").hide();
+        $(".credentialSection").prev().hide();
+        // Remove all empty hostnames from screen. This happens when they don't
+        // use all the licenses they bought
+        var hostnames = $(".row:not(.header)");
+        for (var i = 0; i<hostnames.length; i++) {
+            if (hostnames.eq(i).find("input").val().trim().length === 0) {
+                hostnames.eq(i).remove();
+            }
+        }
+
+        sendCommand(Api.runPrecheck)
+        .then(function() {
+            return (getStatus(Api.getPrecheckStatus));
+        })
+        .then(function() {
+            return (sendCommand(Api.runInstall));
+        })
+        .then(function() {
+            return (getStatus(Api.getInstallStatus));
+        })
+        .fail(function() {
+            $(".credentialSection").show();
+            // XXX Consider adding back the hostname rows for the ones that we
+            // removed.
+            deferred.reject(arguments);
+        });
+
+        return deferred.promise();
+    }
+
+    function sendCommand(api) {
+        var deferred = jQuery.Deferred();
+        var struct = new ApiStruct(api, finalStruct);
+        sendViaHttps(struct, function(ret) {
+            if (ret.status === Status.Ok) {
+                deferred.resolve();
+            } else {
+                deferred.reject(ret);
+            }
+        }, function() {
+            console.error(arguments);
+            deferred.reject(arguments[0], arguments[2]);
+        });
+        return deferred.promise();
+    }
+
+    function getStatus(api) {
+        var deferred = jQuery.Deferred();
+        // Start checking status
+        struct = new ApiStruct(api, {});
+        if (intervalTimer) {
+            clearInterval(intervalTimer);
+        }
+        intervalTimer = setInterval(function() {
+            sendViaHttps(struct, function(ret) {
+                if (ret.status === Status.Done) {
+                    clearInterval(intervalTimer);
+                    deferred.resolve();
+                } else if (ret.status === Status.Error) {
+                    clearInterval(intervalTimer);
+                    deferred.reject("Status Error",
+                                    JSON.stringify(ret.retVal));
+                } else if (ret.status === Status.Running) {
+                    updateStatus(ret.retVal);
+                }
+            }, function() {
+                console.error(arguments);
+                deferred.reject(arguments[0], arguments[2]);
+            });
+        }, checkInterval);
+        return deferred.promise();
+    }
+
+    function updateStatus(retVal) {
+        // We expect to get an array that is of hostnames.length back
+        // All of them are formatted into strings so just display
+        for (var i = 0; i<retVal.length; i++) {
+            $(".row .curStatus").text(retVal[i]);
+        }
+        // XXX In the future we can color code and do all that cool stuff
     }
 
     return (Installer);
