@@ -836,6 +836,8 @@
         .title {
             .font(@size: 14px, @weight: 700, @color: @color-font-select-blue);
         }
+        .flex-display;
+        .flex-direction(column);
     }
 
     .querySection {
@@ -986,8 +988,11 @@
     }
 
     .operationSection {
-        .size(@height: ~"calc(100% - 262px)");
+        // .size(@height: ~"calc(100% - 262px)");
         padding: 20px;
+        .flex-display;
+        .flex(1 1 auto);
+        .flex-direction(column);
 
         .title {
             .size(@height: 20px);
@@ -996,12 +1001,21 @@
 
         .content {
             .size(@width: 100%, @height: ~"calc(100% - 32px)");
+            .flex(1 1 auto);
             background-color: @color-bg-white-three;
             border: 1px solid @color-bg-pinkish-grey2;
-            padding: 10px;
+            padding-top: 10px;
+            padding-bottom: 10px;
             .auto-selection;
             overflow: auto;
             word-break: break-word;
+        }
+        .queryRow {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .queryRow:hover {
+            background-color: @color-bg-white-nine;
         }
     }
 }

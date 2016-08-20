@@ -494,10 +494,21 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function updateQueryTextDisplay(query) {
+        var queryString = "";
         if (query) {
-            query = query.replace(/;/g, ";<br>");
+            // xx if semi-colon is in quotes this won't work
+            var querySplit = query.split(";")
+            for (var i = 0; i < querySplit.length; i++) {
+                var subQuery = querySplit[i];
+                if (subQuery.trim() !== "") {
+                    queryString += '<div class="queryRow">' + subQuery +
+                                   '</div>';
+                }
+            }
+        } else {
+            queryString = query;
         }
-        $queryDetail.find(".operationSection .content").html(query);
+        $queryDetail.find(".operationSection .content").html(queryString);
     }
 
     function updateStatusDetail(info, id, status, reset) {
