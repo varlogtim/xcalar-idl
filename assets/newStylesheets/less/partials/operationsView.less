@@ -983,6 +983,17 @@
                         }
                     }
 
+                    &:first-child {
+                    	.middleIcon	{
+                    		&:hover .icon {
+                    			.transform(rotate(0deg));
+                    			&::before {
+                    				content: "\e9b0"; // equal circle
+                    			}
+                    		}
+                    	}
+                    }
+
                     &.placeholder {
                         // .size(@height: @listHeight);
                         // border: 1px dashed @color-border-pinkish-grey2;
@@ -1123,6 +1134,10 @@
 	            float: left;
 	            outline: none;
 	            border-bottom: 1px solid @color-border-pinkish-grey2;
+
+	            &:focus {
+	            	border-bottom: 1px solid @color-border-softBlue;
+	            }
 
 	            &.newName {
 	            	.size(@width: ~"calc(50% - 1px)");

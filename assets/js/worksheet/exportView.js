@@ -4,13 +4,17 @@ window.ExportView = (function($, ExportView) {
     var $exportPath;    // $("#exportPath")
     var $exportColumns; // $("#exportColumns")
     var $advancedSection; // $('#xportModal .advancedSection')
+    var $colList;
 
     var $selectableThs;
     var exportTableName;
     var tableId;
-    var focusedHeader;
+    var focusedThNum;
+    var focusedListNum;
+    var $table;
 
     var exportTargInfo;
+    var formHelper;
 
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
@@ -21,6 +25,9 @@ window.ExportView = (function($, ExportView) {
         $exportPath = $("#exportPath");
         $exportColumns = $("#exportColumns");
         $advancedSection = $exportView.find('.advancedSection');
+        $colList = $exportView.find('.cols');
+
+        formHelper = new FormHelper($exportView);
 
         // click cancel or close button
         $exportView.on("click", ".close, .cancel", function(event) {
@@ -81,6 +88,7 @@ window.ExportView = (function($, ExportView) {
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
                     tableId = $li.data('id');
+                    $table = $('#xcTable-' + tableId);
                     clearAllCols();
                     refreshTableColList();
                     selectAllCols();
@@ -109,7 +117,8 @@ window.ExportView = (function($, ExportView) {
         });
         expList.setupListeners();
 
-        xcHelper.optionButtonEvent($exportView.find(".formRow"), function(option, $radio) {
+        xcHelper.optionButtonEvent($exportView.find(".formRow"), 
+            function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
                 if (option !== "DfFormatCsv") {
                     $advancedSection.find('.csvRow').removeClass('csvSelected')
@@ -127,47 +136,36 @@ window.ExportView = (function($, ExportView) {
 
         setupFormDelimiter();
 
-        $exportView.find('.cols').on('click', 'li', function() {
-            if ($(this).hasClass('checked')) {
-                deselectColFromLi($(this));
-            } else {
-                selectColFromLi($(this));
+        $exportView.find('.cols').on('click', 'li', function(event) {
+            var $li = $(this);
+            var colNum = $li.data('colnum');
+            var toHighlight = false;
+            if (!$li.hasClass('checked')) {
+                toHighlight = true;
             }
-            checkToggleSelectAllBox();
+
+            if (event.shiftKey && focusedListNum != null) {
+                var start = Math.min(focusedListNum, colNum);
+                var end = Math.max(focusedListNum, colNum);
+
+                for (var i = start; i <= end; i++) {
+                    if (toHighlight) {
+                        selectCol(i);
+                    } else {
+                        deselectCol(i);
+                    }
+                }
+            } else {
+                if (toHighlight) {
+                    selectCol(colNum);
+                } else {
+                    deselectCol(colNum);
+                }
+            }
+
+            focusedListNum = colNum;
+            focusedThNum = null;
         });
-
-
-        function selectColFromLi($li) {
-            var colName = $li.text().trim();
-            var $table = $("#xcTable-" + tableId);
-            
-            var $colInput = $table.find('.editableHead').filter(function() {
-                return ($(this).val() === colName);
-            });
-
-
-            var $th = $colInput.closest('th');
-            $th.addClass('modalHighlighted');
-            var colNum = xcHelper.parseColNum($th);
-            var $tds = $table.find('td.col' + colNum);
-            $tds.addClass('modalHighlighted');
-            $li.addClass('checked').find('.checkbox').addClass('checked');
-        }
-
-        function deselectColFromLi($li) {
-            var colName = $li.text().trim();
-            var $table = $("#xcTable-" + tableId);
-            var $colInput = $table.find('.editableHead').filter(function() {
-                return ($(this).val() === colName);
-            });
-            
-            var $th = $colInput.closest('th');
-            $th.removeClass('modalHighlighted');
-            var colNum = xcHelper.parseColNum($th);
-            var $tds = $table.find('td.col' + colNum);
-            $tds.removeClass('modalHighlighted');
-            $li.removeClass('checked').find('.checkbox').removeClass('checked');
-        }
 
         $exportView.find('.clearInput').click(clearAllCols);
 
@@ -186,6 +184,7 @@ window.ExportView = (function($, ExportView) {
         }
 
         tableId = tablId;
+        $table = $('#xcTable-' + tableId);
 
         var $tables = $('.xcTableWrap');
         $tables.addClass('exportViewOpen');
@@ -201,13 +200,17 @@ window.ExportView = (function($, ExportView) {
         addColumnSelectListeners();
 
         $(document).on("keypress.exportView", function(e) {
-            if (e.which === keyCode.Enter) {
-                $exportView.find(".confirm").trigger("click");
+            if (e.which === keyCode.Enter && 
+                                gMouseEvents.getLastMouseDownTarget()
+                                            .closest('#dfCreateView').length) {
+                submitForm();
             }
         });
 
         selectAllCols();
         refreshTableColList();
+
+        formHelper.setup();
 
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
@@ -247,11 +250,14 @@ window.ExportView = (function($, ExportView) {
         $(document).off(".exportView");
         $exportView.find('.checkbox').removeClass('checked');
         $exportView.find('.checked').removeClass('checked');
+        $table = null;
+        focusedThNum = null;
+        focusedListNum = null;
 
         restoreAdvanced();
         restoreXcTableColumns();
         $advancedSection.addClass('collapsed').removeClass('expanded');
-
+        formHelper.clear();
 
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
@@ -517,63 +523,55 @@ window.ExportView = (function($, ExportView) {
             // event.target is not reliable here for some reason so that is
             // why we're using last mousedown target
             var $mousedownTarg = gMouseEvents.getLastMouseDownTarget();
-            if ($mousedownTarg.hasClass('colGrab') ||
-                $mousedownTarg.closest('.dropdownBox').length) {
+            if ($mousedownTarg.closest('.dropdownBox').length) {
+                return;
+            }
+            if (isInvalidTableCol($mousedownTarg)) {
                 return;
             }
 
             var $th = $(this);
-            var focusedThColNum;
-            if (focusedHeader) {
-                focusedThColNum = xcHelper.parseColNum(focusedHeader);
-            }
-
-            var colNum = xcHelper.parseColNum($th);
-            var $tds = $table.find('td.col' + colNum);
-            var $cells = $th.add($tds);
-
-            var start;
-            var end;
-            var $currCells;
 
             if ($th.hasClass('rowNumHead')) {
                 selectAllCols();
                 return;
             }
 
-            if ($th.hasClass('modalHighlighted')) {
-                if (event.shiftKey && focusedHeader) {
-                    start = Math.min(focusedThColNum, colNum);
-                    end = Math.max(focusedThColNum, colNum) + 1;
+            var colNum = xcHelper.parseColNum($th) - 1;
+            var toHighlight = !$th.hasClass("modalHighlighted");
 
-                    for (var i = start; i < end; i++) {
-                        $currCells = $table.find('th.col' + i + ', td.col' + i);
-                        if ($currCells.hasClass('modalHighlighted')) {
-                            deselectColumn($currCells, i);
-                        }
+            if (event.shiftKey && focusedThNum != null) {
+                var start = Math.min(focusedThNum, colNum);
+                var end = Math.max(focusedThNum, colNum);
+
+                for (var i = start; i <= end; i++) {
+                    if (toHighlight) {
+                        selectCol(i);
+                    } else {
+                        deselectCol(i);
                     }
-                } else {
-                    deselectColumn($cells, colNum);
                 }
             } else {
-                if (event.shiftKey && focusedHeader) {
-                    start = Math.min(focusedThColNum, colNum);
-                    end = Math.max(focusedThColNum, colNum) + 1;
-
-                    for (var i = start; i < end; i++) {
-                        $currCells = $table.find('th.col' + i + ', td.col' + i);
-                        if (!$currCells.hasClass('modalHighlighted') &&
-                            !$currCells.hasClass('dataCol')) {
-                            selectColumn($currCells, i);
-                        }
-                    }
+                if (toHighlight) {
+                    selectCol(colNum);
                 } else {
-                    selectColumn($cells, colNum);
+                    deselectCol(colNum);
                 }
             }
-            focusedHeader = $th;
+            focusedThNum = colNum;
+            focusedListNum = null;
         });
 
+    }
+
+    function isInvalidTableCol($target) {
+        if ($target.closest(".dataCol").length ||
+            $target.closest(".jsonElement").length ||
+            $target.closest(".dropdownBox").length) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function fillTableList() {
@@ -591,29 +589,26 @@ window.ExportView = (function($, ExportView) {
         }).addClass('selected');
     }
 
-    function selectColumn($cells, colNum) {
-        var colType = gTables[tableId].tableCols[colNum - 1].type;
+    function selectCol(colNum) {
+        var colType = gTables[tableId].tableCols[colNum].type;
         if (validTypes.indexOf(colType) === -1) {
             return;
         }
-        var currColName = gTables[tableId].tableCols[colNum - 1].name;
-        $cells.addClass('modalHighlighted');
+        $table.find('.col' + (colNum + 1)).addClass('modalHighlighted');
 
-        // xcHelper.insertText($exportColumns, currColName);
-        $exportView.find('.cols').find('li').filter(function() {
-            return ($(this).text() === currColName);
-        }).addClass('checked').find('.checkbox').addClass('checked');
-
+        $colList.find('li[data-colnum="' + colNum + '"]')
+                .addClass('checked')
+                .find('.checkbox').addClass('checked');
         checkToggleSelectAllBox();
     }
 
-    function deselectColumn($cells, colNum) {
-        $cells.removeClass('modalHighlighted');
-        var currColName = gTables[tableId].tableCols[colNum - 1].name;
+    function deselectCol(colNum) {
+        $table.find('.col' + (colNum + 1))
+                            .removeClass('modalHighlighted');
 
-        $exportView.find('.cols').find('li').filter(function() {
-            return ($(this).text() === currColName);
-        }).removeClass('checked').find('.checkbox').removeClass('checked');
+        $colList.find('li[data-colnum="' + colNum + '"]')
+                .removeClass('checked')
+                .find('.checkbox').removeClass('checked');
         checkToggleSelectAllBox();
     }
 
@@ -640,7 +635,8 @@ window.ExportView = (function($, ExportView) {
         $tables.find('td').removeClass('modalHighlighted');
 
         $ths.find('input').css('pointer-events', 'initial');
-        focusedHeader = null;
+        focusedThNum = null;
+        focusedListNum = null;
     }
 
     function selectAllCols() {
@@ -658,7 +654,8 @@ window.ExportView = (function($, ExportView) {
         $exportView.find('.selectAllWrap').find('.checkbox')
                                           .addClass('checked');
         
-        focusedHeader = null;
+        focusedThNum = null;
+        focusedListNum = null;
     }
 
     function clearAllCols() {
@@ -668,7 +665,8 @@ window.ExportView = (function($, ExportView) {
                    .find('.checkbox').removeClass('checked');
         $exportView.find('.selectAllWrap').find('.checkbox')
                                           .removeClass('checked');
-        focusedHeader = null;
+        focusedThNum = null;
+        focusedListNum = null;
     }
 
     function setupFormDelimiter() {
@@ -789,12 +787,14 @@ window.ExportView = (function($, ExportView) {
                                           .addClass('checked');
     }
 
+    // each li has data-colnum that will link it to the corresponding 
+    // xcTable header
     function getTableColList() {
         var html = "";
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
             if (validTypes.indexOf(allCols[i].type) > -1) {
-                html += '<li class="checked">' +
+                html += '<li class="checked" data-colnum="' + i + '">' +
                             '<span class="text">' +
                                 allCols[i].name +
                             '</span>' +

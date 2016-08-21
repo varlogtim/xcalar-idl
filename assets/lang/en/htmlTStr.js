@@ -320,6 +320,7 @@ module.exports = {
         "SchedTitle": "SCHEDULER/DATAFLOW GROUPS",
         "DFG": "DATAFLOW GRP",
         "SCHEDS": "SCHEDULES",
+        "schedInstr": "First, choose a name for your schedule. Then select a start time, frequency, and number of times to run the schedule.",
         "DETAIL": "DETAIL",
         "dfgs": "Dataflow Groups",
         "params": "Parameters",

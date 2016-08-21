@@ -190,8 +190,8 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     function updateMainTabs() {
-        userPrefs.mainTabs.monitor = $('#monitorTopBar')
-                                        .find('.buttonArea.active').attr('id');
+        userPrefs.mainTabs.monitor = $('#monitorTab')
+                                        .find('.subTab.active').attr('id');
         userPrefs.mainTabs.dataStores = $('#dataStoresTab')
                                         .find('.subTab.active').attr('id');
         userPrefs.mainTabs.scheduler = $('#schedulerTab')

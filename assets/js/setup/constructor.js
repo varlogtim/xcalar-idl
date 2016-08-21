@@ -2641,6 +2641,7 @@ ModalHelper.prototype = {
             }
             return ($ele.is(":visible") && !$ele.is("[disabled]") &&
                     !$ele.is("[readonly]") && !$ele.hasClass("unavailable") &&
+                    !$ele.hasClass("btn-disabled") &&
                     $ele.css('visibility') !== "hidden");
         }
     }
@@ -2748,7 +2749,7 @@ FormHelper.prototype = {
             });
         } else {
             var fadeOutTime = gMinModeOn ? 0 : 300;
-            $form.hide();
+            // $form.hide();
             Tips.refresh();
             if (options.afterClose != null &&
                 options.afterClose instanceof Function) {
@@ -2800,7 +2801,6 @@ FormHelper.prototype = {
         var eleLists = [
             $form.find("button.btn, input:visible")
         ];
-
         
         var $focusables = [];
         // make an array for all focusable element
@@ -2886,8 +2886,9 @@ FormHelper.prototype = {
                 throw "undefined element!";
             }
             return ($ele.is(":visible") && !$ele.is("[disabled]") &&
-                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable")
-                    && $ele.css('visibility') !== "hidden");
+                    !$ele.is("[readonly]") && !$ele.hasClass("unavailable") &&
+                    !$ele.hasClass("btn-disabled") &&
+                    $ele.css('visibility') !== "hidden");
         }
     }
 };

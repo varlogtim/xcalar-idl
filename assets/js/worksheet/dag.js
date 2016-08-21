@@ -2795,7 +2795,8 @@ window.Dag = (function($, Dag) {
                             '<div class="actionTypeWrap" >' +
                                 '<div class="dagIcon ' + operation + ' ' +
                                     info.type + '">' +
-                                    '<div class="icon"></div>';
+                                    getIconHtml(operation, info);
+                                    // '<div class="icon"></div>';
             if (operation === 'groupBy') {
                 originHTML += '<div class="icon icon2 ' + info.type + '">' +
                               '</div>';
@@ -2818,6 +2819,112 @@ window.Dag = (function($, Dag) {
         }
 
         return (originHTML);
+    }
+
+    function getIconHtml(operation, info) {
+        var type = info.type;
+        var iconClass = ""
+        switch (operation) {
+            case ("map"):
+                iconClass = "data-update";
+                break;
+            case ("filter"):
+                iconClass = getFilterIconClass(type);
+                break;
+            case ("groupBy"):
+                iconClass = "groupby";
+                break;
+            case ("Create Table"):
+                iconClass = "index";
+                break;
+            case ("index"):
+                iconClass = "index";
+                break;
+            case ("join"):
+                iconClass = getJoinIconClass(type);
+                break;
+            case ("project"):
+                iconClass = "delete-column";
+                break;
+            case ("sort"):
+                if (info.order === "ascending") {
+                    iconClass = "arrowtail-up";
+                } else {
+                    iconClass = "arrowtail-down";
+                }
+            default:
+                break;
+        }
+
+        return '<i class="icon xi-' + iconClass + '"></i>';
+    }
+
+    /*
+    icons we need
+
+    gt, ge, lt, le
+    regex
+    not equal
+    index should be like old icon
+     */
+
+    function getFilterIconClass(type) {
+        var iconClass = "";
+        switch (type) {
+            case ("filtergt"):
+                iconClass = "oldIcon";
+                break;
+            case ("filterge"):
+                iconClass = "oldIcon";
+                break;
+            case ("filtereq"):
+                iconClass = "equal";
+                break;
+            case ("filterlt"):
+                iconClass = "oldIcon";
+                break;
+            case ("filterle"):
+                iconClass = "oldIcon";
+                break;
+            case ("filternot"):
+                iconClass = "oldIcon";
+                break;
+            case ("filterregex"):
+                iconClass = "oldIcon";
+                break;
+            case ("filterlike"):
+                iconClass = "oldIcon";
+                break;
+            case ("filterothers"):
+                iconClass = "oldIcon";
+                break;
+            default: 
+                iconClass = "filter";
+                break;
+        }
+        return iconClass;
+    }
+
+    function getJoinIconClass(type) {
+        var iconClass = "";
+        switch (type) {
+            case ("inner"):
+                iconClass = "join-inner";
+                break;
+            case ("fullOuter"):
+                iconClass = "join-outer";
+                break;
+            case ("left"):
+                iconClass = "oin-leftouter";
+                break;
+            case ("right"):
+                iconClass = "join-rightouter";
+                break;
+            default: 
+                iconClass = "join-inner";
+                break;
+        }
+        return iconClass;
     }
 
     function getDagnumParents(dagNode) {
@@ -2946,9 +3053,11 @@ window.Dag = (function($, Dag) {
                     if (value.ordering ===
                         XcalarOrderingT.XcalarOrderingAscending) {
                         order = "(ascending) ";
+                        info.order = "ascending";
                     } else if (value.ordering ===
                                XcalarOrderingT.XcalarOrderingDescending) {
                         order = "(descending) ";
+                        info.order = "descending";
                     }
                     if (value.source.isTable) {
                         info.tooltip = "Sorted " + order + "by " +
@@ -2970,7 +3079,6 @@ window.Dag = (function($, Dag) {
                     }
                     info.text = "indexed on " + value.keyName;
                 }
-
 
                 break;
             case ('joinInput'):

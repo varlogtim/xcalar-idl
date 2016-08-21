@@ -17,7 +17,7 @@ window.JoinView = (function($, JoinView) {
 
     var turnOnPrefix = true; // Set to false if backend crashes
 
-    var modalHelper;
+    var formHelper;
     var multiClauseTemplate =
         '<div class="joinClause">' +
             '<input class="clause leftClause arg" type="text" ' +
@@ -59,14 +59,8 @@ window.JoinView = (function($, JoinView) {
         $joinTableName = $("#joinTableNameInput");
         $clauseContainer = $mainJoin.find('.clauseContainer');
         $renameSection = $("#joinView .renameSection");
-        // constant
-        var minHeight = 600;
-        var minWidth  = 800;
 
-        modalHelper = new ModalHelper($joinView, {
-            "minHeight": minHeight,
-            "minWidth" : minWidth
-        });
+        formHelper = new FormHelper($joinView);
 
         
         $joinView.find('.cancel, .close').on('click', function() {
@@ -390,24 +384,27 @@ window.JoinView = (function($, JoinView) {
             updatePreviewText();
             addClause($joinView.find('.placeholder'), true, tableId, colNum);
         }
+        formHelper.setup();
 
         $("body").on("keypress.joinModal", function(event) {
             switch (event.which) {
                 case keyCode.Enter:
+                    
                     // when focus on a button, no trigger
-                    if (modalHelper.checkBtnFocus()) {
-                        break;
+                    if (formHelper.checkBtnFocus()) {
+                        return;
                     }
-                    $('#joinTables').click();
+                    if ($joinView.hasClass('nextStep')) {
+                        $('#joinTables').click();
+                    } else {
+                        $joinView.find('.next').click();
+                    }
+                    
                     break;
                 default:
                     break;
             }
         });
-        $("body").on("mouseup.joinModal", function() {
-            $("#moveCursor").remove();
-        });
-
 
         columnPickers();
     };
@@ -421,7 +418,7 @@ window.JoinView = (function($, JoinView) {
         $joinView.addClass('xc-hidden');
         $('#workspaceMenu').find('.menuSection.lastOpened')
                            .removeClass('lastOpened xc-hidden'); 
-        // modalHelper.clear();
+        formHelper.clear();
         $("body").off(".joinModal");
         $('.xcTable').off('click.columnPicker').closest(".xcTableWrap")
                      .removeClass('columnPicker');
@@ -436,6 +433,7 @@ window.JoinView = (function($, JoinView) {
         if ($joinView.hasClass('nextStep')) {
             // go to step 1
             $joinView.removeClass('nextStep');
+            formHelper.refreshTabbing();
         } else {
             // go to step 2
             if (checkFirstView()) {
@@ -450,11 +448,14 @@ window.JoinView = (function($, JoinView) {
                 if ($joinTableName.val().trim() === "") {
                     $joinTableName.focus();
                 }
+                formHelper.refreshTabbing();
             } else {
                // checkfirstview is handling errors 
+               return;
             }
         }
         $joinView.scrollTop(0);
+
     }
 
     function checkFirstView() {
@@ -613,6 +614,7 @@ window.JoinView = (function($, JoinView) {
         $("#rightTableRenames").find(".rename").remove();
         $renameSection.find(".tableRenames").hide();
         $renameSection.hide();
+        formHelper.refreshTabbing();
     }
 
     function hasValidTableNames() {
@@ -718,11 +720,13 @@ window.JoinView = (function($, JoinView) {
             $nextBtn.removeClass('btn-disabled');
             if (isDisabled) {
                 isNextNew = true;
+                formHelper.refreshTabbing();
             }
         } else {
             $nextBtn.addClass('btn-disabled');
             if (!isDisabled) {
                 isNextNew = true;
+                formHelper.refreshTabbing();
             }
         }
     }
@@ -791,17 +795,17 @@ window.JoinView = (function($, JoinView) {
             return;
         }
 
-        modalHelper.disableSubmit();
+        formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();
         var tableName = newTableName + Authentication.getHashId();
         var isValid = joinSubmitHelper(joinType, tableName);
 
         // XXX some bugs here
-        modalHelper.enableSubmit();
+        formHelper.enableSubmit();
         /**
         if (!isValid) {
             // JJJ StatusBox.show(Errblah)
-            modalHelper.enableSubmit();
+            formHelper.enableSubmit();
         } */
 
     }
@@ -1095,7 +1099,7 @@ window.JoinView = (function($, JoinView) {
                 addRenameRows($("#rightRenamePlaceholder"),
                               rImmediatesToRename);
             }
-
+            formHelper.refreshTabbing();
             return false;
         });
 
@@ -1183,6 +1187,7 @@ window.JoinView = (function($, JoinView) {
         if (!noAnimation) {
             $div.hide().slideDown(100);
         }
+        formHelper.refreshTabbing();
     }
 
     function getColNum($table, colName) {
@@ -1297,6 +1302,7 @@ window.JoinView = (function($, JoinView) {
         $(".tooltip").hide();
         $el.tooltip(options);
         $el.tooltip("show");
+        $el.focus();
         tooltipTimer = setTimeout(function() {
             $el.tooltip("destroy");
         }, 2000);

@@ -1,12 +1,13 @@
 window.DFCreateView = (function($, DFCreateView) {
     var $dfView;          // $('#dfCreateView')
     var $newNameInput; //     $('#newDFNameInput')
-    var focusedColNum = null; // last table header clicked, for shift+click
+    var focusedThNum = null; // last table header clicked, for shift+click
+    var focusedListNum = null; // last list number clicked, for shift+click
     var $colList;           //$dfView.find('.cols')
     var $curDagWrap;
 
     var tableName;
-    var modalHelper;
+    var formHelper;
     var tableId;
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
@@ -18,16 +19,11 @@ window.DFCreateView = (function($, DFCreateView) {
         $newNameInput = $('#newDFNameInput');
         $colList = $dfView.find('.cols');
 
-        var minHeight = 400;
-        var minWidth  = 700;
-
-        modalHelper = new ModalHelper($dfView, {
-            "focusOnOpen": true,
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth
+        formHelper = new FormHelper($dfView, {
+            "focusOnOpen": true
         });
 
-        addModalEvents();
+        addFormEvents();
     };
 
     DFCreateView.show = function($dagWrap) {
@@ -54,7 +50,10 @@ window.DFCreateView = (function($, DFCreateView) {
 
 
         $(document).on("keypress.DFView", function(e) {
-            if (e.which === keyCode.Enter) {
+            if (e.which === keyCode.Enter && 
+                gMouseEvents.getLastMouseDownTarget()
+                            .closest('#dfCreateView').length) {
+
                 submitForm();
             }
         });
@@ -65,7 +64,8 @@ window.DFCreateView = (function($, DFCreateView) {
         selectInitialTableCols();
         setupTableColListeners();
      
-        $newNameInput.focus();
+        // $newNameInput.focus();
+        formHelper.setup();
     };
 
     DFCreateView.close = function() {
@@ -119,7 +119,8 @@ window.DFCreateView = (function($, DFCreateView) {
             }
         });
         $dfView.find('.selectAllWrap').find('.checkbox').addClass('checked');
-        focusedColNum = null;
+        focusedThNum = null;
+        focusedListNum = null;
     }
 
     function deselectAll() {
@@ -134,7 +135,8 @@ window.DFCreateView = (function($, DFCreateView) {
         });
         $dfView.find('.selectAllWrap').find('.checkbox')
                                       .removeClass('checked');
-        focusedColNum = null;
+        focusedThNum = null;
+        focusedListNum = null;
     }
 
     function selectInitialTableCols() {
@@ -150,7 +152,8 @@ window.DFCreateView = (function($, DFCreateView) {
     function setupTableColListeners() {
         
         $("#xcTableWrap-" + tableId).addClass("columnPicker allowSelectAll");
-        $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", function(event) {
+        $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", 
+            function(event) {
             var $target = $(event.target);
             if (isInvalidTableCol($target)) {
                 return;
@@ -164,9 +167,9 @@ window.DFCreateView = (function($, DFCreateView) {
             var toHighlight = !$cell.hasClass("modalHighlighted");
 
 
-            if (event.shiftKey && focusedColNum != null) {
-                var start = Math.min(focusedColNum, colNum);
-                var end = Math.max(focusedColNum, colNum);
+            if (event.shiftKey && focusedThNum != null) {
+                var start = Math.min(focusedThNum, colNum);
+                var end = Math.max(focusedThNum, colNum);
 
                 for (var i = start; i <= end; i++) {
                     if (toHighlight) {
@@ -182,8 +185,8 @@ window.DFCreateView = (function($, DFCreateView) {
                     deselectCol(colNum);
                 }
             }
-            focusedColNum = colNum;
-            
+            focusedThNum = colNum;
+            focusedListNum = null;
         });
     }
 
@@ -202,12 +205,11 @@ window.DFCreateView = (function($, DFCreateView) {
         if (validTypes.indexOf(colType) === -1) {
             return;
         }
-        // var currColName = gTables[tableId].tableCols[colNum].name;
         $('#xcTable-' + tableId).find('.col' + (colNum + 1))
                                 .addClass('modalHighlighted');
 
         $colList.find('li[data-colnum="' + colNum + '"]').addClass('checked')
-                                    .find('.checkbox').addClass('checked');
+                .find('.checkbox').addClass('checked');
 
         checkToggleSelectAllBox();
     }
@@ -215,10 +217,9 @@ window.DFCreateView = (function($, DFCreateView) {
     function deselectCol(colNum) {
         $('#xcTable-' + tableId).find('.col' + (colNum + 1))
                                 .removeClass('modalHighlighted');
-        // var currColName = gTables[tableId].tableCols[colNum].name;
 
         $colList.find('li[data-colnum="' + colNum + '"]').removeClass('checked')
-                            .find('.checkbox').removeClass('checked');
+                .find('.checkbox').removeClass('checked');
         checkToggleSelectAllBox();
     }
 
@@ -250,7 +251,7 @@ window.DFCreateView = (function($, DFCreateView) {
         return (DFG.setGroup(groupName, group, isNewGroup));
     }
 
-    function addModalEvents() {
+    function addFormEvents() {
         $dfView.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
             closeDFView();
@@ -260,18 +261,38 @@ window.DFCreateView = (function($, DFCreateView) {
             submitForm();
         });
 
-        $dfView.on("mouseenter", ".tooltipOverflow", function(){
-            xcHelper.autoTooltip(this);
-        });
 
-        $colList.on('click', 'li', function() {
+        $colList.on('click', 'li', function(event) {
             var $li = $(this);
             var colNum = $li.data('colnum');
-            if ($li.hasClass('checked')) {
-                deselectCol(colNum);
-            } else {
-                selectCol(colNum);
+            var toHighlight = false;
+            if (!$li.hasClass('checked')) {
+                toHighlight = true;
             }
+
+
+            if (event.shiftKey && focusedListNum != null) {
+                var start = Math.min(focusedListNum, colNum);
+                var end = Math.max(focusedListNum, colNum);
+
+                for (var i = start; i <= end; i++) {
+                    if (toHighlight) {
+                        selectCol(i);
+                    } else {
+                        deselectCol(i);
+                    }
+                }
+            } else {
+                if (toHighlight) {
+                    selectCol(colNum);
+                } else {
+                    deselectCol(colNum);
+                }
+            }
+
+            focusedListNum = colNum;
+            focusedThNum = null;
+
         });
 
         $dfView.find('.selectAllWrap').click(function() {
@@ -342,7 +363,7 @@ window.DFCreateView = (function($, DFCreateView) {
         
         var isNewGroup = true;
 
-        modalHelper.disableSubmit();
+        formHelper.disableSubmit();
 
         // XXX This part is buggy,
         // thrift call maybe slow, and next time open the modal
@@ -358,7 +379,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
         })
         .always(function() {
-            modalHelper.enableSubmit();
+            formHelper.enableSubmit();
             saveFinished = true;
         });
 
@@ -383,8 +404,10 @@ window.DFCreateView = (function($, DFCreateView) {
 
         $newNameInput.val("");
         $(document).off('keypress.DFView');
-        focusedColNum = null;
+        focusedThNum = null;
+        focusedListNum = null;
         $curDagWrap = null;
+        formHelper.clear();
     }
 
     return (DFCreateView);
