@@ -197,14 +197,21 @@ window.TableList = (function($, TableList) {
         $tableList.removeClass("active")
                   .find(".columnList")
                   .slideUp(0);
-
-        $tableList.addClass("transition").slideUp(150, function() {
+        if (gMinModeOn) {
             $tableList.remove();
-            // clear time line & select boxes
             if ($timeLine.find(".tableInfo").length === 0) {
                 $timeLine.remove();
             }
-        });
+        } else {
+            $tableList.addClass("transition").slideUp(150, function() {
+                $tableList.remove();
+                // clear time line & select boxes
+                if ($timeLine.find(".tableInfo").length === 0) {
+                    $timeLine.remove();
+                }
+            });
+        }
+        
 
         $activeTableList.find(".submit").addClass("xc-hidden")
                         .end()

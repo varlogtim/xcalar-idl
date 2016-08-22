@@ -489,6 +489,18 @@ window.Shortcuts = (function($, Shortcuts) {
     }
 
 
+    
+// var orderint = setInterval(function() {
+//     for (var table in gTables) {
+//         if (gTables[table].ordering === 11) {
+//             console.log('wrong ordering');
+//             debugger;
+//             clearInterval(orderint);
+//         }
+//     }
+// }, 2000);
+
+
 return (Shortcuts);
 
 }(jQuery, {}));

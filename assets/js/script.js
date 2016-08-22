@@ -812,4 +812,3 @@ window.StartManager = (function(StartManager, $) {
 
     return StartManager;
 }({}, jQuery));
-

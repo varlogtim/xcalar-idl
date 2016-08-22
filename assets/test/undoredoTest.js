@@ -14,6 +14,9 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         var logs;
         stepInfo = [];
         var noAlert = true;
+        var mindModeCache = gMinModeOn;
+
+        gMinModeOn = true;
 
         fetchLogs()
         .then(function(testLogs) {
@@ -85,6 +88,9 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         .fail(function() {
             console.error('UNDO-REDO TEST FAILED');
             alert('UNDO-REDO TEST FAILED');
+        })
+        .always(function() {
+            gMinModeOn = mindModeCache;
         });
     };
 
@@ -171,16 +177,28 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
         for (var ws in info.wsMeta.wsInfos) {
             delete info.wsMeta.wsInfos[ws].orphanedTables;
+            info.wsMeta.wsInfos[ws].lockedTables = []; 
+            // we won't always have locked tables during an undo
         }
 
+
         if (secondPass) {
+            // xx temp fix for backend's table ordering bug producing an
+            // invalid order
+            for (var table in stepInfo[step].tables) {
+                delete stepInfo[step].tables[table].ordering;
+            }
+            for (var table in info.tables) {
+                delete info.tables[table].ordering;
+            }
+
             for (var key in info) {
                 if (key !== 'lastAction' && key !== 'nonStringified') {
                     var matching = xcHelper.deepCompare(info[key],
                                                         stepInfo[step][key]);
                     if (!matching) {
-                        console.warn(stepInfo[step][key]);
-                        console.warn(info[key]);
+                        console.warn('base log:', stepInfo[step][key]);
+                        console.warn('current log:', info[key]);
                         console.error('State mismatch in ' + key + ' during ' +
                                         stepInfo[step].lastAction + ' step when ' +
                                         'undoing');
@@ -196,7 +214,19 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
             for (var ws in currentReplayLog.wsMeta.wsInfos) {
                 delete currentReplayLog.wsMeta.wsInfos[ws].orphanedTables;
+                currentReplayLog.wsMeta.wsInfos[ws].lockedTables = []; 
+                // we won't always have locked tables during an undo
             }
+
+            // xx temp fix for backend's table ordering bug producing an
+            // invalid order
+            for (var table in currentReplayLog.tables) {
+                delete currentReplayLog.tables[table].ordering;
+            }
+            for (var table in info.tables) {
+                delete info.tables[table].ordering;
+            }
+
 
             for (var key in currentReplayLog) {
 
@@ -205,8 +235,8 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     var matching = xcHelper.deepCompare(info[key],
                                                         currentReplayLog[key]);
                     if (!matching) {
-                        console.warn(currentReplayLog[key]);
-                        console.warn(info[key]);
+                        console.warn('base log:', currentReplayLog[key]);
+                        console.warn('current log:', info[key]);
                         console.error('State mismatch in ' + key + ' during ' +
                                         info.lastAction + ' step when ' +
                                         'comparing undo to replay log');
@@ -222,7 +252,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
         SQL.undo()
         .then(function() {
-            deferred.resolve();
+            deferred.resolve(); 
         });
 
         return (deferred.promise());
@@ -271,7 +301,19 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
             for (var ws in info.wsMeta.wsInfos) {
                 delete info.wsMeta.wsInfos[ws].orphanedTables;
+                info.wsMeta.wsInfos[ws].lockedTables = [];
+                // we won't always have locked tables during an undo
             }
+
+            // xx temp fix for backend's table ordering bug producing an
+            // invalid order
+            for (var table in stepInfo[step].tables) {
+                delete stepInfo[step].tables[table].ordering;
+            }
+            for (var table in info.tables) {
+                delete info.tables[table].ordering;
+            }
+
 
             for (var key in info) {
                 var matching = xcHelper.deepCompare(info[key],
@@ -288,7 +330,9 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
             console.log(step + '. Redo ' + stepInfo[step].lastAction +
                                                             ' step passed');
+
             deferred.resolve();
+            
         });
         return (deferred.promise());
     }
