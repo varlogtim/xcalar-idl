@@ -334,14 +334,18 @@
 }
 
 #dfgMenu {
-    color: @color-white;
-
     .menuSection > .titleSection {
         border-bottom: none;
     }
 
     .menuSection > .mainSection {
         padding-top: 0px;
+    }
+
+    .menuSection > .iconSection {
+        .action .icon {
+            .position(@top: 45%, @left: 52%);
+        }
     }
 
     .dataFlowGroup {

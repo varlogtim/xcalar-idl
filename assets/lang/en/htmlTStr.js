@@ -351,7 +351,8 @@ module.exports = {
         "weekly": "Weekly",
         "biweekly": "Biweekly",
         "numRun": "Number of Runs",
-        "numRunHint": "how many times to run this"
+        "numRunHint": "how many times to run this",
+        "Add": "Add Schedule"
     },
 
     "monitor": {
