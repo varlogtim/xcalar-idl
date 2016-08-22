@@ -99,6 +99,11 @@ body {
             display: none;
         }
 
+        #bottomMenu {
+            z-index: @z-index-bottomMenu; // so if it's undocked, it will be
+            //behind the worbook panel
+        }
+
         &.monitorMode {
             #mainMenu {
                 left: 0px;
@@ -131,7 +136,7 @@ body {
                 display: block;
 
                 > .topBar {
-                    padding-left: 70px;
+                    padding-left: 68px;
                     // visibility: hidden;
                     .backToWB {
                         display: block;
