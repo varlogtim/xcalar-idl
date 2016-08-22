@@ -660,7 +660,7 @@ window.TblManager = (function($, TblManager) {
         }
 
         var disabledProp;
-        var disabledClass;
+        // var disabledClass;
         var editableClass;
         if (columnName === "") {
             disabledProp = "";
@@ -1785,7 +1785,7 @@ window.TblManager = (function($, TblManager) {
         // listeners on thead
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
             var $el = $(this);
-            if ($table.closest('.columnPicker').length || 
+            if ($table.closest('.columnPicker').length ||
                 ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
                 // not focus when in modal unless bypassModa is true
                 return;
@@ -1874,7 +1874,7 @@ window.TblManager = (function($, TblManager) {
         };
 
         $thead.find('.rowNumHead').mousedown(function() {
-            if ($thead.closest('.modalOpen').length || 
+            if ($thead.closest('.modalOpen').length ||
                 $thead.closest('.xcTableWrap').hasClass('columnPicker')) {
                 return;
             }
@@ -2024,8 +2024,9 @@ window.TblManager = (function($, TblManager) {
             var $td = $(this);
             var $el = $td.children('.clickable');
 
-            if ($table.closest('.columnPicker').length || 
-                $("#mainFrame").hasClass("modalOpen")) {
+            if ($table.closest('.columnPicker').length ||
+                $("#mainFrame").hasClass("modalOpen"))
+            {
                 // not focus when in modal
                 return;
             }
@@ -2153,14 +2154,15 @@ window.TblManager = (function($, TblManager) {
                 // when click sth like row marker cell, rowGrab
                 return false;
             }
-            if ($table.closest('.columnPicker').length || 
-                $("#mainFrame").hasClass("modalOpen")) {
+            if ($table.closest('.columnPicker').length ||
+                $("#mainFrame").hasClass("modalOpen"))
+            {
                 $el.trigger('click');
                 // not focus when in modal
                 return false;
             }
-            var yCoor = Math.max(event.pageY, $div.offset().top + 
-                                    $div.height() - 10);
+            var yCoor = Math.max(event.pageY, $div.offset().top +
+                                 $div.height() - 10);
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 

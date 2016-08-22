@@ -193,7 +193,7 @@ function dblClickResize($el, options) {
             $th.addClass('userHidden');
             $table.find('td.col' + index).addClass('userHidden');
             gTables[tableId].tableCols[index - 1].isHidden = true;
-            ColManager.unhideCols([index], tableId, true)
+            ColManager.unhideCols([index], tableId, true);
             return;
         }
 
@@ -620,7 +620,7 @@ function addMenuBehaviors($mainMenu) {
     }
 
     if ($mainMenu.find('.scrollArea').length !== 0) {
-        var listScroller = new MenuHelper($mainMenu, {
+        new MenuHelper($mainMenu, {
             $subMenu    : $subMenu,
             scrollerOnly: true
         });

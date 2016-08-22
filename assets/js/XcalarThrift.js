@@ -780,7 +780,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
             columns.push(colNameObj);
         }
 
-    var workItem = xcalarExportWorkItem(tableName, target, specInput,
+        var workItem = xcalarExportWorkItem(tableName, target, specInput,
                                   options.createRule, keepOrder, numColumns,
                                   columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
@@ -1924,8 +1924,8 @@ function queryErrorStatusHandler(error, statusesToIgnore, opOrQuery) {
     if (statusesToIgnore && statusesToIgnore.indexOf(error) > -1) {
         thriftError = {status: error, error: "Error:" + StatusTStr[error]};
     } else {
-        thriftError = thriftLog("XcalarCancel"+opOrQuery, error);
-        SQL.errorLog("Cancel "+opOrQuery, null, null, thriftError); 
+        thriftError = thriftLog("XcalarCancel" + opOrQuery, error);
+        SQL.errorLog("Cancel " + opOrQuery, null, null, thriftError);
     }
 
     return (thriftError);
@@ -1955,7 +1955,7 @@ function XcalarQueryCancel(queryName, statusesToIgnore) {
 /**
  * XcalarCancelOp
  * @param {Array} statusesToIgnore array of status numbers to ignore
- *      (when attempting to cancel a query, we cancel all future subqueries 
+ *      (when attempting to cancel a query, we cancel all future subqueries
  *      even when the dstTableName doesn't exist yet -- this produces errors)
  */
 function XcalarCancelOp(dstTableName, statusesToIgnore) {

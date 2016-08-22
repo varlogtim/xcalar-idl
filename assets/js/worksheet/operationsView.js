@@ -1,19 +1,13 @@
 window.OperationsView = (function($, OperationsView) {
-    var $operationsModal; // $('#operationsModal')
     var $operationsView; // $('#operationsView');
     var $categoryInput;   // $('#categoryList').find('.autocomplete')
-    var $categoryUl;      // $('#categoryMenu').find('ul')
     var $categoryList; // for map $operationsView.find('.categoryMenu');
     var $functionsList; // for map $operationsView.find('.functionsMenu');
-    var $functionInput;   // $('#functionList').find('.autocomplete');
-    var $functionInputs; // $operationsView.find('.functionsInput');
     var $genFunctionsMenu;   // $('.genFunctionsMenu')
     var $genFunctionsMenus;   // $('.genFunctionsMenu')
     var $functionsUl;     // $genFunctionsMenu.find('ul')
-    var $functionsUls;     // $genFunctionsMenus.find('ul')
-    var $autocompleteInputs; // $operationsModal.find('.autocomplete');
-    var $argInputs;
-    var $activeOpSection = $(); // $operationsView.find('.map or .filter or 
+    var $autocompleteInputs; // $operationsView.find('.autocomplete');
+    var $activeOpSection = $(); // $operationsView.find('.map or .filter or
                                 //  .groupby etc')
     var currentCol;
     var colNum = "";
@@ -30,8 +24,7 @@ window.OperationsView = (function($, OperationsView) {
     var aggNames = [];
     var suggestLists = [[]]; // groups of arguments
     var isOpen = false;
-    var allowInputChange = true;  
-    var categoryListScroller;
+    var allowInputChange = true;
     var functionsListScrollers = [];
     var gbFunctionsListScroller;
     var aggFunctionsListScroller;
@@ -59,18 +52,15 @@ window.OperationsView = (function($, OperationsView) {
     // };
 
     OperationsView.setup = function() {
-        $operationsModal = $('#operationsModal');
         $operationsView = $('#operationsView');
         $categoryInput = $('#categoryList').find('.autocomplete');
-        $categoryUl = $('#categoryMenu').find('ul');
-        $functionInput = $operationsView.find('.functionsInput');
         $genFunctionsMenu = $operationsView.find('.genFunctionsMenu');
         $genFunctionsMenus = $operationsView.find('.genFunctionsMenu');
         $functionsUl = $genFunctionsMenu.find('ul');
-        $functionsUls = $genFunctionsMenus.find('ul');
         
         $categoryList = $operationsView.find('.categoryMenu');
         $functionsList = $operationsView.find('.functionsMenu');
+        $autocompleteInputs = $operationsView.find('.autocomplete');
 
         // GENERAL LISTENERS, not inputs
 
@@ -97,12 +87,11 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.on('click', '.closeGroup', function() {
             removeFilterGroup($(this).closest('.group'));
-        }); 
+        });
         
         $operationsView.on('click', '.minGroup', function() {
             minimizeGroups($(this).closest('.group'));
-        }); 
-
+        });
 
         $operationsView.find('.submit').on('click', submitForm);
 
@@ -181,14 +170,13 @@ window.OperationsView = (function($, OperationsView) {
                 var $input = $(this);
                 if (event.which === keyCode.Enter || event.which ===
                     keyCode.Tab) {
-                    var inputNum = 0;
-                    var value    = $input.val().trim().toLowerCase();
+                    // var inputNum = 0;
+                    var value = $input.val().trim().toLowerCase();
                     var prevValue = $input.data('value');
                     $input.data('value', value);
 
-
                     if (value === "") {
-                        clearFunctionsInput($input.data('fninputnum')); 
+                        clearFunctionsInput($input.data('fninputnum'));
                         return;
                     }
                     $input.blur();
@@ -215,8 +203,6 @@ window.OperationsView = (function($, OperationsView) {
                 }
 
                 var $input = $(this);
-                var inputNum = $autocompleteInputs.index($input);
-                var inputNum = 0;
                 var value = $input.val().trim().toLowerCase();
                 $input.data('value', value);
 
@@ -247,7 +233,7 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.on('mouseup', '.group', function() {
             $(this).removeClass('minimized fnInputEmpty');
-        })
+        });
 
         // click icon to toggle functions list
 
@@ -368,7 +354,7 @@ window.OperationsView = (function($, OperationsView) {
                     return;
                 }
 
-                if ($input.val() !== "" && 
+                if ($input.val() !== "" &&
                     $input.closest('.inputWrap').siblings('.inputWrap')
                                                 .length === 0) {
                     // hide empty options if input is dirty, but only if
@@ -428,21 +414,17 @@ window.OperationsView = (function($, OperationsView) {
 
         // static button
         $operationsView.find('.addGroupArg').click(function() {
-           addGroupOnArg(); 
+            addGroupOnArg();
         });
 
         // dynamic button
         $operationsView.on('click', '.addMapArg', function() {
-            addMapArg($(this)); 
+            addMapArg($(this));
         });
 
         $operationsView.on('click', '.inputWrap.extra .xi-cancel', function() {
-           removeExtraArg($(this).closest('.inputWrap'));
+            removeExtraArg($(this).closest('.inputWrap'));
         });
-
-
-        $autocompleteInputs = $operationsView.find('.autocomplete');
-        
 
         // click on the hint list
         $operationsView.on('click', '.hint li', function() {
@@ -516,8 +498,7 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         // should only have 1 initially...
-        var functionsListScroller = new MenuHelper($('.filter .functionsList'),
-        {
+        var functionsListScroller = new MenuHelper($('.filter .functionsList'), {
             scrollerOnly : true,
             bounds       : '#operationsView',
             bottomPadding: 5
@@ -531,8 +512,7 @@ window.OperationsView = (function($, OperationsView) {
             bottomPadding: 5
         });
        
-        aggFunctionsListScroller = new MenuHelper(
-            $('.aggregate .functionsList'), {
+        aggFunctionsListScroller = new MenuHelper($('.aggregate .functionsList'), {
             scrollerOnly : true,
             bounds       : '#operationsView',
             bottomPadding: 5
@@ -590,7 +570,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         if (restore) {
-           $activeOpSection.removeClass('xc-hidden');
+            $activeOpSection.removeClass('xc-hidden');
         } else {
             operatorName = operator.toLowerCase().trim();
             tableId = currTableId;
@@ -646,16 +626,16 @@ window.OperationsView = (function($, OperationsView) {
 
     OperationsView.turnOffClickHandlers = function() {
         $(document).off('click.OpSection');
-    }
+    };
 
     OperationsView.close = function() {
         if (isOpen) {
-            closeOpSection(); 
+            closeOpSection();
         }
     };
 
     // for functions dropdown list
-    // forceUpdate is a boolean, if true, we trigger an update even if 
+    // forceUpdate is a boolean, if true, we trigger an update even if
     // input's val didn't change
     function fnListMouseup(event, $li, forceUpdate) {
         allowInputChange = true;
@@ -667,7 +647,7 @@ window.OperationsView = (function($, OperationsView) {
         hideDropdowns();
 
         // value didn't change && argSection is inactive (not showing)
-        if (!forceUpdate && originalInputValue === value && 
+        if (!forceUpdate && originalInputValue === value &&
             $activeOpSection.find('.group').eq(fnInputNum)
                             .find('.argsSection.inactive').length === 0) {
             return;
@@ -685,30 +665,26 @@ window.OperationsView = (function($, OperationsView) {
 
     // listeners added whenever operation view opens
     function operationsViewShowListeners() {
-        var $tableWrap = $('.xcTableWrap');
-        // var $tableWrap = $('#xcTableWrap-' + tableId);
-        $tableWrap.addClass('columnPicker');
-        var $table = $("#xcTable-" + tableId);
+        $('.xcTableWrap').addClass('columnPicker');
         var $table = $('.xcTable');
 
-        $table.on('click.columnPicker', '.header, td.clickable', 
-            function(event) {
-                if (!$lastInputFocused) {
-                    return;
-                }
-                var $target = $(event.target);
-                if ($target.closest('.dataCol').length ||
-                    $target.closest('.jsonElement').length ||
-                    $target.closest('.dropdownBox').length) {
-                    return;
-                }
-                xcHelper.fillInputFromCell($target, $lastInputFocused,
-                                            gColPrefix);
+        $table.on('click.columnPicker', '.header, td.clickable', function(event) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            var $target = $(event.target);
+            if ($target.closest('.dataCol').length ||
+                $target.closest('.jsonElement').length ||
+                $target.closest('.dropdownBox').length) {
+                return;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused,
+                                        gColPrefix);
         });
 
         $table.on('mousedown', '.header, td.clickable', keepInputFocused);
 
-        $(document).on('click.OpSection', function(event) {
+        $(document).on('click.OpSection', function() {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
             // close if user clicks somewhere on the op modal, unless
             // they're clicking on a dropdownlist
@@ -782,13 +758,9 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function toggleOperationsViewDisplay(isHide) {
-        
-        var $table = $("#xcTable-" + tableId);
-        var $tableWrap = $("#xcTableWrap-" + tableId);
         var $table = $('.xcTable');
         var $tableWrap = $('.xcTableWrap');
         if (isHide) {
-            
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
             $table.off('click.columnPicker');
             $('body').off('keydown', listHighlightListener);
@@ -798,12 +770,8 @@ window.OperationsView = (function($, OperationsView) {
                              .removeClass('tableOpSection');
             $tableWrap.removeClass('columnPicker');
             $tableWrap.removeClass('modalOpen');
-
         } else {
-
             $('body').on('keydown', listHighlightListener);
-            // $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-            //                  .addClass('tableOpSection');
         }
     }
 
@@ -811,17 +779,6 @@ window.OperationsView = (function($, OperationsView) {
         closeMenu($('#colMenu'));
         event.preventDefault();
         event.stopPropagation();
-    }
-
-    function opModalKeyListener(event) {
-        if (event.which === keyCode.Enter ||
-            event.which === keyCode.Escape)
-        {
-            event.preventDefault();
-            event.stopPropagation();
-            // prevent event in order to keep form from submitting or exiting
-            // because there's a keypress listener trying to close the modal
-        }
     }
 
     function addCastDropDownListener() {
@@ -881,9 +838,10 @@ window.OperationsView = (function($, OperationsView) {
                 categoryName = FunctionCategoryTStr[i].toLowerCase();
                 var searchStr = " functions";
                 var categoryNameLen = categoryName.length;
-                if (categoryName.lastIndexOf(searchStr) === 
-                    (categoryNameLen - searchStr.length)) {
-                    categoryName = categoryName.substring(0, 
+                if (categoryName.lastIndexOf(searchStr) ===
+                    (categoryNameLen - searchStr.length))
+                {
+                    categoryName = categoryName.substring(0,
                                             categoryNameLen - searchStr.length);
                 }
                 categoryNames.push(categoryName);
@@ -927,7 +885,7 @@ window.OperationsView = (function($, OperationsView) {
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
             html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
         }
-        $activeOpSection.find('.genFunctionsMenu ul[data-fnmenunum="' + 
+        $activeOpSection.find('.genFunctionsMenu ul[data-fnmenunum="' +
                                 groupIndex + '"]')
                         .html(html);
     }
@@ -1273,7 +1231,7 @@ window.OperationsView = (function($, OperationsView) {
             text = ErrTStr.NoEmpty;
         } else {
             $target = $activeOpSection.find('.group').eq(groupNum)
-                                      .find('input').eq(inputNum); 
+                                      .find('input').eq(inputNum);
             if ($target.val().trim() === "") {
                 text = ErrTStr.NoEmpty;
             }
@@ -1289,20 +1247,21 @@ window.OperationsView = (function($, OperationsView) {
 
         $li.siblings().removeClass('active');
         $li.addClass('active');
-        var index = categoryNames.indexOf(category);
+        // var index = categoryNames.indexOf(category);
         
         var categoryNum = $li.data('category');
         var ops = functionsMap[categoryNum];
 
         var html = "";
+        var numOps = ops.length;
         if (isUDF) {
-            for (var i = 0, numOps = ops.length; i < numOps; i++) {
+            for (var i = 0; i < numOps; i++) {
                 html += '<li class="textNoCap" data-container="body" ' +
-                'data-placement="right" data-toggle="tooltip" title="' 
-                + ops[i].fnName + '">' + ops[i].fnName + '</li>';
+                'data-placement="right" data-toggle="tooltip" title="' +
+                ops[i].fnName + '">' + ops[i].fnName + '</li>';
             }
         } else {
-            for (var i = 0, numOps = ops.length; i < numOps; i++) {
+            for (var i = 0; i < numOps; i++) {
                 html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
             }
         }
@@ -1348,7 +1307,7 @@ window.OperationsView = (function($, OperationsView) {
             category = $categoryLi.text().trim().toLowerCase();
             categoryNum = $categoryLi.data('category');
             func = $li.text().trim();
-        } else { 
+        } else {
             categoryNum = 0;
             category = categoryNames[categoryNum];
             func = $argsGroup.find('.functionsInput').val().trim();
@@ -1358,7 +1317,6 @@ window.OperationsView = (function($, OperationsView) {
 
         var ops = functionsMap[categoryNum];
         var operObj = null;
-        var strPreview;
 
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
             if (func === ops[i].fnName) {
@@ -1398,14 +1356,11 @@ window.OperationsView = (function($, OperationsView) {
             numInputsNeeded++;
         }
 
-        addArgRows(numInputsNeeded, $argsGroup, groupIndex);            
+        addArgRows(numInputsNeeded, $argsGroup, groupIndex);
 
         var $rows = $argsSection.find('.row'); // get rows now that more were added
        
         hideCastColumn(groupIndex);
-
-        // xx may not need this
-        // resetArgSectionRows($argsGroup);
 
         // sets up the args generated by backend, not front end arguments such
         // as new column name input
@@ -1452,8 +1407,8 @@ window.OperationsView = (function($, OperationsView) {
         var noHighlight = true;
         checkIfStringReplaceNeeded(noHighlight);
         if (($activeOpSection.find('.group').length - 1) === groupIndex) {
-            if (operatorName !== "group by") { // xx not working well with 
-                                            //  group by
+            if (operatorName !== "group by") {
+                // xx not working well with group by
                 scrollToBottom();
             }
         }
@@ -1480,8 +1435,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // sets up the args generated by backend, not front end arguments
-    function setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue) 
-    {
+    function setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue) {
         var description;
         var typeId;
         var types;
@@ -1506,7 +1460,7 @@ window.OperationsView = (function($, OperationsView) {
             types = parseType(typeId);
             if (types.indexOf('string') === -1) {
                 $rows.eq(i).find('.emptyStrWrap').remove();
-            } 
+            }
  
             // add "addArg" button if *arg is found in the description
             if (description.indexOf("*") === 0 &&
@@ -1517,54 +1471,9 @@ window.OperationsView = (function($, OperationsView) {
                           '<i class="icon xi-plus"></i>' +
                           '<span class="text">ADD ANOTHER ARGUMENT</span>' +
                         '</button>' +
-                      '</div>'); 
+                      '</div>');
             }
         }
-    }
-
-    // unused for now
-    function resetArgSectionRows($argsGroup) {
-        var $argsSection = $argsGroup.find('.argsSection');
-        var $rows = $argsSection.find('.row');
-        $rows.find('input').data('typeid', -1)
-                       .data('casted', false)
-                       .data('casttype', null)
-             .end()
-             .find('.checkboxSection')
-             .removeClass('checkboxSection')
-             .removeClass("disabled")
-             .removeAttr("data-toggle")
-             .removeAttr("data-placement")
-             .removeAttr("data-original-title")
-             .removeAttr("data-container")
-             .find('input').attr('type', 'text')
-             .prop("checked", false)
-             .removeAttr('id')
-             .end()
-             .find('.checkBoxText').remove();
-
-        var $args = $rows.find('.arg');
-
-        $args.off('input.aggPrefix');
-        $args.off('keydown.aggPrefix');
-        $args.off('focus.aggPrefix');
-        $args.off('blur.aggPrefix');
-
-        $argsSection.find('.checkbox').removeClass('checked')
-                                          .parent()
-                                          .removeClass('hidden');
-
-        // as rows order may change, update it here
-        // $argsSection.find(".row.gbOnRow").removeClass("gbOnRow");
-        
-        var $colNameRow = $rows.filter(function() {
-            return ($(this).hasClass('colNameRow'));
-        });
-        $colNameRow.removeClass('colNameRow')
-                   .find('.colNameSection')
-                   .removeClass('colNameSection');
-
-        $rows.find('.cast input').val('default');
     }
 
     // sets up the last argument for map
@@ -1596,16 +1505,16 @@ window.OperationsView = (function($, OperationsView) {
                         .find('.arg').val(autoGenColName)
                         .end()
                         .find('.description').text(description);
-        var strPreview =  operatorName + '(<span class="descArgs">' + 
-                          operObj.fnName + 
+        var strPreview =  operatorName + '(<span class="descArgs">' +
+                          operObj.fnName +
                             '(' + $rows.eq(0).find(".arg").val() +
                             ')</span>)';
         return (strPreview);
     }
 
-    function filterArgumentsSetup(operObj, $rows) {
+    function filterArgumentsSetup(operObj) {
         var $rows = $activeOpSection.find('.row');
-        var strPreview = operatorName + '(<span class="descArgs">' + 
+        var strPreview = operatorName + '(<span class="descArgs">' +
                          operObj.fnName + '(' +
                          $rows.eq(0).find(".arg").val() +
                         ')</span>)';
@@ -1641,10 +1550,10 @@ window.OperationsView = (function($, OperationsView) {
                         '</span>' +
                     '</p>';
 
-        return (strPreview)
+        return (strPreview);
     }
 
-    function aggArgumentsSetup(numArgs, operObj, $rows, defaultValue) {
+    function aggArgumentsSetup(numArgs, operObj, $rows) {
         var description = OpModalTStr.AggNameDesc;
 
         $rows.eq(numArgs).addClass('colNameRow')
@@ -1695,338 +1604,6 @@ window.OperationsView = (function($, OperationsView) {
         });
     }
 
-    // xx not being used for xi2 but used to check some code, will remove soon
-    // function produceArgumentTable() {
-    //     var category = $categoryInput.val().toLowerCase().trim();
-    //     var func = $functionInput.val().trim();
-
-    //     var categoryIndex = categoryNames.indexOf(category);
-
-    //     if (categoryIndex < 0) {
-    //         return;
-    //     }
-
-    //     var $categoryLi = $categoryUl.find('li').filter(function() {
-    //         return ($(this).text() === categoryNames[categoryIndex]);
-    //     });
-    //     var categoryNum = $categoryLi.data('category');
-    //     var ops = functionsMap[categoryNum];
-    //     var operObj = null;
-
-    //     for (var i = 0, numOps = ops.length; i < numOps; i++) {
-    //         if (func === ops[i].fnName) {
-    //             operObj = ops[i];
-    //             break;
-    //         }
-    //     }
-
-    //     if (operObj != null) {
-    //         var defaultValue = gColPrefix + colName;
-
-    //         if (firstArgExceptions[category] &&
-    //             firstArgExceptions[category].indexOf(func) !== -1)
-    //         {
-    //             defaultValue = "";
-    //         } else if (isNewCol) {
-    //             defaultValue = "";
-    //         }
-
-    //         var numArgs = operObj.numArgs;
-    //         if (numArgs < 0) {
-    //             numArgs = 1; // Refer to operObj.numArgs for min number
-    //         }
-    //         var $tbody = $operationsView.find('.argumentTable tbody');
-    //         var numRowsInTable = $tbody.find('tr').length;
-    //         var numRowsNeeded;
-    //         if (operatorName === "group by") {
-    //             numRowsNeeded = (numArgs + 4) - numRowsInTable;
-    //         } else {
-    //             numRowsNeeded = (numArgs + 1) - numRowsInTable;
-    //         }
-
-    //         if (numRowsNeeded) {
-    //             var rowHtml = "";
-    //             for (var i = 0; i < numRowsNeeded; i++) {
-    //                 rowHtml += getArgRowHtml();
-    //             }
-    //             $tbody.append(rowHtml);
-    //             addCastDropDownListener();
-    //             var scroller = new MenuHelper(
-    //                         $operationsView.find('.hint').last(), {
-    //                             scrollerOnly : true,
-    //                             // bounds       : 'body',
-    //                             bounds       : 'body',
-    //                             bottomPadding: 5
-    //                         });
-    //             suggestLists.push(scroller);
-    //         }
-
-    //         $operationsView.find('.checkbox').removeClass('checked')
-    //                                           .parent()
-    //                                           .removeClass('hidden');
-
-    //         // as rows order may change, update it here
-    //         $tbody.find("tr.gbOnRow").removeClass("gbOnRow")
-    //         var $rows = $tbody.find('tr');
-    //         var $colNameRow = $rows.filter(function() {
-    //             return ($(this).hasClass('colNameRow'));
-    //         });
-    //         $colNameRow.removeClass('colNameRow')
-    //                    .find('.colNameSection')
-    //                    .removeClass('colNameSection');
-
-    //         $rows.find('.cast input').val('default');
-    //         hideCastColumn();
-
-    //         $rows.find('input').data('typeid', -1)
-    //                            .data('casted', false)
-    //                            .data('casttype', null)
-    //              .end()
-    //              .find('.checkboxSection')
-    //              .removeClass('checkboxSection')
-    //              .removeClass("disabled")
-    //              .removeAttr("data-toggle")
-    //              .removeAttr("data-placement")
-    //              .removeAttr("data-original-title")
-    //              .removeAttr("data-container")
-    //              .find('input').attr('type', 'text')
-    //              .prop("checked", false)
-    //              .removeAttr('id')
-    //              .end()
-    //              .find('.checkBoxText').remove();
-
-    //         $rows.find('.argument').off('input.aggPrefix');
-    //         $rows.find('.argument').off('keydown.aggPrefix');
-    //         $rows.find('.argument').off('focus.aggPrefix');
-    //         $rows.find('.argument').off('blur.aggPrefix');
-
-    //         var description;
-    //         var autoGenColName;
-    //         var typeId;
-    //         var despText = operObj.fnDesc;
-
-    //         for (var i = 0; i < numArgs; i++) {
-    //             if (operObj.argDescs[i]) {
-    //                 description = operObj.argDescs[i].argDesc;
-    //                 typeId = operObj.argDescs[i].typesAccepted;
-    //             } else {
-    //                 description = "";
-    //                 var keyLen = Object.keys(DfFieldTypeT).length;
-    //                 typeId = Math.pow(2, keyLen + 1) - 1;
-    //             }
-
-    //             var $input = $rows.eq(i).find('.argument');
-    //             if (i === 0 && operatorName !== "group by") {
-    //                 $input.val(defaultValue);
-    //             } else {
-    //                 $input.val("");
-    //             }
-    //             $input.data("typeid", typeId);
-    //             $rows.eq(i).find('.description').text(description);
-    //         }
-
-    //         if (operatorName === 'map') {
-    //             description = OpModalTStr.ColNameDesc;
-    //             var tempName = colName;
-    //             if (colName === "") {
-    //                 tempName = "mapped";
-    //             }
-    //             if (isNewCol && colName !== "") {
-    //                 autoGenColName = currentCol.name;
-    //             } else {
-    //                 if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
-    //                     autoGenColName = getAutoGenColName(tempName + "_udf");
-    //                 } else {
-    //                     autoGenColName = getAutoGenColName(tempName + "_" +
-    //                                                        func);
-    //                 }
-    //             }
-
-    //             autoGenColName = xcHelper.stripeColName(autoGenColName);
-
-    //             $rows.eq(numArgs).addClass('colNameRow')
-    //                             .find('.dropDownList')
-    //                             .addClass('colNameSection')
-    //                             .end()
-    //                             .find('.argument').val(autoGenColName)
-    //                             .end()
-    //                             .find('.description').text(description);
-    //             ++numArgs;
-    //             despText = '<p>' + despText + '</p>' +
-    //                         '<b>String Preview:</b>' +
-    //                         '<p class="funcDescription textOverflow">' +
-    //                             operatorName + '(' + operObj.fnName + '(' +
-    //                             '<span class="descArgs">' +
-    //                                 $rows.eq(0).find(".argument").val() +
-    //                             '</span>)' +
-    //                             ')' +
-    //                         '</p>';
-    //         } else if (operatorName === 'group by') {
-    //             var $gbOnRow;
-    //             description = 'Fields to group on';
-
-    //             $gbOnRow = $rows.eq(numArgs).addClass("gbOnRow");
-    //             $gbOnRow.find('.argument').val(defaultValue)
-    //                         .end()
-    //                         .find('.description').text(description);
-
-    //             ++numArgs;
-
-    //             // new col name field
-    //             description = 'New Column Name for the groupBy' +
-    //                             ' resultant column';
-    //             autoGenColName = getAutoGenColName(colName + "_" + func);
-    //             autoGenColName = xcHelper.stripeColName(autoGenColName);
-
-    //             $rows.eq(numArgs).addClass('colNameRow')
-    //                              .find('.dropDownList')
-    //                                 .addClass('colNameSection')
-    //                             .end()
-    //                             .find('.argument').val(autoGenColName)
-    //                             .end()
-    //                             .find('.description').text(description);
-    //             ++numArgs;
-
-    //             // check box for include sample
-    //             description = OpModalTStr.IncSampleDesc;
-    //             var checkboxText =
-    //                 '<label class="checkBoxText" for="incSample">' +
-    //                 OpModalTStr.IncSample + '</span>';
-
-    //             $rows.eq(numArgs).addClass('colNameRow')
-    //                     .find('.dropDownList').addClass('checkboxSection')
-    //                     .end()
-    //                     .find('.argument').val("").attr("type", "checkbox")
-    //                                             .attr("checked", false)
-    //                                             .attr("id", "incSample")
-    //                         .after(checkboxText)
-    //                     .end()
-    //                     .find('.description').text(description)
-    //                     .end()
-    //                     .find('.checkboxWrap').addClass('hidden');
-    //             ++numArgs;
-
-    //             // check box for join group by table
-    //             description = OpModalTStr.KeepInTableDesc;
-    //             var checkboxText =
-    //                 '<label class="checkBoxText" for="keepInTable">' +
-    //                  OpModalTStr.KeepInTable + '</span>';
-
-    //             $rows.eq(numArgs).addClass('colNameRow')
-    //                     .find('.dropDownList').addClass('checkboxSection')
-    //                     .end()
-    //                     .find('.argument').val("").attr("type", "checkbox")
-    //                                             .attr("checked", false)
-    //                                             .attr("id", "keepInTable")
-    //                         .after(checkboxText)
-    //                     .end()
-    //                     .find('.description').text(description)
-    //                     .end()
-    //                     .find('.checkboxWrap').addClass('hidden');
-    //             ++numArgs;
-
-    //             despText = '<p>' + despText + '</p>' +
-    //                         '<b>String Preview:</b>' +
-    //                         '<p class="funcDescription textOverflow">' +
-    //                             operObj.fnName + '(' +
-    //                             '<span class="aggCols">' +
-    //                                 $rows.eq(0).find(".argument").val() +
-    //                             '</span>' +
-    //                             '), GROUP BY ' +
-    //                             '<span class="groupByCols">' +
-    //                                 defaultValue +
-    //                             '</span>' +
-    //                         '</p>';
-
-    //             $("#incSample").click(function() {
-    //                 // cache previous checked state
-    //                 prevCheck = $(this).prop("checked") || false;
-    //             });
-    //         } else if (operatorName === "filter") {
-    //             despText = '<p>' + despText + '</p>' +
-    //                         '<b>String Preview:</b>' +
-    //                         '<p class="funcDescription textOverflow">' +
-    //                             operatorName + '(' + operObj.fnName + '(' +
-    //                             '<span class="descArgs">' +
-    //                                 $rows.eq(0).find(".argument").val() +
-    //                             '</span>)' +
-    //                             ')' +
-    //                         '</p>';
-    //         } else if (operatorName === "aggregate") {
-    //             var description = OpModalTStr.AggNameDesc;
-
-    //             $rows.eq(numArgs).addClass('colNameRow')
-    //                             .find('.dropDownList')
-    //                             .addClass('colNameSection')
-    //                             .end()
-    //                             .find('.argument').val("")
-    //                             .end()
-    //                             .find('.description').text(description);
-
-    //             var $nameInput =  $rows.eq(numArgs).find('.argument');
-
-    //             // focus, blur, keydown, input listeners ensures the aggPrefix
-    //             // is always the first chracter in the colname input
-    //             // and is only visible when focused or changed
-    //             $nameInput.on('focus.aggPrefix', function() {
-    //                 var $input = $(this);
-    //                 if ($input.val().trim() === "") {
-    //                     $input.val(gAggVarPrefix);
-    //                 }
-    //             });
-    //             $nameInput.on('blur.aggPrefix', function() {
-    //                 var $input = $(this);
-    //                 if ($input.val().trim() === gAggVarPrefix) {
-    //                     $input.val("");
-    //                 }
-    //             });
-    //             $nameInput.on('keydown.aggPrefix', function(event) {
-    //                 var $input = $(this);
-    //                 if ($input.caret() === 0 &&
-    //                     $input[0].selectionEnd === 0) {
-    //                     event.preventDefault();
-    //                     $input.caret(1);
-    //                     return false;
-    //                 }
-    //             });
-    //             $nameInput.on('input.aggPrefix', function() {
-    //                 var $input = $(this);
-    //                 var val = $input.val();
-    //                 var trimmedVal = $input.val().trim();
-    //                 if (trimmedVal[0] !== gAggVarPrefix) {
-    //                     var caretPos = $input.caret();
-    //                     $input.val(gAggVarPrefix + val);
-    //                     if (caretPos === 0) {
-    //                         $input.caret(1);
-    //                     }
-    //                 }
-    //             });
-    //             ++numArgs;
-    //         }
-
-    //         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
-    //         $operationsView.find('.descriptionText').html(despText);
-    //         if (numArgs > 4) {
-    //             $operationsView.find('.tableContainer').addClass('manyArgs');
-    //         } else {
-    //             $operationsView.find('.tableContainer')
-    //                             .removeClass('manyArgs');
-    //         }
-    //         $argInputs = $operationsView
-    //                      .find('.argumentSection .argument:visible');
-    //         $operationsView.find('.argument').parent().each(function(i) {
-    //             // xx this would be a bug if more than 100 arguments ¯\_(ツ)_/¯
-    //             $(this).css('z-index', 100 - i);
-
-    //         });
-
-    //         modalHelper.refreshTabbing();
-
-    //         var noHighlight = true;
-    //         checkIfStringReplaceNeeded(noHighlight);
-    //     }
-    // }
-
     function findStringDiff(oldText, newText) {
 
         // Find the index at which the change began
@@ -2036,7 +1613,7 @@ window.OperationsView = (function($, OperationsView) {
             start++;
         }
 
-        // Find the index at which the change ended 
+        // Find the index at which the change ended
         // (relative to the end of the string)
         var end = 0;
         while (end < oldText.length &&
@@ -2102,7 +1679,7 @@ window.OperationsView = (function($, OperationsView) {
                 } else if (xcHelper.hasValidColPrefix(arg)) {
                     arg = parseColPrefixes(arg);
                     if (operatorName !== "map" ||
-                        $categoryList.find('.active').text() !== "user-defined") 
+                        $categoryList.find('.active').text() !== "user-defined")
                     {
                         type = getColumnTypeFromArg(arg);
                     }
@@ -2113,7 +1690,7 @@ window.OperationsView = (function($, OperationsView) {
                     if (parsedType.length === 6) {
                         type = null;
                     } else {
-                        var isString = formatArgumentInput(arg, 
+                        var isString = formatArgumentInput(arg,
                                                         $input.data('typeid'),
                                                        existingTypes).isString;
                         if (isString) {
@@ -2137,8 +1714,7 @@ window.OperationsView = (function($, OperationsView) {
                 var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
                 if (emptyStrChecked && arg === "") {
                     quotesNeeded.push(true);
-                } else if (!$input.closest(".dropDownList") 
-                // if (!$input.closest(".dropDownList") 
+                } else if (!$input.closest(".dropDownList")
                             .hasClass("colNameSection") &&
                             !xcHelper.hasValidColPrefix(arg) &&
                             arg[0] !== gAggVarPrefix &&
@@ -2191,7 +1767,7 @@ window.OperationsView = (function($, OperationsView) {
                     newText += ", ";
                 }
                 if (groupNum < numGroups - 1) {
-                    newText += "and("
+                    newText += "and(";
                 }
                 newText += funcName + "(";
                 $inputs = $(this).find('.arg:visible');
@@ -2214,13 +1790,12 @@ window.OperationsView = (function($, OperationsView) {
                     }
 
                     if (numNonBlankArgs > 0) {
-                        // check: if arg is blank and is not a string then do 
+                        // check: if arg is blank and is not a string then do
                         // not add comma
                         // ex. add(6) instead of add(6, )
-                        // 
                         if (val === "") {
-                            var typeId = $input.data('typeid');
-                            var types = parseType(typeId);
+                            // var typeId = $input.data('typeid');
+                            // var types = parseType(typeId);
                             if (!noArgsChecked) {
                                 val = ", " + val;
                             }
@@ -2248,8 +1823,9 @@ window.OperationsView = (function($, OperationsView) {
             } else if (noHighlight) {
                 newText = "";
                 for (var i = 0; i < tempText.length; i++) {
-                    newText += "<span class='char'>" + tempText[i] +
-                                   "</span>";        
+                    newText += "<span class='char'>" +
+                                    tempText[i] +
+                                "</span>";
                 }
                 $description.find(".descArgs").html(newText);
             } else {
@@ -2257,13 +1833,10 @@ window.OperationsView = (function($, OperationsView) {
                 var $spans = $spanWrap.find('span.char');
                 modifyDescText(oldText, newText, $spanWrap, $spans);
             }
-
-
         } else if (operatorName === "group by") {
             var aggColOldText = $description.find(".aggCols").text();
             var $inputs = $activeOpSection.find('.arg:visible');
-            if ($activeOpSection.find('.argsSection').last()
-                                .hasClass('inactive')) {
+            if ($activeOpSection.find('.argsSection').last().hasClass('inactive')) {
                 return;
             }
             var aggColNewText = $activeOpSection.find('.argsSection').last()
@@ -2273,8 +1846,7 @@ window.OperationsView = (function($, OperationsView) {
             aggColNewText = parseColPrefixes(aggColNewText);
             var gbColOldText = $description.find(".groupByCols").text();
             var gbColNewText = "";
-            $activeOpSection.find('.groupOnSection')
-                            .find('.arg').each(function() {
+            $activeOpSection.find('.groupOnSection').find('.arg').each(function() {
                 if ($(this).val().trim() !== "") {
                     gbColNewText += ", " + $(this).val().trim();
                 }
@@ -2392,75 +1964,6 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function checkArgumentParams() {
-        var allInputsFilled = true;
-        var $inputs = $activeOpSection.find('.group');
-        $inputs.each(function(index) {
-            var $input = $(this);
-
-            if ($input.closest('.dropDownList').hasClass('checkboxSection')) {
-                return (true);
-            }
-
-            if (!$input.closest('.dropDownList').hasClass('colNameSection')) {
-                // if map, some args can be blank
-                if (operatorName === "map") {
-                    var category = $categoryList.find('.active').text().trim()
-                                                .toLowerCase();
-                    if (category === "user-defined functions") {
-                        return (true);
-                    }
-                    if (category === "string functions") {
-                        if (funcName !== "cut" && funcName !== "substring") {
-                            return (true);
-                        } else if (funcName === "substring") {
-                            if (index === 0) {
-                                return (true);
-                            }
-                        } else if (index !== 1) {
-                            return (true);
-                        }
-                    }
-                }
-                // allow blanks in eq and like filters
-                if (operatorName === "filter") {
-                    if ($activeOpSection.find('.functionsInput')
-                                        .eq(groupNum).val() === "eq" ||
-                        $activeOpSection.find('.functionsInput')
-                                        .eq(groupNum).val() === "like") {
-                        return (true);
-                    }
-                }
-            }
-
-            // Special case: When the user actually wants to have <space>
-            // or \n as an input, then we should not trim it.
-            var origLength = $(this).val().length;
-
-            var val = $(this).val().trim();
-
-            var newLength = val.length;
-            if (origLength > 0 && newLength === 0) {
-                val = $(this).val();
-            }
-            if (val === "") {
-                allInputsFilled = false;
-                return (true);
-            }
-        });
-
-        // xi2 check if this is correct 
-        
-        if (allInputsFilled) {
-            return (true);
-        } else {
-            // clearInput(2);  
-            hideDropdowns(); 
-            // xx need to handle this
-            return (true);
-        }
-    }
-
     function getExistingTypes(groupNum) {
         var existingTypes = {};
         var arg;
@@ -2484,9 +1987,9 @@ window.OperationsView = (function($, OperationsView) {
                 // skip this type check if the function category is user defined
                 // function.
                 if (operatorName !== "map" ||
-                    $categoryList.find('.active').text().indexOf('user') !== 0) 
+                    $categoryList.find('.active').text().indexOf('user') !== 0)
                 {
-                        type = getColumnTypeFromArg(arg);
+                    type = getColumnTypeFromArg(arg);
                 }
                 
             } else {
@@ -2494,7 +1997,7 @@ window.OperationsView = (function($, OperationsView) {
                 if (parsedType.length === 6) {
                     type = null;
                 } else {
-                    var isString = formatArgumentInput(arg, 
+                    var isString = formatArgumentInput(arg,
                                                       $input.data('typeid'),
                                                        existingTypes).isString;
                     if (isString) {
@@ -2516,7 +2019,7 @@ window.OperationsView = (function($, OperationsView) {
         // async calls to follow that shouldn't be triggered multiple times
 
         if (!gTables[tableId]) {
-            StatusBox.show('Table no longer exists', 
+            StatusBox.show('Table no longer exists',
                             $activeOpSection.find('.tableList'));
             return false;
         }
@@ -2717,8 +2220,8 @@ window.OperationsView = (function($, OperationsView) {
         var colTypeInfos = [];
 
         // set up colTypeInfos, filter out any that shouldn't be casted
-        $activeOpSection.find('.group').eq(groupNum)
-                        .find('.arg:visible').each(function(i) {
+        var $group = $activeOpSection.find('.group').eq(groupNum);
+        $group.find('.arg:visible').each(function(i) {
             var $input = $(this);
             var hasEmpty = $input.closest('.row')
                                  .find('.emptyOptions .checked').length;
@@ -2743,7 +2246,7 @@ window.OperationsView = (function($, OperationsView) {
         return colTypeInfos;
     }
 
-    // returns an object that contains an array of formated arguments,  
+    // returns an object that contains an array of formated arguments,
     // an object of each argument's column type
     // and a flag of whether all arguments are valid or not
     function argumentFormatHelper(existingTypes, groupNum) {
@@ -2757,18 +2260,17 @@ window.OperationsView = (function($, OperationsView) {
         var errorType;
         var invalidNonColumnType = false; // when an input does not have a
         // a column name but still has an invalid type
-
-        $activeOpSection.find('.group').eq(groupNum)
-                        .find('.arg:visible').each(function(inputNum) {
+        var $group = activeOpSection.find('.group').eq(groupNum);
+        $group.find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
 
             // Edge case. GUI-1929
-            var origLength = $input.val().length;
+            // var origLength = $input.val().length;
             var $row = $input.closest('.row');
             var noArgsChecked = $row.find('.noArg.checked').length > 0;
             var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
 
-            var arg = $input.val().trim();
+            // var arg = $input.val().trim();
             var arg = $input.val();
             var trimmedArg = arg.trim();
 
@@ -2839,8 +2341,7 @@ window.OperationsView = (function($, OperationsView) {
                             });
                         } else {
                             allColTypes.push({});
-                            errorText = xcHelper.replaceMsg(
-                                ErrWRepTStr.InvalidCol, {
+                            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                                 "name": frontColName
                             });
                             $errorInput = $input;
@@ -2865,11 +2366,9 @@ window.OperationsView = (function($, OperationsView) {
                                             hasUnescapedParens($input.val())) {
                                             // function-like string found but
                                             // invalid format
-                                             errorText = ErrTStr
-                                                        .InvalidFunction;
+                                            errorText = ErrTStr.InvalidFunction;
                                         } else {
-                                            errorText = xcHelper.replaceMsg(
-                                                ErrWRepTStr.InvalidOpsType, {
+                                            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                                                 "type1": types.join("/"),
                                                 "type2": colTypes[i]
                                             });
@@ -2905,8 +2404,7 @@ window.OperationsView = (function($, OperationsView) {
                         // invalid format
                         errorText = ErrTStr.InvalidFunction;
                     } else {
-                        errorText = xcHelper.replaceMsg(
-                            ErrWRepTStr.InvalidOpsType, {
+                        errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                             "type1": checkRes.validType.join("/"),
                             "type2": checkRes.currentType
                         });
@@ -2917,7 +2415,7 @@ window.OperationsView = (function($, OperationsView) {
                 } else {
                     var parsedType = parseType(typeid);
                     if (parsedType.length < 6) {
-                        var formatArgumentResults = formatArgumentInput(arg, 
+                        var formatArgumentResults = formatArgumentInput(arg,
                                                             typeid,
                                                             existingTypes);
                         arg = formatArgumentResults.value;
@@ -3121,15 +2619,15 @@ window.OperationsView = (function($, OperationsView) {
         return true;
     }
 
-    function hasAggPrefix(val) {
-        if (val[0] === gAggVarPrefix) {
-            return true;
-        } else if (val[0] === "\\" && val[1] === gAggVarPrefix) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    // function hasAggPrefix(val) {
+    //     if (val[0] === gAggVarPrefix) {
+    //         return true;
+    //     } else if (val[0] === "\\" && val[1] === gAggVarPrefix) {
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    // }
 
     function filterCheck(operator, args, $input) {
         if (!hasFuncFormat(args[0])) {
@@ -3203,7 +2701,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         // var singleArg = true;
-        var indexedColNames = args[1];
+        // var indexedColNames = args[1];
         var indexedColNames = "";
         for (var i = 0; i < groupByColIndex; i++) {
             indexedColNames += ", " + args[i];
@@ -3214,12 +2712,9 @@ window.OperationsView = (function($, OperationsView) {
 
         var newColName  = args[numArgs - 1];
         var options = {
-            "isIncSample": $activeOpSection.find('.incSample .checkbox')
-                            .hasClass('checked'),
-            "isJoin"     : $activeOpSection.find('.keepTable .checkbox')
-                            .hasClass('checked'),
-            "icvMode"    : $activeOpSection.find(".icvMode .checkbox")
-                                           .hasClass("checked")
+            "isIncSample": $activeOpSection.find('.incSample .checkbox').hasClass('checked'),
+            "isJoin"     : $activeOpSection.find('.keepTable .checkbox').hasClass('checked'),
+            "icvMode"    : $activeOpSection.find(".icvMode .checkbox").hasClass("checked")
         };
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');
@@ -3230,8 +2725,8 @@ window.OperationsView = (function($, OperationsView) {
         xcFunction.groupBy(operator, tableId, indexedColNames, groupByColName,
                             newColName, options)
         .fail(function(error) {
-             submissionFailHandler(startTime, error);
-        });;
+            submissionFailHandler(startTime, error);
+        });
     }
 
     function groupByCheck(args) {
@@ -3295,7 +2790,7 @@ window.OperationsView = (function($, OperationsView) {
 
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
         .fail(function(error) {
-            submissionFailHandler(startTime, error);     
+            submissionFailHandler(startTime, error);
         });
     }
     //show alert to go back to op view
@@ -3304,15 +2799,15 @@ window.OperationsView = (function($, OperationsView) {
         var elapsedTime = endTime - startTime;
         var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
         if (timeSinceLastClick < elapsedTime) {
-            return
+            return;
         }
         var origMsg = $("#alertContent .text").text().trim();
         if (origMsg.length && origMsg[origMsg.length - 1] !== ".") {
-            origMsg += "."
+            origMsg += ".";
         }
         var newMsg = origMsg;
         if (origMsg.length) {
-            newMsg += "\n"
+            newMsg += "\n";
         }
         newMsg += xcHelper.replaceMsg(OpModalTStr.ModifyDesc, {
             name: operatorName
@@ -3322,23 +2817,23 @@ window.OperationsView = (function($, OperationsView) {
         });
         var title;
         switch (operatorName) {
-        case "filter":
-            title = StatusMessageTStr.FilterFailedAlt;
-            break;
-        case "map":
-            title = StatusMessageTStr.MapFailed;
-            break;
-        case "group by":
-            title = StatusMessageTStr.GroupByFailed;
-            break;
-        default:
-            return
+            case "filter":
+                title = StatusMessageTStr.FilterFailedAlt;
+                break;
+            case "map":
+                title = StatusMessageTStr.MapFailed;
+                break;
+            case "group by":
+                title = StatusMessageTStr.GroupByFailed;
+                break;
+            default:
+                return;
         }
         Alert.error(title, newMsg, {
             buttons: [{
                 name: btnText,
                 func: function() {
-                    OperationsView.show(null , null , null , true)
+                    OperationsView.show(null , null , null , true);
                 }
             }],
             onCancel: function() {
@@ -3346,12 +2841,12 @@ window.OperationsView = (function($, OperationsView) {
                 //     time: 300
                 // })
             }
-        })
+        });
     }
 
     // hasMultipleSets: boolean, true if there are multiple groups of arguments
     // such as gt(a, 2) && lt(a, 5)
-    function formulateMapFilterString(operator, args, colTypeInfos, 
+    function formulateMapFilterString(operator, args, colTypeInfos,
                                       hasMultipleSets) {
         var str = "";
         var argNum;
@@ -3364,7 +2859,7 @@ window.OperationsView = (function($, OperationsView) {
             argGroups = args;
             colTypeGroups = colTypeInfos;
         }
-        for  (var i = 0; i < colTypeGroups.length; i++) {
+        for (var i = 0; i < colTypeGroups.length; i++) {
             for (var j = 0; j < colTypeGroups[i].length; j++) {
                 argNum = colTypeGroups[i][j].argNum;
                 argGroups[i][argNum] = xcHelper.castStrHelper(
@@ -3377,7 +2872,7 @@ window.OperationsView = (function($, OperationsView) {
         for (var i = 0; i < argGroups.length; i++) {
             var funcName;
             if (operatorName === "filter") {
-                funcName =  $activeOpSection.find('.group').eq(i)
+                funcName = $activeOpSection.find('.group').eq(i)
                                             .find('.functionsInput').val()
                                             .trim();
             } else {
@@ -3398,12 +2893,12 @@ window.OperationsView = (function($, OperationsView) {
                 if (argGroups[i][j] !== "") {
                     str += argGroups[i][j] + ", ";
                     numNonBlankArgs++;
-                } 
+                }
             }
             if (numNonBlankArgs > 0) {
                 str = str.slice(0, -2);
             }
-            str += ")"; 
+            str += ")";
         }
 
         for (var i = 0; i < argGroups.length - 1; i++) {
@@ -3548,7 +3043,7 @@ window.OperationsView = (function($, OperationsView) {
             .then(function(ret) {
                 if (ret.length) {
                     errorTitle = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
-                        "name": val,
+                        "name"     : val,
                         "aggPrefix": gAggVarPrefix
                     });
                     showInvalidAggregateName($input, errorTitle);
@@ -3565,7 +3060,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function showInvalidAggregateName($input, errorTitle) {
-        var container = $input.closest('.mainPanel').attr('id');
+        // var container = $input.closest('.mainPanel').attr('id');
         var $toolTipTarget = $input.parent();
 
         $toolTipTarget.tooltip({
@@ -3666,7 +3161,7 @@ window.OperationsView = (function($, OperationsView) {
             var $input   = $(this);
             var val   = $input.val().trim();
             var untrimmedVal = $input.val();
-            if (val !== "") { 
+            if (val !== "") {
                 // not blank so no need to check. move on to next input.
                 return;
             }
@@ -4032,7 +3527,7 @@ window.OperationsView = (function($, OperationsView) {
         return (true);
     }
 
-    function closeOpSection(speed) {
+    function closeOpSection() {
         isOpen = false;
         // highlighted column sticks out if we don't close it early
         $("#xcTable-" + tableId).find('.modalHighlighted')
@@ -4090,12 +3585,12 @@ window.OperationsView = (function($, OperationsView) {
         // xx list is only being refreshed when operations view opens
         fillTableList();
 
-        // clear string preview 
+        // clear string preview
         $operationsView.find('.strPreview').empty();
 
         if (operatorName === "filter") {
             $activeOpSection.find('.group').each(function(i) {
-                if  (i !== 0) {
+                if (i !== 0) {
                     removeFilterGroup($(this), true);
                 }
             });
@@ -4108,59 +3603,8 @@ window.OperationsView = (function($, OperationsView) {
         allowInputChange = true;
     }
 
-    function getArgRowHtml() {
-        var html =
-        '<tr>' +
-            '<td>' +
-              '<div class="inputWrap">' +
-                 '<div class="dropDownList">' +
-                  '<input class="argument" type="text" tabindex="10" ' +
-                    'spellcheck="false">' +
-                  '<div class="argIconWrap">' +
-                    '<span class="icon"></span>' +
-                  '</div>' +
-                  '<div class="list hint">' +
-                    '<ul></ul>' +
-                    '<div class="scrollArea top">' +
-                     ' <div class="arrow"></div>' +
-                   ' </div>' +
-                    '<div class="scrollArea bottom">' +
-                      '<div class="arrow"></div>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</td>' +
-            '<td class="cast new">' +
-              '<div class="dropDownList">' +
-                  '<input class="text nonEditable" value="default" disabled>' +
-                  '<div class="iconWrapper dropdown">' +
-                    '<i class="icon xi-arrow-down"></i>' +
-                  '</div>' +
-                  '<ul class="list">' +
-                  '</ul>' +
-               '</div>' +
-            '</td>' +
-            '<td class="descCell">' +
-              '<div class="description"></div>' +
-            '</td>' +
-            '<td>' +
-              '<div class="checkboxWrap">' +
-                '<span class="checkbox" data-container="body" ' +
-                    'data-toggle="tooltip" title="' + OpModalTStr.EmptyHint +
-                    '">' +
-                    '<i class="icon xi-ckbox-empty fa-13"></i>'+
-                    '<i class="icon xi-ckbox-selected fa-13"></i>'+
-                '</span>' +
-              '</div>' +
-            '</td>' +
-        '</tr>';
-        return (html);
-    }
-
-
     function getArgHtml() {
-        var html = 
+        var html =
             '<div class="row clearfix">' +
                 '<div class="description"></div>' +
                 '<div class="inputWrap">' +
@@ -4196,7 +3640,7 @@ window.OperationsView = (function($, OperationsView) {
                 '<div class="emptyOptions">' +
                     '<div class="checkboxWrap xc-hidden noArgWrap" ' +
                         'data-container="body" ' +
-                        'data-toggle="tooltip" title="' + 
+                        'data-toggle="tooltip" title="' +
                         OpModalTStr.EmptyHint + '">' +
                         '<span class="checkbox noArg" >'+
                             '<i class="icon xi-ckbox-empty fa-13"></i>'+
@@ -4233,7 +3677,7 @@ window.OperationsView = (function($, OperationsView) {
                 bottomPadding: 5
             }
         );
-        functionsListScrollers.push(functionsListScroller); 
+        functionsListScrollers.push(functionsListScroller);
         suggestLists.push([]);// array of groups, groups has array of inputs
         scrollToBottom();
         $activeOpSection.find('.group').last().find('.functionsInput').focus();
@@ -4261,9 +3705,9 @@ window.OperationsView = (function($, OperationsView) {
         } else if (operatorName === "group by") {
             inputClass = "gbOnArg";
         }
-        var html = '<div class="inputWrap extra">' + 
+        var html = '<div class="inputWrap extra">' +
                         '<div class="dropDownList">' +
-                          '<input class="arg ' + inputClass + 
+                          '<input class="arg ' + inputClass +
                           '" type="text" tabindex="10" ' +
                             'spellcheck="false" data-typeid="-1">' +
                           '<div class="argIconWrap btn btn-small">' +
@@ -4279,7 +3723,7 @@ window.OperationsView = (function($, OperationsView) {
                             '</div>' +
                          '</div>' +
                         '</div>' +
-                        '<i class="icon xi-cancel"></i>' +     
+                        '<i class="icon xi-cancel"></i>' +
                     '</div>';
         return html;
     }
@@ -4292,8 +3736,7 @@ window.OperationsView = (function($, OperationsView) {
     // $group is optional, will minimize all groups if not passed in
     function minimizeGroups($group) {
         if (!$group) {
-            $activeOpSection.find('.group')
-                            .addClass('minimized').each(function () {
+            $activeOpSection.find('.group').addClass('minimized').each(function () {
                 var $group = $(this);
                 var numArgs = $group.find('.arg:visible').length;
                 $group.attr('data-numargs', numArgs);
@@ -4381,8 +3824,7 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.getExistingTypes = getExistingTypes;
         OperationsView.__testOnly__.argumentFormatHelper = argumentFormatHelper;
         OperationsView.__testOnly__.parseType = parseType;
-        OperationsView.__testOnly__.formulateMapFilterString = 
-                                                    formulateMapFilterString;
+        OperationsView.__testOnly__.formulateMapFilterString = formulateMapFilterString;
     }
     /* End Of Unit Test Only */
 
