@@ -121,7 +121,7 @@ window.BottomMenu = (function($, BottomMenu) {
                 } else if (sideDragging === "right") {
                     panelRight = $(window).width() - panelRight +
                                  $menuPanel.width();
-                    $menuPanel.css('max-width', panelRight);
+                    $menuPanel.css('max-width', panelRight - 10);
                 } else if (sideDragging === "top") {
                     $menuPanel.css('max-height', panelBottom);
                 } else if (sideDragging === "bottom") {
@@ -145,8 +145,12 @@ window.BottomMenu = (function($, BottomMenu) {
             },
             "stop": function() {
                 $menuPanel.css('max-width', '').css('max-height', '');
+                var width = $menuPanel.width();
 
-                if ($menuPanel.width() > 425) {
+                width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
+
+                $menuPanel.width(width);
+                if (width > 425) {
                     $menuPanel.removeClass('small');
                 } else {
                     $menuPanel.addClass('small');
