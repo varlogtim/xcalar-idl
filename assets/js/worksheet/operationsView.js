@@ -849,7 +849,7 @@ window.OperationsView = (function($, OperationsView) {
                 } else {
                     casted = true;
                 }
-                $input.closest('.row').find('input')
+                $input.closest('.row').find('.arg')
                                        .data('casted', casted)
                                        .data('casttype', type);
                 StatusBox.forceHide();
@@ -2721,7 +2721,7 @@ window.OperationsView = (function($, OperationsView) {
                         .find('.arg:visible').each(function(i) {
             var $input = $(this);
             var hasEmpty = $input.closest('.row')
-                                 .find('.emptyOptions .checked');
+                                 .find('.emptyOptions .checked').length;
             var isCasting = $input.data('casted') && !hasEmpty;
             if (isCasting) {
                 var progCol = table.getColByBackName(args[i]);
@@ -3349,6 +3349,8 @@ window.OperationsView = (function($, OperationsView) {
         })
     }
 
+    // hasMultipleSets: boolean, true if there are multiple groups of arguments
+    // such as gt(a, 2) && lt(a, 5)
     function formulateMapFilterString(operator, args, colTypeInfos, 
                                       hasMultipleSets) {
         var str = "";
@@ -4379,6 +4381,8 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.getExistingTypes = getExistingTypes;
         OperationsView.__testOnly__.argumentFormatHelper = argumentFormatHelper;
         OperationsView.__testOnly__.parseType = parseType;
+        OperationsView.__testOnly__.formulateMapFilterString = 
+                                                    formulateMapFilterString;
     }
     /* End Of Unit Test Only */
 
