@@ -1024,6 +1024,7 @@ window.WSManager = (function($, WSManager) {
         $workSheetTabs.on({
             "focus": function() {
                 $workSheetTabs.sortable("disable");
+                $(this).select();
             },
             "blur": function() {
                 var $text = $(this);

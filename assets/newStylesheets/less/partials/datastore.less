@@ -210,8 +210,8 @@
     }
     
     .text {
-        .size(@min-width: 24px, @height: 12px);
-        .position(absolute, @top: -2px, @left: -15px);
+        .size(@min-width: 24px, @max-width: 35px, @height: 12px);
+        .position(absolute, @top: -5px, @left: -15px);
         .rounded(6px);
         background-color: @color-bg-softBlue;
         .font(@size: 9px, @weight: 700, @color: @color-white);
@@ -394,14 +394,14 @@ table.datasetTable {
         }        
     }
 
-    @height-title: 40;
+    @height-title: 40px;
     @height-button: 140px;
     @height-main: @height-title + @height-button;
 
     .titleSection {
         .size(@height: @height-title);
         background-color: @color-bg-topBarGray;
-        padding-left: 20px;
+        padding: 0 20px;
         .font(@size: 20px, @weight: 700, @line-height: 40px, @color: @color-font-gray36);
     }
 
@@ -550,8 +550,9 @@ table.datasetTable {
                 }
 
                 .colName {
-                    .size(@width: 184px, @height: 100%);
-                    padding-left: 6px;
+                    .size(@width: 184px, @height: 22px);
+                    padding: 0 6px;
+                    line-height: 22px;
                 }
             }
         }

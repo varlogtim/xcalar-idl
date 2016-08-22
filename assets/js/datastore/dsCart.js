@@ -74,6 +74,9 @@ window.DSCart = (function($, DSCart) {
                 // update
                 var cart = filterCarts(dsId);
                 cart.updateTableName(tableName);
+            },
+            "focus": function() {
+                $(this).select();
             }
         }, ".tableNameEdit");
 

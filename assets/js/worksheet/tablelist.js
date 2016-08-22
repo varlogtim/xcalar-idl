@@ -778,10 +778,12 @@ window.TableList = (function($, TableList) {
                             tableName + '">' +
                             tableName +
                         '</span>' +
+                        '<span>(</span>' +
                         '<span class="numCols" data-toggle="tooltip" ' +
                         'data-container="body" title="' + CommonTxtTstr.NumCol + '">' +
-                            '(' + (numCols - 1) + ')' +// skip DATA col
+                            (numCols - 1) + // skip DATA col
                         '</span>' +
+                        '<span>)</span>' +
                     '</div>' +
                     generateColumnList(table.tableCols, numCols) +
                 '</li>';

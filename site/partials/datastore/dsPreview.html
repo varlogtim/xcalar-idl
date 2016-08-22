@@ -49,7 +49,7 @@
           <label for="dsForm-dsName"><%= dicts.dsForm.DSName %>:</label>
           <div class="inputWrap">
             <% if (dicts.tutor.name == "datastoreDemo1") { %>
-             <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required data-introstep="4">
+             <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" class="textOverflowOneLine" title="<%= dicts.dsForm.fileNameTitle %>" required data-introstep="4">
             <% } else { %>
              <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
             <% } %>
