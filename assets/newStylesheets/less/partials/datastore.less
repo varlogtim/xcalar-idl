@@ -1439,6 +1439,8 @@ table.datasetTable {
                 .dsCount {
                     .font(@weight: 700, @color: @color-font-dusk-blue);
                     .no-selection;
+                    .textOverflowOneLine;
+                    text-align: center;
                 }
 
                 .edit, .delete {
@@ -1508,9 +1510,10 @@ table.datasetTable {
                         }
                     }
 
-                    .dsCount {
+                    > .dsCount {
                         .position(absolute, @top: 15px);
                         .size(@width: @width-grid, @height: 20px);
+                        padding: 0 17px;
                         .font(@size: 13px);
                     }
 
@@ -1591,10 +1594,10 @@ table.datasetTable {
                     }
 
                     > .dsCount {
-                        .size(@width: 25px, @height: 25px);
-                        .position(absolute, @top: 11px, @left: 14px);
-                        .font(@size: 11px);
-                        text-align: left;
+                        .size(@width: 25px, @height: 35px);
+                        .position(absolute, @top: 1px, @left: 4px);
+                        .font(@size: 10px, @line-height: 35px);
+                        padding: 0 5px;
                     }
 
                     > .dragWrap {
