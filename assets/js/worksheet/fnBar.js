@@ -21,6 +21,14 @@ window.FnBar = (function(FnBar, $) {
             "autoCloseBrackets": true
         });
 
+        editor.setOption("extraKeys", {
+            Tab: function(cm) {
+                $('#rowInput').focus();
+                return false; // prevent tabbing so that pressing tab skips
+                //to the next input on the page, in this case the "#rowInput"
+            } 
+        });
+
         $(window).blur(function() {
             editor.getInputField().blur();
         });

@@ -10,6 +10,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     var $extTriggerTableDropdown; //$("#extension-ops-mainTable");
     var isViewOpen = false;
     var $lastInputFocused;
+    var formHelper;
 
     function setupPart4() {
         var extList = [];
@@ -188,11 +189,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     };
 
     ExtensionManager.openView = function(colNum, tableId) {
+    
         if (colNum != null && tableId != null) {
             var table = gTables[tableId];
             var progCol = gTables[tableId].getCol(colNum);
             triggerCol = table.getCol(colNum);
-            $extTriggerTableDropdown.find(".text").val(table.getName());
+            $extTriggerTableDropdown.find(".text").val(table.getName());    
         }
 
         var $tab = $("#extensionTab");
@@ -206,6 +208,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             isViewOpen = true;
             $("#container").addClass("columnPicker extState");
             columnPickers();
+            formHelper.setup();
         }
     };
 
@@ -224,6 +227,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     .closest(".xcTableWrap").removeClass("columnPicker");
 
         $('.xcTheadWrap').off("click.columnPicker");
+        formHelper.clear();
     };
 
     ExtensionManager.trigger = function(tableId, modName, funcName, argList) {
@@ -482,6 +486,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extArgs.on('dblclick', 'input', function() {
             this.setSelectionRange(0, this.value.length);
         });
+        formHelper = new FormHelper($extArgs);
     }
 
     function generateExtList(exts) {
@@ -571,7 +576,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function updateArgs(modName, fnName) {
-        $extOpsView.addClass("hasArgs");
+        var animating = false;
+        if (!$extOpsView.hasClass("hasArgs")) {
+            $extOpsView.addClass("hasArgs");
+            animating = true;
+        }
+        
         var $extArgs = $extOpsView.find(".extArgs");
 
         $extArgs.data("mod", modName)
@@ -664,7 +674,34 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 $li.closest(".dropDownList").find("input").val($li.text());
             }
         }).setupListeners();
+        formHelper.refreshTabbing();
+        if (animating) {
+            setTimeout(function() {
+                focusOnAvailableInput($argSection.find('input'));
+            }, 300);
+        } else {
+            focusOnAvailableInput($argSection.find('input'));
+        }
+    }
 
+    function focusOnAvailableInput($inputs) {
+        var $input;
+        var $tempInput;
+        $inputs.each(function() {
+            $tempInput = $(this);
+            if ($tempInput.is(":visible") && 
+                $tempInput.val().trim().length === 0) {
+                $input = $tempInput;
+                return false;
+            }
+        });
+        if (!$input) {
+            $input = $inputs.last();
+        }
+        $input.focus();
+        if ($input.attr('type') === "text") {
+            $input.caret(-1);// put cursor at the end;
+        }
     }
 
     function clearArgs() {
