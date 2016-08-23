@@ -51,8 +51,8 @@ window.Replay = (function($, Replay) {
         });
 
         var sql = {
-            "operation" : SQLOps.Replay,
-            "cli"       : cli
+            "operation": SQLOps.Replay,
+            "cli"      : cli
         };
         var txId = Transaction.start({
             "operation": SQLOps.Replay,
@@ -74,7 +74,7 @@ window.Replay = (function($, Replay) {
         .fail(function(error) {
             console.error("Replay Fails!", error);
             Transaction.fail(txId, {
-                "error"  : error
+                "error": error
             });
 
             deferred.reject(error);
@@ -83,8 +83,8 @@ window.Replay = (function($, Replay) {
             gMinModeOn = mindModeCache;
         });
 
-        return (deferred.promise());
-    }
+        return deferred.promise();
+    };
 
     Replay.run = function(sqls, noAlert) {
         var deferred = jQuery.Deferred();

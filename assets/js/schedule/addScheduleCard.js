@@ -13,7 +13,7 @@ window.AddScheduleCard = (function($, AddScheduleCard) {
     AddScheduleCard.show = function(curentGroup, schedule) {
         groupName = curentGroup;
         $card.show();
-        updateScheduleList(schedule); 
+        updateScheduleList(schedule);
     };
 
     AddScheduleCard.update = function(currentGroup) {
@@ -22,7 +22,7 @@ window.AddScheduleCard = (function($, AddScheduleCard) {
             return;
         }
         groupName = currentGroup;
-        updateScheduleList();  
+        updateScheduleList();
     };
 
     function updateScheduleList(selectedSchedule) {

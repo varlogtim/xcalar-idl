@@ -20,7 +20,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
-         $("#monitorMenu-setup").on("click", ".listInfo", function() {
+        $("#monitorMenu-setup").on("click", ".listInfo", function() {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
@@ -145,11 +145,11 @@ window.MonitorPanel = (function($, MonitorPanel) {
             if (index !== 2) {
                 updateOneDonut(el, used, total);
             } else {
-                updateDonutNums('#donut' + index + ' .userSize .num', 
+                updateDonutNums('#donut' + index + ' .userSize .num',
                                 allStats[index].sumUsed,
                                 defDurationForD3Anim, index);
 
-                updateDonutNums('#donut' + index + ' .totalSize .num', 
+                updateDonutNums('#donut' + index + ' .totalSize .num',
                                 allStats[index].sumTot,
                                 defDurationForD3Anim, index);
     

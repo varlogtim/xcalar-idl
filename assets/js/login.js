@@ -79,19 +79,18 @@ $(document).ready(function() {
     });
 
     $("#signup-login").click(function() {
-        $("#loginContainer").removeClass("signup"); 
+        $("#loginContainer").removeClass("signup");
         $('.signupHeader').addClass('hidden');
         setTimeout(function() {
             $('.loginHeader').removeClass('hidden');
         }, 800);
-       
-  
+
         $("#signupForm").fadeOut(function() {
             loadBarAnimation();
             setTimeout(function() {
                 $("#loginForm").fadeIn(500);
                 focusOnFirstEmptyInput();
-            }, 1000); 
+            }, 1000);
         });
     });
 

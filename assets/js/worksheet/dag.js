@@ -4,6 +4,8 @@ window.DagPanel = (function($, DagPanel) {
     var $scrollBarWrap; // $('#dagScrollBarWrap');
     var $panelSwitch; // $('#dfgPanelSwitch');
     var dagPanelLeft; // $('#dagPanelContainer').offset().left;
+    var dagTopPct = 0; // open up dag to 100% by default;
+    var clickDisabled = false;
 
     DagPanel.setup = function() {
         $dagPanel = $('#dagPanel');
@@ -112,8 +114,6 @@ window.DagPanel = (function($, DagPanel) {
         }, animateDelay);
     };
 
-    var dagTopPct = 0; // open up dag to 100% by default;
-    var clickDisabled = false;
     // opening and closing of dag is temporarily disabled during animation
 
     function setupDagPanelSliding() {
@@ -148,7 +148,7 @@ window.DagPanel = (function($, DagPanel) {
                     Dag.focusDagForActiveTable();
                     clickDisabled = true;
                     setTimeout(function() {
-                        var px = 38 * (dagTopPct / 100);
+                        // var px = 38 * (dagTopPct / 100);
                         // $('#mainFrame').height('calc(' + dagTopPct + '% - ' +
                         //                        px + 'px)');
                         $('#mainFrame').height(dagTopPct + '%');
@@ -277,7 +277,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
                 dagTopPct = 100 * (dagPanelTop / containerHeight);
 
-                var px = 38 * (dagTopPct / 100);
+                // var px = 38 * (dagTopPct / 100);
                 $dagPanel.css('top', dagTopPct + '%');
                 // $('#mainFrame').height('calc(' + dagTopPct + '% - ' + px + 'px)');
                 $('#mainFrame').height(dagTopPct + '%');
@@ -511,7 +511,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
                 $dagWrap.find('canvas').eq(1).remove();
             });
-        })
+        });
     }
 
     function addRightClickActions($menu) {
@@ -892,8 +892,8 @@ window.DagPanel = (function($, DagPanel) {
 
         $menu.find('.showSchema').mouseup(function(event) {
             if (event.which !== 1) {
-                return;  
-            } 
+                return;
+            }
             Dag.showSchema($menu.data('tableelement'));
         });
     }
@@ -1025,7 +1025,7 @@ window.Dag = (function($, Dag) {
     var condenseLimit = 15; // number of tables wide before we allow condensing
     var canvasLimit = 32767;
     var canvasAreaLimit = 268435456;
-    var dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
+    // var dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
     // dagPanelLeft shouldn't be zero but will result in false zero if not visible
     var lineColor = '#111111';
     var tableTitleColor = "#555555";
@@ -1385,7 +1385,7 @@ window.Dag = (function($, Dag) {
             expandImage.src = paths.expandIcon;
 
             PromiseHelper.when.apply(window, [loadImage(tableImage),
-                                    loadImage(tableGrayImage), 
+                                    loadImage(tableGrayImage),
                                     loadImage(dbImage), loadImage(expandImage)])
             .then(function() {
                 $dagWrap.find('.dagTable').each(function() {
@@ -1660,7 +1660,7 @@ window.Dag = (function($, Dag) {
             top = Math.max(2, top - height); // at least 2px from the top
             top -= $('#dagPanel').offset().top;
         }
-        var menuOffset = MainMenu.getOffset()
+        var menuOffset = MainMenu.getOffset();
         var tableLeft = $dagTable[0].getBoundingClientRect().left + xOffset -
                         menuOffset;
         var schemaLeft = $(window).width() - $schema.width() - menuOffset - 10;
@@ -1670,7 +1670,7 @@ window.Dag = (function($, Dag) {
             $schema.addClass('shiftLeft');
         } else {
             left = tableLeft;
-        };
+        }
 
         $schema.css('top', top);
         $schema.css('left', left);
@@ -1681,7 +1681,7 @@ window.Dag = (function($, Dag) {
 
         $(document).on('mousedown.hideDagSchema', function(event) {
             if ($(event.target).closest('#dagSchema').length === 0) {
-                hideSchema(); 
+                hideSchema();
             }
         });
 
@@ -1720,7 +1720,7 @@ window.Dag = (function($, Dag) {
             removeDuplicatedHighlightedDataStores($dagTable);
             $(document).mousedown(closeDagHighlight);
         });
-    }
+    };
 
     function hideSchema() {
         $('#dagSchema').remove();
@@ -1991,7 +1991,7 @@ window.Dag = (function($, Dag) {
         return (deferred.promise());
     }
 
-    function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage, 
+    function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage,
                                   dImage) {
         left += 40;
         top += 50;
@@ -2495,7 +2495,7 @@ window.Dag = (function($, Dag) {
         }
     }
 
-    function highlightColumnHelper(tableId, $dagWrap, col, sourceColNames) {
+    function highlightColumnHelper(tableId, $dagWrap, col) {
         var currentName = col.name;
         var $dagTable = $dagWrap.find('.dagTable[data-id="' + tableId + '"]');
         var parents = $dagTable.data('parents').split(',');
@@ -2591,16 +2591,19 @@ window.Dag = (function($, Dag) {
         }
 
         var yPos;
-        if (numParents === 0) { // leaf
+        if (numParents === 0) {
+            // leaf
             coor.y = storedInfo.height;
             yPos = storedInfo.height;
             storedInfo.lower = storedInfo.height;
             storedInfo.upper = storedInfo.height;
             storedInfo.height++;
-        } else if (numParents === 1) { // set coordinates to draw table
+        } else if (numParents === 1) {
+            // set coordinates to draw table
             coor.y = lower;
             yPos = lower;
-        } else { // a joined table, y coordinate is average of 
+        } else {
+            // a joined table, y coordinate is average of
             coor.y = (lower + upper) / 2;
             yPos = ((lower + upper) / 2);
         }
@@ -2823,7 +2826,7 @@ window.Dag = (function($, Dag) {
 
     function getIconHtml(operation, info) {
         var type = info.type;
-        var iconClass = ""
+        var iconClass = "";
         switch (operation) {
             case ("map"):
                 iconClass = "data-update";
@@ -2898,7 +2901,7 @@ window.Dag = (function($, Dag) {
             case ("filterothers"):
                 iconClass = "oldIcon";
                 break;
-            default: 
+            default:
                 iconClass = "filter";
                 break;
         }
@@ -2920,7 +2923,7 @@ window.Dag = (function($, Dag) {
             case ("right"):
                 iconClass = "join-rightouter";
                 break;
-            default: 
+            default:
                 iconClass = "join-inner";
                 break;
         }

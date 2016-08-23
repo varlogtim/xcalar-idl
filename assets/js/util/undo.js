@@ -47,11 +47,10 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.Filter] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.tableName], null,
-                [options.newTableName], worksheet, {
+        return TblManager.refreshTable([options.tableName], null, [options.newTableName], worksheet, {
             isUndo: true,
             from  : "noSheet"
-        }));
+        });
     };
 
     undoFuncs[SQLOps.Query] = undoFuncs[SQLOps.Filter];

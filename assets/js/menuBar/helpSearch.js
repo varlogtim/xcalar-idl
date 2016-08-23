@@ -30,7 +30,7 @@ window.HelpSearch = (function($, HelpSearch) {
                     $categoryArea.hide();
                     $resultsArea.hide();
                     // Must remove and reattach. Else the .load trick doesn't
-                    // work 
+                    // work
                     var $iframe = $('#mcfResults');
                     $iframe.remove();
                     $(".resultsArea").append(
@@ -39,16 +39,16 @@ window.HelpSearch = (function($, HelpSearch) {
                     $iframe.attr('src','assets/help/Content/Search.htm#search-'+
                                  $searchInput.val());
                     $iframe.load(function() {
-                        var innerDoc = $iframe[0].contentDocument ||
-                                      $iframe[0].contentWindow.document;
-                        var ourCSS = '<link href="../../newStylesheets/css/' +
-                                     'mcf.css" rel="stylesheet">';
+                        var innerDoc = $iframe[0].contentDocument ||
+                                        $iframe[0].contentWindow.document;
+                        var ourCSS = '<link href="../../newStylesheets/css/' +
+                                    'mcf.css" rel="stylesheet">';
                         $(innerDoc).find("head").append(ourCSS);
                         $(innerDoc).on("click", "h3 a", function() {
                             $(this).attr("target", "xchelp");
                         });
                         $resultsArea.show();
-                   });
+                    });
                 }
             }
         });

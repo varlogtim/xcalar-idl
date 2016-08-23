@@ -1387,8 +1387,10 @@ window.ColManager = (function($, ColManager) {
                         var removedCol = removeColHelper(j, tableId);
                         removedCols.push();
                         var removedColNum = colNumsList.splice(j, 1)[0];
-                        removedColsWithIndex.push({removedCol: removedCol,
-                                                    index: removedColNum});
+                        removedColsWithIndex.push({
+                            "removedCol": removedCol,
+                            "index"     : removedColNum
+                        });
                         removedColNums.push(removedColNum);
                         $table.find('th.col' + (removedColNum + 1)).remove();
                         j--;
@@ -1400,15 +1402,17 @@ window.ColManager = (function($, ColManager) {
         var dataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
         var newDataIndex;
         $table.find('th').each(function(i) {
-            if (!$(this).hasClass('rowNumHead') && !$(this).hasClass('dataCol')) {
-                var colNum = xcHelper.parseColNum($(this));
-                $(this).removeClass('col' + colNum).addClass('col' + i);
-                $(this).find('.col' + colNum).removeClass('col' + colNum)
+            var colNum;
+            var $th = $(this);
+            if (!$th.hasClass('rowNumHead') && !$th.hasClass('dataCol')) {
+                colNum = xcHelper.parseColNum($th);
+                $th.removeClass('col' + colNum).addClass('col' + i);
+                $th.find('.col' + colNum).removeClass('col' + colNum)
                                             .addClass('col' + i);
-            } else if ($(this).hasClass('dataCol')) {
-                var colNum = xcHelper.parseColNum($(this));
-                $(this).removeClass('col' + colNum).addClass('col' + i);
-                $(this).find('.col' + colNum).removeClass('col' + colNum)
+            } else if ($th.hasClass('dataCol')) {
+                colNum = xcHelper.parseColNum($th);
+                $th.removeClass('col' + colNum).addClass('col' + i);
+                $th.find('.col' + colNum).removeClass('col' + colNum)
                                             .addClass('col' + i);
                 newDataIndex = i - 1;
             }
@@ -1806,7 +1810,7 @@ window.ColManager = (function($, ColManager) {
                     // class for indexed col
                     if (indexedColNums.indexOf(col) > -1) {
                         tdClass += " indexedColumn";
-                        if (!hasIndexStyle  ) {
+                        if (!hasIndexStyle) {
                             tdClass += " noIndexStyle";
                         }
                     }
@@ -2101,8 +2105,7 @@ window.ColManager = (function($, ColManager) {
                 colHeadNum++;
             }
             colNums.push(colHeadNum);
-            ths += TblManager.generateColumnHeadHTML(columnClass, color,
-                                                    colHeadNum, {
+            ths += TblManager.generateColumnHeadHTML(columnClass, color, colHeadNum, {
                 "name" : key,
                 "width": width,
                 "order": order

@@ -668,7 +668,7 @@ window.OperationsView = (function($, OperationsView) {
         $('.xcTableWrap').addClass('columnPicker');
         var $table = $('.xcTable');
 
-        $table.on('click.columnPicker', '.header, td.clickable', function(event) 
+        $table.on('click.columnPicker', '.header, td.clickable', function(event)
         {
             if (!$lastInputFocused) {
                 return;

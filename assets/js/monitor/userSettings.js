@@ -147,8 +147,8 @@ window.UserSettings = (function($, UserSettings) {
 
     function addEventListeners() {
         $('#showDataColBox').click(function() {
-            var $checkbox = $(this); 
-            $checkbox.toggleClass('checked'); 
+            var $checkbox = $(this);
+            $checkbox.toggleClass('checked');
             if ($checkbox.hasClass("checked")) {
                 userPrefs.hideDataCol = false;
             } else {

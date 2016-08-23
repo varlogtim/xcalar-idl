@@ -531,17 +531,13 @@ window.xcHelper = (function($, xcHelper) {
             d = (timeStamp == null) ? new Date() : new Date(timeStamp);
         }
         if (noSeconds) {
-            return (d.toLocaleTimeString(navigator.language, 
-                {
-                    hour: '2-digit', 
-                    minute:'2-digit'
-                }
-            ));
+            return d.toLocaleTimeString(navigator.language, {
+                hour  : '2-digit',
+                minute: '2-digit'
+            });
         } else {
-            return (d.toLocaleTimeString());
+            return d.toLocaleTimeString();
         }
-
-        
     };
 
     xcHelper.getCurrentTimeStamp = function() {
@@ -1152,7 +1148,7 @@ window.xcHelper = (function($, xcHelper) {
         options = options || {};
 
         if (!options.append) {
-            $input.val(textToInsert).trigger('input'); 
+            $input.val(textToInsert).trigger('input');
             // fires input event in case any listeners react to it
             $input.focus();
             return;
@@ -1241,7 +1237,7 @@ window.xcHelper = (function($, xcHelper) {
     // animate: boolean indicating whether to animate the scrolling
     // options:
     //      onlyIfOffScreen: boolean, if true, will only animate table if visible
-    //      alignLeft: boolean, if true, will align table to left of screen 
+    //      alignLeft: boolean, if true, will align table to left of screen
     xcHelper.centerFocusedTable = function(tableWrapOrId, animate, options) {
         var $tableWrap;
         var tableId;
@@ -1256,7 +1252,7 @@ window.xcHelper = (function($, xcHelper) {
         var wsId = WSManager.getWSFromTable(tableId);
         if (wsId !== WSManager.getActiveWS()) {
             WSManager.switchWS(wsId);
-        } 
+        }
 
         focusTable(tableId);
         
@@ -1266,11 +1262,11 @@ window.xcHelper = (function($, xcHelper) {
         var tableLeft = $tableWrap.offset().left;
         var tableRight = tableLeft + tableWidth;
         var mainMenuOffset = MainMenu.getOffset();
-        var $mainFrame = $('#mainFrame')
+        var $mainFrame = $('#mainFrame');
         var mainFrameWidth = $mainFrame.width();
         var mainFrameRight = $mainFrame[0].getBoundingClientRect().right;
         // cases to center: if table is small enough to fit entirely within the
-        // window. 
+        // window.
         // otherwise align table to the left of the window
         // cases to alignRight - if table is partially visible from the left
         // side of the screen
@@ -1287,11 +1283,11 @@ window.xcHelper = (function($, xcHelper) {
         // be applied to the scrolling. If it's partially visible (0 - 150px),
         // animation will be applied
         if (options.onlyIfOffScreen) {
-            if (tableRight > mainMenuOffset && 
+            if (tableRight > mainMenuOffset &&
                 tableRight < (mainMenuOffset + 150)) {
                 // table is slightly visible on the left
                 animate = true;
-            } else if (tableLeft < mainFrameRight && 
+            } else if (tableLeft < mainFrameRight &&
                       tableLeft > mainFrameRight - 150) {
                 // table is slightly visible on the right
                 animate = true;
@@ -2135,7 +2131,7 @@ window.xcHelper = (function($, xcHelper) {
                     invalid: true,
                     reason : 'notFound',
                     name   : frontColName,
-                    type: 'notFound'
+                    type   : 'notFound'
                 };
             }
         }

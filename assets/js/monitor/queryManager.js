@@ -3,7 +3,7 @@ window.QueryManager = (function(QueryManager, $) {
     var $queryDetail; // $("#monitor-queryDetail")
     var queryLists = {}; // will be populated by xcQuery objs with transaction id as key
     var queryCheckLists = {}; // setInterval timers
-    var notCancelableList = ['load']; // list of nonCancelable operations
+    // var notCancelableList = ['load']; // list of nonCancelable operations
 
     // constant
     var checkInterval = 2000; // check query every 2s
@@ -497,7 +497,7 @@ window.QueryManager = (function(QueryManager, $) {
         var queryString = "";
         if (query) {
             // xx if semi-colon is in quotes this won't work
-            var querySplit = query.split(";")
+            var querySplit = query.split(";");
             for (var i = 0; i < querySplit.length; i++) {
                 var subQuery = querySplit[i];
                 if (subQuery.trim() !== "") {
@@ -925,7 +925,6 @@ window.QueryManager = (function(QueryManager, $) {
             }
             var $query = $queryList.find('.query[data-id="' + id + '"]');
             var currStep = mainQuery.currStep;
-            var canceled = false;
 
             // this is a xcalar query so we must cancel all future subqueries
             if (!mainQuery.subQueries[currStep]) {
@@ -937,7 +936,7 @@ window.QueryManager = (function(QueryManager, $) {
             Transaction.pendingCancel(id);
             $query.find('.cancelIcon').addClass('disabled');
             var statusesToIgnore = [StatusT.StatusOperationHasFinished];
-            
+
             if (mainQuery.subQueries[currStep].queryName) {
                 // Query Cancel returns success even if the operation is
                 // complete, unlike cancelOp. Xc4921

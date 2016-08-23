@@ -49,7 +49,6 @@ window.DFGCard = (function($, DFGCard) {
         var numSchedules = schedules.length;
         // var lis = "";
         var tooltip = "";
-        var text = "";
         var $scheduleList = $dfgCard.find('.cardHeader .schedulesList');
         var html = "";
         
@@ -68,7 +67,7 @@ window.DFGCard = (function($, DFGCard) {
                 tooltip += schedules[i];
             }
             html += '<span data-toggle="tooltip" ' + 'data-container="body" ' +
-                     'title="' + tooltip + '">- ' + SchedTStr.Scheduled   +
+                     'title="' + tooltip + '">- ' + SchedTStr.Scheduled +
                      ' (' + numSchedules + ')</span>';
         }
         $scheduleList.html(html);
@@ -372,7 +371,7 @@ window.DFGCard = (function($, DFGCard) {
 
     function getTableHtml(table, hasParam) {
         var iconClass = "dagTableIcon";
-        var icon = "xi_table"
+        var icon = "xi_table";
         var paramClass = "";
         if (hasParam) {
             paramClass = " hasParam";

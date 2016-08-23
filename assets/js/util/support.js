@@ -192,11 +192,11 @@ window.Support = (function(Support, $) {
             var file = "";
             for (var groupId in data) {
                 var oneRow = {};
-                var notFound = false;
+                // var notFound = false;
                 for (var j = 0; j < data[groupId]["node0"]["stats"].length; j++) {
                     oneRow.groupName = groupId;
                     for (var gName in statsMap) {
-                        if (statsMap[gName] == groupId) {
+                        if (statsMap[gName] === groupId) {
                             oneRow.groupName = gName;
                             break;
                         }

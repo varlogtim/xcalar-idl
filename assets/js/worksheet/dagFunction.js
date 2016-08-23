@@ -81,8 +81,8 @@ window.DagFunction = (function($, DagFunction) {
 
     DagFunction.printDagCli = function(tableName) {
         var tableId = xcHelper.getTableId(tableName);
-        var toPrint;
-        var deferred = jQuery.Deferred();
+        // var toPrint;
+        // var deferred = jQuery.Deferred();
         if (dagLineage[tableId]) {
             getXcalarQueryCli(dagLineage[tableId].orderedPrintArray)
             .then(concatAllCli);
@@ -100,7 +100,7 @@ window.DagFunction = (function($, DagFunction) {
         for (var i = 0; i<valArray.length; i++) {
             var cmpValue = "";
             if (valArray[i].value.api === XcalarApisT.XcalarApiBulkLoad) {
-                cmpValue = valArray[i].value.struct.dataset.name; 
+                cmpValue = valArray[i].value.struct.dataset.name;
             } else if (valArray[i].value.api === XcalarApisT.XcalarApiJoin) {
                 cmpValue = valArray[i].value.struct.joinTable.tableName;
             } else {
@@ -174,11 +174,10 @@ window.DagFunction = (function($, DagFunction) {
     }
 
 
-    DagFunction.runProcedureWithParams = function(tableName, param,
-                                                  doNotRun) {
+    DagFunction.runProcedureWithParams = function(tableName, param, doNotRun) {
         function getConstructorName(inputName) {
             var input = inputName.substr(0, inputName.length-5);
-            switch(input) {
+            switch (input) {
                 case ("load"):
                     consName = "BulkLoad";
                     break;
@@ -219,7 +218,7 @@ window.DagFunction = (function($, DagFunction) {
             } else {
                 var newTableName = "rerunQuery" +
                                    randomQueryNum +
-                                   Authentication.getHashId();     
+                                   Authentication.getHashId();
                 translation[struct.tableName] = newTableName;
                 struct.tableName = newTableName;
             }
@@ -245,7 +244,7 @@ window.DagFunction = (function($, DagFunction) {
                             return (false);
                         }
                     }
-                }              
+                }
             }
             return (true);
         }
@@ -277,7 +276,7 @@ window.DagFunction = (function($, DagFunction) {
                 // XXX Once we have a nice clean interface from the backend
                 // we can algorithmically generate this rather than use eval
                 newStruct = eval("new "+structName);
-            } catch(error) {
+            } catch (error) {
                 console.error(error);
                 console.error("Constructor doesn't eval to any known struct! "+
                               structName);
@@ -381,10 +380,10 @@ window.DagFunction = (function($, DagFunction) {
             finalTableName = finalTreeValue.struct.dstTable.tableName;
         }
         var sql = {
-                "operation"   : SQLOps.Query,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "newTableName": finalTableName
+            "operation"   : SQLOps.Query,
+            "tableName"   : tableName,
+            "tableId"     : tableId,
+            "newTableName": finalTableName
         };
         var txId = Transaction.start({
             "msg"      : 'Rerun: ' + tableName,
@@ -416,8 +415,8 @@ window.DagFunction = (function($, DagFunction) {
         .fail(function(error) {
             console.error(error);
             Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.StoredProcFailed,
-                    "error"  : error
+                "failMsg": StatusMessageTStr.StoredProcFailed,
+                "error"  : error
             });
         });
     };
@@ -426,7 +425,7 @@ window.DagFunction = (function($, DagFunction) {
         queryString = globalArray.join(";");
         console.log(queryString.replace(";", ";\n"));
         return (queryString);
-    }    
+    }
 
     function getXcalarQueryCli(orderedArray) {
         var promiseArray = [];
@@ -455,9 +454,9 @@ window.DagFunction = (function($, DagFunction) {
         while (queue.length > 0) {
             var node = queue.shift();
             var allAncestorsPrinted = true;
-            if ((node.leftAncestor && 
+            if ((node.leftAncestor &&
                 (printed.indexOf(node.leftAncestor) === -1)) ||
-                (node.rightAncestor && 
+                (node.rightAncestor &&
                 (printed.indexOf(node.rightAncestor) === -1))) {
                 allAncestorsPrinted = false;
             }

@@ -1989,7 +1989,7 @@ window.TblManager = (function($, TblManager) {
             TblAnim.startColDrag(headCol, event);
         });
 
-         $thead.on('mousedown', '.editableHead', function(event) {
+        $thead.on('mousedown', '.editableHead', function(event) {
             if (event.which !== 1) {
                 return;
             }

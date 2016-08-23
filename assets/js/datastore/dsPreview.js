@@ -1425,7 +1425,7 @@ window.DSPreview = (function($, DSPreview) {
                         errorHandler(DSPreviewTStr.NoParseJSON);
                     }
                 }
-            } 
+            }
         }
 
         if (bracketCnt === 0 && startIndex >= 0 && startIndex <= endIndex) {

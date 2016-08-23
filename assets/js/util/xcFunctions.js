@@ -421,7 +421,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (typeof error === "object" && 
+            if (typeof error === "object" &&
                 error.status === StatusT.StatusMaxJoinFieldsExceeded) {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.JoinFailed,
@@ -502,7 +502,7 @@ window.xcFunction = (function($, xcFunction) {
 
         // extract groupByCols
         var groupByCols = indexedCols.split(",");
-        // trim each groupbycol 
+        // trim each groupbycol
         for (var i = 0; i < groupByCols.length; i++) {
             groupByCols[i] = groupByCols[i].trim();
         }

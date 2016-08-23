@@ -7,7 +7,7 @@ window.Workbook = (function($, Workbook) {
     var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
     var sortkey = "modified"; // No longer user configurable
     var $lastFocusedInput; // Should always get reset to empty
-    var wasMonitorActive = false; // Track previous monitor panel state for when 
+    var wasMonitorActive = false; // Track previous monitor panel state for when
                                   // workbook closes
 
     Workbook.setup = function() {
@@ -28,7 +28,7 @@ window.Workbook = (function($, Workbook) {
             if ($('#container').hasClass('workbookMode')) {
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
-                   $('#container').removeClass('monitorMode');
+                    $('#container').removeClass('monitorMode');
                 } else if ($('#container').hasClass('noWorkbook')) {
                     // do not allow user to exit without entering a workbook
                     $workbookPanel.addClass('closeAttempt');
@@ -52,7 +52,7 @@ window.Workbook = (function($, Workbook) {
             } else {
                 Workbook.show();
             }
-        });    
+        });
     };
 
     Workbook.initialize = function() {
@@ -76,8 +76,6 @@ window.Workbook = (function($, Workbook) {
             wasMonitorActive = true;
         }
 
-        
-        var extraOptions;
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
             $workbookPanel.removeClass('hidden'); // no animation if force show
@@ -156,13 +154,13 @@ window.Workbook = (function($, Workbook) {
 
         // from monitor to workbook panel
         $('#monitorPanel').find('.backToWB').click(function() {
-            $('#container').removeClass('monitorMode'); 
+            $('#container').removeClass('monitorMode');
         });
     }
 
     function clearActives(doNotRevert) {
         $lastFocusedInput = "";
-        $(".workbookBox").find("input.active").each(function(input) {
+        $(".workbookBox").find("input.active").each(function() {
             $(this).removeClass("active");
             if (doNotRevert) {
                 return;
@@ -239,7 +237,7 @@ window.Workbook = (function($, Workbook) {
             var currentWorkbooks = WorkbookManager.getWorkbooks();
             var found = false;
             for (var i = 0; i<10; i++) {
-                currentWorkbookName = 
+                currentWorkbookName =
                               xcHelper.createNextName(currentWorkbookName, "-");
                 found = true;
                 for (var workbook in currentWorkbooks) {
@@ -316,7 +314,7 @@ window.Workbook = (function($, Workbook) {
                         $workbookBox.addClass("edit");
                         var newName = $lastFocusedInput.val();
                         $lastFocusedInput.blur();
-                        var workbookId = $workbookBox.attr('data-workbook-id'); 
+                        var workbookId = $workbookBox.attr('data-workbook-id');
                         var oldWorkbookName = WorkbookManager
                                                        .getWorkbook(workbookId)
                                                        .name;
@@ -351,7 +349,7 @@ window.Workbook = (function($, Workbook) {
         var $welcomeUser = $welcomeCard.find(".heading .username");
         var user = Support.getUser();
         $welcomeUser.text(user);
-        var html;
+        // var html;
 
         if (isForceMode) {
             // forceMode does not have any workbook info
@@ -359,21 +357,10 @@ window.Workbook = (function($, Workbook) {
             return;
         }
 
-        var workbooks = WorkbookManager.getWorkbooks();
-        var activeWKBKId = WorkbookManager.getActiveWKBK();
-        var workbook = workbooks[activeWKBKId];
+        // var workbooks = WorkbookManager.getWorkbooks();
+        // var activeWKBKId = WorkbookManager.getActiveWKBK();
+        // var workbook = workbooks[activeWKBKId];
         $welcomeMsg.text(WKBKTStr.CurWKBKInstr);
-    }
-
-    function focusWorkbook(workbookName) {
-        $workbookLists.find(".grid-unit").each(function() {
-            var $grid = $(this);
-            if ($grid.find(".name").text() === workbookName) {
-                $grid.addClass("active");
-                // out of the loop
-                return false;
-            }
-        });
     }
 
     function createNewWorkbookListener() {
@@ -428,27 +415,27 @@ window.Workbook = (function($, Workbook) {
                 $newWorkbookCard.next().removeClass('new');
                 $newWorkbookInput.val("");
                 $lastFocusedInput = "";
-            }, 200);         
+            }, 200);
         })
         .fail(function(error) {
             StatusBox.show(error.error, $newWorkbookInput);
         });
     }
 
-    function modifyWorkbookCard($card, options) {
-        if (options.workbookId) {
-            $card.attr("data-workbook-id", options.workbookId);
-        }
-        if (options.workbookName) {
-            $card.find(".workbookName").val(workbookName);
-        }
-        delete options.workbookName;
-        delete options.workbookId;
+    // function modifyWorkbookCard($card, options) {
+    //     if (options.workbookId) {
+    //         $card.attr("data-workbook-id", options.workbookId);
+    //     }
+    //     if (options.workbookName) {
+    //         $card.find(".workbookName").val(workbookName);
+    //     }
+    //     delete options.workbookName;
+    //     delete options.workbookId;
 
-        for (var key in options) {
-            $card.find("."+key).text(options.key);
-        }
-    }
+    //     for (var key in options) {
+    //         $card.find("."+key).text(options.key);
+    //     }
+    // }
 
     function createWorkbookCard(workbookId, workbookName, createdTime,
                                 modifiedTime, username, numWorksheets,
@@ -569,7 +556,6 @@ window.Workbook = (function($, Workbook) {
             var numWorksheets = workbook.numWorksheets;
             var extraClasses  = [];
             var name          = workbook.name;
-            var isActive      = false;
 
             if (wkbkId === activeWKBKId) {
                 isActive = true;
@@ -640,21 +626,21 @@ window.Workbook = (function($, Workbook) {
                 // $('#demoScreen [data-introstep]').removeClass('hover');
                 $('#demoScreen').remove();
                 $('#container').show();
-            },
-            onNextStep: function(el) {
-                // $('#demoScreen [data-introstep]').removeClass('hover');
-                // el.addClass('hover');
             }
+            // onNextStep: function(el) {
+            //     // $('#demoScreen [data-introstep]').removeClass('hover');
+            //     // el.addClass('hover');
+            // }
         });
 
         $('#workbookWT').click(function() {
             // reset options set by datastorepreview1
             var options = {
-                ignoreHidden: true,
-                onStart: "",
-                onNextStep: "",
-                onPrevStep: "",
-                onSkipToEnd: "",
+                ignoreHidden : true,
+                onStart      : "",
+                onNextStep   : "",
+                onPrevStep   : "",
+                onSkipToEnd  : "",
                 onSkipToStart: ""
             };
 
@@ -705,11 +691,9 @@ window.Workbook = (function($, Workbook) {
         $('#datastoreWT1').click(function() {
             var options = {
                 ignoreHidden: false,
-                onStart: function() {
-                },
-                onNextStep: function(introObj) {
+                onNextStep  : function(introObj) {
                     if (introObj.currentStep === 4) {
-                       dsDemo1ToggleForm(true);
+                        dsDemo1ToggleForm(true);
                     }
                 },
                 onPrevStep: function(introObj) {
@@ -717,10 +701,10 @@ window.Workbook = (function($, Workbook) {
                         dsDemo1ToggleForm(false);
                     }
                 },
-                onSkipToEnd: function(introObj) {
+                onSkipToEnd: function() {
                     dsDemo1ToggleForm(true);
                 },
-                onSkipToStart: function(introObj) {
+                onSkipToStart: function() {
                     dsDemo1ToggleForm(false);
                 }
             };
@@ -730,11 +714,11 @@ window.Workbook = (function($, Workbook) {
 
         $('#datastoreWT2').click(function() {
             var options = {
-                ignoreHidden: true,
-                onStart: "",
-                onNextStep: "",
-                onPrevStep: "",
-                onSkipToEnd: "",
+                ignoreHidden : true,
+                onStart      : "",
+                onNextStep   : "",
+                onPrevStep   : "",
+                onSkipToEnd  : "",
                 onSkipToStart: ""
             };
             introHelper('datastoreDemo2', WalkThroughTStr.w3, options);

@@ -36,12 +36,12 @@ window.Transaction = (function(Transaction, $) {
             if (options.functionName) {
                 operation += " " + options.functionName;
             }
-            var options = {
+            var queryOptions = {
                 numSteps  : numSubQueries,
                 cancelable: options.cancelable
             };
             
-            QueryManager.addQuery(curId, operation, options);
+            QueryManager.addQuery(curId, operation, queryOptions);
         }
 
         txIdCount++;

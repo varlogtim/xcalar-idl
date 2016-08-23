@@ -4,7 +4,7 @@ window.MainMenu = (function($, MainMenu) {
     var $mainMenu; // $('#mainMenu');
     var slideTimeout; // setTimeout for setting closed state after animation finishes
     var isMenuOpen = false;
-    var closedOffset = 65; // in pixels, how much the panels are horizonally 
+    var closedOffset = 65; // in pixels, how much the panels are horizonally
     // offset when a menu is closed (includes 5px padding in .mainContent)
     var openOffset = 350; // when the menu is open
     MainMenu.setup = function() {
@@ -30,10 +30,6 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.close = function(noAnim, makeInactive) {
         closeMenu($menuBar.find(".topMenuBarTab.active"), noAnim,
                   makeInactive);
-    };
-
-    MainMenu.switchSubTab = function(newTab) {
-        
     };
 
     // checks main menu and bottom menu
@@ -69,7 +65,7 @@ window.MainMenu = (function($, MainMenu) {
             closeMenu($menuBar.find(".topMenuBarTab.active"));
         });
         $mainMenu.find('.minimizedContent').click(function() {
-           openMenu($menuBar.find(".topMenuBarTab.active"));
+            openMenu($menuBar.find(".topMenuBarTab.active"));
         });
     }
 
@@ -207,8 +203,11 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
-            moveTableTitles(null, {offset: 285, menuAnimating: true, 
-                            animSpeed: delay});
+            moveTableTitles(null, {
+                "offset"       : 285,
+                "menuAnimating": true,
+                "animSpeed"    : delay
+            });
         }
     }
 
@@ -230,18 +229,21 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
-            moveTableTitles(null, {offset: -285, menuAnimating: true, 
-                            animSpeed: delay});
+            moveTableTitles(null, {
+                "offset"       : -285,
+                "menuAnimating": true,
+                "animSpeed"    : delay
+            });
         }
     }
 
     // turns off animation during open or close
-    function checkAnim(noAnim, isOpening) {
+    function checkAnim(noAnim) {
         $mainMenu.removeClass('noAnim');
         $('#container').removeClass('noMenuAnim');
         if (noAnim) {
             $mainMenu.addClass('noAnim');
-            $('#container').addClass('noMenuAnim')
+            $('#container').addClass('noMenuAnim');
             setTimeout(function() {
                 $mainMenu.removeClass('noAnim');
                 $('#container').removeClass('noMenuAnim');

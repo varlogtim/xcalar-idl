@@ -12,7 +12,7 @@ window.Intro = (function($, Intro) {
         loop              : false, // if true, returns to step 1 after last step
         includeNumbering  : false,
         closeOnModalClick : false, // close modal when background is clicked
-        ignoreHidden      : true, // will ignore data-intro elements that arent' visible 
+        ignoreHidden      : true, // will ignore data-intro elements that arent' visible
         onStart           : "",
         onComplete        : "",
         onNextStep        : "",
@@ -204,8 +204,8 @@ window.Intro = (function($, Intro) {
     */
     function nextStep(arg) {
         var skip = false; // true if skipping to start or end
-        var back = false; // true if going next direction, 
-                            // false if going to prev direction
+        var back = false; // true if going next direction,
+                          // false if going to prev direction
         if (arg) {
             if (arg.skip) {
                 skip = true;
@@ -279,26 +279,26 @@ window.Intro = (function($, Intro) {
 
         // run callbacks for back, next, skip back, skip next
         if (back) {
-            if (!skip &&  typeof options.onPrevStep === "function") {
+            if (!skip && typeof options.onPrevStep === "function") {
                 options.onPrevStep({
-                    $currElem: $currElem, 
+                    $currElem  : $currElem,
                     currentStep: steps.currentStep + 1// return as 1 indexed
                 });
             } else if (skip && typeof options.onSkipToStart === "function") {
                 options.onSkipToStart({
-                    $currElem: $currElem, 
-                    currentStep: steps.currentStep + 1 
+                    $currElem  : $currElem,
+                    currentStep: steps.currentStep + 1
                 });
             }
         } else {
             if (!skip && typeof options.onNextStep === "function") {
                 options.onNextStep({
-                    $currElem: $currElem, 
-                    currentStep: steps.currentStep + 1 
+                    $currElem  : $currElem,
+                    currentStep: steps.currentStep + 1
                 });
             } else if (skip && typeof options.onSkipToEnd === "function") {
                 options.onSkipToEnd({
-                    $currElem: $currElem, 
+                    $currElem  : $currElem,
                     currentStep: steps.currentStep + 1
                 });
             }

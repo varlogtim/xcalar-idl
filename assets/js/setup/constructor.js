@@ -2748,7 +2748,7 @@ FormHelper.prototype = {
                 Tips.refresh();
             });
         } else {
-            var fadeOutTime = gMinModeOn ? 0 : 300;
+            // var fadeOutTime = gMinModeOn ? 0 : 300;
             // $form.hide();
             Tips.refresh();
             if (options.afterClose != null &&
@@ -2815,7 +2815,7 @@ FormHelper.prototype = {
         if (eleLists[0].index($(':focus')) > -1) {
             focusIndex = eleLists[0].index($(':focus')) + 1;
         } else {
-            focusIndex  = 0;
+            focusIndex = 0;
         }
        
 
