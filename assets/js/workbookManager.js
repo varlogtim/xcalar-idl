@@ -197,8 +197,15 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 location.reload();
                 deferred.resolve();
             })
-            .fail(deferred.reject);
-
+            .fail(function(ret) {
+                if (ret.status === StatusT.StatusSessionNotInact) {
+                    switchWorkbookAnimation();
+                    location.reload();
+                    deferred.resolve();
+                } else {
+                    deferred.reject(ret);
+                }
+            });
             return deferred.promise();
         }
 
