@@ -257,6 +257,7 @@ window.Workbook = (function($, Workbook) {
                 currentWorkbookName += "-" + Math.floor(Math.random()*100000);
             }
 
+            $workbookBox.find('.duplicate').addClass('inActive');
             WorkbookManager.copyWKBK(workbookId, currentWorkbookName)
             .then(function(newId) {
                 var newWorkbook = WorkbookManager.getWorkbook(newId);
@@ -268,8 +269,10 @@ window.Workbook = (function($, Workbook) {
                                              ["new"]);
                 $workbookBox.after(dup);
                 setTimeout(function() {
-                    var $newCard = $workbookBox.next();
+                    var $newCard = $(".workbookBox[data-workbook-id='" +
+                                     newId + "']");
                     $newCard.removeClass('new');
+                    $workbookBox.find('.duplicate').removeClass('inActive');
                 }, 100);
             });
             $(".tooltip").remove();
@@ -406,15 +409,19 @@ window.Workbook = (function($, Workbook) {
                                           workbook.modified,
                                           workbook.srcUser,
                                           workbook.numWorksheets,
-                                          ["new"]);
+                                          ['new']);
             $newWorkbookCard.after(html);
+            $newWorkbookCard.find('button').addClass('inActive');
 
             // need to remove "new" class from workbookcard a split second
             // after it's appended or it won't animate
             setTimeout(function() {
-                $newWorkbookCard.next().removeClass('new');
-                $newWorkbookInput.val("");
-                $lastFocusedInput = "";
+                var $newCard = $(".workbookBox[data-workbook-id='" +
+                                  id + "']");
+                $newCard.removeClass('new');
+                $newWorkbookInput.val('');
+                $newWorkbookCard.find('button').removeClass('inActive');
+                $lastFocusedInput = '';
             }, 200);
         })
         .fail(function(error) {
