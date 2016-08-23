@@ -87,6 +87,11 @@ module.exports = {
         "APPLY": "APPLY"
     },
 
+    "status": {
+        "actionSuccess": "Your action was successful!",
+        "SUCCESS": "SUCCESS"
+    },
+
     "paths": {
         "dologout"      : "assets/htmlFiles/dologout.html",
         "login"         : "assets/htmlFiles/login.html",
@@ -761,5 +766,28 @@ module.exports = {
         "workbookDemo": {
             "tab": "Viewing Worksheet"
         }
+    },
+
+    "login": {
+        "loginHeader": "Login to Xcalar Insight!",
+        "signupHeader": "Sign up for Xcalar Insight!",
+        "username": "USERNAME",
+        "usernameLower": "Username",
+        "password": "PASSWORD",
+        "login": "LOG IN",
+        "signup": "SIGN UP",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "confirmEmail": "Confirm Email",
+        "passwordLower": "Password",
+        "confirmPassword": "Confirm Password",
+        "IAgree": "I aggree to the",
+        "terms": "Terms & Conditions",
+        "alreadyAccount": "Already have an account?",
+        "signin": "Sign in"
+
+
+
     }
 }

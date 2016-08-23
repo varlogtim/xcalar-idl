@@ -7,8 +7,8 @@
   <div id="loginContainer">
     <div class="outerWrap">
       <header>
-        <h2 class="loginHeader">Login to Xcalar Insight!</h2>
-        <h2 class="signupHeader hidden">Sign up for Xcalar Insight!</h2>
+        <h2 class="loginHeader"><%= dicts.login.loginHeader %></h2>
+        <h2 class="signupHeader hidden"><%= dicts.login.loginHeader %></h2>
       </header>
     </div>
     
@@ -20,56 +20,58 @@
         <form id="loginForm" autocomplete="off">
           <div class="section">
             <label for="loginNameBox">
-              <input id="loginNameBox" type="text" class="input" autofocus required  autocomplete="off">
-              <div class="label">USERNAME</div>
+              <input name="noautocomplete" type="text" class="input" autocomplete="off" style="display: none;">
+              <input id="loginNameBox" name="noautocomplete" type="text" class="input" autofocus required  autocomplete="off">
+              <div class="label"><%= dicts.login.username %></div>
             </label>
           </div>
           <div class="section">
             <label for="loginPasswordBox">
-              <input id="loginPasswordBox" class="input" type="password" autocomplete="off">
-              <div class="label">PASSWORD</div>
+              <input name="noautocomplete2" type="password" class="input" autocomplete="off" value=" " style="display: none;">
+              <input id="loginPasswordBox" name="noautocomplete2" class="input" type="password" autocomplete="off">
+              <div class="label"><%= dicts.login.password %></div>
             </label>
           </div>
           <!-- <div class="passwordForgot">Forgot your password?</div> -->
-          <input id="loginButton" class="btn login" type="submit" value="LOG IN">
+          <input id="loginButton" class="btn login" type="submit" value="<%= dicts.login.login %>">
           <!-- XX SIGN UP TEMPORARILY HIDDEN -->
           <!-- 
-          <input id="signupButton" class="btn signup" type="button" name="signup" value="SIGN UP">
+          <input id="signupButton" class="btn signup" type="button" name="signup" value="<%= dicts.login.signup %>">
           -->
         </form>
         <form id="signupForm" autocomplete="off">
           <div class="nameSection section">
             <input id="signup-firstName" class="input" required autocomplete="off">
-            <div class="label">First Name</div>
+            <div class="label"><%= dicts.login.firstName %></div>
           </div>
           <div class="nameSection section">
             <input id="signup-lastName" class="input" required autocomplete="off">
-            <div class="label">Last name</div>
+            <div class="label"><%= dicts.login.lastName %></div>
           </div>
           <div class="section">
             <input id="signup-userName" class="input" required autocomplete="off">
-            <div class="label">Username</div>
+            <div class="label"><%= dicts.login.usernameLower %></div>
           </div>
           <div class="section">
             <input id="signup-email" class="input" type="email" required autocomplete="off">
-            <div class="label">Email</div>
+            <div class="label"><%= dicts.login.email %></div>
           </div>
           <div class="section confirmSection">
             <input id="signup-confirmEmail" class="input" type="email" required autocomplete="off">
-            <div class="label">Confirm Email</div>
+            <div class="label"><%= dicts.login.confirmEmail %></div>
           </div>
           <div class="section">
             <input id="signup-password" class="input" type="password" required autocomplete="off">
-            <div class="label">Password</div>
+            <div class="label"><%= dicts.login.passwordLower %></div>
           </div>
           <div class="section confirmSection">
             <input id="signup-confirmPassword" class="input" type="password" required autocomplete="off">
-            <div class="label">Confirm password</div>
+            <div class="label"><%= dicts.login.confirmPassword %></div>
           </div>
           <div class="section submitSection clearfix">
             <div class="part termPart clearfix">
               <div class="text">
-                <label for="signup-termCheck">I agree to the <a id="signup-term">Terms & Conditions</a></label> 
+                <label for="signup-termCheck"><%= dicts.login.IAgree %> <a id="signup-term"><%= dicts.login.terms %></a></label> 
               </div>
               <input id="signup-termCheck" type="checkbox" class="checkbox" required>
             </div>
@@ -78,7 +80,7 @@
             </div>
           </div>
           <div class="loginSection text">
-            Already have an account? <a id="signup-login">Sign in</a>
+            <%= dicts.login.alreadyAccount %> <a id="signup-login"><%= dicts.login.signin %></a>
           </div>
         </form>
       </div>
