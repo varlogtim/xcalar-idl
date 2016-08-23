@@ -86,7 +86,6 @@ window.MainMenu = (function($, MainMenu) {
             SmartCastView.close();
             DFCreateView.close();
 
-
             var $curTab = $(this);
             var $target = $(event.target);
 

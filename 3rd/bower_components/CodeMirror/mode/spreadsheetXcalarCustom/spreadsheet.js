@@ -89,6 +89,8 @@
           stream.next();
           return "comma";
         case ":":
+          stream.next();
+          return "udfColon";
         case ";":
         case "*":
         case "-":
@@ -129,7 +131,7 @@
           if (stream.match(/^\w+/)) return "error"; // 4sdf produces error
           return "number";
         } else if (stream.match(/^[a-zA-Z_]\w*/)) {
-          if (stream.match(/(?=[\(])/, false)) return "keyword";
+          if (stream.match(/(?=[\(:])/, false)) return "keyword";
           return "variable-2";
         } else if (["[", "]", "(", ")", "{", "}"].indexOf(peek) != -1) {
           stream.next();

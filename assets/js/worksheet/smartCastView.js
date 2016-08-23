@@ -8,6 +8,7 @@ window.SmartCastView = (function($, SmartCastView) {
     var colTypes = [];
     var recTypes = [];
     var isOpen = false;
+    var formHelper;
 
     // constant
     var validTypes = ["string", "integer", "float", "boolean"];
@@ -15,6 +16,8 @@ window.SmartCastView = (function($, SmartCastView) {
     SmartCastView.setup = function() {
         $castView = $("#smartCastView");
         $castTable = $("#smartCast-table");
+
+        formHelper = new FormHelper($castView);
 
         $castView.on("click", ".cancel, .close", function() {
             SmartCastView.close();
@@ -105,6 +108,7 @@ window.SmartCastView = (function($, SmartCastView) {
         smartSuggest(tableId);
         
         addTableListener();
+        formHelper.setup();
     };
 
     SmartCastView.close = function() {
@@ -128,6 +132,7 @@ window.SmartCastView = (function($, SmartCastView) {
         colTypes = [];
         recTypes = [];
         curTableId = null;
+        formHelper.clear();
     };
 
     function clearCast() {

@@ -15,6 +15,7 @@ window.ExportView = (function($, ExportView) {
 
     var exportTargInfo;
     var formHelper;
+    var isOpen = false; // tracks if form is open
 
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
@@ -171,6 +172,7 @@ window.ExportView = (function($, ExportView) {
     };
 
     ExportView.show = function(tablId) {
+        isOpen = true;
         $('#workspaceMenu').find('.menuSection:not(.xc-hidden)')
                            .addClass('lastOpened');
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
@@ -222,6 +224,9 @@ window.ExportView = (function($, ExportView) {
     };
 
     ExportView.close = function() {
+        if (!isOpen) {
+            return;
+        }
         // xx some of this code can be reused for all operation views
         var $tableWraps = $('.xcTableWrap');
         $exportView.addClass('xc-hidden');

@@ -282,17 +282,21 @@ window.BottomMenu = (function($, BottomMenu) {
                 $("#helpButtonWrap").addClass("xc-hidden");
             }
 
+            OperationsView.close();
+            JoinView.close();
+            ExportView.close();
+            SmartCastView.close();
+            DFCreateView.close();
+            // close these views before we open extensionManager otherwise
+            // extensionmanager listeners and classes might be removed
+
             if (sectionId === "extension-ops") {
                 ExtensionManager.openView();
             } else {
                 ExtensionManager.closeView();
             }
 
-            OperationsView.close();
-            JoinView.close();
-            ExportView.close();
-            SmartCastView.close();
-            DFCreateView.close();
+            
         }
 
         // dealay the next click as the menu open/close has animation

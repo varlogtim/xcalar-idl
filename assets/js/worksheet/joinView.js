@@ -13,6 +13,8 @@ window.JoinView = (function($, JoinView) {
     var lImmediatesCache;
     var rImmediatesCache;
     var allClashingImmediatesCache;
+    var lastSideClicked; // for column selector ("left" or "right")
+    var focusedListNum;
 
     var turnOnPrefix = true; // Set to false if backend crashes
 
@@ -212,29 +214,82 @@ window.JoinView = (function($, JoinView) {
             isNextNew = true;
         });
 
-        $joinView.find('.columnsWrap').on('click', 'li', function() {
+        $joinView.find('.columnsWrap').on('click', 'li', function(event) {
             var $li = $(this);
-            var $checkbox = $li.find('.checkbox');
+            var colNum = $li.data('colnum');
+            var toHighlight = false;
+            if (!$li.hasClass('checked')) {
+                toHighlight = true;
+            }
             
-            if ($checkbox.hasClass('checked')) {
-                $checkbox.removeClass('checked');
-                $li.removeClass('checked');
-                if ($li.siblings('.checked').length === 0) {
-                    if ($li.closest('ul').hasClass('leftCols')) {
-                        $joinView.find('.leftColHeading .selectAll')
-                                 .removeClass('checked');
+            var $colList = $li.closest('ul');
+            var isLeftSide = $colList.hasClass('leftCols');
+            var toShift = event.shiftKey &&
+                          (isLeftSide && lastSideClicked === "left" ||
+                          !isLeftSide && lastSideClicked === "right");
+
+
+            if (toShift && focusedListNum != null) {
+                var start = Math.min(focusedListNum, colNum);
+                var end = Math.max(focusedListNum, colNum);
+
+                for (var i = start; i <= end; i++) {
+                    if (toHighlight) {
+                        selectCol(i, $colList);
                     } else {
-                        $joinView.find('.rightColHeading .selectAll')
-                                 .removeClass('checked');
+                        deselectCol(i, $colList);
                     }
                 }
             } else {
-                $checkbox.addClass('checked');
-                $li.addClass('checked');
+                if (toHighlight) {
+                    selectCol(colNum, $colList);
+                } else {
+                    deselectCol(colNum, $colList);
+                }
             }
-            resetRenames();
 
+            if ($li.siblings('.checked').length === 0) {
+                if ($li.closest('ul').hasClass('leftCols')) {
+                    $joinView.find('.leftColHeading .selectAll')
+                             .removeClass('checked');
+                } else {
+                    $joinView.find('.rightColHeading .selectAll')
+                             .removeClass('checked');
+                }
+            } else if ($li.siblings().length === 
+                       $li.siblings('.checked').length) {
+                if ($li.closest('ul').hasClass('leftCols')) {
+                    $joinView.find('.leftColHeading .selectAll')
+                             .addClass('checked');
+                } else {
+                    $joinView.find('.rightColHeading .selectAll')
+                             .addClass('checked');
+                }
+            }
+
+            if (isLeftSide) {
+                lastSideClicked = "left";
+            } else {
+                lastSideClicked = "right";
+            }
+
+            focusedListNum = colNum;
+
+            resetRenames();
         });
+
+        function selectCol(colNum, $colList) {
+            $colList.find('li[data-colnum="' + colNum + '"]')
+                    .addClass('checked')
+                    .find('.checkbox').addClass('checked');
+        }
+
+        function deselectCol(colNum, $colList) {
+            $colList.find('li[data-colnum="' + colNum + '"]')
+                    .removeClass('checked')
+                    .find('.checkbox').removeClass('checked');
+        }
+        
 
         $joinView.find('.selectAll').on('click', function() {
             var $checkbox = $(this);
@@ -408,6 +463,9 @@ window.JoinView = (function($, JoinView) {
         }
 
         isOpen = false;
+        lastSideClicked = null;
+        focusedListNum = null;
+
         $joinView.addClass('xc-hidden');
         $('#workspaceMenu').find('.menuSection.lastOpened')
                            .removeClass('lastOpened xc-hidden');
@@ -427,6 +485,8 @@ window.JoinView = (function($, JoinView) {
             // go to step 1
             $joinView.removeClass('nextStep');
             formHelper.refreshTabbing();
+            lastSideClicked = null;
+            focusedListNum = null;
         } else {
             // go to step 2
             if (checkFirstView()) {
@@ -721,7 +781,7 @@ window.JoinView = (function($, JoinView) {
         for (var i = 0; i < allCols.length; i++) {
             if (allCols[i].type !== "newColumn" &&
                 allCols[i].backName !== "DATA") {
-                html += '<li class="checked">' +
+                html += '<li class="checked" data-colnum="' + i + '">' +
                             '<span class="text">' +
                                 allCols[i].name +
                             '</span>' +

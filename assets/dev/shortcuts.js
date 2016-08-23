@@ -58,6 +58,34 @@ window.Shortcuts = (function($, Shortcuts) {
         toggleAutoLoginMenu(turnOn);
     };
 
+    Shortcuts.toggleVerbose = function(turnOn) {
+        if (turnOn) {
+            $('#shortcutSubMenu').find('.verboseOff').show();
+            $('#shortcutSubMenu').find('.verboseOn').hide();
+            localStorage.verbose = true;
+            verbose = true;
+        } else {
+            $('#shortcutSubMenu').find('.verboseOff').hide();
+            $('#shortcutSubMenu').find('.verboseOn').show();
+            localStorage.verbose = false;
+            verbose = false;
+        }
+    }
+
+    Shortcuts.toggleJoinKey = function(turnOn) {
+        if (turnOn) {
+            $('#shortcutSubMenu').find('.joinKeyOff').show();
+            $('#shortcutSubMenu').find('.joinKeyOn').hide();
+            localStorage.gEnableJoinKeyCheck = true;
+            gEnableJoinKeyCheck = true;
+        } else {
+            $('#shortcutSubMenu').find('.joinKeyOff').hide();
+            $('#shortcutSubMenu').find('.joinKeyOn').show();
+            localStorage.gEnableJoinKeyCheck = false;
+            gEnableJoinKeyCheck = false;
+        }
+    }
+
 
     Shortcuts.setup = function() {
         shortcutsOn = true;
@@ -68,9 +96,25 @@ window.Shortcuts = (function($, Shortcuts) {
             autoLogin = true;
             localStorage.autoLogin = true;
         }
+
+        if (localStorage.verbose) {
+            verbose = JSON.parse(localStorage.verbose);
+        } else {
+            verbose = false;
+            localStorage.verbose = false;
+        }
+
+        if (localStorage.gEnableJoinKeyCheck) {
+            gEnableJoinKeyCheck = JSON.parse(localStorage.gEnableJoinKeyCheck);
+        } else {
+            gEnableJoinKeyCheck = false;
+            localStorage.gEnableJoinKeyCheck = false;
+        }
         
         dsForm();
-        mainMenu();
+        createMainMenu();
+        Shortcuts.toggleVerbose(verbose);
+        Shortcuts.toggleJoinKey(gEnableJoinKeyCheck);
     };
 
     Shortcuts.remove = function () {
@@ -231,7 +275,7 @@ window.Shortcuts = (function($, Shortcuts) {
         $("#fileFormatMenu").find("ul").append('<li name="RANDOM">Random</li>');
     }
 
-    function mainMenu() {
+    function createMainMenu() {
 
         var menu =
         '<div id="shortcutMenu" class="menu" data-submenu="shortcutSubMenu">' +
@@ -239,6 +283,7 @@ window.Shortcuts = (function($, Shortcuts) {
                 '<li class="createTable parentMenu" data-submenu="createTable">' +
                     'Create Table ...</li>' +
                 '<li class="tests parentMenu" data-submenu="tests">Tests ...</li>' +
+                '<li class="globals parentMenu" data-submenu="globals">Global Flags ...</li>' +
                 '<li class="archiveAllTables">Archive All Tables</li>' +
                 '<li class="deleteAllTables">Delete All Tables</li>' +
                 '<li class="autoLoginOff">Turn Off AutoLogin</li>' +
@@ -261,6 +306,12 @@ window.Shortcuts = (function($, Shortcuts) {
                         '<span class="menuOption">FE</span>' + // front end test
                         '<span class="menuOption">BE</span>' + // back end test
                         '</li>' +
+                    '</ul>' +
+                    '<ul class="globals">' +
+                        '<li class="joinKeyOff">Turn off gEnableJoinKeyCheck</li>' +
+                        '<li class="joinKeyOn">Turn on gEnableJoinKeyCheck</li>' +
+                        '<li class="verboseOff">Turn off verbose</li>' +
+                        '<li class="verboseOn">Turn on verbose</li>' +
                     '</ul>' +
                 '</div>';
 
@@ -303,6 +354,23 @@ window.Shortcuts = (function($, Shortcuts) {
         $menu.on('mouseup', '.autoLoginOn', function() {
             Shortcuts.toggleAutoLogin(true);
         });
+
+        $subMenu.on('mouseup', '.verboseOff', function() {
+            Shortcuts.toggleVerbose();
+        });
+
+        $subMenu.on('mouseup', '.verboseOn', function() {
+            Shortcuts.toggleVerbose(true);
+        });
+
+        $subMenu.on('mouseup', '.joinKeyOff', function() {
+            Shortcuts.toggleJoinKey();
+        });
+
+        $subMenu.on('mouseup', '.joinKeyOn', function() {
+            Shortcuts.toggleJoinKey(true);
+        });
+
 
         $subMenu.on('mouseup', '.createTable li', function(event) {
             var noCols = false;
