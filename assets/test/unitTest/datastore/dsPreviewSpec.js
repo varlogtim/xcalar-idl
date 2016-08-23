@@ -7,7 +7,6 @@ function dsPreviewModuleTest() {
     var $fileName;
     var $formatText;
 
-    var $csvDelim; // csv delimiter args
     var $fieldText;
     var $lineText;
 
@@ -17,6 +16,8 @@ function dsPreviewModuleTest() {
 
     var $headerCheckBox; // promote header checkbox
     var $udfCheckbox; // udf checkbox
+
+    var $skipRows;
 
     var $statusBox;
 
@@ -28,7 +29,6 @@ function dsPreviewModuleTest() {
         $fileName = $("#dsForm-dsName");
         $formatText  = $("#fileFormat .text");
 
-        $csvDelim = $("#csvDelim"); // csv delimiter args
         $fieldText = $("#fieldText");
         $lineText = $("#lineText");
 
@@ -38,6 +38,9 @@ function dsPreviewModuleTest() {
 
         $headerCheckBox = $("#promoteHeaderCheckbox"); // promote header checkbox
         $udfCheckbox = $("#udfCheckbox"); // udf checkbox
+
+        $skipInput = $("#dsForm-skipRows");
+        $quoteInput = $("#dsForm-quote");
 
         $statusBox = $("#statusBox");
         loadArgs = DSPreview.__testOnly__.get().loadArgs;
@@ -238,9 +241,39 @@ function dsPreviewModuleTest() {
             expect(res.indexOf("previewTable") > 0).to.be.true;
             expect(res.endsWith(".preview")).to.be.true;
         });
+
+        it("toggleHeader() should workh", function() {
+            var data = "line1\nline2";
+            var $checkbox = $headerCheckBox.find(".checkbox");
+            var toggleHeader = DSPreview.__testOnly__.toggleHeader;
+
+            loadArgs.reset();
+            DSPreview.__testOnly__.set(data);
+            DSPreview.__testOnly__.getPreviewTable();
+            // has 2 rows
+            expect($previewTable.find("tbody tr").length).to.equal(2);
+
+            // toggle to have header
+            toggleHeader(true, true);
+            expect($checkbox.hasClass("checked")).to.be.true;
+            expect(loadArgs.useHeader()).to.be.true;
+            // has 1 row
+            expect($previewTable.find("tbody tr").length).to.equal(1);
+
+            // toggle to remove header
+            toggleHeader(false, true);
+            expect($checkbox.hasClass("checked")).to.be.false;
+            expect(loadArgs.useHeader()).to.be.false;
+            // has 1 row
+            expect($previewTable.find("tbody tr").length).to.equal(2);
+        });
     });
 
     describe("Suggest Test", function() {
+        before(function() {
+            loadArgs.reset();
+        });
+
         it("Should detect correct format", function() {
             var detectFormat = DSPreview.__testOnly__.detectFormat;
             loadArgs.setFormat("JSON");
@@ -427,443 +460,433 @@ function dsPreviewModuleTest() {
         });
 
       
-        // it("Should clear preview table", function() {
-        //     var data = [["h", ",", "i"]];
-        //     DSPreview.__testOnly__.set(",", true, "", data);
-        //     DSPreview.__testOnly__.getPreviewTable();
+        it("Should clear preview table", function(done) {
+            var data = "h,i";
+            DSPreview.__testOnly__.set(data);
+            DSPreview.__testOnly__.getPreviewTable();
 
-        //     DSPreview.__testOnly__.clearAll();
-        //     var res = DSPreview.__testOnly__.get();
-        //     expect(res.delimiter).to.equal("");
-        //     expect(res.highlighter).to.equal("");
-        //     expect(res.hasHeader).to.equal(false);
-        //     expect($previewTable.html()).to.equal("");
-        // });
+            DSPreview.__testOnly__.clearPreviewTable()
+            .then(function() {
+                var res = DSPreview.__testOnly__.get();
+                expect(res.highlighter).to.equal("");
+                expect($previewTable.html()).to.equal("");
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            });
+        });
 
-        // after(function() {
-        //     DSPreview.__testOnly__.set("", false, "");
-        //     $previewTable.empty();
-        // });
+        after(function() {
+            DSPreview.__testOnly__.set("");
+            $previewTable.empty();
+        });
     });
 
-    // describe("Preview API Test", function() {
-    //     it("DSPreview.show() should work", function(done) {
-    //         var loadUrl = testDatasets.sp500.protocol + testDatasets.sp500.path;
-    //         DSPreview.show(loadUrl)
-    //         .then(function() {
-    //             // expect($previewTable.is(":visible")).to.be.true;
-    //             expect($previewTable.html()).not.to.equal("");
-    //             done();
-    //         })
-    //         .fail(function() {
-    //             throw "Fail Case!";
-    //         });
-    //     });
+    describe('Basic form functionality test', function() {
+        it("Should reset form", function() {
+            $("#dsForm-skipRows").val(1);
+            loadArgs.setFieldDelim("test..");
+            DSPreview.__testOnly__.resetForm();
 
-    //     it("DSPreview.clear() should work", function(done) {
-    //         DSPreview.clear()
-    //         .then(function() {
-    //             var res = DSPreview.__testOnly__.get();
-    //             expect(res.delimiter).to.equal("");
-    //             expect(res.highlighter).to.equal("");
-    //             expect(res.hasHeader).to.equal(false);
-    //             done();
-    //         })
-    //         .fail(function() {
-    //             throw "Fail Case!";
-    //         });
-    //     });
+            expect($("#dsForm-skipRows").val()).to.equal("0");
+            expect(loadArgs.getFieldDelim()).to.equal("");
+        });
 
-    //     after(function() {
-    //         // DSPreview.clear() doesn't remove preview table's html,
-    //         // so call clearAll() to totally clear
-    //         DSPreview.__testOnly__.clearAll();
-    //     });
-    // });
+        it('getNameFromPath() should work', function() {
+            var getNameFromPath = DSPreview.__testOnly__.getNameFromPath;
+        
+            var testName = xcHelper.randName("testName");
+            var oldhas = DS.has;
 
-    // XXX moved to dsPreview.js (getNameFromPath)
-        // it('Should get short name', function(done) {
-        //     var getShortName = FileBrowser.__testOnly__.getShortName;
-        //     var testName = xcHelper.randName("testName");
-        //     var oldhas = DS.has;
+            // basic
+            var res = getNameFromPath(testName);
+            expect(res).to.equal(testName);
+                
+            var test2 = testName + ".test";
+            res = getNameFromPath(testName);
+            expect(res).to.equal(testName);
 
-        //     // basic
-        //     getShortName(testName)
-        //     .then(function(res) {
-        //         expect(res).to.equal(testName);
-        //         var test2 = testName + ".test";
-        //         return getShortName(testName);
-        //     })
-        //     .then(function(res) {
-        //         // should stripe the dot
-        //         expect(res).to.equal(testName);
-        //     })
-        //     .then(function() {
-        //         DS.has = function(name) {
-        //             if (name === testName) {
-        //                 return true;
-        //             } else {
-        //                 return false;
-        //             }
-        //         };
+            var test3 = "/var/yelpUnittest/";
+            res = getNameFromPath(test3);
+            expect(res).to.equal("yelpUnittest");
 
-        //         return getShortName(testName);
-        //     })
-        //     .then(function(res) {
-        //         expect(res).to.equal(testName + "1");
-        //         DS.has = oldhas;
-        //         done();
-        //     })
-        //     .fail(function() {
-        //         throw "Error case";
-        //     });
-        // });
+            var test4 = "/var/gdeltUnittest.csv";
+            res = getNameFromPath(test4);
+            expect(res).to.equal("gdeltUnittest");
 
-      // it("Should apply delimiter", function() {
-        //     var data = [["h", ",", "i"]];
-        //     DSPreview.__testOnly__.set("", false, "", data);
-        //     DSPreview.__testOnly__.getPreviewTable();
+            DS.has = function(name) {
+                if (name === testName) {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
 
-        //     // can apply delimiter
-        //     DSPreview.__testOnly__.applyDelim(",");
-        //     var res = DSPreview.__testOnly__.get();
-        //     expect(res.delimiter).to.equal(",");
-        //     expect(res.highlighter).to.equal("");
-        //     expect($rmHightLightBtn.hasClass("active")).to.be.true;
-        //     expect($previewTable.find(".has-comma").length).to.equal(0);
+            res = getNameFromPath(testName);
+            expect(res).to.equal(testName + "1");
+            DS.has = oldhas;
+        });
 
-        //     // can remove delimiter
-        //     DSPreview.__testOnly__.applyDelim("");
-        //     expect(DSPreview.__testOnly__.get().delimiter).to.equal("");
-        //     expect($rmHightLightBtn.hasClass("active")).to.be.false;
-        //     expect($previewTable.find(".has-comma").length).to.equal(1);
-        // });
+        it("getSkipRows() should work", function() {
+            var $input = $("#dsForm-skipRows");
+            var getSkipRows = DSPreview.__testOnly__.getSkipRows;
+            // test1
+            $input.val("2");
+            expect(getSkipRows()).to.equal(2);
 
-        // it("Should toggle promote", function() {
-        //     var data = [["h", ",", "i"]];
-        //     DSPreview.__testOnly__.set("", false, "", data);
-        //     DSPreview.__testOnly__.getPreviewTable();
+            // test2
+            $input.val("");
+            expect(getSkipRows()).to.equal(0);
 
-        //     // toggle to have header
-        //     DSPreview.__testOnly__.togglePromote();
-        //     expect(DSPreview.__testOnly__.get().hasHeader).to.be.true;
-        //     expect($previewTable.find(".undo-promote").length).to.equal(1);
+            // test3
+            $input.val("abc");
+            expect(getSkipRows()).to.equal(0);
 
-        //     // toggle to remove header
-        //     DSPreview.__testOnly__.togglePromote();
-        //     expect(DSPreview.__testOnly__.get().hasHeader).to.be.false;
-        //     expect($previewTable.find(".undo-promote").length).to.equal(0);
-        // });
+            // test4
+            $input.val("-1");
+            expect(getSkipRows()).to.equal(0);
 
+            $input.val("");
+        });
 
+        it("applyFieldDelim() should work", function() {
+            var applyFieldDelim = DSPreview.__testOnly__.applyFieldDelim;
 
-    // describe("Format Change Test", function() {
-    //     beforeEach(function() {
-    //         DSForm.__testOnly__.resetForm();
-    //     });
+            // test1
+            applyFieldDelim("");
+            expect($fieldText.hasClass("nullVal")).to.be.true;
+            expect($fieldText.val()).to.equal("Null");
+            expect(loadArgs.getFieldDelim()).to.equal("");
 
-    //     it("Format Should be CSV", function() {
-    //         DSForm.__testOnly__.toggleFormat("CSV");
-    //         expect($formatText.data("format")).to.equal("CSV");
+            //test 2
+            applyFieldDelim(",");
+            expect($fieldText.hasClass("nullVal")).to.be.false;
+            expect($fieldText.val()).to.equal(",");
+            expect(loadArgs.getFieldDelim()).to.equal(",");
 
-    //         // UI part
-    //         assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
-    //         assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
-    //         assert.isTrue($csvDelim.is(":visible"), "has delimiter section");
-    //         assert.isTrue($fieldText.is(":visible"), "has field delimiter");
-    //         assert.isTrue($lineText.is(":visible"), "has line delimiter");
-    //     });
+            //test 3
+            applyFieldDelim("\t");
+            expect($fieldText.hasClass("nullVal")).to.be.false;
+            expect($fieldText.val()).to.equal("\\t");
+            expect(loadArgs.getFieldDelim()).to.equal("\t");
+        });
 
-    //     it("Format Should be JSON", function() {
-    //         DSForm.__testOnly__.toggleFormat("JSON");
-    //         expect($formatText.data("format")).to.equal("JSON");
+        it("applyLineDelim() should work", function() {
+            var applyLineDelim = DSPreview.__testOnly__.applyLineDelim;
 
-    //         // UI part
-    //         assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
-    //         assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
-    //         assert.isFalse($csvDelim.is(":visible"), "no delimiter section");
-    //     });
+            // test1
+            applyLineDelim("");
+            expect($lineText.hasClass("nullVal")).to.be.true;
+            expect($lineText.val()).to.equal("Null");
+            expect(loadArgs.getLineDelim()).to.equal("");
 
-    //     it("Format Should be Text", function() {
-    //         DSForm.__testOnly__.toggleFormat("Text");
-    //         expect($formatText.data("format")).to.equal("TEXT");
+            //test 2
+            applyLineDelim("\n");
+            expect($lineText.hasClass("nullVal")).to.be.false;
+            expect($lineText.val()).to.equal("\\n");
+            expect(loadArgs.getLineDelim()).to.equal("\n");
+        });
 
-    //         // UI part
-    //         assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
-    //         assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
-    //         assert.isTrue($csvDelim.is(":visible"), "has delimiter section");
-    //         assert.isFalse($fieldText.is(":visible"), "no field delimiter");
-    //         assert.isTrue($lineText.is(":visible"), "has line delimiter");
-    //     });
+        it("applyQuote() should work", function() {
+            var applyQuote = DSPreview.__testOnly__.applyQuote;
+            var $quote = $("#dsForm-quote");
 
-    //     it("Format Should be Excel", function() {
-    //         DSForm.__testOnly__.toggleFormat("Excel");
-    //         expect($formatText.data("format")).to.equal("EXCEL");
+            applyQuote("\'");
+            expect($quote.val()).to.equal("\'");
+            expect(loadArgs.getQuote()).to.equal("\'");
 
-    //         // UI part
-    //         assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
-    //         assert.isFalse($udfCheckbox.is(":visible"), "no udf checkbox");
-    //         assert.isFalse($csvDelim.is(":visible"), "no delimiter section");
-    //     });
+            // error case
+            applyQuote("test");
+            expect(loadArgs.getQuote()).not.to.equal("test");
+        });
 
-    //     after(function() {
-    //         DSForm.__testOnly__.resetForm();
-    //     });
-    // });
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
 
-    //  describe("Check UDF Test", function() {
-    //     var checkUDF;
+    describe("Format Change Test", function() {
+        before(function() {
+            $("#dsForm-preview").removeClass("xc-hidden")
+                                .siblings().addClass("xc-hidden");
+        });
 
-    //     before(function() {
-    //         checkUDF = DSForm.__testOnly__.checkUDF;
-    //         DSForm.__testOnly__.toggleFormat("CSV");
-    //     });
+        beforeEach(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
 
-    //     it("Should be valid with no udf", function() {
-    //         var res = checkUDF();
-    //         expect(res).to.be.an('object');
-    //         expect(res).to.have.property('isValid', true);
-    //         expect(res).to.have.property('hasUDF', false);
-    //         expect(res).to.have.property('moduleName', '');
-    //         expect(res).to.have.property('funcName', '');
-    //     });
+        it("Format Should be CSV", function() {
+            DSPreview.__testOnly__.toggleFormat("CSV");
+            expect($formatText.data("format")).to.equal("CSV");
 
-    //     it("Should be invalid with udf check but no module", function() {
-    //         $("#udfCheckbox .checkbox").click();
-    //         var res = checkUDF();
-    //         expect(res).to.be.an('object');
-    //         expect(res).to.have.property('isValid', false);
-    //         expect(res).to.have.property('hasUDF', true);
-    //         expect(res).to.have.property('moduleName', '');
-    //         expect(res).to.have.property('funcName', '');
-    //         // check status box
-    //         assert.isTrue($statusBox.is(":visible"), "see statux box");
-    //         assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
-    //     });
+            // UI part
+            assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
+            assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
+            assert.isTrue($fieldText.is(":visible"), "has field delimiter");
+            assert.isTrue($lineText.is(":visible"), "has line delimiter");
+            assert.isTrue($quoteInput.is(":visible"), "has quote char");
+            assert.isTrue($skipInput.is(":visible"), "has skip rows");
+        });
 
-    //     it("Should be invalid with no func", function() {
-    //         $("#udfArgs-moduleList .text").val("testModule");
-    //         var res = checkUDF();
-    //         expect(res).to.be.an('object');
-    //         expect(res).to.have.property('isValid', false);
-    //         expect(res).to.have.property('hasUDF', true);
-    //         expect(res).to.have.property('moduleName', 'testModule');
-    //         expect(res).to.have.property('funcName', '');
-    //         // check status box
-    //         assert.isTrue($statusBox.is(":visible"), "see statux box");
-    //         assert.equal($statusBox.find(".message").text(), ErrTStr.NoEmptyList);
-    //     });
+        it("Format Should be JSON", function() {
+            DSPreview.__testOnly__.toggleFormat("JSON");
+            expect($formatText.data("format")).to.equal("JSON");
 
-    //     it("Should be valid with module and func", function() {
-    //         $("#udfArgs-funcList .text").val("testFunc");
-    //         var res = checkUDF();
-    //         expect(res).to.be.an('object');
-    //         expect(res).to.have.property('isValid', true);
-    //         expect(res).to.have.property('hasUDF', true);
-    //         expect(res).to.have.property('moduleName', 'testModule');
-    //         expect(res).to.have.property('funcName', 'testFunc');
-    //     });
+            // UI part
+            assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
+            assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
+            assert.isFalse($fieldText.is(":visible"), "no field delimiter");
+            assert.isFalse($lineText.is(":visible"), "no line delimiter");
+            assert.isFalse($quoteInput.is(":visible"), "no quote char");
+            assert.isFalse($skipInput.is(":visible"), "no skip rows");
+        });
 
-    //     after(function() {
-    //         DSForm.__testOnly__.resetForm();
-    //     });
-    // });
+        it("Format Should be Text", function() {
+            DSPreview.__testOnly__.toggleFormat("Text");
+            expect($formatText.data("format")).to.equal("TEXT");
 
-    // describe("promoptHeaderAlert Test", function() {
-    //     var minModeCache;
-    //     var promoptHeaderAlert;
-    //     var $alertModal;
+            // UI part
+            assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
+            assert.isTrue($udfCheckbox.is(":visible"), "has udf checkbox");
+            assert.isFalse($fieldText.is(":visible"), "no field delimiter");
+            assert.isTrue($lineText.is(":visible"), "has line delimiter");
+            assert.isTrue($quoteInput.is(":visible"), "has quote char");
+            assert.isTrue($skipInput.is(":visible"), "has skip rows");
+        });
 
-    //     before(function() {
-    //         $alertModal = $("#alertModal");
-    //         promoptHeaderAlert = DSForm.__testOnly__.promoptHeaderAlert;
-    //     });
+        it("Format Should be Excel", function() {
+            DSPreview.__testOnly__.toggleFormat("Excel");
+            expect($formatText.data("format")).to.equal("EXCEL");
 
-    //     it("Should alert when CSV with no header", function(done) {
-    //         promoptHeaderAlert("CSV", false)
-    //         .always(function() {
-    //             assert.isFalse($alertModal.is(":visible"), "close alert");
-    //             done();
-    //         });
+            // UI part
+            assert.isFalse($udfCheckbox.is(":visible"), "no udf checkbox");
+            assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
+            assert.isFalse($fieldText.is(":visible"), "no field delimiter");
+            assert.isFalse($lineText.is(":visible"), "no line delimiter");
+            assert.isTrue($quoteInput.is(":visible"), "has quote char");
+            assert.isTrue($skipInput.is(":visible"), "has skip rows");
+        });
 
-    //         assert.isTrue($alertModal.is(":visible"), "see alert");
-    //         $alertModal.find(".close").click();
-    //     });
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+            DSForm.show({"noReset": true});
+        });
+    });
 
-    //     it("Should not alert when CSV with header", function(done) {
-    //         promoptHeaderAlert("CSV", true)
-    //         .always(function() {
-    //             assert.isFalse($alertModal.is(":visible"), "close alert");
-    //             done();
-    //         });
-    //     });
+    describe("UDF Func Test", function() {
+        before(function() {
+            $("#dsForm-preview").removeClass("xc-hidden")
+                                .siblings().addClass("xc-hidden");
+        });
 
-    //     it("Should alert when Raw with no header", function(done) {
-    //         promoptHeaderAlert("raw", false)
-    //         .always(function() {
-    //             assert.isFalse($alertModal.is(":visible"), "close alert");
-    //             done();
-    //         });
+        it("Should toggle UDF", function() {
+            var isUseUDF = DSPreview.__testOnly__.isUseUDF;
+            var $checkbox = $udfCheckbox.find(".checkbox");
 
-    //         assert.isTrue($alertModal.is(":visible"), "see alert");
-    //         $alertModal.find(".close").click();
-    //     });
+            // test 1
+            DSPreview.__testOnly__.toggleUDF(true); 
+            expect($udfArgs.hasClass("active")).to.be.true;
+            expect($checkbox.hasClass("checked")).to.be.true;
+            expect(isUseUDF()).to.be.true;
 
-    //     it("Should not alert when Raw with header", function(done) {
-    //         promoptHeaderAlert("raw", true)
-    //         .always(function() {
-    //             assert.isFalse($alertModal.is(":visible"), "close alert");
-    //             done();
-    //         });
-    //     });
+            // test 2
+            DSPreview.__testOnly__.toggleUDF(false);
+            expect($udfArgs.hasClass("active")).to.be.false;
+            expect($checkbox.hasClass("checked")).to.be.false;
+            expect(isUseUDF()).to.be.false;
+        });
 
-    //     it("Should alert when Excel with no header", function(done) {
-    //         promoptHeaderAlert("Excel", false)
-    //         .always(function() {
-    //             assert.isFalse($alertModal.is(":visible"), "close alert");
-    //             done();
-    //         });
+        it("Should have default UDF", function() {
+            DSPreview.__testOnly__.toggleUDF(true); 
+            expect($udfModuleList.find("input").val()).to.be.empty;
+            expect($udfFuncList.find("input").val()).to.be.empty;
 
-    //         assert.isTrue($alertModal.is(":visible"), "see alert");
-    //         $alertModal.find(".close").click();
-    //     });
+            // module default:openExcel should exists
+            expect($udfModuleList.find('li:contains(default)')).not.to.be.empty;
+            expect($udfFuncList.find('li:contains(openExcel)')).not.to.be.empty;
+        });
 
-    //     it("Should not alert when Excel with header", function(done) {
-    //         promoptHeaderAlert("Excel", true)
-    //         .always(function() {
-    //             assert.isFalse($alertModal.is(":visible"), "close alert");
-    //             done();
-    //         });
-    //     });
+        it("Should select a UDF module", function() {
+            DSPreview.__testOnly__.selectUDFModule("default");
+            expect($udfModuleList.find("input").val()).to.equal("default");
+            expect($udfFuncList.find("input").val()).to.be.empty;
+        });
 
-    //     it("Should not alert when format is JSON", function(done) {
-    //         promoptHeaderAlert("JSON", true)
-    //         .always(function() {
-    //             assert.isFalse($alertModal.is(":visible"), "close alert");
-    //             done();
-    //         });
-    //     });
-    // });
-    
-    // // remove to dsPreview
-    // // describe("UDF Func Test", function() {
-    // //     before(function() {
-    // //         DSForm.__testOnly__.toggleFormat("CSV");
-    // //         $udfCheckbox.find(".checkbox").click();
-    // //     });
+        it("Should select a UDF func", function() {
+            DSPreview.__testOnly__.selectUDFFunc("openExcel");
+            expect($udfModuleList.find("input").val()).to.equal("default");
+            expect($udfFuncList.find("input").val()).to.equal("openExcel");
+        });
 
-    // //     it("Should have default udf", function() {
-    // //         assert.isTrue($udfArgs.is(":visible"), "should see udf section");
-    // //         expect($udfModuleList.find("input").val()).to.be.empty;
-    // //         expect($udfFuncList.find("input").val()).to.be.empty;
+        it("Should validate UDF module", function() {
+            var validateUDFModule = DSPreview.__testOnly__.validateUDFModule;
+            expect(validateUDFModule("invalidModule")).to.be.false;
+            expect(validateUDFModule("default")).to.be.true;
+        });
 
-    // //         // module default:openExcel should exists
-    // //         expect($udfModuleList.find('li:contains(default)')).not.to.be.empty;
-    // //         expect($udfFuncList.find('li:contains(openExcel)')).not.to.be.empty;
-    // //     });
+        it("Should validate UDF module", function() {
+            var validateUDFFunc = DSPreview.__testOnly__.validateUDFFunc;
+            expect(validateUDFFunc("default", "invalidFunc")).to.be.false;
+            expect(validateUDFFunc("default", "openExcel")).to.be.true;
+        });
 
-    // //     it("Should select a udf module", function() {
-    // //         DSForm.__testOnly__.selectUDFModule("default");
-    // //         expect($udfModuleList.find("input").val()).to.equal("default");
-    // //         expect($udfFuncList.find("input").val()).to.be.empty;
-    // //     });
+        it("Should reset UDF", function() {
+            DSPreview.__testOnly__.resetUdfSection();
+            expect($udfModuleList.find("input").val()).to.be.empty;
+            expect($udfFuncList.find("input").val()).to.be.empty;
+        });
 
-    // //     it("Should select a udf func", function() {
-    // //         DSForm.__testOnly__.selectUDFFunc("openExcel");
-    // //         expect($udfModuleList.find("input").val()).to.equal("default");
-    // //         expect($udfFuncList.find("input").val()).to.equal("openExcel");
-    // //     });
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
 
-    // //     it("Should reset udf", function() {
-    // //         DSForm.__testOnly__.resetUdfSection();
-    // //         expect($udfModuleList.find("input").val()).to.be.empty;
-    // //         expect($udfFuncList.find("input").val()).to.be.empty;
-    // //     });
+    describe("Should validate form", function() {
+        var validateForm;
 
-    // //     after(function() {
-    // //         DSForm.__testOnly__.resetForm();
-    // //     });
-    // // });
+        before(function() {
+            validateForm = DSPreview.__testOnly__.validateForm;
+        });
 
-    // describe("Submit Form Test", function() {
-    //     var testDS;
+        it("Should validate name", function() {
+            var $dsName = $("#dsForm-dsName");
+            $dsName.val("");
 
-    //     before(function() {
-    //         testDS = xcHelper.uniqueRandName("testSuitesSp500", DS.has, 10);
-    //         $("#fileProtocol input").val(testDatasets.sp500.protocol);
-    //         $filePath.val(testDatasets.sp500.path);
-    //         $fileName.val(testDS);
-    //         // test the case when have header(otherwise it will have header prmopt)
-    //         $("#promoteHeaderCheckbox .checkbox").addClass("checked");
-    //     });
+            // test1
+            expect(validateForm()).to.be.null;
+            assert.isTrue($statusBox.is(":visible"));
+            $statusBox.click();
 
-    //     // no format is always not empty, default is CSV
-    //     // it("Should not allow empty format", function(done) {
-    //     //     DSForm.__testOnly__.submitForm()
-    //     //     .then(function() {
-    //     //         // Intentionally fail the test
-    //     //         throw "Fail Case!";
-    //     //     })
-    //     //     .fail(function(error) {
-    //     //         expect(error).to.equal("Checking Invalid");
-    //     //         done();
-    //     //     });
-    //     // });
+            // test2
+            var name = new Array(350).join("a");
+            $dsName.val(name);
+            expect(validateForm()).to.be.null;
+            assert.isTrue($statusBox.is(":visible"));
+            expect($statusBox.find(".message").text()).to.equal(ErrTStr.TooLong);
+            $statusBox.click();
 
-    //     it("Should not pass invalid url", function(done) {
-    //         DSForm.__testOnly__.toggleFormat("CSV");
-    //         $filePath.val("netstore/datasets/sp500-invalidurl");
+            // test3
+            var oldhas = DS.has;
+            DS.has = function() { return true };
+            $dsName.val("test");
+            expect(validateForm()).to.be.null;
+            assert.isTrue($statusBox.is(":visible"));
+            expect($statusBox.find(".message").text()).to.equal(ErrTStr.DSNameConfilct);
+            $statusBox.click();
+            DS.has = oldhas;
 
-    //         DSForm.__testOnly__.submitForm()
-    //         .then(function() {
-    //             // Intentionally fail the test
-    //             throw "Fail Case!";
-    //         })
-    //         .fail(function(error) {
-    //             console.log(error)
-    //             expect(error).to.be.an("object")
-    //             expect(error.status).to.equal(StatusT.StatusNoEnt);
-    //             done();
-    //         });
-    //     });
+            // test4
+            $dsName.val("test*test");
+            expect(validateForm()).to.be.null;
+            assert.isTrue($statusBox.is(":visible"));
+            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoSpecialCharOrSpace);
+            $statusBox.click();
 
-    //     it("Should load ds", function(done) {
-    //         DSForm.__testOnly__.toggleFormat("CSV");
-    //         $filePath.val("netstore/datasets/sp500.csv");
+            $dsName.val("test");
+        });
 
-    //         var $grid;
+        it("Should validate format", function() {
+            loadArgs.setFormat(null);
+            expect(validateForm()).to.be.null;
+            assert.isTrue($statusBox.is(":visible"));
+            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
+            $statusBox.click();
 
-    //         DSForm.__testOnly__.submitForm()
-    //         .then(function() {
-    //             expect(DS.has(testDS)).to.be.true;
-    //             $grid = DS.getGridByName(testDS);
-    //             expect($grid).not.to.be.null;
+            loadArgs.setFormat("CSV");
+        });
 
-    //             var innerDeferred = jQuery.Deferred();
-    //             // dealy delete ds since show the sample table needs time
-    //             setTimeout(function() {
-    //                 var dsObj = DS.getDSObj($grid.data("dsid"));
-    //                 DS.__testOnly__.delDSHelper($grid, dsObj)
-    //                 .then(innerDeferred.resolve)
-    //                 .fail(innerDeferred.reject);
-    //             }, 300);
-    //             return innerDeferred.promise();
-    //         })
-    //         .then(function() {
-    //             // make sure ds is deleted
-    //             expect(DS.has(testDS)).to.be.false;
-    //             $grid = DS.getGridByName(testDS);
-    //             expect($grid).to.be.null;
-    //             done();
-    //         })
-    //         .fail(function(error) {
-    //             // Intentionally fail the test
-    //             throw "Fail Case!";
-    //         });
-    //     });
-    // });
+        it("Should validate UDF", function() {
+            $udfCheckbox.find(".checkbox").click();
+            $udfModuleList.find("input").val("");
 
-    after(function() {
-        $("#promoteHeaderCheckbox .checkbox").removeClass("checked");
+            // empty module test
+            expect(validateForm()).to.be.null;
+            assert.isTrue($statusBox.is(":visible"));
+            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
+            $statusBox.click();
+
+            // empty func test
+            $udfModuleList.find("input").val("default");
+            $udfFuncList.find("input").val("");
+            expect(validateForm()).to.be.null;
+            assert.isTrue($statusBox.is(":visible"));
+            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
+            $statusBox.click();
+
+            // valid test
+            $udfFuncList.find("input").val("openExcel");
+            expect(validateForm()).not.to.be.null;
+
+            // remove UDF checkbox
+            $udfCheckbox.find(".checkbox").click();
+            expect(validateForm()).not.to.be.null;
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
+
+    describe("Show Preview and Submit Test", function() {
+        before(function() {
+            DSPreview.__testOnly__.resetForm();
+            DSForm.show({"noReset": true});
+        });
+
+        it("DSPreview.show() should work", function(done) {
+            var loadUrl = testDatasets.sp500.protocol + testDatasets.sp500.path;
+            DSPreview.show({"path": loadUrl}, true)
+            .then(function() {
+                expect($previewTable.html()).not.to.equal("");
+                expect($formatText.data("format")).to.equal("CSV");
+                expect($headerCheckBox.find(".checkbox").hasClass("checked"))
+                .to.be.false;
+                expect($udfCheckbox.find(".checkbox").hasClass("checked"))
+                .to.be.false;
+                expect($lineText.val()).to.equal("\\n");
+                expect($fieldText.val()).to.equal("\\t");
+                expect($quoteInput.val()).to.equal("\"");
+                expect($skipInput.val()).to.equal("0");
+                done();
+            })
+            .fail(function() {
+                throw "Fail Case!";
+            });
+        });
+
+        it("Should sumibt form and load ds", function(done) {
+            var testDS = xcHelper.uniqueRandName("testSuitesSp500", DS.has, 10);
+            $("#dsForm-dsName").val(testDS);
+            var $grid;
+
+            DSPreview.__testOnly__.submitForm()
+            .then(function() {
+                expect(DS.has(testDS)).to.be.true;
+                $grid = DS.getGridByName(testDS);
+                expect($grid).not.to.be.null;
+
+                var innerDeferred = jQuery.Deferred();
+                // dealy delete ds since show the sample table needs time
+                setTimeout(function() {
+                    var dsObj = DS.getDSObj($grid.data("dsid"));
+                    DS.__testOnly__.delDSHelper($grid, dsObj)
+                    .then(innerDeferred.resolve)
+                    .fail(innerDeferred.reject);
+                }, 300);
+                return innerDeferred.promise();
+            })
+            .then(function() {
+                // make sure ds is deleted
+                expect(DS.has(testDS)).to.be.false;
+                $grid = DS.getGridByName(testDS);
+                expect($grid).to.be.null;
+                done();
+            })
+            .fail(function(error) {
+                // Intentionally fail the test
+                throw "Fail Case!";
+            });
+        });
     });
 }

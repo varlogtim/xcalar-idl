@@ -125,12 +125,12 @@ window.DSPreview = (function($, DSPreview) {
 
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
-            previewData(excelModule, excelFunc);
+            return previewData(ecelModule, excelFunc);
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)
             loadArgs.setFormat(null);
-            previewData(null, null);
+            return previewData(null, null);
         }
     };
 
@@ -160,7 +160,7 @@ window.DSPreview = (function($, DSPreview) {
             // when preview table not shows up
             return PromiseHelper.resolve(null);
         } else {
-            return clearAll();
+            return clearPreviewTable();
         }
     };
 
@@ -300,7 +300,7 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             resetForm();
-            clearAll();
+            clearPreviewTable();
             if (backToFormCard) {
                 DSForm.show({"noReset": true});
             } else {
@@ -320,26 +320,6 @@ window.DSPreview = (function($, DSPreview) {
             });
         });
     }
-
-    // function promoptHeaderAlert(format, hasHeader) {
-    //     var deferred = jQuery.Deferred();
-    //     if (!hasHeader &&
-    //         (format === formatMap.CSV ||
-    //         format === formatMap.TEXT ||
-    //         format === formatMap.EXCEL)) {
-
-    //         Alert.show({
-    //             "title"    : DSFormTStr.LoadConfirm,
-    //             "msg"      : DSFormTStr.NoHeader,
-    //             "onConfirm": function() { deferred.resolve(); },
-    //             "onCancel" : function() { deferred.reject("canceled"); }
-    //         });
-    //     } else {
-    //         deferred.resolve();
-    //     }
-
-    //     return deferred.promise();
-    // }
 
     function listUDFSection() {
         var deferred = jQuery.Deferred();
@@ -465,125 +445,34 @@ window.DSPreview = (function($, DSPreview) {
         $udfFuncList.find("input").val(func);
     }
 
-    function getNameFromPath(path) {
-        var pathLen = path.length;
-        if (path.charAt(pathLen - 1) === "/") {
-            // remove the last /
-            path = path.substring(0, pathLen - 1);
+    function toggleUDF(usUDF) {
+        var $checkbox = $("#udfCheckbox").find(".checkbox");
+        var $udfArgs = $("#udfArgs");
+
+        if (usUDF) {
+            $checkbox.addClass("checked");
+            $udfArgs.addClass("active");
+        } else {
+            $checkbox.removeClass("checked");
+            $udfArgs.removeClass("active");
         }
-
-        var slashIndex = path.lastIndexOf("/");
-        var name = path.substring(slashIndex + 1);
-
-        var index = name.lastIndexOf(".");
-        // Also, we need to strip special characters. For now,
-        // we only keeo a-zA-Z0-9. They can always add it back if they want
-
-        if (index >= 0) {
-            name = name.substring(0, index);
-        }
-
-        name = name.replace(/[^a-zA-Z0-9]/g, "");
-        var originalName = name;
-        var tries = 1;
-        var validNameFound = false;
-        while (!validNameFound && tries < 20) {
-            if (DS.has(name)) {
-                validNameFound = false;
-            } else {
-                validNameFound = true;
-            }
-
-            if (!validNameFound) {
-                name = originalName + tries;
-                tries++;
-            }
-        }
-
-        if (!validNameFound) {
-            while (DS.has(name) && tries < 100) {
-                name = xcHelper.randName(name, 4);
-                tries++;
-            }
-        }
-
-        return name;
     }
 
-    function toggleFormat(format, text) {
-        if (format && $formatText.data("format") === format.toUpperCase()) {
-            return;
+    function cacheUDF(udfModule, udfFunc) {
+        // cache udf module and func name
+        if (udfModule !== "" && udfFunc !== "") {
+            lastUDFModule = udfModule;
+            lastUDFFunc = udfFunc;
         }
-
-        var $lineDelim = $("#lineDelim").parent().removeClass("xc-hidden");
-        var $fieldDelim = $("#fieldDelim").parent().removeClass("xc-hidden");
-        var $udfArgs = $("#udfArgs").removeClass("xc-hidden");
-        var $headerRow = $headerCheckBox.parent().removeClass("xc-hidden");
-        var $quoteRow = $quote.closest(".row").removeClass("xc-hidden");
-        var $skipRows = $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
-
-        if (format == null) {
-            // reset case
-            $lineDelim.addClass("xc-hidden");
-            $fieldDelim.addClass("xc-hidden");
-            $headerRow.addClass("xc-hidden");
-            $formatText.data("format", "").val("");
-            loadArgs.setFormat(null);
-            return;
-        }
-
-        format = format.toUpperCase();
-        if (text == null) {
-            text = $('#fileFormatMenu li[name="' + format + '"]').text();
-        }
-
-        $formatText.data("format", format).val(text);
-
-        switch (format) {
-            case "CSV":
-                $skipRows.removeClass("");
-                setFieldDelim();
-                break;
-            case "TEXT":
-                // no field delimiter when format is text
-                $fieldDelim.addClass("xc-hidden");
-                loadArgs.setFieldDelim("");
-                break;
-            case "EXCEL":
-                $lineDelim.addClass("xc-hidden");
-                $fieldDelim.addClass("xc-hidden");
-                // excel not use udf section
-                $udfArgs.addClass("xc-hidden");
-                break;
-
-            // json and random
-            case "JSON":
-            case "RANDOM":
-                // json and random
-                // Note: random is setup in shortcuts.js,
-                // so prod build will not have it
-                $headerRow.addClass("xc-hidden");
-                $lineDelim.addClass("xc-hidden");
-                $fieldDelim.addClass("xc-hidden");
-                $skipRows.addClass("xc-hidden");
-                $quoteRow.addClass("xc-hidden");
-                break;
-            default:
-                throw new ReferenceError("Format Not Support");
-        }
-
-        loadArgs.setFormat(formatMap[format]);
     }
 
-    function resetDelimiter() {
-        // to show \t, \ should be escaped
-        $("#fieldText").val("Null").addClass("nullVal");
-        $("#lineText").val("\\n").removeClass("nullVal");
+    function isUseUDF() {
+        return $("#udfCheckbox").find(".checkbox").hasClass("checked");
     }
 
     function resetForm() {
         $form.find("input").val("");
-        $("#dsForm-skipRows").val(0);
+        $("#dsForm-skipRows").val("0");
         $form.find(".checkbox.checked").removeClass("checked");
         // keep the current protocol
         loadArgs.reset();
@@ -596,260 +485,11 @@ window.DSPreview = (function($, DSPreview) {
         };
         resetUdfSection();
         toggleFormat();
-        resetDelimiter();
-        applyHighlight(""); // remove highlighter
-    }
 
-    function clearAll() {
-        var deferred = jQuery.Deferred();
-
-        $previewTable.removeClass("has-delimiter").empty();
-
-        rawData = null;
-
-        if (tableName != null) {
-            var dsName = tableName;
-            tableName = null;
-            var sql = {
-                "operation": SQLOps.DestroyPreviewDS,
-                "dsName"   : dsName
-            };
-            var txId = Transaction.start({
-                "operation": SQLOps.DestroyPreviewDS,
-                "sql"      : sql
-            });
-
-            XcalarDestroyDataset(dsName, txId)
-            .then(function() {
-                Transaction.done(txId, {
-                    "noCommit": true,
-                    "noSql"   : true
-                });
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                Transaction.fail(txId, {
-                    "error"  : error,
-                    "noAlert": true
-                });
-                deferred.reject(error);
-            });
-        } else {
-            deferred.resolve();
-        }
-
-        return deferred.promise();
-    }
-
-    function sampleData(datasetName, rowsToFetch) {
-        var deferred = jQuery.Deferred();
-        var resultSetId;
-
-        XcalarMakeResultSetFromDataset(datasetName)
-        .then(function(result) {
-            resultSetId = result.resultSetId;
-            var totalEntries = result.numEntries;
-            if (totalEntries === 0) {
-                return PromiseHelper.resolve(null);
-            } else {
-                return XcalarFetchData(resultSetId, 0, rowsToFetch,
-                                        totalEntries, []);
-            }
-        })
-        .then(function(result) {
-            // no need for resultSetId as we only need 40 samples
-            XcalarSetFree(resultSetId);
-            deferred.resolve(result);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function previewData(udfModule, udfFunc, noDetect) {
-        var deferred = jQuery.Deferred();
-
-        var loadURL = loadArgs.getPath();
-        var dsName = getNameFromPath(loadURL);
-        $("#dsForm-dsName").val(dsName);
-        var pattern = loadArgs.getPattern();
-        if (pattern != null) {
-            loadURL += pattern;
-        }
-
-        var isRecur = loadArgs.useRecur();
-        var hasUDF = false;
-
-        if (udfModule && udfFunc) {
-            hasUDF = true;
-        } else if (!udfModule && !udfFunc) {
-            hasUDF = false;
-        } else {
-            // when udf module == null or udf func == null
-            // it's an error case
-            return PromiseHelper.reject("Error Case!");
-        }
-
-        var $loadHiddenSection = $previeWrap.find(".loadHidden").addClass("hidden");
-        var $waitSection = $previeWrap.find(".waitSection")
-                                    .removeClass("hidden");
-        $previeWrap.find(".errorSection").addClass("hidden");
-        var sql = {
-            "operation" : SQLOps.PreviewDS,
-            "dsPath"    : loadURL,
-            "dsName"    : dsName,
-            "moduleName": udfModule,
-            "funcName"  : udfFunc,
-            "isRecur"   : isRecur
-        };
-
-        var txId = Transaction.start({
-            "operation": SQLOps.PreviewDS,
-            "sql"      : sql
-        });
-
-        $("#preview-url").text(loadURL);
-
-        var initialLoadArgStr;
-        if (!noDetect) {
-            initialLoadArgStr = JSON.stringify(loadArgs);
-        }
-
-        var promise;
-        if (hasUDF) {
-            promise = loadDataWithUDF(txId, loadURL, dsName,
-                                        udfModule, udfFunc, isRecur);
-        } else {
-            promise = loadData(loadURL, isRecur);
-        }
-
-        promise
-        .then(function(result) {
-            $waitSection.addClass("hidden");
-            rawData = result;
-
-            $loadHiddenSection.removeClass("hidden");
-
-            getPreviewTable();
-
-            if (!noDetect) {
-                var currentLoadArgStr = JSON.stringify(loadArgs);
-                // when user not do any modification, then do smart detect
-                if (initialLoadArgStr === currentLoadArgStr) {
-                    smartDetect();
-                }
-            }
-
-            // not cache to sql log, only show when fail
-            Transaction.done(txId, {
-                "noCommit": true,
-                "noSql"   : true
-            });
-
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Transaction.fail(txId, {
-                "error"  : error,
-                "noAlert": true
-            });
-
-            errorHandler(error);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
-    function errorHandler(error) {
-        if (typeof error === "object") {
-            error = JSON.stringify(error);
-        }
-
-        $previeWrap.find(".waitSection").addClass("hidden");
-        $previeWrap.find(".errorSection")
-                .html(error).removeClass("hidden");
-        $previeWrap.find(".loadHidden").addClass("hidden");
-    }
-
-    function loadData(loadURL, isRecur) {
-        var deferred = jQuery.Deferred();
-
-        XcalarPreview(loadURL, isRecur, numBytesRequest)
-        .then(function(res) {
-            deferred.resolve(res.buffer);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur) {
-        var deferred = jQuery.Deferred();
-        var loadError = null;
-
-        var tempDSName = getPreviewTableName(dsName);
-        tableName = tempDSName;
-
-        var previewSize = loadArgs.getPreviewSize();
-
-        XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
-                    false, udfModule, udfFunc, isRecur,
-                    previewSize, gDefaultQDelim, 0, false, txId)
-        .then(function(ret, error) {
-            loadError = error;
-        })
-        .then(function() {
-            return sampleData(tempDSName, rowsToFetch);
-        })
-        .then(function(result) {
-            if (!result) {
-                var error = DSTStr.NoRecords;
-                if (loadError) {
-                    error += '\n' + loadError;
-                } else {
-                    // XXX temporary code, after change to XcalarPreview, remove it
-                    error += '\n' + DSTStr.NoRecrodsHint;
-                }
-
-                deferred.reject({"error": error});
-                return PromiseHelper.resolve(null);
-            }
-
-            if (loadError) {
-                // XXX find a better way to handle it
-                console.warn(loadError);
-            }
-
-            var buffer = [];
-
-            var value;
-            var json;
-
-            try {
-                for (var i = 0, len = result.length; i < len; i++) {
-                    value = result[i].value;
-                    json = $.parseJSON(value);
-                    // get unique keys
-                    for (var key in json) {
-                        if (key === "recordNum") {
-                            continue;
-                        }
-                        buffer.push(json[key]);
-                    }
-                }
-
-                var bufferStr = buffer.join("\n");
-                // deferred.resolve(res, bufferStr);
-                deferred.resolve(bufferStr);
-            } catch (err) {
-                console.error(err, value);
-                deferred.reject({"error": DSTStr.NoParse});
-            }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        // reset delimiter fields
+        // to show \t, \ should be escaped
+        $("#fieldText").val("Null").addClass("nullVal");
+        $("#lineText").val("\\n").removeClass("nullVal");
     }
 
     function submitForm() {
@@ -1052,12 +692,442 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function cacheUDF(udfModule, udfFunc) {
-        // cache udf module and func name
-        if (udfModule !== "" && udfFunc !== "") {
-            lastUDFModule = udfModule;
-            lastUDFFunc = udfFunc;
+    function getNameFromPath(path) {
+        var pathLen = path.length;
+        if (path.charAt(pathLen - 1) === "/") {
+            // remove the last /
+            path = path.substring(0, pathLen - 1);
         }
+
+        var slashIndex = path.lastIndexOf("/");
+        var name = path.substring(slashIndex + 1);
+
+        var index = name.lastIndexOf(".");
+        // Also, we need to strip special characters. For now,
+        // we only keeo a-zA-Z0-9. They can always add it back if they want
+
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+
+        name = name.replace(/[^a-zA-Z0-9]/g, "");
+        var originalName = name;
+        var tries = 1;
+        var validNameFound = false;
+        while (!validNameFound && tries < 20) {
+            if (DS.has(name)) {
+                validNameFound = false;
+            } else {
+                validNameFound = true;
+            }
+
+            if (!validNameFound) {
+                name = originalName + tries;
+                tries++;
+            }
+        }
+
+        if (!validNameFound) {
+            while (DS.has(name) && tries < 100) {
+                name = xcHelper.randName(name, 4);
+                tries++;
+            }
+        }
+
+        return name;
+    }
+
+    function getSkipRows() {
+        var skipRows = Number($("#dsForm-skipRows").val());
+        if (isNaN(skipRows) || skipRows < 0) {
+            skipRows = 0;
+        }
+        return skipRows;
+    }
+
+    function applyFieldDelim(strToDelimit) {
+        // may have error case
+        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+        highlighter = "";
+
+        if (strToDelimit === "") {
+            $fieldText.val("Null").addClass("nullVal");
+        } else {
+            $fieldText.val(strToDelimit).removeClass("nullVal");
+        }
+
+        setFieldDelim();
+    }
+
+    function applyLineDelim(strToDelimit) {
+        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+    
+        if (strToDelimit === "") {
+            $lineText.val("Null").addClass("nullVal");
+        } else {
+            $lineText.val(strToDelimit).removeClass("nullVal");
+        }
+
+        setLineDelim();
+    }
+
+    function applyQuote(quote) {
+        $quote.val(quote);
+        setQuote();
+    }
+
+    function setFieldDelim() {
+        var fieldDelim = xcHelper.delimiterTranslate($fieldText);
+
+        if (typeof fieldDelim === "object") {
+            // error case
+            return;
+        }
+
+        loadArgs.setFieldDelim(fieldDelim);
+    }
+
+    function setLineDelim() {
+        var lineDelim = xcHelper.delimiterTranslate($lineText);
+
+        if (typeof lineDelim === "object") {
+            // error case
+            return;
+        }
+
+        loadArgs.setLineDelim(lineDelim);
+    }
+
+    function setQuote() {
+        var quote = xcHelper.delimiterTranslate($quote);
+
+        if (typeof quote === "object") {
+            // error case
+            return;
+        }
+
+        if (quote.length !== 1) {
+            return;
+        }
+
+        loadArgs.setQuote(quote);
+    }
+
+    function toggleFormat(format, text) {
+        if (format && $formatText.data("format") === format.toUpperCase()) {
+            return;
+        }
+
+        var $lineDelim = $("#lineDelim").parent().removeClass("xc-hidden");
+        var $fieldDelim = $("#fieldDelim").parent().removeClass("xc-hidden");
+        var $udfArgs = $("#udfArgs").removeClass("xc-hidden");
+        var $headerRow = $headerCheckBox.parent().removeClass("xc-hidden");
+        var $quoteRow = $quote.closest(".row").removeClass("xc-hidden");
+        var $skipRows = $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
+
+        if (format == null) {
+            // reset case
+            $lineDelim.addClass("xc-hidden");
+            $fieldDelim.addClass("xc-hidden");
+            $headerRow.addClass("xc-hidden");
+            $formatText.data("format", "").val("");
+            loadArgs.setFormat(null);
+            return;
+        }
+
+        format = format.toUpperCase();
+        if (text == null) {
+            text = $('#fileFormatMenu li[name="' + format + '"]').text();
+        }
+
+        $formatText.data("format", format).val(text);
+
+        switch (format) {
+            case "CSV":
+                $skipRows.removeClass("");
+                setFieldDelim();
+                break;
+            case "TEXT":
+                // no field delimiter when format is text
+                $fieldDelim.addClass("xc-hidden");
+                loadArgs.setFieldDelim("");
+                break;
+            case "EXCEL":
+                $lineDelim.addClass("xc-hidden");
+                $fieldDelim.addClass("xc-hidden");
+                // excel not use udf section
+                $udfArgs.addClass("xc-hidden");
+                break;
+
+            // json and random
+            case "JSON":
+            case "RANDOM":
+                // json and random
+                // Note: random is setup in shortcuts.js,
+                // so prod build will not have it
+                $headerRow.addClass("xc-hidden");
+                $lineDelim.addClass("xc-hidden");
+                $fieldDelim.addClass("xc-hidden");
+                $skipRows.addClass("xc-hidden");
+                $quoteRow.addClass("xc-hidden");
+                break;
+            default:
+                throw new ReferenceError("Format Not Support");
+        }
+
+        loadArgs.setFormat(formatMap[format]);
+    }
+
+    function clearPreviewTable() {
+        var deferred = jQuery.Deferred();
+        applyHighlight(""); // remove highlighter
+        $previewTable.removeClass("has-delimiter").empty();
+
+        rawData = null;
+
+        if (tableName != null) {
+            var dsName = tableName;
+            tableName = null;
+            var sql = {
+                "operation": SQLOps.DestroyPreviewDS,
+                "dsName"   : dsName
+            };
+            var txId = Transaction.start({
+                "operation": SQLOps.DestroyPreviewDS,
+                "sql"      : sql
+            });
+
+            XcalarDestroyDataset(dsName, txId)
+            .then(function() {
+                Transaction.done(txId, {
+                    "noCommit": true,
+                    "noSql"   : true
+                });
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                Transaction.fail(txId, {
+                    "error"  : error,
+                    "noAlert": true
+                });
+                deferred.reject(error);
+            });
+        } else {
+            deferred.resolve();
+        }
+
+        return deferred.promise();
+    }
+
+    function previewData(udfModule, udfFunc, noDetect) {
+        var deferred = jQuery.Deferred();
+
+        var loadURL = loadArgs.getPath();
+        var dsName = getNameFromPath(loadURL);
+        $("#dsForm-dsName").val(dsName);
+        var pattern = loadArgs.getPattern();
+        if (pattern != null) {
+            loadURL += pattern;
+        }
+
+        var isRecur = loadArgs.useRecur();
+        var hasUDF = false;
+
+        if (udfModule && udfFunc) {
+            hasUDF = true;
+        } else if (!udfModule && !udfFunc) {
+            hasUDF = false;
+        } else {
+            // when udf module == null or udf func == null
+            // it's an error case
+            return PromiseHelper.reject("Error Case!");
+        }
+
+        var $loadHiddenSection = $previeWrap.find(".loadHidden").addClass("hidden");
+        var $waitSection = $previeWrap.find(".waitSection")
+                                    .removeClass("hidden");
+        $previeWrap.find(".errorSection").addClass("hidden");
+        var sql = {
+            "operation" : SQLOps.PreviewDS,
+            "dsPath"    : loadURL,
+            "dsName"    : dsName,
+            "moduleName": udfModule,
+            "funcName"  : udfFunc,
+            "isRecur"   : isRecur
+        };
+
+        var txId = Transaction.start({
+            "operation": SQLOps.PreviewDS,
+            "sql"      : sql
+        });
+
+        $("#preview-url").text(loadURL);
+
+        var initialLoadArgStr;
+        if (!noDetect) {
+            initialLoadArgStr = JSON.stringify(loadArgs);
+        }
+
+        var promise;
+        if (hasUDF) {
+            promise = loadDataWithUDF(txId, loadURL, dsName,
+                                        udfModule, udfFunc, isRecur);
+        } else {
+            promise = loadData(loadURL, isRecur);
+        }
+
+        promise
+        .then(function(result) {
+            $waitSection.addClass("hidden");
+            rawData = result;
+
+            $loadHiddenSection.removeClass("hidden");
+
+            getPreviewTable();
+
+            if (!noDetect) {
+                var currentLoadArgStr = JSON.stringify(loadArgs);
+                // when user not do any modification, then do smart detect
+                if (initialLoadArgStr === currentLoadArgStr) {
+                    smartDetect();
+                }
+            }
+
+            // not cache to sql log, only show when fail
+            Transaction.done(txId, {
+                "noCommit": true,
+                "noSql"   : true
+            });
+
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            Transaction.fail(txId, {
+                "error"  : error,
+                "noAlert": true
+            });
+
+            errorHandler(error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function sampleData(datasetName, rowsToFetch) {
+        var deferred = jQuery.Deferred();
+        var resultSetId;
+
+        XcalarMakeResultSetFromDataset(datasetName)
+        .then(function(result) {
+            resultSetId = result.resultSetId;
+            var totalEntries = result.numEntries;
+            if (totalEntries === 0) {
+                return PromiseHelper.resolve(null);
+            } else {
+                return XcalarFetchData(resultSetId, 0, rowsToFetch,
+                                        totalEntries, []);
+            }
+        })
+        .then(function(result) {
+            // no need for resultSetId as we only need 40 samples
+            XcalarSetFree(resultSetId);
+            deferred.resolve(result);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function errorHandler(error) {
+        if (typeof error === "object") {
+            error = JSON.stringify(error);
+        }
+
+        $previeWrap.find(".waitSection").addClass("hidden");
+        $previeWrap.find(".errorSection")
+                .html(error).removeClass("hidden");
+        $previeWrap.find(".loadHidden").addClass("hidden");
+    }
+
+    function loadData(loadURL, isRecur) {
+        var deferred = jQuery.Deferred();
+
+        XcalarPreview(loadURL, isRecur, numBytesRequest)
+        .then(function(res) {
+            deferred.resolve(res.buffer);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur) {
+        var deferred = jQuery.Deferred();
+        var loadError = null;
+
+        var tempDSName = getPreviewTableName(dsName);
+        tableName = tempDSName;
+
+        var previewSize = loadArgs.getPreviewSize();
+
+        XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
+                    false, udfModule, udfFunc, isRecur,
+                    previewSize, gDefaultQDelim, 0, false, txId)
+        .then(function(ret, error) {
+            loadError = error;
+        })
+        .then(function() {
+            return sampleData(tempDSName, rowsToFetch);
+        })
+        .then(function(result) {
+            if (!result) {
+                var error = DSTStr.NoRecords;
+                if (loadError) {
+                    error += '\n' + loadError;
+                } else {
+                    // XXX temporary code, after change to XcalarPreview, remove it
+                    error += '\n' + DSTStr.NoRecrodsHint;
+                }
+
+                deferred.reject({"error": error});
+                return PromiseHelper.resolve(null);
+            }
+
+            if (loadError) {
+                // XXX find a better way to handle it
+                console.warn(loadError);
+            }
+
+            var buffer = [];
+
+            var value;
+            var json;
+
+            try {
+                for (var i = 0, len = result.length; i < len; i++) {
+                    value = result[i].value;
+                    json = $.parseJSON(value);
+                    // get unique keys
+                    for (var key in json) {
+                        if (key === "recordNum") {
+                            continue;
+                        }
+                        buffer.push(json[key]);
+                    }
+                }
+
+                var bufferStr = buffer.join("\n");
+                // deferred.resolve(res, bufferStr);
+                deferred.resolve(bufferStr);
+            } catch (err) {
+                console.error(err, value);
+                deferred.reject({"error": DSTStr.NoParse});
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function autoPreview() {
@@ -1103,7 +1173,7 @@ window.DSPreview = (function($, DSPreview) {
             udfFunc = res.udfFunc;
         }
 
-        clearAll()
+        clearPreviewTable()
         .then(function() {
             return previewData(udfModule, udfFunc, true);
         })
@@ -1184,19 +1254,6 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function toggleUDF(usUDF) {
-        var $checkbox = $("#udfCheckbox").find(".checkbox");
-        var $udfArgs = $("#udfArgs");
-
-        if (usUDF) {
-            $checkbox.addClass("checked");
-            $udfArgs.addClass("active");
-        } else {
-            $checkbox.removeClass("checked");
-            $udfArgs.removeClass("active");
-        }
-    }
-
     function toggleHeader(promote, changePreview) {
         loadArgs.setHeader(promote);
         var hasHeader = loadArgs.useHeader();
@@ -1249,86 +1306,6 @@ window.DSPreview = (function($, DSPreview) {
             $headers.eq(0).empty()
                     .closest("th").removeClass("undo-promote");
         }
-    }
-
-    function isUseUDF() {
-        return $("#udfCheckbox").find(".checkbox").hasClass("checked");
-    }
-
-    function setFieldDelim() {
-        var fieldDelim = xcHelper.delimiterTranslate($fieldText);
-
-        if (typeof fieldDelim === "object") {
-            // error case
-            return;
-        }
-
-        loadArgs.setFieldDelim(fieldDelim);
-    }
-
-    function setLineDelim() {
-        var lineDelim = xcHelper.delimiterTranslate($lineText);
-
-        if (typeof lineDelim === "object") {
-            // error case
-            return;
-        }
-
-        loadArgs.setLineDelim(lineDelim);
-    }
-
-    function setQuote() {
-        var quote = xcHelper.delimiterTranslate($quote);
-
-        if (typeof quote === "object") {
-            // error case
-            return;
-        }
-
-        if (quote.length !== 1) {
-            return;
-        }
-
-        loadArgs.setQuote(quote);
-    }
-
-    function getSkipRows() {
-        var skipRows = Number($("#dsForm-skipRows").val());
-        if (isNaN(skipRows) || skipRows < 0) {
-            skipRows = 0;
-        }
-        return skipRows;
-    }
-
-    function applyFieldDelim(strToDelimit) {
-        // may have error case
-        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-        highlighter = "";
-
-        if (strToDelimit === "") {
-            $fieldText.val("Null").addClass("nullVal");
-        } else {
-            $fieldText.val(strToDelimit).removeClass("nullVal");
-        }
-        
-        setFieldDelim();
-    }
-
-    function applyLineDelim(strToDelimit) {
-        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-    
-        if (strToDelimit === "") {
-            $lineText.val("Null").addClass("nullVal");
-        } else {
-            $lineText.val(strToDelimit).removeClass("nullVal");
-        }
-
-        setLineDelim();
-    }
-
-    function applyQuote(quote) {
-        $quote.val(quote);
-        setQuote();
     }
 
     function applyHighlight(str) {
@@ -1934,22 +1911,31 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.getTheadHTML = getTheadHTML;
         DSPreview.__testOnly__.getPreviewTableName = getPreviewTableName;
         DSPreview.__testOnly__.highlightHelper = highlightHelper;
+        DSPreview.__testOnly__.toggleHeader = toggleHeader;
         DSPreview.__testOnly__.detectFormat = detectFormat;
         DSPreview.__testOnly__.detectFieldDelim = detectFieldDelim;
         DSPreview.__testOnly__.detectHeader = detectHeader;
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
-        // DSPreview.__testOnly__.applyDelim = applyDelim;
-        // DSPreview.__testOnly__.togglePromote = togglePromote;
-        DSPreview.__testOnly__.clearAll = clearAll;
+        DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
 
-         // DSForm.__testOnly__.submitForm = submitForm;
-        // DSForm.__testOnly__.toggleFormat = toggleFormat;
-        // DSForm.__testOnly__.checkUDF = checkUDF;
-        // DSForm.__testOnly__.promoptHeaderAlert = promoptHeaderAlert;
-        // DSForm.__testOnly__.resetDelimiter = resetDelimiter;
-        // DSForm.__testOnly__.resetUdfSection = resetUdfSection;
-        // DSForm.__testOnly__.selectUDFModule = selectUDFModule;
-        // DSForm.__testOnly__.selectUDFFunc = selectUDFFunc;
+        DSPreview.__testOnly__.resetForm = resetForm;
+        DSPreview.__testOnly__.getNameFromPath = getNameFromPath;
+        DSPreview.__testOnly__.getSkipRows = getSkipRows;
+        DSPreview.__testOnly__.applyFieldDelim = applyFieldDelim;
+        DSPreview.__testOnly__.applyLineDelim = applyLineDelim;
+        DSPreview.__testOnly__.applyQuote = applyQuote;
+        DSPreview.__testOnly__.toggleFormat = toggleFormat;
+        DSPreview.__testOnly__.toggleUDF = toggleUDF;
+        DSPreview.__testOnly__.isUseUDF = isUseUDF;
+        DSPreview.__testOnly__.selectUDFModule = selectUDFModule;
+        DSPreview.__testOnly__.selectUDFFunc = selectUDFFunc;
+
+        DSPreview.__testOnly__.validateUDFModule = validateUDFModule;
+        DSPreview.__testOnly__.validateUDFFunc = validateUDFFunc;
+        DSPreview.__testOnly__.resetUdfSection = resetUdfSection;
+
+        DSPreview.__testOnly__.validateForm = validateForm;
+        DSPreview.__testOnly__.submitForm = submitForm;
 
         DSPreview.__testOnly__.get = function() {
             return {

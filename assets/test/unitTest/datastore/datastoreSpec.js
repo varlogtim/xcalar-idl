@@ -18,8 +18,8 @@ describe('Datastore Test', function() {
     describe('Dataset Form Module Test', dsFormModuleTest);
     describe('File Browser Module Test', fileBrowserModuleTest);
     describe('Dataset Preview Module Test', dsPreviewModuleTest);
-    // describe('Data Cart Module Test', dsCartModuleTest);
-    // describe('Dataset Sample Table Test', dsTableTest);
+    describe('Data Cart Module Test', dsCartModuleTest);
+    describe('Dataset Sample Table Test', dsTableTest);
 
     after(function() {
         // go back to previous tab
