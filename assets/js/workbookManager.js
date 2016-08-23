@@ -188,6 +188,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // and will active it)
             KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK)
             .then(function() {
+                // The action below is a no-op if it's already active.
+                $("#initialLoadScreen").show();
+                return XcalarSwitchToWorkbook(wkbkSet.get(wkbkId).name, null);
+            })
+            .then(function() {
                 switchWorkbookAnimation();
                 location.reload();
                 deferred.resolve();
@@ -438,7 +443,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     function setupKVStore(wkbkId) {
-        // retive key from username and wkbkId
+        // retrieve key from username and wkbkId
         var gInfoKey    = generateKey(wkbkId, "gInfo");
         var gEphInfoKey = generateKey(wkbkId, "gEphInfo");
         var gLogKey     = generateKey(wkbkId, "gLog");
@@ -450,7 +455,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function syncSessionInfo(oldWorkbooks, sessionInfo) {
         var deferred = jQuery.Deferred();
-        // sycn sessionInfo with wkbkInfo
+        // sync sessionInfo with wkbkInfo
         try {
             var numSessions = sessionInfo.numSessions;
             var sessions = sessionInfo.sessions;
@@ -458,6 +463,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             var wkbkId;
             var wkbk;
             var loseOldMeta = false;
+            var activeWorkbooks = [];
+            var storedActiveId;
 
             if (oldWorkbooks == null) {
                 oldWorkbooks = {};
@@ -466,6 +473,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
             for (var i = 0; i < numSessions; i++) {
                 wkbkName = sessions[i].name;
+                if (sessions[i].state === "Active") {
+                    activeWorkbooks.push(sessions[i].name);
+                }
                 wkbkId = getWKBKId(wkbkName);
 
                 if (oldWorkbooks.hasOwnProperty(wkbkId)) {
@@ -499,7 +509,48 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 }
             })
             .then(function(activeId) {
-                deferred.resolve(activeId, sessionInfo);
+                storedActiveId = activeId;
+                var deferred = jQuery.Deferred();
+                // Handle case where there are 2 or more active workbooks or
+                // where there is no active workbook but we think that there is
+                if (activeWorkbooks.length === 0 && activeId) {
+                    // We think there's an active workbook but there actually
+                    // isn't. Remove active and set it to null. next step
+                    // resolves this
+                    storedActiveId = undefined;
+                    return KVStore.delete(activeWKBKKey, gKVScope.WKBK);
+                } else if (activeWorkbooks.length === 1 && !activeId) {
+                    // Backend has active, we don't. Set it and go
+                    storedActiveId = getWKBKId(activeWorkbooks[0]);
+                    return KVStore.put(activeWKBKKey, storedActiveId, true,
+                                       gKVScope.WKBK);
+                } else if (activeWorkbooks.length === 1 && activeId &&
+                    getWKBKId(activeWorkbooks[0]) !== activeId) {
+                    // Backend's version of active is different from us.
+                    // We listen to backend
+                    storedActiveId = getWKBKId(activeWorkbooks[0]);
+                    return KVStore.put(activeWKBKKey, storedActiveId, true,
+                                       gKVScope.WKBK);
+                } else if (activeWorkbooks.length > 1) {
+                    // This is something that we do not support
+                    // We will inactivate all the sessions and force user to
+                    // reselect
+                    storedActiveId = undefined;
+                    var defArray = [];
+                    for (var i = 0; i<activeWorkbooks.length; i++) {
+                        defArray.push(XcalarInActiveWorkbook(
+                                                           activeWorkbooks[i]));
+                    }
+
+                    defArray.push(KVStore.delete(activeWKBKKey, gKVScope.WKBK));
+                    return PromiseHelper.when.apply(this, defArray);
+                } else {
+                    deferred.resolve();
+                }
+                return deferred.promise();
+            })
+            .then(function() {
+                deferred.resolve(storedActiveId, sessionInfo);
             })
             .fail(deferred.reject);
         } catch (error) {

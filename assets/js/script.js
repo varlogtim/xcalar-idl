@@ -5,6 +5,7 @@
     well.
 */
 // ================================ Misc ======================================
+
 function getUrlVars() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?') +
@@ -95,6 +96,7 @@ window.StartManager = (function(StartManager, $) {
         DagPanel.setup();
         SchedulerPanel.setup();
         setupModals();
+        setupExtensions();
 
         XVM.checkVersionMatch()
         .then(setupSession)
@@ -107,7 +109,6 @@ window.StartManager = (function(StartManager, $) {
             JoinView.restore();
             FileBrowser.restore();
 
-            setupExtensions();
             WSManager.focusOnWorksheet();
         })
         .then(function() {
