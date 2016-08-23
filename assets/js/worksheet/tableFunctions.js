@@ -921,6 +921,7 @@ function moveTableTitles($tableWraps, options) {
     var mainFrameWidth = $('#mainFrame').width() - modifiedOffset;
     var mainFrameOffsetLeft = MainMenu.getOffset();
 
+
     var viewWidth = mainFrameWidth + mainFrameOffsetLeft;
 
     $tableWraps.each(function() {
@@ -936,7 +937,6 @@ function moveTableTitles($tableWraps, options) {
         var rect = $thead[0].getBoundingClientRect();
         var rectRight = rect.right + modifiedOffset;
         var rectLeft = rect.left + modifiedOffset;
-
         if (rectRight > mainFrameOffsetLeft) {
             if (rectLeft < viewWidth) {
                 var $tableTitle = $table.find('.tableTitle .text');
@@ -946,9 +946,11 @@ function moveTableTitles($tableWraps, options) {
                 if (rectLeft < mainFrameOffsetLeft) {
                     // left side of table is offscreen to the left
                     if (rectRight > viewWidth) { // table spans the whole screen
-                        center = ((mainFrameWidth - titleWidth) / 2) + mainFrameOffsetLeft - rectLeft;
+                        center = ((mainFrameWidth - titleWidth) / 2) +
+                                 mainFrameOffsetLeft - rectLeft;
                     } else { // right side of table is visible
-                        center = tableWidth - ((rectRight + titleWidth - mainFrameOffsetLeft) / 2);
+                        center = tableWidth - ((rectRight + titleWidth - 
+                                                mainFrameOffsetLeft) / 2);
                         // prevents title from going off the right side of table
                         center = Math.min(center, tableWidth - titleWidth - 6);
                     }

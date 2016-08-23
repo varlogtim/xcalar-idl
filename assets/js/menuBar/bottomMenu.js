@@ -4,6 +4,7 @@ window.BottomMenu = (function($, BottomMenu) {
     var $menuPanel; //$("#bottomMenu");
     // var slideTimeout;
     var isMenuOpen;
+    var isPoppedOut = false;
 
     BottomMenu.setup = function() {
         $menuPanel = $("#bottomMenu");
@@ -32,34 +33,32 @@ window.BottomMenu = (function($, BottomMenu) {
     BottomMenu.close = function(topMenuOpening) {
         if ($menuPanel.hasClass('poppedOut')) {
             setTimeout(function() {
-                closeMenu(topMenuOpening);
+                closeMenu(topMenuOpening, true);
             }, 100);
         } else {
             closeMenu(topMenuOpening);
         }
-        popInModal();
     };
 
     BottomMenu.isMenuOpen = function() {
         return (isMenuOpen);
     };
 
+    BottomMenu.isPoppedOut = function() {
+        return (isPoppedOut);
+    };
+
     // setup buttons to open bottom menu
     function setupButtons() {
         $menuPanel.on("click", ".close", function() {
-            if ($menuPanel.hasClass('poppedOut')) {
-                setTimeout(function() {
-                    closeMenu();
-                }, 100);
-            } else {
-                closeMenu();
-            }
-            popInModal();
+            BottomMenu.close(false);
         });
 
         $menuPanel.on("click", ".popOut", function() {
             if ($menuPanel.hasClass('poppedOut')) {
-                popInModal();
+                // need to animate/adjust the table titles because mainFrame
+                // width is changing
+                popInModal(true);
             } else {
                 popOutModal();
             }
@@ -194,23 +193,26 @@ window.BottomMenu = (function($, BottomMenu) {
         });
     }
 
-    function closeMenu(topMenuOpening) {
+    function closeMenu(topMenuOpening, poppingIn) {
         $("#bottomMenu").removeClass("open");
         $('#container').removeClass('bottomMenuOpen');
         isMenuOpen = false;
         // recenter table titles if on workspace panel
         
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
-        if (topMenuOpening) {
+        // if (topMenuOpening && !isPoppedOut) {
+        if (topMenuOpening && !isPoppedOut) {
             noAnim();
-        } else if ($('#workspacePanel').hasClass('active')) {
+        } else if ($('#workspacePanel').hasClass('active') && !isPoppedOut) {
+            // do not need to adjust tables if closing menu when it's popped out
+            // because mainFrame is already in it's expanded state
             moveTableTitles(null, {
                 "offset"       : -285,
                 "menuAnimating": true,
                 "animSpeed"    : delay
             });
         }
-
+        popInModal();
         ExtensionManager.closeView();
     }
 
@@ -308,6 +310,7 @@ window.BottomMenu = (function($, BottomMenu) {
     }
 
     function popOutModal() {
+        isPoppedOut = true;
         var offset = $menuPanel.offset();
 
         $menuPanel.addClass('poppedOut');
@@ -320,9 +323,16 @@ window.BottomMenu = (function($, BottomMenu) {
             "top" : offset.top - 5
         });
         $('#container').addClass('bottomMenuOut');
+        if ($('#workspacePanel').hasClass('active')) {
+            moveTableTitles(null, {
+                "offset"       : -285,
+                "menuAnimating": true,
+                "animSpeed"    : delay
+            });
+        }
     }
 
-    function popInModal() {
+    function popInModal(adjustTables) {
         $menuPanel.removeClass('poppedOut');
         $menuPanel.attr('style', "");
         $menuPanel.find('.popOut')
@@ -330,6 +340,16 @@ window.BottomMenu = (function($, BottomMenu) {
                 .removeClass("xi_popin").addClass("xi_popout");
         $('.tooltip').hide();
         $('#container').removeClass('bottomMenuOut');
+        isPoppedOut = false;
+
+        // will move table titles if menu was popped out
+        if (adjustTables && $('#workspacePanel').hasClass('active')) {
+            moveTableTitles(null, {
+                "offset"       : 285,
+                "menuAnimating": true,
+                "animSpeed"    : delay
+            });
+        }
     }
 
     return (BottomMenu);

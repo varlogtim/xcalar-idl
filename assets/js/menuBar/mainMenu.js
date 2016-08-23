@@ -53,8 +53,14 @@ window.MainMenu = (function($, MainMenu) {
 
 
     MainMenu.getOffset = function() {
-        if (isMenuOpen || BottomMenu.isMenuOpen()) {
+        if (isMenuOpen) {
             return (openOffset);
+        } else if (BottomMenu.isMenuOpen()) {
+            if (BottomMenu.isPoppedOut()) {
+                return (closedOffset);
+            } else {
+                return (openOffset);
+            }
         } else {
             return (closedOffset);
         }
@@ -190,7 +196,7 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
         }).addClass("active");
-        if ($('#bottomMenu').hasClass('open')) {
+        if ($('#bottomMenu').hasClass('open') && !BottomMenu.isPoppedOut()) {
             noAnim = true;
         }
         checkAnim(noAnim, true);
