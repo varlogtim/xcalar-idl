@@ -2837,6 +2837,9 @@ window.Dag = (function($, Dag) {
             case ("groupBy"):
                 iconClass = "groupby";
                 break;
+            case ("aggregate"):
+                iconClass = "aggregate";
+                break;
             case ("Create Table"):
                 iconClass = "index";
                 break;
@@ -2855,7 +2858,9 @@ window.Dag = (function($, Dag) {
                 } else {
                     iconClass = "arrowtail-down";
                 }
+                break;
             default:
+                iconClass = "unknown";
                 break;
         }
 
@@ -2872,25 +2877,25 @@ window.Dag = (function($, Dag) {
      */
 
     function getFilterIconClass(type) {
-        var iconClass = "";
+        var iconClass = "filter";
         switch (type) {
             case ("filtergt"):
-                iconClass = "oldIcon";
+                iconClass += "-greaterthan";
                 break;
             case ("filterge"):
-                iconClass = "oldIcon";
+                iconClass += "-greaterthan-equalto";
                 break;
             case ("filtereq"):
-                iconClass = "equal";
+                iconClass += "-equal";
                 break;
             case ("filterlt"):
-                iconClass = "oldIcon";
+                iconClass += "-lessthan";
                 break;
             case ("filterle"):
-                iconClass = "oldIcon";
+                iconClass += "-lessthan-equalto";
                 break;
             case ("filternot"):
-                iconClass = "oldIcon";
+                iconClass += "-not-equal";
                 break;
             case ("filterregex"):
                 iconClass = "oldIcon";
