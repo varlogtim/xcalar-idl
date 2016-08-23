@@ -58,10 +58,13 @@ app.post('/', function(req, res) {
     var errors = [];
     switch(credArray.api) {
     case (Api.runPrecheck):
+        // Make bash call to start
+        // Immediately ack after starting
         res.send({"status": Status.Ok});
         break;
     case (Api.checkPrecheckStatus):
-        var finalStruct = JSON.parse(credArray.struct);
+        // Make bash call to get status
+        var finalStruct = credArray.struct;
         var ackArray = [];
         for (var i = 0; i<finalStruct.hostnames.length; i++) {
             ackArray.push("Precheck Step 1: Blah");
@@ -71,10 +74,13 @@ app.post('/', function(req, res) {
                   "retVal": ackArray});
         break;
     case (Api.runInstaller):
+        // Make bash call to start
+        // Immediately ack after starting
         res.send({"status": Status.Ok});
         break;
     case (Api.checkInstallerStatus):
-        var finalStruct = JSON.parse(credArray.struct);
+        // Make bash call to get status
+        var finalStruct = credArray.struct;
         var ackArray = [];
         for (var i = 0; i<finalStruct.hostnames.length; i++) {
             ackArray.push("Installer Step 1: Blah");

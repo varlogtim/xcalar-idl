@@ -10,6 +10,7 @@
 /node_modules/*
 index.html
 unitTest.html
+install.html
 /assets/htmlFiles/*
 *~
 /js/

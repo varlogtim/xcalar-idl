@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Xcalar Insight</title>
-    <link href='../../3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
-    <link href='../../3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
-    <link href="../newStylesheets/css/installer.css" rel="stylesheet" type="text/css">
+    <link href='3rd/fonts/raleway/raleway.css' rel='stylesheet' type='text/css'>
+    <link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
+    <link href="assets/newStylesheets/css/installer.css" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div id="logo"></div>
@@ -25,7 +25,7 @@
         <div id="formArea">
 
           <!-- Step 1: Enter in license key -->
-          <form id="licenseForm" autocomplete="off">
+          <form id="licenseForm">
             <div class="title">
               <div class="step">
                 <span>STEP 1 </span>
@@ -37,23 +37,23 @@
               </div>
             </div>
             <div class="section">
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4">
+              <input class="licenseKey input" type="text" autofocus required  maxlength="4">
               <span class="separator">-</span>
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4">
+              <input class="licenseKey input" type="text" autofocus required  maxlength="4">
               <span class="separator">-</span>
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4">
+              <input class="licenseKey input" type="text" autofocus required  maxlength="4">
               <span class="separator">-</span>
-              <input class="licenseKey input" type="text" autofocus required autocomplete="off" maxlength="4"> 
+              <input class="licenseKey input" type="text" autofocus required  maxlength="4"> 
               <div class="bar">&nbsp;</div>       
             </div>
             <div class="section invalidLicense error">
               <div class="leftBar">&nbsp;</div>
-              <span>Invalid license key<br></span>
-              <span>The license key that you have entered is not valid. Please check the key and try again</span>
+              <span>Unknown Error<br></span>
+              <span>Unknown Error!</span>
             </div>
             <div class="section buttonSection">
               <input class="btn next" type="button" value="NEXT">
-              <input class="btn clear inactive" type="button" name="signup" value="CLEAR">
+              <input class="btn clear" type="button" value="CLEAR">
             </div>
           </form>
 
@@ -106,12 +106,12 @@
             </div>
             <div class="section error">
               <div class="leftBar">&nbsp;</div>
-              <span>Invalid license key<br></span>
-              <span>The license key that you have entered is not valid. Please check the key and try again</span>
+              <span>Unknown Error<br></span>
+              <span>Unknown Error!</span>
             </div>
             <div class="section buttonSection">
               <input class="btn next" type="button" value="NEXT">
-              <input class="btn back" type="button" value="BACK">
+              <input class="btn clear" type="button" value="CLEAR">
             </div>
           </form>
 
@@ -149,7 +149,8 @@
             </div>
             <div class="section credentialSection">
               <div class="hostUsername">
-                <input class="input" type="text" autocomplete="off" placeholder="[username]">
+                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[username]">
+                <input type="text" name='useless' style="display: none;" value=" ">
                 <div class="bar">Username</div>
               </div>
               <span class="header">Password Options</span>
@@ -170,7 +171,7 @@
                 </div>
               </div>
               <div class="hostPassword">
-                <input class="input" type="password" autocomplete="off" placeholder="[password]">
+                <input class="input" name="useless" type="password" autocomplete="off" placeholder="[password]">
                 <div class="bar">Password</div>
               </div>
               <div class="hostSshKey">
@@ -179,19 +180,19 @@
             </div>
             <div class="section error">
               <div class="leftBar">&nbsp;</div>
-              <span>Invalid license key<br></span>
-              <span>The license key that you have entered is not valid. Please check the key and try again</span>
+              <span>Unknown Error<br></span>
+              <span>Unknown Error!</span>
             </div>        
             <div class="section buttonSection">
-              <input class="btn next" type="button" value="INSTALL">
+              <input class="btn next" type="button" id="installButton" value="INSTALL">
               <input class="btn back" type="button" value="BACK">
             </div>
           </form>
         </div>
       </div>
     </div>
-    <script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="../js/installer.js"></script>
+    <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="assets/js/installer.js"></script>
   </body>
 </html>
 

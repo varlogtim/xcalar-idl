@@ -35,10 +35,17 @@ window.Installer = (function(Installer, $) {
     };
 
     var intervalTimer;
+    var statusApi;
     var checkInterval = 2000; // How often to check for status
 
     var $forms = $("form");
     var lastStep = 2; // Last step of form 
+
+    Installer.clearInterval = function() {
+        if (intervalTimer) {
+            clearInterval(intervalTimer);
+        }
+    };
 
     Installer.setup = function() {
         // Set up submit buttons and back buttons for all screens
@@ -63,6 +70,14 @@ window.Installer = (function(Installer, $) {
             Installer.showStep(curStepId - 1);
         });
 
+        $("input.clear").click(function() {
+            var $form = $(this).closest("form");
+            // Clear inputs
+            $form[0].reset();
+            // Clear out contentEditables
+            $form.find("[contenteditable='true']").html("");
+        });
+
         // Set up listeners for radioButtons
         $(".radioButton").click(function() {
             // If option is the same as before, ignore and return
@@ -83,6 +98,29 @@ window.Installer = (function(Installer, $) {
         setUpStep0();
         setUpStep1();
         setUpStep2();
+
+        // Set up ajax error handlers to catch server side issues
+        /**
+        jQuery.ajaxSetup({
+            error: function() {
+                debugger;
+            },
+            complete: function() {
+                debugger;
+            },
+            success: function() {
+                debugger;
+            },
+            dataFilter: function() {
+                debugger;
+            },
+            abort: function() {
+                debugger;
+            },
+            statusCode: function() {
+                debugger;
+            }
+        }); */
 
     };
 
@@ -143,14 +181,21 @@ window.Installer = (function(Installer, $) {
     }
 
     function sendViaHttps(arrayToSend, successCB, failureCB) {
-        jQuery.ajax({
-            method     : "POST",
-            url        : "https://cantor.int.xcalar.com:12124",
-            data       : JSON.stringify(arrayToSend),
-            contentType: "application/json",
-            success    : successCB,
-            error: failureCB
-        });
+        console.log(arrayToSend);
+        try {
+            jQuery.ajax({
+                method     : "POST",
+                url        : "https://cantor.int.xcalar.com:12124",
+                data       : JSON.stringify(arrayToSend),
+                contentType: "application/json",
+                success    : successCB,
+                error: failureCB
+            });
+        } catch (e) {
+            // XXX Handle the different statuses and display relevant
+            // error messages
+            
+        }
     }
 
     function setUpStep0() {
@@ -291,6 +336,10 @@ window.Installer = (function(Installer, $) {
             }
         }
 
+        if (allHosts.length === 0) {
+            deferred.reject("No hosts","You must install on at least 1 host");
+        }
+
         finalStruct.hostnames = allHosts;
         deferred.resolve();
 
@@ -301,6 +350,8 @@ window.Installer = (function(Installer, $) {
         switch (curStepId) {
         case (0):
             // ret is the number of servers that we can install on
+            // Second page does not have a back button
+
             var html = "";
             for (var i = 0; i<ret; i++) {
                 html += hostnameHtml(i+1);
@@ -310,7 +361,10 @@ window.Installer = (function(Installer, $) {
         case (1):
             return;
         case (2):
-            executeFinalArray();
+            executeFinalArray()
+            .fail(function() {
+                showFailure(curStepId, arguments);
+            });
             return;
         default:
             return;
@@ -318,6 +372,11 @@ window.Installer = (function(Installer, $) {
     }
 
     function showFailure(curStepId, args) {
+        for (var i = 0; i<args.length; i++) {
+            if (!args[i]) {
+                args[i] = "Unknown Error";
+            }
+        }
         $error = $(".error").eq(curStepId);
         $error.find("span").eq(0).html(args[0]+"<br>");
         $error.find("span").eq(1).html(args[1]);
@@ -327,7 +386,8 @@ window.Installer = (function(Installer, $) {
     function hostnameHtml(id) {
         return ('<div class="row">' +
             '<div class="leftCol hostname">' +
-              '<input class="input" type="text" autocomplete="off" value="" placeholder="[IP or FQDN]">' +
+              '<input class="input" type="text" autocomplete="off" value="" ' +
+              'name="useless" placeholder="[IP or FQDN]">' +
               '<div class="bar">Host '+id+'.</div>' +
             '</div>' +
             '<div class="rightCol status">' +
@@ -363,25 +423,32 @@ window.Installer = (function(Installer, $) {
         var hostnames = $(".row:not(.header)");
         for (var i = 0; i<hostnames.length; i++) {
             if (hostnames.eq(i).find("input").val().trim().length === 0) {
-                hostnames.eq(i).remove();
+                hostnames.eq(i).hide();
             }
         }
 
+        $("#installButton").val("INSTALLING...")
+                           .addClass("inactive");
         sendCommand(Api.runPrecheck)
         .then(function() {
-            return (getStatus(Api.getPrecheckStatus));
+            return (getStatus(Api.checkPrecheckStatus));
         })
         .then(function() {
             return (sendCommand(Api.runInstall));
         })
         .then(function() {
-            return (getStatus(Api.getInstallStatus));
+            return (getStatus(Api.checkInstallStatus));
+        })
+        .then(function() {
+            return (finalize());
         })
         .fail(function() {
             $(".credentialSection").show();
-            // XXX Consider adding back the hostname rows for the ones that we
-            // removed.
-            deferred.reject(arguments);
+            $(".credentialSection").prev().show();
+            $(".row:not(.header)").show();
+            $("#installButton").val("INSTALL")
+                               .removeClass("inactive");
+            deferred.reject(arguments[1], arguments[2]);
         });
 
         return deferred.promise();
@@ -398,19 +465,22 @@ window.Installer = (function(Installer, $) {
             }
         }, function() {
             console.error(arguments);
-            deferred.reject(arguments[0], arguments[2]);
+            deferred.reject(arguments[1], arguments[2]);
         });
         return deferred.promise();
     }
 
     function getStatus(api) {
         var deferred = jQuery.Deferred();
-        // Start checking status
-        struct = new ApiStruct(api, {});
+
         if (intervalTimer) {
             clearInterval(intervalTimer);
         }
+        statusApi = api;
+
         intervalTimer = setInterval(function() {
+            var struct = new ApiStruct(statusApi, finalStruct);
+            console.log(statusApi, api);
             sendViaHttps(struct, function(ret) {
                 if (ret.status === Status.Done) {
                     clearInterval(intervalTimer);
@@ -423,8 +493,9 @@ window.Installer = (function(Installer, $) {
                     updateStatus(ret.retVal);
                 }
             }, function() {
+                clearInterval(intervalTimer);
                 console.error(arguments);
-                deferred.reject(arguments[0], arguments[2]);
+                deferred.reject(arguments[1], arguments[2]);
             });
         }, checkInterval);
         return deferred.promise();
@@ -437,6 +508,12 @@ window.Installer = (function(Installer, $) {
             $(".row .curStatus").text(retVal[i]);
         }
         // XXX In the future we can color code and do all that cool stuff
+    }
+
+    function finalize() {
+        // This function is called when everything is done.
+        // Maybe we can remove the installer here?
+        return PromiseHelper.resolve();
     }
 
     return (Installer);
