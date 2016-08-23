@@ -26,7 +26,7 @@ window.FnBar = (function(FnBar, $) {
                 $('#rowInput').focus();
                 return false; // prevent tabbing so that pressing tab skips
                 //to the next input on the page, in this case the "#rowInput"
-            } 
+            }
         });
 
         $(window).blur(function() {

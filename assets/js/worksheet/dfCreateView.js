@@ -50,7 +50,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
 
         $(document).on("keypress.DFView", function(e) {
-            if (e.which === keyCode.Enter && 
+            if (e.which === keyCode.Enter &&
                 gMouseEvents.getLastMouseDownTarget()
                             .closest('#dfCreateView').length) {
 
@@ -152,8 +152,7 @@ window.DFCreateView = (function($, DFCreateView) {
     function setupTableColListeners() {
         
         $("#xcTableWrap-" + tableId).addClass("columnPicker allowSelectAll");
-        $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", 
-            function(event) {
+        $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", function(event) {
             var $target = $(event.target);
             if (isInvalidTableCol($target)) {
                 return;

@@ -117,8 +117,7 @@ window.ExportView = (function($, ExportView) {
         });
         expList.setupListeners();
 
-        xcHelper.optionButtonEvent($exportView.find(".formRow"), 
-            function(option, $radio) {
+        xcHelper.optionButtonEvent($exportView.find(".formRow"), function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
                 if (option !== "DfFormatCsv") {
                     $advancedSection.find('.csvRow').removeClass('csvSelected')
@@ -200,7 +199,7 @@ window.ExportView = (function($, ExportView) {
         addColumnSelectListeners();
 
         $(document).on("keypress.exportView", function(e) {
-            if (e.which === keyCode.Enter && 
+            if (e.which === keyCode.Enter &&
                                 gMouseEvents.getLastMouseDownTarget()
                                             .closest('#dfCreateView').length) {
                 submitForm();
@@ -518,7 +517,7 @@ window.ExportView = (function($, ExportView) {
 
 
         $tables.on('click.addColToExport', '.exportable', function(event) {
-            var $table = $(this).closest('.xcTable');
+            // var $table = $(this).closest('.xcTable');
 
             // event.target is not reliable here for some reason so that is
             // why we're using last mousedown target
@@ -787,7 +786,7 @@ window.ExportView = (function($, ExportView) {
                                           .addClass('checked');
     }
 
-    // each li has data-colnum that will link it to the corresponding 
+    // each li has data-colnum that will link it to the corresponding
     // xcTable header
     function getTableColList() {
         var html = "";

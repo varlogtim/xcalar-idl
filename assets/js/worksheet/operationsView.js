@@ -2260,7 +2260,7 @@ window.OperationsView = (function($, OperationsView) {
         var errorType;
         var invalidNonColumnType = false; // when an input does not have a
         // a column name but still has an invalid type
-        var $group = activeOpSection.find('.group').eq(groupNum);
+        var $group = $activeOpSection.find('.group').eq(groupNum);
         $group.find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
 
