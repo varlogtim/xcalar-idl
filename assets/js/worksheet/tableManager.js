@@ -672,8 +672,9 @@ window.TblManager = (function($, TblManager) {
         columnName = columnName.replace(/\"/g, "&quot;");
 
         var indexed = columnClass.indexOf("indexedColumn") >= 0;
-        var tooltip = indexed ? ' title="Indexed Column" data-toggle="tooltip" ' +
-                         'data-placement="top" data-container="body"': "";
+        // var tooltip = indexed ? ' title="Indexed Column" data-toggle="tooltip" ' +
+        //                  'data-placement="top" data-container="body"': "";
+        var tooltip = ""; // xx conflicts with tablename on hover;
         var sortIcon = "";
         if (indexed) {
             if (options.order === XcalarOrderingT.XcalarOrderingAscending) {
@@ -712,6 +713,10 @@ window.TblManager = (function($, TblManager) {
                             '<input class="editableHead col' + newColid + '"' +
                                 ' type="text"  value="' + columnName + '"' +
                                 ' size="15" spellcheck="false" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="top" ' +
+                                'data-container="body" '+
+                                'title="' + columnName + '" ' +
                                 disabledProp + '/>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +
@@ -1984,6 +1989,28 @@ window.TblManager = (function($, TblManager) {
             TblAnim.startColDrag(headCol, event);
         });
 
+         $thead.on('mousedown', '.editableHead', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            if ($(this).closest('.editable').length) {
+                return;
+            }
+            if ($table.closest('.columnPicker').length ||
+                ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
+                // not focus when in modal unless bypassModa is true
+                return;
+            }
+            // if (event.ctrlKey || event.shiftKey || event.metaKey) {
+            //     if ($(event.target).is('.iconHelper')) {
+            //         return;
+            //     }
+            // }
+            var headCol = $(this).closest('th');
+
+            TblAnim.startColDrag(headCol, event);
+        });
+
         $thead.on("keydown", ".editableHead", function(event) {
             var $input = $(event.target);
             if (event.which === keyCode.Enter && !$input.prop("disabled")) {
@@ -2231,7 +2258,8 @@ window.TblManager = (function($, TblManager) {
             '<div class="rowGrab last"></div>';
 
         $('#xcTbodyWrap-' + tableId).append(newTable);
-        $('#xcTbodyWrap-' + tableId).find('.rowGrab.last').mousedown(function(event) {
+        $('#xcTbodyWrap-' + tableId).find('.rowGrab.last')
+        .mousedown(function(event) {
             if (event.which === 1) {
                 TblAnim.startRowResize($(this), event);
             }

@@ -504,7 +504,10 @@ window.TblAnim = (function($, TblAnim) {
     function endColDrag() {
         $(document).off('mouseup.endColDrag');
         $('#moveCursor').remove();
-        $('body').removeClass('tooltipOff');
+        setTimeout(function() {
+            $('body').removeClass('tooltipOff');
+            // without timeout, tooltip will flicker on and off
+        }, 0);
         if (gMouseStatus === "checkingMovingCol") {
             // endColDrag is called on mouseup but if there was no mouse movement
             // then just clean up and exit

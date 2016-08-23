@@ -227,6 +227,12 @@ html.firefox, html.microsoft {
             &.flex-mid {
                 pointer-events: initial;
             }
+            .editableHead {
+                cursor: default;
+                &:focus {
+                    cursor: initial;
+                }
+            }
         }
 
         .flexContainer {
@@ -277,7 +283,7 @@ html.firefox, html.microsoft {
             .size(@width: 100%);
             text-align: center;
             outline: none;
-            cursor: default;
+            // cursor: default;
             .font(@weight: 600);
         }
 
@@ -297,8 +303,10 @@ html.firefox, html.microsoft {
         overflow: hidden;
         .font(@weight: 600, @size: 13px, @family: @font-base);
         margin-left: -2px;
-        pointer-events: none;
+        // pointer-events: none;
+        pointer-events: initial;
         z-index: @z-index-tableHeaderInput;
+        .cursor-move;
     }
 
     .textAlignLeft {
@@ -814,6 +822,9 @@ html.firefox, html.microsoft {
 
         th {
             cursor: pointer; // xx may not want all headers to have this
+            .editableHead {
+                cursor: pointer;
+            }
         }
 
 
@@ -1253,7 +1264,8 @@ html.firefox, html.microsoft {
 
             .flexWrap.flex-mid {
                 .editableHead, input.dataCol {
-                    padding-right: 18px;
+                    // padding-right: 18px;
+                    width: ~"calc(100% - 18px)";
                     .noSelection;
                 }
             }
