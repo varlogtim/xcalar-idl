@@ -368,6 +368,12 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             var len = xcHelper.getMaxTextLen(ctx, text, maxWidth, checkLen,
                                              text.length);
+            var textLen = text.length;
+            // if textLen is 22 and len is 21
+            // then the finalText may be longer if no this check
+            if (textLen - 3 > 0 && textLen - 3 < len) {
+                len = textLen - 3;
+            }
             finalText = text.slice(0, len - 3) + "..." +
                         text.slice(text.length - 3);
         }

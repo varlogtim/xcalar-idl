@@ -537,7 +537,7 @@ describe('Constructor Test', function() {
             });
 
             expect(opsInfo).to.be.an('object');
-            expect(Object.keys(opsInfo).length).to.equal(9);
+            expect(Object.keys(opsInfo).length).to.equal(10);
             expect(opsInfo).to.have.property('tooltip').and.to.equal('test');
             expect(opsInfo).to.have.property('type').and.to.equal('testType');
             expect(opsInfo).to.have.property('column').and.to.equal('testCol');
