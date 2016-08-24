@@ -1409,6 +1409,7 @@ function CanvasOpsInfo(options) {
     this.left = options.left;
     this.top = options.top;
     this.classes = options.classes;
+    this.iconClasses = options.iconClasses;
 
     return this;
 }

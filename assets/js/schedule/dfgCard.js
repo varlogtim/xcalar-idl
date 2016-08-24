@@ -408,6 +408,7 @@ window.DFGCard = (function($, DFGCard) {
         if (hasParam) {
             paramClass = " hasParam";
         }
+        console.log(operation);
         var html =
         '<div class="actionType ' + operation.type + paramClass +
         '" style="top: ' + operation.top + 'px; left: ' +
@@ -420,7 +421,7 @@ window.DFGCard = (function($, DFGCard) {
         operation.tooltip + '">' +
             '<div class="actionTypeWrap">' +
                 '<div class="' + operation.classes + '">' +
-                    '<div class="icon"></div>' +
+                    '<i class="' + operation.iconClasses + '"></i>' +
                 '</div>' +
                 '<span class="typeTitle">' + operation.type + '</span>' +
                 '<span class="parentsTitle">' + operation.parents + '</span>' +

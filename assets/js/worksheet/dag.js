@@ -2039,12 +2039,23 @@ window.Dag = (function($, Dag) {
         left += 40;
         top += 50;
         var $dagIcon = $actionType.find('.dagIcon');
-        var iconSource = $dagIcon.find('.icon').css('background-image');
+        var iconSource = $dagIcon.find('.icon').attr('class');
+        var iconSourceSplit = iconSource.split(" ");
+        var iconFound = false;
 
-        if (iconSource !== "none") {
-            iconSource = iconSource.replace('url(', '').replace(')', '')
-                               .replace(/"/g, '');
+        for (var i = 0; i < iconSourceSplit.length; i++) {
+            if (iconSourceSplit[i].indexOf('xi-') === 0) {
+                iconSource = iconSourceSplit[i] + ".png";
+                iconFound = true;
+                break;
+            }
         }
+
+        if (!iconFound) {
+            iconSource = "xi-unknown.png";
+        }
+
+        iconSource = paths.dfIcons + iconSource;
 
         var rectImage = new Image();
         rectImage.src = paths.roundedRect;

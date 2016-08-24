@@ -405,18 +405,6 @@ window.DSTable = (function($, DSTable) {
             var $dsTable = $("#dsTable");
             $(this).scrollTop(0);
             moveFirstColumn($dsTable);
-
-            if ($(this).scrollLeft() === 0) {
-                $dsTable.find('.rowNumHead .header')
-                               .css('margin-left', 0);
-                $dsTable.find('.idSpan')
-                               .css('margin-left', -5);
-            } else {
-                $dsTable.find('.rowNumHead .header')
-                               .css('margin-left', 1);
-                $dsTable.find('.idSpan')
-                               .css('margin-left', -4);
-            }
         });
     }
 

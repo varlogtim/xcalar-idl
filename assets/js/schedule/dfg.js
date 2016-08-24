@@ -227,7 +227,8 @@ window.DFG = (function($, DFG) {
                 "left"   : dagImageWidth -
                            parseInt($operation.parent().css('right')) - 200,
                 "top"    : parseInt($operation.parent().css('top')) + 4,
-                "classes": $operation.find('.dagIcon').attr('class')
+                "classes": $operation.find('.dagIcon').attr('class'),
+                "iconClasses": $operation.find('.icon').attr('class')
             };
             operations.push(operation);
         });
