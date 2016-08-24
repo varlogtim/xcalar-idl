@@ -250,22 +250,19 @@
         padding: 20px 50px;
         .size(@height: 80px);
         .font(@size: 14px, @color: @color-font-navy);
+
+        .infoSection.done {
+            .text-selection;
+        }
     }
 
     .animatedEllipsisWrapper {
         .size(@width: 100px, @height: 20px);
         .vertical-align;
-
-        .animatedEllipsis {
-            > div {
-                margin-left: -1px;
-            }
-        }
     }
 }
 
 #monitor-graphCard {
-    
     min-height: ~"calc(100% - 5px)"; // take up full height
     
     .cardTopMain {
