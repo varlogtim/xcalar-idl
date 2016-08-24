@@ -309,7 +309,6 @@ window.Workbook = (function($, Workbook) {
                     {
                         // New workbook
                         $newWorkbookCard.find("button").click();
-                        
                     } else {
                         // Must be editting a current name
                         var $workbookBox = $lastFocusedInput.

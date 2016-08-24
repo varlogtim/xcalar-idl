@@ -1,5 +1,4 @@
 function fileBrowserModuleTest() {
-    var minModeCache;
     var $testGrid;
     var $fileBrowser;
     var $pathLists;
@@ -13,8 +12,7 @@ function fileBrowserModuleTest() {
         $fileBrowser = $("#fileBrowser");
         $pathLists = $("#fileBrowserPathMenu");
 
-        testFiles = [
-        {
+        testFiles = [{
             "name": "test1.csv",
             "attr": {
                 "isDirectory": false,
@@ -136,8 +134,9 @@ function fileBrowserModuleTest() {
 
         it('Should toggle view', function() {
             var $fileBrowserMain = $("#fileBrowserMain");
-            var toListView 
-            var expect1, expect2;
+            var expect1;
+            var expect2;
+
             if ($fileBrowserMain.hasClass("listView")) {
                 expect1 = "gridView";
                 expect2 = "listView";

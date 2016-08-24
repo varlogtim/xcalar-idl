@@ -92,7 +92,7 @@ describe('OperationsView', function() {
             parseType = OperationsView.__testOnly__.parseType;
             $operationsModal = $('#operationsModal');
             $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf('unitTest-fakeYelp') > -1) {
+                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
                     return false;
                 }

@@ -10,7 +10,7 @@ function dsTableTest() {
         $dsTableContainer = $("#dsTableContainer");
         $tableWrap = $("#dsTableWrap");
 
-        testDS = xcHelper.uniqueRandName("unitTest-fakeYelp", DS.has, 10);
+        testDS = xcHelper.uniqueRandName("unitTestFakeYelp", DS.has, 10);
         var dataset = testDatasets.fakeYelp;
 
         DS.load(testDS, dataset.format, dataset.url,
@@ -21,7 +21,7 @@ function dsTableTest() {
             testDSId = testDSObj.getId();
             done();
         })
-        .fail(function(error) {
+        .fail(function() {
             throw "Fail Case!";
         });
     });

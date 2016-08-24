@@ -4,7 +4,6 @@ function dsPreviewModuleTest() {
     // instead, initialize in the it() function
     var $previewTable;
 
-    var $fileName;
     var $formatText;
 
     var $fieldText;
@@ -17,7 +16,8 @@ function dsPreviewModuleTest() {
     var $headerCheckBox; // promote header checkbox
     var $udfCheckbox; // udf checkbox
 
-    var $skipRows;
+    var $skipInput;
+    var $quoteInput;
 
     var $statusBox;
 
@@ -26,13 +26,12 @@ function dsPreviewModuleTest() {
     before(function(){
         $previewTable = $("#previewTable");
 
-        $fileName = $("#dsForm-dsName");
-        $formatText  = $("#fileFormat .text");
+        $formatText = $("#fileFormat .text");
 
         $fieldText = $("#fieldText");
         $lineText = $("#lineText");
 
-        $udfArgs  = $("#udfArgs");
+        $udfArgs = $("#udfArgs");
         $udfModuleList = $("#udfArgs-moduleList");
         $udfFuncList = $("#udfArgs-funcList");
 
@@ -52,16 +51,15 @@ function dsPreviewModuleTest() {
             var testCases = [{
                 // test1: when not th, has delimiter
                 "delimiter": ",",
-                "isTh": false,
-                "data": ["h", ",", "i"],
+                "isTh"     : false,
+                "data"     : ["h", ",", "i"],
                 "expectRes": '<td class="cell">h</td>' +
                              '<td class="cell">i</td>'
-            },
-            {
+            },{
                 // test2: when not th, no delimiter
                 "delimiter": "",
-                "isTh": false,
-                "data": ["h", ",", "i"],
+                "isTh"     : false,
+                "data"     : ["h", ",", "i"],
                 "expectRes": '<td class="cell">' +
                                 '<span class="td">h</span>' +
                                 '<span class="td has-margin has-comma">' +
@@ -69,19 +67,17 @@ function dsPreviewModuleTest() {
                                 '</span>' +
                                 '<span class="td">i</span>' +
                              '</td>'
-            },
-            {
+            },{
                 // test3: when not th, other delimiter
                 "delimiter": "\t",
-                "isTh": false,
-                "data": ["h", ",", "i"],
+                "isTh"     : false,
+                "data"     : ["h", ",", "i"],
                 "expectRes": '<td class="cell">h,i</td>'
-            },
-            {
+            },{
                 // test4: when is th, has delimiter
                 "delimiter": ",",
-                "isTh": true,
-                "data": ["h", ",", "i"],
+                "isTh"     : true,
+                "data"     : ["h", ",", "i"],
                 "expectRes": '<th>' +
                                 '<div class="header">' +
                                     '<div class="colGrab"' +
@@ -96,12 +92,11 @@ function dsPreviewModuleTest() {
                                     '<div class="text cell">i</div>' +
                                 '</div>' +
                             '</th>'
-            },
-            {
+            },{
                 // test5: when not th, delimiter ",", data has backslash
                 "delimiter": "\t",
-                "isTh": false,
-                "data": ["h", "\\", ",", "i"],
+                "isTh"     : false,
+                "data"     : ["h", "\\", ",", "i"],
                 "expectRes": '<td class="cell">h\\,i</td>'
             }];
 
@@ -117,7 +112,7 @@ function dsPreviewModuleTest() {
 
             var testCases = [{
                 // test1: when no header
-                "datas": [["t", "e", "s", "t"]],
+                "datas"    : [["t", "e", "s", "t"]],
                 "delimiter": "",
                 "hasHeader": false,
                 "expectRes": '<tbody>' +
@@ -133,10 +128,9 @@ function dsPreviewModuleTest() {
                                     '</td>' +
                                 '</tr>' +
                             '</tbody>'
-            },
-            {
+            },{
                 // test2: when has header
-                "datas": [["t", "e", "s", "t"], ["h", "i"]],
+                "datas"    : [["t", "e", "s", "t"], ["h", "i"]],
                 "delimiter": "",
                 "hasHeader": true,
                 "expectRes": '<tbody>' +
@@ -166,8 +160,8 @@ function dsPreviewModuleTest() {
 
             var testCases = [{
                 // test1: when no header
-                "datas": [["h", "i"]],
-                "tdLen": 2,
+                "datas"    : [["h", "i"]],
+                "tdLen"    : 2,
                 "delimiter": "",
                 "hasHeader": false,
                 "expectRes": '<thead>' +
@@ -182,11 +176,10 @@ function dsPreviewModuleTest() {
                                     '</th>' +
                                 '</tr>' +
                               '</thead>'
-            },
-            {
+            },{
                 // test2: when has header
-                "datas": [["h", "i"]],
-                "tdLen": 2,
+                "datas"    : [["h", "i"]],
+                "tdLen"    : 2,
                 "delimiter": "",
                 "hasHeader": true,
                 "expectRes": '<thead>' +
@@ -237,7 +230,7 @@ function dsPreviewModuleTest() {
             expect(res.indexOf("test-") > 0).to.be.true;
             expect(res.endsWith(".preview")).to.be.true;
 
-            var res = getPreviewTableName();
+            res = getPreviewTableName();
             expect(res.indexOf("previewTable") > 0).to.be.true;
             expect(res.endsWith(".preview")).to.be.true;
         });
@@ -416,7 +409,7 @@ function dsPreviewModuleTest() {
             expect(res).to.equal(DSPreviewTStr.NoParseJSON);
 
             // valid json
-            var data = '{"a": "b"}';
+            data = '{"a": "b"}';
             DSPreview.__testOnly__.set(data);
             DSPreview.__testOnly__.getPreviewTable();
             // has 1 row and 2 columns(include lineMaker)
@@ -424,7 +417,7 @@ function dsPreviewModuleTest() {
             expect($previewTable.find("tbody tr").length).to.equal(1);
 
             // valid json2
-            var data = '{"a": "\\{b"}';
+            data = '{"a": "\\{b"}';
             DSPreview.__testOnly__.set(data);
             DSPreview.__testOnly__.getPreviewTable();
             // has 1 row and 2 columns(include lineMaker)
@@ -504,7 +497,7 @@ function dsPreviewModuleTest() {
             expect(res).to.equal(testName);
                 
             var test2 = testName + ".test";
-            res = getNameFromPath(testName);
+            res = getNameFromPath(test2);
             expect(res).to.equal(testName);
 
             var test3 = "/var/yelpUnittest/";
@@ -685,7 +678,7 @@ function dsPreviewModuleTest() {
             var $checkbox = $udfCheckbox.find(".checkbox");
 
             // test 1
-            DSPreview.__testOnly__.toggleUDF(true); 
+            DSPreview.__testOnly__.toggleUDF(true);
             expect($udfArgs.hasClass("active")).to.be.true;
             expect($checkbox.hasClass("checked")).to.be.true;
             expect(isUseUDF()).to.be.true;
@@ -698,7 +691,7 @@ function dsPreviewModuleTest() {
         });
 
         it("Should have default UDF", function() {
-            DSPreview.__testOnly__.toggleUDF(true); 
+            DSPreview.__testOnly__.toggleUDF(true);
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
 
@@ -768,7 +761,7 @@ function dsPreviewModuleTest() {
 
             // test3
             var oldhas = DS.has;
-            DS.has = function() { return true };
+            DS.has = function() {return true; };
             $dsName.val("test");
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
@@ -883,7 +876,7 @@ function dsPreviewModuleTest() {
                 expect($grid).to.be.null;
                 done();
             })
-            .fail(function(error) {
+            .fail(function() {
                 // Intentionally fail the test
                 throw "Fail Case!";
             });

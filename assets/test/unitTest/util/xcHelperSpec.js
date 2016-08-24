@@ -2,14 +2,14 @@ describe('xcHelper Test', function() {
     it('xcHelper.assert should work', function() {
         // case 1
         try {
-            xcHelper.assert(1 == 2, "test error");
+            xcHelper.assert(1 === 2, "test error");
         } catch (error) {
             expect(error).to.equal("test error");
         }
 
         // case 2
         try {
-            xcHelper.assert(1 == 2);
+            xcHelper.assert(1 === 2);
         } catch (error) {
             expect(error).to.equal("Assert failed");
         }
@@ -126,11 +126,11 @@ describe('xcHelper Test', function() {
         var res = xcHelper.getMultiJoinMapString([1, 2]);
         expect(res).to.equal('concat(string(1), concat(".Xc.", string(2)))');
         // case 2
-        var res = xcHelper.getMultiJoinMapString([1, 2, 3]);
+        res = xcHelper.getMultiJoinMapString([1, 2, 3]);
         expect(res).to.equal('concat(string(1), concat(".Xc.", concat(string(2), concat(".Xc.", string(3)))))');
 
         // case 3
-        var res = xcHelper.getMultiJoinMapString([1, 2, 3, 4]);
+        res = xcHelper.getMultiJoinMapString([1, 2, 3, 4]);
         var openCount = 0;
         var closeCount = 0;
         for (var i = 0; i < res.length; i++) {
@@ -309,13 +309,13 @@ describe('xcHelper Test', function() {
         expect(res.length).to.equal(9);
         expect(res.startsWith("test")).to.be.true;
         // case 2
-        var checkFunc = function(name) { return false; };
+        var checkFunc = function() { return false; };
         res = xcHelper.uniqueRandName("test", checkFunc, 1);
         expect(res.length).to.equal(9);
         expect(res.startsWith("test")).to.be.true;
 
         // case 3
-        checkFunc = function(name) { return true; };
+        checkFunc = function() { return true; };
         res = xcHelper.uniqueRandName("test", checkFunc);
         expect(res.length).to.equal(9);
         expect(res.startsWith("test")).to.be.true;
@@ -414,7 +414,7 @@ describe('xcHelper Test', function() {
         setTimeout(function() {
             assert.isFalse($('#successMessageWrap').is(":visible"));
             done();
-        }, 3000)
+        }, 3000);
     });
 
     it('xcHelper.replaceMsg should work', function() {
@@ -491,7 +491,7 @@ describe('xcHelper Test', function() {
         expect($radioButton.hasClass("active")).to.be.true;
         expect(test).to.be.equal("test");
         // should ignore active event
-        test = null
+        test = null;
         $radioButton.click();
         expect($radioButton.hasClass("active")).to.be.true;
         expect(test).to.be.null;
@@ -534,17 +534,14 @@ describe('xcHelper Test', function() {
         assert.isFalse($("#statusBox").is(":visible"));
 
         // case 3
-        res = xcHelper.validate([
-        {
+        res = xcHelper.validate([{
             "$selector": $e,
             "check"    : function() { return false; }
-        },
-        {
+        },{
             "$selector": $e,
             "check"    : function() { return true; },
             "noWarn"   : true
-        }
-        ]);
+        }]);
         expect(res).to.be.false;
         assert.isFalse($("#statusBox").is(":visible"));
 
@@ -553,7 +550,7 @@ describe('xcHelper Test', function() {
         res = xcHelper.validate({
             "$selector": $e,
             "check"    : function() { return true; },
-            "callback" : function() { test = "test" }
+            "callback" : function() { test = "test"; }
         });
         expect(res).to.be.false;
         expect(test).to.be.equal("test");
@@ -563,7 +560,7 @@ describe('xcHelper Test', function() {
         assert.isFalse($("#statusBox").is(":visible"));
 
         // case 5
-        var test = null;
+        test = null;
         res = xcHelper.validate({
             "$selector": $e,
             "isAlert"  : true,

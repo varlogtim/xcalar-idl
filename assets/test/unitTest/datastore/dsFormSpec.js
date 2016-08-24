@@ -64,7 +64,7 @@ function dsFormModuleTest() {
 
             // change back
             DSForm.__testOnly__.setProtocol(cache);
-            var val = DSForm.__testOnly__.getProtocol();
+            val = DSForm.__testOnly__.getProtocol();
             expect(val).to.equal(cache);
         });
     });
@@ -77,12 +77,10 @@ function dsFormModuleTest() {
         });
 
         it("Should allow browse invalid path", function() {
-            var paths = [
-            {
+            var paths = [{
                 "protocol": "nfs:///",
                 "path"    : ""
-            },
-            {
+            },{
                 "protocol": "hdfs://",
                 "path"    : "host/"
             }];
@@ -97,8 +95,7 @@ function dsFormModuleTest() {
             var paths = [{
                 "protocol": "hdfs://",
                 "path"    : "hostNoSlash"
-            },
-            {
+            },{
                 "protocol": "hdfs://",
                 "path"    : ""
             }];
@@ -134,7 +131,7 @@ function dsFormModuleTest() {
             var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.true;
             assert.isFalse($statusBox.is(":visible"), "no statux box");
-        })
+        });
 
         after(function() {
             DSForm.__testOnly__.resetForm();

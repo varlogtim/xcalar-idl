@@ -133,51 +133,35 @@ function ensureWorksheetsExist(minNumWS) {
 
 function autoAddTable() {
     var deferred = jQuery.Deferred();
-    var dsIcon;
     var dsName;
     var datasetExists = doesDatasetExist("testsuiteschedule");
-    // $('#dataStoresTab').click();
+    var promise;
+
+    $('#dataStoresTab').click();
     if (datasetExists) {
-        dsIcon = '#dsListSection .gridItems ' +
+        var dsIcon = '#dsListSection .gridItems ' +
                  '.grid-unit:contains(testsuiteschedule):eq(0)';
         var $dsIcon = $(dsIcon);
         dsName = $dsIcon.text();
+        promise = PromiseHelper.resolve();
     } else {
         dsName = "testsuiteschedule" + Math.floor(Math.random() * 10000);
-        var $formatDropdown = $("#fileFormatMenu");
-        $("#importDataButton").click();
-        $("#filePath").val('var/tmp/qa/indexJoin/schedule');
-        $formatDropdown.find('li[name="JSON"]').click();
-        $('#fileName').val(dsName);
-        $("#importDataSubmit").click();
-        dsIcon = '#dsListSection .grid-unit[data-dsname="' +
-                  dsName + '"]:not(.inactive)';
+
+        var url = "var/tmp/qa/indexJoin/schedule";
+        var check = "#previewTable td:eq(1):contains(1)";
+        promise = TestSuite.__testOnly__.loadDS(dsName, url, check);
     }
 
-
-    TestSuite.__testOnly__.checkExists(dsIcon)
+    promise
     .then(function() {
-        var $grid = $(dsIcon).click();
-        var dsId = $grid.data("dsid");
-        TestSuite.__testOnly__.checkExists('#dsTable[data-dsid="' +
-                                            dsId + '"]')
-        .then(function() {
-            $("#selectDSCols").click();
-            // wait for dscart name to change
-            setTimeout(function() {
+        return TestSuite.__testOnly__.createTable(dsName, "class_id");
+    })
+    .then(function() {
+        $("#mainTab").click();
+        deferred.resolve();
+    })
+    .fail(deferred.reject);
 
-                dsName = DSCart.getCartById(dsId).find('input').val();
-                $("#dataCart-submit").click();
-                TestSuite.__testOnly__.checkExists('.xcTableWrap' +
-                                                   ' .tableName[value=' +
-                                                    dsName+ ']')
-                .then(function() {
-                    deferred.resolve();
-                });
-            }, 1000);
-
-        });
-    });
     return deferred.promise();
 }
 

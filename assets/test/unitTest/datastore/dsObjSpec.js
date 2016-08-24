@@ -24,7 +24,7 @@ function dsObjTest() {
         });
     });
 
-    describe("Home Folder Test",  function() {
+    describe("Home Folder Test", function() {
         it("Should get home folder", function() {
             var homeFolder = DS.getHomeDir();
             expect(homeFolder).to.be.an("object");
@@ -152,9 +152,9 @@ function dsObjTest() {
                 setTimeout(function() {
                     // wait for sample table to load
                     done();
-                }, 2000)
+                }, 2000);
             })
-            .fail(function(error) {
+            .fail(function() {
                 throw "Fail Case!";
             });
         });
@@ -173,11 +173,11 @@ function dsObjTest() {
         it("Should Focus on ds", function(done) {
             var $grid = DS.getGrid(testDS.getId());
             DS.focusOn($grid)
-            .then(function(isLoading) {
+            .then(function() {
                 assert.isTrue($grid.hasClass("active"), "focus on ds");
                 done();
             })
-            .fail(function(error) {
+            .fail(function() {
                 throw "Fail Case!";
             });
         });
@@ -215,12 +215,10 @@ function dsObjTest() {
         });
 
         it("Should insert ds", function() {
-            var isBefore = true;
             DS.insert($ds, $folder, true);
             // ds now is on the left of folder
             expect($folder.prev().get(0)).to.equal($ds.get(0));
 
-            var isBefore = false;
             DS.insert($ds, $folder, false);
             // ds now is on the right of folder
             expect($folder.next().get(0)).to.equal($ds.get(0));
@@ -305,7 +303,7 @@ function dsObjTest() {
                 expect(DS.getDSObj(dsId)).not.to.exist;
                 done();
             })
-            .fail(function(error) {
+            .fail(function() {
                 throw "Fail Case!";
             });
         });

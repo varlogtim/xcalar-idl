@@ -48,13 +48,13 @@ function findTestTableId(tableName) {
     if (tableName == null) {
         // this is generated in dsTableSpec.js,
         // which is the basic table we use
-        tableName = 'unitTest-fakeYelp';
+        tableName = 'unitTestFakeYelp';
     }
 
     var tableId;
 
     $('.xcTableWrap').each(function() {
-        if ($(this).find('.tableName').val().indexOf('unitTest-fakeYelp') > -1) {
+        if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
             tableId = $(this).find('.hashName').text().slice(1);
             return false;
         }

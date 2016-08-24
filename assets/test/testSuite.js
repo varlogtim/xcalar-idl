@@ -1215,6 +1215,8 @@ window.TestSuite = (function($, TestSuite) {
     if (window.unitTestMode) {
         TestSuite.__testOnly__ = {};
         TestSuite.__testOnly__.checkExists = checkExists;
+        TestSuite.__testOnly__.loadDS = loadDS;
+        TestSuite.__testOnly__.createTable = createTable;
     }
     /* End Of Unit Test Only */
 

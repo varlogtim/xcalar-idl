@@ -379,31 +379,11 @@ window.SmartCastView = (function($, SmartCastView) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
-        // MultiCastModal.__testOnly__ = {};
-        // MultiCastModal.__testOnly__.setNewColType = function(args) {
-        //     newColTypes = args;
-        // };
+        SmartCastView.__testOnly__ = {};
 
-        // MultiCastModal.__testOnly__.setSuggColFlags = function(args) {
-        //     suggColFlags = args;
-        // };
-
-        // MultiCastModal.__testOnly__.setColNames = function(args) {
-        //     colNames = args;
-        // };
-
-        // MultiCastModal.__testOnly__.setColTypes = function(args) {
-        //     colTypes = args;
-        // };
-
-        // MultiCastModal.__testOnly__.setRecTypes = function(args) {
-        //     recTypes = args;
-        // };
-
-        // MultiCastModal.__testOnly__.closeMultiCastModal = closeMultiCastModal;
-        // MultiCastModal.__testOnly__.selectCols = selectCols;
-        // MultiCastModal.__testOnly__.deSelectCols = deSelectCols;
-        // MultiCastModal.__testOnly__.suggestType = suggestType;
+        SmartCastView.__testOnly__.selectCol = selectCol;
+        SmartCastView.__testOnly__.deSelectCol = deSelectCol;
+        SmartCastView.__testOnly__.changeColType = changeColType;
     }
     /* End Of Unit Test Only */
 

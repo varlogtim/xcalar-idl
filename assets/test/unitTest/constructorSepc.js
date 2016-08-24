@@ -110,7 +110,7 @@ describe('Constructor Test', function() {
             "isNewCol": false,
             "width"   : 100,
             "decimals": 10,
-            "func": {
+            "func"    : {
                 "name": "pull"
             }
         });
@@ -123,7 +123,7 @@ describe('Constructor Test', function() {
         expect(progCol.isEmptyCol()).to.be.false;
 
         // case 2
-        var progCol = new ProgCol({
+        progCol = new ProgCol({
             "name": "DATA",
             "type": "object",
             "func": {
@@ -204,12 +204,12 @@ describe('Constructor Test', function() {
                 "name"    : "testCol",
                 "backName": "backTestCol",
                 "isNewCol": false,
-                "func": {
+                "func"    : {
                     "name": "pull"
                 }
             });
 
-            var dataCol = new ColManager.newDATACol();
+            var dataCol = ColManager.newDATACol();
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId"  : "a1",
@@ -252,7 +252,7 @@ describe('Constructor Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error
+                throw error;
             });
         });
     });
@@ -400,7 +400,7 @@ describe('Constructor Test', function() {
         it('WKBK should be a constructor', function() {
             try {
                 new WKBK();
-            } catch(error) {
+            } catch (error) {
                 expect(error).not.to.be.null;
             }
 
@@ -443,8 +443,8 @@ describe('Constructor Test', function() {
             expect(wkbkSet).to.be.an('object');
 
             var wkbk = new WKBK({
-                'name'    : 'test',
-                'id'      : 'testId'
+                'name': 'test',
+                'id'  : 'testId'
             });
 
             wkbkSet.put('testId', wkbk);
@@ -928,10 +928,10 @@ describe('Constructor Test', function() {
             expect(extSet.get('test').getName()).to.equal('test');
 
             var item2 = new ExtItem({
-                'name'       : 'marketTestItem',
-                'installed'  : false,
-                'category'   : 'marketTest',
-                'repository' : {
+                'name'      : 'marketTestItem',
+                'installed' : false,
+                'category'  : 'marketTest',
+                'repository': {
                     'type': 'market'
                 }
             });
