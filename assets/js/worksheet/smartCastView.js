@@ -377,8 +377,6 @@ window.SmartCastView = (function($, SmartCastView) {
         }
     }
 
-   
-
     /* Unit Test Only */
     if (window.unitTestMode) {
         // MultiCastModal.__testOnly__ = {};

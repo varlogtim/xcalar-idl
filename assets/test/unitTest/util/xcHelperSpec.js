@@ -687,14 +687,7 @@ describe('xcHelper Test', function() {
         // case 3
         $input = $('<input type="text" value="a">');
         xcHelper.insertText($input, "b");
-        expect($input.val()).to.be.equal("b, a");
-
-        // case 4
-        $input = $('<input type="text" value=", a">');
-        xcHelper.insertText($input, "b");
-        expect($input.val()).to.be.equal("b, a");
-
-        // XXX don't know how to test other case yet...
+        expect($input.val()).to.be.equal("b");
     });
 
     it('xcHelper.hasSpecialChar should work', function() {

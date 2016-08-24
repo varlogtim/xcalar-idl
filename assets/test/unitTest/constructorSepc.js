@@ -405,17 +405,18 @@ describe('Constructor Test', function() {
             }
 
             var wkbk = new WKBK({
-                'name'    : 'test',
-                'id'      : 'testId',
-                'noMeta'  : false,
-                'srcUser' : 'testUser',
-                'curUser' : 'testUser',
-                'created' : 1234,
-                'modified': 2234
+                'name'         : 'test',
+                'id'           : 'testId',
+                'noMeta'       : false,
+                'srcUser'      : 'testUser',
+                'curUser'      : 'testUser',
+                'created'      : 1234,
+                'modified'     : 2234,
+                'numWorksheets': 12
             });
 
             expect(wkbk).to.be.an('object');
-            expect(Object.keys(wkbk).length).to.equal(7);
+            expect(Object.keys(wkbk).length).to.equal(8);
             expect(wkbk).to.have.property('name')
             .and.to.equal('test');
             expect(wkbk).to.have.property('id')
@@ -430,6 +431,8 @@ describe('Constructor Test', function() {
             .and.to.equal(1234);
             expect(wkbk).to.have.property('modified')
             .and.to.equal(2234);
+            expect(wkbk).to.have.property('numWorksheets')
+            .and.to.equal(12);
 
             wkbk.update();
             expect(wkbk.modified).not.to.equal(2234);

@@ -1,66 +1,12 @@
-describe('MultiCast Modal', function() {
-    var minModeCache;
-    var $modal;
+describe('Smarat Cast View', function() {
+    var $castView;
     var $resultSection;
     var $table;
 
     before(function(){
-        // turn off min mode, as it affectes DOM test
-        minModeCache = gMinModeOn;
-        gMinModeOn = true;
-
-        $modal = $("#multiCastModal");
+        $castView = $("#smartCastView");
         $resultSection = $("#multiCast-result");
-        $table = $("#multiCast-table");
-    });
-
-    describe('updateTypeInfo() Test', function() {
-        it('updateTypeInfo() should show correct instruction', function() {
-            // when nothing to suggest
-            var $label = $modal.find(".resultContainer .title .label");
-            MultiCastModal.__testOnly__.updateTypeInfo();
-
-            expect($resultSection.text()).to.equal(MultiCastTStr.SelectCol);
-            expect($label.text()).to.equal(MultiCastTStr.CastRes);
-
-            // test text in smart sugg case
-            MultiCastModal.__testOnly__.updateTypeInfo(true);
-            expect($resultSection.text().indexOf(MultiCastTStr.NoRec))
-            .to.not.equal(-1);
-            expect($label.text()).to.equal(MultiCastTStr.SmartRes);
-        });
-
-        it('updateTypeInfo() should generate correct suggestion', function() {
-            // when has columns to suggest
-            MultiCastModal.__testOnly__.setColNames([null, "test1", "test2"]);
-            MultiCastModal.__testOnly__.setColTypes([null, "string", "string"]);
-            MultiCastModal.__testOnly__.setNewColType([null, "integer", "string"]);
-            MultiCastModal.__testOnly__.setSuggColFlags([null, false, true]);
-
-            MultiCastModal.__testOnly__.updateTypeInfo();
-            // has two results
-            var $rows = $resultSection.find(".row");
-            expect($rows.length).to.equal(2);
-
-            var $row0 = $rows.eq(0);
-            expect($row0.find(".colName").text()).to.equal("test1");
-            expect($row0.find(".oldType").text()).to.equal("string");
-            expect($row0.find(".newType").text()).to.equal("integer");
-            expect($row0.find(".highlight").length).to.equal(0);
-
-            var $row1 = $rows.eq(1);
-            expect($row1.find(".colName").text()).to.equal("test2");
-            expect($row1.find(".oldType").text()).to.equal("string");
-            expect($row1.find(".newType").text()).to.equal("string");
-            expect($row1.find(".highlight").length).to.equal(1);
-        });
-
-        after(function() {
-            MultiCastModal.__testOnly__.setColNames([]);
-            MultiCastModal.__testOnly__.setColTypes([]);
-            MultiCastModal.__testOnly__.setNewColType([]);
-            MultiCastModal.__testOnly__.setSuggColFlags([]);
-        });
+        $table = $("#smartCast-table");
     });
 
     describe("selectCols() and deSelectCols() Test", function() {
@@ -138,22 +84,18 @@ describe('MultiCast Modal', function() {
     });
 
     describe("MultiCast UI test", function() {
-        it("Should show the modal", function() {
+        it("Should show the Cast View", function() {
             var tableId = findTestTableId();
             SmartCastView.show(tableId);
 
-            assert.isTrue($modal.is(":visible"));
+            assert.isTrue($castView.is(":visible"));
             // this table has now columns to suggest
             expect($resultSection.find(".row").length).to.equal(0);
         });
 
-        it("Should close the modal", function() {
-            $modal.find(".close").click();
-            assert.isFalse($modal.is(":visible"));
+        it("Should close the View", function() {
+            $castView.find(".close").click();
+            assert.isFalse($castView.is(":visible"));
         });
-    });
-
-    after(function() {
-        gMinModeOn = minModeCache;
     });
 });
