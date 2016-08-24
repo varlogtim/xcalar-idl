@@ -953,6 +953,18 @@
 
             &:hover {
                 background-color: rgba(0, 0, 0, 0.3);
+
+                .addTableBtn {
+                    .icon {
+                        &.xi_table {
+                            display: none;
+                        }
+
+                        &.xi-ckbox-empty {
+                            display: inline-block;
+                        }
+                    }
+                }
             }
 
             &.hiddenWS {
@@ -1038,28 +1050,8 @@
                     }
                 }
 
-                &:hover {
-                    .icon {
-                        &.xi_table {
-                            display: none;
-                        }
-
-                        &.xi-ckbox-empty {
-                            display: inline-block;
-                        }
-                    }
-                }
-
                 &.selected {
                     background-color: @color-bg-softBlue;
-
-                    &:hover {
-                        .icon {
-                            &.xi-ckbox-empty {
-                                display: none;
-                            }
-                        }
-                    }
 
                     .icon {
                         color: @color-white !important;
@@ -1070,6 +1062,10 @@
 
                         &.xi-tick {
                             display: inline-block;
+                        }
+
+                        &.xi-ckbox-empty {
+                            display: none;
                         }
 
                         &:before {
@@ -1084,7 +1080,7 @@
             }
 
             .tableName {
-                max-width: 160px;
+                max-width: ~"calc(100% - 60px)";
                 .textOverflowOneLine;
                 margin-right: 2px;
             }
