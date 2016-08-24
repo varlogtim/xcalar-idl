@@ -53,6 +53,7 @@ newUI: $(DESTDIR) generateHtml
 	@mkdir -p $(DESTDIR)/prod
 	@rsync -a * $(DESTDIR)/prod --exclude prod --exclude node_modules
 	@echo "=== Compile Less ==="
+	mkdir -p $(DESTDIR)/prod/assets/newStylesheets/css
 	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/login.less > prod/assets/newStylesheets/css/login.css
 	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/style.less > prod/assets/newStylesheets/css/style.css
 	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/installer.less > prod/assets/newStylesheets/css/installer.css
