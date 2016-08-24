@@ -378,6 +378,7 @@ window.DagPanel = (function($, DagPanel) {
             $menu.data('tableId', tableId);
             $menu.data('tableelement', $dagTable);
             var activeFound = false;
+            var toWorksheetNotAllowed = false;
             var tableWSId;
             var inColumnPickerMode = $('#container').hasClass('columnPicker');
 
@@ -404,9 +405,18 @@ window.DagPanel = (function($, DagPanel) {
                 }
             });
 
-            if (activeFound) {
+            // to check if aggregate table, in which case we disallow 
+            // many options
+            var type = $dagTable.siblings('.actionType').data('type');
+
+            if (type === "aggregate") {
+                $menu.find('.addTable, .revertTable, .focusTable, ' +
+                            '.archiveTable').addClass('hidden');
+            } else if (activeFound) {
+                // already in WS, cannot add or revert to worksheet
                 $menu.find('.addTable, .revertTable').addClass('hidden');
             } else {
+                // not in WS, allow adding and reverting, disallow archiving
                 $menu.find('.addTable, .revertTable').removeClass('hidden');
                 $menu.find('.focusTable, .archiveTable').addClass('hidden');
             }
