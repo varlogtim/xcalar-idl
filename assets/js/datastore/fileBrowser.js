@@ -13,8 +13,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
     /* Contants */
     var defaultSortKey  = "type"; // default is sort by type;
-    var dsIconHeight = 72;
-    var dsIconWidth = 59;
+    var dsIconHeight = 65;
+    var dsIconWidth = 65;
     var dsListHeight = 30;
     var lowerFileLimit = 800; // when we start hiding files
     var upperFileLimit = 110000; // show error if over 110K
@@ -1236,44 +1236,33 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function findVerticalIcon($curIcon, code) {
-        var curIconTop = $curIcon.position().top;
-        var curIconLeft = $curIcon.position().left;
-        var targetTop;
         var $targetIcon;
-        // Measure top + or - 2 due to browser zoom
+        var curIndex = $curIcon.index() - 1; // .sizer is at 0 index
+        var containerWidth = $innerContainer.width();
+        var gridsPerRow = Math.floor(containerWidth / dsIconWidth);
         if (code === keyCode.Up) {
-            targetTop = curIconTop - dsIconHeight;
-            $curIcon.prevAll().each(function() {
-                if ($(this).position().left === curIconLeft &&
-                    ($(this).position().top > targetTop - 2 &&
-                     $(this).position().top < targetTop + 2)) {
-                    $targetIcon = $(this);
-                    return false;
-                } else if ($(this).position().top < targetTop - 2) {
-                    return false;
-                }
-            });
+            var newIndex = curIndex - gridsPerRow;
+            if (newIndex < 0) {
+                $targetIcon = $curIcon;
+            } else {
+                $targetIcon = $innerContainer.find('.grid-unit')
+                                         .eq(curIndex - gridsPerRow);
+            }
         } else if (code === keyCode.Down) {
-            targetTop = curIconTop + dsIconHeight;
-            var moreRowsExist = false;
-            $curIcon.nextAll().each(function() {
-                if ($(this).position().top > targetTop - 2 &&
-                    $(this).position().top < targetTop + 2) {
-                    moreRowsExist = true;
-                    if ($(this).position().left === curIconLeft) {
-                        $targetIcon = $(this);
-                        return false;
-                    }
-                } else if ($(this).position().top > targetTop + 2) {
-                    return false;
+
+            $targetIcon = $innerContainer.find('.grid-unit')
+                                         .eq(curIndex + gridsPerRow);
+            if (!$targetIcon.length) { 
+                // when there isn't an icon directly below
+                $targetIcon = $innerContainer.find('.grid-unit').last();
+                // pick the last icon of the last row, unless it's on the same
+                // row (position().top === curIconTop)  
+                var curIconTop = $curIcon.position().top;
+                if ($targetIcon.position().top === curIconTop) {
+                    $targetIcon = $curIcon;
                 }
-            });
-            if (!$targetIcon && moreRowsExist &&
-                !$curIcon.is(':last-child')) {
-                $targetIcon = $curIcon.siblings(':last');
             }
         }
-
         return ($targetIcon);
     }
 
