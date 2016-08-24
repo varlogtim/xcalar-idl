@@ -1223,11 +1223,18 @@
         map.type = DfFieldTypeT.DfFatptr;
         leftRenameMap.push(map);
 
+        var rightRenameMap = [];
+        var map2 = new XcalarApiRenameMapT();
+        map2.oldName = yelpUserDataset;
+        map2.newName = "rightDataset";
+        map2.type = DfFieldTypeT.DfFatptr;
+        rightRenameMap.push(map2);
+
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
                    "yelp/user-votes.funny-gt900",
                    "yelp/user-dummyjoin",
                    JoinOperatorT.InnerJoin,
-                   leftRenameMap)
+                   leftRenameMap, rightRenameMap)
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
@@ -2356,10 +2363,15 @@
             var jj;
             printResult(listXdfsOutput);
             for (ii = 0; ii < listXdfsOutput.numXdfs; ii++) {
+                 var numArgs;
+                 numArgs = listXdfsOutput.fnDescs[ii].numArgs;
+                 if (numArgs < 0) {
+                     numArgs *= -1;
+                 }
                  console.log("\tfnName: ", listXdfsOutput.fnDescs[ii].fnName);
                  console.log("\tfnDesc: ", listXdfsOutput.fnDescs[ii].fnDesc);
                  console.log("\tNumArgs: ", listXdfsOutput.fnDescs[ii].numArgs);
-                 for (jj = 0; jj < listXdfsOutput.fnDescs[ii].numArgs; jj++) {
+                 for (jj = 0; jj < numArgs; jj++) {
                       console.log("\tArg ", jj, ": ", listXdfsOutput.fnDescs[ii].argDescs[jj].argDesc);
                  }
                  console.log("\n\n");
@@ -2368,6 +2380,59 @@
         })
         .fail(function(reason) {
             test.fail(reason);
+        });
+    }
+
+    function testListVarArgUdf(test) {
+        var fnName = "func";
+        var argName = "*myArgsList";
+        var source = "def " + fnName + "(" + argName + "):\n return \"\"\n";
+        var moduleName = "mgmttestVarArgUdf";
+        var fullyQualifiedFnName = moduleName + ":" + fnName;
+        var ii;
+
+        xcalarApiUdfDelete(thriftHandle, moduleName)
+        .always(function () {
+            xcalarApiUdfAdd(thriftHandle, UdfTypeT.UdfTypePython,
+                             moduleName, source)
+            .then(function () {
+                return xcalarApiListXdfs(thriftHandle, fullyQualifiedFnName, "User-defined functions")
+            })
+            .then(function(listXdfsOutput) {
+                if (listXdfsOutput.numXdfs != 1) {
+                    for (ii = 0; ii < listXdfsOutput.numXdfs; ii++) {
+                        console.log("Xdf: ", listXdfsOutput.fnDescs[ii].fnName);
+                    }
+                    test.fail("Number of XDFs returned = " + listXdfsOutput.numXdfs + " != 1");
+                }
+
+                if (listXdfsOutput.fnDescs[0].fnName != fullyQualifiedFnName) {
+                    test.fail("Name of test returned: " + listXdfSOutput.fnDescs[0].fnName + " Expected: " + fullyQualifiedFnName)
+                }
+
+                if (listXdfsOutput.fnDescs[0].numArgs != -1) {
+                    var numArgs;
+                    numArgs = listXdfsOutput.fnDescs[0].numArgs;
+                    if (numArgs < 0) {
+                        numArgs *= -1;
+                    }
+
+                    console.log(listXdfsOutput.fnDescs[0].fnName)
+                    for (ii = 0; ii < numArgs; ii++) {
+                        console.log("Arg: ", listXdfsOutput.fndescs[0].argDescs[ii].argDesc);
+                    }
+                    test.fail("Number of args returned: " + listXdfsOutput.fnDescs[0].numArgs + " Expected: -1");
+                }
+
+                if (listXdfsOutput.fnDescs[0].argDescs[0].argDesc != argName) {
+                    test.fail("Name of arg returned: " + listXdfsOutput.fnDescs[0].argDescs[ii].argDesc + " Expected: " + argName);
+                }
+
+                test.pass();
+            })
+            .fail(function(status) {
+                test.fail("listXdfs returned status: " + StatusTStr[status])
+            })
         });
     }
 
@@ -2959,6 +3024,9 @@
     addTestCase(testTop, "top test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
+
+    // Witness to bug Xc-4963
+    addTestCase(testListVarArgUdf, "listVarArgUdf test", defaultTimeout, TestCaseEnabled, "4963");
 
     // Witness to bug Xc-2371
     addTestCase(indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371")

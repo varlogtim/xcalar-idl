@@ -1143,7 +1143,8 @@ function xcalarJoinWorkItem(leftTableName, rightTableName, joinTableName,
         if (workItem.input.joinInput.renameMap == null) {
             workItem.input.joinInput.renameMap = rightRenameMap
         } else {
-            workItem.input.joinInput.renameMap.concat(rightRenameMap);
+            workItem.input.joinInput.renameMap =
+                workItem.input.joinInput.renameMap.concat(rightRenameMap);
         }
     }
 
