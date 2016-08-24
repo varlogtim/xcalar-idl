@@ -78,6 +78,8 @@ TooltipTStr = {
     'RemoveQuery': 'remove query',
     'CancelQuery': 'cancel query',
     'NeedCreateSchedule': 'Click on the schedule icon to attach a schedule',
+    'AlreadyIcv': 'This table is already an ICV table',
+    "IcvRestriction": "ICV only available for Map and Group By", // Sync with htmlTStr
 
      // with replace
     'CollapsedTables': '<number> tables are hidden'
@@ -253,7 +255,9 @@ ErrTStr = {
 
     'NoCast': 'No column to cast.',
 
-    'WorkbookExists': 'A workbook named <workbookName> already exists. Please choose another name.'
+    'WorkbookExists': 'A workbook named <workbookName> already exists. Please choose another name.',
+
+    'IcvFailed': 'Failed to generate ICV table'
 
 };
 

@@ -79,6 +79,14 @@ window.DagFunction = (function($, DagFunction) {
         return (dagLineage);
     };
 
+    DagFunction.get = function(tableId) {
+        if (tableId in dagLineage) {
+            return (dagLineage[tableId]);
+        } else {
+            return (undefined);
+        }
+    };
+
     DagFunction.printDagCli = function(tableName) {
         var tableId = xcHelper.getTableId(tableName);
         // var toPrint;
@@ -95,6 +103,43 @@ window.DagFunction = (function($, DagFunction) {
             .then(concatAllCli);
         }
     };
+
+    DagFunction.cloneDagNode = function(inputName, origInputStruct) {
+        function getConstructorName(inputName) {
+            var input = inputName.substr(0, inputName.length-5);
+            switch (input) {
+                case ("load"):
+                    consName = "BulkLoad";
+                    break;
+                case ("stat"):
+                    consName = "GetStat";
+                    break;
+                case ("statByGroupId"):
+                    consName = "GetStatByGroupId";
+                    break;
+                default:
+                    consName = input[0].toUpperCase() + input.substr(1);
+            }
+            consName = "XcalarApi" + consName +"InputT()";
+
+            return (consName);
+        }
+        // We are looking for something like XcalarApiBLAHInputT
+        var structName = getConstructorName(inputName);
+        var newStruct = {};
+        try {
+            // XXX Once we have a nice clean interface from the backend
+            // we can algorithmically generate this rather than use eval
+            newStruct = eval("new "+structName);
+        } catch (error) {
+            console.error(error);
+            console.error("Constructor doesn't eval to any known struct! "+
+                          structName);
+            return;
+        }
+        return (jQuery.extend(true, newStruct, origInputStruct));
+    };
+
     // Helpers for cloneTreeWithNewValue
     function findXidByDstTableName(valArray, dstName) {
         for (var i = 0; i<valArray.length; i++) {
@@ -175,26 +220,6 @@ window.DagFunction = (function($, DagFunction) {
 
 
     DagFunction.runProcedureWithParams = function(tableName, param, doNotRun) {
-        function getConstructorName(inputName) {
-            var input = inputName.substr(0, inputName.length-5);
-            switch (input) {
-                case ("load"):
-                    consName = "BulkLoad";
-                    break;
-                case ("stat"):
-                    consName = "GetStat";
-                    break;
-                case ("statByGroupId"):
-                    consName = "GetStatByGroupId";
-                    break;
-                default:
-                    consName = input[0].toUpperCase() + input.substr(1);
-            }
-            consName = "XcalarApi" + consName +"InputT()";
-
-            return (consName);
-        }
-
         function updateSourceName(structArray, translation) {
             for (var i = 0; i<structArray.length; i++) {
                 if ("tableName" in structArray[i]) {
@@ -270,19 +295,8 @@ window.DagFunction = (function($, DagFunction) {
             return;
         }
         for (var i = 0; i<valueArray.length; i++) {
-            var structName = getConstructorName(valueArray[i].inputName);
-            var newStruct = {};
-            try {
-                // XXX Once we have a nice clean interface from the backend
-                // we can algorithmically generate this rather than use eval
-                newStruct = eval("new "+structName);
-            } catch (error) {
-                console.error(error);
-                console.error("Constructor doesn't eval to any known struct! "+
-                              structName);
-                return;
-            }
-            var struct = jQuery.extend(true, newStruct, valueArray[i].struct);
+            var struct = DagFunction.cloneDagNode(valueArray[i].inputName,
+                                                  valueArray[i].struct);
             valueArray[i] = xcHelper.deepCopy(valueArray[i]);
             // ^ Just the above is not enough due to prototype methods in
             // the thrift structs

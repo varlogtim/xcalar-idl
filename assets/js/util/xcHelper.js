@@ -630,7 +630,7 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.autoTooltip = function(ele) {
         var $ele = $(ele);
-        if (ele.offsetWidth < ele.scrollWidth){
+        if (ele.offsetWidth < ele.scrollWidth) {
             $ele.attr({
                 'data-container': 'body',
                 'data-toggle'   : 'tooltip'
@@ -689,7 +689,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.showFail = function() {
-
+        // No use for this yet
     };
 
     xcHelper.replaceMsg = function(txt, replaces) {
@@ -1765,6 +1765,33 @@ window.xcHelper = (function($, xcHelper) {
                         .attr("data-container", container)
                         .attr("data-placement", placement);
         return ($element);
+    };
+
+    xcHelper.temporarilyDisableTooltip = function($element, selector) {
+        $elementToChange = $element;
+        if (selector) {
+            $elementToChange = $element.find(selector);
+        }
+
+        $elementToChange.removeAttr("data-toggle");
+    };
+
+    xcHelper.reenableTooltip = function($element, selector) {
+        $elementToChange = $element;
+        if (selector) {
+            $elementToChange = $element.find(selector);
+        }
+
+        $elementToChange.attr("data-toggle", "tooltip");
+    };
+
+    xcHelper.changeTooltipText = function($element, selector, text) {
+        $elementToChange = $element;
+        if (selector) {
+            $elementToChange = $element.find(selector);
+        }
+
+        $elementToChange.attr("title", text);
     };
 
     // not only looks for gColPrefix but checks to make sure it's not preceded by

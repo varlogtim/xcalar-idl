@@ -1496,6 +1496,35 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
     return (deferred.promise());
 }
 
+function XcalarMapWithInput(txId, inputStruct) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (Transaction.checkAndSetCanceled(txId)) {
+        return (deferred.reject().promise());
+    }
+    var workItem = xcalarApiMapWorkItem();
+    workItem.input.mapInput = inputStruct;
+    var def1 = xcalarApiMapWithWorkItem(tHandle, workItem);
+    var def2 = XcalarGetQuery(workItem);
+    def2.then(function(query) {
+        Transaction.startSubQuery(txId, 'map', inputStruct.dstTable.tableName,
+                                  query);
+    });
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarMap", error1, error2);
+        deferred.reject(thriftError);
+    });
+    return deferred.promise();
+}
+
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
                    txId, doNotUnsort, icvMode) {
     if (tHandle == null) {
@@ -1698,6 +1727,35 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
             var thriftError = thriftLog("XcalarJoin", error1, error2);
             deferred.reject(thriftError);
         });
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarGroupByWithInput(txId, inputStruct) {
+    var deferred = jQuery.Deferred();
+    if (Transaction.checkAndSetCanceled(txId)) {
+        return (deferred.reject().promise());
+    }
+    var workItem = xcalarGroupByWorkItem();
+    workItem.input.groupByInput = inputStruct;
+
+    var def1 = xcalarGroupByWithWorkItem(tHandle, workItem);
+    var def2 = XcalarGetQuery(workItem);
+
+    def2.then(function(query) {
+        Transaction.startSubQuery(txId, 'groupBy',
+                                  inputStruct.dstTable.tableName, query);
+    });
+
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error1, error2) {
+        var thriftError = thriftLog("XcalarGroupBy", error1, error2);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());

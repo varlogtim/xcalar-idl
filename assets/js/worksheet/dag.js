@@ -429,6 +429,30 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.unlockTable').hide();
             }
 
+            var operator = $(this).closest('.dagTable').prev().data('type');
+            var $genIcvLi = $menu.find('.generateIcv');
+            var $genNonIcvLi = $menu.find('.generateNonIcv');
+
+            // JJJ Here we need to see whether or not it's the icv version
+            if ($dagTable.find(".dagTableIcon").hasClass("icv")) {
+                $genIcvLi.addClass('unavailable');
+                xcHelper.changeTooltipText($genIcvLi, undefined,
+                                           TooltipTStr.AlreadyIcv);
+                xcHelper.reenableTooltip($genIcvLi);
+            } else {
+                if (!$dagTable.hasClass("icv") &&
+                    (operator === 'map' || operator === 'groupBy')) {
+                    // JJJ Hide and enable the relevant stuff
+                    $genIcvLi.removeClass('unavailable');
+                    xcHelper.temporarilyDisableTooltip($genIcvLi);
+                } else {
+                    $genIcvLi.addClass('unavailable');
+                    xcHelper.changeTooltipText($genIcvLi, undefined,
+                                               TooltipTStr.IcvRestriction);
+                    xcHelper.reenableTooltip($genIcvLi);
+                }
+            }
+
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
             addMenuKeyboardNavigation($menu);
         });
@@ -771,6 +795,53 @@ window.DagPanel = (function($, DagPanel) {
         $('.tooltip').hide();
     }
 
+    function revertTable(tableId, newTableName, oldTableName) {
+        var wsId;
+        var worksheet;
+        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
+        {
+            tableType = "noSheet";
+            wsId = WSManager.getActiveWS();
+            worksheet = wsId;
+        } else if (gTables[tableId] && gTables[tableId].status ===
+                    TableType.Orphan) {
+            tableType = TableType.Orphan;
+            wsId = null;
+            worksheet = WSManager.getWSFromTable(tableId);
+        } else {
+            tableType = TableType.Archived;
+            wsId = null;
+            worksheet = WSManager.getWSFromTable(tableId);
+        }
+
+        var oldTableId = xcHelper.getTableId(oldTableName);
+        var oldTableNames = [];
+        if (oldTableName) {
+            oldTableNames.push(oldTableName);
+        }
+        TblManager.refreshTable([newTableName], undefined, oldTableNames, wsId)
+        .then(function() {
+            var newTableId = xcHelper.getTableId(newTableName);
+
+            var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
+            Dag.focusDagForActiveTable();
+            xcHelper.centerFocusedTable($tableWrap, true);
+
+            SQL.add("Revert Table", {
+                "operation"     : SQLOps.RevertTable,
+                "tableName"     : newTableName,
+                "oldTableName"  : oldTableName,
+                "oldTableId"    : oldTableId,
+                "tableId"       : newTableId,
+                "tableType"     : tableType,
+                "worksheet"     : worksheet,
+                "worksheetIndex": WSManager.getWSOrder(worksheet),
+                "htmlExclude"   : ["tableType", "oldTableName", "worksheet",
+                                   "worksheetIndex"]
+            });
+        });
+    }
+
     function dagTableDropDownActions($menu) {
         $menu.find('.addTable').mouseup(function(event) {
             if (event.which !== 1) {
@@ -796,52 +867,10 @@ window.DagPanel = (function($, DagPanel) {
             if (event.which !== 1) {
                 return;
             }
-            var tableId = $menu.data('tableId');
-            var wsId;
-            var worksheet;
-            if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
-            {
-                tableType = "noSheet";
-                wsId = WSManager.getActiveWS();
-                worksheet = wsId;
-            } else if (gTables[tableId] && gTables[tableId].status ===
-                        TableType.Orphan) {
-                tableType = TableType.Orphan;
-                wsId = null;
-                worksheet = WSManager.getWSFromTable(tableId);
-            } else {
-                tableType = TableType.Archived;
-                wsId = null;
-                worksheet = WSManager.getWSFromTable(tableId);
-            }
-
-            var newTableName = $menu.data('tablename');
-            var $tableIcon = $menu.data('tableelement');
-            var $dagWrap = $tableIcon.closest('.dagWrap');
-            var oldTableName = $dagWrap.find('.tableName').text();
-            var oldTableId = xcHelper.getTableId(oldTableName);
-
-            TblManager.refreshTable([newTableName], null, [oldTableName], wsId)
-            .then(function() {
-                var newTableId = xcHelper.getTableId(newTableName);
-
-                var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
-                Dag.focusDagForActiveTable();
-                xcHelper.centerFocusedTable($tableWrap, true);
-
-                SQL.add("Revert Table", {
-                    "operation"     : SQLOps.RevertTable,
-                    "tableName"     : newTableName,
-                    "oldTableName"  : oldTableName,
-                    "oldTableId"    : oldTableId,
-                    "tableId"       : newTableId,
-                    "tableType"     : tableType,
-                    "worksheet"     : worksheet,
-                    "worksheetIndex": WSManager.getWSOrder(worksheet),
-                    "htmlExclude"   : ["tableType", "oldTableName", "worksheet",
-                                       "worksheetIndex"]
-                });
-            });
+            var oldTableName = $menu.data('tableelement').closest('.dagWrap')
+                                    .find('.tableName').text();
+            revertTable($menu.data('tableId'), $menu.data('tablename'),
+                        oldTableName);
         });
 
         $menu.find('.focusTable').mouseup(function(event) {
@@ -906,6 +935,233 @@ window.DagPanel = (function($, DagPanel) {
             }
             Dag.showSchema($menu.data('tableelement'));
         });
+
+        $menu.find(".generateIcv").mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            if ($(this).hasClass("unavailable")) {
+                return;
+            }
+            var $tableIcon = $menu.data('tableelement');
+            var $dagWrap = $tableIcon.closest('.dagWrap');
+            generateIcvTable($dagWrap.find('.tableName').text(),
+                             $menu.data('tablename'), $tableIcon);
+        });
+    }
+
+    function generateIcvTable(dagTableName, mapTableName, $tableIcon) {
+        function postOperation() {
+                var newCols = [];
+                if (origTableId in gTables) {
+                    idx = gTables[origTableId].getColNumByBackName(origColName);
+                    if (idx > -1) {
+                        newCols = xcHelper.mapColGenerate(idx,
+                                                 xcalarInput.newFieldName,
+                                                 xcalarInput.evalStr,
+                                                 gTables[origTableId].tableCols,
+                                                 options);
+                    } else {
+                        newCols = xcHelper.mapColGenerate(1,
+                                                 xcalarInput.newFieldName,
+                                                 xcalarInput.evalStr,
+                                                 gTables[origTableId].tableCols,
+                                                 {});
+                    }
+                } else {
+                    // Just leave the tableCols empty and let the user pull it
+                }
+
+                if (idx > -1) {
+                    options = {"selectCol": idx};
+                } else {
+                    options = {};
+                }
+                var worksheet = WSManager.getWSFromTable(origTableId);
+                if (!worksheet) {
+                    worksheet = WSManager.getActiveWS();
+                }
+
+                return TblManager.refreshTable([newTableName], newCols, [],
+                                               worksheet, options);
+        }
+
+        var origTableId = xcHelper.getTableId(mapTableName);
+        if (origTableId in gTables) {
+            var icvTableName = gTables[origTableId].icv;
+            if (icvTableName) {
+                var icvTableId = xcHelper.getTableId(icvTableName);
+                if (gTables[icvTableId]) {
+                    // Find out whether it's already active. If so, focus on it
+                    // Else add it to worksheet
+                    if (TableList.checkTableInList(icvTableId)) {
+                        // Table is in active list. Simply focus
+                        var wsId = WSManager.getWSFromTable(icvTableId);
+                        $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
+
+                        if ($dagPanel.hasClass('full')) {
+                            $('#dagPulloutTab').click();
+                        }
+                        var $tableWrap = $('#xcTableWrap-' + icvTableId);
+                        xcHelper.centerFocusedTable($tableWrap);
+                        $tableWrap.mousedown();
+                        moveFirstColumn();
+                        return;
+                    } else {
+                        // Going to revert to it
+                        revertTable(icvTableId, icvTableName, origTableName);
+                        return;
+                    }
+                } else {
+                    // The table has been deleted. We are cleaning up lazily
+                    // so here's the cleanup
+                    gTables[origTableId].icv = "";
+                }
+            }
+        }
+
+        var $errMsgTarget = $tableIcon;
+        var dagTree = DagFunction.get(xcHelper.getTableId(dagTableName));
+        if (!dagTree) {
+            // Error handling!
+            // This should never ever happen. If this does though, we can always
+            // re-get the DAG graph and then get the following
+            console.error("Unrecoverable error. Cannot generate.");
+            return;
+        }
+
+        var treeNodes = dagTree.orderedPrintArray;
+        var xcalarInput;
+        var op = -1;
+        for (var i = 0; i<treeNodes.length; i++) {
+            var treeNode = treeNodes[i];
+            if (treeNode.value.api !== XcalarApisT.XcalarApiMap &&
+                treeNode.value.api !== XcalarApisT.XcalarApiGroupBy) {
+                continue;
+            }
+            if (treeNode.value.struct.dstTable.tableName === mapTableName) {
+                // Found it!
+                xcalarInput = DagFunction.cloneDagNode(treeNode.value.inputName,
+                                                       treeNode.value.struct);
+                op = treeNode.value.api;
+                break;
+            }
+        }
+       
+        // Check whether this table already exists. If it does, then just add
+        // or focus on that table
+
+        var origTableName = xcalarInput.dstTable.tableName;
+        var tableRoot = xcHelper.getTableName(origTableName);
+        var newTableId = Authentication.getHashId();
+        var newTableName = tableRoot + "_icv" + newTableId;
+
+        xcalarInput.dstTable.tableName = newTableName;
+        // Turn on icv
+        xcalarInput.icvMode = true;
+        var origColName = xcalarInput.newFieldName;
+        xcalarInput.newFieldName = xcalarInput.newFieldName+"_icv";
+        // We want to skip all the checks, including all the indexes and stuff
+
+        switch (op) {
+        case (XcalarApisT.XcalarApiMap):
+            var options = {"replaceColumn": true};
+            var sql = {
+                "operation" : SQLOps.Map,
+                "tableName" : origTableName,
+                "tableId"   : origTableId,
+                //"colNum"    : colNum,
+                "fieldName" : xcalarInput.newFieldName,
+                "mapString" : xcalarInput.evalStr,
+                "mapOptions": options
+            };
+            var txId = Transaction.start({
+                "msg"      : StatusMessageTStr.Map + " ICV mode",
+                "operation": SQLOps.Map,
+                "sql"      : sql,
+                "steps"    : 1
+            });
+
+            var idx = -1;
+            XcalarMapWithInput(txId, xcalarInput)
+            .then(postOperation)
+            .then(function() {
+                Profile.copy(origTableId, newTableId);
+                sql.newTableName = newTableName;
+                if (idx > -1) {
+                    sql.colNum = idx;
+                } else {
+                    sql.colNum = 1;
+                }
+                Transaction.done(txId, {
+                    "msgTable": newTableId,
+                    "sql"     : sql
+                });
+
+                // Add to cache
+                gTables[origTableId].icv = newTableName;
+            })
+            .fail(function(error) {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.MapFailed,
+                    "error"  : error,
+                    "sql"    : sql
+                });
+                StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
+            });
+            break;
+        case (XcalarApisT.XcalarApiGroupBy):
+            var options = {"replaceColumn": true};
+            // XXX This is going to screw up replay
+            var sql = {
+                "operation"   : SQLOps.GroupBy,
+                // "operator"    : operator,
+                "tableName"   : origTableName,
+                "tableId"     : origTableId,
+                // "indexedCols" : indexedCols,
+                // "aggColName"  : aggColName,
+                "newColName"  : xcalarInput.newFieldName,
+                "newTableName": newTableName,
+            };
+            var txId = Transaction.start({
+                "msg"      : StatusMessageTStr.GroupBy + " ICV mode",
+                "operation": SQLOps.GroupBy,
+                "sql"      : sql,
+                "steps"    : 1
+            });
+
+            var idx = -1;
+            XcalarGroupByWithInput(txId, xcalarInput)
+            .then(postOperation)
+            .then(function() {
+                sql.newTableName = newTableName;
+                if (idx > -1) {
+                    sql.colNum = idx;
+                } else {
+                    sql.colNum = 1;
+                }
+                Transaction.done(txId, {
+                    "msgTable": newTableId,
+                    "sql"     : sql
+                });
+
+                // Add to cache
+                gTables[origTableId].icv = newTableName;
+            })
+            .fail(function(ret) {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.GroupByFailed,
+                    "error"  : error,
+                    "sql"    : sql
+                });
+                StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
+            });
+            break;
+        default:
+            console.error("Shouldn't get here");
+            break;
+        }
+
     }
 
     function deleteTable(tableId, tableName) {
@@ -2713,6 +2969,13 @@ window.Dag = (function($, Dag) {
                                 tableName +
                             '</span>';
         } else {
+
+            var icv = "";
+            if (dagNode.input.mapInput.icvMode ||
+                dagNode.input.groupByInput.icvMode) {
+                icv = "icv";
+            }
+
             var tableId = xcHelper.getTableId(tableName);
             html += '<div class="dagTable ' + state + '" ' +
                             'data-tablename="' + tableName + '" ' +
@@ -2720,7 +2983,7 @@ window.Dag = (function($, Dag) {
                             'data-index="' + index + '" ' +
                             'data-id="' + tableId + '" ' +
                             'data-parents="' + parents + '">' +
-                            '<div class="dagTableIcon"></div>';
+                            '<div class="dagTableIcon ' + icv + '"></div>';
             var dagDroppedState = DgDagStateT.DgDagStateDropped;
             if (dagInfo.state === DgDagStateTStr[dagDroppedState]) {
                 html += '<i class="icon xi_table" ' +

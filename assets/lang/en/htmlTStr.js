@@ -170,6 +170,7 @@ module.exports = {
        "FocusTbl": "Find Table In Worksheet",
        "Format": "Format",
        "GB": "Group By",
+       "GenIcv": "Integrity Constraints Table",
        "HideCol": "Hide column",
        "HideColPlura": "Hide Columns",
        "HideTbl": "Hide Table",
@@ -266,6 +267,7 @@ module.exports = {
         "RunQueries": "Show running queries",
         "DoneQueries": "Show finished queries",
         "SelectCol": "Please select a column first!",
+        "IcvRestriction": "ICV only available for Map and Group By" // Sync with jsTstr
     },
 
     "workspaceBar": {

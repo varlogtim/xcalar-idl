@@ -576,6 +576,30 @@ window.TableList = (function($, TableList) {
         $tableList.find('.addTableBtn').removeClass('selected');
     };
 
+    TableList.checkTableInList = function(tableIdOrName, type) {
+        // If type === orphaned, then it's name. Else it's id
+        var tableType = TableType.Active; // Default
+        if (type) {
+            tableType = type;
+        }
+        if (tableType === TableType.Active) {
+            $listWrap = $("#activeTableList");
+            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
+        } else if (tableType === TableType.Orphan) {
+            // if orphan, tableIdOrName is actually tableName
+            $listWrap = $('#orphanedTableList');
+            $li = $listWrap.find('.tableInfo[data-tablename="' +
+                                                    tableIdOrName + '"]');
+        } else {
+            $listWrap = $('#archivedTableList');
+            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
+        }
+
+        if (typeof($li) === "object") {
+            return ($li.length > 0);
+        }
+    };
+
 
     function addOrphanedTable(tableName, wsId) {
         var deferred = jQuery.Deferred();

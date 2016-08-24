@@ -369,7 +369,7 @@ window.SQL = (function($, SQL) {
         var hasLockedTables = false;
         var allWS = WSManager.getWorksheets();
         for (var ws in allWS) {
-            if (allWS[ws].lockedTables.length) {
+            if (allWS[ws].lockedTables && allWS[ws].lockedTables.length) {
                 hasLockedTables = true;
             }
         }
@@ -657,7 +657,7 @@ window.SQL = (function($, SQL) {
         var hasLockedTables = false;
         var allWS = WSManager.getWorksheets();
         for (var ws in allWS) {
-            if (allWS[ws].lockedTables.length) {
+            if (allWS[ws].lockedTables && allWS[ws].lockedTables.length) {
                 hasLockedTables = true;
             }
         }

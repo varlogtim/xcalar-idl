@@ -124,6 +124,7 @@ function TableMeta(options) {
     this.keyName = "";
     this.resultSetCount = -1;
     this.numPages = -1;
+    this.icv = options.icv || "";
 
     return this;
 }

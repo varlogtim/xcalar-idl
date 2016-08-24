@@ -694,7 +694,7 @@ window.xcFunction = (function($, xcFunction) {
             Profile.copy(tableId, finalTableId);
             var options = {"selectCol": colNum};
             return TblManager.refreshTable([finalTableName], tablCols,
-                                            [tableName], worksheet, options);
+                                           [tableName], worksheet, options);
         })
         .then(function() {
 
