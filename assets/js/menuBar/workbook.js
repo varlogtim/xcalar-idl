@@ -321,12 +321,10 @@ window.Workbook = (function($, Workbook) {
                         var oldWorkbookName = WorkbookManager
                                                        .getWorkbook(workbookId)
                                                        .name;
-                        WorkbookManager.renameWKBK(workbookId,
-                                                   newName)
+                        WorkbookManager.renameWKBK(workbookId,newName)
                         .then(function(newWorkbookId) {
-                            $workbookBox.attr('data-workbook-id',
-                                               newWorkbookId);
                             $lastFocusedInput = "";
+                            updateWorkbookInfo($workbookBox, newWorkbookId);
                         })
                         .fail(function(error) {
                             StatusBox.show(error, $workbookBox);
@@ -345,6 +343,20 @@ window.Workbook = (function($, Workbook) {
             default:
                 break;
         }
+    }
+
+    function updateWorkbookInfo($workbookBox, workbookId) {
+        $workbookBox.attr('data-workbook-id', workbookId);
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        var modified = workbook.modified;
+        if (modified) {
+            modified = xcHelper.getDate("-", null, modified) + ' ' +
+                        xcHelper.getTime(null, modified, true);
+        } else {
+            modified = "";
+        }
+
+        $workbookBox.find(".modifiedTime").text(modified);
     }
 
     function getWorkbookInfo(isForceMode) {
