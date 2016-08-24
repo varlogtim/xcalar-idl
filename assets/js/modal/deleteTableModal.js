@@ -279,6 +279,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 getTableList(tableList, type);
                 return;
             }
+        } else if (sortKey === "size" && $.isEmptyObject(tableSizeMap)) {
+            console.warn("not ready to sort on size");
+            return;
         }
 
         if (sortKeyList[type] === sortKey) {
@@ -296,10 +299,34 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         // temoprarily not support sort on size
         if (sortKey === "size") {
-
+            tableList.sort(function(a, b) {
+                var nameA = a.getName();
+                var nameB = b.getName();
+                var sizeA = tableSizeMap[nameA];
+                var sizeB = tableSizeMap[nameB];
+                if (sizeA == null && sizeB == null) {
+                    return 0;
+                } else if (sizeA == null) {
+                    return -1;
+                } else if (sizeB == null) {
+                    return 1;
+                } else {
+                    return sizeA > sizeB;
+                }
+            });
         } else if (sortKey === "date") {
             tableList.sort(function(a, b) {
-                return a.getTimeStamp() > b.getTimeStamp();
+                var tA = a.getTimeStamp();
+                var tB = b.getTimeStamp();
+                if (tA == null && tB == null) {
+                    return 0;
+                } else if (tA == null) {
+                    return -1;
+                } else if (tB == null) {
+                    return 1;
+                } else {
+                    return tA > tB;
+                }
             });
         }
 
