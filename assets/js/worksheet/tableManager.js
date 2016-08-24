@@ -57,7 +57,7 @@ window.TblManager = (function($, TblManager) {
                 promise = setResultSet(newTableName);
             } else {
                 promise = TblManager.setgTable(newTableName,
-                                               ColManager.newDATACol(),
+                                               [ColManager.newDATACol()],
                                                {"isActive": true});
             }
         } else {
