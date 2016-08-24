@@ -229,7 +229,7 @@ window.QueryManager = (function(QueryManager, $) {
             // check queries
             for (var xcQuery in queryLists) {
                 var query = queryLists[xcQuery];
-                if (query.state !== "done") {
+                if (query.state !== "done" && query.state !== "canceled") {
                     if (query.type === "xcFunction") {
                         for (var i = 0; i < query.subQueries.length; i++) {
                             if (query.subQueries[i].state !== "done") {

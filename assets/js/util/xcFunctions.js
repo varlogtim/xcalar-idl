@@ -697,6 +697,7 @@ window.xcFunction = (function($, xcFunction) {
                                             [tableName], worksheet, options);
         })
         .then(function() {
+
             xcHelper.unlockTable(tableId);
 
             sql.newTableName = finalTableName;
