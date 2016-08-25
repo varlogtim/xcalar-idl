@@ -409,7 +409,9 @@ window.StatusMessage = (function($, StatusMessage) {
                     $popupWrap.prepend($tableDonePopup);
                     popupWrapExists = true;
                 } else {
-                    popupNearTab = $('#worksheetTab-' + wsNum);
+                    // popupNearTab = $('#worksheetTab-' + wsNum);
+                    // xx no more workbook tabs to pop up next to
+                    popupNearTab = $('#workspaceTab');
                     popupBottom = true;
                 }
                 classes += ' worksheetNotify';
@@ -428,7 +430,7 @@ window.StatusMessage = (function($, StatusMessage) {
                             $popupWrap.append($tableDonePopup);
                             popupWrapExists = true;
                         } else {
-                            pos.left = 6;
+                            pos.left = MainMenu.getOffset() + 6;
                             pos.top = Math.max(200, ($(window).height() / 2) -
                                                      150);
                         }
@@ -541,7 +543,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 if (popupNearTab) {
                     pos.left = popupNearTab.offset().left +
                                popupNearTab.outerWidth() + 6;
-                    pos.top = 4;
+                    pos.top = popupNearTab.offset().top + 2;
                 }
 
                 if (popupBottom) {
@@ -561,7 +563,7 @@ window.StatusMessage = (function($, StatusMessage) {
             }
 
             setTimeout(function() {
-                if (!$('#xcTableWrap-' + newTableId).length) {
+                if (newTableId && !$('#xcTableWrap-' + newTableId).length) {
                     if ($tableDonePopup.siblings().length === 0) {
                         $tableDonePopup.parent().remove();
                     } else {

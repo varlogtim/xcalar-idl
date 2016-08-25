@@ -1368,12 +1368,7 @@ window.xcHelper = (function($, xcHelper) {
         var $tableWrap = $("#xcTableWrap-" + tableId);
         var tableLeft = $tableWrap.offset().left;
         var tableRight = tableLeft + $tableWrap.width();
-        var mainFrameOffsetLeft;
-        if (MainMenu.isMenuOpen) {
-            mainFrameOffsetLeft = 350;
-        } else {
-            mainFrameOffsetLeft = 65;
-        }
+        var mainFrameOffsetLeft = MainMenu.getOffset();
 
         return (tableRight >= mainFrameOffsetLeft) && (tableLeft <= windowWidth);
     };

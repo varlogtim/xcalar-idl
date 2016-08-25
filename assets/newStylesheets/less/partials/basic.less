@@ -1655,7 +1655,15 @@ body.tooltipOff {
 /* CodeMirror linewidget */
 #udf-fnSection {
     .cm-tab {
-        background-color: @color-background-udfError;
+        position: relative;
+        &::after {
+            content: "";
+            display: block;
+            .position(absolute, @top: 9px, @left: 1px);
+            width: 90%;
+            height: 1px;
+            background-color: @color-background-udfError;
+        }
     }
 }
 
