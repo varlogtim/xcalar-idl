@@ -657,6 +657,7 @@ window.TblAnim = (function($, TblAnim) {
         // Ensure rows are offset correctly
         var fauxTableHeight = $fauxTable.height() +
                               $fauxTable.find('tr:first').outerHeight();
+        var tableTitleHeight = $tableWrap.find('.tableTitle').height();
 
         var xcTableWrapHeight = $tableWrap.height();
         var fauxColHeight = Math.min(fauxTableHeight, xcTableWrapHeight - 36);
@@ -664,8 +665,7 @@ window.TblAnim = (function($, TblAnim) {
         var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
         $fauxTable.css('margin-top', firstRowOffset);
         $fauxTable.find('tr:first-child').css({'margin-top':
-                -($fauxTable.find('tr:first').outerHeight() + firstRowOffset -
-                                                                    22)});
+                                    -(firstRowOffset + tableTitleHeight)});
     }
 
     function createDropTargets(dropTargetIndex, swappedColIndex) {
