@@ -697,11 +697,11 @@ window.TblManager = (function($, TblManager) {
                     '</div>' +
                     '<div class="colGrab"></div>' +
                     '<div class="topHeader">' +
-                        sortIcon +
-                        '<div class="prefix">' +
-                            // XXX replace it when possible
-                            'Placeholder' +
-                        '</div>' +
+                        // sortIcon +
+                        // '<div class="prefix">' +
+                        //     // XXX replace it when possible
+                        //     'Placeholder' +
+                        // '</div>' +
                     '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
