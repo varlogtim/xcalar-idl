@@ -47,9 +47,9 @@ window.OperationsView = (function($, OperationsView) {
 
     // XXX can it be removed?
     // useful for debugging
-    // OperationsView.getOperatorsMap = function() {
-    //     return (operatorsMap);
-    // };
+    OperationsView.getOperatorsMap = function() {
+        return (operatorsMap);
+    };
 
     OperationsView.setup = function() {
         $operationsView = $('#operationsView');
@@ -2269,7 +2269,6 @@ window.OperationsView = (function($, OperationsView) {
         var $group = $activeOpSection.find('.group').eq(groupNum);
         $group.find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
-
             // Edge case. GUI-1929
             // var origLength = $input.val().length;
             var $row = $input.closest('.row');
@@ -2279,7 +2278,6 @@ window.OperationsView = (function($, OperationsView) {
             // var arg = $input.val().trim();
             var arg = $input.val();
             var trimmedArg = arg.trim();
-
             // empty field and empty field is allowed
             if (trimmedArg === "") {
                 if (noArgsChecked) {

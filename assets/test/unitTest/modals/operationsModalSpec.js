@@ -69,12 +69,11 @@ describe('OperationsView', function() {
         });
     });
 
-    //xx xi2.0 skipped until fixed
-    describe.skip('group by', function() {
+    describe('group by', function() {
         var tableId;
         var $operationsModal;
-        var $categoryInput;
         var $functionInput;
+        var $functionsMenu;
         var operatorsMap;
         var aggsList;
         var $argInputs;
@@ -83,14 +82,15 @@ describe('OperationsView', function() {
         var parseType;
         var columns;
         var someColumns;
-        var columnNames = ["yelping_since", "friends", "compliments", "one", "votes", "two.three", "elite", "review_count", "four", "mixVal", "average_stars", "user_id", "DATA"];
-        var someColumnNames = ["yelping_since", "friends", "compliments", "review_count", "four", "mixVal", "average_stars", "DATA"];
+        var columnNames = ["yelping_since", "votes", "one", "compliments", "friends", "two\\.three", "elite", "review_count", "four", "average_stars", "mixVal", "user_id", "DATA"];
+        var someColumnNames = ["yelping_since", "compliments", "friends", "review_count", "four", "average_stars", "mixVal", "DATA"];
 
         before(function(done) {
             getExistingTypes = OperationsView.__testOnly__.getExistingTypes;
             argumentFormatHelper = OperationsView.__testOnly__.argumentFormatHelper;
             parseType = OperationsView.__testOnly__.parseType;
-            $operationsModal = $('#operationsModal');
+            $operationsModal = $('#operationsView');
+            $operationsView = $('#operationsView');
             $('.xcTableWrap').each(function() {
                 if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
@@ -103,9 +103,8 @@ describe('OperationsView', function() {
                 // console.log(tableId);
                 operatorsMap = OperationsView.getOperatorsMap();
                 setTimeout(function() {
-                    $categoryInput = $('#categoryList').find('input');
-                    $functionInput = $('#functionList').find('input');
-                    // $argInputs = $operationsModal.find('.argument:lt(3)');
+                    $functionInput = $operationsView.find('.groupby .functionsInput');
+                    $functionsMenu = $functionInput.siblings('.list');
                     done();
                 }, 500);
             });
@@ -127,34 +126,18 @@ describe('OperationsView', function() {
             });
         });
 
-        describe('category input', function() {
-            it('should read aggregate functions', function() {
-                expect($categoryInput.val()).to.equal('aggregate functions');
-            });
-
-            it('list should have exactly 1 item', function() {
-                // dropdown requires mousedown and click
-                $categoryInput.siblings('.dropdown').mousedown();
-                $categoryInput.siblings('.dropdown').click();
-
-                expect($('#categoryMenu').is(':visible')).to.equal(true);
-                expect($('#categoryMenu').find('li')).to.have.length(1);
-                expect($('#categoryMenu').find('li').text()).to.equal('aggregate functions');
-            });
-        });
-
         describe('function input', function() {
             it('list should match operatorsMap', function() {
                 // dropdown requires mousedown and click
                 $functionInput.siblings('.dropdown').mousedown();
                 $functionInput.siblings('.dropdown').click();
 
-                expect($('#functionsMenu').is(':visible')).to.equal(true);
-                expect($('#functionsMenu').find('li')).to.have.length(aggsList.length);
+                expect($functionsMenu.is(':visible')).to.equal(true);
+                expect($functionsMenu.find('li')).to.have.length(aggsList.length);
             });
 
             it('input should read Avg', function() {
-                $('#functionsMenu').find('li').filter(function() {
+                $functionsMenu.find('li').filter(function() {
                     return ($(this).text() === "avg");
                 }).trigger(fakeEvent.mouseup);
                 expect($functionInput.val()).to.equal('avg');
@@ -163,15 +146,19 @@ describe('OperationsView', function() {
 
         describe('argument section', function() {
             it('should have 3 visible text inputs', function() {
-                expect($operationsModal.find('.argument[type=text]:visible')).to.have.length(3);
-                $argInputs = $operationsModal.find('.argument[type=text]:visible');
+                expect($operationsModal.find('.arg[type=text]:visible')).to.have.length(3);
+                $argInputs = $operationsModal.find('.arg[type=text]:visible');
             });
-            it ('should have 2 visible checkboxes for inc sample', function() {
-                expect($operationsModal.find('.argument[type=checkbox]:visible')).to.have.length(2);
+            it ('should have 3 visible checkboxes for inc sample', function() {
+                expect($operationsModal.find('.checkbox:visible')).to.have.length(3);
             });
         });
 
         describe('test type checking', function() {
+            this.timeout(10000); // this will take a long time because we 
+            // test out a variety of arguments against each other and each test
+            // loops through all the columns in a table each time to check if the
+            // column name exists in the table
             it('should detect if arg types are valid or invalid', function() {
                 columns = gTables[tableId].tableCols;
                 someColumns = [columns[0], columns[1], columns[2], columns[5], columns[7], columns[8], columns[9], columns[10]];
@@ -200,8 +187,10 @@ describe('OperationsView', function() {
             it('variety of different arguments should be formatted correctly', function() {
                 var testArgs1 = ["str", "null", "undefined", "sp aced", "com,ma", "d.ot", gColPrefix, "\\" + gColPrefix, gColPrefix + "a", "\\" + gColPrefix + "a", "a\\" + gColPrefix, "5a", "a5", -5, 5, 3.2, 0];
                 var testArgs2 = [];
-                for (var i = 0; i < someColumnNames; i++) {
+                var testArgs2Unprefixed = [];
+                for (var i = 0; i < someColumnNames.length; i++) {
                     testArgs2.push(gColPrefix + someColumnNames[i]);
+                    testArgs2Unprefixed.push(someColumnNames[i]);
                 }
                 var arg1Types = [];
                 var arg2Types = [];
@@ -219,7 +208,7 @@ describe('OperationsView', function() {
                     arg1Types.push(arg1Type);
                 }
                 for (var i = 0; i < testArgs2.length; i++) {
-                    gTableColNum = gTables[tableId].getColNumByBackName(testArgs2[i]);
+                    gTableColNum = gTables[tableId].getColNumByBackName(testArgs2Unprefixed[i]);
                     arg2Type = gTables[tableId].getCol(gTableColNum).getType();
 
                     arg2Types.push(arg2Type);
@@ -243,7 +232,7 @@ describe('OperationsView', function() {
         });
 
         after(function() {
-            $("#operationsModal .cancel").click();
+            $("#operationsView .cancel").click();
         });
 
         function setArgInputs(arr) {
@@ -255,19 +244,22 @@ describe('OperationsView', function() {
                 }
             });
         }
-
+        // groupByType could be "avg","count", "max" etc.
+        // testArgs is an array of the 2 input vals such as [$class_id, $time]
+        // testedGBTypes is an array of the groupbys we've already tested ["avg", "count"]
         function testGroupByInputsColTypes(groupByType, testArgs, testedGBTypes) {
             var argInfos = [];
             var existingTypes;
             expect(testedGBTypes).to.not.include(groupByType);
             $functionInput.val(groupByType).trigger(fakeEvent.enter);
-            expect($operationsModal.find('.argument[type=text]:visible')).to.have.length(3);
+            expect($operationsModal.find('.arg[type=text]:visible')).to.have.length(3);
             testedGBTypes.push(groupByType);
+            var groupNum = 0;
 
             for (var i = 0; i < testArgs.length; i++) {
                 setArgInputs(testArgs[i]);
                 existingTypes = getExistingTypes();
-                argInfos.push(argumentFormatHelper(existingTypes));
+                argInfos.push(argumentFormatHelper(existingTypes, groupNum));
             }
 
             var count = 0;
@@ -304,11 +296,11 @@ describe('OperationsView', function() {
             var arg1Type;
             var arg2Type;
             var hasValidTypes;
-            var hasValidColPrefix = OperationsView.__testOnly__.hasValidColPrefix;
+            var hasValidColPrefix = xcHelper.hasValidColPrefix;
 
             expect(testedGBTypes).to.not.include(groupByType);
             $functionInput.val(groupByType).trigger(fakeEvent.enter);
-            expect($operationsModal.find('.argument[type=text]:visible'))
+            expect($operationsModal.find('.arg[type=text]:visible'))
                                                             .to.have.length(3);
             testedGBTypes.push(groupByType);
 
@@ -316,18 +308,19 @@ describe('OperationsView', function() {
             var arg2TypeId = $argInputs.eq(1).data('typeid');
             var arg1ValidTypes = parseType(arg1TypeId);
             var arg2ValidTypes = parseType(arg2TypeId);
+            var groupNum = 0;
 
             for (var i = 0; i < testArgs1.length; i++) {
                 for (var j = 0; j < testArgs2.length; j++) {
                     setArgInputs([testArgs1[i], testArgs2[j], 'defaultval']);
                     existingTypes = getExistingTypes();
-                    argInfos.push(argumentFormatHelper(existingTypes));
+                    argInfos.push(argumentFormatHelper(existingTypes, groupNum));
 
                     if (hasValidColPrefix(testArgs1[i]) &&
-                        gTables[tableId].getColNumByBackName(testArgs1[i]) === -1) {
+                        gTables[tableId].getColNumByBackName(testArgs1[i].slice(1)) === -1) {
                         hasValidTypes = false;
                     } else if (hasValidColPrefix(testArgs2[j]) &&
-                                gTables[tableId].getColNumByBackName(testArgs1[j]) === -1) {
+                                gTables[tableId].getColNumByBackName(testArgs2[j].slice(1)) === -1) {
                         hasValidTypes = false;
                     } else if (arg1ValidTypes.indexOf(arg1Types[i]) > -1 &&
                         arg2ValidTypes.indexOf(arg2Types[j]) > -1) {
@@ -339,11 +332,13 @@ describe('OperationsView', function() {
                         console.error(arg1ValidTypes, arg1Types[i], arg2ValidTypes,
                             arg2Types[j], testArgs1[i], testArgs2[j], argInfos[count]);
                     }
+                    // console.log(testArgs1[i], testArgs2[i]);
 
                     expect(hasValidTypes).to.equal(argInfos[count].isPassing);
                     count++;
                 }
             }
+            expect(count).to.be.above(7 * 7);
         }
     });
 
