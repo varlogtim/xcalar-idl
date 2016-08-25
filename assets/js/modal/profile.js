@@ -725,7 +725,7 @@ window.Profile = (function($, Profile, d3) {
                 var lowerRowEnd;
                 var upperRowStart;
 
-                if (!isNum || numEntries % 2 !== 0) {
+                if (numEntries % 2 !== 0) {
                     // odd rows or not number
                     lowerRowEnd = (numEntries + 1) / 2;
                     upperRowStart = lowerRowEnd;
@@ -735,16 +735,15 @@ window.Profile = (function($, Profile, d3) {
                     upperRowStart = lowerRowEnd + 1;
                 }
 
-                promises.push(getMedian.bind(this, resultId, 1, 1, zeroKey,
-                                             numEntries));
+                promises.push(getMedian.bind(this, resultId, 1, 1, zeroKey));
                 promises.push(getMedian.bind(this, resultId, 1, numEntries,
-                                             medianKey, numEntries));
+                                             medianKey));
                 promises.push(getMedian.bind(this, resultId, 1, lowerRowEnd,
-                                             lowerKey, numEntries));
+                                             lowerKey));
                 promises.push(getMedian.bind(this, resultId, upperRowStart,
-                                             numEntries, upperKey, numEntries));
+                                             numEntries, upperKey));
                 promises.push(getMedian.bind(this, resultId, numEntries,
-                                             numEntries, fullKey, numEntries));
+                                             numEntries, fullKey));
 
                 return PromiseHelper.chain(promises);
             })
@@ -757,13 +756,17 @@ window.Profile = (function($, Profile, d3) {
             return innerDeferred.promise();
         }
 
-        function getMedian(resultId, startRow, endRow, statsKey, numEntries) {
+        function getMedian(resultId, startRow, endRow, statsKey) {
             var innerDeferred = jQuery.Deferred();
             var numRows = endRow - startRow + 1;
             var rowNum;
             var rowsToFetch;
 
-            if (!isNum || numEntries % 2 !== 0) {
+            if (!isNum) {
+                rowsToFetch = 1;
+                rowNum = (numRows % 2 === 0) ? startRow + numRows / 2 - 1 :
+                                         startRow + (numRows + 1) / 2 - 1;
+            } else if (numRows % 2 !== 0) {
                 // odd rows or not number
                 rowNum = startRow + (numRows + 1) / 2 - 1;
                 rowsToFetch = 1;

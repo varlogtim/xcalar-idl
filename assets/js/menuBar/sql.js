@@ -234,7 +234,7 @@ window.SQL = (function($, SQL) {
 
             // find the first log that can undo/redo
             while (c >= 0 && getUndoType(logs[c]) === UndoType.Skip) {
-                console.log("skip", logs[c]);
+                // console.log("skip", logs[c]);
                 c--;
             }
 
