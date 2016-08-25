@@ -795,72 +795,14 @@ window.DagPanel = (function($, DagPanel) {
         $('.tooltip').hide();
     }
 
-    function revertTable(tableId, newTableName, oldTableName) {
-        var wsId;
-        var worksheet;
-        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
-        {
-            tableType = "noSheet";
-            wsId = WSManager.getActiveWS();
-            worksheet = wsId;
-        } else if (gTables[tableId] && gTables[tableId].status ===
-                    TableType.Orphan) {
-            tableType = TableType.Orphan;
-            wsId = null;
-            worksheet = WSManager.getWSFromTable(tableId);
-        } else {
-            tableType = TableType.Archived;
-            wsId = null;
-            worksheet = WSManager.getWSFromTable(tableId);
-        }
 
-        var oldTableId = xcHelper.getTableId(oldTableName);
-        var oldTableNames = [];
-        if (oldTableName) {
-            oldTableNames.push(oldTableName);
-        }
-        TblManager.refreshTable([newTableName], undefined, oldTableNames, wsId)
-        .then(function() {
-            var newTableId = xcHelper.getTableId(newTableName);
-
-            var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
-            Dag.focusDagForActiveTable();
-            xcHelper.centerFocusedTable($tableWrap, true);
-
-            SQL.add("Revert Table", {
-                "operation"     : SQLOps.RevertTable,
-                "tableName"     : newTableName,
-                "oldTableName"  : oldTableName,
-                "oldTableId"    : oldTableId,
-                "tableId"       : newTableId,
-                "tableType"     : tableType,
-                "worksheet"     : worksheet,
-                "worksheetIndex": WSManager.getWSOrder(worksheet),
-                "htmlExclude"   : ["tableType", "oldTableName", "worksheet",
-                                   "worksheetIndex"]
-            });
-        });
-    }
 
     function dagTableDropDownActions($menu) {
         $menu.find('.addTable').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var tableId = $menu.data('tableId');
-            var wsId = WSManager.getActiveWS();
-            var tableType;
-
-            if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
-            {
-                tableType = TableType.Orphan;
-            } else if (gTables[tableId].status === TableType.Orphan) {
-                tableType = TableType.Orphan;
-            } else {
-                tableType = TableType.Archived;
-            }
-
-            WSManager.moveInactiveTable(tableId, wsId, tableType);
+            DagFunction.addTable($menu.data('tableId'));
         });
 
         $menu.find('.revertTable').mouseup(function(event) {
@@ -869,8 +811,8 @@ window.DagPanel = (function($, DagPanel) {
             }
             var oldTableName = $menu.data('tableelement').closest('.dagWrap')
                                     .find('.tableName').text();
-            revertTable($menu.data('tableId'), $menu.data('tablename'),
-                        oldTableName);
+            DagFunction.revertTable($menu.data('tableId'),
+                                    $menu.data('tablename'), oldTableName);
         });
 
         $menu.find('.focusTable').mouseup(function(event) {
@@ -878,16 +820,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableId = $menu.data('tableId');
-            var wsId    = $menu.data('ws');
-            $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
-
-            if ($dagPanel.hasClass('full')) {
-                $('#dagPulloutTab').click();
-            }
-            var $tableWrap = $('#xcTableWrap-' + tableId);
-            xcHelper.centerFocusedTable($tableWrap);
-            $tableWrap.mousedown();
-            moveFirstColumn();
+            DagFunction.focusTable(tableId);
         });
 
         $menu.find('.lockTable').mouseup(function(event) {
@@ -996,20 +929,11 @@ window.DagPanel = (function($, DagPanel) {
                     // Else add it to worksheet
                     if (TableList.checkTableInList(icvTableId)) {
                         // Table is in active list. Simply focus
-                        var wsId = WSManager.getWSFromTable(icvTableId);
-                        $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
-
-                        if ($dagPanel.hasClass('full')) {
-                            $('#dagPulloutTab').click();
-                        }
-                        var $tableWrap = $('#xcTableWrap-' + icvTableId);
-                        xcHelper.centerFocusedTable($tableWrap);
-                        $tableWrap.mousedown();
-                        moveFirstColumn();
+                        DagFunction.focusTable(icvTableId);
                         return;
                     } else {
                         // Going to revert to it
-                        revertTable(icvTableId, icvTableName, origTableName);
+                        DagFunction.addTable(icvTableId);
                         return;
                     }
                 } else {
@@ -1086,6 +1010,8 @@ window.DagPanel = (function($, DagPanel) {
             XcalarMapWithInput(txId, xcalarInput)
             .then(postOperation)
             .then(function() {
+
+                gTables[origTableId].icv = newTableName;
                 Profile.copy(origTableId, newTableId);
                 sql.newTableName = newTableName;
                 if (idx > -1) {
@@ -1098,8 +1024,6 @@ window.DagPanel = (function($, DagPanel) {
                     "sql"     : sql
                 });
 
-                // Add to cache
-                gTables[origTableId].icv = newTableName;
             })
             .fail(function(error) {
                 Transaction.fail(txId, {
@@ -1134,6 +1058,7 @@ window.DagPanel = (function($, DagPanel) {
             XcalarGroupByWithInput(txId, xcalarInput)
             .then(postOperation)
             .then(function() {
+                gTables[origTableId].icv = newTableName;
                 sql.newTableName = newTableName;
                 if (idx > -1) {
                     sql.colNum = idx;
@@ -1145,8 +1070,7 @@ window.DagPanel = (function($, DagPanel) {
                     "sql"     : sql
                 });
 
-                // Add to cache
-                gTables[origTableId].icv = newTableName;
+
             })
             .fail(function(ret) {
                 Transaction.fail(txId, {

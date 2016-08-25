@@ -140,6 +140,87 @@ window.DagFunction = (function($, DagFunction) {
         return (jQuery.extend(true, newStruct, origInputStruct));
     };
 
+    DagFunction.revertTable = function(tableId, newTableName, oldTableName) {
+        var wsId;
+        var worksheet;
+        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
+        {
+            tableType = "noSheet";
+            wsId = WSManager.getActiveWS();
+            worksheet = wsId;
+        } else if (gTables[tableId] && gTables[tableId].status ===
+                    TableType.Orphan) {
+            tableType = TableType.Orphan;
+            wsId = null;
+            worksheet = WSManager.getWSFromTable(tableId);
+        } else {
+            tableType = TableType.Archived;
+            wsId = null;
+            worksheet = WSManager.getWSFromTable(tableId);
+        }
+
+        var oldTableId = xcHelper.getTableId(oldTableName);
+        var oldTableNames = [];
+        if (oldTableName) {
+            oldTableNames.push(oldTableName);
+        }
+        TblManager.refreshTable([newTableName], undefined, oldTableNames, wsId)
+        .then(function() {
+            var newTableId = xcHelper.getTableId(newTableName);
+
+            var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
+            Dag.focusDagForActiveTable();
+            xcHelper.centerFocusedTable($tableWrap, true);
+
+            SQL.add("Revert Table", {
+                "operation"     : SQLOps.RevertTable,
+                "tableName"     : newTableName,
+                "oldTableName"  : oldTableName,
+                "oldTableId"    : oldTableId,
+                "tableId"       : newTableId,
+                "tableType"     : tableType,
+                "worksheet"     : worksheet,
+                "worksheetIndex": WSManager.getWSOrder(worksheet),
+                "htmlExclude"   : ["tableType", "oldTableName", "worksheet",
+                                   "worksheetIndex"]
+            });
+        });
+    };
+
+    DagFunction.addTable = function(tableId) {
+        var wsId = WSManager.getActiveWS();
+        var tableType;
+
+        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
+        {
+            tableType = TableType.Orphan;
+        } else if (gTables[tableId].status === TableType.Orphan) {
+            tableType = TableType.Orphan;
+        } else {
+            tableType = TableType.Archived;
+        }
+
+        WSManager.moveInactiveTable(tableId, wsId, tableType);
+    };
+
+    DagFunction.focusTable = function(tableId) {
+        var $dagPanel = $('#dagPanel');
+        var wsId = WSManager.getWSFromTable(tableId);
+        if (!wsId) {
+            console.error('Cannot focus table due to no worksheet!');
+            return;
+        }
+        $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
+
+        if ($dagPanel.hasClass('full')) {
+            $('#dagPulloutTab').click();
+        }
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        xcHelper.centerFocusedTable($tableWrap);
+        $tableWrap.mousedown();
+        moveFirstColumn();
+    };
+
     // Helpers for cloneTreeWithNewValue
     function findXidByDstTableName(valArray, dstName) {
         for (var i = 0; i<valArray.length; i++) {
