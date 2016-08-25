@@ -63,8 +63,9 @@ window.DSTable = (function($, DSTable) {
 
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
-
-        dsObj.fetch(0, initialNumRowsToFetch)
+        var rowsToFetch = Math.min(dsObj.getNumEntries(), 
+                                   initialNumRowsToFetch);
+        dsObj.fetch(0, rowsToFetch)
         .then(function(result) {
             if (lastDSToSample !== datasetName) {
                 // when network is slow and user trigger another get sample table
@@ -87,7 +88,7 @@ window.DSTable = (function($, DSTable) {
         })
         .fail(function(error) {
             clearTimeout(timer);
-
+            
             if (error === notLastDSError) {
                 dsObj.release();
                 return;
