@@ -616,96 +616,27 @@ body {
     }
 }
 
-.onOffBtn {
-    .size(@width:86px, @height:27px);
-    .position(relative);
-    .rounded;
-    display: inline-block;
-    z-index: 0;
-    cursor: pointer;
-    .noSelection;
-
-    .slider {
-        .size(@width:45px, @height:27px);
-        .position(absolute, @top: 0, @left: 0);
-        .rounded;
-        .linear-gradient(top, @color-table-lightGray, @color-table-darkGray);
-        box-shadow: 0px 1px 0px 1px rgba(0,0,0, 0.15);
-        border-left: 1px solid rgba(0,0,0,0.05);
-        z-index: 5;
-        .transition(all 0.2s);
-
-        &.off {
-            left: 45px;
-        }
-    }
-
-    .text {
-        .position(absolute, @top: 0, @left: 0);
-        .size(@width: 50px, @height: 100%);
-        .font(@size: 14px, @weight: bold, @line-height: 27px);
-        .rounded;
-        text-align: center;
-        display: inline-block;
-        box-shadow: inset -1px 1px 1px 0px rgba(0, 0, 0, 0.2);
-        z-index: -3;
-        .transition-delay(0.1s);
-
-        &.onText {
-            .font(@color: @color-text-transparentWhite);
-            background: @color-bg-select-blue;
-            left: 35px;
-            z-index: -2;
-            padding-left: 10px;
-
-        }
-        &.offText {
-            .font(@color: @color-text-dropMenu);
-            background-color: @color-sql-hover;
-            box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
-            padding-right: 5px;
-        }
-    }
-
-    &.off {
-        .slider {
-            left: 45px;
-            border-left: none;
-            border-right: 1px solid rgba(0,0,0,0.05);
-        }
-        .offText {
-            z-index: -1;
-        }
-    }
-}
-
 .rangeSlider {
     display: inline-block;
-    .size(@width:200px, @height: 30px);
+    .size(@width: 200px, @height: 30px);
     position: relative;
     .leftArea, .rightArea {
-        position: absolute;
-        left: 0px;
-        top: 10px;
+        .position(absolute, @top: 10px, @left: 0);
         .size(@width: 100%; @height: 10px);
-        border-radius: 3px;
+        .rounded(2px);
     }
     .leftArea {
         z-index: 1;
-        background-color: @color-monitor-rangeBlue;
+        background-color: @color-bg-softBlue
     }
     .rightArea {
-        .linear-gradient(top, @color-text-topGrayMed, @color-monitor-rangeGray);
+        background-color: @color-bg-pinkish-grey2;
     }
     .slider {
-        position: absolute;
-        right: 0px;
-        top: -7px;
-        width: 15px;
-        height: 25px;
-        border-radius: 5px;
-       .linear-gradient(top, @color-monitor-sliderTop, @color-monitor-sliderBottom);
-       box-shadow: 0px 1px 1px 1px rgba(0, 0, 0, 0.2);
+        .size(@width: 15px, @height: 25px);
+        .position(absolute, @top: -7px, @right: 0);
+       background-color: @color-bg-pinkish-grey;
+       .rounded;
 
     }
     .ui-resizable-e {
