@@ -398,8 +398,7 @@ ExportTStr = {
 ProfileTStr = {
     'Info': "Profile of column: <b><col></b>, type: <b><type></b>",
     'Instr': 'Hover on the bar to see details. Use scroll bar and input box to view more data.',
-    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.',
-    'RowInfo': 'Showing <span><row></span> Results'
+    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.'
 };
 
 WKBKTStr = {
@@ -474,8 +473,8 @@ DSTStr = {
                     ' to deletion.',
     'NoParse': 'Cannot parse the dataset.',
     'NoRecords': 'No records in dataset.',
+    'NoColumns': 'No Columns Selected',
     'NoRecrodsHint': 'Please change the preview size and try to point again',
-    // with replace
     'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
     'DSSourceHint': 'Please try another path or use another protocol',
@@ -487,48 +486,11 @@ DSTStr = {
 };
 
 DSFormTStr = {
-    'LoadConfirm': 'Point To Dataset',
-    'NoHeader': 'You have not checked the Header option to promote the first'+
-                ' row to the table header. You will not be able to change the '+
-                'table header from the default after this.',
     'InvalidDelim': 'Invalid delimiter.',
-    'InvalidRecursivePath': 'Invalid path, please specify a directory when point to data resursively',
-    'InvalidQuote': 'Cannot have more than 1 quote character'
+    'InvalidQuote': 'Cannot have more than 1 quote character',
+    'NoParseJSON': 'Cannot parse data as json'
 };
 
-DataCartStr = {
-    'NoCartTitle': 'No Tables Selected',
-    'HaveCartTitle': 'Selected Tables',
-    'NoColumns': 'No Columns Selected',
-    'HelpText': 'To add a column to the data cart, select a dataset reference on the left' +
-                ' and click on the column names that you are interested' +
-                ' in inside the center panel.'
-};
-
-DSPreviewTStr = {
-    'Save': 'Save & Exit',
-    'Promote': 'Promote first row as header',
-    'UnPromote': 'Undo promote header',
-    'ApplyHighlights': 'Apply hightlighted characters as delimiter',
-    'RMHighlights': 'Remove highlights',
-    'CommaAsDelim': 'Apply comma as delimiter',
-    'TabAsDelim': 'Apply tab as delimiter',
-    'PipeAsDelim': 'Apply pipe as delimiter',
-    'RMDelim': 'Remove delimiter',
-    'HighlightDelimHint': 'Highlight a character as delimiter',
-    'Or': 'or',
-    'HighlightAnyDelimHint': 'Highlight another character as delimiter',
-    'LoadJSONWithUDF': 'Format as new line delimited JSON',
-    'LoadJSON': 'Format as array of JSON',
-    'LoadExcel': 'Format as EXCEL',
-    'LoadExcelWithHeader': 'Format as EXCEL and promote header',
-    'LoadUDF': 'Use UDF to parse the dataset',
-    'NoDelim': 'You have not chosen a delimiter.',
-    'NoHeader': 'You have not chosen a header row.',
-    'NoDelimAndHeader': 'You have not chosen a delimiter and header row.',
-    'UseValidPath': 'Retry with a valid path',
-    'NoParseJSON': "Cannot parse data as json"
-};
 
 DSExportTStr = {
     'ExportFail': 'Failed to add export target',
@@ -549,8 +511,7 @@ WSTStr = {
     'NewWS': 'New Worksheet',
     'DelWS': 'Delete Worksheet',
     'DelWSMsg': 'There are active tables in this worksheet. ' +
-                'How would you like to handle them?',
-
+                'How would you like to handle them?'
 };
 
 UDFTStr = {

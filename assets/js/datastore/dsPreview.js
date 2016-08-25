@@ -1368,7 +1368,7 @@ window.DSPreview = (function($, DSPreview) {
         var startIndex = datas.indexOf("{");
         var endIndex = datas.lastIndexOf("}");
         if (startIndex === -1 || endIndex === -1) {
-            errorHandler(DSPreviewTStr.NoParseJSON);
+            errorHandler(DSFormTStr.NoParseJSON);
         }
 
         var record = [];
@@ -1399,7 +1399,7 @@ window.DSPreview = (function($, DSPreview) {
                         startIndex = -1;
                     } else if (bracketCnt < 0) {
                         // error cse
-                        errorHandler(DSPreviewTStr.NoParseJSON);
+                        errorHandler(DSFormTStr.NoParseJSON);
                     }
                 }
             }
@@ -1416,7 +1416,7 @@ window.DSPreview = (function($, DSPreview) {
             $previewTable.html(getJSONTableHTML(json))
                         .addClass("has-delimiter");
         } catch (error) {
-            errorHandler(DSPreviewTStr.NoParseJSON + ": " + error);
+            errorHandler(DSFormTStr.NoParseJSON + ": " + error);
         }
     }
 

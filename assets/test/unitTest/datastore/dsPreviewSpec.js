@@ -406,7 +406,7 @@ function dsPreviewModuleTest() {
             loadArgs.setFormat("JSON");
             DSPreview.__testOnly__.getPreviewTable();
             var res = $("#dsPreviewWrap").find(".errorSection").text();
-            expect(res).to.equal(DSPreviewTStr.NoParseJSON);
+            expect(res).to.equal(DSFormTStr.NoParseJSON);
 
             // valid json
             data = '{"a": "b"}';

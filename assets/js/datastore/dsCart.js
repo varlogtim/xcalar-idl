@@ -375,7 +375,7 @@ window.DSCart = (function($, DSCart) {
                     '<i class="icon xi-edit fa-15 xc-action"></i>' +
                 '</div>' +
                 '<div class="cartEmptyHint xc-hidden">' +
-                    DataCartStr.NoColumns +
+                    DSTStr.NoColumns +
                 '</div>' +
                 '<ul></ul>' +
             '</div>';
