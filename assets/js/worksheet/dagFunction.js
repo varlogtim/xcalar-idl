@@ -219,6 +219,7 @@ window.DagFunction = (function($, DagFunction) {
         xcHelper.centerFocusedTable($tableWrap);
         $tableWrap.mousedown();
         moveFirstColumn();
+        Dag.focusDagForActiveTable(undefined, true);
     };
 
     // Helpers for cloneTreeWithNewValue

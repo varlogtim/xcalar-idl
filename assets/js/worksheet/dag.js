@@ -284,6 +284,8 @@ window.DagPanel = (function($, DagPanel) {
                 // $dagArea.css('height', (100 - dagTopPct) + '%');
                 $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
                 RowScroller.updateViewRange(gActiveTableId);
+                // Refocus on table
+                Dag.focusDagForActiveTable(undefined, true);
                 if (window.isBrowserMicrosoft) {
                     // hack because rows become invisible in IE/EDGE
                     $('.xcTable').each(function() {
