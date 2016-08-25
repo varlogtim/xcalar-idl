@@ -310,7 +310,7 @@ TipsTStr = {
         'data cart. Click on column headings to further modify the column.',
     'DSCart': 'Datacart area, you can add columns from datasets into your ' +
                 'cart. These columns will be used to create the table in your ' +
-                'active worksheet. You can also add columns in the worksheet ' +
+                'active worksheet. You can also pull out columns in the worksheet ' +
                 'screen.',
     'TablList': 'Click to see details',
     'PullColumn': 'Click key to add the column to your table'

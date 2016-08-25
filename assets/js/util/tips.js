@@ -65,7 +65,7 @@ window.Tips = (function($, Tips) {
         } else {
             addTopMenuBarTips();
             addWorksheetListTips();
-            addBottomMenuTips();
+            addTableListTips();
             addDatastoreTips();
 
             if ($("#dagPanel").hasClass("hidden") ||
@@ -110,21 +110,21 @@ window.Tips = (function($, Tips) {
 
     /* Section of adding tips */
     function addTopMenuBarTips() {
-        var menuBar = "#menuBar";
-
         // xcalar horizontal scrollbar
         // only show when there is row scroller in the area
-        if ($("#rowScrollerArea .rowScroller:visible").length > 0) {
-            setTooltip($("#rowScrollerArea"), {
+        var $rowScroller = $("#rowScrollerArea .rowScroller:visible");
+        if ($rowScroller.length > 0) {
+            setTooltip($rowScroller, {
                 "title"    : TipsTStr.Scrollbar,
-                "container": menuBar
+                "container": "#workspaceBar",
+                "placement": "left"
             });
         }
 
         // // function bar
         // setTooltip($("#fnBar"), {
         //     "title"    : "Programmatically manipulating the table",
-        //     "container": menuBar,
+        //     "container": "#workspaceBar",
         // });
     }
 
@@ -172,7 +172,7 @@ window.Tips = (function($, Tips) {
             });
 
             // tips on bookmark
-            var tableLeft = $table.offset().left;
+            var tableLeft = $table.find(".idSpan").offset().left + 10;
             var tdX = Math.max(0, tableLeft);
             var tdY = 168; //top rows's distance from top of window
             var $ele = getElementFromPoint(tdX, tdY);
@@ -209,29 +209,33 @@ window.Tips = (function($, Tips) {
 
     function addDatastoreTips() {
         var dataView = "#datastorePanel";
-        // grid view section
-        setTooltip($("#dsListSection .gridItems > .grid-unit:last-child"), {
-            "title"    : TipsTStr.DragGrid,
-            "container": dataView,
-            "placement": "right"
-        });
+        var $grids = $("#dsListSection .grid-unit:not(.xc-hidden)");
+        if ($grids.length > 0) {
+            var $grid = $grids.eq($grids.length - 1);
+            // grid view section
+            setTooltip($grid, {
+                "title"    : TipsTStr.DragGrid,
+                "container": dataView,
+                "placement": "right"
+            });
+        }
 
         // dataset table
         setTooltip($("#dsTable"), {
             "title"    : TipsTStr.DSTable,
-            "container": "#datastore-in-view .contentViewTable"
+            "container": "#dsTableView"
         });
 
         // data cart area
         setTooltip($("#dataCartWrap"), {
             "title"    : TipsTStr.DSCart,
-            "container": "#datastore-in-view .contentViewRight",
+            "container": "#dataCartContainer",
             "template" : templateZ0,
             "placement": "left"
         });
     }
 
-    function addBottomMenuTips() {
+    function addTableListTips() {
         // tablelist in activeTableList
         var $tableList = $("#activeTableList").find(".tableListBox").eq(0);
         setTooltip($tableList, {
