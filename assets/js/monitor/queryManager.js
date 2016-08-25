@@ -731,7 +731,11 @@ window.QueryManager = (function(QueryManager, $) {
         }
         
         var displayedStep;
-        if (currStep <= numSteps) {
+        if (newClass !== null) {
+            if (newClass === "done") {
+                $query.find('.querySteps').text('completed');
+            }
+        } else if (currStep <= numSteps) {
             displayedStep = Math.min(currStep + 1, numSteps);
             $query.find('.querySteps').text('step ' + displayedStep + ' of ' + numSteps);
         } else if (numSteps === -1) {
@@ -739,24 +743,6 @@ window.QueryManager = (function(QueryManager, $) {
             $query.find('.querySteps').text('step ' + displayedStep);
         }
     }
-
-    // function getQueryByName(queryName) {
-    //     for (var i = 0, len = queryLists.length; i < len; i++) {
-    //         var xcQuery = queryLists[i];
-    //         if (xcQuery != null && xcQuery.getFullName() === queryName) {
-    //             return xcQuery;
-    //         }
-    //     }
-
-    //     return null;
-    // }
-
-    // function getQueryList(queryName) {
-    //     var $query = $queryList.find(".query").filter(function() {
-    //         return $(this).data("query") === queryName;
-    //     });
-    //     return $query;
-    // }
 
     function getQueryTime(time) {
         return xcHelper.getTime(null, time) + " " +

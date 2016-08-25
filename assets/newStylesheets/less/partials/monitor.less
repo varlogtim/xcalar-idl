@@ -851,10 +851,18 @@
             .queryIconWrap {
                 background-color: fadeout(@color-bg-softBlue, 80%);
             }
-
+            .status {
+                color: @color-bg-softBlue;
+            }
+        }
+        &.processing {
             .status.processing {
                 display: block;
-                color: @color-bg-softBlue;
+            }
+        }
+        &.canceled {
+            .status.canceled {
+                display: block;
             }
         }
 

@@ -420,6 +420,11 @@ WKBKTStr = {
     'WKBKnotExists': 'No workbooks exist',
     'Conflict': 'Workbook "<name>" already exists, ' +
                     'please choose another name.',
+    "Activate": "Activate Workbook",
+    "ReturnWKBK": "Return To Workbook",
+    "EditName": "Edit Workbook Name",
+    "Duplicate": "Duplicate Workbook",
+    "Delete": "Delete Workbook"
 };
 
 MonitorTStr = {

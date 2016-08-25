@@ -1094,8 +1094,8 @@ window.xcHelper = (function($, xcHelper) {
             !$tableWrap.hasClass('tableLocked'))
         {
             // tableWrap may not exist during multijoin on self
-            var $lockedIcon = $('<div class="lockedIcon">' +
-                                '<img src="' + paths.hourglass + '" /></div>');
+            var $lockedIcon = $('<i class="icon xi-sand-clock lockedIcon">' +
+                                '</i>');
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
             var tbodyHeight = $tableWrap.find('tbody').height() + 1;
             var mainFrameHeight = $('#mainFrame').height();

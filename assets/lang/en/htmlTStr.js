@@ -423,7 +423,8 @@ module.exports = {
     "query": {
         "Processing": "Processing",
         "Done": "Completed",
-        "Error": "Error"
+        "Error": "Error",
+        "Canceled": "Canceled"
     },
 
     "ds": {

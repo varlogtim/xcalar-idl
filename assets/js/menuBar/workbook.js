@@ -468,11 +468,13 @@ window.Workbook = (function($, Workbook) {
             modifiedTime = xcHelper.getDate("-", null, modifiedTime) + ' ' +
                            xcHelper.getTime(null, modifiedTime, noSeconds);
         }
-
+        var activateTooltip;
         if (extraClasses.indexOf("active") > -1) {
             isActive = "Active";
+            activateTooltip = WKBKTStr.ReturnWKBK;
         } else {
             isActive = "Inactive";
+            activateTooltip = WKBKTStr.Activate;
         }
 
 
@@ -528,25 +530,25 @@ window.Workbook = (function($, Workbook) {
                             '<div class="tab btn btn-small activate" ' +
                             'data-toggle="tooltip" data-container="body" ' +
                             'data-placement="right"' +
-                            'title="Activate Workbook">'+
+                            'title="' + activateTooltip + '">'+
                                 '<i class="icon xi-play-circle"></i>'+
                             '</div>'+
                             '<div class="tab btn btn-small modify" '+
                             'data-toggle="tooltip" data-container="body" ' +
                             'data-placement="right"' +
-                            'title="Edit Workbook Name">'+
+                            'title="' + WKBKTStr.EditName + '">'+
                                 '<i class="icon xi-edit"></i>'+
                             '</div>'+
                             '<div class="tab btn btn-small duplicate" '+
                             'data-toggle="tooltip" data-container="body" ' +
                             'data-placement="right"' +
-                            'title="Duplicate Workbook">'+
+                            'title="' + WKBKTStr.Duplicate + '">'+
                                 '<i class="icon xi-duplicate"></i>'+
                             '</div>'+
                             '<div class="tab btn btn-small delete" '+
                             'data-toggle="tooltip" data-container="body" ' +
                             'data-placement="right"' +
-                            'title="Delete Workbook">'+
+                            'title="' + WKBKTStr.Delete + '">'+
                                 '<i class="icon xi-trash"></i>'+
                             '</div>'+
                         '</div>'+
