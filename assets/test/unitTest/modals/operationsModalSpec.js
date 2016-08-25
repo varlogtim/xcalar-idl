@@ -1,5 +1,5 @@
 describe('OperationsView', function() {
-
+    // xx currently depends on table with the name "unitTestFakeYelp" to exist
     describe('function hasFuncFormat', function() {
         var func;
         before(function() {
@@ -72,6 +72,7 @@ describe('OperationsView', function() {
     describe('group by', function() {
         var tableId;
         var $operationsModal;
+        var $operationsView;
         var $functionInput;
         var $functionsMenu;
         var operatorsMap;
@@ -102,11 +103,11 @@ describe('OperationsView', function() {
             .then(function() {
                 // console.log(tableId);
                 operatorsMap = OperationsView.getOperatorsMap();
-                setTimeout(function() {
+                // setTimeout(function() {
                     $functionInput = $operationsView.find('.groupby .functionsInput');
                     $functionsMenu = $functionInput.siblings('.list');
                     done();
-                }, 500);
+                // }, 500);
             });
         });
 
@@ -146,16 +147,16 @@ describe('OperationsView', function() {
 
         describe('argument section', function() {
             it('should have 3 visible text inputs', function() {
-                expect($operationsModal.find('.arg[type=text]:visible')).to.have.length(3);
-                $argInputs = $operationsModal.find('.arg[type=text]:visible');
+                expect($operationsView.find('.arg[type=text]:visible')).to.have.lengthOf(3);
+                $argInputs = $operationsView.find('.arg[type=text]:visible');
             });
-            it ('should have 3 visible checkboxes for inc sample', function() {
-                expect($operationsModal.find('.checkbox:visible')).to.have.length(3);
+            it('should have 3 visible checkboxes for inc sample', function() {
+                expect($operationsView.find('.checkbox:visible')).to.have.lengthOf(3);
             });
         });
 
         describe('test type checking', function() {
-            this.timeout(10000); // this will take a long time because we 
+            this.timeout(12000); // this will take a long time because we 
             // test out a variety of arguments against each other and each test
             // loops through all the columns in a table each time to check if the
             // column name exists in the table
@@ -231,8 +232,26 @@ describe('OperationsView', function() {
             });
         });
 
+        describe('adding another column argument', function() {
+            console.log('trying this');
+            var $argInputs;
+            it('add arg button should be visible', function() {
+                expect($operationsView.find(".addGroupArg:visible")).to.have.lengthOf(1);
+            });
+            it('button should add another argument', function() {
+                $argInputs = $operationsView.find('.arg[type=text]:visible');
+                $operationsView.find(".addGroupArg").click();
+                expect($operationsView.find('.arg[type=text]:visible').length).to.be.above($argInputs.length);
+                expect($operationsView.find(".extra .arg").is(document.activeElement)).to.equal(true);
+            });
+            it('argument should be removable', function() {
+                $operationsView.find(".extra .xi-cancel").click();
+                expect($operationsModal.find('.arg[type=text]:visible').length).to.equal($argInputs.length);
+            });
+        });
+
         after(function() {
-            $("#operationsView .cancel").click();
+            $("#operationsView .close").click();
         });
 
         function setArgInputs(arr) {
@@ -301,7 +320,7 @@ describe('OperationsView', function() {
             expect(testedGBTypes).to.not.include(groupByType);
             $functionInput.val(groupByType).trigger(fakeEvent.enter);
             expect($operationsModal.find('.arg[type=text]:visible'))
-                                                            .to.have.length(3);
+                                                            .to.have.lengthOf(3);
             testedGBTypes.push(groupByType);
 
             var arg1TypeId = $argInputs.eq(0).data('typeid');
@@ -340,6 +359,131 @@ describe('OperationsView', function() {
             }
             expect(count).to.be.above(7 * 7);
         }
+    });
+
+    // using map in operations view
+    describe('column picker in map', function() {
+        var tableId;
+        var $operationsView;
+        var $categoryMenu;
+        var $functionsMenu;
+        var operatorsMap;
+        var $argInputs;
+
+
+        before(function(done) {
+            $operationsView = $('#operationsView');
+            $('.xcTableWrap').each(function() {
+                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                    tableId = $(this).find('.hashName').text().slice(1);
+                    return false;
+                }
+            });
+
+            OperationsView.show(tableId, 1, 'map')
+            .then(function() {
+                // console.log(tableId);
+                operatorsMap = OperationsView.getOperatorsMap();
+                $categoryMenu = $operationsView.find('.map .categoryMenu');
+                $functionsMenu = $operationsView.find('.map .functionsMenu');
+                done();
+            });
+        });
+
+        describe('category menu', function() {
+            it('menu should be visible', function() {
+                expect($categoryMenu.is(":visible")).to.equal(true);
+                expect($categoryMenu.find('li').length).to.be.above(7);
+            });
+
+            it('should select category when clicked', function() {
+                $categoryMenu.find('li').filter(function() {
+                    return ($(this).text() === "string");
+                }).trigger(fakeEvent.click);
+                expect($categoryMenu.find("li.active").text()).to.equal('string');
+            });
+            it('should select correct function list when clicked', function() {
+                expect($functionsMenu.is(":visible")).to.equal(true);
+                expect($functionsMenu.find('li').length).to.be.above(6);
+                expect($functionsMenu.find('li').eq(0).text()).to.equal('concat');
+            });
+        });
+
+        describe('functions menu', function() {
+            it('should not have selected li', function() {
+                expect($functionsMenu.find('li.active').length).to.equal(0);
+                expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.equal(true);
+            });
+            it('should select function name when clicked', function() {
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === "concat");
+                }).trigger(fakeEvent.click);
+                expect($functionsMenu.find("li.active").text()).to.equal('concat');
+            });
+            it ('should show arguments after clicking function name', function() {
+                expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.equal(false);
+            });
+        });
+
+        describe('argument section', function() {
+            it('should have 3 visible text inputs', function() {
+                expect($operationsView.find('.arg[type=text]:visible')).to.have.length(3);
+                $argInputs = $operationsView.find('.arg[type=text]:visible');
+            });
+            it ('should have 1 visible checkbox for ICV', function() {
+                expect($operationsView.find('.checkbox:visible')).to.have.lengthOf(1);
+            });
+        });
+
+        describe('column pickers should work', function() {
+            it('should have 2 column picker inputs', function() {
+                expect($operationsView.find('.xi-select-column:visible')).to.have.lengthOf(2);
+            });
+            it ('input should fill from column header', function() {
+                $argInputs.eq(0).focus().trigger('focus').val(""); // focus & trigger to make sure
+                expect($argInputs.eq(0).val()).to.equal("");
+                var $header = $('#xcTable-' + tableId).find('th.col1 .header');
+                expect($header.find('input').val()).to.equal('yelping_since');
+                $header.click();
+                expect($argInputs.eq(0).val()).to.equal(gColPrefix + 'yelping_since');
+
+
+                var $allEls = $header.find('*');
+                var count = 0;
+                // go through each element inside .header and click
+                $allEls.each(function() {
+                    if ($(this).closest('.dropdownBox').length) {
+                        return;
+                    }
+                    $argInputs.eq(0).focus().trigger('focus').val("");
+                    expect($argInputs.eq(0).val()).to.equal("");
+                    $(this).click();
+                    console.log($(this))
+                    expect($argInputs.eq(0).val()).to.equal(gColPrefix + 'yelping_since');
+                    console.log($(this), 'passed');
+                    count++;
+                });
+                expect(count).to.be.at.least(5);
+            });
+
+            it("column picker should not work when operationsView closes", function() {
+                // close operations view
+                $("#operationsView .close").click();
+                expect($operationsView.hasClass('xc-hidden')).to.equal(true);
+                // argsSection should stil be open even when operationsView is closed
+                expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.equal(false);
+                
+
+                $argInputs.eq(0).focus().trigger('focus').val(""); // focus & trigger to make sure
+                expect($argInputs.eq(0).val()).to.equal("");
+                var $header = $('#xcTable-' + tableId).find('th.col1 .header');
+                expect($header.find('input').val()).to.equal('yelping_since');
+                $header.click();
+                expect($argInputs.eq(0).val()).to.equal("");
+
+            });
+        });
+
     });
 
 });

@@ -2213,7 +2213,7 @@ window.OperationsView = (function($, OperationsView) {
                     break;
             }
 
-            closeOpSection({slow: true});
+            closeOpSection();
         } else {
             formHelper.enableSubmit();
         }
