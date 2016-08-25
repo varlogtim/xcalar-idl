@@ -59,8 +59,8 @@ var curStep = {
     "nodesCompletedCurrent": []
 };
 
-var getNodeRegex = new RegExp("\[([0-9]+)\]");
-var getStatusRegex = new RegExp("\[([A-Z]+)\]");
+var getNodeRegex = /\[\([0-9]+\)\]/;
+var getStatusRegex = /\[\([A-Z]+\)\]/;
 
 app.post('/', function(req, res) {
     var credArray = req.body;
@@ -72,7 +72,7 @@ app.post('/', function(req, res) {
         var fileLocation = "/tmp/license.txt";
         fs.writeFile(fileLocation, credArray.struct.licenseKey);
         // Call bash to check license with this 
-        var out = exec('/config/01-license.sh -l ' + fileLocation);
+        var out = exec('/config/01-license.sh --license-file ' + fileLocation);
         out.stderr.on('data', function(data) {
             console.log(data);
             if (data === "Blah blah verified") {
@@ -90,11 +90,14 @@ app.post('/', function(req, res) {
         var credentialLocation = "/tmp/key.txt";
         var isPassword = true;
 
-        if (password in credArray.struct.credentials) {
+        console.log(credArray.struct.credentials);
+        if ("password" in credArray.struct.credentials) {
+            console.log("Password");
             var password = credArray.struct.credentials.password;
             fs.writeFile(credentialLocation, password,
                          {mode: parseInt('400', 8)});
         } else {
+            console.log("sshKey");
             isPassword = false;
             var sshkey = credArray.struct.credentials.sshKey;
             fs.writeFile(credentialLocation, sshkey,
@@ -106,7 +109,8 @@ app.post('/', function(req, res) {
 
         var out;
         if (isPassword) {
-            out = exec('/config/02-precheck.sh  ');
+            out = exec('/config/02-precheck.sh -h ' + hostnameLocation +
+                ' -');
         } else {
             out = exec('/config/02-precheck.sh ');
         }

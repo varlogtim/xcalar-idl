@@ -65,7 +65,7 @@ def replacePathsInHtml():
         newFile.close()
         shutil.move(abs_path, f)
 
-def genSearchInsght():
+def genSearchInsight():
     print "Generating SearchInsight.htm"
     searchLocation = "prod/assets/help/Content/Search.htm"
     newFile = searchLocation.split(".")[0]+"Insight.htm"

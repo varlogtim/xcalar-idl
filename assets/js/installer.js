@@ -186,7 +186,8 @@ window.Installer = (function(Installer, $) {
         try {
             jQuery.ajax({
                 method     : "POST",
-                url        : document.location.href+"install",
+                url        : "http://cantor.int.xcalar.com:12124",
+                // url        : document.location.href+"install",
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
                 success    : successCB,
@@ -409,15 +410,16 @@ window.Installer = (function(Installer, $) {
         // Make async call here
         /**
         checkLicense(key)
-        .then(function() {
+        .then(function(numLicensed) {
             deferred.resolve({"verified": true,
-                              "numServers": numServers});
+                              "numServers": numLicensed});
         })
         .fail(function() {
             deferred.resolve({"verified": false});
-        })
+        });
         */
         // we fake da shit for now
+
         if (key === "1234123412341234") {
             deferred.resolve({"verified": true,
                               "numServers": numServers});
@@ -476,7 +478,7 @@ window.Installer = (function(Installer, $) {
             if (ret.status === Status.Ok) {
                 // depending on how we want to finally do it
                 // We can do ret.numNodes
-                deferred.resolve();
+                deferred.resolve(numServers);
             } else {
                 deferred.reject(ret);
             }
