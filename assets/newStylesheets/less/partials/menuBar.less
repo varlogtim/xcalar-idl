@@ -205,6 +205,10 @@
                     float: left;
                 }
             }
+
+            > .mainSection {
+                .size(@height: ~"calc(100% - 45px)");
+            }
         }
 
         > .iconSection {
@@ -308,6 +312,10 @@
             border-bottom: none;
             .size(@width: 100px);
             .position(relative, @top: -3px);
+        }
+
+        > .mainSection {
+            .size(@height: ~"calc(100% - 45px)");
         }
     }
 }
@@ -527,7 +535,6 @@
         }
     }
 }
-
 // ========== Bottom Menu ==========
 #bottomMenu {
     .position(absolute, @left: -@width-bottomMenu, @bottom: 0px);
