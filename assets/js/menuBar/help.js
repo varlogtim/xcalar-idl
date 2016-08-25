@@ -1,124 +1,11 @@
 window.Help = (function($, Help) {
-
     Help.setup = function() {
         // Toggleing helper tooltips
-        HelpSearch.setup();
+        setupHelpSearch();
 
         $('#helpOnOff').click(function() {
             toggleRefresh($(this));
         });
-
-        // Intro.setOptions({
-        //     onComplete: function() {
-        //         $('.intro-emptybox').remove();
-        //         // $('#demoScreen [data-introstep]').removeClass('hover');
-        //         $('#demoScreen').remove();
-        //         $('#container').show();
-        //     },
-        //     onNextStep: function(el) {
-        //         // $('#demoScreen [data-introstep]').removeClass('hover');
-        //         // el.addClass('hover');
-        //     }
-        // });
-
-        // $('#workbookWT').click(function() {
-        //     // reset options set by datastorepreview1
-        //     var options = {
-        //         ignoreHidden: true,
-        //         onStart: "",
-        //         onNextStep: "",
-        //         onPrevStep: "",
-        //         onSkipToEnd: "",
-        //         onSkipToStart: ""
-        //     };
-
-        //     // XX set options for video
-
-        //     // var options = {
-        //     //     video: '#xcalarVid',
-        //     //     videoBreakpoints: [2, 4, 6, 8, 10, 12, 14, 16, 18],
-        //     //     actionsRequired: [
-        //     //         (function (steps, actions) {
-        //     //             $('[data-introstep]').click(function() {
-        //     //                 var step = parseInt($(this).data('introstep')) - 1;
-        //     //                 if (step === steps.currentStep) {
-        //     //                     actions.nextStep();
-        //     //                 }
-        //     //             });
-        //     //         })
-        //     //     ],
-        //     //     preventSelection: false,
-        //     //     onNextStep: "",
-        //     //     onComplete: function() {
-        //     //         //reset options
-        //     //         $('.intro-emptybox').remove();
-        //     //         $('#demoScreen').remove();
-        //     //         $('#container').show();
-        //     //         Intro.setOptions({
-        //     //             onComplete: function() {
-        //     //                 $('.intro-emptybox').remove();
-        //     //                 $('#demoScreen [data-introstep]').removeClass('hover');
-        //     //                 $('#demoScreen').remove();
-        //     //                 $('#container').show();
-        //     //             },
-        //     //             preventSelection: true,
-        //     //             actionsRequired: "",
-        //     //             video: false,
-        //     //             videoBreakpoints: [],
-        //     //             onNextStep: function(el) {
-        //     //                 $('#demoScreen [data-introstep]').removeClass('hover');
-        //     //                 el.addClass('hover');
-        //     //             }
-        //     //         });
-        //     //     }
-        //     // };
-
-        //     introHelper('workbookDemo', WalkThroughTStr.w1, options);
-        // });
-
-        // $('#datastoreWT1').click(function() {
-        //     var options = {
-        //         ignoreHidden: false,
-        //         onStart: function() {
-        //             // var emptyBox = '<div class="intro-emptybox" style="' +
-        //             //                     'position:absolute;height: 40px;' +
-        //             //                     'margin-top:-5px; margin-left: 15px;' +
-        //             //                     'width: 100px;' +
-        //             //                 '" data-introstep="6"></div>';
-        //             // $('#demoScreen #fileNameSelector').append(emptyBox);
-        //         },
-        //         onNextStep: function(introObj) {
-        //             if (introObj.currentStep === 4) {
-        //                dsDemo1ToggleForm(true);
-        //             }
-        //         },
-        //         onPrevStep: function(introObj) {
-        //             if (introObj.currentStep === 3) {
-        //                 dsDemo1ToggleForm(false);
-        //             }
-        //         },
-        //         onSkipToEnd: function(introObj) {
-        //             dsDemo1ToggleForm(true);
-        //         },
-        //         onSkipToStart: function(introObj) {
-        //             dsDemo1ToggleForm(false);
-        //         }
-        //     };
-
-        //     introHelper('datastoreDemo1', WalkThroughTStr.w2, options);
-        // });
-
-        // $('#datastoreWT2').click(function() {
-        //     var options = {
-        //         ignoreHidden: true,
-        //         onStart: "",
-        //         onNextStep: "",
-        //         onPrevStep: "",
-        //         onSkipToEnd: "",
-        //         onSkipToStart: ""
-        //     };
-        //     introHelper('datastoreDemo2', WalkThroughTStr.w3, options);
-        // });
 
         function toggleRefresh($target) {
             if ($target.hasClass('on')) {
@@ -130,19 +17,6 @@ window.Help = (function($, Help) {
             }
         }
 
-        // function dsDemo1ToggleForm(showPreview) {
-        //     if (showPreview) {
-        //         $('#demoScreen').find('#dsForm-preview')
-        //                         .removeClass('xc-hidden');
-        //         $('#demoScreen').find('#dsForm-path')
-        //                         .addClass('xc-hidden');
-        //     } else {
-        //         $('#demoScreen').find('#dsForm-preview')
-        //                         .addClass('xc-hidden');
-        //         $('#demoScreen').find('#dsForm-path')
-        //                         .removeClass('xc-hidden');
-        //     }
-        // }
     };
 
     Help.tooltipOff = function() {
@@ -159,26 +33,175 @@ window.Help = (function($, Help) {
         return ($('body').hasClass('tooltipOff'));
     };
 
-    // function introHelper(demoType, textArray, options) {
-    //     var userOptions = {popoverText: textArray};
-    //     if (options && typeof options === "object") {
-    //         $.extend(userOptions, options);
-    //     }
-    //     Intro.setOptions(userOptions);
+    function setupHelpSearch() {
+        var $searchInput = $('#helpSearch');
+        var $categoryArea = $('#helpResults').find('.categoryArea');
+        var $resultsArea = $('#helpResults').find('.resultsArea');
 
-    //     $('body').append('<div id="demoScreen"></div>');
+        $('#helpSubmit').click(function() {
+            $('#helpResults').find('.noResults').hide();
+            $searchInput.trigger({"type": "keyup", "keyCode": keyCode.Enter});
+        });
 
-    //     $('#demoScreen').load(paths[demoType],
-    //         function(response, status) {
-    //             if (status === 'success') {
-    //                 $('#container:not(.demoContainer)').hide();
-    //                 Intro.start();
-    //             } else {
-    //                 Alert.error(AlertTStr.Error, SideBarTStr.WalkThroughUA);
-    //             }
-    //         }
-    //     );
-    // }
+        $('#helpSearchArea').submit(function() {
+            $('#helpResults').find('.noResults').hide();
+            return false;
+        });
+
+        $('#helpCategories').click(function() {
+            $categoryArea.show();
+            $resultsArea.hide();
+            $searchInput.val("");
+        });
+
+        $searchInput.on('keyup', function(e) {
+            if (e.keyCode === keyCode.Enter) {
+                if ($searchInput.val().trim() === "") {
+                    $categoryArea.show();
+                    $resultsArea.hide();
+                } else {
+                    $categoryArea.hide();
+                    $resultsArea.hide();
+                    // Must remove and reattach. Else the .load trick doesn't
+                    // work
+                    var $iframe = $('#mcfResults');
+                    $iframe.remove();
+                    $(".resultsArea").append(
+                                           '<iframe id="mcfResults"></iframe>');
+                    $iframe = $("#mcfResults");
+                    $iframe.attr('src','assets/help/Content/SearchInsight.htm#search-'+
+                                 $searchInput.val());
+                    $iframe.load(function() {
+                        $resultsArea.show();
+                    });
+                }
+            }
+        });
+        $searchInput.on('change', function() {
+            if ($searchInput.val().trim() === "") {
+                $categoryArea.show();
+                $resultsArea.hide();
+            }
+        });
+
+        generateHelpTopics();
+    }
+
+    function generateHelpTopics() {
+        var categoriesObj = {};
+        var url;
+        var maxToDisplay = 6;
+        var html = "";
+        var subTopic;
+
+        categorizeTopics(categoriesObj);
+
+        // need to make into array in order to sort topics by titles
+        var categories = [];
+        for (var topic in categoriesObj) {
+            categories.push(categoriesObj[topic]);
+        }
+        sortByTitles(categories);
+
+        for (var i = 0; i < categories.length; i++) {
+
+            html += '<div class="categoryBlock">' +
+                        '<div class="categoryWrap">' +
+                            '<div class="subHeading">' +
+                                categories[i].title + '</div>';
+            subTopic = categories[i].subTopics;
+
+            sortByTitles(subTopic);
+
+            var numToDisplay = subTopic.length;
+
+            if (categories[i].more) {
+                numToDisplay = Math.min(numToDisplay, maxToDisplay);
+            }
+
+            for (var j = 0; j < numToDisplay; j++) {
+                // create new row for every 2 linkss
+                if (j % 2 === 0) {
+                    html += '<div class="row clearfix">';
+                }
+                url = getFormattedUrl(subTopic[j].url);
+                html += '<div class="linkWrap"><a href="' + paths.helpContent +
+                         url + '" ' + 'target="xchelp">' + subTopic[j].title +
+                         '</a></div>';
+                if (j % 2 !== 0) {
+                    html += '</div>';
+                }
+            }
+            // close row tag if not closed
+            if (j % 2 !== 0) {
+                html += '</div>';
+            }
+            if (categories[i].more) {
+                url = getFormattedUrl(categories[i].more.url);
+                var moreText = categories[i].title.toLowerCase();
+                if (moreText.indexOf('topics') !==
+                    categories[i].title.length - 6) {
+                    moreText += " topics";
+                }
+                html += '<div class="moreLink"><a href="' + paths.helpContent +
+                         url + '" target="xchelp">All ' +
+                         moreText + '</a></div>';
+            }
+
+            html += '</div></div>';
+        }
+        $('#helpResults').find('.categoryArea .mainHeading').after(html);
+    }
+
+    function categorizeTopics(categories) {
+        var page;
+        var topic;
+        var topicIndex;
+        var url;
+        for (var i = 0; i < helpHashTags.pages.length; i++) {
+            page = helpHashTags.pages[i];
+            topic = page.url;
+            topicIndex = topic.indexOf('Content/');
+            url = topic.slice(topicIndex).slice(8);
+            topic = url.split('/')[0].slice(2);
+            topic = xcHelper.camelCaseToRegular(topic);
+            if (topic === "" || topic.indexOf('.htm') > -1 ||
+                topic === "Feature Topics") {
+                continue;
+            }
+            if (!categories[topic]) {
+                categories[topic] = {title: topic, subTopics: []};
+            }
+            if ((topic === "Ref Information" &&
+                page.title === "Reference information") ||
+                (topic === "Common Tasks" &&
+                page.title === "Common tasks") ||
+                (topic === "Introduction Topics" &&
+                page.title === "Getting started")) {
+                categories[topic].more = page;
+            } else {
+                categories[topic].subTopics.push(page);
+            }
+        }
+    }
+
+    function getFormattedUrl(url) {
+        var index = url.indexOf('Content/');
+        return (url.slice(index).slice(8));
+    }
+
+    function sortByTitles(list) {
+        list.sort(function(a, b) {
+            if (a.title < b.title) {
+                return -1;
+            } else if (a.title > b.title) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+    }
+
 
     return (Help);
 

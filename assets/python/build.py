@@ -65,7 +65,27 @@ def replacePathsInHtml():
         newFile.close()
         shutil.move(abs_path, f)
 
+def genSearchInsght():
+    print "Generating SearchInsight.htm"
+    searchLocation = "prod/assets/help/Content/Search.htm"
+    newFile = searchLocation.split(".")[0]+"Insight.htm"
+    insertions = "prod/site/partials/mcf.html"
+    code = open(searchLocation, "rb").read()
+    insert = open(insertions, "rb").read()
+    fout = open(newFile, "wb")
+    
+    # Read the file and write it out line by line until we see the style tag
+    # That's where we insert our stuff
+    
+    found = False
+    for line in code.split("\r\n"):
+        if not found and (line).find("<style>") > -1:
+            fout.write(insert+"\n")
+            found = True
+        fout.write(line+"\n")
+    fout.close()
+
 if __name__ == "__main__":
-    print "Hello world"
     catFilesTogether()
     replacePathsInHtml()
+    genSearchInsight()
