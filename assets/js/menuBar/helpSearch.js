@@ -39,14 +39,6 @@ window.HelpSearch = (function($, HelpSearch) {
                     $iframe.attr('src','assets/help/Content/Search.htm#search-'+
                                  $searchInput.val());
                     $iframe.load(function() {
-                        var innerDoc = $iframe[0].contentDocument ||
-                                        $iframe[0].contentWindow.document;
-                        var ourCSS = '<link href="../../newStylesheets/css/' +
-                                    'mcf.css" rel="stylesheet">';
-                        $(innerDoc).find("head").append(ourCSS);
-                        $(innerDoc).on("click", "h3 a", function() {
-                            $(this).attr("target", "xchelp");
-                        });
                         $resultsArea.show();
                     });
                 }
