@@ -82,7 +82,6 @@ window.Installer = (function(Installer, $) {
         $(".radioButton").click(function() {
             // If option is the same as before, ignore and return
             if ($(this).hasClass("active")) {
-                console.log("same");
                 return;
             }
             $(this).closest(".radioButtonGroup").find(".radioButton")
@@ -297,10 +296,14 @@ window.Installer = (function(Installer, $) {
 
     function validateCredentials() {
         var deferred = jQuery.Deferred();
-        if ($(".hostUsername input").val().trim().length === 0) {
-            deferred.reject("Empty Username",
-                            "Your SSH username cannot be empty.");
+        var $hostInputs = $(".hostUsername input:visible");
+        for (var i = 0; i<$hostInputs.length; i++) {
+            if ($hostInputs.eq(i).val().trim().length === 0) {
+                deferred.reject("Empty Username / Port",
+                                "Your SSH username / port cannot be empty.");
+            }
         }
+
         finalStruct.username = $(".hostUsername input").val().trim();
 
         var passOption = $(".passOption.active").data("option");

@@ -59,6 +59,9 @@ app.post('/', function(req, res) {
     var errors = [];
     switch(credArray.api) {
     case (Api.runPrecheck):
+        // Write files to /config and chmod
+        
+
         // Make bash call to start
         // Immediately ack after starting
         res.send({"status": Status.Ok});

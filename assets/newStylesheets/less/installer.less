@@ -454,16 +454,22 @@ input:-webkit-autofill:focus {
                 margin-top: 10px;
             }
             .hostUsername {
-                height: 35px;
                 position: relative;
                 width: 100%;
+                .bar:nth-child(2) {
+                    top: 52px;
+                }
+            }
+
+            .inputWrap {
+                height: 39px;
             }
 
             textarea {
                 font-size: 14px;
                 margin-top: 20px;
                 display: inline-block;
-                font-family: "Source Code Pro";
+                font-family: "Source Code Pro", Courier;
                 background-color: rgba(0, 0, 0, 0.3);
                 color: @color-white;
                 box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.2);
@@ -483,15 +489,15 @@ input:-webkit-autofill:focus {
                 position: absolute;
                 width: ~"calc(100% - 10px)";
                 margin-left: 0px;
+
             }
+
 
             .hostSshKey {
                 display: none;
             }
 
         }
-
-
     }
 
     .error {
