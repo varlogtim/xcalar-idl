@@ -10,6 +10,7 @@ window.Installer = (function(Installer, $) {
         //           "nfsGroup": "xcalarEmployee" }
         "hostnames": [],
         "username": "",
+        "port": 22,
         "credentials": {} // Either password or sshKey
     };
 
@@ -24,7 +25,8 @@ window.Installer = (function(Installer, $) {
         "checkPrecheckStatus": 1,
         "runInstaller": 2,
         "checkInstallerStatus": 3,
-        "completeInstallation": 4
+        "completeInstallation": 4,
+        "checkLicense": 5
     };
 
     var Status = {
@@ -304,8 +306,9 @@ window.Installer = (function(Installer, $) {
             }
         }
 
-        finalStruct.username = $(".hostUsername input").val().trim();
-
+        finalStruct.username = $(".hostUsername input:visible").eq(0).val()
+                                                               .trim();
+        finalStruct.port = $(".hostUsername input:visible").eq(1).val().trim();
         var passOption = $(".passOption.active").data("option");
         if (passOption === "password") {
             if ($(".hostPassword input").val().length === 0) {
@@ -404,7 +407,16 @@ window.Installer = (function(Installer, $) {
     function verifyKey(key) {
         var deferred = jQuery.Deferred();
         // Make async call here
-
+        /**
+        checkLicense(key)
+        .then(function() {
+            deferred.resolve({"verified": true,
+                              "numServers": numServers});
+        })
+        .fail(function() {
+            deferred.resolve({"verified": false});
+        })
+        */
         // we fake da shit for now
         if (key === "1234123412341234") {
             deferred.resolve({"verified": true,
@@ -454,6 +466,24 @@ window.Installer = (function(Installer, $) {
             deferred.reject(arguments[1], arguments[2]);
         });
 
+        return deferred.promise();
+    }
+
+    function checkLicense(license) {
+        var deferred = jQuery.Deferred();
+        var struct = new ApiStruct(Api.checkLicense, {"licenseKey": license});
+        sendViaHttps(struct, function(ret) {
+            if (ret.status === Status.Ok) {
+                // depending on how we want to finally do it
+                // We can do ret.numNodes
+                deferred.resolve();
+            } else {
+                deferred.reject(ret);
+            }
+        }, function() {
+            console.error(arguments);
+            deferred.reject(arguments[1], arguments[2]);
+        });
         return deferred.promise();
     }
 

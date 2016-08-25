@@ -42,7 +42,8 @@ var Api = {
     "checkPrecheckStatus": 1,
     "runInstaller": 2,
     "checkInstallerStatus": 3,
-    "completeInstallation": 4
+    "completeInstallation": 4,
+    "checkLicense": 5
 };
 
 var Status = {
@@ -52,17 +53,86 @@ var Status = {
     "Error": -1,
 };
 
+var curStep = {
+    "stepString": "Step [0] Starting...",
+    "prevString": "",
+    "nodesCompletedCurrent": []
+};
+
+var getNodeRegex = new RegExp("\[([0-9]+)\]");
+var getStatusRegex = new RegExp("\[([A-Z]+)\]");
 
 app.post('/', function(req, res) {
     var credArray = req.body;
     var hasError = false;
     var errors = [];
     switch(credArray.api) {
+    case (Api.checkLicense):
+        // XXX change to write to config
+        var fileLocation = "/tmp/license.txt";
+        fs.writeFile(fileLocation, credArray.struct.licenseKey);
+        // Call bash to check license with this 
+        var out = exec('/config/01-license.sh -l ' + fileLocation);
+        out.stderr.on('data', function(data) {
+            console.log(data);
+            if (data === "Blah blah verified") {
+                res.send({"status": Status.Ok,
+                          // "numNodes": blah
+                        });
+            } else if (data === "FAILED") {
+                res.send({"status": Status.Error});
+            }
+        });
+        break;
     case (Api.runPrecheck):
         // Write files to /config and chmod
-        
+        var hostnameLocation = "/tmp/hosts.txt";
+        var credentialLocation = "/tmp/key.txt";
+        var isPassword = true;
 
-        // Make bash call to start
+        if (password in credArray.struct.credentials) {
+            var password = credArray.struct.credentials.password;
+            fs.writeFile(credentialLocation, password,
+                         {mode: parseInt('400', 8)});
+        } else {
+            isPassword = false;
+            var sshkey = credArray.struct.credentials.sshKey;
+            fs.writeFile(credentialLocation, sshkey,
+                         {mode: parseInt('400', 8)});
+        }
+
+        var hostArray = credArray.struct.hostnames;
+        fs.writeFile(hostnameLocation, hostArray.join("\n"));
+
+        var out;
+        if (isPassword) {
+            out = exec('/config/02-precheck.sh  ');
+        } else {
+            out = exec('/config/02-precheck.sh ');
+        }
+        out.stderr.on('data', function(data) {
+            console.log(data);
+            if (data.indexOf("Step [") === 0) {
+                // New Step! Means all the old ones are done
+                curStep.prevString = curStep.stepString;
+                curStep.stepString = data;
+                curStep.nodesCompletedCurrent = [];
+            } else if (data.indexOf("[") === 0) {
+                // One node completed current step!
+                var hostId = (getNodeRegex.exec(data))[1];
+                var status = (getStatusRegex.exec(data))[1];
+                if (status === "SUCCESS") {
+                    curStep.nodesCompletedCurrent[hostId] = true;
+                } else {
+                    curStep.nodesCompletedCurrent[hostId] = false;
+                    // XXX error message?
+                }
+                //
+            }
+            // Step [1/8]: Check host connection
+            // [2] 00:50:30 [SUCCESS] tesla:22021
+        });
+        
         // Immediately ack after starting
         res.send({"status": Status.Ok});
         break;
@@ -70,6 +140,7 @@ app.post('/', function(req, res) {
         // Make bash call to get status
         var finalStruct = credArray.struct;
         var ackArray = [];
+        // Check global array that has been populated by prev step
         for (var i = 0; i<finalStruct.hostnames.length; i++) {
             ackArray.push("Precheck Step 1: Blah");
             console.log(finalStruct.hostnames[i]);
