@@ -363,7 +363,7 @@
                 .func {
                     margin-top: 12px;
                     .size(@height: 24px);
-                    cursor: default;
+                    cursor: pointer;
                     opacity: @opacity-unhover;
 
                     &:hover {
@@ -373,6 +373,7 @@
                     &.selected {
                         opacity: @opacity-hover;
                         color: @color-font-bright-light-blue;
+                        cursor: default;
 
                         .name, .action {
                             border-color: @color-font-bright-light-blue;

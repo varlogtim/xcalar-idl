@@ -438,8 +438,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             $(this).closest(".module").toggleClass("active");
         });
 
-        $extLists.on("click", ".func .action", function() {
-            var $func = $(this).closest(".func");
+        $extLists.on("click", ".func", function() {
+            var $func = $(this);
             if ($func.hasClass("selected")) {
                 return;
             }
@@ -522,7 +522,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         for (var i = 0, len = funcList.length; i < len; i++) {
             var func = funcList[i];
             var fnName = func.fnName;
-            var funcClass = "func";
+            var funcClass = "xc-action func";
             var arrayOfFields = func.arrayOfFields;
 
             if (arrayOfFields == null || arrayOfFields.length === 0) {
@@ -537,7 +537,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     '<div class="name">' +
                         func.buttonText +
                     '</div>' +
-                    '<div class="action xc-action">' +
+                    '<div class="action">' +
                         '<i class="icon xi-arrow-right fa-8"></i>' +
                     '</div>' +
                 '</div>';

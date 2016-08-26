@@ -1110,9 +1110,10 @@ window.FileBrowser = (function($, FileBrowser) {
             // up to parent folder
             var $target = $(event.target);
             var code = event.which;
-
+            var $lastTarget = gMouseEvents.getLastMouseDownTarget();
             if ($target.is("input") ||
-                gMouseEvents.getLastMouseDownTarget().closest("#fileBrowser").length === 0)
+                ($lastTarget != null &&
+                $lastTarget.closest("#fileBrowser").length === 0))
             {
                 // input doese trigger keyboard event
                 return true;
