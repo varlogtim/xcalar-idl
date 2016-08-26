@@ -83,7 +83,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         });
     };
 
-    DeleteTableModal.show = function() {
+    DeleteTableModal.show = function(autoTrigger) {
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open
@@ -96,6 +96,12 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 // so it can overlap upon other modals
                 // and close without any problem
                 $modalBg.addClass("locked");
+                if (autoTrigger) {
+                    $modal.addClass("autoTrigger");
+                } else {
+                    $modal.removeClass("autoTrigger");
+                }
+
                 if (gMinModeOn) {
                     $modal.show();
                 } else {

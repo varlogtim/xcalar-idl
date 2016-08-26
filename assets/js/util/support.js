@@ -111,14 +111,15 @@ window.Support = (function(Support, $) {
 
         var deferred = jQuery.Deferred();
 
+        defaultMemoryLimit = UserSettings.getPref('memoryLimit')
+                                     || defaultMemoryLimit;
+
         XcalarApiTop()
         .then(function(result) {
             var tops = result.topOutputPerNode;
             for (var i = 0, len = tops.length; i < len; i++) {
-                defaultMemoryLimit = UserSettings.getPref('memoryLimit')
-                                     || defaultMemoryLimit;
                 if (tops[i].memUsageInPercent > defaultMemoryLimit) {
-                    DeleteTableModal.show();
+                    DeleteTableModal.show(true);
                     return;
                 }
             }
