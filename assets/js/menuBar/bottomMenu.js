@@ -31,13 +31,7 @@ window.BottomMenu = (function($, BottomMenu) {
     };
 
     BottomMenu.close = function(topMenuOpening) {
-        if ($menuPanel.hasClass('poppedOut')) {
-            setTimeout(function() {
-                closeMenu(topMenuOpening, true);
-            }, 100);
-        } else {
-            closeMenu(topMenuOpening);
-        }
+        closeMenu(topMenuOpening);
     };
 
     BottomMenu.isMenuOpen = function() {
@@ -47,6 +41,10 @@ window.BottomMenu = (function($, BottomMenu) {
     BottomMenu.isPoppedOut = function() {
         return (isPoppedOut);
     };
+
+    BottomMenu.openSection = function(sectionIndex) {
+        openMenu(sectionIndex);
+    }
 
     // setup buttons to open bottom menu
     function setupButtons() {
@@ -193,7 +191,7 @@ window.BottomMenu = (function($, BottomMenu) {
         });
     }
 
-    function closeMenu(topMenuOpening, poppingIn) {
+    function closeMenu(topMenuOpening) {
         $("#bottomMenu").removeClass("open");
         $('#container').removeClass('bottomMenuOpen');
         isMenuOpen = false;
@@ -212,7 +210,7 @@ window.BottomMenu = (function($, BottomMenu) {
                 "animSpeed"    : delay
             });
         }
-        popInModal();
+        popInModal(null, topMenuOpening);
         ExtensionManager.closeView();
     }
 
@@ -232,71 +230,7 @@ window.BottomMenu = (function($, BottomMenu) {
                 closeMenu();
             }
         } else {
-            // bottom menu was closed or it was open and we're switching to
-            // this section
-            var wasOpen = $menuPanel.hasClass('open');
-            $sliderBtns.removeClass("active");
-            $sliderBtns.eq(sectionIndex).addClass("active");
-
-            $menuSections.removeClass("active");
-            // mark the section and open the menu
-            $section.addClass("active");
-            var isBottomMenuOpening = false;
-            if ($('#mainMenu').hasClass('open')) {
-                isBottomMenuOpening = true;
-                MainMenu.close(isBottomMenuOpening);
-                noAnim();
-            }
-
-            $menuPanel.addClass("open");
-            $('#container').addClass('bottomMenuOpen');
-            isMenuOpen = true;
-            // recenter table titles only if: on workspace panel,
-            // main menu was not open && bottom menu was not open
-            if (!isBottomMenuOpening && !wasOpen) {
-                if ($('#workspacePanel').hasClass('active')) {
-                    moveTableTitles(null, {
-                        "offset"       : 285,
-                        "menuAnimating": true,
-                        "animSpeed"    : delay
-                    });
-                }
-            } else {
-                $('#container').addClass('noMenuAnim');
-                setTimeout(function() {
-                    $('#container').removeClass('noMenuAnim');
-                }, delay);
-            }
-
-            var sectionId = $section.attr("id");
-            if (sectionId === "sqlSection") {
-                SQL.scrollToBottom();
-                $("#sqlButtonWrap").removeClass("xc-hidden");
-            } else {
-                $("#sqlButtonWrap").addClass("xc-hidden");
-            }
-
-            if (sectionId === "helpSection") {
-                $("#helpButtonWrap").removeClass("xc-hidden");
-            } else {
-                $("#helpButtonWrap").addClass("xc-hidden");
-            }
-
-            OperationsView.close();
-            JoinView.close();
-            ExportView.close();
-            SmartCastView.close();
-            DFCreateView.close();
-            // close these views before we open extensionManager otherwise
-            // extensionmanager listeners and classes might be removed
-
-            if (sectionId === "extension-ops") {
-                ExtensionManager.openView();
-            } else {
-                ExtensionManager.closeView();
-            }
-
-            
+            openMenu(sectionIndex);
         }
 
         // dealay the next click as the menu open/close has animation
@@ -304,6 +238,78 @@ window.BottomMenu = (function($, BottomMenu) {
         setTimeout(function() {
             clickable = true;
         }, delay);
+    }
+
+    function openMenu(sectionIndex) {
+         // bottom menu was closed or it was open and we're switching to
+        // this section
+        // 
+        var $menuSections = $menuPanel.find(".menuSection");
+        var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
+        var $section = $menuSections.eq(sectionIndex);
+
+
+        var wasOpen = $menuPanel.hasClass('open');
+        $sliderBtns.removeClass("active");
+        $sliderBtns.eq(sectionIndex).addClass("active");
+
+        $menuSections.removeClass("active");
+        // mark the section and open the menu
+        $section.addClass("active");
+        var isBottomMenuOpening = false;
+        if ($('#mainMenu').hasClass('open')) {
+            isBottomMenuOpening = true;
+            MainMenu.close(isBottomMenuOpening);
+            noAnim();
+        }
+
+        $menuPanel.addClass("open");
+        $('#container').addClass('bottomMenuOpen');
+        isMenuOpen = true;
+        // recenter table titles only if: on workspace panel,
+        // main menu was not open && bottom menu was not open
+        if (!isBottomMenuOpening && !wasOpen) {
+            if ($('#workspacePanel').hasClass('active')) {
+                moveTableTitles(null, {
+                    "offset"       : 285,
+                    "menuAnimating": true,
+                    "animSpeed"    : delay
+                });
+            }
+        } else {
+            $('#container').addClass('noMenuAnim');
+            setTimeout(function() {
+                $('#container').removeClass('noMenuAnim');
+            }, delay);
+        }
+
+        var sectionId = $section.attr("id");
+        if (sectionId === "sqlSection") {
+            SQL.scrollToBottom();
+            $("#sqlButtonWrap").removeClass("xc-hidden");
+        } else {
+            $("#sqlButtonWrap").addClass("xc-hidden");
+        }
+
+        if (sectionId === "helpSection") {
+            $("#helpButtonWrap").removeClass("xc-hidden");
+        } else {
+            $("#helpButtonWrap").addClass("xc-hidden");
+        }
+
+        OperationsView.close();
+        JoinView.close();
+        ExportView.close();
+        SmartCastView.close();
+        DFCreateView.close();
+        // close these views before we open extensionManager otherwise
+        // extensionmanager listeners and classes might be removed
+
+        if (sectionId === "extension-ops") {
+            ExtensionManager.openView();
+        } else {
+            ExtensionManager.closeView();
+        }
     }
 
     function noAnim() {
@@ -336,7 +342,11 @@ window.BottomMenu = (function($, BottomMenu) {
         }
     }
 
-    function popInModal(adjustTables) {
+    function popInModal(adjustTables, noAnimation) {
+        if (noAnimation) {
+            noAnim();
+        }
+
         $menuPanel.removeClass('poppedOut');
         $menuPanel.attr('style', "");
         $menuPanel.find('.popOut')

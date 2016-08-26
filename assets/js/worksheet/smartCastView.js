@@ -9,6 +9,7 @@ window.SmartCastView = (function($, SmartCastView) {
     var recTypes = [];
     var isOpen = false;
     var formHelper;
+    var mainMenuPrevState;
 
     // constant
     var validTypes = ["string", "integer", "float", "boolean"];
@@ -90,8 +91,7 @@ window.SmartCastView = (function($, SmartCastView) {
     };
 
     SmartCastView.show = function(tableId) {
-        $("#workspaceMenu").find(".menuSection:not(.xc-hidden)")
-                           .addClass("lastOpened");
+        mainMenuPrevState = MainMenu.getState();
         $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
         $castView.removeClass("xc-hidden");
         $("#container").addClass("columnPicker smartCastState");
@@ -118,8 +118,7 @@ window.SmartCastView = (function($, SmartCastView) {
 
         isOpen = false;
         $castView.addClass('xc-hidden');
-        $("#workspaceMenu").find(".menuSection.lastOpened")
-                           .removeClass("lastOpened xc-hidden");
+        MainMenu.restoreState(mainMenuPrevState);
         $("#container").removeClass("columnPicker smartCastState");
         $("#xcTable-" + curTableId).off("click.columnPicker")
             .closest(".xcTableWrap").removeClass("columnPicker");

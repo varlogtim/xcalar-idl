@@ -15,6 +15,7 @@ window.JoinView = (function($, JoinView) {
     var allClashingImmediatesCache;
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
+    var mainMenuPrevState;
 
     var turnOnPrefix = true; // Set to false if backend crashes
 
@@ -413,10 +414,9 @@ window.JoinView = (function($, JoinView) {
 
     JoinView.show = function(tableId, colNum, restore) {
         isOpen = true;
-        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)')
-                           .addClass('lastOpened');
+        mainMenuPrevState = MainMenu.getState();
+
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
-        // $('#colMenu').addClass('exitOpState exitJoinState');
         $('#container').addClass('columnPicker joinState');
 
         $joinView.removeClass('xc-hidden');
@@ -465,10 +465,8 @@ window.JoinView = (function($, JoinView) {
         isOpen = false;
         lastSideClicked = null;
         focusedListNum = null;
-
+        MainMenu.restoreState(mainMenuPrevState);
         $joinView.addClass('xc-hidden');
-        $('#workspaceMenu').find('.menuSection.lastOpened')
-                           .removeClass('lastOpened xc-hidden');
         formHelper.clear();
         $("body").off(".joinModal");
         $('.xcTable').off('click.columnPicker').closest(".xcTableWrap")

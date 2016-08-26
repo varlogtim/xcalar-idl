@@ -30,6 +30,8 @@ window.OperationsView = (function($, OperationsView) {
     var aggFunctionsListScroller;
     var tableId;
     var formHelper;
+    var mainMenuPrevState; // used to restore main menu state once operation is
+                            // closed
 
     // shows valid cast types
     var castMap = {
@@ -559,9 +561,7 @@ window.OperationsView = (function($, OperationsView) {
         var deferred = jQuery.Deferred();
         isOpen = true;
 
-        //xi2 hack
-        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)')
-                           .addClass('lastOpened');
+        mainMenuPrevState = MainMenu.getState();
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $operationsView.removeClass('xc-hidden');
         if (!MainMenu.isMenuOpen("mainMenu")) {
@@ -3544,9 +3544,9 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.removeWaitingBG();
         $operationsView.addClass('xc-hidden');
         $activeOpSection.addClass('xc-hidden');
-        $('#workspaceMenu').find('.menuSection.lastOpened')
-                           .removeClass('lastOpened xc-hidden');
-         // used for css class
+        MainMenu.restoreState(mainMenuPrevState);
+
+        //  // used for css class
         var opNameNoSpace = operatorName.replace(/ /g, "");
         $('#container').removeClass('columnPicker ' + opNameNoSpace +
                                     'State');

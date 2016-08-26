@@ -16,6 +16,7 @@ window.ExportView = (function($, ExportView) {
     var exportTargInfo;
     var formHelper;
     var isOpen = false; // tracks if form is open
+    var mainMenuPrevState;
 
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
@@ -173,8 +174,7 @@ window.ExportView = (function($, ExportView) {
 
     ExportView.show = function(tablId) {
         isOpen = true;
-        $('#workspaceMenu').find('.menuSection:not(.xc-hidden)')
-                           .addClass('lastOpened');
+        mainMenuPrevState = MainMenu.getState();
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $exportView.removeClass('xc-hidden');
         $('#container').addClass('columnPicker exportState');
@@ -230,8 +230,7 @@ window.ExportView = (function($, ExportView) {
         // xx some of this code can be reused for all operation views
         var $tableWraps = $('.xcTableWrap');
         $exportView.addClass('xc-hidden');
-        $('#workspaceMenu').find('.menuSection.lastOpened')
-                           .removeClass('lastOpened xc-hidden');
+        MainMenu.restoreState(mainMenuPrevState);
         $('#container').removeClass('columnPicker exportState');
 
         $tableWraps.removeClass('exportViewOpen');

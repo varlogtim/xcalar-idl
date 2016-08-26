@@ -66,6 +66,38 @@ window.MainMenu = (function($, MainMenu) {
         }
     };
 
+    MainMenu.getState = function() {
+        var state = {
+            isPoppedOut: BottomMenu.isPoppedOut(),
+            isTopOpen: isMenuOpen,
+            isBottomOpen: BottomMenu.isMenuOpen(),
+            $activeTopSection: $mainMenu.find('.commonSection.active'),
+            $activeWorkspaceMenu: $("#workspaceMenu").find('.menuSection:not(.xc-hidden)'),
+            $activeBottomSection: $('#bottomMenu').find('.menuSection.active')
+        } ;
+        return (state);
+    };
+
+    // xx currently only supporting form views in the worksheet panel
+    MainMenu.restoreState = function(prevState) {
+        var noAnim;
+        if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
+            BottomMenu.openSection(prevState.$activeBottomSection.index());
+        }
+        if (isMenuOpen && !prevState.isTopOpen) {
+            var noAnim = false;
+            if (prevState.isBottomOpen) {
+                noAnim = true;
+            }
+            MainMenu.close(noAnim);
+        }
+
+        // restore worksheet list view or table list view
+        $("#workspaceMenu").find('.menuSection').addClass('xc-hidden');
+        prevState.$activeWorkspaceMenu.removeClass('xc-hidden');
+    };
+
+
     function setupBtns() {
         $mainMenu.find('.minimizeBtn').click(function() {
             closeMenu($menuBar.find(".topMenuBarTab.active"));
