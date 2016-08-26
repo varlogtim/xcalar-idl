@@ -487,7 +487,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     $li.addClass("selected")
                         .siblings().removeClass("selected");
                     var tableId = xcHelper.getTableId(tableName);
-                    focusTable(tableId);
+                    xcHelper.centerFocusedTable(tableId, true);
                 }
             }
         }).setupListeners();

@@ -408,7 +408,7 @@ window.DFGCard = (function($, DFGCard) {
         if (hasParam) {
             paramClass = " hasParam";
         }
-        console.log(operation);
+        // console.log(operation);
         var html =
         '<div class="actionType ' + operation.type + paramClass +
         '" style="top: ' + operation.top + 'px; left: ' +

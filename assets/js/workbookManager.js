@@ -44,7 +44,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.commit = function() {
         var deferred = jQuery.Deferred();
         // if activeWKBK is null, then it's creating a new WKBK
-        wkbkSet.get(activeWKBKId).update();
+        if (activeWKBKId != null) {
+            var wkbk = wkbkSet.get(activeWKBKId);
+            if (wkbk != null) {
+                wkbk.update();
+            }
+        }
+
         saveWorkbook()
         .then(deferred.resolve)
         .fail(deferred.reject)

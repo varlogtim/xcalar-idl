@@ -399,7 +399,7 @@ window.DSPreview = (function($, DSPreview) {
         // restet the udf lists, otherwise the if clause in
         // selectUDFModule() and selectUDFFunc() will
         // stop the reset from triggering
-
+        toggleUDF(false);
         // only when cached moduleName and funcName is not null
         // we restore it
         if (lastUDFModule != null && lastUDFFunc != null &&
