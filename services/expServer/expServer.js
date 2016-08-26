@@ -57,10 +57,10 @@ var curStep = {};
 
 var getNodeRegex = /\[([0-9]+)\]/;
 var getStatusRegex = /\[([A-Z]+)\]/;
-var installerLocation = "/netstore/builds/byJob/BuildMaster/blah/prod/xcalar.";
+var installerLocation = "";
 var cliArguments  = "";
 
-var scriptDir = "~/config";
+var scriptDir = "/installer";
 
 function initStepArray() {
     curStep = {
@@ -81,7 +81,7 @@ function genExecString(hostnameLocation, credentialLocation, isPassword,
     }
     execString += credentialLocation;
     execString += " -p " + port;
-    execString += " --installer " + installerLocation;
+    // execString += " --installer " + installerLocation;
 
     if (nfsOptions) {
         execString += " --nfs-host " + nfsOptions.nfsServer;
@@ -164,6 +164,7 @@ app.post('/', function(req, res) {
         });
         break;
     case (Api.runPrecheck):
+        console.log("Executing Precheck");
         // Write files to /config and chmod
         var hostnameLocation = "/tmp/hosts.txt";
         var credentialLocation = "/tmp/key.txt";
@@ -219,7 +220,6 @@ app.post('/', function(req, res) {
         console.log("Getting status");
         var finalStruct = credArray.struct;
         sendStatusArray(finalStruct, res);
-
         break;
     case (Api.runInstaller):
         initStepArray();

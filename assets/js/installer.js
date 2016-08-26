@@ -187,6 +187,7 @@ window.Installer = (function(Installer, $) {
                 method     : "POST",
                 // url        : "http://cantor.int.xcalar.com:12124",
                 url        : document.location.href+"install",
+                // url: "https://cantor.int.xcalar.com:8443/install",
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
                 success    : successCB,
@@ -547,6 +548,8 @@ window.Installer = (function(Installer, $) {
     function finalize() {
         // This function is called when everything is done.
         // Maybe we can remove the installer here?
+        // Redirect to first node's index
+        window.location = finalStruct.hostnames[0];
         return PromiseHelper.resolve();
     }
 
