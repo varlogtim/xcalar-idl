@@ -549,7 +549,7 @@ window.Installer = (function(Installer, $) {
         // This function is called when everything is done.
         // Maybe we can remove the installer here?
         // Redirect to first node's index
-        window.location = finalStruct.hostnames[0];
+        window.location = "http://" + finalStruct.hostnames[0];
         return PromiseHelper.resolve();
     }
 
