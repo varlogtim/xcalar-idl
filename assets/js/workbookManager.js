@@ -41,6 +41,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    WorkbookManager.commit = function() {
+        var deferred = jQuery.Deferred();
+        // if activeWKBK is null, then it's creating a new WKBK
+        wkbkSet.get(activeWKBKId).update();
+        saveWorkbook()
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(updateBottomBar);
+
+        return deferred.promise();
+    };
+
     WorkbookManager.getWorkbooks = function() {
         return wkbkSet.getAll();
     };
@@ -129,7 +141,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             wkbk = new WKBK(options);
             wkbkSet.put(wkbk.id, wkbk);
 
-            return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+            return saveWorkbook();
         })
         .then(function() {
             // in case KVStore has some remants about wkbkId, clear it
@@ -151,18 +163,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.addWorksheetToWorkbook = function(wkbkId) {
-        var workbook = wkbkSet.get(wkbkId);
-        workbook.numWorksheets++;
-        wkbkSet.put(wkbkId, workbook);
-        KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
-    };
-
-    WorkbookManager.removeWorksheetFromWorkbook = function(wkbkId) {
-        var workbook = wkbkSet.get(wkbkId);
-        workbook.numWorksheets--;
-        wkbkSet.put(wkbkId, workbook);
-        KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+    WorkbookManager.updateWorksheet = function(numWorksheets) {
+        var workbook = wkbkSet.get(activeWKBKId);
+        workbook.numWorksheets = numWorksheets;
     };
 
     // switch to another workbook
@@ -232,7 +235,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         freeAllResultSetsSync()
         .then(function() {
-            return saveCurrentWKBK();
+            return KVStore.commit();
         })
         .then(function() {
             return Support.releaseSession();
@@ -364,7 +367,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             var newWkbk = new WKBK(options);
             wkbkSet.put(newWKBKId, newWkbk);
             wkbkSet.delete(srcWKBK.id);
-            return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+            return saveWorkbook();
         })
         .then(function() {
             if (isCurrentWKBK) {
@@ -505,7 +508,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
 
             // refresh workbook info
-            KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK)
+            saveWorkbook()
             .then(function() {
                 if (loseOldMeta) {
                     // If we fail to get our old meta data, set activeWorkbook
@@ -617,20 +620,29 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
+    function saveWorkbook() {
+        return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+    }
+
     function updateBottomBar() {
-        var workbooks = WorkbookManager.getWorkbooks();
-        var workbook;
-        if (activeWKBKId != null && workbooks.hasOwnProperty(activeWKBKId)) {
-            workbook = workbooks[activeWKBKId];
-            $("#worksheetInfo .wkbkName").text(workbook.name);
-            $("#workspaceDate .date").text(xcHelper.getDate("-", null,
-                                                        workbook.created));
-        } else {
-            $("#worksheetInfo .wkbkName").text("N/A");
-            $("#workspaceDate .date").text("N/A");
+        var name = "N/A";
+        var created = "N/A";
+        var modified = "N/A";
+
+        if (activeWKBKId != null) {
+            var workbook = wkbkSet.get(activeWKBKId);
+            if (workbook != null) {
+                name = workbook.name;
+                created = xcHelper.getDate("-", null, workbook.created);
+                modified = xcHelper.getDate("-", null, workbook.modified) +
+                           " " + xcHelper.getTime(null, workbook.modified);
+                $("#autoSaveBtn").removeClass("unsave");
+            }
         }
 
-        $("#autoSavedInfo").text("N/A");
+        $("#worksheetInfo .wkbkName").text(name);
+        $("#workspaceDate .date").text(created);
+        $("#autoSavedInfo").text(modified);
     }
 
     function resetActiveWKBK(newWKBKId) {
@@ -741,13 +753,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function getWKBKId(wkbkName) {
         return generateKey(username, "wkbk", wkbkName);
-    }
-
-    // save current workbook
-    function saveCurrentWKBK() {
-        // if activeWKBK is null, then it's creating a new WKBK
-        wkbkSet.get(activeWKBKId).update();
-        return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
     }
 
     function switchWorkbookAnimation() {

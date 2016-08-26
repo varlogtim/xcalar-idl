@@ -156,7 +156,7 @@ window.WSManager = (function($, WSManager) {
             "worksheetId"     : wsId,
             "currentWorksheet": currentWorksheet
         });
-        WorkbookManager.addWorksheetToWorkbook(WorkbookManager.getActiveWKBK());
+        WorkbookManager.updateWorksheet(wsOrder.length);
         return wsId;
     };
 
@@ -174,8 +174,6 @@ window.WSManager = (function($, WSManager) {
             "delType"       : delType
         };
 
-        WorkbookManager.removeWorksheetFromWorkbook(
-                                               WorkbookManager.getActiveWKBK());
         if (delType === DelWSType.Empty) {
             // this may be redundant, but it's safe to check again
             if (ws.tables.length === 0 && ws.archivedTables.length === 0 &&
@@ -841,7 +839,7 @@ window.WSManager = (function($, WSManager) {
         var mainFrameHeight = $('#mainFrame').height();
         $('.tableLocked:visible').each(function() {
             var $tableWrap = $(this);
-            var tableHeight = $tableWrap.find('.xcTable').height();
+            // var tableHeight = $tableWrap.find('.xcTable').height();
             var tbodyHeight = $tableWrap.find('tbody').height() + 1;
             var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
             var topPos = 100 * ((tableWrapHeight / mainFrameHeight) / 2);
@@ -1349,6 +1347,8 @@ window.WSManager = (function($, WSManager) {
                 rmHandler(wsId, index);
             });
         }
+
+        WorkbookManager.updateWorksheet(wsOrder.length);
     }
 
     function rmHandler(wsId, index) {

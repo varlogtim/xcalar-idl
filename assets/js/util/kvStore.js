@@ -123,12 +123,9 @@ window.KVStore = (function($, KVStore) {
             }
         })
         .then(function() {
-            var d = new Date();
-            var t = xcHelper.getDate("-", d) + " " + d.toLocaleTimeString();
-            $("#autoSavedInfo").text(t);
-            // mark save state
-            $("#autoSaveBtn").removeClass("unsave");
-            // save workbook
+            return WorkbookManager.commit();
+        })
+        .then(function() {
             return XcalarSaveWorkbooks("*");
         })
         .then(function() {
