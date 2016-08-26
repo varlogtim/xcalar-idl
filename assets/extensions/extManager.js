@@ -194,7 +194,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var table = gTables[tableId];
             var progCol = gTables[tableId].getCol(colNum);
             triggerCol = table.getCol(colNum);
-            $extTriggerTableDropdown.find(".text").val(table.getName());    
+            $extTriggerTableDropdown.find(".text").val(table.getName());
         }
 
         var $tab = $("#extensionTab");
@@ -446,11 +446,30 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             var fnName = $func.data("name");
             var modName = $func.closest(".module").data("name");
+            var fnText = $func.find(".name").text();
 
             $extLists.find(".func.selected").removeClass("selected");
             $func.addClass("selected");
-            updateArgs(modName, fnName);
+            centerFuncList($func);
+            updateArgs(modName, fnName, fnText);
         });
+
+        function centerFuncList($func) {
+            if ($extOpsView.hasClass("hasArgs")) {
+                return;
+            }
+            // use setTimeout beacuse $extLists has animiation
+            // only when the anim finishes can do the scroll
+            setTimeout(function() {
+                var top = $func.offset().top;
+                // only scroll those that are hidden bte $extArgs
+                if (top > $extArgs.offset().top) {
+                    top = top - $extLists.offset().top;
+                    top = Math.max(0, top);
+                    $extLists.scrollTop(top);
+                }
+            }, 300);
+        }
 
         $("#extension-ops-close").click(function() {
             clearArgs();
@@ -489,6 +508,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         formHelper = new FormHelper($extArgs);
     }
 
+    function getModuleText(modName) {
+        var modText = modName;
+        if (modText.startsWith("UExt")) {
+            modText = modText.substring(4);
+        }
+        return modText;
+    }
+
     function generateExtList(exts) {
         var html = "";
         for (var i = 0, len = exts.length; i < len; i++) {
@@ -501,10 +528,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function getExtListHTML(modName) {
         var funcList = window[modName].buttons || [];
-        var modText = modName;
-        if (modText.startsWith("UExt")) {
-            modText = modText.substring(4);
-        }
+        var modText = getModuleText(modName);
         var html =
             '<li class="module xc-expand-list active" ' +
             'data-name="' + modName + '">' +
@@ -575,18 +599,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $("#extensionTab").click();
     }
 
-    function updateArgs(modName, fnName) {
+    function updateArgs(modName, fnName, fnText) {
         var animating = false;
         if (!$extOpsView.hasClass("hasArgs")) {
             $extOpsView.addClass("hasArgs");
             animating = true;
         }
-        
+
         var $extArgs = $extOpsView.find(".extArgs");
 
         $extArgs.data("mod", modName)
                 .data("fn", fnName);
-        $extArgs.find(".titleSection .title").text(modName + ": " + fnName);
+
+        var modText = getModuleText(modName);
+        $extArgs.find(".titleSection .title").text(modText + ": " + fnText);
 
         var tableList = xcHelper.getWSTableList();
         $extTriggerTableDropdown.find(".list ul").html(tableList);
@@ -602,7 +628,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         var args = extMap[modName][fnName] || [];
-   
         var html = "";
         for (var i = 0, len = args.length; i < len; i++) {
             var inputType = "text";
@@ -689,7 +714,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var $tempInput;
         $inputs.each(function() {
             $tempInput = $(this);
-            if ($tempInput.is(":visible") && 
+            if ($tempInput.is(":visible") &&
                 $tempInput.val().trim().length === 0) {
                 $input = $tempInput;
                 return false;
