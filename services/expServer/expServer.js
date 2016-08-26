@@ -83,10 +83,10 @@ function genExecString(hostnameLocation, credentialLocation, isPassword,
     execString += " -p " + port;
     // execString += " --installer " + installerLocation;
 
-    if (nfsOptions) {
+    if ("nfsServer" in nfsOptions) {
         execString += " --nfs-host " + nfsOptions.nfsServer;
         execString += " --nfs-folder " + nfsOptions.nfsMountPoint;
-        if (nfsOptions.nfsUsername) {
+        if ("nfsUsername" in nfsOptions) {
             execString += " --nfs-uid " + nfsOptions.nfsUsername;
             execString += " --nfs-gid " + nfsOptions.nfsGroup;
         }
@@ -198,6 +198,7 @@ app.post('/', function(req, res) {
         execString += cliArguments;
         initStepArray();
 
+        console.log(execString);
         out = exec(execString);
         
         out.stdout.on('data', stdOutCallback);
@@ -229,7 +230,7 @@ app.post('/', function(req, res) {
         execString += cliArguments;
         execString += "; " + scriptDir + "/05-*" + cliArguments;
         execString += "; " + scriptDir + "/06-*" + cliArguments;
-
+        console.log(execString);
         out = exec(execString);
         out.stdout.on('data', stdOutCallback);
 
