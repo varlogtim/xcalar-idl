@@ -193,7 +193,7 @@
         </div>
         <!-- row -->
         <div class="row">
-          <label><%= dicts.dsForm.Quoting %>:</label>
+          <label for="dsForm-quote"><%= dicts.dsForm.Quoting %>:</label>
           <!-- Field Delimiter -->
           <div class="inputWrap">
             <input id="dsForm-quote" class="text" type="text" spellcheck="false">
@@ -201,7 +201,7 @@
         </div>
         <!-- row -->
         <div class="row">
-          <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %>:</label>
+          <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %><i title="<%= dicts.dsForm.SkipRowsHint %>" class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"></i>:</label>
           <div class="inputWrap">
             <input id="dsForm-skipRows" class="text" type="number" value="0">
           </div>

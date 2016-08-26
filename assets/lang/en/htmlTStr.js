@@ -472,6 +472,7 @@ module.exports = {
         "SizeLimit": "Dataset Size Limit",
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
+        "SkipRowsHint": "SKip the number of rows for each files in the data source",
         "FINALIZE": "FINALIZE",
         "Refresh": "REFRESH PREVIEW",
         "REDETECT": "REDETECT"
