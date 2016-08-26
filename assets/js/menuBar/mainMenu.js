@@ -80,17 +80,18 @@ window.MainMenu = (function($, MainMenu) {
 
     // xx currently only supporting form views in the worksheet panel
     MainMenu.restoreState = function(prevState) {
-        var noAnim;
-        if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
-            BottomMenu.openSection(prevState.$activeBottomSection.index());
-        }
-        if (isMenuOpen && !prevState.isTopOpen) {
-            var noAnim = false;
-            if (prevState.isBottomOpen) {
-                noAnim = true;
-            }
-            MainMenu.close(noAnim);
-        }
+        // xx the following can be buggy, so temporarily disabled
+        // var noAnim;
+        // if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
+        //     BottomMenu.openSection(prevState.$activeBottomSection.index());
+        // }
+        // if (isMenuOpen && !prevState.isTopOpen) {
+        //     var noAnim = false;
+        //     if (prevState.isBottomOpen) {
+        //         noAnim = true;
+        //     }
+        //     MainMenu.close(noAnim);
+        // }
 
         // restore worksheet list view or table list view
         $("#workspaceMenu").find('.menuSection').addClass('xc-hidden');
