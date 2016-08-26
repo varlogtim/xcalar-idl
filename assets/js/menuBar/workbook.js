@@ -9,6 +9,7 @@ window.Workbook = (function($, Workbook) {
     var $lastFocusedInput; // Should always get reset to empty
     var wasMonitorActive = false; // Track previous monitor panel state for when
                                   // workbook closes
+    var newBoxSlideTime = 700;
 
     Workbook.setup = function() {
         $workbookPanel = $("#workbookPanel");
@@ -266,14 +267,19 @@ window.Workbook = (function($, Workbook) {
                                              newWorkbook.modified,
                                              newWorkbook.srcUser,
                                              newWorkbook.numWorksheets,
-                                             ["new"]);
+                                             ["new", "animating"]);
                 $workbookBox.after(dup);
-                setTimeout(function() {
-                    var $newCard = $(".workbookBox[data-workbook-id='" +
+                var $newCard = $(".workbookBox[data-workbook-id='" +
                                      newId + "']");
+                setTimeout(function() {
                     $newCard.removeClass('new');
                     $workbookBox.find('.duplicate').removeClass('inActive');
                 }, 100);
+                // this class hides the right bar tabs during the slide out
+                // so they don't come out when the cursor is hovering over
+                setTimeout(function() {
+                    $newCard.removeClass('animating');
+                }, newBoxSlideTime);
             });
             $(".tooltip").remove();
         });
@@ -420,20 +426,26 @@ window.Workbook = (function($, Workbook) {
                                           workbook.modified,
                                           workbook.srcUser,
                                           workbook.numWorksheets,
-                                          ['new']);
+                                          ['new', 'animating']);
             $newWorkbookCard.after(html);
             $newWorkbookCard.find('button').addClass('inActive');
+            var $newCard = $(".workbookBox[data-workbook-id='" +
+                                  id + "']");
 
             // need to remove "new" class from workbookcard a split second
             // after it's appended or it won't animate
             setTimeout(function() {
-                var $newCard = $(".workbookBox[data-workbook-id='" +
-                                  id + "']");
                 $newCard.removeClass('new');
                 $newWorkbookInput.val('');
                 $newWorkbookCard.find('button').removeClass('inActive');
                 $lastFocusedInput = '';
-            }, 200);
+            }, 100);
+
+            // this class hides the right bar tabs during the slide out
+            // so they don't come out when the cursor is hovering over
+            setTimeout(function() {
+                $newCard.removeClass('animating');
+            }, newBoxSlideTime);
         })
         .fail(function(error) {
             StatusBox.show(error.error, $newWorkbookInput);

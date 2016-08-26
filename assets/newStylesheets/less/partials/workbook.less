@@ -162,6 +162,25 @@
 			.innerBox {
 				.transform(translateX(-110%));
 			}
+			
+		}
+
+		// hide tabs when new box is sliding out
+		&.animating {
+			.rightBar {
+				.tab {
+					.transform(translateX(110%));
+				}
+			}
+		}
+
+		// keep tabs showing when box is sliding away to be removed
+		&.removing {
+			.rightBar {
+				.tab {
+					.transform(translateX(0%));
+				}
+			}
 		}
 
 		&.dummyBox {
