@@ -65,7 +65,7 @@ var scriptDir = "/installer";
 function initStepArray() {
     curStep = {
         "stepString": "Step [0] Starting...",
-        "prevString": "",
+        "prevString": "Step [0] Starting...",
         "nodesCompletedCurrent": [],
         "status": Status.Running,
     };
