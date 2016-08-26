@@ -588,6 +588,10 @@ window.xcHelper = (function($, xcHelper) {
      *                                 [int size, string unit]
      */
     xcHelper.sizeTranslator = function(size, unitSeparated, convertTo) {
+        if (size == null) {
+            return null;
+        }
+
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;
         var end   = unit.length - 2;

@@ -524,8 +524,8 @@ window.DSPreview = (function($, DSPreview) {
         var isRegEx = loadArgs.useRegEx();
         var previewSize = loadArgs.getPreviewSize();
 
-        console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
-            header, loadURL, quote, skipRows, isRecur, isRegEx, previewSize);
+        // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
+        //     header, loadURL, quote, skipRows, isRecur, isRegEx, previewSize);
 
         cacheUDF(udfModule, udfFunc);
 

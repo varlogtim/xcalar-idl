@@ -1001,82 +1001,51 @@ DSObj.prototype = {
             deferred.resolve("N/A");
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     },
 
     getFileSize: function() {
         // Get file size, if not exist, fetch from backend and update it
-        var deferred = jQuery.Deferred();
         var self = this;
-
         if (self.fileSize != null) {
-            deferred.resolve(self.fileSize);
-            return (deferred.promise());
-        } else if (self.isRecur) {
-            self.fileSize = "N/A";
-            deferred.resolve(self.fileSize);
-            return (deferred.promise());
+            return PromiseHelper.resolve(self.fileSize);
         }
+        // else if (self.isRecur) {
+        //     self.fileSize = "N/A";
+        //     return PromiseHelper.resolve(self.fileSize);
+        // }
 
-        var loadURL = self.path;
-        var slashIndex = loadURL.lastIndexOf('/');
-        var dotIndex = loadURL.lastIndexOf('.');
-        var curFileName = null;
+        var deferred = jQuery.Deferred();
+        var dsName = self.fullName;
 
-        if (dotIndex > slashIndex) {
-            curFileName = loadURL.substr(slashIndex + 1);
-            loadURL = loadURL.substr(0, slashIndex + 1);
-        }
-
-        XcalarListFiles(loadURL, self.isRecur)
-        .then(function(files) {
-            if (files.numFiles === 1 && files.files[0].name === "") {
-                // this is a special case that loadURL=nfs:///a/b
-                // and b is a file, not a folder
-                slashIndex = loadURL.lastIndexOf('/');
-                curFileName = loadURL.substr(slashIndex + 1);
-                loadURL = loadURL.substr(0, slashIndex + 1);
-                return XcalarListFiles(loadURL);
-            } else {
-                return PromiseHelper.resolve(files);
+        XcalarGetDatasetMeta(dsName)
+        .then(function(res) {
+            var size;
+            if (res != null && res.metas != null) {
+                var metas = res.metas;
+                size = 0;
+                // sum up size from all nodes
+                for (var i = 0, len = metas.length; i < len; i++) {
+                    size += metas[i].size;
+                }
+                size = xcHelper.sizeTranslator(size);
             }
-        })
-        .then(function(files) {
-            self.fileSize = getFileSizeHelper(files, curFileName);
-            deferred.resolve(self.fileSize);
+
+            if (size == null) {
+                size = "N/A";
+            } else {
+                self.fileSize = size;
+            }
+
+            deferred.resolve(size);
         })
         .fail(function(error) {
             console.error("List file fails", error);
             self.fileSize = null;
-            deferred.resolve(null);
+            deferred.resolve("N/A");
         });
 
-        return (deferred.promise());
-
-        function getFileSizeHelper(files, fileName) {
-            var size = 'N/A';
-            var numFiles = 0;
-            var isSingleFile = (fileName != null);
-            var fileLists = files.files;
-
-            for (var i = 0, len = files.numFiles; i < len; i++) {
-                var file = fileLists[i];
-                if (!file.attr.isDirectory) {
-                    numFiles++;
-                    if (numFiles > 1 && !isSingleFile) {
-                        size = 'N/A';
-                        break;
-                    } else {
-                        size = xcHelper.sizeTranslator(file.attr.size);
-                        if (isSingleFile && fileName === file.name) {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return size;
-        }
+        return deferred.promise();
     },
 
     getError: function() {
@@ -1131,6 +1100,8 @@ DSObj.prototype = {
             if (self.numEntries <= 0) {
                 return PromiseHelper.resolve(null);
             }
+
+            rowsToFetch = Math.min(self.numEntries, rowsToFetch);
             return XcalarFetchData(self.resultSetId, rowToGo, rowsToFetch,
                                     self.numEntries, []);
         })

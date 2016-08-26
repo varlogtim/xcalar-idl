@@ -63,9 +63,8 @@ window.DSTable = (function($, DSTable) {
 
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
-        var rowsToFetch = Math.min(dsObj.getNumEntries(), 
-                                   initialNumRowsToFetch);
-        dsObj.fetch(0, rowsToFetch)
+
+        dsObj.fetch(0, initialNumRowsToFetch)
         .then(function(result) {
             if (lastDSToSample !== datasetName) {
                 // when network is slow and user trigger another get sample table
@@ -88,7 +87,7 @@ window.DSTable = (function($, DSTable) {
         })
         .fail(function(error) {
             clearTimeout(timer);
-            
+
             if (error === notLastDSError) {
                 dsObj.release();
                 return;
@@ -169,10 +168,14 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-author").text(dsObj.getUser());
 
         // file size is special size it needs to be calculated
-        dsObj.getFileSize()
-        .then(function(fileSize) {
-            $("#dsInfo-size").text(fileSize);
-        });
+        if (isLoading) {
+            $("#dsInfo-size").text("N/A");
+        } else {
+            dsObj.getFileSize()
+            .then(function(fileSize) {
+                $("#dsInfo-size").text(fileSize);
+            });
+        }
 
         dsObj.getModifyDate()
         .then(function(mDate) {

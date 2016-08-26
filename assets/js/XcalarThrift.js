@@ -1042,7 +1042,7 @@ function XcalarGetDatasetCount(dsName) {
     if (tHandle == null) {
         deferred.resolve(0);
     } else {
-        xcalarGetDatasetMeta(tHandle, dsName)
+        XcalarGetDatasetMeta(dsName)
         .then(function(metaOut) {
             var totEntries = 0;
             for (var i = 0; i < metaOut.metas.length; i++) {
@@ -1056,6 +1056,29 @@ function XcalarGetDatasetCount(dsName) {
             deferred.reject(thriftError);
         });
     }
+
+    return (deferred.promise());
+}
+
+function XcalarGetDatasetMeta(dsName) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(0);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    dsName = parseDS(dsName);
+
+    xcalarGetDatasetMeta(tHandle, dsName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetDatasetMeta", error);
+        SQL.errorLog("Get Dataset Meta", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
 
     return (deferred.promise());
 }
