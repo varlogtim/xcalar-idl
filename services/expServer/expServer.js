@@ -61,6 +61,7 @@ var installerLocation = "";
 var cliArguments  = "";
 
 var scriptDir = "/installer";
+var licenseLocation = "/tmp/license.txt";
 
 function initStepArray() {
     curStep = {
@@ -81,6 +82,7 @@ function genExecString(hostnameLocation, credentialLocation, isPassword,
     }
     execString += credentialLocation;
     execString += " -p " + port;
+    execString += " --license-file " + licenseLocation;
     // execString += " --installer " + installerLocation;
 
     if ("nfsServer" in nfsOptions) {
@@ -183,6 +185,8 @@ app.post('/', function(req, res) {
             fs.writeFile(credentialLocation, sshkey,
                          {mode: parseInt('600', 8)});
         }
+
+        fs.writeFile(licenseLocation, "1234-1234-1234-1234");
 
         var hostArray = credArray.struct.hostnames;
         fs.writeFile(hostnameLocation, hostArray.join("\n"));
