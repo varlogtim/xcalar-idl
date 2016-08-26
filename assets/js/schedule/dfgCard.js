@@ -270,7 +270,7 @@ window.DFGCard = (function($, DFGCard) {
 
         $dfgCard.on("click", ".runNowBtn", function() {
             var $btn = $(this);
-            var retName = $("#dataflowView .listSection").find(".selected .groupName")
+            var retName = $("#dfgMenu .listSection").find(".selected .groupName")
                                                     .text();
 
             $btn.addClass("inActive")
