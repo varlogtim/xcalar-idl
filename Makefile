@@ -19,7 +19,7 @@ xi2: generateHtml newUI
 
 render: generateHtml
 
-trunk: generateHtml thriftSync build removeConfig thriftAlert
+trunk: generateHtml thriftSync newUI removeConfig thriftAlert
 
 $(DESTDIR):
 	@mkdir -p $@

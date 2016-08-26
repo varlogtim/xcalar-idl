@@ -186,7 +186,7 @@ window.Installer = (function(Installer, $) {
             jQuery.ajax({
                 method     : "POST",
                 // url        : "http://cantor.int.xcalar.com:12124",
-                url        : document.location.href.+"install",
+                url        : document.location.href+"install",
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
                 success    : successCB,
