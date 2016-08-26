@@ -732,6 +732,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var unit = $limitOpt.find(".unit").val();
         // validate preview size
         if (previewSize !== "" && unit === "") {
+            $("#fileBrowserAdvance").addClass("active");
             StatusBox.show(ErrTStr.NoEmptyList, $limitOpt.find(".unit"), false);
             return;
         }
@@ -1253,11 +1254,11 @@ window.FileBrowser = (function($, FileBrowser) {
 
             $targetIcon = $innerContainer.find('.grid-unit')
                                          .eq(curIndex + gridsPerRow);
-            if (!$targetIcon.length) { 
+            if (!$targetIcon.length) {
                 // when there isn't an icon directly below
                 $targetIcon = $innerContainer.find('.grid-unit').last();
                 // pick the last icon of the last row, unless it's on the same
-                // row (position().top === curIconTop)  
+                // row (position().top === curIconTop)
                 var curIconTop = $curIcon.position().top;
                 if ($targetIcon.position().top === curIconTop) {
                     $targetIcon = $curIcon;
