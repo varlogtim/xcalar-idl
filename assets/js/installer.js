@@ -22,11 +22,10 @@ window.Installer = (function(Installer, $) {
 
     var Api = {
         "runPrecheck": 0,
-        "checkPrecheckStatus": 1,
+        "checkStatus": 1,
         "runInstaller": 2,
-        "checkInstallerStatus": 3,
-        "completeInstallation": 4,
-        "checkLicense": 5
+        "completeInstallation": 3,
+        "checkLicense": 4,
     };
 
     var Status = {
@@ -187,7 +186,7 @@ window.Installer = (function(Installer, $) {
             jQuery.ajax({
                 method     : "POST",
                 // url        : "http://cantor.int.xcalar.com:12124",
-                url        : document.location.href+"install",
+                url        : document.location.href.+"install",
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
                 success    : successCB,
@@ -285,8 +284,8 @@ window.Installer = (function(Installer, $) {
             } else {
                 finalStruct.nfsOption = {};
                 finalStruct.nfsOption.nfsServer = $("#nfsServer").html().trim();
-                finalStruct.nfsOption.nfsMountPoint = $("#nfsMountPoint").html()
-                                                                        .trim();
+                finalStruct.nfsOption.nfsMountPoint = "/" + $("#nfsMountPoint")
+                                                                 .html().trim();
                 finalStruct.nfsOption.nfsUsername = $("#nfsUserName").val()
                                                                      .trim();
                 finalStruct.nfsOption.nfsGroup = $("#nfsUserGroup").val()
@@ -448,13 +447,13 @@ window.Installer = (function(Installer, $) {
                            .addClass("inactive");
         sendCommand(Api.runPrecheck)
         .then(function() {
-            return (getStatus(Api.checkPrecheckStatus));
+            return (getStatus(Api.checkStatus));
         })
         .then(function() {
-            return (sendCommand(Api.runInstall));
+            return (sendCommand(Api.runInstaller));
         })
         .then(function() {
-            return (getStatus(Api.checkInstallStatus));
+            return (getStatus(Api.checkStatus));
         })
         .then(function() {
             return (finalize());
@@ -517,6 +516,7 @@ window.Installer = (function(Installer, $) {
             var struct = new ApiStruct(statusApi, finalStruct);
             console.log(statusApi, api);
             sendViaHttps(struct, function(ret) {
+                console.log(ret);
                 if (ret.status === Status.Done) {
                     clearInterval(intervalTimer);
                     deferred.resolve();
@@ -524,9 +524,8 @@ window.Installer = (function(Installer, $) {
                     clearInterval(intervalTimer);
                     deferred.reject("Status Error",
                                     JSON.stringify(ret.retVal));
-                } else if (ret.status === Status.Running) {
-                    updateStatus(ret.retVal);
                 }
+                updateStatus(ret.retVal);
             }, function() {
                 clearInterval(intervalTimer);
                 console.error(arguments);
