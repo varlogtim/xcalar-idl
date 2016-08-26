@@ -138,7 +138,6 @@ window.xcHelper = (function($, xcHelper) {
         return (type);
     };
 
-    // XXX not test in unit test yet
     xcHelper.getPreviewSize = function(previewSize, unit) {
         if (previewSize === "") {
             previewSize = null;
@@ -170,6 +169,7 @@ window.xcHelper = (function($, xcHelper) {
         return previewSize;
     };
 
+    // not tested in xchelper unit test
     xcHelper.getWSTableList = function() {
         var wsOrders = WSManager.getOrders();
         var tableLis = "";
@@ -1879,6 +1879,12 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // XX unit test not written
+    /**
+     * sortVals
+     * @param  {string} a     [first value]
+     * @param  {string} b     [sescond value]
+     * @param  {integer} order 1 for ascending, -1 for descending
+     */
     xcHelper.sortVals = function(a, b, order) {
         a = a.toLowerCase();
         b = b.toLowerCase();

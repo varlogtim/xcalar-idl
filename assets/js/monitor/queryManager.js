@@ -502,7 +502,7 @@ window.QueryManager = (function(QueryManager, $) {
                 var subQuery = querySplit[i];
                 if (subQuery.trim() !== "") {
                     queryString += '<div class="queryRow">' + subQuery +
-                                   '</div>';
+                                   ';</div>';
                 }
             }
         } else {
@@ -879,7 +879,9 @@ window.QueryManager = (function(QueryManager, $) {
         function focusOnDSGrid($grid, dsId) {
             // switch to correct panels
             $('#dataStoresTab').click();
-            $('#inButton').click();
+            if (!$('#inButton').hasClass('active')) {
+                $('#inButton').click();
+            }
 
             var folderId = DS.getDSObj(dsId).parentId;
             DS.goToDir(folderId);

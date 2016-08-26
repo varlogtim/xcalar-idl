@@ -997,8 +997,9 @@ html.firefox, html.microsoft {
 }
 
 .xcTbodyWrap {
+    @table-offset: @height-tableTitle + 1px;
     .position(@right: -17px);
-    .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - 31px)");
+    .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - @{table-offset})");
     .font(@size: 11px);
     margin-bottom: 0;
     margin-top: -3px;

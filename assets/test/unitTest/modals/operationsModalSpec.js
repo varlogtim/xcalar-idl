@@ -101,13 +101,10 @@ describe('OperationsView', function() {
 
             OperationsView.show(tableId, 1, 'group by')
             .then(function() {
-                // console.log(tableId);
                 operatorsMap = OperationsView.getOperatorsMap();
-                // setTimeout(function() {
-                    $functionInput = $operationsView.find('.groupby .functionsInput');
-                    $functionsMenu = $functionInput.siblings('.list');
-                    done();
-                // }, 500);
+                $functionInput = $operationsView.find('.groupby .functionsInput');
+                $functionsMenu = $functionInput.siblings('.list');
+                done();
             });
         });
 
@@ -233,7 +230,6 @@ describe('OperationsView', function() {
         });
 
         describe('adding another column argument', function() {
-            console.log('trying this');
             var $argInputs;
             it('add arg button should be visible', function() {
                 expect($operationsView.find(".addGroupArg:visible")).to.have.lengthOf(1);
@@ -351,7 +347,6 @@ describe('OperationsView', function() {
                         console.error(arg1ValidTypes, arg1Types[i], arg2ValidTypes,
                             arg2Types[j], testArgs1[i], testArgs2[j], argInfos[count]);
                     }
-                    // console.log(testArgs1[i], testArgs2[i]);
 
                     expect(hasValidTypes).to.equal(argInfos[count].isPassing);
                     count++;
@@ -382,7 +377,6 @@ describe('OperationsView', function() {
 
             OperationsView.show(tableId, 1, 'map')
             .then(function() {
-                // console.log(tableId);
                 operatorsMap = OperationsView.getOperatorsMap();
                 $categoryMenu = $operationsView.find('.map .categoryMenu');
                 $functionsMenu = $operationsView.find('.map .functionsMenu');
@@ -458,9 +452,7 @@ describe('OperationsView', function() {
                     $argInputs.eq(0).focus().trigger('focus').val("");
                     expect($argInputs.eq(0).val()).to.equal("");
                     $(this).click();
-                    console.log($(this))
                     expect($argInputs.eq(0).val()).to.equal(gColPrefix + 'yelping_since');
-                    console.log($(this), 'passed');
                     count++;
                 });
                 expect(count).to.be.at.least(5);

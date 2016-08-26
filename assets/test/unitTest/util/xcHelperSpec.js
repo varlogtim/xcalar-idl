@@ -121,6 +121,16 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("mixed");
     });
 
+    it('xcHelper.getPreviewSize should work', function() {
+        var func = xcHelper.getPreviewSize;
+        expect(func("")).to.be.null;
+        expect(func("1", "KB")).to.equal(1 * 1024);
+        expect(func("2", "MB")).to.equal(2 * 1024 * 1024);
+        expect(func("3", "GB")).to.equal(3 * 1024 * 1024 * 1024);
+        expect(func("4", "TB")).to.equal(4 * 1024 * 1024 * 1024 * 1024);
+        expect(func("5", "garbage")).to.equal(5);
+    });
+
     it('xcHelper.getMultiJoinMapString should work', function() {
         // case 1
         var res = xcHelper.getMultiJoinMapString([1, 2]);
@@ -894,6 +904,63 @@ describe('xcHelper Test', function() {
         expect(getFormat("f.test")).to.be.null;
     });
 
+    it('xcHelper.sortVals should work', function() {
+        var func = xcHelper.sortVals;
+        // to.equal(1) if order is 1 and arg1 < arg2
+        // to.equal(-1) if order is 1 and arg1 > arg2
+        expect(func("a", "b", 1)).to.equal(1);
+        expect(func("b", "a", 1)).to.equal(-1);
+        expect(func("a", "b", -1)).to.equal(-1);
+        expect(func("b", "a", -1)).to.equal(1);
+
+        expect(func("a6", "a50", 1)).to.equal(1);
+        expect(func("a60", "a50", 1)).to.equal(-1);
+
+        expect(func("a6z", "a50z", 1)).to.equal(-1);
+        expect(func("a6z5", "a50z3", 1)).to.equal(-1);
+
+        expect(func("a6z5", "a6z3", 1)).to.equal(-1);
+        expect(func("a6z3", "a6z5", 1)).to.equal(1);
+
+
+        expect(func("a6z3", "a6z5", 1)).to.equal(1);
+        expect(func("a7z3", "a6z5", 1)).to.equal(-1);
+    });
+
+    it('xcHelper.parseQuery should work', function() {
+        var firstPart = 'map --eval "concat(\\"1\\", \\"2\\")" --srctable "A#Vi5" ' +
+                        '--fieldName "B" --dsttable "A#Vi25";';
+        var secondPart = 'index --key "col1" --dataset ".XcalarDS.a.b" ' +
+                        '--dsttable "b#Vi26" --prefix;';
+        var thirdPart = 'join --leftTable "c.index#Vi35" --rightTable ' +
+                        '"d.index#Vi36" --joinType innerJoin ' +
+                        '--joinTable "a#Vi34";';
+        var fourthPart = 'load --url "nfs:///schedule/" --format json ' +
+                         '--size 0B --name "f264.schedule";';
+        var fifthPart = '   '; // blank
+
+        var query =  firstPart + secondPart + thirdPart + fourthPart + fifthPart;
+                    
+        var parsedQuery = xcHelper.parseQuery(query);
+        expect(parsedQuery).to.be.an("array");
+        expect(parsedQuery).to.have.lengthOf(4); // should exclude the blank
+
+        expect(parsedQuery[0].name).to.equal("map");
+        expect(parsedQuery[1].name).to.equal("index");
+        expect(parsedQuery[2].name).to.equal("join");
+        expect(parsedQuery[3].name).to.equal("load");
+
+        expect(parsedQuery[0].dstTable).to.equal("A#Vi25");
+        expect(parsedQuery[1].dstTable).to.equal("b#Vi26");
+        expect(parsedQuery[2].dstTable).to.equal("a#Vi34");
+        expect(parsedQuery[3].dstTable).to.equal(gDSPrefix + "f264.schedule");
+
+        expect(parsedQuery[0].query).to.equal(firstPart.slice(0,-1));
+        expect(parsedQuery[1].query).to.equal(secondPart.slice(0,-1));
+        expect(parsedQuery[2].query).to.equal(thirdPart.slice(0,-1));
+        expect(parsedQuery[3].query).to.equal(fourthPart.slice(0,-1));
+
+    });
 
     it('xcHelper.fillInputFromCell should work', function() {
         // case 1
