@@ -213,6 +213,11 @@ window.QueryManager = (function(QueryManager, $) {
         updateOutputSection(id, true);
         $('.query[data-id="' + id + '"]').addClass('canceled')
                                          .find('.querySteps').text('canceled');
+        if (mainQuery.subQueries[0].getName() === "index from DS") {
+            var isCanceled = true;
+            DSCart.queryDone(mainQuery.getId(), isCanceled);
+            return;
+        }
     };
 
     QueryManager.fail = function(id) {

@@ -46,13 +46,14 @@
 }
 
 #sendToWorksheetLoadBar {
+    @loadBarHeight: 5px;
     display: none;
     width: 100%;
-    height: 5px;
+    height: @loadBarHeight;
     background-color: #374750;
     z-index: 21;
     position: absolute;
-    top: 35px;
+    top: @height-topBar - @loadBarHeight;
     pointer-events: none;
     .innerBar {
         width: 0%;

@@ -224,16 +224,20 @@ window.DSCart = (function($, DSCart) {
         }
     };
 
-    DSCart.queryDone = function(id) {
+    // handles finished and canceled queries
+    DSCart.queryDone = function(id, isCancel) {
         for (var i = 0; i < queryQueue.length; i++) {
             if (queryQueue[i].getId() === id) {
-                queryQueue[i].subQueries[0].state = "done";
                 queryQueue.splice(i, 1);
                 break;
             }
         }
         if (queryQueue.length === 0) {
-            finishQueryBar();
+            if (isCancel) {
+                endBarAnimation(0, true);
+            } else {
+                finishQueryBar();
+            }
         }
     };
 
