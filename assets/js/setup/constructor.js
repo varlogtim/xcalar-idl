@@ -3299,7 +3299,7 @@ MenuHelper.prototype = {
             offsetTop = 0;
         }
 
-        var listHeight = offsetTop + $bounds.height() - $list.offset().top -
+        var listHeight = offsetTop + $bounds.outerHeight() - $list.offset().top -
                          bottomPadding;
         listHeight = Math.min($(window).height() - $list.offset().top,
                               listHeight);
