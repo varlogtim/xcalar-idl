@@ -58,7 +58,6 @@ window.AggModal = (function($, AggModal) {
             xcHelper.autoTooltip(this);
         });
 
-
         $aggModal.on("click", ".tab", function() {
             var mode = $(this).attr("id");
             if (mode === "aggTab") {
