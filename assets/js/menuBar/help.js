@@ -50,6 +50,7 @@ window.Help = (function($, Help) {
 
         $('#helpCategories').click(function() {
             $categoryArea.show();
+            $("#helpCategories").hide();
             $resultsArea.hide();
             $searchInput.val("");
         });
@@ -58,9 +59,11 @@ window.Help = (function($, Help) {
             if (e.keyCode === keyCode.Enter) {
                 if ($searchInput.val().trim() === "") {
                     $categoryArea.show();
+                    $("#helpCategories").hide();
                     $resultsArea.hide();
                 } else {
                     $categoryArea.hide();
+                    $("#helpCategories").show();
                     $resultsArea.hide();
                     // Must remove and reattach. Else the .load trick doesn't
                     // work
@@ -80,6 +83,7 @@ window.Help = (function($, Help) {
         $searchInput.on('change', function() {
             if ($searchInput.val().trim() === "") {
                 $categoryArea.show();
+                $("#helpCategories").hide();
                 $resultsArea.hide();
             }
         });

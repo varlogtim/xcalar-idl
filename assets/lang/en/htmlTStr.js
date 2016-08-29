@@ -479,7 +479,7 @@ module.exports = {
     },
 
     "fileBrowser": {
-        "header": "Browse Dataset",
+        "header": "Browse Data Source",
         "instr": "Select the data source that you want to point to and then click the \"NEXT\" button.",
         "location": "location",
         "Up": "Go back",
