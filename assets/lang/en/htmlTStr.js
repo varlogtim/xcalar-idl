@@ -727,7 +727,6 @@ module.exports = {
         "monitorClusterHealth": "Monitor Cluster Health",
         "createWKBKdesc": "Create a new workbook with data and worksheets",
         "createWKBK": "Create Workbook"
-
     },
 
     "deleteTable": {
@@ -741,8 +740,6 @@ module.exports = {
     },
 
     "extension": {
-        "XCEXT": "XCALAR EXTENSIONS",
-        "CUSTOM": "CUSTOM",
         "EXTList": "Extension List",
         "Installed": "Installed Extensions",
         "Upload": "Upload Custom Extension",
@@ -791,8 +788,5 @@ module.exports = {
         "terms": "Terms & Conditions",
         "alreadyAccount": "Already have an account?",
         "signin": "Sign in"
-
-
-
     }
 }

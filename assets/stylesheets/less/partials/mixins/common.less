@@ -1237,40 +1237,7 @@
 
     .parser(@origin);
 }
-
-.linear-gradient-center(@origin: left, @start: @color-white, @middle: @color-background-sidebar, @stop: @color-black) {
-    background: -webkit-linear-gradient(@origin, @start, @middle, @stop);
-    background: -moz-linear-gradient(@origin, @start, @middle, @stop);
-    background: -o-linear-gradient(@origin, @start, @middle, @stop);
-    background: -ms-linear-gradient(@origin, @start, @middle, @stop);
-}
-
 /* ========== End Of Gradient Color ========== */
-
-/* ========== New Table Color Theme ========== */
-// solid color theme for td
-.columnColorTheme-solid(@color, @alpha) {
-    background: fade(@color, @alpha),!important;
-}
-.normal-column-solid(@alpha: 100%) {
-    .columnColorTheme-solid(@color-table-gunormal-lightGray, @alpha);
-}
-.inactive-column-solid(@alpha: 100%) {
-    .columnColorTheme-solid(@color-table-inactive-lightGray, @alpha);
-}
-.selected-column-solid(@alpha: 100%) {
-    .columnColorTheme-solid(@color-table-selected-lightBlue, @alpha);
-}
-.error-column-solid(@alpha: 100%) {
-    .columnColorTheme-solid(@color-table-error-lightRed, @alpha);
-}
-.go-column-solid(@alpha: 100%) {
-    .columnColorTheme-solid(@color-table-go-lightGreen, @alpha);
-}
-.option-column-solid(@alpha: 100%) {
-    .columnColorTheme-solid(@color-table-option-lightBrown, @alpha);
-}
-/* ========== End Of Table Color Theme ========== */
 
 .keyframe(@name, @arguments) {
     @-moz-keyframes @name { @arguments(); }
