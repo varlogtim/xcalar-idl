@@ -69,10 +69,6 @@ window.JoinView = (function($, JoinView) {
             toggleNextView();
         });
 
-        $joinView.on("mouseenter", ".tooltipOverflow", function(){
-            xcHelper.autoTooltip(this);
-        });
-
         $("#closeJoin, #cancelJoin").click(function() {
             JoinView.close();
             resetJoinView();
@@ -1299,6 +1295,9 @@ window.JoinView = (function($, JoinView) {
     var tooltipTimer;
 
     function showErrorTooltip($el, options) {
+        $el.removeAttr('title');
+        $el.removeAttr('data-original-title');
+        // cannot overwrite previous title without removing the title attributes
         $el.tooltip("destroy");
         clearTimeout(tooltipTimer);
         $(".tooltip").hide();

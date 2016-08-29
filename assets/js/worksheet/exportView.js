@@ -170,6 +170,10 @@ window.ExportView = (function($, ExportView) {
 
         $exportView.find('.clearInput').click(clearAllCols);
 
+        $exportView.on("mouseenter", ".tooltipOverflow", function(){
+            xcHelper.autoTooltip(this);
+        });
+
     };
 
     ExportView.show = function(tablId) {
@@ -798,7 +802,10 @@ window.ExportView = (function($, ExportView) {
         for (var i = 0; i < allCols.length; i++) {
             if (validTypes.indexOf(allCols[i].type) > -1) {
                 html += '<li class="checked" data-colnum="' + i + '">' +
-                            '<span class="text">' +
+                            '<span class="text  tooltipOverflow" ' +
+                            'title="' + allCols[i].name + '" ' +
+                            'data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body">' +
                                 allCols[i].name +
                             '</span>' +
                             '<div class="checkbox checked">' +

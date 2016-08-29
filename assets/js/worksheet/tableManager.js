@@ -710,7 +710,8 @@ window.TblManager = (function($, TblManager) {
                         '</div>' +
                         '<div class="flexWrap flex-mid' + editableClass +
                             '"' + tooltip + '>' +
-                            '<input class="editableHead col' + newColid + '"' +
+                            '<input class="editableHead tooltipOverflow ' +
+                                'col' + newColid + '"' +
                                 ' type="text"  value="' + columnName + '"' +
                                 ' size="15" spellcheck="false" ' +
                                 'data-toggle="tooltip" ' +
@@ -2214,6 +2215,10 @@ window.TblManager = (function($, TblManager) {
 
             return false;
         };
+
+        $thead.on("mouseenter", ".tooltipOverflow", function() {
+            xcHelper.autoTooltip(this);
+        });
     };
 
     // creates thead and cells but not the body of the table
