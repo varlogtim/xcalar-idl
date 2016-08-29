@@ -927,10 +927,16 @@
         .queryProgress {
             .size(@width: ~"calc(100% - 340px)", @height: 100%);
             padding: 0 20px;
+            position: relative;
 
             .progressBar {
                 .vertical-align;
                 .size(@height: 20px);
+            }
+
+            .querySteps {
+                position: absolute;
+                bottom: 10px;
             }
         }
 

@@ -203,7 +203,7 @@ window.QueryManager = (function(QueryManager, $) {
         mainQuery.state = "canceled";
         mainQuery.outputTableState = "deleted";
         mainQuery.setElapsedTime();
-        updateQueryBar(id, null, false, true);
+        updateQueryBar(id, null, false, true, true);
         updateStatusDetail({
             "start"    : getQueryTime(mainQuery.getTime()),
             "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
@@ -211,8 +211,11 @@ window.QueryManager = (function(QueryManager, $) {
             "total"    : getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
         updateOutputSection(id, true);
-        $('.query[data-id="' + id + '"]').addClass('canceled')
-                                         .find('.querySteps').text('canceled');
+        var $query = $('.query[data-id="' + id + '"]');
+        $query.addClass('canceled').find('.querySteps').text('canceled');
+        if ($query.hasClass('active')) {
+            updateHeadingSection(mainQuery);
+        }
         if (mainQuery.subQueries[0].getName() === "index from DS") {
             var isCanceled = true;
             DSCart.queryDone(mainQuery.getId(), isCanceled);
@@ -243,9 +246,6 @@ window.QueryManager = (function(QueryManager, $) {
                                 } else {
                                     subQueryCheck(query.subQueries[i],
                                                   doNotAnimate);
-                                }
-                                if (doNotAnimate) {
-                                    clearInterval(queryCheckLists[query.getId()]);
                                 }
                                 break;
                             }
@@ -400,6 +400,8 @@ window.QueryManager = (function(QueryManager, $) {
                 } else {
                     subQueryCheckHelper(mainQuery.subQueries[currStep], id,
                                         currStep, doNotAnimate);
+                    // only stop animation the first time, do not persist it
+                    doNotAnimate = false; 
                 }
             })
             .fail(function(error) {
@@ -501,7 +503,7 @@ window.QueryManager = (function(QueryManager, $) {
     function updateQueryTextDisplay(query) {
         var queryString = "";
         if (query) {
-            // xx if semi-colon is in quotes this won't work
+            // xx if semi-colon is in quotes split won't work properly
             var querySplit = query.split(";");
             for (var i = 0; i < querySplit.length; i++) {
                 var subQuery = querySplit[i];
@@ -604,6 +606,9 @@ window.QueryManager = (function(QueryManager, $) {
         }
         clearInterval(queryCheckLists[id]);
         checkFunc();
+        // only stop animation the first time, do not persist it
+        doNotAnimate = false; 
+
         queryCheckLists[id] = setInterval(checkFunc, checkInterval);
 
         function checkFunc() {
@@ -666,8 +671,10 @@ window.QueryManager = (function(QueryManager, $) {
 
         var $progressBar = $query.find(".progressBar");
         var $extraProgressBar = null;
+        var $extraStepText = null;
         if ($query.hasClass("active")) {
             $extraProgressBar = $queryDetail.find(".progressBar");
+            $extraStepText = $queryDetail.find(".querySteps");
         }
 
         var newClass = null;
@@ -681,7 +688,7 @@ window.QueryManager = (function(QueryManager, $) {
             progress = progress + "%";
             newClass = "error";
         } else if (isCanceled) {
-            progress = "0 %";
+            progress = "0%";
             newClass = "canceled";
         } else {
             progress = progress + "%";
@@ -715,18 +722,32 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         // .stop() stops any previous animation;
-        if (doNotAnimate) {
+        if (isCanceled) {
             $progressBar.stop().width(progress);
-            progressBarContinuation();
         } else {
             $progressBar.stop().animate({"width": progress}, checkInterval,
                                         "linear", progressBarContinuation);
         }
+        if (doNotAnimate) {
+            progressBarContinuation();
+        }
 
         if ($extraProgressBar != null) {
             if (doNotAnimate) {
-                $extraProgressBar.stop().width(progress);
-                extraProgressBarContinuation();
+                if (isCanceled) {
+                    $extraProgressBar.stop().width(progress);
+                } else {
+                    var prevProgress = 100 * $progressBar.width() /
+                                             $progressBar.parent().width();
+                    // set extraProgressBar's to match progressBar's width
+                    // and then animate extraProgressBar to it's actual pct
+                    $extraProgressBar.stop().width(prevProgress + '%')
+                                      .animate({"width": progress}, 
+                                            checkInterval, "linear", 
+                                            progressBarContinuation);
+                    extraProgressBarContinuation();
+                }
+                
             } else {
                 $extraProgressBar.stop().animate({"width": progress},
                                                  checkInterval,
@@ -734,18 +755,39 @@ window.QueryManager = (function(QueryManager, $) {
                                                  extraProgressBarContinuation);
             }
         }
-        
+
+        updateQueryStepsDisplay(mainQuery, $query, newClass, $extraStepText);
+    }
+
+    function updateQueryStepsDisplay(mainQuery, $query, newClass, 
+                                    $extraStepText) {
         var displayedStep;
+        var stepText;
+        // if query stopped in some way or another
         if (newClass !== null) {
             if (newClass === "done") {
                 $query.find('.querySteps').text('completed');
+                
             }
-        } else if (currStep <= numSteps) {
-            displayedStep = Math.min(currStep + 1, numSteps);
-            $query.find('.querySteps').text('step ' + displayedStep + ' of ' + numSteps);
-        } else if (numSteps === -1) {
-            displayedStep = Math.min(currStep + 1, mainQuery.subQueries.length);
-            $query.find('.querySteps').text('step ' + displayedStep);
+        } else if (mainQuery.currStep <= mainQuery.numSteps) {
+            // in progress and if total number of steps IS known
+            displayedStep = Math.min(mainQuery.currStep + 1, 
+                                     mainQuery.numSteps);
+            stepText = 'step ' + displayedStep + ' of ' + 
+                                            mainQuery.numSteps
+        } else if (mainQuery.numSteps === -1) {
+            // in progress and if total number of steps is NOT known
+            displayedStep = Math.min(mainQuery.currStep + 1, 
+                                     mainQuery.subQueries.length);
+            stepText = 'step ' + displayedStep;
+        }
+        if (stepText) {
+            $query.find('.querySteps').text(stepText);
+            if ($extraStepText) {
+                $extraStepText.text(stepText);
+            }
+        } else if ($extraStepText) {
+            $extraStepText.text("");
         }
     }
 
