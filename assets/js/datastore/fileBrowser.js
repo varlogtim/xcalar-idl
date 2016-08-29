@@ -742,7 +742,6 @@ window.FileBrowser = (function($, FileBrowser) {
         var options = {
             "path"       : path,
             "format"     : format,
-            "isFolder"   : isFolder,
             "previewSize": previewSize,
             "pattern"    : pattern,
             "isRecur"    : isRecur,

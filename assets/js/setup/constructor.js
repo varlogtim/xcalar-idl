@@ -545,12 +545,30 @@ function DSFormController() {
 
 DSFormController.prototype = {
     "set": function(options) {
-        var self = this;
         optoins = options || {};
-        for (var key in options) {
-            if (options[key] != null) {
-                self[key] = options[key];
-            }
+
+        if (options.path != null) {
+            this.path = options.path;
+        }
+
+        if (options.format != null) {
+            this.format = options.format;
+        }
+
+        if (options.previewSize != null) {
+            this.previewSize = options.previewSize;
+        }
+
+        if (options.pattern != null) {
+            this.pattern = options.pattern;
+        }
+
+        if (options.isRecur != null) {
+            this.isRecur = options.isRecur;
+        }
+
+        if (options.isRegex != null) {
+            this.isRegex = options.isRegex;
         }
     },
 
@@ -559,6 +577,13 @@ DSFormController.prototype = {
         this.lineDelim = "\n";
         this.hasHeader = false;
         this.quote = "\"";
+
+        delete this.path;
+        delete this.format;
+        delete this.previewSize;
+        delete this.pattern;
+        delete this.isRecur;
+        delete this.isRegex;
     },
 
     "getPath": function() {

@@ -516,7 +516,6 @@ window.DSPreview = (function($, DSPreview) {
         var fieldDelim = res.fieldDelim;
         var lineDelim = res.lineDelim;
 
-        // XXX not wired
         var quote = res.quote;
         var skipRows = res.skipRows;
 
@@ -526,7 +525,7 @@ window.DSPreview = (function($, DSPreview) {
         var pattern = loadArgs.getPattern();
         if (pattern) {
             // XXX not sure if it's right
-            loadURL += patternn;
+            loadURL += pattern;
         }
 
         var isRecur = loadArgs.useRecur();
