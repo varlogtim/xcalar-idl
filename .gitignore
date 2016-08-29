@@ -1,7 +1,6 @@
 /assets/js/config.js
 /assets/js/tutorial/helpHashTags.js
 /assets/stylesheets/**/*.css
-/assets/newStylesheets/**/*.css
 /assets/widget/*.css
 /assets/js/setup/constructorVersion.js
 /assets/dev/!shortCutStyles.css
