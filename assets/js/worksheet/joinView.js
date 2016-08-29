@@ -107,7 +107,7 @@ window.JoinView = (function($, JoinView) {
                     $textBox.text(tableName);
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
-                    $joinView.find('.leftClause').val("");
+                    $joinView.find('.leftClause').val("").eq(0).focus();
                     checkNextBtn();
                     updatePreviewText();
                     focusTable(getTableIds(0));
@@ -142,7 +142,7 @@ window.JoinView = (function($, JoinView) {
 
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
-                    $joinView.find('.rightClause').val("");
+                    $joinView.find('.rightClause').val("").eq(0).focus();
                     checkNextBtn();
                     updatePreviewText();
                     focusTable(getTableIds(1));

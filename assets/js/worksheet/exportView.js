@@ -57,15 +57,17 @@ window.ExportView = (function($, ExportView) {
         $exportView.find('.advancedTitle').click(function() {
             if ($advancedSection.hasClass('collapsed')) {
                 $advancedSection.addClass('expanded').removeClass('collapsed');
-                var modalBottom = $exportView[0].getBoundingClientRect()
-                                                 .bottom;
-                var winBottom = $(window).height();
-                if (modalBottom > winBottom) {
-                    var diff = modalBottom - winBottom;
-                    var top = $exportView[0].getBoundingClientRect().top;
-                    top = Math.max(0, top - diff);
-                    $exportView.css('top', top);
+               
+                // scroll to the advanced section
+                var advSectionTop = $advancedSection.position().top;
+                var expTitleHeight = $exportView.find('header').height();
+                if (advSectionTop > expTitleHeight) { 
+                    var $opSection = $exportView.find('.opSection');
+                    var scrollTop = advSectionTop - $opSection.position().top;
+                   $exportView.find('.mainContent').animate(
+                        {scrollTop: scrollTop}, 500);
                 }
+                
             } else {
                 $advancedSection.addClass('collapsed').removeClass('expanded');
             }
