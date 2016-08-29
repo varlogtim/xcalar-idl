@@ -30,6 +30,7 @@ build: $(DESTDIR) generateHtml
 	@mkdir -p $(DESTDIR)/prod
 	@rsync -a * $(DESTDIR)/prod --exclude prod --exclude node_modules
 	@echo "=== Compile Less ==="
+	cd $(DESTDIR) && mkdir -p prod/assets/stylesheets/css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/login.less > prod/assets/stylesheets/css/login.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/style.less > prod/assets/stylesheets/css/style.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/installer.less > prod/assets/stylesheets/css/installer.css
