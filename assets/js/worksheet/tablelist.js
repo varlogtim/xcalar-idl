@@ -920,6 +920,9 @@ window.TableList = (function($, TableList) {
                 // because it change <span>"a"</span>"b" to "ab" instead of "ab"
                 $span.html($span.text());
                 $li.removeClass("highlighted");
+            } else if ($li.hasClass('nonMatch')) { 
+                // hidden lis that are filtered out
+                $li.removeClass('nonMatch xc-hidden');
             }
         });
 
@@ -944,6 +947,9 @@ window.TableList = (function($, TableList) {
                     });
 
                     $span.html(text);
+                } else {
+                    // we will hide any lis that do not match
+                    $li.addClass('nonMatch xc-hidden');
                 }
             });
             searchHelper.updateResults($section.find('.highlightedText'));
