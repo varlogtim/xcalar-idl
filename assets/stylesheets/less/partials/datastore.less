@@ -4,34 +4,56 @@
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
-}
 
-input {
-    &.error {
-        background-color: @color-input-error !important;
-        &:focus {
-            outline: 1px solid @color-input-error-border !important;
+    .subPanel {
+        .size(100%, 100%);
+        overflow: hidden;
+    }
+
+     &.in {
+        .subPanel {
+            &.in {
+                display: block;
+            }
+
+            &.out {
+                display: none;
+            }
+        }
+    }
+
+    &.out {
+        .topBar {
+            .cart {
+                display: none;
+            }
+        }
+
+        .subPanel {
+            &.in {
+                display: none;
+            }
+
+            &.out {
+                display: block;
+            }
+        }
+
+        #dataCartBtn {
+            display: none;
         }
     }
 }
 
-/* Content Header */
- #contentHeader {
-    .flex-display;
-    .flex-flow(row);
-    .position(absolute, @top: -1px);
-    z-index: 6;
-    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
-}
-
 #sendToWorksheetLoadBar {
+    @loadBarHeight: 5px;
     display: none;
     width: 100%;
-    height: 5px;
+    height: @loadBarHeight;
     background-color: #374750;
     z-index: 21;
     position: absolute;
-    top: 35px;
+    top: @height-topBar - @loadBarHeight;
     pointer-events: none;
     .innerBar {
         width: 0%;
@@ -40,452 +62,1045 @@ input {
     }
 }
 
-
-#contentHeaderLeft {
-    .flex(0 0 255px);
-    .flex-order(1);
-    background-color: @color-white;
-
-    .flex-display;
-    .flex-flow(row);
-
-    .buttonArea {
-        .flex(1 1 127px);
+#datastore-in-view {
+    .viewSection {
+        .size(100%, 100%);
     }
 }
 
-// two icons in #contentHeaderLeft
-#inButton .icon {
-    margin: 0px 5px 0 8px;
-    .image("../../images/datastore/import-single.png", 50%, 50%);
-    .size(30px, 36px);
+/* DS Table Section */
+#dsTableView {    
+    &.fullSize {
+        .leftSection {
+            .size(@width: ~"calc(100% - 6px)");
+        }
 
+        .rightSection {
+            display: none;
+        }
+    }
+
+    .leftSection {
+        .size(@width: ~"calc(100% - 306px)", @height: 100%);
+        float: left;
+        margin-right: 6px;
+        .transition(width 0.2s);
+
+        > .section {
+            .size(100%, 100%);
+        }
+    }
+
+    .rightSection {
+        .size(@width: 300px, @height: 100%);
+        float: left;
+        .transition(left 0.2s);
+    }
+
+    .cardContainer {
+        .size(100%, 100%);
+    }
+
+    .cardInstruction {
+        padding: 5px 20px;
+        white-space: normal;
+
+        .icon {
+            &:before {
+                display: block;
+                .position(relative, @top: 9px);
+            }
+        }
+    }
+
+    .cardTopMain {
+        .size(@height: 116px);
+        padding: 15px;
+
+        .titleSection {
+            .size(@height: 25px);
+            line-height: 25px;
+            .text-selection;
+
+            .title {
+                .size(@width: auto);
+                .font(@size: 18px, @weight: 700);
+                color: @color-font-select-blue;
+                float: left;
+            }
+        }
+
+        .infoSection {
+            .size(@width: ~"calc(100% - 190px)");
+            float: left;
+            .text-selection;
+
+            .contentSection {
+                .size(@height: 20px);
+                font-size: 14px;
+                margin-top: 10px;
+                .textOverflowOneLine;
+            }
+        }
+
+        .buttonSection {
+            .size(@width: 190px);
+            float: right;
+
+            .buttonGroup {
+                .size(@height: 20px);
+                margin-top: 10px;
+                color: @color-font-select-blue;
+
+                > div {
+                    float: right;
+                }
+
+                .icon {
+                    color: @color-font-select-blue;
+                }
+
+                .hint {
+                    .size(@width: 14px, @height: 20px);
+                    margin-left: 5px;
+                }
+
+                .xc-action {
+                    i, span {
+                        display: inline-block;
+                        float: left;
+                    }
+
+                    span {
+                        line-height: 20px;
+                        margin-left: 5px;
+                    }
+                }
+
+                .divider {
+                    .size(@width: 1px, @height: 20px);
+                    margin: 0 10px;
+                    background-color: @color-bg-select-blue;
+                }
+            }
+        }        
+    }
+
+    .cardMain {
+        .size(@width: 100%, @height: ~"calc(100% - 208px)");
+        padding: 0;
+    }
 }
 
-#outButton .icon {
-    margin: 0px 5px 0 8px;
-    .image("../../images/datastore/export-single.png", 50%, 50%);
-    .size(30px, 36px);
-}
+// the data cart icon
+#dataCartBtn {
+    .size(30px, 100%);
+    .position(relative);
+    margin-right: 10px;
 
-#contentHeaderMid {
-    .flex(1 1 auto);
-    .flex-order(2);
-    background-repeat: no-repeat;
-    background-position: 19px 12px;
-}
+    &.active {
+        background-color: @color-bg-white-two;
+    }
 
-#contentHeaderRight {
-    .flex(0 0 255px);
-    .flex-order(3);
-    background: linear-gradient(@color-bar-darkGray-top, @color-bar-darkGray-bot);
-    border-left: 1px solid black;
+    &.noCart {
+        .text {
+            display: none;
+        }
+    }
 
     .icon {
-        margin: 9px 0 0 8px;
-        .background("../../images/datastore/db-sm.png", 19px, 19px);
-        float: left;
+       color: @color-font-warm-grey-two; 
+    }
+    
+    .text {
+        .size(@min-width: 24px, @max-width: 35px, @height: 12px);
+        .position(absolute, @top: -5px, @left: -15px);
+        .rounded(6px);
+        background-color: @color-bg-softBlue;
+        .font(@size: 9px, @weight: 700, @color: @color-white);
+        text-align: center;
+    }
+}
+
+#dsTableContainer {
+    .size(@max-width: 100%, @max-height: 100%);
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    overflow-x: auto;
+
+    &.loading {
+        border: none;
+        height: 40px !important;
+        .errorSection, .datasetTableWrap {
+            display: none !important;
+        }
+
+        .loadSection {
+            display: block;
+        }
     }
 
-    color: @color-white;
-}
-/* End Of Content Header */
+    &.error {
+        border: none;
+        height: 40px !important;
+        .datasetTableWrap, .loadSection {
+            display: none !important;
+        }
 
-/* Form Data View Section */
-.dsFormView {
-    display: block;
-    .position(absolute, @top: 37px, @left: 255px);
-    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 37px)", @min-width: 514px);
-    background-color: @color-background-white;
-    font-size: 13px;
+        .errorSection {
+            display: block;
+        }
+    }
+
+    .loadSection {
+        display: none;
+        margin-left: 15px;
+        margin-top: 15px;
+    }
+
+    .errorSection {
+        display: none;
+        color: @color-table-red;
+        margin-left: 15px;
+    }
+}
+
+.datasetTbodyWrap {
+    .size( @max-height: 100%);
+    overflow-x: visible;
+    overflow-y: scroll;
+    display: inline-block;
+    outline: 1px solid @color-white; // ie bug if we dont use this outline
+    outline-offset: -1px;
+    margin-top: -1px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+table.datasetTable {
+    margin: 0;
+}
+
+.datasetTableWrap {
+    height: 100%;
+    margin: 0;
+    position: relative;
+    display: inline-block;
     overflow: hidden;
 
-    .contentViewMidWrap {
-        .size(@height: 100%, @width: 90%, @min-width: 470px, @max-width: 960px);
-        margin: 0 auto;
-        padding: 0 0px;
-    }
+    .header {
+        .position(absolute, @top: 0);
+        .size(@width: inherit, @height: @height-colHeaderOuter);
+        cursor: pointer;
 
-    .label {
-        display: inline-block;
-        float: left;
-        .size(@width: 100px, @height: 30px);
-        .font(@weight: 700, @line-height: 30px);
-        cursor: default;
-    }
-
-    .btn {
-        margin-left: 20px;
-        padding: 0;
-        float: right;
-        text-shadow: 1px 1px rgba(0,0,0,.2);
-        // .flex(1 5 120px);
-        // max-width: 150px;
-    }
-}
-
-.formHelp {
-    .position(relative);
-    .size(@height: 93px);
-    padding: 15px 10px 5px 10px;
-    font-weight: 700;
-    box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
-    text-align: left;
-   .textOverflow;
-
-    .contentViewMidWrap {
-        .size (@width: 90%, @max-width: 960px);
-    }
-
-    h2 {
-        .font(@size: 18px, @color: @color-text-blue);
-        display: block;
-        margin-bottom: 10px;
-        .textOverflow;
-    }
-
-    p {
-        .size(@width: ~"calc(100% - 50px)", @height: 30px);
-        .font(@weight: 700, @size: 12px, @color: @color-text-lightGray);
-        overflow: hidden;
-        display: inline-block;
-        white-space: normal;
-        float: left;
-    }
-
-    .icon {
-        .background("../../images/info-icon-large.png", 28px, 28px);
-        display: inline-block;
-        float: left;
-        margin-right: 10px;
-    }
-}
-
-// Data Form Section
-.dsForm {
-    height: ~"calc(100% - 93px)";
-    overflow: auto;
-
-    .hidden {
-        display: none;
-    }
-
-    .disabled {
-        opacity: 0.7;
-        pointer-events: none;
-
-        .checkbox, .text, label {
-            opacity: 0.5;
+        .editableHead {
+            .no-selection;
         }
-    }
 
-    .middleFieldSize() {
-        .size(@width: ~"calc(100% - 310px)", @min-width: 150px);
-    }
+        .flexWrap.flex-right {
+            .flex(0 0 20px);
+            position: relative;
 
-    .formSection {
-        .title {
-            .font(@weight: bold, @line-height: 30px);
-            .size(@width: 185px, @height: 30px);
-            float: left;
-
-            .hint {
-                font-size: 12px;
+            .icon {
+                .position(relative, @top: 1px);
+                opacity: @opacity-unhover;
             }
         }
+
+        &:hover {
+            .flexWrap.flex-right {
+                > .icon {
+                    opacity: @opacity-hover;
+                }
+            }
+        }
+
+        &::before {
+            display: none;
+        }
+    }
+
+    th {
+        width: 130px;
+
+        &.rowNumHead {
+            width: 40px;
+            cursor: default;
+
+            .header {
+                width: 40px;
+                cursor: default;
+            }
+        }
+    }
+    .selectedCol {
+        .header {
+            .editableHead {
+                color: @color-white;
+            }
+            .tick.icon {
+                opacity: 1.0;
+            }
+        }
+
+        .flexContainer {
+            .type-boolean .flexWrap.flex-left {
+                &:after {
+                    border-top: 30px solid @color-border-colIconBlue;
+                }
+            }
+        }
+        
+    }
+}
+/* End Of DS Table Section */
+
+// Data Cart Section
+#dataCartContainer {
+    .size(100%, 100%);
+    background-color: @color-bg-white-seven;
+    box-shadow: -1px 0 0 0 rgba(255, 255, 255, 0.5), inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
+
+    &.cartOverflow {
+        .mainSection {
+            box-shadow: inset 0px 3px 2px 1px rgba(0, 0, 0, 0.2);        }
+    }
+
+    &.noCart {
+        .titleSection {
+            .numWrap {
+                display: none;
+            }
+        }
+
+        .buttonSection {
+            .dropDownList, .btn {
+                pointer-events: none;
+                opacity: @opacity-hint;
+            }
+        }
+
+        .mainSection {
+            .hint {
+                display: block;
+            }
+        }        
+    }
+
+    @height-title: 40px;
+    @height-button: 140px;
+    @height-main: @height-title + @height-button;
+
+    .titleSection {
+        .size(@height: @height-title);
+        background-color: @color-bg-topBarGray;
+        padding: 0 20px;
+        .font(@size: 20px, @weight: 700, @line-height: 40px, @color: @color-font-gray36);
+    }
+
+    .buttonSection {
+        .size(@height: @height-button);
+        background-color: @color-bg-white-nine;
+        padding: 15px 20px;
+
+        .dropDownWrap {
+            .size(@width: 100%, @height: 30px);
+            margin-bottom: 10px;
+
+            > div {
+                float: left;
+            }
+
+            .title {
+                .size(@width: 65px);
+                .font(@line-height: 30px);
+            }
+
+            .dropDownList {
+                .styleDropDownList(@w: ~"calc(100% - 65px)", @h: 30px);
+                
+                li {
+                    .icon {
+                        float: right;
+                        color: @color-font-gray36;
+                        font-size: 14px;
+                        line-height: 30px;
+                        position: absolute;
+                        right: 10px;
+                        background-color: white;
+                    }
+
+                    &:hover {
+                        .icon {
+                            background-color: @color-selectedCell-light;
+                        }
+                    }
+                }
+
+                li.new {
+                    color: @color-font-gray36;
+                    border-bottom: 1px solid @color-border-pinkish-grey2;
+                }
+            }
+        }
+
+        .btn {
+            margin-top: 10px;
+            .size(@width: 100%, @height: 30px);
+            display: block;
+            line-height: 30px;
+        }
+    }
+
+    .mainSection {
+        .size(@width: 100%, @height: ~"calc(100% - @{height-main})");
+        padding: 10px 10px 10px 20px;
+        overflow-y: scroll;
+
+        .hint {
+            display: none;
+            white-space: normal;
+            margin-top: 10px;
+            margin-right: 10px;
+            color: @color-text-darkdarkGray;
+        }
+    }
+}
+
+#dataCart {
+    .size(@width: 100%);
+    backface-visibility: hidden;
+
+    .selectedTable {
+        .size(@width: 100%);
+        margin: 10px 0 20px 0;
+        color: @color-font-greyish-brown;
+
+        .xc-action {
+            color: @color-font-greyish-brown;
+            .vertical-align;
+            top: 45%;
+            margin-left: 8px;
+            opacity: @opacity-hint;
+
+            &:hover {
+                opacity: @opacity-hover;
+            }
+        }
+
+        .cartTitleArea {
+            .size(@width: 100%, @height: 30px);
+            .input-box(@w: 220px, @h: 30px);
+
+            .tableNameEdit {
+                display: inline-block;
+                float: left;
+            }
+        }
+
+        .cartEmptyHint {
+            margin-top: 10px;
+            text-align: center;
+            .font(@weight: bold, @color: @color-text-midGray);
+        }
+
+        li {
+            .size(@height: 24px);
+            overflow: hidden;
+            margin-top: 12px;
+            padding-left: 10px;
+
+            &.colSelected {
+                .itemWrap {
+                    color: @color-font-select-blue;
+                    border-color: @color-border-select-blue;
+                
+                    .iconWrap {
+                        background-color: @color-bg-select-blue;
+                    }
+                }
+            }
+
+            .itemWrap {
+                .size(@width: 210px, @height: 100%);
+                border: solid 1px @color-border-warm-grey-two;
+                float: left;
+                display: inline-block;
+                cursor: default;
+
+                > span {
+                    display: inline-block;
+                    float: left;
+                }
+
+                .iconWrap {
+                    .size(@width: 24px, @height: 22px);
+                    background-color: @color-bg-unselect-gray;
+                
+                    .icon {
+                        left: 45%;
+                    }
+                }
+
+                .colName {
+                    .size(@width: 184px, @height: 22px);
+                    padding: 0 6px;
+                    line-height: 22px;
+                }
+            }
+        }
+    }
+}
+// End of Data Cart Section
+
+/* Path Card */
+#dsForm-path {
+    .cardMain {
+        .size(@height: 100px);
+        padding-top: 30px;
 
         .content {
-            .size(@width: ~"calc(100% - 185px)");
-            float: left;
-        }
-
-        &.filePath {
-            margin-bottom: 10px;
-        }
-
-        &.previewSize {
-            .row .rowContent {
-                &.input {
-                    .size(@width: ~"calc(100% - 410px)", @min-width: 75px);
-                }
-
-                &.dropDownList {
-                    .size(@width: 80px, @min-width: 80px);
-                }
-
-                &.qMark {
-                    .vertical-align;
-                }
-            }
-        }
-    }
-
-    .row {
-        .size(@height: 30px);
-        .input-placeholder(@color-text-instructions);
-        margin-bottom: 20px;
-
-        .rowContent {
-            margin-right: 20px;
-            float: left;
-
-            &:last-child {
-                margin-right: 0;
-            }
-
-            &.hint {
-                .size(@width: 130px, @height: 20px, @max-width: 15%);
-                .font(@size: 12px, @line-height: 30px, @weight: bold, @color: @color-text-lightGray);
-            }
-
-            &.input {
-               .middleFieldSize;
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-                padding: 0 10px;
-            }
-
-            &.btn {
-                float: right;
-                margin: 0;
-            }
-
-            .link {
-                line-height: 30px;
-                text-decoration: underline;
-                color: @color-text-blue;
-                cursor: pointer;
-
-                &:hover {
-                    color: @color-text-topAction;
-                }
-            }
-        }
-    }
-
-    .dropDownList {
-        .styleDropDownList(~"calc(100% - 390px)", 30px, false);
-        .middleFieldSize;
-    }
-}
-
-// Top Form Section
-.dsFormTop {
-    background-color: @color-background-topForm;
-    padding: 30px 20px 1px 20px;
-}
-
-// Bottom Form Section
-.dsFormBottom {
-    padding: 20px 20px 1px 20px;
-    height: 70px;
-}
-
-#previewBtn {
-    .green-gradient;
-
-    &:hover, &:focus {
-        .green-inverse-gradient;
-    }
-}
-
-#csvDelim, #udfArgs {
-    .dropDownList {
-        &.disabled {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .list {
-            .font(@weight: 600);
-
-            li {
-                padding: 0 7px;
-
-                &.hidden {
-                    display: none;
-                }
-
-                &:hover {
-                    background-color: @color-white;
-                }
-
-                // this use js to make hover status's color
-                &.hover {
-                    background-color: @color-selectedCell-light;
-                }
-            }
-
-            .other {
-                .size(@height: 60px);
-                .position(relative);
-
-                span {
-                    display: block;
-                }
-
-                .inputWrap {
-                    .position(relative);
-                    .size(@width: 100%, @height: 20px);
-                    .font(@line-height: 20px);
-
-                    input {
-                        padding-right: 22px;
-                        .size(@width: 100%, @height: 20px);
-                        .font(@line-height: 20px);
-                        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
-                        .rounded;
-                        outline: none;
-                        .textOverflow;
-                    }
-
-                    .inputAction {
-                        .size(@width: 18px, @height: 18px);
-                        .position(absolute, @top: 1px, @right: 0);
-                        .gray-gradient;
-                        .rounded;
-
-                        &:hover {
-                            .gray-inverse-gradient;
-                        }
-
-                        .icon {
-                            .size(100%, 100%);
-                            .image("../../images/checkmark.png", 50%, 50%);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-#csvDelim {
-    .position(relative);
-    .nullVal {
-        font-style: italic;
-    }
-
-    .qMark {
-        .position(absolute, @top: 9px, @left: 80px);
-    }
-}
-// End of Top Form Section
-
-@media screen and (max-width: 1300px) {
-    #datastorePanel {
-        .dsFormView {
-            .contentViewMidWrap {
-                .size(@width: 100%);
-            }
-        }
-
-        .btnMid {
-            width: 120px;
-        }
-    }
-}
-// End of Bottom Form Section
-// End of Data Form Section
-
-// Preview Table Section
-#dsPreviewWrap {
-    padding: 10px 10px 0 10px;
-    background-color: @color-background-topForm;
-    .size(@width: 100%, @height: 0, @min-width: 600px);
-    .position(absolute, @top: 100%);
-    .transition(~"top 1s, height 1s");
-
-    &.fullSize {
-        .size(@height: ~"calc(100% - 7px)");
-        .position(absolute, @top: 7px);
-        padding: 0px 10px 0 10px;
-    }
-
-    &.hidden {
-        display: none;
-    }
-
-    .hidden {
-        display: none;
-    }
-
-    .container {
-        .size(@height: 100%);
-        white-space: nowrap;
-        background-color: @color-white;
-        padding-bottom: 10px;
-        box-shadow: 0px 1px 1px 2px rgba(0, 0, 0, 0.2);
-
-        > div {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-    }
-
-    .infoSection {
-        .size(@height: 70px);
-        padding-top: 5px;
-        padding-bottom: 5px;
-        background-color: @color-background-topForm;
-        box-shadow: 0px 3px 0px 0px rgba(0, 0, 0, 0.3);
-
-        .infoPart {
-            .size(@height: 25px);
-            margin-top: 5px;
+            .size(@width: 80%);
+            margin: 15px auto 0 auto;
 
             &:first-child {
                 margin-top: 0;
             }
-        }
 
-        .title {
-            .font(@size: 14px, @weight: bold);
-        }
+            > label, > div, > button, > input {
+                float: left;
+            }
 
-        .titleSection {
-            .size(@height: 22px);
+            > label {
+                .size(@width: 150px);
+            }
+
+            .dropDownList {
+                .styleDropDownList(~"calc(100% - 310px)", 30px);
+                
+                .list {
+                    left: 1px;
+                }
+            }
+
+            &.protocol {
+                .size(@height: 30px);
+                line-height: 30px;
+            }
+
+            &.path {
+                .size(@height: 36px);
+                .input-box(~"calc(100% - 310px)", 30px);
+                line-height: 36px;
+
+                input {
+                    .vertical-align;
+                }
+
+                .btn {
+                    float: right;
+                }
+            }
+        }
+    }
+
+    .cardBottom {
+        margin: 0 10%;
+        padding-right: 0;
+        padding-bottom: 20px;
+    }
+}
+/* End of Path Card */
+
+/* File Browser */
+#fileBrowser {
+    .size(@min-width: 850px, @height: ~"calc(100% - 5px)");
+    text-transform: capitalize;
+    overflow: visible;
+
+    &.loadMode {
+        pointer-events: none;
+
+        .cancel, .close {
+            pointer-events: auto;
+        }
+    }
+
+    &.unsortable {
+        #fileBrowserSort {
+            cursor: not-allowed;
+            opacity: @opacity-disabled;
+        }
+        .titleSection .title {
+            cursor: not-allowed !important;
+        }
+    }
+
+    &.notChrome {
+        #innerFileBrowserContainer {
+            overflow: visible !important;
+        }
+    }
+
+    .cardInstruction {
+        text-transform: initial;
+    }
+
+    .cardTopMain {
+        .size(@height: 58px);
+        padding: 15px 20px;
+
+        > div, > button {
+            .size(@height: 30px);
             float: left;
-            line-height: 22px;
+        }
 
-            #preview-udf {
-                margin-left: 5px;
+        .label {
+            .size(@width: 65px);
+            .font(@size: 12px, @line-height: 30px);
+        }
+
+        #fileBrowserUp {
+            .size(@width: 30px);
+
+            &.disabled {
+                opacity: @opacity-disabled;
+                pointer-events: none;
+            }
+
+            .icon {
+                .size(100%, 100%);
+                .image("../../images/datastore/upFolder.png", 50%, 50%);
+            }
+        }
+
+        .dropDownList {
+            .styleDropDownList(~"calc(100% - 450px)", 30px);
+            text-transform: none;
+            .flex-display;
+
+            &.focused {
+                .defaultPath, .text {
+                    border-color: @color-border-softBlue;
+                }
+            }
+
+            .defaultPath {
+                .size(@height: 30px);
+                .flex(1 1 46px);
+                .font(@size: 12px, @line-height: 30px);
+                border-top: 1px solid @color-border-white-five-darker;
+                border-bottom: 1px solid @color-border-white-five-darker;
+                text-align: right;
             }
 
             .text {
-                margin-left: 5px;
-                .font(@color: @color-text-midGray, @weight: 600);
+                .flex(1 1 auto);
+                padding-left: 3px;
+                cursor: text;
+                outline: none;
+                background-color: @color-white;
+                .textOverflowOneLine;
+                .font(@size: 12px, @line-height: 28px);
+                border-top: 1px solid @color-border-white-five-darker;
+                border-bottom: 1px solid @color-border-white-five-darker;
+                border-left: none;
+                border-right: none;
+            }
+
+            li {
+                .font(@size: 12px);
+            }
+
+            .iconWrapper {
+                .flex(0 0 30px);
             }
         }
 
-        .inputSection {
-            .size(@width: ~"calc(100% - 180px)", @height: 25px);
-            float: left;
-            .input-box(@w: ~"calc(100% - 150px)", @h: 25px);
+        .searchSection {
+            .size(@width: 250px);
+            .position(relative);
+            padding: 0 20px;
+
+            .input-box(100%, 30px);
 
             input {
-                .size(@max-width: 350px);
-                margin-left: 5px;
+                padding-right: 20px;
+
+                &:focus {
+                    ~ .clear {
+                        display: block;
+                    }
+                }
+            }
+
+            .clear {
+                display: none;
+                .size(@width: 20px, @height: 30px);
+                .position(absolute, @top: 0, @right: 20px);
+
+                .icon {
+                    color: @color-font-greyish-brown;
+
+                    &:before {
+                        display: block;
+                        .position(relative, @top: 3px, @left: 3px);
+                    }
+                }
             }
         }
 
-        .btnSection {
-            .size(@width: 180px, @height: 100%);
+        .iconSection {
             float: right;
 
-            .btn {
-                .size(@height: 25px);
-                line-height: 25px;
+            > button {
                 float: right;
-                margin-left: 0;
+                margin-left: 5px;
             }
 
-            .save {
-                .size(@width: 100px);
-                margin-right: 10px;
+            #fileBrowserSortMenu {
+                .size(@width: 120px);
+                .position(absolute, @right: 25px);
+
+                 li {
+                    .position(relative);
+                    padding: 0 6px 0 8px;
+                    .label {
+                        .position(relative, @top: 1px);
+                    }
+                    .icon {
+                        display: none;
+                        float: right;
+                        .vertical-align;
+                    }
+                    &.select .icon {
+                        display: inline-block;
+                    }
+                }
+            }
+        }
+    }
+
+    .cardMain {
+        .position(relative);
+        .size(@height: ~"calc(100% - 360px)");
+        padding-top: 0;
+
+        .loadingSection {
+            display: none;
+            .size(@width: 100%, @height: 100%);
+            .position(absolute);
+            .waitingIcon {
+                display: block;
+                .center-align;
+            }
+        }
+
+        .titleSection, .grid-unit {
+            > div, > i {
+                display: inline-block;
+                .position(relative);
+                .size(@width: ~"calc(33% - 15px)", @height: 30px);
+                float: left;
+                cursor: default;
+                .font(@size: 12px, @line-height: 30px);
+                .textOverflowOneLine;
+
+                &.gridIcon {
+                    .size(@width: 40px);
+                    margin-left: 12px;
+                }
+
+                &:not(.gridIcon) {
+                    padding-left: 5px;
+                }
+
+                // &.fileName {
+                //     .size(@width: 40%);
+                // }
+            }
+        }
+
+        .titleSection {
+            .size(@width: 100%, @height: 40px);
+            background-color: @color-bg-white-seven;
+            box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+
+            .title {
+                .size(@height: 40px);
+
+                &.gridIcon {
+                    visibility: hidden;
+                }
+
+                &.select {
+                    color: @color-font-select-blue;
+
+                    .icon {
+                        color: @color-font-select-blue;
+                    }
+                }
+
+                span, i {
+                    display: inline-block;
+                    float: left;
+                }
+
+                .label {
+                    // .size(@width: ~"calc(100% - 20px)");
+                    .textOverflowOneLine;
+                    .font(@size: 14px, @line-height: 40px);
+                    margin-right: 10px;
+                }
+
+                .icon {
+                    .size(@width: 20px, @height: 40px);
+                    color: @color-font-greyish-brown;
+
+                    &:before {
+                        .vertical-align;
+                        display: block;
+                    }
+                }
+            }
+        }
+
+        .mainSection {
+            .size(@width: 100%, @height: 100%);
+            .position(relative);
+            overflow-y: auto;
+            text-transform: none;
+
+            .error {
+                color: @color-text-error;
+                margin: 10px;
             }
 
-            .close {
-                .size(@width: 55px);
+            &.manyFiles {
+                .grid-unit {
+                    display:none;
+                    &.visible {
+                        display: inline-block;
+                    }
+                }
+            }
+
+            .grid-unit {
+                .gridIcon {
+                    color: @color-border-pinkish-grey2;
+                }
+
+                &.active {
+                    background-color: @color-bg-light-blue-grey;
+                
+                    .gridIcon {
+                        color: @color-font-softBlue;
+                    }
+                }
+            }
+        }
+
+        #innerFileBrowserContainer {
+            overflow: hidden;
+        }
+
+        &.gridView {
+            .titleSection, .fileDate, .fileSize {
+                display: none;
+            }
+
+            .grid-unit {
+                .gridViewForGrid;
+
+                .gridIcon {
+                    background: transparent !important;
+                    .position(relative, @top: 5px);
+                    .size(@width: 40px);
+                    .font(@size: 30px); 
+                }
+
+                > .label {
+                    color: @color-text-darkdarkGray;
+                }
+            }
+
+            .mainSection {
+                padding-left: 3px;
+                padding-bottom: 4px;
+            }
+        }
+
+        &.listView {
+            .mainSection {
+                .size(@height: ~"calc(100% - 40px)");
+                overflow-y: scroll;
+
+                &.manyFiles {
+                    .grid-unit {
+                        display:none;
+                        &.visible {
+                            display: block;
+                        }
+                    }
+                }
+            }
+
+            .titleSection {
+                padding-right: 10px;
+            }
+
+            .grid-unit {
+                .size(@height: 30px);
+                display: block;
+                cursor: default;
+                box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+
+                .gridIcon {
+                    .font(@size: 14px);
+                }
+            }
+        }
+    }
+
+    .cardSubMain {
+        padding: 20px 45px;
+
+        .listInfo {
+            margin-bottom: 20px;
+
+            .expand {
+                .icon {
+                    .font(@color: @color-font-greyish-brown);
+                }
+            }
+        }
+
+        .option {
+            opacity: @opacity-hover;
+            padding: 0 0 0 30px;
+            margin-top: 10px;
+            box-shadow: none;
+
+            > div, > input {
+                display: inline-block;
+                float: left;
+            }
+
+
+            .label {
+                .size(@width: 135px);
+            }
+
+            &.pattern {
+                .input-box(@w: ~"calc(100% - 335px)", @h: 30px);
+
+                input {
+                    max-width: 420px;
+                }
+
+                .checkboxSection {
+                    margin-left: 20px;
+                    > div {
+                        .font(@weight: 600, @line-height: 30px);
+
+                        margin-left: 7px;
+
+                        .icon {
+                            top: 55%;
+                        }
+                    }
+                }
+            }
+
+            &.limit {
+                .inputWrap {
+                    .input-box(@w: 80px, @h: 30px);
+                }
+
+                .dropDownList {
+                    margin-left: -1px;
+                    .styleDropDownList(80px, 30px, @atTop: true);
+
+                    ul {
+                        margin: 0;
+                    }
+
+                    li {
+                        .size(@height: 20px);
+                        line-height: 20px;
+                        text-align: center;
+                        padding: 0;
+                        box-shadow: none;
+                        opacity: @opacity-hover;
+                    }
+                }
+            }
+        }
+    }
+
+    .cardBottom {
+        .size(@height: 60px);
+        padding: 0 0 20px 0;
+
+        .btn {
+            margin-right: 15px;
+        }
+    }
+}
+/* End Of File Browser */
+
+/* Data Form Preview */
+#dsForm-preview {
+    .size(@min-width: 850px, @height: ~"calc(100% - 5px)");
+
+    .cardMain {
+        padding-top: 0;
+        .size(@height: ~"calc(100% - 436px)");
+        .text-selection;
+    }
+
+    .cardBottom {
+        .size(@height: 400px);
+        padding: 0;
+    }
+}
+
+// Preview Table Section
+#dsPreviewWrap {
+    .hidden {
+        display: none;
+    }
+
+    .titleSection {
+        .size(@height: 70px);
+        padding: 15px 25px;
+
+        > div {
+            .size(@height: 30px);
+            .font(@line-height: 30px);
+        }
+
+        .title {
+            .font(@size: 16px, @weight: 700, @color: @color-font-select-blue);
+        }
+
+        .info {
+            .url {
+                .size(@width: ~"calc(100% - 200px)");
+                float: left;
+            }
+            
+            .buttonGroup {
+                .size(@width: 200px);
+                float: right;
+
+                button {
+                    float: right;
+                    margin-left: 5px;
+                }
             }
         }
     }
@@ -502,128 +1117,20 @@ input {
         }
 
         .text {
-            .font(@size: 13px, @color: @color-text-midGray);
+            .font(@size: 12px);
             text-align: center;
         }
     }
 
     .errorSection {
-        // color please check .loadError
         height: 35px;
         padding-top: 10px;
+        padding-left: 25px;
         color: @color-table-red;
     }
 
-    .reviewSection {
-        .size(@height: 35px);
-        padding-top: 10px;
-        overflow: hidden;
-        clear: both;
-        .flex-display;
-
-        .previewPart {
-            .flex(1 1 auto);
-            .size(@height: 25px);
-            .font(@size: 12px, @line-height: 25px);
-
-            > div {
-                float: left;
-
-                &:first-child {
-                    margin-right: 20px;
-                }
-            }
-
-            .title {
-                margin-right: 5px;
-                font-weight: 700;
-            }
-        }
-
-        .iconPart {
-            .size(@width: 60px, @height: 25px);
-            .flex(0 0 60px);
-
-            .iconWrapper {
-                .size(@width: 25px, @height: 25px);
-                .rounded;
-                cursor: pointer;
-                float: right;
-                pointer-events: none;
-                .gray-gradient;
-                opacity: 0.7;
-
-                &.active {
-                    pointer-events: all;
-                    .action-gradient;
-                    opacity: 1;
-
-                    &:hover {
-                        .action-inverse-gradient;
-                    }
-                }
-
-                .icon {
-                    .size(100%, 100%);
-                }
-
-                &.highlight {
-                    margin-right: 5px;
-
-                    .icon {
-                        .image("../../images/datastore/preview-highlight.png", 50%, 50%);
-                    }
-                }
-
-                &.rmHightLight {
-                    .icon {
-                        .image("../../images/datastore/preview-rmHeightLight.png", 50%, 50%);
-                    }
-                }
-            }
-        }
-    }
-
-    .suggestSection {
-        .size(@height: 35px);
-        padding-top: 10px;
-        overflow: hidden;
-        clear: both;
-        .font(@size: 12px, @line-height: 25px);
-
-        .title {
-            float: left;
-            margin-right: 5px;
-            font-weight: 700;
-        }
-
-        .action {
-            .size(@height: 25px);
-            .font(@line-height: 25px, @color: @color-white);
-            .rounded;
-            margin-right: 5px;
-            padding: 0 5px;
-            display: inline-block;
-            max-width: 55%;
-            .textOverflowOneLine;
-
-            &.hint {
-                color: @color-text-midGray;
-            }
-
-            &.active {
-                .action-gradient;
-                cursor: pointer;
-
-                &:hover {
-                    .action-inverse-gradient;
-                }
-            }
-        }
-    }
-
     .previewSection {
-        .size(@width: 100%, @height: ~"calc(100% - 135px)");
+        .size(@width: 100%, @height: ~"calc(100% - 75px)");
         overflow-y: hidden;
         overflow-x: auto;
     }
@@ -643,7 +1150,7 @@ input {
 
     .previewBottom {
         .font(@size: 12px, @weight: 700);
-        margin: 5px;
+        margin: 5px 25px;
     }
 }
 
@@ -686,13 +1193,9 @@ input {
             .header {
                 width: ~"calc(100% - 40px)";
                 cursor: default;
-                // uncomment this if you want hedear to be selectable
-                // .auto-selection
 
                 .text {
                     .size(@height: 100%);
-                    .gray-gradient;
-                    .rounded;
                     .font(@weight: 600);
                     line-height: @height-tableCell;
                     padding: 0 3px;
@@ -736,216 +1239,221 @@ input {
             text-align: center;
         }
     }
+}
 
-    .undo-promote {
-        pointer-events: all;
+/* End of data form preview */
+#importDataForm {
+    .size(@height: 100%);
+    border-top: 1px solid @color-border-pinkish-grey2;
+    @row-width: 170px;
 
-        .header {
-            background: @color-table-promote;
-            cursor: pointer;
+    .contentSection {
+        .size(@height: ~"calc(100% - 50px)");
+        padding: 10px 0;
+        overflow-y: auto;
+    }
 
-            .icon {
-                .size(@width: 100%, @height: 100%);
-                .image("../../images/datastore/preview-unpromote.png", 50%, 50%);
+    .buttonSection {
+        border-top: 1px solid @color-border-pinkish-grey2;
+        padding: 7px 15px;
+        .size(@height: 50px);
+    }
+
+    .row {
+        padding: 0 15px;
+        .size(@width: 100%, @height: 30px);
+        margin-top: 10px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        > label, > div {
+            display: inline-block;
+            float: left;
+            margin-right: 10px;
+        }
+
+        > label {
+            .size(@width: @row-width, @height: 30px);
+            .font(@size: 14px, @line-height: 30px);
+            text-align: right;
+
+            .qMark {
+                margin: 0 3px;
+            }
+        }
+
+        .inputWrap {
+            .input-box(@w: 310px, @h: 30px);
+
+            #dsForm-dsName {
+                .size(@width: 450px);
+            }
+        }
+
+        button {
+            float: right;
+            .size(@width: 170px);
+            padding-right: 5px;
+        }
+    }
+
+    .dropDownList {
+        .styleDropDownList(@w: 310px, @h: 30px)
+    }
+
+    .divider {
+        margin-top: 10px;
+        .size(@width: 100%, @height: 1px);
+        background-color: @color-font-pinkish-grey2;
+    }
+
+    #udfArgs {
+        .size(@height: auto, @max-height: 90px, @min-height: 30px);
+
+        &.active {
+            .listSection {
+                display: inline-block;
+            }
+        }
+
+        .checkboxSection {
+            .size(@width: @row-width);
+
+            > div {
+                float: right;
+
+                &.text {
+                    margin-right: 8px;
+                }
+            }
+        }
+
+        .listSection {
+            display: none;
+            .size(@width: 320px, @height: 90px);
+            .rounded;
+            padding: 10px;
+            background-color: @color-bg-white-seven;
+            border: 2px solid @color-border-white-two;
+
+            .dropDownList {
+                .size(@width: 300px);
+                clear: both;
+                &:first-child {
+                    margin-bottom: 10px;
+                }
+            }
+
+            .hidden {
+                display: none;
             }
         }
     }
 
-    .promote {
-        background: @color-table-promote;
-        cursor: pointer;
+    #lineDelim, #fieldDelim {
+        input {
+            cursor: text;
 
-        .promoteWrap {
-            .size(@height: 100%);
-            .position(relative);
-        }
-
-        .divider {
-            .size(@width: 9999px, @height: 2px);
-            background-color: @color-table-promote;
-        }
-
-        .iconWrapper {
-            .size(@height: ~"calc(100% - 2px)");
-            .icon {
-                .size(@width: 100%, @height: 100%);
-                .image("../../images/datastore/preview-promote.png", 50%, 50%);
+            &:focus {
+                outline: none;
+                border-color: @color-border-softBlue;
+                background-color: @color-white;
             }
         }
+
+        .nullVal {
+            font-style: italic;
+        }
+    }
+
+    #promoteHeaderCheckbox {
+        margin-left: @row-width + 10px;
     }
 }
-
-.firefox #previewTable:not(.has-delimiter) .divider {
-    display: none;
-}
-// End Of Preview Table Section
-
 /* End Of Import Data View Section */
 
-/* Main Content */
-#mainContent {
-    height: 100%;
-    padding-top: 37px;
+#dsListSection {
+    .pathSection {
+        .size(@height: 20px);
+        margin-bottom: 5px;
+        padding: 0 15px;
+        font-size: 12px;
+        .textOverflowOneLine;
+        cursor: default;
 
-    #exploreView {
-        height: 100%;
-    }
-
-    #exportView {
-        display: none;
-        height: 100%;
-    }
-
-    .contentView {
-        height: 100%;
-        background-color: @color-background-white;
-        overflow: hidden;
-    }
-}
-
-/* Content Left */
-#datastorePanel {
-    .contentViewLeft {
-        .size(@width: 255px, @height: 100%);
-        .flex-display;
-        float: left;
-        .flex-flow(column);
-        box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
-        background-color: @color-background-darkGray;
-
-        .headingArea {
-            height: 35px;
-            .flex(0 0 35px);
-            .gray-gradient;
-            text-align: center;
-            padding-top: 6px;
-            position: relative;
-            .font(@weight: 700, @size: 15px, @color: @color-text-darkdarkGray);
-            box-shadow: inset -10px 0px 10px -10px rgba(0, 0, 0, 0.3);
-
-            span {
-                line-height: 22px;
-            }
-
-            .buttonGroup {
-                .position(absolute, @right: 7px);
-                display: inline-block;
-                .noSelection;
-                cursor: default;
-
-                .btn {
-                    .size(23px, 23px);
-                    margin-left: 2px;
-                }
-            }
-        }
-
-        .mainButtonArea {
-            border-bottom: 1px solid rgba(0,0,0,0.25);
-            height: 59px;
-            .flex(0 0 59px);
-
-            .btn {
-                .vertical-align;
-                display: block;
-                margin: 0 auto;
-
-                .icon {
-                    .image("../../images/datastore/db-sm.png", 50%, 50%);
-                }
-            }
-        }
-
-        .gridViewButtonArea {
-            .flex(0 0 31px);
-            .flex-display;
-            height: 31px;
-            position: relative;
-            background-color: @color-background-bottomGrayMed;
-            cursor: default;
-
-            .gridViewBtn {
-                .flex(1 1 auto);
-                height: 100%;
-                cursor: pointer;
-                .gray-gradient;
-                &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                &.disabled {
-                    opacity: 0.3;
-                    background: @color-background-darkGray;
-                    cursor: default;
-                    pointer-events: none;
-                }
-                .icon {
-                    .size(25px, 25px);
-                    margin: 3px 5px 3px 8px;
-                    float: left;
-                }
-
-                .label {
-                    display: inline-block;
-                    .transition (opacity 0.6s);
-                    .font(@size: 11px, @line-height: 32px, @color: @color-text-black);
-                    text-align: center;
-                    float: left;
-                }
-            }
-
-            .backBtn {
-                .label {
-                    font-size: 12px;
-                }
-                &.active {
-                    .gray-inverse-gradient;
-                    opacity: 1.0;
-                }
-
-                .icon {
-                    .image("../../images/datastore/upFolder.png");
-                }
-            }
-            .addBtn {
-                border-left: 1px solid rgba(118, 118, 118, 0.5);
-                border-right: 1px solid rgba(118, 118, 118, 0.5);
-                .icon {
-                    .image("../../images/datastore/addFolder.png");
-                }
-            }
-
-            .deleteBtn {
-                box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.3);
-                border-right: none;
-                .icon {
-                    .image("../../images/datastore/deleteFolder.png");
-                }
-
-                &.disabled {
-                    box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.8);
-                }
-            }
+        span {
+            color: @color-bg-softBlue;
+            cursor: pointer;
+            text-decoration: underline;
         }
     }
+
     .gridViewWrapper {
-        .flex(1 1 auto);
-        padding: 9px 5px;
-        padding-left: 8px;
-        position: relative;
+        .size(@height: ~"calc(100% - 25px)");
+        .position(relative);
         overflow-x: hidden;
         overflow-y: auto;
-        border-top: 1px solid rgba(154,154,154,1);
 
         .gridItems {
-            .size(@width: 240px);
+            .size(@width: 100%);
 
-            .grid-unit.display {
+            &.drag {
+                .dragWrap {
+                  display: block;
+                  z-index: 99;
+                }
+            }
+
+            .dragWrap {
+                display: none;
+            }
+
+            .waitingIcon {
+                z-index: 20;
+            }
+
+            .xc-hidden .waitingIcon {
+              display: none !important;
+            }
+
+            .grid-unit {
+                opacity: 0.8;
+
+                &:hover {
+                    opacity: 1;
+                }
+
+                &.active {
+                    background-color: @color-bg-light-navy;
+                }
+
                 > .label {
-                   textarea {
-                        background: @color-background-white;
+                    textarea {
+                        background-color: transparent;
+                        color: @color-white;
                         outline: none;
                         resize: none;
+                    }
+                }
+
+                .dsCount {
+                    .font(@weight: 700, @color: @color-font-dusk-blue);
+                    .no-selection;
+                    .textOverflowOneLine;
+                    text-align: center;
+                }
+
+                .edit, .delete {
+                    display: none;
+                    .size(@width: 25px, @height: 100%);
+                    float: right;
+                    cursor: pointer;
+
+                    &:before {
+                        display: inline-block;
+                        .vertical-align;
                     }
                 }
             }
@@ -953,32 +1461,20 @@ input {
             &.gridView {
                 overflow: visible;
                 padding-bottom: 2px;
-                .grid-unit.hidden {
-                    > .gridIcon, > .listIcon, > .label, > .dsCount,
-                    > .dragWrap {
-                        display: none !important;
-                    }
-                }
 
-                .grid-unit:first-of-type {
-                    clear: left;
-                }
-
-                .grid-unit.display {
-                    .gridViewForGrid;
-
+                .grid-unit {
                     > .label {
                         display: block;
-                        padding: 0;
                         background-color: transparent;
                         text-align: center;
                     }
+
                     .waitingIcon {
                         left: 8px;
                     }
                 }
 
-                .grid-unit.ds.display > .dragWrap {
+                .grid-unit.ds > .dragWrap {
                     .size(@width: ~"calc(50% + 7px)", @height: 100%);
                     position: absolute;
                     background: transparent;
@@ -987,7 +1483,7 @@ input {
                         // background-color: blue;
                         left: -7px;
                         &.active {
-                            box-shadow: inset 2px 0px 0px @color-shadow-topAction;
+                             box-shadow: inset 2px 0px 0px @color-shadow-topAction;
                         }
                     }
 
@@ -1000,10 +1496,8 @@ input {
                     }
                 }
 
-                .grid-unit.folder.display {
+                .grid-unit.folder {
                     > .label {
-                        .position(relative);
-
                         &.focused {
                             overflow: visible;
                         }
@@ -1011,17 +1505,18 @@ input {
                         textarea {
                             .size(@width: 130%, @height: 15px, @min-height: 15px, @max-height: 30px);
                             .position(absolute, @left: -7px);
-                            box-shadow: inset 0px 0px 3px black;
+                            box-shadow: inset 0px 0px 3px @color-white;
                             padding: 1px 1px;
                             .font(@size: 9px);
                             text-align: center;
                         }
                     }
 
-                    .dsCount {
-                        .position(absolute, 12px, 0, 0, 2px);
-                        .size(@width: 50px, @height: 20px);
-                        .font(@weight: 700, @color: @color-text-blue);
+                    > .dsCount {
+                        .position(absolute, @top: 15px);
+                        .size(@width: @width-grid, @height: 20px);
+                        padding: 0 17px;
+                        .font(@size: 13px);
                     }
 
                     > .dragWrap {
@@ -1056,18 +1551,17 @@ input {
             }
 
             &.listView {
-                padding: 4px 5px;
-                padding-left: 2px;
+                > .waitingIcon {
+                    left: 98px;
+                    top: -1px;
+                    background-size: 24px 25px;
+                }
 
                 .grid-unit {
-                    .listViewForGrid;
-
-                    > .label {
-                        width: ~"calc(100% - 25px)";
-                        padding-right: 30px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        line-height: 25px;
+                    &:hover {
+                        .edit, .delete {
+                            display: inline-block;
+                        }
                     }
                 }
 
@@ -1077,16 +1571,13 @@ input {
                     background: transparent;
 
                     &.leftTopDragWrap {
-                        top: -5px;
-
                         &.active {
                             box-shadow: inset 0px 2px 0px @color-shadow-topAction;
                         }
                     }
 
                     &.rightBottomDragWrap {
-                        top: 12.5px;
-
+                        top: 17.5px;
                         &.active {
                             box-shadow: 0px 2px 0px @color-shadow-topAction;
                         }
@@ -1094,26 +1585,21 @@ input {
                 }
 
                 .grid-unit.folder {
-                    .grid-unit {
-                        .size(@width: 95%, @max-width: 230px);
-                        margin-left: 5%;
-                        display: block;
-                    }
-
                     > .label {
                         textarea {
-                            .size(100%, 100%);
-                            .font(@size: 11px, @line-height: 25px);
-                            white-space: nowrap;
-                            overflow: hidden;
+                            width: 100%;
+                            height: @height-grid-list !important;
+                            .font(@size: 11px, @line-height: @height-grid-list);
+                            .textOverflowOneLine;
+                            background: transparent;
                         }
                     }
 
-                    .dsCount {
-                        .position(absolute, @top: 3px, @right: 8px, @bottom: 0);
-                        .size(@width: 45px, @height: 25px);
-                        .font(@weight: 900, @color: @color-text-blue);
-                        text-align: right;
+                    > .dsCount {
+                        .size(@width: 25px, @height: 35px);
+                        .position(absolute, @top: 1px, @left: 4px);
+                        .font(@size: 10px, @line-height: 35px);
+                        padding: 0 5px;
                     }
 
                     > .dragWrap {
@@ -1122,8 +1608,7 @@ input {
                         background: transparent;
 
                         &.leftTopDragWrap {
-                            top: -5px;
-                            height: 9.17px;
+                            height: 10px;
 
                             &.active {
                                 box-shadow: inset 0px 2px 0px @color-shadow-topAction;
@@ -1131,8 +1616,8 @@ input {
                         }
 
                         &.rightBottomDragWrap {
-                            top: 20.84px;
-                            height: 9.16px;
+                            top: 25px;
+                            height: 10px;
 
                             &.active {
                                 box-shadow: 0px 2px 0px @color-shadow-topAction;
@@ -1140,239 +1625,64 @@ input {
                         }
 
                         &.midDragWrap {
-                            height: 16.67px;
-                            top: 4.17px;
+                            height: 15px;
+                            top: 10px;
                         }
                     }
                 }
-
-                .grid-unit.collapse {
-                    .grid-unit {
-                        display: none !important;
-                    }
-                    &.folder > .listIcon .icon {
-                        .image("../../images/datastore/folder-sm.png", 50%, 50%)
-                    }
-                }
-            }
-
-            & .dragWrap {
-                z-index: -1;
-            }
-
-            &.drag .dragWrap {
-                z-index: 99;
-            }
-
-            .waitingIcon {
-                z-index: 20;
-            }
-            .hidden .waitingIcon {
-                display: none !important;
-            }
-        }
-    }
-    /* End Of Content Left */
-
-    /* Content Mid */
-    .contentViewMid {
-        .size(@width: ~"calc(100% - 510px)", @height: 100%);
-        .flex-display;
-        .flex-flow(column);
-        float: left;
-
-        &.hidden {
-            visibility: hidden;
-        }
-
-        .contentViewHeader {
-            height: 93px;
-            .flex-order(1);
-            box-shadow: 0 3px 2px rgba(0,0,0,.2);
-            padding: 10px 25px 0px;
-
-            .dbText {
-                display: inline-block;
-                float: left;
-                width: 100%;
-                overflow: hidden;
-
-                h2, p {
-                    .textOverflow;
-                }
-            }
-
-            h2 {
-                display: block;
-                height: 26px;
-                .font(@size: 19px, @line-height: 25px, @color: @color-text-blue);
-            }
-
-            p {
-                display: block;
-                font-size: 13px;
-                margin: 2px 0 5px 0;
-            }
-        }
-
-        /* START DATASET TABLE */
-        .contentViewTable {
-            height: ~"calc(100% - 93px)";
-            .flex-order(2);
-            background-repeat: no-repeat;
-            background-position: center;
-            position: relative;
-
-            /* dataset title wrap */
-            .datasetTitleWrap {
-                .size(@height: 60px);
-                margin-top: 15px;
-                padding-left: 25px;
-
-
-                .titleInfo {
-                    .size(@height: 60px);
-                    float: left;
-
-                    .heading {
-                        .size(@height: 20px);
-                        margin-bottom: 10px;
-                        .font(@size: 14px);
-                    }
-
-                    .dsInfo {
-                        .size(@height: 20px);
-                        .font(@size: 13px);
-                    }
-                }
-
-                .buttonGroup {
-                    .size(@height: 60px);
-                    overflow: hidden;
-                    float: right;
-                    .font(@weight: 600, @color: @color-text-blue);
-                    padding-right: 17px;
-
-                    .buttonWrap {
-                        .size(@height: 20px);
-
-                        > div {
-                            float: left;
-                        }
-
-                        &:first-child {
-                            margin-bottom: 10px;
-                        }
-                    }
-
-                    .qMark {
-                        .vertical-align;
-                        margin-left: 5px;
-                    }
-
-                    .modifyDSButton {
-                        .size(@height: 20px);
-                        cursor: pointer;
-
-                        span {
-                           float: left;
-                           line-height: 20px;
-                        }
-
-                        .icon {
-                            margin-right: 8px;
-                            .size(@width: 20px, @height: 20px);
-                        }
-
-                         &.noCols .icon {
-                            .image("../../images/datastore/dsNoCol.png", 50%, 50%);
-                        }
-
-                        &.selectAll .icon {
-                            .image("../../images/select-all.png", 50%, 50%);
-                        }
-
-                        &.clear .icon {
-                            .image("../../images/select-none.png", 50%, 50%);
-                        }
-                    }
-
-                    .divider {
-                        .size(@width: 1px, @height: 20px);
-                        margin: 0 10px;
-                        background-color: @color-background-topGrayMed;
-                    }
-                }
-            }
-            /* End of dataset title wrap */
-        }
-        /* END OF DATASET TABLE */
-    }
-    /* End of Content Mid */
-
-    /* Content Right */
-    .contentViewRight {
-        .size(@width: 255px, @height: 100%);
-        background-color: @color-background-darkGray;
-        box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
-        border-left: 1px solid rgba(0, 0, 0, 0.25);
-        float: right;
-
-        .buttonArea {
-            margin-top: 4px;
-            padding-bottom: 0px;
-            padding-left: 12px;
-            position: relative;
-            cursor: default;
-
-            &.cartOverflow {
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-                .border {
-                    display: none;
-                }
-            }
-            .title {
-                font-size: 16px;
-                padding-left: 5px;
-                padding-top: 15px;
-                .size(@width:225px, @height: 45px);
-                text-align: center;
-            }
-            .border {
-                border-top: 1px solid @color-border-joinGray;
-                border-bottom: 1px solid @color-white;
-                width: 225px;
-            }
-        }
-
-        .btnLarge {
-            margin-top: 10px;
-            padding-right: 5px;
-            width: 225px;
-            font-size: 11px;
-            display: block;
-            text-align: left !important;
-            text-indent: 4px;
-
-            .icon {
-                left: -2px !important;
-            }
-
-            &#submitDSTablesBtn .icon {
-                .image("../../images/datastore/send-single.png", 0, 50%);
-            }
-            &#submitMultipleDBTablesBtn .icon {
-                .image("../../images/datastore/send-multiple.png", 0, 50%);
-            }
-            &#clearDataCart .icon {
-                .image("../../images/garbage.png", 0, 50%);
             }
         }
     }
 }
 
+#dsExportListSection {
+    .targetSection {
+        margin-top: 10px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        .targetInfo {
+            .size(@height: 30px);
+            line-height: 30px;
+            padding: 0 15px;
+            .font(@weight: 700);
+
+            > span {
+                display: inline-block;
+            }
+
+            .expand {
+                .size(@width: 10px, @height: 100%);
+            }
+        }
+    }
+
+    .xc-grid {
+        .gridIcon .icon {
+            .vertical-align;
+        }
+        
+
+        &.gridView {
+            .gridIcon .icon {
+                font-size: 28px;
+            }
+        }
+
+        &.listView {
+            .grid-unit {
+                padding: 0 10px;
+            }
+
+            .gridIcon .icon {
+                font-size: 18px;
+            }
+        }
+    }
+}
 #gridViewMenu {
-    box-shadow: 1px 1px 1px 3px rgba(0, 0, 0, 0.1);
     li {
         display: none;
     }
@@ -1393,77 +1703,123 @@ input {
     }
 
     .disabled {
-        opacity: 0.7;
+        opacity: @opacity-disabled;
         pointer-events: none;
-    }
-
-    &.listView {
-        .back, .moveUp, .open {
-            // these options are weird in list view, so not show them
-            display: none;
-        }
     }
 
     &.uneditable {
         .moveUp, .rename, .delete {
-            opacity: 0.7;
+            opacity: @opacity-disabled;
             pointer-events: none;
         }
     }
 }
 
-#exportView {
-    .gridViewWrapper {
-        border-top: none;
+#datastore-out-view {
+    .cardContainer {
+        .size(@height: 100%);
     }
 
-    .gridItems {
-        overflow: visible !important;
-        .divider {
-            border-top: 1px solid @color-export-divider;
-            border-bottom: 1px solid @color-white;
-            margin: -5px 35px 7px 4px;
-            height: 0px;
+    .cardInstruction {
+        .icon {
+            .size(@width: 25px, @height: 25px);
         }
-        .title {
-            margin-left: 9px;
-            height: 15px;
-            color: @color-export-title;
-            font-weight: bold;
+    }
+
+    @minusHeight: @height-card-instr + @height-card-header;
+
+    .cardMain {
+        .size(@height: ~"calc(100% - @{minusHeight})");
+    }
+
+    .divider {
+        .size(@width: 100%, @height: 1px);
+        background-color: @color-border-pinkish-grey2;
+    }
+
+    .formSection {
+        padding-bottom: 20px;
+
+        .formTitle {
+            .size(@height: 20px);
+            .font(@weight: 700, @color: @color-font-select-blue);
+            margin: 18px 0 18px 5%;
         }
-        &.gridView {
-            .grid-unit {
-                height: 62px !important;
-                margin-bottom: 10px !important;
+
+        .formRow {
+            .size(@width: 80%);
+            margin: 0 10%;
+            .flex-display;
+            .size(@height: 30px);
+            line-height: 30px;
+            margin-bottom: 10px;
+
+            label {
+                .flex(0 0 150px);
+                .font(@size: 14px, @weight: 600, @color: @color-font-greyish-brown);
+            }
+
+            input {
+                .size(@height: 30px);
+                .flex(1 1 auto);
+                background-color: @color-bg-white-three;
+                border: 1px solid @color-bg-white-five;
+            }
+
+            .inputSet {
+                .flex(0 0 50%);
+                .flex-display;
+                padding-right: 30px;
+
+                &:last-child {
+                    padding-right: 0;
+
+                    label {
+                        .flex(0 0 50px);
+                    }
+                }
             }
         }
-        &.listView {
-            padding: 0px 0px 4px !important;
-            .divider {
-                margin: 10px 45px 7px 0px;
+
+        .formButton {
+            .size(@width: 80%, @height: 30px);
+            margin: 30px 10%;
+            line-height: 30px;
+
+            .btn {
+                float: right;
+                &:last-child {
+                    margin-right: 10px;
+                }
             }
         }
-    }
 
-    .contentViewMid {
-        visibility: visible;
-        width: ~"calc(100% - 255px)";
-        min-width: 640px;
-        height: ~"calc(100% - 37px)";
-    }
-
-    .formHelp {
-        .contentViewMidWrap {
-
-            margin-left: 4%;
+        .dropDownList {
+            .styleDropDownList(~"calc(100% - 150px)", 30px, true);
+            .list li {
+                font-size: 14px;
+                &.unavailable {
+                    opacity: 0.5;
+                    // pointer-events: none;
+                }
+            }
+            .text {
+                font-size: 14px;
+            }
         }
-    }
-    .dsForm {
-        height: ~"calc(100% - 93px)";
-        overflow: auto;
-        .contentViewMidWrap {
-            margin-left: 5%;
-            max-width: 750px;
+
+        .radioButtonGroup {
+            margin-top: 30px;
+            padding-left: 150px;
+
+            .label {
+                line-height: 20px;
+            }
+
+            .windowsAuth {
+                .flex(0 0 auto);
+                margin-right: 50px;
+            }
         }
     }
 
@@ -1511,25 +1867,7 @@ input {
         input {
             background-color: @color-background-topForm;
         }
-        .inputSet {
-            label {
-                float: left;
-            }
-            &:first-child {
-                width: 68%;
-            }
-
-            &:last-child {
-                width: 32%;
-                margin-left: 10%;
-                label {
-                    width: 50px;
-                }
-                input {
-                    width: ~"calc(100% - 50px)";
-                }
-            }
-        }
+        
         .radioButtonGroup {
             .justify-content(space-between);
             margin-top: 45px;
@@ -1548,332 +1886,3 @@ input {
         }
     }
 }
-
-
-#datasetWrap {
-    .size(@max-width: ~"calc(100% - 20px)", @max-height: ~"calc(100% - 88px)");
-    white-space: nowrap;
-    overflow: hidden;
-    float: left;
-    position: absolute;
-    margin-left: 10px;
-    overflow-x: auto;
-    border: 1px solid @color-border-lightLightGray;
-    margin-top: 10px;
-
-    &.loading {
-        border: none;
-        height: 40px !important;
-        .errorSection, .datasetTableWrap {
-            display: none !important;
-        }
-
-        .loadSection {
-            display: block;
-        }
-    }
-
-    &.error {
-        border: none;
-        height: 40px !important;
-        .datasetTableWrap, .loadSection {
-            display: none !important;
-        }
-
-        .errorSection {
-            display: block;
-        }
-    }
-
-    .loadSection {
-        display: none;
-        margin-left: 15px;
-
-        .animatedEllipsis {
-            margin-left: 5px;
-
-            > div {
-                margin-left: -1px;
-            }
-        }
-    }
-
-    .errorSection {
-        display: none;
-        color: @color-table-red;
-        margin-left: 15px;
-    }
-}
-
-.datasetTbodyWrap {
-    .size( @max-height: 100%);
-    overflow-x: visible;
-    overflow-y: scroll;
-    display: inline-block;
-    outline: 1px solid @color-white; // ie bug if we dont use this outline
-    outline-offset: -1px;
-    margin-top: -1px;
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
-}
-
-table.datasetTable {
-    margin: 0;
-}
-
-.datasetTableWrap {
-    height: 100%;
-    margin: 0;
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-
-    .header {
-        .position(absolute, @top: 0);
-        .size(@width: inherit, @height: @height-colHeaderOuter);
-        cursor: pointer;
-       .dataTableHeader;
-
-       .editableHead {
-            .noSelection;
-            cursor: pointer;
-            margin-left: -1px;
-       }
-
-       .colGrab:hover + div {
-            .dropdownBox {
-                display: none;
-            }
-       }
-
-       .flexContainer {
-            overflow: hidden;
-            .gray-gradient;
-            .rounded;
-       }
-
-        .flexWrap.flex-left {
-            .flex(0 0 20px);
-            margin: 0;
-            overflow: hidden;
-            .size(@height: @height-colHeader);
-            .colIcon-gray-gradient();
-            position: relative;
-
-            .iconHidden {
-                .size(@width: 1px, @height: @height-colHeader);
-                display: inline-block;
-            }
-            .icon {
-                margin-left: 3px;
-            }
-        }
-
-        .flexWrap.flex-mid {
-            .flex(1 1 auto);
-        }
-
-        .flexWrap.flex-right {
-            .flex(0 0 20px);
-            position: relative;
-
-            .tick.icon {
-                .size(@width: 15px, @height: 22px);
-                .image("../../images/tick.png", 50%, 70%);
-                opacity: 0.5;
-            }
-        }
-
-        &:hover {
-            .flexWrap.flex-right {
-                > .tick.icon {
-                    opacity: 1.0;
-                }
-            }
-        }
-
-        &::before {
-            display: none;
-        }
-    }
-    .idSpan {
-        position: relative;
-        .size(@width: ~"calc(100% + 10px)", @height: 100%);
-        background-color: gray;
-        border-right: 5px solid @color-table-lightGray;
-        border-left: 5px solid @color-white;
-        margin-left: -5px;
-        line-height: @height-tableCell;
-    }
-    th {
-        width: 130px;
-
-        &:first-child {
-            width: 40px;
-            cursor: default;
-
-            .header {
-                border-left: 5px solid @color-border-darkGray;
-                width: 40px;
-                cursor: default;
-                .gray-gradient;
-            }
-        }
-    }
-    .selectedCell {
-        .editableHead {
-            background: none !important;
-            background-color: @color-background-white !important;
-            color: @color-text-darkGray !important;
-        }
-    }
-    .selectedCol {
-        .header {
-            .editableHead {
-                color: @color-white;
-            }
-            .tick.icon {
-                opacity: 1.0;
-            }
-            .flexContainer {
-                .action-gradient;
-            }
-        }
-        .flexWrap.flex-left {
-            .colIcon-active-gradient();
-        }
-        .type-boolean .flexWrap.flex-left {
-            &:after {
-                border-top: 30px solid @color-border-colIconBlue;
-            }
-        }
-    }
-    tr:nth-child(odd) .idSpan {
-        background-color: @color-table-col-darkestGray;
-    }
-     tr:nth-child(even) .idSpan {
-        background-color: @color-table-col-darkGray;
-    }
-
-}
-/* End Of Content Mid */
-
-
-
-// Data Cart Section
-#dataCartWrap {
-    .size(@width: ~"calc(100% - 10px)", @height: ~"calc(100% - 125px)");
-    overflow: auto;
-    float: left;
-}
-
-#dataCart {
-    margin-left: 12px;
-    background-color: @color-background-darkGray;
-    backface-visibility: hidden;
-
-    .helpText {
-        white-space: normal;
-        display: block;
-        margin-top: 10px;
-        margin-right: 15px;
-        color: @color-text-darkdarkGray;
-    }
-
-    .selectedTable {
-        .size(@width: 215px);
-        margin: 10px 0 20px 0;
-
-        .cartTitleArea {
-            .position(relative);
-            .size(@width: 100%, @height: 30px);
-
-             .tableNameEdit {
-                .size(100%, 100%);
-                .font(@size: 15px, @weight: bold, @line-height: 30px);
-                padding-right: 30px;
-                padding-left: 5px;
-                display: inline-block;
-                text-align: center;
-                box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5);
-                background-color: @color-background-topGrayMed;
-            }
-
-            .iconWrapper {
-                .position(absolute, @top: 5px, @right: 5px);
-                .size(20px, 20px);
-                background-color: @color-icon-gray-flat;
-                box-shadow: -1px 1px 0px 1px rgba(0, 0, 0, 0.2);
-                .rounded;
-                cursor: pointer;
-
-                &:hover {
-                    .action-gradient;
-                }
-
-                .icon {
-                    .size(100%, 100%);
-                    .image("../../images/datastore/tableEdit.png", 50%, 50%);
-                }
-            }
-
-            &.focus {
-                .iconWrapper {
-                    display: none;
-                }
-            }
-        }
-
-        .cartEmptyHint {
-            margin-top: 10px;
-            text-align: center;
-            .font(@weight: bold, @color: @color-text-midGray);
-        }
-
-        li {
-            .size(@height: 25px);
-            .font(@weight: 700, @size: 12px, @line-height: 25px);
-            background-color: @color-background-white;
-            .rounded;
-            box-shadow: -1px 1px 1px rgba(0,0,0,.2);
-            overflow: hidden;
-            margin-top: 6px;
-
-            &.colSelected {
-                background-color: @color-selectedCell-light;
-            }
-
-            &.keySelected {
-                box-shadow: 0px 0px 0px 2px @color-shadow-bottomAction;
-            }
-
-            .colName {
-                .size(@width: 190px, @height: 100%);
-                padding-left: 10px;
-                float: left;
-                display: inline-block;
-                cursor: default;
-            }
-
-            .removeCol {
-                .size(@width: 25px, @height: 100%);
-                float: left;
-                display: inline-block;
-                .gray-gradient;
-                cursor: pointer;
-                &:hover {
-                    .red-gradient;
-                }
-                .closeIcon {
-                    display: inline-block;
-                    .size(100%, 100%);
-                    .image("../../images/close-sm.png", 50%, 50%);
-                }
-            }
-        }
-    }
-}
-// End of Data Cart Section
-

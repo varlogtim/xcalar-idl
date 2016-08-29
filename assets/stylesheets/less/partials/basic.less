@@ -15,6 +15,10 @@ table, tr, td, th, input, textarea, section, p {
     .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-text-darkGray);
 }
 
+section {
+    .font(@size: inherit);
+}
+
 h1, h2, h3, h4, h5, h6{
     .nomargin-padding;
     display: inline;
@@ -31,11 +35,11 @@ body {
     .font(@weight: 600, @family: @font-base, @color: @color-text-darkGray);
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
-    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
+    background: @color-bg-body-gray;
     overflow: hidden !important;
 
     &.xc-setup {
-        #workbookBtn, #mainMenu {
+        #topMenuBarTabs {
             pointer-events: none;
         }
     }
@@ -43,10 +47,129 @@ body {
 
 .mainContainer {
     .position(relative);
-    .size(@height: 100vh, @min-height: 260px, @min-width: 824px);
+    .size(@height: 100vh, @min-height: 560px, @min-width: 824px);
     font-size: 14px;
     overflow: hidden;
     display: none;
+}
+
+#container {
+    &.noWorkbook {
+
+        #autoSaveBtn {
+            display: none;
+        }
+
+        #menuBar {
+            display: none;
+            // #workspaceTab, #dataStoresTab, #schedulerTab {
+            //     display: none;
+            // }
+            // .bottomMenuBarTab {
+            //     display: none;
+            // }
+
+            // #monitorTab {
+            //     .subTab:not(:nth-child(2)) {
+            //         display: none;
+            //     }
+            // }
+        }
+        #mainMenu {
+            left: -@width-fullMenu; // do not show any of the main menu
+        }
+        #dfgPanelSwitch {
+            display: none;
+        }
+        #statusBar {
+            margin-left: 0px;
+            padding-left: 60px;
+            width: 100%;
+        }
+    }
+
+    &.workbookMode {
+        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        
+        #userBox {
+            z-index: @z-index-homeBtn;
+        }
+
+        #userMenu .help {
+            display: none;
+        }
+
+        #bottomMenu {
+            z-index: @z-index-bottomMenu; // so if it's undocked, it will be
+            //behind the worbook panel
+        }
+
+        &.monitorMode {
+            #mainMenu {
+                left: 0px;
+                z-index: 31;
+                .mainContent {
+                    display: block;
+                }
+                .commonSection {
+                    display: none;
+                }
+                #monitorMenu {
+                    display: block;
+                    .minimizeBtn {
+                        display: none;
+                    }
+
+                    .menuSection {
+                        display: none;
+                        &.monitor {
+                            display: block !important;
+                        }
+                    }
+                }
+            }
+
+            #monitorPanel {
+                z-index: @z-index-menuBar;
+                .position(absolute, @top: 0px);
+                .size(100%, 100%);
+                display: block;
+
+                > .topBar {
+                    padding-left: 68px;
+                    // visibility: hidden;
+                    .backToWB {
+                        display: block;
+                    }
+                    .title {
+                        display: none;
+                    }
+                    .wkbkTitle {
+                        display: block;
+                    }
+                }
+
+                > .mainContent {
+                    .size(@width: ~"calc(100% - @{width-bottomMenu})");
+                    margin-left: @menuWidth + 10px;
+                    background-color: @color-bg-body-gray; 
+                } 
+
+                .monitorSection {
+                    display: none;
+
+                    &#monitor-system {
+                        display: block;
+                    }
+                }        
+            }
+
+            #workbookPanel {
+                display: none !important;
+            }
+        }
+
+    }
 }
 
 .clearfix:after {
@@ -105,11 +228,17 @@ body {
     top: 30%;
     text-align: center;
     background-color: rgba(47, 47, 47, 0.6);
+    >span {
+        margin: auto;
+        font-weight: 600;
+        color: @color-white;
+        line-height: 75px;
+    }
 }
 
 #initialLoadScreen {
-    .size(@width: 100%, @height:  ~"calc(100% - 41px)", @min-height: 147px);
-    .position(fixed, @top: 41px);
+    .size(@width: 100%, @height:  ~"calc(100% - 50px)", @min-height: 147px);
+    .position(fixed, @top: 50px);
     z-index: 9999;
     cursor: progress;
     background-color: rgba(0, 0, 0, 0.15);
@@ -124,360 +253,107 @@ body {
 
         .animatedEllipsis {
             > div {
-               .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
+                .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
+                margin-left: 1px;
             }
         }
     }
 }
 
-/* For Both worksheet menu bar and bottom area bar */
-.workspaceBar, .topBar {
-    .position(relative);
-    .size(@width: 100%, @height: 38px);
-    color: @color-text-darkGray;
-    border-top: 1px solid @color-bar-border;
-    border-bottom: 1px solid @color-bar-border;
-    .darkGray-gradient;
-    box-shadow: 0px 3px 3px 0px @color-bar-shadow;
-    display: block;
+#formWaitingBG {
+    .size(@width: 100%, @height: ~"calc(100% - 36px)");
+    .position(absolute, @top: 36px, @left: 0);
+    background-color: rgba(255,255,255, 0.6);
+    z-index: 101; // higher than the resizable grabbers
+
+    .waitingIcon {
+        left: 50%;
+        top: 40%;
+        .transform(translate3d(-50%, 0%, 0));
+    }
 }
 
+
+/* For Both worksheet menu bar and bottom area bar */
 .topBar {
-    top: -1px;
+    .size(@width: 100%, @height: @height-homeBtn);
+    color: @color-text-darkGray;
+    background-color: @color-bg-topBarGray;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    padding-left: 20px;
+    padding-right: @width-userBox;
     overflow: hidden;
+    position: relative;
+    z-index: @z-index-topBar;
+    text-transform: uppercase;
 
-    .buttonArea {
-        .size(@width: 127px, @height: 100%);
-        .darkDarkGray-gradient;
-        border-right: 1px solid @color-bar-border;
+    .title {
+        .font(@size: 20px, @weight: 700, @color: @color-bg-unselect-gray);
         float: left;
-        cursor: pointer;
-
-        &.active {
-            .action-gradient;
-        }
-
-        .icon {
-            float: left;
-        }
+        line-height: @height-homeBtn;
     }
 
-    .rightHeaderArea {
+    .rightArea {
+        .size(@height: 30px);
         padding-left: 20px;
-        float: left;
-    }
-
-    .text {
-        .font(@size: 14px, @color: @color-white);
-        float: left;
-        margin: 8px 0 0 3px;
-        text-shadow: 1px 1px @color-text-signout-lightGray;
-    }
-}
-
-/* For Both worksheet menu bar and bottom area bar */
-.workspaceArea {
-    .size(@height: 25px);
-    display: inline-block;
-    padding: 0px 14px;
-    margin-top: 5px;
-    border-right: 1px solid @color-tab-divider;
-    float: left;
-    line-height: 25px;
-
-    input {
-        .size(@height: 25px);
-        padding: 0 4px;
-        background-color: @color-input-background;
-        .font(@weight: bold, @line-height: 25px);
-
-        &:focus {
-            background-color: @color-input-active;
-            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-            outline: none;
-            color: @color-text-fnBar-blue;
-        }
-    }
-
-    &:last-child {
-        border-right: none;
+        float: right;
+        border-right: 1px solid @color-border-pinkish-grey;
+        .vertical-align;
     }
 }
 
 .mainPanel {
     display: none;
-    .size(@width: 100%, @height: ~"calc(100% - 115px)");
+    .size(@width: @width-mainPanel, @height: @height-mainPanel);
+    float: left;
 
     &.active {
         display: block;
     }
-}
-
-.btn {
-    .noSelection;
-    display: inline-block;
-    border: 0;
-    outline: 0;
-    .rounded(2px);
-    .action-gradient;
-    box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
-    .font(@family: @font-base, @color: @color-text-transparentWhite);
-    .textOverflowOneLine;
-    letter-spacing: 0.5px;
-
-    &:hover, &:focus {
-       .action-inverse-gradient;
-    }
-
-    &:active {
-        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
-                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
-    }
-
-    span {
-        .size(100%, 100%);
-        display: inline-block;
-        background-repeat: no-repeat;
-        background-position: 50% 50%;
-    }
-}
-
-.btnSmall {
-    .size(22px, 22px);
-    .rounded(2px);
-}
-
-.btnMid {
-    .size(@width: 150px, @height: 30px);
-    .rounded;
-    .font(@weight: bold, @size: 12px, @line-height: 30px);
-    text-align: center;
-    padding: 0;
-    text-shadow: 1px 1px rgba(0, 0, 0, 0.2);
-}
-
-.btnLarge {
-    .size(@width: 230px, @height: 30px);
-    .rounded;
-    text-shadow: 1px 1px rgba(0,0,0,.3);
-    .font(@size: 12px, @line-height: 30px, @color: @color-text-transparentWhite);
-}
-
-.iconBtn {
-    .position(relative);
-    // padding-right = padding-left + icon width
-    padding: 0 30px 0 5px;
-    text-align: center;
-
-    .icon {
-        display: inline-block;
-        .size(@width: 25px, @height: 100%);
-        .position(relative, @top: 0, @left: 0);
-        float: left;
-    }
-}
-
-.btn-cancel {
-    color: @color-text-white;
-    .gray-gradient;
-
-    &:hover, &:focus {
-        .gray-inverse-gradient;
-    }
-}
-
-.btnInProgress {
-    opacity: 0.7;
-    pointer-events: none;
-    cursor: wait;
-
-    .text {
-        float: none;
-    }
-
-    .animatedEllipsis {
-        float: none;
-        vertical-align: bottom;
-
-        > div {
-            margin-left: 1px;
-        }
-    }
-}
-
-.btnInactive {
-    .gray-gradient;
-    pointer-events: none;
-
-    &:hover, &:focus {
-        .gray-gradient;
-    }
-}
-
-.btnDeselected {
-    .gray-gradient;
-
-    &:hover, &:active {
-        .gray-gradient;
-    }
-}
-
-.checkboxSection {
-    .size(@height: 30px);
-    .font(@weight: 700, @size: 13px, @line-height: 30px);
-    .noSelection;
-    cursor: pointer;
-
-    > div {
-        float: left;
-    }
-
-    .text {
-        margin-left: 8px;
-    }
-}
-
-.onOffBtn {
-    .size(@width:86px, @height:27px);
-    .position(relative);
-    .rounded;
-    display: inline-block;
-    z-index: 0;
-    cursor: pointer;
-    .noSelection;
-
-    .slider {
-        .size(@width:45px, @height:27px);
-        .position(absolute, @top: 0, @left: 0);
-        .rounded;
-        .linear-gradient(top, @color-table-lightGray, @color-table-darkGray);
-        box-shadow: 0px 1px 0px 1px rgba(0,0,0, 0.15);
-        border-left: 1px solid rgba(0,0,0,0.05);
-        z-index: 5;
+    & > .mainContent {
+        .size(@width: 100%, @height: ~"calc(100% - @{height-topBar})");
+        padding: @padding-mainContent @padding-mainContent 0 @padding-mainContent;
         .transition(all 0.2s);
-
-        &.off {
-            left: 45px;
-        }
-    }
-
-    .text {
-        .position(absolute, @top: 0, @left: 0);
-        .size(@width: 50px, @height: 100%);
-        .font(@size: 14px, @weight: bold, @line-height: 27px);
-        .rounded;
-        text-align: center;
-        display: inline-block;
-        box-shadow: inset -1px 1px 1px 0px rgba(0, 0, 0, 0.2);
-        z-index: -3;
-        .transition-delay(0.1s);
-
-        &.onText {
-            .font(@color: @color-text-transparentWhite);
-            .action-gradient;
-            left: 35px;
-            z-index: -2;
-            padding-left: 10px;
-
-        }
-        &.offText {
-            .font(@color: @color-text-dropMenu);
-            background-color: @color-sql-hover;
-            box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
-            padding-right: 5px;
-        }
-    }
-
-    &.off {
-        .slider {
-            left: 45px;
-            border-left: none;
-            border-right: 1px solid rgba(0,0,0,0.05);
-        }
-        .offText {
-            z-index: -1;
-        }
     }
 }
 
-.rangeSlider {
-    display: inline-block;
-    .size(@width:200px, @height: 30px);
-    position: relative;
-    .leftArea, .rightArea {
-        position: absolute;
-        left: 0px;
-        top: 10px;
-        .size(@width: 100%; @height: 10px);
-        border-radius: 3px;
-    }
-    .leftArea {
-        z-index: 1;
-        background-color: @color-monitor-rangeBlue;
-    }
-    .rightArea {
-        .linear-gradient(top, @color-text-topGrayMed, @color-monitor-rangeGray);
-    }
-    .slider {
-        position: absolute;
-        right: 0px;
-        top: -7px;
-        width: 15px;
-        height: 25px;
-        border-radius: 5px;
-       .linear-gradient(top, @color-monitor-sliderTop, @color-monitor-sliderBottom);
-       box-shadow: 0px 1px 1px 1px rgba(0, 0, 0, 0.2);
+// subpanel width changes when bottommenu open
+.mainContainer {
+    &.bottomMenuOpen:not(.bottomMenuOut), &.mainMenuOpen {
+        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        .mainPanel > .mainContent {
+            
+            .size(@width: ~"calc(100% - @{menuWidth})");
+            margin-left: @menuWidth;
+        }
 
+        #dagPanelContainer {
+            @panelLeft: @width-fullMenu + @padding-mainContent;
+            @extraWidth: @panelLeft + @padding-mainContent;
+            left: @panelLeft;
+            width: ~"calc(100% - @{extraWidth})";
+        }
+
+        #statusBar {
+            margin-left: @width-fullMenu;
+            width: ~"calc(100% - @{width-fullMenu})";
+            .workspaceArea:first-child {
+                display: none;
+            }
+        }
+        #watermark {
+            left: @menuWidth + 75px;
+        }
+
+        #insight {
+            left: @menuWidth + 298px;
+        }
     }
-    .ui-resizable-e {
-        top: -7px;
-        right: 0px;
-        height:25px;
-    }
-}
 
-input {
-    .size(@height: 30px);
-    .rounded;
-    line-height: 30px;
-    padding: 0 4px;
-    background-color: @color-white;
-
-    &:-ms-input-placeholder {
-        color: @color-lightSilverChalice;
-    }
-    &::-webkit-input-placeholder {
-        color: @color-lightSilverChalice;
-    }
-    &[type=number] {
-        -moz-appearance: textfield;
-    }
-}
-
-.icon {
-    display: inline-block;
-    .noSelection;
-}
-
-.roundedIcon {
-    .size(19px, 19px);
-    float: right;
-    margin: 7px 6px 0 0 ;
-    background-color: @color-background-bottomGrayMed;
-    .rounded(1px);
-    box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-    cursor: pointer;
-}
-
-.underConstruction {
-    .size(@height: ~"calc(100% - 114px)");
-    background: @color-background-darkGray;
-    text-align: center;
-
-    .alert {
-        .size(28px, 28px);
-        margin: 50px auto 0 auto;
-        .image("../../images/info-icon-large.png");
+    &.noMenuAnim {
+        #statusBar {
+            .transition(0s all);
+        }
     }
 }
 
@@ -489,1232 +365,77 @@ input {
     }
 }
 
-/* Currently used for worksheet table, dataset preview, join modal, smartcast */
-.dataTable {
-    .size(@width: 0px);
-    border-collapse: separate;
-    border-spacing: 0px;
-    margin-right: 5px;
-    table-layout: fixed;
-    cursor: default;
-
-    th {
-        .size(@height: @height-colHeaderOuter);
-        background-color: @color-background-darkGray;
-        border: 5px solid @color-border-darkGray;
-        border-left: none;
-        padding: 0px;
-        .font(@weight: normal, @size: 13px);
-    }
-
-    td {
-        .size(@height: @height-tableCell);
-        .font(@size: 11px, @line-height: 15px, @family: @font-code);
-        overflow: hidden;
-        padding: 2px;
-        vertical-align: middle;
-        text-align: center;
-
-        &:last-child {
-            border-right: 5px solid @color-white !important;
-        }
-    }
-
-    thead {
-        background-color: @color-white;
-    }
-
-    tbody tr {
-        &:nth-child(odd) {
-            background-color: @color-table-lightGray;
-            td {
-                border-right: 5px solid @color-table-lightGray;
-                &:nth-child(odd) {
-                    background-color: @color-table-darkGray;
-                }
-                &:nth-child(even) {
-                    background-color: @color-table-midGray;
-                }
-                &.indexedColumn {
-                    background-color: @color-table-indexed-blue !important;
-                }
-                &.selectedCell {
-                    background-color: @color-selectedCell-dark;
-                }
-                &.selectedCol {
-                    background-color: @color-selectedCell-dark;
-                }
-                &.colSelected {
-                    background-color: @color-selectedCell-dark !important;
-                }
-                &.jsonElement, &.dataCol {
-                    background-color: @color-table-col-green !important;
-                }
-            }
-        }
-        &:nth-child(even) {
-            background-color: @color-white;
-            td {
-                border-right: 5px solid @color-white;
-                &:nth-child(odd) {
-                    background-color: @color-table-lightGray;
-                }
-                &:nth-child(even) {
-                    background-color: @color-table-col-lightGray;
-                }
-                &.indexedColumn {
-                    background-color: @color-table-indexed-lightBlue !important;
-                }
-                &.selectedCell {
-                    background-color: @color-selectedCell-light;
-                }
-                &.selectedCol {
-                    background-color: @color-selectedCell-light;
-                }
-                &.colSelected {
-                    background-color: @color-selectedCell-light !important;
-                }
-                &.jsonElement, &.dataCol {
-                    background-color: @color-table-col-lightGreen !important;
-                }
-            }
-        }
-    }
-
-    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
-        td {
-            border-right: 5px solid @color-text-placeholder;
-            &:nth-child(odd) {
-                background-color: @color-join-divider;
-            }
-            &:nth-child(even) {
-                background-color: @color-background-lightLightGray;
-            }
-            &.indexedColumn {
-                background-color: @color-iron !important;
-            }
-            &.selectedCell, &.colSelected, &.selectedCol {
-                background-color: @color-heather !important;
-            }
-            &.jsonElement, &.dataCol {
-                background-color: @color-tasman !important;
-            }
-        }
-    }
-
-    tbody tr.dragging {
-        td:first-child:not(.rowBookmarked) .idSpan {
-            background-color: @color-silver !important;
-        }
-        td:first-child .idSpan {
-            border-right-color: @color-text-placeholder !important;
-        }
-    }
-    th.unusedCell {
-        background-color: @colorOpaque-blankGrayDark;
-        .editableHead {
-            color: @color-text-black;
-        }
-    }
-
-    tbody .unusedCell {
-        &:nth-child(odd) {
-            background-color: @colorOpaque-blankGrayDark;
-        }
-        &:nth-child(even) {
-            background-color: @colorOpaque-blankGrayDark;
-        }
-    }
-
-    .header {
-        .position(relative);
-        .rounded;
-        .noSelection;
-
-        &::after {
-            .position(absolute, @top: @height-colHeader + 4px, @left: 0);
-            .size(@width: ~"calc(100% + 5px)", @height: 1px);
-            content: "";
-            display: block;
-            border-bottom: 1px solid rgba(0,0,0,0.15);
-            box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.08);
-        }
-        &::before {
-            .transition(opacity 0.3s);
-            content: "";
-            opacity: 0;
-        }
-        .flex-mid {
-            position: relative;
-            z-index: 2;
-            height: 18px;
-            margin-top: 4px;
-
-            &.editable {
-                .editableHead {
-                    pointer-events: initial;
-                }
-            }
-        }
-    }
-
-    input {
-        font: 13px @font-base;
-        background-color: transparent;
-
-        &[disabled] {
-            .size(@width: 100%);
-            text-align: center;
-            outline: none;
-            cursor: default;
-            font-weight: 600;
-            .font(@weight: 600, @color-text-darkGray);
-        }
-
-        &:focus {
-            outline-offset: -1px;
-        }
-    }
-
-    .editableHead {
-        .position(relative);
-        .size(@width: ~"calc(100% + 2px)", @height: 18px);
-        padding: 0px 0px 0px 3px;
-        background-color: transparent;
-        border: none;
-        display: block;
-        text-align: center;
-        overflow: hidden;
-        .font(@weight: 600, @size: 13px, @family: @font-base);
-        z-index: 2;
-        margin-left: -2px;
-        pointer-events: none;
-    }
-
-    .datasetTable .tdText {
-        cursor: default;
-    }
-
-    .textAlignLeft {
-        text-align: left !important;
-        .dataColText {
-            text-align: left;
-        }
-        .flexContainer {
-            .justify-content(flex-start);
-        }
-
-    }
-
-    .textAlignRight {
-        text-align: right !important;
-        .dataColText {
-            text-align: right;
-        }
-        .flexContainer {
-            .justify-content(flex-end);
-        }
-    }
-
-    .textAlignCenter {
-        text-align: center !important;
-        .dataColText {
-            text-align: center;
-        }
-        .flexContainer {
-            .justify-content(center);
-        }
-    }
-
-    .textAlignWrap {
-        .textAlignLeft;
-        white-space: normal !important;
-        overflow-wrap: break-word !important;
-    }
-
-    .jsonElement {
-        cursor: pointer;
-    }
-
-    .originalData {
-        display: none;
-    }
-
-    .displayedData {
-        display: block;
-    }
-
-    .dataColText {
-        cursor: pointer;
-        text-align: center;
-        white-space: pre;
-    }
-
-    .indexedColumn {
-       background-color: @colorOpaque-blue !important;
-    }
-    // XXX if we have scrollbars on individual tds
-    // .elementTextWrap:hover, .addedBarTextWrap:hover {
-    //     overflow-y: auto;
-    //     // overflow-x: auto;
-    // }
-
-    span.undefined, span.null {
-        font-style: italic;
-        color: @color-defaultGray;
-        width: 100%;
-        display: block;
-    }
-
-    .rowBookmarked {
-        background-color: @color-background-topAction !important;
-        .idSpan {
-            background-color: @color-background-topAction !important;
-        }
-    }
-}
-
-.firefox, .microsoft {
-    .xcTable {
-        margin-right: -12px;
-    }
-}
-
-.xcTable, .datasetTable {
-    thead {
-        th:first-child {
-            background-color: @color-background-darkGray;
-            .header {
-                z-index: 3;
-                &::after {
-                    width: ~"calc(100% + 10px)";
-                    left: -5px;
-                }
-            }
-            &.rowNumHead {
-                .header::after {
-                    z-index: 3;
-                }
-            }
-        }
-    }
-    tbody {
-        td:first-child {
-            padding: 0;
-            .noSelection;
-            overflow: visible;
-            border-left: 5px solid @color-white;
-        }
-
-        tr {
-            &:nth-child(odd) {
-                td:first-child {
-                    background-color: @color-table-col-darkestGray;
-                }
-            }
-            &:nth-child(even) {
-                td:first-child {
-                    background-color: @color-table-col-darkGray;
-                }
-            }
-
-        }
-    }
-
-    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
-        td {
-            &:first-child {
-                background-color: @color-silver;
-                .idSpan {
-                    background-color: @color-silver;
-                    border-right-color: @color-text-placeholder;
-                }
-            }
-        }
-    }
-}
-
-.multiCastTable, .joinTable {
-    td:first-child {
-        border-left: 5px solid white;
-    }
-}
-
-.unavailable {
-    // For features that haven't been implemented yet
-    opacity: 0.4;
-}
-
-/* Flex Styling */
-.flexContainer {
-    .flex-display;
-
-    &.flexRow {
-        .flex-flow(row);
-    }
-
-    .flexWrap {
-        &.flex-left {
-            .flex-order(1);
-        }
-        &.flex-mid {
-            .flex-order(2);
-        }
-        &.flex-right {
-            .flex-order(3);
-        }
-    }
-}
-
-.fullOpacity {
-    opacity: 1.0 !important;
-}
-
-.visible {
-    visibility: visible;
-}
-
-.menu {
-    .position(fixed);
-    .size(@width: 170px);
-    list-style: none;
-    padding: 0px;
-    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
-    display:none;
-    background-color: @color-white;
-    z-index: 22; // higher than bottom area's z-index of 21
-    cursor: pointer;
-    .dropDown;
-
-    > ul {
-        overflow: auto;
-    }
-
-    // XXX temporary fix
-    &.subMenu.tableMenu {
-        overflow: visible !important;
-
-        ul.moveToWorksheet, .dupToWorksheet {
-            overflow: visible !important;
-
-            .wsList {
-                overflow: visible !important;
-            }
-        }
-    }
-
-    li {
-        .position(relative);
-        .size(@height: 30px);
-        padding: 6px 6px 6px 8px;
-        background-color: @color-white;
-        .font(@weight: 700, @size: 12px, @color: @color-text-dropMenu);
-        .noSelection;
-        text-align: left;
-
-        &.selected {
-            cursor: pointer;
-            background-color: @color-selectedCell-dark;
-            > .dropdownBox {
-                opacity: 1;
-                border-right-color: @color-dropBox-secondary;
-            }
-        }
-
-        .dropdownBox {
-            opacity: 0.3;
-            z-index: 0;
-            border-right-color: @color-border-lightGray;
-            .transition-delay (.0s);
-            pointer-events: none;
-        }
-
-        &.subSelected {
-            background-color: @color-selectedCell-lightGreen !important;
-        }
-
-        &.clickable {
-            .size(@height: 60px);
-            span {
-                display: block;
-                float: none;
-            }
-
-            > div {
-                height: 20px;
-                line-height: 20px;
-                margin-top: 2px;
-                text-align: center;
-            }
-
-            > input {
-                margin-top: 2px;
-            }
-        }
-
-        &.clickable.extensions {
-            .size(@height: auto);
-        }
-
-        input[type='number'] {
-            &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
-                 -webkit-appearance: none;
-            }
-        }
-
-        .inputWrap {
-            .position(relative);
-
-            input {
-                padding: 0 22px;
-
-                // &:focus {
-                //     & ~ .iconWrapper {
-                //         visibility: visible;
-                //         opacity: 1;
-                //     }
-                // }
-            }
-
-            .iconWrapper {
-                .size(@width: 18px, @height: 18px);
-                .position(absolute, @top: 1px, @right: 0);
-                .gray-gradient;
-                .rounded;
-                // visibility: hidden;
-                // opacity: 0;
-                // .transition(~"visibility 0s, opacity 0.5s");
-
-                &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                .icon {
-                    .size(100%, 100%);
-                    .image("../../images/checkmark.png", 50%, 50%);
-                }
-            }
-        }
-    }
-
-    input {
-        .size(@width: 160px, @height: 20px);
-        .font(@size: 12px, @line-height: 20px);
-        margin-left: -3px;
-        padding: 0 2px;
-        text-align: center;
-        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
-        background-color: @color-white;
-
-        &:focus {
-            outline: none;
-        }
-    }
-
-    .splitCol li, .window li {
-        .size(@height: 105px);
-    }
-
-    .divider {
-        border-top: 1px solid @color-border-lightLightGray;
-    }
-
-    .visible {
-        visibility: visible !important;
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    > .inputSelected {
-        background-color: @color-selectedCell-dark !important;
-    }
-
-    .inputSelected {
-        visibility: visible !important;
-        background-color: @color-selectedCell-green;
-    }
-
-    .filter ul {
-        .size(@width: 170px);
-        cursor: text;
-    }
-
-    .subMenu li.selected {
-        background-color: @color-selectedCell-green;
-    }
-
-    .changeDataType, .multiChangeDataType {
-        li.flexContainer {
-            height: 30px;
-            padding: 0;
-            // see common.less
-            .typeIcon;
-
-            .flexWrap.flex-left {
-                .flex(0 0 24px);
-                padding: 6px 5px;
-                position: relative;
-                height: 30px;
-                .gray-gradient;
-                overflow: hidden;
-
-            }
-            .flexWrap.flex-right {
-                .flex(1 1 auto);
-                padding: 6px 8px;
-            }
-        }
-    }
-
-    .sort, .aggregate, .groupBy, .filter {
-        span {
-            .size(@width: 24px, @height: 16px);
-            float: left;
-            display: inline-block;
-        }
-    }
-
-    .sort {
-        // indexed column cannot sort
-        .indexedColumn & {
-            display: none;
-        }
-        .sortUp {
-            .image("../../images/arrowUp.png", 0, 50%);
-        }
-        .sortDown {
-            .image("../../images/arrowDown.png", 0, 50%);
-        }
-        .tooltip {
-            display: none !important;
-        }
-    }
-
-    .multiColumn {
-        display: none;
-    }
-
-    .unhide {
-        display: none;
-    }
-
-    .roundToFixed {
-        display: none;
-    }
-
-    .splitCol {
-        display: none;
-    }
-
-    .window {
-        display: none;
-    }
-
-    .unavailable {
-        // pointer-events: none;
-        cursor: default !important;
-        .dropdownBox {
-            opacity: 0 !important;
-        }
-        ul {
-            display: none !important;
-        }
-        &.moveToWorksheet {
-            &+ .tooltip {
-                display: block !important;
-            }
-        }
-    }
-
-    .moveToWorksheet {
-        &+ .tooltip {
-            display: none !important;
-        }
-    }
-
-    &.type-integer, &.type-float, &.type-boolean {
-        .window {
-            display: block;
-        }
-    }
-
-    &.type-string {
-        .splitCol {
-            display: block;
-        }
-    }
-
-    &.type-multiColumn:not(.subMenu) {
-        li {
-            display: none !important;
-        }
-    }
-
-    &.type-multiColumn {
-        .multiColumn {
-            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType,
-            &.resizeColumns, &.extensions {
-                display: list-item !important;
-                li {
-                    display: list-item !important;
-                }
-            }
-
-        }
-
-        .multiTextAlign {
-            li {
-                display: list-item !important;
-                &.flexContainer {
-                    .flex-display !important;
-                }
-            }
-        }
-
-        &.type-hidden {
-            .unhideColumns {
-                display: list-item !important;
-            }
-            .hideColumns {
-                display: none !important;
-            }
-        }
-
-        &.type-object, &.type-array, &.type-undefined {
-            .multiColumn {
-                &.multiChangeDataType {
-                    display: none !important;
-                }
-            }
-        }
-
-        &.type-string.type-integer.type-float.type-boolean {
-            // case that no type to change
-            .multiColumn {
-                &.multiChangeDataType {
-                    display: none !important;
-                }
-            }
-        }
-
-        .multiColumn.roundToFixed, .multiColumn.format {
-            display: none;
-        }
-
-        &.type-integer, &.type-float {
-            .multiColumn.format {
-                display: list-item !important;
-            }
-        }
-        &.type-float {
-            .multiColumn.roundToFixed {
-                display: list-item !important;
-            }
-        }
-    }
-
-    &.type-string, &.type-array {
-        .aggregate {
-            display: none;
-        }
-        .type-string {
-            display: none;
-        }
-
-        .format {
-            display: none;
-        }
-    }
-
-    &.type-float {
-        .roundToFixed {
-            display: list-item;
-        }
-        .multiColumn.roundToFixed {
-            display: none;
-        }
-    }
-
-    &.type-emptyTable .map {
-        display: none !important;
-    }
-
-    &.type-object, &.type-newColumn, &.type-mixed,
-    &.recordNum, &.childOfArray, &.sortedArray {
-        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
-        .profile
-        {
-            display: none;
-        }
-    }
-
-    &.type-untitled { // when column head is editable for rename
-        .duplicate {
-            display: none;
-        }
-    }
-
-    &.type-undefined {
-        .sort, .aggregate, .groupby, .joinList, .operations,
-        .profile
-        {
-            display: none;
-        }
-    }
-
-    &.type-newColumn, &.type-undefined {
-        .operations, .map {
-            display: list-item;
-        }
-    }
-
-    &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
-    &.recordNum {
-        .changeDataType, .hPartition, .format, .roundToFixed, .extensions {
-            display: none;
-        }
-    }
-
-    &.childOfArray, &.sortedArray {
-        .changeDataType, .hPartition, .window, .splitCol , .extensions {
-            display: none;
-        }
-    }
-
-    &.type-object, &.childOfArray, &.sortedArray {
-        .functionsDivider {
-            display: none;
-        }
-    }
-
-    &.type-boolean {
-        .type-boolean {
-            display: none;
-        }
-    }
-
-    &.type-data {
-        .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn,
-        .deleteDuplicates, .duplicate, .rename, .map, .operations,
-        .changeDataType, .profile, .divider, .format, .roundToFixed ,
-        .extensions {
-            display: none;
-        }
-    }
-
-    &.type-hidden {
-        .hide {
-            display: none;
-        }
-        .unhide {
-            display: list-item;
-        }
-    }
-
-    .tdDropdown {
-        display: none;
-    }
-
-    &.tdMenu {
-        &.long {
-            width: 195px;
-        }
-
-        .thDropdown {
-            display: none !important;
-        }
-
-        .tdDropdown {
-            display: list-item;
-        }
-    }
-}
-
-//scrollable list styling
-.menu, .list {
-    overflow: hidden;
-    ul {
-       overflow: auto;
-       &::-webkit-scrollbar {
-            display: none;
-       }
-    }
-    .scrollArea {
-        position: absolute;
-        width: 100%;
-        height: 14px;
-        background-color: rgba(100,100,100,0.1);
-        opacity: 0;
-        z-index: 1;
-        left: 0;
-        .transition(opacity 0.4s ease-in-out 0s);
-
-        &.active {
-            opacity: 1;
-            .transition(opacity 0.4s ease-in-out 0s);
-        }
-
-        &.mouseover {
-            opacity: 1;
-            .arrow {
-                opacity: 1;
-            }
-        }
-
-        &.stopped {
-            display: none !important;
-        }
-
-        .arrow {
-            width: 20px;
-            margin: 0 auto;
-            height: 14px;
-            pointer-events: initial;
-            opacity: 0.4;
-        }
-
-        &.top {
-            top: 0;
-            .arrow {
-                .image("../../images/arrow-up-gray-flat.png", 50%, 40%);
-            }
-
-        }
-        &.bottom {
-            bottom: 0;
-            .arrow {
-                .image("../../images/arrow-down-gray-flat.png", 50%, 60%);
-            }
-        }
-    }
-}
-
-// styling common to menus and lists
-.menu, .list {
-    .sectionLabel {
-        height: 16px;
-        line-height: 14px;
-        font-weight: 600;
-        font-size: 11px;
-        padding-left: 8px;
-        padding-right: 8px;
-        border-bottom: 1px solid @color-border-lightLightGray;
-        border-top: 1px solid @color-border-lightLightGray;
-        background-color: @color-background-listSectionGray !important;
-        color: @color-text-softGray;
-        .textOverflowOneLine;
-    }
-
-    li {
-        .textOverflowOneLine;
-    }
-}
-
-.subMenu {
-    &.left {
-        margin-left: -325px;
-
-        .subMenuArea {
-            right: 0;
-            left: auto;
-        }
-    }
-}
-
-.moveToWorksheet, .dupToWorksheet {
-    li {
-       overflow: visible;
-    }
-    .dropDownList {
-        .size(@width: 100%, @height: 30px);
-        .position(relative);
-        box-shadow: none;
-        background-color: transparent;
-
-        .list {
-            .size(@width: 160px, @height: 20px);
-            .position(absolute, @top: 20px, @left: -3px);
-            margin: 0;
-            visibility: visible !important;
-            display: none;
-        }
-    }
-}
-
-ul.menu.leftColMenu::before {
-    border-color: @color-selectedCell-dark @color-selectedCell-dark;
-}
-
-.subMenu li {
-    &.subColUnselected {
-        background-color: @color-white;
-    }
-    &.subColSelected {
-        background-color: @color-selectedCell-dark;
-    }
-}
-
-.subMenuArea {
-    .position(absolute, @top: -30px, @left: 14px);
-    .size(@width: ~"calc(100% + 30px)", @height: ~"calc(100% + 60px)");
-    z-index: -1;
-    cursor: default;
-}
-
-.leftColMenu .subMenuArea {
-    .position(@right: 0, @left: auto);
-}
-
-ul.leftColMenu {
-    .position(@right: 0);
-    box-shadow: -1px 1px @color-menu-shadow;
-
-    .dropdownBox {
-        display: none !important;
-    }
-}
-
-ul.subMenu.leftColMenu {
-    .position(@left: -170px);
-    margin-top: 0px;
-    box-shadow: -1px 1px @color-menu-shadow;
-}
-
-
-ul.inputMenu {
-    > li {
-        .size(@height: auto, @min-height: 30px);
-        overflow: hidden;
-        padding: 0px;
-        margin: 0px;
-
-        span {
-            .position(relative);
-            .size(@height: 30px);
-            .box-sizing;
-            display: block;
-            padding: 8px 6px 6px 6px;
-            background-color: @color-white;
-            z-index: 1;
-            .transition (margin-bottom .3s);
-
-            &.openMenuInput {
-                margin-bottom: 30px;
-            }
-        }
-
-        .dropdownBox {
-            .position(@top: 15px);
-            z-index: 1;
-        }
-    }
-
-    &:hover ul {
-        visibility: visible;
-    }
-
-    input[type=text] {
-        .position(absolute, @top: 31px, @left: 0);
-        .size(@width: 160px, @height: 24px);
-        margin: 0px 5px;
-        z-index: 0;
-
-        &:focus {
-            outline: none;
-        }
-    }
-}
-/* END DROPDOWN STYLING */
-
- /* ========== Menu Related CSS ========== */
-
- /* Top Menu Bar  */
-#menuBar {
-    .size(@width: 100%, @height: 41px);
-    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
-    position: relative;
-    // z-index: 14; // removed because necessary for intro and doesnt seem to be needed
-}
-
-#workbookBtn {
-    .position(relative, @top: 30%);
-    float: left;
-    margin-left: 10px;
-    box-shadow: -2px 2px 0px 0px @color-shadow-strong;
-    .rounded;
-
-    .icon {
-        .size(100%, 100%);
-        .image("../../images/workbookBtn.png", 50%, 50%);
-        background-size: 18px 17px;
-    }
-}
-
-#mainMenu {
-    .size(@height: 41px);
-    float: left;
-    margin-left: 10px;
-    display: inline-block;
-
-    .topMenuBarTab {
-        .position(relative);
-        .size(@height: 32px);
-        margin: 4px 10px 0px 0px;
-        padding: 5px 25px 0px 34px;
-        border: 1px solid @color-tab-border;
-        .rounded;
+/* =========== TOP RIGHT CORNER =========== */
+#userBox {
+    .size(@width: @width-userBox, @height: @height-homeBtn);
+    background-color: @color-bg-topBarGray;
+    .position(fixed, @top: 0, @right: 0);
+    z-index: @z-index-topBar + 1;
+    padding-right: 15px;
+    padding-left: 5px;
+
+   > button {
         display: inline-block;
-        background-color: @color-tab-shadow;
-        .font(@size: 14px, @family: @font-base, @color: @color-text-tab);
-        float: left;
-        cursor: default;
-        white-space: nowrap;
-        .noSelection;
-        .transition(~"background-color 0.1s, color 0.1s, border-color 0.1s");
-
-        &:hover, &.hover {
-            background-color: @color-tab-hover;
-            color: @color-white;
-            border: 1px solid @color-table-borderGray;
-            .icon {
-                opacity: 1;
-            }
-        }
-
-        &.active {
-            .position(relative);
-            .size(@height: 35px);
-            margin-top: 6px;
-            color: @color-text-darkGray;
-            .lightGray-gradient;
-            border: 1px solid @color-bar-border;
-            border-bottom: none;
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 0px;
-            z-index: 14;
-            .transition(all 0s);
-            .icon {
-                opacity: 1;
-            }
-        }
-
-        &#monitorTab {
-            padding-left: 31px;
-        }
-
-        .icon {
-            .position(absolute);
-            .size(24px, 24px);
-            margin: 1px 0 0 -27px;
-            display: inline-block;
-            .transition(opacity 0.1s);
-            opacity: 0.4;
-        }
-
-        .mountain-icon {
-            .image("../../images/topMenuBarTab/mountain.png");
-        }
-
-        .page-icon {
-            .image("../../images/topMenuBarTab/page.png");
-            margin-top: 0px;
-        }
-
-        .db-icon {
-            .image("../../images/topMenuBarTab/db-icon.png");
-        }
-
-        .monitor-icon {
-            .image("../../images/topMenuBarTab/monitor.png");
-            margin-left: -24px;
-        }
-
-        .scheduler-icon {
-            .image("../../images/topMenuBarTab/scheduler-icon.png");
-            margin-top: 0px;
-        }
-
-        .extension-icon {
-            .image("../../images/topMenuBarTab/extension.png");
-            margin-top: -1px;
-        }
-    }
-
-    @media screen and (max-width: 1024px) {
-        .topMenuBarTab {
-            padding: 5px 10px 0px 30px;
-            margin-right: 7px;
-            #monitorTab {
-                padding-left: 27px;
-            }
-        }
-    }
-}
-
-#logo {
-    .size(@width: 74px, @height: 34px);
-    margin: 5px 10px 0 0;
-    .image("../../images/logo/xcalar-white-sm.png");
-    float: right;
-    display: inline-block;
-    @media screen and (max-width: 1024px) {
-        margin-right: 0px;
+        float: right;
+        .vertical-align;
     }
 }
 
 #userNameArea {
-    .font(@weight: 400, @color: @color-text-white);
-    float: right;
-    margin: 10px 25px 0 0;
-    display: inline-block;
-    max-width: ~"calc(100% - 860px)";
-    overflow: hidden;
-    white-space: nowrap;
+    margin-left: 5px;
+}
 
-    @media screen and (max-width: 1024px) {
-        max-width: ~"calc(100% - 725px)";
-        margin-right: 16px;
+#userMenu {
+    .size(@width: 100px);
+    text-align: center;
+    z-index: @z-index-useMenu;
+}
+
+#userName {
+    cursor: default;
+}
+
+#autoSaveBtn {
+    &.unsave {
+        .dot {
+            display: block;
+        }
     }
 
-    .text {
-        color: @color-text-topAction;
-        .textOverflowOneLine;
-        display: inline-block;
-        vertical-align: bottom;
-        max-width: ~"calc(100% - 65px)";
+    .rounded;
+    background-color: @color-bg-gold;
+    overflow: visible;
+
+    .icon {
+        .position(relative, @top: -1px);
     }
 
-    #signout {
-        display: inline-block;
-        width: 55px;
-        color: @color-text-signout-blue;
-        cursor: pointer;
-        .textOverflowOneLine
+    .dot {
+        display: none;
+        .size(8px, 8px);
+        .position(absolute, @top: -2px, @left: -1px);
+        .rounded(100%);
+        background-color: @color-bg-select-blue;
     }
 }
- /* End Of Top Menu Bar  */
+/* =========== END TOP RIGHT CORNER =========== */
 
 /* Bottom Section */
-#bottomArea {
-    .position(absolute, @bottom: 0);
-    .size(@width: 100%);
-    z-index: 21; // in front of right side bar
-    .noSelection;
-}
 
-#worksheetBar {
-    .size(@height: 35px);
-    border-top: 2px solid @color-bar-border;
-    box-shadow: 0px 1px 1px 0px @color-bar-shadowDark;
-    overflow: hidden;
-    .lightGray-gradient;
+#statusBar {
+    .position(absolute, @bottom: 0);
+    .size(@width: @width-mainPanel, @height: @height-bottomBar);
+    margin-left:  @width-sideMenuMinimized + @width-menuBar;
+    overflow-x: hidden;
+    background-color: @color-bg-topBarGray;
+    .noSelection;
+    z-index: @z-index-statusBar;
+    .transition(0.2s all); // for main menu animation
 
     .workspaceArea {
         .size(@height: 15px);
         .font(@size: 13px, @line-height: 13px);
-        margin-top: 8px;
+        margin-top: (@height-bottomBar - 15px) / 2;
         overflow: hidden;
         cursor: default;
         .flex(0 0 auto);
@@ -1756,12 +477,39 @@ ul.inputMenu {
             font-weight: bold;
         }
 
-        .icon {
+        .close {
             float: left;
-            .size(@width: 20px);
-            .image("../../images/close-icon.png", 50%, 50%);
-            cursor: pointer;
-            margin-left: 4px;
+            .size(@width: 20px, @height: 15px);
+            margin-left: 5px;
+            display: inline-block;
+            color: @color-font-greyish-brown;
+            font-size: 11px;
+            .position(relative, @top: 5px);
+        }
+
+        .menuIcon {
+            .size(@width: 20px, @height: 15px);
+            padding-left: 5px;
+            display: inline-block;
+            .position(relative, @top: 3px);
+
+            .icon {
+                .size(@width: 7px, @height: 7px);
+                display: block;
+                color: @color-font-greyish-brown;
+            }
+        }
+    }
+
+    #pageStatusMenu {
+        li {
+            line-height: 18px;
+        }
+
+        .icon {
+            display: inline-block;
+            float: right;
+            font-size: 18px;
         }
     }
 
@@ -1777,6 +525,168 @@ ul.inputMenu {
             width: 30px;
 
         }
+    }
+}
+
+#dfgPanelSwitch {
+    .position(absolute, @right: 5px, @bottom: 2px);
+    .size(29px, 29px);
+    z-index: @z-index-statusBar + 1;
+}
+
+
+#worksheetInfo {
+    .size(@width: ~"calc(100% - 40px)", @height: 100%);
+    float: left;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    .flex-display;
+}
+
+/* For Both worksheet menu bar and status bar */
+.workspaceArea {
+    .size(@height: 25px);
+    display: inline-block;
+    padding: 0px 14px;
+    margin-top: 5px;
+    border-right: 1px solid @color-tab-divider;
+    float: left;
+    line-height: 25px;
+
+    &:last-child {
+        border-right: none;
+    }
+}
+
+/* End Of Bottom Section */
+
+
+.unavailable {
+    // For features that haven't been implemented yet
+    opacity: 0.4;
+}
+
+/* Flex Styling */
+.flexContainer {
+    .flex-display;
+
+    &.flexRow {
+        .flex-flow(row);
+    }
+
+    .flexWrap {
+        &.flex-left {
+            .flex-order(1);
+        }
+        &.flex-mid {
+            .flex-order(2);
+        }
+        &.flex-right {
+            .flex-order(3);
+        }
+    }
+}
+
+.fullOpacity {
+    opacity: 1.0 !important;
+}
+
+.visible {
+    visibility: visible;
+}
+
+
+.btnInProgress {
+    opacity: 0.7;
+    pointer-events: none;
+    cursor: wait;
+
+    .text {
+        float: none;
+    }
+
+    .animatedEllipsis {
+        float: none;
+        vertical-align: bottom;
+
+        > div {
+            margin-left: 1px;
+        }
+    }
+}
+
+.rangeSlider {
+    display: inline-block;
+    .size(@width: 200px, @height: 30px);
+    position: relative;
+    .leftArea, .rightArea {
+        .position(absolute, @top: 10px, @left: 0);
+        .size(@width: 100%; @height: 10px);
+        .rounded(2px);
+    }
+    .leftArea {
+        z-index: 1;
+        background-color: @color-bg-softBlue
+    }
+    .rightArea {
+        background-color: @color-bg-pinkish-grey2;
+    }
+    .slider {
+        .size(@width: 15px, @height: 25px);
+        .position(absolute, @top: -7px, @right: 0);
+       background-color: @color-bg-pinkish-grey;
+       .rounded;
+
+    }
+    .ui-resizable-e {
+        top: -7px;
+        right: 0px;
+        height:25px;
+    }
+}
+
+input {
+    .size(@height: 30px);
+    line-height: 30px;
+    padding: 0 4px;
+    background-color: @color-white;
+
+    &:-ms-input-placeholder {
+        color: @color-lightSilverChalice;
+    }
+    &::-webkit-input-placeholder {
+        color: @color-lightSilverChalice;
+    }
+    &[type=number] {
+        -moz-appearance: textfield;
+    }
+}
+
+.icon {
+    display: inline-block;
+    .noSelection;
+}
+
+.roundedIcon {
+    .size(19px, 19px);
+    float: right;
+    margin: 7px 6px 0 0 ;
+    background-color: @color-background-bottomGrayMed;
+    .rounded(1px);
+    box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+    cursor: pointer;
+}
+
+.underConstruction {
+    .size(@height: ~"calc(100% - 114px)");
+    background: @color-background-darkGray;
+    text-align: center;
+
+    .alert {
+        .size(28px, 28px);
+        margin: 50px auto 0 auto;
+        .image("../../images/info-icon-large.png");
     }
 }
 
@@ -1829,10 +739,11 @@ ul.inputMenu {
         .size(@height: 100%);
         float: left;
         display: inline-block;
+        white-space: nowrap;
     }
 
     .animatedEllipsis {
-        margin-left: 2px;
+        margin-left: 3px;
     }
 }
 
@@ -1846,6 +757,7 @@ ul.inputMenu {
 
     > div {
         display: inline;
+        margin-left: -1px;
     }
 }
 
@@ -1861,404 +773,13 @@ ul.inputMenu {
     }
 }
 
-#worksheetInfo {
-    .size(@width: ~"calc(100% - 180px)", @height: 100%);
-    float: left;
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    .flex-display;
-}
-
-.bottomButtonsArea {
-    float: right;
-    cursor: default;
-
-    .sliderBtn {
-        margin: 5px;
-
-        &.active {
-            .action-inverse-gradient;
-        }
-    }
-}
-
-#tableListBtn {
-    background-image: url(../../images/sidebar/tableList.png);
-}
-
-#sqlBtn {
-    background-image: url(../../images/sidebar/sql.png);
-}
-
-#udfBtn {
-    background-image: url(../../images/sidebar/udf.png);
-}
-
-#cliBtn {
-    background-image: url(../../images/sidebar/cli.png);
-}
-
-#scratchpadBtn {
-    background-image: url(../../images/pencil.png);
-}
-
-#infoBtn {
-    background-image: url(../../images/sidebar/help.png);
-}
-
-#bottomTabArea {
-    .size(@height: 39px);
-    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
-    // &:hover {
-    //     .inActive .wsIconWrap {
-    //         .transition(opacity 0.15s);
-    //         opacity: 0.1 !important;
-    //     }
-    // }
-}
-
-#addWorksheet {
-    display: inline-block;
-    margin: 8px 8px 0px 9px;
-    cursor: pointer;
-    float: left;
-
-    span {
-        .size(100%, 100%);
-        .image("../../images/plus-sign.png", 55%, 45%);
-        display: block;
-    }
-}
-
-#worksheetTabs {
-    .position(relative, @top: -1px);
-    .size(@width: ~"calc(100% - 40px)", @height: 36px);
-    .flex-display;
-    float: left;
-
-    .worksheetTab {
-        .size(@width: 201px, @height: 35px);
-        .position(relative, @top: ~"0px !important");
-        float: left;
-        .flex(0 0 201px);
-        margin-right: 10px;
-
-        &.transition {
-            display: block;
-            .flex(0 0 auto);
-        }
-
-        &.dragging {
-            pointer-events: none;
-            .label {
-                cursor: default;
-            }
-        }
-        .draggableArea {
-            float: left;
-            height: @height-colHeader;
-            width: ~"calc(100% - 28px)";
-            position: absolute;
-            left: 27px;
-            overflow: hidden;
-        }
-
-        .label {
-            .size(@width: ~"calc(100% - 30px)", @height: 100%);
-            .position(relative);
-            .darkGray-gradient;
-            display: inline-block;
-            float: left;
-            text-align: left;
-            border: 1px solid @color-bar-border;
-            border-top: none;
-            .rounded(0 0 0 3px);
-            .cursor-move;
-
-            .wsIconWrap {
-                .position(relative);
-                .size(@width: 25px, @height: 18px);
-                margin-left: 2px;
-                padding-right: 2px;
-                border-right: 1px solid @color-tab-divider;
-                display: inline-block;
-                float: left;
-                cursor: pointer;
-                .vertical-align;
-            }
-
-            .wsIcon {
-                .size(@width: 18px, @height: 23px);
-                margin-left: 2px;
-                margin-top: -3px;
-                .image("../../images/worksheet/wsMenu.png", 50%, 50%);
-                float: left;
-            }
-
-            .tooltip { // tooltip for worksheet name
-                top: -35px !important;
-                left: 50% !important;
-                .transform(translateX(-50%));
-                white-space: nowrap;
-            }
-
-            .text {
-                .size(@height: 21px);
-                .font(@weight: 700, @size: 14px, @line-height: 20px);
-                outline: none;
-                margin: 2px 2px;
-                padding: 0 3px;
-                white-space: nowrap;
-                line-height: 20px;
-                border: 1px solid transparent;
-                cursor: text;
-                background-color: transparent;
-
-                &:focus {
-                    border: 1px solid @color-malibu;
-                    box-shadow: inset 0 1px 2px 1px @color-shadow-medium;
-                    text-overflow: clip;
-                    width: ~"calc(100% - 6px)" !important;
-                }
-            }
-        }
-
-        &.focus {
-            .label {
-                cursor: initial;
-            }
-        }
-
-        .dagTab {
-            .size(@width: 30px, @height: 34px);
-            float: left;
-            display: inline-block;
-            margin-top: 1px;
-            cursor: pointer;
-            .noSelection;
-            border-bottom: 1px solid @color-bar-border;
-            border-right: 1px solid @color-bar-border;
-            .rounded(0 0 3px 0);
-            .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
-
-            .icon {
-                .size(100%, 100%);
-                .image("../../images/dagIcons/comp-icon.png", 50%, 50%);
-            }
-
-            &:hover {
-                .linear-gradient(top, @color-background-topGrayMed, @color-boulder);
-            }
-
-            &:active {
-                 box-shadow: inset 0px 1px 1px 0px @color-shadow-stronger;
-            }
-
-            &.active {
-                .action-gradient;
-                &:hover {
-                    .action-inverse-gradient;
-                }
-            }
-
-            & + .tooltip {
-                white-space: nowrap;
-            }
-
-            &.active + .tooltip {
-                display: none !important;
-            }
-        }
-
-        &.inActive {
-            .size (@width: 172px, @height: 28px);
-            .position(@top: ~"6px !important");
-            .noSelection;
-            .flex(0 1 auto);
-
-            .label {
-                background: rgba(0,0,0, .15);
-                border: 1px solid @color-tab-border;
-                color: @color-text-tab;
-                .size(@width: ~"calc(100% - 2px)");
-                .rounded;
-                cursor: pointer;
-                .transition(~"background 0.15s, border 0.15s");
-
-                .wsIconWrap {
-                    opacity: 0;
-                    .transition(opacity 0.15s);
-                }
-
-                .text {
-                    .size(@width: ~"calc(100% - 27px)") !important;
-                    min-width: 30px;
-                    text-align: center;
-                    pointer-events: none;
-                    margin: 2px 0;
-                    color: @color-text-tab;
-                    .transition(color 0.15s);
-                }
-            }
-
-            .dagTab {
-                display: none;
-            }
-
-            &:hover {
-                .label {
-                    // hover vs regular color scheme needs to be adjusted
-                    background-color: rgba(255,255,255,.15);
-                    border: 1px solid @color-table-borderGray;
-                    .wsIconWrap {
-                        opacity: 1 !important;
-                    }
-                    .text {
-                        color: @color-white;
-                    }
-                }
-            }
-            .label.hover {
-                background-color: rgba(255,255,255,.15);
-                color: @color-white;
-                border: 1px solid @color-table-borderGray;
-                .wsIconWrap {
-                    visibility: visible;
-                }
-                .text {
-                    color: @color-white;
-                }
-            }
-        }
-
-        &:not(.inActive) {
-            .label {
-                .tooltip {
-                    display: none !important;
-                }
-                .text {
-                    line-height: 20px;
-                    margin-top: 7px;
-                }
-            }
-            .draggableArea {
-                height: 100%;
-            }
-        }
-
-        &.locked {
-            .wsIconWrap {
-                pointer-events: none !important;
-                cursor: auto !important;
-                opacity: 0.5;
-            }
-        }
-    }
-}
-
-#hiddenWorksheetsTab {
-    display: none;
-    .size(@width: 60px, @height: 28px);
-    .position(absolute, @bottom: 6px, @right: 4px);
-    box-shadow: none;
-    background-color: transparent;
-
-    &:hover {
-        .mainTab {
-            // hover vs regular color scheme needs to be adjusted
-            background-color: rgba(255,255,255,.15);
-            color: @color-white;
-            border: 1px solid @color-table-borderGray;
-        }
-    }
-
-    .mainTab {
-        .size(@width: 60px, @height: 28px);
-        background: rgba(0,0,0, .15);
-        border: 1px solid @color-tab-border;
-        color: @color-text-tab;
-        .rounded;
-        text-align: center;
-        .textOverflowOneLine;
-    }
-
-    .list {
-        bottom: 28px;
-        right: 0px;
-        width: 180px;
-        left: auto;
-        display: block;
-        font-size: 13px;
-        border-radius: 3px 3px 0 3px;
-        display: none;
-    }
-    li {
-        height: 25px;
-        line-height: 25px;
-        padding: 0px 5px;
-    }
-    .divider {
-        border-top: 1px solid @color-border-lightLightGray;
-    }
-    .icon {
-        .image("../../images/worksheet/hidden-ws.png", 2px, 6px);
-        .size(@width:20px, @height:100%);
-        float: left;
-    }
-    .unhideAll {
-        position: relative;
-        .icon:last-child {
-            position: absolute;
-            left: 7px;
-            top: 2px;
-        }
-    }
-}
-
-#bottomTabArea.hasHiddenWS {
-    #worksheetTabs {
-        width: ~"calc(100% - 110px)";
-    }
-    #hiddenWorksheetsTab {
-        display: inline-block;
-    }
-}
-
-#worksheetTabMenu {
-    width: 130px;
-    border-radius: 3px;
-    overflow: visible;
-    ul {
-        overflow: hidden;
-        .rounded;
-    }
-    li {
-        height: 25px;
-        line-height: 25px;
-        padding: 0 6px;
-    }
-    &:after {
-        top: 100%;
-        left: 8px;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        border-top-color: @color-white;
-        border-width: 5px;
-    }
-}
-/* End Of Bottom Section */
-
 /* Search Inputs */
 
 .searchbarArea {
     .counter {
-        .position(absolute, @top: 5px, @right: 77px);
+        .position(absolute, @top: 5px, @right: 79px);
         .size (@height: 30px);
-        .font(@color: @color-text-graySoft, @size: 13px);
+        .font(@color: @color-text-graySoft, @size: 12px);
         pointer-events: none;
     }
 
@@ -2268,33 +789,37 @@ ul.inputMenu {
         right: 0px;
 
         > div {
-            .size(14px, 11px);
+            .size(24px, 24px);
             display: inline-block;
             float: left;
         }
 
         .iconWrap {
-            .size(19px, 19px);
-            .position(absolute, @top: 5px, @right: 4px);
-            .rounded;
-            .gray-gradient;
+            .size(24px, 24px);
+            .position(absolute, @top: 2px, @right: 4px);
             cursor: pointer;
-            box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.5);
-                &:hover {
-                .gray-inverse-gradient;
+            text-align: center;
+            background-color: @color-bg-dusk-blue-up;
+            line-height: 24px;
+
+            &:hover {
+                background-color: @color-bg-dusk-blue;
             }
         }
         .upArrow {
-            right: 28px;
+            right: 30px;
         }
         .icon {
-            .size(19px, 19px);
+            font-size: 12px;
         }
-        .upArrow .icon {
-            .image("../../images/arrow-up-thin.png", 50%, 50%);
+        .upArrow {
+            line-height: 23px;
+            .icon {
+
+            }
         }
         .downArrow .icon {
-            .image("../../images/arrow-down-thin.png", 50%, 55%);
+            margin-left: 2px;
         }
     }
 }
@@ -2312,7 +837,6 @@ ul.inputMenu {
         .position(relative);
         .size(@width: 185px, @min-height: 100px, @max-height: 300px);
         padding: 7px;
-        .rounded;
         box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
         background-color: @color-background-white;
         z-index: 3;
@@ -2335,24 +859,27 @@ ul.inputMenu {
     }
 
     .close {
-        .position(absolute, @top: 7px, @right: 7px);
+        .position(absolute, @top: 10px, @right: 7px);
         .size(14px, 14px);
-        .image("../../images/close-gray.png", 50%, 50%);
         display: inline-block;
-        cursor: pointer;
+        color: @color-font-greyish-brown;
     }
+
     .title {
-        .size(@height: 24px);
+        .size(@height: 15px);
+        margin-bottom: 10px;
         font-weight: bold;
         .icon {
-            .size(20px, 20px);
+            display: inline-block;
+            .size(20px, 15px);
             margin-right: 6px;
             float: left;
         }
+
         .titleText {
-            margin-top: 3px;
+            display: inline-block;
             float: left;
-            .font(@size: 14px, @line-height: 16px);
+            .font(@size: 14px, @line-height: 15px);
         }
     }
 
@@ -2373,7 +900,7 @@ ul.inputMenu {
 
         .title {
             .icon {
-                .image("../../images/error-blue-icon.png", 50%, 50%);
+                color: @color-text-blue;
             }
             .titleText {
                 color: @color-text-blue;
@@ -2388,7 +915,7 @@ ul.inputMenu {
 
         .title {
             .icon {
-                .image("../../images/error-icon.png", 50%, 50%);
+                color: @color-text-error;
             }
             .titleText {
                 color: @color-text-error;
@@ -2512,54 +1039,70 @@ ul.inputMenu {
     position: absolute;
     z-index:1000;
     font-weight: bold;
-    height: ~"calc(50% + 50px)";
+    height: ~"calc(50% + 55px)";
     text-align: center;
-    width: 330px;
+    width: 410px;
     overflow: hidden;
     display: none;
     pointer-events: none;
+    padding-left: 5px;
 
     .checkMark {
         .size(60px, 60px);
         border-radius: 100%;
-        .image("../../images/tick-xlarge.png", 50%, 50%, no-repeat, @color-successMsg-Blue);
         display: inline-block;
-        left: 135px;
+        left: 170px;
         position: absolute;
-        bottom: 98px;
+        bottom: 185px;
         z-index: 1;
-
+        .icon {
+            font-size: 50px;
+        }
         &.hidden {
             bottom: 120%;
             .transition(bottom 0.4s ease-out);
         }
     }
 
+    @boxHeight: 270px;
     .successMessage {
-        height: 180px;
-        width: 330px;
-        padding: 5px;
+        height: @boxHeight;
+        width: 400px;
         position: absolute;
-        bottom: 0px;
-        .transition(bottom 0.3s);
+        bottom: 5px;
+        .transition(bottom 0.6s);
         &.hidden {
-            bottom: -200px;
+            bottom: -400px;
         }
+        background-color: @color-sql-lightGreen;
+        box-shadow: 0px 1px 4px 0px @color-textBox-shadow;
     }
+
     .textBox {
-        box-shadow: 0px 1px 5px 0px @color-textBox-shadow;
-        height: 100%;
+        @marginTop: 150px;
+        height: @boxHeight - @marginTop;
         width: 100%;
         color: @color-successMsg-Gray;
-        background-color: @color-textBox-whitish;
-        .rounded(5px);
-        padding-top: 74px;
+        background-color: @color-white;
+        margin-top: @marginTop; 
+        padding-top: 45px;
+        .font(@size: 18px, @weight: 300, @color: @color-font-greyish-brown);
+
     }
+    
     .largeText {
-        font-size: 30px;
-        color: @color-successMsg-Blue;
+        height: 270px;
+        width: 400px;
+        position: absolute;
+        bottom: 0px;
+        .font(@size: 40px, @color: @color-white, @weight: 500);
+        z-index: 2;
+        padding-top: 85px;
         display: block;
-        margin-bottom: 7px;
+        .transition(bottom 0.6s);
+        &.hidden {
+            bottom: -400px;
+        }
     }
 
     .animated {
@@ -2772,13 +1315,14 @@ ul.inputMenu {
     }
 }
 
-.qMark {
-    .size(14px, 14px);
-    .image("../../images/qMark.png", 50%, 50%);
-    display: inline-block;
+i.qMark {
+    .size(12px, 12px);
+    background: @color-bg-select-blue;
+    border-radius: 100%;
+    font-size: 7px;
+    line-height: 12px;
+    text-align: center;
 }
-
-
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
@@ -2842,7 +1386,6 @@ input[type=number]::-webkit-outer-spin-button {
     text-align: center;
     text-decoration: none;
     background-color: @color-black;
-    border-radius: 4px;
 }
 .tooltip-arrow {
     position: absolute;
@@ -2916,8 +1459,10 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tooltip-inner {
-    background-color: @color-limedSpruce;
+    background-color: @color-bg-charcoal-grey;
     opacity: 0.95;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 .tooltip.bottom .tooltip-arrow {
@@ -2945,8 +1490,7 @@ input[type=number]::-webkit-outer-spin-button {
 
     .tooltip-arrow {
         background-color: transparent !important;
-        // border-top-color: @color-error-border;
-        border-left-color: #FDB8B8;
+        border-left-color: @color-error-border;
     }
 
     .tooltip-inner {
@@ -2957,7 +1501,7 @@ input[type=number]::-webkit-outer-spin-button {
 
     &.top {
         .tooltip-arrow {
-            border-top-color: #FDB8B8;
+            border-top-color: @color-error-border;
             border-left-color: transparent;
         }
     }
@@ -3040,6 +1584,20 @@ body.tooltipOff {
 }
 
 /* CodeMirror linewidget */
+#udf-fnSection {
+    .cm-tab {
+        position: relative;
+        &::after {
+            content: "";
+            display: block;
+            .position(absolute, @top: 9px, @left: 1px);
+            width: 90%;
+            height: 1px;
+            background-color: @color-background-udfError;
+        }
+    }
+}
+
 .lint-error {
     background: @color-background-udfError;
     padding: 2px 5px 3px;
@@ -3131,7 +1689,7 @@ body.tooltipOff {
         .font(@line-height: 30px);
 
         .ui-datepicker-prev, .ui-datepicker-next {
-            .position(absolute, @top: 7px);
+            .position(absolute, @top: 0px);
             cursor: pointer;
 
             span {
@@ -3140,34 +1698,54 @@ body.tooltipOff {
 
             &.ui-state-disabled {
                 pointer-events: none;
-                opacity: 0.5;
+                opacity: @opacity-disabled;
+            }
+        }
+
+        .ui-datepicker-prev, .ui-datepicker-next {
+            font-family: 'icomoon' !important;
+            speak: none;
+            font-style: normal;
+            font-weight: normal;
+            text-transform: normal;
+            font-variant: normal;
+            line-height: 1;
+            font-size: 12px;
+            line-height: 18px;
+            /* Better Font Rendering =========== */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: @color-white;
+            opacity: @opacity-unhover;
+            .size(30px, 30px);
+            text-align: center;
+            padding-top: 7px;
+            .box-sizing;
+
+            &:hover {
+                opacity: @opacity-hover
             }
         }
 
         .ui-datepicker-prev {
-            .position(@left: 20px);
-            .size(0, 0);
-            // trick to make left arrow
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-right: 11px solid @color-bostonBlue;
-            .rounded;
+            .position(@left: 10px);
+            &:before {
+              content: "\e927";
+            }
         }
 
         .ui-datepicker-next {
-            .position(@right: 20px);
-            .size(0, 0);
-            // trick to make right arrow
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-left: 11px solid @color-bostonBlue;
-            .rounded;
+            .position(@right: 10px);
+            &:before {
+              content: "\e926";
+            }
         }
 
         .ui-datepicker-title {
             // .size(@width: 70%);
             text-align: center;
-            .font(@size: 13px, @weight: bold, @color: @color-text-blue);
+            .font(@size: 13px, @weight: bold, @color: white);
+            background-color: @color-bg-select-blue;
             text-transform: uppercase;
         }
     }
@@ -3203,7 +1781,7 @@ body.tooltipOff {
             }
 
             &.ui-datepicker-current-day  {
-                .action-gradient;
+                background: @color-bg-select-blue;
 
                 span, a {
                     color: @color-white;
@@ -3225,21 +1803,10 @@ body.tooltipOff {
 
 // styling for small screen sizes below 1024px
 @media screen and (max-width: 1024px) {
-    #worksheetBar .workspaceArea:first-child {
+    #statusBar .workspaceArea:first-child {
         display: none;
     }
     #datastorePanel {
-        #contentHeaderLeft {
-            .flex(0 0 200px);
-            .buttonArea {
-                .flex(1 1 100px);
-                width: 100%;
-            }
-        }
-        #contentHeaderRight {
-            .flex(0 0 25%);
-        }
-
         .contentViewLeft {
             width: 200px !important;
             .mainButtonArea .btn {
@@ -3295,7 +1862,7 @@ body.tooltipOff {
             }
         }
 
-        #exportView  {
+        #datastore-out-view  {
             .contentViewMid {
                 width: ~"calc(100% - 200px)" !important;
                 min-width: 0px;

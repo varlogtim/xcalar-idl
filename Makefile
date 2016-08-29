@@ -15,11 +15,9 @@ all: generateHtml build alert
 
 installer: generateHtml build removeConfig
 
-xi2: generateHtml newUI
-
 render: generateHtml
 
-trunk: generateHtml thriftSync newUI removeConfig thriftAlert
+trunk: generateHtml thriftSync removeConfig thriftAlert
 
 $(DESTDIR):
 	@mkdir -p $@
@@ -34,29 +32,7 @@ build: $(DESTDIR) generateHtml
 	@echo "=== Compile Less ==="
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/login.less > prod/assets/stylesheets/css/login.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/style.less > prod/assets/stylesheets/css/style.css
-	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
-	@rm -rf $(DESTDIR)/prod/assets/dev
-	@echo "=== Minifying ==="
-	@cd $(DESTDIR)/prod/assets/python && python getHashTags.py
-	cd $(DESTDIR) && ./prod/assets/bin/MINIFY.sh
-	export GIT_DIR=`pwd`/.git && cd $(DESTDIR) && ./prod/assets/bin/autoGenFiles.sh
-	@echo "=== Running python build.py ==="
-	@cd $(DESTDIR) && python prod/assets/python/build.py
-	cd $(DESTDIR) && chmod -R 777 $(DESTDIR)/prod/*
-	@echo "=== Done building ==="
-
-newUI: $(DESTDIR) generateHtml
-	@echo "=== Removing old prod folder if any ==="
-	@rm -rf xcalar-gui
-	@rm -rf prod
-	@echo "=== Creating new prod folder ==="
-	@mkdir -p $(DESTDIR)/prod
-	@rsync -a * $(DESTDIR)/prod --exclude prod --exclude node_modules
-	@echo "=== Compile Less ==="
-	mkdir -p $(DESTDIR)/prod/assets/newStylesheets/css
-	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/login.less > prod/assets/newStylesheets/css/login.css
-	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/style.less > prod/assets/newStylesheets/css/style.css
-	cd $(DESTDIR) && lessc prod/assets/newStylesheets/less/installer.less > prod/assets/newStylesheets/css/installer.css
+	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/installer.less > prod/assets/stylesheets/css/installer.css
 	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
 	@rm -rf $(DESTDIR)/prod/assets/dev
 	@echo "=== Minifying ==="

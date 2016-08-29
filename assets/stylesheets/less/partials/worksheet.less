@@ -1,19 +1,19 @@
 #watermark {
-    .position(absolute, @bottom: 100px, @left: 15px);
+    .position(absolute, @bottom: 60px, @left: 75px);
     .size(@width: 579px, @height: 253px);
     .image("../../images/logo/xcalar-white-lg.png", 0, -70px);
     background-size: 100%;
     z-index: -1;
-    opacity: 0.05;
+    opacity: 0.4;
 }
 
 #insight {
-    .position(absolute, @bottom: 89px, @left: 238px);
+    .position(absolute, @bottom: 49px, @left: 298px);
     .size(243px, 79px);
     .image("../../images/logo/insight-lg.png");
     background-size: 100%;
     z-index: -1;
-    opacity: 0.15;
+    opacity: 0.35;
 }
 
 /* DRAG AND DROP TABLES */
@@ -48,13 +48,13 @@
 #shadowDiv {
     .position(absolute);
     background-color: @color-table-midGray;
-    z-index: 11;
+    z-index: @z-index-firstColumn - 1;
     opacity: 1;
     margin-top: 5px;
 }
 
 #fauxCol{
-    .position(absolute, @top: 114px);
+    .position(absolute, @top: @height-homeBtn + 40px);
     background-color: @color-white;
     z-index: 12;
     opacity: 0.7;
@@ -81,16 +81,12 @@
         border-right: none !important;
     }
     &.selectedCol {
-        .header .flexContainer{
-            .action-gradient;
+        .header .flexContainer {
+            background: @color-bg-select-blue;
 
             .editableHead {
                 color: @color-white !important;
                 text-overflow: clip;
-            }
-
-            .flexWrap.flex-left {
-                .colIcon-active-gradient();
             }
         }
 
@@ -130,7 +126,7 @@
     tr {
         &:nth-child(odd) {
             td {
-                &.indexedColumn {
+                &.indexedColumn:not(.noIndexStyle) {
                     background-color: @color-table-indexed-lightBlue !important;
                 }
                 &.jsonElement, &.dataCol {
@@ -141,7 +137,7 @@
         }
         &:nth-child(even) {
             td {
-                &.indexedColumn {
+                &.indexedColumn:not(.noIndexStyle) {
                     background-color: @color-table-indexed-blue !important;
                 }
                 &.jsonElement, &.dataCol {
@@ -154,11 +150,11 @@
 
 .dragArea {
     .position(absolute, @top: -5px, @left: 0);
-    .size(@width: 100%, @height: 45px);
+    .size(@width: 100%, @height: @height-xcColHeaderOuter + 1);
     .cursor-move;
     z-index: 2;
     .iconHelper {
-        .position(absolute, @top: 8px, @left: 2px);
+        .position(absolute, @top: @height-xcColPrefix, @left: 2px);
         .size(20px, @height-colHeader);
     }
 }
@@ -202,12 +198,15 @@
 
 /* ========== Work Sheet Bar ========== */
 #workspaceBar {
-    .position(relative, @top: -1px);
+    .position(relative);
     .flex-display;
-    z-index: 13;
+    width: @width-topBar;
+    text-transform: none;
+    padding-left: 10px;
 
     .workspaceArea {
         .flex-shrink(0);
+
         &:first-child {
             border-right: none;
             min-width: 53px;
@@ -215,383 +214,479 @@
     }
 }
 
-    #undoRedoArea {
-        padding: 0px;
+#undoRedoArea {
+    padding: 0px;
+    height: 100%;
+    margin-top: -2px;
+
+    > div {
         height: 100%;
-        margin-top: 0px;
+        width: 25px;
+        float: left;
+        cursor: pointer;
+        margin-right: 1px;
 
-        > div {
-            height: 100%;
-            width: 25px;
-            float: left;
-            cursor: pointer;
-            margin-right: 1px;
-
-            &.disabled {
-                opacity: 0.3;
-                cursor: not-allowed;
-            }
+        &.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
     }
-
-    #undo {
-         .image("../../images/undo-bright.png", 50%, 50%);
+    .columnPickerTip {
+        display: none;
     }
-    #redo {
-         .image("../../images/redo-bright.png", 50%, 50%);
+}
+
+#undo, #redo {
+    padding: 7px 0;
+    .icon {
+        color: @color-font-greyish-brown;
+        .vertical-align;
+        opacity: @opacity-unhover;
     }
-
-    #functionArea {
-        .flex(4 1 380px);
-        .flex-display;
-        max-width: ~"calc(100% - 400px)";
-        position: relative;
-        padding-left: 4px;
-        height: 37px;
-        padding-top: 5px;
-        margin-top: 0px;
-        border-right: none;
-
-        .label {
-            pointer-events: none;
+    &:hover {
+        .icon {
+            opacity: @opacity-hover;
         }
+    }
+}
 
-        &.searching {
-            .closeBox, .counter, .arrows {
-                display: inline-block;
-            }
-            #fnBar, .fnBarClone, .CodeMirror {
-                padding-right: 90px;
-            }
-            .fnbarPre {
-                span {
-                    color: @color-text-fnBar-blue;
+#container.columnPicker {
+    #undoRedoArea {
+        .columnPickerTip {
+            width: 50px;
+            .position(absolute, @top: 0, @left: 20px);
+            display: block;
+            cursor: not-allowed;
+        }
+    }
+    #undo, #redo {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+    
+}
+
+#functionArea {
+    .flex(4 1 380px);
+    .flex-display;
+    max-width: ~"calc(100% - 400px)";
+    position: relative;
+    padding-left: 4px;
+    height: 37px;
+    padding-top: 7px;
+    margin-top: 0px;
+    border-right: none;
+
+    label {
+        z-index: 1;
+        pointer-events: none;
+        position: absolute;
+        left: 9px;
+        top: 8px;
+        height: 30px;
+        width: 26px;
+        line-height: 30px;
+        padding-left: 7px;
+        padding-right: 7px;
+        background-color: #DDDDDD;
+
+        #funcBarMenuArea {
+            width: 28px;
+            .funcBarMode {
+                color: inherit;
+                &.searchMode {
+                    display: inline-block;
+                    padding-top: 1px;
+                    padding-left: 5px;
+                    font-size: 13px;
+                }
+                &.mapMode {
+                    display: none;
                 }
             }
         }
-        .counter {
-            .position(absolute, @top: 5px, @right: 68px);
-            .size (@height: 30px);
-            .font(@color: @color-text-graySoft, @size: 14px);
-            pointer-events: none;
-        }
 
-        .arrows {
-            right: 16px;
-            top: 3px;
-            z-index: 3; // codeMirror has z-index of 2
+        &:hover .innerBox {
+            opacity: 1.0;
         }
+    }
 
-        .closeBox, .counter, .arrows {
-            display: none;
+    &:not(.searching) {
+        .mapMode {
+            display: inline-block !important;
         }
-
-        .CodeMirror {
-            .size(@width: ~"calc(100% - 28px)") !important;
-            margin-left: 4px;
-            height: 25px !important;
-            padding: 0 4px;
-            font-weight: bold;
-            line-height: 25px;
-            font-size: 14px;
-            .rounded;
-            font-family: @font-base;
-            background-color: @color-input-background;
-            color: @color-text-darkGray;
-
-            &.active, &.inFocus {
-                background-color: @color-background-darkGray;
-                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-            }
-
-            &.CodeMirror-focused {
-                background-color: @color-input-active;
-                color: @color-text-fnBar-blue;
-                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-            }
-
-            &.disabled {
-                opacity: 0.7;
-                pointer-events: none;
-                background-color: @color-input-background;
-                .fnbarPre {
-                    color: @color-text-darkGray;
-                    span {
-                        color: @color-text-darkGray;
-                    }
-                }
-            }
-
-            pre {
-                padding-left: 0px;
-            }
-        }
-        .CodeMirror-gutter-wrapper {
-            display: none;
-        }
-        .CodeMirror-sizer {
-            border-width: 0px !important;
-            overflow: hidden;
-        }
-        .CodeMirror-scroll {
-            overflow: hidden !important;
-            margin-right: 0px;
-            margin-bottom: 0px;
-            padding-bottom:0px;
-        }
-        .CodeMirror-hscrollbar, .CodeMirror-vscrollbar {
+        .searchMode {
             display: none !important;
         }
-        .CodeMirror-gutters {
-            display: none;
-        }
-        .CodeMirror-cursor {
-            height: 19px !important;
-            top: 3px !important;
-        }
-        .CodeMirror-lines {
-            height: 25px;
-            padding: 0px;
-        }
-        .CodeMirror-selected {
-            height: 18px !important;
-            top: 4px !important;
-        }
-        .CodeMirror-selected { background:  @color-table-preview-highlight;}
-        .CodeMirror-focused .CodeMirror-selected { background:  @color-table-preview-highlight;}
-        .CodeMirror ::selection { background:  @color-table-preview-highlight;}
-        .CodeMirror ::-moz-selection { background:  @color-table-preview-highlight;}
-        .CodeMirror-placeholder {
-            pointer-events: none;
-            color: @color-lightSilverChalice;
-            display: none;
-        }
+    }
 
+    &.searching {
+        #fnBar, .fnBarClone, .CodeMirror {
+            padding-right: 100px;
+        }
         .fnbarPre {
-            color: @color-text-fnBar-blue;
-            &.CodeMirror-placeholder {
-                color: @color-lightSilverChalice;
+            span {
+                color: @color-text-fnBar-blue;
             }
-        }
-
-        &:not(.searching) {
-            .CodeMirror:not(.disabled) {
-                .cm-keyword {
-                    color: @color-text-fnBar-blue;
-                }
-                .cm-xckeyword {
-                    // color: orange;
-                }
-                .cm-xcspecial { // booleans and null
-                    color: @color-json-num;
-                }
-                .cm-string {
-                    color: @color-json-string;
-                }
-                .cm-backslash { // not actually a string
-                    color: @color-text-blue;
-                     &+ .cm-operator {
-                       color: @color-text-blue;
-                    }
-                }
-                .cm-number {
-                    color: @color-json-num;
-                }
-                .cm-bracket {
-                    color: @color-text-fnBar-blue;
-                }
-                .CodeMirror-nonmatchingbracket {
-                    color: red;
-                }
-                .cm-variable-2, .cm-error {
-                    color: @color-text-blue;
-                    &+ .cm-operator, &+ .cm-atom, &+ .cm-unknown {
-                       color: @color-text-blue;
-                    }
-                }
-                .cm-atom {
-                    color: @color-text-fnBar-blue;
-                }
-                .cm-comma {
-                    color: @color-text-darkGray !important;
-                }
-
-            }
-
         }
     }
 
-    #fnBar, .fnBarClone {
-        .size(@width: ~"calc(100% - 28px)");
+    .counter {
+        .position(absolute, @top: 9px, @right: 97px);
+        .size (@height: 30px);
+        .font(@color: @color-text-graySoft, @size: 14px);
+        pointer-events: none;
+    }
+
+    .arrows {
+        right: 38px;
+        top: 9px;
+        z-index: 3; // codeMirror has z-index of 2
+        .downArrow .icon {
+            margin-left: 0px;
+        }
+        .iconWrap {
+            background-color: @color-bg-99-grey;
+            opacity: @opacity-unhover;
+
+            &:hover {
+               opacity: @opacity-hover;
+            }
+        }
+    }
+
+    .closeBox, .counter, .arrows {
+        display: none;
+    }
+
+    .CodeMirror {
+        .size(@width: ~"calc(100% - 28px)") !important;
         margin-left: 4px;
+        height: 32px;
+        padding: 0px 4px 0px 40px;
+        font-weight: bold;
+        line-height: 32px;
+        font-size: 14px;
+        font-family: @font-base;
+        color: @color-text-darkGray;
+        background-color: @color-bg-white-nine;
+        border: 1px solid @color-border-pinkish-grey2;
+
         &.active, &.inFocus {
-            background-color: @color-background-darkGray;
-            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
+            background-color: @color-white;
+           
+        }
+
+        &.CodeMirror-focused {
+            background-color: @color-white;
+            color: @color-text-fnBar-blue; 
+            border: 1px solid @color-border-softBlue;
+            // box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
         }
 
         &.disabled {
             opacity: 0.7;
             pointer-events: none;
+            background-color: @color-input-background;
+            .fnbarPre, pre {
+                color: @color-text-darkGray;
+                span {
+                    color: @color-text-darkGray;
+                }
+            }
+        }
+
+        pre {
+            padding-left: 0px;
         }
     }
+    .CodeMirror-gutter-wrapper {
+        display: none;
+    }
+    .CodeMirror-sizer {
+        border-width: 0px !important;
+        overflow: hidden;
 
-    .fnBarClone {
-        background-color: transparent;
-        color: transparent;
+        &+ div {
+            height: 0px !important; // prevent vertical scrolling
+        }
+    }
+    .CodeMirror-scroll {
+        overflow: hidden !important;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        padding-bottom:0px;
+    }
+    .CodeMirror-hscrollbar, .CodeMirror-vscrollbar {
+        display: none !important;
+    }
+    .CodeMirror-gutters {
+        display: none;
+    }
+    .CodeMirror-cursor {
+        height: 19px !important;
+        top: 5px !important;
+    }
+    .CodeMirror-lines {
+        height: 32px;
+        padding: 0px;
+        padding-left: 4px;
+    }
+    .CodeMirror-selected {
+        height: 18px !important;
+        top: 6px !important;
+    }
+    .CodeMirror-selected { background: @color-table-preview-highlight;}
+    .CodeMirror-focused .CodeMirror-selected { background: @color-table-preview-highlight;}
+    .CodeMirror ::selection { background: @color-table-preview-highlight;}
+    .CodeMirror ::-moz-selection { background: @color-table-preview-highlight;}
+    .CodeMirror-placeholder {
         pointer-events: none;
-        z-index:1;
-        position: absolute;
-        left: 25.5px; // 0.5 actually works in this case
-        height: 25px;
-        padding: 0 4px;
-        font-weight: bold;
-        line-height: 25px;
-        font-size: 14px;
-        width: ~"calc(100% - 50px)";
-        .textOverflowOneLine;
-        span {
-            color: red;
+        color: @color-lightSilverChalice;
+        display: none;
+    }
+
+    .fnbarPre {
+        color: @color-text-fnBar-blue;
+        &.CodeMirror-placeholder {
+            color: @color-lightSilverChalice;
         }
     }
 
-    #searchBar {
-        .size(@width: 180px);
+    &:not(.searching) {
+        .CodeMirror:not(.disabled) {
+            .cm-keyword {
+                color: @color-sql-blue;
+            }
+            .cm-xckeyword {
+                color: @color-sql-blue;
+            }
+            .cm-xcspecial { // booleans and null
+                color: @color-sql-orange;
+            }
+            .cm-string {
+                color: @color-sql-pink;
+            }
+            .cm-backslash { // not actually a string
+                color: @color-text-blue;
+                 &+ .cm-operator {
+                   color: @color-text-blue;
+                }
+            }
+            .cm-number {
+                color: @color-sql-orange;
+            }
+            .cm-bracket {
+                color: @color-font-warm-grey-two;
+            }
+            .CodeMirror-nonmatchingbracket {
+                color: red;
+            }
+            .cm-variable-2, .cm-error {
+                color: @color-sql-brown;
+                &+ .cm-operator, &+ .cm-atom, &+ .cm-unknown {
+                    color: @color-sql-brown;
+                }
+            }
+            .cm-atom {
+                color: @color-text-fnBar-blue;
+            }
+            .cm-comma {
+                color: @color-font-warm-grey-two !important;
+            }
+
+            .cm-udfColon {
+                color: @color-sql-blue;
+            }
+
+        }
+
+    }
+}
+
+#fnBar, .fnBarClone {
+    .size(@width: ~"calc(100% - 28px)", @height: 32px);
+    margin-left: 4px;
+    background-color:  @color-bg-white-nine;
+    &.active, &.inFocus {
+        background-color: @color-white;
+        box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
     }
 
-    #rowInputArea {
-        border-left: 1px solid @color-tab-divider;
+    &.disabled {
+        opacity: 0.7;
+        pointer-events: none;
     }
+}
 
-    #rowInput {
-        .size(@width: 60px);
+.fnBarClone {
+    background-color: transparent;
+    color: transparent;
+    pointer-events: none;
+    z-index:1;
+    position: absolute;
+    left: 25.5px; // 0.5 actually works in this case
+    height: 25px;
+    padding: 0 4px;
+    font-weight: bold;
+    line-height: 25px;
+    font-size: 14px;
+    width: ~"calc(100% - 50px)";
+    .textOverflowOneLine;
+    span {
+        color: red;
+    }
+}
+
+#searchBar {
+    .size(@width: 180px);
+}
+
+#rowInputArea {
+    border-left: 1px solid @color-tab-divider;
+    margin-top: 11px;
+    .input-box(@w:60px, @h:32px);
+    input {
+        position:relative;
+        top: -1px;
+        margin-top: -3px;
+        background-color: @color-bg-white-nine;
+        padding: 0px 4px;
         &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
             -webkit-appearance: none;
         }
-    }
-
-    #rowScrollerArea {
-        .size(@width: 200px, @height: 35px);
-        .flex(2 0 200px);
-        cursor: default;
-        margin: 0 4px;
-        overflow: hidden;
-
-        .rowScroller {
-            .position(relative);
-            .size(@width: 100%, @height: 11px);
-            margin: 12px 0 25px 0;
-            background-color: @color-bar-border;
-            box-shadow: inset 0px 1px @color-rowScroller-shadow-dark, 0px 1px @color-rowScroller-shadow-light;
-
-            .bookmark {
-                .position(absolute, @bottom: 0);
-                .size(@width: 2px, @height: 11px);
-                background-color: @color-background-bookmark;
-                margin-left: -1px;
-                z-index: 2;
-            }
-
-            .rowMarker {
-                .position(absolute, @top: -11px, @left: 0px);
-                .size(@width: 100%, @height: 35px);
-                display: inline-block;
-                .transition (transform 0.13s);
-                &.scrolling {
-                    .transition (transform 0s);
-                }
-                z-index: 1;
-                pointer-events: none;
-            }
-
-            .tooltipHelper {
-                width: 100%;
-                height: 20px;
-                top: -5px;
-                left: 0px;
-                position: absolute;
-            }
-
-            .rangeWrapper {
-                .position(absolute, @top: 11px, @left: 0px);
-                top: 5px;
-                min-width: 3px !important;
-                z-index: 1;
-                pointer-events: initial;
-                cursor: pointer;
-                height: 20px;
-
-                .arrow {
-                    width: 15px;
-                    height: 20px;
-                }
-
-                .rangeBar {
-                    height: 11px;
-                    width: 100%;
-                    background-color: @color-rowScroller-range;
-                    border-left: 2px solid white;
-                    border-right: 2px solid white;
-                    position: absolute;
-                    top: 6px;
-                }
-
-                .bar {
-                    width: 2px;
-                    height: 11px;
-                    position: absolute;
-                    left: 7px;
-                    z-index: 1;
-                }
-
-                .top {
-                    position: absolute;
-                    top: -3px;
-                    left: -7px;
-                    .triangle {
-                        width: 0;
-                        height: 0;
-                        border-left: 8px solid transparent;
-                        border-right: 8px solid transparent;
-                        border-top: 8px solid white;
-                        position: absolute;
-                        top:1px;
-                    }
-                    .bar {
-                        top: 9px;
-                    }
-                }
-                .bottom {
-                    position: absolute;
-                    top: 6px;
-                    right: -7px;
-                    .triangle {
-                        width: 0;
-                        height: 0;
-                        border-left: 8px solid transparent;
-                        border-right: 8px solid transparent;
-
-                        border-bottom: 8px solid white;
-                        position: absolute;
-                        top: 11px;
-                        left: -1px;
-                    }
-                    .bar {
-                        top: 0px;
-                        left: 6px;
-                    }
-                }
-            }
-
-            &.hidden {
-                display: none !important;
-            }
+        &:focus {
+            background-color: @color-white;
         }
     }
+}
+
+#rowScrollerArea {
+    .size(@width: 200px, @height: 35px);
+    .flex(2 0 200px);
+    cursor: default;
+    margin: 4px 4px 0px;
+    overflow: hidden;
+
+    @height-innerScroller: 20px;
+
+    .rowScroller {
+        .position(relative);
+        .size(@width: 100%, @height: @height-innerScroller);
+        margin: 8px 0 25px 0;
+        background-color: @color-bg-white-nine;
+        border: 1px solid @color-border-pinkish-grey2;
+
+        .bookmark {
+            .position(absolute, @bottom: -2px);
+            .size(@width: 2px, @height: @height-innerScroller);
+            background-color: @color-bg-bright-light-blue;
+            margin-left: -1px;
+            z-index: 2;
+        }
+
+        .rowMarker {
+            .position(absolute, @top: -11px, @left: 0px);
+            .size(@width: 100%, @height: 35px);
+            display: inline-block;
+            .transition (transform 0.13s);
+            &.scrolling {
+                .transition (transform 0s);
+            }
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .tooltipHelper {
+            width: 100%;
+            height: 20px;
+            top: -5px;
+            left: 0px;
+            position: absolute;
+        }
+
+        .rangeWrapper {
+            .position(absolute, @top: 11px, @left: 0px);
+            top: 5px;
+            min-width: 3px !important;
+            z-index: 1;
+            pointer-events: initial;
+            cursor: pointer;
+            height: 20px;
+
+            .arrow {
+                width: 15px;
+                height: 20px;
+            }
+
+            .rangeBar {
+                height: @height-innerScroller - 2px;
+                width: 100%;
+                background-color: @color-white;
+                border-left: 2px solid white;
+                border-right: 2px solid white;
+                position: absolute;
+                top: 6px;
+            }
+
+            .bar {
+                width: 2px;
+                height: 11px;
+                position: absolute;
+                left: 7px;
+                z-index: 1;
+            }
+
+            .top {
+                position: absolute;
+                top: -3px;
+                left: -7px;
+                .triangle {
+                    width: 0;
+                    height: 0;
+                    border-left: 7px solid transparent;
+                    border-right: 7px solid transparent;
+                    border-top: 8px solid @color-tooltip-border;
+                    position: absolute;
+                    top:1px;
+
+                }
+                .bar {
+                    top: 9px;
+                }
+            }
+            .bottom {
+                position: absolute;
+                top: 13px;
+                right: -7px;
+                .triangle {
+                    width: 0;
+                    height: 0;
+                    border-left: 7px solid transparent;
+                    border-right: 7px solid transparent;
+
+                    border-bottom: 8px solid @color-tooltip-border;
+                    position: absolute;
+                    top: 11px;
+                    left: 1px;
+                }
+                .bar {
+                    top: 0px;
+                    left: 6px;
+                }
+            }
+        }
+
+        &.hidden {
+            display: none !important;
+        }
+    }
+}
 /* ========== End Of Work Sheet Bar ========== */
 
 /* ========== Main Frame ========== */
 #mainFrame {
-    .size(@width: ~"calc(100% - 5px)", @height: ~"calc(100% - 38px)");
+    .size(@width: 100%, @height: 100%);
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -607,889 +702,520 @@
     }
 }
 
-.tableWrap {
-    padding: 0;
-    .size(100%, 100%);
-    .font(@size: 11px);
-    overflow-x: auto;
-    overflow-y: scroll;
-    display: inline-block;
+/* ========== End Of Main Frame ========== */
+
+/* === WORKSHEET TABS ==== */
+#worksheetListSection {
+    .worksheetTab {
+        &.active {
+            .eye {
+                visibility: visible;
+            }
+        }
+
+        &.hiddenTab {
+            padding-left: 50px;
+
+            .text {
+                opacity: 0.5;
+            }
+        }
+
+        &:hover, &.dragging {
+            .draggableArea {
+                &:after {
+                    display: block;
+                }
+            }
+        }
+
+        &.dragging {
+            pointer-events: none;
+            background-color: @color-bg-light-navy;
+        }
+
+        &.locked {
+            .wsMenu {
+                pointer-events: none !important;
+                cursor: auto !important;
+                opacity: @opacity-disabled;
+            }
+        }
+
+        .draggableArea {
+            .size(@width: 15px, @height: 20px);
+            // background-color: yellow;
+            .cursor-move;
+
+            &:after {
+                display: none;
+                content: "...";
+                .position(relative, @top: -3px);
+                .font(@size: 20px, @color: @color-white);
+                .transform(rotate(90deg));
+            }
+        }
+
+        .eye {
+            visibility: hidden;
+            .size(@width: 20px);
+        }
+
+        .wsMenu, .unhide {
+            float: right;
+            cursor: pointer;
+            opacity: @opacity-unhover;
+
+            &:hover {
+                opacity: @opacity-hover;
+            }
+        }
+
+        input {
+            .size(@width: ~"calc(100% - 60px)", @height: 20px);
+            line-height: 20px;
+            background-color: transparent;
+            border: 1px solid transparent;
+            color: @color-white;
+
+            &:focus {
+                border-color: @color-border-softBlue;
+                outline: none;
+            }
+
+            &[disabled] {
+                .no-selection;
+            }
+        }
+    }
 }
 
-.xcTableWrap {
-    .position(relative);
-    .size(@width: auto);
-    margin-bottom: 0px;
-    overflow: hidden;
-
-    &:only-child, &.noDrag {
-        .tableGrab {
-            cursor: pointer !important;
-        }
-    }
-
-    &.inActive {
+#hiddenWorksheetTabs {
+    .hint {
         display: none;
+        text-align: center;
+        opacity: @opacity-hint !important;
     }
 
-    .unhideTable {
+    &.hint {
+        .hint {
+            display: block;
+        }
+    }
+}
+
+#worksheetTabMenu {
+    .size(@width: 130px);
+    overflow: visible;
+
+    ul {
+        overflow: hidden;
+    }
+    li {
+        height: 25px;
+        line-height: 25px;
+        padding: 0 6px;
+    }
+}
+/* === END WORKSHEET TABS ==== */
+
+/* ========== Table List Section ========== */
+#tableListSection {
+    padding-top: 0 !important;
+}
+
+#tableListTab {
+    float: right;
+}
+
+#tableListSectionTabs {
+    .size(@width: 100%, @height: 35px);
+    .flex-display;
+
+    .tableListSectionTab {
+        .flex(1 1 33%);
+        .size(@height: 100%);
+        display: inline-block;
+        .font(@weight: bold, @line-height: 35px, @size: 13px, @color: @color-white);
+        text-align: center;
+        border-right: 1px solid @color-border-tiber-blue;
+        background-color: @color-bg-light-navy;
+        padding: 0 5px;
+        .noSelection;
+        .textOverflow;
+        cursor: pointer;
+
+        &:last-child {
+            border-right: none;
+        }
+
+        &:hover {
+            box-shadow: inset 0 2px 0 0 @color-border-select-blue;
+        }
+
+        &.active {
+            .font(@color: @color-font-bright-light-blue);
+            background-color: @color-bg-tiber-blue;
+        }
+    }
+}
+
+#tableListSections {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+    margin: 0 auto;
+
+    .tableListSection {
         display: none;
+        .size(@width: 100%, @height: 100%);
+        margin: 0 auto;
+
+        &:first-child {
+            display: block;
+        }
     }
 
-    &.tableHidden {
-        .unhideTable {
-            display: block !important;
-        }
+    .buttonSection {
+        .size(@height: 50px);
+        background-color: @color-bg-tiber-blue;
+        padding: 0 15px;
 
-        .hideTable {
-            display: none !important;
-        }
+        > div, > i {
+            .vertical-align;
+            cursor: pointer;
+            opacity: @opacity-unhover;
 
-        .lockedIcon {
-            display: none !important;
-        }
-
-        .xcTheadWrap {
-            width: 30px !important;
-
-            .tableTitle > .labelWrap {
-                width: 30px !important;
-                .textOverflow;
-                visibility: hidden;
-            }
-            .dropdownBox {
-                width: 24px;
+            &:hover {
+                opacity: @opacity-hover;
             }
         }
 
-        .xcTbodyWrap {
-            width: 30px !important;
-            pointer-events: none;
-            cursor: default;
+        .submit {
+            float: left;
+            .size(@width: 30px, @height: 30px);
+            margin-right: 10px;
 
-            thead {
-                .header {
-                    width: 30px !important;
-                }
+            background-color: @color-bg-boston-blue;
 
-                th {
-                    display: none;
+            .icon {
+                .center-align;
+            }
 
-                    &:first-child {
-                        display: table-cell;
+            &:active {
+                border: 1px solid @color-white;
+                opacity: @opacity-hover;
+            }
+        }
 
-                        .header {
-                            width: 30px;
-                            height: @height-colHeaderOuter;
-                            border-left: none;
+        .divider {
+            .size(@width: 1px, @height: 36px);
+            opacity: 1;
+            background-color: @color-bg-light-navy;
+            float: right;
+            margin: 0 10px;
+        }
+
+        .refresh {
+            .size(@width: 22px, @height: 22px);
+            float: right;
+        }
+
+        .select {
+            .size (22px, 22px);
+            float: right;
+            margin: 0 4px;
+            .vertical-align;
+        }
+    }
+
+    .tableLists {
+        .size(@height: ~"calc(100% - 50px)", @max-width: 490px);
+        overflow: hidden;
+        overflow-y: auto;
+        color: @color-white;
+
+        .timeLine {
+            .size(@width: 100%);
+            margin-top: -1px;
+            .font(@line-height: 25px, @size: 13px);
+            padding-top: 4px;
+
+            > .timeStamp {
+                padding: 0 10px;
+            }
+        }
+
+        .tableInfo {
+            .size(@width: 100%, @min-height: 38px);
+            padding: 5px 15px 0 10px;
+            .font(@line-height: 25px, @size: 13px);
+
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.3);
+
+                .addTableBtn {
+                    .icon {
+                        &.xi_table {
+                            display: none;
                         }
 
-                        input {
-                            background: @color-input-active !important;
-                            left: 0px !important;
+                        &.xi-ckbox-empty {
+                            display: inline-block;
                         }
                     }
-                    &:not(:first-child) {
+                }
+            }
+
+            &.hiddenWS {
+                opacity: 0.6;
+            }
+
+            &.transition {
+                min-height: 0;
+                height: 38px;
+            }
+
+            &.highlight {
+                background-color: @color-bg-marine;
+                z-index: 100 !important;
+            }
+
+            &.active {
+                background-color: rgba(0, 0, 0, 0.3);
+                .tableListBox {
+                    color: @color-font-bright-light-blue;
+
+                    .icon {
+                        .transform(rotate(0));
+                        color: @color-font-bright-light-blue;
+                    }
+                }
+            }
+        }
+
+        .timeStampWrap {
+            .position(relative, @top: 1px);
+            .size(@width: 24%, @height: 25px);
+            display: inline-block;
+            float: left;
+            .font(@line-height: 12px, @size: 10px);
+            overflow: hidden;
+
+            .timeStamp {
+                .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                text-align: right;
+                overflow: hidden;
+            }
+
+            .time {
+                white-space: nowrap;
+            }
+
+            .worksheetInfo {
+                .size(@width: ~"calc(100% - 7px)", @height: 12px);
+                text-align: right;
+                .textOverflow;
+
+                &.inactive {
+                    opacity: 0.5;
+                }
+            }
+        }
+
+        .tableListBox {
+            .size(@width: 76%, @height: 25px);
+            .font(@color: @color-font-pinkish-grey);
+            white-space: nowrap;
+            overflow: hidden;
+
+            > span {
+                display: inline-block;
+                float: left;
+            }
+
+            .expand {
+                .size(10px, 25px);
+            }
+
+            .addTableBtn {
+                .size(18px, 20px);
+                margin-right: 6px;
+                .vertical-align;
+                cursor: pointer;
+
+                .icon {
+                    &.xi-ckbox-empty, &.xi-tick {
                         display: none;
                     }
                 }
-            }
 
-            tbody {
-                display: none;
-            }
+                &.selected {
+                    background-color: @color-bg-softBlue;
 
-            .xcTable {
-                background-color: @color-table-lightGray;
-                &:after {
-                    background-color: transparent;
-                }
-            }
-
-            td, tr, .idWrap {
-                background-color: @color-table-lightGray !important;
-                border-color: @color-table-lightGray !important;
-            }
-
-            td:not(:first-child) {
-                display: none;
-            }
-
-            .idWrap {
-                overflow: hidden;
-                pointer-events: none;
-                cursor: default;
-
-                &::after {
-                    .size(@width: 31px, @height: 105%);
-                    .position(absolute, @top: -2px, @left: -5px);
-                    content: "";
-                    z-index: 0;
-                    background-color: @color-table-lightGray;
-                }
-
-                .idSpan {
-                    z-index: 0;
-                    visibility: hidden;
-                }
-            }
-        }
-    }
-
-    &.modalOpen {
-
-        .dropdownBox {
-            display: none !important;
-        }
-
-        th:first-child {
-            pointer-events: none;
-        }
-
-        td:first-child {
-            .rowGrab {
-                pointer-events: none;
-            }
-        }
-
-        .dragArea {
-            display: none;
-        }
-
-        .tableTitle {
-            pointer-events: none;
-        }
-
-        th {
-            .noSelection;
-        }
-
-        th.modalHighlighted {
-            .header {
-                z-index: 40;
-            }
-            .flexContainer{
-                .action-gradient;
-                .flexWrap.flex-left {
-                    .colIcon-active-gradient();
-                }
-                input {
-                    color: @color-white !important;
-                }
-            }
-            .type-boolean .flex-left::after {
-                border-top: @height-colHeader solid @color-border-colIconBlue;
-            }
-        }
-
-
-
-        tbody tr {
-            &:nth-child(odd) {
-                td.modalHighlighted {
-                    background-color: @color-selectedCell-dark;
-                }
-            }
-            &:nth-child(even) {
-                td.modalHighlighted {
-                    background-color: @color-selectedCell-light;
-                }
-            }
-            &:hover {
-                td.modalHighlighted {
-                    background-color: @color-heather !important;
-                }
-            }
-        }
-    }
-
-    &.exportModalOpen {
-        td.col0 {
-            position: relative;
-            z-index: 37;
-        }
-        th.col0 {
-            pointer-events: initial !important;
-            .header {
-                z-index: 41;
-            }
-        }
-    }
-
-    &.tableDarkened, &.tableLocked, &.jsonModalOpen {
-        &::before {
-            content: "";
-            .position(absolute);
-            .size(100%, 100%);
-            display: block;
-            z-index: 21;
-        }
-
-        .xcTheadWrap {
-            background-color: black;
-
-            .tableTitle, thead {
-                opacity: 0.7;
-            }
-        }
-
-        .xcTable {
-            background-color: black;
-
-            &::after {
-                background-color: @color-table-after-gray;
-            }
-
-            th {
-                &:first-child {
-                    .header::before {
-                        display: block;
-                        position: absolute;
-                        background-color: rgba(0,0,0,1);
-                        z-index: 40;
-                        opacity: 0.3;
-                        width: ~"calc(100% + 10px)";
-                        height: @height-colHeaderOuter;
-                        left: -5px;
-                        top: -5px;
-                    }
-                }
-
-                .header {
-                    &::before {
-                        content: "";
-                        .position(absolute, @top: -5px, @left: 0px);
-                        .size(@width: ~"calc(100% + 5px)", @height: @height-colHeaderOuter);
-                        z-index: 21;
-                        background-color: rgba(0, 0, 0, 1);
-                        opacity: 0.3;
-                    }
-                }
-            }
-
-            tbody {
-                opacity: 0.7;
-            }
-        }
-        &.tableHidden {
-            th:first-child input {
-                background: @color-background-colIcon-gray !important;
-            }
-        }
-    }
-
-    &.tableLocked, &.jsonModalOpen {
-        &:before {
-            display: none;
-        }
-        .tableTitle, .header, td {
-            pointer-events: none;
-        }
-        .tableTitle .dropdownBox {
-            pointer-events: auto;
-        }
-        .xcTbodyWrap {
-            pointer-events: none;
-            overflow: hidden; // prevents scrolling
-        }
-        .lockedIcon {
-            .position(absolute, @top: 40%, @left: 50%);
-            display: inline-block;
-            z-index: 9;
-            height: 60px;
-            width: 40px;
-            .transform(translateX(-50%));
-
-                img {
-                    height: 100%;
-                }
-        }
-
-        .tableCover {
-            .position(absolute, @top: @height-colHeaderOuter + 35px);
-            .size(@width: ~"calc(100% - 5px)", @height: auto);
-            background-color: @color-table-cover;
-            z-index: 5;
-            .transition(opacity 0.3s);
-            &.visible {
-                opacity: 1 !important;
-            }
-        }
-        tbody {
-            opacity: 1 !important;
-        }
-
-        th:first-child input {
-            box-shadow: none !important;
-        }
-    }
-
-    .tableCoverWaiting {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 10;
-        cursor: progress;
-    }
-
-    &.jsonModalOpen {
-
-        td.modalHighlighted {
-            pointer-events: all;
-            border-color: @color-table-border-darkened !important;
-        }
-
-        .header {
-            z-index: 37;
-        }
-
-        th:first-child .header {
-            z-index: 38;
-        }
-
-        .idWrap {
-            z-index: 37;
-            pointer-events: none;
-            .idSpan::after {
-                display: block;
-                position: absolute;
-                background-color: black;
-                width: ~"calc(100% + 10px)";
-                height: 100%;
-                left: -5px;
-                top: 0px;
-                opacity: 0.3;
-            }
-        }
-        .darkenedCell {
-            .size(@width: ~"calc(100% + 10px)", @height: 100%);
-            .position(absolute, @top: 0, @left: -5px);
-            display: block;
-            content: "";
-            background-color: rgb(0,0,0);
-            z-index: 36;
-            opacity: 0.3;
-            display: none;
-            // jquery fades in display
-        }
-    }
-    &.tableDarkened {
-        pointer-events: none;
-        .dropdownBox {
-            display: none !important;
-        }
-    }
-    &.hollowed {
-        .xcTheadWrap, .xcTbodyWrap {
-            display: none;
-        }
-    }
-}
-
-.xcTheadWrap {
-    .position(relative, @left: 0%);
-    top: 0px !important;
-    width: ~"calc(100% - 5px)" !important;
-    z-index: 9;
-    display: inline-block;
-
-    .tableTitle {
-        .position(relative);
-        .size(@width: 100%, @height: 35px);
-        .noSelection;
-        text-align: center;
-        display: block;
-        .gray-gradient;
-        border-bottom: 1px solid @color-table-borderGray;
-        overflow: hidden;
-        .transition(opacity 0.3s);
-
-        .tableGrab {
-            .position(absolute, @top: 0);
-            .size(@width: 100%, @height: 35px);
-            z-index: 2;
-            .cursor-move;
-        }
-
-        &.tblTitleSelected {
-            .action-gradient;
-            color: @color-white;
-            border-bottom: 1px solid @color-table-borderBlue;
-
-            .text {
-                color: @color-white;
-                .tableName {
-                    color: @color-white;
-                }
-            }
-
-            .dropdownBox {
-                .innerBox {
-                    background-image: url(../../images/table-corner.png) !important;
-                }
-            }
-        }
-
-        .dropdownBox {
-            .position(absolute, @right: -3px, @bottom: -4px);
-            .size(32px, 30px);
-            z-index: 6;
-            opacity: 0.4;
-            border: none;
-            cursor: pointer;
-            .transition (opacity 0.15s linear);
-            .transition-delay (0.08s);
-
-            .innerBox {
-                .position(absolute, @right: 6px, @bottom: 7px);
-                .size(16px, 16px);
-                background-image: url(../../images/table-corner-inactive.png);
-            }
-        }
-
-        &:hover {
-            .dropdownBox {
-                opacity: 1;
-                .innerBox {
-                    background-image: url(../../images/table-corner-inactive.png);
-                }
-            }
-        }
-
-        .labelWrap {
-            .textOverflowOneLine;
-            position: absolute;
-            width: ~"calc(100% - 10px)";
-            height: 100%;
-            left: 0px;
-        }
-
-        .text {
-            .position(absolute, @top: 0);
-            .size(@width: auto, @max-width: ~"calc(100% - 10px)", @height: 25px);
-            .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
-            .rounded;
-            text-align: center;
-            background-color: transparent;
-            padding: 0 4px;
-            z-index: 2;
-            white-space: nowrap;
-            margin-top: 5px;
-            // overflow: hidden;
-            display: inline-block;
-
-            .hashName {
-                opacity: 0.7;
-                .noSelection;
-                font-weight: 200;
-            }
-        }
-
-        .tableName {
-            .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
-            .rounded;
-            height: 24px;
-            padding: 1px 0px;
-            margin: 1px 0px;
-            min-width: 15px !important;
-        }
-
-        .tableName:focus {
-            background-color: @color-white;
-            color: @color-text-darkGray !important;
-            padding: 1px 4px;
-            margin: 1px 0px;
-            outline: none;
-            .rounded;
-        }
-    }
-}
-
-.microsoft .xcTheadWrap {
-    // width: ~"calc(100% - 22px)" !important;
-}
-
-.xcTbodyWrap {
-    .position(@right: -17px);
-    .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - 31px)");
-    .font(@size: 11px);
-    margin-bottom: 0;
-    margin-top: -3px;
-    padding: 0;
-    overflow-x: hidden;
-    // overflow-y: auto;
-    overflow-y: scroll;
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
-
-    &::after {
-        content: "";
-        display: block;
-        .transition(background-color 0.2s);
-    }
-
-    .userHidden {
-        .editableHead {
-            padding-left: 6px;
-        }
-
-        .flex-left {
-            display: none;
-        }
-
-        .flex-right > .dropdownBox .innerBox {
-            right: 3px !important;
-            bottom: 5px !important;
-        }
-
-        .colGrab {
-            right: -22px;
-        }
-
-        .tdText, .dataColText {
-            display: none;
-        }
-        
-        &.dataCol {
-            input {
-                padding-left: 10px;
-            }
-        }
-    }
-
-    td.modalHighlighted {
-        position: relative;
-        z-index:36;
-        .transition(border-color 0.3s);
-        &.jsonModalOpen {
-            border-color: @color-table-border-gray !important;
-        }
-    }
-    .dataCol {
-        .flexWrap.flex-left {
-           display: none;
-        }
-        input {
-            padding-right: 3px !important;
-            text-overflow: ellipsis;
-        }
-    }
-}
-
-html.microsoft {
-    .xcTableWrap .text {
-        position: relative !important;
-    }
-}
-
-.xcTable, .joinTable {
-    thead {
-        box-shadow: 0px 1px  1px @color-shadow-black;
-
-        .header:hover > .dropdownBox {
-            opacity: 0.6;
-        }
-
-        .colGrab:hover ~ .flexContainer .dropdownBox {
-            opacity: 0 !important;
-        }
-
-        th {
-            &:first-child {
-                border-left: none;
-                .header {
-                    border-left: 5px solid @color-border-darkGray;
-                }
-            }
-
-            &:last-child .colGrab {
-                .position(@right: -10px, @top: -40px);
-                width: 12px !important;
-                height: 82px !important;
-            }
-
-            &.selectedCell {
-                .flexContainer {
-                    .action-gradient;
-                    .editableHead {
+                    .icon {
                         color: @color-white !important;
-                        text-overflow: clip;
-                    }
-                    .flexWrap.flex-left {
-                        .colIcon-active-gradient();
+
+                        &.xi_table {
+                            display: none;
+                        }
+
+                        &.xi-tick {
+                            display: inline-block;
+                        }
+
+                        &.xi-ckbox-empty {
+                            display: none;
+                        }
+
+                        &:before {
+                            .position(relative, @top: -3px, @left: 2px);
+                        }
                     }
 
-                }
-
-                .type-boolean .flexWrap.flex-left {
-                    &::after {
-                        border-top: @height-colHeader solid @color-border-colIconBlue;
-                    }
-                }
-            }
-
-            &.rowNumHead {
-                input {
-                    .position(absolute, @left: 0);
-                    .size(@width: ~"calc(100% + 10px)", @height: @height-colHeaderOuter);
-                    .gray-gradient;
-                    border: @width-tableCellPadding solid @color-border-darkGray;
-                    margin-left: -5px;
-                    margin-top: -5px;
-                    z-index: 3;
-                    border-radius: 0;
-                    .transition(border-color 0s);
-                }
-                .header {
-                    &::before {
-                        .transition(opacity 0.3s);
-                        content: "";
-                        opacity: 0;
+                    ~ span {
+                        color: @color-font-bright-light-blue;
                     }
                 }
             }
-        }
-    }
 
-    .header {
-        .position(absolute, @top: 35px);
-        .dataTableHeader;
-        z-index: 2;
-        width: inherit;
-
-        > input {
-            .gray-gradient;
-            .rounded;
-        }
-
-        .flexContainer {
-            .position(relative);
-            .gray-gradient;
-            .rounded;
-            overflow: hidden;
-
-            .flexWrap.flex-left {
-                .flex(0 1 20px);
-                .size(@height: @height-colHeader);
-                margin: 0;
-                overflow: hidden;
-                white-space: normal;
-                .colIcon-gray-gradient();
-
-                .iconHidden {
-                    .size(@width: 1px, @height: @height-colHeader);
-                    display: inline-block;
-                }
+            .tableName {
+                max-width: ~"calc(100% - 75px)";
+                .textOverflowOneLine;
+                margin-right: 2px;
             }
 
-            .flexWrap.flex-mid {
-                .flex(1 0 0px);
-                .editableHead, input.dataCol {
-                    padding-right: 18px;
-                    .noSelection;
-                }
+            .tableName, .numCols {
+                height: 25px;
+                line-height: 25px;
             }
 
-            .flexWrap.flex-right {
-                .flex(0 1 0px);
-                height: @height-colHeader;
-            }
-
-        }
-
-        &:hover {
-            .flexWrap.flex-right > .dropdownBox {
-                opacity: 1.0;
+            .numCols {
+                max-width: 25px;
+                .textOverflowOneLine;
             }
         }
 
-        &.type-data .flexWrap.flex-left {
-            background: transparent;
-        }
-    }
-
-    &::after {
-        content: "";
-        .size(@width: ~"calc(100% - 5px)", @height: 5px);
-        position: absolute;
-        background-color: white;
-    }
-
-    tbody tr {
-        td {
-            .idWrap {
-                .position(relative);
-                .size(100%, 100%);
-                display: table;
-
-                .idSpan {
-                    .size(@width: ~"calc(100% + 10px)", @height: 100%);
-                    .position(absolute, @top: 0);
-                    z-index: 2;
-                    margin-left: -5px;
-                    .flex-display;
-                    .justify-content (center);
-                    .align-items (center);
-
-                    &::after {
-                        content: "";
-                        opacity: 0;
-                        .transition(opacity 0.3s);
-                    }
-                }
-            }
-        }
-
-        &:nth-child(odd) {
-            td:first-child {
-                .idSpan {
-                    background-color: @color-table-col-darkestGray;
-                    border-right: 5px solid @color-table-lightGray;
-                    border-left: 5px solid @color-white;
-                }
-            }
-        }
-
-        &:nth-child(even) {
-            td:first-child {
-               .idSpan {
-                    background-color: @color-table-col-darkGray;
-                    border-right: 5px solid @color-white;
-                    border-left: 5px solid @color-white;
-                }
-            }
-        }
-
-        &.changedHeight {
-            white-space: normal;
-            overflow-wrap: break-word;
-            .dataColText {
-                white-space: normal;
-            }
-        }
-    }
-
-    &.resizingCol {
-        .dropdownBox {
-            opacity: 0 !important;
-        }
-    }
-}
-
-html.microsoft .xcTable, html.microsoft .joinTable {
-    &::after {
-        // .size(@width: ~"calc(100% - 22px)");
-    }
-}
-
-.xcTable {
-    tbody tr td:first-child {
-        cursor: pointer; // for bookmark
-    }
-}
-
-.menu {
-    display: none;
-    .parentMenu {
-        &::after {
-            content: "";
-            width: 0px;
-            height: 0px;
-            position: absolute;
-            vertical-align: middle;
-            right: 3px;
-            bottom: 3px;
-            cursor: pointer;
-            opacity: 0;
-            border-top: 11px solid transparent;
-            border-right: 11px solid @color-dropBox;
-            opacity: 0.3;
-            border-right-color: @color-border-lightGray;
-            pointer-events: none;
-        }
-        &.selected {
-            &::after {
-                opacity: 1;
-                border-right-color: @color-dropBox-secondary;
-            }
-        }
-    }
-}
-
-#colMenu {
-    overflow: hidden;
-}
-
-#colSubMenu {
-    max-height: none;
-
-    & > ul {
-        display: none;
-        visibility: visible;
-        left: 0px;
-        margin-top: 0px;
-        position: static;
-    }
-
-    li.selected {
-        background-color: @color-selectedCell-green;
-    }
-
-    .sectionLabel {
-        text-align: center;
-    }
-
-}
-
-#tableMenu {
-    overflow: hidden;
-
-    .unhideTable {
-        display: none;
-    }
-
-    &.tableHidden {
-        .hideTable {
+        .columnList {
             display: none;
+            .position(relative);
+            .size(@width: ~"calc(76% - 26px)");
+            margin: 0px 0 10px 22px;
+            padding: 2px 0 0 0;
+            float: right;
+
+            li {
+                .size(@height: 20px);
+                margin-top: 5px;
+                .font(@size: 11px, @line-height: 20px, @color: @color-white);
+                background-color: transparent;
+                border: 1px solid @color-border-pinkish-grey;
+
+                .iconWrap {
+                    .size(@width: 22px, @height: 100%);
+                    display: inline-block;
+                    float: left;
+                    background-color: @color-bg-pinkish-grey;
+                }
+
+                .text {
+                    display: inline-block;
+                    float: left;
+                    padding-left: 5px;
+                    .size(@width: ~"calc(100% - 30px)");
+                    .textOverflowOneLine;
+                }
+
+
+                &:hover {
+                    border: 1px solid @color-border-softBlue;
+                    color: @color-font-softBlue;
+                    .iconWrap {
+                        background-color: @color-bg-softBlue;
+                    }
+                }
+            }
         }
-        .unhideTable {
-            display: block;
+    }
+}
+
+#orphanedTableList {
+    .searchbarArea {
+        margin-top: 10px;
+        padding-left: 25px;
+        clear: both;
+        .size(@width: ~"calc(100% - 50px)", @height: 25px);
+        .position(relative);
+
+        .input-box(@w: 100%, @h: 25px);
+        .input-placeholder(@color-text-midGray);
+        .closeIcon;
+
+        input {
+            .font(@weight: bold, @color: @color-text-midGray);
+            padding-right: 30px;
+            background-color: @color-background-darkGray;
+        }
+        .counter {
+            top: 4px;
+            right: 30px;
+        }
+        .arrows {
+            right: -50px;
+            top: 0px;
+            .icon {
+                font-size: 14px;
+                margin-left: 6px;
+                margin-top: 6px;
+                color: @color-white;
+                opacity: 0.7;
+            }
+        }
+        .iconWrap {
+            .box-sizing;
+            width: 25px;
+            height: 25px;
+            top: 0px;
+            &.downArrow {
+                right: 0px;
+                .icon {
+                    margin-left: 0px;
+                }
+            }
+            &.upArrow {
+                right: 25px;
+                .icon {
+                    margin-left: 0px;
+                }
+            }
+        }
+
+    }
+
+    .tableLists {
+        margin: 5px 0 0 0;
+        height: ~"calc(100% - 90px)";
+
+        .tableListBox {
+            margin-left: 12%;
+
+            .tableName {
+                max-width: ~"calc(100% - 30px)";
+            }
+        }
+
+        .highlightedText {
+            background-color: yellow;
+            &.selected {
+                background-color: orange;
+            }
         }
     }
 }
 
-#tableSubMenu {
-    & > ul {
-        display: none;
-        visibility: visible;
-        left: 0px;
-        margin-top: 0px;
-        position: static;
-    }
 
-    li.selected {
-        background-color: @color-selectedCell-green;
-    }
-}
-
-.menu.locked {
-    cursor: auto;
-
-    li {
-        opacity: 0.4;
-        cursor: default;
-        pointer-events: none;
-    }
-    li.hideTable, li.unhideTable  {
-        opacity: 1;
-        cursor: pointer;
-        pointer-events: auto;
-    }
-}
-
+/* ========== End Of Table List ========== */
 
 /* Row and Column Resizing*/
 .colGrab {
@@ -1500,8 +1226,18 @@ html.microsoft .xcTable, html.microsoft .joinTable {
     z-index: 2;
     background-color: @color-black-invisible; //ie hack
     border-left: 6px solid @color-black-invisible !important;
-    height: @height-colHeaderOuter + 2px !important;
+    height: 100%;
     .noSelection;
+
+    &:hover, &:active {
+        // active is for when it's click down
+        &::after {
+            content: "";
+            .position(absolute, @top: 5px, @right: 10px);
+            .size(@width: 4px, @height: 100%);
+            background-color: @color-bg-softBlue;
+        }
+    }
 }
 
 .rowGrab {
@@ -1542,5 +1278,3 @@ td.col0:hover {
     top: 0px !important;
     left: 0px !important;
 }
-
-/* ========== End Of Main Frame ========== */

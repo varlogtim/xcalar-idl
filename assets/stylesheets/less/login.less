@@ -2,308 +2,281 @@
 
 html, body {
     width: 100%;
-    height: 100%
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    min-height: 600px;
+    min-width: 780px; 
+    font: 13px @font-base;
+    font-weight: 600;
+    .box-sizing;
 }
 
-table, tr, td, th, input, textarea, p {
+table, tr, td, th, input, textarea, header, p, div {
     margin: 0;
     padding: 0;
     .box-sizing;
     border: none;
-    font: 14px @font-base;
-    font-weight: 600;
-    color: @color-text-darkGray;
+}
+input {
+    font: 13px @font-base;
 }
 
 body {
     -webkit-font-smoothing: antialiased;
-    margin: 0;
-    padding: 0;
-    color: @color-text-darkGray;
-    font-family: @font-base;
-    font-weight: 600;
-    font-size: 0; /* Need to use this to get rid of stupid white space */
-    overflow-y: hidden;
-    background: @color-limedSpruce url("../../images/bg_page.png") repeat right top;
-    overflow: hidden !important;
+    color: @color-white;
+    // font-size: 0; /* Need to use this to get rid of stupid white space */
+    .linear-gradient(top, @color-bg-select-blue, @color-bg-marine);
 }
 
-#swiffycontainer {
-    margin: -200px 0 0 -275px;
-    top: 50%;
-    left: 50%;
+form {
+    a {
+        color: @color-font-softBlue;
+        cursor: pointer;
+    }
+}
+
+#logo {
+    .size(@width:40px, @height:41px);
+    .image("../../images/new/logo/xi-logo.png");
     position: absolute;
-    width: 550px;
-    height: 400px;
+    top: 10px;
+    left: 10px;
 }
 
-/* LOGIN */
 #loginContainer {
+    height: 500px;
+    .vertical-align;
+}
+
+.outerWrap {
     width: 100%;
-    height: 100%;
-    min-height: 410px;
-    min-width: 990px;
+}
+
+header {
+    width: 650px;
+    overflow: hidden;
+    position: relative;
+    top: 10px;
+    margin: 0px auto 30px;
+    height: 50px;
+}
+
+.loginHeader, .signupHeader {
+    .font(@weight: 500, @size: 36px, @line-height: 36px, @family: @font-gotham);
+    margin: 0;
+    position: absolute;
+    left: 0px;
+    .transition(left 1s);
+    &.hidden {
+        left: -550px;
+    }
+}
+
+#loadingBar {
+    .size(@width: 100%, @height: 1px);
+    background-color: @color-border-softBlue;
+    margin-bottom: 26px;
     position: relative;
     overflow: hidden;
 
-    &.signup {
-        #loginDivider {
-            .size(@height: 505px);
+    .innerBar {
+        height: 1px;
+        width: 200px;
+        background-color: @color-white;
+        position:absolute;
+        left: -200px;
+        // XX need to add this to mixin
+        background: linear-gradient(to right, @color-border-softBlue, #d6e4ec, @color-border-softBlue);
+        .keyframe(slideRight, {
+            0%   {left: -200px;}
+            100% {left: 100%;}
+        });
+        .keyframeAnim(slideRight 0.7s linear forwards 0.3s);
+
+        &.immediateAnimation {
+           .keyframeAnim(slideRight 0.7s linear forwards 0s);
         }
     }
 }
 
-#loginBackgroundArt {
-    background: url(../../images/logo/loginBoxes.png) no-repeat;
-    width: 501px;
-    height: 800px;
-    top: 0px;
-    right: 0px;
-    position: absolute;
+#formArea {
+   width: 600px;
+   margin: 0 auto;
+   padding-left: 50px;
 }
 
-#loginLogo {
-    background: url(../../images/logo/xcalar-gray.png) no-repeat;
-    top: 10px;
-    left: 18px;
-    width: 106px;
-    height: 50px;
-    position: absolute;
-}
 
-#loginDivider {
-    background: url(../../images/logo/loginBar.png) repeat;
-    left: 512px;
-    bottom: 87px;
-    width: 1px;
-    height: 281px;
-    position: absolute;
-    opacity: 0.26;
-    .transition(height 0.75s);
-}
-
-#loginInsight {
-    left: 568px;
-    bottom: 312px;
-    width: 403px;
-    height: 64px;
-    background: url(../../images/logo/xi.png) no-repeat;
-    position: absolute;
-}
-
-#loginShadow {
-    left: 510px;
-    bottom: 200px;
-    width: 503px;
-    height: 69px;
-    background: url(../../images/logo/loginShadow.png) no-repeat;
-    position: absolute;
-    opacity: 0.21;
-}
-
-.action-gradient {
-    .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
-}
-
-#login, #signup {
-    .size(@width: 500px);
-    .position(absolute, @left: 0, @bottom: 137px);
-    margin: auto;
-    z-index: 40;
-    padding-left: 72px;
-
-    form {
-        .size(@width: 410px);
-    }
-
+#signupForm {
+    display: none;
     .input {
-        .size(@height: 28px);
-        padding: 0px 4px;
-        .linear-gradient(top, @color-login-field-top, @color-login-field-bot);
-        .rounded;
-        .font(@size: 12px, @weight: bold);
-        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+        padding-left: 150px;
+    }
+}
+
+#loginForm {
+    display: none;
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active,
+input:-webkit-autofill:focus {
+    background-color: @color-border-searchBlue !important;
+    color: @color-white !important;
+    -webkit-box-shadow: 0 0 0 1000px  @color-border-searchBlue inset !important;
+    -webkit-text-fill-color: @color-white !important;
+}
+
+.section {
+    position: relative;
+    font-size: 13px;
+    height: 45px;
+    font-weight: 500;
+
+    .label {
+        position: absolute;
+        line-height: 30px;
+        left: 0px;
+        top: 15px;
+        text-indent: 4px;
+        .transition(color 0.5s);
+        pointer-events: none;
+        z-index: 0;
+        color: @color-font-softGrayBlue;
+        width: 100%;
+        text-transform: uppercase;
+
+        &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: 0px;
+            .size(@width: 100%, @height: 1px);
+            background-color: @color-border-searchBlue;
+            .transition(all 0.5s);
+        }
+    }
+    label {
+        height: 100%;
+        width: 100%;
+        display: block;
+    }
+    .input {
+        width: 100%;
+        width: ~"calc(100% - 90px)";
+        // height: 100%;
+        height: 30px;
+        background-color: transparent;
+        outline: none;
+        margin-left: 90px;
+        padding-left: 10px;
+        .font(@weight: 500, @size: 13px, @line-height: 30px, @color: @color-white);
+        position: relative;
+        z-index: 1;
+        padding-top: 2px;
+        margin-top: 14px;
+
+        &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: 0px;
+            .size(@width: 100%, @height: 1px);
+            background-color: @color-border-searchBlue;
+            .transition(all 0.5s);
+        }
 
         &:focus {
-          box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-          outline: none;
-          color: @color-black;
-        }
-    }
+            .font(@color: @color-white);
+            outline: none;
+            padding-top: 4px;
+            margin-top: 13px;
 
-    .btn {
-        .size(@width: 110px, @height: 30px);
-        .font(@size: 16px, @weight: 600, @line-height: 30px);
-        .rounded;
-        text-align: center;
-        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-        cursor: pointer;
-        float: right;
-
-        &.login {
-            .action-gradient;
-            margin-left: 15px;
-            color: @color-text-cyan;
-        }
-
-        &.signup {
-            .linear-gradient(top, @color-background-topGreen, @color-background-bottomGreen);
-            color: @color-white;
-        }
-    }
-}
-
-#login {
-    height: 220px;
-    font-size: 20px;
-    color: #F4EADD;
-    font-family: 'Raleway', Sans Serif;
-    letter-spacing: 1px;
-
-    .section {
-        .size(@height: 28px);
-        margin-bottom: 18px;
-    }
-
-    .text {
-        .size(@width: 120px);
-        line-height: 28px;
-        float: left;
-    }
-
-    .input {
-        float: right;
-        width: 290px;
-    }
-}
-
-#signup {
-    display: none;
-    font-family: Open Sans, Sans Serif;
-
-    .text {
-        .size(@height: 20px);
-        .font(@size: 15px, @weight: bold);
-        color: #9E9E9E;
-
-        a {
-            color: @color-text-blue;
-            cursor: pointer;
-
-            &:hover {
-                color: @color-text-topAction;
+            &::after {
+                background-color: @color-white;
+                height: 2px;
+                bottom: 0px;
             }
-        }
-    }
 
-    .section {
-        .size(@height: 53px);
-        margin-bottom: 10px;
-        clear: both;
-
-        .part {
-            &:first-child {
-                float: left;
-            }
-            &:last-child {
-               float: right;
-            }
-        }
-
-        .input {
-            .size(@width: 100%);
-            margin-top: 5px;
-        }
-
-        &.nameSection {
-            .input {
-                .size(@width: 185px);
-            }
-        }
-
-        &.submitSection {
-            .size(@height: 30px);
-            line-height: 30px;
-            margin-top: 20px;
-
-            .termPart {
-                .size(@height: 30px);
-                cursor: pointer;
-
-                div, input {
-                    float: left;
-                }
-
-                .text {
-                    margin-left: 10px;
-
-                    label {
-                        cursor: pointer;
-                        .noSelection;
-                    }
+            ~ .label {
+                color: @color-white;
+                &:after {
+                    background-color: @color-white;
+                    height: 2px;
                 }
             }
         }
-    }
+        &:active {
+            outline: none;
+        }
+    } 
+}
 
-    .lognInSection {
-        .size(@height: 23px);
-        line-height: 25px;
+.part {
+    display: inline-block;
+}
+
+.btn {
+    width: 150px;
+    height: 36px;
+    border: 1px solid @color-border-softBlue;
+    background-color: rgba(0,0,0,0);
+    .font(@weight: bold, @align: center, @color: @color-border-softBlue);
+    float: right;
+    margin-left: 10px;
+    margin-top: 36px;
+    .transition(all 0.2s);
+    outline: none;
+
+    &:hover {
+        background-color: rgba(0,0,0,0.1);
+    }
+    &:active {
+        border-color: @color-border-activeBlue !important;
+    }
+}
+
+.submitSection {
+    height: auto;
+    .part {
         float: right;
-        margin-top: 5px;
     }
-}
-
-#insightVersion {
-    position: absolute;
-    .position(absolute, @left: 10px, @bottom: 10px);
-    .size(@width: 300px, @height: 10px);
-    color: white;
-    opacity: 0.5;
-    font-size: 10pt;
-}
-
-#mainContainer {
-    margin: auto;
-    width: 50%;
-    height: 50%;
-}
-
-#serverInfo {
-    #numServers {
-        span {
-            width: 100px;
-            height: 20px;
-            color: @color-text-darkGray;
+    .termPart {
+        margin-top: 46px;
+        float: left;
+        .text {
+            text-transform: none;
+            float: right;
+            display: inline-block;
+            position: static;
+        }
+        .checkbox {
+            height: 16px;
+            float: right;
+            margin-right: 4px;
+            margin-top: 2px;
         }
     }
-    th {
-        .box-sizing;
-        border: none;
-        font-size:14px;
-        font-weight: 600;
-        color: @color-text-darkGray;
-    }
-    #installButton {
-        margin-top: 20px;
-        margin-right: auto;
-        font-family: 'Raleway', Sans Serif;
-        letter-spacing: 1px;
-        .action-gradient;
-        color: @color-text-cyan;
-        font-size: 16px;
-        text-align: center;
-        line-height: 30px;
-        width: 150px;
-        height: 30px;
-        border-radius: 3px 3px 3px 3px;
-        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-        cursor: pointer;
-        position: relative;
-        float: left;
-    }
-    input:not([type=checkbox]) {
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    .text {
+        color: @color-white;
+        display: inline-block;
+        width: auto;
+        &::after {
+            display: none;
+        }
     }
 }
-/* END LOGIN */
+
+.loginSection {
+    text-align: right;
+    margin-top: 26px;
+    font-weight: 500;
+}
+   
+#loginButton, #signup-submit {
+    border: 1px solid @color-white;
+    .font(@color: @color-white);
+}

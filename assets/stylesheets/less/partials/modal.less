@@ -3,26 +3,21 @@
     display: none;
     .position(absolute, 0, 0, 0, 0);
     .size(@max-width: 99%, @max-height: 99%);
-    .rounded(5px 5px 4px 4px);
-    z-index: 40;
-    box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
+    z-index: @z-index-modal;
     background-color: @color-white;
-    // .auto-selection;
 
     .modalHeader {
-        .action-gradient;
+        background-color: @color-bg-dusk-blue;
         .size(@width: 100%, @height: 36px);
         .noSelection;
         .cursor-move;
         line-height: 36px;
         text-align: center;
         text-shadow: 1px 1px rgba(0,0,0,0.2);
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
         text-transform: capitalize;
 
         .text {
-            .font(@weight: bold, @size: 18px, @color: @color-text-white);
+            .font(@weight: bold, @size: 18px, @color: @color-white);
             display: inline-block;
             width: 100%;
             padding-left: 30px;
@@ -33,50 +28,52 @@
             cursor: pointer;
 
             .size(@width: 22px, @height: 22px);
-            .rounded(2px);
-            box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
-            .linear-gradient(top, @color-modal-close-light, @color-modal-close-dark);
 
             .icon {
                 display: inline-block;
                 .position(absolute, @top: 0, @right: 0);
                 .size(@width: 22px, @height: 22px);
+                line-height: 22px
             }
 
             &:hover {
-                .linear-gradient(top, @color-modal-close-dark, @color-modal-close-light);
             }
 
             &:active {
-                box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
-                            0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+                
             }
         }
         .close {
             .position(absolute, @top: 7px, @right: 7px);
+            opacity: @opacity-unhover;
             .icon {
-                .image("../../images/close-sm.png", 50%, 50%);
+               font-size: 16px;
+            }
+            &:hover {
+                opacity: @opacity-hover;
             }
         }
     }
 
     .modalInstruction {
-        .size(@width: 100%, @height: 58px);
+        .size(@width: 100%, @height: @height-card-instr);
         background-color: @color-white;
         overflow: hidden;
-        padding: 12px;
-        padding-bottom: 10px;
+        padding: 10px;
+        border-bottom: 1px  solid @color-border-pinkish-grey2;
         .flex-display;
         .flex-direction(row);
+        .text-selection;
 
         .icon {
-            .flex(0 0 58px);
-            .background('../../images/exclamation.png', 32px, 32px);
+            .flex(0 0 36px);
+            .font(@size: 24px, @color: @color-bg-select-blue);
+            margin-top: 5px;
         }
 
         .text {
-            .flex(0 0 ~"calc(100% - 58px)");
-            .font(@weight: bold, @size: 12px, @color: @color-text-instructions);
+            .flex(1 1 auto);
+            .font(@weight: 600, @size: 12px);
             overflow: hidden;
         }
 
@@ -87,7 +84,6 @@
 
     .modalTopMain {
         .size(@width: 100%);
-        border-top: 3px solid rgba(1, 1, 1, 0.18);
         background: @color-modal-whiteGray;
         color: @color-text-darkGray;
         .no-selection;
@@ -107,18 +103,20 @@
 
     .modalBottom {
         .size(@width: 100%, @height: 50px);
-        .rounded(0 0 4px 4px);
         .no-selection;
 
-        .btn {
+        .bottomItem, .btn {
             float: right;
+            .vertical-align;
+            margin-right: 10px;
+        }
+
+        .btn {
+            .size(@height: 30px);
+            line-height: 30px;
 
             &.cancel {
-                color: @color-text-white;
-                .gray-gradient;
-                &:hover, &:focus {
-                    .gray-inverse-gradient;
-                }
+                .btn-cancel;
             }
         }
     }
@@ -130,7 +128,7 @@
     background-color: @color-black;
     opacity: 0.6;
     display: none;
-    z-index: 35;
+    z-index: @z-index-modalBackground;
 
     &.light {
         opacity: 0.4;
@@ -163,7 +161,6 @@
     opacity: 1;
     z-index: 40;
     display: none;
-    .rounded;
     overflow: visible;
     box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.2);
     .transition(opacity 0.3s);
@@ -183,7 +180,7 @@
         .size(@width: 254px, @height: 30px);
         .position(relative, @left: 3px);
         float: left;
-        background-color: @color-modal-whiteGray;
+        background-color: @color-bg-select-blue;
         white-space: nowrap;
         box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.3);
         .transition(transform 0.3s);
@@ -195,27 +192,40 @@
 
         .searchIcon {
             .size(32px, 100%);
-            .image("../../images/search-lg.png", 50%, 50%);
-            background-size: 22px;
+            font-size: 18px;
+            line-height: 30px;
+            text-align: center;
             float: left;
             cursor: pointer;
         }
 
+        .input-box (166px, 24px);
+
         input {
-            .size(170px, 24px);
+            .size(166px, 24px);
             margin-top: 2px;
-            box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.4);
             float: left;
             outline: none;
-            .font(@size: 13px, @line-height: 26px);
+            .font(@size: 13px, @line-height: 24px);
+
+            &:focus + .closeBox {
+                opacity: @opacity-hover;
+            }
         }
 
-        .closeIcon(@topOff: 5px, @rightOff: 56px);
+        
         .closeBox {
             .size(19px, 19px);
-            box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.5);
+            .position(absolute, @top: 5px, @right: 58px);
+            text-align: center;
+            line-height: 16px;
+            opacity: @opacity-unhover;
+
             .icon {
-                background-position-y: 45%;
+                margin-top: 1px;
+                font-size: 14px;
+                color: @color-bg-99-grey;
+                line-height: 16px;
             }
         }
     }
@@ -223,15 +233,12 @@
     .jsonDragArea {
         .size(@width: 100%, @height: 30px);
         .cursor-move;
-        .action-gradient;
+        background-color: @color-bg-select-blue;
         text-align: center;
-        text-shadow: 1px 1px rgba(0,0,0,0.2);
-        .font(@size: 15px, @line-height: 28px, @color: @color-text-transparentWhite);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        .font(@size: 15px, @line-height: 28px, @color: @color-white);
+        .textOverflowOneLine;
         padding: 0 30px;
-        .rounded(3px 3px 0px 0px);
+        background-color: @color-bg-dusk-blue;
     }
 
     .jsonArea {
@@ -257,7 +264,7 @@
         position: relative; // for dropdown menu
 
         &:not(:last-child) {
-            border-right: 1px solid @color-border-topGrayMed;
+            border-right: 1px solid @color-border-white-two;
         }
 
         &:last-child {
@@ -298,7 +305,12 @@
                 background-color: @color-json-active-bar;
             }
             .compareIcon {
-                .action-gradient !important;
+                .xi-ckbox-empty {
+                    display: none;
+                }
+                .xi-ckbox-selected {
+                    display: block;
+                }
             }
         }
 
@@ -361,7 +373,7 @@
                     }
                 }
             }
-            .split, .pullAll, .btn.compareIcon, .sort {
+            .split, .pullAll, .compareIcon, .sort {
                 opacity: 0.5;
                 pointer-events: none;
                 display: none;
@@ -379,13 +391,14 @@
 
     .bar {
         height: 29px;
-        background-color: @color-json-options-bar;
+        background-color: @color-bg-white-seven;
         color: @color-text-darkGray;
         font-size: 13px;
         font-family: @font-base;
         font-weight: 600;
         overflow: hidden;
         .noSelection;
+        border-bottom: 1px solid @color-border-white-two;
 
         > div {
             float: left;
@@ -395,35 +408,45 @@
     }
 
     .optionsBar {
-        border-bottom: 1px solid @color-border-bottomGrayMed;
 
         .dragHandle {
-            .image("../../images/jsonModal/drag-handle.png", 50%, 45%);
+            // .image("../../images/jsonModal/drag-handle.png", 50%, 45%);
             .size(20px, 100%);
             .cursor-move;
+            margin-left: 2px;
+            .icon {
+                color:  @color-border-bottomGrayMed;
+                font-size: 14px;
+                line-height: 29px;
+            }
+        }
+
+
+        .compareIcon {
+             margin-right: 4px;
+            .icon {
+                font-size: 16px;
+            }
         }
 
         .vertLine {
             border-left: 1px solid @color-border-bottomGrayMed;
-            height: 16px;
-            margin-top: 6px;
+            height: 20px;
+            margin-top: 4px;
             margin-right: 3px;
             pointer-events: none;
         }
 
         .btn {
-            .size(19px, 19px);
-            .rounded;
+            .size(20px, 20px);
             margin: 4px 2px 0px 3px;
-            box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);
-
-            &:active {
-                box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5),
-                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
-            }
+            line-height: 20px;
+            padding-left: 1px;
 
             .icon {
                 .size(100%, 100%);
+                font-size: 10px;
+                line-height: 20px;
             }
             &.btnDeselected {
                 background: @color-json-button;
@@ -436,31 +459,25 @@
 
             &.sort {
                 .icon {
-                    .image("../../images/dagIcons/dagTabArrow.png", 50%, 50%);
-                    .transform(rotate(180deg));
-                    opacity: 0.9; // looks too bright to be 1
+
                 }
                 &.desc {
                     .icon {
-                        .transform(rotate(0deg));
-                        margin-top: 1px;
+                        .transform(rotate(180deg));
+                        position: relative;
+                        top: -2px;
+                        left: -2px;
                     }
                 }
 
             }
 
-            &.compareIcon .icon {
-                .image("../../images/checkmark-white.png", 50%, 60%);
-            }
-
             &.remove .icon {
-                .image("../../images/jsonModal/delete.png", 50%, 50%);
-                background-size: 12px;
-                margin-top: 1px;
+
             }
 
             &.split .icon {
-                .image("../../images/jsonModal/split.png", 50%, 50%);
+               
             }
 
             &.binaryIcon {
@@ -471,21 +488,19 @@
                 .image("../../images/jsonModal/binary.png", 50%, 50%);
             }
             &.pullAll .icon {
-                .image("../../images/jsonModal/pullAll.png", 50%, 50%);
                 margin-left: 1px;
-                background-size: 90% 90%;
+                font-size: 14px;
             }
             &.clearAll {
                 display: none;
                 .icon {
-                    .image("../../images/select-none-white-sm.png", 50%, 50%);
+                    font-size: 14px;
                 }
             }
             &.submitProject {
                 display: none;
                 .icon {
-                    .image("../../images/datastore/send-single.png", 50%, 50%);
-                    background-size: 90% 90%;
+                    font-size: 14px;
                 }
             }
         }
@@ -622,17 +637,17 @@
             .size(@width: 20px, @height: 20px);
             margin-top: 4px;
             margin-right: 4px;
-            background-color: @color-json-button;
             float: right;
-            .transition(0.1s background-color);
-            &:hover {
-                background-color: @color-menu-dropdownbox-white;
-            }
+
             .icon {
-                .image("../../images/arrow-down-gray-flat.png", 50%, 50%);
-                height: 100%;
-                width: 100%;
+               color: @color-white; 
             }
+
+            // .icon {
+            //     .image("../../images/arrow-down-gray-flat.png", 50%, 50%);
+            //     height: 100%;
+            //     width: 100%;
+            // }
         }
 
         .selectBtn, .submitProject {
@@ -648,7 +663,7 @@
     .infoBar {
         border-top: 1px solid @color-white;
         .flex-display;
-        padding: 0px 5px 0px 22px;
+        padding: 0px 10px 0px 10px;
 
         .text {
             color: @color-text-blue;
@@ -660,7 +675,7 @@
             padding-right: 5px;
         }
         .rowNum {
-            .flex(3 1 auto);
+            .flex(0 1 auto);
         }
     }
 
@@ -678,7 +693,7 @@
         overflow-x: hidden;
         background-color: @color-background-white;
         .font(@size: 15px, @family: @font-code, @color: @color-json-default);
-        .auto-selection;
+        .text-selection;
 
         &.singleView {
             height: 100%;
@@ -691,6 +706,9 @@
     .closeJsonModal {
         .modalContainer.modalHeader.close();
         .position(@top: 3px, @right: 4px);
+        .icon {
+            font-size: 14px;
+        }
     }
 
     .jObject {
@@ -811,7 +829,7 @@
         .size(@width: 150px);
         .position(absolute, @top: 26px, @right: 4px);
         li {
-            background-color: @color-menu-li-gray;
+            background-color: @color-white;
             color: @color-text-darkGray;
 
             &:hover {
@@ -849,7 +867,21 @@
 
 /* Quick Aggregate Modal */
 #aggModal {
-    .size(@width: 920px, @height: 650px, @min-height: ~"600px !important");
+
+    .size(@width: 920px, @height: 650px, @min-height: ~"650px !important");
+
+    .modalHeader {
+        .icon {
+            float: right;
+            padding-top: 2px;
+        }
+    }
+
+    .modalInstruction {
+        .icon {
+            color: @color-font-select-blue;
+        }
+    }
 
     .modalTopMain {
         .size(@height: 57px);
@@ -887,8 +919,8 @@
     }
 
     .mainAgg {
-        padding-top: 16px;
-        .size(@height: ~"calc(100% - 155px)");
+        padding-top: 10px;
+        .size(@height: ~"calc(100% - 149px)");
 
         .tableText {
             .size(@height: 29px);
@@ -896,15 +928,71 @@
             padding-left: 25px;
         }
 
+        .tabs {
+            .size(@width: 40px, @height: 100%);
+            display: inline;
+            float: left;
+            background-color: @color-bg-white-three;
+            .tab {
+                border-top: 1px solid @color-border-topGrayMed;
+                border-right: 1px solid @color-border-topGrayMed;
+                border-bottom: 1px solid @color-border-topGrayMed;
+                height: 50%;
+                cursor: pointer;
+                color: @color-background-sidebar;
+                .text {
+                    padding-top: 7px;
+                    padding-right: 6px;
+                    display: inline-block;
+                    .transform(rotate(-90deg));
+                    text-align: right;
+                    width: 200px;
+                    height: 200px;
+                    font-size: 17px;
+                }
+                &#aggTab {
+                    border-bottom: 0px;
+                }
+                &#corrTab {
+                    border-top: 0px;
+                }
+                &.active {
+                    background-color: @color-white;
+                    color: @color-font-select-blue !important;
+                    border: 0px;
+                    &#aggTab {
+                        border-bottom: 0px !important;
+                    }
+                    &#corrTab {
+                        border-top: 0px !important;
+                    }
+
+                    .icon {
+                        color: @color-font-select-blue;
+                        opacity: 1.0;
+                    }
+                }
+            }
+            .icon {
+                margin-left: 10px;
+                margin-top: 10px;
+                color: @color-background-sidebar;
+                opacity: 0.5;
+                .transform(rotate(-90deg))
+            }
+        }
+
+        >section {
+            height: 100%;
+        }
+
         .aggTable {
             .position(relative); // for the .padding
-            .size(@width: ~"calc(100% - 25px)", @height: ~"calc(100% - 55px)");
+            .size(@width: ~"calc(100% - 50px)", @height: 100%);
             margin: 0 auto;
             padding: 10px;
-            .rounded;
             background: @color-modal-whiteGray;
-            box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
-            border: 1px solid @color-border-joinGray;
+            float: right;
 
             .headerContainer {
                 .size(@width: 100%, @height: 23px);
@@ -945,6 +1033,12 @@
 
                 .aggContainer {
                     .flex(1 1 auto); // has flex width
+
+                    .hint {
+                        .size(@width: 340px, @height: 20px);
+                        .center-align;
+                        color: @color-font-gray36;
+                    }
                 }
 
                 .labelContainer {
@@ -1004,531 +1098,6 @@
         .spinner > div {
             .position(relative, @top: -2px);
             margin: 0px 3px;
-        }
-    }
-}
-
-/* Join Modal */
-#joinModal {
-    .size(@width: 920px, @height: 630px);
-
-    .modalTopMain {
-        .size(@height: 57px);
-        .font(@weight: bold, @size: 14px, @line-height: 57px);
-        padding-left: 17px;
-
-        > .text {
-            float: left;
-            margin-left: 8px;
-            margin-right: 10px;
-        }
-
-        #joinRoundedInput {
-            float: left;
-            margin: 16px 15px 0 0;
-            .size(@width: 220px, @height: 25px);
-            .font(@weight: bold, @size: 12px, @line-height: 25px);
-            &:focus {
-                background-color: @color-background-white;
-                box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-                outline: none;
-                color: @color-text-topAction;
-            }
-        }
-
-        #joinType {
-            .styleDropDownList(160px, 25px);
-            margin-top: 16px;
-            z-index: 12;
-
-            .text, .list li {
-                .font(@weight: 600);
-            }
-            .list {
-                .position(@top: 26px);
-                .rounded(0 0 3px 3px);
-                overflow: hidden;
-            }
-            &.open {
-                .rounded(3px 3px 3px 0);
-            }
-        }
-
-        .keepTablesCBWrap {
-            display: inline-block;
-            margin-left: 25px;
-            font-weight: 600;
-            &> div {
-                display: inline-block;
-            }
-            .checkbox {
-                position: relative;
-                top: 1px;
-            }
-            .text {
-                margin-left: 5px;
-            }
-            .qMark {
-                position: relative;
-                top: 2px;
-            }
-        }
-
-        #multiJoinBtn {
-            .position(relative, @right: 15px);
-            .size(@width: 50px, @height: 25px);
-            .vertical-align;
-            line-height: 25px;
-            float: right;
-
-            .offOnBox {
-                border: 1px solid @color-join-onoff-border;
-                .position(relative);
-                .size(25px, 25px);
-                float: left;
-                cursor: pointer;
-                .linear-gradient(top, @color-white, @color-join-onoff-gradient);
-
-                .icon {
-                    .size(100%, 100%);
-                }
-
-                &.offBox {
-                    .rounded(3px 0 0 3px);
-
-                    .icon {
-                        .image("../../images/joinModal/singlejoin_gray.png", 50%, 50%);
-                    }
-                }
-
-                &.onBox {
-                    .rounded(0 3px 3px 0);
-                    margin-left: -1px;
-
-                    .icon {
-                        .image("../../images/joinModal/multijoin_gray.png", 50%, 50%);
-                    }
-                }
-
-                &.active {
-                    .action-gradient;
-
-                    &.offBox {
-                        .icon {
-                            .image("../../images/joinModal/singlejoin_white.png", 50%, 50%);
-                        }
-                    }
-
-                    &.onBox {
-                        .icon {
-                            .image("../../images/joinModal/multijoin_white.png", 50%, 50%);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    #joinPreview {
-        margin-left: 25px;
-        margin-top: 12px;
-        width: ~"calc(100% - 100px)";
-        height: 40px;
-        font-weight: 600;
-        font-size: 13px;
-        .textOverflowOneLine;
-        line-height: 20px;
-
-        .highlighted {
-            color: @color-text-blue;
-        }
-        .joinType {
-            text-transform: uppercase;
-        }
-    }
-
-    #joinCanvas {
-        display: none;
-        position: absolute;
-    }
-
-    #mainJoin {
-        .size(@width: 100%, @height: ~"calc(100% - 247px)");
-        padding-top: 12px;
-        margin: 0 auto;
-        .flex-display;
-
-        .joinContainer {
-            .size(@height: 100%);
-            .noSelection;
-            overflow: hidden;
-        }
-
-        #leftJoin {
-            .flex(0 0 50%);
-            .transition(flex 0.5s linear);
-        }
-
-        #rightJoin {
-            .flex(0 0 50%);
-            .transition(flex 0.5s linear);
-            .tableText {
-                padding-left: 20px;
-            }
-            .mainTable {
-                margin-left: 10px;
-            }
-        }
-
-        #multiJoin {
-            .position(relative);
-            .flex(0 0 1px);
-            background-color: @color-join-divider;
-            .transition(~"flex 0.5s linear, background-color 0s linear 0.6s");
-            overflow: hidden;
-
-            .tableText, .mainTable {
-                overflow: hidden;
-            }
-
-            .tableText {
-                padding: 0;
-            }
-
-            .mainTable {
-                .position(relative);
-                width: 100%;
-                margin: 0 auto;
-
-                .title {
-                    visibility: hidden;
-                    .size(@width: 100%, @height: 28px);
-                    text-align: center;
-                    .font(@size: 14px, @weight: bold, @line-height: 28px);
-                }
-
-                .instruction {
-                     visibility: hidden;
-                    .size(@width: 100%, @height: 15px);
-                    text-align: center;
-                    .font(@size: 12px, @weight: bold, @line-height: 15px, @color: @color-text-instructions);
-                }
-
-                .clauseArea {
-                    visibility: hidden;
-                    .size(@width: 100%, @height: ~"calc(100% - 43px)");
-                    .position(relative);
-                    overflow-y: auto;
-                    padding: 0 5px;
-
-                    &::-webkit-scrollbar {
-                        display: none;
-                    }
-
-                    .joinClause {
-                        .position(relative);
-                        .size(@width: 100%, @height: 27px);
-                        margin-top: 10px;
-                        padding: 1px;
-
-                        .clause {
-                            .size(@width: ~"calc(50% - 13px)", @height: 25px);
-                            .font(@size: 12px, @line-height: 25px);
-                            .rounded;
-                            text-align: center;
-                            float: left;
-                            box-shadow: inset -1px 1px 1px 1px rgba(0, 0, 0, 0.2);
-                            outline: none;
-
-                            &.inActive {
-                                opacity: 0.5;
-                            }
-                        }
-
-                        .middleIcon {
-                            .size(@width: 25px, @height: 25px);
-                            float: left;
-                            cursor: pointer;
-
-                            .iconWrapper {
-                                .size(@width: 16px, @height: 16px);
-                                .action-gradient;
-                                .rounded(16px);
-                                .center-align;
-
-                                .icon {
-                                    .size(100%, 100%);
-                                    .image("../../images/joinModal/equal.png", 50%, 50%);
-                                }
-                            }
-
-                            &:hover .icon {
-                                .image("../../images/joinModal/cross.png", 50%, 50%);
-                            }
-                        }
-
-                        &.placeholder {
-                            .size(@height: 29px);
-                            border: 1px dashed @color-join-placeholder-border;
-                            cursor: pointer;
-                            opacity: 0.5;
-
-                            .clause {
-                                .iconWrapper {
-                                    .size(25px, 25px);
-                                    .center-align;
-
-                                    .icon {
-                                        .size(100%, 100%);
-                                        .image("../../images/joinModal/add.png", 50%, 50%);
-                                    }
-                                }
-                            }
-
-                            .middleIcon:hover .icon {
-                                .image("../../images/joinModal/equal.png", 50%, 50%);
-                            }
-
-                            &:hover {
-                                opacity: 1.0;
-                            }
-                            &.hovering {
-                                opacity: 1.0;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        .tableText {
-            .size(@height: 29px);
-            .font(@weight: bold, @line-height: 29px, @color: @color-text-midGray);
-            padding-left: 25px;
-            position: relative;
-
-            .smartSuggest {
-                .position(relative, @top: 3px);
-                .font(@size: 11px, @weight: bold);
-                float: right;
-                margin-right: 15px;
-                line-height: 18px;
-                height: 20px;
-            }
-
-            .suggError {
-                visibility: hidden;
-                float: right;
-                color: white;
-                width: 1px;
-            }
-        }
-
-        .joinTableList {
-            min-width: 150px;
-            max-width: 250px;
-            width: ~"calc(100% - 250px)";
-            height: 30px;
-            background-color: @color-background-darkGray;
-            box-shadow: inset 0px 2px 2px 1px rgba(0,0,0,0.2);
-            top: 0px;
-            left: 110px;
-            position: absolute;
-            z-index: 11;
-            font-size: 12px;
-            .transition(width 0.5s linear);
-
-            .text {
-                width: ~"calc(100% - 35px)";
-                .textOverflowOneLine;
-            }
-
-            .iconWrapper {
-                .size(@width: 30px, @height: 30px);
-                background: transparent;
-                box-shadow: inset -2px 1px 0px -1px rgba(0, 0, 0, 0.2);
-            }
-
-            .icon {
-                height: inherit;
-                width: inherit;
-                .image("../../images/dropDown.png", 50%, 50%);
-                opacity: 1;
-            }
-
-            .list {
-                top: 30px;
-                left: auto;
-                right: 1px;
-                width: ~"calc(100% - 2px)";
-                border-radius: 0px 0px 3px 3px;
-
-                li {
-                    padding-right: 5px;
-                }
-            }
-            li.selected {
-                // background-color: @color-dag-schema-selected;
-                color: @color-text-blue;
-            }
-        }
-
-
-        &.multiClause {
-            #multiJoin {
-                .flex(0 0 275px);
-                background-color: transparent;
-                .transition(flex 0.5s linear);
-
-                .mainTable {
-                    .title, .instruction, .clauseArea {
-                        visibility: visible;
-                        .transition(~"visibility 0s linear 0.6s");
-                    }
-                }
-
-
-            }
-
-            .joinTableList {
-                width: ~"calc(100% - 150px)";
-                min-width: 130px;
-            }
-
-            #leftJoin, #rightJoin {
-                .flex(0 0 ~"calc(50% - 138px)");
-            }
-
-            .mainTable {
-                .columnTab {
-                    .cursor-move;
-                }
-
-                .unselectable .columnTab {
-                    cursor: default;
-                }
-            }
-
-            .smartSuggest {
-                display: none;
-            }
-        }
-
-        .tabArea {
-            .position(relative);
-            .size(@height: 100%);
-            border: 1px solid @color-border-joinGray;
-            overflow: hidden;
-        }
-
-        .joinTableArea {
-            .size(@width: 100%, @height: 100%);
-            background: @color-white;
-            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-            overflow: auto;
-            overflow-y: hidden;
-            z-index: 0;
-        }
-
-        .background {
-            .position(absolute);
-            .size(@width: inherit, @height: 36px);
-            background-color: @color-background-darkGray;
-            z-index: 1;
-            left: 0;
-        }
-
-        .outline {
-            .position(absolute, @left: 0);
-            .size(@width: inherit, @height: 36px);
-            border-bottom: 1px solid @color-border-joinGray;
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        .joinTable {
-            .position(relative);
-            .size(@width: 0px);
-            margin-left: 1px;
-            display: none;
-            z-index: 2;
-
-            th {
-                .size(@width: 120px, @height: 36px);
-                &:first-child {
-                    width: 125px !important;
-                    padding-left: 5px;
-                }
-            }
-
-            .tdText {
-                word-break: break-all;
-                white-space: nowrap;
-                overflow: hidden;
-                cursor: default;
-            }
-        }
-
-        th {
-            .typeList(@w: 15px, @h: 22px);
-        }
-
-        .columnTab {
-            .size(@width: 100%, @height: 22px);
-            .gray-gradient;
-            margin-right: 1px;
-            float: left;
-            .rounded;
-            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-            cursor: pointer;
-
-            .iconWrap {
-                .size(@width: 20px, @height: 22px);
-                display: inline-block;
-                float: left;
-                .colIcon-gray-gradient;
-                .rounded(3px 0 0 3px);
-            }
-
-            .text {
-                .size(@width: ~"calc(100% - 40px)");
-                padding-left: 5px;
-                float: left;
-                .font(@weight: bold, @size: 12px, @line-height: 22px, @color: @color-text-midGray);
-            }
-        }
-
-        .colSelected {
-            .columnTab{
-                .action-gradient;
-
-                .iconWrap {
-                    .colIcon-active-gradient;
-                }
-
-                .text {
-                    color: white;
-                }
-            }
-        }
-
-        .unselectable .columnTab {
-            opacity: 0.7;
-            cursor: default;
-        }
-
-        .mainTable {
-            .size(@width: ~"calc(100% - 25px)", @height: ~"calc(100% - 55px)");
-            margin-left: 15px;
-            .rounded;
-            background: @color-modal-whiteGray;
-            box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
-        }
-    }
-    .modalBottom {
-        height: 40px !important;
-        .btn {
-            margin: 0 20px 10px 0;
         }
     }
 }
@@ -1609,15 +1178,11 @@ html.microsoft {
     .progressContainer {
         margin-top: 10px;
         .size(@width: 100%, @height: 20px);
-        .rounded(4px);
-        background-color: @color-monitor-progressBar;
-        padding: 1px;
+        background-color: @color-bg-light-navy;
 
         .progressBar {
             .size(@height: 100%);
-            .rounded(3px);
-            .image("../../images/monitor/queries/activeBarUnit.png");
-            background-repeat: repeat-x;
+            background-color: @color-bg-softBlue;
             .transition(width 1s linear);
         }
     }
@@ -1650,7 +1215,7 @@ html.microsoft {
 
     .funcBtn {
         &.inActive {
-            .gray-gradient;
+            background: @color-bg-pinkish-grey;
         }
     }
 
@@ -1740,661 +1305,14 @@ html.microsoft {
     .modalBottom {
         .btn {
             .size(@width: 130px);
-            margin: 10px 10px 0px 0;
+
+            &.genSub {
+                .size(@width: 150px);
+            }
         }
     }
 }
 /* End Of Alert Modal */
-
-/* Workbook Modal */
-#workbookModal, #dataFlowModal {
-    .size(@width: 1000px, @height: 625px);
-
-    .modalTopMain {
-        .size(@height: 100px);
-        padding: 15px 0;
-
-        > div {
-            .size(@height: 30px);
-        }
-
-        .optionSection {
-            margin: 0 auto;
-
-            .radioButton.disabled {
-                opacity: 0.4;
-                pointer-events: none;
-            }
-        }
-
-        .inputSection {
-            .position(relative);
-            margin: 10px auto 0 auto;
-
-            &.unavailable {
-                opacity: 0.4;
-                pointer-events: none;
-            }
-
-            .label {
-                .size(@width: 150px, @height: 25px);
-                .font(@weight: bold, @size: 13px, @line-height: 25px);
-                float: left;
-                margin-right: 10px;
-            }
-        }
-    }
-
-    .modalMain {
-        .position(relative);
-        padding: 10px;
-
-        &.unavailable {
-            opacity: 0.4;
-            pointer-events: none;
-
-            .listBox .iconWrap {
-                background: @color-background-columnList !important;
-            }
-
-            .list li {
-                color: @color-text-columnList !important;
-                background: @color-background-columnList !important;
-            }
-
-            .grid-unit {
-                > div {
-                    border: 1px solid transparent !important;
-                    color: @color-workbook-grid-default !important;
-                }
-
-                &:nth-child(even) > div {
-                    background-color: @color-workbook-grid-even !important;
-                }
-
-                &:nth-child(odd) > div {
-                    background-color: @color-background-darkGray !important;
-                }
-            }
-        }
-
-        .workbookSection, .previewSection {
-            .position(relative);
-            .size(@height: 100%);
-            overflow: hidden;
-
-            .titleSection > section, .listSection .grid-unit {
-                > div {
-                    .position(relative);
-                    .size(@height: 30px);
-                    cursor: default;
-                    margin-left: 5px;
-                    padding-left: 10px;
-                    .font(@weight: bold, @size: 12px, @line-height: 30px);
-
-                    &:first-child {
-                        margin-left: 0;
-                    }
-                }
-            }
-
-            .titleSection {
-                .flex-order(1);
-                height: 42px;
-                background: @color-background-darkGray;
-                border: 1px solid @color-workbook-title-border;
-                border-left-color: transparent;
-                overflow: hidden;
-
-                > section {
-                    padding: 5px 10px;
-                }
-
-                .title {
-                    .gray-gradient;
-                    .rounded;
-                    color: @color-workbook-title-font;
-                    display: inline-block;
-                    width: ~"calc(20% - 5px)";
-                    float: left;
-
-                    .label {
-                        .size(@width: ~"calc(95% - 15px)");
-                        display: inline-block;
-                        white-space: nowrap;
-                        .textOverflow;
-                    }
-
-                    .icon {
-                        .position(absolute, @right: 2px);
-                        .size(@width: 20px, @height: 30px);
-                        .image("../../images/sort.png", 50%, 50%);
-                        background-size: 10px 20px;
-                    }
-                    &:hover {
-                        .gray-inverse-gradient;
-                    }
-
-                    &.active {
-                        .action-gradient;
-                        color: @color-white;
-                        &:hover {
-                            .action-inverse-gradient;
-                        }
-                    }
-
-                }
-            }
-
-            .listSection {
-                .flex-order(1);
-                .rounded(0 0 3px 0);
-                background: @color-workbook-listSection;
-                overflow: auto;
-                box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
-                height: ~"calc(100% - 42px)";
-
-                .grid-unit {
-                    white-space: nowrap;
-                    padding: 0 11px;
-                    > div {
-                        color: @color-workbook-list-grid;
-                        padding-right: 5px;
-                        border: 1px solid transparent;
-                        .font(@line-height: 28px);
-                        display: inline-block;
-                        white-space: nowrap;
-                        .textOverflow;
-                        width: ~"calc(20% - 5px)";
-                        float: left;
-                    }
-
-                    &:nth-child(even) > div {
-                        background-color: @color-workbook-grid-even;
-                    }
-
-                    &:nth-child(odd) > div {
-                        background-color: @color-background-darkGray;
-                    }
-
-                    &.active > div {
-                        border: 1px solid @color-border-topAction;
-                        background: @colorOpaque-blue;
-                        color: @color-text-blue;
-                    }
-                }
-            }
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin: 15px 15px 0 0;
-        }
-    }
-
-    &.no-1 {
-        .activeWKBK {
-            pointer-events: none;
-            opacity: 0.5;
-        }
-    }
-}
-
-#workbookModal {
-    &::after {
-        content: "";
-        opacity: 0;
-    }
-    &.inactive::after {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: block;
-        background-color: white;
-        top: 0px;
-        opacity: 0.3;
-        .transition(opacity 0.4s);
-    }
-
-    .radioButton {
-        .flex(1 1 35%);
-        .justify-content(center);
-        &:first-child {
-           .flex(1 1 30%);
-        }
-    }
-
-    .modalTopMain {
-        > div {
-            .size(@width: 85%);
-        }
-
-        .inputSection {
-            .input-box(@w: ~"calc(100% - 230px)", @h: 25px);
-        }
-    }
-
-    .modalMain {
-        .size(@height: ~"calc(100% - 260px)");
-
-        .workbookSection {
-            .size(@width: 100%);
-        }
-    }
-}
-/* End of Workbook Modal */
-
-/* Dataflow Modal */
-#dataFlowModal {
-    // display: block;
-    height: 600px;
-
-    &.exportMode {
-        .sideListSection, .modalTopMain {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        .back {
-            display: inline-block;
-        }
-
-        .modalMain .previewSection .titleSection .buttonGroup {
-            display: inline-block !important;
-        }
-    }
-
-    .back {
-        display: none;
-    }
-
-    .modalTopMain {
-        > div {
-            .size(@width: 80%);
-        }
-
-        .optionSection {
-            .radioButton {
-                .flex(0 1 33%);
-                &:nth-child(2) {
-                    .flex(0 1 66%);
-                }
-            }
-        }
-
-        .inputSection {
-            .input-box(@w: ~"calc(100% - 235px)", @h: 25px);
-        }
-    }
-    .modalMain {
-        .size(@height: ~"calc(100% - 250px)");
-        .flex-display;
-        .flex-flow(row);
-
-        .sideListSection {
-            .position(relative);
-            .size(@width: 230px, @height: 100%);
-            .flex(0 0 230px);
-
-            .flex-display;
-            .flex-flow(column);
-
-            .title {
-                .flex-order(1);
-                .flex(0 0 42px);
-                .gray-gradient;
-                .rounded(3px 0 0 0);
-                text-align: center;
-                cursor: default;
-                border-right: 1px solid @color-modal-title-border;
-
-                h2 {
-                    .font(@size: 14px, @line-height: 42px, @color: @color-text-columnList);
-                }
-            }
-
-            .sideLists {
-                .position(relative);
-                .rounded(0 0 0 3px);
-                .flex-order(2);
-                .size(@height: ~"calc(100% - 42px)");
-                background: @color-background-darkGray;
-                padding: 10px;
-                box-shadow: inset -1px -1px 1px 1px rgba(0, 0, 0, 0.2);
-
-                .searchArea {
-                    .position(relative);
-                    .size(@width: 100%, @height: 35px);
-                    padding-bottom: 9px;
-                    border-bottom: 1px solid @color-modal-dividerGray;
-
-                    .input-box(@w: 100%, @h: 25px);
-
-                    input {
-                        .font(@weight: bold, @color: @color-text-midGray);
-
-                        .input-placeholder(@color-text-midGray);
-                        padding-right: 25px;
-                    }
-
-                    .closeIcon(@topOff: 3px, @rightOff: 3px);
-                }
-
-                .listSection {
-                    .position(relative);
-                    .size(@width: 100%, @max-height: ~"calc(100% - 32px)");
-                    border-top: 1px solid @color-white;
-                    padding-top: 11px;
-                    padding-right: 1px;
-                    overflow: auto;
-
-                    .dataFlowGroup {
-                        margin-bottom: 6px;
-
-                        &.unavailable {
-                            .listBox {
-                                &:hover {
-                                    background: white;
-                                }
-                            }
-                        }
-                    }
-
-                    .listBox {
-                        .size(@width: 100%, @height: 25px);
-                        .rounded;
-                        background: @color-white;
-                        box-shadow: 1px 2px 1px rgba(0,0,0,.3);
-                        cursor: pointer;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        .flex-display;
-                        .flex-flow(row);
-
-                        &:hover {
-                            background: @color-dataflow-list-hover;
-                        }
-                        &.selected {
-                            background: @color-dataflow-list-selected;
-
-                            .checkmark {
-                                .image("../../images/checkmark-white.png", 40%, 50%);
-                            }
-
-                            .iconWrap {
-                                .linear-gradient(top, @color-dataflow-icon-top, @color-dataflow-icon-bottom);
-                            }
-                        }
-
-                        &.active .iconWrap {
-                            .action-gradient;
-                        }
-
-                        .iconWrap {
-                            .flex(0 0 25px);
-                            .gray-gradient;
-                            .rounded(3px 0 0 3px);
-
-                            .icon {
-                                .position(relative, @top: 3px, @left: 3px);
-                                .size(@width: 20px, @height: 19px);
-                                .image("../../images/schedule/dfg-icon.png", 40%, 50%);
-                            }
-
-                        }
-
-                        .label {
-                            .flex(1 0 auto);
-                            padding-left: 8px;
-                            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
-                        }
-
-                        .checkmark {
-                            .flex(0 0 20px);
-                            .image("../../images/checkmark-light.png", 40%, 50%);
-                            margin-right: 3px;
-                        }
-                    }
-
-                    .list {
-                        .position(relative);
-                        .size(@width: ~"calc(100% - 8px)");
-                        margin: 6px 0 0 8px;
-
-                        li {
-                            .size(@height: 22px);
-                            .rounded;
-                            list-style: none;
-                            margin-top: 5px;
-                            padding-left: 8px;
-                            .font(@line-height: 22px, @size: 12px, @color: @color-text-columnList);
-                            background: @color-background-columnList;
-                            .textOverflow;
-                            white-space: nowrap;
-                            cursor: default;
-
-                            &.active {
-                                background: @color-dataflow-list-active;
-                                color: @color-white;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        .previewSection {
-            .size(@width: ~"calc(100% - 170px)");
-            .titleSection {
-                padding: 10px;
-                .font(@color: @color-text-columnList);
-
-                .titleWrap {
-                    .size(@width: ~"calc(100% - 180px)");
-                    .font(@weight: bold);
-                    white-space: nowrap;
-                    float: left;
-                }
-
-                .buttonGroup {
-                    display: none;
-                    .size(@width: 180px, @height: 20px);
-                    line-height: 20px;
-                    float: right;
-
-                    .modifyDSButton {
-                        .size(@height: 100%);
-                        float: right;
-                        cursor: pointer;
-
-                        .icon {
-                            .size(19px, 19px);
-                        }
-
-                        .text {
-                            .position(relative, @top: -2px);
-                        }
-
-                        &.selectAll {
-                            .icon {
-                                .size(19px, 19px);
-                                .image("../../images/select-all.png", 50%, 50%);
-                            }
-                        }
-
-                        &.clear {
-                            margin-right: 10px;
-
-                            .icon {
-                                .image("../../images/select-none.png", 50%, 50%);
-                            }
-                        }
-                    }
-                }
-            }
-
-            .tableSection {
-                .size(@height: ~"calc(100% - 42px)");
-                box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
-                overflow-y: hidden;
-
-                .headerBackground {
-                    .size(@width: 100%, @height: 38px);
-                    .position(absolute, @left: 0);
-                    background-color: @color-background-darkGray;
-                    z-index: 1;
-                }
-
-                .headerShadow {
-                    .size(@width: 100%, @height: 1px);
-                    .position(absolute, @top: 81px, @left: 0);
-                    z-index: 3;
-                    background-color: rgba(0, 0, 0, 0.15);
-                    box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.08);
-                }
-
-                .tablePadding {
-                    .size(1px, 1px);
-                    .position(absolute, @left: 50%);
-                    visibility: hidden;
-                }
-
-                .dataFlowTable {
-                    .position(relative);
-                    margin-left: 1px;
-                    overflow-y: hidden;
-                    z-index: 2;
-
-                    th {
-                        .size(@width: 120px, @height: 36px);
-                        .typeList(@w: 15px, @h: 25px);
-
-                        &:first-child {
-                            width: 125px !important;
-                            padding-left: 5px;
-                        }
-
-                        &.colSelected {
-                            .columnTab{
-                                .action-gradient;
-                                .iconWrap {
-                                    .colIcon-active-gradient;
-                                }
-
-                                .text {
-                                    color: white;
-                                }
-                            }
-
-                            &.highlight {
-                                .text {
-                                    color: @color-text-blue;
-                                }
-                            }
-                        }
-                    }
-
-                    .header {
-                        &::after {
-                            display: none;
-                        }
-                    }
-
-                    td:first-child {
-                        border-left: 5px solid white;
-                    }
-
-                    .tdText {
-                        word-break: break-all;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        cursor: default;
-                    }
-
-                    .header {
-                        .size(100%, 100%);
-                        padding: 3px 0;
-
-                        .columnPadding {
-                            .size(@width: 100%, @height: 1px);
-                            visibility: none;
-                        }
-
-                        .columnTab {
-                            .size(@width: 100%, @height: 25px);
-                            .gray-gradient;
-                            .position(relative);
-                            text-align: center;
-                            float: left;
-                            .rounded;
-                            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-
-                            .iconWrap {
-                                .size(@width: 20px, @height: 25px);
-                                display: inline-block;
-                                float: left;
-                                .colIcon-gray-gradient;
-                                .rounded(3px 0 0 3px);
-                            }
-
-                            .text {
-                                .size(@width: ~"calc(100% - 40px)");
-                                padding-left: 5px;
-                                float: left;
-                                .font(@weight: bold, @size: 12px, @line-height: 25px, @color: @color-text-midGray);
-                            }
-                        }
-                    }
-
-                    th.exportable .columnTab {
-                        cursor: pointer;
-                    }
-                }
-            }
-        }
-
-        &.unavailable {
-            opacity: 1;
-            .sideListSection {
-                opacity: 0.4;
-            }
-            .previewSection {
-                pointer-events: auto;
-                .titleSection {
-                    border-left-color: @color-modal-title-border !important;
-                }
-            }
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin-top: 8px;
-        }
-    }
-
-    #dataFlowPreviews {
-        background-color: @color-wildSand;
-    }
-
-    .dagImage {
-        position: relative;
-        margin-left: 40px;
-        margin-top: 20px;
-        z-index: 1;
-        .dagTable, .actionTypeWrap {
-            cursor: auto;
-        }
-    }
-    .previewCanvas {
-        pointer-events: none;
-        position:absolute;
-        left: 0;
-        top: 0;
-        z-index: -1;
-    }
-}
-/* End of Dataflow Modal */
 
 /* Delete Table Modal */
 #deleteTableModal {
@@ -2412,13 +1330,27 @@ html.microsoft {
         }
     }
 
+    &.autoTrigger {
+        .auto {
+            display: block;
+        }
+
+        .manual {
+            display: none;
+        }
+    }
+
+    .auto {
+        display: none;
+    }
+
     .loadingSection {
         display: none;
         .position(absolute, @top: 0, @left: 0);
         .size(100%, 100%);
         z-index: 10;
 
-        .dialog {
+        .loadWrap {
             .size(@width: 110px, @height: 30px);
             .center-align;
 
@@ -2433,28 +1365,20 @@ html.microsoft {
                 .animatedEllipsis {
                     > div {
                         .font(@size: 12px, @weight: bold, @line-height: 30px);
-                        margin-left: -1px;
                     }
                 }
             }
         }
     }
 
-    .modalTopMain {
-        // only show the box-shadow
-        .size(@height: 0px);
-    }
-
     .modalMain {
         .size(@height: ~"calc(100% - 144px)");
         position: relative;
-        padding: 15px 8px 0 8px;
+        padding: 8px;
 
         .section {
             .size(@width: 100%, @height: ~"calc(33% - 10px)");
-            border: 1px solid  @color-border-topGrayMed;
-            background-color: @color-background-listSectionGray;
-            padding: 4px 8px;
+            border: 1px solid @color-bg-pinkish-grey2;
             margin-top: 10px;
 
             &.orphan {
@@ -2464,35 +1388,28 @@ html.microsoft {
 
         .titleSection {
             padding-right: 10px;
+            background-color: @color-bg-white-seven;
+            box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
 
             .title {
-                .gray-gradient;
-                .rounded;
-                color: @color-workbook-title-font;
+                span, i {
+                    display: inline-block;
+                    float: left;
+                }
 
                 .label {
-                    .size(@width: ~"calc(95% - 15px)");
-                    display: inline-block;
-                    white-space: nowrap;
-                    .textOverflow;
+                    // .size(@width: ~"calc(100% - 20px)");
+                    .textOverflowOneLine;
+                    margin-right: 10px;
                 }
 
                 .icon {
-                    .position(absolute, @right: 2px);
                     .size(@width: 20px, @height: 30px);
-                    .image("../../images/sort.png", 50%, 50%);
-                    background-size: 10px 20px;
-                }
+                    color: @color-font-greyish-brown;
 
-                &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                &.active {
-                    .action-gradient;
-                    color: @color-white;
-                    &:hover {
-                        .action-inverse-gradient;
+                    &:before {
+                        .vertical-align;
+                        display: block;
                     }
                 }
             }
@@ -2503,13 +1420,7 @@ html.microsoft {
             overflow-y: scroll;
 
             .grid-unit {
-                &:nth-child(even) > div {
-                    background-color: @color-workbook-grid-even;
-                }
-
-                &:nth-child(odd) > div {
-                    background-color: @color-background-darkGray;
-                }
+                box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
             }
         }
 
@@ -2519,12 +1430,11 @@ html.microsoft {
             > div {
                 display: inline-block;
                 .position(relative);
-                .size(@width: ~"calc(30% - 25px)", @height: 30px);
+                .size(@width: ~"calc(30% - 15px)", @height: 30px);
                 float: left;
                 cursor: default;
-                margin-left: 5px;
                 padding-left: 10px;
-                .font(@weight: bold, @size: 12px, @line-height: 30px);
+                .font(@size: 12px, @line-height: 30px);
                 .textOverflowOneLine;
 
                 &:first-child {
@@ -2532,7 +1442,6 @@ html.microsoft {
                 }
 
                 &.checkboxSection {
-                    background: transparent !important;
                     .size(@width: 30px);
                 }
 
@@ -2542,548 +1451,68 @@ html.microsoft {
             }
         }
     }
-
-    .modalBottom {
-        .checkboxSection {
-            float: right;
-            margin-right: 20px;
-        }
-
-        .btn {
-            margin: 0 20px 10px 0;
-        }
-    }
 }
 /* End of Delete Table Modal */
 
-/* File Browser Modal */
-#fileBrowserModal {
-    .size(@width: 804px, @height: 670px, @max-width: none, @max-height: none);
-    text-transform: capitalize;
-    overflow: visible;
+/* Profile Modal */
+#profileModal {
+    .size(@width: 1000px, @height: 600px);
 
-    &.loadMode {
-        pointer-events: none;
+     @width-stats: 180px;
 
-        .cancel, .close {
-            pointer-events: auto;
+    .modalInstruction, .modalTopMain, .modalMain, .modalBottom {
+        .size(@width: ~"calc(100% - @{width-stats})");
+        
+    }
+
+    .popBar {
+        .xi-previous {
+            display: none;
+        }
+
+        .xi-next {
+            display: block;
         }
     }
 
-    &.unsortable {
-        #fileBrowserSort {
-            cursor: not-allowed;
-            .gray-gradient;
-            .dropdownBox {
-                cursor: not-allowed;
+    &.collapse {
+        .popBar {
+            .xi-previous {
+                display: block;
             }
-        }
-        .titleSection .title {
-            cursor: not-allowed !important;
-            .gray-gradient !important;
-            .tag {
-                 cursor: not-allowed;
-            }
-        }
-    }
 
-    &.notChrome {
-        #innerFileBrowserContainer {
-            overflow: visible !important;
-        }
-    }
-
-    .dropDownList {
-        .styleDropDownList(450px, 25px);
-        .text, .list li {
-            font-size: 12px;
-        }
-    }
-
-    .tag {
-        .size(@width: 90px, @height: 25px);
-        .font(@weight: bold, @size: 13px, @line-height: 25px);
-        float: left;
-        .noSelection;
-        cursor: default;
-    }
-
-    .leftSection {
-        // .size(@width: 130px, @height: 100%);
-        // float: left;
-        // background-color: @color-background-lightLightGray;
-        // box-shadow: 1px 0px 1px 0px rgba(0, 0, 0, 0.4);
-
-        // XXX temporary do it until backend support different target
-        display: none;
-    }
-
-    .rightSection {
-        .size(@width: ~"calc(100% - 130px)", @height: 100%);
-        float: left;
-
-        // XXX temporary do it until backend support different target
-        .size(@width: 100%, @height: 100%);
-    }
-
-    .modalTopMain {
-        .size(@height: 58px);
-        cursor: default;
-
-        .leftSection {
-            .btn {
-                .size(@width: 110px);
-                .center-align;
+            .xi-next {
+                display: none;
             }
         }
 
-        .rightSection {
-            padding: 14px 11px;
 
-            .label {
-                width: 70px;
+        #profile-stats {
+            width: 10px;
+            .transition(width 0.3s);
+
+            .container {
+                display: none;
             }
+        }
 
-             #fileBrowserUp {
-                .size(@width: 25px, @height: 26px);
-                .action-gradient;
-                float: left;
-                cursor: pointer;
-                .rounded(3px 0 0 3px);
-
-                &:active {
-                    .action-inverse-gradient;
-                }
-
-                &.disabled {
-                    .gray-gradient;
-                    opacity: 0.7;
-                    pointer-events: none;
-                }
-
-                .icon {
-                    .size(100%, 100%);
-                    .image("../../images/datastore/upFolder.png", 50%, 50%);
-                }
-            }
-
-            .dropDownList {
-                .size(@width: ~"calc(90% - 150px)", @height: 26px);
-                .rounded(0 3px 3px 0);
-                text-transform: none;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-                box-shadow: none;
-                .flex-display;
-
-                .defaultPath {
-                    .size(@height: 25px);
-                    .flex(1 1 46px);
-                    .font(@size: 12px, @line-height: 25px);
-                    padding-left: 10px;
-                    text-align: right;
-                    float: left;
-                }
-
-                .text {
-                    .flex(1 1 ~"calc(100% - 71px)");
-                    padding-left: 0;
-                    cursor: text;
-                    outline: none;
-                    white-space: nowrap;
-                    .textOverflow;
-                }
-
-                .iconWrapper {
-                    .flex(0 0 25px);
-                }
-
-                .list {
-                    top: 26px;
-                    .rounded(0px 0px 3px 3px);
-                }
-                &.open {
-                    .rounded(0 3px 3px 0);
-                }
-            }
-
-            .iconSection {
-                float: right;
-
-                .iconWrapper {
-                    display: inline-block;
-                    .size(25px, 25px);
-                    .rounded;
-                    .action-gradient;
-                    margin-left: 5px;
-                    float: left;
-
-                    &:active {
-                        .action-inverse-gradient;
-                    }
-
-                    .icon {
-                        .size(25px, 25px);
-                    }
-
-                    &.sort {
-                        position: relative;
-                        > .icon {
-                            .image("../../images/sort.png", 50%, 50%);
-                        }
-                        .dropDown;
-                        .dropdownBox {
-                            .size(@width: 12px, @height: 9px);
-                            .position(@right: 2px);
-                            border-width: 9px 9px 0 0;
-                        }
-                        &:hover .dropdownBox{
-                            opacity: 1.0 !important;
-                        }
-
-                        .menu {
-                            .size(@width: 120px);
-                            .position(absolute, @top: 25px, @right: 0);
-                            li {
-                                .position(relative);
-                                padding: 0 6px 0 8px;
-                                .label {
-                                    .position(relative, @top: 1px);
-                                }
-                                .icon {
-                                    display: none;
-                                    .position(absolute, @top: 0, @right: 6px);
-                                    .size(@width: 15px, @height: 25px);
-                                    .image("../../images/checkmark-blue.png",
-                                            50%, 50%);
-                                }
-                                &:hover {
-                                    background-color: @color-selectedCell-dark;
-                                }
-                                &.select .icon {
-                                    display: inline;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+         .modalInstruction, .modalTopMain, .modalMain, .modalBottom {
+            .size(@width: ~"calc(100% - 10px)");
         }
     }
 
-    .modalMain {
-        .position(relative);
-        .size(@height: ~"calc(100% - 300px)");
-
-        .leftSection {
-            border-top: 1px solid @color-white;
-            overflow-y: auto;
-
-            .targetContainer {
-                margin: 0 auto;
-            }
-        }
-
-        .rightSection {
-            padding: 5px 0;
-            .position(relative);
+    &.loading {
+        .loadDisabled {
+            opacity: 0.7;
+            pointer-events: none;
         }
 
         .loadingSection {
-            display: none;
-            .size(@width: 100%, @height: 100%);
-            .position(absolute);
-            .waitingIcon {
-                display: block;
-                .center-align;
-            }
+            display: block !important;
         }
 
-        .titleSection {
-            .size(@width: ~"calc(100% - 22px)", @height: 40px);
-            padding: 5px 0;
-            margin: 0 auto;
-            background: @color-background-darkGray;
-            .rounded(3px 3px 0px 0px);
-            border: 1px solid @color-modal-title-border;
-            box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
-
-            .title {
-                float: left;
-                .position(relative);
-                .size(@height: 30px);
-                .font(@weight: bold, @size: 12px, @line-height: 30px, @color: @color-filebrowser-title);
-                margin-left: 10px;
-                padding-left: 15px;
-                .gray-gradient;
-                .rounded;
-                cursor: default;
-
-                &.fileName {
-                    .size(@width: ~"calc(50% - 10px)");
-                }
-                &.fileDate {
-                    .size(@width: ~"calc(25% - 18px)");
-                }
-                &.fileSize {
-                    .size(@width: ~"calc(25% - 18px)");
-                }
-
-                &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                &.select {
-                    .action-gradient;
-                    color: @color-white;
-                    &:hover {
-                        .action-inverse-gradient;
-                    }
-                }
-
-                .label {
-                    display: inline-block;
-                    .size(@width: ~"calc(100% - 25px)", @height: 100%);
-                    float: left;
-                    .textOverflowOneLine;
-                }
-
-                .icon {
-                    display: inline-block;
-                    float: right;
-                    .size(@width: 20px, @height: 30px);
-                    .image("../../images/sort.png", 0%, 50%);
-                }
-            }
-        }
-
-        .mainSection {
-            .size(@width: ~"calc(100% - 22px)", @height: 100%);
-            overflow-y: auto;
-            background: lighten(@color-background-darkGray, 3%);
-            .rounded(3px 3px 0px 0px);
-            margin: 0 auto;
-            text-transform: none;
-            position: relative;
-
-            .error {
-                color: @color-text-error;
-                margin: 10px;
-            }
-
-            &.manyFiles {
-                .grid-unit {
-                    display:none;
-                    &.visible {
-                        display: inline-block;
-                    }
-                }
-            }
-        }
-
-        #innerFileBrowserContainer {
-            overflow: hidden;
-        }
-
-        &.gridView {
-            .targetContainer {
-                .size(@width: 65px);
-
-                .grid-unit.active {
-                    background: @color-mercury;
-                }
-            }
-
-            .titleSection, .fileDate, .fileSize {
-                display: none;
-            }
-            .grid-unit {
-                .gridViewForGrid;
-
-                > .label {
-                    color: @color-text-darkdarkGray;
-                }
-            }
-            .mainSection {
-                padding-left: 3px;
-                padding-bottom: 4px;
-            }
-
-            .shadow {
-                width: ~"calc(100% - 22px)";
-                height: ~"calc(100% - 10px)";
-                border-radius: 3px 3px 0px 0px;
-                box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
-                border-bottom: 1px solid rgba(0,0,0,0.1);
-                position: absolute;
-                margin-left: 11px;
-                z-index: 1;
-                pointer-events: none;
-            }
-        }
-
-        &.listView {
-            .mainSection {
-                background: @color-filebrowser-mainSection;
-                .rounded(0);
-                .size(@height: ~"calc(100% - 40px)");
-                box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
-                overflow-y: scroll;
-
-                &.manyFiles {
-                    .grid-unit {
-                        display:none;
-                        &.visible {
-                            display: block;
-                        }
-                    }
-                }
-            }
-
-            .targetContainer {
-                .size(@width: 100px);
-
-                .grid-unit {
-                    .listViewForGrid;
-                    .size(@width: auto);
-                    margin-top: 7px;
-
-                    .label {
-                        .size(@width: ~"calc(100% - 25px)");
-                        margin-left: 25;
-                        .textOverflowOneLine;
-                    }
-                }
-            }
-
-            .mainSection .grid-unit {
-                .size(@height: 30px);
-                margin: 0 auto;
-                display: block;
-                cursor: default;
-
-                > div {
-                    float: left;
-                    .size(@height: 30px);
-                    .font(@weight: bold, @size: 12px, @line-height: 30px, @color: @color-workbook-grid-default);
-                    border: 1px solid transparent;
-                    overflow: hidden;
-                }
-
-                > .label {
-                    .size(@width: ~"calc(50% - 30px)");
-                    padding-left: 5px;
-                    .textOverflowOneLine;
-                }
-
-                .fileSize, .fileDate {
-                    margin-left: 10px;
-                    padding-left: 15px;
-                    .textOverflowOneLine;
-                }
-
-                .fileDate {
-                    .size(@width: ~"calc(25% - 15px)");
-                }
-                .fileSize {
-                    .size(@width: ~"calc(25% - 16px)");
-                }
-                .gridIcon {
-                    display: none;
-                }
-
-                .listIcon {
-                    margin-left: 10px;
-                    .size(@width: 25px, @height: 30px);
-                    .icon {
-                        display: inline-block;
-                        .size(@width: 25px, @height: 30px);
-                    }
-                }
-                &:nth-child(even) > div {
-                    background-color: @color-workbook-grid-even;
-                }
-
-                &:nth-child(odd) > div {
-                    background-color: @color-background-darkGray;
-                }
-                &.active {
-                    > div {
-                        border: 1px solid @color-border-topAction;
-                        background: @colorOpaque-blue;
-                        color: @color-text-blue;
-                    }
-                    .listIcon {
-                        border-right: none;
-                        .action-gradient;
-                    }
-                }
-                &.ds > .listIcon .icon {
-                    .image("../../images/datastore/db-sm.png", 50%, 40%);
-                }
-                &.folder > .listIcon .icon {
-                    .image("../../images/datastore/folder-sm.png", 50%, 50%);
-                }
-            }
-        }
-    }
-    .modalSubMain {
-        .size(@height: 90px);
-        padding: 5px 0;
-        .inputSection {
-            .size(@width: 70%, @height: 25px);
-            margin: 10px auto 5px auto;
-            input {
-                .size(@width: ~"calc(100% - 110px)", @height: 25px);
-                line-height: 25px;
-                .rounded;
-                box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
-                padding-left: 10px;
-                &:focus {
-                    outline: none;
-                }
-            }
-            .dropDownList {
-                text-transform: uppercase;
-                .size(@width: ~"calc(100% - 110px)");
-                .list {
-                    .size(@height: 75px);
-                    overflow-y: auto;
-
-                    ul {
-                        .size(@height: 75px);
-                    }
-                }
-            }
-        }
-    }
-    .modalBottom {
-        .btn {
-            margin: 15px 15px 0 0;
-        }
-    }
-}
-// End Of File Browser Modal
-
-/* Profile Modal */
-#profileModal {
-    .size(@width: 850px, @height: 425px);
-
-    &.loading {
-        .modalTopMain {
-            .loadingSection {
-                display: block;
-            }
-
-            .helpInfoSection, .groubyInfoSection {
-                opacity: 0.7;
-                pointer-events: none;
-            }
-        }
-
-        .modalMain {
-            .rowInputSection {
-                pointer-events: none;
-            }
+        .bar {
+            opacity: 0.6;
         }
     }
 
@@ -3107,38 +1536,264 @@ html.microsoft {
     }
 
     &:not(.type-number) {
-        .modalTopMain {
-            .size(@height: ~"calc(100% - 150px)");
-        }
-
-        .modalMain {
-            .size(@height: 47px);
-            padding: 0;
-
-            .rangeSection {
-                display: none;
-            }
-
-            .infoSection {
-                display: none;
-            }
+        .rangeSection {
+            opacity: @opacity-disabled !important;
+            pointer-events: none;
         }
     }
 
     .modalTopMain {
-        .size(@height: ~"calc(100% - 294px)", @min-height: 105px);
-        .position(relative);
-        padding: 2px 0;
-        background-color: @color-modal-whiteGray;
-        overflow: hidden;
+        .size(@height: 100px);
+        background-color: @color-white;
 
-        #profile-filterSelection {
-            .position(absolute);
-            background-color: @color-background-bottomAction;
-            opacity: 0.4;
-            border: 1px solid rgba(0, 0, 0, 0.3);
+        .sortAndRangeSection {
+            .size(@width: 100%, @height: 60px);
+            padding: 2px 20px;
+
+            > div {
+                .size(@height: 100%);
+                float: left;
+
+                .title {
+                    .size(@height: 20px);
+                    .font(@size: 10px, @weight: 400, @color: @color-font-navy);
+                }
+
+                .radioButton {
+                    .size(@height: 30px);
+                    
+
+                    > div, > i, > input {
+                        display: inline-block;
+                        float: left;
+                    }
+
+                    .radio {
+                        .size(@height: 30px);
+                        .icon {
+                            .vertical-align;
+                        }
+                    }
+
+                    .text {
+                
+                        .font(@size: 13px, @color: @color-font-navy);
+                        line-height: 30px;
+                        .textOverflowOneLine;             
+                    }
+                }
+            }
+
+            .sortSection {
+                .size(@width: 45%);
+
+                .radioButton {
+                    .flex(1 1 100px);
+
+                    &.origin {
+                        .flex(1 1 80px);
+                    }
+
+                    .sortIcon {
+                        color: @color-font-greyish-brown;
+                        .vertical-align;
+                        margin: 0 3px;
+                    }
+
+                    .text {
+                        .size(@width: ~"calc(100% - 40px)");
+                    }
+                }
+            }
+
+            .rangeSection {
+                .size(@width: 55%);
+                .input-box(@w: ~"calc(100% - 70px)", @h: 30px);
+                padding-left: 5px;
+                border-left: 1px solid @color-border-pinkish-grey2;
+
+                .radioButton {
+                    .flex(1 3 60px);
+                    .text {
+                        .size(@width: ~"calc(100% - 20px)");
+                    }
+
+                    input {
+                        margin-left: 5px;
+                        max-width: 190px;
+                    }
+
+                    &.range {
+                        .flex(3 1 220px);
+
+                        .text {
+                            .size(@width: 40px);
+                        }
+                    }
+                }
+            }
         }
 
+        .inputSection {
+            padding: 5px 20px;
+            .size(@height: 40px);
+            background-color: @color-bg-white-eight;
+
+            > div {
+                .size(@height: 30px);
+                line-height: 30px;
+                .font(@size: 13px);
+            }
+
+            .rowInput {
+                .size(@width: ~"calc(100% - 210px)");
+                float: left;
+                .input-box(@w: auto, @h: 20px);
+
+                input {
+                    .size(@min-width: 80px);
+                    background-color: @color-white;
+                    margin: 0 10px;
+                }
+
+                .highlight {
+                    color: @color-font-select-blue;
+                }
+            }
+
+            .disaplyInput {
+                .size(@width: 200px);
+                float: right;
+
+                > div, > input {
+                    display: inline-block;
+                    float: left;
+                }
+
+                .input-box(@w: 50px, @h: 20px);
+
+                input {
+                    border: 1px solid @color-border-softBlue;
+                    margin-left: 10px;
+                    .vertical-align;
+                    background-color: @color-white;
+                }
+
+                .control {
+                    .size(@width: 10px, @height: 20px);
+                    border: 1px solid @color-border-softBlue;
+                    border-left: 0;
+                    margin-right: 10px;
+                    .vertical-align;
+
+                    > div {
+                        .size(@width: 100%, @height: 50%);
+                        .position(relative);
+
+                        .icon {
+                            color: @color-font-select-blue;
+                            .position(absolute, @top: 1px, @left: 1px);
+                        }
+
+                        &:first-child {
+                            border-bottom: 1px solid @color-border-softBlue;
+                            
+                            .icon {
+                                top: 0;
+                            }
+                        }
+
+                        &:hover {
+                            background-color: @color-white;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 212px)");
+        .position(relative);
+        overflow: hidden;
+        background-color: @color-bg-white-eight;
+        box-shadow: inset 0 1px 0 0 @color-bg-pinkish-grey2;
+        padding: 16px 0 0 0;
+    }
+
+    .modalBottom {
+        .size(@height: 20px);
+        background-color: @color-bg-white-eight;
+
+        .scrollSection {
+            .size(@width: 100%, @height: 11px);
+            cursor: default;
+            background-color: @color-modal-whiteGray;
+
+            &.hidden {
+                display: block;
+
+                > div {
+                    display: none;
+                }
+            }
+
+            .rowScrollArea {
+                padding: 0px 25px;
+
+                .scrollBar {
+                    .size(@width: 100%, @height: 10px);
+                    .position(relative);
+                    background-color: @color-bg-white-nine;
+                }
+
+                .scroller {
+                    .position(absolute, @top: 0, @left: 0);
+                    .size(@width: 25px, @height: 10px);
+                    background-color: @color-profile-scroller;
+                    .transition(left 0.13s);
+                    cursor: pointer;
+                    .rounded(5px);
+
+                    &.scrolling {
+                        .transition(left 0s);
+                    }
+                }
+            }
+        }
+    }
+
+     #profile-filterSelection {
+        .position(absolute);
+        background-color: @color-background-bottomAction;
+        opacity: 0.4;
+        border: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+    #profile-filterOption {
+        .size(@width: 120px, @height: 60px);
+        .position(absolute);
+        background-color: fadeout(@color-font-greyish-brown, 10%);
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+        display: none;
+
+        .option {
+            .size(@height: 20px);
+            padding: 0 3px;
+            box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+
+            .text {
+                .font(@size: 11px, @color: @color-white);
+            }
+
+            &:hover {
+               background-color: @color-font-greyish-brown;
+            }
+        }
+    }
+
+
+    #profile-chart {   
         .loadingSection {
             display: none;
             .size(@width: 100%, @height: 100%);
@@ -3163,66 +1818,8 @@ html.microsoft {
             }
         }
 
-        .helpInfoSection {
-            .size(@width: 100%, @height: 20px);
-            .font(@size: 12px, @line-height: 15px);
-            float: right;
-            margin-right: 25px;
-
-            .filterInfo {
-                float: right;
-                color: @color-text-blue;
-                display: none;
-
-                .text {
-                    cursor: pointer;
-                    margin-right: 5px;
-
-                    &:last-child {
-                        margin-right: 0;
-                    }
-                }
-            }
-
-            .numInfo {
-                > div {
-                    .size(@height: 15px);
-                    float: right;
-                }
-
-                .icon {
-                    .size(@width: 15px, @height: 15px);
-                    .position(relative);
-                    margin: 0 5px;
-                    cursor: pointer;
-
-                    &.disabled {
-                        .plus {
-                            background-color: @color-background-midGrayMed;
-                        }
-                    }
-
-                    .plus {
-                        .size(@width: 14px, @height: 3px);
-                        .position(absolute, @top: 6px, @left: 0);
-                        background-color: @color-profile-bar-hover;
-
-                        &.vertical {
-                            .transform(rotate(90deg));
-                        }
-                    }
-                }
-
-                .text {
-                    span {
-                        color: @color-text-blue;
-                    }
-                }
-            }
-        }
-
         .groubyInfoSection {
-            .size(@width: 100%, @height: ~"calc(100% - 20px)");
+            .size(@width: 100%, @height: ~"calc(100% - 5px)");
             padding: 0 0 2px 0;
 
             .cover {
@@ -3233,16 +1830,15 @@ html.microsoft {
                 .size(@width: 8px, @height: 13px);
                 .position(absolute, @top: 50%);
                 .transform(translateY(-50%));
-                cursor: pointer;
+                color: @color-font-greyish-brown;
 
                 &.left-arrow {
                     left: 9px;
-                    .image("../../images/arrow-left.png");
+                    
                 }
 
                 &.right-arrow {
                     right: 9px;
-                    .image("../../images/arrow-right.png");
                 }
             }
 
@@ -3364,331 +1960,77 @@ html.microsoft {
                 cursor: pointer;
             }
         }
-
-        .filterOption {
-            .size(@width: 120px, @height: 92px);
-            .position(absolute);
-            background-color: rgba(221, 221, 221, 0.9);
-            box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
-            padding: 7px 10px;
-            display: none;
-
-            .option {
-                .size(@height: 26px);
-                padding: 3px 0;
-                cursor: pointer;
-
-                .textWrapper {
-                    background-color: @color-profile-option;
-                    .rounded(5px);
-                    text-align: center;
-                    .font(@line-height: 20px, @size: 11px, @color: @color-profile-option-text);
-                    &:hover {
-                        background-color: @color-profile-option-hover;
-                    }
-                }
-
-                &.cancel .textWrapper {
-                    background-color: @color-profile-cancel;
-                    text-transform: uppercase;
-                    color: @color-profile-cancel-text;
-                    &:hover {
-                        background-color: @color-profile-cancel-hover;
-                    }
-                }
-
-            }
-        }
     }
 
-    .modalMain {
-        .size(@height: 200px);
-        .rounded(0 0 3px 3px);
+    #profile-stats {
+        .size(@width: @width-stats, @height: ~"calc(100% - @{height-card-header})");
+        .position(absolute, @top: @height-card-header, @right: 0);
+        background-color: @color-bg-white-three;
+        box-shadow: inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
+        .text-selection;
 
-        .scrollSection {
-            .size(@width: 100%, @height: 11px);
-            cursor: default;
-            background-color: @color-modal-whiteGray;
+        .popBar {
+            .size(@width: 24px, @height: @height-card-instr - 2);
+            .position(absolute, @top: 0, @left: -24px);
+            .rounded(5px 0 0 5px);
+            background-color: @color-bg-white-three;
+            box-shadow: -2px 0 0 0 #cccccc;
 
-            &.hidden {
-                display: block;
-
-                > div {
-                    display: none;
-                }
-            }
-
-            .rowScrollArea {
-                padding: 0px 25px;
-
-                .scrollBar {
-                    .size(@width: 100%, @height: 10px);
-                    .position(relative);
-                    .linear-gradient(top, @color-profile-scroller-top, @color-profile-scroller-bottom);
-                }
-
-                .scroller {
-                    .position(absolute, @top: 0, @left: 0);
-                    .size(@width: 25px, @height: 10px);
-                    background-color: @color-profile-scroller;
-                    .transition(left 0.13s);
-                    cursor: pointer;
-                    .rounded(5px);
-
-                    &.scrolling {
-                        .transition(left 0s);
-                    }
-                }
+            .icon {
+                .size(12px, 12px);
+                .font(@color: @color-font-dusk-blue);
+                .center-align;
             }
         }
 
-        .sortAndInputSection {
-            .size(@width: 100%, @height: 30px);
-            padding: 5px 25px;
-            background-color: @color-background-lightLightGray;
+        .container {
+            .size(@width: 100%, @height: ~"calc(50% - 43px)");
+            padding: 5px 15px;
+            border-top: 1px solid @color-border-pinkish-grey2;
             .flex-display;
+            .flex-direction(column);
 
-            &.hidden {
-                display: block;
+            &:first-child {
+                border-top: 0;
+            }
 
-                > div {
-                    display: none;
+            &.aggInfo {
+                .label {
+                    .size(@width: 55px);
+                    text-transform: capitalize;
+                }
+
+                .text {
+                    .size(@width: ~"calc(100% - 55px)");
                 }
             }
 
-            > div {
-                .size(@height: 20px);
-            }
-
-            .sortSection {
-                .flex(1 1 65%);
-                .flex-display;
-                padding-right: 5px;
-                border-right: 1px solid @color-white;
-
-                > div {
-                    float: left;
+            &.statsInfo {
+                .label {
+                    .size(@width: 36px);
                 }
 
-                > .label {
-                    .flex(0 1 60px);
-                    .font(@size: 13px, @color: @color-text-darkGray);
-                }
-
-                .sort {
-                    .flex(1 1 100px);
-
-                    .radioButton.active {
-                        .text {
-                            color: @color-text-blue;
-                        }
-
-                        &.asc .icon {
-                            .image("../../images/profileModal/ascC.png", 50%, 50%);
-                        }
-
-                        &.origin .icon {
-                            .image("../../images/profileModal/origC.png", 50%, 50%);
-                        }
-
-                        &.desc .icon {
-                            .image("../../images/profileModal/descC.png", 50%, 50%);
-                        }
-                    }
-
-                    .icon {
-                        float: left;
-                        margin: 0 5px;
-                        .size(20px, 20px);
-                    }
-
-                    .text {
-                        .size(@width: 40px, @height: 20px);
-                        .font(@line-height: 20px, @size: 12px, @weight: bold, @color: @color-text-instructions);
-                    }
-
-                    .asc .icon {
-                        .image("../../images/profileModal/ascG.png", 50%, 50%);
-                    }
-
-                    .origin .icon {
-                        .image("../../images/profileModal/origG.png", 50%, 50%);
-                    }
-
-                    .desc .icon {
-                        .image("../../images/profileModal/descG.png", 50%, 50%);
-                    }
+                .text {
+                    .size(@width: ~"calc(100% - 40px)");
                 }
             }
 
-            .rowInputSection {
-                .flex(2 1 35%);
-                .noSelection;
-                border-left: 1px solid @color-border-midGrayMed;
-                padding-left: 5px;
-
-                .rowInput {
-                    float: right;
-
-                    input, label {
-                        .size(@height: 20px);
-                        .font(@line-height: 20px, @size: 12px);
-                    }
-
-                    .min-range {
-                        .size(@width: 35px);
-                        background: @color-input-background;
-                        outline: none;
-                        padding: 0 4px;
-                        margin-right: 5px;
-                        text-align: left;
-
-                        &:focus {
-                            background-color: @color-white;
-                            box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
-                            color: @color-bar-border;
-                        }
+            &.corr {
+                .size(@height: 86px);
+                button {
+                    margin-top: 18px;
+                    i {
+                        position: relative;
+                        left: -8px;
+                        top: 3px;
                     }
                 }
-            }
-        }
-
-        .rangeSection, .infoSection {
-            .size(@width: 50%, @height: 155px);
-            float: left;
-            padding-top: 7px;
-        }
-
-        .rangeSection {
-            padding-right: 10px;
-            padding-left: 20px;
-
-            .title {
-                .size(@height: 30px);
-                .font(@size: 13px, @weight: bold);
-            }
-
-            .content {
-                > div {
-                    float: left;
-                    .size(@height: 110px);
-                }
-
-                .sliderSection {
-                    .size(@width: 30px);
-
-                    .sliderBar {
-                        .size(@width: 20px, @height: 90px);
-                        .horizontal-align;
-                        .image("../../images/profileModal/slider.png");
-                        background-size: 20px 90px;
-
-                        .wrap {
-                            .size(@width: 100%, @height: 30px);
-                            .position(absolute);
-                            background-color: transparent;
-
-                            &.single {
-                                top: 0
-                            }
-
-                            &.range {
-                                top: 30px;
-                            }
-
-                            &.fitAll {
-                                top: 60px;
-                            }
-                        }
-
-                        .slider {
-                            .position(relative, @left: 4px, @top: 0);
-                            .size(@width: 12px, @height: 12px);
-                            .rounded(12px);
-                            display: inline-block;
-                            background-color: @color-profile-bar;
-                            .transition(top 0.2s linear);
-
-                            &.range {
-                                top: 36px;
-                            }
-
-                            &.fitAll {
-                                top: 72px;
-                            }
-                        }
-                    }
-                }
-            }
-
-            .rangePart {
-                .size(@width: 300px, @height: 25px);
-                .font(@size: 12px, @line-height: 25px);
-                .rounded(5px);
-                margin-bottom: 10px;
-                padding-left: 10px;
-                cursor: pointer;
-                opacity: 0.7;
-
-                &.active {
-                    opacity: 7;
-                }
-
-                .input-box(@w: 200px, @h: 25px);
-
-                input {
-                    background-color: @color-profile-input-background;
-                    margin-left: 10px;
-                }
-            }
-        }
-
-        .infoSection {
-            padding-right: 20px;
-
-            .infoContainer {
-                .size(@width: ~"calc(50% - 5px)", @height: 100%);
-                float: left;
-                background-color: @color-modal-whiteGray;
-                padding: 3px 5px;
-                border: 1px solid @color-border-lightLightGray;
-                box-shadow: inset 0px 1px 0px rgba(0, 0, 0, 0.2);
-                .rounded(3px);
-
-                &:first-child {
-                    margin-right: 5px;
-                }
-
-                &.aggInfo .info {
-                    .label {
-                        .size(@width: 55px);
-                        text-transform: capitalize;
-                    }
-
-                    .text {
-                        .size(@width: ~"calc(100% - 55px)");
-                    }
-                }
-
-                &.statsInfo .info {
-                    .label {
-                        .size(@width: 36px);
-                    }
-
-                    .text {
-                        .size(@width: ~"calc(100% - 40px)");
-                    }
-                }
-            }
-
-            .info, .title {
-                .size(@height: 20px);
-                .font(@line-height: 20px);
+                
             }
 
             .title {
-                .font(@size: 13px, @weight: bold);
-                margin-bottom: 2px;
+                .flex(0 0 28px);
+                .font(@size: 14px);
             }
 
             .instruction {
@@ -3696,18 +2038,22 @@ html.microsoft {
             }
 
             .info {
+                .flex(1 1 auto);
                 .font(@size: 12px, @line-height: 20px);
                 white-space: nowrap;
 
-                .label {
+                > span {
                     display: inline-block;
+                    float: left;
+                }
+
+                .label {
+                    .font(@weight: 400);
                 }
 
                 .text {
-                    .font(@weight: 900, @color: @color-profile-agg-text);
-                    display: inline-block;
+                    .font(@color: @color-font-select-blue);
                     .textOverflow;
-                    vertical-align: bottom;
 
                     &.animatedEllipsis {
                         vertical-align: sub;
@@ -3719,590 +2065,6 @@ html.microsoft {
     }
 }
 /* End Of Profile Modal */
-
-/* Export Modal */
-#exportModal {
-    .size(@width: 680px);
-    height: auto !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    bottom: auto !important;
-
-    .modalTopMain {
-        // .size(@height: 100px);
-        font-size: 13px;
-        padding: 15px 0;
-
-        .formRow {
-            .size(@width: 85%, @height: 35px);
-            .position(relative);
-            margin: 0 auto;
-            padding: 5px 0;
-
-            #exportColumns {
-                padding-right: 25px;
-            }
-
-            .clearInput {
-                .size(20px, 20px);
-                .rounded();
-                position: absolute;
-                right: 4px;
-                top: 8px;
-                .gray-gradient;
-                cursor: pointer;
-
-                &:active {
-                    .gray-inverse-gradient;
-                }
-                .icon {
-                    .size(20px, 20px);
-                    .image("../../images/close-med.png", 50%, 50%);
-                }
-            }
-        }
-
-        .label {
-            .size(@width: 70px, @height: 25px);
-            margin-right: 5px;
-            float: left;
-            .font(@size: 13px, @weight: 700, @line-height: 25px);
-            cursor: default;
-            .noSelection;
-        }
-
-        .checkboxWrap {
-            display: inline-block;
-            color: @color-text-instructions;
-            margin-left: 16px;
-            .text {
-                margin-left: 4px;
-            }
-        }
-
-        .qMark {
-            float: right;
-            margin-top: 3px;
-            margin-left: 4px;
-        }
-
-        .text {
-            display: inline-block;
-        }
-
-        .exportNameSection {
-            .input-box(@w: ~"calc(100% - 210px)", @h: 25px, @focus: true);
-        }
-        .exportColumnsSection {
-            .input-box(@w: ~"calc(100% - 75px)", @h: 25px, @focus: true);
-        }
-
-        .exportPathSection {
-            .dropDownList {
-                .styleDropDownList(~"calc(100% - 75px)", 25px);
-            }
-        }
-
-        .advancedSection {
-            margin-top: 10px;
-            margin-left: 7.5%;
-            width: 92.5%;
-            .formRow {
-                width: ~"calc(100% - 25px)";
-                margin-left: 25px;
-            }
-
-            &.collapsed {
-                .advancedIcon {
-                    .image("../../images/plus-dark.png", 0%, 50%);
-                }
-                .formRow {
-                    display: none;
-                }
-                .restore {
-                    display: none;
-                }
-            }
-            &.expanded {
-                .advancedIcon {
-                    .image("../../images/minus-dark.png", 0%, 50%);
-                }
-                .formRow {
-                    display: block;
-                }
-                .restore {
-                    display: block;
-                }
-            }
-        }
-        .advancedIcon {
-            width: 25px;
-            height: 25px;
-            display: inline-block;
-            float: left;
-            .image("../../images/plus-dark.png", 0%, 50%);
-        }
-        .advancedTitle {
-            display: inline-block;
-            cursor: pointer;
-            .text {
-                line-height: 25px;
-                font-weight: 700;
-            }
-        }
-
-        .restore {
-            float: right;
-            margin-right: 18px;
-            width: 25px;
-            height: 25px;
-            .image("../../images/restore-blue.png", 50%, 50%);
-            cursor: pointer;
-        }
-
-        .csvRow {
-            .label {
-                width: 130px;
-            }
-            .nullVal {
-                font-style: italic;
-            }
-
-            .dropDownList {
-                .styleDropDownList(120px, 25px);
-
-                &.disabled {
-                    opacity: 0.7;
-                    pointer-events: none;
-                }
-
-                .text {
-                    box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-                }
-
-                .list {
-                    .font(@weight: 600);
-
-                    li {
-                        padding: 0 7px;
-
-                        &.hidden {
-                            display: none;
-                        }
-
-                        &:hover {
-                            background-color: @color-white;
-                        }
-
-                        // this use js to make hover status's color
-                        &.hover {
-                            background-color: @color-selectedCell-light;
-                        }
-                    }
-
-                    .other {
-                        .size(@height: 60px);
-                        .position(relative);
-
-                        span {
-                            display: block;
-                        }
-
-                        .inputWrap {
-                            .position(relative);
-                            .size(@width: 100%, @height: 20px);
-                            .font(@line-height: 20px);
-
-                            input {
-                                padding-right: 22px;
-                                .size(@width: 100%, @height: 20px);
-                                .font(@line-height: 20px);
-                                box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
-                                .rounded;
-                                outline: none;
-                                .textOverflow;
-                            }
-
-                            .inputAction {
-                                .size(@width: 18px, @height: 18px);
-                                .position(absolute, @top: 1px, @right: 0);
-                                .gray-gradient;
-                                .rounded;
-
-                                &:hover {
-                                    .gray-inverse-gradient;
-                                }
-
-                                .icon {
-                                    .size(100%, 100%);
-                                    .image("../../images/checkmark.png", 50%, 50%);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            &.csvHidden {
-                display: none !important;
-            }
-            &.csvSelected {
-                display: block;
-            }
-        }
-
-        .radioButtonGroup {
-            .size(@width: 232px, @height: 25px);
-
-            .radioButton {
-                .size(@height: 25px, @min-width: 93px);
-                .font(@line-height: 25px);
-                .flex(1 1 50%);
-
-                .label {
-                    width: auto;
-                    cursor: pointer;
-                }
-            }
-        }
-
-        .overwrite {
-            .label {
-                width: 85px;
-            }
-
-            .radio {
-                margin-right: 0px;
-            }
-
-            .radioButtonGroup {
-                .size(@width: ~"calc(100% - 140px)", @min-width: 450px, @max-width: 550px);
-
-                .radioButton {
-                    .size(@min-width: auto);
-                }
-            }
-        }
-    }
-
-    .modalBottom {
-        height: 64px;
-        .rounded(4px);
-        .btn {
-            margin: 15px 15px 0 0;
-        }
-    }
-
-    .ui-resizable-e {
-        height: ~"calc(100% + 15px)";
-    }
-}
-/* End Of Export Modal */
-
-/* Multi-cast Modal */
-#multiCastModal {
-    .size(@width: 900px, @height: 550px);
-    .noSelection;
-
-    .modalInstruction {
-        padding: 5px 12px 5px 12px;
-        height: 60px;
-
-        .icon {
-            margin-top: 9px;
-        }
-    }
-
-    .modalTopMain {
-        .size(@height: 1px);
-    }
-
-    .modalMain {
-        .size(@height: ~"calc(100% - 158px)");
-        padding: 5px 10px 0 10px;
-
-        > div {
-            float: left;
-
-            .title {
-                .size(@height: 45px);
-                padding: 0 5px;
-                line-height: 40px;
-
-                .label {
-                    .font(@size: 13px, @weight: 700, @color: @color-text-midGray);
-                }
-            }
-        }
-
-        .resultContainer {
-            .size(@width: 303px, @height: 100%);
-            padding-right: 7px;
-            margin-right: 7px;
-            border-right: 1px solid @color-join-divider;
-
-            .title {
-                .modifyButton {
-                    cursor: pointer;
-                    float: right;
-
-                    > span {
-                        float: right;
-                    }
-
-                    .icon {
-                        .position(relative, @top: 10px);
-                       .size(19px, 19px);
-                       .image("../../images/select-none.png", 50%, 50%);
-                    }
-
-                    .text {
-                        .font(@weight: 600, @color: @color-text-blue);
-                        text-align: right;
-                        margin-right: 10px;
-                    }
-                }
-            }
-
-            .header {
-                .size(@height: 43px);
-                margin-bottom: 1px;
-                background: @color-background-darkGray;
-                border: 1px solid @color-silver;
-                .rounded(3px 3px 0 0);
-                box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.2);
-
-                .row {
-                    .size(@height: 41px);
-                    text-align: center;
-                    .font(@size: 12px, @line-height: 41px, @color: @color-text-darkGray);
-
-                    > div {
-                        padding: 0;
-                    }
-                }
-            }
-
-            .content {
-                .size(@height: ~"calc(100% - 89px)");
-                overflow-y: auto;
-                border: 1px solid @color-mercury;
-                border-top: none;
-
-                .instruction {
-                    padding: 0 10px;
-                    margin-top: 10px;
-                    .font(@size: 12px, @color: @color-text-lightGray);
-                    text-align: center;
-                }
-
-                .row {
-                    &:nth-child(odd) {
-                        background: @color-table-col-lightGray;
-                    }
-
-                    &:nth-child(even) {
-                        background: @color-modal-whiteGray;
-                    }
-
-
-                    &:last-child > div {
-                        border-bottom: 1px solid @color-silver;
-                    }
-
-                    .newType {
-                        background: rgba(204, 235, 204, 0.6);
-
-                        &.highlight {
-                            background: rgba(197, 225, 241, 0.6);
-                        }
-                    }
-                }
-            }
-
-            .row {
-                .size(@height: 30px);
-                .font(@size: 11px, @weight: bold, @line-height: 30px, @color: @color-text-midGray);
-
-                > div {
-                    float: left;
-                    white-space: nowrap;
-                    padding: 0 10px;
-                    border-right: 1px solid @color-silver;
-                    .size(@width: 95px);
-                    .textOverflow;
-
-                    &:last-child {
-                        border-right: none;
-                        .size(@width: ~"calc(100% - 190px)");
-                    }
-
-                    &.newType {
-                        color: @color-text-blue;
-                    }
-
-                    &.oldType, &.newType {
-                        text-transform: capitalize;
-                    }
-                }
-            }
-        }
-
-        .tableContainer {
-            .size(@width: ~"calc(100% - 310px)", @height: 100%);
-
-            .title {
-                .btn {
-                    .position(relative, @top: 8px);
-                    .size(@width: 120px, @height: 25px);
-                    float: right;
-                    text-align: left;
-                    padding-right: 15px;
-                    line-height: 25px;
-                    font-size: 11px;
-
-                    .icon {
-                        .image("../../images/smart-cast.png", 3px, 50%);
-                        background-size: 13px 20px;
-                    }
-                }
-            }
-
-            .tableSection {
-                .size(@height: ~"calc(100% - 45px)");
-                overflow-x: auto;
-                overflow-y: hidden;
-                .position(relative);
-                .rounded(3px 3px 0 0);
-                border: 1px solid @color-mercury;
-            }
-
-            .background {
-                .position(absolute);
-                .size(@width: 100%, @height: 74px);
-                left: 0;
-                background: @color-background-darkGray;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-                box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);;
-            }
-
-            .multiCastTable {
-                .position(relative);
-                .size(@width: 0px);
-                margin-left: 1px;
-                z-index: 2;
-
-                th {
-                    .size(@width: 120px, @height: 74px);
-
-                    &:first-child {
-                        width: 125px !important;
-                        padding-left: 5px;
-                    }
-
-                    &.colSelected {
-                        .columnTab{
-                            .action-gradient;
-                            color: white;
-                        }
-
-                        &.highlight {
-                            .text {
-                                color: @color-text-blue;
-                            }
-                        }
-                    }
-                }
-
-                .tdText {
-                    word-break: break-all;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    cursor: default;
-                }
-
-                .header {
-                    .size(100%, 100%);
-                    padding: 3px 0;
-
-                    &::after {
-                        top: 65px;
-                        box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
-                    }
-
-                    .dropDownList {
-                        .styleDropDownList(100%, 25px);
-
-                        .iconWrapper .icon {
-                            position: static;
-                        }
-
-                        .text, .list {
-                            text-transform: capitalize;
-                            // text-align: center;
-                            .font(@weight: bold, @size: 13px, @line-height: 25px);
-                        }
-
-                        .list li {
-                            text-align: left;
-                            // padding-left: 5px;
-                        }
-
-                        .initialType {
-                            color: @color-text-lightGray;
-                        }
-                    }
-
-                    .colPadding {
-                        .size(@width: 100%, @height: 1px);
-                        .position(relative, @top: 32px);
-                        visibility: hidden;
-                    }
-
-                    .columnTab {
-                        .size(@width: 100%, @height: 25px);
-                        .gray-gradient;
-                        .position(relative);
-                        text-align: center;
-                        float: left;
-                        .rounded;
-                        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-                        white-space: nowrap;
-                        margin-top: 7px;
-                        padding-left: 8px;
-                        padding-right: 8px;
-                        .font(@weight: bold, @size: 13px, @line-height: 25px, @color: @color-text-midGray);
-
-                        &::after {
-                            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-                        }
-                    }
-                }
-
-                .unselectable .header {
-                    opacity: 0.7;
-                    .columnTab {
-                        cursor: default;
-                    }
-
-                    .dropDownList {
-                        pointer-events: none;
-                        .iconWrapper {
-                            background: @color-multicast-icon;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin: 15px 15px 0 0;
-        }
-    }
-}
-/* End Of Multi-cast Modal */
 
 #dfgParameterModal {
     .size(@width: 920px, @height: auto, @max-height: none);
@@ -4416,7 +2178,7 @@ html.microsoft {
         padding: 2px 12px 2px 2px;
         margin: 5px;
         .rounded;
-        .action-gradient;
+        background: @color-bg-select-blue;
         cursor: pointer;
         color: @color-text-cyan;
         text-shadow: -1px 0px 1px rgba(0,0,0,0.6);
@@ -4579,9 +2341,6 @@ html.microsoft {
         .tableHeader {
             .size(@height: 30px);
             overflow: hidden;
-            border-top-left-radius: 5px;
-            border-top-right-radius: 5px;
-
             .thWrap {
                 .size(@height: 30px);
                 color: @color-white;
@@ -4716,827 +2475,16 @@ html.microsoft {
     }
 
     .modalBottom {
-        padding-right: 0px;
         right: 0px;
         .size(auto, auto);
-        padding-bottom: 15px;
+        padding: 15px 15px 0 0;
 
         .btn {
-            margin: 15px 15px 0 0;
+            margin-top: 15px;
         }
     }
 }
 
-#addScheduleModal {
-    .size(@width: 550px, @height: auto);
-    bottom: auto;
-    right: auto;
-    overflow: visible;
-
-    .modalTopMain {
-        margin-bottom: 20px;
-        padding: 15px 20px;
-        .flex-display;
-        .flex-flow(column);
-
-        > div {
-            .flex(0 0 30px);
-            margin-bottom: 8px;
-
-            &:last-child {
-                margin-bottom: 0;
-            }
-
-            &.scheInfoSection {
-                .flex(1 1 auto);
-                .text {
-                    .size(@max-width: ~"calc(100% - 180px)");
-                    .position(relative, @top: 5px);
-                        max-height: 77px;
-                        text-overflow: ellipsis;
-                        overflow: hidden;
-                }
-            }
-
-            > div {
-                float: left;
-            }
-        }
-
-        h3 {
-            .size(@width: 175px);
-            .font(@size: 14px, @line-height: 30px);
-            float: left;
-        }
-
-        .dropDownList {
-            .styleDropDownList(200px, 25px);
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin-right: 20px;
-            &.unavailable {
-                pointer-events: none;
-            }
-        }
-    }
-}
-
-#extensionInfoModal {
-    .size(@width: 800px, @height: 500px);
-
-    .modalTopMain {
-        .size(@height: ~"calc(100% - 150px)");
-        background: @color-white;
-
-        .basicInfos {
-            .size(@height: 180px);
-
-            > div {
-                float: left;
-                .size(@height: 100%);
-            }
-
-            .logoArea {
-                .size(@width: ~"calc(100% - 140px)");
-
-                .icon {
-                    .size(@height: 100%);
-                    background-size: 100% 100% !important;
-                }
-
-                .logo {
-                    .size(@width: 27%);
-                }
-
-                .icon2 {
-                    .size(@width: 72%);
-                    .image("../../images/extension/logo3.png");
-                }
-            }
-
-            .infoArea {
-                .size(@width: 140px);
-                background-color: @color-modal-whiteGray;
-                padding: 0 0 10px 10px;
-                position: relative;
-
-                .topInfo {
-                    .size(@height: 20px);
-                    .font(@size: 11px, @weight: bold, @line-height: 20px, @color: @color-text-blue);
-                    margin: 10px 0;
-
-                    > span {
-                        display: inline-block;
-                        float: left;
-                    }
-
-                    .icon {
-                        .size(@width: 20px, @height: 20px);
-                        margin-right: 5px;
-                    }
-
-                    .text {
-                        cursor: pointer;
-                    }
-
-                    &.website .icon {
-                        .image("../../images/extension/website.png", 50%, 50%);
-                    }
-
-                    &.error .icon {
-                        .position(relative, @left: 3px);
-                        .image("../../images/extension/email.png", 50%, 50%);
-                    }
-                }
-
-                .bottomInfo {
-                    .position(absolute, @bottom: 10px);
-                    .font(@size: 11px, @weight: bold, @color: @color-text-midGray);
-                }
-            }
-        }
-
-        .detailInfos {
-            .size(@height: ~"calc(100% - 180px)");
-            padding: 10px;
-            .font(@size: 13px);
-            overflow-x: hidden;
-            overflow-y: auto;
-
-            .divider {
-                .size(@width: 100%, @height: 1px);
-                margin: 10px 0;
-                background-color: @color-background-bottomGrayMed;
-            }
-        }
-    }
-
-    .modalBottom {
-        .btn {
-            margin-top: 10px;
-            margin-right: 20px;
-
-            &.disabled {
-                pointer-events: none;
-                opacity: 0.7;
-            }
-        }
-    }
-}
-
-
-#operationsModal {
-    .size(@width: 720px, @height: auto);
-    overflow: visible;
-    bottom: auto;
-
-    .minimize, .maximize {
-        .position(absolute, @top: 7px, @right: 40px);
-        display: none;
-    }
-    .minimize .icon {
-        .image("../../images/resize-min.png", 50%, 50%);
-    }
-    .maximize {
-        .icon {
-            .image("../../images/resize-expand.png", 50%, 50%);
-        }
-    }
-
-    .modalInstruction {
-        .icon {
-            .background('../../images/info-icon-xl.png', 32px, 32px);
-        }
-    }
-
-    .dropDownList {
-        .styleDropDownList(395px, 22px);
-        box-shadow: none;
-        margin-left: 15px;
-        top: -2px;
-
-        .textNoCap {
-            text-transform: none !important;
-        }
-
-        .text {
-            .size(@width: 100%, @height: 25px);
-            padding-right: 26px;
-            .input-placeholder(@color-text-placeholder);
-            text-transform: capitalize;
-        }
-
-        .list {
-            .size (@width: ~"calc(100% - 22px)");
-            top: 24px;
-            .rounded(0px 0px 3px 3px);
-            box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
-            text-transform: capitalize;
-            li {
-                display: none;
-                &:hover {
-                    background-color: transparent;
-                }
-                &.highlighted {
-                    background-color: @color-selectedCell-light;
-                }
-
-            }
-        }
-        &.open {
-            .rounded(0);
-        }
-        .iconWrapper {
-            .position(absolute, @top: 1px, @right: 0);
-            .size(@height: 23px);
-        }
-        &#categoryList {
-            input {
-                position: relative;
-                z-index:13;
-            }
-            .dropdown {
-                z-index: 13;
-            }
-            .list {
-                z-index: 12;
-            }
-        }
-        &#functionList {
-            input {
-                position: relative;
-                z-index:11;
-                text-transform: none;
-            }
-            .dropdown {
-                z-index: 11;
-            }
-            .list {
-                z-index: 10;
-            }
-        }
-    }
-    input {
-        .size (@height: 25px);
-        line-height: 22px;
-        border-bottom: 2px solid @color-border-dagTopGray;
-        border-top: 1px solid @color-border-inputMidGray;
-        border-right: 1px solid @color-border-lightLightGray;
-        box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.1);
-    }
-
-    section {
-        .size (100%, 55px);
-        .font (@size: 13px);
-        padding-top: 15px;
-        padding-left: 70px;
-
-        &:first-child {
-            .size(@height: 52px);
-        }
-        b {
-            float: left;
-        }
-    }
-
-    .step {
-        &.inactive {
-            color: @color-text-placeholder;
-            pointer-events: none;
-            .dropdown {
-                .gray-gradient;
-            }
-            .dropDownList {
-                box-shadow: none;
-            }
-           .argumentSection {
-                opacity: 0;
-            }
-            .tableContainer {
-                display: none;
-            }
-        }
-    }
-    .argumentSection {
-        .transition (opacity 0.3s);
-        .size (@min-height: 244px);
-    }
-
-    .border {
-        .size(@width: 100%);
-        border-top: 1px solid @color-modal-dividerGray;
-        border-bottom: 1px solid @color-white;
-    }
-
-    &.fewArgs {
-        .stepChainImg {
-            .image("../../images/opsModal/stepChainsTrimmed.png", 50%, 50%);
-            .size (27px, 83px);
-        }
-        .link1 {
-            display: none;
-        }
-        .circle1 {
-            top: -1px;
-        }
-        .circle2 {
-            display: none;
-        }
-        .argumentSection {
-            min-height: 175px;
-        }
-        .modalMain .descriptionText {
-            min-height:32px;
-        }
-    }
-    &.numerousArgs {
-        .argumentSection {
-            min-height: 284px;
-        }
-    }
-    .descriptionText {
-        p {
-            font-size: 13px;
-        }
-    }
-    .funcDescription {
-        white-space: pre;
-        .auto-selection;
-        .aggCols, .groupByCols, .descArgs {
-            color: @color-text-blue;
-        }
-        .char {
-            background-color: transparent;
-            .transition(2s all ease-in);
-            &.visible {
-                // color: @color-text-green;
-                background-color: yellow;
-            }
-        }
-    }
-
-    .modalMain {
-        padding: 7px 15px 10px 70px;
-        .font (@size: 13px);
-        b {
-            display: inline-block;
-            margin-bottom: 4px;
-            margin-top: 9px;
-            font-size: 13px;
-        }
-
-        .descriptionText {
-            margin-bottom: 2px;
-            min-height: 40px;
-            line-height: 16px;
-        }
-    }
-
-    .tableHeader {
-        .size(@height: 30px);
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
-        overflow: hidden;
-    }
-
-    .thWrap {
-        .size(@width: 55%, @height: 30px);
-        color: @color-white;
-        font-weight: bold;
-        font-size: 13px;
-        line-height: 30px;
-        float: left;
-        background-color: @color-background-joinGray;
-        border-left: 1px solid @color-white;
-        overflow: hidden;
-        .text {
-            padding-left: 12px;
-        }
-    }
-
-    .thWrap:first-child {
-        .size(@width: ~"calc(35% + 1px)");
-        border-left: none;
-    }
-    .thWrap:last-child {
-       .size(@width: ~"calc(10% - 2px)");
-        box-shadow: 1px 0px 0px 1px @color-border-joinGray;
-       .text {
-            padding-left: 4px;
-       }
-
-    }
-
-    .tableContainer {
-        z-index: 0;
-        padding: 0px;
-        .rounded(3px);
-        // overflow: hidden;
-        max-height: 160px;
-
-        &.manyArgs {
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .tableWrapper {
-            width: 635px;
-            overflow-y: hidden;
-
-            table {
-                width: 100%;
-                overflow: hidden;
-
-                td {
-                    .size(@width: 55%, @height: 40px);
-                    .font(@weight: 600);
-                    padding: 0px;
-                    border-right: 1px solid @color-border-joinGray;
-
-                    &:first-of-type {
-                        width: 223px;
-                    }
-                    &:last-of-type {
-                        width: 10%;
-                        border-right: none;
-                        div {
-                            border-right: 8px solid @color-modal-whiteGray;
-                            height: 100%;
-                        }
-                    }
-                }
-
-                .inputWrap {
-                    .size(@width: 100%, @height: 40px);
-                    padding: 7px 8px 4px 8px;
-                    float: left;
-                    border-left: 8px solid @color-modal-whiteGray;
-
-                    .argument {
-                        width: 100%;
-                        text-align: center;
-                        padding-left: 6px;
-                        padding-right: 25px;
-                        .textOverflowOneLine;
-                    }
-
-                    .dropDownList {
-                        .size(@width: 100%, @height: 25px);
-                        margin-left: 0;
-                        top: 0px;
-                        background: transparent;
-                        z-index:1;
-                        &.modifiedWidth {
-                            .argument {
-                                box-shadow: 0px 3px 3px 0px rgba(0,0,0,0.4);
-                                text-align: left;
-                            }
-                        }
-
-                        &.udfSection {
-                            top: 2px;
-                        }
-
-                        .list.openList .openli {
-                            display: block !important;
-                        }
-
-                        .list.hint {
-                            width: 199px;
-                            top: 27px;
-                            text-align: center;
-                            text-transform: none;
-                            position: fixed;
-                            margin-top: -1px;
-
-                            li {
-                                padding-left: 0;
-                            }
-                        }
-
-                        .argIconWrap {
-                            .position(absolute, @top: 5px, @right: 3px);
-                            .size (20px, 20px);
-                            .rounded;
-                            .gray-gradient;
-                            cursor: pointer;
-
-                            &:active {
-                                .gray-inverse-gradient;
-                            }
-                            .icon {
-                                .size(20px, 20px);
-                                .image("../../images/opsModal/columnSelect.png", 50%, 50%);
-                            }
-                        }
-
-                        &.colNameSection, &.checkboxSection {
-                            input {
-                                padding-right: 0;
-                            }
-
-                            .argIconWrap {
-                                display: none;
-                            }
-                        }
-
-                        &.checkboxSection {
-                            padding-left: 20%;
-
-                            &.disabled {
-                                opacity: 0.7;
-
-                                input, .checkBoxText {
-                                    pointer-events: none;
-                                }
-                            }
-
-                            input {
-                                .size(@width: 15px, @height: 15px);
-                                box-shadow: none;
-                                float: left;
-                                margin-top: 3px;
-                            }
-
-                            .checkBoxText {
-                                .position(relative, @top: -5px);
-                                .size(@height: 25px);
-                                .font(@size: 14px, @line-height: 25px);
-                                padding-left: 5px;
-                            }
-                        }
-                    }
-
-                    .checkboxSection {
-                        cursor: default;
-                        input, label {
-                            cursor: pointer;
-                        }
-                    }
-                }
-
-                .description {
-                    height: 40px;
-                    padding-left: 10px;
-                    padding-top: 5px;
-                    .textOverflowOneLine;
-                }
-
-                .checkboxWrap {
-                    text-align: center;
-
-                    .checkbox {
-                        .size(@width: 16px, @height: 30px);
-                        .position(relative, @top: 5px);
-                    }
-                    &.hidden {
-                        .checkbox {
-                            display: none;
-                        }
-                    }
-                }
-
-                .colNameRow {
-                    .checkboxWrap {
-                        .checkbox {
-                            display: none;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    .tableHeader .cast, .tableContainer .tableWrapper table td.cast {
-        // display: none;
-        width: 0px;
-        padding-left: 0px;
-        border-left-width: 0px;
-        overflow: hidden;
-        .transition(all 0.3s);
-        &.showing {
-            width: 140px;
-            border-left-width: 1px;
-            div.text {
-                padding-left: 12px;
-            }
-        }
-        &.overflowVisible {
-            overflow: visible;
-        }
-    }
-
-    .tableHeader .descCell, .tableContainer .tableWrapper table td.descCell {
-        .transition(all 0.3s);
-        &.castShowing {
-            width: 209px;
-        }
-    }
-
-    .cast {
-        .dropDownList {
-            width: 123px;
-            margin-left: 8px;
-            &.hidden {
-                display: none;
-            }
-            ul {
-                position: fixed;
-                width: 100px;
-            }
-            li.default {
-                color: @color-text-lightGray;
-            }
-        }
-    }
-
-    .modalBottom {
-        padding: 4px 15px 10px 0px;
-        background-color: white;
-
-        .btn {
-             margin-left: 20px;
-        }
-    }
-
-    .minimized {
-        display: none !important;
-        &.argumentSection {
-            display: block !important;
-            height: auto;
-            min-height: 0px;
-        }
-        &.modalMain {
-            display: block !important;
-            padding-left: 15px;
-            .rounded(0px 0px 4px 4px);
-        }
-    }
-
-    &.type-array, &.type-boolean {
-        .map {
-            display: none !important;
-            opacity: 0.11; // using as a marker;
-        }
-
-        .category-map li {
-            display: none !important;
-            opacity: 0.11; // using as a marker;
-        }
-    }
-
-
-    &.type-string, &.type-array, &.type-boolean {
-        .category-filter {
-            .greaterthan, .greaterthanequalto,
-            .lessthan, .lessthanequalto, .equals {
-                display: none !important;
-                opacity: 0.11; // using as a marker;
-            }
-        }
-
-        .category-aggregate li {
-            display: none !important;
-            opacity: 0.11; // using as a marker;
-        }
-
-        .aggregate {
-            display: none !important;
-            opacity: 0.11; // using as a marker;
-        }
-    }
-
-    &.type-integer, &.type-boolean {
-        .category-filter {
-            .like, .regex {
-                display: none !important;
-                opacity: 0.11; // using as a marker;
-            }
-        }
-    }
-
-    &.type-boolean {
-        .category-groupby li, .category-filter li {
-            display: none !important;
-            opacity: 0.11; // using as a marker;
-        }
-        .category-groupby .count, .category-aggregate .count,
-        .category-filter .custom  {
-            display: list-item !important;
-            opacity: 1;
-        }
-    }
-
-    &.type-indexed {
-        .sort {
-            display: none !important;
-            opacity: 0.11; // using as a marker;
-        }
-    }
-
-    &.type-dataset {
-        .groupby {
-            display: none !important;
-            opacity: 0.11; // using as a marker;
-        }
-    }
-}
-
-.stepChain {
-    .position(absolute, @top: 94px);
-    .size (70px, 160px);
-    .noSelection;
-
-    .stepChainImg {
-        .position(absolute, @top: 15px, @left: 21px);
-        .image("../../images/opsModal/stepChains.png", 50%, 50%);
-        .size(27px, 139px);
-    }
-
-    .outerCircle {
-        .size (27px, 27px);
-        .rounded(27px);
-        margin-left:21px;
-        padding: 3px;
-        position: relative;
-
-        &.circle0 {
-            margin-top:15px;
-        }
-
-        .innerCircle {
-            .size (100%, 100%);
-            .rounded(30px);
-            .transition (background-color 0.3s);
-        }
-
-        &.filled {
-            .innerCircle {
-                background-color: @color-modal-innerCircleBlue;
-            }
-            .circleContent {
-                .text {
-                    .font (@color: @color-modal-innerCircleGray);
-                }
-            }
-        }
-
-        .circleContent {
-            display: inline-block;
-            .position(absolute, @top: 3px, @left: 0);
-            .size (100%, 100%);
-
-            .text {
-                display: inline-block;
-                .size (100%, 100%);
-                text-align: center;
-                .font (@color: @color-text-lightLightGray);
-            }
-
-            .tick {
-                .image("../../images/tick-white.png", 50%, 50%);
-                .size (100%, 19px);
-                display: none;
-            }
-        }
-
-        &.done {
-            .text {
-                display: none;
-            }
-            .tick {
-                display: inline-block;
-            }
-        }
-    }
-
-    .outerLink {
-        position: relative;
-        .size (6px, 32px);
-        border-top: none;
-        border-bottom: none;
-        margin-left: 32px;
-        margin-top: -2px;
-        margin-bottom: -2px;
-        padding: 1px 2px;
-        z-index: 1;
-
-        .innerLink {
-            background-color: @color-modal-innerCircleBlue;
-            .position(absolute, @top: -2px, @left: 2px);
-            .size (2px, 0px);
-            .transition (height 0s);
-
-            &.filled {
-                height: 36px;
-                .transition (height 0.5s);
-            }
-        }
-    }
-}
 
 .ui-draggable-dragging {
     .cursor-grabbing;
@@ -5557,7 +2505,7 @@ html.microsoft {
     }
 }
 
-#rightSideBar {
+#bottomMenu {
     &.modalOpen {
         z-index: 38;
         #sideBarModal {

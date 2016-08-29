@@ -69,10 +69,8 @@ module.exports = function(grunt) {
         files: {
           'assets/stylesheets/css/style.css': 'assets/stylesheets/less/style.less',
           'assets/stylesheets/css/login.css': 'assets/stylesheets/less/login.less',
-          'assets/newStylesheets/css/login.css': 'assets/newStylesheets/less/login.less',
-          'assets/newStylesheets/css/style.css': 'assets/newStylesheets/less/style.less',
-          'assets/newStylesheets/css/mcf.css': 'assets/newStylesheets/less/mcf.less',
-          'assets/newStylesheets/css/installer.css': 'assets/newStylesheets/less/installer.less'
+          'assets/stylesheets/css/mcf.css': 'assets/stylesheets/less/mcf.less',
+          'assets/stylesheets/css/installer.css': 'assets/stylesheets/less/installer.less'
         }
       }
     },
@@ -92,16 +90,16 @@ module.exports = function(grunt) {
         options: {
           livereload: true
         },
-        files: ['assets/stylesheets/css/**/*.css', 'assets/newStylesheets/css/**/*.css', 'assets/js/**/*.js', 'index.html', "assets/htmlFiles/login.html"]
+        files: ['assets/stylesheets/css/**/*.css', 'assets/js/**/*.js', 'index.html', "assets/htmlFiles/login.html"]
       },
       withReloadCssOnly: {
         options: {
           livereload: true
         },
-        files: ['assets/stylesheets/css/**/*.css', 'assets/newStylesheets/css/**/*.css']
+        files: ['assets/stylesheets/css/**/*.css']
       },
       less: {
-        files: ['assets/stylesheets/less/**/*.less', 'assets/newStylesheets/less/**/*.less'],
+        files: ['assets/stylesheets/less/**/*.less'],
         tasks: ['less'],
         options: {
           atBegin: true,
