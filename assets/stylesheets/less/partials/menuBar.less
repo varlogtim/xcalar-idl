@@ -21,14 +21,9 @@
         pointer-events: none;
     }
 
-    @width-logo: 40px;
-    @height-logo: 41px;
-    @top-logo: (@height-homeBtn - @height-logo) / 2;
-    @left-logo: (@width-homeBtn - @width-logo) / 2;
     .logo {
-        .position(absolute, @top: @top-logo, @left: @left-logo);
-        .size(@width: @width-logo, @height: @height-logo);
-        .image("../../images/new/logo/xi-logo.png");
+        .center-align;
+        position: absolute;
     }
 }
 
