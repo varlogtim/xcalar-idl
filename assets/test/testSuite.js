@@ -842,6 +842,7 @@ window.TestSuite = (function($, TestSuite) {
 
     function columnRenameTest(deferred, testName, currentTestNumber) {
         console.log("start columnRenameTest");
+
         $("#mainFrame").scrollLeft("0");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
@@ -1041,9 +1042,13 @@ window.TestSuite = (function($, TestSuite) {
         
         var $section = $("#dfCreateView");
         $section.find(".selectAllWrap").click();
-        $section.find("li .text:contains('newclassid_string')")
+        // $section.find("li .text:contains('newclassid_string')")
+        //         .siblings(".checkbox").click();
+        // columnrenam test is temporary disabled
+        $section.find("li .text:contains('class_id')")
                 .siblings(".checkbox").click();
-         $section.find("li .text:contains('teacher_id')")
+
+        $section.find("li .text:contains('teacher_id')")
                 .siblings(".checkbox").click();
         $section.find(".confirm").click();
 
@@ -1190,7 +1195,7 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(multiJoinTest, "MultiJoinTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(columnRenameTest, "ColumnRenameTest",
-                  defaultTimeout, TestCaseEnabled);
+                  defaultTimeout, TestCaseDisabled);
     TestSuite.add(tableRenameTest, "TableRenameTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(profileTest, "ProfileTest",
