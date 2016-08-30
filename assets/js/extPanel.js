@@ -262,10 +262,10 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                             '</div>' +
                         '</div>' +
                         '<div class="buttonArea">' +
-                            '<button class="btn btnMid install ' + btnClass + '">' +
+                            '<button class="btn install ' + btnClass + '">' +
                                 btnText +
                             '</button>' +
-                            '<button class="btn btnMid btn-cancel more">' +
+                            '<button class="btn btn-cancel more">' +
                                 '<span class="moreText">' +
                                     ExtTStr.More +
                                 '</span>' +

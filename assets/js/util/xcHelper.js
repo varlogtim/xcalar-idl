@@ -813,7 +813,7 @@ window.xcHelper = (function($, xcHelper) {
         switch (type) {
             case "sql":
                 // copy sql button
-                html = '<button type="button" class="btn btnMid copySql" ' +
+                html = '<button type="button" class="btn copySql" ' +
                         'data-toggle="tooltip" title="' + TooltipTStr.CopyLog + '">' +
                             CommonTxtTstr.CopyLog +
                         '</button>';
@@ -844,7 +844,7 @@ window.xcHelper = (function($, xcHelper) {
                 break;
             case "support":
                 // generate bundle button
-                html = '<button type="button" class="btn btnMid genSub" ' +
+                html = '<button type="button" class="btn genSub" ' +
                         'data-toggle="tooltip" title="' + TooltipTStr.GenBundle + '">' +
                             CommonTxtTstr.GenBundle +
                         '</button>';
@@ -861,7 +861,7 @@ window.xcHelper = (function($, xcHelper) {
                         }
                         xcHelper.showSuccess();
                         $supportBtn.text(CommonTxtTstr.GenBundleDone)
-                            .addClass("btnInactive");
+                            .addClass("btn-disabled");
                     })
                     .fail(function(error) {
                         console.error(error);
@@ -877,7 +877,7 @@ window.xcHelper = (function($, xcHelper) {
                 break;
             default:
                 // log out button
-                html = '<button type="button" class="btn btnMid logout">' +
+                html = '<button type="button" class="btn logout">' +
                             CommonTxtTstr.LogOut +
                         '</button>';
                 $btn = $(html);
