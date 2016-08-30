@@ -1590,10 +1590,13 @@ body.tooltipOff {
         &::after {
             content: "";
             display: block;
-            .position(absolute, @top: 9px, @left: 1px);
-            width: 90%;
-            height: 1px;
-            background-color: @color-background-udfError;
+            .vertical-align;
+            .position(absolute, @left: 1px);
+            .size(0, 0);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            border-left: 8px solid @color-bg-pinkish-grey2;
+            opacity: 0.5;
         }
     }
 }
