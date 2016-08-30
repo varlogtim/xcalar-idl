@@ -126,7 +126,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-prettify');
   grunt.loadNpmTasks('grunt-concurrent');
-   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-less');
 
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
@@ -145,5 +145,5 @@ module.exports = function(grunt) {
   grunt.registerTask("render", ['html', 'template', 'clean', 'prettify']);
 
   // used for dev
-  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags','prettify']);
+  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'prettify']);
 };
