@@ -493,7 +493,8 @@ DSTStr = {
 DSFormTStr = {
     'InvalidDelim': 'Invalid delimiter.',
     'InvalidQuote': 'Cannot have more than 1 quote character',
-    'NoParseJSON': 'Cannot parse data as json'
+    'NoParseJSON': 'Cannot parse data as json',
+    'GoBack': 'please click the \"BACK\" button to re-enter a valid path'
 };
 
 

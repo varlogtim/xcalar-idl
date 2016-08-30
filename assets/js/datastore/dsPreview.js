@@ -1049,7 +1049,12 @@ window.DSPreview = (function($, DSPreview) {
 
     function errorHandler(error) {
         if (typeof error === "object") {
-            error = JSON.stringify(error);
+            if (error.status === StatusT.StatusNoEnt ||
+                error.status === StatusIsDir) {
+                 error = error.error + ", " + DSFormTStr.GoBack;
+             } else {
+                 error = error.error;
+             }
         }
 
         $previeWrap.find(".waitSection").addClass("hidden");
