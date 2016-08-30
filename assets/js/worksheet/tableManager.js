@@ -1450,7 +1450,6 @@ window.TblManager = (function($, TblManager) {
                                               table.resultSetCount);
             var numRowsStillNeeded = requiredNumRows -
                                      $table.find('tbody tr').length;
-            console.log(numRowsStillNeeded);
             if (numRowsStillNeeded > 0) {
                 var firstRow = $table.find('tbody tr:first');
                 var topRowNum = xcHelper.parseRowNum(firstRow);

@@ -957,6 +957,7 @@
 
     .infoSection {
         padding: 20px 20px 20px 0;
+        .flex(0 0 auto); // 0 0 is necessary to keep it's height
 
         > div {
             .size(@width: 50%, @height: 100%);
@@ -1008,7 +1009,7 @@
         // .size(@height: ~"calc(100% - 262px)");
         padding: 20px;
         .flex-display;
-        .flex(1 1 auto);
+        .flex(1 2 auto);
         .flex-direction(column);
 
         .title {

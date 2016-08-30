@@ -556,8 +556,8 @@ window.QueryManager = (function(QueryManager, $) {
 
     function updateOutputSection(id, forceInactive) {
         if (forceInactive) {
-            $("#monitor-inspect").addClass('btnInactive');
-            $("#monitor-export").addClass('btnInactive');
+            $("#monitor-inspect").addClass('btn-disabled');
+            $("#monitor-export").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                          .text(CommonTxtTstr.NA);
             return;
@@ -572,20 +572,20 @@ window.QueryManager = (function(QueryManager, $) {
         if (queryState === "done" && dstTableState === "active" &&
             mainQuery.getOutputTableName()) {
             var dstTableName = mainQuery.getOutputTableName();
-            $("#monitor-inspect").removeClass('btnInactive');
+            $("#monitor-inspect").removeClass('btn-disabled');
             
             if (dstTableName.indexOf(gDSPrefix) < 0) {
-                $("#monitor-export").removeClass('btnInactive');
+                $("#monitor-export").removeClass('btn-disabled');
                 $queryDetail.find('.outputSection').find('.text')
                                                .text(dstTableName);
             } else {
                 $queryDetail.find('.outputSection').find('.text')
                             .text(dstTableName.slice(gDSPrefix.length));
-                $("#monitor-export").addClass('btnInactive');
+                $("#monitor-export").addClass('btn-disabled');
             }
         } else {
-            $("#monitor-inspect").addClass('btnInactive');
-            $("#monitor-export").addClass('btnInactive');
+            $("#monitor-inspect").addClass('btn-disabled');
+            $("#monitor-export").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                          .text(CommonTxtTstr.NA);
         }
@@ -870,6 +870,17 @@ window.QueryManager = (function(QueryManager, $) {
             var mainQuery = queryLists[queryId];
             var tableName = mainQuery.getOutputTableName();
 
+            if (!tableName) {
+                var type;
+                if (mainQuery.getName() === SQLOps.DSLoad) {
+                    type = "dataset";
+                } else {
+                    type = "table";
+                }
+                focusOutputErrorHandler(type, mainQuery);
+                return;
+            }
+
             if (tableName.indexOf(gDSPrefix) > -1) {
                 var dsId = tableName.slice(gDSPrefix.length);
                 var $grid = DS.getGrid(dsId);
@@ -959,8 +970,8 @@ window.QueryManager = (function(QueryManager, $) {
 
             Alert.error(title, desc);
             mainQuery.outputTableState = 'deleted';
-            $('#monitor-inspect').addClass('btnInactive');
-            $("#monitor-export").addClass('btnInactive');
+            $('#monitor-inspect').addClass('btn-disabled');
+            $("#monitor-export").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                                                .text(CommonTxtTstr.NA);
         }
