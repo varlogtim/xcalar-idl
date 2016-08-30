@@ -796,8 +796,9 @@ window.QueryManager = (function(QueryManager, $) {
                xcHelper.getDate(null, null, time);
     }
 
-    function getElapsedTimeStr(millseconds) {
-        var s = Math.floor(millseconds / 1000);
+    // milliSeconds - integer
+    function getElapsedTimeStr(milliSeconds) {
+        var s = Math.floor(milliSeconds / 1000);
         var seconds = Math.floor(s) % 60;
         var minutes = Math.floor((s % 3600) / 60);
         var hours = Math.floor(s / 3600);
@@ -809,11 +810,23 @@ window.QueryManager = (function(QueryManager, $) {
             timeString += minutes + "m ";
         }
 
-        if (millseconds < 1000) {
-            timeString += millseconds + "ms";
+        if (milliSeconds < 1000) {
+            timeString += milliSeconds + "ms";
         } else {
-            timeString += seconds + "s";
+            timeString += seconds;
+            if (milliSeconds < 60000) {// between 1 and 60 seconds
+                var mills = milliSeconds % (seconds * 1000);
+
+                if (milliSeconds < 10000) {
+                    timeString += "." + Math.floor(mills / 10);
+                    // timeString += "." + (milliSeconds % 100);
+                } else {
+                    timeString += "." +  Math.floor(mills / 100);
+                }
+            }
+            timeString += "s";
         }
+
 
         return (timeString);
     }
@@ -1058,6 +1071,13 @@ window.QueryManager = (function(QueryManager, $) {
             '</div>';
         return html;
     }
+
+     /* Unit Test Only */
+    if (window.unitTestMode) {
+        QueryManager.__testOnly__ = {};
+        QueryManager.__testOnly__.getElapsedTimeStr = getElapsedTimeStr;
+    }
+    /* End Of Unit Test Only */
 
     return (QueryManager);
 }({}, jQuery));
