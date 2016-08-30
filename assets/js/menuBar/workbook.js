@@ -419,6 +419,11 @@ window.Workbook = (function($, Workbook) {
             return createNewWorkbook(workbookName);
         })
         .then(function(id) {
+            // Get activeness
+            var classes = ['new', 'animating'];
+            if (WorkbookManager.getActiveWKBK() === id) {
+                classes.push('active');
+            }
             var workbook = WorkbookManager.getWorkbook(id);
 
             var html = createWorkbookCard(id, workbookName,
@@ -426,7 +431,7 @@ window.Workbook = (function($, Workbook) {
                                           workbook.modified,
                                           workbook.srcUser,
                                           workbook.numWorksheets,
-                                          ['new', 'animating']);
+                                          classes);
             $newWorkbookCard.after(html);
             $newWorkbookCard.find('button').addClass('inActive');
             var $newCard = $(".workbookBox[data-workbook-id='" +

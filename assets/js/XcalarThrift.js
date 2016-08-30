@@ -2942,7 +2942,7 @@ function XcalarDeleteWorkbook(workbookName) {
     return (deferred.promise());
 }
 
-function XcalarInActiveWorkbook(workbookName) {
+function XcalarDeactivateWorkbook(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2953,7 +2953,7 @@ function XcalarInActiveWorkbook(workbookName) {
         deferred.resolve(output);
     })
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarInActiveWorkbook", error);
+        var thriftError = thriftLog("XcalarDeactivateWorkbook", error);
         SQL.errorLog("InActive Workbook", null, null, thriftError);
         deferred.reject(thriftError);
     });

@@ -159,7 +159,29 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return innerDeferred.promise();
         })
         .then(function() {
-            deferred.resolve(wkbk.id);
+            // If workbook is active, make it inactive so that our UX is linear
+            return (XcalarListWorkbooks(wkbkName));
+        })
+        .then(function(retStruct) {
+            if (retStruct.numSessions !== 1) {
+                var error = "More than one workbook with same name/No workbook";
+                console.error(error);
+                deferred.reject(error);
+            } else {
+                if (retStruct.sessions[0].state === "Active") {
+                    // This happens when there are no active sessions. The
+                    // first one we create gets auto activated
+                    xcHelper.assert(!WorkbookManager.getActiveWKBK());
+                    XcalarDeactivateWorkbook(retStruct.sessions[0].name)
+                    .always(function() {
+                        deferred.resolve(wkbk.id);
+                        // XXX Handle failure here separately! It should never
+                        // happen...
+                    });
+                } else {
+                    deferred.resolve(wkbk.id);
+                }
+            }
         })
         .fail(function(error) {
             console.error("Create workbook failed!", error);
@@ -191,7 +213,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var toWkbkName;
 
         if (activeWKBKId == null) {
-            // case 1: creat a totaly new workbook
+            // case 1: create a totally new workbook
             // case 2: continue a worbook that has no meta
             // (in this case, when reload, will check the workbook is inactive
             // and will active it)
@@ -305,7 +327,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             for (var i = 0; i < numSessions; i++) {
                 var session = sessions[i];
                 if (session.state === "Active") {
-                    promises.push(XcalarInActiveWorkbook.bind(this, session.name));
+                    promises.push(XcalarDeactivateWorkbook.bind(this,
+                                                                session.name));
                 }
             }
 
@@ -554,7 +577,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     storedActiveId = undefined;
                     var defArray = [];
                     for (var i = 0; i<activeWorkbooks.length; i++) {
-                        defArray.push(XcalarInActiveWorkbook(
+                        defArray.push(XcalarDeactivateWorkbook(
                                                            activeWorkbooks[i]));
                     }
 

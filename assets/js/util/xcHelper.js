@@ -1743,7 +1743,8 @@ window.xcHelper = (function($, xcHelper) {
         $elementToChange.removeAttr("title")
                         .removeAttr("data-toggle")
                         .removeAttr("data-container")
-                        .removeAttr("data-placement");
+                        .removeAttr("data-placement")
+                        .removeAttr("data-original-title");
         $(".tooltip").hide();
         return ($element);
     };
@@ -1762,7 +1763,8 @@ window.xcHelper = (function($, xcHelper) {
         $elementToChange.attr("title", title)
                         .attr("data-toggle", toggle)
                         .attr("data-container", container)
-                        .attr("data-placement", placement);
+                        .attr("data-placement", placement)
+                        .attr("data-original-title", title);
         return ($element);
     };
 
@@ -1772,7 +1774,10 @@ window.xcHelper = (function($, xcHelper) {
             $elementToChange = $element.find(selector);
         }
 
-        $elementToChange.removeAttr("data-toggle");
+        $elementToChange.attr("data-original-title",
+                              $elementToChange.attr("title"));
+        $elementToChange.removeAttr("data-toggle")
+                        .removeAttr("title");
     };
 
     xcHelper.reenableTooltip = function($element, selector) {
@@ -1781,7 +1786,9 @@ window.xcHelper = (function($, xcHelper) {
             $elementToChange = $element.find(selector);
         }
 
-        $elementToChange.attr("data-toggle", "tooltip");
+        $elementToChange.attr("data-toggle", "tooltip")
+                        .attr("title",
+                              $elementToChange.attr("data-original-title"));
     };
 
     xcHelper.changeTooltipText = function($element, selector, text) {
@@ -1790,7 +1797,8 @@ window.xcHelper = (function($, xcHelper) {
             $elementToChange = $element.find(selector);
         }
 
-        $elementToChange.attr("title", text);
+        $elementToChange.attr("title", text)
+                        .attr("data-original-title", text);
     };
 
     // not only looks for gColPrefix but checks to make sure it's not preceded by

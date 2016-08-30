@@ -435,7 +435,6 @@ window.DagPanel = (function($, DagPanel) {
             var $genIcvLi = $menu.find('.generateIcv');
             var $genNonIcvLi = $menu.find('.generateNonIcv');
 
-            // JJJ Here we need to see whether or not it's the icv version
             if ($dagTable.find(".dagTableIcon").hasClass("icv")) {
                 $genIcvLi.addClass('unavailable');
                 xcHelper.changeTooltipText($genIcvLi, undefined,
@@ -444,7 +443,6 @@ window.DagPanel = (function($, DagPanel) {
             } else {
                 if (!$dagTable.hasClass("icv") &&
                     (operator === 'map' || operator === 'groupBy')) {
-                    // JJJ Hide and enable the relevant stuff
                     $genIcvLi.removeClass('unavailable');
                     xcHelper.temporarilyDisableTooltip($genIcvLi);
                 } else {
