@@ -3212,10 +3212,12 @@ MenuHelper.prototype = {
                     // keepOpen be true, false or undefined
                     keepOpen = options.onSelect($(this));
                 }
-
-                if (!keepOpen) {
-                    self.hideDropdowns();
+                // keep Open may return weird tings
+                if (keepOpen === true) {
+                    return;
                 }
+
+                self.hideDropdowns();
             },
             "mouseenter": function() {
                 $(this).addClass("hover");
