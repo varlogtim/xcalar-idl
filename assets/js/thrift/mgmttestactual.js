@@ -29677,7 +29677,7 @@ function xcalarApiSessionDelete(thriftHandle, pattern) {
     return (deferred.promise());
 }
 
-function xcalarApiSessionInactWorkItem(name) {
+function xcalarApiSessionInactWorkItem(name, noCleanup) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionDeleteInput = new XcalarApiSessionDeleteInputT();
