@@ -689,19 +689,16 @@ window.FileBrowser = (function($, FileBrowser) {
 
         historyPath = curDir;
  
-        var isFolder = null;
         var path = null;
         var format = null;
 
         if ($ds != null && $ds.length > 0) {
             var fileName = $ds.find(".fileName").data("name");
-            isFolder = $ds.hasClass("folder");
             path = curDir + fileName;
             format = xcHelper.getFormat(fileName);
         } else {
             // load the whole folder
             path = curDir;
-            isFolder = true;
         }
 
         // advanced options
@@ -904,21 +901,23 @@ window.FileBrowser = (function($, FileBrowser) {
         centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
-    function focusOn(grid, isAll) {
+    function focusOn(grid, isAll, showError) {
         if (grid == null) {
             return;
         }
 
         var str;
+        var name;
 
         if (typeof grid === "string") {
+            name = grid;
             if (isAll) {
-                str = '.grid-unit .label[data-name="' + grid + '"]';
+                str = '.grid-unit .label[data-name="' + name + '"]';
             } else {
-                str = '.grid-unit.folder .label[data-name="' + grid + '"]';
+                str = '.grid-unit.folder .label[data-name="' + name + '"]';
             }
         } else {
-            var name = grid.name;
+            name = grid.name;
             var type = grid.type;
 
             if (type == null) {
@@ -938,6 +937,11 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 scrollIconIntoView($grid, true);
             }
+        } else if (showError) {
+            var error = xcHelper.replaceMsg(ErrWRepTStr.NoFile, {
+                "file": name
+            });
+            StatusBox.show(error, $container, false, {side: 'top'});
         }
     }
 
@@ -975,7 +979,7 @@ window.FileBrowser = (function($, FileBrowser) {
             if (path) {
                 var name = path.substring(path.lastIndexOf("/") + 1,
                                             path.length);
-                focusOn({"name": name});
+                focusOn({"name": name}, true, true);
             }
             checkIfCanGoUp();
             deferred.resolve();

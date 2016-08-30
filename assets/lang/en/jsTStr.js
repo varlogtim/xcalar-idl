@@ -273,6 +273,8 @@ ErrWRepTStr = {
 
     'NoPath': '<path> was not found. Redirected to the root directory.',
 
+    'NoFile': 'File <file> was not found in the directory.',
+
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
