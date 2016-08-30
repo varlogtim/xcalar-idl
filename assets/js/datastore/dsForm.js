@@ -5,6 +5,8 @@ window.DSForm = (function($, DSForm) {
     var $pathCard; // $("#dsForm-path");
     var $filePath;  // $("#filePath")
 
+    var advanceOption;
+
     DSForm.setup = function() {
         $pathCard = $("#dsForm-path");
         $filePath = $("#filePath");
@@ -18,6 +20,9 @@ window.DSForm = (function($, DSForm) {
             $(this).blur();
             DSForm.show();
         });
+
+        var $advanceOption = $pathCard.find(".advanceOption");
+        advanceOption = new DSFormAdvanceOption($advanceOption, "#dsForm-path");
     };
 
     DSForm.initialize = function() {
@@ -116,23 +121,11 @@ window.DSForm = (function($, DSForm) {
         // open file browser
         $pathCard.on("click", ".browse", function() {
             $(this).blur();
-
-            var protocol = getProtocol();
-            var path = getFilePath();
-            if (isValidPathToBrowse(protocol, path)) {
-                FileBrowser.show(protocol, path);
-            }
+            goToBrowse();
         });
 
         $pathCard.on("click", ".confirm", function() {
-            var protocol = getProtocol();
-            var path = getFilePath();
-            if (isValidPathToBrowse(protocol, path) && isValidToPreview()) {
-                DSPreview.show({
-                    "path"  : protocol + path,
-                    "format": xcHelper.getFormat(path)
-                }, true);
-            }
+            goToPreview();
         });
 
         $pathCard.on("click", ".cancel", resetForm);
@@ -142,6 +135,47 @@ window.DSForm = (function($, DSForm) {
         $filePath.val("").focus();
         var protocol = getProtocol() || FileProtocol.nfs;
         setProtocol(protocol);
+
+        advanceOption.reset();
+    }
+
+    function goToBrowse() {
+        var protocol = getProtocol();
+        var path = getFilePath();
+        if (!isValidPathToBrowse(protocol, path)) {
+            return;
+        }
+
+        var advancedArgs = advanceOption.getArgs();
+        if (advancedArgs == null) {
+            // invalid case
+            return;
+        }
+
+        FileBrowser.show(protocol, path, advancedArgs);
+    }
+
+    function goToPreview() {
+        var protocol = getProtocol();
+        var path = getFilePath();
+        if (!isValidPathToBrowse(protocol, path) || !isValidToPreview()) {
+            return;
+        }
+
+        var advancedArgs = advanceOption.getArgs();
+        if (advancedArgs == null) {
+            // invalid case
+            return;
+        }
+
+        DSPreview.show({
+            "path"       : protocol + path,
+            "format"     : xcHelper.getFormat(path),
+            "previewSize": advancedArgs.previewSize,
+            "pattern"    : advancedArgs.pattern,
+            "isRecur"    : advancedArgs.isRecur,
+            "isRegex"    : advancedArgs.isRegex
+        }, true);
     }
 
     /* Unit Test Only */

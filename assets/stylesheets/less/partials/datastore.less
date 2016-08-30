@@ -560,7 +560,7 @@ table.datasetTable {
 /* Path Card */
 #dsForm-path {
     .cardMain {
-        .size(@height: 100px);
+        .size(@height: 120px);
         padding-top: 30px;
 
         .content {
@@ -608,9 +608,28 @@ table.datasetTable {
         }
     }
 
+    .advanceSection {
+        padding-top: 20px;
+        .size(@width: 80%);
+        margin: 0 auto;
+
+        .listInfo {
+            padding: 0;
+        }
+
+        .option {
+            padding: 0;
+        }
+
+        .label {
+            .size(@width: 150px);
+        }
+    }
+
     .cardBottom {
         margin: 0 10%;
         padding-right: 0;
+        padding-top: 10px;
         padding-bottom: 20px;
     }
 }
@@ -966,9 +985,32 @@ table.datasetTable {
         }
     }
 
-    .cardSubMain {
+    .advanceSection {
         padding: 20px 45px;
 
+        .option {
+            padding: 0 0 0 30px;
+        }
+
+        .label {
+            .size(@width: 135px);
+        }
+    }
+
+    .cardBottom {
+        .size(@height: 60px);
+        padding: 0 0 20px 0;
+
+        .btn {
+            margin-right: 15px;
+        }
+    }
+}
+/* End Of File Browser */
+
+/* a specail case */
+#dsForm-path, #fileBrowser {
+    .advanceSection {
         .listInfo {
             margin-bottom: 20px;
 
@@ -977,22 +1019,25 @@ table.datasetTable {
                     .font(@color: @color-font-greyish-brown);
                 }
             }
+
+            .text {
+                cursor: pointer;
+            }
+        }
+
+        .label {
+            .size(@height: 30px);
+            line-height: 30px;
         }
 
         .option {
             opacity: @opacity-hover;
-            padding: 0 0 0 30px;
             margin-top: 10px;
             box-shadow: none;
 
             > div, > input {
                 display: inline-block;
                 float: left;
-            }
-
-
-            .label {
-                .size(@width: 135px);
             }
 
             &.pattern {
@@ -1041,17 +1086,7 @@ table.datasetTable {
             }
         }
     }
-
-    .cardBottom {
-        .size(@height: 60px);
-        padding: 0 0 20px 0;
-
-        .btn {
-            margin-right: 15px;
-        }
-    }
 }
-/* End Of File Browser */
 
 /* Data Form Preview */
 #dsForm-preview {

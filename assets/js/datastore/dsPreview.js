@@ -1050,11 +1050,13 @@ window.DSPreview = (function($, DSPreview) {
     function errorHandler(error) {
         if (typeof error === "object") {
             if (error.status === StatusT.StatusNoEnt ||
-                error.status === StatusIsDir) {
-                 error = error.error + ", " + DSFormTStr.GoBack;
-             } else {
-                 error = error.error;
-             }
+                error.status === StatusT.StatusIsDir ||
+                error.status === StatusT.StatusAllFilesEmpty)
+            {
+                error = error.error + ", " + DSFormTStr.GoBack + ".";
+            } else {
+                error = error.error;
+            }
         }
 
         $previeWrap.find(".waitSection").addClass("hidden");

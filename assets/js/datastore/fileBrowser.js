@@ -30,6 +30,8 @@ window.FileBrowser = (function($, FileBrowser) {
     var sortRegEx;
     var reverseSort = false;
 
+    var advancedOption;
+
     FileBrowser.setup = function() {
         $fileBrowser = $("#fileBrowser");
         $container = $("#fileBrowserContainer");
@@ -44,6 +46,10 @@ window.FileBrowser = (function($, FileBrowser) {
             upperFileLimit = 1200;
             $fileBrowser.addClass('notChrome');
         }
+
+        // advanced option
+        var $advanceOption = $fileBrowser.find(".advanceOption");
+        advancedOption = new DSFormAdvanceOption($advanceOption, "#fileBrowser");
 
         // click blank space to remove foucse on folder/dsds
         $container.on("click", function() {
@@ -239,25 +245,6 @@ window.FileBrowser = (function($, FileBrowser) {
             return false;
         });
 
-        // advanced option
-        var $listInfo = $("#fileBrowserAdvance .listInfo");
-        $listInfo.on("click", ".expand, .text", function() {
-            $(this).closest(".listWrap").toggleClass("active");
-        });
-
-        new MenuHelper($("#fileBrowser-limit").find(".dropDownList"), {
-            "onSelect": function($li) {
-                var $input = $li.closest(".dropDownList").find(".unit");
-                $input.val($li.text());
-            },
-            "container": "#fileBrowser",
-            "bounds"   : "#fileBrowser"
-        }).setupListeners();
-
-        $("#fileBrowser-pattern").on("click", ".checkboxSection", function() {
-            $(this).find(".checkbox").toggleClass("checked");
-        });
-
         fileBrowserScrolling();
     };
 
@@ -269,7 +256,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     };
 
-    FileBrowser.show = function(protocol, path) {
+    FileBrowser.show = function(protocol, path, advancedArgs) {
         var deferred = jQuery.Deferred();
 
         $fileBrowser.removeClass("xc-hidden").siblings().addClass("xc-hidden");
@@ -288,6 +275,7 @@ window.FileBrowser = (function($, FileBrowser) {
         retrievePaths(path)
         .then(function() {
             measureDSIconHeight();
+            advancedOption.set(advancedArgs);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -487,9 +475,7 @@ window.FileBrowser = (function($, FileBrowser) {
             // performance when there's 1000+ files, is the remove slow?
             $container.removeClass("manyFiles");
             $fileBrowser.removeClass("unsortable");
-            $("#fileBrowserAdvance").find("input").val("")
-                                .end()
-                                .find(".checked").removeClass("checked");
+            advancedOption.reset();
 
             $visibleFiles = $();
             curFiles = [];
@@ -719,33 +705,19 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         // advanced options
-        var $patternOpt = $("#fileBrowser-pattern");
-        var pattern = $patternOpt.find(".input").val().trim();
-        var isRecur = $patternOpt.find(".recursive .checkbox").hasClass("checked");
-        var isRegex = $patternOpt.find(".regex .checkbox").hasClass("checked");
-        if (pattern === "") {
-            pattern = null;
-        }
-
-        var $limitOpt = $("#fileBrowser-limit");
-        var previewSize = $limitOpt.find(".size").val();
-        var unit = $limitOpt.find(".unit").val();
-        // validate preview size
-        if (previewSize !== "" && unit === "") {
-            $("#fileBrowserAdvance").addClass("active");
-            StatusBox.show(ErrTStr.NoEmptyList, $limitOpt.find(".unit"), false);
+        var advancedArgs = advancedOption.getArgs();
+        if (advancedArgs == null) {
+            // error case
             return;
         }
-
-        previewSize = xcHelper.getPreviewSize(previewSize, unit);
 
         var options = {
             "path"       : path,
             "format"     : format,
-            "previewSize": previewSize,
-            "pattern"    : pattern,
-            "isRecur"    : isRecur,
-            "isRegex"    : isRegex
+            "previewSize": advancedArgs.previewSize,
+            "pattern"    : advancedArgs.pattern,
+            "isRecur"    : advancedArgs.isRecur,
+            "isRegex"    : advancedArgs.isRegex
         };
 
         DSPreview.show(options);

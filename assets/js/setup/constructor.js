@@ -538,7 +538,111 @@ UserPref.prototype = {
     }
 };
 
-// datastore.js
+// dsForm.js and fileBrowser.js
+function DSFormAdvanceOption($section, container) {
+    this.$section = $section;
+
+    // add event listener
+    $section.on("click", ".listInfo .expand, .listInfo .text", function() {
+        $section.toggleClass("active");
+    });
+
+    var $limit = $section.find(".option.limit");
+    new MenuHelper($limit.find(".dropDownList"), {
+        "onSelect": function($li) {
+            var $input = $li.closest(".dropDownList").find(".unit");
+            $input.val($li.text());
+        },
+        "container": container,
+        "bounds"   : container
+    }).setupListeners();
+
+    var $pattern = $section.find(".option.pattern");
+    $pattern.on("click", ".checkboxSection", function() {
+        $(this).find(".checkbox").toggleClass("checked");
+    });
+
+    return this;
+}
+
+DSFormAdvanceOption.prototype = {
+    "reset": function() {
+        var $section = this.$section;
+        $section.find("input").val("")
+                .end()
+                .find(".checked").removeClass("checked");
+    },
+
+    "set": function(options) {
+        options = options || {};
+
+        var $section = this.$section;
+        var $pattern = $section.find(".option.pattern");
+        var $limit = $section.find(".option.limit");
+        var hasSet;
+
+        if (options.pattern != null && options.pattern !== "") {
+            hasSet = true;
+            $pattern.find("input").val(options.pattern);
+        }
+
+        if (options.isRecur) {
+            hasSet = true;
+            $pattern.find(".recursive .checkbox").addClass("checked");
+        }
+
+        if (options.isRegex) {
+            hasSet = true;
+            $pattern.find(".regex .checkbox").addClass("checked");
+        }
+
+        if (options.previewSize != null && options.previewSize > 0) {
+            hasSet = true;
+            $limit.find(".unit").val(options.unit);
+            $limit.find(".size").val(options.sizeText);
+
+        }
+
+        if (hasSet) {
+            $section.addClass("active");
+        }
+    },
+
+    "getArgs": function() {
+        var $section = this.$section;
+        var $limit = $section.find(".option.limit");
+        var size = $limit.find(".size").val();
+        var $unit = $limit.find(".unit");
+        var unit = $unit.val();
+        // validate preview size
+        if (size !== "" && unit === "") {
+            $section.addClass("active");
+            StatusBox.show(ErrTStr.NoEmptyList, $unit, false);
+            return null;
+        }
+
+        var previewSize = xcHelper.getPreviewSize(size, unit);
+
+        var $pattern = $section.find(".option.pattern");
+        var pattern = $pattern.find(".input").val().trim();
+        var isRecur = $pattern.find(".recursive .checkbox").hasClass("checked");
+        var isRegex = $pattern.find(".regex .checkbox").hasClass("checked");
+        if (pattern === "") {
+            pattern = null;
+        }
+
+        return {
+            "pattern"    : pattern,
+            "isRecur"    : isRecur,
+            "isRegex"    : isRegex,
+            "previewSize": previewSize,
+            "sizeText"   : size,
+            "unit"       : unit
+        };
+    }
+};
+
+// dsPreview.js
 function DSFormController() {
     return this;
 }

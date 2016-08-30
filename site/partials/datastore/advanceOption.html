@@ -1,0 +1,57 @@
+<div class="advanceOption listWrap xc-expand-list">
+  <div class="listInfo no-selection">
+    <span class="expand">
+      <i class="icon xi-arrow-down fa-10"></i>
+    </span>
+    <span class="text"><%= dicts.common.AdvancedOpts %></span>
+  </div>
+  <ul>
+    <!-- pattern -->
+    <li class="pattern option">
+      <div class="label"><%= dicts.dsForm.Pattern %>:</div>
+      <input type="text" class="input textOverflowOneLine" spellcheck="false">
+      <div class="recursive checkboxSection">
+        <div><%= dicts.dsForm.Recursive %></div>
+        <div class="checkbox">
+          <i class="icon xi-ckbox-empty"></i>
+          <i class="icon xi-ckbox-selected"></i>
+        </div>
+      </div>
+      <div class="regex checkboxSection">
+        <div><%= dicts.dsForm.Regex %></div>
+        <div class="checkbox">
+          <i class="icon xi-ckbox-empty"></i>
+          <i class="icon xi-ckbox-selected"></i>
+        </div>
+      </div>
+    </li>
+    <!-- preview limit -->
+    <li class="limit option">
+      <div class="label"><%= dicts.dsForm.SizeLimit %>:</div>
+      <div class="inputWrap">
+        <input class="size textOverflowOneLine" type="number">
+      </div>
+      <div class="dropDownList">
+        <input class="text unit" type="text" spellcheck="false" disabled>
+        <div class="iconWrapper">
+          <i class="icon xi-arrow-down"></i>
+        </div>
+        <div class="list">
+          <ul>
+            <li>B</li>
+            <li>KB</li>
+            <li>MB</li>
+            <li>GB</li>
+            <li>TB</li>
+          </ul>
+          <div class="scrollArea top">
+            <div class="arrow"></div>
+          </div>
+          <div class="scrollArea bottom">
+            <div class="arrow"></div>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
