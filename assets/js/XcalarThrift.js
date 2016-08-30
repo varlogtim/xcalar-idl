@@ -2717,7 +2717,8 @@ function XcalarApiTop(measureIntervalInMs) {
         return PromiseHelper.resolve(null);
     }
 
-    measureIntervalInMs = measureIntervalInMs || XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs;
+    measureIntervalInMs = measureIntervalInMs ||
+                          XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs;
 
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2729,6 +2730,33 @@ function XcalarApiTop(measureIntervalInMs) {
     .fail(function(error) {
         var thriftError = thriftLog("XcalarApiTop", error);
         SQL.errorLog("XcalarApiTop", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+function XcalarGetAllTableMemory() {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    XcalarGetTables()
+    .then(function(ret) {
+        var tableArray = ret.nodeInfo;
+        var totalSize = 0;
+        for (var i = 0; i<tableArray.length; i++) {
+            totalSize += ret.nodeInfo[i].size;
+        }
+        deferred.resolve(totalSize);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetAllMemory", error);
+        SQL.errorLog("XcalarGetAllMemory", null, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());

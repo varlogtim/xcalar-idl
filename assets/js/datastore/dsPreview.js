@@ -125,7 +125,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
-            return previewData(ecelModule, excelFunc);
+            return previewData(excelModule, excelFunc);
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)

@@ -484,7 +484,7 @@ module.exports = {
         "location": "location",
         "Up": "Go back",
         "filePathHint": "Click to see history",
-        "SearchHint": "Search"
+        "SearchHint": "Regex Search"
     },
 
     "dsFormat": {
