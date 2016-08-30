@@ -261,7 +261,7 @@ module.exports = {
         "AllowDelete": "allow table to be deleted",
         "LockTable": "prevents table from being deleted",
         "SwitchToListView": "Switch to List view",
-        "OpenDFGP": "click to view data flow graph",
+        "OpenDFGP": "click to view dataflow graph",
         "AllQueries": "Show all queries",
         "ErrorQueries": "Show error queries",
         "RunQueries": "Show running queries",
@@ -562,10 +562,10 @@ module.exports = {
 
     "dataflow": {
         "header": "Dataflow",
-        "instr" : "Create a data flow based on your selected table. After you create a data flow, you will be able to parameterize it and run it on demand with different data sources.",
+        "instr" : "Create a dataflow based on your selected table. After you create a dataflow, you will be able to parameterize it and run it on demand with different data sources.",
         "dfName": "Dataflow Name",
         "exportHeader": "Columns to Export",
-        "exportInstr": "Select that columns that you want to export at the end of your data flow. These are the only columns that you will see in your exported result after running the dataflow. The time your dataflow runs is affected by the number of columns you select here.",
+        "exportInstr": "Select that columns that you want to export at the end of your dataflow. These are the only columns that you will see in your exported result after running the dataflow. The time your dataflow runs is affected by the number of columns you select here.",
         "create": "CREATE",
         "noColsHint": "No columns available for export"
     },
