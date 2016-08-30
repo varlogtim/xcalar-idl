@@ -28,11 +28,11 @@ window.StatusBox = (function($, StatusBox){
 
 
         // position the message
-        
+        $statusBox.addClass("active"); // shows the box
         var bound = $target[0].getBoundingClientRect();
         var top   = bound.top - 30;
-        var right = $(window).width() - bound.right - 200;
-        var left = bound.left - 200;
+        var right = $(window).width() - bound.right - $statusBox.width() - 12;
+        var left = bound.left - $statusBox.width() - 12;
         var side;
         var title;
         var offsetX = 0;
@@ -61,7 +61,7 @@ window.StatusBox = (function($, StatusBox){
             offsetX = options.offsetX;
         }
 
-        $statusBox.addClass(msgType + " active " + side);
+        $statusBox.addClass(msgType + " " + side);
         $statusBox.find('.titleText').text(title);
         if (options.html) {
             $statusBox.find('.message').html(text);

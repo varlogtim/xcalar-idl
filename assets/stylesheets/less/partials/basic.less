@@ -835,11 +835,12 @@ input {
 
     .boxInnerWrap {
         .position(relative);
-        .size(@width: 185px, @min-height: 100px, @max-height: 300px);
-        padding: 7px;
-        box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
+        .size(@width: 240px, @min-height: 100px, @max-height: 300px);
+        box-shadow: 0 0 4px 1px rgba(0,0,0,.25);
         background-color: @color-white;
         z-index: 3;
+        .flex-display;
+        .align-items(stretch);
 
         &:before, &:after {
             content: "";
@@ -850,42 +851,50 @@ input {
         &:before {
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
-            margin-left: -11px;
-            margin-top: -1px;
+            margin-left: -10px;
         }
         &:after {
             z-index: 1;
         }
     }
 
+    .vertBar {
+        width: 50px;
+        background-color: @color-error-border-light;
+        text-align: center;
+      
+        .icon {
+            font-size: 24px;
+            margin-top: 14px;
+            display: none;
+        }
+    }
+    .content {
+        width: ~"calc(100% - 50px)";
+        padding: 12px 24px 12px 12px;
+    }
+
     .close {
-        .position(absolute, @top: 10px, @right: 7px);
+        .position(absolute, @top: 14px, @right: 8px);
         .size(14px, 14px);
         display: inline-block;
-        color: @color-font-greyish-brown;
+        color: @color-black;
+        font-weight: bold;
     }
 
     .title {
-        .size(@height: 15px);
-        margin-bottom: 10px;
+        margin-bottom: 3px;
         font-weight: bold;
-        .icon {
-            display: inline-block;
-            .size(20px, 15px);
-            margin-right: 6px;
-            float: left;
-        }
 
         .titleText {
             display: inline-block;
-            float: left;
             .font(@size: 14px, @line-height: 15px);
         }
     }
 
     .message {
         color: @color-text-darkGray;
-        .font(@size: 12px, @line-height: 18px);
+        .font(@size: 12px, @line-height: 16px);
         white-space: normal;
     }
 
@@ -894,30 +903,27 @@ input {
     }
 
     &.info {
-        .boxInnerWrap {
-            border: 1px solid @color-border-topAction;
+        .vertBar {
+            background-color: @color-bg-info-blue;
+            .xi-info-circle {
+                display: block;
+            }
         }
-
         .title {
             .icon {
-                color: @color-text-blue;
-            }
-            .titleText {
                 color: @color-text-blue;
             }
         }
     }
 
     &.error {
-        .boxInnerWrap {
-            border: 1px solid @color-error-border;
+        .vertBar {
+            .xi-error {
+                display: block;
+            }
         }
-
         .title {
             .icon {
-                color: @color-text-error;
-            }
-            .titleText {
                 color: @color-text-error;
             }
         }
@@ -930,7 +936,7 @@ input {
         .transform(rotate(45deg));
         border: none;
         z-index: 1;
-        box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
+        box-shadow: 0 0 4px 2px rgba(0,0,0,.25);
     }
 
     &.right {
@@ -942,16 +948,19 @@ input {
                 .position(absolute, @top: 30px, @left: 0);
             }
             &:before {
-                border-right: 10px solid @color-error-border;
+                border-right: 10px solid @color-error-border-light;
             }
             &:after {
-                border-right: 9px solid @color-white;
+                border-right: 9px solid @color-error-border-light;
                 margin-right: -2px;
             }
         }
         &.info {
             .boxInnerWrap:before {
-                border-right: 10px solid @color-border-topAction;
+                border-right: 10px solid @color-bg-info-blue;
+            }
+            .boxInnerWrap:after {
+                border-right: 9px solid @color-bg-info-blue;
             }
         }
     }
@@ -964,7 +973,7 @@ input {
                 .position(absolute, @top: 30px, @right: -10px);
             }
             &:before {
-                border-left: 10px solid @color-error-border;
+                border-left: 10px solid @color-white;
             }
             &:after {
                 border-left: 9px solid @color-white;
@@ -973,59 +982,60 @@ input {
         }
         &.info {
             .boxInnerWrap:before {
-                border-left: 10px solid @color-border-topAction;
+                border-left: 10px solid @color-white;
             }
         }
     }
     &.top {
         .arrow {
-            .position(absolute, @left: 96px, @bottom: 0);
+            .position(absolute, @left: 127px, @bottom: 0);
         }
         .boxInnerWrap {
             &:before, &:after {
-                .position(absolute, @left: 99px, @bottom: -18px);
+                .position(absolute, @left: 130px, @bottom: -18px);
                 border-left: 7px solid transparent;
                 border-right: 7px solid transparent;
             }
             &:before {
-                border-top: 10px solid @color-error-border;
+                border-top: 10px solid @color-white;
             }
             &:after {
                 border-top: 9px solid @color-white;
                 margin-right: 2px;
                 bottom: -15px;
-                left: 97px;
+                left: 128px;
+                height: 12px;
             }
         }
         &.info {
             .boxInnerWrap:before {
-                border-top: 10px solid @color-border-topAction;
+                border-top: 10px solid @color-white;
             }
         }
     }
     &.bottom {
         .arrow {
-            .position(absolute, @left: 96px, @top: 0px);
+            .position(absolute, @left: 127px, @top: 0px);
         }
         .boxInnerWrap {
             &:before, &:after {
-                .position(absolute, @left: 99px, @top: -18px);
+                .position(absolute, @left: 130px, @top: -18px);
                 border-left: 7px solid transparent;
                 border-right: 7px solid transparent;
             }
             &:before {
-                border-bottom: 10px solid @color-error-border;
+                border-bottom: 10px solid @color-white;
             }
             &:after {
                 border-bottom: 9px solid @color-white;
                 margin-right: 2px;
                 bottom: 0px;
-                left: 97px;
+                left: 128px;
             }
         }
         &.info {
             .boxInnerWrap:before {
-                border-bottom: 10px solid @color-border-topAction;
+                border-bottom: 10px solid @color-white;
             }
         }
     }
@@ -1490,18 +1500,18 @@ input[type=number]::-webkit-outer-spin-button {
 
     .tooltip-arrow {
         background-color: transparent !important;
-        border-left-color: @color-error-border;
+        border-left-color: @color-error-border-light;
     }
 
     .tooltip-inner {
         background-color: white;
-        border: 1px solid @color-error-border;
+        border: 1px solid @color-error-border-light;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
     }
 
     &.top {
         .tooltip-arrow {
-            border-top-color: @color-error-border;
+            border-top-color: @color-error-border-light;
             border-left-color: transparent;
         }
     }
