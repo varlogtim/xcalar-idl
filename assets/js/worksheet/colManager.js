@@ -465,8 +465,12 @@ window.ColManager = (function($, ColManager) {
                     TblManager.setOrphanTableMeta(newTableName, newTablCols);
                     return PromiseHelper.resolve(null);
                 } else {
+                    var colNums = [];
+                    for (var i = 0; i < colTypeInfos.length; i++) {
+                        colNums.push(colTypeInfos[i].colNum);
+                    }
                     var options = {
-                        selectCol: curColNum
+                        selectCol: colNums
                     };
                     return TblManager.refreshTable([newTableName], newTablCols,
                                                [tableName], worksheet, options);

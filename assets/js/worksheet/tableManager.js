@@ -1450,7 +1450,7 @@ window.TblManager = (function($, TblManager) {
                                               table.resultSetCount);
             var numRowsStillNeeded = requiredNumRows -
                                      $table.find('tbody tr').length;
-
+            console.log(numRowsStillNeeded);
             if (numRowsStillNeeded > 0) {
                 var firstRow = $table.find('tbody tr:first');
                 var topRowNum = xcHelper.parseRowNum(firstRow);
@@ -1476,8 +1476,18 @@ window.TblManager = (function($, TblManager) {
                             if (options.selectCol != null &&
                                 $('.xcTable th.selectedCell').length === 0)
                             {
-                                $table.find('th.col' + options.selectCol +
+                                if (typeof options.selectCol === "object") {
+                                    $table.find('th.col' + options.selectCol[0] +
                                             ' .flexContainer').mousedown();
+                                    for (var i = 0; i < options.selectCol.length; i++) {
+                                        var $th = $table
+                                        .find('th.col' + options.selectCol[i]);
+                                        highlightColumn($th, true);
+                                    }                                
+                                } else {
+                                    $table.find('th.col' + options.selectCol +
+                                            ' .flexContainer').mousedown();
+                                }
                             }
                         })
                         .always(function() {
@@ -1545,8 +1555,18 @@ window.TblManager = (function($, TblManager) {
             if ($('.xcTable th.selectedCell').length === 0) {
                 var mousedown = fakeEvent.mousedown;
                 mousedown.bypassModal = true;
-                $table.find('th.col' + (options.selectCol) +
+                if (typeof options.selectCol === "object") {
+                    $table.find('th.col' + options.selectCol[0] +
                             ' .flexContainer').trigger(mousedown);
+                    for (var i = 0; i < options.selectCol.length; i++) {
+                        var $th = $table
+                        .find('th.col' + options.selectCol[i]);
+                        highlightColumn($th, true);
+                    }                                
+                } else {
+                     $table.find('th.col' + (options.selectCol) +
+                            ' .flexContainer').trigger(mousedown);
+                }
             }
         }
 
