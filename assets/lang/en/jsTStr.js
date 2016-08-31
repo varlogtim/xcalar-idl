@@ -517,7 +517,7 @@ TblTStr = {
 
 ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
-    'RenamSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\" or ' +
+    'RenamSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\"::or ' +
                         'starting or ending spaces',
     'RenamStartNum': 'Invalid name, cannot starts with number',
     // With Replace

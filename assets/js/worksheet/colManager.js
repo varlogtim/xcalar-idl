@@ -1208,7 +1208,7 @@ window.ColManager = (function($, ColManager) {
 
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
-        if (/^ | $|[,\(\)\[\]'"\.\\]/.test(name) === true) {
+        if (/^ | $|[,\(\)\[\]'"\.\\]|::/.test(name) === true) {
             title = ColTStr.RenamSpecialChar;
             isDuplicate = true;
         } else if (name === 'DATA') {
