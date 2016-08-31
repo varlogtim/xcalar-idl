@@ -350,7 +350,6 @@ window.StatusMessage = (function($, StatusMessage) {
         var popupNeeded     = false;
         var popupWrapExists = false;
         var popupNearTab    = false;
-        var popupBottom     = false;
         options = options || {};
 
         var pos = {
@@ -412,7 +411,6 @@ window.StatusMessage = (function($, StatusMessage) {
                     // popupNearTab = $('#worksheetTab-' + wsNum);
                     // xx no more workbook tabs to pop up next to
                     popupNearTab = $('#workspaceTab');
-                    popupBottom = true;
                 }
                 classes += ' worksheetNotify';
                 classes += ' worksheetNotify' + wsNum;
@@ -457,73 +455,8 @@ window.StatusMessage = (function($, StatusMessage) {
             $tableDonePopup.addClass(arrow + ' ' + classes)
                            .data('tableid', newTableId);
 
-            $tableDonePopup.mousedown(function(event) {
-                xcHelper.removeSelectionRange();
-                if (event.which !== 1) {
-                    return;
-                }
-                var $popup = $(this);
-                if ($popup.hasClass('failed')) {
-                    return;
-                }
-
-                if ($popup.data('tableid')) {
-                    var tableId = $popup.data('tableid');
-                    var wsId = WSManager.getWSFromTable(tableId);
-                    var $tableWrap = $('#xcTableWrap-' + tableId);
-
-                    $('#workspaceTab').click();
-
-                    if (!$('#dagPanel').hasClass('invisible') &&
-                        $('#dagPanel').css('top') === "0px") {
-                        $('#closeDag').click();
-                    }
-
-                    if (wsId) {
-                        $('#worksheetTab-' + wsId).click();
-                    }
-
-                    if ($tableWrap.length) {
-                        var animate = true;
-                        xcHelper.centerFocusedTable($tableWrap, animate);
-                        $tableWrap.mousedown();
-                    }
-
-                } else if (options.newDataSet) {
-                    // XXX this part need fix
-                    $('#dataStoresTab').click();
-                    $('#inButton').click();
-                    $('#' + options.dataSetId).click();
-                }
-
-                if ($popup.siblings().length === 0) {
-                    $popup.parent().remove();
-                } else {
-                    $popup.remove();
-                }
-                $('#mainFrame').off('scroll.' + msgId);
-                $(document).mouseup(removeSelectionRange);
-            });
-
-            $tableDonePopup.find('.close').mousedown(function(event) {
-                xcHelper.removeSelectionRange();
-                if (event.which !== 1) {
-                    return;
-                }
-                var $popup = $(this);
-                if ($popup.hasClass('failed')) {
-                    return;
-                }
-                event.stopPropagation();
-                if ($popup.siblings().length === 0) {
-                    $popup.parent().remove();
-                } else {
-                    $popup.remove();
-                }
-                $('#mainFrame').off('scroll.' + msgId);
-                $(document).mouseup(removeSelectionRange);
-            });
-
+            doneNotificationListeners($tableDonePopup, msgId, options);
+            
             if (status.indexOf('failed') === -1 &&
                 (classes.indexOf('right') > -1 ||
                  classes.indexOf('left') > -1)) {
@@ -544,11 +477,6 @@ window.StatusMessage = (function($, StatusMessage) {
                     pos.left = popupNearTab.offset().left +
                                popupNearTab.outerWidth() + 6;
                     pos.top = popupNearTab.offset().top + 2;
-                }
-
-                if (popupBottom) {
-                    pos.bottom = 3;
-                    pos.top = 'auto';
                 }
 
                 $popupWrap = $('<div class="tableDonePopupWrap"></div>');
@@ -602,6 +530,76 @@ window.StatusMessage = (function($, StatusMessage) {
         delete msgObjs[msgId];
     }
 
+    function doneNotificationListeners($tableDonePopup, msgId, options) {
+        $tableDonePopup.mousedown(function(event) {
+            xcHelper.removeSelectionRange();
+            if (event.which !== 1) {
+                return;
+            }
+            var $popup = $(this);
+            if ($popup.hasClass('failed')) {
+                return;
+            }
+
+            if ($popup.data('tableid')) {
+                var tableId = $popup.data('tableid');
+                var wsId = WSManager.getWSFromTable(tableId);
+                var $tableWrap = $('#xcTableWrap-' + tableId);
+
+                $('#workspaceTab').click();
+
+                if (!$('#dagPanel').hasClass('invisible') &&
+                    $('#dagPanel').css('top') === "0px") {
+                    $('#closeDag').click();
+                }
+
+                if (wsId) {
+                    $('#worksheetTab-' + wsId).click();
+                }
+
+                if ($tableWrap.length) {
+                    var animate = true;
+                    xcHelper.centerFocusedTable($tableWrap, animate);
+                    $tableWrap.mousedown();
+                }
+
+            } else if (options.newDataSet) {
+                // XXX this part need fix
+                $('#dataStoresTab').click();
+                $('#inButton').click();
+                $('#' + options.dataSetId).click();
+            }
+
+            if ($popup.siblings().length === 0) {
+                $popup.parent().remove();
+            } else {
+                $popup.remove();
+            }
+            $('#mainFrame').off('scroll.' + msgId);
+            $(document).mouseup(removeSelectionRange);
+        });
+
+        $tableDonePopup.find('.close').mousedown(function(event) {
+            xcHelper.removeSelectionRange();
+            if (event.which !== 1) {
+                return;
+            }
+            var $popup = $(this);
+            if ($popup.hasClass('failed')) {
+                return;
+            }
+            event.stopPropagation();
+            if ($popup.siblings().length === 0) {
+                $popup.parent().remove();
+            } else {
+                $popup.remove();
+            }
+            $('#mainFrame').off('scroll.' + msgId);
+            $(document).mouseup(removeSelectionRange);
+        });
+
+    }
+
     function tableVisibility(tableId) {
         var wsId = WSManager.getWSFromTable(tableId);
         var activeWS = WSManager.getActiveWS();
@@ -611,7 +609,6 @@ window.StatusMessage = (function($, StatusMessage) {
         }
         var $table = $("#xcTable-" + tableId);
         var rect = $table[0].getBoundingClientRect();
-        // XXX GUI-4745 Fix it!!
         var windowWidth = $(window).width() - 5;
         var position;
         var leftBoundary = MainMenu.getOffset() + 40;

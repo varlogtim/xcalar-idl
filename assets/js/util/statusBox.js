@@ -8,7 +8,8 @@ window.StatusBox = (function($, StatusBox){
     // options:
     //      type: string, "error", "info"
     //      offsetX: int
-    //      side: 'top', 'bottom', 'left', 'right'
+    //      side: 'top', 'bottom', 'left', 'right' (if not provided, box will
+    //      default to the right side of the $target)
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
         $doc = $(document);
