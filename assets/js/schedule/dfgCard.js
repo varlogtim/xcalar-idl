@@ -15,7 +15,7 @@ window.DFGCard = (function($, DFGCard) {
                             '<div class="paramVal textOverflowOneLine"></div>' +
                         '</td>' +
                         '<td class="paramActionWrap">' +
-                            '<i class="paramDelete icon xi-close fa-12 xc-action">' +
+                            '<i class="paramDelete icon xi-close fa-10 xc-action">' +
                             '</i>' +
                         '</td>' +
                    '</tr>';

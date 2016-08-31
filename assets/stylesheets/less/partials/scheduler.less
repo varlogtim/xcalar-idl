@@ -25,7 +25,6 @@
 }
 
 #dfgViz {
-
     .image("../../images/dagIcons/dag-background.png", right, top, repeat);
 
     .cardHeader {
@@ -83,7 +82,7 @@
                         .size(@width: 20px, @height: 30px);
                         cursor: pointer;
                         .icon {
-                            color: @color-font-greyish-brown;
+                            color: @color-white;
                             opacity: @opacity-unhover;
                         }
                     }
@@ -102,101 +101,111 @@
                 }
 
                 .retPopUp {
-                    .position(absolute, @top: 30px, @left: -305px);
-                    .size(@width: 440px, @height: 298px);
+                    .position(absolute, @top: 33px, @left: -332px);
+                    .size(@width: 468px, @height: 301px);
                     display: none;
-                    background: @color-white;
-                    box-shadow: 0px 3px 6px 0 rgba(0, 0, 0, 0.3);
+                    background-color: @color-bg-white-five;
+                    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+                    padding: 10px 8px;
 
-                    .divider {
-                        //xx remove this element
-                        display: none;
-                    }
                     .inputSection {
-                        .size(@width: 100%, @height: 45px);
-                        background: @color-dag-TopGray;
-                        box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
-                        padding: 7px 10px;
+                        .size(@width: 100%, @height: 30px);
+                        margin-bottom: 6px;
 
-                        .newParam {
-                            .size(@width: 194px);
+                        .input-box(@w: 223px, @h: 30px);
+
+                        > input, > button {
                             display: inline-block;
                             float: left;
-                            padding-left: 9px;
-                            box-shadow: inset -2px 0px 2px 0 rgba(0, 0, 0, 0.3);
-                            .font(@weight: bold, @size: 13px, @color: @color-text-darkGray);
-                            .input-placeholder(@color-text-topGrayMed);
                         }
+
                         .addParam {
-                            .size(@width: 214px, @height: 30px);
-                            display: inline-block;
-                            margin-left: 12px;
-                            padding-top: 5px;
-                            line-height: 20px;
+                            .size(@width: 223px, @height: 30px);
+                            margin-left: 6px;
+                            padding-right: 5px;
+                            .font(@size: 14px, @line-height: 30px);
 
                             .icon {
-                                float: left;
-                                margin: 0px 8px 0 6px;
-                                .background("../../images/retina/retNewParam.png", 24px, 23px);
-                            }
-                            .label {
-                                .size(@width: 170px);
-                                .font(@weight: bold, @size: 12px);
+                                .size(@width: 18px, @height: 100%);
+                                .image("../../images/retina/retNewParam.png", 50%, 50%);
+                                background-size: 18px 18px;
                             }
                         }
                     }
 
-                    .parameterTable;
                     .tableHeader {
                         .size(@height: 30px);
-                        margin: 0 10px;
                         overflow: hidden;
 
                         .thWrap {
                             .size(@height: 30px);
-                            .font(@weight: bold, @size: 13px, @line-height: 30px, @color: @color-white);
+                            .font(@size: 14px, @weight: bold, @line-height: 30px, @color: @color-font-greyish-brown);
                             float: left;
-                            background-color: @color-background-joinGray;
-                            text-align: center;
+                            background-color: @color-white;
+                            text-align: left;
+                            padding: 0 6px;
 
                             &.paramName {
-                                .size(@width: 175px);
+                                .size(@width: 182px);
                             }
 
                             &.paramVal {
-                                .size(@width: 174px);
+                                .size(@width: 190px);
                             }
 
                             &.paramAction {
-                                .size(@width: 71px);
+                                text-align: center;
+                                .size(@width: 80px);
                             }
 
                             &:not(:first-child) {
-                                border-left: 1px solid @color-white;
+                                border-left: 7px solid @color-border-white-five;
                             }
                         }
                     }
 
                     .tableContainer {
-                        height: 210px;
+                        .position(relative);
+                        .size(@width: 100%, @height: 210px);
+                        margin-top: 5px;
                         overflow: hidden;
                         overflow-y: auto;
 
                         .tableWrapper {
-                            width: 420px;
-                            overflow-y: hidden;
-                            height: auto;
+                            .size(@width: 452px, @height: 100%);
+
+                            .unfilled .paramDelete {
+                                display: none;
+                            }
                         }
 
                         table {
+                            table-layout: fixed;
+                            text-align: left;
+                            border-collapse: collapse;
+
+                            tr {
+                                &:nth-child(odd) {
+                                    background-color: rgba(255, 255, 255, 0.5);
+                                }
+
+                                &:nth-child(even) {
+                                    background-color: @color-white;
+                                }
+                            }
+
                             td {
-                                border-right: 1px solid @color-border-joinGray;
-                                width: 70px;
+                                position: relative;
+                                .size(@width: 70px, @height: 30px);
+                                padding: 0 6px;
+                                .font(@weight: 600, @size: 14px, @line-height: 30px, @color: @color-font-greyish-brown);
+                                &:not(:first-child) {
+                                    border-left: 7px solid @color-border-white-five;
+                                }
                             }
 
                             .paramNameWrap {
-                                .size(@width: 175px);
-                                padding-right: 10px;
+                                .size(@width: 185px);
 
                                 .paramName {
                                     .size(@width: 140px);
@@ -204,28 +213,28 @@
                             }
 
                             .paramValWrap {
-                                .size(@width: 174px);
-                                padding-right: 10px;
+                                .size(@width: 190px);
 
                                 .paramVal {
                                     .size(@width: 139px);
                                 }
                             }
 
-                            .paramDelete {
-                                .position(absolute, @top: 50%, @left: 50%);
-                                color: @color-font-greyish-brown;
-                                transform: translate(-50%, -50%);
+                            .paramActionWrap {
+                                .size(@width: 77px);
+
+                                .paramDelete {
+                                    .position(absolute, @top: 50%, @left: 50%);
+                                    color: @color-black;
+                                    transform: translate(-50%, -50%);
+                                }
                             }
                         }
-                    }
-
-                    ::-webkit-scrollbar-track {
-                        background: transparent;
                     }
                 }
             }
         }
+
         .title {
             padding-right: 2px;
         }

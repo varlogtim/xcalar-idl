@@ -195,7 +195,12 @@ window.QueryManager = (function(QueryManager, $) {
     QueryManager.cancelQuery = function(id) {
         var deferred = jQuery.Deferred();
         var mainQuery = queryLists[id];
-        if (mainQuery.state === "done") {
+        if (mainQuery == null) {
+            // error case
+            console.warn('invalid query');
+            deferred.reject('invalid query');
+            return deferred.promise();
+        } else if (mainQuery.state === "done") {
             console.warn('operation is done, cannot cancel');
             deferred.reject('operation is done, cannot cancel');
             return deferred.promise();

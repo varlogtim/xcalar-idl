@@ -66,18 +66,17 @@
           <div class="tabWrap btn">
             <span class="retTitle"><%= dicts.sched.params %></span>
             <div class="caret">
-              <i class="icon fa-12 xi-arrow-down"></i>
+              <i class="icon fa-10 xi-arrow-down"></i>
             </div>
           </div>
           <!-- retPopUp -->
           <div class="retPopUp">
-            <div class="divider"></div>
             <div class="inputSection">
               <input class="newParam" type="text" placeholder="<%= dicts.sched.inputNewParam %>" spellcheck="false">
-              <div class="btn addParam">
+              <button class="btn iconBtn addParam">
                 <span class="icon"></span>
-                <span class="label"><%= dicts.sched.newParam %></span>
-              </div>
+                <%= dicts.sched.newParam %>
+              </button>
             </div>
             <div class="tableHeader">
               <div class="thWrap paramName"><%= dicts.sched.param %></div>

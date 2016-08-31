@@ -388,7 +388,7 @@ window.DS = (function ($, DS) {
                 title = DSTStr.CancalPoint;
                 msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {"ds": dsName});
                 callback = function() {
-                    cancelDSHelper(txId, $grid);
+                    cancelDSHelper(txId, $grid, dsObj);
                 };
             } else {
                 // when remove ds
@@ -522,16 +522,15 @@ window.DS = (function ($, DS) {
         return dsObj;
     }
 
-    function cancelDSHelper(txId, $grid) {
-        var $query = $('#monitor-queryList .query[data-id="' + txId + '"]');
-        if ($query.length > 0) {
-            // the cancel will make the point to data faild,
-            // the DS.load has the handler to do clean up
-            $grid.removeClass("active").addClass("inactive deleting");
-            $query.find(".cancelIcon").click();
-        } else {
-            console.error("not find");
-        }
+    function cancelDSHelper(txId, $grid, dsObj) {
+        $grid.removeClass("active").addClass("inactive deleting");
+        // if cancel success, it will trigger fail in ds.load, so it's fine
+        QueryManager.cancelQuery(txId)
+        .fail(function(error) {
+            console.error(error);
+            // if cancel fails, might be a succesful load, try delete then
+            delDSHelper($grid, dsObj);
+        });
     }
 
     // Helper function for DS.remove()
