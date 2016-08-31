@@ -273,13 +273,12 @@ window.DFGCard = (function($, DFGCard) {
             var retName = $("#dfgMenu .listSection").find(".selected .groupName")
                                                     .text();
 
-            $btn.addClass("inActive")
-                .find(".text").text("Running...");
+
+            $btn.addClass("running");
 
             runDFG(retName)
             .always(function() {
-                $btn.removeClass("inActive")
-                    .find(".text").text("Run Now");
+                $btn.removeClass("running");
             });
         });
     }
@@ -298,6 +297,7 @@ window.DFGCard = (function($, DFGCard) {
             if (i === 0) {
                 runNowBtn = '<button class="runNowBtn btn btn-small iconBtn">' +
                                 '<i class="icon xi-arrow-right"></i>' +
+                                '<div class="spin"></div>' +
                             '</button>';
             }
 

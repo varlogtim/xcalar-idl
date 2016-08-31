@@ -258,24 +258,66 @@
             .size(@width: 25px, @height: 25px);
             float: right;
             padding: 0px;
-            padding-left: 1px;
             text-align: center;
             margin-bottom: 0px;
             position: relative;
             top: -5px;
 
-            &.inActive {
-                opacity: 0.7;
+            &.running {
                 pointer-events: none;
-                cursor: default;
-
                 .icon {
-                    display: none;
+                    visibility: hidden;
+                    opacity: 0;
+                }
+
+                .spin {
+                    visibility: visible;
+                    opacity: 1;
                 }
             }
 
             .icon {
                 font-size: 14px;
+                .transition(opacity 1s);
+            }
+
+            .spin {
+                @spin-size: 17px;
+                @spin-margin: -@spin-size / 2;
+                @spin-border: @spin-size / 10;
+                @spin-color: @color-white;
+
+                visibility: hidden;
+                opacity: 0;
+                .transition(opacity 1s);
+
+                .keyframe(spinClock, {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                });
+
+                .size(@spin-size, @spin-size);
+                .rounded(50%);
+                .center-align;
+                position: absolute;
+                border: @spin-border solid @spin-color;
+
+                &:before, &:after {
+                    content: "";
+                    position: absolute;
+                    display: block;
+                    width: @spin-border;
+                    background-color: @spin-color;
+                    border-radius: @spin-border / 2;
+                    transform-origin: 50% 0;
+                }
+
+                &:before {
+                    height: @spin-size / 2 - @spin-border * 2;
+                    left: @spin-size / 2 - @spin-border / 2;
+                    top: 50%;
+                    .keyframeAnim(spinClock 2s infinite linear);
+                }
             }
         }
 
