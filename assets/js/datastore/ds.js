@@ -249,6 +249,8 @@ window.DS = (function ($, DS) {
             "cancelable": false
         });
 
+        $grid.data("txid", txId);
+
         XcalarLoad(loadURL, dsFormat, fullDSName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName, isRecur, previewSize,
@@ -258,6 +260,7 @@ window.DS = (function ($, DS) {
                 dsObj.setError(error);
             }
 
+            $grid.removeData("txid");
             $grid.removeClass("inactive").find('.waitingIcon').remove();
             $grid.show();
 
@@ -377,13 +380,30 @@ window.DS = (function ($, DS) {
 
             return;
         } else if ($grid.hasClass("ds")) {
-            // when remove ds
-            msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {"ds": dsName});
+            var txId = $grid.data("txid");
+            var title;
+            var callback;
+            if (txId != null) {
+                // when cancel ds
+                title = DSTStr.CancalPoint;
+                msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {"ds": dsName});
+                callback = function() {
+                    cancelDSHelper(txId, $grid);
+                };
+            } else {
+                // when remove ds
+                title = DSTStr.DelDS;
+                msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {"ds": dsName});
+                callback = function() {
+                    delDSHelper($grid, dsObj);
+                };
+            }
+
             // add alert
             Alert.show({
-                "title"    : DSTStr.DelDS,
+                "title"    : title,
                 "msg"      : msg,
-                "onConfirm": function() { delDSHelper($grid, dsObj); }
+                "onConfirm": callback
             });
         } else if (removeDS($grid) === true) {
             UserSettings.logDSChange();
@@ -500,6 +520,18 @@ window.DS = (function ($, DS) {
         dsLookUpTable[dsObj.getId()] = dsObj;
 
         return dsObj;
+    }
+
+    function cancelDSHelper(txId, $grid) {
+        var $query = $('#monitor-queryList .query[data-id="' + txId + '"]');
+        if ($query.length > 0) {
+            // the cancel will make the point to data faild,
+            // the DS.load has the handler to do clean up
+            $grid.removeClass("active").addClass("inactive deleting");
+            $query.find(".cancelIcon").click();
+        } else {
+            console.error("not find");
+        }
     }
 
     // Helper function for DS.remove()
@@ -933,6 +965,9 @@ window.DS = (function ($, DS) {
                 var dsId = $grid.data("dsid");
                 var dsObj = DS.getDSObj(dsId);
                 if (!dsObj.isEditable()) {
+                    classes += " uneditable";
+                } else if ($grid.hasClass("deleting")) {
+                    // if it's deleting, also make it uneditable
                     classes += " uneditable";
                 }
 

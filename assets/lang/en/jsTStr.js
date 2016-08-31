@@ -485,6 +485,8 @@ DSTStr = {
     'NoRecrodsHint': 'Please change the preview size and try to point again',
     'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
+    'CancalPoint': 'Cancel Point to dataset',
+    'CancelPointMsg': 'Are you sure you want to cancel pointing dataset reference <ds> ?',
     'DSSourceHint': 'Please try another path or use another protocol',
     'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
