@@ -289,12 +289,10 @@ describe('Constructor Test', function() {
     it('UserPref should be a constructor', function() {
         var userPref = new UserPref();
         expect(userPref).to.be.an('object');
-        expect(Object.keys(userPref).length).to.equal(9);
+        expect(Object.keys(userPref).length).to.equal(8);
 
         expect(userPref).to.have.property('datasetListView');
         expect(userPref).to.have.property('browserListView');
-        expect(userPref).to.have.property('activeWorksheet')
-        .and.to.be.null;
         expect(userPref).to.have.property('keepJoinTables');
         expect(userPref).to.have.property('hideDataCol')
         .and.to.be.false;
@@ -308,7 +306,6 @@ describe('Constructor Test', function() {
         .and.to.equal('workspaceTab');
 
         userPref.update();
-        expect(userPref.activeWorksheet).not.to.be.null;
     });
 
     describe('DSObj Constructor Test', function() {
@@ -385,15 +382,17 @@ describe('Constructor Test', function() {
             "wsInfos"      : {},
             "wsOrder"      : [],
             "hiddenWS"     : [],
-            "noSheetTables": []
+            "noSheetTables": [],
+            "activeWS"     : "test"
         });
 
         expect(meta).to.be.an('object');
-        expect(Object.keys(meta).length).to.equal(4);
+        expect(Object.keys(meta).length).to.equal(5);
         expect(meta).to.have.property('wsInfos');
         expect(meta).to.have.property('wsOrder');
         expect(meta).to.have.property('hiddenWS');
         expect(meta).to.have.property('noSheetTables');
+        expect(meta).to.have.property('activeWS');
     });
 
     describe('WKBK Constructor Test', function() {

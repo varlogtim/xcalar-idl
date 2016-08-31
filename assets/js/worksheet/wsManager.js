@@ -76,6 +76,12 @@ window.WSManager = (function($, WSManager) {
                 tableIdToWSIdMap[orphanedTables[i]] = wsId;
             }
         }
+
+        var storedWS = sheetInfos.activeWS;
+        if (storedWS != null && wsOrder.includes(storedWS)) {
+            activeWorksheet = storedWS;
+        }
+
         initializeWorksheet();
         initializeHiddenWorksheets();
     };
@@ -99,7 +105,8 @@ window.WSManager = (function($, WSManager) {
             "wsInfos"      : wsLookUp,
             "wsOrder"      : wsOrder,
             "hiddenWS"     : hiddenWS,
-            "noSheetTables": noSheetTables
+            "noSheetTables": noSheetTables,
+            "activeWS"     : activeWorksheet
         });
     };
 
@@ -1223,13 +1230,9 @@ window.WSManager = (function($, WSManager) {
             }
         }
         // focus on the saved or first worksheet
-        var storedWS = UserSettings.getPref('activeWorksheet');
-        if (!clearing && wsOrder.indexOf(storedWS) > -1) {
-            activeWorksheet = storedWS;
-        } else {
+        if (clearing || activeWorksheet == null) {
             activeWorksheet = wsOrder[0];
         }
-
         WSManager.focusOnWorksheet(activeWorksheet);
     }
 

@@ -510,7 +510,6 @@ function UserPref(options) {
     options = options || {};
     this.datasetListView = options.datasetListView || false;
     this.browserListView = options.browserListView || false;
-    this.activeWorksheet = options.activeWorksheet || null;
     this.keepJoinTables = options.keepJoinTables || false;
     this.hideDataCol = options.hideDataCol || false;
     this.memoryLimit = options.memoryLimit || 70;
@@ -530,7 +529,6 @@ UserPref.prototype = {
     'update': function() {
         this.datasetListView = $('#dataViewBtn').hasClass('listView');
         this.browserListView = $('#fileBrowserGridView').hasClass('listView');
-        this.activeWorksheet = WSManager.getActiveWS();
         this.keepJoinTables = $('#joinModal').find('.keepTablesCBWrap')
                                              .find('.checkbox')
                                              .hasClass('checked');
@@ -827,6 +825,7 @@ function WSMETA(options) {
     this.wsOrder = options.wsOrder;
     this.hiddenWS = options.hiddenWS;
     this.noSheetTables = options.noSheetTables;
+    this.activeWS = options.activeWS;
 
     return this;
 }
