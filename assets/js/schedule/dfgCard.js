@@ -487,19 +487,16 @@ window.DFGCard = (function($, DFGCard) {
             $menu.css({'top': top, 'left': left});
             $menu.show();
 
-            // XXX GUI-4745 Need to fix!
             //positioning if dropdown menu is on the right side of screen
-            var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect()
-                                                    .left;
-            if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-                left = el[0].getBoundingClientRect().right - $menu.width();
+            if ($menu[0].getBoundingClientRect().right > 
+                $(window).width() - 5) {
+                left = $(window).width() - $menu.width() - 7;
                 $menu.css('left', left).addClass('leftColMenu');
+            } else if ($menu[0].getBoundingClientRect().left < 
+                        MainMenu.getOffset()) {
+                // if on the left side of the screen
+                $menu.css('left', MainMenu.getOffset() + 5);
             }
-            $menu.find('.subMenu').each(function() {
-                if ($(this)[0].getBoundingClientRect().right > leftBoundary) {
-                    $menu.find('.subMenu').addClass('leftColMenu');
-                }
-            });
             addMenuKeyboardNavigation($menu);
         });
 
