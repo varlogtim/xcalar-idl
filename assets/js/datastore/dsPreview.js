@@ -1146,27 +1146,9 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function autoPreview() {
-        var formatText;
-        for (formatText in formatMap) {
-            if (formatMap[formatText] === detectArgs.format) {
-                break;
-            }
-        }
-
-        toggleFormat(formatText);
-        applyFieldDelim(detectArgs.fieldDelim);
-        applyLineDelim(detectArgs.lineDelim);
-        applyQuote(detectArgs.quote);
-        toggleHeader(detectArgs.hasHeader);
-
         $("#dsForm-skipRows").val(0);
-
-        if ($previeWrap.find(".errorSection").hasClass("hidden")) {
-            getPreviewTable();
-            xcHelper.showSuccess();
-        } else {
-            refreshPreview();
-        }
+        smartDetect();
+        xcHelper.showSuccess();
     }
 
     function refreshPreview() {
@@ -1715,17 +1697,15 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function smartDetect() {
-        if (detectArgs.format == null) {
-            detectArgs.format = detectFormat();
-        }
+        toggleFormat("TEXT", null);
+        applyFieldDelim("");
+        applyLineDelim("\n");
+        applyQuote("\"");
+        getPreviewTable();
+
+        detectArgs.format = detectFormat();
 
         var format = detectArgs.format;
-        if (format === formatMap.EXCEL) {
-            detectArgs.fieldDelim = "\t";
-        } else if (format === formatMap.CSV && detectArgs.fieldDelim === "") {
-            detectArgs.fieldDelim = detectFieldDelim();
-        }
-
         var formatText;
         for (var key in formatMap) {
             if (formatMap[key] === format) {
@@ -1740,15 +1720,22 @@ window.DSPreview = (function($, DSPreview) {
 
         if (detectArgs.format === formatMap.EXCEL ||
             detectArgs.format === formatMap.CSV) {
-            // need to reset first
+             // need to reset first
             loadArgs.setHeader(false);
+
+            getPreviewTable();
+            if (detectArgs.format === formatMap.EXCEL) {
+                detectArgs.fieldDelim = "\t";
+            } else {
+                detectArgs.fieldDelim = detectFieldDelim();
+            }
 
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);
+                // only after update the table, can do the detect
+                getPreviewTable();
             }
 
-            // only after update the table, can do the detect
-            getPreviewTable();
             detectArgs.hasHeader = detectHeader();
         } else {
             detectArgs.hasHeader = false;
@@ -1793,7 +1780,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function detectFormat() {
         var format = loadArgs.getFormat();
-        if (format === formatMap.JSON || format === formatMap.EXCEL) {
+        if (format === formatMap.EXCEL) {
             return format;
         } else if (isJSONArray()) {
             return formatMap.JSON;
