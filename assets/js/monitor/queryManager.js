@@ -193,6 +193,63 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.cancelQuery = function(id) {
+        var deferred = jQuery.Deferred();
+        var mainQuery = queryLists[id];
+        if (mainQuery.state === "done") {
+            console.warn('operation is done, cannot cancel');
+            deferred.reject('operation is done, cannot cancel');
+            return deferred.promise();
+        }
+        var $query = $queryList.find('.query[data-id="' + id + '"]');
+        var currStep = mainQuery.currStep;
+
+        // this is a xcalar query so we must cancel all future subqueries
+        if (!mainQuery.subQueries[currStep]) {
+            Transaction.cancel(id);
+            console.warn('step vs query mismatch');
+            deferred.reject('step vs query mismatch');
+            return deferred.promise();
+        }
+
+        Transaction.pendingCancel(id);
+        $query.find('.cancelIcon').addClass('disabled');
+        var statusesToIgnore = [StatusT.StatusOperationHasFinished];
+
+        if (mainQuery.subQueries[currStep].queryName) {
+            // Query Cancel returns success even if the operation is
+            // complete, unlike cancelOp. Xc4921
+            XcalarQueryCancel(mainQuery.subQueries[currStep].queryName, [])
+            .then(function(ret) {
+                Transaction.checkAndSetCanceled(id);
+                console.info('cancel submitted', ret);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                // errors being handled inside XcalarCancelOp
+                deferred.reject(error);
+            });
+        } else {
+            // start cancel before xcalarcancelop returns
+            // so that if we miss the table, xcfunctions will stop further
+            // actions
+            XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
+                           statusesToIgnore)
+            .then(function(ret) {
+                Transaction.checkAndSetCanceled(id);
+                console.info('cancel submitted', ret);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                // errors being handled inside XcalarCancelOp
+                deferred.reject(error);
+            });
+        }
+        return deferred.promise();
+    };
+
+    // this gets called after cancel is successful. It cleans up and updates
+    // the query state and views
+    QueryManager.confirmCanceledQuery = function(id) {
         if (!queryLists[id]) {
             return;
         }
@@ -843,7 +900,7 @@ window.QueryManager = (function(QueryManager, $) {
             if ($clickTarget.hasClass('deleteIcon')) {
                 QueryManager.removeQuery(id);
             } else if ($clickTarget.hasClass('cancelIcon')) {
-                cancelAttempt(id);
+                QueryManager.cancelQuery(id);
             } else {
                 focusOnQuery($(this));
             }
@@ -975,53 +1032,7 @@ window.QueryManager = (function(QueryManager, $) {
             $queryDetail.find('.outputSection').find('.text')
                                                .text(CommonTxtTstr.NA);
         }
-
-        function cancelAttempt(id) {
-            var mainQuery = queryLists[id];
-            if (mainQuery.state === "done") {
-                console.warn('operation is done, cannot cancel');
-                return;
-            }
-            var $query = $queryList.find('.query[data-id="' + id + '"]');
-            var currStep = mainQuery.currStep;
-
-            // this is a xcalar query so we must cancel all future subqueries
-            if (!mainQuery.subQueries[currStep]) {
-                Transaction.cancel(id);
-                console.warn('step vs query mismatch');
-                return;
-            }
-
-            Transaction.pendingCancel(id);
-            $query.find('.cancelIcon').addClass('disabled');
-            var statusesToIgnore = [StatusT.StatusOperationHasFinished];
-
-            if (mainQuery.subQueries[currStep].queryName) {
-                // Query Cancel returns success even if the operation is
-                // complete, unlike cancelOp. Xc4921
-                XcalarQueryCancel(mainQuery.subQueries[currStep].queryName, [])
-                .then(function(ret) {
-                    Transaction.checkAndSetCanceled(id);
-                    console.info('cancel submitted', ret);
-                })
-                .fail(function(error) {
-                    // errors being handled inside XcalarCancelOp
-                });
-            } else {
-                // start cancel before xcalarcancelop returns
-                // so that if we miss the table, xcfunctions will stop further
-                // actions
-                XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
-                               statusesToIgnore)
-                .then(function(ret) {
-                    Transaction.checkAndSetCanceled(id);
-                    console.info('cancel submitted', ret);
-                })
-                .fail(function(error) {
-                    // errors being handled inside XcalarCancelOp
-                });
-            }
-        }
+        
     }
 
     function filterQuery($el) {
