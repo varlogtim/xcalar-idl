@@ -79,10 +79,11 @@ TooltipTStr = {
     'CancelQuery': 'cancel query',
     'NeedCreateSchedule': 'Click on the schedule icon to attach a schedule',
     'AlreadyIcv': 'This table is already an ICV table',
-    "IcvRestriction": "ICV only available for Map and Group By", // Sync with htmlTStr
+    "IcvRestriction": 'ICV only available for Map and Group By', // Sync with htmlTStr
 
      // with replace
-    'CollapsedTables': '<number> tables are hidden'
+    'CollapsedTables': '<number> tables are hidden',
+    'DroppedTable': 'Table \'<tablename>\' has been deleted'
 };
 
 CommonTxtTstr = {

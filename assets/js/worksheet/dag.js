@@ -1454,7 +1454,8 @@ window.Dag = (function($, Dag) {
             "data-toggle"        : "tooltip",
             "data-placement"     : "top",
             "data-container"     : "body",
-            "data-original-title": "Table '" + tableName + "' has been dropped"
+            "data-original-title": xcHelper.replaceMsg(TooltipTStr.DroppedTable,
+                                                       {"tablename": tableName})
         });
     };
 
@@ -2914,8 +2915,8 @@ window.Dag = (function($, Dag) {
                             'data-toggle="tooltip" ' +
                             'data-placement="top" ' +
                             'data-container="body" ' +
-                            'title="Table \'' + tableName +
-                            '\' has been dropped"></i>';
+                            'title="' + xcHelper.replaceMsg(TooltipTStr.DroppedTable,
+                            {"tablename": tableName}) + '"></i>';
             } else {
                 html += '<i class="icon xi_table"></i>';
             }
