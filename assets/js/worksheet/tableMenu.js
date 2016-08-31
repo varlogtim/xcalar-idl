@@ -152,6 +152,17 @@ window.TblMenu = (function(TblMenu, $) {
             $list.empty().append(WSManager.getWSLists(true));
         });
 
+        $tableMenu.on('mouseup', '.createDf', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableId = $tableMenu.data('tableId');
+            DFCreateView.show($('#dagWrap-' + tableId));
+        });
+
+
+        // SUBMENU CODE
+
         var subMenuList = new MenuHelper($subMenu.find(".dropDownList"), {
             "onSelect": function($li) {
                 var $input = $li.closest(".dropDownList").find(".wsName");

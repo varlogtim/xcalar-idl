@@ -140,7 +140,7 @@ module.exports = {
        "CollapseQG": "Collapse Query Graph",
        "CPCell": "Copy to clipboard",
        "CPColNames": "Copy Column Names",
-       "CreateDF": "Create dataflow",
+       "CreateDF": "Create Dataflow",
        "Del": "Delete",
        "DelAllDups": "Delete All Duplicates",
        "DelCol": "Delete column",

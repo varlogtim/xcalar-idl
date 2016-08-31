@@ -72,6 +72,14 @@ window.DagPanel = (function($, DagPanel) {
     };
 
     DagPanel.heightForDFView = function(noAnimateDelay, onlyIfNeeded) {
+        if ($dagPanel.hasClass('hidden')) {
+            // open dfg by triggering panelSwitch click
+            // set dagTopPct to 50 so it opens half way
+            dagTopPct = 50;
+            $panelSwitch.click();
+            return;
+        }
+        // new height is in percent
         var newHeight = 50;
         if (onlyIfNeeded) {
             var pct = dagTopPct || 0;
@@ -79,7 +87,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
         }
-         // in %
+
         var animateDelay = noAnimateDelay ? 0 : 100;
         setTimeout(function () {
             $dagPanel.removeClass('noTransform');
@@ -98,7 +106,6 @@ window.DagPanel = (function($, DagPanel) {
             $('#dagScrollBarWrap').hide();
             clickDisabled = true;
             setTimeout(function() {
-                // debugger;
                 $dagPanel.addClass('noTransform');
                 $dagPanel.css('top', newHeight + '%');
                 $dagArea.css('height', newHeight + '%');
