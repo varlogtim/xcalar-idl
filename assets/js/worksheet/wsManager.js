@@ -834,9 +834,17 @@ window.WSManager = (function($, WSManager) {
         $activeTab.addClass("active");
 
         // refresh mainFrame
-        $tables.addClass("inActive");
         var $curActiveTables = $tables.filter(".worksheet-" + wsId);
+        $tables.addClass("inActive");
         $curActiveTables.removeClass("inActive");
+
+        // if WSManager.focusOnWorksheet is triggered through a panel switch,
+        // offscreenTables were hidden for performance reasons. Use settimeout
+        // so panel switch is smoother, then reveal offscreen tables
+        setTimeout(function() {
+            unhideOffScreenTables();
+        },0);
+       
 
         // position sticky row column on visible tables
         moveFirstColumn();
@@ -866,7 +874,7 @@ window.WSManager = (function($, WSManager) {
             RowScroller.empty();
             $('#dagScrollBarWrap').hide();
             if ($curActiveTables.length > 0) {
-                $curActiveTables.find('.xcTable').each(function() {
+                $curActiveTables.find('.xcTable:visible').each(function() {
                     matchHeaderSizes($(this));
                 });
             }
@@ -877,7 +885,7 @@ window.WSManager = (function($, WSManager) {
                 isFocus = true;
                 focusTable(tableId);
             }
-            $curActiveTables.find('.xcTable').each(function() {
+            $curActiveTables.find('.xcTable:visible').each(function() {
                 var $table = $(this);
                 matchHeaderSizes($table);
             });
