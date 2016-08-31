@@ -1,46 +1,46 @@
 StatusMessageTStr = {
-'Success' : 'Success!',
-'Completed' : 'Completed',
-'Viewing' : 'Viewing',
-'Error' : 'Error encountered',
-'Loading' : 'Loading',
-'LoadingDataset' : 'Pointing to Dataset',
-'LoadingTables': 'Loading Tables',
-'LoadFailed' : 'Point to dataset failed',
-'CreatingTable' : 'Creating table',
-'TableCreationFailed' : 'Table creation failed',
-'Join' : 'Joining tables',
-'JoinFailed' : 'Join table failed',
-'DeleteTable' : 'Deleting table',
-'DeleteTableFailed': 'Delete table failed',
-'PartialDeleteTableFail': 'Some tables could not be deleted',
-'CouldNotDelete' : 'Could not be deleted',
-'ExportTable' : 'Exporting table',
-'ExportFailed' : 'Export failed',
-'Aggregate' : 'Performing Aggregate',
-'AggregateFailed' : 'Aggregate failed',
-'SplitColumn': 'Split column',
-'SplitColumnFailed': 'Split column failed',
-'ChangeType': 'Change data type',
-'ChangeTypeFailed': 'Change data type failed',
-'OnColumn' : 'on column',
-'Sort' : 'Sorting column',
-'SortFailed' : 'Sort column failed',
-'Map' : 'Mapping column',
-'MapFailed' : 'Map failed',
-'GroupBy' : 'Performing Group By',
-'GroupByFailed' : 'Group By failed',
-'Filter' : 'Filtering column',
-'FilterFailed' : 'Filter column failed',
-'FilterFailedAlt' : 'Filter failed',
-'Profile' : 'Profile of',
-'ProfileFailed' : 'Profile failed',
-'Project': 'Projecting Columns',
-'ProjectFailed': 'Projection Failed',
-'Ext': 'Performing Extension <extension>',
-'ExtFailed': 'Performing Extension Failed',
-'StoredProc': 'Performing Stored Procedure',
-'StoredProcFailed': 'Stored Procedure execution failed'
+    'Success' : 'Success!',
+    'Completed' : 'Completed',
+    'Viewing' : 'Viewing',
+    'Error' : 'Error encountered',
+    'Loading' : 'Loading',
+    'LoadingDataset' : 'Pointing to Dataset',
+    'LoadingTables': 'Loading Tables',
+    'LoadFailed' : 'Point to dataset failed',
+    'CreatingTable' : 'Creating table',
+    'TableCreationFailed' : 'Table creation failed',
+    'Join' : 'Joining tables',
+    'JoinFailed' : 'Join table failed',
+    'DeleteTable' : 'Deleting table',
+    'DeleteTableFailed': 'Delete table failed',
+    'PartialDeleteTableFail': 'Some tables could not be deleted',
+    'CouldNotDelete' : 'Could not be deleted',
+    'ExportTable' : 'Exporting table',
+    'ExportFailed' : 'Export failed',
+    'Aggregate' : 'Performing Aggregate',
+    'AggregateFailed' : 'Aggregate failed',
+    'SplitColumn': 'Split column',
+    'SplitColumnFailed': 'Split column failed',
+    'ChangeType': 'Change data type',
+    'ChangeTypeFailed': 'Change data type failed',
+    'OnColumn' : 'on column',
+    'Sort' : 'Sorting column',
+    'SortFailed' : 'Sort column failed',
+    'Map' : 'Mapping column',
+    'MapFailed' : 'Map failed',
+    'GroupBy' : 'Performing Group By',
+    'GroupByFailed' : 'Group By failed',
+    'Filter' : 'Filtering column',
+    'FilterFailed' : 'Filter column failed',
+    'FilterFailedAlt' : 'Filter failed',
+    'Profile' : 'Profile of',
+    'ProfileFailed' : 'Profile failed',
+    'Project': 'Projecting Columns',
+    'ProjectFailed': 'Projection Failed',
+    'Ext': 'Performing Extension <extension>',
+    'ExtFailed': 'Performing Extension Failed',
+    'StoredProc': 'Performing Stored Procedure',
+    'StoredProcFailed': 'Stored Procedure execution failed'
 };
 
 TooltipTStr = {
@@ -50,11 +50,7 @@ TooltipTStr = {
     'ChooseColToExport': 'Please select the columns you want to export',
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'no worksheet to move to',
-    'NoExport': 'Cannot export column of type <type>',
-    'Undo': 'Undo: <op>',
-    'NoUndo': 'Last operation is "<op>", cannot undo',
     'NoUndoNoOp': 'No operation to undo',
-    'Redo': 'Redo: <op>',
     'NoRedo': 'No operation to redo',
     'Unhide': 'Unhide',
     'LockedTableUndo': 'Cannot undo while table is locked',
@@ -79,11 +75,16 @@ TooltipTStr = {
     'CancelQuery': 'cancel query',
     'NeedCreateSchedule': 'Click on the schedule icon to attach a schedule',
     'AlreadyIcv': 'This table is already an ICV table',
-    "IcvRestriction": 'ICV only available for Map and Group By', // Sync with htmlTStr
+    // Sync with htmlTStr
+    "IcvRestriction": 'ICV only available for Map and Group By',
 
-     // with replace
+    // with replace
     'CollapsedTables': '<number> tables are hidden',
-    'DroppedTable': 'Table \'<tablename>\' has been deleted'
+    'DroppedTable': 'Table \'<tablename>\' has been deleted',
+    'NoExport': 'Cannot export column of type <type>',
+    'Undo': 'Undo: <op>',
+    'NoUndo': 'Last operation is "<op>", cannot undo',
+    'Redo': 'Redo: <op>'
 };
 
 CommonTxtTstr = {
@@ -98,15 +99,14 @@ CommonTxtTstr = {
     'ClickToOpts': 'click to see options',
     'BackToOrig': 'Back to original',
     'Optional': 'Optional',
-    'LogoutWarn': 'You have unsaved changes, please save or you may lose your work.',
+    'LogoutWarn': 'You have unsaved changes, please save or you may lose your' +
+    ' work.',
     'LeaveWarn': 'You are leaving Xcalar',
     'GenBundle': 'Generate Bundle',
     'GenBundleDone': 'Bundle Generated',
     'GenBundleFail': 'Bundle Generated Failed',
     'SupportBundle': 'Support Bundle Generated',
     'SupportBundleInstr': 'Please check your backend for a .tar.gz file',
-    'SupportBundleMsg': 'Support upload bundle id <id> successfully generated! ' +
-                        'It is located on your Xcalar Server at <path>',
     'OpFail': 'Operation Failed',
     'SAVE': 'SAVE',
     'NEXT': 'NEXT',
@@ -117,188 +117,119 @@ CommonTxtTstr = {
     'Rename': 'Rename',
     'InP': 'In progress',
     'NA': 'N/A',
-    'ArrayVal': 'Array Value'
+    'ArrayVal': 'Array Value',
+
+    // with replace
+    'SupportBundleMsg': 'Support upload bundle id <id> successfully generated' +
+                        '! It is located on your Xcalar Server at <path>'
 };
 
 ErrTStr = {
     'Unknown': 'Unknown Error',
-
     'NoEmpty': 'Please fill out this field.',
-
     'InvalidField': 'Invalid Field.',
-
     'InvalidFilePath': 'Invalid file path.',
-
     'InvalidFile': 'Please select a file or a folder',
-
     'InvalidTableName': 'Table name cannot contain any of the ' +
                         'following characters: *#\'\"',
-
     'NoHashTag': 'Please input a valid name with no # symbols.',
-
     'NoSpecialChar': 'Please input a valid name with no special characters.',
-
     'NoSpecialCharOrSpace': 'Please input a valid name with no special' +
                             ' characters or spaces.',
-
     'NoSpecialCharInParam': 'No special characters or spaces allowed within' +
                             ' parameter braces.',
-
     'UnclosedParamBracket': 'Unclosed parameter bracket detected.',
-
     'NoEmptyList': 'Please choose an option on the dropdown list.',
-
     'NoEmptyFn': 'Function field is empty, please input functions.',
-
     'NoEmptyOrCheck': 'Please fill out this field ' +
                         'or keep it empty by checking the checkbox.',
-
     'NameInUse': 'Name is in use, please choose another name.',
-
     'DSNameConfilct': 'Dataset reference with the same name already exits. ' +
                         'please choose another name.',
-
     'TableConflict': 'A table with the same name already exists, ' +
                         'please choose another name.',
-
     'ExportConflict': 'This file name is taken, please choose another name.',
-
     'ColumnConflict': 'A column with the same name already exists, ' +
                         'please choose another name.',
-
     'DFGConflict': 'A dataflow with the same name already exists, ' +
                             'please choose another name.',
-
     'ScheduleConflict': 'Schedule with the same name already exists, ' +
                             'please choose another name.',
-
     'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
                         'worksheet from the pop up list.',
-
     'OnlyNumber': 'Please input a number.',
-
     'OnlyInt': 'Please input an integer.',
-
     'OnlyPositiveNumber': 'Please input a number bigger than 0.',
-
     'NoNegativeNumber': 'Please input a number bigger than or equal to 0',
-
     'NoAllZeros': 'Values cannot all be zeros',
-
     'NoWKBKSelect': 'Please select a workbook',
-
     'NoWS': 'This worksheet is deleted, please choose another worksheet',
-
     'NoSelect': 'Please select an option from the dropdown list',
-
     'NoGroupSelect': 'No group selected.',
-
     'InvalidColName': 'Invalid column name.',
-
     'ColInModal': 'Please input a column name that starts with $',
-
     'NoMultiCol': 'This field only accept one column.',
-
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
-
     'ParamInUse': 'Cannot delete, this parameter is in use.',
-
     'NoPreviewExcel': 'Excel files are not previewable, ' +
                       'please point to data directly without previewing.',
-
-    'MVFolderConflict': 'Cannot move, name conflicts with files in target folder',
-
+    'MVFolderConflict': 'Cannot move, name conflicts with files in target ' + 
+                        'folder',
     'TimeExpire': 'Please choose a time that is in the future.',
-
     'LongFileName': 'File Name is too long, please use less than 255 chars.',
-
     'LargeFile': 'File is too large. Please break into smaller files(<10MB).',
-
     'NoSupportOp': 'This operation is not supported.',
-
-    'InvalidColumn' : 'Invalid column name: <name>',
-
     'PreservedName': 'This name is preserved, please use another name.',
-
     'InvalidWin': 'Cannot window an unsorted table',
-
     'InvalidQuery': 'Query Failed',
-
     'BracketsMis': 'Your function string has mismatched brackets.',
-
     'InvalidFunction': 'Invalid function',
-
     'TooLong': 'Please use fewer than 255 characters',
-
     'TablesNotDeleted': 'The following tables were not deleted:',
-
     'NoTablesDeleted': 'No tables were deleted.',
-
     'LargeImgSave': 'Unable To Save Image',
-
     'LargeImgTab': 'Unable To Open Image',
-
     'LargeImgText': 'Image exceeds your browser\'s maximum allowable size',
-
-    'QGNoExpand': 'This query graph has reached your browser\'s maximum allowable size.',
-
+    'QGNoExpand': 'This query graph has reached your browser\'s maximum ' +
+                  'allowable size.',
     'InvalidExt': 'Invalid Extension',
-
     'InvalidExtParam': 'Invalid Extension Parameters',
-
     'InvalidOpNewColumn': 'Cannot perform this operation on a new column.',
-
-    'SuggestProject': 'Please project to reduce the number of columns and retry.',
-
+    'SuggestProject': 'Please project to reduce the number of columns and ' +
+                      'retry.',
     'UserCanceled': 'User Canceled',
-
     'NoColumns': 'No Columns Selected',
-
     'NoCast': 'No column to cast.',
+    'IcvFailed': 'Failed to generate ICV table',
 
-    'WorkbookExists': 'A workbook named <workbookName> already exists. Please choose another name.',
-
-    'IcvFailed': 'Failed to generate ICV table'
-
+    // With replace
+    'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
+                      ' choose another name.',
+    'InvalidColumn' : 'Invalid column name: <name>'
 };
 
 ErrWRepTStr = {
     'FolderConflict': 'Folder "<name>" already exists, ' +
                         'please choose another name.',
-
     'ParamConflict': 'Parameter "<name>" already exists, ' +
                     'please choose another name.',
-
     'TableConflict': 'Table "<name>" already exists, ' +
                         'please choose another name.',
-
     'NoPath': '<path> was not found. Redirected to the root directory.',
-
     'NoFile': 'File <file> was not found in the directory.',
-
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
-
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
-
     'InvalidColType': 'Column "<name>" has an invalid type: <type>',
-
     'NoLessNum': 'Please enter a value bigger than or equal to <num>',
-
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
-
     'TableNotDeleted': 'Table <name> was not deleted.',
-
     'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists, ' +
                     'please choose another name.',
-
     'OutputNotFound': '<name> Not Found',
-
     'OutputNotExists': '<name> no longer exists.',
-
     'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
-
     'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
                         ' and followed by the name'
 };
@@ -312,9 +243,9 @@ TipsTStr = {
     'DSTable': 'Click table header to add/remove columns to/from ' +
         'data cart. Click on column headings to further modify the column.',
     'DSCart': 'Datacart area, you can add columns from datasets into your ' +
-                'cart. These columns will be used to create the table in your ' +
-                'active worksheet. You can also pull out columns in the worksheet ' +
-                'screen.',
+                'cart. These columns will be used to create the table in your' +
+                ' active worksheet. You can also pull out columns in the' +
+                ' worksheet screen.',
     'TablList': 'Click to see details',
     'PullColumn': 'Click key to add the column to your table'
 };
@@ -325,7 +256,7 @@ ThriftTStr = {
     'UpdateErr': 'Xcalar Version Mismatch',
     'Update': 'Update required.',
     'SetupErr': 'Setup Failed',
-    'ListFileErr': 'List File Failed'
+    'ListFileErr': 'List Files Failed'
 };
 
 AlertTStr = {
@@ -342,40 +273,49 @@ AlertTStr = {
 
 FnBarTStr = {
     'NewCol': 'Please specify column name of the new column first',
-    'InvalidOpParen': 'Operation must be preceeded by operator name and arguments in parenthesis',
+    'InvalidOpParen': 'Operation must be preceeded by operator name and ' +
+                      'arguments in parenthesis',
     'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.'
 };
 
 ScrollTStr = {
     'Title': 'scroll to a row',
+
+    // with replace
     'BookMark': 'row <row>'
 };
 
 AggTStr = {
     'NoSupport': 'Not Supported',
     'DivByZeroExplain': 'Only one distinct value',
+    'NoCorr': 'No columns of type number for correlation',
+    'NoAgg': 'No columns of type number for quick aggregation',
+
+    // with replace
     'AggTitle': 'Aggregate: <op>',
     'AggInstr': 'This is the aggregate result for column "<col>". ' +
                 '\r\n The aggregate operation is "<op>".',
-    'AggMsg': '{"Value":<val>}',
-    'NoCorr': 'No columns of type number for correlation',
-    'NoAgg': 'No columns of type number for quick aggregation'
+    'AggMsg': '{"Value":<val>}'
 };
 
 IndexTStr = {
     'Sorted': 'Table already sorted',
-    'SortedErr': 'Current table is already sorted on this column in <order> order',
     'SuggTitle': 'Sort Suggestion',
-    'SuggInstr': 'Select "Numerically" to cast the column to <type> ' +
-                 'before sorting in numerical order. Non-numeric rows are deleted during the sort.',
-    'SuggMsg': 'This column can be sorted either numerically or alphabetically. ' +
-               'How would you like to sort?',
+    'SuggMsg': 'This column can be sorted either numerically or ' +
+               'alphabetically. How would you like to sort?',
     'CastToNum': 'Numerically',
-    'NoCast': 'Alphabetically'
+    'NoCast': 'Alphabetically',
+
+    // with replace
+    'SortedErr': 'Current table is already sorted on this column in <order> ' +
+                 'order',
+    'SuggInstr': 'Select "Numerically" to cast the column to <type> ' +
+                 'before sorting in numerical order. Non-numeric rows are ' +
+                 'deleted during the sort.'
 };
 
 JoinTStr = {
-    'NoJoin': 'Cannot join <type>',
+
     'NoRightTable': 'Select right table first',
     'NoKeyLeft': 'Left table has no selected key',
     'NoKeyRight': 'Right table has no selected key',
@@ -384,24 +324,35 @@ JoinTStr = {
     'ToSingleJoin': 'switch to single join',
     'ToMultiJoin': 'switch to multi clause join',
     'InvalidClause': 'Invalid Clause to join',
-    'TypeMistch': 'Left selected column and right selected column has type mistch, cannot join',
+    'TypeMistch': 'Left selected column and right selected column has type ' +
+                  'mismatch, cannot join',
     'EstimatedJoin': 'Estimated join size',
-    'EstimatingJoin': 'Estimating join size...'
+    'EstimatingJoin': 'Estimating join size...',
+
+    //with replace
+    'NoJoin': 'Cannot join <type>'
 };
 
 ExportTStr = {
     'Success': 'Export Success',
+    'InvalidType': 'Invalid type selected',
+
+    // With replace
     'SuccessMsg': 'File Name: <file>\n File Location: <location>',
-    'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location> ' +
-                    'under the name: <file>',
-    'ExportOfCol': 'Export columns of <table>',
-    'InvalidType': 'Invalid type selected'
+    'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location>' +
+                    ' under the name: <file>',
+    'ExportOfCol': 'Export columns of <table>'
+
 };
 
 ProfileTStr = {
-    'Info': "Profile of column: <b><col></b>, type: <b><type></b>",
-    'Instr': 'Hover on the bar to see details. Use scroll bar and input box to view more data.',
-    'LoadInstr': 'Please wait for the data preparation, you can close the modal and view it later.'
+    'Instr': 'Hover on the bar to see details. Use scroll bar and input box ' +
+             'to view more data.',
+    'LoadInstr': 'Please wait for the data preparation, you can close the ' +
+                 'modal and view it later.',
+
+    // With replace
+    'Info': "Profile of column: <b><col></b>, type: <b><type></b>"
 };
 
 WKBKTStr = {
@@ -409,8 +360,20 @@ WKBKTStr = {
     'NoMeta': 'No Meta',
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
-    'NewWKBKInstr': 'Get started with Xcalar Insight by creating a new workbook. Give your new workbook a name and click on the Create Workbook Button. Once the workbook is created, mouse over it and click on the Play button to get started with your new Workbook. Alternatively, start with one of Xcalar Insight\'s tutorials to learn more.',
-    'CurWKBKInstr': 'To continue with your currently active workbook, hover over the card with a blue background and click on the play button. You can switch to another workbook by hovering over the other workbook and click on the play button. To create a duplicate of any of the workbooks, hover over the workbook card and click on the duplicate button.',
+    'NewWKBKInstr': 'Get started with Xcalar Insight by creating a new ' +
+                    'workbook. Give your new workbook a name and click on ' +
+                    'the Create Workbook Button. Once the workbook is ' +
+                    'created, mouse over it and click on the Play button to ' +
+                    'get started with your new Workbook. Alternatively, ' +
+                    'start with one of Xcalar Insight\'s tutorials to learn ' +
+                    'more.',
+    'CurWKBKInstr': 'To continue with your currently active workbook, hover ' +
+                    'over the card with a blue background and click on the ' +
+                    'play button. You can switch to another workbook by ' +
+                    'hovering over the other workbook and click on the ' +
+                    'play button. To create a duplicate of any of the ' +
+                    'workbooks, hover over the workbook card and click on ' +
+                    'the duplicate button.',
     'NoOldWKBK': 'Cannot Retrieve Old Workbook',
     'NoOldWKBKInstr': 'If you still see the error after re-login, ' +
                       'please copy your log and restart the server.',
@@ -418,16 +381,19 @@ WKBKTStr = {
     'Expire': 'Please Log out',
     'ExpireMsg': 'You are logged in somewhere else!',
     'Hold': 'Login Warning',
-    'HoldMsg': 'You are logged in somewhere else. Continuing to log in might cause you to lose unsaved work.',
+    'HoldMsg': 'You are logged in somewhere else. Continuing to log in might ' +
+               'cause you to lose unsaved work.',
     'Release': 'Continue login',
     'WKBKnotExists': 'No workbooks exist',
-    'Conflict': 'Workbook "<name>" already exists, ' +
-                    'please choose another name.',
     "Activate": "Activate Workbook",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name",
     "Duplicate": "Duplicate Workbook",
-    "Delete": "Delete Workbook"
+    "Delete": "Delete Workbook",
+
+    // With replace
+    'Conflict': 'Workbook "<name>" already exists, ' +
+                'please choose another name.'
 };
 
 MonitorTStr = {
@@ -437,7 +403,7 @@ MonitorTStr = {
     'Setup': 'Setup',
     'Settings': 'Settings',
     'Ext': 'Extension'
-}
+};
 
 SchedTStr = {
     'SelectSched': 'Select a schedule',
@@ -475,7 +441,8 @@ DSTStr = {
     'NoNewFolder': 'Cannot Create Folder',
     'NoNewFolderMsg': 'This folder is uneditable, cannot create new folder here',
     'DelFolder': 'Delete Folder',
-    'DelFolderInstr': 'Please remove all the dataset references in the folder first.',
+    'DelFolderInstr': 'Please remove all the dataset references in the ' +
+                      'folder first.',
     'DelFolderMsg': 'Unable to delete non-empty folders. Please ensure\r\n' +
                     ' that all datasets have been removed from folders prior' +
                     ' to deletion.',
@@ -483,16 +450,19 @@ DSTStr = {
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
     'NoRecrodsHint': 'Please change the preview size and try to point again',
-    'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',
-    'DelUneditable': 'This <ds> is uneditable, cannot delete',
     'CancalPoint': 'Cancel Point to dataset',
-    'CancelPointMsg': 'Are you sure you want to cancel pointing dataset reference <ds> ?',
     'DSSourceHint': 'Please try another path or use another protocol',
     'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
-    'LoadErr': 'Error: <error>, Error File: <file>',
     'Excel': "EXCEL",
-    'Home': 'Home'
+    'Home': 'Home',
+
+    // With replace
+    'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',
+    'DelUneditable': 'This <ds> is uneditable, cannot delete',
+    'CancelPointMsg': 'Are you sure you want to cancel pointing dataset ' +
+                      'reference <ds> ?',
+    'LoadErr': 'Error: <error>, Error File: <file>',
 };
 
 DSFormTStr = {
@@ -547,9 +517,12 @@ TblTStr = {
 
 ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
-    'SplitColWarnMsg': 'About <num> columns will be generated, do you still want to continue the operation?',
-    'RenamSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\" or starting or ending spaces',
-    'RenamStartNum': 'Invalid name, cannot starts with number'
+    'RenamSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\" or ' +
+                        'starting or ending spaces',
+    'RenamStartNum': 'Invalid name, cannot starts with number',
+    // With Replace
+    'SplitColWarnMsg': 'About <num> columns will be generated, do you still ' +
+                       'want to continue the operation?'
 };
 
 SideBarTStr = {
@@ -571,10 +544,13 @@ SideBarTStr = {
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
     'SyntaxError': 'Syntax Error',
     'UploadError': 'Upload Error',
-    'UDFError': '<reason> found in line <line>',
     'DownloadError': 'Download UDF Failed',
     'DownoladMsg': 'UDF is empty',
-    'OverwriteErr': 'Cannot overwrite default UDF'
+    'OverwriteErr': 'Cannot overwrite default UDF',
+
+    // With Replace
+    'UDFError': '<reason> found in line <line>'
+
 };
 
 ExtTStr = {
