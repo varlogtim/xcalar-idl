@@ -917,16 +917,18 @@
 .xc-logo {
     .size(@width: 40px, @height: 40px);
     background-color: @color-bg-dusk-blue;
-    // .image("../../images/new/logo/xi-logo.png");
+    .innerShadow {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        z-index: 2;
+        box-shadow: inset 1px 1px 2px 0px @color-inset-shadow;
+    }
 
     .icon {
-        .size(@width: 39px, @height: 39px);
+        .size(@width: 40px, @height: 40px);
         background-color: @color-bg-softBlue;
         display: block;
-        border-top: 1px solid @color-border-logoBlue;
-        border-left: 1px solid @color-border-logoBlue;
-        border-bottom: 1px solid @color-bg-dusk-blue;
-        border-right: 1px solid @color-bg-dusk-blue;
 
         font-size: 40px;
         color: @color-bg-dusk-blue;
