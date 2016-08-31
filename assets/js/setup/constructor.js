@@ -2811,6 +2811,11 @@ FormHelper.prototype = {
             deferred.resolve();
         }
 
+        // tooltip overflow setup
+        $form.on("mouseenter", ".tooltipOverflow", function() {
+            xcHelper.autoTooltip(this);
+        });
+
         return deferred.promise();
     },
 

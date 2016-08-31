@@ -188,9 +188,13 @@ window.xcHelper = (function($, xcHelper) {
                                 '</div>';
                 }
 
-                tableLis += '<li data-ws="' + wsId + '" data-id="' +
+                var tableName = table.getName();
+                tableLis += '<li title="' + tableName + '" ' +
+                            'class="tooltipOverflow" ' +
+                            'data-toggle="tooltip" data-container="body" ' +
+                            'data-ws="' + wsId + '" data-id="' +
                             tableId + '">' +
-                                table.getName() +
+                                tableName +
                             '</li>';
             }
         }

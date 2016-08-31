@@ -486,6 +486,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     $input.val(tableName);
                     $li.addClass("selected")
                         .siblings().removeClass("selected");
+
                     var tableId = xcHelper.getTableId(tableName);
                     xcHelper.centerFocusedTable(tableId, true);
                 }
