@@ -2816,6 +2816,10 @@ FormHelper.prototype = {
             xcHelper.autoTooltip(this);
         });
 
+        if ($form.closest('#mainMenu').length) {
+            MainMenu.setFormOpen();
+        }
+
         return deferred.promise();
     },
 
@@ -2863,6 +2867,10 @@ FormHelper.prototype = {
                 options.afterClose();
             }
             deferred.resolve();
+        }
+
+        if ($form.closest('#mainMenu').length) {
+            MainMenu.setFormClose();
         }
 
         return deferred.promise();

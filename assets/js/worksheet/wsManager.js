@@ -816,7 +816,6 @@ window.WSManager = (function($, WSManager) {
             wsId = activeWorksheet;
         }
         activeWorksheet = wsId;
-
         var $tabs = $workSheetTabs.find(".worksheetTab");
         var $tables = $("#mainFrame .xcTableWrap");
 

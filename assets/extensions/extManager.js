@@ -450,6 +450,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             $extLists.find(".func.selected").removeClass("selected");
             $func.addClass("selected");
+            if (!$('#workspaceTab').hasClass('active')) {
+                MainMenu.openPanel('workspacePanel');
+            }
+
             centerFuncList($func);
             updateArgs(modName, fnName, fnText);
         });

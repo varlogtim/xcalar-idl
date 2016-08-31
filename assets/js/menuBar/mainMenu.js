@@ -7,6 +7,10 @@ window.MainMenu = (function($, MainMenu) {
     var closedOffset = 65; // in pixels, how much the panels are horizonally
     // offset when a menu is closed (includes 5px padding in .mainContent)
     var openOffset = 350; // when the menu is open
+    var isFormOpen = false; // if export, join, map etc is open
+    var ignoreRestoreState = false; // boolean flag - if closing of a form is
+    // triggered by the clicking of a mainMenu tab, we do not want to restore
+    // the pre-form state of the menu so we turn the flag on temporarily
     MainMenu.setup = function() {
         $menuBar = $('#menuBar');
         $mainMenu = $('#mainMenu');
@@ -51,6 +55,30 @@ window.MainMenu = (function($, MainMenu) {
         openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
     };
 
+    MainMenu.openPanel = function(panelId) {
+        var $tab;
+        switch (panelId) {
+            case ('workspacePanel'):
+                $tab = $('#workspaceTab');
+                break;
+            case ('monitorPanel'):
+                $tab = $('#monitorTab');
+                break;
+            case ('datastorePanel'):
+                $tab = $('#dataStoresTab');
+                break;
+            case ('schedulerPanel'):
+                $tab = $('#schedulerTab');
+                break;
+            default:
+                break;
+        }
+        if ($tab) {
+            lastTabId = $menuBar.find(".topMenuBarTab.active").attr('id');
+            panelSwitchingHandler($tab, lastTabId);
+        }
+    };
+
 
     MainMenu.getOffset = function() {
         if (isMenuOpen) {
@@ -72,27 +100,39 @@ window.MainMenu = (function($, MainMenu) {
             isTopOpen: isMenuOpen,
             isBottomOpen: BottomMenu.isMenuOpen(),
             $activeTopSection: $mainMenu.find('.commonSection.active'),
-            $activeWorkspaceMenu: $("#workspaceMenu").find('.menuSection:not(.xc-hidden)'),
+            $activeWorkspaceMenu: $("#workspaceMenu")
+                                   .find('.menuSection:not(.xc-hidden)'),
             $activeBottomSection: $('#bottomMenu').find('.menuSection.active')
-        } ;
+        };
         return (state);
+    };
+
+    MainMenu.setFormOpen = function() {
+        isFormOpen = true;  
+    };
+
+    MainMenu.setFormClose = function() {
+        isFormOpen = false;  
     };
 
     // xx currently only supporting form views in the worksheet panel
     MainMenu.restoreState = function(prevState) {
-        // xx the following can be buggy, so temporarily disabled
-        // var noAnim;
-        // if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
-        //     BottomMenu.openSection(prevState.$activeBottomSection.index());
-        // }
-        // if (isMenuOpen && !prevState.isTopOpen) {
-        //     var noAnim = false;
-        //     if (prevState.isBottomOpen) {
-        //         noAnim = true;
-        //     }
-        //     MainMenu.close(noAnim);
-        // }
-
+        // ignoreRestoreState is temporarily set when mainMenu tab is clicked
+        // and form is open
+        if (!ignoreRestoreState) {
+             var noAnim;
+            if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
+                BottomMenu.openSection(prevState.$activeBottomSection.index());
+            }
+            if (isMenuOpen && !prevState.isTopOpen) {
+                var noAnim = false;
+                if (prevState.isBottomOpen) {
+                    noAnim = true;
+                }
+                MainMenu.close(noAnim);
+            }
+        }
+       
         // restore worksheet list view or table list view
         $("#workspaceMenu").find('.menuSection').addClass('xc-hidden');
         prevState.$activeWorkspaceMenu.removeClass('xc-hidden');
@@ -112,12 +152,17 @@ window.MainMenu = (function($, MainMenu) {
         var $tabs = $menuBar.find(".topMenuBarTab");
 
         $tabs.click(function(event) {
+            if (isFormOpen) {
+                ignoreRestoreState = true;
+                OperationsView.close();
+                JoinView.close();
+                ExportView.close();
+                SmartCastView.close();
+                DFCreateView.close();
+                ignoreRestoreState = false;
+            }
             Workbook.hide(true);
-            OperationsView.close();
-            JoinView.close();
-            ExportView.close();
-            SmartCastView.close();
-            DFCreateView.close();
+            
 
             var $curTab = $(this);
             var $target = $(event.target);
@@ -150,9 +195,7 @@ window.MainMenu = (function($, MainMenu) {
                      .removeClass('noTransition');
             }, 100);
 
-            $tabs.removeClass("active");
-            $curTab.addClass("active");
-
+           
             var noAnim = true;
             if ($curTab.hasClass('mainMenuOpen')) {
                 openMenu($curTab, noAnim);
@@ -161,23 +204,19 @@ window.MainMenu = (function($, MainMenu) {
             }
 
             panelSwitchingHandler($curTab, lastTabId);
-            
-            StatusMessage.updateLocation();
-            $('.tableDonePopupWrap').remove();
         });
     }
 
     function panelSwitchingHandler($curTab, lastTabId) {
         $('.mainPanel').removeClass('active');
         var curTab = $curTab.attr('id');
-
-        // $("#dfgPanelSwitch").addClass("xc-hidden");
+        $menuBar.find(".topMenuBarTab").removeClass("active");
+        $curTab.addClass("active");
 
         switch (curTab) {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
                 WSManager.focusOnWorksheet();
-                // $("#dfgPanelSwitch").removeClass("xc-hidden");
                 break;
             case ("schedulerTab"):
                 $('#schedulerPanel').addClass("active");
@@ -219,6 +258,9 @@ window.MainMenu = (function($, MainMenu) {
                                         TooltipTStr.OpenQG);
             }
         }
+
+        StatusMessage.updateLocation();
+        $('.tableDonePopupWrap').remove();
     }
 
     function openMenu($curTab, noAnim) {
