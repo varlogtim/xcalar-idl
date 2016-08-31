@@ -289,11 +289,15 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
+            hideOffScreenTables();
             moveTableTitles(null, {
                 "offset"       : 285,
                 "menuAnimating": true,
                 "animSpeed"    : delay
             });
+            setTimeout(function() {
+                unhideOffScreenTables();
+            }, delay);
         }
     }
 
@@ -315,11 +319,15 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
+            hideOffScreenTables({marginRight: openOffset});
             moveTableTitles(null, {
                 "offset"       : -285,
                 "menuAnimating": true,
                 "animSpeed"    : delay
             });
+            setTimeout(function() {
+                unhideOffScreenTables();
+            }, delay);
         }
     }
 

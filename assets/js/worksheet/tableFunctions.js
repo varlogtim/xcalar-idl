@@ -916,7 +916,7 @@ function moveTableTitles($tableWraps, options) {
     var animSpeed = options.animSpeed;
 
     $tableWraps = $tableWraps ||
-                  $('.xcTableWrap:not(.inActive):not(.tableHidden)');
+              $('.xcTableWrap:not(.inActive):not(.tableHidden):not(.hollowed)');
 
     var mainFrameWidth = $('#mainFrame').width() - modifiedOffset;
     var mainFrameOffsetLeft = MainMenu.getOffset();
