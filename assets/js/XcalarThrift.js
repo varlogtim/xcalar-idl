@@ -538,8 +538,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     }
 
     if (isRegex) {
-        // Temporarily diabled. Uncomment when backend supports
-        // loadArgs.fileNamePattern = "re:"+loadArgs.fileNamePattern;
+        loadArgs.fileNamePattern = "re:"+loadArgs.fileNamePattern;
     }
 
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
@@ -703,6 +702,9 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     target.type = ExTargetTypeT.ExTargetUnknownType;
     target.name = targetName;
     var specInput = new ExInitExportSpecificInputT();
+
+    var exportHandleName = options.handleName;
+
     XcalarListExportTargets("*", targetName)
     .then(function(out) {
         if (out.numTargets < 1) {
@@ -782,10 +784,10 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
 
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
                                   options.createRule, keepOrder, numColumns,
-                                  columns);
+                                  columns, options.handleName);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
                                 options.createRule, keepOrder, numColumns,
-                                columns);
+                                columns, options.handleName);
 
      
         var def2 = XcalarGetQuery(workItem);
@@ -3061,6 +3063,24 @@ function XcalarRenameWorkbook(newName, oldName) {
     return (deferred.promise());
 }
 
+function XcalarWorkbookInfo(workbookName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+
+    xcalarApiSessionInfo(tHandle, workbookName)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarWorkbookInfo", error);
+        SQL.errorLog("Workbook Info", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
 function XcalarGetStatGroupIdMap(nodeId, numGroupId) {
     // nodeId is the node (be 0, 1, 2, 3, 4)
     // numGroupId is the max number of statue you want to return
@@ -3109,7 +3129,6 @@ function XcalarGetStatsByGroupId(nodeId, groupIdList) {
     return deferred.promise();
 }
 
-// XXX Currently this function does nothing. Ask Ken for more details
 function XcalarSupportGenerate() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -3126,3 +3145,4 @@ function XcalarSupportGenerate() {
     });
     return (deferred.promise());
 }
+

@@ -757,6 +757,9 @@ window.xcFunction = (function($, xcFunction) {
             "sql"      : sql
         });
 
+        // XXX GUI-5271
+        options.handleName = xcHelper.randName("exportHandle-", 5);
+
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
                      frontColumns, keepOrder, options, txId)
         .then(function() {
