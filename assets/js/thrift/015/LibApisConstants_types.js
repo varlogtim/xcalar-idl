@@ -18,7 +18,9 @@ XcalarApisConstantsT = {
   'XcalarApiUuidStrLen' : 36,
   'XcalarApiMaxQuerySize' : 98304,
   'XcalarApiMaxSingleQuerySize' : 1024,
-  'XcalarApiMaxFileNameLen' : 255
+  'XcalarApiMaxFileNameLen' : 255,
+  'XcalarApiMaxNumFuncTests' : 255,
+  'XcalarApiMaxFieldNameLen' : 255
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
@@ -32,5 +34,7 @@ XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 36 : 'XcalarApiUuidStrLen',
 98304 : 'XcalarApiMaxQuerySize',
 1024 : 'XcalarApiMaxSingleQuerySize',
-255 : 'XcalarApiMaxFileNameLen'
+255 : 'XcalarApiMaxFileNameLen',
+255 : 'XcalarApiMaxNumFuncTests',
+255 : 'XcalarApiMaxFieldNameLen'
 };

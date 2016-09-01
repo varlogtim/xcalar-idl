@@ -26,6 +26,7 @@
     ,   loadOutput
     ,   origDataset
     ,   yelpUserDataset
+    ,   yelpReviewsDataset
     ,   moviesDataset
     ,   moviesDatasetSet = false
     ,   queryName
@@ -278,8 +279,7 @@
         loadArgs.csv.linesToSkip = 0;
         loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file://" + qaTestDir +
-                   "/yelp/user", "yelp",
+        xcalarLoad(thriftHandle, "file://" + qaTestDir + "/yelp/user", "yelp",
                    DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .then(function(result) {
             printResult(result);
@@ -289,7 +289,44 @@
             return getDatasetCount("yelp");
         })
         .then(function(count) {
-            test.assert(count === 70817)
+            test.assert(count === 70817);
+            return (xcalarLoad(thriftHandle, "file://" + qaTestDir +
+                               "/yelp/reviews", "yelpReviews",
+                               DfFormatTypeT.DfFormatJson, 0, loadArgs));
+        })
+        .then(function(result) {
+            yelpReviewsDataset = result.dataset.name;
+            return getDatasetCount("yelpReviews");
+        })
+        .then(function(count) {
+            test.assert(count == 335022);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
+    }
+
+    function testLoadRegex(test) {
+        loadArgs = new XcalarApiDfLoadArgsT();
+        loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+        loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
+        loadArgs.csv.isCRLF = false;
+        loadArgs.fileNamePattern = "re:(user|tip)\\/.*\\.json";
+        loadArgs.recursive = true;
+
+        xcalarLoad(thriftHandle, "nfs://" + qaTestDir +
+                   "/yelp", "yelpTip",
+                   DfFormatTypeT.DfFormatJson, 0, loadArgs)
+        .then(function(result) {
+            printResult(result);
+            loadOutput = result;
+            origDataset = loadOutput.dataset.name;
+            return getDatasetCount("yelpTip");
+        })
+        .then(function(count) {
+            test.assert(count === 184810)
             test.pass();
         })
         .fail(function(reason) {
@@ -572,6 +609,11 @@
             var pgCount2 = 0;
             var rowCount1 = 0;
             var rowCount2 = 0;
+            var totalTranspageSent = 0;
+            var totalTranspageRevc = 0;
+
+            var totalXdbPageRequired = 0;
+            var totalXdbPageConsumed = 0;
 
             for (var i = 0; i < metaOutput.numMetas; i ++) {
                 rowCount1 += metaOutput.metas[i].numRows;
@@ -580,7 +622,28 @@
                     rowCount2 += metaOutput.metas[i].numRowsPerSlot[j];
                     pgCount2 += metaOutput.metas[i].numPagesPerSlot[j];
                 }
+
+                totalTranspageSent += metaOutput.metas[i].numTransPageSent;
+                totalTranspageRevc += metaOutput.metas[i].numTransPageRecv;
+
+                totalXdbPageRequired = metaOutput.metas[i].xdbPageRequiredInBytes
+                totalXdbPageConsumed = metaOutput.metas[i].xdbPageConsumedInBytes
             }
+
+            test.assert(totalXdbPageRequired > 0, undefined,
+                        "Incorrect value (" + totalXdbPageRequired + ")" +
+                        "returned for XDB page space required");
+
+            test.assert(totalXdbPageRequired < totalXdbPageConsumed, undefined,
+                        "totalXdbPageRequired (" + totalXdbPageRequired +
+                        ")should less than consumed");
+
+            test.assert(totalTranspageSent > 0, undefined,
+                        "totalTranspageSent should be greater than 0");
+
+            test.assert(totalTranspageSent == totalTranspageRevc, undefined,
+                        "transpage sent (" + totalTranspageSent + ") does " +
+                        "not match transpage recv (" + totalTranspageRevc + ")");
 
             if (pgCount1 == pgCount2 && rowCount1 == rowCount2) {
                 test.pass();
@@ -1153,14 +1216,21 @@
               test.assert(ret.tableName == "yelp/user-votes.funny-gt900");
               return xcalarMakeResultSetFromTable(thriftHandle, "yelp/user-votes.funny-gt900");
         })
-        .then(function(ret) {
+        .then(function(ret) { 
               test.assert(ret.numEntries == 488);
-              test.pass();
+              return xcalarFreeResultSet(thriftHandle, ret.resultSetId)
+        })
+        .then(function(ret) {
+            test.pass();
         })
         .fail(test.fail);
     }
 
     function testProject(test) {
+        var rs1 = null;
+        var rs2 = null;
+        var rs3 = null;
+        var rs4 = null
         xcalarProject(thriftHandle, 2, ["votes.funny", "user_id"],
                       origTable, "yelp/user-votes.funny-projected")
         .then(function(ret) {
@@ -1169,6 +1239,7 @@
                                                 "yelp/user-votes.funny-projected");
         })
         .then(function(ret) {
+            rs1 = ret;
             test.assert(ret.metaOutput.numValues == 1);
             test.assert(ret.metaOutput.numImmediates == 0);
             return xcalarApiMap(thriftHandle, "votesFunnyPlusUseful",
@@ -1182,6 +1253,7 @@
                                                 "yelp/user-votes.funny-plus-useful-map");
         })
         .then(function(ret) {
+            rs2= ret;
             test.assert(ret.metaOutput.numValues == 2);
             test.assert(ret.metaOutput.numImmediates == 1);
             return xcalarApiMap(thriftHandle, "complimentsFunnyPlusCute",
@@ -1195,6 +1267,7 @@
                                                 "yelp/user-compliments.funny-plus-cute-map");
         })
         .then(function(ret) {
+            rs3 = ret;
             test.assert(ret.metaOutput.numValues == 3);
             test.assert(ret.metaOutput.numImmediates == 2);
             return xcalarProject(thriftHandle, 2,
@@ -1208,8 +1281,21 @@
                                                 "yelp/projected_two_immediate_columns");
         })
         .then(function(ret) {
+            rs4 = ret;
             test.assert(ret.metaOutput.numValues == 2);
             test.assert(ret.metaOutput.numImmediates == 2);
+            return xcalarFreeResultSet(thriftHandle, rs4.resultSetId);
+        })
+        .then(function(ret) {
+            return xcalarFreeResultSet(thriftHandle, rs3.resultSetId);
+        })
+        .then(function(ret) {
+            return xcalarFreeResultSet(thriftHandle, rs2.resultSetId);
+        })
+        .then(function(ret) {
+            return xcalarFreeResultSet(thriftHandle, rs1.resultSetId);
+        })
+        .then(function(ret) {
             test.pass();
         })
         .fail(test.fail);
@@ -1250,51 +1336,74 @@
     }
 
     function testCancel(test) {
+        var cancelledTableName = "cancelledTable";
         var query = "index --key votes.funny --dataset " + datasetPrefix +
-                    "yelp" + " --dsttable cancelledTable --sorted";
+                    "yelp" + " --dsttable " + cancelledTableName + " --sorted";
+        var queryNamePrefix = "testQuery-";
 
-        queryName = "testQuery";
+        function queryAndCancel(jj) {
+            queryName = queryNamePrefix + "" + jj
+            xcalarQuery(thriftHandle, queryName, query, true)
+            .then(function() {
+                return (xcalarApiCancelOp(thriftHandle, cancelledTableName));
+            })
+            .then(function(cancelStatus) {
+                (function wait() {
+                setTimeout(function() {
+                    xcalarQueryState(thriftHandle, queryName)
+                    .done(function(result) {
+                        var qrStateOutput = result;
+                        if (qrStateOutput.queryState === QueryStateT.qrProcessing ||
+                            qrStateOutput.queryState === QueryStateT.qrNotStarted) {
+                            return wait();
+                        }
 
-        xcalarQuery(thriftHandle, queryName, query, true)
-        .then(function() {
-            return (xcalarApiCancelOp(thriftHandle, "cancelledTable"));
-        })
-        .then(function(cancelStatus) {
-            (function wait() {
-            setTimeout(function() {
-                xcalarQueryState(thriftHandle, queryName)
-                .done(function(result) {
-                    var qrStateOutput = result;
-                    if (qrStateOutput.queryState === QueryStateT.qrProcessing ||
-                        qrStateOutput.queryState === QueryStateT.qrNotStarted) {
-                        return wait();
-                    }
+                        if (qrStateOutput.failedSingleQueryArray.length === 0 &&
+                            qrStateOutput.queryState != QueryStateT.qrFinished) {
+                            test.fail("no failed query. queryState: " +
+                                      QueryStateTStr[qrStateOutput.queryState]);
+                        }
 
-                    if (qrStateOutput.failedSingleQueryArray.length === 0 &&
-                        qrStateOutput.queryState != QueryStateT.qrFinished) {
-                        test.fail("no failed query. queryState: " +
-                                  QueryStateTStr[qrStateOutput.queryState]);
-                    }
-
-                    if (qrStateOutput.queryState != QueryStateT.qrFinished &&
-			            qrStateOutput.failedSingleQueryArray[0].status !=
-                        StatusT.StatusCanceled) {
-                        console.log("xxx" + JSON.stringify(qrStateOutput));
-                        console.log(qrStateOutput.failedSingleQueryArray[0]
-                                    .status);
+                        if (qrStateOutput.queryState != QueryStateT.qrFinished &&
+                            qrStateOutput.failedSingleQueryArray[0].status !=
+                            StatusT.StatusCanceled) {
+                            console.log("xxx" + JSON.stringify(qrStateOutput));
+                            console.log(qrStateOutput.failedSingleQueryArray[0]
+                                        .status);
                             test.fail("not canceled");
-                     }
+                         }
 
-                    test.pass();
+                        test.pass();
 
-                 })
-                 .fail(test.fail);
-             }, 1000);
-         })();
-        })
-        .fail(function(reason) {
-            test.fail("status: " + StatusTStr[reason]);
-        });
+                     })
+                     .fail(test.fail);
+                 }, 1000);
+             })();
+            })
+            .fail(function(reason) {
+                if (reason == StatusT.StatusOperationHasFinished) {
+                    // We try again
+                    xcalarDeleteDagNodes(thriftHandle, cancelledTableName,
+                                         SourceTypeT.SrcTable)
+                    .then(function(deleteDagNodeOutput) {
+                        if (deleteDagNodeOutput.numNodes != 1) {
+                            test.fail("Number of nodes deleted != 1 (" + deleteDagNodeOutput.numNodes + ")");
+                        } else if (deleteDagNodeOutput.statuses[0].status != StatusT.StatusOk) {
+                            test.fail("Error deleting dag node. Status: " + StatusTStr[deleteDagNodeOutput.statuses[0].status] + "(" + deleteDagNodeOutput.statuses[0].status + ")");
+                        } else {                    
+                            queryAndCancel(jj + 1);
+                        }
+                    })
+                    .fail(function(reason) {
+                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason]);
+                    });
+                } else {
+                    test.fail("status: " + StatusTStr[reason]);
+                }
+            });
+        }
+
+        queryAndCancel(0);
     }
 
     function testQuery(test) {
@@ -1514,9 +1623,13 @@
                 test.assert((curVal.votes.cool * curVal.votes.funny) == curVal.votedCoolTimesFunny);
                 prevVal = curVal;
             }
+
+            return xcalarFreeResultSet(thriftHandle, resultSetFromMapTable.resultSetId);
+        })
+        .then(function(ret) {
             test.pass();
-      })
-      .fail(test.fail);
+        })
+        .fail(test.fail);
     }
 
     function testApiGetRowNum(test) {
@@ -1555,7 +1668,12 @@
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
+            // Don't fail if this test has been run before
+            if (reason != StatusT.StatusExTargetAlreadyExists) {
+                test.fail(StatusTStr[reason]);
+            } else {
+                test.pass();
+            }
         });
     }
 
@@ -1602,6 +1720,78 @@
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason]);
+        });
+    }
+
+    function testExportCancel(test) {
+        var specInput = new ExInitExportSpecificInputT();
+        specInput.sfInput = new ExInitExportSFInputT();
+        specInput.sfInput.fileName = "yelp-mgmtdTest" +
+                                     Math.floor(Math.random()*1000 + 10000) + ".csv";
+        specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
+        specInput.sfInput.splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitForceSingle;
+        specInput.sfInput.headerType = ExSFHeaderTypeT.ExSFHeaderEveryFile;
+        specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
+        specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
+        specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
+        specInput.sfInput.formatArgs.csv.fieldDelim = ",";
+        specInput.sfInput.formatArgs.csv.recordDelim = "\n";
+        specInput.sfInput.formatArgs.csv.quoteDelim = "\"";
+
+        console.log("\texport file name = " + specInput.sfInput.fileName);
+        var target = new ExExportTargetHdrT();
+        target.type = ExTargetTypeT.ExTargetSFType;
+        target.name = "Default";
+        var numColumns = 3;
+        var columnNames = ["votes.funny", "user_id", "text"];
+        var headerColumns = ["votes.funny", "id_of_user", "Review Contents"];
+        var columns = columnNames.map(function (e, i) {
+            var col = new ExColumnNameT();
+            col.name = columnNames[i];
+            col.headerAlias = headerColumns[i];
+            return col;
+        });
+
+        function exportAndCancel(indexOutput) {
+            console.log("Index done. Starting both export and cancel now");
+            xcalarExport(thriftHandle, "yelp/reviews-votes.funny",
+                         target, specInput,
+                         ExExportCreateRuleT.ExExportDeleteAndReplace,
+                         true, numColumns,
+                         columns, "yelp/reviews-votes.funny-export-cancel")
+            .then(function(status) {
+                console.log("Export succeeded when it was supposed to be cancelled. Trying again");
+                xcalarDeleteDagNodes(thriftHandle, "yelp/reviews-votes.funny-export-cancel",
+                                     SourceTypeT.SrcExport)
+                .then(function(deleteDagNodeOutput) {
+                    if (deleteDagNodeOutput.numNodes != 1) {
+                        test.fail("Number of nodes deleted != 1 (" + deleteDagNodeOutput.numNodes + ")");
+                    } else if (deleteDagNodeOutput.statuses[0].status != StatusT.StatusOk) {
+                        test.fail("Error deleting dag node. Status: " + StatusTStr[deleteDagNodeOutput.statuses[0].status] + deleteDagNodeOutput.statuses[0].status);
+                    } else {
+                        exportAndCancel(indexOutput);
+                    }
+                })
+                .fail(function(reason) {
+                    test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason]);
+                });
+            })
+            .fail(function(reason) {
+                if (reason == StatusT.StatusCanceled) {
+                    test.pass();
+                } else {
+                    test.fail("Export failed with reason: " + StatusTStr[reason]);
+                }
+            });
+            xcalarApiCancelOp(thriftHandle, "yelp/reviews-votes.funny-export-cancel");
+        }
+
+        xcalarIndexDataset(thriftHandle, yelpReviewsDataset,
+                           "votes.funny", "yelp/reviews-votes.funny", "",
+                           XcalarOrderingT.XcalarOrderingAscending)
+        .then(exportAndCancel)
+        .fail(function(reason) {
+            test.fail("Index of reviews dataset failed with: " + StatusTStr[reason] +  " (" + reason + ")");
         });
     }
 
@@ -2567,6 +2757,17 @@
     }
 
 /** None of these tests really work yet. It's just stubs for later
+    function testSessionInfo(test) {
+        xcalarApiSessionInfo(thriftHandle, "testSession");
+        .done(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
     function testSessionNew(test) {
         xcalarApiSessionNew(thriftHandle, "testSession", false, "")
         .done(function(status) {
@@ -2651,9 +2852,9 @@
         .done(function(deleteTablesOutput) {
             printResult(deleteTablesOutput);
 
-            for (var i = 0, delTableStatus = null; i < deleteTablesOutput.numTables; i ++) {
+            for (var i = 0, delTableStatus = null; i < deleteTablesOutput.numNodes; i ++) {
                 delTableStatus = deleteTablesOutput.statuses[i];
-                console.log("\t" + delTableStatus.table.tableName + ": " +
+                console.log("\t" + delTableStatus.nodeInfo.name + ": " +
                             StatusTStr[delTableStatus.status]);
             }
             test.pass();
@@ -2666,9 +2867,9 @@
         .done(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
 
-            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numTables; i ++) {
+            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numNodes; i ++) {
                 delTableStatus = deleteDagNodesOutput.statuses[i];
-                console.log("\t" + delTableStatus.table.tableName + ": " +
+                console.log("\t" + delTableStatus.nodeInfo.name + ": " +
                             StatusTStr[delTableStatus.status]);
             }
 
@@ -2682,9 +2883,9 @@
         .done(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
 
-            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numTables; i ++) {
+            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numNodes; i ++) {
                 delTableStatus = deleteDagNodesOutput.statuses[i];
-                console.log("\t" + delTableStatus.table.tableName + ": " +
+                console.log("\t" + delTableStatus.nodeInfo.name + ": " +
                             StatusTStr[delTableStatus.status]);
             }
 
@@ -2698,9 +2899,9 @@
         .done(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
 
-            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numTables; i ++) {
+            for (var i = 0, delTableStatus = null; i < deleteDagNodesOutput.numNodes; i ++) {
                 delTableStatus = deleteDagNodesOutput.statuses[i];
-                console.log("\t" + delTableStatus.table.tableName + ": " +
+                console.log("\t" + delTableStatus.nodeInfo.name + ": " +
                             StatusTStr[delTableStatus.status]);
             }
 
@@ -2872,6 +3073,55 @@
         });
     }
 
+    function testFuncDriverList(test) {
+        xcalarApiListFuncTest(thriftHandle, "libhello::*")
+        .done(function(listFuncTestOutput) {
+            if (listFuncTestOutput.numTests != 1) {
+                var message = "numTests matching libhello::* is " + listFuncTestOutput.numTests
+                for (ii = 0; ii < listFuncTestOutput.numTests; ii++) {
+                    message += " " + listFuncTestOutput.testNames[ii];
+                }
+
+                test.fail(message);
+            }
+
+            if (listFuncTestOutput.testNames[0] != "libhello::hello") {
+                test.fail("testName we got was " + listFuncTestOutput.testNames[0]);
+            }
+
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail("List functional tests failed with status: " + StatusTStr[reason] +
+                      " (" + reason + ")");
+        });
+    }
+
+    function testFuncDriverRun(test) {
+        xcalarApiStartFuncTest(thriftHandle, false, false, ["libhello::*"])
+        .done(function(startFuncTestOutput) {
+            if (startFuncTestOutput.numTests != 1) {
+                test.fail("numTests matching libhello::* is " + startFuncTestOutput.numTests);
+            }
+
+            if (startFuncTestOutput.testOutputs[0].testName != "libhello::hello") {
+                test.fail("We got a bogus test name: " + startFuncTestOutput.testOutputs[0].testName);
+            }
+
+            if (startFuncTestOutput.testOutputs[0].status != StatusT.StatusOk) {
+                test.fail(startFuncTestOutput.testOutputs[0].testName + " failed with status: " +
+                          StatusTStr[startFuncTestOutput.testOutputs[0].status] + " (" +
+                          startFuncTestOutput.testOutputs[0].status + ")");
+            }
+
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail("Run funtional tests failed with status: " + StatusTStr[reason] +
+                      " (" + reason + ")");
+        });
+    }
+
     passes            = 0;
     fails             = 0;
     skips             = 0;
@@ -2911,6 +3161,8 @@
     addTestCase(testStartNodes, "startNodes", defaultTimeout, startNodesState, "");
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testFuncDriverList, "listFuncTests", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testFuncDriverRun, "runFuncTests", defaultTimeout, TestCaseEnabled, "");
 
     // This actually starts our sessions, so run this before any test
     // that requires sessions
@@ -2920,6 +3172,7 @@
     addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLoadRegex, "loadRegex", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testPreview, "preview", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testLoadEdgeCaseDos, "loadDos", defaultTimeout, TestCaseEnabled, "4415");
@@ -2985,6 +3238,7 @@
     addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExportSQL, "export sql", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExportCancel, "export cancel", defaultTimeout, TestCaseEnabled, "");
 
     // Together, these set of test cases make up the retina sanity
     addTestCase(testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
@@ -3041,12 +3295,10 @@
     addTestCase(testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
-    addTestCase(testBulkDeleteExport, "bulk delete export node ", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testBulkDeleteConstants, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testBulkDeleteDataset, "bulk delete constant node ", defaultTimeout, TestCaseEnabled, "2314");
-    // temporarily disabled due to bug 973
-    // temporarily disabled due to bug 973
-    addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
+    addTestCase(testBulkDeleteExport, "bulk delete export node", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testBulkDeleteConstants, "bulk delete constant node", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testBulkDeleteDataset, "bulk delete datasets", defaultTimeout, TestCaseEnabled, "2314");
+    addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
 
     runTestSuite(testCases);
 })($, {});
