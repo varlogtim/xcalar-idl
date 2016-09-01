@@ -1205,7 +1205,7 @@ input {
         .font(@size: 12px, @color: @color-white);
         .rounded(3px);
         position: relative;
-        background-color: @color-background-bottomAction;
+        background-color: @color-bg-select-blue;
         opacity: 0.95;
         display: none;
         padding: 10px 16px 8px 8px;
@@ -1230,7 +1230,7 @@ input {
         &:before {
             .position(absolute, @top: 10px, @left: -6px);
             content: "";
-            border-right: 6px solid @color-border-bottomAction;
+            border-right: 6px solid @color-border-select-blue;
             border-top: 6px solid transparent;
             border-bottom: 6px solid transparent;
             box-sizing: border-box;
@@ -1240,7 +1240,7 @@ input {
             &:before {
                 .position(@left: auto, @right: -6px);
                 border-right: none;
-                border-left: 6px solid @color-border-bottomAction;
+                border-left: 6px solid @color-border-select-blue;
             }
         }
 
