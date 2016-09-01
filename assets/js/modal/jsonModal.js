@@ -1100,7 +1100,8 @@ window.JSONModal = (function($, JSONModal) {
                 '<div class="btn btn-small btn-secondary sort single" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.SortAsc + '">' +
-                    '<i class="icon xi-arrow-down"></i>' +
+                    // '<i class="icon xi-arrow-down"></i>' +
+                    '<i class="icon xi-arrowtail-down"></i>' +
                 '</div>' +
                 '<div class="btn btn-small btn-secondary remove" data-toggle="tooltip" ' +
                     'data-container="body" ' +

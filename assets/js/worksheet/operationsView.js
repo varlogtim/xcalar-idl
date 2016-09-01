@@ -3936,7 +3936,7 @@ window.OperationsView = (function($, OperationsView) {
                             '"  class="text autocomplete functionsInput" ' +
                             'tabindex="10" spellcheck="false" required>' +
                             '<div class="iconWrapper dropdown">' +
-                              '<i class="icon xi-down"></i>' +
+                              '<i class="icon xi-arrow-down"></i>' +
                             '</div>' +
                             '<div class="list genFunctionsMenu">' +
                               '<ul data-fnmenunum="' + index + '"></ul>' +

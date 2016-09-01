@@ -2234,7 +2234,7 @@ XcQuery.prototype = {
     "check": function() {
         var self = this;
         var deferred = jQuery.Deferred();
-        if (this.type === "xcQuery") {
+        if (self.type === "xcQuery") {
             XcalarQueryState(self.fullName)
             .then(function(res) {
                 // self.state = res.queryState;
