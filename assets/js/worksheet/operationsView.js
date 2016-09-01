@@ -33,6 +33,7 @@ window.OperationsView = (function($, OperationsView) {
     var formHelper;
     var mainMenuPrevState; // used to restore main menu state once operation is
                             // closed
+    var formOpenTime; // stores the last time the form was opened
 
     // shows valid cast types
     var castMap = {
@@ -614,7 +615,15 @@ window.OperationsView = (function($, OperationsView) {
     };
 
     // restore: boolean, if true, will not clear the form from it's last state
-    OperationsView.show = function(currTableId, currColNum, operator, restore) {
+    // 
+    OperationsView.show = function(currTableId, currColNum, operator, restore,
+                                   restoreTime) {
+        if (restoreTime && restoreTime !== formOpenTime) {
+            // if restoreTime and formOpenTime do not match, it means we're
+            // trying to restore a form to a state that's already been 
+            // overwritten
+            return;
+        }
         var deferred = jQuery.Deferred();
         isOpen = true;
 
@@ -626,6 +635,7 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             BottomMenu.close(true);
         }
+        formOpenTime = Date.now();
 
         if (restore) {
             $activeOpSection.removeClass('xc-hidden');
@@ -2690,9 +2700,13 @@ window.OperationsView = (function($, OperationsView) {
         if (aggName.length < 2) {
             aggName = null;
         }
+        var options = {
+            formOpenTime: formOpenTime
+        };
 
         var startTime = Date.now();
-        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName)
+        xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName,
+                             options)
         .fail(function(error) {
             submissionFailHandler(startTime, error);
         });
@@ -2746,7 +2760,8 @@ window.OperationsView = (function($, OperationsView) {
         var startTime = Date.now();
 
         xcFunction.filter(filterColNum, tableId, {
-            "filterString": filterString
+            filterString: filterString,
+            formOpenTime: formOpenTime
         })
         .fail(function(error) {
             submissionFailHandler(startTime, error);
@@ -2797,7 +2812,8 @@ window.OperationsView = (function($, OperationsView) {
             "isJoin"     : $activeOpSection.find('.keepTable .checkbox')
                                             .hasClass('checked'),
             "icvMode"    : $activeOpSection.find(".icvMode .checkbox")
-                                            .hasClass("checked")
+                                            .hasClass("checked"),
+            "formOpenTime": formOpenTime
         };
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');
@@ -2854,7 +2870,9 @@ window.OperationsView = (function($, OperationsView) {
         var numArgs = args.length;
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapFilterString(operator, args, colTypeInfos);
-        var mapOptions = {};
+        var mapOptions = {
+            formOpenTime: formOpenTime
+        };
         if (isNewCol) {
             mapOptions.replaceColumn = true;
             if (colName === "") {

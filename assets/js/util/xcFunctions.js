@@ -15,6 +15,11 @@ window.xcFunction = (function($, xcFunction) {
         var frontColName = table.getCol(colNum).getFronColName();
         var fltStr = fltOptions.filterString;
         var worksheet = WSManager.getWSFromTable(tableId);
+        var formOpenTime;
+        if (fltOptions && fltOptions.formOpenTime) {
+            formOpenTime = fltOptions.formOpenTime;
+            delete fltOptions.formOpenTime;
+        }
 
         var sql = {
             "operation" : SQLOps.Filter,
@@ -22,7 +27,9 @@ window.xcFunction = (function($, xcFunction) {
             "tableId"   : tableId,
             "colName"   : frontColName,
             "colNum"    : colNum,
-            "fltOptions": fltOptions
+            "fltOptions": fltOptions,
+            "formOpenTime": formOpenTime,
+            "htmlExclude": ["formOpenTime"]
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Filter + ': ' + frontColName,
@@ -367,7 +374,9 @@ window.xcFunction = (function($, xcFunction) {
             "joinStr"     : joinStr,
             "worksheet"   : worksheet,
             "keepTables"  : options.keepTables,
-            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet", "keepTables"]
+            "formOpenTime": options.formOpenTime,
+            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet", 
+                             "keepTables", "formOpenTime"]
         };
 
         // regular join on unsorted cols = 3, 1 if sorted (through groupby)
@@ -652,6 +661,11 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // map a column
+    // mapOptions: replaceColumn - boolean, if true, will replace an existing 
+    //                             column rather than create a new one
+    //             formOpenTime  - int, if map is triggered from form, this 
+    //                              is a timestamp for when the form opened, 
+    //                              used for undo
     xcFunction.map = function(colNum, tableId, fieldName, mapString, mapOptions,
                               icvMode) {
         var deferred = jQuery.Deferred();
@@ -669,7 +683,8 @@ window.xcFunction = (function($, xcFunction) {
             "colNum"    : colNum,
             "fieldName" : fieldName,
             "mapString" : mapString,
-            "mapOptions": mapOptions
+            "mapOptions": mapOptions,
+            "htmlExclude": ["mapOptions"]
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Map + " " + fieldName,

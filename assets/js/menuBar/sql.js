@@ -617,7 +617,8 @@ window.SQL = (function($, SQL) {
         var deferred = jQuery.Deferred();
 
         var logLen = logs.length;
-        Undo.run(sql)
+        var isMostRecent = (cursor === (logLen - 1));
+        Undo.run(sql, isMostRecent)
         .then(function() {
             if (logs.length !== logLen) {
                 // XXX debug use
@@ -841,6 +842,7 @@ window.SQL = (function($, SQL) {
             if (opsToExclude.indexOf(key) !== -1 || key === "htmlExclude") {
                 continue;
             }
+
             if (count > 0) {
                 html += ',';
             }

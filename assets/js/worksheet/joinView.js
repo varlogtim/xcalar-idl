@@ -16,7 +16,7 @@ window.JoinView = (function($, JoinView) {
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
     var mainMenuPrevState;
-
+    var formOpenTime; // stores the last time the form was opened
     var turnOnPrefix = true; // Set to false if backend crashes
 
     var formHelper;
@@ -408,7 +408,13 @@ window.JoinView = (function($, JoinView) {
         }
     };
 
-    JoinView.show = function(tableId, colNum, restore) {
+    JoinView.show = function(tableId, colNum, restore, restoreTime) {
+        if (restoreTime && restoreTime !== formOpenTime) {
+            // if restoreTime and formOpenTime do not match, it means we're
+            // trying to restore a form to a state that's already been 
+            // overwritten
+            return;
+        }
         isOpen = true;
         mainMenuPrevState = MainMenu.getState();
 
@@ -421,6 +427,7 @@ window.JoinView = (function($, JoinView) {
         } else {
             BottomMenu.close(true);
         }
+        formOpenTime = Date.now();
         
         if (!restore) {
             resetJoinView();
@@ -1131,7 +1138,8 @@ window.JoinView = (function($, JoinView) {
                 keepLeftCols : lColsToKeep,
                 keepRightCols: rColsToKeep,
                 keepTables   : $joinView.find('.keepTablesCBWrap')
-                                    .find('.checkbox').hasClass('checked')
+                                    .find('.checkbox').hasClass('checked'),
+                formOpenTime : formOpenTime
             };
 
             JoinView.close();

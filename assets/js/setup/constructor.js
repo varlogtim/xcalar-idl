@@ -20,25 +20,36 @@ function XcAuth(options) {
 // useful to keep track of mousedown so when a blur happens, we know what
 // element was clicked on to cause the blur
 function MouseEvents() {
-    var lastMouseDownTarget = $(document);
-    var lastClickTarget = lastMouseDownTarget;
+    var $lastMouseDownTarget = $(document);
+    var $lastClickTarget = $lastMouseDownTarget;
     var lastTime = (new Date()).getTime();
+    // will store last 3 mousedowns (needed for undo)
+    var lastMouseDownTargets = [$lastMouseDownTarget];
 
     this.setMouseDownTarget = function($element) {
-        lastMouseDownTarget = $element;
+        $lastMouseDownTarget = $element;
         lastTime = (new Date()).getTime();
+
+        // store up to last 3 mousedowns
+        if (lastMouseDownTargets.length === 3) {
+            lastMouseDownTargets.splice(2, 1);
+        }
+        lastMouseDownTargets.unshift($element);
     };
 
     this.setClickTarget = function($element) {
-        lastClickTarget = $element;
+        $lastClickTarget = $element;
     };
 
     this.getLastMouseDownTarget = function() {
-        return lastMouseDownTarget;
+        return $lastMouseDownTarget;
+    };
+    this.getLastMouseDownTargets = function() {
+        return lastMouseDownTargets;  
     };
 
     this.getLastClickTarget = function() {
-        return lastClickTarget;
+        return $lastClickTarget;
     };
 
     this.getLastMouseDownTime = function() {

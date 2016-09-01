@@ -1,7 +1,8 @@
 window.Undo = (function($, Undo) {
     var undoFuncs = {};
 
-    Undo.run = function(sql) {
+    // isMostRecent - boolean, true if it's the most recent operation performed
+    Undo.run = function(sql, isMostRecent) {
         xcHelper.assert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
@@ -14,7 +15,7 @@ window.Undo = (function($, Undo) {
             // do not use any animation
             gMinModeOn = true;
 
-            undoFuncs[operation](options)
+            undoFuncs[operation](options, isMostRecent)
             .then(deferred.resolve)
             .fail(function() {
                 // XX do we do anything with the cursor?
@@ -45,24 +46,55 @@ window.Undo = (function($, Undo) {
                                        worksheet, {isUndo: true}));
     };
 
-    undoFuncs[SQLOps.Filter] = function(options) {
+    undoFuncs[SQLOps.Filter] = function(options, isMostRecent) {
+        var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return TblManager.refreshTable([options.tableName], null, [options.newTableName], worksheet, {
+        TblManager.refreshTable([options.tableName], null, 
+            [options.newTableName], worksheet, {
             isUndo: true,
             from  : "noSheet"
+        })
+        .then(function() {
+            // show filter form if filter was triggered from the form and was 
+            // the most recent operation
+            if (isMostRecent && options.formOpenTime) {
+                OperationsView.show(null, null, null, true,
+                                    options.formOpenTime);
+            }
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
         });
+        return (deferred.promise());
     };
 
     undoFuncs[SQLOps.Query] = undoFuncs[SQLOps.Filter];
 
-    undoFuncs[SQLOps.Map] = function(options) {
+    undoFuncs[SQLOps.Map] = function(options, isMostRecent) {
+        
+        var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.tableName], null,
+        TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true}));
+                                       worksheet, {isUndo: true})
+        .then(function() {
+            // show map form if map was triggered from the form and was the
+            // most recent operation
+            if (isMostRecent && 
+                (options.mapOptions && options.mapOptions.formOpenTime)) {
+                OperationsView.show(null, null, null, true,
+                                    options.mapOptions.formOpenTime);
+            }
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        return (deferred.promise());
     };
 
-    undoFuncs[SQLOps.Join] = function(options) {
+    undoFuncs[SQLOps.Join] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
 
         if (options.keepTables) {
@@ -124,19 +156,29 @@ window.Undo = (function($, Undo) {
 
         // var tableId = xcHelper.getTableId(firstTable.name);
         // WSManager.removeTable(tableId);
-        TblManager.refreshTable([firstTable.name], null, [options.newTableName], firstTable.worksheet, {
-            "isUndo"  : true,
-            "position": firstTable.position
+        TblManager.refreshTable([firstTable.name], null, [options.newTableName], 
+                                firstTable.worksheet, {
+                                            "isUndo"  : true,
+                                            "position": firstTable.position
         })
         .then(function() {
             if (isSelfJoin) {
+                if (isMostRecent && options.formOpenTime) {
+                    JoinView.show(null, null, true, options.formOpenTime);
+                }
                 deferred.resolve();
             } else {
-                TblManager.refreshTable([secondTable.name], null, [], secondTable.worksheet, {
+                TblManager.refreshTable([secondTable.name], null, [], 
+                                        secondTable.worksheet, {
                     "isUndo"  : true,
                     "position": secondTable.position
                 })
-                .then(deferred.resolve)
+                .then(function() {
+                    if (isMostRecent && options.formOpenTime) {
+                        JoinView.show(null, null, true, options.formOpenTime);
+                    }
+                    deferred.resolve();
+                })
                 .fail(deferred.reject);
             }
         })
@@ -145,16 +187,31 @@ window.Undo = (function($, Undo) {
         return (deferred.promise());
     };
 
-    undoFuncs[SQLOps.GroupBy] = function(options) {
+
+    undoFuncs[SQLOps.GroupBy] = function(options, isMostRecent) {
+        var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(options.newTableName);
+        var promise;
         if (options.options && options.options.isJoin) {
             var worksheet = WSManager.getWSFromTable(tableId);
-            return (TblManager.refreshTable([options.tableName], null,
+            promise = TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true}));
+                                       worksheet, {isUndo: true});
         } else {
-            return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+            promise = TblManager.sendTableToOrphaned(tableId, {'remove': true});
         }
+        promise.then(function() {
+            if (isMostRecent && 
+                (options.options && options.options.formOpenTime)) {
+                OperationsView.show(null, null, null, true,
+                                    options.options.formOpenTime);
+            }
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        return (deferred.promise());
     };
 
     undoFuncs[SQLOps.SplitCol] = function(options) {
