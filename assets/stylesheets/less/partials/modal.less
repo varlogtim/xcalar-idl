@@ -85,7 +85,7 @@
     .modalTopMain {
         .size(@width: 100%);
         background: @color-modal-whiteGray;
-        color: @color-text-darkGray;
+        color: @color-font-darkGray;
         .no-selection;
     }
 
@@ -97,7 +97,7 @@
     .modalSubMain {
         .size(@width: 100%);
         background: @color-modal-whiteGray;
-        color: @color-text-darkGray;
+        color: @color-font-darkGray;
         .no-selection;
     }
 
@@ -295,7 +295,7 @@
 
         &.ui-sortable-helper {
             height: ~"calc(100% - 30px)" !important;
-            box-shadow: -1px 0px 0px @color-shadow-topGrayMed;
+            box-shadow: -1px 0px 0px @color-bg-pinkish-grey2;
             .prettyJson {
                 height: ~"calc(100% - 48px)";
             }
@@ -360,7 +360,7 @@
             }
             .menu {
                 li.selectionOpt {
-                    color: @color-text-darkGray;
+                    color: @color-font-darkGray;
                     .check {
                         display: none;
                     }
@@ -391,7 +391,7 @@
     .bar {
         height: 29px;
         background-color: @color-bg-white-seven;
-        color: @color-text-darkGray;
+        color: @color-font-darkGray;
         font-size: 13px;
         font-family: @font-base;
         font-weight: 600;
@@ -734,7 +734,7 @@
 
     .jKey  {
         &:hover {
-            background-color: @color-modal-innerCircleGray;
+            background-color: @color-bg-graph-gray;
             box-shadow: 0px 0px 1px @color-table-borderBlue;
         }
     }
@@ -743,7 +743,7 @@
         > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
             cursor: pointer;
             &:hover {
-                background-color: @color-modal-innerCircleGray;
+                background-color: @color-bg-graph-gray;
                 box-shadow: 0px 0px 1px @color-table-borderBlue;
             }
         }
@@ -829,7 +829,7 @@
         .position(absolute, @top: 26px, @right: 4px);
         li {
             background-color: @color-white;
-            color: @color-text-darkGray;
+            color: @color-font-darkGray;
 
             &:hover {
                 color: @color-text-topAction !important;
@@ -907,11 +907,6 @@
     #aggModal-corr {
         display: none;
 
-        .aggTableField {
-            // margin-top: 2px;
-            background-color: @color-corr-blue;
-        }
-
         .aggContainer .aggTableField {
             color: @color-white;
         }
@@ -923,7 +918,7 @@
 
         .tableText {
             .size(@height: 29px);
-            .font(@weight: bold, @line-height: 29px, @color: @color-text-darkGray);
+            .font(@weight: bold, @line-height: 29px, @color: @color-font-darkGray);
             padding-left: 25px;
         }
 
@@ -933,12 +928,12 @@
             float: left;
             background-color: @color-bg-white-three;
             .tab {
-                border-top: 1px solid @color-border-topGrayMed;
-                border-right: 1px solid @color-border-topGrayMed;
-                border-bottom: 1px solid @color-border-topGrayMed;
+                border-top: 1px solid @color-border-pinkish-grey2;
+                border-right: 1px solid @color-border-pinkish-grey2;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
                 height: 50%;
                 cursor: pointer;
-                color: @color-background-sidebar;
+                color: @color-font-warm-grey-two;
                 .text {
                     padding-top: 7px;
                     padding-right: 6px;
@@ -975,7 +970,7 @@
             .icon {
                 margin-left: 10px;
                 margin-top: 10px;
-                color: @color-background-sidebar;
+                color: @color-font-warm-grey-two;
                 opacity: 0.5;
                 .transform(rotate(-90deg))
             }
@@ -1081,7 +1076,7 @@
                 background-color: @color-modal-whiteGray !important;
 
                 &.active {
-                    background-color: @color-background-lightLightGray !important;
+                    background-color: @color-bg-white-nine !important;
                     color: @color-text-black;
                 }
             }
@@ -2032,7 +2027,8 @@ html.microsoft {
             }
 
             .instruction {
-                .font(@size: 12px, @color: @color-text-instructions);
+                .font(@size: 12px);
+                opacity: 0.7;
             }
 
             .info {
@@ -2091,7 +2087,7 @@ html.microsoft {
     }
 
     .heading {
-        .font(@weight: 700, @size: 13px, @color: @color-text-darkGray);
+        .font(@weight: 700, @size: 13px, @color: @color-font-darkGray);
         display: block;
         margin-bottom: 5px;
     }
@@ -2231,7 +2227,7 @@ html.microsoft {
             .iconWrap {
                 .position(absolute, @top: 5px, @right: 12px);
                 .size(20px, 20px);
-                border-left: 1px solid @color-border-topGrayMed;
+                border-left: 1px solid @color-border-pinkish-grey2;
                 padding-left: 1px;
                 cursor: pointer;
 
@@ -2384,7 +2380,7 @@ html.microsoft {
                 overflow-y: hidden;
 
                 .paramNameWrap {
-                    color: @color-text-darkGray;
+                    color: @color-font-darkGray;
 
                     .paramName {
                         width: 318px;

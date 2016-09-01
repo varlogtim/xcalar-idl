@@ -12,7 +12,7 @@ table, tr, td, th, input, textarea, section, p {
     .nomargin-padding;
     .box-sizing;
     border: none;
-    .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-text-darkGray);
+    .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-font-darkGray);
 }
 
 section {
@@ -32,7 +32,7 @@ h2 {
 body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
-    .font(@weight: 600, @family: @font-base, @color: @color-text-darkGray);
+    .font(@weight: 600, @family: @font-base, @color: @color-font-darkGray);
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
     background: @color-bg-body-gray;
@@ -277,7 +277,7 @@ body {
 /* For Both worksheet menu bar and bottom area bar */
 .topBar {
     .size(@width: 100%, @height: @height-homeBtn);
-    color: @color-text-darkGray;
+    color: @color-font-darkGray;
     background-color: @color-bg-topBarGray;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
     padding-left: 20px;
@@ -680,7 +680,7 @@ input {
 
 .underConstruction {
     .size(@height: ~"calc(100% - 114px)");
-    background: @color-background-darkGray;
+    background: @color-bg-white-five;
     text-align: center;
 
     .alert {
@@ -893,7 +893,7 @@ input {
     }
 
     .message {
-        color: @color-text-darkGray;
+        color: @color-font-darkGray;
         .font(@size: 12px, @line-height: 16px);
         white-space: normal;
     }
@@ -1092,7 +1092,6 @@ input {
         @marginTop: 150px;
         height: @boxHeight - @marginTop;
         width: 100%;
-        color: @color-successMsg-Gray;
         background-color: @color-white;
         margin-top: @marginTop; 
         padding-top: 45px;
@@ -1494,7 +1493,7 @@ input[type=number]::-webkit-outer-spin-button {
     display: block !important;
 
     .tooltip-inner, .tooltip-arrow {
-        color: @color-text-darkGray;
+        color: @color-font-darkGray;
         opacity: 1 !important;
     }
 
@@ -1532,7 +1531,7 @@ input[type=number]::-webkit-outer-spin-button {
     }
 
     .tooltip-inner, .tooltip-arrow {
-        color: @color-text-darkGray;
+        color: @color-font-darkGray;
         opacity: 1 !important;
     }
 
@@ -1750,7 +1749,7 @@ body.tooltipOff {
         .ui-datepicker-next {
             .position(@right: 10px);
             &:before {
-              content: "\e926";
+              content: "\e928";
             }
         }
 
@@ -1772,9 +1771,8 @@ body.tooltipOff {
             background-color: @color-white;
         }
 
-
         th {
-            .font(@size: 9px, @color: @color-background-topGrayMed, @line-height: 20px, @weight: bold);
+            .font(@size: 9px, @color: @color-font-pinkish-grey2, @line-height: 20px, @weight: bold);
 
             span {
                 height: 20px;
@@ -1785,11 +1783,11 @@ body.tooltipOff {
         }
 
         td {
-            border: 1px solid @color-background-darkGray;
+            border: 1px solid @color-bg-white-five;
 
             span, a {
                 text-decoration: none;
-                .font(@size: 12px, @color: @color-darkSilverChalice, @weight: bold);
+                .font(@size: 12px, @color: @color-font-greyish-brown, @weight: bold);
                 text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
             }
 
@@ -1802,7 +1800,7 @@ body.tooltipOff {
             }
 
             &.ui-datepicker-other-month {
-                background-color: @color-wildSand;
+                background-color: @color-bg-white-three;
             }
 
             &.ui-datepicker-unselectable {

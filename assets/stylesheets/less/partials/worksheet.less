@@ -89,12 +89,6 @@
                 text-overflow: clip;
             }
         }
-
-        .type-boolean .flexWrap.flex-left {
-            &:after {
-                border-top: @height-colHeader solid @color-border-colIconBlue;
-            }
-        }
     }
     &.userHidden {
         .tdText, .dataColText, .dataCol .flex-mid {
@@ -368,31 +362,28 @@
         line-height: 32px;
         font-size: 14px;
         font-family: @font-base;
-        color: @color-text-darkGray;
+        color: @color-font-darkGray;
         background-color: @color-bg-white-nine;
         border: 1px solid @color-border-pinkish-grey2;
 
         &.active, &.inFocus {
             background-color: @color-white;
-           
         }
 
         &.CodeMirror-focused {
             background-color: @color-white;
             color: @color-text-fnBar-blue; 
             border: 1px solid @color-border-softBlue;
-            // box-shadow: 0px 2px 2px 0 @color-defaultGray inset;
         }
 
         &.disabled {
             opacity: 0.7;
             pointer-events: none;
-            background-color: @color-input-background;
 
             .fnbarPre, pre {
-                color: @color-text-darkGray;
+                color: @color-font-darkGray;
                 span {
-                    color: @color-text-darkGray;
+                    color: @color-font-darkGray;
                 }
             }
         }
@@ -1158,7 +1149,7 @@
         input {
             .font(@weight: bold, @color: @color-text-midGray);
             padding-right: 30px;
-            background-color: @color-background-darkGray;
+            background-color: @color-bg-white-five;
         }
         .counter {
             top: 4px;

@@ -10,7 +10,7 @@ html.firefox, html.microsoft {
     }
 }
 
-/* Currently used for worksheet table, dataset preview, join modal, smartcast */
+/* Currently used for worksheet table, dataset preview */
 .dataTable {
     .size(@width: 0px);
     border-collapse: separate;
@@ -36,8 +36,8 @@ html.firefox, html.microsoft {
 
     th {
         .size(@height: @height-colHeaderOuter);
-        background-color: @color-background-darkGray;
-        border: 5px solid @color-border-darkGray;
+        background-color: @color-bg-white-five;
+        border: 5px solid @color-border-white-five;
         border-left: none;
         padding: 0px;
         .font(@weight: 600, @size: 13px);
@@ -72,9 +72,8 @@ html.firefox, html.microsoft {
             }
         }
         &.dataCol {
-
             .flexRow {
-                background-color: @color-background-darkGray !important;
+                background-color: @color-bg-white-five !important;
                 height: @height-xcColHeaderOuter - 10px;
             }
         }
@@ -565,12 +564,7 @@ html.firefox, html.microsoft {
                     color: @color-white !important;
                 }
             }
-            .type-boolean .flex-left::after {
-                border-top: @height-colHeader solid @color-border-colIconBlue;
-            }
         }
-
-
 
         tbody tr {
             &:nth-child(odd) {
@@ -838,20 +832,11 @@ html.firefox, html.microsoft {
                     color: @color-white !important;
                 }
             }
-            .type-boolean .flex-left::after {
-                border-top: @height-colHeader solid @color-border-colIconBlue;
-            }
         }
 
         td.jsonElement {
             pointer-events: none;
         }
-
-        // td.modalHighlighted {
-        //     position: relative;
-        //     z-index: 0;
-        // }
-
 
         tbody tr {
             &:nth-child(odd) {
@@ -943,7 +928,7 @@ html.firefox, html.microsoft {
                 .position(absolute, @right: 6px, @bottom: 4px);
                 .size(@width: 15px, @height: 11px);
                 border-top: 11px solid transparent;
-                border-right: 11px solid @color-bg-dropdown-black;
+                border-right: 11px solid @color-border-darkGray;
             }
         }
 
@@ -986,7 +971,7 @@ html.firefox, html.microsoft {
 
             &:focus {
                 background-color: @color-white;
-                color: @color-text-darkGray !important;
+                color: @color-font-darkGray !important;
                 padding: 1px 4px;
                 margin: 1px 0px;
                 outline: none;
@@ -1136,9 +1121,6 @@ html.firefox, html.microsoft {
                 color: @color-white !important;
             }
         }
-        .type-boolean .flex-left::after {
-            border-top: @height-colHeader solid @color-border-colIconBlue;
-        }
     }
 
     tbody tr {
@@ -1160,23 +1142,7 @@ html.firefox, html.microsoft {
     }   
 }
 
-.xcTable, .joinTable {
-    thead {
-        // .header:hover > .dropdownBox {
-        //     opacity: 0.6;
-        // }
-
-        th {
-            &.selectedCell {
-                .type-boolean .flexWrap.flex-left {
-                    &::after {
-                        border-top: @height-colHeader solid @color-border-colIconBlue;
-                    }
-                }
-            }
-        }
-    }
-
+.xcTable {
     &::after {
         content: "";
         .size(@width: ~"calc(100% - 5px)", @height: 5px);
@@ -1201,9 +1167,7 @@ html.firefox, html.microsoft {
             }
         }
     }
-}
 
-.xcTable {
     tbody tr td:first-child {
         cursor: pointer; // for bookmark
     }

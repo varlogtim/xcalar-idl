@@ -901,20 +901,6 @@
             width: 100%;
             margin: 0 auto;
 
-
-            .title {
-                .size(@width: 100%, @height: 28px);
-                text-align: center;
-                .font(@size: @standardFontSize, @weight: bold, @line-height: 28px);
-            }
-
-
-            .instruction {
-                .size(@width: 100%, @height: 15px);
-                text-align: center;
-                .font(@size: @standardFontSize, @weight: bold, @line-height: 15px, @color: @color-text-instructions);
-            }
-
             .clauseArea {
                 .size(@width: 100%);
                 .position(relative);
@@ -1293,7 +1279,7 @@
         	top: 2px;
         	left: 1px;
         	margin-right: 5px;
-        	color: @color-text-darkGray;
+            color: @color-font-darkGray;
         }
 
         .advancedTitle {
@@ -1391,7 +1377,7 @@
         	cursor: pointer;
 
         	.icon {
-        		color: @color-text-darkGray;
+                color: @color-font-darkGray;
         		margin-left: 6px;
         		font-size: 16px;
         		position: relative;
@@ -1511,17 +1497,18 @@
                 .dropdownBox {
                     .size(@width: 15px, @height: 100%);
                     .position(relative);
+                    opacity: 0.4;
 
                     .innerBox {
                         .size(@width: 12px, @height: 7px);
                         .position(absolute, @right: 2px, @bottom: 2px);
                         border-top: 7px solid transparent;
-                        border-right: 7px solid @color-border-sidebar;
+                        border-right: 7px solid @color-border-darkGray;
                     }
                 }
 
-                &:hover .innerBox {
-                	border-right: 7px solid @color-black;
+                &:hover .dropdownBox {
+                    opacity: 1;
                 }
             }
         }
