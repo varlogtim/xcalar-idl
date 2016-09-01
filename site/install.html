@@ -24,7 +24,7 @@
       <div id="loadingBar">
         <div class="innerBar"></div>
       </div>
-      <div class="outerWrap">
+      <div class="outerWrap" id="bottomSection">
         <div id="formArea">
 
           <!-- Step 1: Enter in license key -->
@@ -127,10 +127,11 @@
               </div>
               <div class="hint">
                 <span></span>
-                <span>Input the name of the hosts that you want to install Xcalar on</span>
+                <span>Input the number of hosts that you want to install Xcalar on and press enter
+                  <input type="text" id="numServers" class="input" name="useless" autofocus /></span>
               </div>
             </div>
-            <div class="section hostnameSection">
+            <div class="section hostnameSection hidden">
               <div class="row header">
                 <span class="leftCol">
                   Hostnames
@@ -140,7 +141,7 @@
                 </span>
               </div>
             </div>
-            <div class="title">
+            <div class="title hidden">
               <div class="step">
                 <span>STEP 3B</span>
                 <span>Credentials</span>
@@ -150,7 +151,7 @@
                 <span>Input the credentials for the above hosts</span>
               </div>
             </div>
-            <div class="section credentialSection">
+            <div class="section credentialSection hidden">
               <div class="hostUsername">
                 <div class="inputWrap">
                   <input class="input" name="useless" type="text" autocomplete="off" placeholder="[username]">
@@ -193,15 +194,18 @@
               <span>Unknown Error!</span>
             </div>        
             <div class="section buttonSection">
-              <input class="btn next" type="button" id="installButton" value="INSTALL">
+              <input class="btn next hidden" type="button" id="installButton" value="INSTALL">
               <input class="btn back" type="button" value="BACK">
+              <input class="btn cancel hidden" type="button" value="CANCEL">
             </div>
           </form>
         </div>
       </div>
     </div>
     <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="3rd/bower_components/caret/jquery.caret.js" type="text/javascript"></script>
     <script src="assets/js/installer.js"></script>
+
   </body>
 </html>
 

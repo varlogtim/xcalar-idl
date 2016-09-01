@@ -44,6 +44,7 @@ var Api = {
     "runInstaller": 2,
     "completeInstallation": 3,
     "checkLicense": 4,
+    "cancelInstall": 5,
 };
 
 var Status = {
@@ -66,7 +67,6 @@ var licenseLocation = "/tmp/license.txt";
 function initStepArray() {
     curStep = {
         "stepString": "Step [0] Starting...",
-        "prevString": "Step [0] Starting...",
         "nodesCompletedCurrent": [],
         "status": Status.Running,
     };
@@ -100,21 +100,21 @@ function genExecString(hostnameLocation, credentialLocation, isPassword,
 function sendStatusArray(finalStruct, res) {
     var ackArray = [];
 
-    console.log(finalStruct);
-    console.log(curStep);
+    // console.log(curStep);
     // Check global array that has been populated by prev step
     for (var i = 0; i<finalStruct.hostnames.length; i++) {
         if (curStep.nodesCompletedCurrent[i] === true) {
-            ackArray.push(curStep.stepString);
+            ackArray.push(curStep.stepString + " (Done)");
         } else if (curStep.nodesCompletedCurrent[i] === false) {
             ackArray.push("FAILED: " + curStep.stepString);
         } else {
-            ackArray.push(curStep.prevString);
+            ackArray.push(curStep.stepString + " (Executing)");
         }
     }
 
     res.send({"status": curStep.status,
               "retVal": ackArray});
+    console.log("Success: send status array");
 }
 
 function stdOutCallback(dataBlock) {
@@ -122,10 +122,9 @@ function stdOutCallback(dataBlock) {
 
     for (var i = 0; i<lines.length; i++) {
         var data = lines[i];
-        console.log ("Start =="+data+"==");
+        //console.log("Start =="+data+"==");
         if (data.indexOf("Step [") === 0 || data.indexOf("STEP [") === 0) {
             // New Step! Means all the old ones are done
-            curStep.prevString = curStep.stepString;
             curStep.stepString = data;
             curStep.nodesCompletedCurrent = [];
         } else if (data.indexOf("[") === 0) {
@@ -149,37 +148,36 @@ app.post('/', function(req, res) {
     console.log("Api: " + credArray.api);
     switch(credArray.api) {
     case (Api.checkLicense):
+        console.log("Checking License");
         // XXX change to write to config
         var fileLocation = "/tmp/license.txt";
         fs.writeFile(fileLocation, credArray.struct.licenseKey);
         // Call bash to check license with this 
         var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
-        out.stderr.on('data', function(data) {
-            console.log(data);
-            if (data === "Blah blah verified") {
+        out.stdout.on('data', function(data) {
+            if (data.indexOf("SUCCESS") > -1) {
                 res.send({"status": Status.Ok,
                           // "numNodes": blah
                         });
-            } else if (data === "FAILED") {
+                console.log("Success: Checking License");
+            } else if (data.indexOf("FAILURE") > -1) {
                 res.send({"status": Status.Error});
+                console.log("Error: Checking License");
             }
         });
         break;
-    case (Api.runPrecheck):
+    case (Api.runInstaller):
         console.log("Executing Precheck");
         // Write files to /config and chmod
         var hostnameLocation = "/tmp/hosts.txt";
         var credentialLocation = "/tmp/key.txt";
         var isPassword = true;
 
-        console.log(credArray.struct);
         if ("password" in credArray.struct.credentials) {
-            console.log("Password");
             var password = credArray.struct.credentials.password;
             fs.writeFile(credentialLocation, password,
                          {mode: parseInt('600', 8)});
         } else {
-            console.log("sshKey");
             isPassword = false;
             var sshkey = credArray.struct.credentials.sshKey;
             fs.writeFile(credentialLocation, sshkey,
@@ -191,14 +189,12 @@ app.post('/', function(req, res) {
         var hostArray = credArray.struct.hostnames;
         fs.writeFile(hostnameLocation, hostArray.join("\n"));
 
-        var execString = scriptDir + "/02*";
+        var execString = scriptDir + "/cluster-install.sh";
         cliArguments = genExecString(hostnameLocation, credentialLocation,
                                      isPassword, credArray.struct.username,
                                      credArray.struct.port,
                                      credArray.struct.nfsOption);
 
-        execString += cliArguments;
-        execString += "; " + scriptDir + "/03*";
         execString += cliArguments;
         initStepArray();
 
@@ -220,35 +216,16 @@ app.post('/', function(req, res) {
         
         // Immediately ack after starting
         res.send({"status": Status.Ok});
+        console.log("Immediately acking runInstaller");
         break;
     case (Api.checkStatus):
         console.log("Getting status");
         var finalStruct = credArray.struct;
         sendStatusArray(finalStruct, res);
         break;
-    case (Api.runInstaller):
-        initStepArray();
-        // Make bash call to start
-        console.log("Running installer");
-        var execString = scriptDir + "/04-*";
-        execString += cliArguments;
-        execString += "; " + scriptDir + "/05-*" + cliArguments;
-        execString += "; " + scriptDir + "/06-*" + cliArguments;
-        console.log(execString);
-        out = exec(execString);
-        out.stdout.on('data', stdOutCallback);
-
-        out.on('close', function(code) {
-            // Exit code. When we fail, we return non 0
-            if (code) {
-                console.log("Oh noes!");
-                curStep.status = Status.Error;
-            } else {
-                curStep.status = Status.Done;
-            }
-        });
-
-        // Immediately ack after starting
+    case (Api.cancelInstall):
+        console.log("Cancel install");
+        // XXX Do something!
         res.send({"status": Status.Ok});
         break;
     

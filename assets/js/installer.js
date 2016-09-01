@@ -1,5 +1,3 @@
-var numServers = 4;
-
 window.Installer = (function(Installer, $) {
 
     var finalStruct = {
@@ -26,6 +24,7 @@ window.Installer = (function(Installer, $) {
         "runInstaller": 2,
         "completeInstallation": 3,
         "checkLicense": 4,
+        "cancelInstall": 5,
     };
 
     var Status = {
@@ -41,7 +40,8 @@ window.Installer = (function(Installer, $) {
 
     var $forms = $("form");
     var lastStep = 2; // Last step of form 
-
+    var numServers = 4;
+    var cancel = false;
     Installer.clearInterval = function() {
         if (intervalTimer) {
             clearInterval(intervalTimer);
@@ -55,8 +55,8 @@ window.Installer = (function(Installer, $) {
             var curStepId = findStepId(curFormId);
 
             validateCurrentStep(curStepId)
-            .then(function(ret) {
-                setupNextStep(curStepId, ret);
+            .then(function() {
+                setupNextStep(curStepId);
                 Installer.showStep(curStepId + 1);
             })
             .fail(function() {
@@ -75,6 +75,8 @@ window.Installer = (function(Installer, $) {
             var $form = $(this).closest("form");
             // Clear inputs
             $form[0].reset();
+            // Hide errors
+            $form.find(".error").hide();
             // Clear out contentEditables
             $form.find("[contenteditable='true']").html("");
         });
@@ -181,13 +183,12 @@ window.Installer = (function(Installer, $) {
     }
 
     function sendViaHttps(arrayToSend, successCB, failureCB) {
-        console.log(arrayToSend);
         try {
             jQuery.ajax({
                 method     : "POST",
                 // url        : "http://cantor.int.xcalar.com:12124",
-                url        : document.location.href+"install",
-                // url: "https://cantor.int.xcalar.com:8443/install",
+                // url        : document.location.href+"install",
+                url: "http://cantor.int.xcalar.com:8080/install",
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
                 success    : successCB,
@@ -201,12 +202,44 @@ window.Installer = (function(Installer, $) {
     }
 
     function setUpStep0() {
+        $("input.licenseKey").eq(0).focus();
         $("input.licenseKey").on("keyup", function(e) {
             var keyCode = e.which;
             if (keyCode === 8) {
                 // Backspace
                 if ($(this).val().length === 0) {
                     $(this).prev().prev(".licenseKey").focus();
+                }
+            } else if (keyCode === 13) {
+                // Enter
+                // Check that it has 16 digits. Else error
+                var keyArray = $(".licenseKey");
+                var error = false;
+                for (var i = 0; i<keyArray.length; i++) {
+                    if (keyArray.eq(i).val().length !== 4) {
+                        error = true;
+                        break;
+                    }
+                }
+                if (error) {
+                    showFailure(0, ["License Length Mismatch",
+                                    "License key must be 16 digits long"]);
+                } else {
+                    $("input.next").eq(0).click();
+                }
+
+            } else if (keyCode === 38 || keyCode === 40) {
+                // Do not touch up down
+            } else if (keyCode === 37) {
+                if ($(this).caret() === 0) {
+                    $prevInput = $(this).prev().prev(".licenseKey");
+                    $prevInput.focus();
+                    $prevInput.caret($prevInput.val().length);
+                }
+            } else if (keyCode === 39) {
+                if ($(this).caret() === $(this).val().length) {
+                    $nextInput = $(this).next().next(".licenseKey");
+                    $nextInput.focus();
                 }
             } else {
                 if ($(this).val().length === 4) {
@@ -218,11 +251,82 @@ window.Installer = (function(Installer, $) {
     }
 
     function setUpStep1() {
-
     }
 
     function setUpStep2() {
+        $("#numServers").on("keyup", function(e) {
+            var keyCode = e.which;
+            if (keyCode === 13) {
+                numServers = $("#numServers").val();
+                var html = "";
+                var i;
 
+                var curNum = $(".row").length - 1;
+                if (curNum < numServers) {
+                    // Add extra rows at bottom
+                    var extraRows = numServers - curNum;
+                    for (i = 0; i<extraRows; i++) {
+                        html += hostnameHtml(i+1+curNum);
+                    }
+                    $(".row").last().after(html);
+                } else if (curNum > numServers) {
+                    // Remove from the bottom
+                    var toRemove = curNum - numServers;
+                    for (i = 0; i<toRemove; i++) {
+                        $(".row").last().remove();
+                    }
+                }
+
+                $(".hostnameSection").removeClass("hidden");
+                $(".credentialSection").removeClass("hidden");
+                $(".title").removeClass("hidden");
+                $("#installButton").removeClass("hidden");
+            }
+        });
+
+        $("input.cancel").click(function() {
+            cancel = true;
+            $(this).val("CANCELLING");
+            $(this).addClass("inactive");
+        });
+
+        $(document).on("keydown", ".ipOrFqdn", function(e) {
+            // For chrome or something like that
+            if (e.which === 38) 
+            {
+                e.preventDefault();
+            }
+        });
+
+        $(document).on("keypress", ".ipOrFqdn", function(e) {
+            // For safari or something like that
+            if (e.which === 38) 
+            {
+                e.preventDefault();
+            }
+        });
+
+        $(document).on("keyup", ".ipOrFqdn", function(e) {
+            var keyCode = e.which;
+            if (keyCode === 38) {
+                // keyup
+                if ($(this).closest(".row").index() - 1 > 0) {
+                    $(this).closest(".row").prev().find("input").focus();
+                    // -1 because of header row
+                }
+            } else if (keyCode === 40) {
+                var numKids = $(this).closest(".hostnameSection").find(".row")
+                                     .length;
+                // keydown
+                if ($(this).closest(".row").index() + 1 === numKids) {
+                    // -1 because of header row
+                } else {
+                    var $input = $(this).closest(".row").next().find("input");
+                    $input.focus();
+                    $input.caret($input.val().length);
+                }
+            }
+        });
     }
 
     function validateCurrentStep(stepId) {
@@ -245,19 +349,17 @@ window.Installer = (function(Installer, $) {
         var deferred = jQuery.Deferred();
         var keyArray = $(".licenseKey");
         var finalKey = "";
+
+        var finalArray = [];
         for (var i = 0; i<keyArray.length; i++) {
-            finalKey += keyArray.eq(i).val();
+            finalArray.push(keyArray.eq(i).val());
         }
+        finalKey = finalArray.join("-");
 
         verifyKey(finalKey)
         .then(function(retStruct) {
-            if (!retStruct) {
-                console.error("Connection Error");
-                deferred.reject("Connection Error", "Connection with the " +
-                                "authentication server cannot be established.");
-            }
             if (retStruct.verified) {
-                deferred.resolve(retStruct.numServers);
+                deferred.resolve();
             } else {
                 deferred.reject("Invalid license key", "The license key that " +
                                 "you have entered is not valid. Please check " +
@@ -300,7 +402,8 @@ window.Installer = (function(Installer, $) {
     function validateCredentials() {
         var deferred = jQuery.Deferred();
         var $hostInputs = $(".hostUsername input:visible");
-        for (var i = 0; i<$hostInputs.length; i++) {
+        var i;
+        for (i = 0; i<$hostInputs.length; i++) {
             if ($hostInputs.eq(i).val().trim().length === 0) {
                 deferred.reject("Empty Username / Port",
                                 "Your SSH username / port cannot be empty.");
@@ -336,7 +439,7 @@ window.Installer = (function(Installer, $) {
 
         var hostArray = $(".row .hostname input");
         var allHosts = [];
-        for (var i = 0; i<hostArray.length; i++) {
+        for (i = 0; i<hostArray.length; i++) {
             var nameOrIP = hostArray.eq(i).val().trim();
             if (nameOrIP.length > 0) {
                 allHosts.push(nameOrIP);
@@ -347,32 +450,32 @@ window.Installer = (function(Installer, $) {
             deferred.reject("No hosts","You must install on at least 1 host");
         }
 
+        // Find dups
+        for (i = 0; i<allHosts.length; i++) {
+            if (allHosts.indexOf(allHosts[i], i+1) > -1) {
+                deferred.reject("Duplicate Hosts",
+                                "Hostname " + allHosts[i] + " is a duplicate");
+            }
+        }
+
         finalStruct.hostnames = allHosts;
         deferred.resolve();
 
         return deferred.promise();
     }
 
-    function setupNextStep(curStepId, ret) {
+    function setupNextStep(curStepId) {
         switch (curStepId) {
         case (0):
-            // ret is the number of servers that we can install on
-            // Second page does not have a back button
-
-            var html = "";
-            for (var i = 0; i<ret; i++) {
-                html += hostnameHtml(i+1);
-            }
-            $(".row.header").after(html);
             break;
         case (1):
-            return;
+            break;
         case (2):
             executeFinalArray()
             .fail(function() {
                 showFailure(curStepId, arguments);
             });
-            return;
+            break;
         default:
             return;
         }
@@ -393,13 +496,14 @@ window.Installer = (function(Installer, $) {
     function hostnameHtml(id) {
         return ('<div class="row">' +
             '<div class="leftCol hostname">' +
-              '<input class="input" type="text" autocomplete="off" value="" ' +
+              '<input class="input ipOrFqdn" type="text" autocomplete="off" ' +
+              'value="" ' +
               'name="useless" placeholder="[IP or FQDN]">' +
               '<div class="bar">Host '+id+'.</div>' +
             '</div>' +
             '<div class="rightCol status">' +
               '<span class="curStatus">' +
-                'Lollipop icing chocolate cake tart gingerbread carrot cake.' +
+                '----' +
               '</span>' +
             '</div>' +
         '</div>');
@@ -408,33 +512,43 @@ window.Installer = (function(Installer, $) {
     function verifyKey(key) {
         var deferred = jQuery.Deferred();
         // Make async call here
-        /**
+ 
         checkLicense(key)
-        .then(function(numLicensed) {
-            deferred.resolve({"verified": true,
-                              "numServers": numLicensed});
+        .then(function(ret) {
+            if (ret === Status.Ok) {
+                deferred.resolve({"verified": true});
+            } else {
+                deferred.resolve({"verified": false});
+            }
         })
         .fail(function() {
-            deferred.resolve({"verified": false});
+            deferred.reject();
         });
-        */
-        // we fake da shit for now
-
-        if (key === "1234123412341234") {
-            deferred.resolve({"verified": true,
-                              "numServers": numServers});
-        } else {
-            deferred.resolve({"verified": false});
-        }
         return deferred.promise();
+    }
+
+    function addMovingDots($ele) {
+        var text = $ele.text().trim();
+        var html = '<div class="animatedEllipsisWrapper">' +
+                        '<div class="text">' +
+                            text +
+                        '</div>' +
+                        '<div class="animatedEllipsis">' +
+                          '<div>.</div>' +
+                          '<div>.</div>' +
+                          '<div>.</div>' +
+                        '</div>' +
+                    '</div>';
+        $ele.html(html);
     }
 
     function executeFinalArray() {
         var deferred = jQuery.Deferred();
-        console.log(finalStruct);
+
         // Send to backend for checking. clear up screen until we get ack / deny
         $(".credentialSection").hide();
         $(".credentialSection").prev().hide();
+        $("#numServers").prop("disabled", "true");
         // Remove all empty hostnames from screen. This happens when they don't
         // use all the licenses they bought
         var hostnames = $(".row:not(.header)");
@@ -446,26 +560,42 @@ window.Installer = (function(Installer, $) {
 
         $("#installButton").val("INSTALLING...")
                            .addClass("inactive");
-        sendCommand(Api.runPrecheck)
+        $(".row .curStatus").text("Installing...");
+        $("input.back").hide();
+        $("input.cancel").removeClass("hidden");
+        sendCommand(Api.runInstaller)
         .then(function() {
             return (getStatus(Api.checkStatus));
         })
         .then(function() {
-            return (sendCommand(Api.runInstaller));
-        })
-        .then(function() {
-            return (getStatus(Api.checkStatus));
-        })
-        .then(function() {
-            return (finalize());
+            // This function redirects and does not return.
+            finalize();
         })
         .fail(function() {
             $(".credentialSection").show();
             $(".credentialSection").prev().show();
             $(".row:not(.header)").show();
+            $("#numServers").prop("disabled", false);
             $("#installButton").val("INSTALL")
                                .removeClass("inactive");
-            deferred.reject(arguments[1], arguments[2]);
+            $("input.back").removeClass("inactive");
+            $("input.back").show();
+            $("input.cancel").addClass("hidden");
+            $("input.cancel").removeClass("inactive");
+            setTimeout(function() {
+                $(".animatedEllipsis").remove();
+            });
+            for (i = 0; i<$(".row .curStatus").length; i++) {
+                var status = $(".row .curStatus").eq(i).text();
+                if (status.indexOf("(") === -1) {
+                    continue;
+                }
+                var revS = status.split('').reverse().join('');
+                var endIndex = status.length - revS.indexOf("(");
+                var noStatus = status.substring(0, endIndex-1);
+                $(".row .curStatus").eq(i).text(noStatus+"(Cancelled)");
+            }
+            deferred.reject("Failed to install", arguments[1]);
         });
 
         return deferred.promise();
@@ -476,15 +606,13 @@ window.Installer = (function(Installer, $) {
         var struct = new ApiStruct(Api.checkLicense, {"licenseKey": license});
         sendViaHttps(struct, function(ret) {
             if (ret.status === Status.Ok) {
-                // depending on how we want to finally do it
-                // We can do ret.numNodes
-                deferred.resolve(numServers);
+                deferred.resolve(Status.Ok);
             } else {
-                deferred.reject(ret);
+                deferred.resolve(Status.Error);
             }
-        }, function() {
+        }, function(ret, textStatus, xhr) {
             console.error(arguments);
-            deferred.reject(arguments[1], arguments[2]);
+            deferred.reject();
         });
         return deferred.promise();
     }
@@ -498,9 +626,11 @@ window.Installer = (function(Installer, $) {
             } else {
                 deferred.reject(ret);
             }
-        }, function() {
+        }, function(ret, textStatus, xhr) {
             console.error(arguments);
-            deferred.reject(arguments[1], arguments[2]);
+            deferred.reject("Connection Error",
+                            "Connection to server cannot be established. " +
+                            "Please contact Xcalar Support.");
         });
         return deferred.promise();
     }
@@ -514,24 +644,53 @@ window.Installer = (function(Installer, $) {
         statusApi = api;
 
         intervalTimer = setInterval(function() {
-            var struct = new ApiStruct(statusApi, finalStruct);
-            console.log(statusApi, api);
-            sendViaHttps(struct, function(ret) {
-                console.log(ret);
-                if (ret.status === Status.Done) {
-                    clearInterval(intervalTimer);
-                    deferred.resolve();
-                } else if (ret.status === Status.Error) {
-                    clearInterval(intervalTimer);
-                    deferred.reject("Status Error",
-                                    JSON.stringify(ret.retVal));
-                }
-                updateStatus(ret.retVal);
-            }, function() {
+            var struct;
+            if (cancel) {
+                /**
+                // Handle not being able to cancel
+                struct = new ApiStruct(Api.cancelInstall, finalStruct);
+                sendViaHttps(struct, function(ret) {
+                    if (ret.status === Status.Ok) {
+                        deferred.resolve();
+                    } else {
+                        deferred.reject(ret);
+                    }
+                }, function(ret, textStatus, xhr) {
+                    console.error(arguments);
+                    deferred.reject("Connection Error",
+                                    "Connection to server cannot be " +
+                                    "established. " +
+                                    "Please contact Xcalar Support.");
+                });
+                */
+                deferred.reject("Cancelled", "Installation cancelled");
+                cancel = false;
+                $("input.cancel").val("CANCEL");
                 clearInterval(intervalTimer);
-                console.error(arguments);
-                deferred.reject(arguments[1], arguments[2]);
-            });
+
+            } else {
+                struct = new ApiStruct(statusApi, finalStruct);
+                sendViaHttps(struct, function(ret) {
+                    console.log(ret);
+                    if (ret.status === Status.Done) {
+                        clearInterval(intervalTimer);
+                        deferred.resolve();
+                    } else if (ret.status === Status.Error) {
+                        clearInterval(intervalTimer);
+                        deferred.reject("Status Error",
+                                        JSON.stringify(ret.retVal));
+                    }
+                    updateStatus(ret.retVal);
+                }, function(ret, textStatus, xhr) {
+                    clearInterval(intervalTimer);
+                    console.error(arguments);
+
+                    deferred.reject("Connection Error",
+                                    "Connection to server cannot be " +
+                                    "established. " +
+                                    "Please contact Xcalar Support.");
+                });
+            }
         }, checkInterval);
         return deferred.promise();
     }
@@ -540,7 +699,10 @@ window.Installer = (function(Installer, $) {
         // We expect to get an array that is of hostnames.length back
         // All of them are formatted into strings so just display
         for (var i = 0; i<retVal.length; i++) {
-            $(".row .curStatus").text(retVal[i]);
+            $(".row .curStatus").eq(i).text(retVal[i]);
+            if (retVal[i].indexOf("(Done)") === -1) {
+                addMovingDots($(".row .curStatus").eq(i));
+            }
         }
         // XXX In the future we can color code and do all that cool stuff
     }
@@ -550,7 +712,6 @@ window.Installer = (function(Installer, $) {
         // Maybe we can remove the installer here?
         // Redirect to first node's index
         window.location = "http://" + finalStruct.hostnames[0];
-        return PromiseHelper.resolve();
     }
 
     return (Installer);

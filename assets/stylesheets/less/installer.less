@@ -1,5 +1,6 @@
 @import "partials/mixins/common.less";
 @import "partials/icon.less";
+@import "partials/basic.less";
 @div-width: 650px;
 
 html, body {
@@ -8,8 +9,7 @@ html, body {
     padding: 0;
     min-height: 100%;
     min-width: 780px; 
-    min-height: 100%;
-    min-width: 100%; 
+    height: 100%;
     font: 13px @font-base;
     font-weight: 600;
     .box-sizing;
@@ -51,13 +51,11 @@ form {
 }
 
 .container {
-    height: 700px;
-    
+    height: ~"calc(100% - 240px)";
 }
 
 .outerWrap {
     width: 100%;
-
 
     header {
         .size(@width: @div-width, @height: 50px);
@@ -90,12 +88,18 @@ form {
             .font(@size: 14px, @line-height: 24px);
         }
     }
+
+    &#bottomSection {
+        padding-top: 15px;
+        height: 100%;
+        overflow: auto;
+    }
+
 }
 
 #loadingBar {
     .size(@width: 100%, @height: 1px);
     background-color: @color-border-softBlue;
-    margin-bottom: 15px;
     position: relative;
     overflow: hidden;
 
@@ -181,7 +185,9 @@ form {
     }
 }
 
-
+.animatedEllipsis > div {
+    margin-left: 1px !important;
+}
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -235,8 +241,18 @@ input:-webkit-autofill:focus {
     }
 
     .hidden {
-        display: none;
+        display: none !important;
         .transition(all 0.5s);
+    }
+
+    #numServers {
+        outline: none;
+        margin-left: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        color: @color-white;
+        padding-left: 10px;
+        width: 100px;
+        font-size: 15px;
     }
 
     .section {
@@ -320,8 +336,6 @@ input:-webkit-autofill:focus {
             &:focus {
                 .font(@color: @color-white);
                 outline: none;
-                padding-top: 4px;
-                margin-top: 13px;
 
                 &::after {
                     background-color: @color-white;
@@ -404,6 +418,7 @@ input:-webkit-autofill:focus {
         }
 
         &.hostnameSection {
+            width: 100%;
             display: inline-block;
             .row {
                 width: 100%;
@@ -430,12 +445,13 @@ input:-webkit-autofill:focus {
                 }
                 .leftCol {
                     position: relative;
-                    width: 50%;
+                    width: 40%;
                     float: left;
 
                 }
                 .rightCol {
-                    width: 50%;
+                    overflow: visible;
+                    width: 60%;
                     float: left;
                 }
             }
@@ -534,11 +550,16 @@ input:-webkit-autofill:focus {
         float: right;
         margin-left: 10px;
         margin-top: 36px;
+        margin-bottom: 10px;
         .transition(all 0.2s);
         outline: none;
 
+        &:focus {
+            background-color: rgba(0,0,0,0.2);
+        }
+
         &:hover {
-            background-color: rgba(0,0,0,0.1);
+            background-color: rgba(0,0,0,0.2);
         }
         &:active {
             border-color: @color-border-activeBlue !important;
