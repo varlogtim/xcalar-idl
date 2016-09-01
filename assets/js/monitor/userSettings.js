@@ -45,7 +45,6 @@ window.UserSettings = (function($, UserSettings) {
         var deferred = jQuery.Deferred();
 
         userPrefs.update();
-        updateMainTabs();
 
         var shouldCommit = hasDSChange || userPrefChangeCheck();
 
@@ -179,24 +178,10 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     function restoreMainTabs() {
-        for (var tab in userPrefs.mainTabs) {
-            var $button = $('#' + userPrefs.mainTabs[tab]).click();
-            // need to mannually do this <->
-            $button.siblings().removeClass("active");
-            $button.addClass("active");
-        }
         // XX xi2 hack for making worksheet initial screen
         $("#workspaceTab").click();
     }
 
-    function updateMainTabs() {
-        userPrefs.mainTabs.monitor = $('#monitorTab')
-                                        .find('.subTab.active').attr('id');
-        userPrefs.mainTabs.dataStores = $('#dataStoresTab')
-                                        .find('.subTab.active').attr('id');
-        userPrefs.mainTabs.scheduler = $('#schedulerTab')
-                                        .find('.subTab.active').attr('id');
-    }
     UserSettings.restoreMainTabs = restoreMainTabs;
 
     return (UserSettings);

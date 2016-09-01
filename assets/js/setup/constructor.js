@@ -514,12 +514,6 @@ function UserPref(options) {
     this.hideDataCol = options.hideDataCol || false;
     this.memoryLimit = options.memoryLimit || 70;
     this.monitorGraphInterval = options.monitorGraphInterval || 3;
-    this.mainTabs = options.mainTabs || {
-        monitor   : 'systemButton',
-        dataStores: 'inButton',
-        scheduler : 'dataflowButton',
-        extensions: 'xcExtensionButton'
-    };
     this.activeMainTab = options.activeMainTab || "workspaceTab";
 
     return this;

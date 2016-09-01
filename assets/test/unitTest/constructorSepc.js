@@ -289,7 +289,7 @@ describe('Constructor Test', function() {
     it('UserPref should be a constructor', function() {
         var userPref = new UserPref();
         expect(userPref).to.be.an('object');
-        expect(Object.keys(userPref).length).to.equal(8);
+        expect(Object.keys(userPref).length).to.equal(7);
 
         expect(userPref).to.have.property('datasetListView');
         expect(userPref).to.have.property('browserListView');
@@ -300,8 +300,6 @@ describe('Constructor Test', function() {
         .and.to.equal(70);
         expect(userPref).to.have.property('monitorGraphInterval')
         .and.to.equal(3);
-        expect(userPref).to.have.property('mainTabs')
-        .and.to.be.an('object');
         expect(userPref).to.have.property('activeMainTab')
         .and.to.equal('workspaceTab');
 
