@@ -690,7 +690,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         ' placeholder="' + inputHint + '"' +
                         ' spellcheck="false">' +
                         '<div class="picker">' +
-                            '<i class="icon fa-13 xi-select-column"></i>' +
+                            '<i class="icon fa-13 xi_select-column"></i>' +
                         '</div>' +
                     '</div>' +
                 '</div>';

@@ -95,9 +95,7 @@
 		}
 
 		.vertBar {
-			height: 100%;
 			width: 70px;
-			
 		}
 
 		.content {
@@ -448,6 +446,8 @@
 
 				.transform(translateX(100%));
 				.transition(0.2s transform);
+				// temp fix for Safari
+				-webkit-transition: -webkit-transform 0.2s;
 
 				&:hover {
 					.icon {
@@ -456,27 +456,22 @@
 				}
 
 				&:nth-child(1) {
-					transition-delay: 0.35s;
-					transition-delay: 0.20s;
+					.transition-delay(0.20s);
 					border-top-width: 0px;
 				}
 
 				&:nth-child(2) {
-					transition-delay: 0.25s;
-					transition-delay: 0.15s;
+					.transition-delay(0.15s);
 				}
 
 				&:nth-child(3) {
-					transition-delay: 0.15s;
-					transition-delay: 0.10s;
+					.transition-delay(0.10s);
 				}
 
 				&:nth-child(4) {
-					transition-delay: 0.05s;
+					.transition-delay(0.05s);
 				}
 			}
-
-			
 
 			.icon {
 				line-height: @tabHeight;
@@ -493,21 +488,18 @@
 
 		&:hover {
 			.tab {
-				transform: translateY(0%);
+				.transform(translateY(0%));
 				&:nth-child(1) {
-					transition-delay: 0.05s;
+					.transition-delay(0.05s);
 				}
 				&:nth-child(2) {
-					transition-delay: 0.15s;
-					transition-delay: 0.10s;
+					.transition-delay(0.10s);
 				}
 				&:nth-child(3) {
-					transition-delay: 0.25s;
-					transition-delay: 0.15s;
+					.transition-delay(0.15s);
 				}
 				&:nth-child(4) {
-					transition-delay: 0.35s;
-					transition-delay: 0.20s;
+					.transition-delay(0.20s);
 				}
 			}
 		}

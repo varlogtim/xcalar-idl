@@ -3697,7 +3697,7 @@ window.OperationsView = (function($, OperationsView) {
                         'spellcheck="false" data-typeid="-1" ' +
                         'data-casted="false" data-casttype="null">' +
                       '<div class="argIconWrap btn btn-small">' +
-                        '<i class="icon xi-select-column"></i>' +
+                        '<i class="icon xi_select-column"></i>' +
                       '</div>' +
                       '<div class="list hint new">' +
                         '<ul></ul>' +
@@ -3795,7 +3795,7 @@ window.OperationsView = (function($, OperationsView) {
                           '" type="text" tabindex="10" ' +
                             'spellcheck="false" data-typeid="-1">' +
                           '<div class="argIconWrap btn btn-small">' +
-                            '<i class="icon xi-select-column"></i>' +
+                            '<i class="icon xi_select-column"></i>' +
                           '</div>' +
                           '<div class="list hint new">' +
                            '<ul></ul>' +
