@@ -18,7 +18,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                                 '<input class="paramVal" spellcheck="false" disabled/>' +
                                 '<div class="options">' +
                                     '<div class="option paramEdit">' +
-                                        '<span class="icon"></span>' +
+                                        '<i class="fa-15 icon xi-edit"></i>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
