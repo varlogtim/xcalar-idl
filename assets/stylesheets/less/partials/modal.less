@@ -332,6 +332,9 @@
             .prettyJson {
                 background-color: @color-json-project-bg;
             }
+            .jsonCheckbox {
+                display: block;
+            }
             .jArray  {
                 > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
                     cursor: default;
@@ -721,6 +724,13 @@
     .jsonBlock {
         display:block;
         margin-bottom: 1px;
+        position: relative; // for inner checkbox positioning
+    }
+
+    .jsonCheckbox {
+        .position(absolute, @top: 3px, @left: -15px);
+        height: 16px;
+        display: none;
     }
 
     .jKey {

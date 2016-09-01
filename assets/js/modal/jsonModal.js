@@ -176,6 +176,11 @@ window.JSONModal = (function($, JSONModal) {
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
 
+        $jsonArea.on('click', '.jsonCheckbox', function() {
+            var $key = $(this).siblings('.jKey');
+            selectJsonKey($key);
+        });
+
         $jsonArea.on("click", ".compareIcon", function() {
             compareIconSelect($(this));
         });
@@ -394,6 +399,7 @@ window.JSONModal = (function($, JSONModal) {
         var $jsonWrap = $btn.closest('.jsonWrap');
         $jsonWrap.find('.jObject').children().children().children('.jKey')
                  .removeClass('projectSelected');
+        $jsonWrap.find('.jsonCheckbox').removeClass('checked');
         $jsonWrap.find('.submitProject').addClass('disabled');
         $jsonWrap.find('.clearAll').addClass('disabled');
         var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
@@ -415,6 +421,7 @@ window.JSONModal = (function($, JSONModal) {
             // $el.closest('.jInfo').data('key');
             if ($el.hasClass('projectSelected')) {
                 $el.removeClass('projectSelected');
+                $el.siblings('.jsonCheckbox').removeClass('checked');
                 if ($jsonWrap.find('.projectSelected').length === 0) {
                     $jsonWrap.find('.submitProject').addClass('disabled');
                     $jsonWrap.find('.clearAll').addClass('disabled');
@@ -422,6 +429,7 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 if ($el.parent('.jArray').length === 0) {
                     $el.addClass('projectSelected');
+                    $el.siblings('.jsonCheckbox').addClass('checked');
                     $jsonWrap.find('.submitProject').removeClass('disabled');
                     $jsonWrap.find('.clearAll').removeClass('disabled');
                 }
@@ -857,7 +865,9 @@ window.JSONModal = (function($, JSONModal) {
             }
             notObject = true;
         } else {
-            prettyJson = prettifyJson(jsonObj, null, {inarray: isArray});
+            var checkboxes = true;
+            prettyJson = prettifyJson(jsonObj, null, checkboxes, 
+                                      {inarray: isArray});
             prettyJson = '<div class="jObject"><span class="jArray jInfo">' +
                          prettyJson +
                          '</span></div>';
@@ -1032,7 +1042,7 @@ window.JSONModal = (function($, JSONModal) {
                     html += '<div class="unmatched">';
                 }
                 for (var k = 0; k < arrLen; k++) {
-                    html += prettifyJson(jsons[obj][matchType][k], null,
+                    html += prettifyJson(jsons[obj][matchType][k], null, null,
                                          {comparison: true});
                 }
                 html += '</div>';
@@ -1312,7 +1322,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function prettifyJson(obj, indent, options) {
+    function prettifyJson(obj, indent, checkboxes, options) {
         if (typeof obj !== "object") {
             return (JSON.stringify(obj));
         }
@@ -1377,7 +1387,7 @@ window.JSONModal = (function($, JSONModal) {
                         value =
                         '[<span class="jArray jInfo ' + emptyArray + '" ' +
                             'data-key="' + dataKey + '">' +
-                            prettifyJson(value, indent, options) +
+                            prettifyJson(value, indent, null, options) +
                         '</span>],';
                     } else {
                         var object = prettifyJson(value,
@@ -1413,8 +1423,14 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 value = value.replace(/,$/, "");
                 result +=
-                    '<div class="jsonBlock jInfo" data-key="' + dataKey + '">' +
-                        indent +
+                    '<div class="jsonBlock jInfo" data-key="' + dataKey + '">';
+                if (checkboxes) {
+                    result += '<div class="checkbox jsonCheckbox">' +
+                                '<i class="icon xi-ckbox-empty fa-11"></i>' + 
+                                '<i class="icon xi-ckbox-selected fa-11"></i>' + 
+                              '</div>';
+                }
+                result += indent +
                         '"<span class="jKey text">' + dataKey + '</span>": ' +
                         value + ',' +
                     '</div>';
