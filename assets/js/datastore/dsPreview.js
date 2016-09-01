@@ -1178,6 +1178,12 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getPreviewTable() {
+        if (rawData == null) {
+            // error case
+            errorHandler(DSFormTStr.NoData);
+            return;
+        }
+
         $previeWrap.find(".errorSection").addClass("hidden");
         $previeWrap.find(".loadHidden").removeClass("hidden");
         $highlightBtns.addClass("hidden");
