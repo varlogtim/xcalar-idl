@@ -16,6 +16,7 @@ window.OperationsView = (function($, OperationsView) {
     var operatorName = ""; // group by, map, filter, aggregate, etc..
     var funcName = "";
     var operatorsMap = {};
+    var filteredOperatorsMap = {};
     var categoryNames = [];
     var functionsMap = {};
     var $lastInputFocused;
@@ -101,6 +102,58 @@ window.OperationsView = (function($, OperationsView) {
         // INPUT AND DROPDOWN LISTENERS
 
         // for map
+        
+        $('#mapFilter').on('input', function() {
+            var val = $(this).val();
+            var valTrimmed = val.trim();
+            if (valTrimmed.length) {
+                filterTheMapFunctions(valTrimmed);
+            } else if (val.length === 0) {
+                $categoryList.find('li').removeClass('filteredOut');
+                // $categoryList.find('li').eq(0).click();
+                updateMapFunctionsList($categoryList.find('li').eq(0));
+            } else {
+                // blank but with spaces, do nothing
+            }
+        });
+
+        $('#mapFilter').on('keydown', function(event) {
+            if (event.which === keyCode.Down ||
+                event.which === keyCode.Up) {
+                event.preventDefault();
+                if ($categoryList.find('li.active').length === 0) {
+                    $categoryList.find('li').eq(0).click();
+                    return;
+                }
+            }
+            if (event.which === keyCode.Down) {
+                $categoryList.find('li.active').nextAll('li:visible')
+                                               .eq(0).click();
+            } else if (event.which === keyCode.Up) {
+                $categoryList.find('li.active').prevAll('li:visible')
+                                               .eq(0).click();
+            }
+
+            // position the scrollbar
+            var $activeLi = $categoryList.find('li.active');
+            if (!$activeLi.length) {
+                return;
+            }
+            var liTop = $activeLi.position().top;
+            var liBottom = liTop + $activeLi.height();
+            var categoryHeight = $categoryList.height();
+            if (liBottom > (categoryHeight + 5) || liTop < -5) {
+                var position = liTop + $categoryList.scrollTop();
+                $categoryList.scrollTop(position - (categoryHeight / 2));
+            }
+        });
+
+        $operationsView.find('.filterMapFuncArea .clear').mousedown(function() {
+            if ($('#mapFilter').val() !== "") {
+                $('#mapFilter').val("").trigger('input');
+            }
+        });
+
         $categoryList.on('click', 'li', function() {
             if ($(this).hasClass('active')) {
                 return; // do not update functions list if clicking on same li
@@ -134,6 +187,10 @@ window.OperationsView = (function($, OperationsView) {
             }
 
             $nextInput.focus();
+        });
+
+        $functionsList.scroll(function() {
+            $('.tooltip').hide(); 
         });
 
         // .functionsInput
@@ -902,6 +959,13 @@ window.OperationsView = (function($, OperationsView) {
             }
             operatorsMap[opArray[i].category].push(opArray[i]);
         }
+        // sort each set of operators by name
+        for (var i = 0; i < operatorsMap.length; i++) {
+            operatorsMap[i].sort(sortFn);
+        }
+        function sortFn(a, b){
+            return (a.fnName) > (b.fnName) ? 1 : -1;
+        }
     }
 
     function udfUpdateOperatorsMap(opArray) {
@@ -910,6 +974,12 @@ window.OperationsView = (function($, OperationsView) {
         if (opArray.length === 0) {
             delete operatorsMap[udfCategoryNum];
             return;
+        }
+
+        opArray.sort(sortFn);
+
+        function sortFn(a, b){
+            return (a.fnName) > (b.fnName) ? 1 : -1;
         }
 
         operatorsMap[udfCategoryNum] = [];
@@ -1221,8 +1291,6 @@ window.OperationsView = (function($, OperationsView) {
 
             return (matches.length > 0);
         }
-
-       
     }
 
     function showErrorMessage(inputNum, groupNum) {
@@ -1252,7 +1320,12 @@ window.OperationsView = (function($, OperationsView) {
         // var index = categoryNames.indexOf(category);
         
         var categoryNum = $li.data('category');
-        var ops = functionsMap[categoryNum];
+        var ops;
+        if ($('#mapFilter').val().trim() !== "") {
+            ops = filteredOperatorsMap[categoryNum];
+        } else {
+            ops = functionsMap[categoryNum];
+        }
 
         var html = "";
         var numOps = ops.length;
@@ -1270,7 +1343,7 @@ window.OperationsView = (function($, OperationsView) {
 
         var $list = $(html);
         $functionsList.empty();
-        $list.sort(sortHTML).prependTo($functionsList);
+        $list.prependTo($functionsList);
         $functionsList.data('category', category);
 
         $activeOpSection.find('.argsSection')
@@ -3558,6 +3631,9 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function resetForm() {
+        // clear filter map function input
+        $('#mapFilter').val("");
+
         // clear function list input
         $operationsView.find('.functionsInput').attr('placeholder', "")
                                                .data('value', "")
@@ -3772,6 +3848,44 @@ window.OperationsView = (function($, OperationsView) {
         .animate({scrollTop: scrollTop}, animSpeed, function() {
 
         });
+    }
+
+    function filterTheMapFunctions(val) {
+        var categorySet;
+        var categories = {};
+        filteredOperatorsMap = {};
+        var categoryNums = {};
+        var fn;
+        var firstCategoryNumFound;
+        var filtere
+        for (var i = 0; i < operatorsMap.length; i++) {
+            categorySet = operatorsMap[i];
+            for (var j = 0; j < categorySet.length; j++) {
+                fn = categorySet[j];
+                if (fn.fnName.indexOf(val) > -1) {
+                    if (!filteredOperatorsMap[fn.category]) {
+                        filteredOperatorsMap[fn.category] = [];
+                    }
+                    categoryNums[fn.category] = true;
+                    filteredOperatorsMap[fn.category].push(fn);
+                    if (firstCategoryNumFound == null) {
+                        firstCategoryNumFound = fn.category;
+                    }
+                }
+            }
+        }
+
+        if (firstCategoryNumFound != null) {
+            $categoryList.find('li').addClass('filteredOut');
+            for (var i in categoryNums) {
+                $categoryList.find('li[data-category="' + i + '"]')
+                             .removeClass('filteredOut');
+            }
+            updateMapFunctionsList($categoryList.find('li:visible').eq(0));
+        } else {
+            $categoryList.find('li').addClass('filteredOut');
+            $functionsList.find('li').addClass('filteredOut');
+        }
     }
 
     function removeFilterGroup($group, all) {

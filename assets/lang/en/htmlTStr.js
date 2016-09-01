@@ -661,7 +661,8 @@ module.exports = {
         "funcToGroup": "Function to apply to group",
         "joinBack": "Join table back to original",
         "includeSample": "Include a sample of the rest of the fields",
-        "aggFunc": "Aggregate Function"
+        "aggFunc": "Aggregate Function",
+        "mapFilter": "Filter map functions"
     },
 
     "extOpsModal": {

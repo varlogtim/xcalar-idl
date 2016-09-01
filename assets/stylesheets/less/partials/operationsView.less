@@ -13,6 +13,7 @@
 	@listHeight: 26px;
 	@headingHeight: 30px;
 	@standardFontSize: 12px;
+	@commonMargin: 10px; // margin left used on text and input padding
 
 	.input-box (100%, @listHeight);
 
@@ -74,7 +75,7 @@
 	    }
 	    li {
 	    	font-size: @standardFontSize;
-	    	padding-left: 6px;
+	    	padding-left: @commonMargin;
 	    }
     }
 
@@ -102,7 +103,7 @@
     	li {
     		.size(100%, @listHeight);
     		line-height: @listHeight;
-    		padding-left: 6px;
+    		padding-left: @commonMargin;
     		border-bottom: 1px solid @color-border-pinkish-grey2;
     		cursor: pointer;
 
@@ -175,8 +176,11 @@
 			width: 50%;
 			height: @headingHeight;
 			line-height: @headingHeight + 4;
-			padding-left: 6px;
+			padding-left: @commonMargin;
 			font-weight: 700;
+		}
+		> .focusTable {
+			padding-left: 6px;
 		}
 		.altFnTitle {
 			display: none;
@@ -207,9 +211,10 @@
 			height: @listHeight * 5 - 1px;
 			overflow: auto;
 			padding-bottom: 6px;
+			position: relative; // easier to find li scroll position
 
 			&:first-child {
-				border-right: 1px solid #EEEEEE;
+				border-right: 1px solid @color-border-pinkish-grey2;
 			}
 
 			li {
@@ -218,8 +223,12 @@
 				background-color: @color-white;
 				border-bottom: 1px solid @color-border-pinkish-grey2;
 				cursor: pointer;
-				padding-left: 6px;
+				padding-left: @commonMargin;
 				.textOverflowOneLine;
+
+				&.filteredOut {
+					display: none;
+				}
 
 				&:hover {
 					background-color: fade(@color-bg-light-blue-grey, 40%);
@@ -232,7 +241,7 @@
 	}
 
 	.descriptionText, .strPreview {
-		padding: 10px 4px 4px 6px;
+		padding: 10px 4px 4px @commonMargin;
 	}
 
 	.strPreview {
@@ -440,6 +449,7 @@
 		}
 		.description {
 			padding: 6px;
+			padding-left: @commonMargin;
 			padding-bottom: 4px;
 			line-height: 14px;
 			font-weight: 700;
@@ -459,7 +469,7 @@
 
 			.label {
 				font-weight: 700;
-				margin-left: 6px;
+				margin-left: @commonMargin;
 				float: left;
 				display: inline-block;
 				width: 40px;
@@ -527,7 +537,7 @@
 			.arg {
 				height: @listHeight;
 				width: ~"calc(100% - 26px)";
-				padding-left: 6px;
+				padding-left: @commonMargin;
 				font-size: @standardFontSize;
 				float: left;
 				// border: 1px solid @color-border-pinkish-grey2;
@@ -575,7 +585,7 @@
 	    	.noSelection;
 	    	
 	    	.checkbox {
-	    		margin-left: 6px;
+	    		margin-left: @commonMargin;
 	    		margin-right: 6px;
 	    		margin-top: 5px;
 	    		float: left;
@@ -584,7 +594,7 @@
 	}
 
 	.addArgWrap {
-		padding-left: 6px;
+		padding-left: @commonMargin;
 		.btn {
 			.size(@listHeight, @listHeight);
     		padding: 0px;
@@ -596,7 +606,7 @@
 		}
 		.text {
 			font-size: @standardFontSize;
-			margin-left: 6px;
+			margin-left: @commonMargin;
 		} 
 	}
 
@@ -611,6 +621,7 @@
 	@title-height: 40px;
 	@listHeight: 26px;
 	@standardFontSize: 12px;
+	@commonMargin: 10px;
 	.dropDownList {
         .styleDropDownList(100%, @listHeight);
 
@@ -621,7 +632,7 @@
         .text {
             .size(@width: 100%, @height: @listHeight);
             padding-right: 26px;
-            padding-left: 6px;
+            padding-left: @commonMargin;
             .input-placeholder(@color-text-placeholder);
             text-transform: capitalize;
             background-color: @color-white;
@@ -751,7 +762,7 @@
     		margin-top: 10px;
     		.xi-cancel {
     			position: absolute;
-    			left: 2px;
+    			left: 4px;
     			top: 7px;
     			color: @color-font-warm-grey-two;
     			font-size: 14px;
@@ -772,7 +783,37 @@
     }
 
     .map {
-    	
+    	.filterMapFuncArea {
+    		position: relative;
+    		.clear {
+                display: none;
+                .size(@width: 20px, @height: 30px);
+                .position(absolute, @top: 14px, @right: 11px);
+
+                .icon {
+                    color: @color-font-greyish-brown;
+
+                    &:before {
+                        display: block;
+                        .position(relative, @top: 3px, @left: 3px);
+                    }
+                }
+            }
+    	}
+    	#mapFilter {
+    		width: ~"calc(100% - 20px)";
+    		margin-left: 10px;
+    		margin-top: 14px;
+
+            &:focus {
+                ~ .clear {
+                    display: block;
+                }
+            }
+    	}
+    	.catFuncHeadings {
+    		margin-top: 4px;
+    	}
     }
 }
 @media screen and (min-height: 750px) {
@@ -799,6 +840,7 @@
 #joinView {
 	@listHeight: 26px;
 	@standardFontSize: 12px;
+	@commonMargin: 10px;
 
 	.opSection {
 		padding-bottom: 60px;
@@ -819,7 +861,7 @@
 
 	input {
 		.size(100%, @listHeight);
-		padding-left: 6px;
+		padding-left: @commonMargin;
 	}
 	button {
 		display: block;
@@ -1165,10 +1207,11 @@
 #exportView, #dfCreateView {
 	@listHeight: 26px;
 	@standardFontSize: 12px;
+	@commonMargin: 10px;
 
 	input {
 		.size(100%, @listHeight);
-		padding-left: 6px;
+		padding-left: @commonMargin;
 	}
 	.dropDownList {
 		input {
@@ -1283,6 +1326,9 @@
         }
 
         .advancedTitle {
+        	> div {
+        		width: 100%;
+        	}
         	.text {
         		font-weight: 700;
         		cursor: pointer;
@@ -1378,7 +1424,7 @@
 
         	.icon {
                 color: @color-font-darkGray;
-        		margin-left: 6px;
+        		margin-left: @commonMargin;
         		font-size: 16px;
         		position: relative;
         		top: 2px;
