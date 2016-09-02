@@ -3,9 +3,11 @@ var WalkThroughTStr = {
         // Workbook Demo
         // Following struct defines order which the steps get played.
         // If step's name is not here, it will not get played!
-        '_order': ['w1-workbookBut', 'w1-topMenu', 'w1-workspaceBut', 'w1-datastoresBut',
-                   'w1-monitorBut', 'w1-df', 'w1-activeWs', 'w1-inactiveWs', 'w1-newWs', 'w1-view', 'w1-bottomMenu', 'w1-extensions',
-                   'w1-log', 'w1-udf', 'w1-help', 'w1-save', 'w1-user'],
+        '_order': ['w1-workbookBut', 'w1-topMenu', 'w1-workspaceBut',
+                   'w1-datastoresBut', 'w1-monitorBut', 'w1-df', 'w1-activeWs',
+                   'w1-inactiveWs', 'w1-newWs', 'w1-view', 'w1-bottomMenu',
+                   'w1-extensions', 'w1-log', 'w1-udf', 'w1-help', 'w1-save',
+                   'w1-user'],
         'w1-topMenu': 'This is the top menu. The buttons here change the contents of what you are viewing.',
         'w1-workbookBut': 'This is your workbook browser button. Click to open if you want to switch to another workbook. Your current workbook will be automatically saved.',
         'w1-workspaceBut': 'This is shows your current workbook\'s active worksheet. You can have multiple worksheets in a single workbook.',
@@ -28,8 +30,9 @@ var WalkThroughTStr = {
         // Datastore Demo Part 1
         // Following struct defines order which the steps get played.
         // If step's name is not here, it will not get played!
-        '_order': ['w2-newDs', 'w2-browseDs', 'w2-dsPath', 'w2-next', 'w2-dsName',
-                   'w2-dsFormat', 'w2-dsOptions', 'w2-refresh', 'w2-redetect', 'w2-dsConfirm'],
+        '_order': ['w2-newDs', 'w2-browseDs', 'w2-dsPath', 'w2-next',
+                   'w2-dsName',  'w2-dsFormat', 'w2-dsOptions', 'w2-refresh',
+                   'w2-redetect', 'w2-dsConfirm'],
         'w2-newDs': 'Click this button to point to a new dataset then follow the steps on the right panel.',
         'w2-browseDs': 'The browse button will enable you to browse through your files to select the dataset.',
         'w2-dsPath': 'You can also enter the path for your dataset here.',
@@ -47,18 +50,19 @@ var WalkThroughTStr = {
         // If step's name is not here, it will not get played!
         '_order': ['w3-dsIcon', 'w3-dsInfo', 'w3-dataType', 'w3-addCol',
                    'w3-selectAll', 'w3-selectedCol', 'w3-newTableName',
-                   'w3-clearCart', 'w3-createTable', 'w3-createFolder',
-                   'w3-folder', 'w3-deleteFolder', 'w3-changeView'],
-        'w3-dsIcon': 'This icon represents a dataset once it has been read. By clicking on the icon, you will be able to see its corresponding data on the right side (As in this example).',
+                   'w3-clearCart', 'w3-createTable', 'w3-selectWorksheet',
+                   'w3-createFolder', 'w3-folder', 'w3-deleteFolder',
+                   'w3-changeView'],
+        'w3-dsIcon': 'This icon represents a dataset once a dataset reference has been created. By clicking on the icon, you will be able to see its corresponding data on the right side (As in this example).',
         'w3-dsInfo': 'This area shows you all the information regarding the selected dataset.',
         'w3-dataType': 'This is the data type of the column. Possible values are decimal, string, etc.',
         'w3-addCol': 'To select a column that you want to add to your worksheet, click on the column header. The selected column gets highlighted and added to the data cart on the right.',
         'w3-selectAll': 'You can choose to select or deselect all of the columns in the dataset, or you can select the columns later.',
-        'w3-selectedCol': 'These are all the selected columns. Deselect a column by clicking on the cross beside the column name.',
-        // 'This is the name of the soon-to-be created table containing all the selected columns. Click on the existing name to make changes.<br/><br/>You can create more than one table by selecting columns from different datasets. To select a different dataset, you can click on Import New Dataset and follow the same procedure or click on another already loaded dataset.',
+        'w3-selectedCol': 'These are all the selected columns. Deselect a column by clicking on the trash icon beside the column name.',
         'w3-newTableName': 'This is the name of the soon-to-be created table containing all the selected columns. Click on the existing name to make changes.',
         'w3-clearCart': 'Clicking this button will clear the data cart of columns previously selected.',
-        'w3-createTable': 'Clicking this button will create the tables using the selected columns and add them to your active worksheet.',
+        'w3-createTable': 'Clicking this button will create the tables using the selected columns and add them to the worksheet that you have selected above.',
+        'w3-selectWorksheet': 'Click on the dropdown to select a different worksheet to send the newly created table to.',
         'w3-createFolder': 'In order to organize your datasets, you can create new folders by clicking this icon.',
         'w3-folder': 'This is a folder. The number on it specifies the number of datasets inside the folder. You can change the name of the folder by double-clicking on the existing name.',
         'w3-deleteFolder': 'Right-click on a folder or dataset to delete it.',

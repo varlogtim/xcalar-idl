@@ -16,10 +16,14 @@
   </div>
   <div class="buttonSection">
     <!-- worksheet list -->
-    <div class="dropDownWrap">
+    <div class="dropDownWrap" <%= (dicts.tutor.name == 'datastoreDemo2') ? 'data-introstep="w3-selectWorksheet"' : '' %> >
       <div class="title"><%= dicts.dsCart.SendTo %>:</div>
       <div id="dataCartWSList" class="dropDownList">
+        <% if (dicts.tutor.name == "datastoreDemo2") { %>
+        <input class="text" type="text" value="Sheet 1" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
+        <% } else { %>
         <input class="text" type="text" value="" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
+        <% }%>
         <div class="iconWrapper">
           <i class="icon xi-arrow-down"></i>
         </div>
