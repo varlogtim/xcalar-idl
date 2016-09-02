@@ -182,8 +182,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
                     DfFormatTypeTStr[format] + ", maxSampleSize = " +
                     maxSampleSize.toString() + "recursive = " +
 		    loadArgs.recursive + ", fileNamePattern = " +
-		    loadArgs.fileNamePattern + ", isRegex = " +
-            loadArgs.isRegex + ")");
+		    loadArgs.fileNamePattern + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
                         "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +

@@ -29409,6 +29409,35 @@ function xcalarGroupByWorkItem(srcTableName, dstTableName, groupByEvalStr,
     return (workItem);
 }
 
+function xcalarGroupByWithWorkItem(thriftHandle, workItem) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarGroupBy(srcTableName = " + srcTableName +
+                    ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
+                    groupByEvalStr + ", newFieldName = " + newFieldName +
+                    ", icvMode = " + icvMode + ")");
+    }
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var groupByOutput = result.output.outputResult.groupByOutput;
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(groupByOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGroupBy() caught exception: " + error);
+        deferred.reject(error);
+    });
+    return (deferred.promise());
+}
+
 function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
                        newFieldName, includeSrcSample, icvMode) {
     var deferred = jQuery.Deferred();
@@ -29617,6 +29646,36 @@ function xcalarApiMapWorkItem(evalStr, srcTableName, dstTableName,
     workItem.input.mapInput.newFieldName = newFieldName;
     workItem.input.mapInput.icvMode = icvMode;
     return (workItem);
+}
+
+function xcalarApiMapWithWorkItem(thriftHandle, workItem) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiMap(newFieldName = " + newFieldName +
+                    ", evalStr = " + evalStr + ", srcTableName = " +
+                    srcTableName + ", dstTableName = " + dstTableName +
+                    ", icvMode = " + icvMode + ")");
+    }
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result){
+        var mapOutput = result.output.outputResult.mapOutput;
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(mapOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiMap() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
 }
 
 function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
