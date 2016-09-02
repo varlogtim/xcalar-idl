@@ -79,12 +79,8 @@ window.WSManager = (function($, WSManager) {
             var undoneTables = ws.undoneTables;
             // XX undoneTables property may not exist in old UI version
             if (undoneTables) {
-                // when we're initializing workbook we don't want undone tables
-                // so we push them into the orphaned tables list
                 for (var i = 0; i < undoneTables.length; i++) {
-                    ws.orphanedTables.push(undoneTables[i]);
                     tableIdToWSIdMap[undoneTables[i]] = wsId;
-                    ws.undoneTables = [];
                 }
             } else {
                 // xx temp fix for old UI versions that do not have undone 
@@ -254,8 +250,6 @@ window.WSManager = (function($, WSManager) {
             "oldName"       : oldName,
             "newName"       : name
         });
-
-        StatusMessage.updateLocation();
     };
 
     // For reorder table use

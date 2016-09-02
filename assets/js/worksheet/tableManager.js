@@ -672,11 +672,17 @@ window.TblManager = (function($, TblManager) {
             if (!noLog) {
                 Transaction.done(txId);
             }
+            if (tableType === TableType.Undone) {
+                KVStore.commit();
+            }
             deferred.resolve();
         })
         .fail(function() {
             var success = tableDeleteFailHandler(arguments, tables, noAlert, txId);
             if (success) {
+                if (tableType === TableType.Undone) {
+                    KVStore.commit();
+                }
                 deferred.resolve(arguments);
             } else {
                 deferred.reject(arguments);
@@ -696,12 +702,13 @@ window.TblManager = (function($, TblManager) {
                 table.unlock();
                 table.beOrphaned();
             }
-            if (table.getType() === TableType.Undone) {
-                table.beOrphaned();
-            }
 
             gTables[tableId] = table;
         }
+        // since we are not storing any redo states on start up, we should
+        // drop any tables that were undone since there's no way to go forward
+        // to reach them
+        WSManager.dropUndoneTables();
     };
 
     TblManager.pullRowsBulk = function(tableId, jsonObj, startIndex, dataIndex,
@@ -1155,7 +1162,7 @@ window.TblManager = (function($, TblManager) {
                 errorMsg = fails[0].error + ". " + tablesMsg;
                 Alert.error(StatusMessageTStr.PartialDeleteTableFail, errorMsg);
             }
-        } else {
+        } else if (noAlert) {
             Transaction.fail(txId, {
                 "error"  : fails[0].error + ". " + ErrTStr.NoTablesDeleted,
                 "failMsg": StatusMessageTStr.DeleteTableFailed,
@@ -2625,6 +2632,7 @@ window.TblManager = (function($, TblManager) {
                 WSManager.removeTable(tableId);
                 delete gTables[tableId];
             }
+
             deferred.resolve();
         })
         .fail(deferred.reject);

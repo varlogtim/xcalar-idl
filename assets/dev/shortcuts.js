@@ -142,12 +142,17 @@ window.Shortcuts = (function($, Shortcuts) {
         if (!localStorage.autoLogin || JSON.parse(localStorage.autoLogin)) {
             var count = 0;
             var wbInterval = setInterval(function() {
-                if ($('#workbookModal').is(':visible')) {
+                if ($('#workbookPanel').is(':visible')) {
                     var num = Math.ceil(Math.random() * 1000);
                     var wbName = "WB" + num;
-                    $('#workbookInput').val(wbName);
-                    $('#workbookModal').find('.confirm').click();
+                    $('.newWorkbookBox input').val(wbName);
+                    $('.newWorkbookBox button').click(); 
                     clearInterval(wbInterval);
+                    setTimeout(function() {
+                        $('.workbookBox[data-workbook-id*="' + wbName + '"]')
+                        .find('.activate').click();
+                    }, 400);
+                    
                 } else {
                     count++;
                     if (count > 10) {
