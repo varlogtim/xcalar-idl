@@ -56,7 +56,7 @@
            
           </div>
           <!-- refresh -->
-          <button id="dsForm-refresh" type="button" class="btn iconBtn">
+          <button id="dsForm-refresh" type="button" class="btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-refresh"' : '' %> >
             <i class="icon xi-refresh fa-17"></i>
             <%= dicts.dsForm.Refresh %>
           </button>
@@ -131,7 +131,7 @@
             </div>
           </div>
           <!-- auto detect -->
-          <button id="dsForm-detect" type="button" class="btn iconBtn">
+          <button id="dsForm-detect" type="button" class="btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-redetect"' : '' %> >
             <i class="icon xi-magic-wand fa-17"></i>
             <%= dicts.dsForm.REDETECT %>
           </button>

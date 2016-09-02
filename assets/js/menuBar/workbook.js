@@ -729,12 +729,12 @@ window.Workbook = (function($, Workbook) {
             var options = {
                 ignoreHidden: false,
                 onNextStep  : function(introObj) {
-                    if (introObj.currentStep === 4) {
+                    if (introObj.currentStep === 5) {
                         dsDemo1ToggleForm(true);
                     }
                 },
                 onPrevStep: function(introObj) {
-                    if (introObj.currentStep === 3) {
+                    if (introObj.currentStep === 4) {
                         dsDemo1ToggleForm(false);
                     }
                 },
