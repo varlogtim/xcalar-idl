@@ -99,7 +99,7 @@ window.SQL = (function($, SQL) {
         return (sqlToCommit !== "") || (logCursor !== logs.length - 1);
     };
 
-    SQL.restore = function(isKVEmpty) {
+    SQL.restore = function(oldLogCursor, isKVEmpty) {
         var deferred = jQuery.Deferred();
 
         if (isKVEmpty) {
@@ -109,7 +109,7 @@ window.SQL = (function($, SQL) {
 
         var newErrors = errors;
 
-        restoreLogs()
+        restoreLogs(oldLogCursor)
         .then(function() {
             return restoreErrors(newErrors);
         })
@@ -186,6 +186,10 @@ window.SQL = (function($, SQL) {
         .fail(deferred.reject);
 
         return (deferred.promise());
+    };
+
+    SQL.getCursor = function() {
+        return logCursor;
     };
 
     SQL.getLogs = function() {
@@ -451,7 +455,7 @@ window.SQL = (function($, SQL) {
         return (deferred.promise());
     }
 
-    function restoreLogs() {
+    function restoreLogs(oldLogCursor) {
         var deferred = jQuery.Deferred();
         var oldLogs = [];
 
@@ -473,10 +477,16 @@ window.SQL = (function($, SQL) {
             }
         })
         .then(function() {
-            oldLogs.forEach(function(oldSQL) {
-                var sql = new XcLog(oldSQL);
+            if (oldLogCursor == null || oldLogCursor > oldLogs.length) {
+                // error case
+                console.error("Loose old cursor track");
+                oldLogCursor = oldLogs.length - 1;
+            }
+
+            for (var i = 0; i <= oldLogCursor; i++) {
+                var sql = new XcLog(oldLogs[i]);
                 addLog(sql, true);
-            });
+            }
 
             deferred.resolve();
         })

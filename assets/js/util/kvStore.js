@@ -147,7 +147,7 @@ window.KVStore = (function($, KVStore) {
         var deferred = jQuery.Deferred();
 
         var gInfos = {};
-
+        var oldLogCursor;
         // If the ephmeral datastructure is corrupt, we move ahead with the
         // rest of the restore since ephemeral isn't that important
         KVStore.getAndParse(KVStore.gEphStorageKey, gKVScope.EPHM)
@@ -180,15 +180,16 @@ window.KVStore = (function($, KVStore) {
                     TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
                     DSCart.restore(gInfos[METAKeys.CART]);
                     Profile.restore(gInfos[METAKeys.STATS]);
-                    // CLIBox.restore(gInfos[METAKeys.CLI]);
+                    oldLogCursor = gInfos[METAKeys.LOGC];
 
                     DFG.restore(gInfos[EMetaKeys.DFG]);
                     Scheduler.restore(gInfos[EMetaKeys.SCHE]);
 
+
                     if (isEmpty) {
                         console.info("KVStore is empty!");
                     } else {
-                        return SQL.restore();
+                        return SQL.restore(oldLogCursor);
                     }
                 } catch (error) {
                     console.error(error);
@@ -205,7 +206,7 @@ window.KVStore = (function($, KVStore) {
             });
         }
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     KVStore.emptyAll = function(localEmpty) {

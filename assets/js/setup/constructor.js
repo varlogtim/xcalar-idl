@@ -453,11 +453,9 @@ function getMETAKeys() {
         "TI"   : "TILookup",
         "WS"   : "worksheets",
         "AGGS" : 'aggregates',
-        // "CLI"  : "scratchPad",
         "CART" : "datacarts",
-        "STATS": "statsCols"
-        //"DFG"  : "DFG",
-        //"SCHE" : "schedule"
+        "STATS": "statsCols",
+        "LOGC" : "sqlcursor"
     };
 }
 
@@ -470,6 +468,7 @@ function METAConstructor(METAKeys) {
     // this[METAKeys.CLI] = CLIBox.getCli(); // string
     this[METAKeys.CART] = DSCart.getCarts();
     this[METAKeys.STATS] = Profile.getCache();
+    this[METAKeys.LOGC] = SQL.getCursor();
     return this;
 
     function savegTables() {
