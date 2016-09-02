@@ -254,6 +254,8 @@ window.WSManager = (function($, WSManager) {
             "oldName"       : oldName,
             "newName"       : name
         });
+
+        StatusMessage.updateLocation();
     };
 
     // For reorder table use
