@@ -19,7 +19,7 @@
 <!-- Top Menu Bar -->
 <div id="menuBar" class="clearfix no-selection">
   <!-- maiu menu-->
-  <div id="topMenuBarTabs" class="clearfix">
+  <div id="topMenuBarTabs" class="clearfix" <%= (dicts.tutor.name == 'workbookDemo') ? 'data-introstep="w1-topMenu"' : '' %> >
     <!-- workspance tab -->
     <% if (!dicts.isTutor) { %>
     <div id="workspaceTab" class="topMenuBarTab active">
@@ -123,7 +123,7 @@
     <% } %>
 
     <!-- scheduler tab -->
-    <div id="schedulerTab" class="topMenuBarTab mainMenuOpen" >
+    <div id="schedulerTab" class="topMenuBarTab mainMenuOpen" <%= (dicts.tutor.name == 'workbookDemo') ? 'data-introstep="w1-df"' : '' %> >
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.schde %>">
         <i class="icon xi-menu-scheduler fa-20"></i>
       </div>
@@ -138,6 +138,37 @@
   <!-- end main menu -->
 
   <!-- start bottom menu -->
+  <% if (dicts.tutor.name == "workbookDemo") { %>
+  <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix" data-introstep="w1-bottomMenu">
+    <!-- extension tab -->
+    <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-extensions">
+      <div class="mainTab">
+        <i class="icon xi-menu-extension fa-25"></i>
+      </div>
+    </div>
+
+    <!-- sql -->
+    <div id="sqlTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-log">
+      <div class="mainTab">
+        <i class="icon xi-menu-sql fa-25"></i>
+      </div>
+    </div>
+    
+    <!-- udf -->
+    <div id="udfTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-udf">
+      <div class="mainTab">
+        <i class="icon xi-menu-udf fa-25"></i>
+      </div>
+    </div>
+  
+    <!-- help section -->
+    <div id="helpTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-help">
+      <div class="mainTab">
+        <i class="icon xi-menu-info fa-25"></i>
+      </div>
+    </div>
+  </div>
+  <% } else { %>
   <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix">
     <!-- extension tab -->
     <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
@@ -161,24 +192,13 @@
     </div>
   
     <!-- help section -->
-    <% if (dicts.tutor.name == "workbookDemo") { %>
-
-    <div id="helpTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-help">
-      <div class="mainTab">
-        <i class="icon xi-menu-info fa-25"></i>
-      </div>
-    </div>
-
-    <% } else { %>
-
     <div id="helpTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.bottomBar.help %>">
       <div class="mainTab">
         <i class="icon xi-menu-info fa-25"></i>
       </div>
     </div>
-      
-    <% } %>
   </div>
+  <% } %>
 </div>
 <!-- End of Menu Bar -->
 include "mainMenu.html"

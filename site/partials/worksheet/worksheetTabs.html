@@ -13,7 +13,11 @@
     </i>
     <i class="minimizeBtn icon xi-close fa-15"></i>
     <!-- switch to table list -->
+    <% if (dicts.tutor.name == "workbookDemo") { %>
+    <i id="tableListTab" class="right icon xi-menu-table-list fa-20" data-introstep="w1-view"></i>
+    <% } else { %>
     <i id="tableListTab" class="right icon xi-menu-table-list fa-20" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.TblList %>"></i>
+    <% } %>
 </div>
 <header class="titleSection"><%= dicts.menuBar.ws %></header>
 <div id="worksheetListSection" class="mainSection">

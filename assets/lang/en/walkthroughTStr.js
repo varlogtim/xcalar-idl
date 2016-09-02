@@ -3,18 +3,26 @@ var WalkThroughTStr = {
         // Workbook Demo
         // Following struct defines order which the steps get played.
         // If step's name is not here, it will not get played!
-        '_order': ['w1-workbookBut', 'w1-workspaceBut', 'w1-datastoresBut',
-                   'w1-monitorBut', 'w1-activeWs', 'w1-inactiveWs', 'w1-newWs',
-                   'w1-help', 'w1-user'],
+        '_order': ['w1-workbookBut', 'w1-topMenu', 'w1-workspaceBut', 'w1-datastoresBut',
+                   'w1-monitorBut', 'w1-df', 'w1-activeWs', 'w1-inactiveWs', 'w1-newWs', 'w1-view', 'w1-bottomMenu', 'w1-extensions',
+                   'w1-log', 'w1-udf', 'w1-help', 'w1-save', 'w1-user'],
+        'w1-topMenu': 'This is the top menu. The buttons here change the contents of what you are viewing.',
         'w1-workbookBut': 'This is your workbook browser button. Click to open if you want to switch to another workbook. Your current workbook will be automatically saved.',
-        'w1-workspaceBut': 'This shows your current workbook. You can have multiple worksheets in a single workbook.',
-        'w1-datastoresBut': 'This is the data stores button. Click this button to point to new datasets and add them to your current worksheet.',
-        'w1-monitorBut': 'This is your monitor button, where you will be able to view your machine’s usage statistics such as RAM, CPU etc.',
+        'w1-workspaceBut': 'This is shows your current workbook\'s active worksheet. You can have multiple worksheets in a single workbook.',
+        'w1-datastoresBut': 'This is the data stores button. Click this button to point to new datasets and add them to your worksheet.',
+        'w1-monitorBut': 'This is your monitor button, where you will be able to view the progress of your running queries and your machine’s statistics.',
+        'w1-df': 'This is your dataflow button, where you will be able to manage your dataflows and run them.',
         'w1-activeWs': 'This is your current active worksheet. You can rename it by double-clicking the current name or by clicking the ellipsis on the right.',
         'w1-inactiveWs': 'This is your inactive worksheet tab. You may have many inactive worksheets. To delete the worksheet, click the ellipsis on the right.',
         'w1-newWs': 'Clicking this icon will add new worksheets to your workbook.',
+        'w1-view': 'Click here to toggle between worksheet list and table list.',
+        'w1-bottomMenu': 'This is the bottom menu. The buttons here supplement the contents of what you are viewing.',
+        'w1-extensions': 'This is the extensions button. Invoke extensions from here.',
+        'w1-log': 'This is the log button. Click here to view your logs.',
+        'w1-udf': 'This is an editor for you to modify your python UDFs before uploading them.',
         'w1-help': 'This is the help icon. You can type your question here to search through the help topics, watch videos or start a step-by-step walk through.',
-        'w1-user': 'This is the user icon. You may sign out by clicking it.'
+        'w1-save': 'This is the save button. Your workbooks are automically saved every few minutes. However if you want to manually save, you can click on this button.',
+        'w1-user': 'This is the user icon. You may sign out by clicking it and selecting sign out.'
     },
     'w2': {
         // Datastore Demo Part 1
