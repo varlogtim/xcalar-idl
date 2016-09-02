@@ -14986,15 +14986,11 @@ XcalarApiPreviewOutputT.prototype.write = function(output) {
 
 XcalarApiBulkLoadInputT = function(args) {
   this.dataset = null;
-  this.maxSize = null;
   this.loadArgs = null;
   this.dagNodeId = null;
   if (args) {
     if (args.dataset !== undefined) {
       this.dataset = args.dataset;
-    }
-    if (args.maxSize !== undefined) {
-      this.maxSize = args.maxSize;
     }
     if (args.loadArgs !== undefined) {
       this.loadArgs = args.loadArgs;
@@ -15027,13 +15023,6 @@ XcalarApiBulkLoadInputT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.maxSize = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
       if (ftype == Thrift.Type.STRUCT) {
         this.loadArgs = new XcalarApiDfLoadArgsT();
         this.loadArgs.read(input);
@@ -15041,7 +15030,7 @@ XcalarApiBulkLoadInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 4:
+      case 3:
       if (ftype == Thrift.Type.I64) {
         this.dagNodeId = input.readI64().value;
       } else {
@@ -15064,18 +15053,13 @@ XcalarApiBulkLoadInputT.prototype.write = function(output) {
     this.dataset.write(output);
     output.writeFieldEnd();
   }
-  if (this.maxSize !== null && this.maxSize !== undefined) {
-    output.writeFieldBegin('maxSize', Thrift.Type.I64, 2);
-    output.writeI64(this.maxSize);
-    output.writeFieldEnd();
-  }
   if (this.loadArgs !== null && this.loadArgs !== undefined) {
-    output.writeFieldBegin('loadArgs', Thrift.Type.STRUCT, 3);
+    output.writeFieldBegin('loadArgs', Thrift.Type.STRUCT, 2);
     this.loadArgs.write(output);
     output.writeFieldEnd();
   }
   if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
-    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 4);
+    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 3);
     output.writeI64(this.dagNodeId);
     output.writeFieldEnd();
   }
@@ -28276,8 +28260,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
                     DfFormatTypeTStr[format] + ", maxSampleSize = " +
                     maxSampleSize.toString() + "recursive = " +
 		    loadArgs.recursive + ", fileNamePattern = " +
-		    loadArgs.fileNamePattern + ", isRegex = " +
-            loadArgs.isRegex + ")");
+		    loadArgs.fileNamePattern + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
                         "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +

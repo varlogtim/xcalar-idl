@@ -19,7 +19,7 @@ WorkItem = function() {
 }
 
 function xcalarConnectThrift(hostname, port) {
-    var thriftUrl = "http://" + hostname + ":" + port.toString() +
+    var thriftUrl = hostname + ":" + port.toString() +
         "/thrift/service/XcalarApiService/";
 
     console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")")
@@ -182,8 +182,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
                     DfFormatTypeTStr[format] + ", maxSampleSize = " +
                     maxSampleSize.toString() + "recursive = " +
 		    loadArgs.recursive + ", fileNamePattern = " +
-		    loadArgs.fileNamePattern + ", isRegex = " +
-            loadArgs.isRegex + ")");
+		    loadArgs.fileNamePattern + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
                         "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +
