@@ -71,7 +71,7 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var exitType = $(this).data('exittype')
+            var exitType = $(this).data('exittype');
             switch (exitType) {
                 case ('export'):
                     ExportView.close();

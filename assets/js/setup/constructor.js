@@ -45,7 +45,7 @@ function MouseEvents() {
         return $lastMouseDownTarget;
     };
     this.getLastMouseDownTargets = function() {
-        return lastMouseDownTargets;  
+        return lastMouseDownTargets;
     };
 
     this.getLastClickTarget = function() {

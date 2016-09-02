@@ -130,11 +130,9 @@ window.TblManager = (function($, TblManager) {
 
     function setTablesToReplace(oldTableNames, worksheet, tablesToReplace,
                                 tablesToRemove) {
-        var oldTableIds = [];
-
-        for (var i = 0, len = oldTableNames.length; i < len; i++) {
-            oldTableIds.push(xcHelper.getTableId(oldTableNames[i]));
-        }
+        var oldTableIds = oldTableNames.map(function(oldName) {
+            return xcHelper.getTableId(oldName);
+        });
 
         if (oldTableNames.length === 1) {
             // only have one table to remove
@@ -144,9 +142,8 @@ window.TblManager = (function($, TblManager) {
             // that is the target worksheet
             // var targetTable;
             var wsTables = WSManager.getWSById(worksheet).tables;
-            var index;
             for (var i = 0, len = wsTables.length; i < len; i++) {
-                index = oldTableIds.indexOf(wsTables[i]);
+                var index = oldTableIds.indexOf(wsTables[i]);
                 if (index > -1) {
                     tablesToReplace.push(oldTableNames[index]);
                     break;
@@ -163,15 +160,13 @@ window.TblManager = (function($, TblManager) {
             }
         }
 
-        var oldTableId;
-        for (var i = 0, len = oldTableIds.length; i < len; i++) {
-            oldTableId = oldTableIds[i];
-            if (tablesToRemove.indexOf(oldTableId) < 0) {
+        oldTableIds.forEach(function(oldTableId) {
+            if (!tablesToRemove.includes(oldTableId)) {
                 // if oldTableId alredy exists (like self join)
                 // not add again
                 tablesToRemove.push(oldTableId);
             }
-        }
+        });
     }
 
     /*
@@ -1482,7 +1477,7 @@ window.TblManager = (function($, TblManager) {
                                         var $th = $table
                                         .find('th.col' + options.selectCol[i]);
                                         highlightColumn($th, true);
-                                    }                                
+                                    }
                                 } else {
                                     $table.find('th.col' + options.selectCol +
                                             ' .flexContainer').mousedown();
@@ -1561,10 +1556,10 @@ window.TblManager = (function($, TblManager) {
                         var $th = $table
                         .find('th.col' + options.selectCol[i]);
                         highlightColumn($th, true);
-                    }                                
+                    }
                 } else {
-                     $table.find('th.col' + (options.selectCol) +
-                            ' .flexContainer').trigger(mousedown);
+                    $table.find('th.col' + (options.selectCol) +
+                                ' .flexContainer').trigger(mousedown);
                 }
             }
         }

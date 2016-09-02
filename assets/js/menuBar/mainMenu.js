@@ -96,23 +96,23 @@ window.MainMenu = (function($, MainMenu) {
 
     MainMenu.getState = function() {
         var state = {
-            isPoppedOut: BottomMenu.isPoppedOut(),
-            isTopOpen: isMenuOpen,
-            isBottomOpen: BottomMenu.isMenuOpen(),
-            $activeTopSection: $mainMenu.find('.commonSection.active'),
+            isPoppedOut         : BottomMenu.isPoppedOut(),
+            isTopOpen           : isMenuOpen,
+            isBottomOpen        : BottomMenu.isMenuOpen(),
+            $activeTopSection   : $mainMenu.find('.commonSection.active'),
+            $activeBottomSection: $('#bottomMenu').find('.menuSection.active'),
             $activeWorkspaceMenu: $("#workspaceMenu")
-                                   .find('.menuSection:not(.xc-hidden)'),
-            $activeBottomSection: $('#bottomMenu').find('.menuSection.active')
+                                   .find('.menuSection:not(.xc-hidden)')
         };
         return (state);
     };
 
     MainMenu.setFormOpen = function() {
-        isFormOpen = true;  
+        isFormOpen = true;
     };
 
     MainMenu.setFormClose = function() {
-        isFormOpen = false;  
+        isFormOpen = false;
     };
 
     // xx currently only supporting form views in the worksheet panel
@@ -120,12 +120,12 @@ window.MainMenu = (function($, MainMenu) {
         // ignoreRestoreState is temporarily set when mainMenu tab is clicked
         // and form is open
         if (!ignoreRestoreState) {
-             var noAnim;
+            var noAnim;
             if (prevState.isBottomOpen && !BottomMenu.isMenuOpen()) {
                 BottomMenu.openSection(prevState.$activeBottomSection.index());
             }
             if (isMenuOpen && !prevState.isTopOpen) {
-                var noAnim = false;
+                noAnim = false;
                 if (prevState.isBottomOpen) {
                     noAnim = true;
                 }

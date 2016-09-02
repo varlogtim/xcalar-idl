@@ -253,7 +253,7 @@ window.JoinView = (function($, JoinView) {
                     $joinView.find('.rightColHeading .selectAll')
                              .removeClass('checked');
                 }
-            } else if ($li.siblings().length === 
+            } else if ($li.siblings().length ===
                        $li.siblings('.checked').length) {
                 if ($li.closest('ul').hasClass('leftCols')) {
                     $joinView.find('.leftColHeading .selectAll')
@@ -411,7 +411,7 @@ window.JoinView = (function($, JoinView) {
     JoinView.show = function(tableId, colNum, restore, restoreTime) {
         if (restoreTime && restoreTime !== formOpenTime) {
             // if restoreTime and formOpenTime do not match, it means we're
-            // trying to restore a form to a state that's already been 
+            // trying to restore a form to a state that's already been
             // overwritten
             return;
         }
@@ -1134,11 +1134,12 @@ window.JoinView = (function($, JoinView) {
         return true;
 
         function proceedWithJoin(leftRenames, rightRenames) {
+            var keepTable = $joinView.find('.keepTablesCBWrap')
+                                    .find('.checkbox').hasClass('checked');
             var options = {
                 keepLeftCols : lColsToKeep,
                 keepRightCols: rColsToKeep,
-                keepTables   : $joinView.find('.keepTablesCBWrap')
-                                    .find('.checkbox').hasClass('checked'),
+                keepTables   : keepTable,
                 formOpenTime : formOpenTime
             };
 

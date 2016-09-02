@@ -49,13 +49,12 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.Filter] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        TblManager.refreshTable([options.tableName], null, 
-            [options.newTableName], worksheet, {
+        TblManager.refreshTable([options.tableName], null, [options.newTableName], worksheet, {
             isUndo: true,
             from  : "noSheet"
         })
         .then(function() {
-            // show filter form if filter was triggered from the form and was 
+            // show filter form if filter was triggered from the form and was
             // the most recent operation
             if (isMostRecent && options.formOpenTime) {
                 OperationsView.show(null, null, null, true,
@@ -81,7 +80,7 @@ window.Undo = (function($, Undo) {
         .then(function() {
             // show map form if map was triggered from the form and was the
             // most recent operation
-            if (isMostRecent && 
+            if (isMostRecent &&
                 (options.mapOptions && options.mapOptions.formOpenTime)) {
                 OperationsView.show(null, null, null, true,
                                     options.mapOptions.formOpenTime);
@@ -156,11 +155,12 @@ window.Undo = (function($, Undo) {
 
         // var tableId = xcHelper.getTableId(firstTable.name);
         // WSManager.removeTable(tableId);
-        TblManager.refreshTable([firstTable.name], null, [options.newTableName], 
-                                firstTable.worksheet, {
-                                            "isUndo"  : true,
-                                            "position": firstTable.position
-        })
+        var firstTableOpt = {
+            "isUndo"  : true,
+            "position": firstTable.position
+        };
+        TblManager.refreshTable([firstTable.name], null, [options.newTableName],
+                                firstTable.worksheet, firstTableOpt)
         .then(function() {
             if (isSelfJoin) {
                 if (isMostRecent && options.formOpenTime) {
@@ -168,11 +168,12 @@ window.Undo = (function($, Undo) {
                 }
                 deferred.resolve();
             } else {
-                TblManager.refreshTable([secondTable.name], null, [], 
-                                        secondTable.worksheet, {
+                var secondTableOpt = {
                     "isUndo"  : true,
                     "position": secondTable.position
-                })
+                };
+                TblManager.refreshTable([secondTable.name], null, [],
+                                        secondTable.worksheet, secondTableOpt)
                 .then(function() {
                     if (isMostRecent && options.formOpenTime) {
                         JoinView.show(null, null, true, options.formOpenTime);
@@ -201,7 +202,7 @@ window.Undo = (function($, Undo) {
             promise = TblManager.sendTableToOrphaned(tableId, {'remove': true});
         }
         promise.then(function() {
-            if (isMostRecent && 
+            if (isMostRecent &&
                 (options.options && options.options.formOpenTime)) {
                 OperationsView.show(null, null, null, true,
                                     options.options.formOpenTime);

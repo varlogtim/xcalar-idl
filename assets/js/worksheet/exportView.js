@@ -61,13 +61,13 @@ window.ExportView = (function($, ExportView) {
                 // scroll to the advanced section
                 var advSectionTop = $advancedSection.position().top;
                 var expTitleHeight = $exportView.find('header').height();
-                if (advSectionTop > expTitleHeight) { 
+                if (advSectionTop > expTitleHeight) {
                     var $opSection = $exportView.find('.opSection');
                     var scrollTop = advSectionTop - $opSection.position().top;
-                   $exportView.find('.mainContent').animate(
-                        {scrollTop: scrollTop}, 500);
+                    $exportView.find('.mainContent').animate({
+                        scrollTop: scrollTop}, 500
+                    );
                 }
-                
             } else {
                 $advancedSection.addClass('collapsed').removeClass('expanded');
             }

@@ -22,14 +22,14 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var sql = {
-            "operation" : SQLOps.Filter,
-            "tableName" : tableName,
-            "tableId"   : tableId,
-            "colName"   : frontColName,
-            "colNum"    : colNum,
-            "fltOptions": fltOptions,
+            "operation"   : SQLOps.Filter,
+            "tableName"   : tableName,
+            "tableId"     : tableId,
+            "colName"     : frontColName,
+            "colNum"      : colNum,
+            "fltOptions"  : fltOptions,
             "formOpenTime": formOpenTime,
-            "htmlExclude": ["formOpenTime"]
+            "htmlExclude" : ["formOpenTime"]
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Filter + ': ' + frontColName,
@@ -375,7 +375,7 @@ window.xcFunction = (function($, xcFunction) {
             "worksheet"   : worksheet,
             "keepTables"  : options.keepTables,
             "formOpenTime": options.formOpenTime,
-            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet", 
+            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet",
                              "keepTables", "formOpenTime"]
         };
 
@@ -661,10 +661,10 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // map a column
-    // mapOptions: replaceColumn - boolean, if true, will replace an existing 
+    // mapOptions: replaceColumn - boolean, if true, will replace an existing
     //                             column rather than create a new one
-    //             formOpenTime  - int, if map is triggered from form, this 
-    //                              is a timestamp for when the form opened, 
+    //             formOpenTime  - int, if map is triggered from form, this
+    //                              is a timestamp for when the form opened,
     //                              used for undo
     xcFunction.map = function(colNum, tableId, fieldName, mapString, mapOptions,
                               icvMode) {
@@ -677,13 +677,13 @@ window.xcFunction = (function($, xcFunction) {
 
         var worksheet = WSManager.getWSFromTable(tableId);
         var sql = {
-            "operation" : SQLOps.Map,
-            "tableName" : tableName,
-            "tableId"   : tableId,
-            "colNum"    : colNum,
-            "fieldName" : fieldName,
-            "mapString" : mapString,
-            "mapOptions": mapOptions,
+            "operation"  : SQLOps.Map,
+            "tableName"  : tableName,
+            "tableId"    : tableId,
+            "colNum"     : colNum,
+            "fieldName"  : fieldName,
+            "mapString"  : mapString,
+            "mapOptions" : mapOptions,
             "htmlExclude": ["mapOptions"]
         };
         var txId = Transaction.start({

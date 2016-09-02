@@ -866,7 +866,7 @@ window.JSONModal = (function($, JSONModal) {
             notObject = true;
         } else {
             var checkboxes = true;
-            prettyJson = prettifyJson(jsonObj, null, checkboxes, 
+            prettyJson = prettifyJson(jsonObj, null, checkboxes,
                                       {inarray: isArray});
             prettyJson = '<div class="jObject"><span class="jArray jInfo">' +
                          prettyJson +
@@ -1285,8 +1285,8 @@ window.JSONModal = (function($, JSONModal) {
                                     'style="opacity:0;"></div>');
 
                 $tableWrap.find('.xcTbodyWrap').append($tableCover);
-                $tableWrap.each(function () {
-                    var tableHeight = $(this).find('.xcTable').height();
+                $tableWrap.each(function() {
+                    // var tableHeight = $(this).find('.xcTable').height();
                     var tbodyHeight = $(this).find('.xcTable tbody').height();
                     $(this).find('.tableCover.jsonCover')
                            .height(tbodyHeight + 1);
@@ -1427,8 +1427,8 @@ window.JSONModal = (function($, JSONModal) {
                     '<div class="jsonBlock jInfo" data-key="' + dataKey + '">';
                 if (checkboxes) {
                     result += '<div class="checkbox jsonCheckbox">' +
-                                '<i class="icon xi-ckbox-empty fa-11"></i>' + 
-                                '<i class="icon xi-ckbox-selected fa-11"></i>' + 
+                                '<i class="icon xi-ckbox-empty fa-11"></i>' +
+                                '<i class="icon xi-ckbox-selected fa-11"></i>' +
                               '</div>';
                 }
                 result += indent +

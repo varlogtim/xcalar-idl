@@ -949,7 +949,7 @@ function moveTableTitles($tableWraps, options) {
                         center = ((mainFrameWidth - titleWidth) / 2) +
                                  mainFrameOffsetLeft - rectLeft;
                     } else { // right side of table is visible
-                        center = tableWidth - ((rectRight + titleWidth - 
+                        center = tableWidth - ((rectRight + titleWidth -
                                                 mainFrameOffsetLeft) / 2);
                         // prevents title from going off the right side of table
                         center = Math.min(center, tableWidth - titleWidth - 6);
@@ -1049,8 +1049,7 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
 }
 
 function focusTable(tableId, focusDag) {
-    if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS())
-    {
+    if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS()) {
         if ((SQL.isRedo() || SQL.isUndo()) && SQL.viewLastAction() !== "Join") {
             var wsToFocus = WSManager.getWSFromTable(tableId);
             var activeWS = WSManager.getActiveWS();
@@ -1326,15 +1325,15 @@ function unhideOffScreenTables() {
     $tableWraps.width('auto');
     $tableWraps.removeClass('inViewPort hollowed');
      //vertically align any locked table icons
-        var mainFrameHeight = $('#mainFrame').height();
-        $('.tableLocked:visible').each(function() {
-            var $tableWrap = $(this);
-            // var tableHeight = $tableWrap.find('.xcTable').height();
-            var tbodyHeight = $tableWrap.find('tbody').height() + 1;
-            var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
-            var topPos = 100 * ((tableWrapHeight / mainFrameHeight) / 2);
-            topPos = Math.min(topPos, 40);
-            $tableWrap.find('.lockedIcon').css('top', topPos + '%');
-            $tableWrap.find('.tableCover').height(tbodyHeight);
-        });
+    var mainFrameHeight = $('#mainFrame').height();
+    $('.tableLocked:visible').each(function() {
+        var $tableWrap = $(this);
+        // var tableHeight = $tableWrap.find('.xcTable').height();
+        var tbodyHeight = $tableWrap.find('tbody').height() + 1;
+        var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
+        var topPos = 100 * ((tableWrapHeight / mainFrameHeight) / 2);
+        topPos = Math.min(topPos, 40);
+        $tableWrap.find('.lockedIcon').css('top', topPos + '%');
+        $tableWrap.find('.tableCover').height(tbodyHeight);
+    });
 }

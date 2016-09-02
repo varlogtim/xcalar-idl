@@ -463,7 +463,7 @@ window.QueryManager = (function(QueryManager, $) {
                     subQueryCheckHelper(mainQuery.subQueries[currStep], id,
                                         currStep, doNotAnimate);
                     // only stop animation the first time, do not persist it
-                    doNotAnimate = false; 
+                    doNotAnimate = false;
                 }
             })
             .fail(function(error) {
@@ -669,7 +669,7 @@ window.QueryManager = (function(QueryManager, $) {
         clearInterval(queryCheckLists[id]);
         checkFunc();
         // only stop animation the first time, do not persist it
-        doNotAnimate = false; 
+        doNotAnimate = false;
 
         queryCheckLists[id] = setInterval(checkFunc, checkInterval);
 
@@ -804,12 +804,11 @@ window.QueryManager = (function(QueryManager, $) {
                     // set extraProgressBar's to match progressBar's width
                     // and then animate extraProgressBar to it's actual pct
                     $extraProgressBar.stop().width(prevProgress + '%')
-                                      .animate({"width": progress}, 
-                                            checkInterval, "linear", 
+                                      .animate({"width": progress},
+                                            checkInterval, "linear",
                                             progressBarContinuation);
                     extraProgressBarContinuation();
                 }
-                
             } else {
                 $extraProgressBar.stop().animate({"width": progress},
                                                  checkInterval,
@@ -821,7 +820,7 @@ window.QueryManager = (function(QueryManager, $) {
         updateQueryStepsDisplay(mainQuery, $query, newClass, $extraStepText);
     }
 
-    function updateQueryStepsDisplay(mainQuery, $query, newClass, 
+    function updateQueryStepsDisplay(mainQuery, $query, newClass,
                                     $extraStepText) {
         var displayedStep;
         var stepText;
@@ -833,13 +832,13 @@ window.QueryManager = (function(QueryManager, $) {
             }
         } else if (mainQuery.currStep <= mainQuery.numSteps) {
             // in progress and if total number of steps IS known
-            displayedStep = Math.min(mainQuery.currStep + 1, 
+            displayedStep = Math.min(mainQuery.currStep + 1,
                                      mainQuery.numSteps);
-            stepText = 'step ' + displayedStep + ' of ' + 
-                                            mainQuery.numSteps
+            stepText = 'step ' + displayedStep + ' of ' +
+                                            mainQuery.numSteps;
         } else if (mainQuery.numSteps === -1) {
             // in progress and if total number of steps is NOT known
-            displayedStep = Math.min(mainQuery.currStep + 1, 
+            displayedStep = Math.min(mainQuery.currStep + 1,
                                      mainQuery.subQueries.length);
             stepText = 'step ' + displayedStep;
         }
@@ -883,7 +882,7 @@ window.QueryManager = (function(QueryManager, $) {
                     timeString += "." + Math.floor(mills / 10);
                     // timeString += "." + (milliSeconds % 100);
                 } else {
-                    timeString += "." +  Math.floor(mills / 100);
+                    timeString += "." + Math.floor(mills / 100);
                 }
             }
             timeString += "s";

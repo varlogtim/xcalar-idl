@@ -44,7 +44,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
     BottomMenu.openSection = function(sectionIndex) {
         openMenu(sectionIndex);
-    }
+    };
 
     // setup buttons to open bottom menu
     function setupButtons() {
@@ -220,7 +220,7 @@ window.BottomMenu = (function($, BottomMenu) {
         }
 
         var $menuSections = $menuPanel.find(".menuSection");
-        var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
+        // var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
         var $section = $menuSections.eq(sectionIndex);
 
         if ($menuPanel.hasClass("open") && $section.hasClass("active")) {
@@ -241,9 +241,8 @@ window.BottomMenu = (function($, BottomMenu) {
     }
 
     function openMenu(sectionIndex) {
-         // bottom menu was closed or it was open and we're switching to
+        // bottom menu was closed or it was open and we're switching to
         // this section
-        // 
         var $menuSections = $menuPanel.find(".menuSection");
         var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
         var $section = $menuSections.eq(sectionIndex);
