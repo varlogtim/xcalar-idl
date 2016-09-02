@@ -70,6 +70,8 @@ window.Intro = (function($, Intro) {
         if ($stepElems.length === 0) {
             return ('No steps defined');
         }
+
+        // Order step elems using _order array
         orderStepElems();
 
         createOverlay();
@@ -92,10 +94,18 @@ window.Intro = (function($, Intro) {
     };
 
     function orderStepElems() {
+        var orderArray = options.popoverText._order;
+
         $stepElems.sort(function (a, b) {
-            var stepA = parseInt($(a).data('introstep'));
-            var stepB = parseInt($(b).data('introstep'));
-            return (stepA < stepB) ? -1 : (stepA > stepB) ? 1 : 0;
+            var stepAName = $(a).data('introstep');
+            var stepBName = $(b).data('introstep');
+            var stepAidx = options.popoverText._order.indexOf(stepAName);
+            var stepBidx = options.popoverText._order.indexOf(stepBName);
+            if (stepAidx === -1 || stepBidx === -1) {
+                console.error("Step not found!");
+                return;
+            }
+            return (stepAidx < stepBidx) ? -1 : (stepAidx > stepBidx) ? 1 : 0;
         });
     }
 
@@ -343,7 +353,8 @@ window.Intro = (function($, Intro) {
         $infoArrow.removeClass('top bottom left right');
         $infoArrow.css({'top': 0, 'bottom': 'auto'});
 
-        $popover.find('.text').html(options.popoverText[steps.currentStep]);
+        var stepName = options.popoverText._order[steps.currentStep];
+        $popover.find('.text').html(options.popoverText[stepName]);
         var windowWidth = $(window).width();
         var windowHeight = $(window).height();
         var textHeight = $popover.find('.text').outerHeight();

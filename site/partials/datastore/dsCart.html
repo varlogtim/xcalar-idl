@@ -35,7 +35,7 @@
       <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
     </button>
     <% } else { %>
-    <button id="dataCart-submit" class="btn btn-large iconBtn" data-introstep="9" data-introposition="left">
+    <button id="dataCart-submit" class="btn btn-large iconBtn" data-introstep="w3-createTable" data-introposition="left">
       <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
     </button>
     <% }%>
@@ -44,7 +44,7 @@
       <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
     </button>
     <% } else { %>
-    <button id="dataCart-clear" class="btn btn-large iconBtn btn-clear" data-introstep="8" data-introposition="left">
+    <button id="dataCart-clear" class="btn btn-large iconBtn btn-clear" data-introstep="w3-clearCart" data-introposition="left">
       <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
     </button>
     <% }%>
@@ -60,12 +60,12 @@
     <div id="dataCart">
       <% if (dicts.tutor.name == "datastoreDemo2") { %>
       <div class="selectedTable" data-dsid="John Smith.yelpUsers">
-        <div class="cartTitleArea" data-introstep="7">
+        <div class="cartTitleArea" data-introstep="w3-newTableName">
           <input class="tableNameEdit textOverflow" type="text" spellcheck="false" value="yelpUsers">
           <i class="icon xi-edit fa-15 xc-action"></i>
         </div>
         <div class="cartEmptyHint xc-hidden">No Columns Selected</div>
-        <ul data-introstep="6">
+        <ul data-introstep="w3-selectedCol">
           <li data-colnum="2" style="display: list-item;">
             <div class="itemWrap type-object">
               <span class="iconWrap">

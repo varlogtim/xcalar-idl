@@ -33,12 +33,12 @@
     <div class="content path">
       <label for="filePath"><%= dicts.dsForm.filePath %>:</label>
       <% if (dicts.tutor.name == "datastoreDemo1") { %>
-      <input id="filePath" type="text" spellcheck="false" data-introstep="3">
+      <input id="filePath" type="text" spellcheck="false" data-introstep="w2-dsPath">
       <% } else { %>
       <input id="filePath" type="text" spellcheck="false">
       <% } %>
       <% if (dicts.tutor.name == "datastoreDemo1") { %>
-      <button class="btn browse" type="button" data-introstep="2"><%= dicts.common.BROWSE %></button>
+      <button class="btn browse" type="button" data-introstep="w2-browseDs"><%= dicts.common.BROWSE %></button>
       <% } else { %>
       <button class="btn browse" type="button"><%= dicts.common.BROWSE %></button>
       <% } %>

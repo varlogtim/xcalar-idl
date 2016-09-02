@@ -2,7 +2,7 @@
 <div class="iconSection">
   <!-- addWorkhseet btn -->
     <% if (dicts.tutor.name == "workbookDemo") { %>
-    <div id="addWorksheet" class="action" data-introstep="7">
+    <div id="addWorksheet" class="action" data-introstep="w1-newWs">
       <i class="icon xi-add-worksheet"></i>
     </div>
     <% } else { %>
@@ -26,13 +26,13 @@
     </div>
     <ul id="worksheetTabs">
       <% if (dicts.tutor.name == "workbookDemo") { %>
-      <li class="worksheetTab" data-introstep="6">
+      <li class="worksheetTab" data-introstep="w1-inactiveWs">
         <span class="draggableArea"></span>
         <i class="eye icon xi-show fa-15"></i>
         <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1">
         <i class="wsMenu clickable icon xi-ellipsis-h fa-15"></i>
       </li>
-      <li class="worksheetTab active" data-introstep="5">
+      <li class="worksheetTab active" data-introstep="w1-activeWs">
         <span class="draggableArea"></span>
         <i class="eye icon xi-show fa-15"></i>
         <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 2">
