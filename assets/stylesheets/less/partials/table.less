@@ -529,7 +529,7 @@ html.firefox, html.microsoft {
     &.modalOpen {
 
         .dropdownBox {
-            display: none !important;
+            display: none;
         }
 
         th:first-child {
@@ -795,12 +795,12 @@ html.firefox, html.microsoft {
             display: none;
         }
         .tableTitle .dropdownBox {
-            display: none !important;
+            display: none;
         }
         &.exportViewOpen {
             .tableTitle .dropdownBox {
                 // allow exiting of export through dropdown menu
-               display: block !important;
+               display: block;
             }
         }
 
@@ -929,6 +929,9 @@ html.firefox, html.microsoft {
                 .size(@width: 15px, @height: 11px);
                 border-top: 11px solid transparent;
                 border-right: 11px solid @color-border-darkGray;
+            }
+            &.dropdownBoxHidden {
+                display: none !important;
             }
         }
 

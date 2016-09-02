@@ -257,7 +257,12 @@
         opacity: 0.3;
         pointer-events: none;
     }
-    
+    &.smartCastState {
+        .tableTitle .dropdownBox {
+            // allow exiting of smartcast through dropdown menu
+           display: block;
+        }
+    }
 }
 
 #functionArea {

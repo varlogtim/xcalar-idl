@@ -965,9 +965,10 @@ function moveTableTitles($tableWraps, options) {
                 }
                 center = Math.floor(center);
                 if (menuAnimating) {
-                    $thead.find('.dropdownBox').hide();
+                    $thead.find('.dropdownBox').addClass('dropdownBoxHidden');
                     $tableTitle.animate({left: center}, animSpeed, function() {
-                        $thead.find('.dropdownBox').show();
+                        $thead.find('.dropdownBox')
+                              .removeClass('dropdownBoxHidden');
                         moveTableDropdownBoxes();
                     });
                 } else {
@@ -1040,9 +1041,9 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
             }
         }
         center = Math.floor(center);
-        $thead.find('.dropdownBox').hide();
+        $thead.find('.dropdownBox').addClass('dropdownBoxHidden');
         $tableTitle.animate({left: center}, speed, "linear", function() {
-            $thead.find('.dropdownBox').show();
+            $thead.find('.dropdownBox').removeClass('dropdownBoxHidden');
             moveTableDropdownBoxes();
         });
     }

@@ -43,7 +43,7 @@ window.TblAnim = (function($, TblAnim) {
         rescol.tempCellMinWidth = rescol.cellMinWidth;
         rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
         $table.addClass('resizingCol');
-        $('.xcTheadWrap').find('.dropdownBox').hide();
+        $('.xcTheadWrap').find('.dropdownBox').addClass('dropdownBoxHidden');
 
         var cursorStyle = '<div id="resizeCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
@@ -87,7 +87,7 @@ window.TblAnim = (function($, TblAnim) {
         var widthState;
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');
-        $('.xcTheadWrap').find('.dropdownBox').show();
+        $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
         rescol.table.closest('.xcTableWrap').find('.rowGrab')
                                             .width(rescol.table.width());
         rescol.table.removeClass('resizingCol');
@@ -817,7 +817,7 @@ window.TblAnim = (function($, TblAnim) {
             createTableDropTargets();
             dragdropMoveMainFrame(dragInfo, 50);
             xcHelper.disableTextSelection();
-            $('.xcTheadWrap').find('.dropdownBox').hide();
+            $('.xcTheadWrap').find('.dropdownBox').addClass('dropdownBoxHidden');
         }
     }
 
@@ -859,7 +859,7 @@ window.TblAnim = (function($, TblAnim) {
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
-        $('.xcTheadWrap').find('.dropdownBox').show();
+        $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
     }
 
     function createShadowTable() {

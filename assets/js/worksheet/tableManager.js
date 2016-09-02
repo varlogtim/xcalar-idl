@@ -1774,7 +1774,7 @@ window.TblManager = (function($, TblManager) {
             if (event.rightClick) {
                 options.mouseCoors = {
                     "x": event.pageX,
-                    "y": $dropdown.offset().top + 30
+                    "y": $tableWrap.offset().top + 30
                 };
             }
 

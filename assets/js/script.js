@@ -617,7 +617,8 @@ window.StartManager = (function(StartManager, $) {
                 removeMenuKeyboardNavigation();
                 $(".highlightBox").remove();
                 // table head's dropdown has position issue if not hide
-                $('.xcTheadWrap').find('.dropdownBox').hide();
+                $('.xcTheadWrap').find('.dropdownBox')
+                                 .addClass('dropdownBoxHidden');
                 $('.tooltip').hide();
                 if ($(this).hasClass('scrollLocked')) {
                     scrollPrevented = true;
@@ -634,7 +635,8 @@ window.StartManager = (function(StartManager, $) {
         });
 
         function mainFrameScrollingStop() {
-            $('.xcTheadWrap').find('.dropdownBox').show();
+            $('.xcTheadWrap').find('.dropdownBox')
+                             .removeClass('dropdownBoxHidden');
             moveTableDropdownBoxes();
             mainFrameScrolling = false;
             scrollPrevented = false;

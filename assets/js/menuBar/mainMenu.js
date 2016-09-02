@@ -297,7 +297,8 @@ window.MainMenu = (function($, MainMenu) {
             });
             setTimeout(function() {
                 unhideOffScreenTables();
-            }, delay);
+                moveTableDropdownBoxes();
+            }, delay + 50);
         }
     }
 
@@ -327,7 +328,8 @@ window.MainMenu = (function($, MainMenu) {
             });
             setTimeout(function() {
                 unhideOffScreenTables();
-            }, delay);
+                moveTableDropdownBoxes();
+            }, delay + 50);
         }
     }
 
