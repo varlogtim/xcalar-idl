@@ -660,10 +660,14 @@ window.OperationsView = (function($, OperationsView) {
 
         // used for css class
         var opNameNoSpace = operatorName.replace(/ /g, "");
-        $('#container').addClass('columnPicker ' + opNameNoSpace + 'State');
-
-
-        formHelper.setup({});
+        var columnPicker = {
+            "state"      : opNameNoSpace + "State",
+            "colCallback": function($target) {
+                xcHelper.fillInputFromCell($target, $lastInputFocused,
+                                            gColPrefix);
+            }
+        };
+        formHelper.setup({"columnPicker": columnPicker});
 
         toggleOperationsViewDisplay(false);
         if (!restore) {
@@ -731,25 +735,7 @@ window.OperationsView = (function($, OperationsView) {
 
     // listeners added whenever operation view opens
     function operationsViewShowListeners() {
-        $('.xcTableWrap').addClass('columnPicker');
-        var $table = $('.xcTable');
-
-        $table.on('click.columnPicker', '.header, td.clickable', function(event)
-        {
-            if (!$lastInputFocused) {
-                return;
-            }
-            var $target = $(event.target);
-            if ($target.closest('.dataCol').length ||
-                $target.closest('.jsonElement').length ||
-                $target.closest('.dropdownBox').length) {
-                return;
-            }
-            xcHelper.fillInputFromCell($target, $lastInputFocused,
-                                        gColPrefix);
-        });
-
-        $table.on('mousedown', '.header, td.clickable', keepInputFocused);
+        $('.xcTable').on('mousedown', '.header, td.clickable', keepInputFocused);
 
         $(document).on('click.OpSection', function() {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
@@ -829,13 +815,11 @@ window.OperationsView = (function($, OperationsView) {
         var $tableWrap = $('.xcTableWrap');
         if (isHide) {
             $table.off('mousedown', '.header, td.clickable', keepInputFocused);
-            $table.off('click.columnPicker');
             $('body').off('keydown', listHighlightListener);
 
 
             $('.xcTableWrap').not('#xcTableWrap-' + tableId)
                              .removeClass('tableOpSection');
-            $tableWrap.removeClass('columnPicker');
             $tableWrap.removeClass('modalOpen');
         } else {
             $('body').on('keydown', listHighlightListener);
@@ -3638,10 +3622,6 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.addClass('xc-hidden');
         MainMenu.restoreState(mainMenuPrevState);
 
-        //  // used for css class
-        var opNameNoSpace = operatorName.replace(/ /g, "");
-        $('#container').removeClass('columnPicker ' + opNameNoSpace +
-                                    'State');
         formHelper.removeWaitingBG();
         formHelper.clear();
         StatusBox.forceHide();// hides any error boxes;

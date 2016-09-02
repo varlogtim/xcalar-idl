@@ -18,6 +18,7 @@ window.SmartCastView = (function($, SmartCastView) {
         $castView = $("#smartCastView");
         $castTable = $("#smartCast-table");
 
+
         formHelper = new FormHelper($castView);
 
         $castView.on("click", ".cancel, .close", function() {
@@ -94,7 +95,6 @@ window.SmartCastView = (function($, SmartCastView) {
         mainMenuPrevState = MainMenu.getState();
         $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
         $castView.removeClass("xc-hidden");
-        $("#container").addClass("columnPicker smartCastState");
         if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
         } else {
@@ -106,9 +106,30 @@ window.SmartCastView = (function($, SmartCastView) {
 
         initialSugget(tableId);
         smartSuggest(tableId);
-        
-        addTableListener();
-        formHelper.setup();
+
+        var columnPicker = {
+            "state"      : "smartCastState",
+            "colCallback": function($target) {
+                var id = $target.closest(".xcTable").data("id");
+                if (id !== curTableId) {
+                    return;
+                }
+
+                var $cell;
+                if ($target.closest("th").length > 0) {
+                    $cell = $target.closest("th");
+                } else {
+                    $cell = $target.closest("td");
+                }
+                var colNum = xcHelper.parseColNum($cell);
+                if ($cell.hasClass("modalHighlighted")) {
+                    deSelectCol(colNum);
+                } else {
+                    selectCol(colNum);
+                }
+            }
+        };
+        formHelper.setup({"columnPicker": columnPicker});
     };
 
     SmartCastView.close = function() {
@@ -119,9 +140,6 @@ window.SmartCastView = (function($, SmartCastView) {
         isOpen = false;
         $castView.addClass('xc-hidden');
         MainMenu.restoreState(mainMenuPrevState);
-        $("#container").removeClass("columnPicker smartCastState");
-        $("#xcTable-" + curTableId).off("click.columnPicker")
-            .closest(".xcTableWrap").removeClass("columnPicker");
 
         clearCast();
 
@@ -164,25 +182,6 @@ window.SmartCastView = (function($, SmartCastView) {
             ColManager.changeType(colTypeInfos, curTableId);
         }
         SmartCastView.close();
-    }
-
-    function addTableListener() {
-        $("#xcTableWrap-" + curTableId).addClass("columnPicker");
-        $("#xcTable-" + curTableId).on("click.columnPicker", "th, td.clickable", function(event) {
-            var $target = $(event.target);
-            if ($target.closest(".dataCol").length ||
-                $target.closest(".jsonElement").length ||
-                $target.closest(".dropdownBox").length) {
-                return;
-            }
-            var $cell = $(this);
-            var colNum = xcHelper.parseColNum($cell);
-            if ($cell.hasClass("modalHighlighted")) {
-                deSelectCol(colNum);
-            } else {
-                selectCol(colNum);
-            }
-        });
     }
 
     function selectCol(colNum) {

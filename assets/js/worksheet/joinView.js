@@ -58,8 +58,15 @@ window.JoinView = (function($, JoinView) {
         $clauseContainer = $mainJoin.find('.clauseContainer');
         $renameSection = $("#joinView .renameSection");
 
-        formHelper = new FormHelper($joinView);
-
+        var columnPicker = {
+            "state"      : "joinState",
+            "colCallback": function($target) {
+                xcHelper.fillInputFromCell($target, $lastInputFocused);
+            }
+        };
+        formHelper = new FormHelper($joinView, {
+            "columnPicker": columnPicker
+        });
         
         $joinView.find('.cancel, .close').on('click', function() {
             JoinView.close();
@@ -419,8 +426,6 @@ window.JoinView = (function($, JoinView) {
         mainMenuPrevState = MainMenu.getState();
 
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
-        $('#container').addClass('columnPicker joinState');
-
         $joinView.removeClass('xc-hidden');
         if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
@@ -456,8 +461,6 @@ window.JoinView = (function($, JoinView) {
                     break;
             }
         });
-
-        columnPickers();
     };
 
     JoinView.close = function() {
@@ -472,10 +475,6 @@ window.JoinView = (function($, JoinView) {
         $joinView.addClass('xc-hidden');
         formHelper.clear();
         $("body").off(".joinModal");
-        $('.xcTable').off('click.columnPicker').closest(".xcTableWrap")
-                     .removeClass('columnPicker');
-        $('#container').removeClass('columnPicker joinState');
-        // $('#colMenu').removeClass('exitOpState exitJoinState');
         $lastInputFocused = null;
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
@@ -794,24 +793,6 @@ window.JoinView = (function($, JoinView) {
             }
         }
         return (html);
-    }
-
-    function columnPickers() {
-        $(".xcTableWrap").addClass('columnPicker');
-        var $tables = $(".xcTable");
-
-        $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
-            if (!$lastInputFocused) {
-                return;
-            }
-            var $target = $(event.target);
-            if ($target.closest('.dataCol').length ||
-                $target.closest('.jsonElement').length ||
-                $target.closest('.dropdownBox').length) {
-                return;
-            }
-            xcHelper.fillInputFromCell($target, $lastInputFocused);
-        });
     }
 
     function submitJoin() {

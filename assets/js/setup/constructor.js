@@ -2769,10 +2769,16 @@ function FormHelper($form, options) {
      * focusOnOpen: if set true, will focus on confirm btn when open form
      * noTabFocus: if set true, press tab will use browser's default behavior
      * noEsc: if set true, no event listener on key esc,
+     * columnPicker: a object with column picker options, has attrs:
+     *      state: the column picker's state
+     *      noEvent: if set true, no picker event handler
+     *      colCallback: called when click on column
+     *      headCallback: called when click on table head
      */
     this.$form = $form;
     this.options = options || {};
     this.id = $form.attr("id");
+    this.state = null;
 
     return this;
 }
@@ -2780,8 +2786,9 @@ function FormHelper($form, options) {
 FormHelper.prototype = {
     setup: function(extraOptions) {
         var deferred = jQuery.Deferred();
-        var $form = this.$form;
-        var options = $.extend(this.options, extraOptions) || {};
+        var self = this;
+        var $form = self.$form;
+        var options = $.extend(self.options, extraOptions) || {};
 
         $("body").addClass("no-selection");
         xcHelper.removeSelectionRange();
@@ -2792,7 +2799,7 @@ FormHelper.prototype = {
 
         // Note: to find the visiable btn, must show the form first
         if (!options.noTabFocus) {
-            this.refreshTabbing();
+            self.refreshTabbing();
         }
 
         $(document).on("keydown.xcForm", function(event) {
@@ -2804,6 +2811,50 @@ FormHelper.prototype = {
                 return false;
             }
         });
+
+        // setup columnPicker
+        var columnPicker = options.columnPicker || {};
+        self.state = "columnPicker";
+        if (columnPicker.state != null) {
+            self.state += " " + columnPicker.state;
+            $("#container").addClass(self.state);
+        }
+
+        // see table.less of the class
+        // it stop some default events
+        $(".xcTableWrap").addClass('columnPicker');
+
+        if (!columnPicker.noEvent) {
+            var colSelector = ".xcTable .header, .xcTable td.clickable";
+            $("#mainFrame").on("click.columnPicker", colSelector, function() {
+                var callback = columnPicker.colCallback;
+                if (callback == null || !(callback instanceof Function)) {
+                    return;
+                }
+                var $target = $(event.target);
+                if ($target.closest('.dataCol').length ||
+                    $target.closest('.jsonElement').length ||
+                    $target.closest('.dropdownBox').length) {
+                    return;
+                }
+                callback($target);
+            });
+
+            var headSelector = ".xcTheadWrap";
+            $("#mainFrame").on("click.columnPicker", headSelector, function() {
+                var callback = columnPicker.headCallback;
+                if (callback == null || !(callback instanceof Function)) {
+                    return;
+                }
+                var $target = $(event.target).closest('.xcTheadWrap');
+                if ($target.length === 0) {
+                    // error case
+                    console.error("no header");
+                    return;
+                }
+                callback($target);
+            });
+        }
 
         // this should be the last step
         if (options.open != null && options.open instanceof Function) {
@@ -2850,14 +2901,20 @@ FormHelper.prototype = {
 
     clear: function(extraOptions) {
         var deferred = jQuery.Deferred();
-        var options = $.extend(this.options, extraOptions) || {};
-        var $form = this.$form;
+        var self = this;
+        var options = $.extend(self.options, extraOptions) || {};
+        var $form = self.$form;
 
         $(document).off("keydown.xcForm");
         $(document).off("keydown.xcFormTabbing");
         $form.find(".focusable").off(".xcForm")
                                   .removeClass("focusable");
-        this.enableSubmit();
+        $(".xcTableWrap").removeClass("columnPicker");
+        $("#mainFrame").off("click.columnPicker");
+        $("#container").removeClass(self.state);
+        self.state = null;
+        self.enableSubmit();
+
         $("body").removeClass("no-selection");
 
         if (options.close != null && options.close instanceof Function) {

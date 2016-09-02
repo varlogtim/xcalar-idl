@@ -29,7 +29,13 @@ window.ExportView = (function($, ExportView) {
         $advancedSection = $exportView.find('.advancedSection');
         $colList = $exportView.find('.cols');
 
-        formHelper = new FormHelper($exportView);
+        var columnPicker = {
+            "state"  : "exportState",
+            "noEvent": true
+        };
+        formHelper = new FormHelper($exportView, {
+            "columnPicker": columnPicker
+        });
 
         // click cancel or close button
         $exportView.on("click", ".close, .cancel", function(event) {
@@ -183,7 +189,6 @@ window.ExportView = (function($, ExportView) {
         mainMenuPrevState = MainMenu.getState();
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $exportView.removeClass('xc-hidden');
-        $('#container').addClass('columnPicker exportState');
         if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
         } else {
@@ -193,9 +198,7 @@ window.ExportView = (function($, ExportView) {
         tableId = tablId;
         $table = $('#xcTable-' + tableId);
 
-        var $tables = $('.xcTableWrap');
-        $tables.addClass('exportViewOpen');
-        $tables.addClass('columnPicker');
+        $('.xcTableWrap').addClass('exportViewOpen');
 
         var tableName = gTables[tableId].tableName;
         exportTableName = tableName;
@@ -237,11 +240,8 @@ window.ExportView = (function($, ExportView) {
         var $tableWraps = $('.xcTableWrap');
         $exportView.addClass('xc-hidden');
         MainMenu.restoreState(mainMenuPrevState);
-        $('#container').removeClass('columnPicker exportState');
 
         $tableWraps.removeClass('exportViewOpen');
-        $tableWraps.removeClass('columnPicker');
-
         $('.xcTableWrap').not('#xcTableWrap-' + tableId)
                              .removeClass('tableOpSection');
 

@@ -206,8 +206,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         if (!isViewOpen) {
             isViewOpen = true;
-            $("#container").addClass("columnPicker extState");
-            columnPickers();
             formHelper.setup();
         }
     };
@@ -222,11 +220,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $lastInputFocused = null;
         triggerCol = null;
         $extTriggerTableDropdown.find(".text").val("");
-        $("#container").removeClass("columnPicker extState");
-        $(".xcTable").off("click.columnPicker")
-                    .closest(".xcTableWrap").removeClass("columnPicker");
-
-        $('.xcTheadWrap').off("click.columnPicker");
         formHelper.clear();
     };
 
@@ -510,7 +503,27 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extArgs.on('dblclick', 'input', function() {
             this.setSelectionRange(0, this.value.length);
         });
-        formHelper = new FormHelper($extArgs);
+
+        var colCallback = function($target) {
+            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
+        };
+        var headCallback = function($target) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused, "", {
+                "type": "table"
+            });
+        }
+        var columnPicker = {
+            "state"       : "extState",
+            "colCallback" : colCallback,
+            "headCallback": headCallback
+        };
+
+        formHelper = new FormHelper($extArgs, {
+            "columnPicker": columnPicker
+        });
     }
 
     function getModuleText(modName) {
@@ -909,34 +922,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return cols;
         }
     }
-
-    function columnPickers() {
-        $(".xcTableWrap").addClass('columnPicker');
-        var $tables = $(".xcTable");
-
-        $tables.on('click.columnPicker', '.header, td.clickable', function(event) {
-            if (!$lastInputFocused) {
-                return;
-            }
-            var $target = $(event.target);
-            if ($target.closest('.dataCol').length ||
-                $target.closest('.jsonElement').length ||
-                $target.closest('.dropdownBox').length) {
-                return;
-            }
-            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
-        });
-
-        $(".xcTheadWrap").on("click.columnPicker", function(event) {
-            if (!$lastInputFocused) {
-                return;
-            }
-            var $target = $(event.target).closest('.xcTheadWrap');
-            var options = {type: "table"};
-            xcHelper.fillInputFromCell($target, $lastInputFocused, "", options);
-        });
-    }
-
 
     return (ExtensionManager);
 }({}, jQuery));

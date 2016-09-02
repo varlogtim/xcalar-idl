@@ -269,8 +269,6 @@ function dsPreviewModuleTest() {
 
         it("Should detect correct format", function() {
             var detectFormat = DSPreview.__testOnly__.detectFormat;
-            loadArgs.setFormat("JSON");
-            expect(detectFormat()).to.equal("JSON");
 
             loadArgs.setFormat("Excel");
             expect(detectFormat()).to.equal("Excel");

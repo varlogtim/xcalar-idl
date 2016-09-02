@@ -21,7 +21,11 @@ window.DFCreateView = (function($, DFCreateView) {
         $colList = $dfView.find('.cols');
 
         formHelper = new FormHelper($dfView, {
-            "focusOnOpen": true
+            "focusOnOpen" : true,
+            "columnPicker": {
+                "state"  : "dataflowState",
+                "noEvent": true
+            }
         });
 
         addFormEvents();
@@ -36,7 +40,6 @@ window.DFCreateView = (function($, DFCreateView) {
         mainMenuPrevState = MainMenu.getState();
         $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
         $dfView.removeClass('xc-hidden');
-        $('#container').addClass('columnPicker dataflowState');
         var wasMenuOpen = false;
         if (!MainMenu.isMenuOpen("mainMenu")) {
             MainMenu.open();
@@ -154,7 +157,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
     function setupTableColListeners() {
         
-        $("#xcTableWrap-" + tableId).addClass("columnPicker allowSelectAll");
+        $("#xcTableWrap-" + tableId).addClass("allowSelectAll");
         $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", function(event) {
             var $target = $(event.target);
             if (isInvalidTableCol($target)) {
@@ -398,8 +401,7 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function resetDFView() {
-        $('#container').removeClass('columnPicker dataflowState');
-        $("#xcTableWrap-" + tableId).removeClass("columnPicker allowSelectAll");
+        $("#xcTableWrap-" + tableId).removeClass("allowSelectAll");
         $("#xcTable-" + tableId).off(".columnPicker");
         $("#xcTable-" + tableId).find('.modalHighlighted')
                                 .removeClass('modalHighlighted');
