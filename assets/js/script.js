@@ -652,6 +652,11 @@ window.StartManager = (function(StartManager, $) {
                 $('.highlightBox').remove();
             }
 
+            if (!$('#workspacePanel').hasClass('active')) {
+                // if not on workspace panel, then we're done
+                return;
+            }
+
             // some code mirror elements don't have parents for some reason
             if (!$target.hasClass('fnbarPre') &&
                 !$target.hasClass('CodeMirror-cursor') &&
@@ -664,8 +669,7 @@ window.StartManager = (function(StartManager, $) {
                     return;
                 } else if ($target.attr('id') === 'mainFrame') {
                     return;
-                } else if ($target.closest('.menu').length !== 0 &&
-                            $target.closest('#workspacePanel').length !== 0) {
+                } else if ($target.closest('.menu').length !== 0) {
                     return;
                 }
                 $('#fnBar').removeClass('disabled');

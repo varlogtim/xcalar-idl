@@ -75,6 +75,22 @@ window.WSManager = (function($, WSManager) {
             for (var i = 0; i < orphanedTables.length; i++) {
                 tableIdToWSIdMap[orphanedTables[i]] = wsId;
             }
+
+            var undoneTables = ws.undoneTables;
+            // XX undoneTables property may not exist in old UI version
+            if (undoneTables) {
+                // when we're initializing workbook we don't want undone tables
+                // so we push them into the orphaned tables list
+                for (var i = 0; i < undoneTables.length; i++) {
+                    ws.orphanedTables.push(undoneTables[i]);
+                    tableIdToWSIdMap[undoneTables[i]] = wsId;
+                    ws.undoneTables = [];
+                }
+            } else {
+                // xx temp fix for old UI versions that do not have undone 
+                // tables
+                ws.undoneTables = [];
+            }
         }
 
         var storedWS = sheetInfos.activeWS;
@@ -382,8 +398,10 @@ window.WSManager = (function($, WSManager) {
 
     // replace a table by putting tableId into active list
     // and removing tablesToRm from active list and putting it into orphaned list
+    // or a different list designated by options.removeToDest
     // options:
-    // position: position to insert table
+    //      position: position to insert table
+    //      removeToDest: where to send tablesToRm
     WSManager.replaceTable = function(tableId, locationId, tablesToRm, options) {
         var ws;
         options = options || {};
@@ -427,10 +445,17 @@ window.WSManager = (function($, WSManager) {
             tablesToRm = [locationId];
         }
 
+        var dest;
         for (var i = 0, len = tablesToRm.length; i < len; i++) {
             rmTableId = tablesToRm[i];
             ws = wsLookUp[tableIdToWSIdMap[rmTableId]];
-            toggleTableArchive(rmTableId, ws.tables, ws.orphanedTables);
+            // xx options.removeToDest currently only supports Undone table type
+            if (options.removeToDest === TableType.Undone) {
+                dest = ws.undoneTables;
+            } else {
+                dest = ws.orphanedTables;
+            }
+            toggleTableArchive(rmTableId, ws.tables, dest);
         }
     };
 
@@ -496,6 +521,7 @@ window.WSManager = (function($, WSManager) {
     };
 
     // changes table status and moves it to the proper worksheet category
+    // newStatus: string, TableType.Active, TableType.Archived, TableType.Orphan
     WSManager.changeTableStatus = function(tableId, newStatus) {
         var srcTables;
         var destTables;
@@ -524,6 +550,9 @@ window.WSManager = (function($, WSManager) {
                 break;
             case (TableType.Orphan):
                 destTables = ws.orphanedTables;
+                break;
+            case (TableType.Undone):
+                destTables = ws.undoneTables;
                 break;
             default:
                 console.error('invalid new status');
@@ -796,12 +825,17 @@ window.WSManager = (function($, WSManager) {
         var tables = ws.tables;
         tableIndex = tables.indexOf(tableId);
 
+        // find where the table is
         if (tableIndex < 0) {
             tables = ws.archivedTables;
             tableIndex = tables.indexOf(tableId);
         }
         if (tableIndex < 0) {
             tables = ws.orphanedTables;
+            tableIndex = tables.indexOf(tableId);
+        }
+        if (tableIndex < 0) {
+            tables = ws.undoneTables;
             tableIndex = tables.indexOf(tableId);
         }
 
@@ -991,6 +1025,20 @@ window.WSManager = (function($, WSManager) {
         var leftPos = wsScollBarPosMap[wsId];
         if (leftPos != null) {
             $mainFrame.scrollLeft(leftPos);
+        }
+    };
+
+    WSManager.dropUndoneTables = function() {
+        var ws;
+        var tables = [];
+        for (var wsId in wsLookUp) {
+            ws = wsLookUp[wsId];
+            for (var i = 0; i < ws.undoneTables.length; i++) {
+                tables.push(ws.undoneTables[i]);
+            }
+        }
+        if (tables.length) {
+            TblManager.deleteTables(tables, TableType.Undone, true, true);
         }
     };
 
@@ -1388,7 +1436,8 @@ window.WSManager = (function($, WSManager) {
                 "tables"          : [],
                 "archivedTables"  : [],
                 "tempHiddenTables": [],
-                "orphanedTables"  : []
+                "orphanedTables"  : [],
+                "undoneTables"    : []
             };
             if (options.wsIndex == null) {
                 wsOrder.push(wsId);
@@ -1399,6 +1448,11 @@ window.WSManager = (function($, WSManager) {
 
         var ws = wsLookUp[wsId];
 
+        // xx temp fix for old UI versions that do not have undone tables
+        if (!ws.undoneTables) {
+            ws.undoneTables = [];
+        }
+
         for (var key in options) {
             var val = options[key];
             if (key === "wsIndex") {
@@ -1406,7 +1460,7 @@ window.WSManager = (function($, WSManager) {
             }
 
             if (key === "tables" || key === "orphanedTables" ||
-                key === "archivedTables") {
+                key === "archivedTables" || key === "undoneTables") {
                 if (val in tableIdToWSIdMap) {
                     console.error(val, "already in worksheets!");
                     return;

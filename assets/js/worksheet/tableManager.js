@@ -20,7 +20,9 @@ window.TblManager = (function($, TblManager) {
                   created from an undo operation,
             position: int, used to place a table in a certain spot if not replacing
                         an older table. Currently has to be paired with undo or
-                        redo
+                        redo,
+            replacingDest: string, where to send old tables that are being 
+                                  replaced
 
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
@@ -85,12 +87,13 @@ window.TblManager = (function($, TblManager) {
 
             // append newly created table to the back, do not remove any tables
             addTableOptions = {
-                "afterStartup": true,
-                "lockTable"   : options.lockTable,
-                "selectCol"   : options.selectCol,
-                "isUndo"      : options.isUndo,
-                "position"    : options.position,
-                "from"        : options.from
+                "afterStartup" : true,
+                "lockTable"    : options.lockTable,
+                "selectCol"    : options.selectCol,
+                "isUndo"       : options.isUndo,
+                "position"     : options.position,
+                "from"         : options.from,
+                "replacingDest": options.replacingDest
             };
 
             addTable([newTableName], tablesToReplace, tablesToRemove,
@@ -436,7 +439,7 @@ window.TblManager = (function($, TblManager) {
     // };
 
     //options:
-    // remove: boolean, if true will remove table from html
+    // remove: boolean, if true will remove table from html immediately
     // keepInWS: boolean, if true will not remove table from WSManager
     // noFocusWS: boolean, if true will not focus on tableId's Worksheet
     TblManager.sendTableToOrphaned = function(tableId, options) {
@@ -469,6 +472,70 @@ window.TblManager = (function($, TblManager) {
             }
 
             table.beOrphaned();
+            table.updateTimeStamp();
+
+            if (gActiveTableId === tableId) {
+                gActiveTableId = null;
+                $('#rowInput').val("").data("val", "");
+                $('#numPages').empty();
+            }
+
+            if ($('.xcTableWrap:not(.inActive').length === 0) {
+                RowScroller.empty();
+            }
+
+            if (!options.noFocusWS) {
+                var activeWS = WSManager.getActiveWS();
+                if (activeWS !== wsId) {
+                    WSManager.focusOnWorksheet(wsId);
+                }
+            }
+
+            moveTableDropdownBoxes();
+            moveTableTitles();
+            moveFirstColumn();
+
+            // disallow dragging if only 1 table in worksheet
+            checkTableDraggable();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    };
+
+    TblManager.sendTableToUndone = function(tableId, options) {
+        var deferred = jQuery.Deferred();
+        options = options || {};
+        if (options.remove) {
+            $("#xcTableWrap-" + tableId).remove();
+            $("#rowScroller-" + tableId).remove();
+            Dag.destruct(tableId);
+        } else {
+            $("#xcTableWrap-" + tableId).addClass('tableToRemove');
+            $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
+            $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
+        }
+
+        var table = gTables[tableId];
+        table.freeResultset()
+        .then(function() {
+            var wsId;
+            if (!options.noFocusWS) {
+                wsId = WSManager.getWSFromTable(tableId);
+            }
+
+            TableList.removeTable(tableId);
+            if (!options.keepInWS) {
+                WSManager.removeTable(tableId);
+                // Dag.makeInactive(tableId);
+            } else {
+                WSManager.changeTableStatus(tableId, TableType.Undone);
+            }
+
+            table.beUndone();
             table.updateTimeStamp();
 
             if (gActiveTableId === tableId) {
@@ -554,24 +621,30 @@ window.TblManager = (function($, TblManager) {
     //     return (deferred.promise());
     // }
 
-    TblManager.deleteTables = function(tables, tableType, noAlert) {
+    // noLog: boolean, if we are deleting undone tables, we do not log this
+    //              transaction
+    TblManager.deleteTables = function(tables, tableType, noAlert, noLog) {
         // XXX not tested yet!!!
         var deferred = jQuery.Deferred();
 
+        // tables is an array, it might be modifed
+        // example: pass in gOrphanTables
         if (!(tables instanceof Array)) {
             tables = [tables];
         }
-        // tables is an array, it might be modifed
-        // example: pass in gOrphanTables
-        var sql = {
-            "operation": SQLOps.DeleteTable,
-            "tables"   : xcHelper.deepCopy(tables),
-            "tableType": tableType
-        };
-        var txId = Transaction.start({
-            "operation": SQLOps.DeleteTable,
-            "sql"      : sql
-        });
+
+        var txId;
+        if (!noLog) {
+            var sql = {
+                "operation": SQLOps.DeleteTable,
+                "tables"   : xcHelper.deepCopy(tables),
+                "tableType": tableType
+            };
+            txId = Transaction.start({
+                "operation": SQLOps.DeleteTable,
+                "sql"      : sql
+            });
+        }
 
         var defArray = [];
 
@@ -581,7 +654,13 @@ window.TblManager = (function($, TblManager) {
                 var def = delOrphanedHelper(tableName, txId);
                 defArray.push(def);
             });
-        } else {
+        } else if (tableType === TableType.Undone) {
+            tables.forEach(function(tableId) {
+                var def = delUndoneTableHelper(tableId);
+                defArray.push(def);
+            });
+        }
+        else {
             tables.forEach(function(tableId) {
                 var def = delTableHelper(tableId, tableType, txId);
                 defArray.push(def);
@@ -590,7 +669,9 @@ window.TblManager = (function($, TblManager) {
 
         PromiseHelper.when.apply(window, defArray)
         .then(function() {
-            Transaction.done(txId);
+            if (!noLog) {
+                Transaction.done(txId);
+            }
             deferred.resolve();
         })
         .fail(function() {
@@ -613,6 +694,9 @@ window.TblManager = (function($, TblManager) {
 
             if (table.hasLock()) {
                 table.unlock();
+                table.beOrphaned();
+            }
+            if (table.getType() === TableType.Undone) {
                 table.beOrphaned();
             }
 
@@ -1262,7 +1346,9 @@ window.TblManager = (function($, TblManager) {
                    be locked throughout it's active life
         selectCol: number, column to be selected once new table is ready
         isUndo: boolean, default is false. If true, we are adding this table
-                through an undo
+                through an undo,
+        replacingDest: string, where to send old tables that are being 
+                                  replaced
 
     */
 
@@ -1278,7 +1364,8 @@ window.TblManager = (function($, TblManager) {
 
         if (options.isUndo && options.position != null) {
             WSManager.replaceTable(newTableId, null, null,
-                                  {position: options.position});
+                                  {position: options.position,
+                                  removeToDest: options.replacingDest});
         } else if (tablesToReplace[0] == null) {
             WSManager.replaceTable(newTableId);
         } else {
@@ -1286,7 +1373,9 @@ window.TblManager = (function($, TblManager) {
             var tablePosition = WSManager.getTablePosition(oldId);
 
             if (tablePosition > -1) {
-                WSManager.replaceTable(newTableId, oldId, tablesToRemove);
+                WSManager.replaceTable(newTableId, oldId, tablesToRemove, {
+                    removeToDest: options.replacingDest
+                });
                 wasTableReplaced = true;
             } else {
                 WSManager.replaceTable(newTableId);
@@ -1315,10 +1404,19 @@ window.TblManager = (function($, TblManager) {
                     } else if (options.from === "noSheet") {
                         TblManager.sendTableToOrphaned(tablesToRemove[i]);
                     } else {
-                        TblManager.sendTableToOrphaned(tablesToRemove[i], {
-                            "keepInWS" : true,
-                            "noFocusWS": noFocusWS
-                        });
+                        if (options.replacingDest === TableType.Undone) {
+                            TblManager.sendTableToUndone(tablesToRemove[i], {
+                                "keepInWS": true,
+                                "noFocusWS": noFocusWS 
+                            });
+                        } else {
+                            TblManager.sendTableToOrphaned(tablesToRemove[i], {
+                                "keepInWS" : true,
+                                "noFocusWS": noFocusWS
+                            });
+                        }
+                        
+                        
                     }
                 }
             }
@@ -2508,6 +2606,25 @@ window.TblManager = (function($, TblManager) {
                 delete gTables[tableId];
             }
 
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+    function delUndoneTableHelper(tableId) {
+        var deferred = jQuery.Deferred();
+
+        var table = gTables[tableId];
+        var tableName = table.tableName;
+        XcalarDeleteTable(tableName, null)
+        .then(function() {
+            var tableId = xcHelper.getTableId(tableName);
+            if (tableId != null && gTables[tableId] != null) {
+                WSManager.removeTable(tableId);
+                delete gTables[tableId];
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

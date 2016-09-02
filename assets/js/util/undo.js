@@ -36,23 +36,29 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.IndexDS] = function(options) {
         var tableId = xcHelper.getTableId(options.tableName);
-        return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
+        return (TblManager.sendTableToUndone(tableId, {'remove': true}));
     };
 
     undoFuncs[SQLOps.Sort] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
         return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true}));
+                                       worksheet, refreshOptions));
     };
 
     undoFuncs[SQLOps.Filter] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        TblManager.refreshTable([options.tableName], null, [options.newTableName], worksheet, {
+        var refreshOptions = {
             isUndo: true,
-            from  : "noSheet"
-        })
+            replacingDest: TableType.Undone
+        };
+        TblManager.refreshTable([options.tableName], null, 
+            [options.newTableName], worksheet, refreshOptions)
         .then(function() {
             // show filter form if filter was triggered from the form and was
             // the most recent operation
@@ -74,9 +80,13 @@ window.Undo = (function($, Undo) {
         
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
         TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true})
+                                       worksheet, refreshOptions)
         .then(function() {
             // show map form if map was triggered from the form and was the
             // most recent operation
@@ -153,14 +163,11 @@ window.Undo = (function($, Undo) {
             secondTable = leftTable;
         }
 
-        // var tableId = xcHelper.getTableId(firstTable.name);
-        // WSManager.removeTable(tableId);
-        var firstTableOpt = {
-            "isUndo"  : true,
-            "position": firstTable.position
-        };
-        TblManager.refreshTable([firstTable.name], null, [options.newTableName],
-                                firstTable.worksheet, firstTableOpt)
+        TblManager.refreshTable([firstTable.name], null, [options.newTableName], 
+                                firstTable.worksheet, {
+                                            "isUndo"  : true,
+                                            "position": firstTable.position,
+                                            "replacingDest": TableType.Undone})
         .then(function() {
             if (isSelfJoin) {
                 if (isMostRecent && options.formOpenTime) {
@@ -168,12 +175,13 @@ window.Undo = (function($, Undo) {
                 }
                 deferred.resolve();
             } else {
-                var secondTableOpt = {
-                    "isUndo"  : true,
-                    "position": secondTable.position
-                };
+
                 TblManager.refreshTable([secondTable.name], null, [],
-                                        secondTable.worksheet, secondTableOpt)
+                                        secondTable.worksheet, {
+                    "isUndo"  : true,
+                    "position": secondTable.position,
+                    "replacingDest": TableType.Undone
+                })
                 .then(function() {
                     if (isMostRecent && options.formOpenTime) {
                         JoinView.show(null, null, true, options.formOpenTime);
@@ -195,11 +203,15 @@ window.Undo = (function($, Undo) {
         var promise;
         if (options.options && options.options.isJoin) {
             var worksheet = WSManager.getWSFromTable(tableId);
+            var refreshOptions = {
+                isUndo: true,
+                replacingDest: TableType.Undone
+            };
             promise = TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true});
+                                       worksheet, refreshOptions);
         } else {
-            promise = TblManager.sendTableToOrphaned(tableId, {'remove': true});
+            promise = TblManager.sendTableToUndone(tableId, {'remove': true});
         }
         promise.then(function() {
             if (isMostRecent &&
@@ -217,24 +229,35 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.SplitCol] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
         return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true}));
+                                       worksheet, refreshOptions));
     };
 
     undoFuncs[SQLOps.ChangeType] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
         return (TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, {isUndo: true}));
+                                       worksheet, refreshOptions));
     };
 
     undoFuncs[SQLOps.Project] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.tableName], null, [options.newTableName], worksheet, {
+        var refreshOptions = {
             isUndo: true,
-            from  : "noSheet"
-        }));
+            replacingDest: TableType.Undone
+        };
+        return (TblManager.refreshTable([options.tableName], null, 
+                                        [options.newTableName], worksheet, 
+                                        refreshOptions));
     };
 
     undoFuncs[SQLOps.Ext] = function(options) {
@@ -252,7 +275,7 @@ window.Undo = (function($, Undo) {
 
         for (var i = 0; i < newTables.length; i++) {
             var newTableId = xcHelper.getTableId(newTables[i]);
-            promises.push(TblManager.sendTableToOrphaned.bind(window, newTableId,
+            promises.push(TblManager.sendTableToUndone.bind(window, newTableId,
                                                             {'remove': true}));
         }
 
@@ -264,14 +287,16 @@ window.Undo = (function($, Undo) {
                     promises.push(TblManager.refreshTable.bind(window,
                                                             [oldTable], null,
                                                             [table], null,
-                                                            {"isUndo": true}));
+                                                            {"isUndo": true,
+                                             replacingDest: TableType.Undone}));
                 } else {
                     var oldTableId = xcHelper.getTableId(oldTable);
                     var worksheet = WSManager.getWSFromTable(oldTableId);
                     promises.push(TblManager.refreshTable.bind(window,
                                                             [oldTable], null,
                                                             [], worksheet,
-                                                            {"isUndo": true}));
+                                                            {"isUndo": true,
+                                            replacingDest: TableType.Undone}));
                 }
             }
         }
@@ -739,7 +764,7 @@ window.Undo = (function($, Undo) {
         }
     };
     /* End of Worksheet Operation */
-
+    // for undoing deleted table columns
     function undoDeleteHelper(options, shift) {
         focusTableHelper(options);
         var progCols = options.progCols;

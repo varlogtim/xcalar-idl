@@ -278,7 +278,8 @@ window.QueryManager = (function(QueryManager, $) {
         if ($query.hasClass('active')) {
             updateHeadingSection(mainQuery);
         }
-        if (mainQuery.subQueries[0].getName() === "index from DS") {
+        if (mainQuery.subQueries[0] && 
+            mainQuery.subQueries[0].getName() === "index from DS") {
             var isCanceled = true;
             DSCart.queryDone(mainQuery.getId(), isCanceled);
             return;

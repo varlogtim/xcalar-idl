@@ -34,7 +34,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     logs = testLogs['tableOperationLogs'];
                     break;
             }
-
+            // run the initlal logs
             return (Replay.run(logs, noAlert));
         })
         .then(function() {
@@ -46,6 +46,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             return deferred.promise();
         })
         .then(function() {
+            // start undoing everything
             replayLogs = Replay.log;
             console.info("undo started");
             // return (PromiseHelper.reject());
@@ -54,17 +55,31 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         .then(function() {
             var deferred = jQuery.Deferred();
             setTimeout(function() {
-               redoAll()
-               .then(function() {
+                var numUndoneTables = 0;
+                for (var id in gTables) {
+                    if (gTables[id].status === TableType.Undone) {
+                        numUndoneTables++;
+                    }
+                }
+                console.info(numUndoneTables + ' undone tables');
+                redoAll()
+                .then(function() {
                     deferred.resolve();
-               })
-               .fail(function() {
+                })
+                .fail(function() {
                     deferred.reject();
-               });
+                });
             }, 500);
             return deferred.promise();
         })
         .then(function() {
+            var numUndoneTables = 0;
+            for (var id in gTables) {
+                if (gTables[id].status === TableType.Undone) {
+                    numUndoneTables++;
+                }
+            }
+            console.info(numUndoneTables + ' undone tables');
             return (undoAll(true));
         })
         .then(function() {
@@ -177,6 +192,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
         for (var ws in info.wsMeta.wsInfos) {
             delete info.wsMeta.wsInfos[ws].orphanedTables;
+            delete info.wsMeta.wsInfos[ws].undoneTables;
             info.wsMeta.wsInfos[ws].lockedTables = []; 
             // we won't always have locked tables during an undo
         }
@@ -214,6 +230,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
             for (var ws in currentReplayLog.wsMeta.wsInfos) {
                 delete currentReplayLog.wsMeta.wsInfos[ws].orphanedTables;
+                delete currentReplayLog.wsMeta.wsInfos[ws].undoneTables;
                 currentReplayLog.wsMeta.wsInfos[ws].lockedTables = []; 
                 // we won't always have locked tables during an undo
             }
@@ -301,6 +318,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
             for (var ws in info.wsMeta.wsInfos) {
                 delete info.wsMeta.wsInfos[ws].orphanedTables;
+                delete info.wsMeta.wsInfos[ws].undoneTables;
                 info.wsMeta.wsInfos[ws].lockedTables = [];
                 // we won't always have locked tables during an undo
             }

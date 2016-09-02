@@ -943,7 +943,11 @@ function XcalarDeleteTable(tableName, txId) {
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        Transaction.log(txId, ret2);
+        // txId may be null if deleting an undone table
+        if (txId != null) {
+            Transaction.log(txId, ret2);
+        }
+        
         deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {

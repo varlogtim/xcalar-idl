@@ -556,6 +556,7 @@ window.SQL = (function($, SQL) {
             .then(function() {
                 // XXX test
                 console.info("Overwrite sql log");
+                WSManager.dropUndoneTables();
             })
             .fail(function(error) {
                 console.error("Overwrite Sql fails!", error);

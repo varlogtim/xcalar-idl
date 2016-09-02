@@ -258,6 +258,11 @@ TableMeta.prototype = {
         return this;
     },
 
+    beUndone: function() {
+        this.status = TableType.Undone;
+        return this;
+    },
+
     "isActive": function() {
         return (this.status === TableType.Active);
     },
