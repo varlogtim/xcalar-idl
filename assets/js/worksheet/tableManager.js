@@ -2459,10 +2459,10 @@ window.TblManager = (function($, TblManager) {
         var deferred = jQuery.Deferred();
 
         var table = gTables[tableId];
-        var tableName = table.tableName;
+        var tableName = table.getName();
 
         // Free the result set pointer that is still pointing to it
-        XcalarSetFree(table.resultSetId)
+        table.freeResultset()
         .then(function() {
             return XcalarDeleteTable(tableName, txId);
         })
