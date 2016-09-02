@@ -2941,15 +2941,21 @@ FormHelper.prototype = {
         return deferred.promise();
     },
 
-
-    addWaitingBG: function(heightAdjust) {
-        heightAdjust = heightAdjust || 0;
+    addWaitingBG: function(options) {
+        options = options || {};
+        var heightAdjust = options.heightAdjust || 0;
+        var transparent = options.transparent || false;
         var $form = this.$form;
         var waitingBg = '<div id="formWaitingBG">' +
                             '<div class="waitingIcon"></div>' +
                         '</div>';
         $form.append(waitingBg);
         var $waitingBg =  $('#formWaitingBG');
+        if (transparent) {
+            $waitingBg.addClass('transparent');
+        } else {
+            $waitingBg.removeClass('transparent');
+        }
         var modalHeaderHeight = $form.children('header').height() || 0;
         var modalHeight = $form.height();
 

@@ -937,6 +937,7 @@ function moveTableTitles($tableWraps, options) {
         var rect = $thead[0].getBoundingClientRect();
         var rectRight = rect.right + modifiedOffset;
         var rectLeft = rect.left + modifiedOffset;
+
         if (rectRight > mainFrameOffsetLeft) {
             if (rectLeft < viewWidth) {
                 var $tableTitle = $table.find('.tableTitle .text');

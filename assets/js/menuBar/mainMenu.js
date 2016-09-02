@@ -289,6 +289,7 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
+            $('#mainFrame').addClass('scrollLocked');
             hideOffScreenTables();
             moveTableTitles(null, {
                 "offset"       : 285,
@@ -297,7 +298,9 @@ window.MainMenu = (function($, MainMenu) {
             });
             setTimeout(function() {
                 unhideOffScreenTables();
+                moveTableTitles();
                 moveTableDropdownBoxes();
+                $('#mainFrame').removeClass('scrollLocked');
             }, delay + 50);
         }
     }
@@ -321,6 +324,7 @@ window.MainMenu = (function($, MainMenu) {
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
             hideOffScreenTables({marginRight: openOffset});
+            $('#mainFrame').addClass('scrollLocked');
             moveTableTitles(null, {
                 "offset"       : -285,
                 "menuAnimating": true,
@@ -328,7 +332,9 @@ window.MainMenu = (function($, MainMenu) {
             });
             setTimeout(function() {
                 unhideOffScreenTables();
+                moveTableTitles();
                 moveTableDropdownBoxes();
+                $('#mainFrame').removeClass('scrollLocked');
             }, delay + 50);
         }
     }

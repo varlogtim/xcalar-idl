@@ -676,7 +676,11 @@ window.OperationsView = (function($, OperationsView) {
 
         // load updated UDFs if operator is map
         if (operatorName === "map") {
-            formHelper.addWaitingBG(20);
+            formHelper.addWaitingBG({
+                heightAdjust: 20,
+                transparent: true
+            });
+            disableInputs();
             XcalarListXdfs("*", "User*")
             .then(function(listXdfsObj) {
                 udfUpdateOperatorsMap(listXdfsObj.fnDescs);
@@ -789,8 +793,7 @@ window.OperationsView = (function($, OperationsView) {
 
             $categoryInput.focus();
             if (operatorName === "map") {
-                // handle map
-
+                $('#mapFilter').focus();
             } else if (operatorName === "group by") {
                 $activeOpSection.find('.gbOnArg').focus();
             } else {
@@ -799,7 +802,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         $operationsView.find('.list').removeClass('hovering');
-
+        enableInputs();
         formHelper.removeWaitingBG();
         formHelper.refreshTabbing();
     }
@@ -3618,11 +3621,11 @@ window.OperationsView = (function($, OperationsView) {
                                 .removeClass('modalHighlighted');
         toggleOperationsViewDisplay(true);
         formHelper.removeWaitingBG();
+        enableInputs();
         $operationsView.addClass('xc-hidden');
         $activeOpSection.addClass('xc-hidden');
         MainMenu.restoreState(mainMenuPrevState);
 
-        formHelper.removeWaitingBG();
         formHelper.clear();
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
@@ -3899,6 +3902,15 @@ window.OperationsView = (function($, OperationsView) {
         delete functionsListScrollers.splice(index, 1);
         delete suggestLists.splice(index, 1);
         checkIfStringReplaceNeeded();
+    }
+
+    // used to disable inputs while UDFS load
+    function disableInputs() {
+        $operationsView.find('.strPreview, .submit, .opSection')
+                        .addClass('tempDisabled');
+    }
+    function enableInputs() {
+        $operationsView.find('.tempDisabled').removeClass('tempDisabled');
     }
 
     function getFilterGroupHtml(index) {

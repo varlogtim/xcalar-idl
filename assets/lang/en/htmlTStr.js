@@ -662,7 +662,7 @@ module.exports = {
         "joinBack": "Join table back to original",
         "includeSample": "Include a sample of the rest of the fields",
         "aggFunc": "Aggregate Function",
-        "mapFilter": "Filter map functions"
+        "mapFilter": "Search map functions"
     },
 
     "extOpsModal": {

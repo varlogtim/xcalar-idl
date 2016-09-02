@@ -800,6 +800,7 @@ window.StartManager = (function(StartManager, $) {
                 return;
             }
             if ($('#workspacePanel').hasClass('active') &&
+                !$('#container').hasClass('columnPicker') &&
                 !$('.modalContainer:visible').length &&
                 !$('textarea:focus').length &&
                 !$('input:focus').length) {
