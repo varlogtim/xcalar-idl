@@ -97,6 +97,7 @@ window.StartManager = (function(StartManager, $) {
         SchedulerPanel.setup();
         setupModals();
         setupExtensions();
+        TutorialsSetup.setup();
 
         XVM.checkVersionMatch()
         .then(setupSession)
