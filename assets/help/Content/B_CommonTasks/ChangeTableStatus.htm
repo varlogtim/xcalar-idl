@@ -72,13 +72,13 @@
                             <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
                                 <div class="navigation-wrapper">
                                     <ul class="navigation clearfix">
-                                        <li class="has-children"><a href="../A_IntroductionTopics/Getting Started.htm">Getting started</a>
+                                        <li class="has-children"><a href="../A_IntroductoryTopics/Getting Started.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_IntroductionTopics/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_IntroductoryTopics/Requirements.htm">Requirements for Xcalar Insight</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_IntroductoryTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/FirstSteps.htm">First steps</a>
+                                                <li><a href="../A_IntroductoryTopics/FirstSteps.htm">First steps</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -102,7 +102,7 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
-                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                <li><a href="Map.htm">Using the map function to create new values</a>
                                                 </li>
                                                 <li><a href="Correlation.htm">Determining correlation between two values</a>
                                                 </li>
@@ -128,17 +128,17 @@
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
+                                        <li class="has-children"><a href="../D_ReferenceInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_RefInformation/InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_ReferenceInformation/InsightWindow.htm">Xcalar Insight window</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WkbkBrowser.htm">Workbook Browser</a>
+                                                <li><a href="../D_ReferenceInformation/WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                <li><a href="../D_ReferenceInformation/WorksheetWindow.htm">Worksheet window with tables</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/DataBrowser.htm">Data Browser</a>
+                                                <li><a href="../D_ReferenceInformation/DataBrowser.htm">Data Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/QueryGraph.htm">Query graph viewer</a>
+                                                <li><a href="../D_ReferenceInformation/QueryGraph.htm">Query graph viewer</a>
                                                 </li>
                                                 <li><a href="Table_options.htm">Table options</a>
                                                 </li>
@@ -230,7 +230,7 @@
                                                     </li>
                                                     <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                     </li>
-                                                    <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                    <li><a href="Map.htm">Using the map function to create new values</a>
                                                     </li>
                                                     <li><a href="Correlation.htm">Determining correlation between two values</a>
                                                     </li>
@@ -244,36 +244,36 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Understanding and changing table statuses</h1>
-                                        <p>A table can be an active, archived, or orphaned table. You can change the status of a table in one or multiple ways.</p>
-                                        <p>Tables consume memory regardless of their status. To see how much memory each table uses, open the <span class="UIelement">Monitor</span> tab. You can delete unnecessary tables from the <span class="UIelement">Monitor</span> tab or from the <span class="UIelement">Tables</span> panel.</p>
+                                        <p>A table can be an active, archived, or temporary table. You can change the status of a table in one or multiple ways.</p>
+                                        <p>Tables consume memory regardless of their status. To see how much memory each table uses, open the <span class="UIelement">Monitor</span> tab. You can drop unnecessary tables from the <span class="UIelement">Monitor</span> tab or from the <span class="UIelement">Tables</span> panel.</p>
                                         <h2>Active table</h2>
                                         <p>An active table is a table being displayed on a worksheet. You can perform operations on a column in an active table. </p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The table you are currently interacting with has a blue background for the table title. Other tables in the worksheet have a gray background for the table title, but these tables are also active tables. </div>
                                         <h2>Archived table</h2>
                                         <p>An archived table is a table that you set aside to reduce clutter in your worksheet.&#160;The archive table can be added back to the worksheet in the future. When you archive a table, both the table and the query graph associated with the table disappear.</p>
-                                        <h2>Orphaned table</h2>
-                                        <p>An orphaned table is a table that is no longer active after you perform an operation or undo  an operation. </p>
-                                        <div class="Example"><span class="label">Example</span>:&#160;From your dataset reference, you create a table named <span class="UIelement">airlines#pe8</span>. It is the active table displayed in the worksheet, in which you  can perform various operations. Suppose you change the data type of a column in <span class="UIelement">airlines#pe8</span>, a new table  called <span class="UIelement">airlines#pe9</span> is created, which becomes the active table. The table named <span class="UIelement">airlines#pe8</span> becomes an orphaned table.</div>
-                                        <p>An orphaned table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert To This Table</span> option in a query graph. <span class="GeneralProductName">Xcalar Insight</span> does not delete the active table resulting from the operation; instead, it categorizes the table as an orphaned table.</p>
-                                        <div class="Example"><span class="label">Example</span>:&#160;Suppose you change a data type for a column in <span class="UIelement">airlines#pe8</span> and the resultant table is named <span class="UIelement">airlines#pe9</span>. If you undo the data type change, airlines#pe8 becomes the active table again, but <span class="UIelement">airlines#pe9</span> is not deleted. Instead, <span class="UIelement">airlines#pe9</span> is kept as an orphaned table.</div>
-                                        <p>An orphaned table can be added back to the worksheet to become an active table again.</p>
+                                        <h2>Temporary table</h2>
+                                        <p>A temporary table is a table that is no longer active after you perform an operation or undo  an operation. </p>
+                                        <div class="Example"><span class="label">Example</span>:&#160;From your dataset reference, you create a table named <span class="UIelement">airlines#pe8</span>. It is the active table displayed in the worksheet, in which you  can perform various operations. Suppose you change the data type of a column in <span class="UIelement">airlines#pe8</span>, a new table  called <span class="UIelement">airlines#pe9</span> is created, which becomes the active table. The table named <span class="UIelement">airlines#pe8</span> becomes a temporary table.</div>
+                                        <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert To This Table</span> option in a query graph. <span class="GeneralProductName">Xcalar Insight</span> does not drop the active table resulting from the operation; instead, it categorizes the table as a temporary table.</p>
+                                        <div class="Example"><span class="label">Example</span>:&#160;Suppose you change a data type for a column in <span class="UIelement">airlines#pe8</span> and the resultant table is named <span class="UIelement">airlines#pe9</span>. If you undo the data type change, airlines#pe8 becomes the active table again, but <span class="UIelement">airlines#pe9</span> is not dropped. Instead, <span class="UIelement">airlines#pe9</span> is kept as a temporary table.</div>
+                                        <p>A temporary table can be added back to the worksheet to become an active table again.</p>
                                         <h2>Displaying statuses of all tables in your workbook</h2>
                                         <p>The <span class="UIelement">Tables</span> panel enables you to see the statuses of all tables in your workbook. If the workbook contains multiple worksheets, tables from all worksheets are shown in this panel. </p>
-                                        <p>Tables are categorized by status, and you can select tables to change their status or to delete.</p>
-                                        <div class="Note"><span class="label">NOTE</span>: Remember to click the <span class="UIelement">refresh tables</span> button for orphaned tables after you run an operation or undo an operation to see the most up-to-date list of orphaned tables. </div>
+                                        <p>Tables are categorized by status, and you can select tables to change their status or to drop.</p>
+                                        <div class="Note"><span class="label">NOTE</span>: Remember to click the <span class="UIelement">refresh tables</span> button for temporary tables after you run an operation or undo an operation to see the most up-to-date list of temporary tables. </div>
                                         <h2>Archiving a table</h2>
-                                        <p>You can only archive an active table.&#160;You cannot archive an orphaned table. Follow one of these steps to archive a table:</p>
+                                        <p>You can only archive an active table.&#160;You cannot archive a temporary table. Follow one of these steps to archive a table:</p>
                                         <ul>
                                             <li value="1">Right click the title bar for an active table to display a menu. Then select the <span class="UIelement">Archive Table</span> option.</li>
                                             <li value="2">Right click a table icon in theY query graph for the table to display a menu.&#160;Then select the <span class="UIelement">Archive Table</span> option.</li>
                                             <li value="3">In the <span class="UIelement">Tables List</span> panel, display the active tables.&#160;Select a table from the list and then click <span class="UIelement">ARCHIVE TABLES</span>.</li>
                                         </ul>
                                         <h2>Changing a table to an active table</h2>
-                                        <p>You can change an archived or orphaned table to an active table in one of two ways. </p>
+                                        <p>You can change an archived or temporary table to an active table in one of two ways. </p>
                                         <h3>From the Tables panel</h3>
                                         <p>Follow these steps to change the status of a table to active:</p>
                                         <ol>
-                                            <li value="1">In the <span class="UIelement">Tables</span> panel, display either a list of archived tables or orphaned tables.</li>
+                                            <li value="1">In the <span class="UIelement">Tables</span> panel, display either a list of archived tables or temporary tables.</li>
                                             <li value="2">Select the table that you want to change to an active table.&#160;You can select multiple tables from one list.</li>
                                             <li value="3">Click <span class="UIelement">ADD&#160;TO&#160;WORKSHEET</span>.</li>
                                         </ol>
@@ -283,10 +283,10 @@
                                             <li value="1">Go to any query graph that contains the table that you want to change to an active table.</li>
                                             <li value="2">Click the icon for the table in the query graph. In the pop-up menu, click <span class="UIelement">Add Table To Worksheet</span>.</li>
                                         </ol>
-                                        <p class="InPageSummary">A table can be an active, archived, or orphaned table. You can change the status of a table in one or multiple ways.</p>
+                                        <p class="InPageSummary">A table can be an active, archived, or temporary table. You can change the status of a table in one or multiple ways.</p>
                                         <p class="hashtag">ActiveTable</p>
                                         <p class="hashtag">ArchivedTable</p>
-                                        <p class="hashtag">OrphanedTable</p>
+                                        <p class="hashtag">TemporaryTable</p>
                                         <p class="hashtag">TablesPanel</p>
                                         <p class="hashtag">TablesList</p>
                                         <p class="hashtag">AddTableToWorksheet</p>

@@ -74,6 +74,7 @@ mcTableBodyStyle
 	name: Body1;
 	id: 2;
 	font-family: 'Open Sans';
+	vertical-align: top;
 }
 
 

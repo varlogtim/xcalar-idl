@@ -73,13 +73,13 @@
                             <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
                                 <div class="navigation-wrapper">
                                     <ul class="navigation clearfix">
-                                        <li class="has-children"><a href="../A_IntroductionTopics/Getting Started.htm">Getting started</a>
+                                        <li class="has-children"><a href="../A_IntroductoryTopics/Getting Started.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_IntroductionTopics/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_IntroductoryTopics/Requirements.htm">Requirements for Xcalar Insight</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_IntroductoryTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/FirstSteps.htm">First steps</a>
+                                                <li><a href="../A_IntroductoryTopics/FirstSteps.htm">First steps</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -103,7 +103,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/GroupBy.htm">Grouping data in a table</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/Map.htm">Using the map function to create new values from selected columns</a>
+                                                <li><a href="../B_CommonTasks/Map.htm">Using the map function to create new values</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/Correlation.htm">Determining correlation between two values</a>
                                                 </li>
@@ -129,17 +129,17 @@
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
+                                        <li class="has-children"><a href="../D_ReferenceInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_RefInformation/InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_ReferenceInformation/InsightWindow.htm">Xcalar Insight window</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WkbkBrowser.htm">Workbook Browser</a>
+                                                <li><a href="../D_ReferenceInformation/WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                <li><a href="../D_ReferenceInformation/WorksheetWindow.htm">Worksheet window with tables</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/DataBrowser.htm">Data Browser</a>
+                                                <li><a href="../D_ReferenceInformation/DataBrowser.htm">Data Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/QueryGraph.htm">Query graph viewer</a>
+                                                <li><a href="../D_ReferenceInformation/QueryGraph.htm">Query graph viewer</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/Table_options.htm">Table options</a>
                                                 </li>
@@ -323,7 +323,7 @@
                                         <p>After you upload the <span class="UIelement">calendar</span> module, it is available for all <span class="GeneralProductName">Xcalar Insight</span> users to use.</p>
                                         <h3>Executing the UDF</h3>
                                         <p>In <span class="GeneralProductName">Xcalar Insight</span>, start a map operation from the <span class="UIelement">Date</span> column. Select <span class="UIelement">User-Defined Functions</span> as the category and then select the <span class="UIelement">calendar:getWeekday</span> UDF. In the <span class="UIelement">Argument List</span> of the <span class="UIelement">Map</span> modal window, use the <span class="UIelement">Date</span> column ($Date)&#160;for the first argument and <span class="UIelement">%Y-%m-%d</span> as the second argument.</p>
-                                        <p>The process for executing a UDF is the same as those for executing other database functions. For more information about the map function, see <a href="../B_CommonTasks/Map.htm" class="MCXref xref">Using the map function to create new values from selected columns</a>.</p>
+                                        <p>The process for executing a UDF is the same as those for executing other database functions. For more information about the map function, see <a href="../B_CommonTasks/Map.htm" class="MCXref xref">Using the map function to create new values</a>.</p>
                                         <h3>Result of executing the UDF</h3>
                                         <p>The following table is created with an additional column showing the day of week for each date:</p>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
@@ -381,7 +381,7 @@
                                                 <p>Click <span class="UIelement">POINT TO&#160;DATA</span>. </p>
                                             </li>
                                         </ol>
-                                        <p>For more information about pointing the dataset to a data source, see <a href="../A_IntroductionTopics/FirstSteps.htm#Creating2" class="MCXref xref">Pointing to your data source</a>.</p>
+                                        <p>For more information about pointing the dataset to a data source, see <a href="../A_IntroductoryTopics/FirstSteps.htm#Creating2" class="MCXref xref">Pointing to your data source</a>.</p>
                                         <h3>Result of executing the UDF</h3>
                                         <p>Suppose the data source is a file named <span class="UIelement">myFile.xml. </span>Its path, which you specified in the <span class="UIelement">File Path</span> field, is passed to the UDF as the <span class="UIelement">fullPath</span> parameter. The contents of <span class="UIelement">myFile.xml</span> are passed to the UDF&#160;in <span class="UIelement">xmlString</span>. The function returns a string containing the corresponding JSON&#160;data to which the dataset reference will point.</p>
                                         <p class="InPageSummary">You can create UDFs by creating it in the UDF panel. You can start from a blank function or use an existing module as a template. Alternatively, you can upload a module to XCE. After a module is uploaded, you can invoke it when you execute an operation or when you point a dataset to a data source.</p>

@@ -102,10 +102,25 @@ window.Help = (function($, Help) {
 
         // need to make into array in order to sort topics by titles
         var categories = [];
+        // Sort categories in order of
+        // Introductory Topics -> Common Tasks -> Advanced Tasks
+        if (categoriesObj["Introductory Topics"]) {
+            categories.push(categoriesObj["Introductory Topics"]);
+            delete categoriesObj["Introductory Topics"];
+        }
+        if (categoriesObj["Common Tasks"]) {
+            categories.push(categoriesObj["Common Tasks"]);
+            delete categoriesObj["Common Tasks"];
+        }
+        if (categoriesObj["Advanced Tasks"]) {
+            categories.push(categoriesObj["Advanced Tasks"]);
+            delete categoriesObj["Advanced Tasks"];
+        }
         for (var topic in categoriesObj) {
             categories.push(categoriesObj[topic]);
         }
-        sortByTitles(categories);
+        
+        // sortByTitles(categories);
 
         for (var i = 0; i < categories.length; i++) {
 
@@ -187,6 +202,8 @@ window.Help = (function($, Help) {
                 categories[topic].subTopics.push(page);
             }
         }
+        // Remove Reference Information
+        delete categories["Reference Information"];
     }
 
     function getFormattedUrl(url) {

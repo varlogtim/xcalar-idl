@@ -72,13 +72,13 @@
                             <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
                                 <div class="navigation-wrapper">
                                     <ul class="navigation clearfix">
-                                        <li class="has-children"><a href="../A_IntroductionTopics/Getting Started.htm">Getting started</a>
+                                        <li class="has-children"><a href="../A_IntroductoryTopics/Getting Started.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_IntroductionTopics/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_IntroductoryTopics/Requirements.htm">Requirements for Xcalar Insight</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_IntroductoryTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/FirstSteps.htm">First steps</a>
+                                                <li><a href="../A_IntroductoryTopics/FirstSteps.htm">First steps</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -102,7 +102,7 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
-                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                <li><a href="Map.htm">Using the map function to create new values</a>
                                                 </li>
                                                 <li><a href="Correlation.htm">Determining correlation between two values</a>
                                                 </li>
@@ -128,17 +128,17 @@
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
+                                        <li class="has-children"><a href="../D_ReferenceInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_RefInformation/InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_ReferenceInformation/InsightWindow.htm">Xcalar Insight window</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WkbkBrowser.htm">Workbook Browser</a>
+                                                <li><a href="../D_ReferenceInformation/WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                <li><a href="../D_ReferenceInformation/WorksheetWindow.htm">Worksheet window with tables</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/DataBrowser.htm">Data Browser</a>
+                                                <li><a href="../D_ReferenceInformation/DataBrowser.htm">Data Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/QueryGraph.htm">Query graph viewer</a>
+                                                <li><a href="../D_ReferenceInformation/QueryGraph.htm">Query graph viewer</a>
                                                 </li>
                                                 <li><a href="Table_options.htm">Table options</a>
                                                 </li>
@@ -230,7 +230,7 @@
                                                     </li>
                                                     <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                     </li>
-                                                    <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                    <li><a href="Map.htm">Using the map function to create new values</a>
                                                     </li>
                                                     <li><a href="Correlation.htm">Determining correlation between two values</a>
                                                     </li>
@@ -245,6 +245,7 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Manipulating table columns</h1>
                                         <p>This section describes how to manipulate table columns without performing a database operation. All of the steps in this section involve using an option in the column drop-down menu.&#160;To display the drop-down menu, right click the column header.</p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;If you have an operation panel opened (for example, the <span class="UIelement">Map</span> panel), you must exit that panel before you can display the column drop-down menu. Right click the column header to exit the panel.</div>
                                         <h2>Adding a column</h2>
                                         <p>You can add a blank column and populate it with values from a function that you enter in the function bar. Follow these steps to add a blank column:</p>
                                         <ol>
@@ -255,7 +256,7 @@
                                             </li>
                                             <li value="3">
                                                 <p>(Optional) Type the column name. You must press Enter to record the name. </p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="20" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table column:</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table column:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">
@@ -279,16 +280,20 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <p>After you name the column, an equal sign (=) is displayed in the function bar, which enables you to immediately type a function.</p>
+                                                <p>After you name the column, an equal sign (=) is displayed in the function bar, which enables you to immediately type a function that populates the new column with values.</p>
                                             </li>
                                         </ol>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;When a column contains no values, the column drop-down menu has fewer options than the drop-down menu invoked from a column with values. You cannot perform functions such as join and filter on a blank column.</div>
                                         <h2>Deleting a column</h2>
                                         <p>In the column drop-down menu, select <span class="UIelement">Delete a column</span>. The column from which you invoke the drop-down menu is deleted.</p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;Deleting a column does not remove the field from the dataset reference. You can always add a deleted column back to a table. See <a href="AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>for information about how to add a column.</div>
                                         <h2>Duplicating a column</h2>
                                         <p>In the column drop-down menu, select <span class="UIelement">Duplicate a column</span>. A new column is duplicated to the right of the one from which you invoke the drop-down menu.</p>
                                         <p>The new column is named after the original column with an underscore and a number appended to it. For example, if the original column is named <span class="UIelement">ID</span>, the new column is named <span class="UIelement">ID_1</span>.</p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;If you execute a function on a column to manipulate its values, the same function automatically takes effect on its duplicates. For example, when you sort a column named <span class="UIelement">ID</span>, its duplicate, <span class="UIelement">ID_1</span>, is sorted; when you filter out a particular value from <span class="UIelement">ID</span>, the same filtering takes place in  <span class="UIelement">ID_1</span>. The only exception is that when you change the data type for a column, the change takes place only in the selected column. It does not take place in the duplicate column.</div>
+                                        <div class="Note">
+                                            <p><span class="label">NOTE:</span>&#160;If you perform a sort or filter function on a column, the same function automatically takes effect on its duplicates. For example, when you sort a column named <span class="UIelement">ID</span>, its duplicate, <span class="UIelement">ID_1</span>, is sorted; when you filter out a particular value from <span class="UIelement">ID</span>, the same filtering takes place in  <span class="UIelement">ID_1</span>. However, if you change the data type for a column, the change takes place only in the selected column. It does not take place in the duplicate column.</p>
+                                            <p>Suppose you sort numerically a column of the String type, the column's data type is changed to Integer after the sort. While the column's duplicate is sorted as well, the data type of the duplicate column remains as String.</p>
+                                        </div>
                                         <h2>Deleting duplicate columns</h2>
                                         <p>In the column drop-down menu, select <span class="UIelement">Delete other duplicates</span>. All duplicates of the selected column are deleted.</p>
                                         <h2>Hiding and unhiding a column</h2>
@@ -319,7 +324,7 @@
                                             <li value="1">In the column drop-down menu, select <span class="UIelement">Rename column</span>. The <span class="UIelement">New Column Name</span> pop-up is displayed.</li>
                                             <li value="2">
                                                 <p>In the pop-up, type the new column name and click the check mark icon to submit the name. </p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="20" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table column:</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table column:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">
@@ -353,8 +358,8 @@
                                             <li value="2">
                                                 <p>Type the delimiter in the <span class="UIelement">Split Column By</span> field. The delimiter is the character that separates the data to be split. Optionally, enter the number of splits. </p>
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the <span class="UIelement">Date</span> column contains dates in the mm/dd/yy format, you can enter the slash (/) as the delimiter and 1 as the number of splits. Two columns are created, one with the mm field and the other with the dd/yy field.</div>
-                                                <p>Click the check mark in the pop-up to submit your information.</p>
                                             </li>
+                                            <li value="3">Click the check mark in the pop-up to submit your information.</li>
                                         </ol>
                                         <h2>Changing the data type for a column</h2>
                                         <p>You can change the data type of a column to <span class="UIelement">Boolean</span>, <span class="UIelement">Integer</span>, <span class="UIelement">Float</span>, or <span class="UIelement">String</span>.</p>
@@ -366,13 +371,10 @@
                                         <ol>
                                             <li value="1">In the column drop-down menu, select <span class="UIelement">Sort</span>. A pop-up is displayed for you to specify whether to sort in ascending or descending order.</li>
                                             <li value="2">
-                                                <p>If the data type of the column is&#160;String and <span class="GeneralProductName">Xcalar Insight</span> decides that most of the values in the column are numbers, it displays the <span class="UIelement">Sort Suggestion</span> dialog box. Depending on the desired method of sorting, click <span class="UIelement">Sort alphabetically</span> or <span class="UIelement">Sort numerically</span>. </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select <span class="UIelement">Sort numerically</span>, the data type of the column is changed to  Integer.</div>
+                                                <p>If the data type of the column is&#160;String and <span class="GeneralProductName">Xcalar Insight</span> decides that most of the values in the column are numbers, it displays the <span class="UIelement">Sort Suggestion</span> dialog box. Depending on the desired method of sorting, click <span class="UIelement">Alphabetically</span> or <span class="UIelement">Numerically</span>. </p>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select <span class="UIelement">Numerically</span>, the data type of the column is changed to integer.</div>
                                             </li>
                                         </ol>
-                                        <p class="InPageSummary">You can manipulate table columns without performing a database operation. All of the steps in this section involve using an option in the column drop-down menu.&#160;To display the drop-down menu, right click the column header.</p>
-                                        <p class="hashtag">DropDownMenu</p>
-                                        <p class="hashtag">ColumnMenu</p>
                                     </div>
                                 </div>
                             </div>

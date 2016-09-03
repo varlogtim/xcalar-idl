@@ -479,8 +479,7 @@ a.glossaryTerm
 div.MCBreadcrumbsBox_0
 {
 	border-bottom: none;
-	font-size: .8em;
-	font-style: italic;
+	font-size: 14px;
 	border-bottom-width: 1px;
 	border-bottom-style: none;
 	border-bottom-color: black;
@@ -490,22 +489,25 @@ div.MCBreadcrumbsBox_0
 
 .xref
 {
-	color: #2D8DCC;
-	text-decoration: underline;
+	color: #378cb3;
+	text-decoration: none;
 }
 
 .xref:hover
 {
-	color: #BED230;
+	color: #378cb3;
+	text-decoration: underline;
 }
 
 .dropDownHotspot
 {
+	color: #378cb3;
 	text-decoration: none;
 }
 
 .dropDownHotspot:link
 {
+	color: #378cb3;
 	text-decoration: none;
 }
 
@@ -532,9 +534,55 @@ div.MCBreadcrumbsBox_0
 
 .dropDownBody
 {
-	border-bottom-color: #00bfff;
-	border-bottom-width: 2px;
+	border-bottom-color: #378cb3;
+	border-bottom-width: 1px;
 	border-bottom-style: solid;
+}
+
+.mcReset
+{
+	margin-left: 0;
+	margin-right: 0;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-left: 0;
+	padding-right: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	border-left-color: transparent;
+	border-left-style: none;
+	border-left-width: 0;
+	border-right-color: transparent;
+	border-right-style: none;
+	border-right-width: 0;
+	border-top-color: transparent;
+	border-top-style: none;
+	border-top-width: 0;
+	border-bottom-color: transparent;
+	border-bottom-style: none;
+	border-bottom-width: 0;
+	background-color: transparent;
+	background-image: none;
+	float: inherit;
+	font-size: inherit;
+	font-family: inherit;
+	font-style: inherit;
+	font-variant: inherit;
+	text-transform: inherit;
+	color: inherit;
+	letter-spacing: inherit;
+	word-spacing: inherit;
+	text-decoration: inherit;
+	text-align: inherit;
+}
+
+img._MCEquation_0
+{
+	font-family: 'Open Sans';
+	text-decoration: none;
+	font-style: normal;
+	color: #4a4a4a;
+	font-size: 14px;
 }
 
 .MCWebHelpFramesetLink a

@@ -72,13 +72,13 @@
                             <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
                                 <div class="navigation-wrapper">
                                     <ul class="navigation clearfix">
-                                        <li class="has-children"><a href="../A_IntroductionTopics/Getting Started.htm">Getting started</a>
+                                        <li class="has-children"><a href="../A_IntroductoryTopics/Getting Started.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_IntroductionTopics/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_IntroductoryTopics/Requirements.htm">Requirements for Xcalar Insight</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_IntroductoryTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/FirstSteps.htm">First steps</a>
+                                                <li><a href="../A_IntroductoryTopics/FirstSteps.htm">First steps</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -102,7 +102,7 @@
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
-                                                <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                <li><a href="Map.htm">Using the map function to create new values</a>
                                                 </li>
                                                 <li><a href="Correlation.htm">Determining correlation between two values</a>
                                                 </li>
@@ -128,17 +128,17 @@
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
+                                        <li class="has-children"><a href="../D_ReferenceInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_RefInformation/InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_ReferenceInformation/InsightWindow.htm">Xcalar Insight window</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WkbkBrowser.htm">Workbook Browser</a>
+                                                <li><a href="../D_ReferenceInformation/WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                <li><a href="../D_ReferenceInformation/WorksheetWindow.htm">Worksheet window with tables</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/DataBrowser.htm">Data Browser</a>
+                                                <li><a href="../D_ReferenceInformation/DataBrowser.htm">Data Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/QueryGraph.htm">Query graph viewer</a>
+                                                <li><a href="../D_ReferenceInformation/QueryGraph.htm">Query graph viewer</a>
                                                 </li>
                                                 <li><a href="Table_options.htm">Table options</a>
                                                 </li>
@@ -230,7 +230,7 @@
                                                     </li>
                                                     <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                     </li>
-                                                    <li><a href="Map.htm">Using the map function to create new values from selected columns</a>
+                                                    <li><a href="Map.htm">Using the map function to create new values</a>
                                                     </li>
                                                     <li><a href="Correlation.htm">Determining correlation between two values</a>
                                                     </li>
@@ -257,45 +257,38 @@
                                         <p>If you want to filter based on a condition (for example, whether a string value contains a substring or whether an integer value falls in a particular range), follow these steps:</p>
                                         <ol>
                                             <li value="1">Right click the heading of the column containing the value to filter. A drop-down menu appears.</li>
-                                            <li value="2">Select <span class="UIelement">Filter...</span> from the menu. The <span class="UIelement">Filter</span> modal appears.</li>
-                                            <li value="3">In the <span class="UIelement">Function</span> field, click the <span class="UIelement">Down</span> arrow to display a list of functions.</li>
-                                            <li value="4">
-                                                <p>Select the function to perform the filtering and then enter the arguments. For example, if you want to filter the <span class="UIelement">DepTime</span> column, you can select the <span class="UIelement">Contain</span> function and enter 740 as the argument. This function filters all values in the <span class="UIelement">DepTime</span> column that contain 740. As a result, you only see the flights with departure times of 740 and 1740. </p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="20" alt="Closed" data-mc-alt2="Open" />The following conditional functions are supported:</a></span>
-                                                    <div class="MCDropDownBody dropDownBody">
-                                                        <ul>
-                                                            <li value="1">And</li>
-                                                            <li value="2">Between</li>
-                                                            <li value="3">Contains</li>
-                                                            <li value="4">Eq</li>
-                                                            <li value="5">Exists</li>
-                                                            <li value="6">Ge</li>
-                                                            <li value="7">Gt</li>
-                                                            <li value="8">If</li>
-                                                            <li value="9">IfInt</li>
-                                                            <li value="10">IfStr</li>
-                                                            <li value="11">IsBoolean</li>
-                                                            <li value="12">IsFloat</li>
-                                                            <li value="13">IsInteger</li>
-                                                            <li value="14">Le</li>
-                                                            <li value="15">Like</li>
-                                                            <li value="16">Lt</li>
-                                                            <li value="17">Not</li>
-                                                            <li value="18">Or</li>
-                                                            <li value="19">Regex</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </li>
+                                            <li value="2">Select <span class="UIelement">Filter...</span> from the menu. The <span class="UIelement">FILTER</span> panel appears.</li>
+                                            <li value="3">Operand 1 is the column where you want to perform the filter. If you want to filter by another column, click the desired column when the cursor is in the Operand 1 field.</li>
+                                            <li value="4">In the <span class="UIelement">Filter Function</span> field, click the <span class="UIelement">Down</span> arrow to display a list of functions. For example, if you want to filter the value 3 in the column, you can select the Contains function and then enter 3 as Operand 2.</li>
+                                            <li value="5">Click <span class="UIelement">FILTER</span>. If you filter the value 3, all rows with 3 in the column are kept in the resultant table. All other rows are removed.</li>
                                         </ol>
+                                        <MadCap:dropDownHead>
+                                            <MadCap:dropDownHotspot>The following functions are supported:</MadCap:dropDownHotspot>
+                                        </MadCap:dropDownHead>
+                                        <MadCap:dropDownBody>
+                                            <ul>
+                                                <li value="1">And</li>
+                                                <li value="2">Between</li>
+                                                <li value="3">Contains</li>
+                                                <li value="4">Eq</li>
+                                                <li value="5">Exists</li>
+                                                <li value="6">Ge</li>
+                                                <li value="7">Gt</li>
+                                                <li value="8">If</li>
+                                                <li value="9">IfInt</li>
+                                                <li value="10">IfStr</li>
+                                                <li value="11">IsBoolean</li>
+                                                <li value="12">IsFloat</li>
+                                                <li value="13">IsInteger</li>
+                                                <li value="14">Le</li>
+                                                <li value="15">Like</li>
+                                                <li value="16">Lt</li>
+                                                <li value="17">Not</li>
+                                                <li value="18">Or</li>
+                                                <li value="19">Regex</li>
+                                            </ul>
+                                        </MadCap:dropDownBody>
                                         <div class="Example"><span class="label">TIP:</span>&#160;If you want to filter or exclude a value based on its occurrences, display the <span class="UIelement">Profile</span> window and start the filtering from the window as described in <a href="CountOccurrencesOfValues.htm" class="MCXref xref">Counting occurrences of values in a table column</a>. </div>
-                                        <p class="InPageSummary">You can filter a value in a table column by specifying whether you want to include or exclude a value. Alternatively, you can perform conditional filtering, which decides whether a value should be included or excluded based on a condition.</p>
-                                        <p class="hashtag">FilterInColumn</p>
-                                        <p class="hashtag">Filter</p>
-                                        <p class="hashtag">Column</p>
-                                        <p class="hashtag">FilterFunction</p>
-                                        <p class="hashtag">ContainFunctionForFilter</p>
-                                        <p class="hashtag">ContainFunction</p>
                                     </div>
                                 </div>
                             </div>

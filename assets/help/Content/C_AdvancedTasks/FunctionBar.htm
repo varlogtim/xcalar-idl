@@ -72,13 +72,13 @@
                             <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
                                 <div class="navigation-wrapper">
                                     <ul class="navigation clearfix">
-                                        <li class="has-children"><a href="../A_IntroductionTopics/Getting Started.htm">Getting started</a>
+                                        <li class="has-children"><a href="../A_IntroductoryTopics/Getting Started.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_IntroductionTopics/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_IntroductoryTopics/Requirements.htm">Requirements for Xcalar Insight</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_IntroductoryTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
                                                 </li>
-                                                <li><a href="../A_IntroductionTopics/FirstSteps.htm">First steps</a>
+                                                <li><a href="../A_IntroductoryTopics/FirstSteps.htm">First steps</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -102,7 +102,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/GroupBy.htm">Grouping data in a table</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/Map.htm">Using the map function to create new values from selected columns</a>
+                                                <li><a href="../B_CommonTasks/Map.htm">Using the map function to create new values</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/Correlation.htm">Determining correlation between two values</a>
                                                 </li>
@@ -128,17 +128,17 @@
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="../D_RefInformation/Reference.htm">Reference information</a>
+                                        <li class="has-children"><a href="../D_ReferenceInformation/Reference.htm">Reference information</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_RefInformation/InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_ReferenceInformation/InsightWindow.htm">Xcalar Insight window</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WkbkBrowser.htm">Workbook Browser</a>
+                                                <li><a href="../D_ReferenceInformation/WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                <li><a href="../D_ReferenceInformation/WorksheetWindow.htm">Worksheet window with tables</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/DataBrowser.htm">Data Browser</a>
+                                                <li><a href="../D_ReferenceInformation/DataBrowser.htm">Data Browser</a>
                                                 </li>
-                                                <li><a href="../D_RefInformation/QueryGraph.htm">Query graph viewer</a>
+                                                <li><a href="../D_ReferenceInformation/QueryGraph.htm">Query graph viewer</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/Table_options.htm">Table options</a>
                                                 </li>
@@ -234,18 +234,20 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Using the function bar</h1>
-                                        <p>The <span class="UIelement">Worksheet</span> window displays a function bar, which is a field preceded with the function symbol, <span class="UIelement">f(x)</span>.<span class="UIelement">  <![CDATA[ ]]></span>You can use the function bar in the following ways:</p>
+                                        <p>The <span class="UIelement">Worksheet</span> window displays a function bar, which is a field preceded with the function symbol, <span class="UIelement">f(x)</span>.<span class="UIelement"> </span>You can use the function bar in the following ways:</p>
                                         <ul>
                                             <li value="1">Search for a string in table names or table column headers.</li>
                                             <li value="2">Execute an operation by entering a function name with its associated parameters.</li>
                                         </ul>
                                         <h2>Searching for a string</h2>
                                         <p>You can type a string in the function bar to search for it in column headers and table names in the active worksheet. The search is case insensitive. </p>
-                                        <p>To move from one search hit to the next, press the <span class="UIelement">Return</span> or <span class="UIelement">Enter</span> key.</p>
+                                        <p>To move from one search result to the next, press the <span class="UIelement">Return</span> or <span class="UIelement">Enter</span> key.</p>
                                         <h2>Executing an operation</h2>
                                         <p>When entering an operation name in the function bar, always precede the name with the equal sign (=).</p>
-                                        <div class="Example"><span class="label">NOTE:</span>&#160;You can execute an operation only on a column that has a column name. If the column header is empty, you cannot type in the function bar.</div>
-                                        <p>Operations that you can execute from the function bar are listed below. You cannot execute operations not included in this section.</p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;You can execute an operation only on a column that has a column name. If the column header is empty, you cannot type in the function bar.</div>
+                                        <p>Operations that you can execute from the function bar are described in this section. You cannot execute other operations.</p>
+                                        <h3>About column names in the function bar</h3>
+                                        <p>The argument to an operation in the function bar can be a column name or a field name in the <span class="UIelement">Data Browser</span> for any row. Be sure to type a column name correctly when you copy it from your table. Part of the column header in your table might be obscured. For example, the column name <span class="UIelement">DayOfWeek_integer</span> might be visible as <span class="UIelement">DayOfWeek</span> in a narrow column that cannot accommodate the entire column name. If you mistype a column name as an argument, you might get unpredictable results. For example, the resultant column might be filled with the FNF (field not found) value.</p>
                                         <h3>Pull operation</h3>
                                         <p>Use the Pull operation to populate the active column with values from the column named in the operation. The source column can be a column already existing in the table or a column listed under the <span class="UIelement">DATA</span> header. After the pull operation, the data type of the active column is changed to match the type of the named column.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160; If the source column has been formatted (for example, as percentages), the format is not copied to the active column. That is, the values in the active column after the pull are  not in  percentages. </div>
@@ -253,8 +255,25 @@
                                         <h3>Map operation</h3>
                                         <p>You can execute all Map operations and pass the function names and argument values in the function bar.</p>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;You can add the values 3 and 4 with the Add function by typing <span class="UIelement">=map(add(3,4))</span>.</div>
-                                        <p>You can also invoke a UDF&#160;as a Map operation in the function bar. The following example in the function bar invokes a UDF for converting column1 to the UNIX timestamp:</p>
+                                        <p>You can also invoke a UDF&#160;in a Map operation in the function bar as shown in the following example, which invokes a UDF for converting column1 to the UNIX timestamp:</p>
                                         <p class="userInput">map(default:convertToUnixTS(column1, ))</p>
+                                        <h3>Example of a Map operation with nested functions</h3>
+                                        <p>You can nest functions in an operation by using brackets. The following steps illustrate how to perform a Map operation with nested functions and store the resultant values in a new column:</p>
+                                        <ol>
+                                            <li value="1">Click <span class="UIelement">Add a a column</span> in the column drop-down menu to create a blank column.</li>
+                                            <li value="2">Click the header of the new column. Type the column name and press <span class="UIelement">Enter</span>. This column becomes the active column and the function bar displays <span class="UIelement">f(x) =</span>, which means that you can start typing in it.</li>
+                                            <li value="3">For each column to be used as a function argument, verify that its data type is either Integer or Float. Change the data type if necessary.</li>
+                                            <li value="4">
+                                                <p>Enter the following Map operation:</p>
+                                                <p class="userInput">map(mult(mult(mult(div(sub(AskPrice_float, BidPrice_float), AskPrice_float),100), div(add(BidSize_float,AskSize_float),2)),100000))</p>
+                                                <p>This Map operation is equivalent to the following formula:</p>
+                                                <p>
+                                                    <img src="../GeneratedImages/Equations/Equation1.svg" alt="" class="_MCEquation_0 mcReset" />
+                                                </p>
+                                                <p>This operation has nested arithmetic functions such as Add, Sub (subtract), mult (multiply), and div (divide). When you type an opening bracket, <span class="GeneralProductName">Xcalar Insight</span> automatically adds the closing bracket. If there are mismatched brackets, an error message is displayed when <span class="GeneralProductName">Xcalar Insight</span> tries to execute the operation.</p>
+                                                <p>The resultant values of the Map operation are stored in the column you created in Step 1.</p>
+                                            </li>
+                                        </ol>
                                         <p class="InPageSummary">You can use the function bar to search for a string in column headers or table names, or to execute an operation or UDF.</p>
                                         <p class="hashtag">FunctionBar</p>
                                         <p class="hashtag">Search</p>

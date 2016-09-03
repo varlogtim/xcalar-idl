@@ -7,31 +7,37 @@
 @font-face
 {
     font-family: "Open Sans";
-    src: url(../../Fonts/open-sans.regular.ttf),
-	url(../../Fonts/OpenSans-Bold.ttf),
-	url(../../Fonts/OpenSans-BoldItalic.ttf),
-	url(../../Fonts/OpenSans-ExtraBold.ttf),
-	url(../../Fonts/OpenSans-ExtraBoldItalic.ttf),
-	url(../../Fonts/OpenSans-Italic.ttf),
-	url(../../Fonts/OpenSans-Light.ttf),
-	url(../../Fonts/OpenSans-LightItalic.ttf),
-	url(../../Fonts/OpenSans-Semibold.ttf),
-	url(../../Fonts/OpenSans-SemiboldItalic.ttf);
-    font-weight: normal;
+	font-weight: 400;
+    src: url(../../Fonts/open-sans.regular.ttf);
 } 
 
 @font-face
 {
-    font-family: "Open Sans Semibold";
-    src: url(../../Fonts/OpenSans-Semibold.ttf)
-    font-weight: normal;
+	font-family: "Open Sans";
+	font-weight: 600; 
+	src: url(../../Fonts/OpenSans-Semibold.ttf);
+} 
+
+@font-face
+{
+	font-family: "Open Sans";
+	font-weight: 300;
+	src: url(../../Fonts/OpenSans-Light.ttf);
+} 
+
+@font-face
+{
+    font-family: "Open Sans";
+    src: url(../../Fonts/OpenSans-Bold.ttf);
+    font-weight: 700;
 } 
 
 body
 {
 	font-family: "Open Sans", Arial, sans-serif;
 	line-height: 1.5em;
-	font-size: 19px;
+	font-size: 16px;
+	font-weight: 400;
 }
 
 a.BlackText
@@ -42,23 +48,31 @@ a.BlackText
 
 h1
 {
-	line-height: 30pt;
-	font-weight: bold;
-	color: #454040;
 	font-size: 36px;
+	line-height: 30pt;
+	color: #378cb3;
+	font-family: 'Open Sans';
+	font-weight: 300;
 }
 
 h2
 {
-	font-size: 1.5em;
-	font-weight: bold;
-	color: #454040;
+	font-size: 24px;
+	font-weight: 300;
+	color: #378cb3;
+	padding-top: 16px;
+	padding-bottom: 16px;
 }
 
 h2.SubCenter
 {
 	text-align: center;
 	margin-bottom: 1.2em;
+	font-size: 20px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-family: 'Open Sans';
+	font-weight: 600;
 }
 
 img.Hyperlinked
@@ -70,17 +84,14 @@ p
 {
 	margin-bottom: 8px;
 	margin-top: 8px;
-	font-weight: normal;
-	color: #454040;
 }
 
 p.Copyright
 {
-	font-size: 0.9em;
 	text-align: left;
-	color: #ffffff;
-	line-height: 1.6em;
-	margin: 0 0 10px 0;
+	margin: 10px 10px 10px 10px;
+	padding-left: 20px;
+	padding-bottom: 15px;
 }
 
 .centered-text
@@ -101,6 +112,11 @@ p.Copyright
 {
 	color: #ffffff;
 	font-weight: normal;
+}
+
+.inner-wrap .tab-bar .nav-search	/*This is to hide the search bar in the master page's header. Search bar on master page is outside of the header. */
+{
+	display: none;
 }
 
 .inner-wrap .main-section > .outer-row
@@ -157,7 +173,7 @@ p.Copyright
 
 #content-section
 {
-	padding-top: 60px;
+	padding-top: 20px;
 	padding-bottom: 60px;
 	background-color: #ffffff;
 	margin-top: -50px;
@@ -204,16 +220,17 @@ p.Copyright
 #content-section.mc-blurb .mc-bullets
 {
 	margin-top: 10px;
-	padding-left: 30px;
+	padding-left: 15px;
 	padding-right: 10px;
 }
 
 #content-section.mc-blurb .mc-bullets > li
 {
-	color: #000000;
 	/*	list-style-image: url('../Images/Bullet1.png'); */
 	margin-top: 8px;
 	line-height: 1.6em;
+	font-size: 12pt;
+	color: #454040;
 }
 
 /* Home Page Topic Hero section*/
@@ -224,8 +241,8 @@ div.topichero
 	background-size: cover;
 	background-repeat: no-repeat;
 	height: auto;
-	padding-bottom: 50px;
-	padding-top: 10px;
+	padding-bottom: 150px;
+	padding-top: 80px;
 }
 
 div.topichero h1
@@ -247,15 +264,16 @@ div.topichero h2
 
 div.footer
 {
-	padding-bottom: 20px;
-	padding-top: 20px;
-	background-color: #0a3549;
+	padding-bottom: 0px;
+	padding-top: 0px;
+	background-color: #f2f2f2;
+	height: 40px;
 }
 
 div.footer a
 {
 	text-decoration: none;
-	color: #FFFFFF;
+	color: #4a4a4a;
 }
 
 div.footer > div.outer-row
@@ -392,7 +410,7 @@ div.HomeWelcomePDFSection > div
 
 div.HomeWelcomePDFSection > div:nth-child(1)
 {
-	width: 91.667%;
+	width: 100%;
 	margin-left: 0%;
 }
 
@@ -565,6 +583,15 @@ div.HomeMasterPageFooter > div:nth-child(3)
 	margin-left: 0%;
 }
 
+div.HomePageSearchTip
+{
+	background-color: #f8f8f8;
+	padding-left: 14px;
+	padding-right: 15px;
+	padding-top: 10px;
+	padding-bottom: 14px;
+}
+
 h3
 {
 	font-weight: 600;
@@ -579,12 +606,10 @@ ul
 li
 {
 	font-weight: normal;
-	color: #454040;
 }
 
 h4
 {
-	font-weight: bold;
 	color: #454040;
 }
 
@@ -600,7 +625,7 @@ img
 
 /* Medium Layout */
 
-@media only screen and (max-width: 791px)
+@media only screen and (max-width: 900px)
 {
 	#content-section .right-section,
 	#content-section .left-section
@@ -692,7 +717,7 @@ img
 
 /* Small Layout */
 
-@media only screen and (max-width: 767px)
+@media only screen and (max-width: 900px)
 {
 	MadCap|searchBarProxy.homeSearchBar
 	{
@@ -802,13 +827,13 @@ img
 
 div.main-text-section	/*This is for the body text on the home page.*/
 {
-	width: 12in;
+	width: 100%;
 }
 
 ul.navigation ul
 {
 	border: #000000 1px none;
-	border-radius: 10px;
+	border-radius: 0px;
 }
 
 ul.navigation
@@ -816,8 +841,113 @@ ul.navigation
 	text-transform: uppercase;
 }
 
+ul.navigation > li.has-children:after	/*This is to mask out the pointer pointing to the top menu. */
+{
+	border-bottom-color: #378cb3;
+}
+
 ul.sub-menu
 {
 	text-transform: none;
+}
+
+div.body	/*Wrap all contents of home page in this div.*/
+{
+	width: 100%;
+}
+
+div.footer
+{
+	position: absolute;
+	height: 40px;
+	bottom: 0;
+	width: 100%;
+}
+
+.main-section > .row.outer-row
+{
+	max-width: 100%;
+}
+
+.row.outer-row
+{
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+div.body
+{
+	margin-bottom: 150px;
+}
+
+div.FloatingBox	/*Colorful boxes on the home page containing lists of topics*/
+{
+	float: left;
+	/*So all boxes are on the level.*/
+	width: 32%;
+	margin: 0.5%;
+	/*So that there's white space separating the colorful boxes. Set to %. Don't set to px.*/
+	height: 100%;
+	padding: 10px;
+	/*Gives space between border of a colorful box and the text inside it. Using px is OK because it's inside the box. It won't cause wrapping of the boxes even if browser window is narrow.*/
+}
+
+.leftBox	/*The leftBox, rightBox, middleBox classes specify only the color of each box and nothing else.*/
+{
+	background-color: #ddeaf2;
+}
+
+.middleBox
+{
+	background-color: #eaf5ea;
+}
+
+.rightBox
+{
+	background-color: #ffedb5;
+}
+
+div.FloatingBoxesContainer	/*Container for all the floating boxes.*/
+{
+	width: 100%;
+	padding: 0.5%;
+	margin: 0 auto;
+	height: 300px;
+	/*Set the fixed height so that the boxes have uniform height instead of varying with contents.*/
+}
+
+.headingColor1
+{
+	color: #5cb2e8;
+}
+
+.headingColor2
+{
+	color: #4f963e;
+}
+
+.headingColor3
+{
+	color: #b58900;
+}
+
+p.MasterPageListHead	/*Heading in the colorful boxes on master page.*/
+{
+	margin-bottom: 8px;
+	margin-top: 8px;
+	padding-bottom: 15px;
+	font-size: 24px;
+	word-wrap: break-word;
+	/*So that the heading will not overflow the box when the browser window is very narrow.*/
+	font-family: 'Open Sans';
+	font-weight: 300;
+}
+
+hr.MasterPageRule	/*For the HR on the master page*/
+{
+	width: auto;
+	margin-left: 10%;
+	margin-right: 10%;
+	border: 1px solid #378cb3;
 }
 

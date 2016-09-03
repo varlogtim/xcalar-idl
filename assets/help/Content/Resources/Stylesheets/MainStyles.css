@@ -1,51 +1,60 @@
 @namespace MadCap url(http://www.madcapsoftware.com/Schemas/MadCap.xsd);
 /*<meta />*/
 
-@font-face
+/*In the HTML file, always use "Open Sans" as the font family and specify the weight by a number.*/
+
+@font-face 
 {
     font-family: "Open Sans";
-    src: url(../../Fonts/open-sans.regular.ttf),
-	url(../../Fonts/OpenSans-Bold.ttf),
-	url(../../Fonts/OpenSans-BoldItalic.ttf),
-	url(../../Fonts/OpenSans-ExtraBold.ttf),
-	url(../../Fonts/OpenSans-ExtraBoldItalic.ttf),
-	url(../../Fonts/OpenSans-Italic.ttf),
-	url(../../Fonts/OpenSans-Light.ttf),
-	url(../../Fonts/OpenSans-LightItalic.ttf),
-	url(../../Fonts/OpenSans-Semibold.ttf),
-	url(../../Fonts/OpenSans-SemiboldItalic.ttf);
-    font-weight: normal;
+	font-weight: 400;
+    src: url(../../Fonts/open-sans.regular.ttf);
 } 
 
 @font-face
 {
-    font-family: "Open Sans Semibold";
-    src: url(../../Fonts/OpenSans-Semibold.ttf);
-    font-weight: normal;
+	font-family: "Open Sans";
+	font-weight: 600; 
+	src: url(../../Fonts/OpenSans-Semibold.ttf);
+} 
+
+@font-face
+{
+	font-family: "Open Sans";
+	font-weight: 300;
+	src: url(../../Fonts/OpenSans-Light.ttf);
+} 
+
+@font-face
+{
+    font-family: "Open Sans";
+    src: url(../../Fonts/OpenSans-Bold.ttf);
+    font-weight: 700;
 } 
 
 body
 {
-	color: #404040;
+	color: #4a4a4a;
 	font-family: "Open Sans", Arial, sans-serif, Avenir, Myriad;
+	font-weight: 400;
 	line-height: 1.5em;
-	font-size: 18px;
+	font-size: 16px;
 }
 
 a.MCBreadcrumbsLink
 {
-	font-style: italic;
-	text-decoration: underline;
+	color: #378cb3;
+	text-decoration: none;
 }
 
 a.MCBreadcrumbsLink:visited
 {
-	color: #000000;
+	color: #4a4a4a;
 }
 
 a.MCBreadcrumbsLink:hover
 {
-	color: #BED230;
+	color: #378cb3;
+	text-decoration: underline;
 }
 
 div.TopicContent
@@ -58,72 +67,69 @@ div.TopicContent
 h1
 {
 	margin-bottom: 8px;
-	padding-bottom: 10px;
+	padding-bottom: 20px;
 	margin-top: 30px;
 	font-size: 36px;
-	font-weight: bold;
-	color: #000000;
-	line-height: 42px;
+	color: #378cb3;
+	font-weight: 400;
+	line-height: 49px;
 }
 
 h2
 {
 	margin-bottom: 4px;
-	margin-top: 20px;
-	font-weight: bold;
-	color: #000000;
+	margin-top: 24px;
+	color: #378cb3;
+	font-weight: 400;
 }
 
 h3
 {
-	font-size: 1.1em;
+	font-size: 20px;
 	margin-bottom: 4px;
 	margin-top: 16px;
-	font-weight: bold;
-	color: #000000;
+	color: #378cb3;
+	font-weight: 400;
 }
 
 h4
 {
-	color: #454040;
-	font-weight: bold;
+	color: #378cb3;
+	font-weight: 300;
 }
 
 li
 {
 	margin-bottom: 6px;
 	margin-top: 6px;
-	font-weight: normal;
 }
 
 MadCap|breadcrumbsProxy
 {
 	border-bottom: none;
-	font-size: .8em;
-	font-style: italic;
+	font-size: 14px;
 	mc-breadcrumbs-prefix: 'You are here: ';
 }
 
 MadCap|xref
 {
-	color: #2D8DCC;
+	color: #378cb3;
 	mc-format: '{para}';
-	text-decoration: underline;
+	text-decoration: none;
 }
 
 MadCap|xref:hover
 {
-	color: #BED230;
+	color: #378cb3;
+	text-decoration: underline;
 }
 
-p
+/* p
 {
 	margin-bottom: 8px;
 	margin-top: 8px;
 	font-weight: normal;
-	color: #454040;
-	font-size: 18px;
-}
+} */
 
 div.sideContent
 {
@@ -163,7 +169,7 @@ p.hashtag	/*Tag keywords for building dictionary for use in in-page help*/
 
 span.UIelement
 {
-	font-weight: bold;
+	font-weight: 600;
 }
 
 p.InPageSummary
@@ -185,27 +191,22 @@ ul
 	
 }
 
+ul ul
+{
+	list-style-image: url('../Images/Insight_assets/xi-arrow-right.png');
+	/*Second level unordered list uses the right arrow as the bullet. */
+}
+
 MadCap|dropDownBody
 {
-	border-bottom-color: #00bfff;
-	border-bottom-width: 2px;
+	border-bottom-color: #378cb3;
+	border-bottom-width: 1px;
 	border-bottom-style: solid;
 }
 
 th
 {
-	font-weight: bold;
-}
-
-p.Example
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	font-weight: normal;
-	color: #454040;
-	font-size: 18px;
-	padding: 14px;
-	mc-auto-number-format: '{b}Example: {/b}';
+	font-weight: 600;
 }
 
 p.CLIoutput
@@ -239,7 +240,12 @@ p.faqAnswer
 ul.navigation ul
 {
 	border: #000000 1px none;
-	border-radius: 10px;
+	border-radius: 0px;
+}
+
+ul.navigation > li.has-children:after	/*This is to mask out the pointer pointing to the top menu. */
+{
+	border-bottom-color: #378cb3;
 }
 
 span.SearchHighlight
@@ -270,8 +276,6 @@ div
 
 div.Example
 {
-	border-top-color: #6495ed;
-	border-bottom-color: #6495ed;
 	border-bottom: none 2px #000000;
 	border-top: none 2px #000000;
 	border-left: solid 5px #5cb2e8;
@@ -291,8 +295,6 @@ span.label
 
 div.Note
 {
-	border-top-color: #6495ed;
-	border-bottom-color: #6495ed;
 	border-bottom: none 2px #000000;
 	border-top: none 2px #000000;
 	border-left: solid 5px #5cb2e8;
@@ -335,6 +337,40 @@ ul.navigation
 ul.sub-menu
 {
 	text-transform: none;
+}
+
+MadCap|xref:focus
+{
+	
+}
+
+a:hover
+{
+	color: #378cb3;
+}
+
+a:active
+{
+	color: #378cb3;
+}
+
+MadCap|dropDownHotspot
+{
+	color: #378cb3;
+}
+
+ol
+{
+	
+}
+
+MadCap|equation
+{
+	font-family: 'Open Sans';
+	text-decoration: none;
+	font-style: normal;
+	color: #4a4a4a;
+	font-size: 14px;
 }
 
 @media print
