@@ -19,6 +19,7 @@ window.SQL = (function($, SQL) {
     // mark if it's in a undo redo action
     var isUndo = false;
     var isRedo = false;
+    var lastSavedCursor = logCursor;
 
     // constant
     var sqlLocalStoreKey = "xcalar-query";
@@ -180,6 +181,7 @@ window.SQL = (function($, SQL) {
 
         commitLogs()
         .then(function() {
+            lastSavedCursor = logCursor; 
             return commitErrors();
         })
         .then(deferred.resolve)
@@ -267,6 +269,11 @@ window.SQL = (function($, SQL) {
             logCursor = c;
             updateLogPanel(logCursor);
             passed = true;
+            if (logCursor === lastSavedCursor) {
+                $("#autoSaveBtn").removeClass("unsave");
+            } else {
+                KVStore.logChange();
+            }
         })
         .fail(function(error) {
             console.error("undo failed", error);
@@ -325,6 +332,11 @@ window.SQL = (function($, SQL) {
             logCursor = c - 1;
             updateLogPanel(logCursor);
             passed = true;
+            if (logCursor === lastSavedCursor) {
+                $("#autoSaveBtn").removeClass("unsave");
+            } else {
+                KVStore.logChange();
+            }
         })
         .fail(function(error) {
             console.error("redo failed", error);
@@ -427,7 +439,9 @@ window.SQL = (function($, SQL) {
         // should change sqlToCommit before async call
 
         KVStore.append(KVStore.gLogKey, tmpSql, true, gKVScope.LOG)
-        .then(deferred.resolve)
+        .then(function() {
+            deferred.resolve();
+        })
         .fail(function(error) {
             sqlToCommit = tmpSql;
             deferred.reject(error);
@@ -487,6 +501,7 @@ window.SQL = (function($, SQL) {
                 var sql = new XcLog(oldLogs[i]);
                 addLog(sql, true);
             }
+            lastSavedCursor = logCursor;
 
             deferred.resolve();
         })
@@ -539,7 +554,6 @@ window.SQL = (function($, SQL) {
         // normal log
         if (logCursor !== logs.length - 1) {
             // when user do a undo before
-
             logCursor++;
             logs[logCursor] = sql;
             logs.length = logCursor + 1;
