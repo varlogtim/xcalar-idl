@@ -1494,12 +1494,10 @@ window.TblManager = (function($, TblManager) {
 
     function scrollAndFocusTable(tableName) {
         var tableId = xcHelper.getTableId(tableName);
-        focusTable(tableId);
-        var leftPos = ($('#xcTableWrap-' + tableId).position().left -
-                        MainMenu.getOffset()) + $('#mainFrame').scrollLeft();
-        $('#mainFrame').animate({scrollLeft: leftPos}, 600, function() {
+        xcHelper.centerFocusedTable(tableId, true)
+        .then(function() {
             RowScroller.genFirstVisibleRowNum();
-        });
+        })
     }
 
     function changeTableId(oldId, newId) {

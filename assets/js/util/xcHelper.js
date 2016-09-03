@@ -1253,6 +1253,7 @@ window.xcHelper = (function($, xcHelper) {
     //      onlyIfOffScreen: boolean, if true, will only animate table if visible
     //      alignLeft: boolean, if true, will align table to left of screen
     xcHelper.centerFocusedTable = function(tableWrapOrId, animate, options) {
+        var deferred = jQuery.Deferred();
         var $tableWrap;
         var tableId;
         if (typeof tableWrapOrId === "string") {
@@ -1289,7 +1290,8 @@ window.xcHelper = (function($, xcHelper) {
         if (tableLeft < mainMenuOffset && tableRight > mainFrameRight) {
             // table takes up the entire screen and more
             // no need to center
-            return;
+            deferred.resolve();
+            return deferred.promise();
         }
 
         // if this option is passed, it will not focus on the table if at least
@@ -1311,7 +1313,8 @@ window.xcHelper = (function($, xcHelper) {
                 // no animation
             } else {
                 // table is in view and at least 150 pixels are visible
-                return;
+                deferred.resolve();
+                return deferred.promise();
             }
         }
 
@@ -1336,11 +1339,14 @@ window.xcHelper = (function($, xcHelper) {
                                 function() {
                                     moveFirstColumn();
                                     xcHelper.removeSelectionRange();
+                                    deferred.resolve();
                                 });
         } else {
             $('#mainFrame').scrollLeft(scrollPosition);
             moveFirstColumn();
-        }
+            deferred.resolve();
+        } 
+        return deferred.promise();
     };
 
     // animate: boolean indicating whether to animate the scrolling
