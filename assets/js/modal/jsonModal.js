@@ -1204,10 +1204,10 @@ window.JSONModal = (function($, JSONModal) {
             '<div class="prettyJson secondary"></div>' +
             '<ul class="jsonModalMenu menu">' +
                 '<li class="selectionOpt">' +
-                    '<span class="check"></span>' +
+                    '<i class="check icon xi-tick fa-10"></i>' +
                     '<span class="text">Selection Mode</span></li>' +
                 '<li class="projectionOpt">' +
-                    '<span class="check"></span>' +
+                    '<i class="check icon xi-tick fa-10"></i>' +
                     '<span class="text">Projection Mode</span>' +
                 '</li>' +
             '</ul>' +

@@ -109,7 +109,7 @@ html.firefox, html.microsoft {
                 &.selectedCell, &.selectedCol, &.colSelected {
                     background-color: @color-table-oddSelectedCell-blue;
                 }
-                &.jsonElement, &.dataCol {
+                &.jsonElement, &.jsonElement .pop, &.dataCol {
                     background-color: @color-table-oddRow-green;
                 }
             }
@@ -128,7 +128,7 @@ html.firefox, html.microsoft {
                 &.selectedCell, &.selectedCol, &.colSelected {
                     background-color: @color-table-evenSelectedCell-blue;
                 }
-                &.jsonElement, &.dataCol {
+                &.jsonElement, &.jsonElement .pop, &.dataCol {
                     background-color: @color-table-evenRow-green;
                 }
             }
@@ -150,7 +150,7 @@ html.firefox, html.microsoft {
             &.selectedCell, &.colSelected, &.selectedCol {
                 background-color: @color-heather !important;
             }
-            &.jsonElement, &.dataCol {
+            &.jsonElement, &.jsonElement .pop, &.dataCol {
                 background-color: @color-tasman;
             }
 
@@ -350,24 +350,17 @@ html.firefox, html.microsoft {
         .position(relative);
 
         &:hover {
-            .icon {
+            .pop {
                 display: block;
             }
         }
 
-        .icon {
+        .pop {
             display: none;
-            cursor: pointer;
             .vertical-align;
             .position(absolute, @left: 2px);
-            .size(20px, 20px);
-            .image("../../images/worksheet/data-pop.png");
-            background-size: 20px 20px;
-            opacity: @opacity-unhover;
-
-            &:hover {
-                opacity: @opacity-hover;
-            }
+            .size(15px, 15px);
+            color: @color-font-dusk-blue;
         }
     }
 
@@ -568,17 +561,17 @@ html.firefox, html.microsoft {
 
         tbody tr {
             &:nth-child(odd) {
-                td.modalHighlighted {
+                td.modalHighlighted, td.jsonElement.modalHighlighted .pop {
                     background-color: @color-selectedCell-dark;
                 }
             }
             &:nth-child(even) {
-                td.modalHighlighted {
+                td.modalHighlighted, td.jsonElement.modalHighlighted .pop {
                     background-color: @color-selectedCell-light;
                 }
             }
             &:hover {
-                td.modalHighlighted {
+                td.modalHighlighted, td.jsonElement.modalHighlighted .pop {
                     background-color: @color-heather !important;
                 }
             }

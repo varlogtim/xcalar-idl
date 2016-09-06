@@ -1896,7 +1896,7 @@ window.ColManager = (function($, ColManager) {
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' clickable jsonElement' +
                             truncClass + '">' +
-                            '<div class="icon"></div>' +
+                            '<i class="pop icon xi_popout fa-15 xc-action"></i>' +
                             '<div class="dataColText clickable displayedData' +
                                 originalDataClass + truncClass + '">' +
                                     displayedVal +

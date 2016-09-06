@@ -410,9 +410,7 @@
     }
 
     .optionsBar {
-
         .dragHandle {
-            // .image("../../images/jsonModal/drag-handle.png", 50%, 45%);
             .size(20px, 100%);
             .cursor-move;
             margin-left: 2px;
@@ -422,7 +420,6 @@
                 line-height: 29px;
             }
         }
-
 
         .compareIcon {
              margin-right: 4px;
@@ -644,21 +641,6 @@
             .icon {
                color: @color-white; 
             }
-
-            // .icon {
-            //     .image("../../images/arrow-down-gray-flat.png", 50%, 50%);
-            //     height: 100%;
-            //     width: 100%;
-            // }
-        }
-
-        .selectBtn, .submitProject {
-            // display: inline-block;
-            // margin: 0 10px;
-            // color: @color-text-blue;
-            // &.hidden {
-            //     display: none;
-            // }
         }
     }
 
@@ -858,9 +840,9 @@
             }
         }
         .check {
-            .size(@width: 24px, @height: 100%);
-            .image("../../images/tick-action.png", 50%, 50%);
-            .position(absolute, @left: 0px, @top: 0px);
+            .size(@width: 20px, @height: 10px);
+            .position(absolute, @top: 10px, @left: 5px);
+            color: @color-bg-select-blue;
             display: none;
         }
         .text {
@@ -869,14 +851,10 @@
         }
     }
 }
-
-
-
 /* End Of Pretty Json Modal */
 
 /* Quick Aggregate Modal */
 #aggModal {
-
     .size(@width: 920px, @height: 650px, @min-height: ~"650px !important");
 
     .modalHeader {

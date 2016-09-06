@@ -1846,7 +1846,7 @@ window.TblManager = (function($, TblManager) {
     function addRowListeners(newCells) {
         var $jsonEle = newCells.find('.jsonElement');
         $jsonEle.dblclick(showJSONMoal);
-        $jsonEle.on("click", ".icon", showJSONMoal);
+        $jsonEle.on("click", ".pop", showJSONMoal);
 
         newCells.find('.rowGrab').mousedown(function(event) {
             if (event.which === 1) {
@@ -1933,7 +1933,8 @@ window.TblManager = (function($, TblManager) {
                 lastSelectedCell = $editableHead;
             }
 
-            if (event.ctrlKey || event.metaKey) {
+            if (isSystemMac && event.metaKey ||
+                !isSystemMac && event.ctrlKey) {
                 if ($el.closest('.selectedCell').length > 0) {
                     if (notDropDown) {
                         unhighlightColumn($editableHead);
@@ -1984,15 +1985,15 @@ window.TblManager = (function($, TblManager) {
             lastSelectedCell = $editableHead;
         });
 
-        $thead[0].oncontextmenu = function(e) {
-            var $target = $(e.target).closest('.header');
+        $thead[0].oncontextmenu = function(event) {
+            var $target = $(event.target).closest('.header');
             if ($target.length) {
                 $target = $target.find('.dropdownBox');
                 var click = $.Event("click");
                 click.rightClick = true;
-                click.pageX = e.pageX;
+                click.pageX = event.pageX;
                 $target.trigger(click);
-                e.preventDefault();
+                event.preventDefault();
             }
         };
 
@@ -2119,11 +2120,9 @@ window.TblManager = (function($, TblManager) {
                 // not focus when in modal unless bypassModa is true
                 return;
             }
-            // if (event.ctrlKey || event.shiftKey || event.metaKey) {
-            //     if ($(event.target).is('.iconHelper')) {
-            //         return;
-            //     }
-            // }
+            if (isSystemMac && event.ctrlKey) {
+                return;
+            }
             var headCol = $(this).closest('th');
 
             TblAnim.startColDrag(headCol, event);
