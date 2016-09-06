@@ -1975,7 +1975,10 @@ window.xcHelper = (function($, xcHelper) {
                     subQuery = {
                         "query"   : tempString,
                         "name"    : operationName,
-                        "dstTable": getDstTableFromQuery(tempString, operationName)
+                        "srcTable": getSrcTableFromQuery(tempString, 
+                                                         operationName),
+                        "dstTable": getDstTableFromQuery(tempString, 
+                                                          operationName)
                     };
                     queries.push(subQuery);
                     tempString = "";
@@ -1993,12 +1996,25 @@ window.xcHelper = (function($, xcHelper) {
             subQuery = {
                 "query"   : tempString,
                 "name"    : operationName,
+                "srcTable": getSrcTableFromQuery(tempString, operationName),
                 "dstTable": getDstTableFromQuery(tempString, operationName)
             };
             queries.push(subQuery);
         }
 
         return (queries);
+    };
+
+    function getSrcTableFromQuery(query, type) {
+        var keyWord = "--srctable";
+        var index = getKeyWordIndexFromQuery(query, keyWord);
+        if (index === -1) {
+            return null;
+        }
+        index += keyWord.length;
+        query = query.slice(index).trim();
+        var tableName = parseSearchTerm(query);
+        return (tableName);
     };
 
     function getDstTableFromQuery(query, type) {
@@ -2018,43 +2034,50 @@ window.xcHelper = (function($, xcHelper) {
 
         index += keyWord.length;
         query = query.slice(index).trim();
-        var quote = query[0];
-        var wrappedInQuotes = true;
-        if (quote !== "'" && quote !== '"') {
-            wrappedInQuotes = false;
-        } else {
-            query = query.slice(1);
-        }
-
-        var isEscaped = false;
-        var tableName = "";
-        for (var i = 0; i < query.length; i++) {
-            if (isEscaped) {
-                isEscaped = false;
-                tableName += query[i];
-                continue;
-            }
-            if (query[i] === "\\") {
-                isEscaped = true;
-                tableName += query[i];
-            } else if (wrappedInQuotes) {
-                if (query[i] === quote) {
-                    break;
-                } else {
-                    tableName += query[i];
-                }
-            } else if (!wrappedInQuotes) {
-                if (query[i] === " " || query[i] === ";") {
-                    break;
-                } else {
-                    tableName += query[i];
-                }
-            }
-        }
+        var tableName = parseSearchTerm(query);
+        
         if (type === "load" && tableName.indexOf(gDSPrefix) === -1) {
             tableName = gDSPrefix + tableName;
         }
         return (tableName);
+    }
+
+    // if passing in "tableNa\"me", will return tableNa\me and not tableNa
+    function parseSearchTerm(str) {
+        var quote = str[0];
+        var wrappedInQuotes = true;
+        if (quote !== "'" && quote !== '"') {
+            wrappedInQuotes = false;
+        } else {
+            str = str.slice(1);
+        }
+
+        var isEscaped = false;
+        var result = "";
+        for (var i = 0; i < str.length; i++) {
+            if (isEscaped) {
+                isEscaped = false;
+                result += str[i];
+                continue;
+            }
+            if (str[i] === "\\") {
+                isEscaped = true;
+                result += str[i];
+            } else if (wrappedInQuotes) {
+                if (str[i] === quote) {
+                    break;
+                } else {
+                    result += str[i];
+                }
+            } else if (!wrappedInQuotes) {
+                if (str[i] === " " || str[i] === ";") {
+                    break;
+                } else {
+                    result += str[i];
+                }
+            }
+        }
+        return (result);
     }
 
     function getKeyWordIndexFromQuery(query, keyWord) {

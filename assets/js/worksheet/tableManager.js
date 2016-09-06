@@ -11,8 +11,6 @@ window.TblManager = (function($, TblManager) {
             focusWorkspace: boolean to determine whether we should focus back on
                             workspace, we focus on workspace when adding a table
                             from the datastores panel
-            lockTable: boolean, if true then this is an intermediate table that
-                      will be locked throughout it's active life
             afterStartup: boolean, default is true. Set to false if tables are
                       being added during page load
             selectCol: number. column to be highlighted when table is ready
@@ -88,7 +86,6 @@ window.TblManager = (function($, TblManager) {
             // append newly created table to the back, do not remove any tables
             addTableOptions = {
                 "afterStartup" : true,
-                "lockTable"    : options.lockTable,
                 "selectCol"    : options.selectCol,
                 "isUndo"       : options.isUndo,
                 "position"     : options.position,
@@ -678,7 +675,8 @@ window.TblManager = (function($, TblManager) {
             deferred.resolve();
         })
         .fail(function() {
-            var success = tableDeleteFailHandler(arguments, tables, noAlert, txId);
+            var success = tableDeleteFailHandler(arguments, tables, noAlert, 
+                                                 noLog, txId);
             if (success) {
                 if (tableType === TableType.Undone) {
                     KVStore.commit();
@@ -1129,7 +1127,7 @@ window.TblManager = (function($, TblManager) {
         gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
     };
 
-    function tableDeleteFailHandler(results, tables, noAlert, txId) {
+    function tableDeleteFailHandler(results, tables, noAlert, noLog, txId) {
         var hasSuccess = false;
         var fails = [];
         var errorMsg = "";
@@ -1162,7 +1160,7 @@ window.TblManager = (function($, TblManager) {
                 errorMsg = fails[0].error + ". " + tablesMsg;
                 Alert.error(StatusMessageTStr.PartialDeleteTableFail, errorMsg);
             }
-        } else if (noAlert) {
+        } else if (!noLog) {
             Transaction.fail(txId, {
                 "error"  : fails[0].error + ". " + ErrTStr.NoTablesDeleted,
                 "failMsg": StatusMessageTStr.DeleteTableFailed,
@@ -1349,8 +1347,6 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         afterStartup: boolean to indicate if these tables are added after
                       page load
-        lockTable: boolean, if true then this is an intermediate table that will
-                   be locked throughout it's active life
         selectCol: number, column to be selected once new table is ready
         isUndo: boolean, default is false. If true, we are adding this table
                 through an undo,
@@ -1365,7 +1361,6 @@ window.TblManager = (function($, TblManager) {
         var oldId;
         options = options || {};
         var afterStartup = options.afterStartup || false;
-        var lockTable = options.lockTable || false;
         var selectCol = options.selectCol;
         var wasTableReplaced = false;
 
@@ -1429,34 +1424,12 @@ window.TblManager = (function($, TblManager) {
             }
         }
 
-        if (lockTable) {
-            // replace just the ids instead of the entire table so we won't
-            // see the flicker of intermediate tables
-
-            if (oldId == null) {
-                oldId = xcHelper.getTableId(tablesToReplace[0]);
-            }
-
-            $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
-                                .find(".tableTitle .hashName")
-                                .text('#' + newTableId);
-            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + newTableId)
-                                    .removeClass("rowScrollerToRemove");
-            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + newTableId)
-                                .removeClass("dagWrapToRemove");
-            changeTableId(oldId, newTableId);
-
-            var table = gTables[newTableId];
-            TableList.addTables([table], IsActive.Active);
-            return PromiseHelper.resolve(null);
-        } else {
-            var parallelOptions = {
-                afterStartup: afterStartup,
-                selectCol   : selectCol
-            };
-            return (TblManager.parallelConstruct(newTableId, tablesToRemove,
-                                                 parallelOptions));
-        }
+        var parallelOptions = {
+            afterStartup: afterStartup,
+            selectCol   : selectCol
+        };
+        return (TblManager.parallelConstruct(newTableId, tablesToRemove,
+                                             parallelOptions));
     }
 
     // used for recreating undone tables in refreshTables

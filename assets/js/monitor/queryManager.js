@@ -217,6 +217,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         Transaction.pendingCancel(id);
+        // unlockSrcTables(mainQuery); // xx not yet implemented
         $query.find('.cancelIcon').addClass('disabled');
         var statusesToIgnore = [StatusT.StatusOperationHasFinished];
 
@@ -1097,6 +1098,26 @@ window.QueryManager = (function(QueryManager, $) {
                 '</div>' +
             '</div>';
         return html;
+    }
+
+    // xx can some of the src tables be simultaneously used by another operation
+    // and need to remain locked?
+    function unlockSrcTables(mainQuery) {
+        var queryStr = mainQuery.getQuery();
+        var queries = xcHelper.parseQuery(queryStr);
+        var srcTables = [];
+        for (var i = 0; i < queries.length; i++) {
+            if (queries[i].srcTable) {
+                srcTables.push(queries[i].srcTable);
+            }
+        }
+        var tableId;
+        for (var i = 0; i < srcTables.length; i++) {
+            tableId = xcHelper.getTableId(srcTables[i]);
+            if (gTables[tableId]) {
+                xcHelper.unlockTable(tableId);
+            }
+        }
     }
 
      /* Unit Test Only */

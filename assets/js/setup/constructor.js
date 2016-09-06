@@ -2825,7 +2825,7 @@ FormHelper.prototype = {
 
         if (!columnPicker.noEvent) {
             var colSelector = ".xcTable .header, .xcTable td.clickable";
-            $("#mainFrame").on("click.columnPicker", colSelector, function() {
+            $("#mainFrame").on("click.columnPicker", colSelector, function(event) {
                 var callback = columnPicker.colCallback;
                 if (callback == null || !(callback instanceof Function)) {
                     return;
@@ -2840,7 +2840,7 @@ FormHelper.prototype = {
             });
 
             var headSelector = ".xcTheadWrap";
-            $("#mainFrame").on("click.columnPicker", headSelector, function() {
+            $("#mainFrame").on("click.columnPicker", headSelector, function(event) {
                 var callback = columnPicker.headCallback;
                 if (callback == null || !(callback instanceof Function)) {
                     return;

@@ -699,6 +699,10 @@ window.xcFunction = (function($, xcFunction) {
 
         XIApi.map(txId, mapString, tableName, fieldName, undefined, icvMode)
         .then(function(tableAfterMap) {
+            // xx not yet implemented
+            // if (Transaction.checkCanceled(txId)) {
+            //     return PromiseHelper.reject();
+            // }
             finalTableName = tableAfterMap;
             finalTableId = xcHelper.getTableId(finalTableName);
 
@@ -712,7 +716,6 @@ window.xcFunction = (function($, xcFunction) {
                                            [tableName], worksheet, options);
         })
         .then(function() {
-
             xcHelper.unlockTable(tableId);
 
             sql.newTableName = finalTableName;
