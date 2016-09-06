@@ -123,7 +123,8 @@ module.exports = {
         "user": "User",
         "tutorUser":  "John Smith",
         "unknown": "unknown",
-        "signOut": "Sign out",
+        "SignOut": "Sign out",
+        "About": "About",
         "Help": "Help Docs",
     },
 
@@ -750,6 +751,12 @@ module.exports = {
         "SearchHint": "Search for Extension",
         "MyExt": "My Extensions",
         "Table": "Table"
+    },
+
+    "about": {
+      "Version": "Version",
+      "SHA": "SHA",
+      "copyRight": "Copyright © 2016 Xcalar Insight. All rights reserved."
     },
 
     "tutor": {

@@ -243,6 +243,7 @@ window.StartManager = (function(StartManager, $) {
         SmartCastView.setup();
         DeleteTableModal.setup();
         ExtModal.setup();
+        AboutModal.setup();
     }
 
     function setupUserBox() {
@@ -271,6 +272,10 @@ window.StartManager = (function(StartManager, $) {
             if (!$tab.hasClass("active")) {
                 $tab.click();
             }
+        });
+
+        $menu.on("click", ".about", function() {
+            AboutModal.show();
         });
 
         $("#userName").text(username);

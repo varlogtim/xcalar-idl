@@ -2467,6 +2467,52 @@ html.microsoft {
     }
 }
 
+#aboutModal {
+    .size(@width: 400px, @height: auto);
+    bottom: auto;
+
+    .modalHeader {
+        .size(@height: 25px);
+        background-color: @color-bg-select-blue;
+
+        .close {
+            top: 2px;
+
+            .icon {
+                font-size: 14px;
+            }
+        }
+    }
+
+    .modalMain {
+        padding: 42px 51px 23px 51px;
+        .font(@size: 12px, @color: @color-font-greyish-brown, @align: center);
+
+        .logoSection {
+            .size(@width: 73px, @height: 73px);
+            margin: 0 auto;
+            background-color: @color-bg-select-blue;
+
+            .logo {
+                .center-align;
+            }
+        }
+
+        .infoSection {
+            > div {
+                margin-top: 12px;
+            }
+
+            .title {
+                .font(@weight: bold, @line-height: 19px);
+            }
+        }
+
+        .copyRightSection {
+            margin-top: 13px;
+        }
+    }
+}
 
 .ui-draggable-dragging {
     .cursor-grabbing;
