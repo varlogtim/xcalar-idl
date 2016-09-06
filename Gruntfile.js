@@ -70,7 +70,8 @@ module.exports = function(grunt) {
           'assets/stylesheets/css/style.css': 'assets/stylesheets/less/style.less',
           'assets/stylesheets/css/login.css': 'assets/stylesheets/less/login.less',
           'assets/stylesheets/css/mcf.css': 'assets/stylesheets/less/mcf.less',
-          'assets/stylesheets/css/installer.css': 'assets/stylesheets/less/installer.less'
+          'assets/stylesheets/css/installer.css': 'assets/stylesheets/less/installer.less',
+          'assets/stylesheets/css/xu.css': 'assets/stylesheets/less/xu.less'
         }
       }
     },

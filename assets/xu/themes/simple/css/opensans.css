@@ -1,0 +1,51 @@
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  font-style: normal;
+  src: url('Open-Sans-regular.eot') format('embedded-opentype'),
+       local('Open Sans'),
+       local('Open-Sans-regular'),
+       url('../webfonts/Open-Sans-regular.woff2') format('woff2'),
+       url('../webfonts/Open-Sans-regular.woff') format('woff'),
+       url('../webfonts/Open-Sans-regular.ttf') format('truetype'),
+       url('../webfonts/Open-Sans-regular.svg') format('svg');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 700;
+  font-style: normal;
+  src: url('Open-Sans-700.eot');
+  src: url('Open-Sans-700.eot') format('embedded-opentype'),
+       local('Open Sans Bold'),
+       local('Open-Sans-700'),
+       url('../webfonts/Open-Sans-700.woff2') format('woff2'),
+       url('../webfonts/Open-Sans-700.woff') format('woff'),
+       url('../webfonts/Open-Sans-700.ttf') format('truetype'),
+       url('../webfonts/Open-Sans-700.svg') format('svg');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 600;
+  font-style: normal;
+  src: url('Open-Sans-600http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot');
+  src: url('Open-Sans-600http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot?#iefix') format('embedded-opentype'),
+       local('Open Sans Semibold'),
+       local('Open-Sans-600'),
+       url('../webfonts/Open-Sans-600.woff2') format('woff2'),
+       url('../webfonts/Open-Sans-600.woff') format('woff'),
+       url('../webfonts/Open-Sans-600.ttf') format('truetype'),
+       url('../webfonts/Open-Sans-600.svg') format('svg');
+}
+
+@font-face {
+  font-family: 'icomoon';
+  src:  url('../webfonts/icomoon.eot?qfkfdd');
+  src:  url('../webfonts/icomoon.eot?qfkfdd#iefix') format('embedded-opentype'),
+    url('../webfonts/icomoon.ttf?qfkfdd') format('truetype'),
+    url('../webfonts/icomoon.woff?qfkfdd') format('woff'),
+    url('../webfonts/icomoon.svg?qfkfdd#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
