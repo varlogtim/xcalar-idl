@@ -2396,12 +2396,12 @@ window.TblManager = (function($, TblManager) {
         var newTable =
             '<thead>' +
               '<tr>' +
-                '<th style="width: 50px;" class="col0 th rowNumHead"' +
-                    ' title="' + TooltipTStr.SelectAllColumns + '" ' +
+                '<th style="width: 50px;" class="col0 th rowNumHead">' +
+                  '<div class="header">' +
+                    '<input value="" spellcheck="false" disabled title="' +
+                    TooltipTStr.SelectAllColumns + '" ' +
                     'data-toggle="tooltip"' +
                     ' data-placement="top" data-container="body">' +
-                  '<div class="header">' +
-                    '<input value="" spellcheck="false" disabled>' +
                   '</div>' +
                 '</th>';
         var numCols = columns.length;

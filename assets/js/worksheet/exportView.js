@@ -379,7 +379,7 @@ window.ExportView = (function($, ExportView) {
             return (deferred.promise());
         }
 
-        checkDuplicateExportName(exportName + ".csv") // XX csv is temporary
+        checkDuplicateExportName(exportName)
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
                 xcHelper.validate([{
@@ -512,7 +512,7 @@ window.ExportView = (function($, ExportView) {
 
         $selectableThs = $ths.not('.rowNumHead');
 
-        $ths.find('input').css('pointer-events', 'none');
+        // $ths.find('input').css('pointer-events', 'none');
         $ths.addClass('exportable');
 
         $ths.on('mousedown.addColToExport', function(event) {
@@ -643,7 +643,7 @@ window.ExportView = (function($, ExportView) {
         $ths.removeClass('modalHighlighted');
         $tables.find('td').removeClass('modalHighlighted');
 
-        $ths.find('input').css('pointer-events', 'initial');
+        // $ths.find('input').css('pointer-events', 'initial');
         focusedThNum = null;
         focusedListNum = null;
     }

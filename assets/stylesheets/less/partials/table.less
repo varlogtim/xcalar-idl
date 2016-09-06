@@ -586,12 +586,10 @@ html.firefox, html.microsoft {
     }
 
     &.exportViewOpen {
-        td.col0 {
-            position: relative;
-            z-index: 37;
-        }
         th.col0 {
             pointer-events: initial !important;
+            // columnPicker class disables the select all behavior of the first
+            // column header, but we want it for export
         }
     }
 
