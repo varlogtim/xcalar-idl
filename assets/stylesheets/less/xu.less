@@ -1,0 +1,93 @@
+@import "partials/mixins/common.less";
+@import "partials/icon.less";
+@import "partials/basic.less";
+ 
+h1, h2, h3, h4, h5, h6 {
+	color: @color-bg-select-blue;
+	text-align: center;
+	.size(@width: 800px);
+	.font(@weight: 300);
+}
+
+h1 {
+	.font(@size: 36px);	  
+}
+
+h2 {
+	.font(@size: 30px);	  
+}
+
+h3 {
+	.font(@size: 24px);	  
+}
+
+.base-font {
+	.font(@size: 14px,
+      @line-height: 1.7, @family: Open Sans);
+}
+
+.body-xcalar-insight-provi {
+	.size(@width: 800px, @height: 72px);
+	.base-font;
+	.font(@color: @color-font-greyish-brown, @align: center);
+}
+
+.body-xcalar-insight-provi .text-style-1 {
+	.font(@weight: bold);
+}
+
+.body-xcalar-insight-provi .text-style-2 {
+	.font(@color: @color-font-select-blue);
+}
+
+.body-body-text-blt {
+	.size(@width: 500px, @height: 24px);
+	.base-font;
+}
+
+.body-body-textlink-blt-hover {
+	.body-body-text-blt;
+	.font(@color: @color-font-select-blue);
+}
+
+.body-text-indblt {
+	.size(@width: 460px, @height: 24px);
+	.base-font;
+}
+
+.body-text-indblt .text-style-1{
+	.font(@family: LucidaGrande);
+}
+
+.body-body-textlink-indblt-up {
+	.size(@width: 500px, @height: 24px);
+	.base-font;
+	.font(@color: @color-font-select-blue);
+}
+
+.body-body-textlink-indblt-hover {
+	.size(@width: 500px, @height: 24px);
+	.base-font;
+	.font(@family: LucidaGrande);
+}
+
+/* Buttons */
+.button-submit-up, .button-submit-hover, .button-submit-down, .button-submit-disable{
+	.btn;
+	.size(@width: 150px, @height: 36px);
+}
+
+.button-submit-disable {
+	opacity: 0.15;
+}
+
+/* TextFields */
+.size(@width: 284px, @height: 30px);
+.textfield-body {	
+	background-color: @color-bg-white-three;
+	border: solid 1px @color-bg-white-five;
+}
+.textfield-focus {
+	color: @color-white;
+	border: solid 1px @color-bg-soft-blue;
+}
