@@ -1354,7 +1354,7 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').scrollLeft(scrollPosition);
             moveFirstColumn();
             deferred.resolve();
-        } 
+        }
         return deferred.promise();
     };
 
@@ -1726,6 +1726,10 @@ window.xcHelper = (function($, xcHelper) {
      *         append: boolean, if true, will append text rather than replace
      */
     xcHelper.fillInputFromCell = function ($target, $input, prefix, options) {
+        if ($target == null || $input == null) {
+            console.error("error case");
+            return;
+        }
         // $input needs class "argument"
         if ((!$input.hasClass('argument') && !$input.hasClass('arg')) ||
             $input.closest('.colNameSection').length !== 0 ||
@@ -1982,11 +1986,11 @@ window.xcHelper = (function($, xcHelper) {
                     tempString = tempString.trim();
                     operationName = tempString.split(" ")[0];
                     subQuery = {
-                        "query"   : tempString,
-                        "name"    : operationName,
-                        "srcTables": getSrcTableFromQuery(tempString, 
+                        "query"    : tempString,
+                        "name"     : operationName,
+                        "srcTables": getSrcTableFromQuery(tempString,
                                                          operationName),
-                        "dstTable": getDstTableFromQuery(tempString, 
+                        "dstTable": getDstTableFromQuery(tempString,
                                                           operationName)
                     };
                     queries.push(subQuery);
@@ -2003,10 +2007,10 @@ window.xcHelper = (function($, xcHelper) {
             tempString = tempString.trim();
             operationName = tempString.split(" ")[0];
             subQuery = {
-                "query"   : tempString,
-                "name"    : operationName,
+                "query"    : tempString,
+                "name"     : operationName,
                 "srcTables": getSrcTableFromQuery(tempString, operationName),
-                "dstTable": getDstTableFromQuery(tempString, operationName)
+                "dstTable" : getDstTableFromQuery(tempString, operationName)
             };
             queries.push(subQuery);
         }
@@ -2043,7 +2047,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
         return (tableNames);
-    };
+    }
 
     function getDstTableFromQuery(query, type) {
         var keyWord = "--dsttable";

@@ -1,6 +1,6 @@
 // module name must start with "UExt"
 window.UExtDev = (function(UExtDev) {
-    /* 
+    /*
      * Note of UExtDev.buttons:
      * 1. it must be an array, each element is an object,
      *    which specify one function,
@@ -23,21 +23,27 @@ window.UExtDev = (function(UExtDev) {
     UExtDev.buttons = [{
         "buttonText"   : "Estimate Join Size",
         "fnName"       : "estimateJoin",
-        "arrayOfFields": [
-        {
+        "arrayOfFields": [{
             "type"      : "column",
             "name"      : "Left Column",
             "fieldClass": "lCol",
+            "autofill"  : true,
+            "typeCheck" : {
+                "multiColumn": true
+            }
         },
         {
-            "type"      : "column",
+            "type"      : "table",
             "name"      : "Right Full Tablename",
             "fieldClass": "rTable"
         },
         {
             "type"      : "column",
             "name"      : "Right Column",
-            "fieldClass": "rCol"
+            "fieldClass": "rCol",
+            "typeCheck" : {
+                "multiColumn": true
+            }
         },
         {
             "type"      : "number",
@@ -45,8 +51,8 @@ window.UExtDev = (function(UExtDev) {
             "fieldClass": "leftLimit",
             "typeCheck" : {
                 "allowEmpty": true,
-                "integer": true,
-                "min"    : 1
+                "integer"   : true,
+                "min"       : 1
             }
         },
         {
@@ -55,8 +61,8 @@ window.UExtDev = (function(UExtDev) {
             "fieldClass": "rightLimit",
             "typeCheck" : {
                 "allowEmpty": true,
-                "integer": true,
-                "min"    : 1
+                "integer"   : true,
+                "min"       : 1
             }
         },
         {
@@ -68,11 +74,11 @@ window.UExtDev = (function(UExtDev) {
         ],
     }];
 
-    // UExtDev.actionFn must reutrn a XcSDK.Extension obj or null 
+    // UExtDev.actionFn must reutrn a XcSDK.Extension obj or null
     UExtDev.actionFn = function(functionName) {
         // it's a good convention to use switch/case to handle
         // different function in the extension and handle errors.
-        switch(functionName) {
+        switch (functionName) {
             case "estimateJoin":
                 return estimateJoin();
             default:
@@ -98,47 +104,29 @@ window.UExtDev = (function(UExtDev) {
             var self = this;
 
             var args = self.getArgs();
-
-
             var rTableName = args.rTable;
-            var lColName;
-            var lColNames;
 
-            if (typeof args.lCol === "object") {
-                lColNames = args.lCol;
-                lColName = args.lCol[0];
-            } else {
-                lColName = args.lCol;
+            var lColNames = getColNamesHepler(args.lCol);
+            var lColName = lColNames[0];
 
-                // XXX We should allow clicking on tables other than the main table
-                // but since we don't, we will have to type. This means that the
-                // user will have to type the $. So we have to strip it if they did
-                if (lColName.trim().indexOf(gColPrefix) === 0) {
-                    lColName = lColName.trim().substring(1);
-                }
-                lColNames = [lColName];
-            }
+            var srcTableName = self.getTriggerTable().getName();
 
-            var srcTableName;
-            if (args.srcTableName) {
-                srcTableName = args.srcTableName;
-            } else {
-                // if args.srcTableName is not passed in, we get colname
-                // from column that triggered the action
-                srcTableName = self.getTriggerTable().getName();
-            }
-
-            // XXX ExtManager currently passes in bools as strings
-            if ((typeof args.unlock === "boolean" && args.unlock) ||
-                (typeof args.unlock === "string" && args.unlock === "true")) {
-                // XXX Here we are double unlocking. It currently works since 
+            if (args.unlock === true) {
+                // XXX Here we are double unlocking. It currently works since
                 // the second unlock becomes a noop. But this is not future
                 // proof.
                 xcHelper.unlockTable(xcHelper.getTableId(srcTableName));
             }
 
-            var leftLimit = args.leftLimit || 100;
-            var rightLimit = args.rightLimit || 100;
+            var leftLimit = args.leftLimit;
+            if (leftLimit == null) {
+                leftLimit = 100;
+            }
+
+            var rightLimit = args.rightLimit;
+            if (rightLimit == null) {
+                rightLimit = 100;
+            }
             
             var leftGBColName = ext.createColumnName();
             var rightGBColName = ext.createColumnName();
@@ -153,57 +141,43 @@ window.UExtDev = (function(UExtDev) {
                                           ext.createTempTableName())
             .then(function(tableName) {
                 leftGBTableName = tableName;
-                return (ext.getNumRows(tableName));
+                return ext.getNumRows(tableName);
             })
             .then(function(count) {
                 leftCount = count;
-                return (ext.sortDescending(leftGBColName, leftGBTableName,
-                                           ext.createTempTableName()));
+                return ext.sortDescending(leftGBColName, leftGBTableName,
+                                           ext.createTempTableName());
             })
             .then(function(leftSortedTable) {
                 if (leftLimit > leftCount) {
                     leftLimit = leftCount;
                 }
-                return (ext.fetchDataAndParse(leftSortedTable, 1, leftLimit));
+                return ext.fetchDataAndParse(leftSortedTable, 1, leftLimit);
             })
             .fail(function() {
                 return PromiseHelper.reject();
             });
 
-            var rColName;
-            var rColNames;
-            if (typeof args.rCol === "object") {
-                rColNames = args.rCol;
-                rColName = args.rCol[0];
-            } else {
-                rColName = args.rCol;
-
-                // XXX We should allow clicking on tables other than the main table
-                // but since we don't, we will have to type. This means that the
-                // user will have to type the $. So we have to strip it if they did
-                if (rColName.trim().indexOf(gColPrefix) === 0) {
-                    rColName = rColName.trim().substring(1);
-                }
-                rColNames = [rColName];
-            }
+            var rColNames = getColNamesHepler(args.rCol);
+            var rColName = rColNames[0];
 
             var rightPromise = ext.groupBy(AggrOp.Count, rColNames, rColName,
                                            false, rTableName, rightGBColName,
                                            ext.createTempTableName())
             .then(function(tableName) {
                 rightGBTableName = tableName;
-                return (ext.getNumRows(tableName));
+                return ext.getNumRows(tableName);
             })
             .then(function(count) {
                 rightCount = count;
-                return (ext.sortDescending(rightGBColName, rightGBTableName,
-                                           ext.createTempTableName()));
+                return ext.sortDescending(rightGBColName, rightGBTableName,
+                                           ext.createTempTableName());
             })
             .then(function(rightSortedTable) {
                 if (rightLimit > rightCount) {
                     rightLimit = rightCount;
                 }
-                return (ext.fetchDataAndParse(rightSortedTable, 1, rightLimit));
+                return ext.fetchDataAndParse(rightSortedTable, 1, rightLimit);
             })
             .fail(function() {
                 return PromiseHelper.reject();
@@ -211,19 +185,20 @@ window.UExtDev = (function(UExtDev) {
 
             XcSDK.Promise.when(leftPromise, rightPromise)
             .then(function(leftArray, rightArray) {
-                var minLeftValue = leftArray[leftArray.length-1][leftGBColName];
+                var minLeftValue =
+                        leftArray[leftArray.length - 1][leftGBColName];
                 var minRightValue =
-                                rightArray[rightArray.length-1][rightGBColName];
+                        rightArray[rightArray.length - 1][rightGBColName];
                 // Convert left and right array into huge objects
                 var i = 0;
                 var leftObj = {};
                 var rightObj = {};
-                for (i = 0; i<leftArray.length; i++) {
+                for (i = 0; i < leftArray.length; i++) {
                     leftObj[leftArray[i][lColName]] =
                                                     leftArray[i][leftGBColName];
                 }
-                for (i = 0; i<rightArray.length; i++) {
-                    rightObj[rightArray[i][rColName]] = 
+                for (i = 0; i < rightArray.length; i++) {
+                    rightObj[rightArray[i][rColName]] =
                                                   rightArray[i][rightGBColName];
                 }
 
@@ -258,25 +233,23 @@ window.UExtDev = (function(UExtDev) {
                 expSum += numKeysLeftInRightTable * minLeftValue/2;
 
                 deferred.resolve({
-                    maxSum: maxSum.toLocaleString(),
-                    expSum: expSum.toLocaleString(),
-                    minSum: minSum.toLocaleString()
+                    "maxSum": maxSum.toLocaleString(),
+                    "expSum": expSum.toLocaleString(),
+                    "minSum": minSum.toLocaleString()
                 });
-                // xx currently we only show alert modal if 1 left column is 
-                // passed in, multiple cols are passed in in the join modal
-                if (typeof args.lCol !== "object") {
+                // We only show alert modal if not triggered from joinView
+                if (!args.fromJoin) {
                     Alert.show({
-                        "title" : "Estimated Join Size",
-                        "msg"   : "Max Rows: " + maxSum.toLocaleString() + "\n" +
+                        "title": "Estimated Join Size",
+                        "msg"  : "Max Rows: " + maxSum.toLocaleString() + "\n" +
                                   "Expected Rows: " + expSum.toLocaleString() + "\n" +
                                   "Min Rows: " + minSum.toLocaleString() + "\n"
                     });
                 }
-                
             })
             .fail(function(leftError, rightError) {
                 console.log(leftError, rightError);
-                deferred.reject();
+                deferred.reject(leftError, rightError);
             });
 
             return deferred.promise();
@@ -284,6 +257,10 @@ window.UExtDev = (function(UExtDev) {
 
         // Do not forget to return the extension
         return ext;
+    }
+
+    function getColNamesHepler(cols) {
+        return cols.map(function(col) { return col.getName(); });
     }
 
     return UExtDev;

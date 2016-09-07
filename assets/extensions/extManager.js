@@ -494,7 +494,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             submitArgs();
         });
 
-        $extArgs.on("focus", ".argument.type-column", function() {
+        var focusSelector = ".argument.type-column, .argument.type-table";
+        $extArgs.on("focus", focusSelector, function() {
             $lastInputFocused = $(this);
         });
 
@@ -519,7 +520,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             xcHelper.fillInputFromCell($target, $lastInputFocused, "", {
                 "type": "table"
             });
-        }
+        };
         var columnPicker = {
             "state"       : "extState",
             "colCallback" : colCallback,
@@ -804,7 +805,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         if (typeCheck.allowEmpty) {
-            if (argType === "string") {
+            // XXX now table is a string, just a temp change
+            if (argType === "string" || argType === "table") {
                 return ({
                     "valid": true,
                     "arg"  : arg

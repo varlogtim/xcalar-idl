@@ -610,15 +610,15 @@ window.JoinView = (function($, JoinView) {
 
     function estimateJoinSize() {
         var tableIds = getTableIds();
-        var colNames = getClauseColNames();
-
+        var cols = getClauseCols();
         var argList = {
-            leftLimit : 100,
-            rightLimit: 100,
-            lCol      : colNames[0],
-            rCol      : colNames[1],
-            rTable    : gTables[tableIds[1]].tableName,
-            unlock    : true
+            "leftLimit" : 100,
+            "rightLimit": 100,
+            "lCol"      : cols[0],
+            "rCol"      : cols[1],
+            "rTable"    : gTables[tableIds[1]].getName(),
+            "unlock"    : true,
+            "fromJoin"  : true
         };
 
         var $estimatorWrap = $joinView.find('.estimatorWrap');
@@ -724,14 +724,13 @@ window.JoinView = (function($, JoinView) {
     }
 
 
-    function getClauseColNames() {
+    function getClauseCols() {
         var tableIds = getTableIds();
         var lTableId = tableIds[0];
         var rTableId = tableIds[1];
         var lCols = [];
         var rCols = [];
-        var lColNames = [];
-        var rColNames = [];
+
         $clauseContainer.find(".joinClause:not(.placeholder)").each(function() {
             var $joinClause = $(this);
             var lClause = $joinClause.find(".leftClause").val().trim();
@@ -744,17 +743,22 @@ window.JoinView = (function($, JoinView) {
         });
 
         var lTable = gTables[lTableId];
-        for (var i = 0; i < lCols.length; i++) {
-            var col = lTable.getColByFrontName(lCols[i]);
-            lColNames[i] = col.backName;
-        }
+        lCols = lCols.map(function(colName) {
+            var progCol = lTable.getColByFrontName(colName);
+            var backColName = progCol.getBackColName();
+            var colType = progCol.getType();
+            return new XcSDK.Column(backColName, colType);
+        });
 
         var rTable = gTables[rTableId];
-        for (var i = 0; i < rCols.length; i++) {
-            var col = rTable.getColByFrontName(rCols[i]);
-            rColNames[i] = col.backName;
-        }
-        return ([lColNames, rColNames]);
+        rCols = rCols.map(function(colName) {
+            var progCol = rTable.getColByFrontName(colName);
+            var backColName = progCol.getBackColName();
+            var colType = progCol.getType();
+            return new XcSDK.Column(backColName, colType);
+        });
+
+        return ([lCols, rCols]);
     }
 
     function checkNextBtn() {

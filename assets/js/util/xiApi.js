@@ -71,12 +71,18 @@ window.XIApi = (function(XIApi, $) {
         }
 
         var deferred = jQuery.Deferred();
+        var order;
+        var keyName;
+
         XcalarMakeResultSetFromTable(tableName)
         .then(function(resultSet) {
+            order = resultSet.metaOutput.ordering;
+            keyName = resultSet.keyAttrHeader.name;
             // Note that this !== self in this scope
-            XcalarSetFree(tableName);
-            deferred.resolve(resultSet.metaOutput.ordering,
-                             resultSet.keyAttrHeader.name);
+            return XcalarSetFree(resultSet.resultSetId);
+        })
+        .then(function() {
+            deferred.resolve(order, keyName);
         })
         .fail(deferred.reject);
 
@@ -339,7 +345,7 @@ window.XIApi = (function(XIApi, $) {
         if (tableName === null) {
             return PromiseHelper.reject("Invalid args in getNumRows");
         }
-        return (XcalarGetTableCount(tableName));
+        return XcalarGetTableCount(tableName);
     };
 
     XIApi.fetchData = function(tableName, startRowNum, rowsToFetch) {
