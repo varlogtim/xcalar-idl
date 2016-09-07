@@ -436,7 +436,6 @@ window.JSONModal = (function($, JSONModal) {
             }
             var numSelected = $jsonWrap.find('.projectSelected').length;
             var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
-
             $jsonWrap.find('.colsSelected').text(numSelected + '/' + totalCols +
                                                  ' selected');
         } else {
@@ -490,6 +489,8 @@ window.JSONModal = (function($, JSONModal) {
         $jsonClone.data('colnum', $jsonWrap.data('colnum'));
         $jsonClone.data('rownum', $jsonWrap.data('rownum'));
         $jsonClone.data('tableid', $jsonWrap.data('tableid'));
+        $jsonClone.find('.colsSelected').data('totalcols', 
+                            $jsonWrap.find('.colsSelected').data('totalcols'));
 
         var index = $jsonWrap.index();
         jsonData.splice(index + 1, 0, jsonData[index]);
@@ -1101,7 +1102,7 @@ window.JSONModal = (function($, JSONModal) {
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.SortAsc + '">' +
                     // '<i class="icon xi-arrow-down"></i>' +
-                    '<i class="icon xi-arrowtail-down"></i>' +
+                    '<i class="icon xi-sort"></i>' +
                 '</div>' +
                 '<div class="btn btn-small btn-secondary remove" data-toggle="tooltip" ' +
                     'data-container="body" ' +
