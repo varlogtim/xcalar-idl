@@ -1818,6 +1818,7 @@ window.TblManager = (function($, TblManager) {
             // So we are going to handle this, which removes the background
             // And the handler below will move the focus onto this table
             var txId = $(this).data("txid");
+            xcHelper.refreshTooltip($(".lockedTableIcon .iconPart"), 100);
             QueryManager.cancelQuery(txId);
         });
         $xcTableWrap.mousedown(function(event) {

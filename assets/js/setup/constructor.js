@@ -230,7 +230,7 @@ TableMeta.prototype = {
 
     getImmediateNames: function() {
         if (!this.backTableMeta ||
-            !("valueAttrs" in backTableMeta)) {
+            !("valueAttrs" in this.backTableMeta)) {
             return []; // Cannot test, just let it go.
         }
         var allVals = this.backTableMeta.valueAttrs;
