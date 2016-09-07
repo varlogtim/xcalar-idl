@@ -1759,7 +1759,7 @@ window.TblManager = (function($, TblManager) {
             xcHelper.dropdownOpen($dropdown, $('#tableMenu'), options);
         });
 
-        // Change from $xcTheadWrap.find('.tableGrab').mosedown...
+        // Change from $xcTheadWrap.find('.tableGrab').mousedown...
         $xcTheadWrap.on('mousedown', '.tableGrab', function(event) {
             // Not Mouse down
             if (event.which !== 1) {
@@ -1798,7 +1798,14 @@ window.TblManager = (function($, TblManager) {
     function addTableListeners(tableId) {
         var $xcTableWrap = $('#xcTableWrap-' + tableId);
         var oldId = gActiveTableId;
-        $xcTableWrap.mousedown(function() {
+        $xcTableWrap.on("mousedown", ".lockedTableIcon", function(event) {
+            // handlers fire in the order that it's bound in.
+            // So we are going to handle this, which removes the background
+            // And the handler below will move the focus onto this table
+            var txId = $(this).data("txid");
+            QueryManager.cancelQuery(txId);
+        });
+        $xcTableWrap.mousedown(function(event) {
             if (gActiveTableId === tableId ||
                 $xcTableWrap.hasClass('tableOpSection')) {
                 return;

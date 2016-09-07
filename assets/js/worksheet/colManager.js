@@ -401,8 +401,6 @@ window.ColManager = (function($, ColManager) {
         // when index === numColInfos
         newTableNames[numColInfos] = tableName;
 
-        xcHelper.lockTable(tableId);
-
         var sql = {
             "operation"   : SQLOps.ChangeType,
             "tableName"   : tableName,
@@ -410,12 +408,15 @@ window.ColManager = (function($, ColManager) {
             "newTableName": newTableNames[0],
             "colTypeInfos": colTypeInfos
         };
+
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ChangeType,
             "operation": SQLOps.ChangeType,
             "sql"      : sql,
             "steps"    : numColInfos
         });
+
+        xcHelper.lockTable(tableId, txId);
 
         var promises = [];
         for (i = numColInfos - 1; i >= 0; i--) {
@@ -595,6 +596,7 @@ window.ColManager = (function($, ColManager) {
     //             "operation": SQLOps.ChangeType
     //         };
     //         msgId = StatusMessage.addMsg(msgObj);
+    //         // XXX: no transaction id?!?!
     //         xcHelper.lockTable(tableId);
     //         WSManager.addTable(finalTableId);
 
@@ -671,13 +673,13 @@ window.ColManager = (function($, ColManager) {
         var newTableNames = [];
         var newFieldNames = [];
 
-        xcHelper.lockTable(tableId);
-
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.SplitColumn,
             "operation": SQLOps.SplitCol,
             "steps"    : -1
         });
+
+        xcHelper.lockTable(tableId, txId);
 
         getSplitNumHelper()
         .then(function(colToSplit, delimIndex) {

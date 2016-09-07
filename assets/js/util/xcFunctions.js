@@ -40,7 +40,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var finalTableName;
 
-        xcHelper.lockTable(tableId);
+        xcHelper.lockTable(tableId, txId);
 
         XIApi.filter(txId, fltStr, tableName)
         .then(function(tableAfterFilter) {
@@ -84,8 +84,6 @@ window.xcFunction = (function($, xcFunction) {
         var frontColName = progCol.getFronColName();
         var backColName = progCol.getBackColName();
 
-        xcHelper.lockTable(tableId);
-
         var title = xcHelper.replaceMsg(AggTStr.AggTitle, {"op": aggrOp});
         var instr = xcHelper.replaceMsg(AggTStr.AggInstr, {
             "col": frontColName,
@@ -94,7 +92,6 @@ window.xcFunction = (function($, xcFunction) {
 
         var aggInfo = Aggregates.checkAgg(tableId, backColName, aggrOp);
         if (aggInfo != null && (!aggName || aggName[0] !== gAggVarPrefix)) {
-            xcHelper.unlockTable(tableId);
             setTimeout(function() {
                 var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
                     "val": aggInfo.value
@@ -131,6 +128,8 @@ window.xcFunction = (function($, xcFunction) {
             "sql"      : sql,
             "steps"    : 1
         });
+
+        xcHelper.lockTable(tableId, txId);
 
         // XXX temp hack because backend doesn't but should take gAggVarPrefix
         // as first char for aggName
@@ -231,7 +230,7 @@ window.xcFunction = (function($, xcFunction) {
         // user timeout because it may fail soon if table is already sorted
         // lock table will cause blinking
         var timer = setTimeout(function() {
-            xcHelper.lockTable(tableId);
+            xcHelper.lockTable(tableId, txId);
         }, 200);
 
         var finalTableName;
@@ -398,8 +397,8 @@ window.xcFunction = (function($, xcFunction) {
             "steps"    : steps
         });
 
-        xcHelper.lockTable(lTableId);
-        xcHelper.lockTable(rTableId);
+        xcHelper.lockTable(lTableId, txId);
+        xcHelper.lockTable(rTableId, txId);
 
         var startTime = (new Date()).getTime();
         var focusOnTable = false;
@@ -537,7 +536,7 @@ window.xcFunction = (function($, xcFunction) {
             "steps"    : steps
         });
 
-        xcHelper.lockTable(tableId);
+        xcHelper.lockTable(tableId, txId);
         var startTime = (new Date()).getTime();
         var focusOnTable = false;
         var startScrollPosition = $('#mainFrame').scrollLeft();
@@ -695,7 +694,7 @@ window.xcFunction = (function($, xcFunction) {
         var finalTableName;
         var finalTableId;
 
-        xcHelper.lockTable(tableId);
+        xcHelper.lockTable(tableId, txId);
 
         XIApi.map(txId, mapString, tableName, fieldName, undefined, icvMode)
         .then(function(tableAfterMap) {
@@ -862,7 +861,7 @@ window.xcFunction = (function($, xcFunction) {
 
         // not lock table is the operation is short
         var lockTimer = setTimeout(function() {
-            xcHelper.lockTable(tableId);
+            xcHelper.lockTable(tableId, txId);
         }, 500);
 
         var newTableNameId = xcHelper.getTableId(newTableName);
@@ -925,7 +924,7 @@ window.xcFunction = (function($, xcFunction) {
             "steps"    : 1
         });
 
-        xcHelper.lockTable(tableId);
+        xcHelper.lockTable(tableId, txId);
 
         XcalarProject(colNames, tableName, dstTableName, txId)
         .then(function() {

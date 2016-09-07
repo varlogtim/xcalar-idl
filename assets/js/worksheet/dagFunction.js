@@ -487,7 +487,7 @@ window.DagFunction = (function($, DagFunction) {
             "sql"      : sql,
             "steps"    : 1
         });
-        xcHelper.lockTable(tableId);
+        xcHelper.lockTable(tableId, txId);
         getXcalarQueryCli(treeNodesToRerun)
         .then(concatAllCli)
         .then(function(entireString) {

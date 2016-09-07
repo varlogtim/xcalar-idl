@@ -275,8 +275,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 ext.initialize(tableName, worksheet, argList);
                 ext.runBeforeStart(extButton)
                 .then(function() {
-                    xcHelper.lockTable(tableId);
-
                     var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
                         "extension": funcName
                     });
@@ -286,6 +284,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         "steps"       : -1,
                         "functionName": funcName
                     });
+
+                    xcHelper.lockTable(tableId, txId);
 
                     hasStart = true;
                     return ext.run(txId);
@@ -366,8 +366,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             "htmlExclude": ["argList"]
         };
 
-        xcHelper.lockTable(tableId);
-
         var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
             "extension": funcName
         });
@@ -377,6 +375,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             "steps"       : -1,
             "functionName": funcName
         });
+
+        xcHelper.lockTable(tableId, txId);
 
         try {
             window[modName].actionFn(txId, tableId, funcName, argList)
