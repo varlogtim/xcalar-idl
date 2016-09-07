@@ -1113,15 +1113,15 @@ window.xcHelper = (function($, xcHelper) {
                     '<i class="icon xi-close"></i>' +
                   '</div>' +
                 '</div>');
+            $tableWrap.addClass('tableLocked').append($lockedIcon);
+            var iconHeight = $lockedIcon.height();
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
             var tbodyHeight = $tableWrap.find('tbody').height() + 1;
             var mainFrameHeight = $('#mainFrame').height();
-            var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
-
+            var topPos = 50 * ((tableHeight - (iconHeight/2))/ mainFrameHeight);
             topPos = Math.min(topPos, 40);
             $lockedIcon.css('top', topPos + '%');
-
-            $tableWrap.addClass('tableLocked').append($lockedIcon);
+            
             $tableWrap.find('.xcTbodyWrap').append('<div class="tableCover">' +
                                                    '</div>');
             $tableWrap.find('.tableCover').height(tbodyHeight);

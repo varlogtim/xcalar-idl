@@ -883,12 +883,14 @@ window.WSManager = (function($, WSManager) {
         var mainFrameHeight = $('#mainFrame').height();
         $('.tableLocked:visible').each(function() {
             var $tableWrap = $(this);
-            // var tableHeight = $tableWrap.find('.xcTable').height();
             var tbodyHeight = $tableWrap.find('tbody').height() + 1;
             var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
-            var topPos = 100 * ((tableWrapHeight / mainFrameHeight) / 2);
+            var $lockedIcon = $tableWrap.find('.lockedTableIcon');
+            var iconHeight = $lockedIcon.height();
+            var topPos = 50 * ((tableWrapHeight - (iconHeight / 2)) / 
+                                mainFrameHeight);
             topPos = Math.min(topPos, 40);
-            $tableWrap.find('.lockedIcon').css('top', topPos + '%');
+            $lockedIcon.css('top', topPos + '%');
             $tableWrap.find('.tableCover').height(tbodyHeight);
         });
 

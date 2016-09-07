@@ -428,7 +428,17 @@ html.firefox, html.microsoft {
             display: none !important;
         }
 
-        .lockedIcon {
+        &.tableLocked {
+            .xcTbodyWrap {
+                &::after {
+                    background-color: @color-table-after-gray;
+                    height: 5px;
+                    margin-top: -5px;
+                }
+            }
+        }
+
+        .lockedTableIcon {
             display: none !important;
         }
 
