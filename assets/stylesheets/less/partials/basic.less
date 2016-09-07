@@ -1691,11 +1691,11 @@ body.tooltipOff {
 #ui-datepicker-div.schedulerDatePicker {
     .size(@width: 208px);
     background-color: @color-bg-white-three;
-    box-shadow: 0px 0px 1px 1px rgba(0,0,0,.1);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 
     .ui-datepicker-header {
-        .size(@height: 30px);
-        .font(@line-height: 30px);
+        .size(@height: 40px);
+        .font(@line-height: 40px, @color: @color-white);
 
         .ui-datepicker-prev, .ui-datepicker-next {
             .position(absolute, @top: 0px);
@@ -1728,11 +1728,11 @@ body.tooltipOff {
             opacity: @opacity-unhover;
             .size(30px, 30px);
             text-align: center;
-            padding-top: 7px;
+            padding: 11px 0;
             .box-sizing;
 
             &:hover {
-                opacity: @opacity-hover
+                opacity: @opacity-hover;
             }
         }
 
@@ -1751,10 +1751,9 @@ body.tooltipOff {
         }
 
         .ui-datepicker-title {
-            // .size(@width: 70%);
             text-align: center;
-            .font(@size: 13px, @weight: bold, @color: white);
-            background-color: @color-bg-select-blue;
+            .font(@size: 14px, @weight: bold);
+            background-color: @color-bg-softBlue;
             text-transform: uppercase;
         }
     }
@@ -1765,11 +1764,11 @@ body.tooltipOff {
         th, td {
             width: 30px;
             text-align: center;
-            background-color: @color-white;
         }
 
         th {
-            .font(@size: 9px, @color: @color-font-pinkish-grey2, @line-height: 20px, @weight: bold);
+            background-color: @color-bg-select-blue;
+            .font(@size: 10px, @color: @color-white, @line-height: 2, @weight: bold);
 
             span {
                 height: 20px;
@@ -1780,11 +1779,12 @@ body.tooltipOff {
         }
 
         td {
+            background-color: @color-white;
             border: 1px solid @color-bg-white-five;
 
             span, a {
                 text-decoration: none;
-                .font(@size: 12px, @color: @color-font-greyish-brown);
+                .font(@size: 12px, @color: @color-font-greyish-brown, @weight: bold);
                 text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
             }
 
@@ -1802,7 +1802,7 @@ body.tooltipOff {
 
             &.ui-datepicker-unselectable {
                 span {
-                    opacity: 0.4;
+                    opacity: @opacity-disabled;
                 }
             }
         }
