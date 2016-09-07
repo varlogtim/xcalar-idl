@@ -34,7 +34,7 @@ window.UExtDev = (function(UExtDev) {
         },
         {
             "type"      : "table",
-            "name"      : "Right Full Tablename",
+            "name"      : "Right Table",
             "fieldClass": "rTable"
         },
         {
@@ -104,8 +104,7 @@ window.UExtDev = (function(UExtDev) {
             var self = this;
 
             var args = self.getArgs();
-            var rTableName = args.rTable;
-
+            var rTableName = args.rTable.getName();
             var lColNames = getColNamesHepler(args.lCol);
             var lColName = lColNames[0];
 

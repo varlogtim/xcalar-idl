@@ -611,12 +611,13 @@ window.JoinView = (function($, JoinView) {
     function estimateJoinSize() {
         var tableIds = getTableIds();
         var cols = getClauseCols();
+        var rTableName = gTables[tableIds[1]].getName();
         var argList = {
             "leftLimit" : 100,
             "rightLimit": 100,
             "lCol"      : cols[0],
             "rCol"      : cols[1],
-            "rTable"    : gTables[tableIds[1]].getName(),
+            "rTable"    : new XcSDK.Table(rTableName),
             "unlock"    : true,
             "fromJoin"  : true
         };

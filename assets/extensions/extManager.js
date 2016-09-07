@@ -490,12 +490,29 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         }).setupListeners();
 
+        // focus on table
+        $extArgs.on("click", ".focusTable", function() {
+            var $icon = $(this);
+            var tableName;
+
+            if ($icon.closest(".tableSection").length > 0) {
+                // when it's on trigger table dropdown
+                tableName = $extTriggerTableDropdown.find("input").val();
+            } else {
+                tableName = $icon.closest(".field").find(".dropdownInput").val();
+            }
+
+            if (tableName !== "") {
+                var tableId = xcHelper.getTableId(tableName);
+                xcHelper.centerFocusedTable(tableId, true);
+            }
+        });
+
         $("#extension-ops-submit").click(function() {
             submitArgs();
         });
 
-        var focusSelector = ".argument.type-column, .argument.type-table";
-        $extArgs.on("focus", focusSelector, function() {
+        $extArgs.on("focus", ".argument.type-column", function() {
             $lastInputFocused = $(this);
         });
 
@@ -668,7 +685,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         '</div>' +
                         '<div class="inputWrap">' +
                             '<div class="dropDownList argDropdown">' +
-                                '<input class="argument type-boolean text" disabled>' +
+                                '<input class="argument type-boolean text ' +
+                                'dropdownInput" disabled>' +
                                 '<div class="iconWrapper">' +
                                     '<i class="icon xi-arrow-down"></i>' +
                                 '</div>' +
@@ -681,43 +699,64 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '</div>' +
                         '</div>' +
                     '</div>';
-                continue;
-            }
-
-            if (argType === "number") {
-                inputType = "number";
+            } else if (argType === "table") {
+                html +=
+                    '<div class="field">' +
+                        '<div class="desc">' +
+                            args[i].name +
+                            '<div class="focusTable xc-action">' +
+                                '<i class="icon xi-show fa-16"></i>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="inputWrap">' +
+                            '<div class="dropDownList argDropdown">' +
+                                '<input class="argument type-table text ' +
+                                'dropdownInput" disabled>' +
+                                '<div class="iconWrapper">' +
+                                    '<i class="icon xi-arrow-down"></i>' +
+                                '</div>' +
+                                '<div class="list">' +
+                                    tableList +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
             } else {
-                if (argType === "column") {
-                    if (args[i].autofill && triggerCol != null) {
-                        inputVal = gColPrefix + triggerCol.getFronColName();
-                    }
-                    if (args[i].typeCheck.multiColumn) {
-                        inputClasses += " multiColumn";
-                    }
+                if (argType === "number") {
+                    inputType = "number";
                 } else {
-                    if (args[i].autofill != null) {
-                        inputVal = args[i].autofill;
+                    if (argType === "column") {
+                        if (args[i].autofill && triggerCol != null) {
+                            inputVal = gColPrefix + triggerCol.getFronColName();
+                        }
+                        if (args[i].typeCheck.multiColumn) {
+                            inputClasses += " multiColumn";
+                        }
+                    } else {
+                        if (args[i].autofill != null) {
+                            inputVal = args[i].autofill;
+                        }
                     }
                 }
-            }
 
-            html +=
-                '<div class="field">' +
-                    '<div class="desc">' +
-                        args[i].name +
-                    '</div>' +
-                    '<div class="inputWrap">' +
-                        '<input class="argument type-' + argType +
-                         inputClasses +'"' +
-                        ' type="' + inputType + '"' +
-                        ' value="' + inputVal + '"' +
-                        ' placeholder="' + inputHint + '"' +
-                        ' spellcheck="false">' +
-                        '<div class="picker">' +
-                            '<i class="icon fa-13 xi_select-column"></i>' +
+                html +=
+                    '<div class="field">' +
+                        '<div class="desc">' +
+                            args[i].name +
                         '</div>' +
-                    '</div>' +
-                '</div>';
+                        '<div class="inputWrap">' +
+                            '<input class="argument type-' + argType +
+                             inputClasses +'"' +
+                            ' type="' + inputType + '"' +
+                            ' value="' + inputVal + '"' +
+                            ' placeholder="' + inputHint + '"' +
+                            ' spellcheck="false">' +
+                            '<div class="picker">' +
+                                '<i class="icon fa-13 xi_select-column"></i>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+            }
         }
 
         var $argSection = $extArgs.find(".argSection");
@@ -805,8 +844,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         if (typeCheck.allowEmpty) {
-            // XXX now table is a string, just a temp change
-            if (argType === "string" || argType === "table") {
+            if (argType === "string") {
                 return ({
                     "valid": true,
                     "arg"  : arg
@@ -826,7 +864,22 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return { "vaild": false };
         }
 
-        if (argType === "column") {
+        if (argType === "table") {
+            var tableId = xcHelper.getTableId(arg);
+            if (tableId == null || !gTables.hasOwnProperty(tableId)) {
+                StatusBox.show(ErrTStr.NoTable, $input);
+                return { "vaild": false };
+            }
+
+            var worksheet = WSManager.getWSFromTable(tableId);
+            arg = new XcSDK.Table(arg, worksheet);
+
+            return ({
+                "valid": true,
+                "arg"  : arg
+            });
+
+        } else if (argType === "column") {
             if (!xcHelper.hasValidColPrefix(arg)) {
                 StatusBox.show(ErrTStr.ColInModal, $input);
                 return { "vaild": false };

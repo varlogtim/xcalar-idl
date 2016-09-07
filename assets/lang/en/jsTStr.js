@@ -185,6 +185,7 @@ ErrTStr = {
     'BracketsMis': 'Your function string has mismatched brackets.',
     'InvalidFunction': 'Invalid function',
     'TooLong': 'Please use fewer than 255 characters',
+    'NoTable': 'Table doesn\'t exists',
     'TablesNotDeleted': 'The following tables were not deleted:',
     'NoTablesDeleted': 'No tables were deleted.',
     'LargeImgSave': 'Unable To Save Image',

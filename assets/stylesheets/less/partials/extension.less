@@ -435,7 +435,8 @@
         .tableSection {
             .size(@width: 100%, @height: 30px);
             margin: 15px 0;
-            padding: 0 20px;
+            padding-left: 20px;
+            padding-right: 5px;
 
             .label {
                 .size(@width: 40px);
@@ -446,7 +447,7 @@
 
             .tableList {
                 .vertical-align;
-                .styleDropDownList(@w: ~"calc(100% - 50px)", @h: 26px);
+                .styleDropDownList(@w: ~"calc(100% - 80px)", @h: 26px);
                 z-index: 100;
 
                 input {
@@ -462,6 +463,12 @@
                     color: @color-font-select-blue;
                 }
             }
+
+            .focusTable {
+                .size(@width: 20px, @height: 16px);
+                .vertical-align;
+                float: right;
+            }
         }
 
         .argSection {
@@ -472,16 +479,22 @@
 
             .desc {
                 .size(@height: 30px);
+                .position(relative);
                 line-height: 30px;
                 padding: 0 10px;
                 .textOverflowOneLine;
+
+                .focusTable {
+                    .size(@width: 20px, @height: 100%);
+                    .position(absolute, @top: 3px, @right: 5px);
+                }
             }
 
             .inputWrap {
                 .size(@width: 100%, @height: 30px);
                 background-color: @color-bg-dark-marine;
 
-                input:not(.type-boolean) {
+                input:not(.dropdownInput) {
                     display: inline-block;
                     float: left;
                     outline: 0;
