@@ -22,12 +22,22 @@ window.AboutModal = (function($, AboutModal) {
     AboutModal.show = function() {
         modalHelper.setup();
 
-        // XXX todos: Merge fontVersion and backVersion into one version
-        var frontVersion = XVM.getVersion();
-        var backVersion = XVM.getSHA().substring(0, 8);
+        // There are 4 variables here, 2 of which must match in order to talk
+        // gGitVersion is populated in prodBuilds
+        var frontVersion = XVM.getVersion() + "-" + gGitVersion;
+        var backVersionParts = XVM.getBackendVersion().split("-");
+        var backVersion = backVersionParts[0] + "-" +
+                          backVersionParts[backVersionParts.length-1];
+        var thriftVersion = XVM.getSHA().substring(0, 8);
+        // Both backend and front end must
+        // have the same thrift version or they won't talk
+
+        var licenseKey = XVM.getLicenseKey();
 
         $modal.find(".frontVersion .text").text(frontVersion);
         $modal.find(".backVersion .text").text(backVersion);
+        $modal.find(".thriftVersion .text").text(thriftVersion);
+        $modal.find(".license span").text(licenseKey);
     };
 
     function closeModal() {

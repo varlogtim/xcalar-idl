@@ -393,7 +393,12 @@ function XcalarGetVersion(connectionCheck) {
     }
 
     xcalarGetVersion(tHandle)
-    .then(deferred.resolve)
+    .then(function(ret) {
+        // XXX Backend needs to return license key in GetVersion
+        // For now we'll just write in some junk
+        ret.licenseKey = "Unlicensed";
+        deferred.resolve(ret);
+    })
     .fail(function(error) {
         if (connectionCheck) {
             // don't call thriftLog or else it may call XcalarGetVersion again

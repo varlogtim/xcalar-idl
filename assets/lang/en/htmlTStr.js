@@ -754,9 +754,11 @@ module.exports = {
     },
 
     "about": {
-      "Version": "Version",
-      "SHA": "SHA",
-      "copyRight": "Copyright © 2016 Xcalar Insight. All rights reserved."
+      "FrontVersion": "XI Version",
+      "BackVersion": "XCE Version",
+      "ThriftSHA": "Thrift Version",
+      "License": "License Key",
+      "copyRight": "Copyright © 2016 Xcalar, Inc. All rights reserved."
     },
 
     "tutor": {

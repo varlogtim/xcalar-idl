@@ -4,11 +4,13 @@ window.XVM = (function(XVM) {
     var minorVersion = "9";
     var revisionVersion = "12";
     var thriftInterfaceVersion = "12";
-    var kvVersion = "0";
+    var kvVersion = "0"; // Currently unused
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
-                        thriftInterfaceVersion + "." + kvVersion;
+                        thriftInterfaceVersion;
     var versionKey = "xcalar-version";
+    var backendVersion = "";
+    var licenseKey = "";
 
     XVM.getVersion = function() {
         return (fullVersion);
@@ -18,6 +20,14 @@ window.XVM = (function(XVM) {
         return XcalarApiVersionTStr[XcalarApiVersionT.XcalarApiVersionSignature];
     };
 
+    XVM.getBackendVersion = function() {
+        return (backendVersion);
+    };
+
+    XVM.getLicenseKey = function() {
+        return (licenseKey);
+    };
+
     XVM.checkVersionMatch = function() {
         var deferred = jQuery.Deferred();
 
@@ -25,6 +35,8 @@ window.XVM = (function(XVM) {
         .then(function(result) {
             try {
                 var versionNum = result.apiVersionSignatureShort;
+                backendVersion = result.version;
+                licenseKey = result.licenseKey;
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                     console.log("Thrift version mismatch! Backend's thrift " +
                       "version is:" +
