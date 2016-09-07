@@ -520,7 +520,9 @@ ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
     'RenamSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\"::or ' +
                         'starting or ending spaces',
-    'RenamStartNum': 'Invalid name, cannot starts with number',
+    'RenameStartNum': 'Invalid name, cannot starts with number',
+    'ImmediateClash': 'Invalid name, name already exists in at least one ' +
+                      'DATA cell',
     // With Replace
     'SplitColWarnMsg': 'About <num> columns will be generated, do you still ' +
                        'want to continue the operation?'

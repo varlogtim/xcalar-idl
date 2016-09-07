@@ -99,7 +99,7 @@ XcLog.prototype = {
 };
 // gTables
 
-// Constructor for table meata data
+// Constructor for table meta data
 function TableMeta(options) {
     options = options || {};
 
@@ -112,6 +112,7 @@ function TableMeta(options) {
     this.isLocked = options.isLocked || false;
     this.isSortedArray = options.isSortedArray || false;
     this.status = options.status || TableType.Active;
+    this.backTableMeta = options.backTableMeta || undefined;
     // reference enum TableType for possible types
 
     this.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();
@@ -225,6 +226,21 @@ TableMeta.prototype = {
 
     getOrdering: function() {
         return this.ordering;
+    },
+
+    getImmediateNames: function() {
+        if (!this.backTableMeta ||
+            !("valueAttrs" in backTableMeta)) {
+            return []; // Cannot test, just let it go.
+        }
+        var allVals = this.backTableMeta.valueAttrs;
+        var finalArray = [];
+        for (var i = 0; i<allVals.length; i++) {
+            if (allVals[i].type !== DfFieldTypeT.DfFatptr) {
+                finalArray.push(allVals[i].name);
+            }
+        }
+        return finalArray;
     },
 
     showIndexStyle: function() {

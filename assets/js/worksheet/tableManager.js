@@ -1500,8 +1500,16 @@ window.TblManager = (function($, TblManager) {
         var progCols   = table.tableCols;
         var notIndexed = !(progCols && progCols.length > 0);
 
+        var jsonObj;
+        var keyName;
+
         getFirstPage(table, notIndexed)
-        .then(function(jsonObj, keyName) {
+        .then(function(json, key) {
+            jsonObj = json;
+            keyName = key;
+            return (XcalarGetTableMeta(tableName));
+        })
+        .then(function(tableMeta) {
             if (notIndexed) { // getNextPage will ColManager.setupProgCols()
                 progCols = table.tableCols;
             }
@@ -1514,7 +1522,8 @@ window.TblManager = (function($, TblManager) {
                 }
             }
             table.currentRowNumber = jsonObj.normal.length;
-            buildInitialTable(progCols, tableId, jsonObj, keyName, options);
+            buildInitialTable(progCols, tableId, jsonObj, keyName, tableMeta,
+                              options);
 
             var $table = $('#xcTable-' + tableId);
             var requiredNumRows    = Math.min(gMaxEntriesPerPage,
@@ -1527,8 +1536,10 @@ window.TblManager = (function($, TblManager) {
                 var info = {
                     "numRowsToAdd"    : numRowsStillNeeded,
                     "numRowsAdded"    : 0,
-                    "targetRow"       : table.currentRowNumber + numRowsStillNeeded,
-                    "lastRowToDisplay": table.currentRowNumber + numRowsStillNeeded,
+                    "targetRow"       : table.currentRowNumber + 
+                                        numRowsStillNeeded,
+                    "lastRowToDisplay": table.currentRowNumber + 
+                                        numRowsStillNeeded,
                     "bulk"            : false,
                     "dontRemoveRows"  : true,
                     "tableName"       : tableName,
@@ -1547,9 +1558,11 @@ window.TblManager = (function($, TblManager) {
                                 $('.xcTable th.selectedCell').length === 0)
                             {
                                 if (typeof options.selectCol === "object") {
-                                    $table.find('th.col' + options.selectCol[0] +
-                                            ' .flexContainer').mousedown();
-                                    for (var i = 0; i < options.selectCol.length; i++) {
+                                    $table.find('th.col' +
+                                                 options.selectCol[0] +
+                                                ' .flexContainer').mousedown();
+                                    for (var i = 0;
+                                         i < options.selectCol.length; i++) {
                                         var $th = $table
                                         .find('th.col' + options.selectCol[i]);
                                         highlightColumn($th, true);
@@ -1586,10 +1599,12 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         selectCol: number. column to be highlighted when table is ready
     */
-    function buildInitialTable(progCols, tableId, jsonObj, keyName, options) {
+    function buildInitialTable(progCols, tableId, jsonObj, keyName, tableMeta,
+                               options) {
         var table = gTables[tableId];
         table.tableCols = progCols;
         table.keyName = keyName;
+        table.backTableMeta = tableMeta;
         var dataIndex = generateTableShell(table.tableCols, tableId);
         var numRows = jsonObj.normal.length;
         var startIndex = 0;

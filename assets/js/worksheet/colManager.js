@@ -1224,6 +1224,11 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
+        if (gTables[tableId].getImmediateNames().indexOf(name) !== -1) {
+            title = ColTStr.ImmediateClash;
+            isDuplicate = true;
+        }
+
         if (!isDuplicate && $inputs) {
             $inputs.each(function() {
                 var $checkedInput = $(this);
