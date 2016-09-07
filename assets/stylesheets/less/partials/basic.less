@@ -672,16 +672,6 @@ input {
     .noSelection;
 }
 
-.roundedIcon {
-    .size(19px, 19px);
-    float: right;
-    margin: 7px 6px 0 0 ;
-    background-color: @color-background-bottomGrayMed;
-    .rounded(1px);
-    box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-    cursor: pointer;
-}
-
 .underConstruction {
     .size(@height: ~"calc(100% - 114px)");
     background: @color-bg-white-five;
@@ -1092,7 +1082,7 @@ input {
             bottom: -400px;
         }
         background-color: @color-bg-java-green;
-        box-shadow: 0px 1px 4px 0px @color-textBox-shadow;
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
     }
 
     .textBox {
@@ -1700,7 +1690,7 @@ body.tooltipOff {
 /* JQUERY DATEPICKER */
 #ui-datepicker-div.schedulerDatePicker {
     .size(@width: 208px);
-    background-color: @color-background-topForm;
+    background-color: @color-bg-white-three;
     box-shadow: 0px 0px 1px 1px rgba(0,0,0,.1);
 
     .ui-datepicker-header {
@@ -1794,7 +1784,7 @@ body.tooltipOff {
 
             span, a {
                 text-decoration: none;
-                .font(@size: 12px, @color: @color-font-greyish-brown, @weight: bold);
+                .font(@size: 12px, @color: @color-font-greyish-brown);
                 text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
             }
 

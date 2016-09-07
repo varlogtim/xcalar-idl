@@ -84,7 +84,7 @@
 
     .modalTopMain {
         .size(@width: 100%);
-        background: @color-modal-whiteGray;
+        background: @color-bg-white-three;
         color: @color-font-darkGray;
         .no-selection;
     }
@@ -96,7 +96,7 @@
 
     .modalSubMain {
         .size(@width: 100%);
-        background: @color-modal-whiteGray;
+        background: @color-bg-white-three;
         color: @color-font-darkGray;
         .no-selection;
     }
@@ -415,7 +415,7 @@
             .cursor-move;
             margin-left: 2px;
             .icon {
-                color:  @color-border-bottomGrayMed;
+                color: @color-font-greyish-brown;
                 font-size: 14px;
                 line-height: 29px;
             }
@@ -429,7 +429,7 @@
         }
 
         .vertLine {
-            border-left: 1px solid @color-border-bottomGrayMed;
+            border-left: 1px solid @color-border-pinkish-grey2;
             height: 20px;
             margin-top: 4px;
             margin-right: 3px;
@@ -973,7 +973,7 @@
             .size(@width: ~"calc(100% - 50px)", @height: 100%);
             margin: 0 auto;
             padding: 10px;
-            background: @color-modal-whiteGray;
+            background: @color-bg-white-three;
             float: right;
 
             .headerContainer {
@@ -985,7 +985,7 @@
                 .padding {
                     .position(absolute, @top: 10px, @left: 10px);
                     .size(@width: 120px, @height: 22px);
-                    background: @color-modal-whiteGray;
+                    background: @color-bg-white-three;
                     z-index: 10;
                 }
 
@@ -1056,12 +1056,12 @@
                 white-space: nowrap;
 
                 &.aggTableFlex {
-                    background-color: @color-modal-whiteGray;
+                    background-color: @color-bg-white-three;
                 }
             }
 
             .rowLabel, .colLabel {
-                background-color: @color-modal-whiteGray !important;
+                background-color: @color-bg-white-three !important;
 
                 &.active {
                     background-color: @color-bg-white-nine !important;
@@ -1709,7 +1709,7 @@ html.microsoft {
         .scrollSection {
             .size(@width: 100%, @height: 11px);
             cursor: default;
-            background-color: @color-modal-whiteGray;
+            background-color: @color-bg-white-three;
 
             &.hidden {
                 display: block;
@@ -1804,7 +1804,7 @@ html.microsoft {
             padding: 0 0 2px 0;
 
             .cover {
-                fill: @color-modal-whiteGray;
+                fill: @color-bg-white-three;
             }
 
             .arrow {
@@ -2066,7 +2066,7 @@ html.microsoft {
 
     .border {
         width: 100%;
-        border-top: 1px solid @color-modal-dividerGray;
+        border-top: 1px solid @color-border-pinkish-grey2;
         border-bottom: 1px solid @color-white;
 
         &:last-child {
@@ -2318,7 +2318,6 @@ html.microsoft {
 
     .defaultListSection {
         padding: 15px 15px 0px 15px;
-        .parameterTable;
 
         .tableHeader {
             .size(@height: 30px);
@@ -2352,20 +2351,19 @@ html.microsoft {
         }
 
         .tableContainer {
-            height: 202px;
+            .position(relative);
+            .size(@width: 100%, @height: 202px);
             display: inline-block;
             overflow: hidden;
             overflow-y: auto;
-            .rounded(5px);
-            border-top-left-radius: 0px;
-            border-top-right-radius: 0px;
-            border: 1px solid @color-border-joinGray;
+            .rounded(0 0 5px 5px);
+            border: 1px solid @color-border-pinkish-grey;
             z-index: 0;
-            padding: 0;
 
             .tableWrapper {
                 .size(@width: 890px, @height: auto);
                 overflow-y: hidden;
+                margin: 0 auto;
 
                 .paramNameWrap {
                     color: @color-font-darkGray;
@@ -2422,8 +2420,8 @@ html.microsoft {
                     text-align: center;
 
                     .checkbox {
-                        .size(@width: 16px, @height: 30px);
-                        .position(relative, @top: 5px);
+                        .size(@width: 15px, @height: 15px);
+                        .position(relative, @top: 2px);
                     }
                 }
 
@@ -2440,12 +2438,30 @@ html.microsoft {
 
         table {
             margin: 0;
+            table-layout: fixed;
+            text-align: left;
+            border-collapse: collapse;
+
             tbody {
                 tr {
+                    &:nth-child(odd) {
+                        background-color: @color-bg-white-five;
+                    }
+                    &:nth-child(even) {
+                        background-color: @color-bg-white-seven;
+                    }
+
                     td {
-                        .size(@height: 40px);
+                        .position(relative);
+                        .size(@width: 226px, @height: 40px);
                         padding-left: 15px;
-                        border-right: 1px solid @color-border-joinGray;
+                        .font(@weight: bold, @size: 13px, @line-height: 30px);
+                        border-right: 1px solid @color-border-pinkish-grey;
+
+                        &:first-of-type {
+                            .size(@width: 194px);
+                            border-right: 1px solid @color-border-pinkish-grey;
+                        }
 
                         > div {
                             .textOverflowOneLine;

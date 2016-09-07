@@ -25,7 +25,10 @@ window.DFGParamModal = (function($, DFGParamModal){
                         '</td>' +
                         '<td>' +
                             '<div class="checkboxWrap">' +
-                                '<span class="checkbox"></span>' +
+                                '<div class="checkbox">' +
+                                    '<i class="icon xi-ckbox-empty fa-15"></i>' +
+                                    '<i class="icon xi-ckbox-selected fa-15"></i>' +
+                                '</div>' +
                             '</div>' +
                         '</td>' +
                     '</tr>';
