@@ -1436,6 +1436,76 @@
         	}
         }
 
+        .csvRow {
+
+            .dropDownList {
+                &.disabled {
+                    opacity: 0.7;
+                    pointer-events: none;
+                }
+
+                .list {
+                    .font(@weight: 600);
+
+                    li {
+
+                        &.hidden {
+                            display: none;
+                        }
+
+                        &:hover {
+                            background-color: @color-white;
+                        }
+
+                        // this use js to make hover status's color
+                        &.hover {
+                            background-color: @color-selectedCell-light;
+                        }
+                    }
+
+                    .other {
+                        .size(@height: @listHeight * 2);
+                        .position(relative);
+                        padding-right: 10px;
+
+                        span {
+                            display: block;
+                        }
+
+                        .inputWrap {
+                            .position(relative);
+                            .size(@width: 100%, @height: 20px);
+                            .font(@line-height: 20px);
+
+                            input {
+						        .size(@width: 100%, @height: 20px);
+						        padding: 0 4px;
+						        padding-right: 22px;
+						        opacity: @opacity-unhover;
+
+						        &:focus {
+						            outline: none;
+						            opacity: @opacity-hover;
+						        }
+						    }
+
+                            .inputAction {
+                                .size(@width: 20px, @height: 20px);
+                                .position(absolute, @top: 0px, @right: 0);
+                                background-color: @color-bg-softBlue;
+                                text-align: center;
+                            }
+                        }
+                    }
+                }
+            }
+        } 
+        .csvHidden {
+            display: none !important;
+        }
+        .csvSelected {
+            display: block;
+        }
 
     }
     .bottomSection {
