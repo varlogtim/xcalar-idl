@@ -41,6 +41,8 @@ window.DSTable = (function($, DSTable) {
             $dsTableContainer.addClass("loading");
             $dsColsBtn.addClass("xc-hidden");
             $tableWrap.html(""); // make html smaller
+            // hide carts
+            DSCart.switchToCart(null);
             return PromiseHelper.resolve();
         }
 

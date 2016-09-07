@@ -98,12 +98,13 @@ window.DSCart = (function($, DSCart) {
     };
 
     DSCart.switchToCart = function(dsId) {
+        $cartArea.find(".selectedTable").addClass("xc-hidden");
+
         if (dsId == null) {
-            // error case
+            refreshCart();
             return;
         }
 
-        $cartArea.find(".selectedTable").addClass("xc-hidden");
         DSCart.getCartById(dsId).removeClass("xc-hidden");
         refreshCart(dsId);
     };
