@@ -622,7 +622,7 @@ window.JoinView = (function($, JoinView) {
         };
 
         var $estimatorWrap = $joinView.find('.estimatorWrap');
-        $estimatorWrap.find('.title').text(JoinTStr.EstimatingJoin + ':');
+        $estimatorWrap.find('.title').text(JoinTStr.EstimatingJoin);
         $estimatorWrap.find('.value').empty();
 
         // xx handle canceling of estimateJoinSize

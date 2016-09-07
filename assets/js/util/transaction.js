@@ -215,10 +215,15 @@ window.Transaction = (function(Transaction, $) {
         } else if (pendingCancelTxCache[txId]) {
             // if we're checking then cancel must have worked so we process it
             Transaction.cancel(txId);
+            Transaction.cleanUpCanceledTables(txId);
             return true;
         } else {
             return false;
         }
+    };
+
+    Transaction.cleanUpCanceledTables = function(txId) {
+        QueryManager.cleanUpCanceledTables(txId);
     };
 
     // Transaction.errorLog = function(txId) {

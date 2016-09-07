@@ -3,6 +3,8 @@ window.QueryManager = (function(QueryManager, $) {
     var $queryDetail; // $("#monitor-queryDetail")
     var queryLists = {}; // will be populated by xcQuery objs with transaction id as key
     var queryCheckLists = {}; // setInterval timers
+    var canceledQueries = {}; // for canceled queries that have been deleted
+                              // but the operation has not returned yet
     // var notCancelableList = ['load']; // list of nonCancelable operations
 
     // constant
@@ -106,6 +108,7 @@ window.QueryManager = (function(QueryManager, $) {
         if (!queryLists[id]) {
             return;
         }
+
         var mainQuery = queryLists[id];
         mainQuery.state = "done";
         mainQuery.outputTableState = "active";
@@ -176,6 +179,12 @@ window.QueryManager = (function(QueryManager, $) {
         }
         clearInterval(queryCheckLists[id]);
         delete queryCheckLists[id];
+        // we may not want to immediately delete canceled queries because
+        // we may be waiting for the operation to return and clean up some
+        // intermediate tables
+        if (queryLists[id].state === "canceled") {
+            canceledQueries[id] = queryLists[id];
+        }
         delete queryLists[id];
         var $query = $queryList.find('.query[data-id="' + id + '"]');
         if ($query.hasClass('active')) {
@@ -217,16 +226,19 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         Transaction.pendingCancel(id);
-        // unlockSrcTables(mainQuery); // xx not yet implemented
+        unlockSrcTables(mainQuery);
         $query.find('.cancelIcon').addClass('disabled');
         var statusesToIgnore = [StatusT.StatusOperationHasFinished];
 
+        // xcalar query
         if (mainQuery.subQueries[currStep].queryName) {
             // Query Cancel returns success even if the operation is
             // complete, unlike cancelOp. Xc4921
             XcalarQueryCancel(mainQuery.subQueries[currStep].queryName, [])
             .then(function(ret) {
-                Transaction.checkAndSetCanceled(id);
+                var onlyFinishedTables = true;
+                // unfinished tables will be dropped when the operation returns
+                dropCanceledTables(mainQuery, onlyFinishedTables);
                 console.info('cancel submitted', ret);
                 deferred.resolve();
             })
@@ -234,6 +246,7 @@ window.QueryManager = (function(QueryManager, $) {
                 // errors being handled inside XcalarCancelOp
                 deferred.reject(error);
             });
+            // xcFunction
         } else {
             // start cancel before xcalarcancelop returns
             // so that if we miss the table, xcfunctions will stop further
@@ -241,7 +254,9 @@ window.QueryManager = (function(QueryManager, $) {
             XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
                            statusesToIgnore)
             .then(function(ret) {
-                Transaction.checkAndSetCanceled(id);
+                var onlyFinishedTables = true;
+                // unfinished tables will be dropped when the operation returns
+                dropCanceledTables(mainQuery, onlyFinishedTables);
                 console.info('cancel submitted', ret);
                 deferred.resolve();
             })
@@ -285,6 +300,21 @@ window.QueryManager = (function(QueryManager, $) {
             DSCart.queryDone(mainQuery.getId(), isCanceled);
             return;
         }
+    };
+
+    QueryManager.cleanUpCanceledTables = function(id) {
+        if (!queryLists[id] && !canceledQueries[id]) {
+            return;
+        }
+        var mainQuery;
+        if (queryLists[id]) {
+            mainQuery = queryLists[id];
+        } else {
+            mainQuery = canceledQueries[id];
+        }
+        var onlyFinishedTables = false;
+        dropCanceledTables(mainQuery, onlyFinishedTables);
+        delete canceledQueries[id];
     };
 
     QueryManager.fail = function(id) {
@@ -1107,8 +1137,10 @@ window.QueryManager = (function(QueryManager, $) {
         var queries = xcHelper.parseQuery(queryStr);
         var srcTables = [];
         for (var i = 0; i < queries.length; i++) {
-            if (queries[i].srcTable) {
-                srcTables.push(queries[i].srcTable);
+            if (queries[i].srcTables) {
+                for (var j = 0; j < queries[i].srcTables.length; j++) {
+                    srcTables.push(queries[i].srcTables[j]);
+                }
             }
         }
         var tableId;
@@ -1118,6 +1150,58 @@ window.QueryManager = (function(QueryManager, $) {
                 xcHelper.unlockTable(tableId);
             }
         }
+    }
+
+    // drops all the tables generated, even the intermediate tables
+    function dropCanceledTables(mainQuery, onlyFinishedTables) {
+        var queryStr = mainQuery.getQuery();
+        var queries = xcHelper.parseQuery(queryStr);
+        var dstTables = [];
+        var numQueries;
+        if (onlyFinishedTables) {
+            numQueries = mainQuery.currStep;
+        } else {
+            numQueries = queries.length;
+        }
+        
+        for (var i = 0; i < numQueries; i++) {
+            if (queries[i].dstTable) {
+                dstTables.push(queries[i].dstTable);
+            }
+        }
+        var tableId;
+        var orphanListTables = [];
+        var backendTables = [];
+        for (var i = 0; i < dstTables.length; i++) {
+            tableId = xcHelper.getTableId(dstTables[i]);
+            if (gTables[tableId]) {
+                if (gTables[tableId].getType() === TableType.Orphan) {
+                    orphanListTables.push(dstTables[i]);
+                }
+            } else {
+                backendTables.push(dstTables[i]);
+            }
+        }
+        // delete tables that are in the orphaned list
+        if (orphanListTables.length) {
+            var noAlertOrLog = true;
+            TblManager.deleteTables(orphanListTables, TableType.Orphan, 
+                                    noAlertOrLog, noAlertOrLog);
+        }
+
+        // delete tables not found in gTables
+        for (var i = 0; i < backendTables.length; i++) {
+            var tableName = backendTables[i];
+            deleteTableHelper(tableName);
+        }
+    }
+
+    function deleteTableHelper(tableName) {
+        XcalarDeleteTable(tableName)
+        .then(function() {
+            // in case any tables are in the orphaned list
+            TableList.removeTable(tableName, TableType.Orphan);
+        });
     }
 
      /* Unit Test Only */

@@ -805,10 +805,15 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         // });
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2);
-            deferred.resolve(ret1);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            } else {
+                Transaction.log(txId, ret2);
+                deferred.resolve(ret1);
+            }       
         })
         .fail(function(error) {
+            Transaction.checkAndSetCanceled(txId); 
             var thriftError = thriftLog("XcalarExport", error);
             deferred.reject(thriftError);
         });
@@ -835,10 +840,15 @@ function XcalarDestroyDataset(dsName, txId) {
 
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, ret2);
+            deferred.resolve(ret1);
+        } 
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId) 
         var thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
         deferred.reject(thriftError);
     });
@@ -872,10 +882,15 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
 
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        Transaction.log(txId, ret2, tablename);
-        deferred.resolve(ret1);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, ret2, tablename);
+            deferred.resolve(ret1);
+        }
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId) 
         var thriftError = thriftLog("XcalarIndexFromDataset", error1, error2);
         deferred.reject(thriftError);
     });
@@ -919,12 +934,17 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            if (!unsorted) {
-                Transaction.log(txId, ret2, tablename);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            }else {
+                if (!unsorted) {
+                    Transaction.log(txId, ret2, tablename);
+                }
+                deferred.resolve(ret1);
             }
-            deferred.resolve(ret1);
         })
         .fail(function(error1, error2) {
+            Transaction.checkAndSetCanceled(txId);
             var thriftError = thriftLog("XcalarIndexFromTable", error1, error2);
             deferred.reject(thriftError);
         });
@@ -948,14 +968,20 @@ function XcalarDeleteTable(tableName, txId) {
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // txId may be null if deleting an undone table
-        if (txId != null) {
-            Transaction.log(txId, ret2);
-        }
-        
-        deferred.resolve(ret1);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            // txId may be null if deleting an undone table or performing a 
+            // deletion not triggered by the user (i.e. clean up)
+            if (txId != null) {
+                Transaction.log(txId, ret2);
+            }
+            
+            deferred.resolve(ret1);
+        }  
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId)
         var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
         deferred.reject(thriftError);
     });
@@ -978,10 +1004,15 @@ function XcalarRenameTable(oldTableName, newTableName, txId) {
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, ret2);
+            deferred.resolve(ret1);
+        }
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId)
         var thriftError = thriftLog("XcalarRenameTable", error1, error2);
         deferred.reject(thriftError);
     });
@@ -1520,10 +1551,15 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2, dstTablename);
-            deferred.resolve(ret1);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            }else {
+                Transaction.log(txId, ret2, dstTablename);
+                deferred.resolve(ret1);
+            } 
         })
         .fail(function(error1, error2) {
+            Transaction.checkAndSetCanceled(txId);
             var thriftError = thriftLog("XcalarFilter", error1, error2);
             deferred.reject(thriftError);
         });
@@ -1551,10 +1587,15 @@ function XcalarMapWithInput(txId, inputStruct) {
     });
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
-        deferred.resolve(ret1);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
+            deferred.resolve(ret1);
+        }
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId)
         var thriftError = thriftLog("XcalarMap", error1, error2);
         deferred.reject(thriftError);
     });
@@ -1604,10 +1645,15 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2, dstTablename);
-            deferred.resolve(ret1);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            } else {
+                Transaction.log(txId, ret2, dstTablename);
+                deferred.resolve(ret1);
+            }
         })
         .fail(function(error1, error2) {
+            Transaction.checkAndSetCanceled(txId);
             var thriftError = thriftLog("XcalarMap", error1, error2);
             deferred.reject(thriftError);
         });
@@ -1692,10 +1738,15 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
         });
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2, dstAggName);
-            deferred.resolve(ret1, dstAggName);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            } else {
+                Transaction.log(txId, ret2, dstAggName);
+                deferred.resolve(ret1, dstAggName);
+            }
         })
         .fail(function(error1, error2) {
+            Transaction.checkAndSetCanceled(txId);
             var thriftError = thriftLog("XcalarAggregate", error1, error2);
             deferred.reject(thriftError);
         });
@@ -1756,10 +1807,15 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2, dst);
-            deferred.resolve(ret1);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            }else {
+                Transaction.log(txId, ret2, dst);
+                deferred.resolve(ret1);
+            }
         })
         .fail(function(error1, error2) {
+            Transaction.checkAndSetCanceled(txId);
             var thriftError = thriftLog("XcalarJoin", error1, error2);
             deferred.reject(thriftError);
         });
@@ -1786,10 +1842,15 @@ function XcalarGroupByWithInput(txId, inputStruct) {
 
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
         Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
         deferred.resolve(ret1);
+        }
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId)
         var thriftError = thriftLog("XcalarGroupBy", error1, error2);
         deferred.reject(thriftError);
     });
@@ -1829,10 +1890,15 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2, newTableName);
-            deferred.resolve(ret1);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            } else {
+                Transaction.log(txId, ret2, newTableName);
+                deferred.resolve(ret1);
+            }
         })
         .fail(function(error1, error2) {
+            Transaction.checkAndSetCanceled(txId);
             var thriftError = thriftLog("XcalarGroupBy", error1, error2);
             deferred.reject(thriftError);
         });
@@ -1862,10 +1928,15 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            Transaction.log(txId, ret2, dstTableName);
-            deferred.resolve(ret1);
+            if (Transaction.checkAndSetCanceled(txId)) {
+                deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            }else {
+                Transaction.log(txId, ret2, dstTableName);
+                deferred.resolve(ret1);
+            }
         })
         .fail(function(error1, error2) {
+            Transaction.checkAndSetCanceled(txId);
             var thriftError = thriftLog("XcalarProject", error1, error2);
             deferred.reject(thriftError);
         });
@@ -1891,11 +1962,16 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
 
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // XXX This part doesn't work yet
-        Transaction.log(txId, ret2, dstTableName);
-        deferred.resolve(ret1);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+             // XXX This part doesn't work yet
+            Transaction.log(txId, ret2, dstTableName);
+            deferred.resolve(ret1);
+        }
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId)
         var thriftError = thriftLog("XcalarGenRowNum", error1, error2);
         deferred.reject(thriftError);
     });
@@ -1926,12 +2002,17 @@ function XcalarQuery(queryName, queryString, txId) {
 
     xcalarQuery(tHandle, queryName, queryString, true)
     .then(function() {
-        if (txId != null) {
-            Transaction.startSubQuery(txId, queryName, null, queryString);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            if (txId != null) {
+                Transaction.startSubQuery(txId, queryName, null, queryString);
+            }
+            deferred.resolve();
         }
-        deferred.resolve();
     })
     .fail(function(error) {
+        Transaction.checkAndSetCanceled(txId) 
         var thriftError = thriftLog("XcalarQuery", error);
         SQL.errorLog("XcalarQuery", null, null, thriftError);
         deferred.reject(thriftError);
@@ -2007,8 +2088,17 @@ function XcalarQueryWithCheck(queryName, queryString, txId) {
     .then(function() {
         return (XcalarQueryCheck(queryName));
     })
-    .then(deferred.resolve)
-    .fail(deferred.reject);
+    .then(function() {
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            deferred.resolve();
+        }
+    })
+    .fail(function() {
+        Transaction.checkAndSetCanceled(txId)
+        deferred.reject();
+    });
 
     return (deferred.promise());
 }

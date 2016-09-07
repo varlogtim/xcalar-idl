@@ -1975,7 +1975,7 @@ window.xcHelper = (function($, xcHelper) {
                     subQuery = {
                         "query"   : tempString,
                         "name"    : operationName,
-                        "srcTable": getSrcTableFromQuery(tempString, 
+                        "srcTables": getSrcTableFromQuery(tempString, 
                                                          operationName),
                         "dstTable": getDstTableFromQuery(tempString, 
                                                           operationName)
@@ -1996,7 +1996,7 @@ window.xcHelper = (function($, xcHelper) {
             subQuery = {
                 "query"   : tempString,
                 "name"    : operationName,
-                "srcTable": getSrcTableFromQuery(tempString, operationName),
+                "srcTables": getSrcTableFromQuery(tempString, operationName),
                 "dstTable": getDstTableFromQuery(tempString, operationName)
             };
             queries.push(subQuery);
@@ -2007,14 +2007,33 @@ window.xcHelper = (function($, xcHelper) {
 
     function getSrcTableFromQuery(query, type) {
         var keyWord = "--srctable";
+        if (type === "join") {
+            keyWord = "--leftTable";
+        }
         var index = getKeyWordIndexFromQuery(query, keyWord);
+        var tableNames = [];
         if (index === -1) {
             return null;
         }
         index += keyWord.length;
-        query = query.slice(index).trim();
-        var tableName = parseSearchTerm(query);
-        return (tableName);
+        var trimmedQuery = query.slice(index).trim();
+        var tableName = parseSearchTerm(trimmedQuery);
+        if (tableName) {
+            tableNames.push(tableName);
+        }
+        if (type === "join") {
+            keyWord = "--rightTable";
+            index = getKeyWordIndexFromQuery(query, keyWord);
+            if (index !== -1) {
+                index += keyWord.length;
+                trimmedQuery = query.slice(index).trim();
+                tableName = parseSearchTerm(trimmedQuery);
+                if (tableName) {
+                    tableNames.push(tableName);
+                }
+            }
+        }
+        return (tableNames);
     };
 
     function getDstTableFromQuery(query, type) {
