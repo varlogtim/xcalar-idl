@@ -505,7 +505,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         var colCallback = function($target) {
-            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix);
+            var options = {};
+            if ($lastInputFocused.hasClass('multiColumn')) {
+                options.append = true;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix,
+                                        options);
         };
         var headCallback = function($target) {
             if (!$lastInputFocused) {
@@ -652,6 +657,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var inputVal = "";
             var inputHint = "";
             var argType = args[i].type;
+            var inputClasses = "";
 
             if (argType === "boolean") {
                 html +=
@@ -684,6 +690,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     if (args[i].autofill && triggerCol != null) {
                         inputVal = gColPrefix + triggerCol.getFronColName();
                     }
+                    if (args[i].typeCheck.multiColumn) {
+                        inputClasses += " multiColumn";
+                    }
                 } else {
                     if (args[i].autofill != null) {
                         inputVal = args[i].autofill;
@@ -697,7 +706,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         args[i].name +
                     '</div>' +
                     '<div class="inputWrap">' +
-                        '<input class="argument type-' + argType + '"' +
+                        '<input class="argument type-' + argType +
+                         inputClasses +'"' +
                         ' type="' + inputType + '"' +
                         ' value="' + inputVal + '"' +
                         ' placeholder="' + inputHint + '"' +
