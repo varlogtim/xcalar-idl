@@ -1141,7 +1141,7 @@ window.xcHelper = (function($, xcHelper) {
         table.unlock();
         if (table.isActive()) {
             var $tableWrap = $("#xcTableWrap-" + tableId);
-            $tableWrap.find('.lockedIcon').remove();
+            $tableWrap.find('.lockedTableIcon').remove();
             $tableWrap.find('.tableCover').remove();
             $tableWrap.removeClass('tableLocked');
             $('#rowScroller-' + tableId).removeClass('locked');
