@@ -1216,7 +1216,7 @@
               test.assert(ret.tableName == "yelp/user-votes.funny-gt900");
               return xcalarMakeResultSetFromTable(thriftHandle, "yelp/user-votes.funny-gt900");
         })
-        .then(function(ret) { 
+        .then(function(ret) {
               test.assert(ret.numEntries == 488);
               return xcalarFreeResultSet(thriftHandle, ret.resultSetId)
         })
@@ -1390,7 +1390,7 @@
                             test.fail("Number of nodes deleted != 1 (" + deleteDagNodeOutput.numNodes + ")");
                         } else if (deleteDagNodeOutput.statuses[0].status != StatusT.StatusOk) {
                             test.fail("Error deleting dag node. Status: " + StatusTStr[deleteDagNodeOutput.statuses[0].status] + "(" + deleteDagNodeOutput.statuses[0].status + ")");
-                        } else {                    
+                        } else {
                             queryAndCancel(jj + 1);
                         }
                     })

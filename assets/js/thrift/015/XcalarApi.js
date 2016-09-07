@@ -19,6 +19,12 @@ WorkItem = function() {
 }
 
 function xcalarConnectThrift(hostname, port) {
+    // protocol needs to be part of hostname
+    // If not it's assumed ot be http://
+
+    if (hostname.indexOf("http") === -1) {
+        hostname = "http://" + hostname;
+    }
     var thriftUrl = hostname + ":" + port.toString() +
         "/thrift/service/XcalarApiService/";
 

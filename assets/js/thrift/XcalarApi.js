@@ -101,7 +101,7 @@ function xcalarGetVersion(thriftHandle) {
         if (result.jobStatus != StatusT.StatusOk) {
             deferred.reject(result.jobStatus);
         }
-        deferred.resolve(result);
+        deferred.resolve(getVersionOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetVersion() caught exception:", error);

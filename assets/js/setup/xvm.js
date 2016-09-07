@@ -2,8 +2,8 @@
 window.XVM = (function(XVM) {
     var majorVersion = "0";
     var minorVersion = "9";
-    var revisionVersion = "10";
-    var thriftInterfaceVersion = "11";
+    var revisionVersion = "12";
+    var thriftInterfaceVersion = "12";
     var kvVersion = "0";
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
@@ -24,8 +24,7 @@ window.XVM = (function(XVM) {
         XcalarGetVersion()
         .then(function(result) {
             try {
-                var versionNum = result.output.outputResult.getVersionOutput
-                                                       .apiVersionSignatureShort;
+                var versionNum = result.apiVersionSignatureShort;
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                     console.log("Thrift version mismatch! Backend's thrift " +
                       "version is:" +
