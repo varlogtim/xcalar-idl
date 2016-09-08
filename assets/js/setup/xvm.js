@@ -53,8 +53,12 @@ window.XVM = (function(XVM) {
                 deferred.reject({error: ThriftTStr.Update});
             }
         })
-        .fail(function() {
-            deferred.reject({error: ThriftTStr.CCNBE});
+        .fail(function(ret) {
+            if (ret && ret.status === StatusT.StatusSessionActiveElsewhere) {
+                deferred.reject(ret);
+            } else {
+                deferred.reject({error: ThriftTStr.CCNBE});
+            }
         });
 
         return (deferred.promise());

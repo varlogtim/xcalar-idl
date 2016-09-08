@@ -257,7 +257,10 @@ ThriftTStr = {
     'UpdateErr': 'Xcalar Version Mismatch',
     'Update': 'Update required.',
     'SetupErr': 'Setup Failed',
-    'ListFileErr': 'List Files Failed'
+    'ListFileErr': 'List Files Failed',
+    'SessionElsewhere': 'Different Node Detected',
+    'LogInDifferent': 'Please login as a different user. ' +
+                      'One user can only be logged in at one location.'
 };
 
 AlertTStr = {

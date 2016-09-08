@@ -97,6 +97,14 @@ function xcalarGetVersion(thriftHandle) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var getVersionOutput = result.output.outputResult.getVersionOutput;
+        
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
         // No status
         if (result.jobStatus != StatusT.StatusOk) {
             deferred.reject(result.jobStatus);

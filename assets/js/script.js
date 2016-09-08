@@ -96,12 +96,15 @@ window.StartManager = (function(StartManager, $) {
         DagPanel.setup();
         SchedulerPanel.setup();
         setupModals();
-        setupExtensions();
         TutorialsSetup.setup();
 
         XVM.checkVersionMatch()
         .then(setupSession)
         .then(function() {
+            // Extensions need to be moved to after version check because
+            // somehow uploadUdf causes mgmtd to crash if checkVersion doesn't
+            // pass
+            setupExtensions();
             documentReadyGeneralFunction();
             WSManager.initialize();
             BottomMenu.initialize();
@@ -167,6 +170,12 @@ window.StartManager = (function(StartManager, $) {
                     }],
                     "hideButtons": ['copySql']
                 });
+            } else if (error.status === StatusT.StatusSessionActiveElsewhere) {
+                var title = ThriftTStr.SessionElsewhere;
+                Alert.error(title, error.error + '\n' + 
+                            ThriftTStr.LogInDifferent,
+                            {"lockScreen": true});
+
             } else {
                 // when it's an error from backend we cannot handle
                 var title;
@@ -177,6 +186,7 @@ window.StartManager = (function(StartManager, $) {
                 } else {
                     title = ThriftTStr.SetupErr;
                 }
+                // check whether there's another alert that's already on the screen
                 Alert.error(title, error, {"lockScreen": true});
                 StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
@@ -241,7 +251,7 @@ window.StartManager = (function(StartManager, $) {
         DFCreateView.setup();
         DFGParamModal.setup();
         SmartCastView.setup();
-        DeleteTableModal.setup();
+        DeleteTableModal.setup(); 
         ExtModal.setup();
         AboutModal.setup();
     }
