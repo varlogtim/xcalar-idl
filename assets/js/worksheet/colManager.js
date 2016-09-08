@@ -474,7 +474,8 @@ window.ColManager = (function($, ColManager) {
                         selectCol: colNums
                     };
                     return TblManager.refreshTable([newTableName], newTablCols,
-                                               [tableName], worksheet, options);
+                                               [tableName], worksheet, txId,
+                                               options);
                 }
             })
             .then(function() {
@@ -815,7 +816,7 @@ window.ColManager = (function($, ColManager) {
                     return PromiseHelper.resolve(null);
                 } else {
                     return TblManager.refreshTable([newTableName], newTableCols,
-                                                [tableName], worksheet);
+                                                [tableName], txId, worksheet);
                 }
             })
             .then(function() {

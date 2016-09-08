@@ -196,7 +196,7 @@ window.UExtGLM = (function(UExtGLM, $) {
                 finalCols[3] = ColManager.newDATACol();
 
                 return TblManager.refreshTable([outputTableName], finalCols,
-                                               [], workSheet);
+                                               [], workSheet, txId);
             })
             .then(function() {
                 // Step 6: Finish and return final table name

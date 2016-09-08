@@ -303,7 +303,7 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.RevertTable] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.tableName], null,
-                                [options.oldTableName], worksheet,
+                                [options.oldTableName], worksheet, null,
                             {isUndo: true}));
     };
 

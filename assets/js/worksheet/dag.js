@@ -891,7 +891,7 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function generateIcvTable(dagTableName, mapTableName, $tableIcon) {
-        function postOperation() {
+        function postOperation(txId) {
                 var newCols = [];
                 if (origTableId in gTables) {
                     idx = gTables[origTableId].getColNumByBackName(origColName);
@@ -923,7 +923,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
 
                 return TblManager.refreshTable([newTableName], newCols, [],
-                                               worksheet, options);
+                                               worksheet, txId, options);
         }
 
         var origTableId = xcHelper.getTableId(mapTableName);
@@ -1015,7 +1015,9 @@ window.DagPanel = (function($, DagPanel) {
 
             var idx = -1;
             XcalarMapWithInput(txId, xcalarInput)
-            .then(postOperation)
+            .then(function() {
+                return (postOperation(txId));
+            })
             .then(function() {
 
                 gTables[origTableId].icv = newTableName;
@@ -1063,7 +1065,9 @@ window.DagPanel = (function($, DagPanel) {
 
             var idx = -1;
             XcalarGroupByWithInput(txId, xcalarInput)
-            .then(postOperation)
+            .then(function() {
+                return (postOperation(txId));
+            })
             .then(function() {
                 gTables[origTableId].icv = newTableName;
                 sql.newTableName = newTableName;

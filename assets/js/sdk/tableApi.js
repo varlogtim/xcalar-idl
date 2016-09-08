@@ -67,7 +67,7 @@ window.XcSDK.Table.prototype = {
         return this.tablesToReplace;
     },
 
-    "addToWorksheet": function(tablesToReplace) {
+    "addToWorksheet": function(tablesToReplace, txId) {
         var tableName = this.tableName;
         var ws = this.worksheet;
         var tableCols = this.tableCols;
@@ -114,7 +114,8 @@ window.XcSDK.Table.prototype = {
             this.tablesToReplace = tablesToReplace;
         }
 
-        return TblManager.refreshTable([tableName], tableCols, tablesToReplace, ws);
+        return TblManager.refreshTable([tableName], tableCols, tablesToReplace, 
+                                      ws, txId);
     },
 
     "addCol": function(col, position) {

@@ -301,6 +301,11 @@ window.StatusMessage = (function($, StatusMessage) {
     }
 
     function removeFailedMsg($statusSpan) {
+        if (!$statusSpan.length) {
+            // removeFailedMsg could have been triggered with setTimeout
+            // after user already manually triggered 
+            return;
+        }
         var msgId = parseInt($statusSpan.attr('id').substr(7));
         var msgIndex = messages.indexOf(msgId);
         messages.splice(msgIndex, 1);

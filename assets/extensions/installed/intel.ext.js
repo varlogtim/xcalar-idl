@@ -86,7 +86,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newCols.splice(idx+1, 0, ColManager.newPullCol("Date_UTS"));
 
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [srcTable], worksheet));
+                                                [srcTable], worksheet, txId));
             })
             .then(function() {
                 srcTable = newTableName;
@@ -104,7 +104,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                                ColManager.newPullCol("Date_UTS_integer"));
 
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [srcTable], worksheet));
+                                                [srcTable], worksheet, txId));
             })
             .then(function() {
                 srcTable = newTableName;
@@ -131,7 +131,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                             return (TblManager.refreshTable([newTableName],
                                                             newCols,
                                                             [srcTable],
-                                                            worksheet));
+                                                            worksheet, txId));
                         }));
             })
             .then(function() {
@@ -156,7 +156,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newCols.splice(idx+1, 0,
                                ColManager.newPullCol("Final PT", "string"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet));
+                                                [tableName], worksheet, txId));
             })
             .then(function() {
                 deferred.resolve(newTableName);
@@ -191,7 +191,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                                ColManager.newPullCol("Forecasted_float",
                                                      "float"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet));
+                                                [tableName], worksheet, txId));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);
@@ -279,7 +279,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newCols.unshift(ColManager.newPullCol("Last Modified_NoBlank",
                                                       "string"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet));
+                                                [tableName], worksheet, txId));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);
@@ -294,7 +294,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newCols.unshift(ColManager.newPullCol("LastModified_UTS",
                                                       "string"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet));
+                                                [tableName], worksheet, txId));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);
@@ -310,7 +310,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newCols.unshift(ColManager.newPullCol("LastModified_readable",
                                                       "string"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                               [tableName], worksheet));
+                                               [tableName], worksheet, txId));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);
@@ -325,7 +325,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newCols.unshift(ColManager.newPullCol("Last_Modified_Latest",
                                                       "string"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet));
+                                                [tableName], worksheet, txId));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);
@@ -339,7 +339,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
                 newCols.unshift(ColManager.newPullCol("DaysSince", "string"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet));
+                                                [tableName], worksheet, txId));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);
@@ -354,7 +354,7 @@ window.UExtIntel = (function(UExtIntel, $) {
                 newCols.unshift(ColManager.newPullCol(
                 "No of Days since last modified", "float"));
                 return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet));
+                                                [tableName], worksheet, txId));
             })
             .then(function() {
                 tableId = xcHelper.getTableId(newTableName);

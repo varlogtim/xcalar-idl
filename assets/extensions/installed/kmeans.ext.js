@@ -251,7 +251,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 finalCols[2] = ColManager.newDATACol();
 
                 return TblManager.refreshTable([clusterTableName], finalCols,
-                                               [], workSheet);
+                                               [], workSheet, txId);
             })
             .then(function() {
                 // Step 11: Display the final centroid table
@@ -268,7 +268,7 @@ window.UExtKMeans = (function(UExtKMeans, $) {
                 finalCols[2] = ColManager.newDATACol();
 
                 return TblManager.refreshTable([centroidTableName], finalCols,
-                                               [], workSheet);
+                                               [], workSheet, txId);
             })
             .then(function() {
                 deferred.resolve(centroidTableName, clusterTableName);

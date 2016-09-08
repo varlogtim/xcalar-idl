@@ -459,6 +459,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                     }
                 }
                 if (!nameNodeFound) {
+                    Transaction.checkAndSetCanceled(txId) 
                     // The load FAILED because the dag node is gone
                     var thriftError = thriftLog("XcalarLoad failed!");
                     def1.reject(thriftError);
@@ -563,17 +564,21 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     // we still want to use the return for def2.
     PromiseHelper.when(def1, def2)
     .then(function(ret1, ret2) {
-        var loadError = null;
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            var loadError = null;
+            if (ret1.errorString || ret1.errorFile) {
+                loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
+                    "error": ret1.errorString,
+                    "file" : ret1.errorFile
+                });
+            }
 
-        if (ret1.errorString || ret1.errorFile) {
-            loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
-                "error": ret1.errorString,
-                "file" : ret1.errorFile
-            });
+            Transaction.log(txId, ret2, parseDS(datasetName));
+            deferred.resolve(ret1, loadError);
         }
-
-        Transaction.log(txId, ret2, parseDS(datasetName));
-        deferred.resolve(ret1, loadError);
+        
     })
     .fail(function(error1, error2) {
         if (error1 && error1.status === 502) {
@@ -590,6 +595,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                 checkForDatasetLoad(deferred, error2, datasetName, txId);
             }
         } else {
+            Transaction.checkAndSetCanceled(txId) 
             var thriftError = thriftLog("XcalarLoad", error1, error2);
             deferred.reject(thriftError);
         }

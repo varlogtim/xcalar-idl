@@ -47,7 +47,8 @@ window.xcFunction = (function($, xcFunction) {
             finalTableName = tableAfterFilter;
             var options = {"selectCol": colNum};
             return TblManager.refreshTable([finalTableName], table.tableCols,
-                                            [tableName], worksheet, options);
+                                            [tableName], worksheet, txId, 
+                                            options);
         })
         .then(function() {
             xcHelper.unlockTable(tableId);
@@ -246,7 +247,7 @@ window.xcFunction = (function($, xcFunction) {
             var options = {"selectCol": colNum};
             // sort will filter out KNF, so it change the profile
             return TblManager.refreshTable([finalTableName], finalTableCols,
-                                            [tableName], worksheet,
+                                            [tableName], worksheet, txId,
                                             options);
         })
         .then(function() {
@@ -418,7 +419,7 @@ window.xcFunction = (function($, xcFunction) {
                 refreshOptions = {"focusWorkspace": focusOnTable};
             }
             return TblManager.refreshTable([finalTableName], finalTableCols,
-                                        tablesToReplace, worksheet,
+                                        tablesToReplace, worksheet, txId,
                                         refreshOptions);
         })
         .then(function() {
@@ -565,7 +566,7 @@ window.xcFunction = (function($, xcFunction) {
             }
 
             return TblManager.refreshTable([finalTableName], finalTableCols,
-                                            tablesToReplace, curWS,
+                                            tablesToReplace, curWS, txId,
                                             tableOptions);
         })
         .then(function() {
@@ -708,7 +709,8 @@ window.xcFunction = (function($, xcFunction) {
             Profile.copy(tableId, finalTableId);
             var options = {"selectCol": colNum};
             return TblManager.refreshTable([finalTableName], tablCols,
-                                           [tableName], worksheet, options);
+                                           [tableName], worksheet, txId, 
+                                           options);
         })
         .then(function() {
             xcHelper.unlockTable(tableId);
@@ -990,7 +992,8 @@ window.xcFunction = (function($, xcFunction) {
             finalTableCols.push(dataCol);
 
             return TblManager.refreshTable([dstTableName], finalTableCols,
-                                           [tableName], worksheet, options);
+                                           [tableName], worksheet, txId, 
+                                           options);
         })
         .then(function() {
             xcHelper.unlockTable(tableId);

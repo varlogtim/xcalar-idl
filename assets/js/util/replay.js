@@ -906,7 +906,7 @@ window.Replay = (function($, Replay) {
         var wsId = WSManager.getOrders()[wsIndex];
 
         TblManager.refreshTable([newTableName], null, [oldTableName],
-                                wsId, {isUndo: true})
+                                wsId, null, {isUndo: true})
         .then(function() {
             SQL.add("Revert Table", {
                 "operation"     : SQLOps.RevertTable,

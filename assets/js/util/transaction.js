@@ -2,6 +2,7 @@ window.Transaction = (function(Transaction, $) {
     var txCache = {};
     var canceledTxCache = {};
     var pendingCancelTxCache = {};
+    var disabledCancels = {};
     var txIdCount = 0;
     var isDeleting = false;
 
@@ -53,6 +54,9 @@ window.Transaction = (function(Transaction, $) {
             return;
         }
         if (canceledTxCache[txId]) {
+            // if canceled, Transaction.cancel already took care of the cleanup 
+            // and messages
+            QueryManager.cleanUpCanceledTables(txId);
             return;
         }
 
@@ -101,6 +105,8 @@ window.Transaction = (function(Transaction, $) {
             return;
         }
         if (canceledTxCache[txId] || pendingCancelTxCache[txId]) {
+            // transaction failed due to a cancel
+            QueryManager.cleanUpCanceledTables(txId);
             return;
         }
 
@@ -142,6 +148,18 @@ window.Transaction = (function(Transaction, $) {
             return;
         }
         pendingCancelTX(txId);
+    };
+
+    Transaction.disableCancel = function(txId) {
+        // when a replaceTable is called in the worksheet, we disable the
+        // ability to cancel because it's too late at this point
+        if (isValidTX(txId)) {
+            disabledCancels[txId] = true;
+        }  
+    };
+
+    Transaction.isCancelable = function(txId) {
+        return (isValidTX(txId) && !disabledCancels.hasOwnProperty(txId));
     };
 
     Transaction.cancel = function(txId, options) {
@@ -215,7 +233,7 @@ window.Transaction = (function(Transaction, $) {
         } else if (pendingCancelTxCache[txId]) {
             // if we're checking then cancel must have worked so we process it
             Transaction.cancel(txId);
-            Transaction.cleanUpCanceledTables(txId);
+            // Transaction.cleanUpCanceledTables(txId);
             return true;
         } else {
             return false;
@@ -256,6 +274,7 @@ window.Transaction = (function(Transaction, $) {
     }
 
     function removeTX(txId) {
+        delete disabledCancels[txId];
         delete pendingCancelTxCache[txId];
         delete txCache[txId];
     }

@@ -24,11 +24,18 @@ window.TblManager = (function($, TblManager) {
 
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
-                                       worksheet, options)
+                                       worksheet, txId, options)
     {
+    
         var deferred = jQuery.Deferred();
 
         options = options || {};
+
+        if (txId != null && Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+            return (deferred.promise());
+        }
+
         oldTableNames = oldTableNames || [];
         var newTableName = newTableNames[0];
         var newTableId = xcHelper.getTableId(newTableName);
@@ -70,6 +77,17 @@ window.TblManager = (function($, TblManager) {
 
         promise
         .then(function() {
+            if (txId != null) {
+                if (Transaction.checkAndSetCanceled(txId)) {
+                    deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+                    return;
+                } else {
+                    // we cannot allow transactions to be canceled if 
+                    // we're about to add a table to the worksheet
+                    Transaction.disableCancel(txId);
+                }
+            }
+
             if (options.focusWorkspace) {
                 focusOnWorkspace();
             }
@@ -113,6 +131,7 @@ window.TblManager = (function($, TblManager) {
                 console.error("refreshTable fails!");
                 if (worksheet != null) {
                     WSManager.removeTable(newTableId);
+                    delete gTables[newTableId];
                 }
                 deferred.reject(error);
             });
@@ -1417,7 +1436,6 @@ window.TblManager = (function($, TblManager) {
                                 "noFocusWS": noFocusWS
                             });
                         }
-                        
                         
                     }
                 }

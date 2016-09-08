@@ -164,7 +164,8 @@ window.DagFunction = (function($, DagFunction) {
         if (oldTableName) {
             oldTableNames.push(oldTableName);
         }
-        TblManager.refreshTable([newTableName], undefined, oldTableNames, wsId)
+        TblManager.refreshTable([newTableName], undefined, oldTableNames, wsId,
+                                null)
         .then(function() {
             var newTableId = xcHelper.getTableId(newTableName);
 
@@ -506,7 +507,7 @@ window.DagFunction = (function($, DagFunction) {
             xcHelper.unlockTable(tableId);
             TblManager.refreshTable([finalTableName],
                                     gTables[tableId].tableCols, [tableName],
-                                    worksheet);
+                                    worksheet, txId);
         })
         .fail(function(error) {
             console.error(error);

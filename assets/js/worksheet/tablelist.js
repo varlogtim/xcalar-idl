@@ -623,7 +623,7 @@ window.TableList = (function($, TableList) {
                 }
             }
 
-            TblManager.refreshTable([tableName], null, [], worksheet)
+            TblManager.refreshTable([tableName], null, [], worksheet, null)
             .then(function() {
                 deferred.resolve(tableName);
             })
@@ -637,7 +637,7 @@ window.TableList = (function($, TableList) {
                 newTableCols.push(ColManager.newDATACol());
 
                 return TblManager.refreshTable([tableName], newTableCols,
-                                                [], worksheet);
+                                                [], worksheet, null);
             })
             .then(function() {
                 deferred.resolve(tableName);

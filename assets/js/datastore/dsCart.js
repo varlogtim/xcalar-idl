@@ -213,7 +213,7 @@ window.DSCart = (function($, DSCart) {
         .then(function() {
             var options = {"focusWorkspace": !noFocus};
             return TblManager.refreshTable([tableName], newTableCols,
-                                            [], worksheet, options);
+                                            [], worksheet, txId, options);
         })
         .then(function() {
             // this will be saved later

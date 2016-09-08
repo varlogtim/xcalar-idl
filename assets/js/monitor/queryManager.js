@@ -214,49 +214,50 @@ window.QueryManager = (function(QueryManager, $) {
             deferred.reject('operation is done, cannot cancel');
             return deferred.promise();
         }
-        var $query = $queryList.find('.query[data-id="' + id + '"]');
+
+        var $query = $queryList.find('.query[data-id="' + id + '"]'); 
+        $query.find('.cancelIcon').addClass('disabled');
+
+        if (!Transaction.isCancelable(id)) {
+            deferred.reject('building new table, cannot cancel');
+            return deferred.promise();
+        }
+
+        Transaction.cancel(id);
+        unlockSrcTables(mainQuery);
+
+        // unfinished tables will be dropped when Transaction.fail is reached
+        var onlyFinishedTables = true;
+        dropCanceledTables(mainQuery, onlyFinishedTables);
+        
         var currStep = mainQuery.currStep;
 
-        // this is a xcalar query so we must cancel all future subqueries
         if (!mainQuery.subQueries[currStep]) {
-            Transaction.cancel(id);
             console.warn('step vs query mismatch');
             deferred.reject('step vs query mismatch');
             return deferred.promise();
         }
-
-        Transaction.pendingCancel(id);
-        unlockSrcTables(mainQuery);
-        $query.find('.cancelIcon').addClass('disabled');
+        
         var statusesToIgnore = [StatusT.StatusOperationHasFinished];
 
-        // xcalar query
+        // this is a xcalar query so we must cancel all future subqueries
         if (mainQuery.subQueries[currStep].queryName) {
             // Query Cancel returns success even if the operation is
             // complete, unlike cancelOp. Xc4921
             XcalarQueryCancel(mainQuery.subQueries[currStep].queryName, [])
             .then(function(ret) {
-                var onlyFinishedTables = true;
-                // unfinished tables will be dropped when the operation returns
-                dropCanceledTables(mainQuery, onlyFinishedTables);
-                console.info('cancel submitted', ret);
+                console.info('query cancel submitted', ret);
                 deferred.resolve();
             })
             .fail(function(error) {
                 // errors being handled inside XcalarCancelOp
                 deferred.reject(error);
             });
-            // xcFunction
-        } else {
-            // start cancel before xcalarcancelop returns
-            // so that if we miss the table, xcfunctions will stop further
-            // actions
+           
+        } else { // xcFunction
             XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
                            statusesToIgnore)
             .then(function(ret) {
-                var onlyFinishedTables = true;
-                // unfinished tables will be dropped when the operation returns
-                dropCanceledTables(mainQuery, onlyFinishedTables);
                 console.info('cancel submitted', ret);
                 deferred.resolve();
             })
@@ -1165,7 +1166,8 @@ window.QueryManager = (function(QueryManager, $) {
         }
         
         for (var i = 0; i < numQueries; i++) {
-            if (queries[i].dstTable) {
+            if (queries[i].dstTable &&
+                queries[i].dstTable.indexOf(gDSPrefix) === -1) {
                 dstTables.push(queries[i].dstTable);
             }
         }
