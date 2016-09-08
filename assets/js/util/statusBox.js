@@ -18,15 +18,16 @@ window.StatusBox = (function($, StatusBox){
         
         // focus moves scrollbar position so focus first before we get
         // the position of the input
+        $target.focus();
         if (isFormMode) {
             $doc.mousedown({"target": $target, "type": msgType}, hideStatusBox);
             $target.keydown({"target": $target, "type": msgType}, hideStatusBox);
-            $target.focus().addClass(msgType);
+            $target.addClass(msgType);
         } else {
             $doc.mousedown(hideStatusBox);
             $doc.keydown(hideStatusBox);
         }
-
+        
 
         // position the message
         $statusBox.addClass("active"); // shows the box

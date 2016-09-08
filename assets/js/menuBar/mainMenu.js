@@ -300,6 +300,7 @@ window.MainMenu = (function($, MainMenu) {
                 unhideOffScreenTables();
                 moveTableTitles();
                 moveTableDropdownBoxes();
+                moveFirstColumn();
                 $('#mainFrame').removeClass('scrollLocked');
             }, delay + 50);
         }
@@ -334,6 +335,7 @@ window.MainMenu = (function($, MainMenu) {
                 unhideOffScreenTables();
                 moveTableTitles();
                 moveTableDropdownBoxes();
+                moveFirstColumn();
                 $('#mainFrame').removeClass('scrollLocked');
             }, delay + 50);
         }

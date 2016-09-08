@@ -285,7 +285,7 @@ window.QueryManager = (function(QueryManager, $) {
         updateQueryBar(id, null, false, true, true);
         updateStatusDetail({
             "start"    : getQueryTime(mainQuery.getTime()),
-            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime(), true),
             "remaining": CommonTxtTstr.NA,
             "total"    : getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
@@ -546,15 +546,20 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         var totalTime = CommonTxtTstr.NA;
+        var elapsedTime;
         if (mainQuery.getState() === "done") {
             totalTime = getElapsedTimeStr(mainQuery.getElapsedTime());
-        } else if (mainQuery !== null) {
-            mainQuery.setElapsedTime();
+            elapsedTime = totalTime;
+        } else {
+            if (mainQuery !== null) {
+                mainQuery.setElapsedTime();
+            }
+            elapsedTime = getElapsedTimeStr(mainQuery.getElapsedTime(), true);
         }
         updateHeadingSection(mainQuery);
         updateStatusDetail({
             "start"    : startTime,
-            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+            "elapsed"  : elapsedTime,
             "remaining": CommonTxtTstr.NA,
             "total"    : totalTime
         }, queryId);
@@ -578,6 +583,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (state === QueryStateT.qrError) {
             state = QueryStatus.Error;
         }
+        
 
         $queryDetail.find(".querySection")
                     .removeClass(QueryStatus.Run)
@@ -588,6 +594,15 @@ window.QueryManager = (function(QueryManager, $) {
                     .addClass(state);
         if (state === QueryStatus.Run) {
             QueryManager.check(false, true);
+            // we need to update the extraProgressBar even if we don't 
+            // have status data otherwise we'll have the progressBar of the
+            // previous query
+            var $progressBar = $queryList.find('.query[data-id="' + id + '"]')
+                                         .find(".progressBar");
+            var prevProgress = 100 * $progressBar.width() /
+                                             $progressBar.parent().width();
+            prevProgress = prevProgress || 0; // in case of 0/0 NaN;
+            updateQueryBar(id, prevProgress, false, false, true);
         } else if (state === QueryStatus.Done) {
             updateQueryBar(id, 100, false, false, true);
         } else if (state === QueryStatus.Cancel) {
@@ -715,7 +730,6 @@ window.QueryManager = (function(QueryManager, $) {
         if (subQuery.state === "done") {
             return;
         }
-   
         subQuery.check()
         .then(function(res) {
             if (!queryLists[id]) {
@@ -739,7 +753,7 @@ window.QueryManager = (function(QueryManager, $) {
                 mainQuery.setElapsedTime();
                 updateStatusDetail({
                     "start"    : getQueryTime(mainQuery.getTime()),
-                    "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+                    "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime(), true),
                     "remaining": CommonTxtTstr.NA,
                     "total"    : CommonTxtTstr.NA
                 }, id);
@@ -810,7 +824,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         function extraProgressBarContinuation() {
-            if (newClass != null) {
+            if (newClass != null && $query.hasClass("active")) {
                 $queryDetail.find(".query").removeClass("processing")
                             .addClass(newClass);
             }
@@ -834,13 +848,14 @@ window.QueryManager = (function(QueryManager, $) {
                 } else {
                     var prevProgress = 100 * $progressBar.width() /
                                              $progressBar.parent().width();
+                    prevProgress = prevProgress || 0; // in case of NaN 0/0
                     // set extraProgressBar's to match progressBar's width
-                    // and then animate extraProgressBar to it's actual pct
+                    // and then animate extraProgressBar to it's actual pct                 
                     $extraProgressBar.stop().width(prevProgress + '%')
                                       .animate({"width": progress},
                                             checkInterval, "linear",
                                             progressBarContinuation);
-                    extraProgressBarContinuation();
+                    
                 }
             } else {
                 $extraProgressBar.stop().animate({"width": progress},
@@ -848,6 +863,7 @@ window.QueryManager = (function(QueryManager, $) {
                                                  "linear",
                                                  extraProgressBarContinuation);
             }
+            extraProgressBarContinuation();
         }
 
         updateQueryStepsDisplay(mainQuery, $query, newClass, $extraStepText);
@@ -861,7 +877,6 @@ window.QueryManager = (function(QueryManager, $) {
         if (newClass !== null) {
             if (newClass === "done") {
                 $query.find('.querySteps').text('completed');
-                
             }
         } else if (mainQuery.currStep <= mainQuery.numSteps) {
             // in progress and if total number of steps IS known
@@ -891,7 +906,8 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // milliSeconds - integer
-    function getElapsedTimeStr(milliSeconds) {
+    // round - boolean, if true will round to nearest second
+    function getElapsedTimeStr(milliSeconds, round) {
         var s = Math.floor(milliSeconds / 1000);
         var seconds = Math.floor(s) % 60;
         var minutes = Math.floor((s % 3600) / 60);
@@ -908,7 +924,7 @@ window.QueryManager = (function(QueryManager, $) {
             timeString += milliSeconds + "ms";
         } else {
             timeString += seconds;
-            if (milliSeconds < 60000) {// between 1 and 60 seconds
+            if (milliSeconds < 60000 && !round) {// between 1 and 60 seconds
                 var mills = milliSeconds % (seconds * 1000);
 
                 if (milliSeconds < 10000) {
