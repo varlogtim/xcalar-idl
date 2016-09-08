@@ -2,59 +2,59 @@
 <div class="iconSection">
   <i class="minimizeBtn icon xi-close fa-15"></i>
   <!-- switch to worksheet list -->
-  <i id="worksheetListTab" class="right icon xi-worksheet fa-20" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.WSList %>"></i>
+  <i id="worksheetListTab" class="right icon xi-worksheet fa-20" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.ws.WSList %>"></i>
 </div>
-<header class="titleSection"><%= dicts.WSTStr.Tables %></header>
+<header class="titleSection"><%= dicts.common.Tables %></header>
 <div id="tableListSection" class="mainSection no-selection">
   <!-- Tabs -->
   <section id="tableListSectionTabs">
-    <div class="tableListSectionTab active"><%= dicts.WSTStr.ActiveList %></div>
-    <div class="tableListSectionTab"><%= dicts.WSTStr.InActiveList %></div>
-    <div class="tableListSectionTab"><%= dicts.WSTStr.OrphanList %></div>
+    <div class="tableListSectionTab active"><%= dicts.ws.ActiveList %></div>
+    <div class="tableListSectionTab"><%= dicts.ws.InActiveList %></div>
+    <div class="tableListSectionTab"><%= dicts.ws.OrphanList %></div>
   </section>
   <!-- Sections -->
   <section id="tableListSections">
     <!-- active list -->
     <div id="activeTableList" class="tableListSection">
       <div class="buttonSection">
-        <div class="submit archive xc-hidden" title="<%= dicts.WSTStr.archive %>" data-toggle="tooltip" data-placement="top" data-container="body">
+        <div class="submit archive xc-hidden" title="<%= dicts.ws.archive %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-archive"></i>
         </div>
-        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.deselectAll %>"></i>
-        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.selectAll %>"></i>
+        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
+        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
       </div>
       <ul id="activeTablesList" class="tableLists"></ul>
     </div>
     <!-- archived list -->
     <div id="archivedTableList" class="tableListSection">
       <div class="buttonSection">
-        <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.WSTStr.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
+        <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.ws.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
            <i class="icon xi-back-to-worksheet fa-17"></i>
         </div>
         <div class="submit delete xc-hidden">
           <i class="icon xi-trash fa-17"></i>
         </div>
-        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.deselectAll %>"></i>
-        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.selectAll %>"></i>
+        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
+        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
       </div>
       <ul id="inactiveTablesList" class="tableLists"></ul>
     </div>
     <!-- orphaned table list -->
     <div id="orphanedTableList" class="tableListSection">
       <div class="buttonSection">
-        <div class="submit active xc-hidden" title="<%= dicts.WSTStr.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
+        <div class="submit active xc-hidden" title="<%= dicts.ws.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-back-to-worksheet fa-17"></i>
         </div>
         <div class="submit delete xc-hidden">
           <i class="icon xi-trash fa-17"></i>
         </div>
-        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.deselectAll %>"></i>
-        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.selectAll %>"></i>
+        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
+        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
         <div class="divider"></div>
         <i class="icon xi-refresh refresh fa-18 blue" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.common.Refresh %>"></i>
       </div>
       <div id="orphanedTableList-search" class="searchbarArea">
-          <input type="text" placeholder="<%= dicts.WSTStr.filterOrphan %>"
+          <input type="text" placeholder="<%= dicts.ws.filterOrphan %>"
             spellcheck="false" />
           <div class="clear iconWrap">
             <i class="icon xi-close"></i>

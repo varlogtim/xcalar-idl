@@ -16,7 +16,7 @@
     <% if (dicts.tutor.name == "workbookDemo") { %>
     <i id="tableListTab" class="right icon xi-menu-table-list fa-20" data-introstep="w1-view"></i>
     <% } else { %>
-    <i id="tableListTab" class="right icon xi-menu-table-list fa-20" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.WSTStr.TblList %>"></i>
+    <i id="tableListTab" class="right icon xi-menu-table-list fa-20" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.ws.TblList %>"></i>
     <% } %>
 </div>
 <header class="titleSection"><%= dicts.menuBar.ws %></header>
@@ -26,7 +26,7 @@
       <span class="expand">
         <i class="icon xi-arrow-down fa-7"></i>
       </span>
-      <span class="text"><%= dicts.WSTStr.ActiveWS %></span>
+      <span class="text"><%= dicts.ws.ActiveWS %></span>
     </div>
     <ul id="worksheetTabs">
       <% if (dicts.tutor.name == "workbookDemo") { %>
@@ -58,10 +58,10 @@
       <span class="expand">
         <i class="icon xi-arrow-down fa-7"></i>
       </span>
-      <span class="text"><%= dicts.WSTStr.HiddenWS %></span>
+      <span class="text"><%= dicts.ws.HiddenWS %></span>
     </div>
     <ul id="hiddenWorksheetTabs">
-      <li class="hint no-selection"><%= dicts.WSTStr.NoHiddenWS %></li>
+      <li class="hint no-selection"><%= dicts.ws.NoHiddenWS %></li>
       <li class="worksheetTab hiddenTab">
         <input type="text" class="text textOverflow" spellcheck="false" value="<%= dicts.ws.sheet %> 1" disabled>
         <i class="unhide icon xi-monitor fa-15"></i>

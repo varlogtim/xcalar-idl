@@ -40,8 +40,11 @@ module.exports = {
         "Header": "Header",
         "Help": "Help",
         "max": "max",
+        "Max": "Max",
         "maximize": "maximize",
         "min": "min",
+        "Min": "Min",
+        "Med": "Med",
         "ModuleName": "Module Name",
         "Name": "Name",
         "NEW": "NEW",
@@ -67,12 +70,14 @@ module.exports = {
         "SearchKeyWord": "Search keyword",
         "seconds": "seconds",
         "SelectAll": "Select All",
+        "DeSelectAll": "Deselect All",
         "Service": "Service",
         "Size": "Size",
         "Sugg": "Suggestion",
         "sum": "sum",
         "sd": "SD",
         "Table": "Table",
+        "Tables": "Tables",
         "Type": "Type",
         "UDF": "UDF",
         "URL": "URL",
@@ -125,7 +130,8 @@ module.exports = {
         "unknown": "unknown",
         "SignOut": "Sign out",
         "About": "About",
-        "Help": "Help Docs",
+        "Help": "Help",
+        "HelpDocs": "Help Docs"
     },
 
     "MenuTStr" : {
@@ -231,24 +237,6 @@ module.exports = {
        "WinLead": "Lead"
     },
 
-    "WSTStr" : {
-        "TblList": "Tables List",
-        "WSList": "Worksheet List",
-        "WSName": "Worksheet Name",
-        "ActiveWS": "Active Worksheet List",
-        "HiddenWS": "Hidden Worksheet List",
-        'NoHiddenWS': 'No Hidden Worksheets',
-        "Tables": "Tables",
-        "ActiveList": "Active",
-        "InActiveList": "Archived",
-        "OrphanList": "Temporary",
-        "active": "Add To Worksheet",
-        "archive": "Archive Tables",
-        "selectAll": "select all",
-        "deselectAll": "deselect all",
-        "filterOrphan": "Filter Temporary Tables",
-    },
-
     "CommonTxtTstr" : {
         "ClickToOpts": "click to see options",
         "BackToOrig": "Back to original",
@@ -307,9 +295,10 @@ module.exports = {
         "dsTutor2": "Data Stores Tutorial - Part 2"
     },
 
-    "bottomBar": {
+    "statusBar": {
+        "save": "Last Saved On",
+        "create": "Created On",
         "EC": "Establishing Connection",
-        "help": "help"
     },
 
     "ws": {
@@ -318,10 +307,20 @@ module.exports = {
         "unHideAll": "Unhide all worksheets",
         "hide": "Hide Worksheet",
         "del": "Delete Worksheet",
-        "create": "Created On",
-        "save": "Last Saved On",
         "MoveUp": "Move Up",
-        "MoveDown": "Move Down"
+        "MoveDown": "Move Down",
+        "TblList": "Tables List",
+        "WSList": "Worksheet List",
+        "WSName": "Worksheet Name",
+        "ActiveWS": "Active Worksheet List",
+        "HiddenWS": "Hidden Worksheet List",
+        "NoHiddenWS": "No Hidden Worksheets",
+        "ActiveList": "Active",
+        "InActiveList": "Archived",
+        "OrphanList": "Temporary",
+        "active": "Add To Worksheet",
+        "archive": "Archive Tables",
+        "filterOrphan": "Filter Temporary Tables",
     },
 
     "monitor": {
@@ -597,7 +596,7 @@ module.exports = {
         "restoreDefaults": "RESTORE DEFAULTS"
     },
 
-    "joinModdal": {
+    "joinView": {
         "header": "Join",
         "instr": "First, select the column from the left table that you would like to join on. Next, select the table followed by the column from the right that you would like to join on.",
         "NewTableName": "New Table Name",
@@ -608,19 +607,26 @@ module.exports = {
         "RightJoin": "Right Outer Join",
         "FullJoin": "Full Outer Join",
         "LeftTable": "Left Table",
+        "RightTable": "Right Table",
+        "LeftCols": "Left Columns",
+        "RightCols": "Right Columns",
+        "LeftTableNames": "Left Table Renames",
+        "RightTableName": "Right Table Renames",
+        "NewName": "New Name",
         "SuggLeftHint": "Suggest a key in left table to match right table",
         "SuggRightHint": "Suggest a key in right table to match left table",
         "SmartSuggBtn": "Smart Suggest",
-        "MultiJoin": "Multi Clause Join",
-        "MultiJoinInstr": "Drag and drop columns to join",
-        "RightTable": "Right Table",
         "CONFIRM": "JOIN TABLES",
+        "ADDCLAUSE": "ADD ANOTHER CLAUSE",
+        "Preview": "Command Preview",
         "viewTables": "view other tables",
         "colSelectTitle": "Columns To Join",
         "colSelectInstr": "Please select pairs of columns, one column from the left table and one column from the right table, to be joined together.",
         "colKeepTitle": "Column Selector",
         "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are collisions in column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table.",
-        "colRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns."
+        "colNamaes": "Column Renames",
+        "colRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
+        "Estimate": "Estimating join size"
     },
 
     "jsonModal": {
@@ -640,7 +646,7 @@ module.exports = {
         "NoCast": "No columns to cast"
     },
 
-    "opsModal": {
+    "opsView": {
         "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
         "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
         "groupbyInstr": "Enter one or multiple fields group on. Then, select a function, e.g. count. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
@@ -649,7 +655,6 @@ module.exports = {
         "ArgList": "Argument List",
         "EmptyHint": "select to allow empty field",
         "map": "Map",
-        "table": "Table",
         "category": "Category",
         "function": "Function",
         "erroneousRows": "View only erroneous rows",
@@ -663,10 +668,6 @@ module.exports = {
         "includeSample": "Include a sample of the rest of the fields",
         "aggFunc": "Aggregate Function",
         "mapFilter": "Search map functions"
-    },
-
-    "extOpsModal": {
-        "instr": "Column names should be prefixed by a $ sign, e.g. $column1."
     },
 
     "dfgParam": {
@@ -748,8 +749,7 @@ module.exports = {
         "NotFound": "No Extension Found",
         "NotAdded": "No Extension Added",
         "SearchHint": "Search for Extension",
-        "MyExt": "My Extensions",
-        "Table": "Table"
+        "MyExt": "My Extensions"
     },
 
     "about": {

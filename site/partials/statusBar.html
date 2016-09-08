@@ -8,20 +8,20 @@
       </span>
     </div>
     <div id="workspaceDate" class="workspaceArea">
-      <span><%= dicts.ws.create %>: </span>
+      <span><%= dicts.statusBar.create %>: </span>
       <span class="date">
         <%= dicts.isTutor ? dicts.tutor.wkbkDate : "" %>
       </span>
     </div>
     <div class="workspaceArea">
-      <span><%= dicts.ws.save %>:</span>
+      <span><%= dicts.statusBar.save %>:</span>
       <span id="autoSavedInfo">
         <%= dicts.isTutor ? dicts.tutor.wkbkSaveDate : "" %>
       </span>
     </div>
     <div class="workspaceArea">
       <span id="pageStatusText">
-        <%= dicts.isTutor ? dicts.tutor.meta.tab : dicts.bottomBar.EC %>
+        <%= dicts.isTutor ? dicts.tutor.meta.tab : dicts.statusBar.EC %>
       </span>
       <div id="pageStatusMenu" class="menu">
         <ul></ul>
