@@ -1,195 +1,150 @@
-<!-- SCHEDULER PANEL -->
+<!-- WORKBOOK PANEL -->
 <div id="workbookPanel" class="mainPanel">
   <div id="dialogWrap">
-  	<div class="dialog">
-  	  <span><%= dicts.workbook.noActive %></span>
-  	</div>
+    <div class="dialog">
+      <span><%= dicts.workbook.noActive %></span>
+    </div>
   </div>
   <div id="workbookTopBar" class="topBar">
-      <div class="rightHeaderArea">
-        <div class="title"><%= dicts.workbook.header %></div>
-      </div>
+    <div class="rightHeaderArea">
+      <div class="title"><%= dicts.workbook.header %></div>
+    </div>
   </div>
   <div class="mainContent">
-  	<div class="contentWrap">
-  		<div class="flexSection topSection">
-	  		<div class="box box-large welcomeBox">
-	  			<div class="leftBar vertBar"></div>
-	  			<div class="content">
-	  				<div class="innerContent">
-	  					<header class="heading"><%= dicts.workbook.hello%> <span class="username">User</span>!</header>
-		  				<div class="subHeading"><%= dicts.workbook.welcomeXI %></div>
-		  				<p class="description">
-		  				</p>
-	  				</div>
-	  			</div>
-	  		</div>
-	  		<div class="box box-large newsBox">
-	  			<div class="leftBar vertBar"></div>
-	  			<div class="content">
-	  				<div class="innerContent">
-	  					<section class="section">
-	  						<div class="subHeading"><%= dicts.workbook.news %></div>
-			  				<div class="description">
-			  					<ul>
-			  						<li><a href="http://www.xcalar.com" target="_blank"><%= dicts.workbook.visit %> Xcalar.com</a></li>
-			  					</ul>
-			  				</div>
-	  					</section>
-	  					<section class="section">
-	  						<div class="subHeading"><%= dicts.common.Help %></div>
-			  				<div class="description">
-			  					<ul>
-			  						<li><a href="<%= dicts.paths.helpDocs %>" target="xchelp"><%= dicts.workbook.viewNewHelpDoc %></a></li>
-			  						<!-- INTRO TUTORIALS -->
-			  						<li id="workbookWT" class="walkthrough">
-						                <span><%= dicts.bottomMenu.wkbkTutor %></span>
-						            </li>
-						            <li id="datastoreWT1" class="walkthrough">
-						            	<span><%= dicts.bottomMenu.dsTutor1 %></span>
-						            </li>
-						            <li id="datastoreWT2" class="walkthrough">
-						            	<span><%= dicts.bottomMenu.dsTutor2 %></span>
-						            </li>
-			  					</ul>
-			  				</div>
-	  					</section>
-	  				</div>
-	  				<hr>
-	  			</div>
-	  		</div>
-	  		<div class="box box-large tutBox">
-	  			<div class="leftBar vertBar"></div>
-	  			<div class="content">
-	  				<div class="innerContent">
-	  					<section class="section">
-	  						<div class="subHeading"><%= dicts.workbook.tuts %></div>
-		  					<div class="helpText">
-		  						<a href="assets/help/Content/Home.htm" target="xchelp"><%= dicts.workbook.learnMore %></a>
-		  					</div>
-			  				<div class="tutBlock">
-			  					<a href="<%= dicts.paths.helpDocs %>" target="xchelp" >
-			  						<div class="tutBtn">
-			  						<i class="icon xi-worksheet"></i>
-				  					</div>
-				  					<div class="tutText"><%= dicts.workbook.relatedDocs %></div>
-			  					</a>
-			  				</div>
-	  					</section>
-	  					<section class="section">
-	  						<div class="subHeading"><%= dicts.monitor.Monitor %></div>
-		  					<div class="helpText">
-		  						<a href="" class="monitorLink"><%= dicts.workbook.monitorStatus %></a>
-		  					</div>
-			  				<div class="tutBlock monitorBtn">
-		  						<div class="tutBtn">
-		  							<i class="icon xi-menu-monitoring"></i>
-			  					</div>
-			  					<div class="tutText"><%= dicts.workbook.monitorClusterHealth %></div>
-			  				</div>
-	  					</section>
-	  				</div>
-	  				<hr>
-	  			</div>
-	  		</div>
-	  	</div>
-	  	<div class="flexSection bottomSection">
-	  		<div class="box box-small newWorkbookBox">
-	  			<div class="innerBox">
-	  				<div class="leftBar vertBar"></div>
-		  			<div class="content">
-		  				<div class="innerContent">
-		  					<div class="subHeading"><%= dicts.workbook.newWKBK %></div>
-			  				<div class="description"><%= dicts.workbook.createWKBKdesc %></div>
-			  				<input type="text" placeholder="Workbook name ..." spellcheck="false">
-			  				<button class="btn"><%= dicts.workbook.createWKBK %></button>
-		  				</div>
-		  			</div>
-	  			</div>
-	  		</div>
-	  		<!--
-	  		<div class="box box-small workbookBox">
-	  			<div class="innerBox">
-	  				<div class="content">
-		  				<div class="innerContent">
-		  					<div class="subHeading wbTitle">
-		  						<input type="text" value="Workbook Title">
-		  					</div>
-		  					<div class="infoSection topInfo">
-		  						<div class="row clearfix">
-		  							<div class="label">Created by:</div>
-		  							<div class="info">Rudy Gagneron</div>
-		  						</div>
-		  						<div class="row clearfix">
-		  							<div class="label">Created on:</div>
-		  							<div class="info">8/14/2016</div>
-		  						</div>
-		  						<div class="row clearfix">
-		  							<div class="label">Last Modified:</div>
-		  							<div class="info">8/14/2016</div>
-		  						</div>
-		  					</div>
-		  					<div class="infoSection bottomInfo">
-		  						<div class="row clearfix">
-		  							<div class="label">Worksheets:</div>
-		  							<div class="info">3</div>
-		  						</div>
-		  						<div class="row clearfix">
-		  							<div class="label">Status:</div>
-		  							<div class="info">Active</div>
-		  						</div>
-		  					</div>
-		  				</div>
-		  			</div>
-		  			<div class="rightBar vertBar">
-		  				<div class="tab btn btn-small activate">
-		  					<i class="icon xi-play-circle"></i>
-		  				</div>
-		  				<div class="tab btn btn-small modify">
-		  					<i class="icon xi-edit"></i>
-		  				</div>
-		  				<div class="tab btn btn-small duplicate">
-		  					<i class="icon xi-duplicate"></i>
-		  				</div>
-		  				<div class="tab btn btn-small delete">
-		  					<i class="icon xi-trash"></i>
-		  				</div>
-		  			</div>
-	  			</div>
-	  		</div>
-	  		-->
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  		<div class="box box-small dummyBox">
-	  			<div class="innerBox"></div>
-	  		</div>
-	  	</div>
-  	</div>
+    <div class="contentWrap">
+      <div class="flexSection topSection">
+        <div class="box box-large welcomeBox">
+          <div class="leftBar vertBar"></div>
+          <div class="content">
+            <div class="innerContent">
+              <header class="heading"><%= dicts.workbook.hello%>  <span class="username"><%= dicts.menuBar.user%></span>!
+              </header>
+              <div class="subHeading"><%= dicts.workbook.welcomeXI %></div>
+              <p class="description"></p>
+            </div>
+          </div>
+        </div>
+        <div class="box box-large newsBox">
+          <div class="leftBar vertBar"></div>
+          <div class="content">
+            <div class="innerContent">
+              <section class="section">
+                <div class="subHeading"><%= dicts.workbook.news %></div>
+                <div class="description">
+                  <ul>
+                    <li>
+                      <a href="http://www.xcalar.com" target="_blank">
+                        <%= dicts.workbook.visit %> Xcalar.com
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+              <section class="section">
+                <div class="subHeading"><%= dicts.common.Help %></div>
+                <div class="description">
+                  <ul>
+                    <li>
+                      <a href="<%= dicts.paths.helpDocs %>" target="xchelp"><%= dicts.workbook.viewNewHelpDoc %></a>
+                    </li>
+                     <!-- INTRO TUTORIALS -->
+                    <li id="workbookWT" class="walkthrough">
+                      <span><%= dicts.bottomMenu.wkbkTutor %></span>
+                    </li>
+                    <li id="datastoreWT1" class="walkthrough">
+                     <span><%= dicts.bottomMenu.dsTutor1 %></span>
+                    </li>
+                    <li id="datastoreWT2" class="walkthrough">
+                     <span><%= dicts.bottomMenu.dsTutor2 %></span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+            </div>
+            <hr>
+          </div>
+        </div>
+        <div class="box box-large tutBox">
+          <div class="leftBar vertBar"></div>
+          <div class="content">
+            <div class="innerContent">
+              <section class="section">
+                <div class="subHeading"><%= dicts.workbook.tuts %></div>
+                <div class="helpText">
+                  <a href="assets/help/Content/Home.htm" target="xchelp"><%= dicts.workbook.learnMore %></a>
+                </div>
+                <div class="tutBlock">
+                  <a href="<%= dicts.paths.helpDocs %>" target="xchelp" >
+                    <div class="tutBtn">
+                      <i class="icon xi-worksheet"></i>
+                    </div>
+                    <div class="tutText"><%= dicts.workbook.relatedDocs %></div>
+                  </a>
+                </div>
+              </section>
+              <section class="section">
+                <div class="subHeading"><%= dicts.monitor.Monitor %></div>
+                <div class="helpText">
+                  <a href="" class="monitorLink"><%= dicts.workbook.monitorStatus %></a>
+                </div>
+                <div class="tutBlock monitorBtn">
+                  <div class="tutBtn">
+                    <i class="icon xi-menu-monitoring"></i>
+                  </div>
+                  <div class="tutText"><%= dicts.workbook.monitorClusterHealth %></div>
+                </div>
+              </section>
+            </div>
+            <hr>
+          </div>
+        </div>
+      </div>
+      <div class="flexSection bottomSection">
+        <div class="box box-small newWorkbookBox">
+          <div class="innerBox">
+            <div class="leftBar vertBar"></div>
+            <div class="content">
+              <div class="innerContent">
+                <div class="subHeading"><%= dicts.workbook.newWKBK %></div>
+                <div class="description"><%= dicts.workbook.createWKBKdesc %></div>
+                <input type="text" placeholder="Workbook name ..." spellcheck="false">
+                <button class="btn"><%= dicts.workbook.createWKBK %></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+        <div class="box box-small dummyBox">
+          <div class="innerBox"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-<!-- END SCHEDULER PANEL -->
+<!-- END WORKBOOK PANEL -->

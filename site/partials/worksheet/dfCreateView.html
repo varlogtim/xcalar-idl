@@ -1,27 +1,22 @@
-<!-- Export View -->
+<!-- DFG Create View -->
 <div id="dfCreateView" class="xc-hidden opView">
-  <!-- Export Header -->
+  <!-- Header -->
   <header>
     <div class="title"><%= dicts.dataflow.header %></div>
     <i class="close icon xi-close fa-15"></i>
   </header>
-  
   <div class="mainContent">
     <div class="export opSection">
       <p class="instructions"><%= dicts.dataflow.instr %></p>
-      <!-- Export Modal Top Section-->
+      <!-- Top Section-->
       <section class="modalTopMain">
-
         <!-- export name section -->
         <div class="exportNameSection formRow">
           <div class="subHeading clearfix">
             <div class="label"><%= dicts.dataflow.dfName %>:</div>
           </div>
-            
           <input id="newDFNameInput" class="text" type="text" spellcheck="false" required>
-          
         </div>
-
         <div class="exportColumnsSection formRow empty">
           <div class="subHeading clearfix">
             <div class="label"><%= dicts.dataflow.exportHeader %>:</div>
@@ -42,7 +37,6 @@
             <span class="icon"></span>
           </div>
         </div>
-
         <!-- <div class="exportRowOrderSection formRow">
           <div class="checkboxWrap keepOrderedCBWrap">
             <div class="checkbox">
@@ -59,9 +53,6 @@
         <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
       </section>
     </div>
-    
   </div>
-  <!-- Export Modal Instruction -->
-  
 </div>
-<!-- End of Export Modal -->
+<!-- End of DFG Create View -->

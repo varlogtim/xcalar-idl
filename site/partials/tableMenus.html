@@ -1,5 +1,4 @@
 <!-- TABLE MENU -->
-
 <div id="tableMenu" class="menu tableMenu" data-submenu="tableSubMenu">
   <ul>
     <li class="archiveTable"><%= dicts.MenuTStr.Archive %></li>
@@ -9,19 +8,19 @@
     <li class="exportTable"><%= dicts.MenuTStr.ExportTbl %>...</li>
     <li class="multiCast"><%= dicts.MenuTStr.SmartCast %><span class="ellipsis">...</span></li>
     <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
-  <!--   <li class="visualize">
-        <a href="<%= dicts.paths.tableau %>" target="_blank" style="text-decoration:none;color:#ffffff">
-          <%= dicts.MenuTStr.Visual %>
-        </a>
+    <!-- <li class="visualize">
+      <a href="<%= dicts.paths.tableau %>" target="_blank" style="text-decoration:none;color:#ffffff">
+        <%= dicts.MenuTStr.Visual %>
+      </a>
     </li> -->
-     <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
+    <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
     <!-- <li class="copyColNames"><%=dicts.MenuTStr.CPColNames  %></li> -->
     <li class="delAllDuplicateCols"><%= dicts.MenuTStr.DelAllDups %></li>
     <li class="moveToWorksheet parentMenu"
     data-submenu="moveToWorksheet" data-toggle="tooltip"
     data-placement="top"
     title="<%= TooltipTStr.NoWSToMV %>">
-        <%= dicts.MenuTStr.MVWS %>
+      <%= dicts.MenuTStr.MVWS %>
     </li>
     <li class="sort parentMenu" data-submenu="sort">
       <%= dicts.MenuTStr.SortCols %>
@@ -48,7 +47,7 @@
     <div class="arrow"></div>
   </div>
 </div>
-
+<!-- tableSubMenu -->
 <div id="tableSubMenu" class="menu subMenu">
   <ul class="moveToWorksheet">
     <li style="text-align: center" class="clickable">
@@ -89,9 +88,9 @@
 </div>
 <!-- END TABLE MENU -->
 
-  <!-- START COLUMN MENU -->
+<!-- START COLUMN MENU -->
 
-  <% var types = ['Boolean', 'Integer', 'Float', 'String']; %>
+<% var types = ['Boolean', 'Integer', 'Float', 'String']; %>
 
 <div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">
   <ul>
@@ -113,7 +112,7 @@
     </li>
     <div class="divider identityDivider thDropdown"></div>
     <!-- xi 2.0 disabling renaming of columns -->
-<!--     <li class="rename parentMenu" data-submenu="rename">
+    <!-- <li class="rename parentMenu" data-submenu="rename">
       <%= dicts.MenuTStr.RenameCol %>
     </li> -->
     <li class="splitCol parentMenu" data-submenu="splitCol">
@@ -130,12 +129,12 @@
       <%= dicts.MenuTStr.Round %>
     </li>
     <div class="divider functionsDivider"></div>
-     <li class="sort parentMenu" data-submenu="sort">
+    <li class="sort parentMenu" data-submenu="sort">
       <i class="icon xi-sort fasjIcon"></i>
       <%= dicts.MenuTStr.Sort %>
     </li>
     <li class="functions aggregate" data-func="aggregate">
-    <i class="icon xi-aggregate fasjIcon"></i><%= dicts.MenuTStr.Agg %><span class="ellipsis">...</span>
+      <i class="icon xi-aggregate fasjIcon"></i><%= dicts.MenuTStr.Agg %><span class="ellipsis">...</span>
     </li>
     <li class="functions filter" data-func="filter">
       <i class="icon xi-filter fasjIcon"></i><%= dicts.MenuTStr.Flt %><span class="ellipsis">...</span>
@@ -216,7 +215,7 @@
     <div class="arrow"></div>
   </div>
 </div>
-
+<!-- colSubMenu -->
 <div id="colSubMenu" class="menu subMenu">
   <ul class="addColumn">
     <li class="addColumn addColLeft">
@@ -257,8 +256,7 @@
         <%= dicts.MenuTStr.RenameColTitle %>
       </div>
       <div class="inputWrap">
-        <input class="colName" type="text"
-        autocomplete="on" spellcheck="false"/>
+        <input class="colName" type="text" autocomplete="on" spellcheck="false"/>
         <div class="inputAction xc-action">
           <i class="icon xi-tick fa-11"></i>
         </div>
@@ -275,14 +273,11 @@
   </ul>
   <ul class="roundToFixed">
     <li style="text-align: center" class="clickable">
-      <div title="ex. an input of 2 would change 1.2345
-      to 1.23">
+      <div title="<%= dicts.MenuTStr.RoundHint %>">
         <%= dicts.MenuTStr.RoundTitle %>
       </div>
       <div class="inputWrap">
-        <input class="digitsToRound" type="number"
-        max="14" min="0" autocomplete="on"
-        spellcheck="false" />
+        <input class="digitsToRound" type="number" max="14" min="0" autocomplete="on" spellcheck="false" />
         <div class="inputAction xc-action">
           <i class="icon xi-tick fa-11"></i>
         </div>
@@ -293,120 +288,114 @@
       <%= dicts.CommonTxtTstr.BackToOrig %>
     </li>
   </ul>
-<ul class="splitCol">
-  <li style="text-align: center" class="clickable">
-    <div>
-      <%= dicts.MenuTStr.SplitColDelim %>
-    </div>
-    <div class="inputWrap">
-      <input class="delimiter" type="text"
-      spellcheck="false"/>
-      <div class="inputAction xc-action">
-        <i class="icon xi-tick fa-11"></i>
+  <ul class="splitCol">
+    <li style="text-align: center" class="clickable">
+      <div>
+        <%= dicts.MenuTStr.SplitColDelim %>
       </div>
-    </div>
-    <div>
-      <%= dicts.MenuTStr.SplitColNum %>
-    </div>
-    <input class="num" type="number"
-    placeholder="<%= dicts.CommonTxtTstr.Optional %>"
-    spellcheck="false"/>
-  </li>
-</ul>
-<ul class="changeDataType">
-  <% _(types).each(function(type) { %><li class="flexContainer flexRow typeList type-<%=
-  type.toLowerCase() %> ">
-  <div class="flexWrap flex-left">
-    <span class="type icon"></span>
-  </div>
-  <div class="flexWrap flex-right">
-    <span class="label"><%= type %></span>
-  </div>
-</li>
-<% }) %>
-</ul>
-<ul class="sort">
-  <li class="sort">
-    <i class="icon blue xi-arrowtail-up fa-15 sortUp"></i><%= dicts.MenuTStr.SortAsc %>
-  </li>
-  <li class="revSort">
-    <i class="icon blue xi-arrowtail-down fa-15 sortDown"></i><%= dicts.MenuTStr.SortDesc %>
-  </li>
-</ul>
-<ul class="multiTextAlign">
-  <li class="textAlign leftAlign">
-    <%= dicts.MenuTStr.TxtAlignLeft %>
-  </li>
-  <li class="textAlign centerAlign">
-    <%= dicts.MenuTStr.TxtAlignCenter %>
-  </li>
-  <li class="textAlign rightAlign">
-    <%= dicts.MenuTStr.TxtAlignRight %>
-  </li>
-  <li class="textAlign wrapAlign">
-    <%= dicts.MenuTStr.TxtAlignWrap %>
-  </li>
-</ul>
-<ul class="multiFormat">
-  <li class="changeFormat" data-format="percent">
-    <%= dicts.MenuTStr.Percent %>
-  </li>
-  <li class="changeFormat" data-format="default">
-    <%= dicts.CommonTxtTstr.BackToOrig %>
-  </li>
-</ul>
-<ul class="multiRoundToFixed">
-  <li style="text-align: center" class="clickable">
-    <div title="ex. an input of 2 would change 1.2345
-    to 1.23">
-      <%= dicts.MenuTStr.RoundTitle %>
-    </div>
-    <div class="inputWrap">
-      <input class="digitsToRound" type="number"
-      max="14" min="0" autocomplete="on"
-      spellcheck="false" />
-      <div class="inputAction xc-action">
-        <i class="icon xi-tick fa-11"></i>
+      <div class="inputWrap">
+        <input class="delimiter" type="text" spellcheck="false"/>
+        <div class="inputAction xc-action">
+          <i class="icon xi-tick fa-11"></i>
+        </div>
       </div>
-    </div>
-  </li>
-  <div class="divider"></div>
-  <li class="changeRound default">
-    <%= dicts.CommonTxtTstr.BackToOrig %>
-  </li>
-</ul>
-<ul class="multiResize">
-  <li class="resize sizeToHeader">
-    <%= dicts.MenuTStr.ResizeHeaders %>
-  </li>
-  <li class="resize sizeToContents">
-    <%= dicts.MenuTStr.ResizeToContents %>
-  </li>
-  <li class="resize sizeToFitAll">
-    <%= dicts.MenuTStr.ResizeToAll %>
-  </li>
-</ul>
-<ul class="multiChangeDataType">
-  <% _(types).each(function(type) { %><li class="flexContainer flexRow typeList type-<%= type.toLowerCase() %> ">
-  <div class="flexWrap flex-left">
-    <span class="type icon"></span>
+      <div>
+        <%= dicts.MenuTStr.SplitColNum %>
+      </div>
+      <input class="num" type="number" placeholder="<%= dicts.CommonTxtTstr.Optional %>" spellcheck="false"/>
+    </li>
+  </ul>
+  <ul class="changeDataType">
+    <% _(types).each(function(type) { %><li class="flexContainer flexRow typeList type-<%=
+      type.toLowerCase() %> ">
+      <div class="flexWrap flex-left">
+        <span class="type icon"></span>
+      </div>
+      <div class="flexWrap flex-right">
+        <span class="label"><%= type %></span>
+      </div>
+    </li>
+    <% }) %>
+  </ul>
+  <ul class="sort">
+    <li class="sort">
+      <i class="icon blue xi-arrowtail-up fa-15 sortUp"></i><%= dicts.MenuTStr.SortAsc %>
+    </li>
+    <li class="revSort">
+      <i class="icon blue xi-arrowtail-down fa-15 sortDown"></i><%= dicts.MenuTStr.SortDesc %>
+    </li>
+  </ul>
+  <ul class="multiTextAlign">
+    <li class="textAlign leftAlign">
+      <%= dicts.MenuTStr.TxtAlignLeft %>
+    </li>
+    <li class="textAlign centerAlign">
+      <%= dicts.MenuTStr.TxtAlignCenter %>
+    </li>
+    <li class="textAlign rightAlign">
+      <%= dicts.MenuTStr.TxtAlignRight %>
+    </li>
+    <li class="textAlign wrapAlign">
+      <%= dicts.MenuTStr.TxtAlignWrap %>
+    </li>
+  </ul>
+  <ul class="multiFormat">
+    <li class="changeFormat" data-format="percent">
+      <%= dicts.MenuTStr.Percent %>
+    </li>
+    <li class="changeFormat" data-format="default">
+      <%= dicts.CommonTxtTstr.BackToOrig %>
+    </li>
+  </ul>
+  <ul class="multiRoundToFixed">
+    <li style="text-align: center" class="clickable">
+      <div title="<%= dicts.MenuTStr.RoundHint %>">
+        <%= dicts.MenuTStr.RoundTitle %>
+      </div>
+      <div class="inputWrap">
+        <input class="digitsToRound" type="number" max="14" min="0" autocomplete="on" spellcheck="false" />
+        <div class="inputAction xc-action">
+          <i class="icon xi-tick fa-11"></i>
+        </div>
+      </div>
+    </li>
+    <div class="divider"></div>
+    <li class="changeRound default">
+      <%= dicts.CommonTxtTstr.BackToOrig %>
+    </li>
+  </ul>
+  <ul class="multiResize">
+    <li class="resize sizeToHeader">
+      <%= dicts.MenuTStr.ResizeHeaders %>
+    </li>
+    <li class="resize sizeToContents">
+      <%= dicts.MenuTStr.ResizeToContents %>
+    </li>
+    <li class="resize sizeToFitAll">
+      <%= dicts.MenuTStr.ResizeToAll %>
+    </li>
+  </ul>
+  <ul class="multiChangeDataType">
+  <% _(types).each(function(type) { %>
+    <li class="flexContainer flexRow typeList type-<%= type.toLowerCase() %> ">
+      <div class="flexWrap flex-left">
+        <span class="type icon"></span>
+      </div>
+      <div class="flexWrap flex-right">
+        <span class="label"><%= type %></span>
+      </div>
+    </li>
+  <% }) %>
+  </ul>
+  <div class="subMenuArea"></div>
+  <div class="scrollArea top">
+    <div class="arrow"></div>
   </div>
-  <div class="flexWrap flex-right">
-    <span class="label"><%= type %></span>
+  <div class="scrollArea bottom">
+    <div class="arrow"></div>
   </div>
-</li>
-<% }) %>
-</ul>
-<div class="subMenuArea"></div>
-<div class="scrollArea top">
-  <div class="arrow"></div>
-</div>
-<div class="scrollArea bottom">
-  <div class="arrow"></div>
-</div>
 </div>
 <!-- END COLUMN MENU -->
-
 <!-- START CELL MENU -->
 <ul id="cellMenu" class="menu">
   <li class="tdFilter">

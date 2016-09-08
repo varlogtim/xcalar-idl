@@ -3,59 +3,58 @@
 <% } else { %>
 <div id="mainMenu" class="closed">
 <% } %>
-	<div class="mainContent">
-		<!-- content common to all inner sections -->
-		<% if (dicts.tutor.name == "workbookDemo") { %>
-		<div id="workspaceMenu" class="commonSection active" data-tab="workspaceTab">
-		<% } else { %>
-		<div id="workspaceMenu" class="commonSection" data-tab="workspaceTab">
-		<% } %>
-			<section class="menuSection worksheets">
-				include "../worksheet/worksheetTabs.html"
-			</section>
-			<section class="menuSection tables xc-hidden">
-				include "../worksheet/tableList.html"
-			</section>
-			include "../worksheet/operationsView.html"
-			include "../worksheet/joinView.html"
-			include "../worksheet/exportView.html"
-			include "../worksheet/smartCastView.html"
-			include "../worksheet/dfCreateView.html"
-		</div>
-		<% if (dicts.tutor.name == "datastoreDemo1" || (dicts.tutor.name == "datastoreDemo2")) { %>
-		<div id="datastoreMenu" class="commonSection active" data-tab="dataStoresTab">
-		<% } else { %>
-		<div id="datastoreMenu" class="commonSection" data-tab="dataStoresTab">
-		<% } %>
-			<section class="menuSection in">
-				include "../datastore/dsMenu.html"
-			</section>
-			<section class="menuSection out xc-hidden">
-				include "../datastore/dsExportMenu.html"
-			</section>
-		</div>
-		<div id="monitorMenu" class="commonSection" data-tab="monitorTab">
-			<section class="menuSection query simple">
-				include "../monitor/queryMenu.html"
-			</section>
-			<section class="menuSection monitor simple xc-hidden">
-				include "../monitor/monitorMenu.html"
-			</section>
-			<section class="menuSection setup simple xc-hidden">
-				include "../monitor/monitorSetupMenu.html"
-			</section>
-			<section class="menuSection settings simple xc-hidden">
-				include "../monitor/monitorSettingsMenu.html"
-			</section>
-			<section class="menuSection extension xc-hidden">
-				include "../extension/extensionMenu.html"
-			</section>
-		</div>
-		<div id="dfgMenu" class="commonSection" data-tab="schedulerTab">
-			include "../scheduler/dfgList.html"
-			include "../scheduler/schedulesMenu.html"
-		</div>
-	</div>
-	<div class="minimizedContent">
-	</div>
+  <div class="mainContent">
+  <!-- content common to all inner sections -->
+    <% if (dicts.tutor.name == "workbookDemo") { %>
+    <div id="workspaceMenu" class="commonSection active" data-tab="workspaceTab">
+    <% } else { %>
+    <div id="workspaceMenu" class="commonSection" data-tab="workspaceTab">
+    <% } %>
+      <section class="menuSection worksheets">
+        include "../worksheet/worksheetTabs.html"
+      </section>
+      <section class="menuSection tables xc-hidden">
+        include "../worksheet/tableList.html"
+      </section>
+      include "../worksheet/operationsView.html"
+      include "../worksheet/joinView.html"
+      include "../worksheet/exportView.html"
+      include "../worksheet/smartCastView.html"
+      include "../worksheet/dfCreateView.html"
+    </div>
+    <% if (dicts.tutor.name == "datastoreDemo1" || (dicts.tutor.name == "datastoreDemo2")) { %>
+    <div id="datastoreMenu" class="commonSection active" data-tab="dataStoresTab">
+    <% } else { %>
+    <div id="datastoreMenu" class="commonSection" data-tab="dataStoresTab">
+    <% } %>
+      <section class="menuSection in">
+        include "../datastore/dsMenu.html"
+      </section>
+      <section class="menuSection out xc-hidden">
+        include "../datastore/dsExportMenu.html"
+      </section>
+    </div>
+    <div id="monitorMenu" class="commonSection" data-tab="monitorTab">
+      <section class="menuSection query simple">
+        include "../monitor/queryMenu.html"
+      </section>
+      <section class="menuSection monitor simple xc-hidden">
+        include "../monitor/monitorMenu.html"
+      </section>
+      <section class="menuSection setup simple xc-hidden">
+        include "../monitor/monitorSetupMenu.html"
+      </section>
+      <section class="menuSection settings simple xc-hidden">
+        include "../monitor/monitorSettingsMenu.html"
+      </section>
+      <section class="menuSection extension xc-hidden">
+        include "../extension/extensionMenu.html"
+      </section>
+    </div>
+    <div id="dfgMenu" class="commonSection" data-tab="schedulerTab">
+      include "../scheduler/dfgList.html"
+      include "../scheduler/schedulesMenu.html"
+    </div>
+  </div>
+  <div class="minimizedContent"></div>
 </div>

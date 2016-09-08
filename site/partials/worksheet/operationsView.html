@@ -1,276 +1,276 @@
 <section id="operationsView" class="xc-hidden opView">
-	<header>
-		<div class="title"><%= dicts.opsView.map %></div>
-		<i class="close icon xi-close fa-15"></i>
-	</header>
-	<div class="mainContent">
-		<div class="map opSection xc-hidden">
-			<p class="instructions"><%= dicts.opsView.mapInstr %></p>
-			<div class="group mapGroup">
-				<div class="tableListSection clearfix">
-					<div class="subHeading clearfix">
-						<span class="text"><%= dicts.common.Table %>:</span>
-						<div class="iconWrap focusTable">
-							<i class="icon xi-show"></i>
-						</div>
-					</div>
-					<div class="dropDownList tableList">
-						<div class="text"></div>
-			      		<div class="iconWrapper">
-							<i class="icon xi-arrow-down"></i>
-			      		</div>
-			      		<div class="list">
-					        <ul></ul>
-					        <div class="scrollArea top">
-					        	<div class="arrow"></div>
-					        </div>
-					        <div class="scrollArea bottom">
-					        	<div class="arrow"></div>
-					        </div>
-					    </div>
-					</div>
-				</div>
-				<div class="filterMapFuncArea">
-					<input type="text" id="mapFilter" placeholder="<%= dicts.opsView.mapFilter %>...">
-					<div class="clear">
-						<i class="icon fa-9 xi-close xc-action"></i>
-					</div>
-				</div>
-				<div class="catFuncHeadings clearfix subHeading">
-					<div><%= dicts.opsView.category %></div>
-					<div><%= dicts.opsView.function %></div>
-				</div>
-				<div class="catFuncMenus clearfix">
-					<ul class="categoryMenu"></ul>
-					<ul class="functionsMenu"></ul>
-				</div>
-				<div class="descriptionText"></div>
-				<div class="argsSection inactive"></div>
-				<div class="icvContainer">
-					<div class="icvMode checkboxSection inactive">
-						<div class="text"><%= dicts.opsView.erroneousRows %></div>
-						<div class="checkbox">
-							<i class="icon xi-ckbox-empty fa-11"></i>
-							<i class="icon xi-ckbox-selected fa-11"></i>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- end map op section -->
-		<div class="filter opSection xc-hidden">
-			<p class="instructions"><%= dicts.opsView.filterInstr %></p>
-			<div class="tableListSection clearfix">
-				<div class="subHeading clearfix">
-					<span class="text"><%= dicts.common.Table %>:</span>
-					<div class="iconWrap focusTable">
-						<i class="icon xi-show"></i>
-					</div>
-				</div>
-				<div class="dropDownList tableList">
-		      		<div class="text"></div>
-		      		<div class="iconWrapper">
-		        		<i class="icon xi-arrow-down"></i>
-		      		</div>
-			      	<div class="list">
-			        	<ul></ul>
-			        	<div class="scrollArea top">
-			          		<div class="arrow"></div>
-			        	</div>
-			        	<div class="scrollArea bottom">
-			          		<div class="arrow"></div>
-			        	</div>
-			      	</div>
-				</div>
-			</div>
-			<div class="group filterGroup">
-				<div class="catFuncHeadings clearfix subHeading">
-					<div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:</div>
-					<div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
-					<i class="icon xi-minus minGroup"></i>
-				</div>
-				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
-		        	<input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
-			        <div class="iconWrapper dropdown">
-			        	<i class="icon xi-arrow-down"></i>
-			        </div>
-			        <div class="list genFunctionsMenu">
-			        	<ul data-fnmenunum="0"></ul>
-			          	<div class="scrollArea top">
-			            	<div class="arrow"></div>
-			          	</div>
-			          	<div class="scrollArea bottom">
-			            	<div class="arrow"></div>
-			          	</div>
-			        </div>
-			  	</div>
-				<div class="descriptionText"></div>
-				<div class="argsSection inactive"></div>
-			</div> 
-			<!-- end filter group -->
-			<div class="addArgWrap">
-				<button class="btn btn-small addArg addFilterArg">
-					<i class="icon xi-plus"></i>
-				</button>
-				<span class="text"><%= dicts.opsView.additional %></span>
-			</div>
-		</div>
-		<!-- end filter opSection -->
-		<div class="groupby opSection xc-hidden">
-			<p class="instructions"><%= dicts.opsView.groupbyInstr %></p>
-			<div class="group groupbyGroup">
-				<div class="tableListSection clearfix">
-					<div class="subHeading clearfix">
-						<span class="text"><%= dicts.common.Table %>:</span>
-						<div class="iconWrap focusTable">
-							<i class="icon xi-show"></i>
-						</div>
-					</div>
-					<div class="dropDownList tableList">
-					    <div class="text"></div>
-				    	<div class="iconWrapper">
-				    		<i class="icon xi-arrow-down"></i>
-				      	</div>
-					    <div class="list">
-					        <ul></ul>
-					        <div class="scrollArea top">
-					          	<div class="arrow"></div>
-					        </div>
-					        <div class="scrollArea bottom">
-					        	<div class="arrow"></div>
-					        </div>
-					    </div>
-					</div>
-				</div>
-				<div class="argsSection groupOnSection">
-					<div class="row gbOnRow clearfix">
-		        		<div class="description"><%= dicts.opsView.fieldsToGroup %>:</div>
-			            <div class="inputWrap original">
-			              <div class="dropDownList">
-			                <input class="arg gbOnArg" type="text" tabindex="10" spellcheck="false" data-typeid="-1">
-			                <div class="argIconWrap btn btn-small">
-			                  <i class="icon xi_select-column"></i>
-			                </div>
-			                <div class="list hint">
-			               		<ul></ul>
-			                  	<div class="scrollArea top">
-			                  		<div class="arrow"></div>
-			                  	</div>
-			                  	<div class="scrollArea bottom">
-			                  		<div class="arrow"></div>
-			                  	</div>
-			                </div>
-			              </div>
-			            </div>
-		      		</div>
-		      		<div class="addArgWrap">
-						<button class="btn addArg addGroupArg">
-							<i class="icon xi-plus"></i>
-							<span class="text"><%= dicts.opsView.AddAnotherColumn %></span>
-						</button>
-					</div>
-				</div>
-				<div class="catFuncHeadings clearfix subHeading">
-					<div class="groupbyFnTitle"><%= dicts.opsView.funcToGroup %>:</div>
-					<div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
-				</div>
-				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
-			    	<input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
-			    	<div class="iconWrapper dropdown">
-			    		<i class="icon xi-arrow-down"></i>
-	     			</div>
-			        <div class="list genFunctionsMenu">
-			        	<ul data-fnmenunum="0"></ul>
-			          	<div class="scrollArea top">
-			            	<div class="arrow"></div>
-			          	</div>
-			          	<div class="scrollArea bottom">
-			            	<div class="arrow"></div>
-			          	</div>
-			        </div>
-			  	</div>
-				<div class="descriptionText"></div>
-				<div class="argsSection inactive"></div>
-				<div class="gbCheckboxes inactive clearfix">
-					<div class="keepTable checkboxSection clearfix">
-						<div class="text"><%= dicts.opsView.joinBack %></div>
-						<div class="checkbox">
-							<i class="icon xi-ckbox-empty fa-11"></i>
-							<i class="icon xi-ckbox-selected fa-11"></i>
-						</div>
-					</div>
-					<div class="incSample checkboxSection clearfix">
-						<div class="text"><%= dicts.opsView.includeSample %></div>
-						<div class="checkbox">
-							<i class="icon xi-ckbox-empty fa-11"></i>
-							<i class="icon xi-ckbox-selected fa-11"></i>
-						</div>
-					</div>
-				</div>
-				<div class="icvContainer">
-					<div class="icvMode checkboxSection inactive">
-						<div class="text"><%= dicts.opsView.erroneousRows %></div>
-						<div class="checkbox">
-							<i class="icon xi-ckbox-empty fa-11"></i>
-							<i class="icon xi-ckbox-selected fa-11"></i>
-						</div>
-					</div>
-				</div>
-			</div> 
-			<!-- end filter group -->
-		</div>
-		<!-- end group by op section -->
-		<div class="aggregate opSection xc-hidden">
-			<p class="instructions"><%= dicts.opsView.aggInstr %></p>
-			<div class="group aggregateGroup">
-				<div class="tableListSection clearfix">
-					<div class="subHeading clearfix">
-						<span class="text"><%= dicts.common.Table %>:</span>
-						<div class="iconWrap focusTable">
-							<i class="icon xi-show"></i>
-						</div>
-					</div>
-					<div class="dropDownList tableList">
-				    	<div class="text"></div>
-					    <div class="iconWrapper">
-					    	<i class="icon xi-arrow-down"></i>
-					    </div>
-				      	<div class="list">
-					    	<ul></ul>
-					        <div class="scrollArea top">
-					          <div class="arrow"></div>
-					        </div>
-					        <div class="scrollArea bottom">
-					          <div class="arrow"></div>
-					        </div>
-				      	</div>
-					</div>
-				</div>
-				<div class="catFuncHeadings clearfix subHeading">
-					<div class="filterFnTitle"><%= dicts.opsView.aggFunc %>:</div>
-					<div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
-				</div>
-				<div class="dropDownList firstList functionsList" data-fnlistnum="0">
-			    	<input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false" required>
-			        <div class="iconWrapper dropdown">
-			         	<i class="icon xi-arrow-down"></i>
-			        </div>
-			        <div class="list genFunctionsMenu">
-			        	<ul data-fnmenunum="0"></ul>
-			        	<div class="scrollArea top">
-			            	<div class="arrow"></div>
-			          	</div>
-			          	<div class="scrollArea bottom">
-			            	<div class="arrow"></div>
-			          	</div>
-			        </div>
-			  	</div>
-				<div class="descriptionText"></div>
-				<div class="argsSection inactive"></div>
-			</div> 
-		</div>
-		<!-- end aggregate op section -->
-		<div class="strPreview"></div> <!-- this gets filled by JS -->
-		<button class="btn submit"></button> <!-- this gets filled by JS -->
-	</div>
+  <header>
+    <div class="title"><%= dicts.opsView.map %></div>
+    <i class="close icon xi-close fa-15"></i>
+  </header>
+  <div class="mainContent">
+    <div class="map opSection xc-hidden">
+      <p class="instructions"><%= dicts.opsView.mapInstr %></p>
+      <div class="group mapGroup">
+        <div class="tableListSection clearfix">
+          <div class="subHeading clearfix">
+            <span class="text"><%= dicts.common.Table %>:</span>
+            <div class="iconWrap focusTable">
+              <i class="icon xi-show"></i>
+            </div>
+          </div>
+          <div class="dropDownList tableList">
+            <div class="text"></div>
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul></ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="filterMapFuncArea">
+          <input type="text" id="mapFilter" placeholder="<%= dicts.opsView.mapFilter %>...">
+          <div class="clear">
+            <i class="icon fa-9 xi-close xc-action"></i>
+          </div>
+        </div>
+        <div class="catFuncHeadings clearfix subHeading">
+          <div><%= dicts.opsView.category %></div>
+          <div><%= dicts.opsView.function %></div>
+        </div>
+        <div class="catFuncMenus clearfix">
+          <ul class="categoryMenu"></ul>
+          <ul class="functionsMenu"></ul>
+        </div>
+        <div class="descriptionText"></div>
+        <div class="argsSection inactive"></div>
+        <div class="icvContainer">
+          <div class="icvMode checkboxSection inactive">
+            <div class="text"><%= dicts.opsView.erroneousRows %></div>
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-11"></i>
+              <i class="icon xi-ckbox-selected fa-11"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end map op section -->
+    <div class="filter opSection xc-hidden">
+      <p class="instructions"><%= dicts.opsView.filterInstr %></p>
+      <div class="tableListSection clearfix">
+        <div class="subHeading clearfix">
+          <span class="text"><%= dicts.common.Table %>:</span>
+          <div class="iconWrap focusTable">
+            <i class="icon xi-show"></i>
+          </div>
+        </div>
+        <div class="dropDownList tableList">
+          <div class="text"></div>
+          <div class="iconWrapper">
+            <i class="icon xi-arrow-down"></i>
+          </div>
+          <div class="list">
+            <ul></ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="group filterGroup">
+        <div class="catFuncHeadings clearfix subHeading">
+          <div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:</div>
+          <div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
+          <i class="icon xi-minus minGroup"></i>
+        </div>
+        <div class="dropDownList firstList functionsList" data-fnlistnum="0">
+          <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
+          <div class="iconWrapper dropdown">
+            <i class="icon xi-arrow-down"></i>
+          </div>
+          <div class="list genFunctionsMenu">
+            <ul data-fnmenunum="0"></ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+        <div class="descriptionText"></div>
+        <div class="argsSection inactive"></div>
+      </div> 
+      <!-- end filter group -->
+      <div class="addArgWrap">
+        <button class="btn btn-small addArg addFilterArg">
+          <i class="icon xi-plus"></i>
+        </button>
+        <span class="text"><%= dicts.opsView.additional %></span>
+      </div>
+    </div>
+    <!-- end filter opSection -->
+    <div class="groupby opSection xc-hidden">
+      <p class="instructions"><%= dicts.opsView.groupbyInstr %></p>
+      <div class="group groupbyGroup">
+        <div class="tableListSection clearfix">
+          <div class="subHeading clearfix">
+            <span class="text"><%= dicts.common.Table %>:</span>
+            <div class="iconWrap focusTable">
+              <i class="icon xi-show"></i>
+            </div>
+          </div>
+          <div class="dropDownList tableList">
+            <div class="text"></div>
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul></ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="argsSection groupOnSection">
+          <div class="row gbOnRow clearfix">
+            <div class="description"><%= dicts.opsView.fieldsToGroup %>:</div>
+            <div class="inputWrap original">
+              <div class="dropDownList">
+                <input class="arg gbOnArg" type="text" tabindex="10" spellcheck="false" data-typeid="-1">
+                <div class="argIconWrap btn btn-small">
+                  <i class="icon xi_select-column"></i>
+                </div>
+                <div class="list hint">
+                  <ul></ul>
+                  <div class="scrollArea top">
+                    <div class="arrow"></div>
+                  </div>
+                  <div class="scrollArea bottom">
+                    <div class="arrow"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="addArgWrap">
+            <button class="btn addArg addGroupArg">
+              <i class="icon xi-plus"></i>
+              <span class="text"><%= dicts.opsView.AddAnotherColumn %></span>
+           </button>
+          </div>
+        </div>
+        <div class="catFuncHeadings clearfix subHeading">
+          <div class="groupbyFnTitle"><%= dicts.opsView.funcToGroup %>:</div>
+          <div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
+        </div>
+        <div class="dropDownList firstList functionsList" data-fnlistnum="0">
+          <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false"  required>
+          <div class="iconWrapper dropdown">
+            <i class="icon xi-arrow-down"></i>
+          </div>
+          <div class="list genFunctionsMenu">
+            <ul data-fnmenunum="0"></ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+        <div class="descriptionText"></div>
+        <div class="argsSection inactive"></div>
+        <div class="gbCheckboxes inactive clearfix">
+          <div class="keepTable checkboxSection clearfix">
+            <div class="text"><%= dicts.opsView.joinBack %></div>
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-11"></i>
+              <i class="icon xi-ckbox-selected fa-11"></i>
+            </div>
+          </div>
+          <div class="incSample checkboxSection clearfix">
+            <div class="text"><%= dicts.opsView.includeSample %></div>
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-11"></i>
+              <i class="icon xi-ckbox-selected fa-11"></i>
+           </div>
+          </div>
+        </div>
+        <div class="icvContainer">
+          <div class="icvMode checkboxSection inactive">
+            <div class="text"><%= dicts.opsView.erroneousRows %></div>
+            <div class="checkbox">
+              <i class="icon xi-ckbox-empty fa-11"></i>
+              <i class="icon xi-ckbox-selected fa-11"></i>
+            </div>
+          </div>
+        </div>
+      </div> 
+      <!-- end filter group -->
+    </div>
+    <!-- end group by op section -->
+    <div class="aggregate opSection xc-hidden">
+      <p class="instructions"><%= dicts.opsView.aggInstr %></p>
+      <div class="group aggregateGroup">
+        <div class="tableListSection clearfix">
+          <div class="subHeading clearfix">
+            <span class="text"><%= dicts.common.Table %>:</span>
+            <div class="iconWrap focusTable">
+              <i class="icon xi-show"></i>
+            </div>
+          </div>
+          <div class="dropDownList tableList">
+            <div class="text"></div>
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul></ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="catFuncHeadings clearfix subHeading">
+          <div class="filterFnTitle"><%= dicts.opsView.aggFunc %>:</div>
+          <div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
+        </div>
+        <div class="dropDownList firstList functionsList" data-fnlistnum="0">
+          <input class="text autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false" required>
+          <div class="iconWrapper dropdown">
+            <i class="icon xi-arrow-down"></i>
+          </div>
+          <div class="list genFunctionsMenu">
+            <ul data-fnmenunum="0"></ul>
+            <div class="scrollArea top">
+              <div class="arrow"></div>
+            </div>
+            <div class="scrollArea bottom">
+              <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+        <div class="descriptionText"></div>
+        <div class="argsSection inactive"></div>
+      </div> 
+    </div>
+    <!-- end aggregate op section -->
+    <div class="strPreview"></div> <!-- this gets filled by JS -->
+    <button class="btn submit"></button> <!-- this gets filled by JS -->
+  </div>
 </section>
