@@ -421,16 +421,16 @@ SchedTStr = {
 
 DFGTStr = {
     'DFExists': 'dataflow already exists',
-    'AddParamHint': 'Please create parameters in Dataflow Group Panel first.',
+    'AddParamHint': 'Please create parameters in Dataflow Panel first.',
     'DFCreateFail': 'Dataflow Creation Failed',
-    'ParamModalFail': 'Parameter Modal Failed',
-    'UpdateParamFail': 'Update Params Failed',
-    'NoDFG1': 'No dataflow group added',
-    'NoDFG2': 'Add a dataflow group in Query Graph.',
+    'ParamModalFail': 'Parameter Creation Failed',
+    'UpdateParamFail': 'Update Parameters Failed',
+    'NoDFG1': 'No dataflows added',
+    'NoDFG2': 'Add a dataflow in Query Graph',
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran DFG!',
     'RunFail': 'Run DFG Failed',
-    "DFGTitle": "SCHEDULER/DATAFLOW GROUPS"
+    "DFGTitle": "SCHEDULER/DATAFLOW"
 };
 
 DSTStr = {

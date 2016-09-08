@@ -324,45 +324,6 @@ module.exports = {
         "MoveDown": "Move Down"
     },
 
-    "sched": {
-        "SchedTitle": "SCHEDULER/DATAFLOW GROUPS",
-        "DFG": "DATAFLOW GRP",
-        "SCHEDS": "SCHEDULES",
-        "schedInstr": "First, choose a name for your schedule. Then select a start time, frequency, and number of times to run the schedule.",
-        "DETAIL": "DETAIL",
-        "dfgs": "Dataflow Groups",
-        "params": "Parameters",
-        "inputNewParam": "Input New Parameter",
-        "newParam": "CREATE NEW PARAMETER",
-        "param": "Parameter",
-        "val": "Value",
-        "action": "Action",
-        "scheds": "Schedules",
-        "newSched": "Create New Schedule",
-        "created": "Created",
-        "modified": "Last modified",
-        "freq": "Frequency",
-        "recur": "Repeat Time",
-        "dfgName": "Dataflow Group Name",
-        "initialRun": "Initial Run Time",
-        "status": "Status",
-        "lastRun": "Last Run",
-        "nextRun": "Next Run",
-        "modifySched": "MODIFY SCHEDULE",
-        "schedName": "Schedule Name",
-        "startTime": "Start Time",
-        "hour": "Hour",
-        "min": "Minute",
-        "perMin": "Every Minute",
-        "hourly": "Hourly",
-        "daily": "Daily",
-        "weekly": "Weekly",
-        "biweekly": "Biweekly",
-        "numRun": "Number of Runs",
-        "numRunHint": "how many times to run this",
-        "Add": "Add Schedule"
-    },
-
     "monitor": {
         "AutoRefresh": "Auto Refresh",
         "AutoSupport": "Auto Support Settings",
@@ -539,15 +500,6 @@ module.exports = {
         "usernameAuth": "Use specific username and password"
     },
 
-    "addSchedModal": {
-        "header": "Add Schedule",
-        "instr": "Select a schedule to add to the Dataflow Group. Or you can also create a new schedule.",
-        "AttachedSched": "Attached schedules",
-        "SelectSched": "Select a schedule",
-        "CreateNew": "Create a new schedule",
-        "CreateNewBtn": "create new schedule"
-    },
-
     "aggModal": {
         'CorrAggTitle' : 'Correlation and Quick Aggregates',
         'CorrAggInstr' : 'Viewing correlation coefficients for every pair of '+
@@ -572,6 +524,50 @@ module.exports = {
         "exportInstr": "Select that columns that you want to export at the end of your dataflow. These are the only columns that you will see in your exported result after running the dataflow. The time your dataflow runs is affected by the number of columns you select here.",
         "create": "CREATE",
         "noColsHint": "No columns available for export"
+    },
+
+    "sched": {
+        "SchedTitle": "SCHEDULER/DATAFLOWS",
+        "DFG": "DATAFLOW GRP",
+        "SCHEDS": "SCHEDULES",
+        "schedInstr": "First, choose a name for your schedule. Then select a start time, frequency, and number of times to run the schedule.",
+        "DETAIL": "DETAIL",
+        "dfgs": "Dataflows",
+        "params": "Parameters",
+        "inputNewParam": "Input New Parameter",
+        "newParam": "CREATE NEW PARAMETER",
+        "param": "Parameter",
+        "val": "Value",
+        "action": "Action",
+        "scheds": "Schedules",
+        "newSched": "Create New Schedule",
+        "created": "Created",
+        "modified": "Last modified",
+        "freq": "Frequency",
+        "recur": "Repeat Time",
+        "dfgName": "Dataflow Name",
+        "initialRun": "Initial Run Time",
+        "status": "Status",
+        "lastRun": "Last Run",
+        "nextRun": "Next Run",
+        "modifySched": "MODIFY SCHEDULE",
+        "schedName": "Schedule Name",
+        "startTime": "Start Time",
+        "hour": "Hour",
+        "min": "Minute",
+        "perMin": "Every Minute",
+        "hourly": "Hourly",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "biweekly": "Biweekly",
+        "numRun": "Number of Runs",
+        "numRunHint": "how many times to run this",
+        "Add": "Add Schedule",
+        "AddInstr": "Select a schedule to add to the dataflow. Or you can also create a new schedule.",
+        "AttachedSched": "Attached schedules",
+        "SelectSched": "Select a schedule",
+        "CreateNew": "Create a new schedule",
+        "CreateNewBtn": "create new schedule"
     },
 
     "exportView": {

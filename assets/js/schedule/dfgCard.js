@@ -556,9 +556,9 @@ window.DFGCard = (function($, DFGCard) {
             var hint = '<div class="hint no-selection">' +
                         '<i class="icon xi-warning"></i>' +
                         '<div class="text">' +
-                            DFGTStr.NoDFG1 +
+                            DFGTStr.NoDFG1 + '.' +
                             '<br>' +
-                            DFGTStr.NoDFG2 +
+                            DFGTStr.NoDFG2 + '.' +
                         '</div>' +
                        '</div>';
             $dfgCard.find(".cardMain").html(hint);
