@@ -677,29 +677,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var argType = args[i].type;
             var inputClasses = "";
 
-            if (argType === "boolean") {
-                html +=
-                    '<div class="field">' +
-                        '<div class="desc">' +
-                            args[i].name +
-                        '</div>' +
-                        '<div class="inputWrap">' +
-                            '<div class="dropDownList argDropdown">' +
-                                '<input class="argument type-boolean text ' +
-                                'dropdownInput" disabled>' +
-                                '<div class="iconWrapper">' +
-                                    '<i class="icon xi-arrow-down"></i>' +
-                                '</div>' +
-                                '<div class="list">' +
-                                    '<ul>' +
-                                        '<li>true</li>' +
-                                        '<li>false</li>' +
-                                    '</ul>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-            } else if (argType === "table") {
+            if (argType === "table") {
                 html +=
                     '<div class="field">' +
                         '<div class="desc">' +
@@ -717,6 +695,32 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                                 '</div>' +
                                 '<div class="list">' +
                                     tableList +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+            } else if (argType === "boolean") {
+                if (args[i].autofill === true || args[i].autofill === false) {
+                    inputVal = args[i].autofill;
+                }
+
+                html +=
+                    '<div class="field">' +
+                        '<div class="desc">' +
+                            args[i].name +
+                        '</div>' +
+                        '<div class="inputWrap">' +
+                            '<div class="dropDownList argDropdown">' +
+                                '<input class="argument type-boolean text ' +
+                                'dropdownInput" value="' + inputVal + '" disabled>' +
+                                '<div class="iconWrapper">' +
+                                    '<i class="icon xi-arrow-down"></i>' +
+                                '</div>' +
+                                '<div class="list">' +
+                                    '<ul>' +
+                                        '<li>true</li>' +
+                                        '<li>false</li>' +
+                                    '</ul>' +
                                 '</div>' +
                             '</div>' +
                         '</div>' +
