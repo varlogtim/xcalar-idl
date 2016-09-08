@@ -171,7 +171,7 @@ function dsPreviewModuleTest() {
                                     '</th>' +
                                     '<th>' +
                                         '<div class="header">' +
-                                            '<div class="text">Column0</div>' +
+                                            '<div class="text">column0</div>' +
                                         '</div>' +
                                     '</th>' +
                                 '</tr>' +

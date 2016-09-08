@@ -344,7 +344,7 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             $("#dsForm-dsName").val(dsName);
             // auto detect should fill in the form
-            $("#importDataForm .buttonSection .confirm").click();
+            $("#importDataForm .buttonSection .confirm:not(.createTable)").click();
             
             var dsIcon = getDSIcon(dsName);
             return checkExists(dsIcon);
