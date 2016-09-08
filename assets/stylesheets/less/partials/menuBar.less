@@ -565,6 +565,16 @@
         .ui-resizable-handle {
             display: block !important;
         }
+
+        #extension-ops, #sqlSection {
+            .menuContent {
+                .size(@width: auto, @height: ~"calc(100% - 55px)");
+            }
+        }
+
+        #udf-manager {
+            height: ~"calc(100% - 20px)";
+        }
     }
 
     &.modalOpen {
@@ -635,6 +645,7 @@
         .size(@width: 100%, @height: 100%);
         display: none;
         overflow: hidden;
+        background-color: @color-bg-marine;
 
         &.active {
             display: block;
@@ -664,6 +675,7 @@
         .position(relative);
         .size(@width: auto, @height: ~"calc(100% - 35px)");
         background-color: @color-bg-marine;
+        overflow: hidden;
     }
 }
 /* ========== SQL Section ========== */
