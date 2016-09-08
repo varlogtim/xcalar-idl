@@ -304,6 +304,47 @@ window.xcHelper = (function($, xcHelper) {
         };
     };
 
+    xcHelper.getUnusedTableName = function(datasetName) {
+        // checks dataset names and tablenames and tries to create a table
+        // called dataset1 if it doesnt already exist or dataset2 etc...
+        var deferred = jQuery.Deferred();
+        var tableNames = {};
+        // datasets has it's unique format, no need to check
+        XcalarGetTables()
+        .then(function(result) {
+            var tables = result.nodeInfo;
+            for (var i = 0; i < result.numNodes; i++) {
+                var name = xcHelper.getTableName(tables[i].name);
+                tableNames[name] = 1;
+            }
+
+            var validNameFound = false;
+            var limit = 20; // we won't try more than 20 times
+            var newName = datasetName;
+            if (tableNames.hasOwnProperty(newName)) {
+                for (var i = 1; i <= limit; i++) {
+                    newName = datasetName + i;
+                    if (!tableNames.hasOwnProperty(newName)) {
+                        validNameFound = true;
+                        break;
+                    }
+                }
+                if (!validNameFound) {
+                    var tries = 0;
+                    while (tableNames.hasOwnProperty(newName) && tries < 100) {
+                        newName = xcHelper.randName(datasetName, 4);
+                        tries++;
+                    }
+                }
+            }
+
+            deferred.resolve(newName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     // get unique column name
     xcHelper.getUniqColName = function(tableId, colName) {
         if (colName == null) {

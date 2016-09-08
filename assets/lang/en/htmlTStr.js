@@ -474,8 +474,11 @@ module.exports = {
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
         "SkipRowsHint": "SKip the number of rows for each files in the data source",
-        "FINALIZE": "FINALIZE",
+        "CREATEREF": "CREATE REF ONLY",
+        "CREATETABLE": "CREATE TABLE",
         "Refresh": "REFRESH PREVIEW",
+        "CreateRefHint": "Create a reference of the dataset",
+        "CreateTableHint": "Create a reference of the dataset and create a table from the reference",
         "REDETECT": "REDETECT"
     },
 

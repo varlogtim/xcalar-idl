@@ -35,7 +35,8 @@ window.DSCart = (function($, DSCart) {
             }
 
             var cart = filterCarts(dsId);
-            sendToWorksheet(cart);
+            var worksheet = $cartList.data("ws");
+            DSCart.createTable(cart, worksheet);
         });
 
         // clear cart
@@ -120,11 +121,11 @@ window.DSCart = (function($, DSCart) {
     // restore the cart
     DSCart.restore = function(carts) {
         carts = carts || {};
-        var isRestore = true;
+        var isInBg = true;
         for (var dsId in carts) {
             // add cart use Array.unshift, so here should restore from end to 0
             var cart = carts[dsId];
-            var resotredCart = addCart(cart.dsId, cart.tableName, isRestore);
+            var resotredCart = DSCart.addCart(cart.dsId, cart.tableName, isInBg);
             appendCartItem(resotredCart, cart.items);
         }
     };
@@ -141,6 +142,154 @@ window.DSCart = (function($, DSCart) {
         return $cartArea.find('.selectedTable[data-dsid="' + dsId + '"]');
     };
 
+    DSCart.createTable = function(cart, worksheet, noFocus) {
+        if (cart == null || !checkCartArgs(cart)) {
+            console.error("Wrong args");
+            return PromiseHelper.reject("Wrong args");
+        }
+
+        var deferred = jQuery.Deferred();
+
+        var newTableCols = [];
+        var dsName = cart.getDSName();
+        var srcName = cart.getTableName();
+        var tableName = srcName + Authentication.getHashId();
+
+        // add sql
+        var sql = {
+            "operation"  : SQLOps.IndexDS,
+            "dsName"     : dsName,
+            "dsId"       : cart.getId(),
+            "tableName"  : tableName,
+            "columns"    : [],
+            "worksheet"  : worksheet,
+            "htmlExclude": ["worksheet"]
+        };
+
+        // this should happen after sql(or the worksheet attr is wrong)
+        if (worksheet === "xc-new") {
+            worksheet = WSManager.addWS(null, srcName);
+        }
+
+        var items = cart.items;
+        var widthOptions = {"defaultHeaderStyle": true};
+
+        for (var i = 0, len = items.length; i < len; i++) {
+            var colName = items[i].value;
+            // var escapedName = xcHelper.escapeColName(colName);
+            var escapedName = colName;
+            var width = getTextWidth($(), colName, widthOptions);
+
+            var progCol = ColManager.newCol({
+                "backName": escapedName,
+                "name"    : colName,
+                "width"   : width,
+                "isNewCol": false,
+                "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
+                "func"    : {
+                    "name": "pull",
+                    "args": [escapedName]
+                }
+            });
+
+            newTableCols.push(progCol);
+            sql.columns.push(colName);
+        }
+
+        // new "DATA" column
+        newTableCols.push(ColManager.newDATACol());
+        sql.columns.push("DATA");
+
+        DSCart.removeCart(cart.getId());
+        DSCart.refresh();
+        var txId = Transaction.start({
+            "msg"      : StatusMessageTStr.CreatingTable + ': ' + tableName,
+            "operation": SQLOps.IndexDS,
+            "sql"      : sql,
+            "steps"    : 1
+        });
+
+        XcalarIndexFromDataset(dsName, "recordNum", tableName, txId)
+        .then(function() {
+            var options = {"focusWorkspace": !noFocus};
+            return TblManager.refreshTable([tableName], newTableCols,
+                                            [], worksheet, options);
+        })
+        .then(function() {
+            // this will be saved later
+            Transaction.done(txId, {
+                "msgTable"  : xcHelper.getTableId(tableName),
+                "title"     : TblTStr.Create,
+                "msgOptions": {
+                    "indexNotification": noFocus
+                }
+            });
+            // resolve tableName for unit test
+            deferred.resolve(tableName);
+        })
+        .fail(function(error) {
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.TableCreationFailed,
+                "error"  : error,
+                "noAlert": true,
+                "title"  : TblTStr.Create
+            });
+
+            if (typeof error !== "object" ||
+                error.status !== StatusT.StatusCanceled) {
+                Alert.error(StatusMessageTStr.TableCreationFailed, error);
+            }
+
+            deferred.reject(error);
+        })
+        .always(removeWaitCursor);
+
+        return deferred.promise();
+    };
+
+    DSCart.addCart = function(dsId, tableName, isInBg) {
+        tableName = tableName || DS.getDSObj(dsId).getName();
+        var cart = new Cart({
+            "dsId"     : dsId,
+            "tableName": tableName
+        });
+
+        // new cart should be prepended, sync with UI
+        innerCarts[dsId] = cart;
+        var cartClasss = isInBg ? "selectedTable xc-hidden" : "selectedTable";
+        var cartHtml =
+            '<div class="' + cartClasss + '" data-dsid="' + dsId + '">' +
+                '<div class="cartTitleArea">' +
+                    '<input class="tableNameEdit textOverflow" type="text" ' +
+                        'spellcheck="false" value="' + tableName + '">' +
+                    '<i class="icon xi-edit fa-15 xc-action"></i>' +
+                '</div>' +
+                '<div class="cartEmptyHint xc-hidden">' +
+                    DSTStr.NoColumns +
+                '</div>' +
+                '<ul></ul>' +
+            '</div>';
+
+        var $cart = $(cartHtml);
+        $cartArea.prepend($cart);
+
+        if (!isInBg) {
+            var $tableNameEdit = $cart.find('.tableNameEdit').focus();
+            xcHelper.createSelection($tableNameEdit[0], true);
+
+            xcHelper.getUnusedTableName(tableName)
+            .then(function(newTableName) {
+                $tableNameEdit.val(newTableName);
+                cart.tableName = newTableName;
+            })
+            .fail(function() {
+                // keep the current name
+            });
+        }
+
+        return cart;
+    };
+
     // add column to cart
     DSCart.addItem = function(dsId, items) {
         if (dsId == null) {
@@ -148,7 +297,7 @@ window.DSCart = (function($, DSCart) {
         }
         var cart = filterCarts(dsId);
         if (cart == null) {
-            cart = addCart(dsId);
+            cart = DSCart.addCart(dsId);
         }
 
         if (items == null) {
@@ -362,49 +511,6 @@ window.DSCart = (function($, DSCart) {
         return innerCarts[dsId];
     }
 
-    function addCart(dsId, tableName, isRestore) {
-        tableName = tableName || DS.getDSObj(dsId).getName();
-        var cart = new Cart({
-            "dsId"     : dsId,
-            "tableName": tableName
-        });
-
-        // new cart should be prepended, sync with UI
-        innerCarts[dsId] = cart;
-        var cartClasss = isRestore ? "selectedTable xc-hidden" : "selectedTable";
-        var cartHtml =
-            '<div class="' + cartClasss + '" data-dsid="' + dsId + '">' +
-                '<div class="cartTitleArea">' +
-                    '<input class="tableNameEdit textOverflow" type="text" ' +
-                        'spellcheck="false" value="' + tableName + '">' +
-                    '<i class="icon xi-edit fa-15 xc-action"></i>' +
-                '</div>' +
-                '<div class="cartEmptyHint xc-hidden">' +
-                    DSTStr.NoColumns +
-                '</div>' +
-                '<ul></ul>' +
-            '</div>';
-
-        var $cart = $(cartHtml);
-        $cartArea.prepend($cart);
-
-        if (!isRestore) {
-            var $tableNameEdit = $cart.find('.tableNameEdit').focus();
-            xcHelper.createSelection($tableNameEdit[0], true);
-
-            getUnusedTableName(tableName)
-            .then(function(newTableName) {
-                $tableNameEdit.val(newTableName);
-                cart.tableName = newTableName;
-            })
-            .fail(function() {
-                // keep the current name
-            });
-        }
-
-        return cart;
-    }
-
     function appendCartItem(cart, items) {
         var $cart = DSCart.getCartById(cart.dsId);
         var html = "";
@@ -455,49 +561,6 @@ window.DSCart = (function($, DSCart) {
         var $table = $("#dsTable");
         $table.find(".colAdded").removeClass("colAdded");
         $table.find(".selectedCol").removeClass("selectedCol");
-    }
-
-    function getUnusedTableName(datasetName) {
-        // checks dataset names and tablenames and tries to create a table
-        // called dataset1 if it doesnt already exist or dataset2 etc...
-        var deferred = jQuery.Deferred();
-        var tableNames = {};
-        // datasets has it's unique format, no need to check
-        XcalarGetTables()
-        .then(function(result) {
-            var tables = result.nodeInfo;
-            for (var i = 0; i < result.numNodes; i++) {
-                var name = xcHelper.getTableName(tables[i].name);
-                tableNames[name] = 1;
-            }
-
-            var validNameFound = false;
-            var limit = 20; // we won't try more than 20 times
-            var newName = datasetName;
-            if (tableNames.hasOwnProperty(newName)) {
-                for (var i = 1; i <= limit; i++) {
-                    newName = datasetName + i;
-                    if (!tableNames.hasOwnProperty(newName)) {
-                        validNameFound = true;
-                        break;
-                    }
-                }
-                if (!validNameFound) {
-                    var tries = 0;
-                    while (tableNames.hasOwnProperty(newName) && tries < 100) {
-                        newName = xcHelper.randName(datasetName, 4);
-                        tries++;
-                    }
-                }
-            }
-
-            deferred.resolve(newName);
-        })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
     }
 
     function emptyCart(cart) {
@@ -676,115 +739,10 @@ window.DSCart = (function($, DSCart) {
         return false;
     }
 
-    function sendToWorksheet(cart) {
-        if (cart == null || !checkCartArgs(cart)) {
-            console.error("Wrong args");
-            return PromiseHelper.reject("Wrong args");
-        }
-
-        var deferred = jQuery.Deferred();
-
-        var newTableCols = [];
-        var dsName = cart.getDSName();
-        var srcName = cart.getTableName();
-        var tableName = srcName + Authentication.getHashId();
-
-        var worksheet = $cartList.data("ws");
-        // add sql
-        var sql = {
-            "operation"  : SQLOps.IndexDS,
-            "dsName"     : dsName,
-            "dsId"       : cart.getId(),
-            "tableName"  : tableName,
-            "columns"    : [],
-            "worksheet"  : worksheet,
-            "htmlExclude": ["worksheet"]
-        };
-
-        // this should happen after sql(or the worksheet attr is wrong)
-        if (worksheet === "xc-new") {
-            worksheet = WSManager.addWS(null, srcName);
-        }
-
-        var items = cart.items;
-        var widthOptions = {"defaultHeaderStyle": true};
-
-        for (var i = 0, len = items.length; i < len; i++) {
-            var colName = items[i].value;
-            // var escapedName = xcHelper.escapeColName(colName);
-            var escapedName = colName;
-            var width = getTextWidth($(), colName, widthOptions);
-
-            var progCol = ColManager.newCol({
-                "backName": escapedName,
-                "name"    : colName,
-                "width"   : width,
-                "isNewCol": false,
-                "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
-                "func"    : {
-                    "name": "pull",
-                    "args": [escapedName]
-                }
-            });
-
-            newTableCols.push(progCol);
-            sql.columns.push(colName);
-        }
-
-        // new "DATA" column
-        newTableCols.push(ColManager.newDATACol());
-        sql.columns.push("DATA");
-
-        DSCart.removeCart(cart.getId());
-        DSCart.refresh();
-        var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.CreatingTable + ': ' + tableName,
-            "operation": SQLOps.IndexDS,
-            "sql"      : sql,
-            "steps"    : 1
-        });
-
-        XcalarIndexFromDataset(dsName, "recordNum", tableName, txId)
-        .then(function() {
-            var options = {"focusWorkspace": true};
-            return TblManager.refreshTable([tableName], newTableCols,
-                                            [], worksheet, options);
-        })
-        .then(function() {
-            // this will be saved later
-            Transaction.done(txId, {
-                "msgTable": xcHelper.getTableId(tableName),
-                "title"   : TblTStr.Create
-            });
-            // resolve tableName for unit test
-            deferred.resolve(tableName);
-        })
-        .fail(function(error) {
-            Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.TableCreationFailed,
-                "error"  : error,
-                "noAlert": true,
-                "title"  : TblTStr.Create
-            });
-
-            if (typeof error !== "object" ||
-                error.status !== StatusT.StatusCanceled) {
-                Alert.error(StatusMessageTStr.TableCreationFailed, error);
-            }
-
-            deferred.reject(error);
-        })
-        .always(removeWaitCursor);
-
-        return deferred.promise();
-    }
-
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSCart.__testOnly__ = {};
         DSCart.__testOnly__.filterCarts = filterCarts;
-        DSCart.__testOnly__.getUnusedTableName = getUnusedTableName;
-        DSCart.__testOnly__.createWorksheet = sendToWorksheet;
     }
     /* End Of Unit Test Only */
 

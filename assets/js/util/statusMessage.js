@@ -343,14 +343,15 @@ window.StatusMessage = (function($, StatusMessage) {
     }
 
     function showDoneNotification(msgId, failed, newTableId, options) {
+        options = options || {};
         var operation = msgObjs[msgId].operation;
-        if (operation === SQLOps.IndexDS) {
+
+        if (operation === SQLOps.IndexDS && !options.indexNotification) {
             return; // no notification when table made directly from datastore
         }
         var popupNeeded     = false;
         var popupWrapExists = false;
         var popupNearTab    = false;
-        options = options || {};
 
         var pos = {
             left  : 'auto',

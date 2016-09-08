@@ -119,11 +119,11 @@ function dsTableTest() {
             // clear first in case we have otehr data cart
             $("#dataCart-clear").click();
             $("#selectDSCols").click();
-            $("#dataCartWSMenu li:not(.new)").eq(0).click();
+            var worksheet = WSManager.getActiveWS();
             var dsId = $("#dsTable").data("dsid");
             var cart = DSCart.getCarts()[dsId];
 
-            DSCart.__testOnly__.createWorksheet(cart)
+            DSCart.createTable(cart, worksheet)
             .then(function(wholeTableName) {
                 // because we generate a unique ds name, so
                 // this table's name should equal to testDS

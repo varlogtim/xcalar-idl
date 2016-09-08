@@ -311,12 +311,12 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         // submit the form
-        $form.submit(function(event) {
-            event.preventDefault();
+        $form.on("click", ".confirm", function() {
             var $submitBtn = $(this).blur();
+            var toCreateTable = $submitBtn.hasClass("createTable");
             xcHelper.disableSubmit($submitBtn);
 
-            submitForm()
+            submitForm(toCreateTable)
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
             });
@@ -501,12 +501,13 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-refresh").css("top", 0);
     }
 
-    function submitForm() {
+    function submitForm(toCreateTable) {
         var res = validateForm();
         if (res == null) {
             return PromiseHelper.reject("Checking Invalid");
         }
 
+        var deferred = jQuery.Deferred();
         var dsName = res.dsName;
         var format = res.format;
 
@@ -537,10 +538,43 @@ window.DSPreview = (function($, DSPreview) {
 
         cacheUDF(udfModule, udfFunc);
 
-        return DS.load(dsName, format, loadURL,
+        var colNames = null;
+        if (toCreateTable) {
+            colNames = [];
+            $previewTable.find("th:not(.rowNumHead)").each(function() {
+                var colName = $(this).find(".text").text();
+                colNames.push(colName);
+            });
+        }
+
+        function alertHelper() {
+            if (colNames == null || colNames.length < gMaxColToPull) {
+                return PromiseHelper.resolve();
+            }
+
+            var innerDeferred = jQuery.Deferred();
+            Alert.show({
+                "title"    : DSFormTStr.CreateWarn,
+                "msg"      : DSFormTStr.CreateWarnMsg,
+                "onConfirm": innerDeferred.resolve,
+                "onCancel" : innerDeferred.reject
+            });
+
+            return innerDeferred.promise();
+        }
+
+        alertHelper()
+        .then(function() {
+            return DS.load(dsName, format, loadURL,
                         fieldDelim, lineDelim, header,
                         udfModule, udfFunc,
-                        isRecur, previewSize, quote, skipRows, isRegEx);
+                        isRecur, previewSize, quote,
+                        skipRows, isRegEx, colNames);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function validateForm() {
@@ -1300,7 +1334,7 @@ window.DSPreview = (function($, DSPreview) {
             for (var i = 1, len = $headers.length; i < len; i++) {
                 var $text = $headers.eq(i).find(".text");
                 html += '<td class="cell">' + $text.html() + '</td>';
-                $text.html("Column" + (i - 1));
+                $text.html("column" + (i - 1));
             }
 
             html += '</tr>';
@@ -1499,7 +1533,7 @@ window.DSPreview = (function($, DSPreview) {
                     '<th>' +
                         '<div class="header">' +
                             colGrab +
-                            '<div class="text">Column' + i + '</div>' +
+                            '<div class="text">column' + i + '</div>' +
                         '</div>' +
                     '</th>';
             }

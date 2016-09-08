@@ -471,7 +471,10 @@ DSFormTStr = {
     'InvalidQuote': 'Cannot have more than 1 quote character',
     'NoParseJSON': 'Cannot parse data as json',
     'GoBack': 'please click the \"BACK\" button to re-enter a valid path',
-    'NoData': 'No data'
+    'NoData': 'No data',
+    'CreateWarn': 'Too Many Columns To Create',
+    'CreateWarnMsg': 'Create table with too many columns from dataset ' +
+                'reference might be slow, are you sure you want to continue?'
 };
 
 

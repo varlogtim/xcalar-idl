@@ -221,6 +221,18 @@ describe('xcHelper Test', function() {
         expect(res.dsName).to.be.equal("test2");
     });
 
+    it('xcHelper.getUnusedTableName should work', function(done) {
+        var dsName = xcHelper.randName("testName");
+        xcHelper.getUnusedTableName(dsName)
+        .then(function(realName) {
+            expect(realName).to.equal(dsName);
+            done();
+        })
+        .fail(function() {
+            throw "Fail case!";
+        });
+    });
+
     it('xcHelper.getUniqColName should work', function() {
         // case 1
         var res = xcHelper.getUniqColName(null, null);

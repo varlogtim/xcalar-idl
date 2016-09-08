@@ -209,7 +209,8 @@
       </div>
       <!-- buttons -->
       <div class="buttonSection">
-        <button type="submit" class="btn confirm" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.FINALIZE %></button>
+        <button title="<%= dicts.dsForm.CreateTableHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm createTable"><%= dicts.dsForm.CREATETABLE %></button>
+        <button title="<%= dicts.dsForm.CreateRefHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CREATEREF %></button>
         <button type="button" class="btn btn-cancel cancel"><%= dicts.common.BACK %></button>
       </div>
     </form>

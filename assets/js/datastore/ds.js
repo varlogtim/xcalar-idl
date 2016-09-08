@@ -192,7 +192,7 @@ window.DS = (function ($, DS) {
     // promise returns $grid element
     DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                         hasHeader, moduleName, funcName, isRecur, previewSize,
-                        quoteChar, skipRows, isRegEx) {
+                        quoteChar, skipRows, isRegEx, colsToPull) {
         var deferred = jQuery.Deferred();
 
         // Here null means the attr is a placeholder, will
@@ -217,7 +217,7 @@ window.DS = (function ($, DS) {
         var $grid = DS.getGrid(dsObj.getId());
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
-        DS.focusOn($grid); // focus on grid before load
+
         DataStore.update();
 
         var fullDSName = dsObj.getFullName();
@@ -251,10 +251,14 @@ window.DS = (function ($, DS) {
 
         $grid.data("txid", txId);
 
-        XcalarLoad(loadURL, dsFormat, fullDSName,
-                   fieldDelim, lineDelim, hasHeader,
-                   moduleName, funcName, isRecur, previewSize,
-                   quoteChar, skipRows, isRegEx, txId)
+        // focus on grid before load
+        DS.focusOn($grid)
+        .then(function() {
+            return XcalarLoad(loadURL, dsFormat, fullDSName,
+                            fieldDelim, lineDelim, hasHeader,
+                            moduleName, funcName, isRecur, previewSize,
+                            quoteChar, skipRows, isRegEx, txId);
+        })
         .then(function(ret, error) {
             if (error != null) {
                 dsObj.setError(error);
@@ -266,6 +270,11 @@ window.DS = (function ($, DS) {
 
             // display new dataset
             refreshDS();
+
+            if (colsToPull != null && colsToPull instanceof Array) {
+                createTableHelper($grid, dsObj, colsToPull);
+            }
+
             if ($grid.hasClass('active')) {
                 // re-focus to trigger DSTable.show()
                 if (gMinModeOn) {
@@ -835,6 +844,26 @@ window.DS = (function ($, DS) {
         // UI update
         refreshDS();
         DataStore.update();
+    }
+
+    function createTableHelper($grid, dsObj, colsToPull) {
+        var deferred = jQuery.Deferred();
+        xcHelper.getUnusedTableName(dsObj.getName())
+        .then(function(tableName) {
+            var cart = DSCart.addCart(dsObj.getId(), tableName, true);
+            colsToPull.forEach(function(colName) {
+                var item = {"value": colName};
+                cart.addItem(item);
+            });
+            var worksheet = WSManager.getActiveWS();
+            var noFocus = !$grid.hasClass("active");
+
+            return DSCart.createTable(cart, worksheet, noFocus);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function setupGridViewButtons() {

@@ -864,12 +864,12 @@ window.ColManager = (function($, ColManager) {
                 });
 
                 Alert.show({
-                    "title"  : ColTStr.SplitColWarn,
-                    "msg"    : msg,
-                    "confirm": function() {
+                    "title"    : ColTStr.SplitColWarn,
+                    "msg"      : msg,
+                    "onConfirm": function() {
                         curDeferred.resolve(numToSplit, numDelim);
                     },
-                    "cancel": function() {
+                    "onCancel": function() {
                         curDeferred.reject(SQLType.Cancel);
                     }
                 });

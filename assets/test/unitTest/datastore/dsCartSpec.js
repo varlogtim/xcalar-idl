@@ -45,19 +45,6 @@ function dsCartModuleTest() {
         assert.equal($("#dataCart").find(".selectedTable").length, 0, 'have no carts');
     });
 
-    it("Should getUnusedTableName() works", function(done) {
-        var dsName = xcHelper.randName("testName");
-        DSCart.__testOnly__.getUnusedTableName(dsName)
-        .then(function(realName) {
-            expect(realName).to.equal(dsName);
-            done();
-        })
-        .fail(function() {
-            throw "Fail case!";
-        });
-
-    });
-
     it('Should add new cart', function() {
         testCartId = fakeDSObj.getId();
         DSCart.addItem(testCartId);
