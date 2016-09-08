@@ -35,7 +35,6 @@ window.StatusMessage = (function($, StatusMessage) {
             }
 
             xcHelper.dropdownOpen($(this), $statusMenu, {
-                "ignoreSideBar": true,
                 "floating"     : true
             });
         });

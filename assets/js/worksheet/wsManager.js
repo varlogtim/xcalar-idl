@@ -1134,7 +1134,6 @@ window.WSManager = (function($, WSManager) {
             }
             xcHelper.dropdownOpen($wsMenu, $tabMenu, {
                 "offsetX"      : -7,
-                "ignoreSideBar": true,
                 "floating"     : true,
                 "callback"     : function() {
                     if (numTabs === 1) {

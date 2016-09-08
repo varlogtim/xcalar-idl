@@ -223,9 +223,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         formHelper.clear();
     };
 
-    ExtensionManager.trigger = function(tableId, modName, funcName, argList) {
+    /*
+    options: {
+        noNotification: boolean, to hide success message pop up
+    }
+     */
+    ExtensionManager.trigger = function(tableId, modName, funcName, argList,
+        options) {
         var deferred = jQuery.Deferred();
-
+        options = options || {};
         if (modName == null || funcName == null || modName.indexOf("UExt") !== 0) {
             throw "error extension!";
             return;
@@ -315,7 +321,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
                     Transaction.done(txId, {
                         "msgTable": xcHelper.getTableId(finalTableName),
-                        "sql"     : sql
+                        "sql"     : sql,
+                        "noNotification": options.noNotification
                     });
                     deferred.resolve(runBeforeStartRet);
                 })
@@ -393,7 +400,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
                 Transaction.done(txId, {
                     "msgTable": finalTableId,
-                    "sql"     : sql
+                    "sql"     : sql,
+                    "noNotification": options.noNotification
                 });
 
                 deferred.resolve();

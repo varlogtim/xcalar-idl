@@ -2333,7 +2333,6 @@ window.xcHelper = (function($, xcHelper) {
         multipleColumns: [integers],
         isUnselect: boolean,
         shiftKey: boolean,
-        ignoreSidebar: boolean, (ignore rightsidebar if in the way)
         floating: boolean (menu floats around and can pop up above user's mouse)
         callback: function,
         isDataTd: boolean, true if clicking on the json td
@@ -2421,7 +2420,6 @@ window.xcHelper = (function($, xcHelper) {
         mouseCoors: {x: float, y: float},
         offsetX: float,
         offsetY: float,
-        ignoreSidebar: boolean, (ignore rightsidebar if in the way)
         floating: boolean (menu floats around and can pop up above user's mouse)
     }
     */
@@ -2479,15 +2477,6 @@ window.xcHelper = (function($, xcHelper) {
         $menu.find('.scrollArea.top').addClass('stopped');
         $menu.find('.scrollArea.bottom').removeClass('stopped');
 
-        // XXX GUI-4745 need to fix!
-        //positioning if dropdown menu is on the right side of screen
-        // if (!options.ignoreSideBar) {
-        //     var leftBoundary = $('#bottomMenu')[0].getBoundingClientRect().left;
-        //     if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-        //         left = leftBoundary - $menu.width();
-        //         $menu.css('left', left).addClass('leftColMenu');
-        //     }
-        // }
         // positioning if dropdown is on the right side of screen
         var rightBoundary = $(window).width() - 5;
         if ($menu[0].getBoundingClientRect().right > rightBoundary) {

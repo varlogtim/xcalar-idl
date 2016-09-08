@@ -1014,7 +1014,6 @@ window.DS = (function ($, DS) {
             xcHelper.dropdownOpen($target, $gridMenu, {
                 "mouseCoors"   : {"x": event.pageX, "y": event.pageY + 10},
                 "classes"      : classes,
-                "ignoreSideBar": true,
                 "floating"     : true
             });
             return false;

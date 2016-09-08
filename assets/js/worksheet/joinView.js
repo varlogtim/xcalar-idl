@@ -626,16 +626,18 @@ window.JoinView = (function($, JoinView) {
         $estimatorWrap.find('.title').text(JoinTStr.EstimatingJoin);
         $estimatorWrap.find('.value').empty();
 
-        // xx handle canceling of estimateJoinSize
-
+        var extOptions = {
+            noNotification: true
+        }
         ExtensionManager.trigger(tableIds[0], "UExtDev", "estimateJoin",
-                                 argList)
+                                 argList, extOptions)
         .then(function(ret) {
             $joinView.find('.estimatorWrap .title')
                      .text(JoinTStr.EstimatedJoin + ':');
             $estimatorWrap.find('.min .value').text(ret.minSum);
             $estimatorWrap.find('.med .value').text(ret.expSum);
             $estimatorWrap.find('.max .value').text(ret.maxSum);
+
         })
         .fail(function() {
             $joinView.find('.estimatorWrap .title')
