@@ -1083,15 +1083,42 @@ table.datasetTable {
 #dsForm-preview {
     .size(@min-width: 850px, @height: ~"calc(100% - 5px)");
 
+    &.minimize {
+        .cardMain {
+            .size(@height: ~"calc(100% - 61px)");
+        }
+
+        .cardBottom {
+            .size(@height: 25px);
+        }
+    }
+
     .cardMain {
         padding-top: 0;
-        .size(@height: ~"calc(100% - 436px)");
+        .size(@min-height: ~"calc(100% - 436px)", @height: ~"calc(50% - 18px)");
         .text-selection;
+        .transition(height 0.3s);
     }
 
     .cardBottom {
-        .size(@height: 400px);
+        .size(@max-height: 400px, @height: ~"calc(50% - 18px)");
         padding: 0;
+        padding-top: 15px;
+        position: relative;
+
+        .pulloutTab {
+            .size(@width: 100px, @height: 15px);
+            .horizontal-align;
+            .position(absolute, @top: 0px);
+            cursor: pointer;
+
+            .border {
+                .size(@width: 100%, @height: 1px);
+                background-color: #CCCCCC;
+                margin-top: 3px;
+            }
+        }
+
     }
 }
 
@@ -1275,7 +1302,7 @@ table.datasetTable {
     @row-width: 170px;
 
     .contentSection {
-        .size(@height: ~"calc(100% - 50px)");
+        .size(@width: 100%, @height: ~"calc(100% - 50px)");
         padding: 10px 0;
         overflow-y: auto;
     }

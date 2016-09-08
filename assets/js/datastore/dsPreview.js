@@ -108,6 +108,11 @@ window.DSPreview = (function($, DSPreview) {
             dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
 
+        // minimize
+        $("#dsForm-minimize").click(function() {
+            $previewCard.toggleClass("minimize");
+        });
+
         setupForm();
     };
 

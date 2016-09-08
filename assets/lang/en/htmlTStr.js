@@ -439,7 +439,8 @@ module.exports = {
         "Refresh": "REFRESH PREVIEW",
         "CreateRefHint": "Create a reference of the dataset",
         "CreateTableHint": "Create a reference of the dataset and create a table from the reference",
-        "REDETECT": "REDETECT"
+        "REDETECT": "REDETECT",
+        "Minimize": "Toggle minimize of the form"
     },
 
     "fileBrowser": {
