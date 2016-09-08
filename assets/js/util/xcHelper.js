@@ -1063,7 +1063,7 @@ window.xcHelper = (function($, xcHelper) {
             table = gTables[tableId];
             if (table.status === TableType.Active ||
                 table.status === TableType.Archived) {
-                if (table.tableName.indexOf(tableName) === 0) {
+                if (xcHelper.getTableName(table.tableName) === tableName) {
                     return (false);
                 }
             }
