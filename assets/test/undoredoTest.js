@@ -49,7 +49,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             // start undoing everything
             replayLogs = Replay.log;
             console.info("undo started");
-            // return (PromiseHelper.reject());
+            // return (PromiseHelper.reject()); // for debugging
             return (undoAll());
         })
         .then(function() {

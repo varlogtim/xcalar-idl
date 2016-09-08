@@ -238,11 +238,9 @@ window.DS = (function ($, DS) {
             "isRecur"    : isRecur,
             "previewSize": previewSize
         };
-        var msgId = StatusMessage.addMsg({
-            "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
-            "operation": SQLOps.DSLoad
-        });
+
         var txId = Transaction.start({
+            "msg"       : StatusMessageTStr.LoadingDataset + ": " + dsName,
             "operation" : SQLOps.DSLoad,
             "sql"       : sql,
             "steps"     : 1,
@@ -287,13 +285,15 @@ window.DS = (function ($, DS) {
                 }
             }
 
-            StatusMessage.success(msgId, false, null, {
+            UserSettings.logDSChange();
+
+            var msgOptions = {
                 "newDataSet": true,
                 "dataSetId" : dsObj.getId()
+            };
+            Transaction.done(txId, {
+                msgOptions: msgOptions
             });
-
-            UserSettings.logDSChange();
-            Transaction.done(txId);
             deferred.resolve(dsObj);
         })
         .fail(function(error) {
@@ -306,10 +306,10 @@ window.DS = (function ($, DS) {
             }
 
             Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.LoadFailed,
                 "error": error
             });
 
-            StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId, null);
             deferred.reject(error);
         });
 
