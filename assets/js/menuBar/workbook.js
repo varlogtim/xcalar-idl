@@ -545,25 +545,25 @@ window.Workbook = (function($, Workbook) {
                         '<div class="rightBar vertBar">'+
                             '<div class="tab btn btn-small activate" ' +
                             'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="right"' +
+                            'data-placement="auto right"' +
                             'title="' + activateTooltip + '">'+
                                 '<i class="icon xi-play-circle"></i>'+
                             '</div>'+
                             '<div class="tab btn btn-small modify" '+
                             'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="right"' +
+                            'data-placement="auto right"' +
                             'title="' + WKBKTStr.EditName + '">'+
                                 '<i class="icon xi-edit"></i>'+
                             '</div>'+
                             '<div class="tab btn btn-small duplicate" '+
                             'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="right"' +
+                            'data-placement="auto right"' +
                             'title="' + WKBKTStr.Duplicate + '">'+
                                 '<i class="icon xi-duplicate"></i>'+
                             '</div>'+
                             '<div class="tab btn btn-small delete" '+
                             'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="right"' +
+                            'data-placement="auto right"' +
                             'title="' + WKBKTStr.Delete + '">'+
                                 '<i class="icon xi-trash"></i>'+
                             '</div>'+
