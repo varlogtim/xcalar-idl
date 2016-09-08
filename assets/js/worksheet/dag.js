@@ -365,7 +365,8 @@ window.DagPanel = (function($, DagPanel) {
 
         var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
                         '.dagTable:not(.dataStore) .icon,' +
-                        '.dagTable:not(.dataStore) .tableTitle';
+                        '.dagTable:not(.dataStore) .tableTitle,' +
+                        '.dagTable:not(.dataStore) .lockIcon';
 
         $dagPanel.on('click', selection, function(event) {
             $('.menu').hide().removeClass('leftColMenu');
@@ -478,6 +479,8 @@ window.DagPanel = (function($, DagPanel) {
             var $secondTarget = $(e.target).closest('.dagTable:not(.dataStore) .icon');
             var $thirdTarget = $(e.target).closest('.dagTable:not(.dataStore)' +
                                                     ' .tableTitle');
+            var $fourthTarget = $(e.target).closest('.dagTable:not(.dataStore)' +
+                                                    ' .lockIcon');
             if ($target.length) {
                 $target.trigger('click');
                 return false;
@@ -487,6 +490,9 @@ window.DagPanel = (function($, DagPanel) {
             } else if ($thirdTarget.length) {
                 $thirdTarget.trigger('click');
                 return false;
+            } else if ($fourthTarget.length) {
+                $fourthTarget.trigger('click');
+                return  false;
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
                 $('#dagSchema').hide();
