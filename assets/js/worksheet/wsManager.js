@@ -250,6 +250,9 @@ window.WSManager = (function($, WSManager) {
             "oldName"       : oldName,
             "newName"       : name
         });
+
+        // for updating the bottom bar when rename worksheet
+        StatusMessage.updateLocation();
     };
 
     // For reorder table use
