@@ -103,7 +103,7 @@ window.StatusMessage = (function($, StatusMessage) {
     StatusMessage.success = function(msgId, noNotification, newTableId,
                                      options) {
         if (!noNotification) {
-            showDoneNotification(msgId, false, newTableId, options);
+            showDoneNotification(msgId, false, newTableId, null, options);
         } else {
             delete msgObjs[msgId];
         }
@@ -135,9 +135,9 @@ window.StatusMessage = (function($, StatusMessage) {
         });
     };
 
-    StatusMessage.fail = function(failMessage, msgId) {
+    StatusMessage.fail = function(failMessage, msgId, srcTableId) {
         var fail = true;
-        showDoneNotification(msgId, fail);
+        showDoneNotification(msgId, fail, null, srcTableId);
         failMessage = failMessage || StatusMessageTStr.Error;
         var failHTML = '<span class="text fail">' + failMessage + '</span>' +
                        '<i class="icon close xi-close fa-15 xc-action"></i>';
@@ -347,10 +347,10 @@ window.StatusMessage = (function($, StatusMessage) {
         }
     }
 
-    function showDoneNotification(msgId, failed, newTableId, options) {
-        options = options || {};
+    function showDoneNotification(msgId, failed, newTableId, srcTableId,
+                                  options) {
         var operation = msgObjs[msgId].operation;
-
+        options = options || {};
         if (operation === SQLOps.IndexDS && !options.indexNotification) {
             return; // no notification when table made directly from datastore
         }
@@ -369,6 +369,9 @@ window.StatusMessage = (function($, StatusMessage) {
         var status = failed ? ' failed' : ' completed';
         var $popups;
         var $popupWrap;
+        var tableId = newTableId || srcTableId;
+        // Either newTableId or srcTableId but not both will be defined
+        // Possible to have neither (load);
 
         var $tableDonePopup =
                 $('<div class="tableDonePopup' + status + '"' +
@@ -388,6 +391,9 @@ window.StatusMessage = (function($, StatusMessage) {
                     popupNearTab = $('#dataStoresTab');
                 }
                 classes += ' datastoreNotify';
+                if (failed) {
+                    classes += ' noRedirect';
+                }
                 popupNeeded = true;
             }
         } else if (!$('#workspaceTab').hasClass('active')) {
@@ -404,7 +410,9 @@ window.StatusMessage = (function($, StatusMessage) {
         } else {
             var wsNum = msgObjs[msgId].worksheetNum;
             var activeWS = WSManager.getActiveWS() || 0;
-            if (wsNum !== activeWS || failed) {
+
+
+            if (wsNum !== activeWS || !tableId) {
                 // we're on a different worksheet than the table is on
                 // so position the popup next to the worksheet tab
                 popupNeeded = true;
@@ -422,7 +430,6 @@ window.StatusMessage = (function($, StatusMessage) {
                 classes += ' worksheetNotify' + wsNum;
             } else {
                 // we're on the correct worksheet, now find if table is visible
-                var tableId = newTableId;
                 var visibility = tableVisibility(tableId);
 
                 if (visibility !== 'visible') {
@@ -459,7 +466,7 @@ window.StatusMessage = (function($, StatusMessage) {
 
         if (popupNeeded) {
             $tableDonePopup.addClass(arrow + ' ' + classes)
-                           .data('tableid', newTableId);
+                           .data('tableid', tableId);
 
             doneNotificationListeners($tableDonePopup, msgId, options);
             
@@ -543,7 +550,8 @@ window.StatusMessage = (function($, StatusMessage) {
                 return;
             }
             var $popup = $(this);
-            if ($popup.hasClass('failed')) {
+
+            if ($popup.hasClass('failed') && options.newDataSet) {
                 return;
             }
 

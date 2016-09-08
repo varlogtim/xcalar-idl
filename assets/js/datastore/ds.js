@@ -309,7 +309,7 @@ window.DS = (function ($, DS) {
                 "error": error
             });
 
-            StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
+            StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId, null);
             deferred.reject(error);
         });
 

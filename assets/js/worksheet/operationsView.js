@@ -135,6 +135,13 @@ window.OperationsView = (function($, OperationsView) {
                                                .eq(0).click();
             }
 
+            if (event.which === keyCode.Enter) {
+                if ($functionsList.find('li').length === 1) {
+                    $functionsList.find('li').eq(0).click();
+                    event.preventDefault();
+                }
+            }
+
             // position the scrollbar
             var $activeLi = $categoryList.find('li.active');
             if (!$activeLi.length) {
@@ -3858,11 +3865,12 @@ window.OperationsView = (function($, OperationsView) {
         var categoryNums = {};
         var fn;
         var firstCategoryNumFound;
+        val = val.toLowerCase();
         for (var i = 0; i < operatorsMap.length; i++) {
             categorySet = operatorsMap[i];
             for (var j = 0; j < categorySet.length; j++) {
                 fn = categorySet[j];
-                if (fn.fnName.indexOf(val) > -1) {
+                if (fn.fnName.toLowerCase().indexOf(val) > -1) {
                     if (!filteredOperatorsMap[fn.category]) {
                         filteredOperatorsMap[fn.category] = [];
                     }

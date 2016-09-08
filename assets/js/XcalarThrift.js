@@ -1977,7 +1977,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
         }
     })
     .fail(function(error1, error2) {
-        Transaction.checkAndSetCanceled(txId)
+        Transaction.checkAndSetCanceled(txId);
         var thriftError = thriftLog("XcalarGenRowNum", error1, error2);
         deferred.reject(thriftError);
     });

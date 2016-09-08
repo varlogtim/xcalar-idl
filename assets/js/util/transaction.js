@@ -118,7 +118,11 @@ window.Transaction = (function(Transaction, $) {
         var failMsg = options.failMsg;
 
         if (msgId != null) {
-            StatusMessage.fail(failMsg, msgId);
+            var srcTableId = null;
+            if (options && options.sql && options.sql.tableId) {
+                srcTableId = options.sql.tableId;
+            }
+            StatusMessage.fail(failMsg, msgId, srcTableId);
         }
 
         // add error sql

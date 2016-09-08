@@ -1242,7 +1242,6 @@ input {
         }
 
         &.failed {
-            cursor: auto;
             background-color: @color-nightShadz;
                 &:before {
                 border-right: 6px solid @color-nightShadz;
@@ -1265,6 +1264,7 @@ input {
                 content: none;
             }
         }
+
         &.worksheetNotify {
             &:first-child:before {
                 display: none;
@@ -1274,6 +1274,10 @@ input {
                 display: block;
                 content: "";
             }
+        }
+        
+        &.noRedirect {
+            cursor: auto !important;
         }
     }
 }
