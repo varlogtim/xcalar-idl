@@ -473,7 +473,7 @@ module.exports = {
         "SizeLimit": "Dataset Size Limit",
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
-        "SkipRowsHint": "SKip the number of rows for each files in the data source",
+        "SkipRowsHint": "Skip the number of rows for each files in the data source",
         "CREATEREF": "CREATE REF ONLY",
         "CREATETABLE": "CREATE TABLE",
         "Refresh": "REFRESH PREVIEW",

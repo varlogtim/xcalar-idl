@@ -802,7 +802,7 @@ window.OperationsView = (function($, OperationsView) {
             if (operatorName === "map") {
                 $('#mapFilter').focus();
             } else if (operatorName === "group by") {
-                $activeOpSection.find('.gbOnArg').focus();
+                $activeOpSection.find('.gbOnArg').val(gColPrefix + colName);
             } else {
                 $activeOpSection.find('.functionsInput').focus();
             }
@@ -1602,7 +1602,7 @@ window.OperationsView = (function($, OperationsView) {
     function groupbyArgumentsSetup(numArgs, operObj, $rows, defaultValue) {
         var description = 'Fields to group on';
         var $gbOnRow = $rows.eq(0);
-        $gbOnRow.find('.arg').val(defaultValue);
+        $gbOnRow.find('.arg').focus();
 
         // new col name field
         description = 'New Column Name for the groupBy' +
@@ -1624,7 +1624,7 @@ window.OperationsView = (function($, OperationsView) {
                         '</span>' +
                         '), GROUP BY ' +
                         '<span class="groupByCols">' +
-                            defaultValue +
+                            // defaultValue +
                         '</span>' +
                     '</p>';
 
