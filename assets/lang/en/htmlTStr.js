@@ -3,96 +3,67 @@ module.exports = {
     "common": {
         "XI": "Xcalar Insight",
         "ADD": "ADD",
-        "Arg": "Argument",
-        "average": "Average",
+        "AdvancedOpts": "Advanced Options",
+        "APPLY": "APPLY",
         "BACK": "BACK",
         "BROWSE": "BROWSE",
         "CANCEL": "CANCEL",
-        "Cast": "Cast",
-        "Category": "Category",
         "CLEAR": "CLEAR",
         "ClearAll": "Clear All",
-        "close": "Close",
+        "ClickToOpts": "Click to see options",
+        "Close": "Close",
         "CLOSE": "CLOSE",
         "ComeSoon": "Coming Soon",
         "Comma": "Comma",
         "CONFIRM": "CONFIRM",
         "CONFIRMRESTART": "CONFIRM & RESTART",
         "CONFIRMSAVE": "CONFIRM & SAVE",
-        "count": "Count",
         "Date": "Date",
         "DateCreated": "Date Created",
         "DateModified": "Date Modified",
         "Default": "Default",
-        "DEL": "DELETE",
         "Descrip": "Description",
-        "Detail": "Detail",
+        "DeSelectAll": "Deselect All",
         "Details": "Details",
         "DS": "Dataset",
-        "Empty": "Empty",
-        "EXIT": "EXIT",
+        "DontShow": "Don't show again",
         "File": "File",
-        "FilePath": "File Path",
         "Func": "Function",
-        "FuncName": "Function Name",
-        "GEN": "GENERATE",
         "Header": "Header",
         "Help": "Help",
-        "max": "Max",
-        "Max": "Max",
-        "maximize": "Maximize",
-        "min": "Min",
-        "med": "Med",
-        "ModuleName": "Module Name",
+        "Loading": "Loading",
+        "Maximize": "Maximize",
         "Name": "Name",
         "NEW": "NEW",
         "NEXT": "NEXT",
-        "NFS": "Network File Sharing",
         "Null": "Null",
         "of": "of",
         "OFF": "OFF",
         "ON": "ON",
         "Op": "Operation",
         "OP": "OPERATION",
-        "Original": "Original",
         "Other": "Other",
         "Password": "Password",
         "PleaseWait": "Please Wait",
         "Port": "Port",
-        "PREVIEW": "PREVIEW",
-        "Preview": "Preview",
+        "Prefs": "Preferences",
         "Refresh": "Refresh",
         "Rename": "Rename",
         "SAVE": "SAVE",
         "SAVEEXIT": "SAVE & EXIT",
+        "SaveWKBK": "Save Progress",
         "SearchKeyWord": "Search keyword",
         "seconds": "seconds",
         "SelectAll": "Select All",
-        "DeSelectAll": "Deselect All",
         "Service": "Service",
         "Size": "Size",
-        "Sugg": "Suggestion",
-        "sum": "Sum",
-        "sd": "SD",
+        "Supprots": "Supports",
         "Table": "Table",
         "Tables": "Tables",
         "Type": "Type",
-        "UDF": "UDF",
         "URL": "URL",
         "UserName": "User name",
-        "Val": "Value",
-        "WKBK": "Workbook",
-        "SaveWKBK": "Save Progress",
-        "Loading": "Loading",
-        "Prefs": "Preferences",
-        "Supprots": "Supports",
-        "AdvancedOpts": "Advanced Options",
-        "APPLY": "APPLY"
-    },
-
-    "status": {
-        "actionSuccess": "Your action was successful!",
-        "SUCCESS": "SUCCESS"
+        "Val": "Value"
     },
 
     "paths": {
@@ -114,6 +85,21 @@ module.exports = {
         "waitIcon"      : "assets/images/waiting-1.gif",
         "installer"     : "setup.html",
         "helpDocs"      : "assets/help/Content/Home.htm"
+    },
+
+    "statistics": {
+        "Average": "Average",
+        "Count": "Count",
+        "Max": "Max",
+        "Med": "Med",
+        "Min": "Min",
+        "SD": "SD",
+        "Sum": "Sum",
+    },
+
+    "status": {
+        "actionSuccess": "Your action was successful!",
+        "SUCCESS": "SUCCESS"
     },
 
     "menuBar": {
@@ -140,6 +126,7 @@ module.exports = {
        "Agg": "Aggregate",
        "Archive": "Archive Table",
        "Back": "Back",
+       "BackToOrig": "Back to original",
        "CannotExpand": "Cannot Expand Tables",
        "ChangeType": "Change data type",
        "CollapseQG": "Collapse Query Graph",
@@ -190,6 +177,7 @@ module.exports = {
        "NewFolder": "New Folder",
        "Open": "Open",
        "OpenImage": "Open Image In New Tab",
+       "Optional": "Optional",
        "Percent": "Percent",
        "Preview": "Preview",
        "Profile": "Profile",
@@ -230,16 +218,7 @@ module.exports = {
        "UnHideTbl": "Unhide Table",
        "UnlockTbl": "Unlock Table",
        "Unsavable": "Cannot Save Image",
-       "Visual": "Visualize in Tableau",
-       "Win": "Window",
-       "WinLag": "Lag",
-       "WinLead": "Lead"
-    },
-
-    "CommonTxtTstr" : {
-        "ClickToOpts": "Click to see options",
-        "BackToOrig": "Back to original",
-        "Optional": "Optional"
+       "Visual": "Visualize in Tableau"
     },
 
     "TooltipTStr" : {
@@ -263,16 +242,18 @@ module.exports = {
     },
 
     "UDF": {
-        "wholeTitle": "User Defined Function",
-        "Editor": "Editor",
-        "Manager": "Manager",
+        "ADD": "ADD UDF",
         "Browse": "Browse File",
-        "Template": "Template",
-        "selectTemplate": "Select Template",
-        "blankFunc": "Blank Function",
-        "nameHint": "Module name (lowercase)",
-        "upload": "ADD UDF",
-        "MyUDF": "My UDFs"
+        "BlankFunc": "Blank Function",
+        "Editor": "Editor",
+        "Func": "UDF Function",
+        "Header": "User Defined Function",
+        "Manager": "Manager",
+        "MyUDF": "My UDFs",
+        "Module": "UDF Module",
+        "NameHint": "Module name (lowercase)",
+        "SelectTemplate": "Select Template",
+        "Template": "Template"
     },
 
     "bottomMenu": {
@@ -457,14 +438,11 @@ module.exports = {
     },
 
     "dsTable": {
-        "CreatedBy": "Created by",
+        "CreatedBy": "Created By",
+        "Header": "Dataset Preview",
         "ModifiedDate": "Modified Date",
-        "Records": "Records",
-        "Size": "Size",
         "Path": "Path",
-        "DSPreview": "Dataset Preview",
-        "ClearAll": "Clear Columns",
-        "SelectAll": "Select All Columns",
+        "Records": "Records",
         "SelectLater": "Select Columns Later",
         "SelectLaterHiint": "Create A Table Without Picking Any Column"
     },
@@ -507,11 +485,6 @@ module.exports = {
         "header": "Quick Aggregates",
         "TableName": "Table Name",
         "BackToProfile": "Back To Profile"
-    },
-
-    "alertModal": {
-        "optionHint": "Click to see options",
-        "checkBox": "Don't show again"
     },
 
     "dataflow": {
@@ -701,34 +674,28 @@ module.exports = {
         "results": "results",
         "filter": "Filter these value",
         "exclude": "Exclude",
-        "cancelFilter": "Clear all",
         "LAUNCH": "LAUNCH"
     },
 
     "workbook": {
-        "noActive": "No active worksheets. Please create one first.",
+        "createWKBK": "CREATE WORKBOOK",
+        "createWKBKdesc": "Create a new workbook with data and worksheets",
         "header": "Workbook Browser",
-        "newWKBK": "New Workbook",
-        "continue": "Continue from Workbook",
-        "copy": "Copy of Existing Workbook",
-        "rename": "Rename Workbook",
-        "newName": "New Workbook Name",
-        "CreateBy": "Created By",
-        "ModifiedBy": "Last Modified By",
-        "CONFIRM": "CREATE",
         "hello" : "Hello",
-        "welcomeXI": "Welcome to <b>Xcalar Insight</b>",
+        "monitorStatus": "Monitor the status of your Xcalar Cluster",
+        "monitorClusterHealth": "Monitor Cluster Health",
         "news": "News",
-        "visit": "Visit",
-        "viewNewHelpDoc": "View our new help documentation",
-        "tuts": "Tutorials",
+        "newWKBK": "New Workbook",
+        "noActive": "No active worksheets. Please create one first.",
         "learnMore": "Learn more about Xcalar Insight",
         "relatedDocs": "Related Tutorials Help Docs",
         "stepTour": "Step-by-Step Tour",
-        "monitorStatus": "Monitor the status of your Xcalar Cluster",
-        "monitorClusterHealth": "Monitor Cluster Health",
-        "createWKBKdesc": "Create a new workbook with data and worksheets",
-        "createWKBK": "Create Workbook"
+        "tuts": "Tutorials",
+        "viewNewHelpDoc": "View our new help documentation",
+        "visit": "Visit",
+        "welcomeXI": "Welcome to <b>Xcalar Insight</b>",
+        "Wkbk": "Workbook",
+        "Wkbkname": "Workbook name"
     },
 
     "deleteTable": {
