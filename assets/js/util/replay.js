@@ -1483,6 +1483,7 @@ window.Replay = (function($, Replay) {
                 clearInterval(timer);
                 deferred.resolve();
             } else if (res === null) {
+                clearInterval(timer);
                 deferred.reject("Check Error!");
             } else {
                 console.info("check not pass yet!");

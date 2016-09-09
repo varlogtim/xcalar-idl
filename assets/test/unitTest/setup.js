@@ -1,13 +1,12 @@
 // setup should happen before load test files
 // --badil: will stop when first test fails
 mocha.setup({
-    "ui": "bdd",
+    "ui"  : "bdd",
     "bail": true
 });
 // global
 expect = chai.expect;
-assert = chai.assert
-
+assert = chai.assert;
 
 function setup() {
     $(document).ready(function() {
@@ -67,34 +66,63 @@ function findTestTableId(tableName) {
     return tableId;
 }
 
+function testChecker(checkFunc) {
+    var deferred = jQuery.Deferred();
+    var checkTime = 200;
+    var outCnt = 20;
+    var timeCnt = 0;
+
+    var timer = setInterval(function() {
+        var res = checkFunc();
+        if (res === true) {
+            // make sure graphisc shows up
+            clearInterval(timer);
+            deferred.resolve();
+        } else if (res === null) {
+            clearInterval(timer);
+            deferred.reject("Check Error!");
+        } else {
+            console.info("check not pass yet!");
+            timeCnt += 1;
+            if (timeCnt > outCnt) {
+                clearInterval(timer);
+                console.error("Time out!");
+                deferred.reject("Time out");
+            }
+        }
+    }, checkTime);
+
+    return deferred.promise();
+}
+
 var testDatasets = {
     "sp500": {
-        url: "nfs:///netstore/datasets/sp500.csv",
-        protocol: "nfs:///",
-        path: "netstore/datasets/sp500.csv",
-        format: "CSV",
-        fieldDelim: "\t",
-        lineDelim: "\n",
-        hasHeader: false,
-        moduleName: "",
-        funcName: ""
+        "url"       : "nfs:///netstore/datasets/sp500.csv",
+        "protocol"  : "nfs:///",
+        "path"      : "netstore/datasets/sp500.csv",
+        "format"    : "CSV",
+        "fieldDelim": "\t",
+        "lineDelim" : "\n",
+        "hasHeader" : false,
+        "moduleName": "",
+        "funcName"  : ""
     },
 
     "schedule": {
-        url: "nfs:///var/tmp/qa/indexJoin/schedule/",
-        protocol: "nfs:///",
-        path: "var/tmp/qa/indexJoin/schedule/",
-        format: "JSON",
-        moduleName: "",
-        funcName: ""
+        "url"       : "nfs:///var/tmp/qa/indexJoin/schedule/",
+        "protocol"  : "nfs:///",
+        "path"      : "var/tmp/qa/indexJoin/schedule/",
+        "format"    : "JSON",
+        "moduleName": "",
+        "funcName"  : ""
     },
 
     "fakeYelp": {
-        url: "nfs:///netstore/datasets/unittest/test_yelp.json",
-        protocol: "nfs:///",
-        path: "netstore/datasets/unittest/test_yelp.json",
-        format: "JSON",
-        moduleName: "",
-        funcName: ""
+        "url"       : "nfs:///netstore/datasets/unittest/test_yelp.json",
+        "protocol"  : "nfs:///",
+        "path"      : "netstore/datasets/unittest/test_yelp.json",
+        "format"    : "JSON",
+        "moduleName": "",
+        "funcName"  : ""
     }
 };
