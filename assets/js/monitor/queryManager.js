@@ -667,7 +667,6 @@ window.QueryManager = (function(QueryManager, $) {
     function updateOutputSection(id, forceInactive) {
         if (forceInactive) {
             $("#monitor-inspect").addClass('btn-disabled');
-            $("#monitor-export").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                          .text(CommonTxtTstr.NA);
             return;
@@ -685,17 +684,14 @@ window.QueryManager = (function(QueryManager, $) {
             $("#monitor-inspect").removeClass('btn-disabled');
             
             if (dstTableName.indexOf(gDSPrefix) < 0) {
-                $("#monitor-export").removeClass('btn-disabled');
                 $queryDetail.find('.outputSection').find('.text')
                                                .text(dstTableName);
             } else {
                 $queryDetail.find('.outputSection').find('.text')
                             .text(dstTableName.slice(gDSPrefix.length));
-                $("#monitor-export").addClass('btn-disabled');
             }
         } else {
             $("#monitor-inspect").addClass('btn-disabled');
-            $("#monitor-export").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                          .text(CommonTxtTstr.NA);
         }
@@ -971,10 +967,6 @@ window.QueryManager = (function(QueryManager, $) {
             focusOnOutput();
         });
 
-        $("#monitor-export").on('click', function() {
-            focusOnOutput();
-        });
-
         function focusOnOutput() {
             var queryId = parseInt($queryList.find('.query.active').data('id'));
             var mainQuery = queryLists[queryId];
@@ -1081,7 +1073,6 @@ window.QueryManager = (function(QueryManager, $) {
             Alert.error(title, desc);
             mainQuery.outputTableState = 'deleted';
             $('#monitor-inspect').addClass('btn-disabled');
-            $("#monitor-export").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                                                .text(CommonTxtTstr.NA);
         }

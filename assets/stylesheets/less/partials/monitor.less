@@ -908,6 +908,7 @@
             padding-top: 10px;
             position: relative;
             .font(@weight: 700);
+            overflow: hidden;
 
             .text {
                 font-size: 16px;
@@ -971,7 +972,7 @@
 
     .statusSection {
         .content {
-            padding: 10px 20px 10px 50px;
+            padding: 10px 20px 0px 50px;
 
             .status {
                 margin-bottom: 5px;
@@ -981,9 +982,9 @@
 
     .outputSection {
         .content {
-            // .size(@height: ~"calc(100% - 51px)");
-            .size(@height: 80px);
+            .size(@height: 70px);
             padding-top: 10px;
+            overflow: hidden;
         }
 
         .buttonArea {
@@ -991,11 +992,6 @@
                 margin-right: 12px;
                 padding-right: 10px;
             }
-        }
-
-        #monitor-export {
-            .size(@width: 290px);
-            margin-top: 10px; // margin for when it falls below first button
         }
     }
 
