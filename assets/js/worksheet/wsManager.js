@@ -252,7 +252,7 @@ window.WSManager = (function($, WSManager) {
         });
 
         // for updating the bottom bar when rename worksheet
-        StatusMessage.updateLocation(name);
+        StatusMessage.updateLocation();
     };
 
     // For reorder table use

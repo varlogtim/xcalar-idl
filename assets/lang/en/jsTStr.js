@@ -276,7 +276,7 @@ AlertTStr = {
 };
 
 FnBarTStr = {
-    'NewCol': 'Please specify column name of the new column first',
+    'NewCol': 'Please specify the new column name and press enter',
     'InvalidOpParen': 'Operation must be preceeded by operator name and ' +
                       'arguments in parenthesis',
     'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.'
