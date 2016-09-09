@@ -98,11 +98,8 @@ window.AggModal = (function($, AggModal) {
             var tmp = gMinModeOn;
             gMinModeOn = true;
             closeAggModal();
+            Profile.show(tableId, colNum);
             gMinModeOn = tmp;
-            // The gMinMode trick doesn't work here because profile displays
-            // only after a deferred. So by that time, gMinMode has been set
-            // back to whatever it was. So we pass in the param
-            Profile.show(tableId, colNum, true);
             
         });
 

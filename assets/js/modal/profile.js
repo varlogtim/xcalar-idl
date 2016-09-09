@@ -288,7 +288,7 @@ window.Profile = (function($, Profile, d3) {
         statsInfos[newTableId] = statsInfos[oldTableId];
     };
 
-    Profile.show = function(tableId, colNum, minMode) {
+    Profile.show = function(tableId, colNum) {
         var deferred = jQuery.Deferred();
 
         var table   = gTables[tableId];
@@ -335,13 +335,9 @@ window.Profile = (function($, Profile, d3) {
             "sql"      : sql
         });
 
-        if (minMode) {
-            // XXX This is a hack until we move modalHelper.setup outside of a 
-            // deferred call. Else the screen will blink
-            $("#modalBackground").show();
-        }
+        showProfile();
 
-        generateProfile(table, txId, minMode)
+        generateProfile(table, txId)
         .then(function() {
             Transaction.done(txId, {
                 "noNotification": true
@@ -383,7 +379,7 @@ window.Profile = (function($, Profile, d3) {
         resetRowsInfo();
     }
 
-    function generateProfile(table, txId, minMode) {
+    function generateProfile(table, txId) {
         var deferred = jQuery.Deferred();
         var promises = [];
         var isNum = isTypeNumber(statsCol.type);
@@ -421,7 +417,6 @@ window.Profile = (function($, Profile, d3) {
                 } else {
                     innerDeferred.resolve();
                 }
-                showProfile(minMode);
             })
             .fail(function(error) {
                 failureHandler(statsCol, error, txId);
@@ -431,9 +426,6 @@ window.Profile = (function($, Profile, d3) {
             promises.push(innerDeferred.promise());
         } else if (statsCol.groupByInfo.isComplete !== "running") {
             promises.push(runGroupby(table, statsCol, bucketNum, txId));
-            showProfile(minMode);
-        } else {
-            showProfile(minMode);
         }
 
         PromiseHelper.when.apply(window, promises)
@@ -449,7 +441,7 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function showProfile(minMode) {
+    function showProfile() {
         if (isTypeNumber(statsCol.type)) {
             $modal.addClass("type-number");
         } else {
@@ -460,14 +452,7 @@ window.Profile = (function($, Profile, d3) {
         $modal.addClass("noScrollBar");
         $modal.data("id", statsCol.modalId);
 
-        var tmpMinMode = gMinModeOn;
-        if (minMode) {
-            gMinModeOn = minMode;
-        }
         modalHelper.setup();
-        if (minMode) {
-            gMinModeOn = tmpMinMode;
-        }
 
         refreshProfile();
         setupScrollBar();

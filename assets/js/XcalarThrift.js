@@ -1270,6 +1270,7 @@ function XcalarGetTables(tableName) {
     } else {
         patternMatch = tableName;
     }
+
     xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -1851,12 +1852,12 @@ function XcalarGroupByWithInput(txId, inputStruct) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-        Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
-        deferred.resolve(ret1);
+            Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
+            deferred.resolve(ret1);
         }
     })
     .fail(function(error1, error2) {
-        Transaction.checkAndSetCanceled(txId)
+        Transaction.checkAndSetCanceled(txId);
         var thriftError = thriftLog("XcalarGroupBy", error1, error2);
         deferred.reject(thriftError);
     });
