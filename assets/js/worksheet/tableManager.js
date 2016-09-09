@@ -52,14 +52,15 @@ window.TblManager = (function($, TblManager) {
         // the only case that worksheet is null is add from inActive list
 
         var promise;
-        if (!tableCols) {
+        if (!tableCols || tableCols.length === 0) {
             if (!gTables[newTableId] || // Short circuit
                 gTables[newTableId].status === TableType.Orphan) {
                 TableList.removeTable(newTableName);
             } else {
                 TableList.removeTable(newTableId);
             }
-            // if no tableCols provided, columns are already set
+            // if no tableCols provided but gTable exists, 
+            // columns are already set
             if (gTables[newTableId]) {
                 promise = setResultSet(newTableName);
             } else {

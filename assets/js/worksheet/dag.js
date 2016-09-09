@@ -1025,8 +1025,10 @@ window.DagPanel = (function($, DagPanel) {
                 return (postOperation(txId));
             })
             .then(function() {
-
-                gTables[origTableId].icv = newTableName;
+                if (gTables[origTableId]) {
+                    gTables[origTableId].icv = newTableName;
+                }
+                
                 Profile.copy(origTableId, newTableId);
                 sql.newTableName = newTableName;
                 if (idx > -1) {
@@ -1075,7 +1077,9 @@ window.DagPanel = (function($, DagPanel) {
                 return (postOperation(txId));
             })
             .then(function() {
-                gTables[origTableId].icv = newTableName;
+                if (gTables[origTableId]) {
+                    gTables[origTableId].icv = newTableName;
+                }
                 sql.newTableName = newTableName;
                 if (idx > -1) {
                     sql.colNum = idx;
