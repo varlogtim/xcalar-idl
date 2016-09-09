@@ -589,7 +589,7 @@ function addMenuBehaviors($mainMenu) {
             if (!visible) {
                 StatusBox.forceHide();
             }
-            var top = $li.offset().top + 30;
+            var top = $li.offset().top + 28;
             var left = $li.offset().left + 155;
             var shiftedLeft = false;
 
@@ -598,7 +598,7 @@ function addMenuBehaviors($mainMenu) {
             if (left + $subMenu.width() > viewportRight) {
                 $subMenu.addClass('left');
                 shiftedLeft = true;
-                top -= 29;
+                top -= 27;
             } else {
                 $subMenu.removeClass('left');
             }
@@ -608,7 +608,7 @@ function addMenuBehaviors($mainMenu) {
             if (top + $subMenu.height() > viewportBottom) {
                 top -= $subMenu.height();
                 if (shiftedLeft) {
-                    top += 29;
+                    top += 27;
                 }
             }
             top = Math.max(2, top);
