@@ -49,30 +49,30 @@ TooltipTStr = {
     'ChooseUdfModule': 'Please choose a module first',
     'ChooseColToExport': 'Please select the columns you want to export',
     'SuggKey': 'Suggested Key',
-    'NoWSToMV': 'no worksheet to move to',
+    'NoWSToMV': 'No worksheet to move to',
     'NoUndoNoOp': 'No operation to undo',
     'NoRedo': 'No operation to redo',
     'Unhide': 'Unhide',
     'LockedTableUndo': 'Cannot undo while table is locked',
     'LockedTableRedo': 'Cannot redo while table is locked',
-    'CloseQG': 'click to hide dataflow graph',
-    'OpenQG': 'click to view dataflow graph',
-    'SaveQG': 'save image',
-    'NewTabQG': 'open image in new tab',
+    'CloseQG': 'Click to hide dataflow graph',
+    'OpenQG': 'Click to view dataflow graph',
+    'SaveQG': 'Save image',
+    'NewTabQG': 'Open image in new tab',
     'AddDataflow': 'Operationalize dataflow',
-    'Bookmark': 'click to add bookmark',
-    'Bookmarked': 'bookmarked',
+    'Bookmark': 'Click to add bookmark',
+    'Bookmarked': 'Bookmarked',
     'CopyLog': 'Copy the SQL log onto your clipboard',
     'GenBundle': 'Generate Support Bundle',
     'ToGridView': 'Switch to Grid View',
     'ToListView': 'Switch to List View',
-    'ClickCollapse': 'click to collapse',
+    'ClickCollapse': 'Click to collapse',
     'CollapsedTable': '1 table is hidden',
-    'SelectAllColumns': 'select all columns',
-    'ViewColumnOptions': 'view column options',
-    'ViewTableOptions': 'view table options',
-    'RemoveQuery': 'remove query',
-    'CancelQuery': 'cancel query',
+    'SelectAllColumns': 'Select all columns',
+    'ViewColumnOptions': 'View column options',
+    'ViewTableOptions': 'View table options',
+    'RemoveQuery': 'Remove query',
+    'CancelQuery': 'Cancel query',
     'NeedCreateSchedule': 'Click on the schedule icon to attach a schedule',
     'AlreadyIcv': 'This table is already an ICV table',
     // Sync with htmlTStr
@@ -93,10 +93,10 @@ CommonTxtTstr = {
     'Continue': 'Continue',
     'Copy': 'Copy',
     'DefaultVal': 'Default Value',
-    'HoldToDrag': 'click and hold to drag',
-    'NumCol': 'number of columns',
+    'HoldToDrag': 'Click and hold to drag',
+    'NumCol': 'Number of columns',
     'Exit': 'Exit',
-    'ClickToOpts': 'click to see options',
+    'ClickToOpts': 'Click to see options',
     'BackToOrig': 'Back to original',
     'Optional': 'Optional',
     'LogoutWarn': 'You have unsaved changes, please save or you may lose your' +
@@ -286,7 +286,7 @@ ScrollTStr = {
     'Title': 'scroll to a row',
 
     // with replace
-    'BookMark': 'row <row>'
+    'BookMark': 'Row <row>'
 };
 
 AggTStr = {
@@ -325,8 +325,6 @@ JoinTStr = {
     'NoKeyRight': 'Right table has no selected key',
     'NoMatchLeft': 'Sorry, cannot find a good key to match the left table',
     'NoMatchRight': 'Sorry, cannot find a good key to match the right table',
-    'ToSingleJoin': 'switch to single join',
-    'ToMultiJoin': 'switch to multi clause join',
     'InvalidClause': 'Invalid Clause to join',
     'TypeMistch': 'Left selected column and right selected column has type ' +
                   'mismatch, cannot join',
@@ -420,7 +418,6 @@ SchedTStr = {
 };
 
 DFGTStr = {
-    'DFExists': 'dataflow already exists',
     'AddParamHint': 'Please create parameters in Dataflow Panel first.',
     'DFCreateFail': 'Dataflow Creation Failed',
     'ParamModalFail': 'Parameter Creation Failed',
@@ -434,7 +431,7 @@ DFGTStr = {
 };
 
 DSTStr = {
-    'UnknownUser': 'Unknow User',
+    'UnknownUser': 'Unknown User',
     'DS': 'DATASET',
     'IN': 'DATASTORE/IN',
     'OUT': 'DATASTORE/OUT',
@@ -473,7 +470,7 @@ DSFormTStr = {
     'InvalidDelim': 'Invalid delimiter.',
     'InvalidQuote': 'Cannot have more than 1 quote character',
     'NoParseJSON': 'Cannot parse data as json',
-    'GoBack': 'please click the \"BACK\" button to re-enter a valid path',
+    'GoBack': 'Please click the \"BACK\" button to re-enter a valid path',
     'NoData': 'No data',
     'CreateWarn': 'Too Many Columns To Create',
     'CreateWarnMsg': 'Create table with too many columns from dataset ' +
@@ -489,7 +486,7 @@ DSExportTStr = {
 };
 
 WSTStr = {
-    'SearchTableAndColumn': 'search for a table or column',
+    'SearchTableAndColumn': 'Search for a table or column',
     'WSName': 'Worksheet Name',
     'WSHidden': 'worksheet is hidden',
     'InvalidWSName': 'Invalid worksheet name',
@@ -520,7 +517,7 @@ TblTStr = {
     'Archive': 'Archive Tables',
     'Active': 'Send Tables to Worksheet',
     'ActiveFail': 'Add Inactive Tables Failed',
-    'Truncate': 'additional characters were truncated'
+    'Truncate': 'Additional characters were truncated'
 };
 
 ColTStr = {
@@ -541,11 +538,11 @@ SideBarTStr = {
     'NoSheet': 'No Sheet',
     'NoSheetTableInstr': 'You have tables that are not in any worksheet, ' +
                          'please choose a worksheet for these tables!',
-    'PopBack': 'dock',
-    'PopOut': 'undock',
+    'PopBack': 'Dock',
+    'PopOut': 'Undock',
     'WalkThroughUA': 'Walkthrough Unavailable',
     'DelTablesMsg': 'Are you sure you want to delete the selected tables?',
-    'SelectTable': 'select table',
+    'SelectTable': 'Select table',
     'DupUDF': 'Duplicate Module',
     'DupUDFMsg': 'Python module <module> already exists ' +
                  '(module name is case insensitive), ' +
@@ -591,8 +588,8 @@ DaysTStr = {
 };
 
 OpModalTStr = {
-    'EmptyHint': 'select to allow empty field',
-    'EmptyStringHint': 'select to allow empty strings',
+    'EmptyHint': 'Select to allow empty field',
+    'EmptyStringHint': 'Select to allow empty strings',
     'ColNameDesc': 'New Resultant Column Name',
     'AggNameDesc': 'New Resultant Aggregate Name (optional)',
     'IncSample': 'Include a sample of the rest of the fields',
