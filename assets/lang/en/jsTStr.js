@@ -59,7 +59,7 @@ TooltipTStr = {
     'OpenQG': 'click to view dataflow graph',
     'SaveQG': 'save image',
     'NewTabQG': 'open image in new tab',
-    'AddDataflow': 'add dataflow',
+    'AddDataflow': 'Operationalize dataflow',
     'Bookmark': 'click to add bookmark',
     'Bookmarked': 'bookmarked',
     'CopyLog': 'Copy the SQL log onto your clipboard',

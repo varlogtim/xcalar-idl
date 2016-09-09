@@ -14,11 +14,13 @@ window.AggModal = (function($, AggModal) {
     var aggOpMap  = {};
 
     var cachedTableId = "";
+    var cachedColNum;
 
     AggModal.setup = function() {
         $aggModal = $("#aggModal");
         $quickAgg = $("#aggModal-quickAgg");
         $corr = $("#aggModal-corr");
+        $backToProfile = $("#aggModal-backToProfile");
 
         aggFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
                          AggrOp.Max, AggrOp.Count];
@@ -51,10 +53,10 @@ window.AggModal = (function($, AggModal) {
         });
 
         $aggModal.on("click", ".close", function() {
-            closeAggModel();
+            closeAggModal();
         });
 
-        $aggModal.on("mouseenter", ".tooltipOverflow", function() {
+        $quickAgg.on("mouseenter", ".tooltipOverflow", function() {
             xcHelper.autoTooltip(this);
         });
 
@@ -63,7 +65,7 @@ window.AggModal = (function($, AggModal) {
             if (mode === "aggTab") {
                 AggModal.quickAgg(cachedTableId);
             } else {
-                AggModal.corrAgg(cachedTableId);
+                AggModal.corrAgg(cachedTableId, cachedColNum);
             }
         });
 
@@ -83,6 +85,25 @@ window.AggModal = (function($, AggModal) {
         $corr.on("mouseleave", ".aggTableFlex", function() {
             var $cell = $(this);
             deHighlightLabel($cell.data("row"), $cell.data("col"));
+        });
+
+        $backToProfile.on("click", function() {
+            console.log("clicked");
+            $(this).hide();
+            var tableId = $aggModal.data('tableid');
+            var colNum = $aggModal.data('colnum');
+            $aggModal.removeData('tableid');
+            $aggModal.removeData('colnum');
+            
+            var tmp = gMinModeOn;
+            gMinModeOn = true;
+            closeAggModal();
+            gMinModeOn = tmp;
+            // The gMinMode trick doesn't work here because profile displays
+            // only after a deferred. So by that time, gMinMode has been set
+            // back to whatever it was. So we pass in the param
+            Profile.show(tableId, colNum, true);
+            
         });
 
         function scrollHelper($container, $mainAgg) {
@@ -133,10 +154,20 @@ window.AggModal = (function($, AggModal) {
     };
 
 
-    AggModal.corrAgg = function(tableId) {
+    AggModal.corrAgg = function(tableId, colNum) {
+        console.log(tableId, colNum);
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
+
+        // If this is triggered from a column profile then we want to track
+        // this to be able to go back to the profile. Else colNum is empty
+        if (colNum) {
+            $aggModal.data('tableid', tableId);
+            $aggModal.data('colnum', colNum);
+            $backToProfile.show();
+            cachedColNum = colNum;
+        }
 
         cachedTableId = tableId;
         showAggModal(tableName, "corrTab");
@@ -515,7 +546,7 @@ window.AggModal = (function($, AggModal) {
         })
         .fail(function(error) {
             console.error("quick agg error", error);
-            applyAggResult("--", error.error);
+            applyAggResult('<span class="dash">--</span>', error.error);
             // still resolve
             deferred.resolve();
         });
@@ -572,7 +603,8 @@ window.AggModal = (function($, AggModal) {
                 error.error += "(" + AggTStr.DivByZeroExplain + ")";
             }
 
-            applyCorrResult(row, col, "--", colDups, error.error);
+            applyCorrResult(row, col, '<span class="dash">--</span>', colDups,
+                            error.error);
             // still resolve
             deferred.resolve();
         });
@@ -589,7 +621,8 @@ window.AggModal = (function($, AggModal) {
         // error case force to have tooltip
         var spanClass = (error == null) ? "textOverflow tooltipOverflow" :
                                             "textOverflow";
-        var html = '<span class="' + spanClass + '" ' + 'title="' + title +
+        var html = '<span class="' + spanClass + '" ' +
+                    'data-original-title="' + title +
                     '" data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body">' +
                         (isNumeric ? value.toFixed(3) : value) +
@@ -684,8 +717,9 @@ window.AggModal = (function($, AggModal) {
         $corr.find(".colLabel:not(.blankSpace)").eq(col).removeClass("active");
     }
 
-    function closeAggModel() {
+    function closeAggModal() {
         modalHelper.clear();
+        $backToProfile.hide();
         $aggModal.width(920).height(670);
     }
 

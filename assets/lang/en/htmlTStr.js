@@ -147,7 +147,7 @@ module.exports = {
        "CollapseQG": "Collapse Query Graph",
        "CPCell": "Copy to clipboard",
        "CPColNames": "Copy Column Names",
-       "CreateDF": "Create Dataflow",
+       "CreateDF": "Operationalize Dataflow",
        "Del": "Delete",
        "DelAllDups": "Delete All Duplicates",
        "DelCol": "Delete column",
@@ -412,7 +412,7 @@ module.exports = {
 
     "dsView": {
         "Back": "Click to go back",
-        "Forward": "Click to go Forward",
+        "Forward": "Click to go forward",
         "addFolderBtn": "Add New Folder",
         "delDSBtn": "Delete folder or dataset reference"
     },
@@ -510,6 +510,7 @@ module.exports = {
         "CorrTitle": "Correlation",
         "header": "Quick Aggregates",
         "TableName": "Table Name",
+        "BackToProfile": "Back To Profile"
     },
 
     "alertModal": {

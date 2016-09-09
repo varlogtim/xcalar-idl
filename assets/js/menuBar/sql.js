@@ -491,7 +491,7 @@ window.SQL = (function($, SQL) {
             }
         })
         .then(function() {
-            if (oldLogCursor == null || oldLogCursor > oldLogs.length) {
+            if (oldLogCursor == null || oldLogCursor >= oldLogs.length) {
                 // error case
                 console.error("Loose old cursor track");
                 oldLogCursor = oldLogs.length - 1;

@@ -252,11 +252,12 @@ window.Profile = (function($, Profile, d3) {
         // do correlation
         $("#profile-corr").click(function() {
             var tableId = curTableId;
+            var colNum = curColNum;
             var tmp = gMinModeOn;
             // use gMinMode to aviod blink in open/close modal
             gMinModeOn = true;
             closeProfileModal();
-            AggModal.corrAgg(tableId);
+            AggModal.corrAgg(tableId, colNum);
             gMinModeOn = tmp;
         });
     };
@@ -287,7 +288,7 @@ window.Profile = (function($, Profile, d3) {
         statsInfos[newTableId] = statsInfos[oldTableId];
     };
 
-    Profile.show = function(tableId, colNum) {
+    Profile.show = function(tableId, colNum, minMode) {
         var deferred = jQuery.Deferred();
 
         var table   = gTables[tableId];
@@ -334,7 +335,13 @@ window.Profile = (function($, Profile, d3) {
             "sql"      : sql
         });
 
-        generateProfile(table, txId)
+        if (minMode) {
+            // XXX This is a hack until we move modalHelper.setup outside of a 
+            // deferred call. Else the screen will blink
+            $("#modalBackground").show();
+        }
+
+        generateProfile(table, txId, minMode)
         .then(function() {
             Transaction.done(txId, {
                 "noNotification": true
@@ -376,7 +383,7 @@ window.Profile = (function($, Profile, d3) {
         resetRowsInfo();
     }
 
-    function generateProfile(table, txId) {
+    function generateProfile(table, txId, minMode) {
         var deferred = jQuery.Deferred();
         var promises = [];
         var isNum = isTypeNumber(statsCol.type);
@@ -414,8 +421,7 @@ window.Profile = (function($, Profile, d3) {
                 } else {
                     innerDeferred.resolve();
                 }
-
-                showProfile();
+                showProfile(minMode);
             })
             .fail(function(error) {
                 failureHandler(statsCol, error, txId);
@@ -425,9 +431,9 @@ window.Profile = (function($, Profile, d3) {
             promises.push(innerDeferred.promise());
         } else if (statsCol.groupByInfo.isComplete !== "running") {
             promises.push(runGroupby(table, statsCol, bucketNum, txId));
-            showProfile();
+            showProfile(minMode);
         } else {
-            showProfile();
+            showProfile(minMode);
         }
 
         PromiseHelper.when.apply(window, promises)
@@ -443,7 +449,7 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function showProfile() {
+    function showProfile(minMode) {
         if (isTypeNumber(statsCol.type)) {
             $modal.addClass("type-number");
         } else {
@@ -454,7 +460,14 @@ window.Profile = (function($, Profile, d3) {
         $modal.addClass("noScrollBar");
         $modal.data("id", statsCol.modalId);
 
+        var tmpMinMode = gMinModeOn;
+        if (minMode) {
+            gMinModeOn = minMode;
+        }
         modalHelper.setup();
+        if (minMode) {
+            gMinModeOn = tmpMinMode;
+        }
 
         refreshProfile();
         setupScrollBar();
