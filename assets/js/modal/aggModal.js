@@ -152,7 +152,6 @@ window.AggModal = (function($, AggModal) {
 
 
     AggModal.corrAgg = function(tableId, colNum) {
-        console.log(tableId, colNum);
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
@@ -577,7 +576,12 @@ window.AggModal = (function($, AggModal) {
             var corrRes = corrCache[tableId][evalStr];
 
             if (corrRes != null) {
-                applyCorrResult(row, col, corrRes, colDups);
+                var error = null;
+                if (typeof(corrRes) === "string" &&
+                    corrRes.indexOf("<span") > -1) {
+                    error = "(" + AggTStr.DivByZeroExplain + ")";
+                }
+                applyCorrResult(row, col, corrRes, colDups, error);
                 deferred.resolve();
                 return (deferred.promise());
             }
@@ -597,6 +601,8 @@ window.AggModal = (function($, AggModal) {
             console.error("Correlation Error", error);
 
             if (error.status === StatusT.StatusXdfDivByZero) {
+                corrCache[tableId] = corrCache[tableId] || {};
+                corrCache[tableId][evalStr] = '<span class="dash">--</span>';
                 error.error += "(" + AggTStr.DivByZeroExplain + ")";
             }
 
