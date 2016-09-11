@@ -69,7 +69,8 @@ window.Compatible = (function($, Compatible) {
         if (!Array.prototype.map) {
             Object.defineProperty(Array.prototype, "map", {
                enumerable: false,
-               writable: true,
+               writable: false,
+               configurable: false,
                value: function(callback, thisArg) {
                    var T, A, k;
 
@@ -159,7 +160,8 @@ window.Compatible = (function($, Compatible) {
         if (!Array.prototype.includes) {
             Object.defineProperty(Array.prototype, "includes", {
                enumerable: false,
-               writable: true,
+               writable: false,
+               configurable: false,
                value: function(searchElement) {
                    'use strict';
                     if (this == null) {
