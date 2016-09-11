@@ -4,7 +4,7 @@ window.SchedulerPanel = (function($, SchedulerPanel) {
         setupViewToggling();
         DFGCard.setup();
         Scheduler.setup();
-        AddScheduleCard.setup();
+        UploadDataflowCard.setup();
     };
 
     SchedulerPanel.active = function() {

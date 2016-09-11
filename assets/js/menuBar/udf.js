@@ -152,11 +152,7 @@ window.UDF = (function($, UDF) {
                                 .replace(/ /g, "");
             var file = $browserBtn[0].files[0];
 
-            if (path.indexOf(".tar.gz") > 0) {
-                readRetinaFromFile(file, moduleName);
-            } else {
-                readUDFFromFile(file, moduleName);
-            }
+            readUDFFromFile(file, moduleName);
         });
 
         /* Template dropdown list */
@@ -388,24 +384,6 @@ window.UDF = (function($, UDF) {
         reader.readAsText(file);
         $("#udf-fnName").val(moduleName);
         $("#udf-fnList input").val("");
-    }
-
-    function readRetinaFromFile(file, moduleName) {
-        var reader = new FileReader();
-        reader.onload = function(event) {
-            var entireString = event.target.result;
-            editor.setValue(entireString);
-
-            XcalarImportRetina(moduleName, true, entireString)
-            .always(function() {
-                xcHelper.showSuccess();
-            });
-        };
-
-         // XXX this should really be read as data URL
-        // But requires that backend changes import retina to not
-        // do default base 64 encoding. Instead take it as flag
-        reader.readAsBinaryString(file);
     }
 
     function downloadUDF(moduleName) {

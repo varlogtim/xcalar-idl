@@ -241,7 +241,7 @@ window.DFGCard = (function($, DFGCard) {
             drawDags(groupName);
             DFGCard.listSchedulesInHeader(groupName);
             DFGCard.updateRetinaTab(groupName);
-            AddScheduleCard.update(groupName);
+            // AddScheduleCard.update(groupName);
 
             $listSection.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
@@ -257,15 +257,11 @@ window.DFGCard = (function($, DFGCard) {
 
         $listSection.on('click', '.addGroup', function() {
             var groupName = $(this).siblings('.groupName').text();
-            AddScheduleCard.show(groupName);
+            // AddScheduleCard.show(groupName);
         });
 
-        $('#addScheduleButton').click(function() {
-            var groupName = $dfgMenu.find('.listBox.selected .groupName').text();
-            // xx get groupname a better way
-            if (groupName) {
-                AddScheduleCard.show(groupName);
-            }
+        $('#uploadDataflowButton').click(function() {
+            UploadDataflowCard.show();
         });
 
         $dfgCard.on("click", ".runNowBtn", function() {

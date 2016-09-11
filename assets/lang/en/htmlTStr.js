@@ -32,6 +32,7 @@ module.exports = {
         "Header": "Header",
         "Help": "Help",
         "Loading": "Loading",
+        "Location": "Location",
         "Maximize": "Maximize",
         "Name": "Name",
         "NEW": "NEW",
@@ -57,7 +58,7 @@ module.exports = {
         "SelectAll": "Select All",
         "Service": "Service",
         "Size": "Size",
-        "Supprots": "Supports",
+        "Supports": "Supports",
         "Table": "Table",
         "Tables": "Tables",
         "Type": "Type",
@@ -424,7 +425,6 @@ module.exports = {
     "fileBrowser": {
         "header": "Browse Data Source",
         "instr": "Select the data source that you want to point to and then click the \"NEXT\" button.",
-        "location": "Location",
         "Up": "Go back",
         "filePathHint": "Click to see history",
         "SearchHint": "Regex Search"
@@ -494,7 +494,12 @@ module.exports = {
         "exportHeader": "Columns to Export",
         "exportInstr": "Select that columns that you want to export at the end of your dataflow. These are the only columns that you will see in your exported result after running the dataflow. The time your dataflow runs is affected by the number of columns you select here.",
         "create": "CREATE",
-        "noColsHint": "No columns available for export"
+        "noColsHint": "No columns available for export",
+        // For uploader 
+        "upload": "UPLOAD",
+        "uploadHeader": "Upload Dataflow",
+        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
+        
     },
 
     "sched": {
@@ -545,7 +550,7 @@ module.exports = {
         "header": "Export Table",
         "instr": "Please fill in the file name, choose where to export, and select the colums you wish to export.",
         "ExportAs": "Export As",
-        "Location": "Location",
+
         "Columns": "Columns",
         "ColumnsHint": "column1, column2 etc.",
         "CONFIRM": "EXPORT",

@@ -618,7 +618,8 @@ window.Scheduler = (function(Scheduler, $) {
         $("#dfgMenu .dfgList .listBox").filter(function() {
             return $(this).find(".label").text() === dfgName;
         }).click();
-        AddScheduleCard.show(dfgName, scheduleName);
+        // XXX Remove this cleanly
+        // AddScheduleCard.show(dfgName, scheduleName);
     }
 
     function updateScheduleInfo() {
