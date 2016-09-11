@@ -228,7 +228,7 @@ html.firefox, html.microsoft {
             }
             .editableHead {
                 cursor: default;
-                &:focus {
+                &:focus {   
                     cursor: initial;
                 }
             }
@@ -284,6 +284,7 @@ html.firefox, html.microsoft {
             outline: none;
             // cursor: default;
             .font(@weight: 600);
+            -webkit-text-fill-color: @color-font-darkGray;
         }
 
         &:focus {
