@@ -163,12 +163,15 @@
               </div>
             </div>
           </div>
-          <div class="addArgWrap">
-            <button class="btn addArg addGroupArg">
-              <i class="icon xi-plus"></i>
-              <span class="text"><%= dicts.opsView.AddAnotherColumn %></span>
-           </button>
+          <div class="btnWrap">
+            <div class="addArgWrap">
+              <button class="btn addArg addGroupArg">
+                <i class="icon xi-plus"></i>
+                <span class="text"><%= dicts.opsView.AddAnotherColumn %></span>
+             </button>
+            </div>
           </div>
+          
         </div>
         <div class="catFuncHeadings clearfix subHeading">
           <div class="groupbyFnTitle"><%= dicts.opsView.funcToGroup %>:</div>
@@ -271,6 +274,8 @@
     </div>
     <!-- end aggregate op section -->
     <div class="strPreview"></div> <!-- this gets filled by JS -->
-    <button class="btn submit"></button> <!-- this gets filled by JS -->
+    <div class="btnWrap">
+      <button class="btn submit"></button> <!-- this gets filled by JS -->
+    </div>
   </div>
 </section>

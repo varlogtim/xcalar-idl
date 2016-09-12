@@ -7,6 +7,20 @@ html.microsoft {
 html.firefox, html.microsoft {
     .xcTable {
         margin-right: -12px;
+    } 
+    .dataTable {
+        .header {
+            height: 35px;
+            input {
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+html.edge {
+    .xcTable {
+        margin-right: -7px;
     }
 }
 
@@ -964,6 +978,7 @@ html.firefox, html.microsoft {
 
             .tableName {
                 color: @color-white;
+                -webkit-text-fill-color: @color-white;
             }
         }
 
@@ -1029,10 +1044,12 @@ html.firefox, html.microsoft {
             margin: 1px 0px;
             min-width: 15px !important;
             color: @color-white;
+            -webkit-text-fill-color: @color-white;
 
             &:focus {
                 background-color: @color-white;
                 color: @color-font-darkGray !important;
+                -webkit-text-fill-color: @color-font-darkGray !important;
                 padding: 1px 4px;
                 margin: 1px 0px;
                 outline: none;

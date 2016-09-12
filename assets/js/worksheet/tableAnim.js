@@ -8,10 +8,11 @@ window.TblAnim = (function($, TblAnim) {
     TblAnim.startColResize = function(el, event, options) {
         var rescol = gRescol;
         var $table = el.closest('.dataTable');
-        var colNum = xcHelper.parseColNum(el.parent().parent());
+        var colNum;
         var $th = el.closest('th');
         if (!options || options.target !== "datastore") {
             rescol.tableId = xcHelper.parseTableId($table);
+            colNum = xcHelper.parseColNum(el.parent().parent());
         }
         if (options && options.target === "datastore") {
             rescol.isDatastore = true;

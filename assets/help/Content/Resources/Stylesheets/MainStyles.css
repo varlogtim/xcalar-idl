@@ -10,26 +10,26 @@
     src: url(../../Fonts/open-sans.regular.ttf);
 } 
 
-@font-face
-{
-	font-family: "Open Sans";
-	font-weight: 600; 
-	src: url(../../Fonts/OpenSans-Semibold.ttf);
-} 
+// @font-face
+// {
+// 	font-family: "Open Sans";
+// 	font-weight: 600; 
+// 	src: url(../../Fonts/OpenSans-Semibold.ttf);
+// } 
 
-@font-face
-{
-	font-family: "Open Sans";
-	font-weight: 300;
-	src: url(../../Fonts/OpenSans-Light.ttf);
-} 
+// @font-face
+// {
+// 	font-family: "Open Sans";
+// 	font-weight: 300;
+// 	src: url(../../Fonts/OpenSans-Light.ttf);
+// } 
 
-@font-face
-{
-    font-family: "Open Sans";
-    src: url(../../Fonts/OpenSans-Bold.ttf);
-    font-weight: 700;
-} 
+// @font-face
+// {
+//     font-family: "Open Sans";
+//     src: url(../../Fonts/OpenSans-Bold.ttf);
+//     font-weight: 700;
+// } 
 
 body
 {

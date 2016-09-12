@@ -17,7 +17,6 @@
   font-style: normal;
   src: url('Open-Sans-700.eot');
   src: url('Open-Sans-700.eot') format('embedded-opentype'),
-       local('Open Sans Bold'),
        local('Open-Sans-700'),
        url('Open-Sans-700.woff2') format('woff2'),
        url('Open-Sans-700.woff') format('woff'),
@@ -31,7 +30,6 @@
   font-style: normal;
   src: url('Open-Sans-600http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot');
   src: url('Open-Sans-600http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot?#iefix') format('embedded-opentype'),
-       local('Open Sans Semibold'),
        local('Open-Sans-600'),
        url('Open-Sans-600.woff2') format('woff2'),
        url('Open-Sans-600.woff') format('woff'),

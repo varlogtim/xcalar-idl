@@ -478,6 +478,7 @@ window.Workbook = (function($, Workbook) {
         if (createdTime) {
             createdTime = xcHelper.getDate("-", null, createdTime) + ' ' +
                           xcHelper.getTime(null, createdTime, noSeconds);
+
         }
 
         if (modifiedTime) {
@@ -492,7 +493,6 @@ window.Workbook = (function($, Workbook) {
             isActive = "Inactive";
             activateTooltip = WKBKTStr.Activate;
         }
-
 
         return '<div class="box box-small workbookBox ' +
                     extraClasses.join(" ") + '" data-workbook-id="' +
@@ -576,7 +576,6 @@ window.Workbook = (function($, Workbook) {
         var html = "";
         var sorted = [];
         var workbooks = WorkbookManager.getWorkbooks();
-
         for (var id in workbooks) {
             sorted.push(workbooks[id]);
         }
@@ -603,18 +602,8 @@ window.Workbook = (function($, Workbook) {
                 name += " (" + WKBKTStr.NoMeta + ")";
             }
 
-            var createdTime = "";
-            if (created) {
-                createdTime = xcHelper.getDate("-", null, created) + ' ' +
-                              xcHelper.getTime(null, created);
-            }
-
-            var modifiedTime = "";
-            if (modified) {
-                modifiedTime = xcHelper.getDate("-", null, modified) + ' ' +
-                               xcHelper.getTime(null, modified);
-                                
-            }
+            var createdTime = created || "";
+            var modifiedTime = modified || "";
 
             html = createWorkbookCard(wkbkId, name, createdTime, modifiedTime,
                                        workbook.srcUser, numWorksheets,

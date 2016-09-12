@@ -573,7 +573,6 @@ window.xcHelper = (function($, xcHelper) {
             delimiter = "-";
         }
         date = d.toLocaleDateString().replace(/\//g, delimiter);
-
         return date;
     };
 

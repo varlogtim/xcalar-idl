@@ -1,8 +1,11 @@
 window.Compatible = (function($, Compatible) {
     window.isBrowserMicrosoft = false;
+    window.isBrowserEdge = false;
+    window.isBrowserIE = false;
     window.isBrowseChrome = false;
     window.isBrowseFireFox = false;
     window.isSystemMac = false;
+
 
     Compatible.check = function() {
         stringCheck();
@@ -201,16 +204,20 @@ window.Compatible = (function($, Compatible) {
         if (/MSIE 10/i.test(userAgent)) {
            // this is internet explorer 10
             window.isBrowserMicrosoft = true;
+            window.isBrowserIE = true;
         }
 
         if (/MSIE 9/i.test(userAgent) || /rv:11.0/i.test(userAgent)) {
             // this is internet explorer 9 and 11
             window.isBrowserMicrosoft = true;
+            window.isBrowserIE = true;
         }
 
         if (/Edge/i.test(userAgent)) {
            // this is Microsoft Edge
             window.isBrowserMicrosoft = true;
+            window.isBrowserEdge = true;
+            $('html').addClass('edge');
         }
         if (isBrowserMicrosoft) {
             $('html').addClass('microsoft');

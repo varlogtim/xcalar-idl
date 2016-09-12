@@ -240,6 +240,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
             },
             resize: function() {
+                // hack still needed as of 9/12/2016
                 if (window.isBrowserMicrosoft) {
                     clearTimeout(resizeTimer);
                     resizeTimer = setTimeout(function() {
@@ -699,7 +700,8 @@ window.DagPanel = (function($, DagPanel) {
         var top = e.pageY + topMargin;
         var left = e.pageX - leftMargin;
 
-        if (!window.isBrowserMicrosoft) {
+        // hack needed as of 9/26/2016
+        if (!window.isBrowserIE) {
             // if dagpanel is open halfway we have to change the top position
             // of colmenu
             if ($('#dagPanel').hasClass('midway')) {
@@ -779,7 +781,8 @@ window.DagPanel = (function($, DagPanel) {
             top = $target[0].getBoundingClientRect().bottom + topMargin;
         }
 
-        if (!window.isBrowserMicrosoft) {
+        // hack needed as of 9/26/2016
+        if (!window.isBrowserIE) {
             // if dagpanel is open halfway we have to change the top position
             // of colmenu
             if ($('#dagPanel').hasClass('midway')) {
@@ -1863,9 +1866,10 @@ window.Dag = (function($, Dag) {
         var tableTop = $dagTable[0].getBoundingClientRect().top;
         var top = tableTop;
 
-        // ie and edge sets position of fixed elements relative to window
+        // ie sets position of fixed elements relative to window
         // whereas chrome and firefox position relative to closest container
-        if (window.isBrowserMicrosoft) {
+        // hack needed as of 9/26/2016
+        if (window.isBrowserIE) {
             top = tableTop - height;
             top = Math.max(2, top);
         } else {
