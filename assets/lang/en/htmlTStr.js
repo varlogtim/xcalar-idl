@@ -235,6 +235,7 @@ module.exports = {
         "RunQueries": "Show running queries",
         "DoneQueries": "Show finished queries",
         "SelectCol": "Please select a column first!",
+        "SelectFile": "Select a .tar.gz file first",
         "IcvRestriction": "ICV only available for Map and Group By" // Sync with jsTstr
     },
 
@@ -499,7 +500,7 @@ module.exports = {
         "upload": "UPLOAD",
         "uploadHeader": "Upload Dataflow",
         "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
-        
+        "overwriteUdf": "Overwrite Udfs of the same module name with those inside this dataflow",
     },
 
     "sched": {

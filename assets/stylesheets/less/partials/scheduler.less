@@ -411,14 +411,36 @@
 
         padding-left: 20px;
         padding-right: 20px;
+        > div {
+            margin-bottom: 10px;
+        }
+        .text {
+            .size(@width: 110px);
+            display: inline-block;
+        }
         .retinaUploader {
-            .text {
-                .size(@width: 75px);
-                display: inline-block;
-            }
-            .input-box(@w: ~"calc(100% - 262px)", @h: 30px);
+            .input-box(@w: ~"calc(100% - 297px)", @h: 30px);
             input {
                 margin-right: 10px;
+            }
+        }
+
+        .retinaName {
+            .input-box(@w: 275px, @h: 30px)
+        }
+
+        .overwriteUdf {
+            margin-left: 115px;
+            > * {
+                float: left;
+            }
+            .checkbox {
+                margin-top: 10px;
+                margin-right: 10px;
+            }
+            span {
+                max-width: ~"calc(100% - 47px)";
+                cursor: pointer;
             }
         }
 
@@ -430,6 +452,13 @@
     .cardBottom {
         padding-right: 40px;
         padding-bottom: 20px;
+        .buttonTooltipWrap {
+            // Keep same as the button that it wraps
+            margin-left: 10px;
+            width: 150px;
+            height: 36px;
+            float: right;
+        }
         .btn {
             &.unavailable {
                 pointer-events: none;

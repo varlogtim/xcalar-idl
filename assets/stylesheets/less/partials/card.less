@@ -6,6 +6,14 @@
     color: @color-font-navy;
 }
 
+.cardLocked {
+    display: none;
+    background-color: @color-black;
+    opacity: 0.3;
+    position: absolute;
+    .size(@width: 100%, @height: 100%); // height must be adjusted by js
+}
+
 .cardHeader {
     .size(@width: 100%, @height: @height-card-header);
     .no-selection;

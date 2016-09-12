@@ -677,30 +677,6 @@ window.xcHelper = (function($, xcHelper) {
         return (bytes);
     };
 
-    xcHelper.autoTooltip = function(ele) {
-        var $ele = $(ele);
-        if (ele.offsetWidth < ele.scrollWidth) {
-            $ele.attr({
-                'data-container': 'body',
-                'data-toggle'   : 'tooltip'
-            });
-        } else {
-            $ele.removeAttr('data-container data-toggle');
-        }
-    };
-
-    var tooltipTimer;
-    xcHelper.refreshTooltip = function($ele, timer) {
-        clearTimeout(tooltipTimer);
-        $ele.mouseenter();
-        $ele.mouseover();
-        if (timer) {
-            tooltipTimer = setTimeout(function() {
-                $ele.mouseleave();
-            }, timer);
-        }
-    };
-
     xcHelper.showSuccess = function() {
         var $successMessage = $('#successMessageWrap');
         $successMessage.show();
@@ -1838,8 +1814,6 @@ window.xcHelper = (function($, xcHelper) {
             $elementToChange = $element.find(selector);
         }
 
-        $elementToChange.attr("data-original-title",
-                              $elementToChange.attr("title"));
         $elementToChange.removeAttr("data-toggle")
                         .removeAttr("title");
     };
@@ -1850,9 +1824,7 @@ window.xcHelper = (function($, xcHelper) {
             $elementToChange = $element.find(selector);
         }
 
-        $elementToChange.attr("data-toggle", "tooltip")
-                        .attr("title",
-                              $elementToChange.attr("data-original-title"));
+        $elementToChange.attr("data-toggle", "tooltip");
     };
 
     xcHelper.changeTooltipText = function($element, selector, text) {
@@ -1863,6 +1835,30 @@ window.xcHelper = (function($, xcHelper) {
 
         $elementToChange.attr("title", text)
                         .attr("data-original-title", text);
+    };
+
+    xcHelper.autoTooltip = function(ele) {
+        var $ele = $(ele);
+        if (ele.offsetWidth < ele.scrollWidth) {
+            $ele.attr({
+                'data-container': 'body',
+                'data-toggle'   : 'tooltip'
+            });
+        } else {
+            $ele.removeAttr('data-container data-toggle');
+        }
+    };
+
+    var tooltipTimer;
+    xcHelper.refreshTooltip = function($ele, timer) {
+        clearTimeout(tooltipTimer);
+        $ele.mouseenter();
+        $ele.mouseover();
+        if (timer) {
+            tooltipTimer = setTimeout(function() {
+                $ele.mouseleave();
+            }, timer);
+        }
     };
 
     // not only looks for gColPrefix but checks to make sure it's not preceded by

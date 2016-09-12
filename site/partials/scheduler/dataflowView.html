@@ -49,6 +49,7 @@
 
   <!-- Retina Uploader -->
   <div id="uploadDataflowCard" class="cardContainer">
+    <div class="cardLocked"></div>
     <!-- RetinaUploader  Header -->
     <header class="cardHeader">
       <span class="title"><%= dicts.dataflow.uploadHeader %></span>
@@ -67,10 +68,24 @@
         <input id="dataflow-browse" spellcheck="false" type="file" style="display: none">
         <button id="dataflow-fakeBrowse" class="btn"><%= dicts.common.BROWSE %></button>
       </div>
+      <div class="retinaName">
+        <span class="text"><%= dicts.dataflow.dfName %>:</span>
+        <input id="dfName" type="text">
+      </div>
+      <div class="overwriteUdf">
+        <div class="checkbox">
+          <i class="icon xi-ckbox-empty"></i>
+          <i class="icon xi-ckbox-selected"></i>
+        </div>
+        <span><%= dicts.dataflow.overwriteUdf %></span>
+      </div>
+
     </section>
     <!-- Button Section -->
     <section class="cardBottom">
-      <button type="button" class="btn confirm"><%= dicts.dataflow.upload %></button>
+      <div class="buttonTooltipWrap" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SelectFile %>">
+        <button type="button" class="btn confirm btn-disabled"><%= dicts.dataflow.upload %></button>
+      </div>
       <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
     </section>
   </div>

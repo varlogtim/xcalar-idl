@@ -1,10 +1,15 @@
 window.UploadDataflowCard = (function($, UploadDataflowCard) {
     var $card;             // $('#uploadDataflowCard')
-    var retName;
+    var $retPath;          // $card.find("#retinaPath")
+    var $dfName;           // $card.find("#dfName")
     var file;
+    var $browserBtn;       // $("#dataflow-browse");
 
     UploadDataflowCard.setup = function() {
         $card = $('#uploadDataflowCard');
+        $retPath = $card.find("#retinaPath");
+        $dfName = $card.find("#dfName");
+        $browserBtn = $("#dataflow-browse");
         addCardEvents();
     };
 
@@ -14,15 +19,22 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
     function readRetinaFromFile(file, moduleName) {
         var reader = new FileReader();
+        var deferred = jQuery.Deferred();
+
         reader.onload = function(event) {
             var entireString = event.target.result;
 
-            XcalarImportRetina(moduleName, true, entireString)
+            XcalarImportRetina(moduleName,
+                               $card.find(".checkbox").hasClass("checked"),
+                               entireString)
             .then(function() {
                 xcHelper.showSuccess();
+                deferred.resolve();
             })
-            .fail(function() {
-                // JJJ Handle error
+            .fail(function(error) {
+                StatusBox.show(ErrTStr.RetinaFailed, $card.find(".confirm"),
+                               false, {"side": "left"});
+                deferred.reject();
             });
         };
 
@@ -30,11 +42,29 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         // But requires that backend changes import retina to not
         // do default base 64 encoding. Instead take it as flag
         reader.readAsBinaryString(file);
+
+        return deferred.promise();
     }
 
     function submitForm() {
-        readRetinaFromFile(file, retName);
-        closeCard();
+        lockCard();
+        XcalarListRetinas()
+        .then(function(ret) {
+            for (var i = 0; i<ret.retinaDescs.length; i++) {
+                if (ret.retinaDescs[i].retinaName === $dfName.val().trim()) {
+                    StatusBox.show(ErrTStr.NameInUse, $dfName);
+                    return PromiseHelper.reject();
+                }
+            }
+
+            return readRetinaFromFile(file, $dfName.val().trim());
+        })
+        .then(function() {
+            closeCard();
+        })
+        .always(function() {
+            unlockCard();
+        });
     }
 
     function addCardEvents() {
@@ -46,11 +76,14 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
         // click upload button
         $card.on("click", ".confirm", function() {
+            if ($dfName.val().trim().length === 0) {
+                StatusBox.show(ErrTStr.NoEmpty, $dfName);
+                return;
+            }
             submitForm();
         });
 
         // click browse button
-        var $browserBtn = $("#dataflow-browse");
         $("#dataflow-fakeBrowse").click(function() {
             $(this).blur();
             $browserBtn.click();
@@ -58,28 +91,62 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         });
 
         // display the chosen file's path
-        $browserBtn.change(function() {
+        // NOTE: the .change event fires for chrome for both cancel and select
+        // but cancel doesn't necessarily fire the .change event on other
+        // browsers
+        $browserBtn.change(function(event) {
+            if ($(this).val() === "") {
+                // This is the cancel button getting clicked. Don't do anything
+                event.preventDefault();
+                return;
+            }
             var path = $(this).val().replace(/C:\\fakepath\\/i, '');
             file = $browserBtn[0].files[0];
-            retName = path.substring(0, path.indexOf(".")).toLowerCase()
-                          .replace(/ /g, "");
+            var retName = path.substring(0, path.indexOf(".")).toLowerCase()
+                              .replace(/ /g, "");
+            $retPath.val(path);
+            $dfName.val(retName);
             if (path.indexOf(".tar.gz") > 0) {
-                $card.find("#retinaPath").val(path);
-                // JJJ allow upload
+                $card.find(".confirm").removeClass("btn-disabled");
+                xcHelper.temporarilyDisableTooltip(
+                                              $card.find(".buttonTooltipWrap"));
             } else {
-                // JJJ Fill in
-                console.log("Not of type .tar.gz");
+                $card.find(".confirm").addClass("btn-disabled");
+                xcHelper.reenableTooltip($card.find(".buttonTooltipWrap"));
+                StatusBox.show(ErrTStr.RetinaFormat, $retPath, false,
+                               {"side": "bottom"});
             }
+        });
+
+        $card.on("click", ".checkbox", function() {
+            $(this).toggleClass("checked");
+        });
+
+        $card.on("click", ".overwriteUdf span", function() {
+            $card.find(".checkbox").click();
         });
 
     }
 
+    function lockCard() {
+        $card.find(".cardLocked").height($card.height());
+        $card.find(".cardLocked").show();
+    }
+
+    function unlockCard() {
+        $card.find(".cardLocked").hide();
+    }
+
     function closeCard() {
-        // JJJ Clear path
         $card.hide();
-        retName = "";
         file = "";
-        // JJJ Disallow upload
+        $retPath.val("");
+        $dfName.val("");
+        $card.find(".confirm").addClass("btn-disabled");
+        $browserBtn.val("");
+        // Not user friendly but safer
+        $card.find(".checkbox").removeClass("checked");
+        xcHelper.reenableTooltip($card.find(".buttonTooltipWrap"));
     }
 
     return (UploadDataflowCard);

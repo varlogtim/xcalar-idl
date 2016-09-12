@@ -202,6 +202,8 @@ ErrTStr = {
     'NoColumns': 'No Columns Selected',
     'NoCast': 'No column to cast.',
     'IcvFailed': 'Failed to generate ICV table',
+    'RetinaFormat': 'File must be of the format .tar.gz',
+    'RetinaFailed': 'Failed to upload retina',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
