@@ -28,6 +28,7 @@ html.firefox, html.microsoft {
                 background-color: @color-bg-select-blue;
                 .editableHead {
                     color: @color-white !important;
+                    -webkit-text-fill-color: @color-white !important;
                     text-overflow: clip;
                 }
             }
@@ -284,7 +285,7 @@ html.firefox, html.microsoft {
             outline: none;
             // cursor: default;
             .font(@weight: 600);
-            -webkit-text-fill-color: @color-font-darkGray;
+            -webkit-text-fill-color: @color-font-darkGray; // for safari
         }
 
         &:focus {
@@ -566,6 +567,7 @@ html.firefox, html.microsoft {
                 background-color: @color-bg-select-blue;
                 input {
                     color: @color-white !important;
+                    -webkit-text-fill-color: @color-white !important;
                 }
             }
         }
@@ -885,6 +887,7 @@ html.firefox, html.microsoft {
                 background-color: @color-bg-select-blue;
                 input {
                     color: @color-white !important;
+                    -webkit-text-fill-color: @color-white !important;
                 }
             }
         }
@@ -1177,6 +1180,7 @@ html.firefox, html.microsoft {
             background-color: @color-bg-select-blue;
             input {
                 color: @color-white !important;
+                -webkit-text-fill-color: @color-white !important;
             }
         }
     }
