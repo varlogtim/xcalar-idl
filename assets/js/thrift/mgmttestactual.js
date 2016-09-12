@@ -18872,8 +18872,8 @@ XcalarApiDagNodeInfoT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.dagNodeId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.dagNodeId = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -18909,8 +18909,8 @@ XcalarApiDagNodeInfoT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
-    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 2);
-    output.writeI64(this.dagNodeId);
+    output.writeFieldBegin('dagNodeId', Thrift.Type.STRING, 2);
+    output.writeString(this.dagNodeId);
     output.writeFieldEnd();
   }
   if (this.state !== null && this.state !== undefined) {
@@ -24284,8 +24284,8 @@ XcalarApiDagNodeT.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I64) {
-        this.dagNodeId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.dagNodeId = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -24341,8 +24341,8 @@ XcalarApiDagNodeT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
-    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 3);
-    output.writeI64(this.dagNodeId);
+    output.writeFieldBegin('dagNodeId', Thrift.Type.STRING, 3);
+    output.writeString(this.dagNodeId);
     output.writeFieldEnd();
   }
   if (this.api !== null && this.api !== undefined) {
@@ -32294,9 +32294,9 @@ function xcalarApiListFuncTest(thriftHandle, namePattern) {
                 node = listTablesOutput.nodeInfo[i];
                 console.log("\ttable[" + i.toString() + "].tableName = " + node.name);
                 console.log("\ttable[" + i.toString() + "].tableId = " +
-                    node.dagNodeId.toString());
+                            node.dagNodeId);
                 console.log("\ttable[" + i.toString() + "].state = " +
-                    node.state.toString());
+                            node.state.toString());
                 if (node.name === origTable && node.size > 0) {
                     foundVotesFunny = true;
                 }

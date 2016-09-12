@@ -22,8 +22,6 @@ window.DagFunction = (function($, DagFunction) {
     };
 
     DagFunction.construct = function(getDagOutput, tableId) {
-        // XXX: Temporary until 5372 is fixed
-        return;
         var valArray = [];
         for (var i = 0; i<getDagOutput.node.length; i++) {
             var apiString = XcalarApisTStr[getDagOutput.node[i].api];
