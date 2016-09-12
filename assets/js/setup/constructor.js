@@ -101,42 +101,41 @@ XcLog.prototype = {
 
 // Constructor for table meta data
 function TableMeta(options) {
+    var self = this;
     options = options || {};
 
     if (!options.tableName || !options.tableId) {
         console.error("error table meta!");
     }
 
-    this.tableName = options.tableName;
-    this.tableId = options.tableId;
-    this.isLocked = options.isLocked || false;
-    this.isSortedArray = options.isSortedArray || false;
-    this.status = options.status || TableType.Active;
-    this.backTableMeta = options.backTableMeta || undefined;
-    // reference enum TableType for possible types
+    self.tableName = options.tableName;
+    self.tableId = options.tableId;
+    self.isLocked = options.isLocked || false;
+    self.isSortedArray = options.isSortedArray || false;
+    self.status = options.status || TableType.Active;
 
-    this.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();
+    self.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();
 
     if (options.tableCols != null) {
-        this.tableCols = [];
+        self.tableCols = [];
         var oldCols = options.tableCols;
         for (var i = 0, len = oldCols.length; i < len; i++) {
             var progCol = new ProgCol(oldCols[i]);
-            this.tableCols[i] = progCol;
+            self.tableCols[i] = progCol;
         }
     } else {
-        this.tableCols = null;
+        self.tableCols = null;
     }
 
-    this.bookmarks = options.bookmarks || [];
-    this.rowHeights = options.rowHeights || {}; // a map
+    self.bookmarks = options.bookmarks || [];
+    self.rowHeights = options.rowHeights || {}; // a map
 
-    this.currentRowNumber = -1;
-    this.resultSetId = -1;
-    this.keyName = "";
-    this.resultSetCount = -1;
-    this.numPages = -1;
-    this.icv = options.icv || "";
+    self.currentRowNumber = -1;
+    self.resultSetId = -1;
+    self.keyName = "";
+    self.resultSetCount = -1;
+    self.numPages = -1;
+    self.icv = options.icv || "";
 
     return this;
 }
@@ -171,6 +170,41 @@ TableMeta.prototype = {
         return this.isLocked;
     },
 
+    "getMeta": function() {
+        var deferred = jQuery.Deferred();
+        var self = this;
+
+        XcalarGetTableMeta(self.tableName)
+        .then(function(tableMeta) {
+            // Note that this !== self in this scope
+            if (tableMeta != null) {
+                self.backTableMeta = tableMeta;
+                self.ordering = tableMeta.ordering;
+
+                // update immediates
+                var valueAttrs = [];
+                if (tableMeta.valueAttrs != null) {
+                    valueAttrs = tableMeta.valueAttrs;
+                }
+                valueAttrs.forEach(function(valueAttr) {
+                    if (valueAttr.type === DfFieldTypeT.DfFatptr) {
+                        // fat pointer
+                        return;
+                    }
+                    var progCol = self.getColByBackName(valueAttr.name);
+                    if (progCol != null) {
+                        progCol.setImmediateType(valueAttr.type);
+                    }
+                });
+            }
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    },
+
     updateResultset: function() {
         var deferred = jQuery.Deferred();
         var self = this;
@@ -184,12 +218,22 @@ TableMeta.prototype = {
             self.numPages = Math.ceil(self.resultSetCount / gNumEntriesPerPage);
             self.keyName = resultSet.keyAttrHeader.name;
 
-            if (resultSet.metaOutput != null) {
-                self.ordering = resultSet.metaOutput.ordering;
-            }
-
             deferred.resolve();
         })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    },
+
+    "getMetaAndResultSet": function() {
+        var deferred = jQuery.Deferred();
+        var self = this;
+
+        self.updateResultset()
+        .then(function() {
+            return self.getMeta();
+        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -235,7 +279,7 @@ TableMeta.prototype = {
         }
         var allVals = this.backTableMeta.valueAttrs;
         var finalArray = [];
-        for (var i = 0; i<allVals.length; i++) {
+        for (var i = 0; i < allVals.length; i++) {
             if (allVals[i].type !== DfFieldTypeT.DfFatptr) {
                 finalArray.push(allVals[i].name);
             }
@@ -284,7 +328,7 @@ TableMeta.prototype = {
     },
 
     getCol: function(colNum) {
-        var tableCols = this.tableCols;
+        var tableCols = this.tableCols || [];
         if (colNum < 1 || colNum > tableCols.length) {
             return null;
         }
@@ -293,7 +337,7 @@ TableMeta.prototype = {
     },
 
     getColNumByBackName: function(backColName) {
-        var tableCols = this.tableCols;
+        var tableCols = this.tableCols || [];
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
@@ -306,7 +350,7 @@ TableMeta.prototype = {
 
     getColByBackName: function(backColName) {
         // get progCol from backColName
-        var tableCols = this.tableCols;
+        var tableCols = this.tableCols || [];
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
@@ -322,7 +366,7 @@ TableMeta.prototype = {
     },
 
     getColByFrontName: function(frontColName) {
-        var tableCols = this.tableCols;
+        var tableCols = this.tableCols || [];
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
@@ -342,7 +386,7 @@ TableMeta.prototype = {
     hasColWithBackName: function(backColName) {
         // this check if table has the backCol,
         // it does not check frontCol
-        var tableCols = this.tableCols;
+        var tableCols = this.tableCols || [];
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
@@ -359,7 +403,7 @@ TableMeta.prototype = {
 
     hasCol: function(colName) {
         // check both fronName and backName
-        var tableCols = this.tableCols;
+        var tableCols = this.tableCols || [];
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
@@ -409,6 +453,10 @@ function ProgCol(options) {
     this.userStr = options.userStr || "";
     this.textAlign = options.textAlign || "Center";
 
+    if (options.immediate === true) {
+        this.immediate = true;
+    }
+
     if (options.decimals == null) {
         this.decimals = -1;
     } else {
@@ -435,12 +483,64 @@ ProgCol.prototype = {
         return this.isNewCol;
     },
 
+    "isImmediate": function() {
+        if (this.immediate === true) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
     "getFronColName": function() {
         return this.name;
     },
 
     "getBackColName": function() {
         return this.backName;
+    },
+
+    "setImmediateType": function(typeId) {
+        if (!DfFieldTypeTStr.hasOwnProperty(typeId)) {
+            // error case
+            console.error("Invalid typeId");
+            return;
+        }
+
+        var self = this;
+        self.immediate = true;
+
+        switch (typeId) {
+            case DfFieldTypeT.DfUnknown:
+                self.type = ColumnType.unknown;
+                break;
+            case DfFieldTypeT.DfString:
+                self.type = ColumnType.string;
+                break;
+            case DfFieldTypeT.DfInt32:
+            case DfFieldTypeT.DfInt64:
+            case DfFieldTypeT.DfUInt32:
+            case DfFieldTypeT.DfUInt32:
+                self.type = ColumnType.integer;
+                break;
+            case DfFieldTypeT.DfFloat32:
+            case DfFieldTypeT.DfFloat64:
+                self.type = ColumnType.float;
+                break;
+            case DfFieldTypeT.DfBoolean:
+                self.type = ColumnType.boolean;
+                break;
+            case DfFieldTypeT.DfMixed:
+                self.type = ColumnType.mixed;
+                break;
+            case DfFieldTypeT.DfFatptr:
+                consol.error("Should not set fat pointer's type");
+                self.immediates = false;
+                break;
+            default:
+                console.warn("Unsupported type");
+                self.type = ColumnType.unknown;
+                break;
+        }
     },
 
     "getType": function() {

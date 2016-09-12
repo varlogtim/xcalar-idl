@@ -121,6 +121,12 @@ describe('Constructor Test', function() {
         expect(progCol.getType()).to.equal('float');
         expect(progCol.isNumberCol()).to.be.true;
         expect(progCol.isEmptyCol()).to.be.false;
+        expect(progCol.isImmediate()).to.be.false;
+
+        // set immediates
+        progCol.setImmediateType(DfFieldTypeT.DfString);
+        expect(progCol.isImmediate()).to.be.true;
+        expect(progCol.getType()).to.equal("string");
 
         // case 2
         progCol = new ProgCol({

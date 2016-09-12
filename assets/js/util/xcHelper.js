@@ -106,32 +106,32 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.parseColType = function(val, oldType) {
         var type = oldType;
 
-        if (val != null && oldType !== "mixed") {
+        if (val != null && oldType !== ColumnType.mixed) {
             // note: "" is empty string
             var valType = typeof val;
             type = valType;
             // get specific type
-            if (type === "number") {
+            if (type === ColumnType.number) {
                 // the case when type is float
-                if (oldType === "float" ||
-                    xcHelper.isFloat(val))
-                {
-                    type = "float";
+                if (oldType === ColumnType.float || xcHelper.isFloat(val)) {
+                    type = ColumnType.float;
                 } else {
-                    type = "integer";
+                    type = ColumnType.integer;
                 }
-            } else if (type === "object") {
+            } else if (type === ColumnType.object) {
                 if (val instanceof Array) {
-                    type = "array";
+                    type = ColumnType.array;
                 }
             }
 
-            var isAllNum = (valType === "number") &&
-                           ((oldType === "float") || (oldType === "integer"));
-            if (oldType != null && oldType !== "undefined" &&
+            var isAllNum = (valType === ColumnType.number) &&
+                           ((oldType === ColumnType.float) ||
+                            (oldType === ColumnType.integer));
+            if (oldType != null &&
+                oldType !== ColumnType.undefined &&
                 oldType !== type && !isAllNum)
             {
-                type = "mixed";
+                type = ColumnType.mixed;
             }
         }
 

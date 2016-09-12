@@ -613,14 +613,14 @@ window.TestSuite = (function($, TestSuite) {
             console.log("start flightTestPart8", "groupby joined table");
             var wsId = WSManager.getOrders()[0];
             var tableId = WSManager.getWSById(wsId).tables[0];
-            trigOpModal(tableId, "ArrDelay_integer", "groupby")
+            trigOpModal(tableId, "UniqueCarrier", "groupby")
             .then(function() {
                 // group on UniqueCarrier having avg ArrDely_integer
                 var $section = $("#operationsView .opSection.groupby");
-                $section.find(".gbOnArg").val(gColPrefix + "UniqueCarrier");
                 // test input of the field
                 $section.find(".functionsList .functionsInput").val("avg")
                         .trigger(fakeEvent.enterKeydown);
+                $section.find(".arg").eq(1).val(gColPrefix + "ArrDelay_integer");
                 $section.find(".colNameSection .arg").val("AvgDelay");
                 $("#operationsView .submit").click();
 
@@ -760,6 +760,7 @@ window.TestSuite = (function($, TestSuite) {
 
             $section.find(".functionsList .functionsInput").val("count")
                         .trigger(fakeEvent.enterKeydown);
+            $section.find(".arg").eq(1).val(gColPrefix + "ArrDelay_integer");
             $("#operationsView .submit").click();
             // need to check in this worksheet because
             // there is another groupby table

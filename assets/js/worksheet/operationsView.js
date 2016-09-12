@@ -685,7 +685,7 @@ window.OperationsView = (function($, OperationsView) {
         if (operatorName === "map") {
             formHelper.addWaitingBG({
                 heightAdjust: 20,
-                transparent: true
+                transparent : true
             });
             disableInputs();
             XcalarListXdfs("*", "User*")
@@ -1872,8 +1872,6 @@ window.OperationsView = (function($, OperationsView) {
                         // not add comma
                         // ex. add(6) instead of add(6, )
                         if (val === "") {
-                            // var typeId = $input.data('typeid');
-                            // var types = parseType(typeId);
                             if (!noArgsChecked) {
                                 val = ", " + val;
                             }
@@ -2335,7 +2333,6 @@ window.OperationsView = (function($, OperationsView) {
         var args = [];
         var isPassing = true;
         var colTypes;
-        var typeid;
         var allColTypes = [];
         var errorText;
         var $errorInput;
@@ -2365,7 +2362,7 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }
 
-            typeid = $input.data('typeid');
+            var typeid = $input.data('typeid');
 
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection") ||
@@ -2397,7 +2394,8 @@ window.OperationsView = (function($, OperationsView) {
                 // skip this type check if the function category is user defined
                 // function.
                 if (operatorName !== "map" ||
-                    $categoryList.find('.active').text() !== "user-defined") {
+                    $categoryList.find('.active').text() !== "user-defined")
+                {
                     var types;
                     if (tempColNames.length > 1 &&
                         (operatorName !== "group by" ||
@@ -2438,31 +2436,19 @@ window.OperationsView = (function($, OperationsView) {
                             var numTypes = colTypes.length;
 
                             for (var i = 0; i < numTypes; i++) {
-                                if (colTypes[i] != null) {
-                                    if (types.indexOf(colTypes[i]) < 0) {
-                                        isPassing = false;
-                                        if (colTypes[i] === "newColumn") {
-                                            errorText = ErrTStr
-                                                        .InvalidOpNewColumn;
-                                        } else if (colTypes[i] === "string" &&
-                                            hasUnescapedParens($input.val())) {
-                                            // function-like string found but
-                                            // invalid format
-                                            errorText = ErrTStr.InvalidFunction;
-                                        } else {
-                                            errorText = xcHelper.replaceMsg(
-                                                ErrWRepTStr.InvalidOpsType, {
-                                                    "type1": types.join("/"),
-                                                    "type2": colTypes[i]
-                                                });
-                                        }
-
-                                        $errorInput = $input;
-                                        errorType = "invalidColType";
-                                    }
-                                } else {
+                                if (colTypes[i] == null) {
                                     console.error("colType is null/col not " +
                                         "pulled!");
+                                    continue;
+                                }
+
+                                errorText = validateColInput(types, colTypes[i],
+                                                            $input);
+                                if (errorText != null) {
+                                    isPassing = false;
+                                    $errorInput = $input;
+                                    errorType = "invalidColType";
+                                    break;
                                 }
                             }
                         }
@@ -2890,7 +2876,7 @@ window.OperationsView = (function($, OperationsView) {
         });
     }
     //show alert to go back to op view
-    function submissionFailHandler(startTime, error) {
+    function submissionFailHandler(startTime) {
         var endTime = Date.now();
         var elapsedTime = endTime - startTime;
         var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
@@ -2931,12 +2917,7 @@ window.OperationsView = (function($, OperationsView) {
                 func: function() {
                     OperationsView.show(null , null , null , true);
                 }
-            }],
-            onCancel: function() {
-                // modalHelper.toggleBG(tableId, true, {
-                //     time: 300
-                // })
-            }
+            }]
         });
     }
 
@@ -3025,37 +3006,61 @@ window.OperationsView = (function($, OperationsView) {
 
     function getAllColumnTypesFromArg(argValue) {
         var values = argValue.split(",");
-        var numValues = values.length;
-        var columns = gTables[tableId].tableCols;
-        var numCols = columns.length;
+        var table = gTables[tableId];
         var types = [];
-        var value;
-        var trimmedVal;
-        var colArg;
-        for (var i = 0; i < numValues; i++) {
-            value = values[i];
-            trimmedVal = value.trim();
+
+        values.forEach(function(value) {
+            var trimmedVal = value.trim();
             if (trimmedVal.length > 0) {
                 value = trimmedVal;
             }
-            for (var j = 0; j < numCols; j++) {
-                if (columns[j].name === value) {
-                    var colType = columns[j].type;
-                    colArg = columns[j].getBackColName();
 
-                    if (colArg != null) {
-                        var bracketIndex = colArg.indexOf("[");
-                        if (bracketIndex > -1 &&
-                            colArg[bracketIndex - 1] !== "\\") {
-                            colType = CommonTxtTstr.ArrayVal;
-                        }
-                    }
-                    types.push(colType);
-                    break;
+            var progCol = table.getColByFrontName(value);
+            if (progCol == null) {
+                console.error("cannot find col", value);
+                return;
+            }
+
+            var backName = progCol.getBackColName();
+            var colType = progCol.getType();
+            if (colType === ColumnType.integer && !progCol.isImmediate()) {
+                // for fat potiner, we cannot tell float or integer
+                // so for integer, we mark it
+                colType = ColumnType.number;
+            }
+
+            if (backName != null) {
+                var bracketIndex = backName.indexOf("[");
+                if (bracketIndex > -1 &&
+                    backName[bracketIndex - 1] !== "\\") {
+                    colType = CommonTxtTstr.ArrayVal;
                 }
             }
+            types.push(colType);
+        });
+
+        return types;
+    }
+
+    function validateColInput(requiredTypes, inputType, $input) {
+        if (inputType === "newColumn") {
+            return ErrTStr.InvalidOpNewColumn;
+        } else if (requiredTypes.includes(inputType)) {
+            return null;
+        } else if (inputType === ColumnType.number &&
+                    (requiredTypes.includes(ColumnType.float) ||
+                     requiredTypes.includes(ColumnType.integer))) {
+            return null;
+        } else if (inputType === ColumnType.string &&
+                    hasUnescapedParens($input.val())) {
+            // function-like string found but invalid format
+            return ErrTStr.InvalidFunction;
+        } else {
+            return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                "type1": requiredTypes.join("/"),
+                "type2": inputType
+            });
         }
-        return (types);
     }
 
     // used in groupby to check if inputs have column names that match any
@@ -3182,9 +3187,6 @@ window.OperationsView = (function($, OperationsView) {
     function checkArgTypes(arg, typeid) {
         var types = parseType(typeid);
         var argType = "string";
-        var tmpArg;
-        var isBoolean = false;
-        var isNumber = true;
 
         if (types.indexOf("string") > -1 ||
             types.indexOf("mixed") > -1 ||
@@ -3195,8 +3197,9 @@ window.OperationsView = (function($, OperationsView) {
             return null;
         }
 
-        tmpArg = arg.toLowerCase();
-        isNumber = !isNaN(Number(arg));
+        var tmpArg = arg.toLowerCase();
+        var isNumber = !isNaN(Number(arg));
+        var isBoolean = false;
 
         // boolean is a subclass of number
         if (tmpArg === "true" || tmpArg === "false" ||
@@ -3361,7 +3364,6 @@ window.OperationsView = (function($, OperationsView) {
     function parseType(typeId) {
         var types = [];
         var typeShift;
-        var supportInteger = false;
 
         // string
         typeShift = 1 << DfFieldTypeT.DfString;
@@ -3376,22 +3378,13 @@ window.OperationsView = (function($, OperationsView) {
                     (1 << DfFieldTypeT.DfUInt64);
         if ((typeId & typeShift) > 0) {
             types.push("integer");
-            supportInteger = true;
         }
 
         // float
-        // XXX not sure if float should also include integer
         typeShift = (1 << DfFieldTypeT.DfFloat32) |
                     (1 << DfFieldTypeT.DfFloat64);
         if ((typeId & typeShift) > 0) {
             types.push("float");
-
-            // XXX we can not differenate float and integer,
-            // so now just let type support to include integer
-            // if it does't.
-            if (!supportInteger) {
-                types.push("integer");
-            }
         }
 
         // boolean

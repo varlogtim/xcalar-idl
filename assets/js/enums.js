@@ -72,6 +72,20 @@ var TableType = {
     "Undone"  : "undone"
 };
 
+var ColumnType = {
+    "array": "array",
+    "boolean": "boolean",
+    "float": "float",
+    "integer": "integer",
+    "mixed": "mixed",
+    "newColumn": "newColumn",
+    "number": "number",
+    "object": "object",
+    "string": "string",
+    "undefined": "undefined",
+    "unknown": "unknown"
+};
+
 var DSObjTerm = {
     "homeDir": ".",
     "homeDirId": ".",

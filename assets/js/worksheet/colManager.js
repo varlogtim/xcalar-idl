@@ -1558,7 +1558,7 @@ window.ColManager = (function($, ColManager) {
             if (secondPull && tableCols[i].isSortedArray) {
                 columnTypes.push(null);
             } else {
-                columnTypes.push(tableCols[i].type);
+                columnTypes.push(tableCols[i].getType());
             }
         }
         // loop through table tr and start building html
@@ -1672,7 +1672,11 @@ window.ColManager = (function($, ColManager) {
                     }
 
                     //define type of the column
-                    columnTypes[col] = xcHelper.parseColType(tdValue, columnTypes[col]);
+                    if (!tableCols[col].isImmediate()) {
+                        columnTypes[col] = xcHelper.parseColType(tdValue,
+                                                            columnTypes[col]);
+                    }
+
                     originalVal = tdValue;
                     parsedVal = xcHelper.parseJsonValue(tdValue, knf);
 
@@ -1709,8 +1713,8 @@ window.ColManager = (function($, ColManager) {
 
                     // XXX now only allow number in case weird string mess up html
                     if (originalVal != null &&
-                        (columnTypes[col] === "integer" ||
-                        columnTypes[col] === "float"))
+                        (columnTypes[col] === ColumnType.integer ||
+                        columnTypes[col] === ColumnType.float))
                     {
                         isColTruncated = true;
                         formatVal = originalVal;
@@ -1723,7 +1727,6 @@ window.ColManager = (function($, ColManager) {
                 } else {
                     // make data td;
                     tdValue = jsonTdVal;
-                    columnTypes[col] = "mixed";
                     parsedVal = xcHelper.parseJsonValue(tdValue);
                     displayedVal = parsedVal;
                     if (jsonTdTruncated) {
@@ -1783,23 +1786,22 @@ window.ColManager = (function($, ColManager) {
             $table.find('tbody').append($tBody);
         }
 
-        var $currentTh;
-        var $header;
-        var columnType;
-        var adjustedColType;
-
         for (i = 0; i < numCols; i++) {
-            $currentTh = $table.find('th.col' + (i + 1));
-            $header = $currentTh.find('> .header');
-            columnType = columnTypes[i] || "undefined";
+            var isImmediate = tableCols[i].isImmediate();
+            var $currentTh = $table.find('th.col' + (i + 1));
+            var $header = $currentTh.find('> .header');
+            var columnType = columnTypes[i] || ColumnType.undefined;
 
             // DATA column is type-object
-            if (tableCols[i].backName === "DATA") {
-                columnType = "object";
+            if (tableCols[i].isDATACol()) {
+                columnType = ColumnType.object;
             } else if (tableCols[i].isNewCol) {
-                columnType = "newColumn";
+                columnType = ColumnType.newColumn;
             }
-            tableCols[i].type = columnType;
+
+            if (!isImmediate) {
+                tableCols[i].type = columnType;
+            }
 
             $header.removeClass("type-mixed")
                     .removeClass("type-string")
@@ -1810,13 +1812,14 @@ window.ColManager = (function($, ColManager) {
                     .removeClass("type-undefined")
                     .removeClass("type-boolean")
                     .removeClass("recordNum")
-                    .removeClass("childOfArray");
+                    .removeClass("childOfArray")
+                    .addClass('type-' + columnType);
 
-            $header.addClass('type-' + columnType);
-            adjustedColType = columnType;
-            if (columnType === "integer" || columnType === "float") {
+            var adjustedColType = columnType;
+            if (!isImmediate && tableCols[i].isNumberCol()) {
                 adjustedColType = "number";
             }
+            adjustedColType = xcHelper.capitalize(adjustedColType);
             $header.find('.iconHelper').attr('title', adjustedColType);
 
             if (tableCols[i].backName === "recordNum") {

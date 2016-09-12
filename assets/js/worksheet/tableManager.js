@@ -7,21 +7,19 @@ window.TblManager = (function($, TblManager) {
         Inside oldTables, if there is an anchor table, we move it to the start
         of the array. If there is a need for more than 1 piece of information,
         then oldTables need to be an array of structs
-        Possible Options
-            focusWorkspace: boolean to determine whether we should focus back on
+        Possible Options:
+        -focusWorkspace: boolean to determine whether we should focus back on
                             workspace, we focus on workspace when adding a table
                             from the datastores panel
-            afterStartup: boolean, default is true. Set to false if tables are
+        -afterStartup: boolean, default is true. Set to false if tables are
                       being added during page load
-            selectCol: number. column to be highlighted when table is ready
-            isUndo: boolean, default is false. Set to true if this table is being
+        -selectCol: number. column to be highlighted when table is ready
+        -isUndo: boolean, default is false. Set to true if this table is being
                   created from an undo operation,
-            position: int, used to place a table in a certain spot if not replacing
+        -position: int, used to place a table in a certain spot if not replacing
                         an older table. Currently has to be paired with undo or
                         redo,
-            replacingDest: string, where to send old tables that are being 
-                                  replaced
-
+        -replacingDest: string, where to send old tables that are being replaced
     */
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
                                        worksheet, txId, options)
@@ -59,7 +57,7 @@ window.TblManager = (function($, TblManager) {
             } else {
                 TableList.removeTable(newTableId);
             }
-            // if no tableCols provided but gTable exists, 
+            // if no tableCols provided but gTable exists,
             // columns are already set
             if (gTables[newTableId]) {
                 promise = setResultSet(newTableName);
@@ -83,7 +81,7 @@ window.TblManager = (function($, TblManager) {
                     deferred.reject(StatusTStr[StatusT.StatusCanceled]);
                     return;
                 } else {
-                    // we cannot allow transactions to be canceled if 
+                    // we cannot allow transactions to be canceled if
                     // we're about to add a table to the worksheet
                     Transaction.disableCancel(txId);
                 }
@@ -276,7 +274,7 @@ window.TblManager = (function($, TblManager) {
             // the table is in active worksheet, should have meta from backend
             // table.currentRowNumber = 0;
 
-            table.updateResultset()
+            table.getMetaAndResultSet()
             .then(function() {
                 gTables[tableId] = table;
                 deferred.resolve();
@@ -695,7 +693,7 @@ window.TblManager = (function($, TblManager) {
             deferred.resolve();
         })
         .fail(function() {
-            var success = tableDeleteFailHandler(arguments, tables, noAlert, 
+            var success = tableDeleteFailHandler(arguments, tables, noAlert,
                                                  noLog, txId);
             if (success) {
                 if (tableType === TableType.Undone) {
@@ -1365,16 +1363,13 @@ window.TblManager = (function($, TblManager) {
         tablesToRemove is an array of tableIds to be removed later
 
         Possible Options:
-        afterStartup: boolean to indicate if these tables are added after
+        -afterStartup: boolean to indicate if these tables are added after
                       page load
-        selectCol: number, column to be selected once new table is ready
-        isUndo: boolean, default is false. If true, we are adding this table
+        -selectCol: number, column to be selected once new table is ready
+        -isUndo: boolean, default is false. If true, we are adding this table
                 through an undo,
-        replacingDest: string, where to send old tables that are being 
-                                  replaced
-
+        -replacingDest: string, where to send old tables that are being replaced
     */
-
     function addTable(newTableNames, tablesToReplace, tablesToRemove, options) {
         //XX don't just get first array value
         var newTableId = xcHelper.getTableId(newTableNames[0]);
@@ -1385,9 +1380,10 @@ window.TblManager = (function($, TblManager) {
         var wasTableReplaced = false;
 
         if (options.isUndo && options.position != null) {
-            WSManager.replaceTable(newTableId, null, null,
-                                  {position: options.position,
-                                  removeToDest: options.replacingDest});
+            WSManager.replaceTable(newTableId, null, null, {
+                position    : options.position,
+                removeToDest: options.replacingDest
+            });
         } else if (tablesToReplace[0] == null) {
             WSManager.replaceTable(newTableId);
         } else {
@@ -1428,8 +1424,8 @@ window.TblManager = (function($, TblManager) {
                     } else {
                         if (options.replacingDest === TableType.Undone) {
                             TblManager.sendTableToUndone(tablesToRemove[i], {
-                                "keepInWS": true,
-                                "noFocusWS": noFocusWS 
+                                "keepInWS" : true,
+                                "noFocusWS": noFocusWS
                             });
                         } else {
                             TblManager.sendTableToOrphaned(tablesToRemove[i], {
@@ -1437,7 +1433,6 @@ window.TblManager = (function($, TblManager) {
                                 "noFocusWS": noFocusWS
                             });
                         }
-                        
                     }
                 }
             }
@@ -1457,7 +1452,7 @@ window.TblManager = (function($, TblManager) {
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
 
-        table.updateResultset()
+        table.getMetaAndResultSet()
         .then(function() {
             table.beActive();
             deferred.resolve();
@@ -1489,23 +1484,23 @@ window.TblManager = (function($, TblManager) {
         xcHelper.centerFocusedTable(tableId, true)
         .then(function() {
             RowScroller.genFirstVisibleRowNum();
-        })
+        });
     }
 
-    function changeTableId(oldId, newId) {
-        $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + newId)
-                                    .attr("data-id", newId);
-        $("#xcTheadWrap-" + oldId).attr('id', 'xcTheadWrap-' + newId)
-                                    .attr("data-id", newId);
-        $("#xcTbodyWrap-" + oldId).attr('id', 'xcTbodyWrap-' + newId)
-                                    .attr("data-id", newId);
-        $("#xcTable-" + oldId).attr('id', 'xcTable-' + newId)
-                                .attr("data-id", newId);
-        $("#tableMenu-" + oldId).attr('id', 'tableMenu-' + newId)
-                                .attr("data-id", newId);
-        $("#colMenu-" + oldId).attr('id', 'colMenu-' + newId)
-                                .attr("data-id", newId);
-    }
+    // function changeTableId(oldId, newId) {
+    //     $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + newId)
+    //                                 .attr("data-id", newId);
+    //     $("#xcTheadWrap-" + oldId).attr('id', 'xcTheadWrap-' + newId)
+    //                                 .attr("data-id", newId);
+    //     $("#xcTbodyWrap-" + oldId).attr('id', 'xcTbodyWrap-' + newId)
+    //                                 .attr("data-id", newId);
+    //     $("#xcTable-" + oldId).attr('id', 'xcTable-' + newId)
+    //                             .attr("data-id", newId);
+    //     $("#tableMenu-" + oldId).attr('id', 'tableMenu-' + newId)
+    //                             .attr("data-id", newId);
+    //     $("#colMenu-" + oldId).attr('id', 'colMenu-' + newId)
+    //                             .attr("data-id", newId);
+    // }
 
     /*
         Start the process of building table
@@ -1526,9 +1521,7 @@ window.TblManager = (function($, TblManager) {
         .then(function(json, key) {
             jsonObj = json;
             keyName = key;
-            return (XcalarGetTableMeta(tableName));
-        })
-        .then(function(tableMeta) {
+
             if (notIndexed) { // getNextPage will ColManager.setupProgCols()
                 progCols = table.tableCols;
             }
@@ -1541,8 +1534,7 @@ window.TblManager = (function($, TblManager) {
                 }
             }
             table.currentRowNumber = jsonObj.normal.length;
-            buildInitialTable(progCols, tableId, jsonObj, keyName, tableMeta,
-                              options);
+            buildInitialTable(progCols, tableId, jsonObj, keyName, options);
 
             var $table = $('#xcTable-' + tableId);
             var requiredNumRows    = Math.min(gMaxEntriesPerPage,
@@ -1552,13 +1544,12 @@ window.TblManager = (function($, TblManager) {
             if (numRowsStillNeeded > 0) {
                 var firstRow = $table.find('tbody tr:first');
                 var topRowNum = xcHelper.parseRowNum(firstRow);
+                var targetRow = table.currentRowNumber + numRowsStillNeeded;
                 var info = {
                     "numRowsToAdd"    : numRowsStillNeeded,
                     "numRowsAdded"    : 0,
-                    "targetRow"       : table.currentRowNumber + 
-                                        numRowsStillNeeded,
-                    "lastRowToDisplay": table.currentRowNumber + 
-                                        numRowsStillNeeded,
+                    "targetRow"       : targetRow,
+                    "lastRowToDisplay": targetRow,
                     "bulk"            : false,
                     "dontRemoveRows"  : true,
                     "tableName"       : tableName,
@@ -1618,12 +1609,11 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         selectCol: number. column to be highlighted when table is ready
     */
-    function buildInitialTable(progCols, tableId, jsonObj, keyName, tableMeta,
-                               options) {
+    function buildInitialTable(progCols, tableId, jsonObj, keyName, options) {
         var table = gTables[tableId];
         table.tableCols = progCols;
         table.keyName = keyName;
-        table.backTableMeta = tableMeta;
+
         var dataIndex = generateTableShell(table.tableCols, tableId);
         var numRows = jsonObj.normal.length;
         var startIndex = 0;
@@ -1832,7 +1822,7 @@ window.TblManager = (function($, TblManager) {
     function addTableListeners(tableId) {
         var $xcTableWrap = $('#xcTableWrap-' + tableId);
         var oldId = gActiveTableId;
-        $xcTableWrap.on("mousedown", ".lockedTableIcon", function(event) {
+        $xcTableWrap.on("mousedown", ".lockedTableIcon", function() {
             // handlers fire in the order that it's bound in.
             // So we are going to handle this, which removes the background
             // And the handler below will move the focus onto this table
@@ -1840,7 +1830,8 @@ window.TblManager = (function($, TblManager) {
             xcHelper.refreshTooltip($(".lockedTableIcon .iconPart"), 100);
             QueryManager.cancelQuery(txId);
         });
-        $xcTableWrap.mousedown(function(event) {
+
+        $xcTableWrap.mousedown(function() {
             if (gActiveTableId === tableId ||
                 $xcTableWrap.hasClass('tableOpSection')) {
                 return;

@@ -172,7 +172,7 @@ window.StartManager = (function(StartManager, $) {
                 });
             } else if (error.status === StatusT.StatusSessionActiveElsewhere) {
                 var title = ThriftTStr.SessionElsewhere;
-                Alert.error(title, error.error + '\n' + 
+                Alert.error(title, error.error + '\n' +
                             ThriftTStr.LogInDifferent,
                             {"lockScreen": true});
 
@@ -251,7 +251,7 @@ window.StartManager = (function(StartManager, $) {
         DFCreateView.setup();
         DFGParamModal.setup();
         SmartCastView.setup();
-        DeleteTableModal.setup(); 
+        DeleteTableModal.setup();
         ExtModal.setup();
         AboutModal.setup();
     }
@@ -318,20 +318,20 @@ window.StartManager = (function(StartManager, $) {
     function restoreActiveTable(tableId, failures) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
-        var passedUpdateResultSet = false;
+        var passedUpdate = false;
 
         table.beActive();
 
-        table.updateResultset()
+        table.getMetaAndResultSet()
         .then(function() {
-            passedUpdateResultSet = true;
+            passedUpdate = true;
             return TblManager.parallelConstruct(tableId);
         })
         .then(deferred.resolve)
         .fail(function(error) {
             failures.push("Add table " + table.getName() +
                         "fails: " + error.error);
-            if (!passedUpdateResultSet) {
+            if (!passedUpdate) {
                 table.beOrphaned();
                 WSManager.removeTable(tableId);
             }
