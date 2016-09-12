@@ -97,14 +97,6 @@ function xcalarGetVersion(thriftHandle) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var getVersionOutput = result.output.outputResult.getVersionOutput;
-        
-        var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
         // No status
         if (result.jobStatus != StatusT.StatusOk) {
             deferred.reject(result.jobStatus);
@@ -1865,7 +1857,7 @@ function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
     return (deferred.promise());
 }
 
-function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
+function xcalarListFilesWorkItem(url, recursive, fileNamePattern, fileListUdfName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listFilesInput = new XcalarApiListFilesInputT();
@@ -1874,16 +1866,17 @@ function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
     workItem.input.listFilesInput.url = url;
     workItem.input.listFilesInput.recursive = recursive;
     workItem.input.listFilesInput.fileNamePattern = fileNamePattern;
+    workItem.input.listFilesInput.fileListUdfName = fileListUdfName;
     return (workItem);
 }
 
-function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern) {
+function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern, fileListUdfName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListFiles(url = " + url + ")");
     }
 
-    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern);
+    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern, fileListUdfName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

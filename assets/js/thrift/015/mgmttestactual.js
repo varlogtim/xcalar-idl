@@ -28179,7 +28179,7 @@ function xcalarGetVersion(thriftHandle) {
         if (result.jobStatus != StatusT.StatusOk) {
             deferred.reject(result.jobStatus);
         }
-        deferred.resolve(result);
+        deferred.resolve(getVersionOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetVersion() caught exception:", error);
@@ -32793,7 +32793,7 @@ function xcalarApiListFuncTest(thriftHandle, namePattern) {
               test.assert(ret.tableName == "yelp/user-votes.funny-gt900");
               return xcalarMakeResultSetFromTable(thriftHandle, "yelp/user-votes.funny-gt900");
         })
-        .then(function(ret) { 
+        .then(function(ret) {
               test.assert(ret.numEntries == 488);
               return xcalarFreeResultSet(thriftHandle, ret.resultSetId)
         })
@@ -32967,7 +32967,7 @@ function xcalarApiListFuncTest(thriftHandle, namePattern) {
                             test.fail("Number of nodes deleted != 1 (" + deleteDagNodeOutput.numNodes + ")");
                         } else if (deleteDagNodeOutput.statuses[0].status != StatusT.StatusOk) {
                             test.fail("Error deleting dag node. Status: " + StatusTStr[deleteDagNodeOutput.statuses[0].status] + "(" + deleteDagNodeOutput.statuses[0].status + ")");
-                        } else {                    
+                        } else {
                             queryAndCancel(jj + 1);
                         }
                     })

@@ -12851,6 +12851,7 @@ XcalarApiListFilesInputT = function(args) {
   this.url = null;
   this.recursive = null;
   this.fileNamePattern = null;
+  this.fileListUdfName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -12860,6 +12861,9 @@ XcalarApiListFilesInputT = function(args) {
     }
     if (args.fileNamePattern !== undefined) {
       this.fileNamePattern = args.fileNamePattern;
+    }
+    if (args.fileListUdfName !== undefined) {
+      this.fileListUdfName = args.fileListUdfName;
     }
   }
 };
@@ -12898,6 +12902,13 @@ XcalarApiListFilesInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.fileListUdfName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -12922,6 +12933,11 @@ XcalarApiListFilesInputT.prototype.write = function(output) {
   if (this.fileNamePattern !== null && this.fileNamePattern !== undefined) {
     output.writeFieldBegin('fileNamePattern', Thrift.Type.STRING, 3);
     output.writeString(this.fileNamePattern);
+    output.writeFieldEnd();
+  }
+  if (this.fileListUdfName !== null && this.fileListUdfName !== undefined) {
+    output.writeFieldBegin('fileListUdfName', Thrift.Type.STRING, 4);
+    output.writeString(this.fileListUdfName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -28022,9 +28038,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 21413021
+  'XcalarApiVersionSignature' : 170359553
 };
-XcalarApiVersionTStr = {21413021 : '146bc9d5ee3f618ef04b1658ff0386d8'
+XcalarApiVersionTStr = {170359553 : 'a277b01f9986e7e6387c762eea5718fd'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -29935,7 +29951,7 @@ function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
     return (deferred.promise());
 }
 
-function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
+function xcalarListFilesWorkItem(url, recursive, fileNamePattern, fileListUdfName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listFilesInput = new XcalarApiListFilesInputT();
@@ -29944,16 +29960,17 @@ function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
     workItem.input.listFilesInput.url = url;
     workItem.input.listFilesInput.recursive = recursive;
     workItem.input.listFilesInput.fileNamePattern = fileNamePattern;
+    workItem.input.listFilesInput.fileListUdfName = fileListUdfName;
     return (workItem);
 }
 
-function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern) {
+function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern, fileListUdfName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListFiles(url = " + url + ")");
     }
 
-    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern);
+    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern, fileListUdfName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

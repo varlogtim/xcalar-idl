@@ -518,6 +518,7 @@ XcalarApiListFilesInputT = function(args) {
   this.url = null;
   this.recursive = null;
   this.fileNamePattern = null;
+  this.fileListUdfName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -527,6 +528,9 @@ XcalarApiListFilesInputT = function(args) {
     }
     if (args.fileNamePattern !== undefined) {
       this.fileNamePattern = args.fileNamePattern;
+    }
+    if (args.fileListUdfName !== undefined) {
+      this.fileListUdfName = args.fileListUdfName;
     }
   }
 };
@@ -565,6 +569,13 @@ XcalarApiListFilesInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.fileListUdfName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -589,6 +600,11 @@ XcalarApiListFilesInputT.prototype.write = function(output) {
   if (this.fileNamePattern !== null && this.fileNamePattern !== undefined) {
     output.writeFieldBegin('fileNamePattern', Thrift.Type.STRING, 3);
     output.writeString(this.fileNamePattern);
+    output.writeFieldEnd();
+  }
+  if (this.fileListUdfName !== null && this.fileListUdfName !== undefined) {
+    output.writeFieldBegin('fileListUdfName', Thrift.Type.STRING, 4);
+    output.writeString(this.fileListUdfName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
