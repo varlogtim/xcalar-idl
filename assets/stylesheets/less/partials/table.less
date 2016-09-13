@@ -10,7 +10,7 @@ html.firefox, html.microsoft {
     } 
     .dataTable {
         .header {
-            height: 35px;
+            height: @height-colHeaderOuter;
             input {
                 pointer-events: none;
             }
@@ -1234,7 +1234,7 @@ html.edge {
             .idWrap {
                 .position(relative);
                 .size(100%, 100%);
-                display: table;
+                .flex-display;
             }
         }
 
@@ -1247,8 +1247,17 @@ html.edge {
         }
     }
 
+    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
+        td {
+            &:first-child {
+                border-right: 0px;
+            }
+        }
+    }
+
     tbody tr td:first-child {
         cursor: pointer; // for bookmark
+        border-right: 0px;
     }
 
     th {
