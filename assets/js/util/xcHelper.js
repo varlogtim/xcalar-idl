@@ -713,7 +713,42 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.showFail = function() {
-        // No use for this yet
+        var $successMessage = $('#successMessageWrap');
+        $successMessage.addClass("failed");
+        $successMessage.show();
+        if (!gMinModeOn) {
+            var $checkMark = $successMessage.find('.checkMark');
+            var $text = $successMessage.find('.successMessage');
+            var $largeText = $successMessage.find('.largeText');
+            $text = $text.add($largeText);
+            var $textAndCheckMark = $checkMark.add($text);
+            $textAndCheckMark.addClass('hidden');
+            $checkMark.hide();
+
+            setTimeout(function() {
+                $text.removeClass('hidden');
+            }, 200);
+
+            setTimeout(function() {
+                $checkMark.show().removeClass('hidden')
+                                 .addClass('bounceInDown animated');
+
+            }, 400);
+
+            setTimeout(function() {
+                $textAndCheckMark.addClass('hidden');
+            }, 2000);
+
+            setTimeout(function() {
+                $successMessage.hide();
+                $successMessage.removeClass("failed");
+            }, 2600);
+        } else {
+            setTimeout(function() {
+                $successMessage.hide();
+                $successMessage.removeClass("failed");
+            }, 1800);
+        }
     };
 
     xcHelper.replaceMsg = function(txt, replaces) {

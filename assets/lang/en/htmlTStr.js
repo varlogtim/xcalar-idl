@@ -100,7 +100,9 @@ module.exports = {
 
     "status": {
         "actionSuccess": "Your action was successful!",
-        "SUCCESS": "SUCCESS"
+        "SUCCESS": "SUCCESS",
+        "actionFailed": "Your action failed!",
+        "FAILED": "FAILED"
     },
 
     "menuBar": {

@@ -48,13 +48,17 @@
 
   <div id="successMessageWrap">
     <div class="checkMark">
-      <i class="icon xi-chat-bubble-happy"></i>
+      <i class="icon success xi-chat-bubble-happy"></i>
+      <i class="icon failed xi-chat-bubble-sad"></i>
     </div>
-    <span class="largeText"><%= dicts.status.SUCCESS %></span>
+    <span class="largeText success"><%= dicts.status.SUCCESS %></span>
+    <span class="largeText failed"><%= dicts.status.FAILED %></span>
     <div class="successMessage">
-      <div class="textBox">
-        
+      <div class="textBox success">
         <%= dicts.status.actionSuccess %>
+      </div>
+      <div class="textBox failed">
+        <%= dicts.status.actionFailed %>
       </div>
     </div>
   </div>

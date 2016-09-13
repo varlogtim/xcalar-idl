@@ -1054,10 +1054,14 @@ input {
     pointer-events: none;
     padding-left: 5px;
 
+    .failed {
+        display: none !important;
+    }
+
     .checkMark {
         .size(60px, 60px);
         border-radius: 100%;
-        display: inline-block;
+        display: block;
         left: 170px;
         position: absolute;
         bottom: 185px;
@@ -1078,11 +1082,23 @@ input {
         position: absolute;
         bottom: 5px;
         .transition(bottom 0.6s);
+        background-color: @color-bg-java-green;
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
         &.hidden {
             bottom: -400px;
         }
-        background-color: @color-bg-java-green;
-        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
+    }
+
+    &.failed {
+        .failed {
+            display: block !important;
+        }
+        .success {
+            display: none !important;
+        }
+        .successMessage {
+            background-color: @color-error-border;
+        }
     }
 
     .textBox {
@@ -1093,7 +1109,6 @@ input {
         margin-top: @marginTop; 
         padding-top: 45px;
         .font(@size: 18px, @weight: 300, @color: @color-font-greyish-brown);
-
     }
     
     .largeText {
