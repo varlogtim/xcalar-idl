@@ -110,6 +110,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // minimize
         $("#dsForm-minimize").click(function() {
+            $(".tooltip").hide();
             $previewCard.toggleClass("minimize");
         });
 

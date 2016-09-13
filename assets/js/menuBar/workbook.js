@@ -64,7 +64,6 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.show = function(isForceShow) {
-        
         $workbookPanel.show();
         $('#container').addClass('workbookMode');
 
@@ -260,7 +259,7 @@ window.Workbook = (function($, Workbook) {
             var currentWorkbookName = $workbookBox.find("input").val();
             var currentWorkbooks = WorkbookManager.getWorkbooks();
             var found = false;
-            for (var i = 0; i<10; i++) {
+            for (var i = 0; i < 10; i++) {
                 currentWorkbookName =
                               xcHelper.createNextName(currentWorkbookName, "-");
                 found = true;
