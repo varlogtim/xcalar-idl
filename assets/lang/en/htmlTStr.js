@@ -719,12 +719,13 @@ module.exports = {
     "extension": {
         "EXTList": "Extension List",
         "Installed": "Installed Extensions",
+        "Load": "Loading Extensions",
         "Upload": "Upload Custom Extension",
-        "Load": "Loading Extension",
-        "NotFound": "No Extension Found",
-        "NotAdded": "No Extension Added",
-        "SearchHint": "Search for Extension",
-        "MyExt": "My Extensions"
+        "LoadErr": "Sorry, cannot load extensions.",
+        "MyExt": "My Extensions",
+        "NotAdded": "No Extensions Added",
+        "NotFound": "No Extensions Found",
+        "SearchHint": "Search for Extensions"
     },
 
     "about": {

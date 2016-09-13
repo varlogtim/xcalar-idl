@@ -113,8 +113,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
     function handleError(error) {
         console.error("get extension error", error);
-        $panel.removeClass("wait").removeClass("hint").addClass("error")
-            .find(".infoCard .errorSection").text(error);
+        $panel.removeClass("wait").removeClass("hint").addClass("error");
     }
 
     function initializeExtCategory(extensions) {

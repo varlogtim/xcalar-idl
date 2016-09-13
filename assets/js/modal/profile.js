@@ -1340,9 +1340,11 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function formatNumber(num) {
-        if (num === "" || num == null) {
+        if (num == null) {
             console.warn("cannot format empty or null value");
             return "";
+        } else if (isNaN(num)) {
+            return num;
         }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
         return num.toLocaleString("en", {"maximumFractionDigits": "5"});
@@ -1414,9 +1416,10 @@ window.Profile = (function($, Profile, d3) {
                     if (xDiff !== 0) {
                         // when it's dragging the scroller,
                         // not clicking on scrollbar
-                        var scrollerRight = $scroller.offset().left + $scroller.width();
-                        var scrollBarRight = $scrollerBar.offset().left + $scrollerBar.width();
-
+                        var scrollerRight = $scroller.offset().left +
+                                            $scroller.width();
+                        var scrollBarRight = $scrollerBar.offset().left +
+                                             $scrollerBar.width();
                         if (scrollerRight >= scrollBarRight) {
                             rowPercent = 1 - numRowsToFetch / totalRows;
                         }
@@ -1633,7 +1636,9 @@ window.Profile = (function($, Profile, d3) {
                 $lessBtn.addClass("xc-disabled");
             }
 
-            if (numRowsToFetch >= maxRowsToFetch || numRowsToFetch >= totalRows) {
+            if (numRowsToFetch >= maxRowsToFetch ||
+                numRowsToFetch >= totalRows)
+            {
                 $moreBtn.addClass("xc-disabled");
             }
 
@@ -1777,7 +1782,8 @@ window.Profile = (function($, Profile, d3) {
                 // (max - min) / numRowsToFetch will get bucketSize 5
                 // but range [100, 105) is the 21th size,
                 // so we should do (max + min + numRowsToFetch) / numRowsToFetch
-                bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min + numRowsToFetch) / numRowsToFetch;
+                bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min +
+                              numRowsToFetch) / numRowsToFetch;
                 if (bucketSize >= 0.01) {
                     // have mostly two digits after decimal
                     bucketSize = Math.round(bucketSize * 100) / 100;
@@ -1927,8 +1933,9 @@ window.Profile = (function($, Profile, d3) {
             var def1 = XcalarDeleteTable(mapTable, txId);
             var def2 = XcalarDeleteTable(indexTable, txId);
 
-            // Note that grouby table can not delete because when sort bucket table
-            // it looks for the unsorted table, which is this one
+            // Note that grouby table can not delete because when
+            // sort bucket table it looks for the unsorted table,
+            // which is this one
 
             PromiseHelper.when(def1, def2)
             .always(function() {
@@ -1937,7 +1944,7 @@ window.Profile = (function($, Profile, d3) {
         })
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function highlightBar(rowNum) {
@@ -1957,7 +1964,6 @@ window.Profile = (function($, Profile, d3) {
             return d.split(" hover").join("");
         });
     }
-
 
     function createFilterSelection(startX, startY) {
         var $section = $("#profile-chart");
@@ -2145,7 +2151,8 @@ window.Profile = (function($, Profile, d3) {
         var isExist = false;
 
         var colName = statsCol.colName;
-        var filterTableId = curTableId; // in case close modal clear curTableId
+        // in case close modal clear curTableId
+        var filterTableId = curTableId;
         var hasNull = (groupByData[0].type === "nullVal");
         var isString = (statsCol.type === "string");
 
@@ -2224,11 +2231,13 @@ window.Profile = (function($, Profile, d3) {
             if (len > 0) {
                 for (var i = 0; i < len - 1; i++) {
                     str += "or(and(ge(" + colName + ", " + colVals[i] + "), " +
-                                  "lt(" + colName + ", " + (colVals[i] + bucketSize) + ")), ";
+                                  "lt(" + colName + ", " +
+                                    (colVals[i] + bucketSize) + ")), ";
                 }
 
                 str += "and(ge(" + colName + ", " + colVals[i] + "), " +
-                           "lt(" + colName + ", " + (colVals[i] + bucketSize) + ")";
+                           "lt(" + colName + ", " +
+                            (colVals[i] + bucketSize) + ")";
 
                 for (var i = 0; i < len; i++) {
                     str += ")";
@@ -2238,11 +2247,13 @@ window.Profile = (function($, Profile, d3) {
             if (len > 0) {
                 for (var i = 0; i < len - 1; i++) {
                     str += "and(or(lt(" + colName + ", " + colVals[i] + "), " +
-                                  "ge(" + colName + ", " + (colVals[i] + bucketSize) + ")), ";
+                                    "ge(" + colName + ", " +
+                                    (colVals[i] + bucketSize) + ")), ";
                 }
 
                 str += "or(lt(" + colName + ", " + colVals[i] + "), " +
-                          "ge(" + colName + ", " + (colVals[i] + bucketSize) + ")";
+                          "ge(" + colName + ", " +
+                            (colVals[i] + bucketSize) + ")";
 
                 for (var i = 0; i < len; i++) {
                     str += ")";
@@ -2375,7 +2386,8 @@ window.Profile = (function($, Profile, d3) {
             }
 
             $modal.removeClass("loading");
-            $modal.find(".loadHidden").removeClass("hidden").removeClass("disabled");
+            $modal.find(".loadHidden").removeClass("hidden")
+                                    .removeClass("disabled");
             $modal.find(".loadDisabled").removeClass("disabled");
             $modal.find(".groubyInfoSection").addClass("hidden");
             $modal.find(".errorSection").removeClass("hidden")
