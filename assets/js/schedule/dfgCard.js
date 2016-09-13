@@ -241,7 +241,6 @@ window.DFGCard = (function($, DFGCard) {
             drawDags(groupName);
             DFGCard.listSchedulesInHeader(groupName);
             DFGCard.updateRetinaTab(groupName);
-            // AddScheduleCard.update(groupName);
 
             $listSection.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
@@ -255,9 +254,15 @@ window.DFGCard = (function($, DFGCard) {
             }
         });
 
-        $listSection.on('click', '.addGroup', function() {
-            var groupName = $(this).siblings('.groupName').text();
-            // AddScheduleCard.show(groupName);
+        $listSection.on('click', '.downloadDataflow', function() {
+            var retName = $(this).siblings('.groupName').text();
+            Support.downloadLRQ(retName);
+            // XXX: Show something when the download has started
+        });
+
+        $listSection.on('click', '.deleteDataflow', function() {
+            var retName = $(this).siblings('.groupName').text();
+            console.log("Delete dataflow");
         });
 
         $('#uploadDataflowButton').click(function() {
@@ -527,12 +532,12 @@ window.DFGCard = (function($, DFGCard) {
                           '<i class="icon xi-dataflowgroup"></i>' +
                         '</div>' +
                         '<span class="groupName">' + group + '</span>' +
-                        '<i class="icon xi-trash deleteGroup" ' +
-                            'title="coming soon" data-toggle="tooltip" ' +
+                        '<i class="icon xi-trash deleteDataflow" ' +
+                            'title="Delete dataflow" data-toggle="tooltip" ' +
                             'data-placement="top" data-container="body">' +
                         '</i>' +
-                        '<i class="icon xi-add-schedule addGroup" ' +
-                            'title="add a group to schedule" ' +
+                        '<i class="icon xi-download downloadDataflow" ' +
+                            'title="Download dataflow" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
                         '</i>' +
