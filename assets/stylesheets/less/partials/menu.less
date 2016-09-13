@@ -446,7 +446,7 @@
     }
 
     &.type-object, &.type-newColumn, &.type-mixed,
-    &.recordNum, &.childOfArray, &.sortedArray {
+    &.recordNum, &.childOfArray, &.type-array {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
         .profile
         {
@@ -481,13 +481,13 @@
         }
     }
 
-    &.childOfArray, &.sortedArray {
+    &.childOfArray, {
         .changeDataType, .hPartition, .window, .splitCol , .extensions {
             display: none;
         }
     }
 
-    &.type-object, &.childOfArray, &.sortedArray {
+    &.type-object, &.childOfArray, {
         .functionsDivider {
             display: none;
         }

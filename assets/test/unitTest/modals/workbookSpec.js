@@ -109,11 +109,8 @@ describe('Workbook Test', function() {
             var $input = $box.find(".workbookName");
 
             $box.find(".modify").click();
-            assert.isTrue($input.is(":focus"));
-
             $input.val(name).trigger(fakeEvent.enter);
             expect($input.val()).to.equal(name);
-            assert.isFalse($input.is(":focus"));
         });
 
         it("Should duplicate workbook", function(done) {

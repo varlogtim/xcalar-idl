@@ -111,7 +111,6 @@ function TableMeta(options) {
     self.tableName = options.tableName;
     self.tableId = options.tableId;
     self.isLocked = options.isLocked || false;
-    self.isSortedArray = options.isSortedArray || false;
     self.status = options.status || TableType.Active;
 
     self.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();
@@ -464,7 +463,6 @@ function ProgCol(options) {
     }
 
     this.format = options.format || null;
-    this.isSortedArray = options.isSortedArray || false;
     this.isHidden = options.isHidden || false;
 
     return this;

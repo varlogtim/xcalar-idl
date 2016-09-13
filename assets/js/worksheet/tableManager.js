@@ -727,7 +727,7 @@ window.TblManager = (function($, TblManager) {
         WSManager.dropUndoneTables();
     };
 
-    TblManager.pullRowsBulk = function(tableId, jsonObj, startIndex, dataIndex,
+    TblManager.pullRowsBulk = function(tableId, jsonData, startIndex, dataIndex,
                                        direction, rowToPrependTo) {
         // this function does some preparation for ColManager.pullAllCols()
         startIndex = startIndex || 0;
@@ -738,7 +738,7 @@ window.TblManager = (function($, TblManager) {
             dataIndex = xcHelper.parseColNum($table.find('tr:first .dataCol')) -
                                              1;
         }
-        var newCells = ColManager.pullAllCols(startIndex, jsonObj, dataIndex,
+        var newCells = ColManager.pullAllCols(startIndex, jsonData, dataIndex,
                                               tableId, direction,
                                               rowToPrependTo);
         addRowListeners(newCells);
@@ -1514,12 +1514,12 @@ window.TblManager = (function($, TblManager) {
         var progCols   = table.tableCols;
         var notIndexed = !(progCols && progCols.length > 0);
 
-        var jsonObj;
+        var jsonData;
         var keyName;
 
         getFirstPage(table, notIndexed)
-        .then(function(json, key) {
-            jsonObj = json;
+        .then(function(jsons, key) {
+            jsonData = jsons;
             keyName = key;
 
             if (notIndexed) { // getNextPage will ColManager.setupProgCols()
@@ -1533,8 +1533,8 @@ window.TblManager = (function($, TblManager) {
                     $("#rowScroller-" + tblId).remove();
                 }
             }
-            table.currentRowNumber = jsonObj.normal.length;
-            buildInitialTable(progCols, tableId, jsonObj, keyName, options);
+            table.currentRowNumber = jsonData.length;
+            buildInitialTable(progCols, tableId, jsonData, keyName, options);
 
             var $table = $('#xcTable-' + tableId);
             var requiredNumRows    = Math.min(gMaxEntriesPerPage,
@@ -1609,27 +1609,25 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         selectCol: number. column to be highlighted when table is ready
     */
-    function buildInitialTable(progCols, tableId, jsonObj, keyName, options) {
+    function buildInitialTable(progCols, tableId, jsonData, keyName, options) {
         var table = gTables[tableId];
         table.tableCols = progCols;
         table.keyName = keyName;
 
         var dataIndex = generateTableShell(table.tableCols, tableId);
-        var numRows = jsonObj.normal.length;
+        var numRows = jsonData.length;
         var startIndex = 0;
         var $table = $('#xcTable-' + tableId);
         RowScroller.add(tableId);
+
         if (numRows === 0) {
             console.log('no rows found, ERROR???');
             $('#rowScroller-' + tableId).addClass('hidden');
             $table.addClass('emptyTable');
-            jsonObj = {
-                "normal" : [""],
-                "withKey": [""]
-            };
+            jsonData = [""];
         }
 
-        TblManager.pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, null);
+        TblManager.pullRowsBulk(tableId, jsonData, startIndex, dataIndex, null);
         addTableListeners(tableId);
         createTableHeader(tableId);
         TblManager.addColListeners($table, tableId);

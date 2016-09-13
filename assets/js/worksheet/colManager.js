@@ -1267,13 +1267,13 @@ window.ColManager = (function($, ColManager) {
         });
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
 
-        var jsonObj = {normal: []};
+        var jsonData = [];
         $table.find('tbody').find('.col' + dataIndex).each(function() {
-            jsonObj.normal.push($(this).find('.originalData').text());
+            jsonData.push($(this).find('.originalData').text());
         });
         $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
 
-        TblManager.pullRowsBulk(tableId, jsonObj, rowNum, newDataIndex,
+        TblManager.pullRowsBulk(tableId, jsonData, rowNum, newDataIndex,
                                 RowDirection.Bottom);
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
@@ -1473,15 +1473,12 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
+    ColManager.pullAllCols = function(startIndex, jsonData, dataIndex,
                                       tableId, direction, rowToPrependTo)
     {
         var table     = gTables[tableId];
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
-        // jsonData based on if it's indexed on array or not
-        var secondPull = table.isSortedArray || false;
-        var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
         var indexedColNums = [];
         var nestedVals     = [];
         var columnTypes    = []; // track column type
@@ -1502,8 +1499,6 @@ window.ColManager = (function($, ColManager) {
         var backColName;
         var nested;
         var nestedLength;
-        var $input;
-        var key;
         var tdClass;
         var originalVal;
         var formatVal;
@@ -1555,11 +1550,7 @@ window.ColManager = (function($, ColManager) {
             }
 
             // initial type
-            if (secondPull && tableCols[i].isSortedArray) {
-                columnTypes.push(null);
-            } else {
-                columnTypes.push(tableCols[i].getType());
-            }
+            columnTypes.push(tableCols[i].getType());
         }
         // loop through table tr and start building html
         for (row = 0, numRows = jsonData.length; row < numRows; row++) {
@@ -1636,22 +1627,6 @@ window.ColManager = (function($, ColManager) {
                         {
                             childArrayVals[col] = true;
                         }
-                    }
-
-                    // if it's the index array field, pull indexed one instead
-                    if (secondPull && tableCols[col].isSortedArray) {
-                        $input = $table.find('th.col' + (col + 1) +
-                                          '> .header input');
-                        key = table.keyName + "_indexed";
-                        $input.val(key);
-                        tdValue = dataValue[key];
-
-                        // this is a indexed column, should change the ProCol
-                        // XXX this part might buggy
-                        tableCols[col].backName = key;
-                        tableCols[col].name = key;
-                        tableCols[col].userStr = '"' + key + '" = pull(' + key + ')';
-                        tableCols[col].func.args[0] = key;
                     }
 
                     tdClass = "col" + (col + 1);
@@ -1762,19 +1737,6 @@ window.ColManager = (function($, ColManager) {
         // end of loop through table tr and start building html
 
         // assign column type class to header menus
-
-        // This only run once,  check if it's a indexed array, mark on gTables
-        // and redo the pull column thing
-        if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
-            table.isSortedArray = true;
-
-            for (var i = 0; i < indexedColNums.length; i++) {
-                tableCols[indexedColNums[i]].isSortedArray = true;
-            }
-            return ColManager.pullAllCols(startIndex, jsonObj,
-                                          dataIndex, tableId, direction);
-        }
-
         var $tBody = $(tBodyHTML);
         if (direction === 1) {
             if (rowToPrependTo > -1) {
@@ -1832,16 +1794,13 @@ window.ColManager = (function($, ColManager) {
             if (childArrayVals[i]) {
                 $header.addClass('childOfArray');
             }
-            if (tableCols[i].isSortedArray) {
-                $header.addClass('sortedArray');
-            }
             if ($currentTh.hasClass('selectedCell') ||
                 $currentTh.hasClass('modalHighlighted')) {
                 highlightColumn($currentTh);
             }
         }
 
-        return ($tBody);
+        return $tBody;
     };
 
     ColManager.unnest = function(tableId, colNum, rowNum, isArray, options) {
@@ -1964,9 +1923,9 @@ window.ColManager = (function($, ColManager) {
         }
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
         var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
-        var jsonObj = {normal: []};
+        var jsonData = [];
         $table.find('tbody').find('.col' + origDataIndex).each(function() {
-            jsonObj.normal.push($(this).find('.originalData').text());
+            jsonData.push($(this).find('.originalData').text());
         });
         $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
         var endIndex;
@@ -1990,7 +1949,7 @@ window.ColManager = (function($, ColManager) {
 
         var dataIndex = xcHelper.parseColNum($table.find('th.dataCol')) - 1;
 
-        TblManager.pullRowsBulk(tableId, jsonObj, rowNum, dataIndex,
+        TblManager.pullRowsBulk(tableId, jsonData, rowNum, dataIndex,
                                 RowDirection.Bottom);
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
@@ -2279,14 +2238,6 @@ window.ColManager = (function($, ColManager) {
         }
         if (childOfArray) {
             $header.addClass('childOfArray');
-        }
-
-        if (table.isSortedArray &&
-            tableCol.getBackColName() === table.keyName + "_indexed")
-        {
-            // XXX this method to detect it's sortedArray is not reliable
-            tableCol.isSortedArray = true;
-            $header.addClass('sortedArray');
         }
 
         $table.find('th.col' + newColid).removeClass('newColumn');

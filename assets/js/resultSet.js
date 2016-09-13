@@ -74,14 +74,14 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     XcalarSetAbsolute(table.resultSetId, rowPosition)
     .then(function() {
         setAbsolutePassed = true;
-        return (generateDataColumnJson(table, null, false, numRowsToAdd));
+        return generateDataColumnJson(table, null, false, numRowsToAdd);
     })
-    .then(function(jsonObj, keyName) {
+    .then(function(jsonData) {
         prepullTableHeight = $table.height();
-        TblManager.pullRowsBulk(tableId, jsonObj, rowPosition, null,
+        TblManager.pullRowsBulk(tableId, jsonData, rowPosition, null,
             direction, rowToPrependTo);
 
-        var jsonLen = jsonObj.normal.length;
+        var jsonLen = jsonData.length;
         info.numRowsAdded += jsonLen;
         var numRowsLacking = numRowsToAdd - jsonLen;
         var numRowsToIncrement = Math.max(1, jsonLen);
@@ -118,8 +118,8 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
             removeOldRows($table, tableId, info, direction, prepullTableHeight);
         } else if (!loop && info.missingRows) {
-            console.log('some rows were too large to be retrieved, rows: ' +
-                info.missingRows);
+            console.log('some rows were too large to be retrieved, rows:',
+                        info.missingRows);
         }
         deferred.resolve();
     })
@@ -132,7 +132,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                 table.resultSetId = result.resultSetId;
                 goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                         rowToPrependTo, true)
-                .then(function(data1, data2) {
+                .then(function() {
                     deferred.resolve();
                 })
                 .fail(function(error2) {
@@ -153,7 +153,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         gIsTableScrolling = false;
     });
 
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 // fetches more rows when scrolling down
@@ -277,25 +277,23 @@ function getFirstPage(table, notIndexed) {
     }
     TblManager.adjustRowFetchQuantity();
     var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetCount);
-    return (generateDataColumnJson(table, null, notIndexed, numRowsToAdd));
+    return generateDataColumnJson(table, null, notIndexed, numRowsToAdd);
 }
 
 // produces an array of all the td values that will go into the DATA column
-function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
-    retry) {
-    var deferred = jQuery.Deferred();
-    var jsonObj = {
-        "normal" : [],
-        "withKey": []
-    };
+function generateDataColumnJson(table, direction, notIndexed,
+                                numRowsToFetch, retry)
+{
+    var jsons = [];
 
     if (table.resultSetId === 0) {
         return PromiseHelper.resolve(null);
     }
     if (numRowsToFetch === 0) {
-        deferred.resolve(jsonObj);
-        return (deferred.promise());
+        return PromiseHelper.resolve(jsons);
     }
+
+    var deferred = jQuery.Deferred();
 
     XcalarGetNextPage(table.resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
@@ -311,31 +309,16 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
         }
 
         var numRows = Math.min(numRowsToFetch, numKvPairs);
-        var jsonNormal = [];
-        var jsonWithKey = [];
-        var index;
-        var key;
-        var value;
-        var newValue;
+        jsons = [];
 
         for (var i = 0; i < numRows; i++) {
-            index = (direction === 1) ? (numRows - 1 - i) : i;
-            key = kvPairs[index].key;
-            value = kvPairs[index].value;
+            var index = (direction === 1) ? (numRows - 1 - i) : i;
+            var value = kvPairs[index].value;
 
-            jsonNormal.push(value);
-            // remove the last char, which should be "}"
-            newValue = value.substring(0, value.length - 1);
-
-            newValue += ',"' + keyName + '_indexed":' + key + '}';
-            jsonWithKey.push(newValue);
+            jsons.push(value);
         }
 
-        jsonObj = {
-            "normal" : jsonNormal,
-            "withKey": jsonWithKey
-        };
-        deferred.resolve(jsonObj, keyName);
+        deferred.resolve(jsons, keyName);
     })
     .fail(function(error) {
         if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
@@ -363,5 +346,5 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch,
         }
     });
 
-    return (deferred.promise());
+    return deferred.promise();
 }
