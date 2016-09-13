@@ -1064,7 +1064,6 @@ function focusTable(tableId, focusDag) {
         }
     }
     // var alreadyFocused = gActiveTableId === tableId;
-
     var wsNum = WSManager.getActiveWS();
     $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
                                         .removeClass('tblTitleSelected');
@@ -1323,6 +1322,13 @@ function hideOffScreenTables(options) {
 }
 
 function unhideOffScreenTables() {
+    var mainFrameScroll; 
+    var cachedMouseStatus = gMouseStatus;
+    if (!window.isBrowserChrome) {
+        // to reset scrollposition in case it gets changed
+        mainFrameScroll = $('#mainFrame').scrollLeft();
+        gMouseStatus = "movingTable";
+    }
     var $tableWraps = $('.xcTableWrap:not(.inActive)');
     $tableWraps.width('auto');
     $tableWraps.removeClass('inViewPort hollowed');
@@ -1340,4 +1346,12 @@ function unhideOffScreenTables() {
         $lockedIcon.css('top', topPos + '%');
         $tableWrap.find('.tableCover').height(tbodyHeight);
     });
+    if (!window.isBrowserChrome) {
+        // to reset scrollposition in case it gets changed
+        $('#mainFrame').scrollLeft(mainFrameScroll);
+        // firefox and IE will trigger a delayed scroll
+        setTimeout(function() {
+            gMouseStatus = cachedMouseStatus;
+        }, 0);
+    }
 }

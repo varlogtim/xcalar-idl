@@ -75,7 +75,7 @@ window.QueryManager = (function(QueryManager, $) {
     // queryName will be empty if subquery doesn't belong to a xcalarQuery
     QueryManager.addSubQuery = function(id, name, dstTable, query, queryName) {
         if (!queryLists[id] || Transaction.checkCanceled(id)) {
-            console.log("QueryHasBeenCancelled");
+            // console.log("QueryHasBeenCancelled");
             return;
         }
         var mainQuery = queryLists[id];

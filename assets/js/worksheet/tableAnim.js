@@ -514,7 +514,6 @@ window.TblAnim = (function($, TblAnim) {
             // then just clean up and exit
             gMouseStatus = null;
             $(document).off('mousemove.checkColDrag');
-
             return;
         }
 
@@ -567,7 +566,10 @@ window.TblAnim = (function($, TblAnim) {
 
             Tips.refresh();
         }
-        unhideOffScreenTables();
+        setTimeout(function() {
+            unhideOffScreenTables();
+        }, 0);
+        
     }
 
     function cloneCellHelper(obj) {
