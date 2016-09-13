@@ -123,7 +123,7 @@ window.StartManager = (function(StartManager, $) {
             setupStatus = SetupStatus.Success;
 
             console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
-            'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
+            'background-color: #5CB2E8; ' +
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
             XVM.commitVersionInfo();

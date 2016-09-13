@@ -75,9 +75,9 @@ window.SmartCastView = (function($, SmartCastView) {
                     .data("col", colNum);
 
             xcHelper.dropdownOpen($col, $castMenu, {
-                "mouseCoors"   : {"x": bound.left + 8, "y": bound.bottom},
-                "classes"      : initialType,
-                "floating"     : true
+                "mouseCoors": {"x": bound.left + 8, "y": bound.bottom},
+                "classes"   : initialType,
+                "floating"  : true
             });
         });
 

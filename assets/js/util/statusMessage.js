@@ -302,7 +302,7 @@ window.StatusMessage = (function($, StatusMessage) {
     function removeFailedMsg($statusSpan) {
         if (!$statusSpan.length) {
             // removeFailedMsg could have been triggered with setTimeout
-            // after user already manually triggered 
+            // after user already manually triggered
             return;
         }
         var msgId = parseInt($statusSpan.attr('id').substr(7));

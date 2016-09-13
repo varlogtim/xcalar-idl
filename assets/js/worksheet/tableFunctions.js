@@ -907,7 +907,7 @@ function moveTableDropdownBoxes() {
 
 // options used to animate table titles when main menu opening or closing
 function moveTableTitles($tableWraps, options) {
-    if (isBrowserMicrosoft) {
+    if (isBrowserMicrosoft || isBrowserSafari) {
         return;
     }
     options = options || {};
@@ -986,7 +986,7 @@ function moveTableTitles($tableWraps, options) {
 }
 
 function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
-    if (isBrowserMicrosoft) {
+    if (isBrowserMicrosoft || isBrowserSafari) {
         return;
     }
     if (speed == null) { // lets speed 0 be 0
@@ -1166,7 +1166,7 @@ function moveFirstColumn($targetTable) {
     var rightOffset;
     var datasetPreview;
     var tableOffsetLeft;
-    if (isBrowserMicrosoft) {
+    if (isBrowserMicrosoft || isBrowserSafari) {
         return;
     }
 
@@ -1322,7 +1322,7 @@ function hideOffScreenTables(options) {
 }
 
 function unhideOffScreenTables() {
-    var mainFrameScroll; 
+    var mainFrameScroll;
     var cachedMouseStatus = gMouseStatus;
     if (!window.isBrowserChrome) {
         // to reset scrollposition in case it gets changed
@@ -1340,7 +1340,7 @@ function unhideOffScreenTables() {
         var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
         var $lockedIcon = $tableWrap.find('.lockedTableIcon');
         var iconHeight = $lockedIcon.height();
-        var topPos = 50 * ((tableWrapHeight - (iconHeight / 2)) / 
+        var topPos = 50 * ((tableWrapHeight - (iconHeight / 2)) /
                             mainFrameHeight);
         topPos = Math.min(topPos, 40);
         $lockedIcon.css('top', topPos + '%');

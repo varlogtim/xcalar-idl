@@ -628,7 +628,7 @@ window.JoinView = (function($, JoinView) {
 
         var extOptions = {
             noNotification: true
-        }
+        };
         ExtensionManager.trigger(tableIds[0], "UExtDev", "estimateJoin",
                                  argList, extOptions)
         .then(function(ret) {

@@ -54,7 +54,7 @@ window.Transaction = (function(Transaction, $) {
             return;
         }
         if (canceledTxCache[txId]) {
-            // if canceled, Transaction.cancel already took care of the cleanup 
+            // if canceled, Transaction.cancel already took care of the cleanup
             // and messages
             QueryManager.cleanUpCanceledTables(txId);
             return;
@@ -159,7 +159,7 @@ window.Transaction = (function(Transaction, $) {
         // ability to cancel because it's too late at this point
         if (isValidTX(txId)) {
             disabledCancels[txId] = true;
-        }  
+        }
     };
 
     Transaction.isCancelable = function(txId) {

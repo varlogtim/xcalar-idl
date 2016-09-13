@@ -114,7 +114,7 @@ window.XcSDK.Table.prototype = {
             this.tablesToReplace = tablesToReplace;
         }
 
-        return TblManager.refreshTable([tableName], tableCols, tablesToReplace, 
+        return TblManager.refreshTable([tableName], tableCols, tablesToReplace,
                                       ws, txId);
     },
 

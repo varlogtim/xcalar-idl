@@ -83,7 +83,7 @@ window.WSManager = (function($, WSManager) {
                     tableIdToWSIdMap[undoneTables[i]] = wsId;
                 }
             } else {
-                // xx temp fix for old UI versions that do not have undone 
+                // xx temp fix for old UI versions that do not have undone
                 // tables
                 ws.undoneTables = [];
             }
@@ -890,7 +890,7 @@ window.WSManager = (function($, WSManager) {
             var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
             var $lockedIcon = $tableWrap.find('.lockedTableIcon');
             var iconHeight = $lockedIcon.height();
-            var topPos = 50 * ((tableWrapHeight - (iconHeight / 2)) / 
+            var topPos = 50 * ((tableWrapHeight - (iconHeight / 2)) /
                                 mainFrameHeight);
             topPos = Math.min(topPos, 40);
             $lockedIcon.css('top', topPos + '%');
@@ -1133,9 +1133,9 @@ window.WSManager = (function($, WSManager) {
                 WSManager.switchWS(wsId);
             }
             xcHelper.dropdownOpen($wsMenu, $tabMenu, {
-                "offsetX"      : -7,
-                "floating"     : true,
-                "callback"     : function() {
+                "offsetX" : -7,
+                "floating": true,
+                "callback": function() {
                     if (numTabs === 1) {
                         $tabMenu.find(".delete").addClass("unavailable");
                         $tabMenu.find(".hide").addClass("unavailable");

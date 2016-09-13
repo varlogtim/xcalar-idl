@@ -489,11 +489,11 @@ window.DFGCard = (function($, DFGCard) {
             $menu.show();
 
             //positioning if dropdown menu is on the right side of screen
-            if ($menu[0].getBoundingClientRect().right > 
+            if ($menu[0].getBoundingClientRect().right >
                 $(window).width() - 5) {
                 left = $(window).width() - $menu.width() - 7;
                 $menu.css('left', left).addClass('leftColMenu');
-            } else if ($menu[0].getBoundingClientRect().left < 
+            } else if ($menu[0].getBoundingClientRect().left <
                         MainMenu.getOffset()) {
                 // if on the left side of the screen
                 $menu.css('left', MainMenu.getOffset() + 5);
