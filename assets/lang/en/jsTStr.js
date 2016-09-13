@@ -394,7 +394,7 @@ WKBKTStr = {
     "EditName": "Edit Workbook Name",
     "Duplicate": "Duplicate Workbook",
     "Delete": "Delete Workbook",
-
+    "DelErr": "Error occurred in deleting workbook",
     // With replace
     'Conflict': 'Workbook "<name>" already exists, ' +
                 'please choose another name.'

@@ -59,7 +59,6 @@ window.Workbook = (function($, Workbook) {
         try {
             getWorkbookInfo();
         } catch (error) {
-            console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }
     };
@@ -117,8 +116,8 @@ window.Workbook = (function($, Workbook) {
 
         // Create a new workbook with the name already selected - Prompting
         // the user to click Create Workbook
-        var uName = Support.getUser();
-        $newWorkbookInput.val("untitled-"+uName);
+        var name = getNewWorkbookName();
+        $newWorkbookInput.val(name);
         var input = $newWorkbookInput.get(0);
         input.setSelectionRange(0, input.value.length);
     };
@@ -132,6 +131,31 @@ window.Workbook = (function($, Workbook) {
     function closeWorkbookPanel() {
         $(document).off("keypress", workbookKeyPress);
         resetWorkbook();
+    }
+
+    function getNewWorkbookName() {
+        var defaultName = "untitled-" + Support.getUser();
+        var names = {};
+        $workbookPanel.find(".workbookBox .workbookName").each(function() {
+            var name = $(this).val();
+            names[name] = true;
+        });
+
+        var maxTry = 100;
+        var tryCnt = 0;
+        var resName = defaultName;
+
+        while (tryCnt < maxTry && names.hasOwnProperty(resName)) {
+            tryCnt++;
+            resName = defaultName + "(" + tryCnt + ")";
+        }
+
+        if (tryCnt >= maxTry) {
+            console.warn("Too much try");
+            resName = xcHelper.randName(defaultName);
+        }
+
+        return resName;
     }
 
     function addTopbarEvents() {
@@ -622,7 +646,6 @@ window.Workbook = (function($, Workbook) {
             $newWorkbookInput.blur();
         })
         .fail(function(error) {
-            console.error(error);
             deferred.reject(error);
             $lastFocusedInput = $newWorkbookInput;
         });

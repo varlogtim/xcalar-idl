@@ -413,9 +413,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     WorkbookManager.deleteWKBK = function(workbookId) {
+        var workbook = wkbkSet.get(workbookId);
+
+        if (workbook == null) {
+            return PromiseHelper.reject(WKBKTStr.DelErr);
+        }
+
         var deferred = jQuery.Deferred();
         var isCurrentWKBK = (workbookId === activeWKBKId);
-        var workbook = wkbkSet.get(workbookId);
 
         // 1. Stop heart beat check (Heartbeat key may change due to active
         //                           worksheet changing)
@@ -442,7 +447,25 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             wkbkSet.delete(workbook.id);
-            return KVStore.commit();
+
+            // XXX may not need KVStore.commit(),
+            // bring KVStore.commit() back if it's buggy
+            return WorkbookManager.commit();
+
+            // var innerDeferred = jQuery.Deferred();
+            // KVStore.commit()
+            // .then(innerDeferred.resolve)
+            // .fail(function(error) {
+            //     if (error.status === StatusT.StatusSessionNotFound) {
+            //         // normal error when no any active seesion
+            //         // and trigger deleting
+            //         innerDeferred.resolve();
+            //     } else {
+            //         innerDeferred.reject(error);
+            //     }
+            // });
+
+            // return innerDeferred.promise();
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
