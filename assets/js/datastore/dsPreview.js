@@ -536,11 +536,11 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var isRecur = loadArgs.useRecur();
-        var isRegEx = loadArgs.useRegEx();
+        var isRegex = loadArgs.useRegex();
         var previewSize = loadArgs.getPreviewSize();
 
         // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
-        //     header, loadURL, quote, skipRows, isRecur, isRegEx, previewSize);
+        //     header, loadURL, quote, skipRows, isRecur, isRegex, previewSize);
 
         cacheUDF(udfModule, udfFunc);
 
@@ -575,7 +575,7 @@ window.DSPreview = (function($, DSPreview) {
                         fieldDelim, lineDelim, header,
                         udfModule, udfFunc,
                         isRecur, previewSize, quote,
-                        skipRows, isRegEx, colNames);
+                        skipRows, isRegex, colNames);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -979,6 +979,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var isRecur = loadArgs.useRecur();
+        var isRegex = loadArgs.useRegex();
         var hasUDF = false;
 
         if (udfModule && udfFunc) {
@@ -1021,7 +1022,7 @@ window.DSPreview = (function($, DSPreview) {
             promise = loadDataWithUDF(txId, loadURL, dsName,
                                         udfModule, udfFunc, isRecur);
         } else {
-            promise = loadData(loadURL, isRecur);
+            promise = loadData(loadURL, isRecur, isRegex);
         }
 
         promise
@@ -1105,10 +1106,10 @@ window.DSPreview = (function($, DSPreview) {
         $previeWrap.find(".loadHidden").addClass("hidden");
     }
 
-    function loadData(loadURL, isRecur) {
+    function loadData(loadURL, isRecur, isRegex) {
         var deferred = jQuery.Deferred();
 
-        XcalarPreview(loadURL, isRecur, numBytesRequest)
+        XcalarPreview(loadURL, isRecur, isRegex, numBytesRequest)
         .then(function(res) {
             deferred.resolve(res.buffer);
         })

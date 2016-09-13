@@ -831,8 +831,8 @@ DSFormController.prototype = {
         this.format = format;
     },
 
-    "useRegEx": function() {
-        return this.isRegEx;
+    "useRegex": function() {
+        return this.isRegex;
     },
 
     "useRecur": function() {

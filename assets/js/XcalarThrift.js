@@ -416,7 +416,7 @@ function XcalarGetVersion(connectionCheck) {
 }
 
 // Call this exactly with the url and isRecur that you
-function XcalarPreview(url, isRecur, numBytesRequested) {
+function XcalarPreview(url, isRecur, isRegex, numBytesRequested) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -425,7 +425,7 @@ function XcalarPreview(url, isRecur, numBytesRequested) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    var fileNameArray = getNamePattern(url, isRecur);
+    var fileNameArray = getNamePattern(url, isRecur, isRegex);
     var fileNamePattern = fileNameArray[1];
     var urlPart = fileNameArray[0];
 
@@ -528,7 +528,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     loadArgs.csv.linesToSkip = skipRows;
     loadArgs.csv.quoteDelim = quoteChar;
     loadArgs.recursive = isRecur;
-    var fileNameArray = getNamePattern(url, isRecur);
+    var fileNameArray = getNamePattern(url, isRecur, isRegex);
     loadArgs.fileNamePattern = fileNameArray[1];
     url = fileNameArray[0];
     if (hasHeader) {
@@ -547,10 +547,6 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
 
     if (maxSampleSize > 0) {
         console.log("Max sample size set to: ", maxSampleSize);
-    }
-
-    if (isRegex) {
-        loadArgs.fileNamePattern = "re:"+loadArgs.fileNamePattern;
     }
 
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
@@ -2195,7 +2191,7 @@ function XcalarGetDag(tableName) {
     return (deferred.promise());
 }
 
-function getNamePattern(userUrl, isRecur) {
+function getNamePattern(userUrl, isRecur, isRegex) {
     // XXX Test: folder loading ending with / and without
     // XXX test: single file
     // XXX test: folder with *, file with *
@@ -2206,7 +2202,7 @@ function getNamePattern(userUrl, isRecur) {
     }
 
     var star = userUrl.indexOf("*");
-    if (star === -1 && !isRecur) {
+    if (star === -1 && !isRecur && !isRegex) {
         return [userUrl, ""];
     }
 
@@ -2214,12 +2210,18 @@ function getNamePattern(userUrl, isRecur) {
         star = userUrl.length - 1;
     }
 
+    var regexPrefix = isRegex ? "re:" : "";
+
     for (var i = star; i >= 0; i--) {
         if (userUrl[i] === "/") {
-            return [userUrl.substring(0, i+1),
-                    userUrl.substring(i+1, userUrl.length)];
+            return [userUrl.substring(0, i + 1),
+                    regexPrefix + userUrl.substring(i + 1, userUrl.length)];
         }
     }
+
+    // if code goes here, error case
+    console.error("error case!");
+    return [userUrl, ""];
 }
 
 function XcalarListFiles(url, isRecur) {
