@@ -400,6 +400,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             if (isCurrentWKBK) {
+                /// Change workbookname in status bar
+                $("#worksheetInfo .wkbkName").text(newName);
                 return resetActiveWKBK(newWKBKId);
             }
         })
