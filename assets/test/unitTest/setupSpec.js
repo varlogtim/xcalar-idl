@@ -7,7 +7,7 @@ describe('Mocha Setup Test', function() {
         expect('hello world').to.equal('hello world');
     });
 
-    // Note that this test helps to wait for 1s so that 
+    // Note that this test helps to wait for 1s so that
     // UI has enough time to load
     it('Should pass simple promise test', function(done) {
         simplePromiseTest()
@@ -27,7 +27,7 @@ describe('Mocha Setup Test', function() {
             // fail case
             throw error;
         });
-    })
+    });
 
     it('Should be able to test DSCart module', function() {
         expect(DSCart.getCarts()).to.exist;

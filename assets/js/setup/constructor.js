@@ -105,7 +105,7 @@ function TableMeta(options) {
     options = options || {};
 
     if (!options.tableName || !options.tableId) {
-        console.error("error table meta!");
+        throw "error table meta!";
     }
 
     self.tableName = options.tableName;
@@ -531,8 +531,8 @@ ProgCol.prototype = {
                 self.type = ColumnType.mixed;
                 break;
             case DfFieldTypeT.DfFatptr:
-                consol.error("Should not set fat pointer's type");
-                self.immediates = false;
+                console.error("Should not set fat pointer's type");
+                self.immediate = false;
                 break;
             default:
                 console.warn("Unsupported type");
@@ -846,9 +846,9 @@ DSFormController.prototype = {
     "setHeader": function(hasHeader) {
         if (hasHeader == null) {
             this.hasHeader = !this.hasHeader;
+        } else {
+            this.hasHeader = hasHeader;
         }
-
-        this.hasHeader = hasHeader;
     },
 
     "setFieldDelim": function(fieldDelim) {

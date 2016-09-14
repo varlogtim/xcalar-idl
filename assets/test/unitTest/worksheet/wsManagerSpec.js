@@ -64,7 +64,7 @@ describe('Worksheet Interactivity', function() {
                                               .last();
             $lastTab.trigger(fakeEvent.mousedown);
             var wsId = $lastTab.data('ws');
-            var lastWSScrollPos = $('#mainFrame').scrollLeft(0); // set to 0;
+            $('#mainFrame').scrollLeft(0); // set to 0;
             var $prevTab = $('#worksheetTabs').find('.worksheetTab')
                                               .last().prev();
 

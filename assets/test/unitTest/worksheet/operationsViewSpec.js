@@ -58,12 +58,22 @@ describe('OperationsView', function() {
 
         it ('formulateMapFilterString() should return correctly', function() {
             var args = ['1', 2];
-            var colTypeInfos = [{argNum: 0, type:"integer"}];
+            var colTypeInfos = [{
+                argNum: 0,
+                type  : "integer"
+            }];
             expect(func('add', args, colTypeInfos)).to.equal("add(int(1, 10), 2)");
 
             args = [['1', 2], ['3', 4]];
-            colTypeInfos = [[{argNum: 0, type:'integer'}],[{argNum:0, 
-                                type:'integer'}]];
+            colTypeInfos = [
+            [{
+                argNum: 0,
+                type  : 'integer'
+            }],
+            [{
+                argNum: 0,
+                type  : 'integer'
+            }]];
             expect(func('add', args, colTypeInfos, true)).to.equal(
                 "and(add(int(1, 10), 2), add(int(3, 10), 4))");
         });
@@ -83,7 +93,7 @@ describe('OperationsView', function() {
         var parseType;
         var columns;
         var someColumns;
-        var columnNames = ["yelping_since", "votes", "one", "compliments", "friends", "two\\.three", "elite", "review_count", "four", "average_stars", "mixVal", "user_id", "DATA"];
+        // var columnNames = ["yelping_since", "votes", "one", "compliments", "friends", "two\\.three", "elite", "review_count", "four", "average_stars", "mixVal", "user_id", "DATA"];
         var someColumnNames = ["yelping_since", "compliments", "friends", "review_count", "four", "average_stars", "mixVal", "DATA"];
 
         before(function(done) {
@@ -153,7 +163,8 @@ describe('OperationsView', function() {
         });
 
         describe('test type checking', function() {
-            this.timeout(12000); // this will take a long time because we 
+            this.timeout(25000);
+            // this will take a long time because we
             // test out a variety of arguments against each other and each test
             // loops through all the columns in a table each time to check if the
             // column name exists in the table
@@ -182,7 +193,7 @@ describe('OperationsView', function() {
                 }
             });
 
-            it('variety of different arguments should be formatted correctly', function() {
+            it('variety of different arguments should be formatted correctly', function(done) {
                 var testArgs1 = ["str", "null", "undefined", "sp aced", "com,ma", "d.ot", gColPrefix, "\\" + gColPrefix, gColPrefix + "a", "\\" + gColPrefix + "a", "a\\" + gColPrefix, "5a", "a5", -5, 5, 3.2, 0];
                 var testArgs2 = [];
                 var testArgs2Unprefixed = [];
@@ -192,8 +203,6 @@ describe('OperationsView', function() {
                 }
                 var arg1Types = [];
                 var arg2Types = [];
-                var arg1type;
-                var arg2type;
                 for (var i = 0; i < testArgs1.length; i++) {
                     arg1Type = typeof(testArgs1[i]);
                     if (arg1Type === "number") {
@@ -226,6 +235,7 @@ describe('OperationsView', function() {
                     testVariousInputsTypes(groupByType, testedGBTypes, testArgs2,
                                             testArgs1, arg2Types, arg1Types);
                 }
+                done();
             });
         });
 
@@ -307,9 +317,6 @@ describe('OperationsView', function() {
             var existingTypes;
             var argInfos = [];
             var count = 0;
-            var gTableColNum;
-            var arg1Type;
-            var arg2Type;
             var hasValidTypes;
             var hasValidColPrefix = xcHelper.hasValidColPrefix;
 
@@ -362,9 +369,7 @@ describe('OperationsView', function() {
         var $operationsView;
         var $categoryMenu;
         var $functionsMenu;
-        var operatorsMap;
         var $argInputs;
-
 
         before(function(done) {
             $operationsView = $('#operationsView');

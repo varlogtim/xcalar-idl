@@ -620,11 +620,8 @@ describe('xcHelper Test', function() {
         xcHelper.getBackTableSet()
         .then(function(backTableSet, numBackTables) {
             expect(backTableSet).to.be.an('object');
-            var count = 0;
-            for (var key in backTableSet) {
-                count++;
-            }
-            expect(count).to.equal(numBackTables);
+            expect(Object.keys(backTableSet).length)
+            .to.equal(numBackTables);
             done();
         })
         .fail(function(error) {

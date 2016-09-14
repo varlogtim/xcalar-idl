@@ -101,42 +101,99 @@ describe('Constructor Test', function() {
         .and.to.equal('pull(test)');
     });
 
-    it('ProgCol should be a constructor', function() {
-        // case 1
-        var progCol = new ProgCol({
-            "name"    : "test",
-            "backName": "backTest",
-            "type"    : "float",
-            "isNewCol": false,
-            "width"   : 100,
-            "decimals": 10,
-            "func"    : {
-                "name": "pull"
-            }
+    describe("ProgCol constructor test", function() {
+        it("ProgCol should be a constructor", function() {
+            // case 1
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimals": 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol).to.be.an('object');
+            expect(progCol.getFronColName()).to.equal('test');
+            expect(progCol.getBackColName()).to.equal('backTest');
+            expect(progCol.getType()).to.equal('float');
+            expect(progCol.isNumberCol()).to.be.true;
+            expect(progCol.isEmptyCol()).to.be.false;
+
+
+            // case 2
+            progCol = new ProgCol({
+                "name": "DATA",
+                "type": "object",
+                "func": {
+                    "name": "raw"
+                }
+            });
+            expect(progCol.isDATACol()).to.be.true;
         });
 
-        expect(progCol).to.be.an('object');
-        expect(progCol.getFronColName()).to.equal('test');
-        expect(progCol.getBackColName()).to.equal('backTest');
-        expect(progCol.getType()).to.equal('float');
-        expect(progCol.isNumberCol()).to.be.true;
-        expect(progCol.isEmptyCol()).to.be.false;
-        expect(progCol.isImmediate()).to.be.false;
+        it("Should set immediates type", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimals": 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
 
-        // set immediates
-        progCol.setImmediateType(DfFieldTypeT.DfString);
-        expect(progCol.isImmediate()).to.be.true;
-        expect(progCol.getType()).to.equal("string");
+            expect(progCol.isImmediate()).to.be.false;
+            // error case
+            progCol.setImmediateType();
 
-        // case 2
-        progCol = new ProgCol({
-            "name": "DATA",
-            "type": "object",
-            "func": {
-                "name": "raw"
-            }
+            var testCases = [{
+                "typeId" : DfFieldTypeT.DfString,
+                "boolean": true,
+                "type"   : "string"
+            },{
+                "typeId" : DfFieldTypeT.DfUnknown,
+                "boolean": true,
+                "type"   : "unknown"
+            },{
+                "typeId" : DfFieldTypeT.DfInt32,
+                "boolean": true,
+                "type"   : "integer"
+            },{
+                "typeId" : DfFieldTypeT.DfFloat64,
+                "boolean": true,
+                "type"   : "float"
+            },{
+                "typeId" : DfFieldTypeT.DfBoolean,
+                "boolean": true,
+                "type"   : "boolean"
+            },{
+                "typeId" : DfFieldTypeT.DfMixed,
+                "boolean": true,
+                "type"   : "mixed"
+            },{
+                "typeId" : DfFieldTypeT.DfFatptr,
+                "boolean": false,
+                "type"   : ""
+            },{
+                "typeId" : DfFieldTypeT.DfScalarPtr,
+                "boolean": true,
+                "type"   : "unknown"
+            }];
+
+            testCases.forEach(function(testCase) {
+                progCol.immediate = false;
+                progCol.type = "";
+                progCol.setImmediateType(testCase.typeId);
+                expect(progCol.isImmediate()).to.equal(testCase.boolean);
+                expect(progCol.getType()).to.equal(testCase.type);
+            });
         });
-        expect(progCol.isDATACol()).to.be.true;
     });
 
     describe('Table Constructor Test', function() {
@@ -150,6 +207,12 @@ describe('Constructor Test', function() {
             expect(table).to.be.an('object');
             expect(table.getId()).to.equal('a1');
             expect(table.getName()).to.equal('test#a1');
+
+            try {
+                new TableMeta();
+            } catch (error) {
+                expect(error).not.to.be.null;
+            }
         });
 
         it('Table should update timestamp', function(done) {
@@ -167,6 +230,36 @@ describe('Constructor Test', function() {
                 expect(table.getTimeStamp()).not.to.equal(time);
                 done();
             }, 50);
+        });
+
+        it("Table should get keyNamae", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+            var initialVal = "";
+            var testVal = "testKey";
+
+            expect(table.getKeyName()).to.equal(initialVal);
+            
+            table.keyName = testVal;
+            expect(table.getKeyName()).to.equal(testVal);
+            table.keyName = initialVal;
+        });
+
+        it("Table should get ordering", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+            expect(table.getOrdering()).to.be.undefined;
+
+            var testVal = "testOrder";
+            table.ordering = testVal;
+
+            expect(table.getOrdering()).to.equal(testVal);
         });
 
         it('Table should lock and unlock', function() {
@@ -199,6 +292,9 @@ describe('Constructor Test', function() {
 
             table.beOrphaned();
             expect(table.getType()).to.equal(TableType.Orphan);
+
+            table.beUndone();
+            expect(table.getType()).to.equal(TableType.Undone);
 
             table.beActive();
             expect(table.getType()).to.equal(TableType.Active);
@@ -261,6 +357,40 @@ describe('Constructor Test', function() {
                 throw error;
             });
         });
+
+        it("table should get immediates info", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+
+            var res = table.getImmediateNames();
+            expect(res).to.be.an("array").and.to.have.length(0);
+
+            table.backTableMeta = {
+                "valueAttrs": [{"name": "test", "type": DfFieldTypeT.DfString},
+                            {"name": "test2", "type": DfFieldTypeT.DfFatptr}]
+            };
+
+            res = table.getImmediateNames();
+            expect(res).to.be.an("array").and.to.have.length(1);
+            expect(res[0]).to.equal("test");
+        });
+
+        it("table should show indexed style", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+
+            expect(table.showIndexStyle()).to.be.false;
+            table.ordering = XcalarOrderingT.XcalarOrderingAscending;
+            var cache = gEnableIndexStyle;
+            gEnableIndexStyle = true;
+            expect(table.showIndexStyle()).to.be.true;
+            gEnableIndexStyle = cache;
+        });
     });
 
     describe('Meta Constructor Test', function() {
@@ -310,6 +440,187 @@ describe('Constructor Test', function() {
         .and.to.equal('workspaceTab');
 
         userPref.update();
+    });
+
+    describe("DSFormAdvanceOption Constructor, Test", function() {
+        var advanceOption;
+        var $section;
+        var $limit;
+        var $pattern;
+
+        before(function() {
+            var html = '<section>' +
+                            '<div class="listInfo no-selection">' +
+                                '<span class="expand"></span>' +
+                            '</div>' +
+                            '<ul>' +
+                                '<li class="limit option">' +
+                                    '<input class="size" type="number">' +
+                                    '<div class="dropDownList">' +
+                                        '<input class="text unit">' +
+                                        '<div class="list">' +
+                                            '<ul>' +
+                                              '<li>B</li>' +
+                                            '</ul>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</li>' +
+                                '<li class="pattern option">' +
+                                    '<input type="text" class="input">' +
+                                    '<div class="recursive checkboxSection">' +
+                                        '<div>Recursive</div>' +
+                                        '<div class="checkbox"></div>' +
+                                    '</div>' +
+                                    '<div class="regex checkboxSection">' +
+                                        '<div>Regex</div>' +
+                                        '<div class="checkbox"></div>' +
+                                    '</div>' +
+                                '</li>' +
+                            '</ul>' +
+                        '</section>';
+            $section = $(html);
+            $limit = $section.find(".option.limit");
+            $pattern = $section.find(".option.pattern");
+        });
+
+        it("Should be a valid constructor", function() {
+            advanceOption = new DSFormAdvanceOption($section, "body");
+            expect(advanceOption).to.be.an('object');
+            expect(Object.keys(advanceOption).length).to.equal(1);
+
+            expect(advanceOption).to.have.property('$section');
+        });
+
+        it("Should have valid event", function() {
+            // expand
+            $section.find(".listInfo .expand").click();
+            expect($section.hasClass("active")).to.be.true;
+
+            // dropdown list
+            $limit.find("li").click();
+
+            expect($limit.find(".unit").val()).to.equal("B");
+
+            // checkbox
+            $pattern.find(".recursive.checkboxSection").click();
+            expect($pattern.find(".recursive .checkbox").hasClass("checked"))
+            .to.be.true;
+        });
+
+        it("Should reset options", function() {
+            advanceOption.reset();
+            expect($limit.find(".unit").val()).to.equal("");
+            expect($pattern.find(".recursive .checkbox").hasClass("checked"))
+            .to.be.false;
+        });
+
+        it("Should set options", function() {
+            advanceOption.set({
+                "pattern"    : "testPattern",
+                "isRecur"    : true,
+                "isRegex"    : true,
+                "previewSize": 123,
+                "unit"       : "B",
+                "sizeText"   : "123"
+            });
+
+            expect($pattern.find("input").val()).to.equal("testPattern");
+            expect($pattern.find(".recursive .checkbox").hasClass("checked"))
+            .to.be.true;
+            expect($pattern.find(".regex .checkbox").hasClass("checked"))
+            .to.be.true;
+            expect($limit.find(".unit").val()).to.equal("B");
+            expect($limit.find(".size").val()).to.equal("123");
+        });
+
+        it("Should get args", function() {
+            var res = advanceOption.getArgs();
+            expect(res).to.be.an("object");
+            expect(Object.keys(res).length).to.equal(6);
+
+            expect(res).to.have.property("pattern")
+            .and.to.equal("testPattern");
+
+            expect(res).to.have.property("isRecur")
+            .and.to.be.true;
+
+            expect(res).to.have.property("isRegex")
+            .and.to.be.true;
+
+            expect(res).to.have.property("previewSize")
+            .and.to.equal(123);
+
+            expect(res).to.have.property("sizeText")
+            .and.to.equal("123");
+
+            expect(res).to.have.property("unit")
+            .and.to.equal("B");
+
+            advanceOption.reset();
+            res = advanceOption.getArgs();
+            expect(res).to.have.property("pattern")
+            .and.to.be.null;
+
+            $limit.find(".unit").val("");
+            $limit.find(".size").val("123");
+            res = advanceOption.getArgs();
+            expect(res).to.be.null;
+            assert.isTrue($("#statusBox").is(":visible"));
+
+            $("#statusBox .close").click();
+        });
+    });
+    
+    it("DSFormController Constructor Test", function() {
+        var controller = new DSFormController();
+        expect(controller).to.be.an("object");
+        expect(Object.keys(controller).length).to.equal(0);
+
+        controller.set({
+            "path"       : "testPath",
+            "format"     : "testFormat",
+            "previewSize": 123,
+            "pattern"    : "testPattern",
+            "isRecur"    : true,
+            "isRegex"    : false
+        });
+
+        expect(controller.getPath()).to.equal("testPath");
+        expect(controller.getPattern()).to.equal("testPattern");
+        expect(controller.getPreviewSize()).to.equal(123);
+        expect(controller.getFormat()).to.equal("testFormat");
+        expect(controller.useRegex()).to.be.false;
+        expect(controller.useRecur()).to.be.true;
+
+        // set format
+        controller.setFormat("testFormat2");
+        expect(controller.getFormat()).to.equal("testFormat2");
+
+        // set header
+        controller.setHeader(false);
+        expect(controller.useHeader()).to.be.false;
+
+        controller.setHeader();
+        expect(controller.useHeader()).to.be.true;
+
+        // set field delim
+        controller.setFieldDelim(",");
+        expect(controller.getFieldDelim()).to.be.equal(",");
+        
+        // set line delim
+        controller.setLineDelim("\n");
+        expect(controller.getLineDelim()).to.be.equal("\n");
+
+        // set quote
+        controller.setQuote("\'");
+        expect(controller.getQuote()).to.be.equal("\'");
+
+        controller.reset();
+        expect(Object.keys(controller).length).to.equal(4);
+        expect(controller.getFieldDelim()).to.equal("");
+        expect(controller.getLineDelim()).to.equal("\n");
+        expect(controller.useHeader()).to.be.false;
+        expect(controller.getQuote()).to.equal("\"");
     });
 
     describe('DSObj Constructor Test', function() {

@@ -100,7 +100,7 @@ describe('ColManager', function() {
         str = 'con\\"c\\,at (\'w\\,o"r\\\'d\',5)';
         func = {args: []};
         fn(str, func);
-        var desiredFunc = {
+        desiredFunc = {
             args: ["'w\\,o\"r\\'d'", 5],
             name: 'con\\"c\\,at'
         };
