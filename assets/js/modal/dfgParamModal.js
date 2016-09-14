@@ -8,30 +8,31 @@ window.DFGParamModal = (function($, DFGParamModal){
     var modalHelper;
     var dropdownHelper;
 
-    var paramListTrLen = 5;
-    var trTemplate = '<tr class="unfilled">' +
-                        '<td class="paramNameWrap">' +
-                            '<div class="paramName"></div>' +
-                        '</td>' +
-                        '<td>' +
-                            '<div class="paramValWrap">' +
-                                '<input class="paramVal" spellcheck="false" disabled/>' +
-                                '<div class="options">' +
-                                    '<div class="option paramEdit">' +
-                                        '<i class="fa-15 icon xi-edit"></i>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '</td>' +
-                        '<td>' +
-                            '<div class="checkboxWrap">' +
-                                '<div class="checkbox">' +
-                                    '<i class="icon xi-ckbox-empty fa-15"></i>' +
-                                    '<i class="icon xi-ckbox-selected fa-15"></i>' +
-                                '</div>' +
-                            '</div>' +
-                        '</td>' +
-                    '</tr>';
+    var paramListTrLen = 7;
+    var trTemplate =
+        '<tr class="unfilled">' +
+            '<td class="paramNameWrap textOverflowOneLine">' +
+                '<div class="paramName"></div>' +
+            '</td>' +
+            '<td>' +
+                '<div class="paramValWrap textOverflowOneLine">' +
+                    '<input class="paramVal" spellcheck="false" disabled/>' +
+                    '<div class="options">' +
+                        '<div class="option paramEdit">' +
+                            '<i class="fa-15 icon xi-edit"></i>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</td>' +
+            '<td>' +
+                '<div class="checkboxWrap">' +
+                    '<div class="checkbox">' +
+                        '<i class="icon xi-ckbox-empty fa-15"></i>' +
+                        '<i class="icon xi-ckbox-selected fa-15"></i>' +
+                    '</div>' +
+                '</div>' +
+            '</td>' +
+        '</tr>';
 
     DFGParamModal.setup = function() {
         $dfgParamModal = $("#dfgParameterModal");
@@ -109,52 +110,71 @@ window.DFGParamModal = (function($, DFGParamModal){
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized Query:
         if (type === "dataStore") {
-            defaultText += '<td>Load</td>';
-            defaultText += '<td><div class="boxed large">' +
-                            $currentIcon.data('url') +
-                            '</div></td>';
+            defaultText += '<td>' +
+                                DFGTStr.PointTo + ':' +
+                            '</td>' +
+                            '<td>' +
+                                '<div class="boxed xlarge">' +
+                                    $currentIcon.data('url') +
+                                '</div>' +
+                            '</td>';
 
-            editableText += "<td class='static'>Load</td>";
-            editableText += getParameterInputHTML(0, "xlarge");
+            editableText += '<td class="static">' +
+                                DFGTStr.PointTo + ':' +
+                            '</td>' +
+                            getParameterInputHTML(0, "xlarge");
         } else if (type === "export") {
-            defaultText += '<td>Export to</td>';
-            defaultText += '<td><div class="boxed large">' +
-                            $currentIcon.data('url') +
-                            '</div></td>';
+            defaultText += '<td>' +
+                                DFGTStr.ExportTo + ':' +
+                            '</td>' +
+                            '<td>' +
+                                '<div class="boxed xlarge">' +
+                                    $currentIcon.data('url') +
+                                '</div>' +
+                            '</td>';
 
-            editableText += "<td class='static'>Export to</td>";
-            editableText += getParameterInputHTML(0, "xlarge");
+            editableText += '<td class="static">' +
+                                DFGTStr.ExportTo + ':' +
+                            '</td>' +
+                            getParameterInputHTML(0, "xlarge");
         } else { // not a datastore but a table
-            defaultText += "<td>" + type + "</td>";
-            defaultText += "<td><div class='boxed medium'>" +
-                            $currentIcon.data('column') +
-                            "</div></td>";
+            defaultText += '<td>' + type + ':</td>' +
+                            '<td>' +
+                                '<div class="boxed medium">' +
+                                    $currentIcon.data('column') +
+                                '</div>' +
+                            '</td>';
 
-            editableText += "<td class='static'>" + type + "</td>";
-        }
+            editableText += '<td class="static">' + type + ':</td>';
 
-        if (type === "filter") {
-            var filterInfo = $currentIcon.data('info') + " ";
-            var parenIndex = filterInfo.indexOf("(");
-            var abbrFilterType = filterInfo.slice(0, parenIndex);
-            var filterValue = filterInfo.slice(filterInfo.indexOf(',') + 2,
-                                                  filterInfo.indexOf(')'));
+            if (type === "filter") {
+                var filterInfo = $currentIcon.data('info') + " ";
+                var parenIndex = filterInfo.indexOf("(");
+                var abbrFilterType = filterInfo.slice(0, parenIndex);
+                var filterValue = filterInfo.slice(filterInfo.indexOf(',') + 2,
+                                                      filterInfo.indexOf(')'));
 
-            defaultText += "<td class='static'>by</td>";
-            defaultText += "<td><div class='boxed small'>" +
-                            abbrFilterType + "</div></td>";
-            defaultText += "<td><div class='boxed medium'>" +
-                            filterValue + "</div></td>";
+                defaultText += '<td class="static">by</td>' +
+                                '<td>' +
+                                    '<div class="boxed sm-med">' +
+                                        abbrFilterType +
+                                    '</div>' +
+                                '</td>' +
+                                '<td>' +
+                                    '<div class="boxed medium">' +
+                                        filterValue +
+                                    '</div>' +
+                                '</td>';
 
-            editableText += getParameterInputHTML(0, "medium") +
+                editableText +=
+                            getParameterInputHTML(0, "medium") +
                             '<td class="static">by</td>' +
                             getParameterInputHTML(1, "sm-med", {filter: true}) +
                             getParameterInputHTML(2, "medium allowEmpty");
-
-        } else if (type === "dataStore" || type === "export") {
-            // do nothing
-        } else { // index, sort, map etc to be added in later
-            defaultText += "<td>by</td>";
+            } else {
+                // index, sort, map etc to be added in later
+                defaultText += "<td>by</td>";
+            }
         }
 
         $dfgParamModal.find('.template').html(defaultText);
@@ -251,11 +271,12 @@ window.DFGParamModal = (function($, DFGParamModal){
         event.dataTransfer.dropEffect = "copy";
         event.dataTransfer.setData("text", event.target.id);
         event.stopPropagation();
+        var $origin = $(event.target).parent();
         var origin;
-        if ($(event.target).parent().hasClass('draggableParams')) {
+        if ($origin.hasClass('draggableParams')) {
             origin = 'home';
         } else {
-            origin = $(event.target).parent().data('target');
+            origin = $origin.data('target');
         }
 
         $dfgParamModal.find('input.editableParamDiv').each(function() {
@@ -776,9 +797,10 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
 
         td += '<div title="' + CommonTxtTstr.DefaultVal + '" ' +
-                'class="defaultParam iconWrap" data-toggle="tooltip" ' +
+                'class="defaultParam iconWrap xc-action" ' +
+                'data-toggle="tooltip" ' +
                 'data-placement="top" data-container="body">' +
-                    '<span class="icon"></span>' +
+                    '<i class="icon xi-restore center fa-15"></i>' +
                 '</div>' +
                 '</div>' +
                 '</td>';
@@ -857,7 +879,6 @@ window.DFGParamModal = (function($, DFGParamModal){
                     '<span class="delim"><</span>' +
                     '<span class="value">' + paramName + '</span>' +
                     '<span class="delim">></span>' +
-                    '<div class="close"></div>' +
                 '</div>';
 
         return (html);

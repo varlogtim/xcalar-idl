@@ -645,6 +645,66 @@
     }
 }
 
+.retinaParameter {
+    background-color: @color-bg-white-five;
+
+    .tableHeader {
+        .size(@height: 30px);
+        overflow: hidden;
+
+        .thWrap {
+            .size(@height: 30px);
+            .font(@size: 14px, @weight: bold, @line-height: 30px, @color: @color-font-greyish-brown);
+            float: left;
+            background-color: @color-white;
+            text-align: left;
+            padding: 0 6px;
+
+            &:not(:first-child) {
+                border-left: 7px solid @color-border-white-five;
+            }
+        }
+    }
+
+    .tableContainer {
+        .position(relative);
+        .size(@width: 100%, @height: 210px);
+        margin-top: 5px;
+        overflow: hidden;
+        overflow-y: auto;
+
+        .tableWrapper {
+            .size(@height: 100%);
+        }
+
+        table {
+            table-layout: fixed;
+            text-align: left;
+            border-collapse: collapse;
+
+            tr {
+                &:nth-child(odd) {
+                    background-color: rgba(255, 255, 255, 0.5);
+                }
+
+                &:nth-child(even) {
+                    background-color: @color-white;
+                }
+            }
+
+            td {
+                position: relative;
+                .size(@width: 70px, @height: 30px);
+                padding: 0 6px;
+                .font(@weight: 600, @size: 14px, @line-height: 30px, @color: @color-font-greyish-brown);
+                &:not(:first-child) {
+                    border-left: 7px solid @color-border-white-five;
+                }
+            }
+        }
+    }
+}
+
 //style for input box
 .input-box(@w, @h: 30px, @focus: false) {
     input {

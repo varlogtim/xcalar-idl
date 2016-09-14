@@ -2064,20 +2064,14 @@ html.microsoft {
     right: auto;
     .transition(height 0.5s);
 
-    .modalInstruction {
-        box-shadow: 0 3px 3px 0px rgba(0,0,0,.2);
-        position: relative;
-    }
-
     .modalTopMain {
-        padding: 0px 20px 0px 28px;
-        border-top: none;
+        background-color: @color-white;
     }
 
     .border {
         width: 100%;
-        border-top: 1px solid @color-border-pinkish-grey2;
-        border-bottom: 1px solid @color-white;
+        .size(@width: 100%, @height: 1px);
+        background-color: @color-bg-pinkish-grey2;
 
         &:last-child {
             display: none;
@@ -2085,27 +2079,21 @@ html.microsoft {
     }
 
     .heading {
-        .font(@weight: 700, @size: 13px, @color: @color-font-darkGray);
-        display: block;
-        margin-bottom: 5px;
+        .size(@height: 14px);
+        .font(@line-height: 14px, @size: 11px, @weight: 600,
+                @color: @color-font-navy);
+        margin-bottom: 12px;
     }
 
 
-    .retinaModalSection {
-        padding: 14px 0px;
+    .retinaSection {
+        padding: 9px 23px 12px 23px;
     }
 
     .templateSection {
         white-space: nowrap;
-        .heading {
-            .size(@width: 120px, @height: 30px);
-            float: left;
-            line-height: 30px;
-            margin-bottom: 0px;
-        }
+
         .templateTable {
-           display: inline-block;
-           float: left;
            border-collapse: collapse;
         }
 
@@ -2123,13 +2111,13 @@ html.microsoft {
         td {
             text-align: left;
             padding: 0px 5px;
-            .font(@weight: 700, @size: 13px, @color: @color-text-midlightGray);
+            .font(@weight: 600, @size: 12px, @color: @color-font-navy);
 
             .boxed {
                 .size(@height: 30px);
-                .font(@line-height: 30px, @color: @color-text-blue);
-                background-color: @color-white;
-                .rounded;
+                .font(@line-height: 30px, @color: @color-font-select-blue);
+                background-color: @color-bg-white-three;
+                border: 1px solid @color-border-white-five;
                 padding: 0px 4px 0px 6px;
 
                 &.small {
@@ -2138,7 +2126,7 @@ html.microsoft {
                     padding-left: 6px;
                 }
                 &.sm-med {
-                    .size(@min-width: 80px, @max-width: 140px);
+                    .size(@width: 120px);
                 }
                 &.medium {
                     .size(@min-width: 120px, @max-width: 350px);
@@ -2150,6 +2138,10 @@ html.microsoft {
                 &.xlarge {
                     .size(@min-width: 500px, @max-width: 800px);
                 }
+
+                .boxed {
+                    border: none;
+                }
             }
         }
     }
@@ -2159,7 +2151,8 @@ html.microsoft {
 
         &.hint {
             margin-left: 0;
-            .font(@weight: 700, @size: 12px, @color: @color-text-lightGray);
+            .font(@weight: 600, @size: 12px, @color: @color-font-navy);
+            opacity: 0.5;
         }
     }
 
@@ -2170,10 +2163,9 @@ html.microsoft {
         padding: 2px 12px 2px 2px;
         margin: 5px;
         .rounded;
-        background: @color-bg-select-blue;
+        background-color: @color-bg-select-blue;
         cursor: pointer;
-        color: @color-text-cyan;
-        text-shadow: -1px 0px 1px rgba(0,0,0,0.6);
+        color: @color-white;
 
         .icon {
             .size(@width: 19px, @height: 100%);
@@ -2185,31 +2177,6 @@ html.microsoft {
 
         .delim {
             display: none;
-        }
-
-        .close {
-            .position(absolute, @top: 0, @right: 0);
-            .size(@height: 11px, @width: 11px);
-            display: none;
-            opacity: 0;
-            padding: 2px 0px 2px 1px;
-            .font(@size: 16px, @line-height: 6px, @color: @color-text-cyan);
-            .rounded(2px);
-            cursor: pointer;
-            overflow: hidden;
-
-            &::before {
-                content: "+";
-                position: absolute;
-                top: 1px;
-                right: 1px;
-                width: 11px;
-                height: 11px;
-                z-index: 1;
-                display: inline-block;
-                .transform(rotate(45deg));
-                font-size: 16px;
-            }
         }
     }
 
@@ -2223,36 +2190,25 @@ html.microsoft {
             box-shadow: none;
 
             .iconWrap {
-                .position(absolute, @top: 5px, @right: 12px);
-                .size(20px, 20px);
-                border-left: 1px solid @color-border-pinkish-grey2;
-                padding-left: 1px;
-                cursor: pointer;
-
-                &:hover {
-                    .icon {
-                        .image("../../images/schedule/dfg-default-active.png", 50%, 50%);
-                    }
-                }
+                .position(absolute, @top: 0px, @right: 0px);
+                .size(30px, 30px);
+                background-color: @color-bg-select-blue;
 
                 .icon {
-                    .size(20px, 20px);
-                    .image("../../images/schedule/dfg-default.png", 50%, 50%);
+                    color: @color-white;
                 }
             }
         }
 
         .editableParamDiv {
-            margin: 0px 5px;
             padding: 0px 36px 0px 5px;
-            overflow:hidden;
-            white-space: nowrap;
+            .textOverflowOneLine;
             outline: none;
             display: table-cell;
             vertical-align: bottom;
-            box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
             .transform (translateZ(0));
             cursor: text;
+            .font(@size: 12px);
 
             .draggableDiv {
                 margin: -2px 2px;
@@ -2314,87 +2270,57 @@ html.microsoft {
         }
 
         .dropDownList {
-            background-color: transparent;
-            margin: 0 5px;
             .editableParamDiv {
                 margin-left: 0px;
                 margin-right: 0px;
-            }
-            .defaultParam {
-                right: 7px;
             }
         }
     }
 
     .defaultListSection {
-        padding: 15px 15px 0px 15px;
+        .size(@height: 279px);
+        box-shadow: inset 0 1px 0 0 @color-bg-pinkish-grey2;
+        padding: 15px 23px;
 
         .tableHeader {
-            .size(@height: 30px);
-            overflow: hidden;
             .thWrap {
-                .size(@height: 30px);
-                color: @color-white;
-                font-weight: bold;
-                line-height: 30px;
-                padding-left: 12px;
-                float: left;
-                background-color: @color-background-joinGray;
-                text-align: center;
-
                 &.paramName {
-                    .size(@width: 339px);
+                    .size(@width: 328px);
                 }
 
                 &.paramVal {
-                    .size(@width: 467px);
+                    .size(@width: 461px);
                 }
 
                 &.empty {
-                    padding-left: 2px;
-                    .size(@width: 84px);
+                    text-align: center;
+                    .size(@width: 85px);
                 }
-            }
-            .thWrap:not(:first-child) {
-                border-left: 1px solid @color-white;
             }
         }
 
         .tableContainer {
-            .position(relative);
-            .size(@width: 100%, @height: 202px);
-            display: inline-block;
-            overflow: hidden;
-            overflow-y: auto;
-            .rounded(0 0 5px 5px);
-            border: 1px solid @color-border-pinkish-grey;
-            z-index: 0;
-
             .tableWrapper {
-                .size(@width: 890px, @height: auto);
-                overflow-y: hidden;
-                margin: 0 auto;
+                .size(@width: 874px);
 
                 .paramNameWrap {
-                    color: @color-font-darkGray;
-
-                    .paramName {
-                        width: 318px;
-                    }
+                    .size(@width: 330px);
                 }
 
                 .paramValWrap {
-                    width: 446px;
+                    .size(@width: 445px);
 
                     .paramVal {
-                        width: 415px;
-                        .size(@width: 415px, @height: 30px);
-                        .font(@weight: 700, @size: 13px, @line-height: 30%);
+                        .size(@width: 415px, @height: 25px);
+                        .font(@size: 12px, @line-height: 25px);
+                        .position(relative, @top: 2px);
                         float: left;
+                        border: solid 1px transparent;
                         background: transparent;
 
                         &:focus {
-                            box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
+                            outline: none;
+                            border-color: @color-border-softBlue;
                             background-color: white;
                         }
                     }
@@ -2426,7 +2352,7 @@ html.microsoft {
                 }
 
                 .checkboxWrap {
-                    width: 50px;
+                    .size(@width: 68px);
                     text-align: center;
 
                     .checkbox {
@@ -2440,44 +2366,12 @@ html.microsoft {
                         display: none;
                     }
                 }
-                &::-webkit-scrollbar {
-                    display: block;
-                }
             }
         }
 
         table {
-            margin: 0;
-            table-layout: fixed;
-            text-align: left;
-            border-collapse: collapse;
-
-            tbody {
-                tr {
-                    &:nth-child(odd) {
-                        background-color: @color-bg-white-five;
-                    }
-                    &:nth-child(even) {
-                        background-color: @color-bg-white-seven;
-                    }
-
-                    td {
-                        .position(relative);
-                        .size(@width: 226px, @height: 40px);
-                        padding-left: 15px;
-                        .font(@weight: bold, @size: 13px, @line-height: 30px);
-                        border-right: 1px solid @color-border-pinkish-grey;
-
-                        &:first-of-type {
-                            .size(@width: 194px);
-                            border-right: 1px solid @color-border-pinkish-grey;
-                        }
-
-                        > div {
-                            .textOverflowOneLine;
-                        }
-                    }
-                }
+            td {
+                .position(relative);
             }
         }
     }

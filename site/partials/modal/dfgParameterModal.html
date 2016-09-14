@@ -7,32 +7,31 @@
     </div>
   </div>
   <div class="modalInstruction">
-    <div class="icon"></div>
+    <i class="icon xi-info-circle"></i>
     <div class="text"><%= dicts.dfgParam.instr %></div>
   </div>
   <div class="modalTopMain clearfix">
-    <div class="templateSection clearfix retinaModalSection">
-      <span class="heading"><%= dicts.dfgParam.query %>:</span>
+    <div class="templateSection clearfix retinaSection">
+      <div class="heading"><%= dicts.dfgParam.query %>:</div>
       <table class="templateTable">
         <tr class="template"></tr>
       </table>
     </div>
     <div class="border"></div>
-    <div class="currentParameterList retinaModalSection"
-      ondragover="DFGParamModal.allowParamDrop(event)">
-      <span class="heading"><%= dicts.dfgParam.paramList %>:</span>
+    <div class="currentParameterList retinaSection" ondragover="DFGParamModal.allowParamDrop(event)">
+      <div class="heading"><%= dicts.dfgParam.paramList %>:</div>
       <div class="draggableParams"></div>
     </div>
     <div class="border"></div>
-    <div class="editableParamQuery retinaModalSection">
-      <span class="heading"><%= dicts.dfgParam.editParam %>:</span>
+    <div class="editableParamQuery retinaSection">
+      <div class="heading"><%= dicts.dfgParam.editParam %>:</div>
       <table class="editableTable">
         <tr class="editableRow"></tr>
       </table>
     </div>
   </div>
   <!-- defaultListSection -->
-  <div class="defaultListSection">
+  <div class="defaultListSection retinaParameter">
     <div class="tableHeader">
       <div class="thWrap paramName"><%= dicts.dfgParam.param %></div>
       <div class="thWrap paramVal"><%= dicts.dfgParam.val %></div>

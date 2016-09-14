@@ -429,7 +429,9 @@ DFGTStr = {
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran DFG!',
     'RunFail': 'Run DFG Failed',
-    "DFGTitle": "SCHEDULER/DATAFLOW"
+    "DFGTitle": "SCHEDULER/DATAFLOW",
+    "PointTo": "File Path",
+    "ExportTo": "Export As"
 };
 
 DSTStr = {
