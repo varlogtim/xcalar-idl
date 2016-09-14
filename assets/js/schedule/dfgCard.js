@@ -43,36 +43,6 @@ window.DFGCard = (function($, DFGCard) {
         return (currentDFG);
     };
 
-    DFGCard.listSchedulesInHeader = function(groupName) {
-        var group = DFG.getAllGroups()[groupName];
-        var schedules = group.schedules;
-        var numSchedules = schedules.length;
-        // var lis = "";
-        var tooltip = "";
-        var $scheduleList = $dfgCard.find('.cardHeader .schedulesList');
-        var html = "";
-        
-        if (numSchedules === 0) {
-            tooltip += TooltipTStr.NeedCreateSchedule;
-            $scheduleList.html('- not scheduled');
-            html += '<span data-toggle="tooltip" ' +
-                    'data-container="body" title="' + tooltip + '">- ' +
-                     SchedTStr.NotScheduled + '</span>';
-        } else {
-            for (var i = 0; i < numSchedules; i++) {
-                // lis += "<li>" + schedules[i] + "</li>";
-                if (i !== 0) {
-                    tooltip += ", ";
-                }
-                tooltip += schedules[i];
-            }
-            html += '<span data-toggle="tooltip" ' + 'data-container="body" ' +
-                     'title="' + tooltip + '">- ' + SchedTStr.Scheduled +
-                     ' (' + numSchedules + ')</span>';
-        }
-        $scheduleList.html(html);
-    };
-
     DFGCard.updateRetinaTab = function(retName) {
         var html = "";
         for (var i = 0; i < retinaTrLen; i++) {
@@ -239,7 +209,6 @@ window.DFGCard = (function($, DFGCard) {
             currentDFG = groupName;
             $header.text(groupName);
             drawDags(groupName);
-            DFGCard.listSchedulesInHeader(groupName);
             DFGCard.updateRetinaTab(groupName);
 
             $listSection.find('.listBox').removeClass('selected');
@@ -262,8 +231,30 @@ window.DFGCard = (function($, DFGCard) {
 
         $listSection.on('click', '.deleteDataflow', function() {
             var retName = $(this).siblings('.groupName').text();
-            console.log("Delete dataflow");
+            Alert.show({'title': 'Permanently Delete Dataflow',
+                        'msg': 'Are you sure you want to permanently delete ' +
+                               'this dataflow? This action cannot be undone.',
+                        'onConfirm': function() {
+                            deleteDataflow(retName);
+                        }});
+
         });
+
+        function deleteDataflow(retName) {
+            DFG.removeGroup(retName)
+            .then(function() {
+                // Click on top most retina
+                if ($(".listBox").eq(0)) {
+                    $(".listBox").eq(0).click();
+                } else {
+
+                }
+                xcHelper.showSuccess();
+            })
+            .fail(function() {
+                xcHelper.showFail();
+            });
+        }
 
         $('#uploadDataflowButton').click(function() {
             UploadDataflowCard.show();
@@ -288,6 +279,30 @@ window.DFGCard = (function($, DFGCard) {
         var html = "";
         var group = DFG.getGroup(groupName);
 
+        if (!group.dataFlows) {
+            // This is a uploaded dataflow
+            // JJJ handle this. Below is just a hack
+            var html = '<div class="dagWrap clearfix">' +
+                        '<div class="header clearfix">' +
+                            '<div class="btn btn-small infoIcon">' +
+                                '<i class="icon xi-info-rectangle"></i>' +
+                            '</div>' +
+                            '<div class="tableTitleArea">' +
+                                '<span>Table: </span>' +
+                                '<span class="tableName">' +
+                                    groupName +
+                                '</span>' +
+                            '</div>' +
+                            '<button class="runNowBtn btn btn-small iconBtn">' +
+                                '<i class="icon xi-arrow-right"></i>' +
+                                '<div class="spin"></div>' +
+                            '</button>' +
+                        '</div>' +
+                        '<div class="dagImageWrap">' +
+                        '</div></div>';
+            $dfgCard.find('.cardMain').html(html);
+            return;
+        }
         var numDataFlows = group.dataFlows.length;
         var retinaNodes = group.retinaNodes;
         var nodeIds = group.nodeIds;
@@ -466,7 +481,8 @@ window.DFGCard = (function($, DFGCard) {
             }
         };
 
-        $dagArea.on('click', '.dagTable.export, .dagTable.dataStore, .actionType', function() {
+        $dagArea.on('click', '.dagTable.export, .dagTable.dataStore, ' +
+                    '.actionType', function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
@@ -524,11 +540,9 @@ window.DFGCard = (function($, DFGCard) {
         var numGroups = 0;
         for (var group in groups) {
             numGroups++;
-            var list = groups[group].dataFlows;
-            var listLen = list.length;
-            html += '<div class="dataFlowGroup listWrap xc-expand-list">' +
+            html += '<div class="dataFlowGroup listWrap">' +
                       '<div class="listBox listInfo">' +
-                        '<div class="iconWrap expand">' +
+                        '<div class="iconWrap">' +
                           '<i class="icon xi-dataflowgroup"></i>' +
                         '</div>' +
                         '<span class="groupName">' + group + '</span>' +
@@ -542,12 +556,7 @@ window.DFGCard = (function($, DFGCard) {
                             'data-container="body">' +
                         '</i>' +
                       '</div>' +
-                      '<ul class="subList">';
-            for (var i = 0; i < listLen; i++) {
-                html += '<li><i class="icon xi-dataflowgroup"></i>' + list[i].name + '</li>';
-            }
-
-            html += '</ul></div>';
+                    '</div>';
         }
 
         $dfgMenu.find('.listSection').html(html);
@@ -562,7 +571,8 @@ window.DFGCard = (function($, DFGCard) {
                             DFGTStr.NoDFG2 + '.' +
                         '</div>' +
                        '</div>';
-            $dfgCard.find(".cardMain").html(hint);
+            $dfgCard.find('.cardMain').html(hint);
+            $dfgCard.find('.leftSection .title').text("");
         } else {
             $dfgCard.find(".cardMain").html("");
             if (activeGroupName) {

@@ -1,6 +1,7 @@
 window.DFG = (function($, DFG) {
     var dfGroups = {};
 
+    // JJJ May not need this function anymore. may not need to store anything
     DFG.restore = function(groups) {
         groups = groups || {};
         dfGroups = {};
@@ -20,11 +21,18 @@ window.DFG = (function($, DFG) {
         return (dfGroups[groupName]);
     };
 
-    DFG.setGroup = function(groupName, group, isNew) {
+    DFG.setGroup = function(groupName, group, isNew, isUpload) {
         var deferred = jQuery.Deferred();
         dfGroups[groupName] = group;
 
-        createRetina(groupName, isNew)
+        var innerDef;
+        if (isUpload) {
+            innerDef = PromiseHelper.resolve();
+        } else {
+            innerDef = createRetina(groupName, isNew);
+        }
+
+        innerDef
         .then(function() {
             return (XcalarGetRetina(groupName));
         })
@@ -43,7 +51,24 @@ window.DFG = (function($, DFG) {
         return (deferred.promise());
     };
 
-    DFG.hasGroup = function(groupName){
+    DFG.removeGroup = function(groupName) {
+        var deferred = jQuery.Deferred();
+        XcalarDeleteRetina(groupName)
+        .then(function() {
+            delete dfGroups[groupName];
+            DFGCard.updateDFG();
+            return (KVStore.commit());
+        })
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        return deferred.promise();
+    };
+
+    DFG.hasGroup = function(groupName) {
         return dfGroups.hasOwnProperty(groupName);
     };
 
@@ -330,6 +355,10 @@ window.DFG = (function($, DFG) {
         var nodeIds = group.nodeIds;
         var tableName;
 
+        if (!nodeIds) {
+            // JJJ Fixme. nodeIds doesn't exist for uploaded retinas
+            return;
+        }
         for (var i = 0; i < numNodes; i++) {
             tableName = nodes[i].name.name;
             nodeIds[tableName] = nodes[i].dagNodeId;

@@ -146,11 +146,11 @@ window.Workbook = (function($, Workbook) {
 
         while (tryCnt < maxTry && names.hasOwnProperty(resName)) {
             tryCnt++;
-            resName = defaultName + "(" + tryCnt + ")";
+            resName = defaultName + "-" + tryCnt;
         }
 
         if (tryCnt >= maxTry) {
-            console.warn("Too much try");
+            console.warn("Too many tries");
             resName = xcHelper.randName(defaultName);
         }
 

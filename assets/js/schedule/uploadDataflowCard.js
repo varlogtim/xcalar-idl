@@ -47,20 +47,28 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
     }
 
     function submitForm() {
+        var retName = $dfName.val().trim();
         lockCard();
         XcalarListRetinas()
         .then(function(ret) {
             for (var i = 0; i<ret.retinaDescs.length; i++) {
-                if (ret.retinaDescs[i].retinaName === $dfName.val().trim()) {
+                if (ret.retinaDescs[i].retinaName === retName) {
                     StatusBox.show(ErrTStr.NameInUse, $dfName);
                     return PromiseHelper.reject();
                 }
             }
 
-            return readRetinaFromFile(file, $dfName.val().trim());
+            return readRetinaFromFile(file, retName);
         })
         .then(function() {
+            DFG.setGroup(retName, new DFGObj(retName), true,
+                         true);
+            DFGCard.updateDFG();
             closeCard();
+            // Click on the newly uploaded dataflow
+            $(".groupName:contains('" + retName + "')").closest(".listBox")
+                                                       .click();
+
         })
         .always(function() {
             unlockCard();

@@ -300,7 +300,6 @@ window.Scheduler = (function(Scheduler, $) {
             // add schedule to dfg
             dfg.addSchedule(scheduleName);
 
-            DFGCard.listSchedulesInHeader(dfgName);
             // XXX TODO add sql
             KVStore.commit();
             deferred.resolve();
