@@ -231,7 +231,6 @@
     overflow-x: auto;
 
     &.loading {
-        border: none;
         height: 40px !important;
         .errorSection, .datasetTableWrap {
             display: none !important;
@@ -243,8 +242,6 @@
     }
 
     &.error {
-        border: none;
-        height: 40px !important;
         .datasetTableWrap, .loadSection {
             display: none !important;
         }
@@ -254,16 +251,16 @@
         }
     }
 
-    .loadSection {
+    .loadSection, .errorSection {
         display: none;
         margin-left: 15px;
         margin-top: 15px;
     }
 
     .errorSection {
-        display: none;
         color: @color-table-red;
-        margin-left: 15px;
+        white-space: normal;
+        .text-selection;
     }
 }
 
