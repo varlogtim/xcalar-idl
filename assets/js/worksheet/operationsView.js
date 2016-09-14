@@ -613,6 +613,7 @@ window.OperationsView = (function($, OperationsView) {
 
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
+            FnBar.updateOperationsMap(listXdfsObj.fnDescs);
             setupOperatorsMap(listXdfsObj.fnDescs);
         })
         .fail(function(error) {

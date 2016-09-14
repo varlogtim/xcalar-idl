@@ -677,10 +677,10 @@ window.StartManager = (function(StartManager, $) {
             // some code mirror elements don't have parents for some reason
             if (!$target.hasClass('fnbarPre') &&
                 !$target.hasClass('CodeMirror-cursor') &&
+                !$target.closest('.CodeMirror-hint').length &&
                 !$target.closest('.fnbarPre').length &&
                 !$target.closest('#functionArea').length &&
                 !$target.closest('.header').length) {
-
 
                 if ($target.closest('.selectedCell').length !== 0) {
                     return;

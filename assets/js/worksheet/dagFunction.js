@@ -591,6 +591,7 @@ window.DagFunction = (function($, DagFunction) {
         var leftTree = null;
         var rightTree = null;
         if (!node) {
+            return; // xx temporarily muting
             console.error(valArray);
             console.error(alreadySeen);
             console.error(desc);

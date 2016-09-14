@@ -345,6 +345,10 @@ window.TblMenu = (function(TblMenu, $) {
                 "isNewCol" : true,
                 "inFocus"  : true
             });
+            var $functionArea = $('#functionArea');
+            $functionArea.find('.position').hide();
+            $functionArea.find('.counter').hide();
+            $functionArea.find('.arrows').hide();
 
             SQL.add("Add New Column", sqlOptions);
         });

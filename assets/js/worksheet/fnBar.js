@@ -6,6 +6,7 @@ window.FnBar = (function(FnBar, $) {
     var searchHelper;
     var editor;
     var validOperators = ['pull', 'map', 'filter'];
+    var operationsMap = {};
 
     var lastFocusedCol;
 
@@ -21,11 +22,111 @@ window.FnBar = (function(FnBar, $) {
             "autoCloseBrackets": true
         });
 
+        // for autocomplete
+        var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
+                            keyCode.Up, keyCode.Tab];
+
+        // trigger autcomplete menu on keyup
+        editor.on("keyup", function(cm, e) {
+            var val = editor.getValue().trim();
+            if (val.indexOf('=') === 0 && keysToIgnore.indexOf(e.keyCode) < 0) {
+                if (val.slice(1).trim().length) {
+                    editor.execCommand("autocomplete");
+                }
+            }
+        });
+
+        // set up codemirror autcomplete command
+        CodeMirror.commands.autocomplete = function(cm) {
+            CodeMirror.showHint(cm, CodeMirror.hint.fnBarHint,  {
+                alignWithWord: true,
+                completeSingle: false,
+                completeOnSingleClick: true
+            });
+        };
+
+
+        // set up autcomplete hint function that filters matches
+        CodeMirror.registerHelper("hint", "fnBarHint", function(editor) {
+            var word = /[\w$]+/;
+            var cur = editor.getCursor();
+            var fnBarText = editor.getLine(0);
+            var end = cur.ch;
+            var start = end;
+            while (start && word.test(fnBarText.charAt(start - 1))) {
+                --start
+            };
+            var curWord = start != end && fnBarText.slice(start, end);
+            if (!curWord) {
+                return;
+            }
+
+            var list = []
+            var seen = {};
+
+            // to find words in the editor
+            var re = new RegExp(word.source, "g");
+            var line = cur.line;
+            var m;
+            while (m = re.exec(fnBarText)) {
+                if (line == cur.line && m[0] === curWord) {
+                    // ignore current word that is being compared
+                    continue;
+                }
+                if ((curWord && m[0].lastIndexOf(curWord, 0) === 0) && 
+                    !Object.prototype.hasOwnProperty.call(seen, m[0])) {
+                    seen[m[0]] = true;
+                    list.push(m[0]);
+                }
+            }
+
+            // search pull, filter, map
+            for (var i = 0; i < validOperators.length; i++) {
+                if (!seen.hasOwnProperty(validOperators[i]) &&
+                    validOperators[i].lastIndexOf(curWord, 0) === 0) {
+                    seen[validOperators[i]] = true;
+                    list.push({text: validOperators[i] + "()", 
+                              displayText: validOperators[i],
+                              hint: autcompleteSelect
+                          });
+                    break;
+                }
+            }
+
+            // search operationsMap
+            curWord = curWord.toLowerCase();
+            for (var fnName in operationsMap) {
+                if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                    !seen.hasOwnProperty(fnName)) {
+                    seen[fnName] = true;
+                    list.push({text: operationsMap[fnName].fnName + "()", 
+                                displayText: fnName,
+                                hint: autcompleteSelect});
+                }
+            }
+
+            return ({list: list, 
+                    from: CodeMirror.Pos(0, start), 
+                    to: CodeMirror.Pos(0, end)});
+        });
+
+        function autcompleteSelect(cm, data, completion) {
+            cm.replaceRange(completion.text, data.from, data.to, "complete");
+            var to = data.from.ch + completion.text.length - 1;
+            cm.setCursor(0, to);
+        }
+
         editor.setOption("extraKeys", {
             Tab: function(cm) {
-                $('#rowInput').focus();
-                return false; // prevent tabbing so that pressing tab skips
-                //to the next input on the page, in this case the "#rowInput"
+                var cursorPos = cm.getCursor().ch;
+                var valLen = cm.getValue().length;
+                if (valLen <= cursorPos) {
+                    $('#rowInput').focus();
+                    return false; // prevent tabbing so that pressing tab skips
+                    //to the next input on the page, in this case the "#rowInput"
+                } else {
+                    cm.setCursor(0, valLen);
+                }
             }
         });
 
@@ -80,7 +181,6 @@ window.FnBar = (function(FnBar, $) {
                 editor.setValue(savedStr);
                 $fnBar.prop("disabled", "true");
             }
-
         });
 
         editor.on("mousedown", function() {
@@ -98,19 +198,19 @@ window.FnBar = (function(FnBar, $) {
         // disallow adding newlines
         editor.on("beforeChange", function(instance, change) {
         // remove ALL \n
-            var newtext = change.text.join("").replace(/\n/g, "");
-
-            if (newtext.trim().indexOf("=") === 0 &&
+            var newText = change.text.join("").replace(/\n/g, "");
+            if (newText.trim().indexOf("=") === 0 &&
                 lastFocusedCol === undefined) {
                 // No active column, disallow user from typing in a
-                newtext = "";
+                newText = "";
                 xcHelper.refreshTooltip($('#funcBarMenuArea'), 1000);
             }
             if (change.update) {
-                change.update(change.from, change.to, [newtext]);
+                change.update(change.from, change.to, [newText]);
             }
             return true;
         });
+
 
         // change is triggered during user's input or when clearing/emptying
         // the input field
@@ -148,6 +248,12 @@ window.FnBar = (function(FnBar, $) {
         });
     };
 
+    FnBar.updateOperationsMap = function(opMap) {
+        for (var i = 0; i < opMap.length; i++) {
+            operationsMap[opMap[i].fnName.toLowerCase()] = opMap[i];
+        }
+    };
+
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
         lastFocusedCol = gTables[tableId].tableCols[colNum - 1];
         if (!forceFocus && $lastColInput != null &&
@@ -173,6 +279,9 @@ window.FnBar = (function(FnBar, $) {
             // }
 
             $functionArea.removeClass('searching');
+            $functionArea.find('.position').hide();
+            $functionArea.find('.counter').hide();
+            $functionArea.find('.arrows').hide();
         } else {
             editor.getInputField().blur(); // hack to reset blur
             var userStr = progCol.userStr;

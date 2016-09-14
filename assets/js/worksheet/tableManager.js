@@ -1188,7 +1188,6 @@ window.TblManager = (function($, TblManager) {
         return (hasSuccess);
     }
 
-
     function infScrolling(tableId) {
         var $rowScroller = $('#rowScrollerArea');
         var scrolling = false;
