@@ -73,6 +73,8 @@ window.Alert = (function($, Alert){
             extraOptions = {"noEsc": true};
             $modalBg.addClass('locked');
             $modal.draggable("destroy");
+            // should not show initial screen
+            $("#initialLoadScreen").hide();
         }
 
         modalHelper.setup(extraOptions)

@@ -2059,13 +2059,12 @@ html.microsoft {
 /* End Of Profile Modal */
 
 #dfgParameterModal {
-    .size(@width: 920px, @height: auto, @max-height: none);
-    bottom: auto;
-    right: auto;
-    .transition(height 0.5s);
+    .size(@width: 920px, @height: 657px);
 
     .modalTopMain {
+        .size(@width: 100%, @height: ~"calc(100% - 152px)");
         background-color: @color-white;
+        overflow: auto;
     }
 
     .border {
@@ -2278,18 +2277,18 @@ html.microsoft {
     }
 
     .defaultListSection {
-        .size(@height: 279px);
+        .size(@height: 285px);
         box-shadow: inset 0 1px 0 0 @color-bg-pinkish-grey2;
-        padding: 15px 23px;
+        padding: 20px 23px;
 
         .tableHeader {
             .thWrap {
                 &.paramName {
-                    .size(@width: 328px);
+                    .size(@width: 327px);
                 }
 
                 &.paramVal {
-                    .size(@width: 461px);
+                    .size(@width: 462px);
                 }
 
                 &.empty {
@@ -2308,7 +2307,7 @@ html.microsoft {
                 }
 
                 .paramValWrap {
-                    .size(@width: 445px);
+                    .size(@width: 462px);
 
                     .paramVal {
                         .size(@width: 415px, @height: 25px);
@@ -2351,13 +2350,17 @@ html.microsoft {
                     }
                 }
 
-                .checkboxWrap {
-                    .size(@width: 68px);
-                    text-align: center;
+                .actionWrap {
+                    .size(@width: 78px);
 
-                    .checkbox {
-                        .size(@width: 15px, @height: 15px);
-                        .position(relative, @top: 2px);
+                    .checkboxWrap {
+                        .size(@width: 68px);
+                        text-align: center;
+
+                        .checkbox {
+                            .size(@width: 15px, @height: 15px);
+                            .position(relative, @top: 2px);
+                        }
                     }
                 }
 
@@ -2377,13 +2380,8 @@ html.microsoft {
     }
 
     .modalBottom {
-        right: 0px;
-        .size(auto, auto);
-        padding: 15px 15px 0 0;
-
-        .btn {
-            margin-top: 15px;
-        }
+        .size(@width: 100%, @height: 60px);
+        padding: 15px;
     }
 }
 

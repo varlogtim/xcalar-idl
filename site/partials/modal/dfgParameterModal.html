@@ -10,7 +10,7 @@
     <i class="icon xi-info-circle"></i>
     <div class="text"><%= dicts.dfgParam.instr %></div>
   </div>
-  <div class="modalTopMain clearfix">
+  <div class="modalTopMain">
     <div class="templateSection clearfix retinaSection">
       <div class="heading"><%= dicts.dfgParam.query %>:</div>
       <table class="templateTable">
@@ -29,23 +29,23 @@
         <tr class="editableRow"></tr>
       </table>
     </div>
-  </div>
-  <!-- defaultListSection -->
-  <div class="defaultListSection retinaParameter">
-    <div class="tableHeader">
-      <div class="thWrap paramName"><%= dicts.dfgParam.param %></div>
-      <div class="thWrap paramVal"><%= dicts.dfgParam.val %></div>
-      <div class="thWrap empty"><%= dicts.dfgParam.empty %></div>
-    </div>
-    <div class="tableContainer">
-      <div class="tableWrapper">
-        <table id="dagModleParamList">
-          <tbody></tbody>
-        </table>
+    <!-- defaultListSection -->
+    <div class="defaultListSection retinaParameter">
+      <div class="tableHeader">
+        <div class="thWrap paramName"><%= dicts.dfgParam.param %></div>
+        <div class="thWrap paramVal"><%= dicts.dfgParam.val %></div>
+        <div class="thWrap empty"><%= dicts.dfgParam.empty %></div>
+      </div>
+      <div class="tableContainer">
+        <div class="tableWrapper">
+          <table id="dagModleParamList">
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
+    <!-- end of defaultListSection -->
   </div>
-  <!-- end of defaultListSection -->
   <div class="modalBottom clearfix">
     <button class="btn confirm"><%= dicts.common.SAVE %></button>
     <button class="btn cancel"><%= dicts.common.CANCEL %></button>

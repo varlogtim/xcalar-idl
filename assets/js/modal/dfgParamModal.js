@@ -14,17 +14,15 @@ window.DFGParamModal = (function($, DFGParamModal){
             '<td class="paramNameWrap textOverflowOneLine">' +
                 '<div class="paramName"></div>' +
             '</td>' +
-            '<td>' +
-                '<div class="paramValWrap textOverflowOneLine">' +
-                    '<input class="paramVal" spellcheck="false" disabled/>' +
-                    '<div class="options">' +
-                        '<div class="option paramEdit">' +
-                            '<i class="fa-15 icon xi-edit"></i>' +
-                        '</div>' +
+            '<td class="paramValWrap textOverflowOneLine">' +
+                '<input class="paramVal" spellcheck="false" disabled/>' +
+                '<div class="options">' +
+                    '<div class="option paramEdit">' +
+                        '<i class="fa-15 icon xi-edit"></i>' +
                     '</div>' +
                 '</div>' +
             '</td>' +
-            '<td>' +
+            '<td class="actionWrap">' +
                 '<div class="checkboxWrap">' +
                     '<div class="checkbox">' +
                         '<i class="icon xi-ckbox-empty fa-15"></i>' +
@@ -38,7 +36,16 @@ window.DFGParamModal = (function($, DFGParamModal){
         $dfgParamModal = $("#dfgParameterModal");
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfgParamModal.find(".editableRow");
-        modalHelper = new ModalHelper($dfgParamModal, { "noResize": true });
+        modalHelper = new ModalHelper($dfgParamModal, {
+            "noResize": true
+        });
+
+        $dfgParamModal.draggable({
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
+            "containment": "window"
+        });
+
 
         $dfgParamModal.find('.cancel, .close').click(function() {
             closeDFGParamModal();
@@ -152,7 +159,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                 var parenIndex = filterInfo.indexOf("(");
                 var abbrFilterType = filterInfo.slice(0, parenIndex);
                 var filterValue = filterInfo.slice(filterInfo.indexOf(',') + 2,
-                                                      filterInfo.indexOf(')'));
+                                                    filterInfo.indexOf(')'));
 
                 defaultText += '<td class="static">by</td>' +
                                 '<td>' +
@@ -167,10 +174,10 @@ window.DFGParamModal = (function($, DFGParamModal){
                                 '</td>';
 
                 editableText +=
-                            getParameterInputHTML(0, "medium") +
-                            '<td class="static">by</td>' +
-                            getParameterInputHTML(1, "sm-med", {filter: true}) +
-                            getParameterInputHTML(2, "medium allowEmpty");
+                        getParameterInputHTML(0, "medium") +
+                        '<td class="static">by</td>' +
+                        getParameterInputHTML(1, "sm-med", {filter: true}) +
+                        getParameterInputHTML(2, "medium allowEmpty");
             } else {
                 // index, sort, map etc to be added in later
                 defaultText += "<td>by</td>";
@@ -543,7 +550,9 @@ window.DFGParamModal = (function($, DFGParamModal){
             tempParams = getParamsInInput($(this));
             params = params.concat(tempParams);
         });
-        $paramLists.find('tr:not(.unfilled)').find('.paramName').each(function() {
+
+        var $params = $paramLists.find('tr:not(.unfilled)').find('.paramName');
+        $params.each(function() {
             if (params.indexOf($(this).text()) === -1) {
                 $(this).closest('tr').remove();
             }
@@ -642,7 +651,8 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         if (!isValid) {
-            StatusBox.show(ErrTStr.NoEmptyOrCheck, $invalidTr.find(".paramVal"));
+            var $paramVal = $invalidTr.find(".paramVal");
+            StatusBox.show(ErrTStr.NoEmptyOrCheck, $paramVal);
             return;
         }
 
@@ -755,7 +765,8 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
 
         // Check if filterParamText matches a filter type from dropdown list
-        var filterExists = $input.siblings('.list').find('li').filter(function() {
+        var $lis = $input.siblings('.list').find('li');
+        var filterExists = $lis.filter(function() {
             return ($(this).text() === filterParamText);
         }).length;
 
