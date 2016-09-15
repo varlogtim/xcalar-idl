@@ -204,7 +204,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 default:
                     break;
             }
-            $monitorPanel.find('.topBar .title').text(title);
+            $monitorPanel.find('.topBar .title:not(.wkbkTitle)').text(title);
 
             QueryManager.check();
         });

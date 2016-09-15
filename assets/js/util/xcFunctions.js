@@ -773,7 +773,8 @@ window.xcFunction = (function($, xcFunction) {
         });
 
         // XXX GUI-5271
-        options.handleName = xcHelper.randName("exportHandle-", 5);
+        options.handleName = tableName.split("#")[0] +
+                             Authentication.getHashId();
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
                      frontColumns, keepOrder, options, txId)

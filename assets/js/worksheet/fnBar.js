@@ -92,8 +92,8 @@ window.FnBar = (function(FnBar, $) {
                     editor.execCommand("autocomplete");
                 }
             }, 0);
-            
         });
+
         editor.on("focus", function() {
             if (initialTableId && initialTableId !== gActiveTableId) {
                 resetColNamesCache(gActiveTableId);
