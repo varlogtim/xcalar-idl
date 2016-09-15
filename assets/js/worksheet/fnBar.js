@@ -167,7 +167,7 @@ window.FnBar = (function(FnBar, $) {
                 opMap[i].template = createFuncTemplate(opMap[i]);
                 var secondTemplate = createSecondaryTemplate(opMap[i]);
                 opMap[i].templateTwo = secondTemplate.template;
-                opMap[i].argDescs = secondTemplate.argDescs;
+                opMap[i].modArgDescs = secondTemplate.argDescs;
             }
 
         } else {
@@ -186,7 +186,7 @@ window.FnBar = (function(FnBar, $) {
                 op.template = createFuncTemplate(op);
                 var secondTemplate = createSecondaryTemplate(op);
                 op.templateTwo = secondTemplate.template;
-                op.argDescs = secondTemplate.argDescs;
+                op.modArgDescs = secondTemplate.argDescs;
             }
         }
 
@@ -404,7 +404,7 @@ window.FnBar = (function(FnBar, $) {
                                         displayText: fnName,
                                         template: xdfMap[fnName].template,
                                         templateTwo: xdfMap[fnName].templateTwo,
-                                        argDescs: xdfMap[fnName].argDescs,
+                                        argDescs: xdfMap[fnName].modArgDescs,
                                         hint: autcompleteSelect,
                                         render: renderOpLi,
                                         className: "operator"});
@@ -420,7 +420,7 @@ window.FnBar = (function(FnBar, $) {
                                         displayText: fnName,
                                         template: udfMap[fnName].template,
                                         templateTwo: udfMap[fnName].templateTwo,
-                                        argDescs: udfMap[fnName].argDescs,
+                                        argDescs: udfMap[fnName].modArgDescs,
                                         hint: autcompleteSelect,
                                         render: renderOpLi,
                                         className: "operator"});
