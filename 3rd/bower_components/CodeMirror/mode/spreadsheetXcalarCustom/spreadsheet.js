@@ -117,7 +117,8 @@
         // xcalar custom code - tag map, pull, filter, null, true, false
         if (stream.match(keywords, false)) {
             stream.match(/^[a-zA-Z_]\w*/);
-            if (stream.match(/(?=[\(])/, false)) return "xckeyword";
+            // ok if followed by paren or space
+            if (stream.match(/(?=[\( ])/, false)) return "xckeyword";
             return "variable-2";
         } else if (stream.match(specialWords, false)) {
             stream.match(/^[a-zA-Z_]\w*/);

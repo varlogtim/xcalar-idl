@@ -392,44 +392,46 @@ window.FnBar = (function(FnBar, $) {
                               });
                     }
                 }
-                // search xdfMap
-                curWord = curWord.toLowerCase();
-                for (var fnName in xdfMap) {
-                    if (fnName.lastIndexOf(curWord, 0) === 0 &&
-                        !seen.hasOwnProperty(fnName)) {
-                        seen[fnName] = true;
-                        list.push({text: xdfMap[fnName].fnName + "()", 
-                                    displayText: fnName,
-                                    template: xdfMap[fnName].template,
-                                    templateTwo: xdfMap[fnName].templateTwo,
-                                    argDescs: xdfMap[fnName].argDescs,
-                                    hint: autcompleteSelect,
-                                    render: renderOpLi,
-                                    className: "operator"});
-                    }
-                }
 
-                // search udfMap
-                curWord = curWord.toLowerCase();
-                for (var fnName in udfMap) {
-                    if (fnName.lastIndexOf(curWord, 0) === 0 &&
-                        !seen.hasOwnProperty(fnName)) {
-                        seen[fnName] = true;
-                        list.push({text: udfMap[fnName].fnName + "()", 
-                                    displayText: fnName,
-                                    template: udfMap[fnName].template,
-                                    templateTwo: udfMap[fnName].templateTwo,
-                                    argDescs: udfMap[fnName].argDescs,
-                                    hint: autcompleteSelect,
-                                    render: renderOpLi,
-                                    className: "operator"});
+                if (getOperationFromFuncStr(fullVal) !== "pull") {
+                    // search xdfMap
+                    curWord = curWord.toLowerCase();
+                    for (var fnName in xdfMap) {
+                        if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                            !seen.hasOwnProperty(fnName)) {
+                            seen[fnName] = true;
+                            list.push({text: xdfMap[fnName].fnName + "()", 
+                                        displayText: fnName,
+                                        template: xdfMap[fnName].template,
+                                        templateTwo: xdfMap[fnName].templateTwo,
+                                        argDescs: xdfMap[fnName].argDescs,
+                                        hint: autcompleteSelect,
+                                        render: renderOpLi,
+                                        className: "operator"});
+                        }
+                    }
+
+                    // search udfMap
+                    for (var fnName in udfMap) {
+                        if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                            !seen.hasOwnProperty(fnName)) {
+                            seen[fnName] = true;
+                            list.push({text: udfMap[fnName].fnName + "()", 
+                                        displayText: fnName,
+                                        template: udfMap[fnName].template,
+                                        templateTwo: udfMap[fnName].templateTwo,
+                                        argDescs: udfMap[fnName].argDescs,
+                                        hint: autcompleteSelect,
+                                        render: renderOpLi,
+                                        className: "operator"});
+                        }
                     }
                 }
             }
             // clearTimeout(timer1);
             // timer1 = setTimeout(function(){
             //     debugger;
-            // }, 1000);
+            // }, 2000);
             list.sort(function(a, b) {
                return a.displayText.length - b.displayText.length;
             });
@@ -448,7 +450,7 @@ window.FnBar = (function(FnBar, $) {
             // highlight arguments and place cursor right after the end of the
             // first argument
             if (completion.argDescs) {
-                var start = 0;
+                var start = text.indexOf('(');
                 var arg;
                 for (var i = 0 ; i < completion.argDescs.length; i++) {
                     arg = completion.argDescs[i];
@@ -662,7 +664,7 @@ window.FnBar = (function(FnBar, $) {
 
     function getOperationFromFuncStr(funcStr) {
         var operation = funcStr.substring(funcStr.indexOf("=") + 1).trim();
-        operation = operation.substr(0, operation.indexOf("("));
+        operation = operation.substr(0, operation.indexOf("(")).trim();
         return (operation);
     }
 
