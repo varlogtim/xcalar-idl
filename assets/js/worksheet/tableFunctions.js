@@ -84,11 +84,12 @@ function autosizeCol($th, options) {
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dblClick is autoSized to a fixed width
     if (!options.dblClick) {
-        var originalWidth = 0;
+        var originalWidth = minWidth;
 
-        if (table != null && originalWidth !== "auto") {
+        if (table != null) {
             originalWidth = table.tableCols[colNum - 1].width;
         }
+
         newWidth = Math.max(newWidth, originalWidth);
     }
 

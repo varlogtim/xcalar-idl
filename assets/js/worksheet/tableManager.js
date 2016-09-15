@@ -136,14 +136,14 @@ window.TblManager = (function($, TblManager) {
             });
         })
         .fail(function(error) {
-            console.log("set gTables fails!");
+            console.error("set gTables fails!", error);
             if (worksheet != null) {
                 WSManager.removeTable(newTableId);
             }
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     function setTablesToReplace(oldTableNames, worksheet, tablesToReplace,
@@ -279,10 +279,7 @@ window.TblManager = (function($, TblManager) {
                 gTables[tableId] = table;
                 deferred.resolve();
             })
-            .fail(function(error) {
-                console.error("setTableMeta Fails!", error);
-                deferred.reject(error);
-            });
+            .fail(deferred.reject);
         } else {
             // table is in inactive list or orphaned list, no backend meta
             gTables[tableId] = table;
@@ -1120,8 +1117,8 @@ window.TblManager = (function($, TblManager) {
         var colNum;
         for (var i = 0; i < numCols; i++) {
             colNum = colNums[i];
-            if (!widths) {
-                console.log('not found');
+            if (!widths[i]) {
+                console.warn('not found');
             }
             $table.find('th.col' + colNum).outerWidth(widths[i]);
             progCols[colNum - 1].width = widths[i];
@@ -1456,12 +1453,9 @@ window.TblManager = (function($, TblManager) {
             table.beActive();
             deferred.resolve();
         })
-        .fail(function(error) {
-            console.error("setTableMeta Fails!", error);
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function focusOnWorkspace() {
@@ -2366,7 +2360,6 @@ window.TblManager = (function($, TblManager) {
             if ($prevTable.length !== 0) {
                 $prevTable.after(wrapper);
             } else {
-                // console.error('Table not appended to the right spot, big problem!');
                 $('#mainFrame').append(wrapper);
             }
             // we exclude any tables pending removal because otherwise we wouldn't
@@ -2663,11 +2656,13 @@ window.TblManager = (function($, TblManager) {
             if (dataCol.isHidden) {
                 dataCol.width = minWidth;
                 return;
+            } else {
+                dataCol.width = minWidth;
             }
             var $th = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
             autosizeCol($th, {
                 "fitAll"  : true,
-                "minWidth": 200,
+                "minWidth": minWidth,
                 "maxWidth": maxWidth
             });
         }
