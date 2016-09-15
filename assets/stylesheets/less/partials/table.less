@@ -865,8 +865,11 @@ html.edge {
         .dragArea {
             display: none;
         }
-        .tableTitle .dropdownBox {
-            display: none;
+        .tableTitle {
+            pointer-events: none; // disallow renaming when form open
+            .dropdownBox {
+                display: none;
+            }
         }
         &.exportViewOpen {
             .tableTitle .dropdownBox {
