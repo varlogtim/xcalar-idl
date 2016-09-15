@@ -181,7 +181,7 @@ window.SQL = (function($, SQL) {
 
         commitLogs()
         .then(function() {
-            lastSavedCursor = logCursor; 
+            lastSavedCursor = logCursor;
             return commitErrors();
         })
         .then(deferred.resolve)

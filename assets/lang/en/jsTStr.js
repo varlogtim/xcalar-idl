@@ -431,7 +431,10 @@ DFGTStr = {
     'RunFail': 'Run DFG Failed',
     "DFGTitle": "SCHEDULER/DATAFLOW",
     "PointTo": "File Path",
-    "ExportTo": "Export As"
+    "ExportTo": "Export As",
+    "DelDFG": "Permanently Delete Dataflow",
+    "DelDFGMsg": "Are you sure you want to permanently delete " +
+                 "this dataflow? This action cannot be undone."
 };
 
 DSTStr = {

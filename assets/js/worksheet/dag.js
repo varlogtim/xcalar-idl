@@ -389,7 +389,6 @@ window.DagPanel = (function($, DagPanel) {
             $menu.data('tableId', tableId);
             $menu.data('tableelement', $dagTable);
             var activeFound = false;
-            var toWorksheetNotAllowed = false;
             var tableWSId;
             var inColumnPickerMode = $('#container').hasClass('columnPicker');
 
@@ -416,7 +415,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
             });
 
-            // to check if aggregate table, in which case we disallow 
+            // to check if aggregate table, in which case we disallow
             // many options
             var type = $dagTable.siblings('.actionType').data('type');
 
@@ -442,7 +441,7 @@ window.DagPanel = (function($, DagPanel) {
 
             var operator = $(this).closest('.dagTable').prev().data('type');
             var $genIcvLi = $menu.find('.generateIcv');
-            var $genNonIcvLi = $menu.find('.generateNonIcv');
+            // var $genNonIcvLi = $menu.find('.generateNonIcv');
 
             if ($dagTable.find(".dagTableIcon").hasClass("icv")) {
                 $genIcvLi.addClass('unavailable');
@@ -493,7 +492,7 @@ window.DagPanel = (function($, DagPanel) {
                 return false;
             } else if ($fourthTarget.length) {
                 $fourthTarget.trigger('click');
-                return  false;
+                return false;
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
                 $('#dagSchema').hide();
@@ -900,41 +899,6 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function generateIcvTable(dagTableName, mapTableName, $tableIcon) {
-        function postOperation(txId) {
-                var newCols = [];
-                if (origTableId in gTables) {
-                    idx = gTables[origTableId].getColNumByBackName(origColName);
-                    if (idx > -1) {
-                        newCols = xcHelper.mapColGenerate(idx,
-                                                 xcalarInput.newFieldName,
-                                                 xcalarInput.evalStr,
-                                                 gTables[origTableId].tableCols,
-                                                 options);
-                    } else {
-                        newCols = xcHelper.mapColGenerate(1,
-                                                 xcalarInput.newFieldName,
-                                                 xcalarInput.evalStr,
-                                                 gTables[origTableId].tableCols,
-                                                 {});
-                    }
-                } else {
-                    // Just leave the tableCols empty and let the user pull it
-                }
-
-                if (idx > -1) {
-                    options = {"selectCol": idx};
-                } else {
-                    options = {};
-                }
-                var worksheet = WSManager.getWSFromTable(origTableId);
-                if (!worksheet) {
-                    worksheet = WSManager.getActiveWS();
-                }
-
-                return TblManager.refreshTable([newTableName], newCols, [],
-                                               worksheet, txId, options);
-        }
-
         var origTableId = xcHelper.getTableId(mapTableName);
         if (origTableId in gTables) {
             var icvTableName = gTables[origTableId].icv;
@@ -1002,114 +966,147 @@ window.DagPanel = (function($, DagPanel) {
         var origColName = xcalarInput.newFieldName;
         xcalarInput.newFieldName = xcalarInput.newFieldName+"_icv";
         // We want to skip all the checks, including all the indexes and stuff
+        var options;
+        var sql;
+        var txId;
+        var idx;
 
         switch (op) {
-        case (XcalarApisT.XcalarApiMap):
-            var options = {"replaceColumn": true};
-            var sql = {
-                "operation" : SQLOps.Map,
-                "tableName" : origTableName,
-                "tableId"   : origTableId,
-                //"colNum"    : colNum,
-                "fieldName" : xcalarInput.newFieldName,
-                "mapString" : xcalarInput.evalStr,
-                "mapOptions": options
-            };
-            var txId = Transaction.start({
-                "msg"      : StatusMessageTStr.Map + " ICV mode",
-                "operation": SQLOps.Map,
-                "sql"      : sql,
-                "steps"    : 1
-            });
-
-            var idx = -1;
-            XcalarMapWithInput(txId, xcalarInput)
-            .then(function() {
-                return (postOperation(txId));
-            })
-            .then(function() {
-                if (gTables[origTableId]) {
-                    gTables[origTableId].icv = newTableName;
-                }
-                
-                Profile.copy(origTableId, newTableId);
-                sql.newTableName = newTableName;
-                if (idx > -1) {
-                    sql.colNum = idx;
-                } else {
-                    sql.colNum = 1;
-                }
-                Transaction.done(txId, {
-                    "msgTable": newTableId,
-                    "sql"     : sql
+            case (XcalarApisT.XcalarApiMap):
+                options = {"replaceColumn": true};
+                sql = {
+                    "operation" : SQLOps.Map,
+                    "tableName" : origTableName,
+                    "tableId"   : origTableId,
+                    //"colNum"    : colNum,
+                    "fieldName" : xcalarInput.newFieldName,
+                    "mapString" : xcalarInput.evalStr,
+                    "mapOptions": options
+                };
+                txId = Transaction.start({
+                    "msg"      : StatusMessageTStr.Map + " ICV mode",
+                    "operation": SQLOps.Map,
+                    "sql"      : sql,
+                    "steps"    : 1
                 });
 
-            })
-            .fail(function(error) {
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.MapFailed,
-                    "error"  : error,
-                    "sql"    : sql
-                });
-                StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
-            });
-            break;
-        case (XcalarApisT.XcalarApiGroupBy):
-            var options = {"replaceColumn": true};
-            // XXX This is going to screw up replay
-            var sql = {
-                "operation"   : SQLOps.GroupBy,
-                // "operator"    : operator,
-                "tableName"   : origTableName,
-                "tableId"     : origTableId,
-                // "indexedCols" : indexedCols,
-                // "aggColName"  : aggColName,
-                "newColName"  : xcalarInput.newFieldName,
-                "newTableName": newTableName,
-            };
-            var txId = Transaction.start({
-                "msg"      : StatusMessageTStr.GroupBy + " ICV mode",
-                "operation": SQLOps.GroupBy,
-                "sql"      : sql,
-                "steps"    : 1
-            });
+                idx = -1;
+                XcalarMapWithInput(txId, xcalarInput)
+                .then(function() {
+                    return (postOperation(txId));
+                })
+                .then(function() {
+                    if (gTables[origTableId]) {
+                        gTables[origTableId].icv = newTableName;
+                    }
 
-            var idx = -1;
-            XcalarGroupByWithInput(txId, xcalarInput)
-            .then(function() {
-                return (postOperation(txId));
-            })
-            .then(function() {
-                if (gTables[origTableId]) {
-                    gTables[origTableId].icv = newTableName;
-                }
-                sql.newTableName = newTableName;
-                if (idx > -1) {
-                    sql.colNum = idx;
-                } else {
-                    sql.colNum = 1;
-                }
-                Transaction.done(txId, {
-                    "msgTable": newTableId,
-                    "sql"     : sql
+                    Profile.copy(origTableId, newTableId);
+                    sql.newTableName = newTableName;
+                    if (idx > -1) {
+                        sql.colNum = idx;
+                    } else {
+                        sql.colNum = 1;
+                    }
+                    Transaction.done(txId, {
+                        "msgTable": newTableId,
+                        "sql"     : sql
+                    });
+
+                })
+                .fail(function(error) {
+                    Transaction.fail(txId, {
+                        "failMsg": StatusMessageTStr.MapFailed,
+                        "error"  : error,
+                        "sql"    : sql
+                    });
+                    StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
+                });
+                break;
+            case (XcalarApisT.XcalarApiGroupBy):
+                options = {"replaceColumn": true};
+                // XXX This is going to screw up replay
+                sql = {
+                    "operation"   : SQLOps.GroupBy,
+                    "tableName"   : origTableName,
+                    "tableId"     : origTableId,
+                    "newColName"  : xcalarInput.newFieldName,
+                    "newTableName": newTableName,
+                };
+                txId = Transaction.start({
+                    "msg"      : StatusMessageTStr.GroupBy + " ICV mode",
+                    "operation": SQLOps.GroupBy,
+                    "sql"      : sql,
+                    "steps"    : 1
                 });
 
-
-            })
-            .fail(function(ret) {
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.GroupByFailed,
-                    "error"  : error,
-                    "sql"    : sql
+                idx = -1;
+                XcalarGroupByWithInput(txId, xcalarInput)
+                .then(function() {
+                    return postOperation(txId);
+                })
+                .then(function() {
+                    if (gTables[origTableId]) {
+                        gTables[origTableId].icv = newTableName;
+                    }
+                    sql.newTableName = newTableName;
+                    if (idx > -1) {
+                        sql.colNum = idx;
+                    } else {
+                        sql.colNum = 1;
+                    }
+                    Transaction.done(txId, {
+                        "msgTable": newTableId,
+                        "sql"     : sql
+                    });
+                })
+                .fail(function(error) {
+                    Transaction.fail(txId, {
+                        "failMsg": StatusMessageTStr.GroupByFailed,
+                        "error"  : error,
+                        "sql"    : sql
+                    });
+                    StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
                 });
-                StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
-            });
-            break;
-        default:
-            console.error("Shouldn't get here");
-            break;
+                break;
+            default:
+                console.error("Shouldn't get here");
+                break;
         }
 
+        function postOperation(txId) {
+            var newCols = [];
+            if (origTableId in gTables) {
+                idx = gTables[origTableId].getColNumByBackName(origColName);
+                if (idx > -1) {
+                    newCols = xcHelper.mapColGenerate(idx,
+                                             xcalarInput.newFieldName,
+                                             xcalarInput.evalStr,
+                                             gTables[origTableId].tableCols,
+                                             options);
+                } else {
+                    newCols = xcHelper.mapColGenerate(1,
+                                             xcalarInput.newFieldName,
+                                             xcalarInput.evalStr,
+                                             gTables[origTableId].tableCols,
+                                             {});
+                }
+            } else {
+                // Just leave the tableCols empty and let the user pull it
+            }
+
+            if (idx > -1) {
+                options = {"selectCol": idx};
+            } else {
+                options = {};
+            }
+            var worksheet = WSManager.getWSFromTable(origTableId);
+            if (!worksheet) {
+                worksheet = WSManager.getActiveWS();
+            }
+
+            return TblManager.refreshTable([newTableName], newCols, [],
+                                           worksheet, txId, options);
+        }
     }
 
     function deleteTable(tableId, tableName) {
@@ -1122,8 +1119,9 @@ window.DagPanel = (function($, DagPanel) {
         // check if table visibile, else check if its in the inactivelist,
         // else check if its in the orphan list, else just delete the table
         if ($table.length !== 0 && !$table.hasClass('locked')) {
-            var msg = xcHelper.replaceMsg(TblTStr.DelMsg,
-                                            {"table": tableName});
+            var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {
+                "table": tableName
+            });
             Alert.show({
                 "title"    : TblTStr.Del,
                 "msg"      : msg,

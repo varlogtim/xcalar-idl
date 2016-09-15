@@ -47,7 +47,7 @@ window.xcFunction = (function($, xcFunction) {
             finalTableName = tableAfterFilter;
             var options = {"selectCol": colNum};
             return TblManager.refreshTable([finalTableName], table.tableCols,
-                                            [tableName], worksheet, txId, 
+                                            [tableName], worksheet, txId,
                                             options);
         })
         .then(function() {
@@ -709,7 +709,7 @@ window.xcFunction = (function($, xcFunction) {
             Profile.copy(tableId, finalTableId);
             var options = {"selectCol": colNum};
             return TblManager.refreshTable([finalTableName], tablCols,
-                                           [tableName], worksheet, txId, 
+                                           [tableName], worksheet, txId,
                                            options);
         })
         .then(function() {
@@ -992,7 +992,7 @@ window.xcFunction = (function($, xcFunction) {
             finalTableCols.push(dataCol);
 
             return TblManager.refreshTable([dstTableName], finalTableCols,
-                                           [tableName], worksheet, txId, 
+                                           [tableName], worksheet, txId,
                                            options);
         })
         .then(function() {

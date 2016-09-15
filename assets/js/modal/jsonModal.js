@@ -489,7 +489,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonClone.data('colnum', $jsonWrap.data('colnum'));
         $jsonClone.data('rownum', $jsonWrap.data('rownum'));
         $jsonClone.data('tableid', $jsonWrap.data('tableid'));
-        $jsonClone.find('.colsSelected').data('totalcols', 
+        $jsonClone.find('.colsSelected').data('totalcols',
                             $jsonWrap.find('.colsSelected').data('totalcols'));
 
         var index = $jsonWrap.index();

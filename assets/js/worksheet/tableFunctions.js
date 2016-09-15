@@ -61,16 +61,20 @@ function getTextWidth($el, val, options) {
 function autosizeCol($th, options) {
     options = options || {};
 
-    var index = xcHelper.parseColNum($th);
-    var $table = $th.closest('.dataTable');
-    var tableId = xcHelper.parseTableId($table);
-    var table = gTables[tableId];
+    var colNum = xcHelper.parseColNum($th);
+    var $table = $th.closest(".dataTable");
+    var table = null;
 
     var includeHeader = options.includeHeader || false;
     var fitAll = options.fitAll || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
     var maxWidth = options.maxWidth || 700;
     var datastore = options.datastore || false;
+
+    if (!datastore) {
+        var tableId = xcHelper.parseTableId($table);
+        table = gTables[tableId];
+    }
 
     var widestTdWidth = getWidestTdWidth($th, {
         "includeHeader": includeHeader,
@@ -80,9 +84,10 @@ function autosizeCol($th, options) {
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dblClick is autoSized to a fixed width
     if (!options.dblClick) {
-        var originalWidth = table.tableCols[index - 1].width;
-        if (originalWidth === "auto") {
-            originalWidth = 0;
+        var originalWidth = 0;
+
+        if (table != null && originalWidth !== "auto") {
+            originalWidth = table.tableCols[colNum - 1].width;
         }
         newWidth = Math.max(newWidth, originalWidth);
     }
@@ -92,15 +97,15 @@ function autosizeCol($th, options) {
     }
 
     $th.outerWidth(newWidth);
-    if ($table.attr('id').indexOf('xc') > -1) {
-        table.tableCols[index - 1].width = newWidth;
-    } else if ($table.attr('id') === 'dsTable') {
-        $("#dsTableWrap").width($('#dsTable').width());
+    if (table != null) {
+        table.tableCols[colNum - 1].width = newWidth;
+    } else if (datastore) {
+        $("#dsTableWrap").width($("#dsTable").width());
     }
     if (!options.multipleCols) {
         matchHeaderSizes($table);
     }
-    return (newWidth);
+    return newWidth;
 }
 
 function getWidestTdWidth(el, options) {
@@ -791,7 +796,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                             e = $.Event('mouseenter');
                             e.keyTriggered = true;
                             $highlightedLi.trigger(e);
-                            var $subLis = $subMenu.find('li:visible');
+                            $subLis = $subMenu.find('li:visible');
                             $subLis.eq(0).mouseover();
                             if ($subLis.find('input').length > 0) {
                                 $subLis.find('input').eq(0).focus();

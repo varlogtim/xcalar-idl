@@ -179,7 +179,6 @@ window.DFG = (function($, DFG) {
         var expandIcons = [];
         var table;
         var tableName;
-        var operation;
         var expandIcon;
         var firstDagTable;
         var dagImageHeight = $dagImage.height();
@@ -242,20 +241,20 @@ window.DFG = (function($, DFG) {
             var tooltip = $operation.attr('data-original-title') ||
                                      $operation.attr('title');
             tooltip = tooltip.replace(/"/g, '&quot');
-            operation = {
-                "tooltip": tooltip,
-                "type"   : $operation.data('type'),
-                "column" : $operation.data('column'),
-                "info"   : $operation.data('info'),
-                "table"  : $operation.data('table'),
-                "parents": $operation.find('.parentsTitle').text(),
-                "left"   : dagImageWidth -
-                           parseInt($operation.parent().css('right')) - 200,
-                "top"    : parseInt($operation.parent().css('top')) + 4,
-                "classes": $operation.find('.dagIcon').attr('class'),
+            var left = dagImageWidth -
+                        parseInt($operation.parent().css('right')) - 200;
+            operations.push({
+                "tooltip"    : tooltip,
+                "type"       : $operation.data('type'),
+                "column"     : $operation.data('column'),
+                "info"       : $operation.data('info'),
+                "table"      : $operation.data('table'),
+                "parents"    : $operation.find('.parentsTitle').text(),
+                "left"       : left,
+                "top"        : parseInt($operation.parent().css('top')) + 4,
+                "classes"    : $operation.find('.dagIcon').attr('class'),
                 "iconClasses": $operation.find('.icon').attr('class')
-            };
-            operations.push(operation);
+            });
         });
 
         $dagImage.find('.expandWrap').each(function() {

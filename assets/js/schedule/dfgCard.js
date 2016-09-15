@@ -231,13 +231,13 @@ window.DFGCard = (function($, DFGCard) {
 
         $listSection.on('click', '.deleteDataflow', function() {
             var retName = $(this).siblings('.groupName').text();
-            Alert.show({'title': 'Permanently Delete Dataflow',
-                        'msg': 'Are you sure you want to permanently delete ' +
-                               'this dataflow? This action cannot be undone.',
-                        'onConfirm': function() {
-                            deleteDataflow(retName);
-                        }});
-
+            Alert.show({
+                'title'    : DFGTStr.DelDFG,
+                'msg'      : DFGTStr.DelDFGMsg,
+                'onConfirm': function() {
+                    deleteDataflow(retName);
+                }
+            });
         });
 
         function deleteDataflow(retName) {
@@ -264,8 +264,6 @@ window.DFGCard = (function($, DFGCard) {
             var $btn = $(this);
             var retName = $("#dfgMenu .listSection").find(".selected .groupName")
                                                     .text();
-
-
             $btn.addClass("running");
 
             runDFG(retName)
@@ -282,7 +280,7 @@ window.DFGCard = (function($, DFGCard) {
         if (!group.dataFlows) {
             // This is a uploaded dataflow
             // JJJ handle this. Below is just a hack
-            var html = '<div class="dagWrap clearfix">' +
+            html = '<div class="dagWrap clearfix">' +
                         '<div class="header clearfix">' +
                             '<div class="btn btn-small infoIcon">' +
                                 '<i class="icon xi-info-rectangle"></i>' +
@@ -481,8 +479,8 @@ window.DFGCard = (function($, DFGCard) {
             }
         };
 
-        $dagArea.on('click', '.dagTable.export, .dagTable.dataStore, ' +
-                    '.actionType', function() {
+        var selector = '.dagTable.export, .dagTable.dataStore, .actionType';
+        $dagArea.on('click', selector, function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');

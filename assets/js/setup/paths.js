@@ -9,7 +9,7 @@ var paths = {
     datastoreDemo1: 'assets/htmlFiles/walk/datastoreDemo1.html',
     datastoreDemo2: 'assets/htmlFiles/walk/datastoreDemo2.html',
     monitor       : 'assets/htmlFiles/monitor.html',
-    dfIcons      : 'assets/images/new/dfgIcons/',
+    dfIcons       : 'assets/images/new/dfgIcons/',
     dagBackground : 'assets/images/dagIcons/dag-background.png',
     dbDiamond     : 'assets/images/new/dfgIcons/dbDiamond.png',
     dTable        : 'assets/images/new/dfgIcons/dtable.png',

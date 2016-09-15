@@ -27,7 +27,7 @@ function dsTableTest() {
     });
 
     describe("Preparation Verification", function() {
-        it("Should load the ds", function() {
+        it("Should point to the ds", function() {
             expect(testDSObj).not.to.be.null;
         });
     });
@@ -43,7 +43,7 @@ function dsTableTest() {
                 assert.isTrue($dsTableContainer.hasClass("loading"));
 
                 var loadText = $dsTableContainer.find(".loadSection .text").text();
-                expect(loadText).to.equal("Loading");
+                expect(loadText).to.equal("Please Wait");
                 done();
             })
             .fail(function() {

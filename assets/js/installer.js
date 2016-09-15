@@ -1,14 +1,14 @@
 window.Installer = (function(Installer, $) {
 
     var finalStruct = {
-        "nfsOption": undefined, // Either empty struct (use ours) or 
+        "nfsOption"  : undefined, // Either empty struct (use ours) or
         //         { "nfsServer": "netstore.int.xcalar.com",
         //           "nfsMountPoint": "/public/netstore",
         //           "nfsUsername": "jyang",
         //           "nfsGroup": "xcalarEmployee" }
-        "hostnames": [],
-        "username": "",
-        "port": 22,
+        "hostnames"  : [],
+        "username"   : "",
+        "port"       : 22,
         "credentials": {} // Either password or sshKey
     };
 
@@ -19,19 +19,19 @@ window.Installer = (function(Installer, $) {
     }
 
     var Api = {
-        "runPrecheck": 0,
-        "checkStatus": 1,
-        "runInstaller": 2,
+        "runPrecheck"         : 0,
+        "checkStatus"         : 1,
+        "runInstaller"        : 2,
         "completeInstallation": 3,
-        "checkLicense": 4,
-        "cancelInstall": 5,
+        "checkLicense"        : 4,
+        "cancelInstall"       : 5,
     };
 
     var Status = {
-        "Ok": 0,
-        "Done": 1,
+        "Ok"     : 0,
+        "Done"   : 1,
         "Running": 2,
-        "Error": -1,
+        "Error"  : -1,
     };
 
     var intervalTimer;
@@ -39,7 +39,7 @@ window.Installer = (function(Installer, $) {
     var checkInterval = 2000; // How often to check for status
 
     var $forms = $("form");
-    var lastStep = 2; // Last step of form 
+    var lastStep = 2; // Last step of form
     var numServers = 4;
     var cancel = false;
     Installer.clearInterval = function() {
@@ -151,34 +151,37 @@ window.Installer = (function(Installer, $) {
 
     function radioAction(radioGroup, radioOption) {
         switch (radioGroup) {
-        case ("nfsOption"):
-            $(".customerNfsOptions").hide();
-            switch(radioOption) {
-            case ("xcalarNfs"):
+            case ("nfsOption"):
+                $(".customerNfsOptions").hide();
+                switch (radioOption) {
+                    case ("xcalarNfs"):
+                        break;
+                    case ("customerNfs"):
+                        $(".customerNfsOptions").show();
+                        break;
+                    default:
+                        console.error("Unexpected option!");
+                        break;
+                }
                 break;
-            case ("customerNfs"):
-                $(".customerNfsOptions").show();
+            case ("passOption"):
+                $(".hostSshKey").hide();
+                $(".hostPassword").hide();
+                switch (radioOption) {
+                    case ("password"):
+                        $(".hostPassword").show();
+                        break;
+                    case ("sshKey"):
+                        $(".hostSshKey").show();
+                        break;
+                    default:
+                        console.error("Unexpected option!");
+                        break;
+                }
                 break;
             default:
-                console.error("Unexpected option!");
-            }
-            break;
-        case ("passOption"):
-            $(".hostSshKey").hide();
-            $(".hostPassword").hide();
-            switch(radioOption) {
-            case ("password"):
-                $(".hostPassword").show();
+                console.error("Unexpected radio group!");
                 break;
-            case ("sshKey"):
-                $(".hostSshKey").show();
-                break;
-            default:
-                console.error("Unexpected option!");
-            }
-            break;
-        default:
-            console.error("Unexpected radio group!");
         }
     }
 
@@ -188,11 +191,11 @@ window.Installer = (function(Installer, $) {
                 method     : "POST",
                 // url        : "http://cantor.int.xcalar.com:12124",
                 // url        : document.location.href+"install",
-                url: "http://cantor.int.xcalar.com:8080/install",
+                url        : "http://cantor.int.xcalar.com:8080/install",
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
                 success    : successCB,
-                error: failureCB
+                error      : failureCB
             });
         } catch (e) {
             // XXX Handle the different statuses and display relevant
@@ -265,14 +268,14 @@ window.Installer = (function(Installer, $) {
                 if (curNum < numServers) {
                     // Add extra rows at bottom
                     var extraRows = numServers - curNum;
-                    for (i = 0; i<extraRows; i++) {
-                        html += hostnameHtml(i+1+curNum);
+                    for (i = 0; i < extraRows; i++) {
+                        html += hostnameHtml(i + 1 + curNum);
                     }
                     $(".row").last().after(html);
                 } else if (curNum > numServers) {
                     // Remove from the bottom
                     var toRemove = curNum - numServers;
-                    for (i = 0; i<toRemove; i++) {
+                    for (i = 0; i < toRemove; i++) {
                         $(".row").last().remove();
                     }
                 }
@@ -292,16 +295,14 @@ window.Installer = (function(Installer, $) {
 
         $(document).on("keydown", ".ipOrFqdn", function(e) {
             // For chrome or something like that
-            if (e.which === 38) 
-            {
+            if (e.which === 38) {
                 e.preventDefault();
             }
         });
 
         $(document).on("keypress", ".ipOrFqdn", function(e) {
             // For safari or something like that
-            if (e.which === 38) 
-            {
+            if (e.which === 38) {
                 e.preventDefault();
             }
         });
@@ -331,17 +332,17 @@ window.Installer = (function(Installer, $) {
 
     function validateCurrentStep(stepId) {
         $(".error").hide();
-        switch(stepId) {
-        case (0):
-            $(".invalidLicense").hide();
-            return validateKey();
-        case (1):
-            return validateNfs();
-        case (2):
-            return validateCredentials();
-        default:
-            console.error("Unexpected step");
-            break;
+        switch (stepId) {
+            case (0):
+                $(".invalidLicense").hide();
+                return validateKey();
+            case (1):
+                return validateNfs();
+            case (2):
+                return validateCredentials();
+            default:
+                console.error("Unexpected step");
+                break;
         }
     }
 
@@ -372,7 +373,7 @@ window.Installer = (function(Installer, $) {
                             "authentication server cannot be established.");
         });
         return (deferred.promise());
-    }   
+    }
 
     function validateNfs() {
         var deferred = jQuery.Deferred();
@@ -466,18 +467,18 @@ window.Installer = (function(Installer, $) {
 
     function setupNextStep(curStepId) {
         switch (curStepId) {
-        case (0):
-            break;
-        case (1):
-            break;
-        case (2):
-            executeFinalArray()
-            .fail(function() {
-                showFailure(curStepId, arguments);
-            });
-            break;
-        default:
-            return;
+            case (0):
+                break;
+            case (1):
+                break;
+            case (2):
+                executeFinalArray()
+                .fail(function() {
+                    showFailure(curStepId, arguments);
+                });
+                break;
+            default:
+                return;
         }
     }
 

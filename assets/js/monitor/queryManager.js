@@ -215,7 +215,7 @@ window.QueryManager = (function(QueryManager, $) {
             return deferred.promise();
         }
 
-        var $query = $queryList.find('.query[data-id="' + id + '"]'); 
+        var $query = $queryList.find('.query[data-id="' + id + '"]');
         $query.find('.cancelIcon').addClass('disabled');
 
         if (!Transaction.isCancelable(id)) {
@@ -295,8 +295,9 @@ window.QueryManager = (function(QueryManager, $) {
         if ($query.hasClass('active')) {
             updateHeadingSection(mainQuery);
         }
-        if (mainQuery.subQueries[0] && 
-            mainQuery.subQueries[0].getName() === "index from DS") {
+        if (mainQuery.subQueries[0] &&
+            mainQuery.subQueries[0].getName() === "index from DS")
+        {
             var isCanceled = true;
             DSCart.queryDone(mainQuery.getId(), isCanceled);
             return;
@@ -594,7 +595,7 @@ window.QueryManager = (function(QueryManager, $) {
                     .addClass(state);
         if (state === QueryStatus.Run) {
             QueryManager.check(false, true);
-            // we need to update the extraProgressBar even if we don't 
+            // we need to update the extraProgressBar even if we don't
             // have status data otherwise we'll have the progressBar of the
             // previous query
             var $progressBar = $queryList.find('.query[data-id="' + id + '"]')
@@ -846,7 +847,7 @@ window.QueryManager = (function(QueryManager, $) {
                                              $progressBar.parent().width();
                     prevProgress = prevProgress || 0; // in case of NaN 0/0
                     // set extraProgressBar's to match progressBar's width
-                    // and then animate extraProgressBar to it's actual pct                 
+                    // and then animate extraProgressBar to it's actual pct
                     $extraProgressBar.stop().width(prevProgress + '%')
                                       .animate({"width": progress},
                                             checkInterval, "linear",
@@ -1194,7 +1195,7 @@ window.QueryManager = (function(QueryManager, $) {
         // delete tables that are in the orphaned list
         if (orphanListTables.length) {
             var noAlertOrLog = true;
-            TblManager.deleteTables(orphanListTables, TableType.Orphan, 
+            TblManager.deleteTables(orphanListTables, TableType.Orphan,
                                     noAlertOrLog, noAlertOrLog);
         }
 
