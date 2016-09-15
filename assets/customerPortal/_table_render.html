@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+body {
+  padding: 0px;
+  margin: 0px;
+}
+.table {
+  font-family: "Helvetica Neue", Arial;
+  margin-bottom: 15px;
+}
+.table .row {
+  width: 100%;
+  margin-bottom: 5px;
+}
+.table .row .key {
+  font-weight: 400;
+  text-transform: capitalize;
+  font-size: 14px;
+  width: 150px;
+  display: inline-block;
+  vertical-align: top;
+  padding-top: 1px;
+}
+.table .row .value {
+  font-size: 14px;
+  font-weight: 300;
+  width: calc(100% - 160px);
+  display: inline-block;
+  word-wrap: break-word;
+}
+hr {
+  height: 1px;
+  background-color: #92ceea;
+  border: 0px;
+}
+
+</style>
+</head>
+{% for k in keys %}
+<div class="table">
+{% for key, value in k.iteritems() %}
+   <div class="row">
+        <div class="key"> {{ key }} : </div>
+		<div class="value"> {{ value }} </div>
+   </div>
+{% endfor %}
+</div>
+<hr>
+{% endfor %}
+</html>

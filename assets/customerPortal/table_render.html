@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+CSS
+</style>
+</head>
+{% for k in keys %}
+<div class="table">
+{% for key, value in k.iteritems() %}
+   <div class="row">
+        <div class="key"> {{ key }} : </div>
+		<div class="value"> {{ value }} </div>
+   </div>
+{% endfor %}
+</div>
+<hr>
+{% endfor %}
+</html>
