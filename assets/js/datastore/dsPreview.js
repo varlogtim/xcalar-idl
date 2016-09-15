@@ -140,11 +140,11 @@ window.DSPreview = (function($, DSPreview) {
         }
     };
 
-    DSPreview.update = function() {
+    DSPreview.update = function(listXdfsObj) {
         var moduleName = $udfModuleList.find("input").val();
         var funcName = $udfFuncList.find("input").val();
 
-        listUDFSection()
+        listUDFSection(listXdfsObj)
         .always(function() {
             // reselect old udf
             if (validateUDFModule(moduleName)) {
@@ -334,17 +334,23 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function listUDFSection() {
+    function listUDFSection(listXdfsObj) {
         var deferred = jQuery.Deferred();
 
-        // update python module list
-        XcalarListXdfs("*", "User*")
-        .then(updateUDFList)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            console.error("List UDF Fails!", error);
-            deferred.reject(error);
-        });
+        if (!listXdfsObj) {
+            // update python module list
+            XcalarListXdfs("*", "User*")
+            .then(updateUDFList)
+            .then(deferred.resolve)
+            .fail(function(error) {
+                console.error("List UDF Fails!", error);
+                deferred.reject(error);
+            });
+        } else {
+            updateUDFList(listXdfsObj);
+            deferred.resolve();
+        }
+        
 
         return deferred.promise();
     }

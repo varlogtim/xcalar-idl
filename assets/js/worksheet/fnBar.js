@@ -5,9 +5,10 @@ window.FnBar = (function(FnBar, $) {
     var $lastColInput = null;
     var searchHelper;
     var editor;
-    var validOperators = ['pull', 'map', 'filter'];
-    var operationsMap = {};
-
+    var mainOperators = ['pull', 'map', 'filter'];
+    var xdfMap = {};
+    var udfMap = {};
+    var colNamesCache = [];
     var lastFocusedCol;
 
     FnBar.setup = function() {
@@ -22,113 +23,7 @@ window.FnBar = (function(FnBar, $) {
             "autoCloseBrackets": true
         });
 
-        // for autocomplete
-        var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
-                            keyCode.Up, keyCode.Tab];
-
-        // trigger autcomplete menu on keyup
-        editor.on("keyup", function(cm, e) {
-            var val = editor.getValue().trim();
-            if (val.indexOf('=') === 0 && keysToIgnore.indexOf(e.keyCode) < 0) {
-                if (val.slice(1).trim().length) {
-                    editor.execCommand("autocomplete");
-                }
-            }
-        });
-
-        // set up codemirror autcomplete command
-        CodeMirror.commands.autocomplete = function(cm) {
-            CodeMirror.showHint(cm, CodeMirror.hint.fnBarHint,  {
-                alignWithWord: true,
-                completeSingle: false,
-                completeOnSingleClick: true
-            });
-        };
-
-
-        // set up autcomplete hint function that filters matches
-        CodeMirror.registerHelper("hint", "fnBarHint", function(editor) {
-            var word = /[\w$]+/;
-            var cur = editor.getCursor();
-            var fnBarText = editor.getLine(0);
-            var end = cur.ch;
-            var start = end;
-            while (start && word.test(fnBarText.charAt(start - 1))) {
-                --start
-            };
-            var curWord = start != end && fnBarText.slice(start, end);
-            if (!curWord) {
-                return;
-            }
-
-            var list = []
-            var seen = {};
-
-            // to find words in the editor
-            var re = new RegExp(word.source, "g");
-            var line = cur.line;
-            var m;
-            while (m = re.exec(fnBarText)) {
-                if (line == cur.line && m[0] === curWord) {
-                    // ignore current word that is being compared
-                    continue;
-                }
-                if ((curWord && m[0].lastIndexOf(curWord, 0) === 0) && 
-                    !Object.prototype.hasOwnProperty.call(seen, m[0])) {
-                    seen[m[0]] = true;
-                    list.push(m[0]);
-                }
-            }
-
-            // search pull, filter, map
-            for (var i = 0; i < validOperators.length; i++) {
-                if (!seen.hasOwnProperty(validOperators[i]) &&
-                    validOperators[i].lastIndexOf(curWord, 0) === 0) {
-                    seen[validOperators[i]] = true;
-                    list.push({text: validOperators[i] + "()", 
-                              displayText: validOperators[i],
-                              hint: autcompleteSelect
-                          });
-                    break;
-                }
-            }
-
-            // search operationsMap
-            curWord = curWord.toLowerCase();
-            for (var fnName in operationsMap) {
-                if (fnName.lastIndexOf(curWord, 0) === 0 &&
-                    !seen.hasOwnProperty(fnName)) {
-                    seen[fnName] = true;
-                    list.push({text: operationsMap[fnName].fnName + "()", 
-                                displayText: fnName,
-                                hint: autcompleteSelect});
-                }
-            }
-
-            return ({list: list, 
-                    from: CodeMirror.Pos(0, start), 
-                    to: CodeMirror.Pos(0, end)});
-        });
-
-        function autcompleteSelect(cm, data, completion) {
-            cm.replaceRange(completion.text, data.from, data.to, "complete");
-            var to = data.from.ch + completion.text.length - 1;
-            cm.setCursor(0, to);
-        }
-
-        editor.setOption("extraKeys", {
-            Tab: function(cm) {
-                var cursorPos = cm.getCursor().ch;
-                var valLen = cm.getValue().length;
-                if (valLen <= cursorPos) {
-                    $('#rowInput').focus();
-                    return false; // prevent tabbing so that pressing tab skips
-                    //to the next input on the page, in this case the "#rowInput"
-                } else {
-                    cm.setCursor(0, valLen);
-                }
-            }
-        });
+        setupAutocomplete();
 
         $(window).blur(function() {
             editor.getInputField().blur();
@@ -145,6 +40,10 @@ window.FnBar = (function(FnBar, $) {
             if (event.which !== keyCode.Enter) {
                 return;
             }
+            if ($('.CodeMirror-hints').length) { // do not submit fn if hints
+                return;
+            }
+
             var val = editor.getValue();
             var mismatch = xcHelper.checkMatchingBrackets(val);
 
@@ -154,8 +53,7 @@ window.FnBar = (function(FnBar, $) {
                 var savedStr = editor.getValue();
                 var savedColInput = $lastColInput;
                 var funcStr = "\"" + val.slice(0, mismatch.index) +
-                                "<span style='color:red;" +
-                                "font-weight:bold;'>" +
+                                '<span class="mismatchBracket">' +
                                 mismatch.char + "</span>" +
                                 val.slice(mismatch.index + 1) + "\"";
 
@@ -186,8 +84,20 @@ window.FnBar = (function(FnBar, $) {
         editor.on("mousedown", function() {
             $fnBar.addClass("inFocus");
             $fnBar.find('.CodeMirror-placeholder').show();
+
+            // delay or codemirror will autoclose hint menu
+            setTimeout(function() {
+                var val = editor.getValue().trim();
+                if (val.indexOf('=') === 0) {
+                    editor.execCommand("autocomplete");
+                }
+            }, 0);
+            
         });
         editor.on("focus", function() {
+            if (initialTableId && initialTableId !== gActiveTableId) {
+                resetColNamesCache(gActiveTableId);
+            }
             initialTableId = gActiveTableId;
         });
 
@@ -236,6 +146,7 @@ window.FnBar = (function(FnBar, $) {
                     return;
                 }
                 lastFocusedCol = undefined;
+                colNamesCache = [];
                 
                 var args = {
                     "value"         : trimmedVal,
@@ -248,13 +159,85 @@ window.FnBar = (function(FnBar, $) {
         });
     };
 
-    FnBar.updateOperationsMap = function(opMap) {
-        for (var i = 0; i < opMap.length; i++) {
-            operationsMap[opMap[i].fnName.toLowerCase()] = opMap[i];
+    FnBar.updateOperationsMap = function(opMap, isOnlyUDF) {
+        if (isOnlyUDF) {
+            udfMap = {};
+            for (var i = 0; i < opMap.length; i++) {
+                udfMap[opMap[i].fnName.toLowerCase()] = opMap[i];
+                opMap[i].template = createFuncTemplate(opMap[i]);
+                var secondTemplate = createSecondaryTemplate(opMap[i]);
+                opMap[i].templateTwo = secondTemplate.template;
+                opMap[i].argDescs = secondTemplate.argDescs;
+            }
+
+        } else {
+            xdfMap = {};
+            udfMap = {};
+            var op;
+            for (var i = 0; i < opMap.length; i++) {
+                op = opMap[i]
+                if (op.category === FunctionCategoryT.FunctionCategoryUdf) {
+                    udfMap[op.fnName.toLowerCase()] = op;
+                } else if (op.category !== 
+                            FunctionCategoryT.FunctionCategoryAggregate) {
+                    xdfMap[op.fnName.toLowerCase()] = op;
+                }
+               
+                op.template = createFuncTemplate(op);
+                var secondTemplate = createSecondaryTemplate(op);
+                op.templateTwo = secondTemplate.template;
+                op.argDescs = secondTemplate.argDescs;
+            }
         }
+
+        function createFuncTemplate(op) {
+            var fnTemplate = op.fnName + '(';
+            var len = op.argDescs.length;
+            var argDesc;
+            for (var j = 0; j < len; j++) {
+                argDesc = op.argDescs[j].argDesc;
+                fnTemplate += '<span class="argDesc">' +  argDesc + '</span>';
+                if (j + 1 < len) {
+                    fnTemplate += ",";
+                }
+            }
+            fnTemplate += ')';
+            return fnTemplate;
+        }
+        function createSecondaryTemplate(op) {
+            var fnTemplate = op.fnName + '(';
+            var len = op.argDescs.length;
+            var argDesc;
+            var argDescs = [];
+            for (var j = 0; j < len; j++) {
+                argDesc = op.argDescs[j].argDesc.trim();
+                argDescSplit = argDesc.split(" "); // separate by spaces
+                if (argDescSplit.length > 2) {
+                    argDesc = argDesc = "arg" + (j + 1);
+                } else if (argDescSplit.length === 2) {
+                    // camel case and join 2 words together
+                    argDesc = argDescSplit[0] + 
+                            argDescSplit[1][0].toUpperCase() + 
+                            argDescSplit[1].slice(1);
+                }
+                argDescs.push(argDesc);
+
+                fnTemplate += argDesc;
+                if (j + 1 < len) {
+                    fnTemplate += ", ";
+                }
+            }
+            fnTemplate += ')';
+            return {template: fnTemplate, argDescs: argDescs};
+        }
+        
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
+        var newFocus = false;
+        if (lastFocusedCol == null) {
+            newFocus = true;
+        }
         lastFocusedCol = gTables[tableId].tableCols[colNum - 1];
         if (!forceFocus && $lastColInput != null &&
             $colInput.get(0) === $lastColInput.get(0) &&
@@ -289,6 +272,9 @@ window.FnBar = (function(FnBar, $) {
             editor.setValue(userStr);
             $fnBar.addClass('active').removeClass('disabled');
             $fnBar.parent().removeClass('searching');
+            if (newFocus) {
+                resetColNamesCache(tableId);
+            }
         }
     };
 
@@ -300,7 +286,223 @@ window.FnBar = (function(FnBar, $) {
         $lastColInput = null;
         editor.setValue("");
         $fnBar.removeClass("active inFocus disabled");
+        colNamesCache = [];
     };
+
+    function setupAutocomplete() {
+        var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
+                            keyCode.Up, keyCode.Tab, keyCode.Enter];
+
+        // trigger autcomplete menu on keyup, except when keysToIgnore
+        editor.on("keyup", function(cm, e) {
+            var val = editor.getValue().trim();
+            if (val.indexOf('=') === 0 && keysToIgnore.indexOf(e.keyCode) < 0) {
+                editor.execCommand("autocomplete");
+            }
+        });
+
+        // set up codemirror autcomplete command
+        CodeMirror.commands.autocomplete = function(cm) {
+            CodeMirror.showHint(cm, CodeMirror.hint.fnBarHint,  {
+                alignWithWord: true,
+                completeSingle: false,
+                completeOnSingleClick: true
+            });
+        };
+        var timer1;
+        // set up autcomplete hint function that filters matches
+        CodeMirror.registerHelper("hint", "fnBarHint", function(editor) {
+            var fullVal = editor.getValue();
+            var onlyMainOperators = false;
+            if (fullVal.indexOf("(") === -1) {
+                onlyMainOperators = true;
+            }
+            var word = /[\w$:]+/;
+            var cur = editor.getCursor();
+            var fnBarText = editor.getLine(0);
+            var list = []
+            var seen = {};
+            var end = cur.ch;
+            var start = end;
+            while (end && word.test(fnBarText.charAt(end))) {
+                ++end;
+            }
+            while (start && word.test(fnBarText.charAt(start - 1))) {
+                --start
+            };
+            var curWord = start != end && fnBarText.slice(start, end);
+            if (!curWord) {
+                if (onlyMainOperators) {
+                    for (var i = 0; i < mainOperators.length; i++) {
+                        seen[mainOperators[i]] = true;
+                        list.push({text: mainOperators[i] + "()", 
+                                  displayText: mainOperators[i],
+                                  hint: autcompleteSelect,
+                                  render: renderMainOpLi,
+                                  className: "operator mainOperator"
+                              });
+                    }
+                } else {
+                    return;
+                }
+            }
+
+
+
+            // to find words in the editor
+            // var re = new RegExp(word.source, "g");
+            // var line = cur.line;
+            // var m;
+            // while (m = re.exec(fnBarText)) {
+            //     if (line == cur.line && m[0] === curWord) {
+            //         // ignore current word that is being compared
+            //         continue;
+            //     }
+            //     if ((curWord && m[0].lastIndexOf(curWord, 0) === 0) && 
+            //         !Object.prototype.hasOwnProperty.call(seen, m[0])) {
+            //         seen[m[0]] = true;
+            //         list.push(m[0]);
+            //     }
+            // }
+
+            if (onlyMainOperators) {
+                for (var i = 0; i < mainOperators.length; i++) {
+                    if (!seen.hasOwnProperty(mainOperators[i]) &&
+                        mainOperators[i].indexOf(curWord) !== -1) {
+                        seen[mainOperators[i]] = true;
+                        list.push({text: mainOperators[i] + "()", 
+                                displayText: mainOperators[i],
+                                hint: autcompleteSelect,
+                                render: renderMainOpLi,
+                                className: "operator mainOperator"
+                              });
+                        break;
+                    }
+                }
+            } else {
+                // search columnNames
+                for (var i = 0; i < colNamesCache.length; i++) {
+                    if (!seen.hasOwnProperty(colNamesCache[i]) &&
+                        colNamesCache[i].lastIndexOf(curWord, 0) === 0) {
+                        seen[colNamesCache[i]] = true;
+                        list.push({text: colNamesCache[i],
+                                  displayText: colNamesCache[i],
+                                  render: renderList,
+                                  className: "colName"
+                              });
+                    }
+                }
+                // search xdfMap
+                curWord = curWord.toLowerCase();
+                for (var fnName in xdfMap) {
+                    if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                        !seen.hasOwnProperty(fnName)) {
+                        seen[fnName] = true;
+                        list.push({text: xdfMap[fnName].fnName + "()", 
+                                    displayText: fnName,
+                                    template: xdfMap[fnName].template,
+                                    templateTwo: xdfMap[fnName].templateTwo,
+                                    argDescs: xdfMap[fnName].argDescs,
+                                    hint: autcompleteSelect,
+                                    render: renderOpLi,
+                                    className: "operator"});
+                    }
+                }
+
+                // search udfMap
+                curWord = curWord.toLowerCase();
+                for (var fnName in udfMap) {
+                    if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                        !seen.hasOwnProperty(fnName)) {
+                        seen[fnName] = true;
+                        list.push({text: udfMap[fnName].fnName + "()", 
+                                    displayText: fnName,
+                                    template: udfMap[fnName].template,
+                                    templateTwo: udfMap[fnName].templateTwo,
+                                    argDescs: udfMap[fnName].argDescs,
+                                    hint: autcompleteSelect,
+                                    render: renderOpLi,
+                                    className: "operator"});
+                    }
+                }
+            }
+            // clearTimeout(timer1);
+            // timer1 = setTimeout(function(){
+            //     debugger;
+            // }, 1000);
+            list.sort(function(a, b) {
+               return a.displayText.length - b.displayText.length;
+            });
+            return ({list: list, 
+                    from: CodeMirror.Pos(0, start), 
+                    to: CodeMirror.Pos(0, end)});
+        });
+    
+
+        function autcompleteSelect(cm, data, completion) {
+            var text = completion.templateTwo || completion.text;
+            cm.replaceRange(text, data.from, data.to, "complete");
+            var firstStartIndex;
+            var firstEndIndex;
+
+            // highlight arguments and place cursor right after the end of the
+            // first argument
+            if (completion.argDescs) {
+                var start = 0;
+                var arg;
+                for (var i = 0 ; i < completion.argDescs.length; i++) {
+                    arg = completion.argDescs[i];
+                    start = text.indexOf(arg, start);
+                    if (!firstEndIndex && arg.length) {
+                        firstStartIndex = data.from.ch + start;
+                        firstEndIndex = data.from.ch + start + arg.length;
+                    }
+                    cm.markText({line: 0, ch: data.from.ch + start}, 
+                        {line: 0, ch: data.from.ch + start + arg.length}, 
+                        {className: "argDesc", atomic: true});
+                }
+            }
+            if (firstEndIndex) {
+                cm.setCursor(0, firstEndIndex);
+                // xx selection doesn't work on atomic sections
+                // cm.setSelection({line: 0, ch: firstStartIndex},
+                //                 {line: 0, ch: firstEndIndex});
+            } else {
+                var to = data.from.ch + text.length - 1;
+                cm.setCursor(0, to);
+            }
+        }
+
+        function renderMainOpLi(el, data, cur) {
+            el.innerHTML = '<span class="displayText">' + cur.displayText +
+                          '</span><span class="template">' + cur.text + 
+                          '</span>';
+        }
+
+        function renderOpLi(el, data, cur) {
+            el.innerHTML = '<span class="displayText">' + cur.displayText +
+                           '</span><span class="template">' + cur.template +
+                           '</span>';
+        }
+
+        function renderList(el, data, cur) {
+            el.appendChild(document.createTextNode(cur.displayText));
+        }
+
+        editor.setOption("extraKeys", {
+            Tab: function(cm) {
+                var cursorPos = cm.getCursor().ch;
+                var valLen = cm.getValue().length;
+                if (valLen <= cursorPos) {
+                    $('#rowInput').focus();
+                    return false; // prevent tabbing so that pressing tab skips
+                    //to the next input on the page, in this case the "#rowInput"
+                } else {
+                    cm.setCursor(0, valLen);
+                }
+            }
+        });
+    }
 
     function saveInput() {
         if (!$lastColInput || !$lastColInput.length) {
@@ -322,6 +524,18 @@ window.FnBar = (function(FnBar, $) {
 
         tableCol.userStr = "\"" + tableCol.name + "\"" + " = " +
                             fnBarVal;
+    }
+
+    function resetColNamesCache(tableId) {
+        colNamesCache = [];
+        var cols = gTables[tableId].tableCols;
+        var name;
+        for (var i = 0; i < cols.length; i++) {
+            name = cols[i].backName.trim();
+            if (name.length && name !== "DATA") {
+                colNamesCache.push(name);
+            }
+        }
     }
 
     function setupSearchHelper() {
@@ -405,7 +619,7 @@ window.FnBar = (function(FnBar, $) {
                   .removeClass('unusedCell');
 
             var operation = getOperationFromFuncStr(newFuncStr);
-            if (validOperators.indexOf(operation) < 0) {
+            if (mainOperators.indexOf(operation) < 0) {
                 var text = "";
                 var endText = false;
 

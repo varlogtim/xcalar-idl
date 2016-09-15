@@ -410,6 +410,16 @@ window.UDF = (function($, UDF) {
         .then(function() {
             delete storedUDF[moduleName];
             updateUDF();
+
+            XcalarListXdfs('*', 'User*')
+            .then(function(listXdfsObj) {
+                DSPreview.update(listXdfsObj);
+                FnBar.updateOperationsMap(moduleName, true);
+            })
+            .fail(function(error) {
+                console.error("List UDF Fails!", error);
+            });
+
             xcHelper.showSuccess();
         })
         .fail(function(error) {
@@ -460,7 +470,15 @@ window.UDF = (function($, UDF) {
                 KVStore.commit();
                 xcHelper.showSuccess();
 
-                DSPreview.update();
+                XcalarListXdfs('*', 'User*')
+                .then(function(listXdfsObj) {
+                    DSPreview.update(listXdfsObj);
+                    FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
+                })
+                .fail(function(error) {
+                    console.error("List UDF Fails!", error);
+                });
+
                 deferred.resolve();
             })
             .fail(function(error) {

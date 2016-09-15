@@ -69,7 +69,6 @@
         }
 
         var peek = stream.peek();
-
         //no stack
         switch (peek) {
         case "[":
