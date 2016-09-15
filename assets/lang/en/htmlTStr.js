@@ -686,7 +686,8 @@ module.exports = {
         "fail": "Cannot profile the data",
         "Showing": "Showing",
         "results": "results",
-        "filter": "Filter these value",
+        "filterSingle": "Filter this value",
+        "filterPlural": "Filter these values",
         "exclude": "Exclude",
         "LAUNCH": "LAUNCH"
     },

@@ -2111,6 +2111,12 @@ window.Profile = (function($, Profile, d3) {
 
         if ($bars.length === 0) {
             isHidden = true;
+        } else if ($bars.length === 1) {
+            $filterOption.find(".filter .text").addClass("xc-hidden");
+            $filterOption.find(".single").removeClass("xc-hidden");
+        } else {
+            $filterOption.find(".filter .text").addClass("xc-hidden");
+            $filterOption.find(".plural").removeClass("xc-hidden");
         }
 
         if (isHidden) {

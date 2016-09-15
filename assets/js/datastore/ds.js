@@ -669,7 +669,7 @@ window.DS = (function ($, DS) {
     // Focus on the first dataset in the folder
     function focusOnFirstDS() {
         var $curFolder = DS.getGrid(curDirId);
-        var $datasets = $curFolder.find("> .grid-unit.ds");
+        var $datasets = $curFolder.find("> .grid-unit.ds").not(".xc-hidden");
 
         if ($datasets.length > 0) {
             DS.focusOn($datasets.eq(0));
