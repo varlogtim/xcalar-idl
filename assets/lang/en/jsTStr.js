@@ -434,7 +434,8 @@ DFGTStr = {
     "ExportTo": "Export As",
     "DelDFG": "Permanently Delete Dataflow",
     "DelDFGMsg": "Are you sure you want to permanently delete " +
-                 "this dataflow? This action cannot be undone."
+                 "this dataflow? This action cannot be undone.",
+    "DownloadErr": "Download Failed"
 };
 
 DSTStr = {

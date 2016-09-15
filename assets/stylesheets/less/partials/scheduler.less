@@ -131,20 +131,18 @@
                         }
                     }
 
-                    .tableHeader {
-                        .thWrap {
-                            &.paramName {
-                                .size(@width: 182px);
-                            }
+                    .cell {
+                        &.paramNameWrap {
+                            .size(@width: 179px);
+                        }
 
-                            &.paramVal {
-                                .size(@width: 190px);
-                            }
+                        &.paramValWrap {
+                            .size(@width: 179px);
+                        }
 
-                            &.paramAction {
-                                text-align: center;
-                                .size(@width: 80px);
-                            }
+                        &.paramActionWrap {
+                            text-align: center;
+                            .size(@width: 80px);
                         }
                     }
 
@@ -155,20 +153,8 @@
                             .unfilled .paramDelete {
                                 display: none;
                             }
-                        }
-
-                        table {
-                            .paramNameWrap {
-                                .size(@width: 185px);
-                            }
-
-                            .paramValWrap {
-                                .size(@width: 190px);
-                            }
 
                             .paramActionWrap {
-                                .size(@width: 77px);
-
                                 .paramDelete {
                                     .position(absolute, @top: 50%, @left: 50%);
                                     color: @color-black;

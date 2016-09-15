@@ -1698,11 +1698,11 @@ DFGObj.prototype = {
         return (this.retinaNodes[dagNodeId]);
     },
 
-    "addParameter": function(name, val) {
+    "addParameter": function(name) {
         xcHelper.assert(!this.paramMap.hasOwnProperty(name), "Invalid name");
 
         this.parameters.push(name);
-        this.paramMap[name] = val;
+        this.paramMap[name] = null;
     },
 
     "getParameter": function(paramName) {

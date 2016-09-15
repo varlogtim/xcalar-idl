@@ -2066,7 +2066,7 @@ html.microsoft {
 /* End Of Profile Modal */
 
 #dfgParameterModal {
-    .size(@width: 920px, @height: 657px);
+    .size(@width: 920px, @height: 670px);
 
     .modalTopMain {
         .size(@width: 100%, @height: ~"calc(100% - 152px)");
@@ -2284,104 +2284,68 @@ html.microsoft {
     }
 
     .defaultListSection {
-        .size(@height: 285px);
+        .size(@width: 100%, @height: 280px);
         box-shadow: inset 0 1px 0 0 @color-bg-pinkish-grey2;
         padding: 20px 23px;
 
-        .tableHeader {
-            .thWrap {
-                &.paramName {
-                    .size(@width: 327px);
-                }
+        .cell {
+            &.paramNameWrap {
+                .size(@width: ~"calc(50% - 50px)");
+            }
 
-                &.paramVal {
-                    .size(@width: 462px);
-                }
+            &.paramValWrap {
+                .size(@width: ~"calc(50% - 50px)");
+            }
 
-                &.empty {
-                    text-align: center;
-                    .size(@width: 85px);
-                }
+            &.paramActionWrap {
+                text-align: center;
+                .size(@width: 85px);
             }
         }
 
         .tableContainer {
             .tableWrapper {
-                .size(@width: 874px);
-
-                .paramNameWrap {
-                    .size(@width: 330px);
-                }
-
                 .paramValWrap {
-                    .size(@width: 462px);
+                    .input-box(@w: ~"calc(100% - 30px)", @h: 25px);
 
-                    .paramVal {
-                        .size(@width: 415px, @height: 25px);
-                        .font(@size: 12px, @line-height: 25px);
+                    input {
                         .position(relative, @top: 2px);
                         float: left;
                         border: solid 1px transparent;
                         background: transparent;
 
                         &:focus {
-                            outline: none;
-                            border-color: @color-border-softBlue;
                             background-color: white;
                         }
                     }
 
-                    .options {
+                    .paramEdit {
                         float: right;
-                        .position(relative, @right: 0);
+                        .size(@width: 15px, @height: 30px);
                         cursor: pointer;
 
-                        .option {
-                            display: inline-block;
-                            float: left;
-                            width: 25px;
+                        .icon {
+                            color: @color-font-softBlue;
+                        }
 
-                             &.paramEdit {
-                                .icon {
-                                    .position(relative, @top: 1px);
-                                    color: @color-font-softBlue;
-                                }
-
-                                &.selected {
-                                    .icon {
-                                        color: @color-font-pinkish-grey2;
-                                    }
-                                }
+                        &.selected {
+                            .icon {
+                                color: @color-font-pinkish-grey2;
                             }
                         }
                     }
                 }
 
-                .actionWrap {
-                    .size(@width: 78px);
-
-                    .checkboxWrap {
-                        .size(@width: 68px);
-                        text-align: center;
-
-                        .checkbox {
-                            .size(@width: 15px, @height: 15px);
-                            .position(relative, @top: 2px);
-                        }
-                    }
+                .checkbox {
+                    .size(@width: 15px, @height: 15px);
+                    .position(relative, @top: 2px);
                 }
 
                 .unfilled {
-                    .options, .checkbox {
+                    .paramEdit, .checkbox {
                         display: none;
                     }
                 }
-            }
-        }
-
-        table {
-            td {
-                .position(relative);
             }
         }
     }

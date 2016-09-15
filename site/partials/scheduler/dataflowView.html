@@ -116,16 +116,12 @@
               </button>
             </div>
             <div class="tableHeader">
-              <div class="thWrap paramName"><%= dicts.sched.param %></div>
-              <div class="thWrap paramVal"><%= dicts.sched.val %></div>
-              <div class="thWrap paramAction"><%= dicts.sched.action %></div>
+              <div class="cell paramNameWrap"><%= dicts.sched.param %></div>
+              <div class="cell paramValWrap"><%= dicts.sched.val %></div>
+              <div class="cell paramActionWrap"><%= dicts.sched.action %></div>
             </div>
             <div class="tableContainer">
-              <div class="tableWrapper">
-                <table>
-                  <tbody></tbody>
-                </table>
-              </div>
+              <div id="retLists" class="tableWrapper"></div>
             </div>
           </div> 
           <!-- End of retPopUp -->

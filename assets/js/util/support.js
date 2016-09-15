@@ -268,7 +268,10 @@ window.Support = (function(Support, $) {
     Support.downloadLRQ = function(lrqName) {
         XcalarExportRetina(lrqName)
         .then(function(a) {
-            xcHelper.downloadAsFile(lrqName+".tar.gz", a.retina, true);
+            xcHelper.downloadAsFile(lrqName + ".tar.gz", a.retina, true);
+        })
+        .fail(function(error) {
+            Alert.error(DFGTStr.DownloadErr, error);
         });
     };
 

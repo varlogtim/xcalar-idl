@@ -5,20 +5,21 @@ window.DFGCard = (function($, DFGCard) {
     var $listSection;   // $dfgMenu.find('.listSection');
     var $header;        // $dfgCard.find('.cardHeader h2');
     var $retTabSection; // $dfgCard.find('.retTabSection');
+    var $retLists;      // $("#retLists");
 
     var retinaTrLen = 7;
-    var retinaTr = '<tr class="unfilled">' +
-                        '<td class="paramNameWrap">' +
+    var retinaTr = '<div class="row unfilled">' +
+                        '<div class="cell paramNameWrap">' +
                             '<div class="paramName textOverflowOneLine"></div>' +
-                        '</td>' +
-                        '<td class="paramValWrap">' +
+                        '</div>' +
+                        '<div class="cell paramValWrap">' +
                             '<div class="paramVal textOverflowOneLine"></div>' +
-                        '</td>' +
-                        '<td class="paramActionWrap">' +
+                        '</div>' +
+                        '<div class="cell paramActionWrap">' +
                             '<i class="paramDelete icon xi-close fa-10 xc-action">' +
                             '</i>' +
-                        '</td>' +
-                   '</tr>';
+                        '</div>' +
+                   '</div>';
 
     var currentDFG = null;
 
@@ -29,6 +30,7 @@ window.DFGCard = (function($, DFGCard) {
         $listSection = $dfgMenu.find('.listSection');
         $header = $dfgCard.find('.cardHeader h2');
         $retTabSection = $dfgCard.find('.retTabSection');
+        $retLists = $("#retLists");
 
         addListeners();
         setupDagDropdown();
@@ -49,41 +51,37 @@ window.DFGCard = (function($, DFGCard) {
             html += retinaTr;
         }
 
-        var $tbody = $retTabSection.find(".tableContainer table tbody");
-        $tbody.html(html);
+        $retLists.html(html);
 
         var dfg = DFG.getGroup(retName);
         var paramMap = dfg.paramMap;
 
         dfg.parameters.forEach(function(paramName) {
-            addParamToRetina($tbody, paramName, paramMap[paramName]);
+            addParamToRetina(paramName, paramMap[paramName]);
         });
 
         $retTabSection.removeClass("hidden");
     };
 
-    function addParamToRetina($tbody, name, val) {
-        var $trs = $tbody.find('.unfilled');
-        var $tr;
+    function addParamToRetina(name, val) {
+        var $row = $retLists.find(".unfilled:first");
 
-        if ($trs.length === 0) {
-            $tr = $(retinaTr);
-            $tbody.append($tr);
-            xcHelper.scrollToBottom($tbody.closest(".tableWrapper"));
-        } else {
-            $tr = $trs.eq(0);
+        if ($row.length === 0) {
+            $row = $(retinaTr);
+            $retLists.append($row);
+            xcHelper.scrollToBottom($retLists.closest(".tableContainer"));
         }
 
-        $tr.find('.paramName').text(name);
+        $row.find(".paramName").text(name);
         if (val != null) {
-            $tr.find('.paramVal').text(val);
+            $row.find(".paramVal").text(val);
         }
 
-        $tr.removeClass('unfilled');
+        $row.removeClass("unfilled");
     }
 
-    function deleteParamFromRetina($tr) {
-        var $paramName = $tr.find('.paramName');
+    function deleteParamFromRetina($row) {
+        var $paramName = $row.find(".paramName");
         var paramName = $paramName.text();
         var dfg = DFG.getGroup(currentDFG);
 
@@ -92,10 +90,9 @@ window.DFGCard = (function($, DFGCard) {
             return;
         }
 
-        var $tbody = $tr.closest("tbody");
-        $tr.remove();
-        if ($tbody.find("tr").length < retinaTrLen) {
-            $tbody.append(retinaTr);
+        $row.remove();
+        if ($retLists.find(".row").length < retinaTrLen) {
+            $retLists.append(retinaTr);
         }
 
         dfg.removeParameter(paramName);
@@ -164,11 +161,10 @@ window.DFGCard = (function($, DFGCard) {
                 return;
             }
 
-            var $tbody = $btn.closest(".retPopUp").find('tbody');
             // Check name conflict
             var isNameConflict = false;
-            $tbody.find('tr:not(.unfilled)').each(function(index, tr) {
-                var name = $(tr).find('.paramName').html();
+            $retLists.find(".row:not(.unfilled)").each(function(index, row) {
+                var name = $(row).find(".paramName").html();
                 if (paramName === name) {
                     isNameConflict = true;
                     return false; // exist loop
@@ -185,14 +181,14 @@ window.DFGCard = (function($, DFGCard) {
 
             DFG.getGroup(currentDFG).addParameter(paramName);
 
-            addParamToRetina($tbody, paramName);
+            addParamToRetina(paramName);
             $input.val("");
         });
 
         // delete retina para
-        $retTabSection.on('click', '.paramDelete', function(event) {
+        $retTabSection.on("click", ".paramDelete", function(event) {
             event.stopPropagation();
-            deleteParamFromRetina($(this).closest('tr'));
+            deleteParamFromRetina($(this).closest(".row"));
         });
     }
 

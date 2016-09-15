@@ -10,40 +10,53 @@ window.DFGParamModal = (function($, DFGParamModal){
 
     var paramListTrLen = 7;
     var trTemplate =
-        '<tr class="unfilled">' +
-            '<td class="paramNameWrap textOverflowOneLine">' +
+        '<div class="row unfilled">' +
+            '<div class="cell paramNameWrap textOverflowOneLine">' +
                 '<div class="paramName"></div>' +
-            '</td>' +
-            '<td class="paramValWrap textOverflowOneLine">' +
+            '</div>' +
+            '<div class="cell paramValWrap textOverflowOneLine">' +
                 '<input class="paramVal" spellcheck="false" disabled/>' +
-                '<div class="options">' +
-                    '<div class="option paramEdit">' +
-                        '<i class="fa-15 icon xi-edit"></i>' +
-                    '</div>' +
+                '<div class="paramEdit">' +
+                    '<i class="fa-15 icon xi-edit"></i>' +
                 '</div>' +
-            '</td>' +
-            '<td class="actionWrap">' +
-                '<div class="checkboxWrap">' +
-                    '<div class="checkbox">' +
-                        '<i class="icon xi-ckbox-empty fa-15"></i>' +
-                        '<i class="icon xi-ckbox-selected fa-15"></i>' +
-                    '</div>' +
+            '</div>' +
+            '<div class="cell paramActionWrap">' +
+                '<div class="checkbox">' +
+                    '<i class="icon xi-ckbox-empty fa-15"></i>' +
+                    '<i class="icon xi-ckbox-selected fa-15"></i>' +
                 '</div>' +
-            '</td>' +
-        '</tr>';
+            '</div>' +
+        '</div>';
 
     DFGParamModal.setup = function() {
+        // constant
+        var minHeight = 425;
+        var minWidth  = 750;
+
         $dfgParamModal = $("#dfgParameterModal");
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfgParamModal.find(".editableRow");
         modalHelper = new ModalHelper($dfgParamModal, {
-            "noResize": true
+            "minHeight": minHeight,
+            "minWidth" : minWidth
         });
 
         $dfgParamModal.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",
             "containment": "window"
+        });
+
+        $dfgParamModal.resizable({
+            "handles"    : "n, e, s, w, se",
+            "minHeight"  : minHeight,
+            "minWidth"   : minWidth,
+            "containment": "document",
+            "resize"     : function() {
+                // need a fixed width to fix the scroll bar
+                var tableW = $paramLists.closest(".tableContainer").width();
+                $paramLists.width(tableW);
+            }
         });
 
 
@@ -56,15 +69,15 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         $dfgParamModal.on('focus', '.paramVal', function() {
-            $(this).next().find('.paramEdit').addClass('selected');
+            $(this).select().siblings(".paramEdit").addClass('selected');
         });
 
         $dfgParamModal.on('blur', '.paramVal', function() {
-            $(this).next().find('.paramEdit').removeClass('selected');
+            $(this).siblings(".paramEdit").removeClass('selected');
         });
 
         $dfgParamModal.on('click', '.paramEdit', function() {
-            $(this).closest('td').find('.paramVal').focus();
+            $(this).siblings(".paramVal").focus();
         });
 
         $dfgParamModal.on('click', '.checkbox', function() {
@@ -126,7 +139,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                                 '</div>' +
                             '</td>';
 
-            editableText += '<td class="static">' +
+            editableText += '<td class="static" data-op="load">' +
                                 DFGTStr.PointTo + ':' +
                             '</td>' +
                             getParameterInputHTML(0, "xlarge");
@@ -140,7 +153,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                                 '</div>' +
                             '</td>';
 
-            editableText += '<td class="static">' +
+            editableText += '<td class="static" data-op="export">' +
                                 DFGTStr.ExportTo + ':' +
                             '</td>' +
                             getParameterInputHTML(0, "xlarge");
@@ -152,7 +165,9 @@ window.DFGParamModal = (function($, DFGParamModal){
                                 '</div>' +
                             '</td>';
 
-            editableText += '<td class="static">' + type + ':</td>';
+            editableText += '<td class="static" data-op="' + type + '">' +
+                                type + ':' +
+                            '</td>';
 
             if (type === "filter") {
                 var filterInfo = $currentIcon.data('info') + " ";
@@ -204,7 +219,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                             .html(draggableInputs);
         }
 
-        generateParameterDefaultList();
+        fillUpRows();
         populateSavedFields(id, dfgName);
 
         if (type === "filter") {
@@ -433,13 +448,12 @@ window.DFGParamModal = (function($, DFGParamModal){
     }
 
     function addParamToLists(paramName, paramVal, isRestore) {
-        var $tbody = $paramLists.find("tbody");
-        var $row = $tbody.find(".unfilled:first");
+        var $row = $paramLists.find(".unfilled:first");
 
         if ($row.length === 0) {
             $row = $(trTemplate);
-            $tbody.append($row);
-            xcHelper.scrollToBottom($paramLists.closest(".tableWrapper"));
+            $paramLists.append($row);
+            xcHelper.scrollToBottom($paramLists.closest(".tableContainer"));
         }
 
         $row.find(".paramName").text(paramName)
@@ -510,26 +524,17 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
 
         // if no dups, clear the param in param list table
-        var $tbody = $paramLists.find("tbody");
-        $tbody.find('.paramName').filter(function() {
+        $paramLists.find(".paramName").filter(function() {
             return ($(this).text() === paramName);
-        }).closest('tr').remove();
+        }).closest(".row").remove();
 
-        if ($tbody.find("tr").length < paramListTrLen) {
-            var trsNeeded = paramListTrLen - $paramLists.find("tr").length;
-            var html = "";
-            for (var i = 0; i < trsNeeded; i++) {
-                html += trTemplate;
-            }
-            $tbody.append(html);
-        }
+        fillUpRows();
     }
 
     function checkInputForParam($input) {
         var params = getParamsInInput($input);
         var param;
-        var $tbody = $paramLists.find("tbody");
-        var $paramNames = $tbody.find('.paramName');
+        var $paramNames = $paramLists.find(".paramName");
         var $paramFound;
 
         for (var i = 0; i < params.length; i++) {
@@ -546,25 +551,30 @@ window.DFGParamModal = (function($, DFGParamModal){
 
         params = [];
         var tempParams;
-        $editableRow.find('input').each(function() {
+        $editableRow.find("input").each(function() {
             tempParams = getParamsInInput($(this));
             params = params.concat(tempParams);
         });
 
-        var $params = $paramLists.find('tr:not(.unfilled)').find('.paramName');
+        var $params = $paramLists.find(".row:not(.unfilled)").find('.paramName');
         $params.each(function() {
             if (params.indexOf($(this).text()) === -1) {
-                $(this).closest('tr').remove();
+                $(this).closest(".row").remove();
             }
         });
 
-        if ($paramLists.find("tr").length < paramListTrLen) {
-            var trsNeeded = paramListTrLen - $paramLists.find("tr").length;
+        fillUpRows();
+    }
+
+    function fillUpRows() {
+        var curRowLen = $paramLists.find(".row").length;
+        if (curRowLen < paramListTrLen) {
+            var trsNeeded = paramListTrLen - curRowLen;
             var html = "";
             for (var i = 0; i < trsNeeded; i++) {
                 html += trTemplate;
             }
-            $tbody.append(html);
+            $paramLists.append(html);
         }
     }
 
@@ -632,15 +642,15 @@ window.DFGParamModal = (function($, DFGParamModal){
 
         params = [];
         var $invalidTr;
-        $paramLists.find("tr:not(.unfilled)").each(function() {
-            var $tr   = $(this);
-            var name  = $tr.find(".paramName").text();
-            var val   = $tr.find(".paramVal").val().trim();
-            var check = $tr.find(".checkbox").hasClass("checked");
+        $paramLists.find(".row:not(.unfilled)").each(function() {
+            var $row = $(this);
+            var name = $row.find(".paramName").text();
+            var val = $row.find(".paramVal").val().trim();
+            var check = $row.find(".checkbox").hasClass("checked");
 
             if (val === "" && !check) {
                 isValid = false;
-                $invalidTr = $tr;
+                $invalidTr = $row;
                 return false; // stop iteration
             }
 
@@ -686,7 +696,7 @@ window.DFGParamModal = (function($, DFGParamModal){
 
         function updateRetina() {
             var deferred  = jQuery.Deferred();
-            var operation = $paramPart.find("td:first").text();
+            var operation = $paramPart.find("td:first").data("op");
             var paramType = null;
             var paramValue;
             var paramQuery;
@@ -713,14 +723,14 @@ window.DFGParamModal = (function($, DFGParamModal){
                     // paramInput.paramFilter.filterStr = str;
                     paramQuery = [str1, filterText, str2];
                     break;
-                case ("Load"):
+                case ("load"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
                     paramValue = $editableDivs.eq(0).val().trim();
                     // paramInput.paramLoad = new XcalarApiParamLoadT();
                     // paramInput.paramLoad.datasetUrl = str;
                     paramQuery = [paramValue];
                     break;
-                case ("Export to"):
+                case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
                     paramValue = $editableDivs.eq(0).val().trim();
                     paramQuery = [paramValue];
@@ -869,14 +879,6 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
     }
 
-    function generateParameterDefaultList() {
-        var html = "";
-        for (var i = 0; i < paramListTrLen; i++) {
-            html += trTemplate;
-        }
-        $paramLists.find("tbody").html(html);
-    }
-
     function generateDraggableParams(paramName) {
         var html = '<div id="draggableParam-' + paramName +
                 '" class="draggableDiv" ' +
@@ -899,7 +901,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         modalHelper.clear();
         $editableRow.empty();
         $dfgParamModal.find('.draggableParams').empty();
-        $paramLists.find("tbody").empty();
+        $paramLists.empty();
     }
 
     return (DFGParamModal);
