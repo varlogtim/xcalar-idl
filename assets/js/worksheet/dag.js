@@ -18,6 +18,7 @@ window.DagPanel = (function($, DagPanel) {
         setupDagPanelSliding();
         setupDagTableDropdown();
         setupRightClickDropdown();
+        Dag.setupDagSchema();
         setupDataFlowBtn();
         setupScrollBar();
     };
@@ -776,6 +777,7 @@ window.DagPanel = (function($, DagPanel) {
             menuWidth = 285;
         }
         left -= menuWidth;
+        left = Math.max(2, left);
         if ($target.is('.tableTitle')) {
             top = $target[0].getBoundingClientRect().bottom + topMargin;
         }
@@ -1228,6 +1230,7 @@ window.Dag = (function($, Dag) {
     var $dagPanel;
     var scrollPosition = -1;
     var dagAdded = false;
+    var dagPanelLeft;
 
     // constants
     var dagTableHeight = 65;
@@ -1237,8 +1240,7 @@ window.Dag = (function($, Dag) {
     var condenseLimit = 15; // number of tables wide before we allow condensing
     var canvasLimit = 32767;
     var canvasAreaLimit = 268435456;
-    // var dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
-    // dagPanelLeft shouldn't be zero but will result in false zero if not visible
+    // colors needed for drawing and saving canvas
     var lineColor = '#111111';
     var tableTitleColor = "#555555";
     var titleBorderColor = '#A5A5A5';
@@ -1788,127 +1790,22 @@ window.Dag = (function($, Dag) {
                                     (allDagInfo.condensedWidth - dagImageWidth));
     };
 
-    Dag.showSchema = function($dagTable) {
-        $('#dagSchema').remove();
-        var tableId = $dagTable.data('id');
-        var table = gTables[tableId];
-        var $dagWrap = $dagTable.closest('.dagWrap');
-        var tableName;
-        var numCols;
-        var numRows = "Unknown";
-        if (!table) {
-            tableName = $dagTable.find('.tableTitle').text();
-            numCols = 1;
-        } else {
-            tableName = table.tableName;
-            numCols = table.tableCols.length;
-        }
-
-        if (gTables && tableId in gTables) {
-            if (gTables[tableId].resultSetCount > -1) {
-                numRows = gTables[tableId].resultSetCount;
-            }
-        }
-
-        var html = '<div id="dagSchema" style="left:0;top:0;">' +
-                    '<div class="title">' +
-                        '<span class="tableName">' +
-                            tableName +
-                        '</span>' +
-                        '<span class="numCols" title="' + CommonTxtTstr.NumCol + '">' +
-                            '[' + (numCols - 1) + ']' +
-                        '</span>' +
-                    '</div>' +
-                    '<span class="background"></span>' +
-                    '<div class="rowCount">' +
-                        '<div class="text">Num Rows:</div>' +
-                        '<div class="value">' + numRows + '</div>' +
-                        '<div class="sample"></div>' +
-                    '</div>' +
-                    '<div class="heading">' +
-                        '<div class="type">type</div>' +
-                        '<div class="field">field</div>' +
-                        '<div class="sample"></div>' +
-                    '</div>';
-        html += '<ul>';
-
-        for (var i = 0; i < numCols; i++) {
-            if (numCols === 1 || table.tableCols[i].name === 'DATA') {
-                continue;
-            }
-            var type = table.tableCols[i].type;
-            var name = table.tableCols[i].name;
-            html += '<li>' +
-                        '<div>' +
-                        '<span class="iconWrap">' +
-                            '<i class="icon fa-13 xi-' + type + '"></i>' +
-                        '</span>' +
-                        '<span class="text">' + type + '</span>' +
-                        '</div>' +
-                        '<div title="' + name + '" class="name">' +
-                            name + '</div>' +
-                        '<div>' +
-                        // XX SAMPLE DATA GOES HERE
-                        '</div>' +
-                    '</li>';
-        }
-        if (numCols === 1) {
-            html += '<span class="noFields">No fields present</span>';
-
-        }
-        html += '</ul></div>';
-        var $schema = $(html);
-        $dagTable.append($schema);
-        var height = $schema.height();
-        var xOffset = 10;
-        var tableTop = $dagTable[0].getBoundingClientRect().top;
-        var top = tableTop;
-
-        // ie sets position of fixed elements relative to window
-        // whereas chrome and firefox position relative to closest container
-        // hack needed as of 9/26/2016
-        if (window.isBrowserIE) {
-            top = tableTop - height;
-            top = Math.max(2, top);
-        } else {
-            top = Math.max(2, top - height); // at least 2px from the top
-            top -= $('#dagPanel').offset().top;
-        }
-        var menuOffset = MainMenu.getOffset();
-        var tableLeft = $dagTable[0].getBoundingClientRect().left + xOffset -
-                        menuOffset;
-        var schemaLeft = $(window).width() - $schema.width() - menuOffset - 10;
-        var left = tableLeft;
-        if (tableLeft > schemaLeft) {
-            left = schemaLeft;
-            $schema.addClass('shiftLeft');
-        } else {
-            left = tableLeft;
-        }
-
-        $schema.css('top', top);
-        $schema.css('left', left);
-
-        if (numCols === 1) {
-            $schema.addClass('empty');
-        }
-
-        $(document).on('mousedown.hideDagSchema', function(event) {
-            if ($(event.target).closest('#dagSchema').length === 0) {
-                hideSchema();
-            }
-        });
-
-        $('#dagSchema').on('click', 'li', function() {
-            var $name = $(this).find('.name');
-            $('#dagSchema').find('li.selected').removeClass('selected');
-            $(this).addClass('selected');
+    Dag.setupDagSchema = function() {
+        var $dagSchema = $("#dagSchema");
+        $dagSchema.on('click', 'li', function() {
+            var $li = $(this);
+            var $name = $li.find('.name');
+            $dagSchema.find('li.selected').removeClass('selected');
+            $li.addClass('selected');
+            var tableId = $dagSchema.data('tableid');
+            var $dagTable = $dagSchema.data('$dagTable');
+            var $dagWrap = $dagTable.closest('.dagWrap');
             var cols = gTables[tableId].tableCols;
             var name = $name.text();
             var func;
             var backName;
-            var colNum = $(this).index();
-            var numCols = $('#dagSchema').find('.numCols').text().substr(1);
+            var colNum = $li.index();
+            var numCols = $dagSchema.find('.numCols').text().substr(1);
             numCols = parseInt(numCols);
 
             for (var i = colNum; i <= numCols; i++) {
@@ -1934,10 +1831,120 @@ window.Dag = (function($, Dag) {
             removeDuplicatedHighlightedDataStores($dagTable);
             $(document).mousedown(closeDagHighlight);
         });
+
+        dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
+    }
+
+
+    Dag.showSchema = function($dagTable) {
+        var tableId = $dagTable.data('id');
+        var table = gTables[tableId];
+        var $dagWrap = $dagTable.closest('.dagWrap');
+        var $schema = $('#dagSchema');
+        var tableName;
+        var numCols;
+        var numRows = "Unknown";
+        $schema.data('tableid', tableId);
+        $schema.data('$dagTable', $dagTable);
+        if (!table) {
+            tableName = $dagTable.find('.tableTitle').text();
+            numCols = 1;
+        } else {
+            tableName = table.tableName;
+            numCols = table.tableCols.length;
+        }
+
+        if (gTables && tableId in gTables) {
+            if (gTables[tableId].resultSetCount > -1) {
+                numRows = gTables[tableId].resultSetCount;
+            }
+        }
+        $schema.find('.tableName').text(tableName);
+        $schema.find('.numCols').attr('title', CommonTxtTstr.NumCol)
+                                   .text('[' + (numCols - 1) + ']');
+        $schema.find('.rowCount .value').text(numRows);
+
+        var html = '';
+
+        for (var i = 0; i < numCols; i++) {
+            if (numCols === 1 || table.tableCols[i].name === 'DATA') {
+                continue;
+            }
+            var type = table.tableCols[i].type;
+            var name = table.tableCols[i].name;
+            html += '<li>' +
+                        '<div>' +
+                        '<span class="iconWrap">' +
+                            '<i class="icon fa-13 xi-' + type + '"></i>' +
+                        '</span>' +
+                        '<span class="text">' + type + '</span>' +
+                        '</div>' +
+                        '<div title="' + name + '" class="name">' +
+                            name + '</div>' +
+                        '<div>' +
+                        // XX SAMPLE DATA GOES HERE
+                        '</div>' +
+                    '</li>';
+        }
+        if (numCols === 1) {
+            html += '<span class="noFields">No fields present</span>';
+
+        }
+
+        $schema.find('ul').html(html);
+        $schema.show();
+
+        var height = $schema.outerHeight();
+        var topMargin = 3;
+        var leftMargin = dagPanelLeft + 30;
+        var top = $dagTable[0].getBoundingClientRect().top + topMargin;
+        var left = $dagTable[0].getBoundingClientRect().left - leftMargin;
+        var menuWidth = 0;
+        if (MainMenu.isMenuOpen()) {
+            menuWidth = 285;
+        }
+        left -= menuWidth;
+        left = Math.max(2, left);
+
+        top = Math.max(2, top - height); // at least 2px from the top
+
+        // hack needed as of 9/26/2016
+        if (!window.isBrowserIE) {
+            // if dagpanel is open halfway we have to change the top position
+            // of colmenu
+            if ($('#dagPanel').hasClass('midway')) {
+                top -= $('#dagPanel').offset().top;
+            }
+        }
+
+        $schema.css({'top': top, 'left': left});
+        
+        var rightBoundary = $(window).width() - 5;
+
+        if ($schema[0].getBoundingClientRect().right > rightBoundary) {
+            left = rightBoundary - (menuWidth + dagPanelLeft + $schema.width());
+            $schema.css('left', left);
+        }
+
+        // ensure dropdown menu is above the bottom of the dag panel
+        var dagPanelBottom = $('#workspacePanel')[0].getBoundingClientRect()
+                                                    .bottom;
+        var menuBottom = $schema[0].getBoundingClientRect().bottom;
+        if (menuBottom > dagPanelBottom) {
+            $schema.css('top', '-=' + ($schema.height() + 35));
+        }
+        $('.tooltip').hide();
+
+        $(document).on('mousedown.hideDagSchema', function(event) {
+            if ($(event.target).closest('#dagSchema').length === 0 &&
+                $(event.target).closest('#dagScrollBarWrap').length === 0) {
+                hideSchema();
+            }
+        });
     };
 
     function hideSchema() {
-        $('#dagSchema').remove();
+        $('#dagSchema').hide();
         $(document).off('.hideDagSchema');
     }
 

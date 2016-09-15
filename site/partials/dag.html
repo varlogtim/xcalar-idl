@@ -107,6 +107,24 @@
         <%= dicts.MenuTStr.ShowSchema %>
       </li>
     </ul>
+    <div id="dagSchema">
+      <div class="title">
+        <span class="tableName"></span>
+        <span class="numCols" title=""></span>
+      </div>
+      <span class="background"></span>
+      <div class="rowCount">
+          <div class="text"><%= dicts.queryGraph.numRows %>:</div>
+          <div class="value"></div>
+          <div class="sample"></div>
+      </div>
+      <div class="heading">
+          <div class="type"><%= dicts.queryGraph.type %></div>
+          <div class="field"><%= dicts.queryGraph.field %></div>
+          <div class="sample"></div>
+      </div>
+      <ul></ul>
+    </div>
   </div>
   <div id="dagScrollBarWrap">
     <div class="sizer"></div>

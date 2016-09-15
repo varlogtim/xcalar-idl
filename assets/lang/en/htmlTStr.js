@@ -307,6 +307,12 @@ module.exports = {
         "filterOrphan": "Filter Temporary Tables",
     },
 
+    "queryGraph": {
+        "numRows": "Num Rows",
+        "type": "type",
+        "field": "field"
+    },
+
     "monitor": {
         "AutoRefresh": "Auto Refresh",
         "AutoSupport": "Auto Support Settings",

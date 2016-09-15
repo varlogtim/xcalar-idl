@@ -642,213 +642,214 @@ html.firefox, html.microsoft {
             }
         }
     }
+}
 
-    #dagSchema {
-        position: fixed;
-        top: 100px;
-        display: inline-block;
-        background-color: white;
-        z-index: 101;
-        box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.3);
-        cursor: auto;
-        .noSelection;
-        max-width: 300px;
-        cursor: default;
+#dagSchema {
+    position: fixed;
+    top: 100px;
+    // display: inline-block;
+    display: none;
+    background-color: white;
+    z-index: 101;
+    box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.3);
+    cursor: auto;
+    .noSelection;
+    max-width: 300px;
+    cursor: default;
 
-        .title {
+    .title {
+        display: block;
+        text-align: center;
+        font-size: 13px;
+        color: white;
+        line-height: 22px;
+        height: 24px;
+        .textOverflow;
+        white-space: nowrap;
+        font-weight: 600;
+        background-color: @color-bg-select-blue;
+        padding: 0 4px;
+        .flex-display;
+        .justify-content(center);
+
+        > span {
             display: block;
-            text-align: center;
-            font-size: 13px;
-            color: white;
-            line-height: 22px;
-            height: 24px;
+        }
+        .tableName {
+            .flex(0 1 auto);
             .textOverflow;
-            white-space: nowrap;
-            font-weight: 600;
-            background-color: @color-bg-select-blue;
-            padding: 0 4px;
-            .flex-display;
-            .justify-content(center);
-
-            > span {
-                display: block;
-            }
-            .tableName {
-                .flex(0 1 auto);
-                .textOverflow;
-            }
-            .numCols {
-                .flex(0 0 auto);
-                overflow: hidden;
-                margin-left: 4px;
-            }
         }
-
-        .background {
-            width: ~"calc(100% - 80px)";
-            height: 100%;
-            background-color: @color-bg-white-seven;
-            top: 0px;
-            left: 80px;
-            position: absolute;
-            z-index: -1;
+        .numCols {
+            .flex(0 0 auto);
+            overflow: hidden;
+            margin-left: 4px;
         }
+    }
 
-        &.empty .background {
-            height: 44px;
-        }
+    .background {
+        width: ~"calc(100% - 80px)";
+        height: 100%;
+        background-color: @color-bg-white-seven;
+        top: 0px;
+        left: 80px;
+        position: absolute;
+        z-index: -1;
+    }
 
-        .rowCount {
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: -1px;
-            height: 21px;
-            border-bottom: 1px solid @color-border-pinkish-grey2;
-            &> div {
-                display: inline-block;
-                float: left;
-                margin: 0 4px;
-                white-space: nowrap;
-                text-align: left;
-                width: 70px;
-                line-height: 20px;
-                .textOverflow;
+    &.empty .background {
+        height: 44px;
+    }
 
-                &:first-child {
-                    text-indent: 5px;
-                    color: @color-dag-textBlue;
-                }
-
-                &:nth-child(2) {
-                    text-indent: 4px;
-                    width: 100px;
-                }
-
-                &:last-child {
-                    display: none; //sample title
-                }
-            }
-        }
-
-        .heading {
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: -1px;
-            height: 21px;
-            border-bottom: 1px solid @color-border-pinkish-grey2;
-            &> div {
-                display: inline-block;
-                float: left;
-                margin: 0 4px;
-                white-space: nowrap;
-                text-align: left;
-                width: 70px;
-                line-height: 20px;
-                .textOverflow;
-
-                &:first-child {
-                    text-indent: 21px;
-                    color: @color-dag-textBlue;
-                }
-
-                &:nth-child(2) {
-                    text-indent: 4px;
-                }
-
-                &:last-child {
-                    display: none; //sample title
-                }
-            }
-        }
-
-        &:after {
-            content: "";
-            display: block;
-            position: absolute;
-            bottom: -40px;
-            height: 40px;
-            width: 44px;
-            left: 30px;
-        }
-
-        &.shiftLeft {
-            &:after {
-                display: none;
-            }
-        }
-
-        ul {
-            overflow-y: auto;
-            overflow-x: hidden;
-            max-height: 200px;
-            padding: 0px;
-            padding-top: 0px;
-            text-align: left;
-
-            li {
-                height: 20px;
-                white-space: nowrap;
-                overflow: hidden;
-                cursor: auto;
-                &:hover {
-                    background-color: @color-bg-light-blue-grey;
-                }
-                &.selected {
-                    outline: 1px solid @color-border-pinkish-grey2;
-                    background-color: @color-dag-schema-selected;
-                }
-
-                &> div {
-                    display: inline-block;
-                    font-size: 11px;
-                    font-weight: bold;
-                    margin: 0 5px;
-                    white-space: nowrap;
-                    text-align: left;
-                    min-width: 100px;
-                    max-width: 200px;
-                    line-height: 20px;
-                    .textOverflow;
-                    cursor: pointer;
-                    padding-right: 10px;
-
-                    &:first-child {
-                        color: @color-font-select-blue;
-                        margin-left: 2px;
-                        width: 75px;
-                        max-width: 75px;
-                        min-width: 75px;
-                        padding-right: 0px;
-                    }
-
-                    &:last-child {
-                        // temporarily hidding the sample data
-                        display: none;
-                    }
-                }
-            }
-            .noFields {
-                font-size: 11px;
-                display: inline-block;
-                float: left;
-                width: 100%;
-                line-height: 24px;
-                text-align: center;
-            }
-        }
-
-        .iconWrap {
-            width: 20px;
+    .rowCount {
+        font-size: 11px;
+        font-weight: bold;
+        margin-top: -1px;
+        height: 21px;
+        border-bottom: 1px solid @color-border-pinkish-grey2;
+        &> div {
             display: inline-block;
-            margin-right: 4px;
-            .icon {
-                color: @color-font-select-blue;
-                display: block;
-                position: relative;
-                margin: 0 auto;
-                left: 3px;
-                top: 3px;
+            float: left;
+            margin: 0 4px;
+            white-space: nowrap;
+            text-align: left;
+            width: 70px;
+            line-height: 20px;
+            .textOverflow;
+
+            &:first-child {
+                text-indent: 5px;
+                color: @color-dag-textBlue;
             }
+
+            &:nth-child(2) {
+                text-indent: 4px;
+                width: 100px;
+            }
+
+            &:last-child {
+                display: none; //sample title
+            }
+        }
+    }
+
+    .heading {
+        font-size: 11px;
+        font-weight: bold;
+        margin-top: -1px;
+        height: 21px;
+        border-bottom: 1px solid @color-border-pinkish-grey2;
+        &> div {
+            display: inline-block;
+            float: left;
+            margin: 0 4px;
+            white-space: nowrap;
+            text-align: left;
+            width: 70px;
+            line-height: 20px;
+            .textOverflow;
+
+            &:first-child {
+                text-indent: 21px;
+                color: @color-dag-textBlue;
+            }
+
+            &:nth-child(2) {
+                text-indent: 4px;
+            }
+
+            &:last-child {
+                display: none; //sample title
+            }
+        }
+    }
+
+    &:after {
+        content: "";
+        display: block;
+        position: absolute;
+        bottom: -40px;
+        height: 40px;
+        width: 44px;
+        left: 30px;
+    }
+
+    &.shiftLeft {
+        &:after {
+            display: none;
+        }
+    }
+
+    ul {
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: 200px;
+        padding: 0px;
+        padding-top: 0px;
+        text-align: left;
+
+        li {
+            height: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            cursor: auto;
+            &:hover {
+                background-color: @color-bg-light-blue-grey;
+            }
+            &.selected {
+                outline: 1px solid @color-border-pinkish-grey2;
+                background-color: @color-dag-schema-selected;
+            }
+
+            &> div {
+                display: inline-block;
+                font-size: 11px;
+                font-weight: bold;
+                margin: 0 5px;
+                white-space: nowrap;
+                text-align: left;
+                min-width: 100px;
+                max-width: 200px;
+                line-height: 20px;
+                .textOverflow;
+                cursor: pointer;
+                padding-right: 10px;
+
+                &:first-child {
+                    color: @color-font-select-blue;
+                    margin-left: 2px;
+                    width: 75px;
+                    max-width: 75px;
+                    min-width: 75px;
+                    padding-right: 0px;
+                }
+
+                &:last-child {
+                    // temporarily hidding the sample data
+                    display: none;
+                }
+            }
+        }
+        .noFields {
+            font-size: 11px;
+            display: inline-block;
+            float: left;
+            width: 100%;
+            line-height: 24px;
+            text-align: center;
+        }
+    }
+
+    .iconWrap {
+        width: 20px;
+        display: inline-block;
+        margin-right: 4px;
+        .icon {
+            color: @color-font-select-blue;
+            display: block;
+            position: relative;
+            margin: 0 auto;
+            left: 3px;
+            top: 3px;
         }
     }
 }
