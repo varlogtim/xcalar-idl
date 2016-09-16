@@ -9,6 +9,7 @@ window.DSTable = (function($, DSTable) {
     var totalRows = 0;
     var previousColSelected; // used for shift clicking columns
     var lastDSToSample; // used to track the last table to samle in async call
+    var advanceOption;
 
     // constant
     var initialNumRowsToFetch = 40;
@@ -16,6 +17,9 @@ window.DSTable = (function($, DSTable) {
     DSTable.setup = function() {
         $dsTableContainer = $("#dsTableContainer");
         $tableWrap = $("#dsTableWrap");
+        var $advanceOption = $dsTableContainer.find(".advanceOption");
+        advanceOption = new DSFormAdvanceOption($advanceOption,
+                                                "#dsTableContainer");
 
         setupSampleTable();
     };
@@ -89,9 +93,9 @@ window.DSTable = (function($, DSTable) {
         })
         .fail(function(error) {
             clearTimeout(timer);
+            dsObj.release();
 
             if (error === notLastDSError) {
-                dsObj.release();
                 return;
             }
 
@@ -108,7 +112,14 @@ window.DSTable = (function($, DSTable) {
                 errorText += "\n" + loadError;
             }
 
-            $dsTableContainer.find(".errorSection").html(errorText);
+            var $errorSection = $dsTableContainer.find(".errorSection");
+            $errorSection.find(".error").html(errorText);
+            if (error.error === DSTStr.NoRecords) {
+                $errorSection.find(".suggest").removeClass("xc-hidden");
+            } else {
+                $errorSection.find(".suggest").addClass("xc-hidden");
+            }
+
             deferred.reject(error);
         });
 
@@ -357,6 +368,25 @@ window.DSTable = (function($, DSTable) {
             $table.find(".colAdded").removeClass("colAdded");
             $table.find(".selectedCol").removeClass("selectedCol");
             DSCart.removeCart(dsId);
+        });
+
+        // reload ds with new preview size
+        $("#dsTable-retry").click(function() {
+            var $grid = $("#dsListSection .grid-unit.active");
+            var dsId = $grid.data("dsid");
+            if (dsId == null) {
+                console.error("cannot find ds");
+                return;
+            }
+
+            var advancedArgs = advanceOption.getArgs();
+            if (advancedArgs == null) {
+                // invalid case
+                return;
+            }
+
+            var previewSize = advancedArgs.previewSize;
+            return DS.reload(dsId, previewSize);
         });
 
         // click to select a column

@@ -193,7 +193,7 @@ var SQLType = {
 };
 
 var SQLOps = {
-    DSLoad : "pointToDataset",
+    DSLoad: "pointToDataset",
     IndexDS: "indexFromDataset",
     AddOtherUserDS: "addOtherUserDS",
     Sort: "sort",

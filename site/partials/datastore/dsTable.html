@@ -127,7 +127,19 @@
           <div>.</div>
         </div>
       </div>
-      <div class="errorSection"></div>
+      <div class="errorSection">
+        <div class="error"></div>
+        <div class="suggest">
+          <div class="title"><%= dicts.ds.RetryTitle %></div>
+          <div class="advanceSection">
+            include "advanceOption.html"
+            <div id="dsTable-retry" class="retry xc-action">
+              <i class="icon xi-refresh blue"></i>
+              <span><%= dicts.ds.Retry %></span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="dsTableWrap" class="datasetTableWrap"></div>
     </div>
   </div>

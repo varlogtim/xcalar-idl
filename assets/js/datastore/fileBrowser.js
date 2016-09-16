@@ -860,7 +860,9 @@ window.FileBrowser = (function($, FileBrowser) {
             // if want accurate sort, than do it and then
             // another localeCompare sort
             files.sort(function(a, b) {
-                return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
+                var aName = a.name.toLowerCase();
+                var bName = b.name.toLowerCase();
+                return (aName < bName ? -1 : (aName > bName ? 1 : 0));
             });
             // files.sort(function(a, b) {
             //     return (a.name.localeCompare(b.name));

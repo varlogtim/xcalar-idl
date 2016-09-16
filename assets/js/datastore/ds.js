@@ -161,8 +161,7 @@ window.DS = (function ($, DS) {
 
         // folder do not show anything
         if ($grid.hasClass("folder")) {
-            deferred.resolve();
-            return deferred.promise();
+            return PromiseHelper.resolve();
         }
 
         var isLoading;
@@ -188,13 +187,11 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
-    // Load dataset
+    // Point to dataset
     // promise returns $grid element
     DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                         hasHeader, moduleName, funcName, isRecur, previewSize,
-                        quoteChar, skipRows, isRegEx, colsToPull) {
-        var deferred = jQuery.Deferred();
-
+                        quoteChar, skipRows, isRegex, colsToPull) {
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
         var curFolder = DS.getDSObj(curDirId);
@@ -205,22 +202,23 @@ window.DS = (function ($, DS) {
         }
 
         var dsObj = createDS({
-            "name"      : dsName,
-            "isFolder"  : false,
-            "format"    : dsFormat,
-            "path"      : loadURL,
-            "fileSize"  : null,
-            "numEntries": null,
-            "isRecur"   : isRecur,
+            "name"       : dsName,
+            "isFolder"   : false,
+            "format"     : dsFormat,
+            "path"       : loadURL,
+            "fileSize"   : null,
+            "numEntries" : null,
+            "fieldDelim" : fieldDelim,
+            "lineDelim"  : lineDelim,
+            "hasHeader"  : hasHeader,
+            "moduleName" : moduleName,
+            "funcName"   : funcName,
+            "isRecur"    : isRecur,
+            "previewSize": previewSize,
+            "quoteChar"  : quoteChar,
+            "skipRows"   : skipRows,
+            "isRegex"    : isRegex
         });
-
-        var $grid = DS.getGrid(dsObj.getId());
-        $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
-        $grid.find('.waitingIcon').fadeIn(200);
-
-        DataStore.update();
-
-        var fullDSName = dsObj.getFullName();
 
         var sql = {
             "operation"  : SQLOps.DSLoad,
@@ -232,88 +230,31 @@ window.DS = (function ($, DS) {
             "lineDelim"  : lineDelim,
             "quoteChar"  : quoteChar,
             "skipRows"   : skipRows,
-            "isRegEx"    : isRegEx,
+            "isRegex"    : isRegex,
             "moduleName" : moduleName,
             "funcName"   : funcName,
             "isRecur"    : isRecur,
             "previewSize": previewSize
         };
 
-        var txId = Transaction.start({
-            "msg"       : StatusMessageTStr.LoadingDataset + ": " + dsName,
-            "operation" : SQLOps.DSLoad,
-            "sql"       : sql,
-            "steps"     : 1,
-            "cancelable": false
-        });
+        return pointToHelper(dsObj, colsToPull, sql);
+    };
 
-        $grid.data("txid", txId);
+    DS.reload = function(dsId, previewSize) {
+        var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
+            return PromiseHelper.reject("no dsobj!");
+        }
 
-        // focus on grid before load
-        DS.focusOn($grid)
-        .then(function() {
-            return XcalarLoad(loadURL, dsFormat, fullDSName,
-                            fieldDelim, lineDelim, hasHeader,
-                            moduleName, funcName, isRecur, previewSize,
-                            quoteChar, skipRows, isRegEx, txId);
-        })
-        .then(function(ret, error) {
-            if (error != null) {
-                dsObj.setError(error);
-            }
+        var sql = {
+            "operation"  : SQLOps.DSLoad,
+            "dsName"     : dsObj.getName(),
+            "previewSize": previewSize,
+            "isRetry"    : true
+        };
 
-            $grid.removeData("txid");
-            $grid.removeClass("inactive").find('.waitingIcon').remove();
-            $grid.show();
-
-            // display new dataset
-            refreshDS();
-
-            if (colsToPull != null && colsToPull instanceof Array) {
-                createTableHelper($grid, dsObj, colsToPull);
-            }
-
-            if ($grid.hasClass('active')) {
-                // re-focus to trigger DSTable.show()
-                if (gMinModeOn) {
-                    DS.focusOn($grid);
-                } else {
-                    $('#dsTableWrap').fadeOut(200, function() {
-                        DS.focusOn($grid);
-                        $(this).fadeIn();
-                    });
-                }
-            }
-
-            UserSettings.logDSChange();
-
-            var msgOptions = {
-                "newDataSet": true,
-                "dataSetId" : dsObj.getId()
-            };
-            Transaction.done(txId, {
-                msgOptions: msgOptions
-            });
-            deferred.resolve(dsObj);
-        })
-        .fail(function(error) {
-            removeDS($grid);
-            DataStore.update();
-
-            if ($('#dsInfo-title').text() === dsName) {
-                // if loading page is showing, remove and go to import form
-                DSForm.show({"noReset": true});
-            }
-
-            Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.LoadFailed,
-                "error"  : error
-            });
-
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
+        dsObj.setPreviewSize(previewSize);
+        return pointToHelper(dsObj, null, sql, true);
     };
 
     // Rename dsObj
@@ -529,6 +470,116 @@ window.DS = (function ($, DS) {
         dsLookUpTable[dsObj.getId()] = dsObj;
 
         return dsObj;
+    }
+
+    function pointToHelper(dsObj, colsToPull, sql, isRetry) {
+        var deferred = jQuery.Deferred();
+        var dsName = dsObj.getName();
+
+        var $grid = DS.getGrid(dsObj.getId());
+        $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
+        $grid.find('.waitingIcon').fadeIn(200);
+
+        DataStore.update();
+
+        var txId = Transaction.start({
+            "msg"       : StatusMessageTStr.LoadingDataset + ": " + dsName,
+            "operation" : SQLOps.DSLoad,
+            "sql"       : sql,
+            "steps"     : 1,
+            "cancelable": false
+        });
+
+        $grid.data("txid", txId);
+
+        // focus on grid before load
+
+        DS.focusOn($grid)
+        .then(function() {
+            return cleanupHelper();
+        })
+        .then(function() {
+            var args = dsObj.getPointArgs();
+            args.push(txId);
+            return XcalarLoad.apply(this, args);
+        })
+        .then(function(ret, error) {
+            if (error != null) {
+                dsObj.setError(error);
+            }
+
+            $grid.removeData("txid");
+            $grid.removeClass("inactive").find(".waitingIcon").remove();
+            $grid.show();
+
+            // display new dataset
+            refreshDS();
+
+            if (error != null &&
+                colsToPull != null &&
+                colsToPull instanceof Array)
+            {
+                createTableHelper($grid, dsObj, colsToPull);
+            }
+
+            if ($grid.hasClass("active")) {
+                // re-focus to trigger DSTable.show()
+                if (gMinModeOn) {
+                    DS.focusOn($grid);
+                } else {
+                    $("#dsTableWrap").fadeOut(200, function() {
+                        DS.focusOn($grid);
+                        $(this).fadeIn();
+                    });
+                }
+            }
+
+            UserSettings.logDSChange();
+
+            var msgOptions = {
+                "newDataSet": true,
+                "dataSetId" : dsObj.getId()
+            };
+            Transaction.done(txId, {
+                msgOptions: msgOptions
+            });
+            deferred.resolve(dsObj);
+        })
+        .fail(function(error) {
+            removeDS($grid);
+            DataStore.update();
+
+            if ($('#dsInfo-title').text() === dsName) {
+                // if loading page is showing, remove and go to import form
+                DSForm.show({"noReset": true});
+            }
+
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.LoadFailed,
+                "error"  : error
+            });
+
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+
+        function cleanupHelper() {
+            if (!isRetry) {
+                return PromiseHelper.resolve();
+            }
+
+            var innerDeferred = jQuery.Deferred();
+
+            dsObj.release()
+            .then(function() {
+                return XcalarDestroyDataset(dsObj.getFullName(), txId);
+            })
+            .then(innerDeferred.resolve)
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
     }
 
     function cancelDSHelper(txId, $grid, dsObj) {

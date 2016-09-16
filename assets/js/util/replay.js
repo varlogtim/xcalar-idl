@@ -398,7 +398,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.DSLoad] = ["dsName", "dsFormat", "loadURL",
                                     "fieldDelim", "lineDelim", "hasHeader",
                                     "moduleName", "funcName",
-                                    "isRecur", "previewSize"];
+                                    "isRecur", "previewSize", "quoteChar",
+                                    "skipRows", "isRegex", "colsToPull"];
         argsMap[SQLOps.Sort] = ["colNum", "tableId", "order", "typeToCast"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
@@ -484,8 +485,19 @@ window.Replay = (function($, Replay) {
     replayFuncs = {};
 
     replayFuncs[SQLOps.DSLoad] = function(options) {
-        var args = getArgs(options);
-        return DS.load.apply(window, args);
+        if (options.isRetry) {
+            var $grid = DS.getGridByName(options.dsName);
+            var dsId = $grid.data("dsid");
+
+            if (dsId == null) {
+                return PromiseHelper.reject("wrong args");
+            }
+
+            return DS.reload(dsId, options.previewSize);
+        } else {
+            var args = getArgs(options);
+            return DS.load.apply(window, args);
+        }
     };
 
     replayFuncs[SQLOps.IndexDS] = function(options) {

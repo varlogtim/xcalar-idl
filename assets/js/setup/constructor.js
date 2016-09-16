@@ -1150,7 +1150,6 @@ function DSObj(options) {
     this.isFolder = options.isFolder;
     this.uneditable = options.uneditable;
     this.mDate = options.mDate;
-    this.isRecur = options.isRecur || false;
     this.error = options.error || null;
 
     // initially, dataset count itself as one child,
@@ -1165,6 +1164,18 @@ function DSObj(options) {
         this.fileSize = options.fileSize;
         this.numEntries = options.numEntries;
         this.resultSetId = options.resultSetId;
+
+        // args to point to dataset
+        this.fieldDelim = options.fieldDelim;
+        this.lineDelim = options.lineDelim;
+        this.hasHeader = options.hasHeader;
+        this.moduleName = options.moduleName;
+        this.funcName = options.funcName;
+        this.isRecur = options.isRecur || false;
+        this.previewSize = options.previewSize;
+        this.quoteChar = options.quoteChar;
+        this.skipRows = options.skipRows;
+        this.isRegex = options.isRegEx || false;
     }
 
     if (this.parentId !== DSObjTerm.homeParentId) {
@@ -1204,6 +1215,18 @@ DSObj.prototype = {
 
     getPath: function() {
         return this.path;
+    },
+
+    getPointArgs: function() {
+        // loadURL, format, fullName,
+        // fieldDelim, lineDelim, hasHeader,
+        // moduleName, funcName, isRecur, previewSize,
+        // quoteChar, skipRows, isRegEx
+        var self = this;
+        return [self.path, self.format, self.fullName,
+                self.fieldDelim, self.lineDelim, self.hasHeader,
+                self.moduleName, self.funcName, self.isRecur, self.previewSize,
+                self.quoteChar, self.skipRows, self.isRegex];
     },
 
     getNumEntries: function() {
@@ -1305,6 +1328,15 @@ DSObj.prototype = {
 
     setError: function(error) {
         this.error = error;
+    },
+
+    setPreviewSize: function(previewSize) {
+        if (this.isFolder || isNaN(previewSize)) {
+            console.error("error case!");
+            return;
+        }
+
+        this.previewSize = previewSize;
     },
 
     beFolder: function() {

@@ -242,6 +242,8 @@
     }
 
     &.error {
+        height: 100% !important;
+
         .datasetTableWrap, .loadSection {
             display: none !important;
         }
@@ -258,9 +260,58 @@
     }
 
     .errorSection {
-        color: @color-table-red;
-        white-space: normal;
         .text-selection;
+
+        .error {
+            color: @color-table-red;
+            white-space: normal;
+        }
+
+        .suggest {
+            margin-top: 10px;
+            .title {
+                color: @color-table-red;
+            }
+        }
+
+        .advanceSection {
+            .size(@width: 100%, @height: 50px);
+
+            .advanceOption {
+                float: left;
+
+                .listInfo {
+                    display: none;
+                }
+
+                ul {
+                    display: block;
+                }
+
+                .limit {
+                    display: block;
+                    box-shadow: none;
+                    padding: 0;
+                }
+
+                .pattern {
+                    display: none;
+                }
+            }
+
+            .retry {
+                margin-left: 10px;
+                float: left;
+                color: @color-font-softBlue;
+                .vertical-align;
+
+                .icon, .text {
+                    display: inline-block;
+                    float: left;
+                    margin: 0 5px;
+                }
+            }
+        }
     }
 }
 
@@ -611,7 +662,7 @@ table.datasetTable {
         }
 
         .label {
-            .size(@width: 150px);
+            width: 150px !important;
         }
     }
 
@@ -980,10 +1031,6 @@ table.datasetTable {
         .option {
             padding: 0 0 0 30px;
         }
-
-        .label {
-            .size(@width: 135px);
-        }
     }
 
     .cardBottom {
@@ -998,7 +1045,7 @@ table.datasetTable {
 /* End Of File Browser */
 
 /* a specail case */
-#dsForm-path, #fileBrowser {
+#datastore-in-view {
     .advanceSection {
         .listInfo {
             margin-bottom: 20px;
@@ -1015,7 +1062,7 @@ table.datasetTable {
         }
 
         .label {
-            .size(@height: 30px);
+            .size(@width: 135px, @height: 30px);
             line-height: 30px;
         }
 
