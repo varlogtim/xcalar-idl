@@ -8,7 +8,7 @@ window.FnBar = (function(FnBar, $) {
     var mainOperators = ['pull', 'map', 'filter'];
     var xdfMap = {};
     var udfMap = {};
-    var colNamesCache = [];
+    var colNamesCache = {};
     var lastFocusedCol;
 
     FnBar.setup = function() {
@@ -133,7 +133,7 @@ window.FnBar = (function(FnBar, $) {
                     return;
                 }
                 lastFocusedCol = undefined;
-                colNamesCache = [];
+                colNamesCache = {};
                 
                 var args = {
                     "value"         : trimmedVal,
@@ -273,7 +273,7 @@ window.FnBar = (function(FnBar, $) {
         $lastColInput = null;
         editor.setValue("");
         $fnBar.removeClass("active inFocus disabled");
-        colNamesCache = [];
+        colNamesCache = {};
     };
 
     function setupAutocomplete() {
@@ -366,23 +366,23 @@ window.FnBar = (function(FnBar, $) {
                     }
                 }
             } else {
+                curWord = curWord.toLowerCase();
                 // search columnNames
-                for (var i = 0; i < colNamesCache.length; i++) {
-                    if (!seen.hasOwnProperty(colNamesCache[i]) &&
-                        colNamesCache[i].lastIndexOf(curWord, 0) === 0) {
-                        seen[colNamesCache[i]] = true;
+                for (var name in colNamesCache) {
+                    if (name.lastIndexOf(curWord, 0) === 0 &&
+                        !seen.hasOwnProperty(name)) {
+                        seen[name] = true;
                         list.push({
-                            text       : colNamesCache[i],
-                            displayText: colNamesCache[i],
+                            text       : colNamesCache[name],
+                            displayText: colNamesCache[name],
                             render     : renderList,
                             className  : "colName"
-                        });
+                        })
                     }
                 }
 
                 if (getOperationFromFuncStr(fullVal) !== "pull") {
                     // search xdfMap
-                    curWord = curWord.toLowerCase();
                     for (var fnName in xdfMap) {
                         if (fnName.lastIndexOf(curWord, 0) === 0 &&
                             !seen.hasOwnProperty(fnName)) {
@@ -530,13 +530,13 @@ window.FnBar = (function(FnBar, $) {
         if (!gTables[tableId]) {
             return;
         }
-        colNamesCache = [];
+        colNamesCache = {};
         var cols = gTables[tableId].tableCols;
         var name;
         for (var i = 0; i < cols.length; i++) {
             name = cols[i].backName.trim();
             if (name.length && name !== "DATA") {
-                colNamesCache.push(name);
+                colNamesCache[name.toLowerCase()] = name;
             }
         }
     }
