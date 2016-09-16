@@ -604,8 +604,7 @@ function METAConstructor(METAKeys) {
 
 function getEMetaKeys() {
     return {
-        "DFG" : "DFG",
-        "SCHE": "schedule"
+        "DFG" : "DFG"
     };
 }
 
@@ -1682,7 +1681,6 @@ function CanvasExpandInfo(options) {
 function DFGObj(name, options) {
     options = options || {};
     this.name = name;
-    this.schedules = options.schedules || [];
     this.parameters = options.parameters || [];
     this.paramMap = options.paramMap || {}; // a map
     this.nodeIds = options.nodeIds || {}; // a map
@@ -1722,6 +1720,7 @@ DFGObj.prototype = {
             }
         }
 
+        // JJJ: May not be necessary
         $('#schedulerPanel').find('[data-table="' + tableName + '"]')
                             .addClass('hasParam');
     },
@@ -1789,138 +1788,7 @@ DFGObj.prototype = {
         this.parameters.splice(index, 1);
         delete this.paramMap[name];
     },
-
-    "addSchedule": function(scheduleName) {
-        this.schedules.push(scheduleName);
-    },
-
-    "hasSchedule": function(scheduleName) {
-        return (this.schedules.indexOf(scheduleName) >= 0);
-    },
-
-    "removeSchedule": function(scheduleName) {
-        var index = this.schedules.indexOf(scheduleName);
-
-        if (index < 0) {
-            console.error("error schedule name", scheduleName);
-        } else {
-            this.schedules.splice(index, 1);
-        }
-    },
-
-    "updateSchedule": function() {
-        var promises = [];
-        var dfgName = this.name;
-        this.schedules.forEach(function(scheduleName) {
-            promises.push(Scheduler.updateDFG.bind(this, scheduleName, dfgName));
-        });
-
-        return (PromiseHelper.chain(promises));
-    }
 };
-/* End of SchedObj */
-
-/* Start of Schedule */
-/* schedule.js */
-function SchedObj(options) {
-    options = options || {};
-    this.name = options.name;
-    this.startTime = options.startTime;
-    this.dateText = options.dateText;
-    this.timeText = options.timeText;
-    this.repeat = options.repeat;
-    this.freq = options.freq;
-    this.modified = options.modified;
-    this.created = options.modified;
-    this.recur = options.recur;
-    this.DFGs = [];
-
-    var DFGs = options.DFGs || [];
-    for (var i = 0, len = DFGs.length; i < len; i++) {
-        var dfgInfo = new SchedDFGInfo(DFGs[i]);
-        this.DFGs.push(dfgInfo);
-    }
-
-    return this;
-}
-
-// inner meta for SchedObj
-function SchedDFGInfo(options) {
-    options = options || {};
-    this.name = options.name;
-    this.backSchedName = options.backSchedName;
-    this.initialTime = options.initialTime;
-    this.status = this.status || "normal";
-
-    return this;
-}
-
-SchedObj.prototype = {
-    "update": function(options) {
-        options = options || {};
-        this.startTime = options.startTime || this.startTime;
-        this.dateText = options.dateText || this.dateText;
-        this.timeText = options.timeText || this.timeText;
-        this.repeat = options.repeat || this.repeat;
-        this.freq = options.freq || this.freq;
-        this.modified = options.modified || this.modified;
-        this.recur = options.recur || this.recur;
-        // not update name, created and DFGs
-    },
-
-    "getDFG": function(dfgName) {
-        var dfgs = this.DFGs;
-        for (var i = 0, len = dfgs.length; i < len; i++) {
-            if (dfgs[i].name === dfgName) {
-                return dfgs[i];
-            }
-        }
-
-        return null;
-    },
-
-    "addDFG": function(options) {
-        var dfgInfo = new SchedDFGInfo(options);
-        this.DFGs.push(dfgInfo);
-    },
-
-    "updateDFG": function(dfgName, options) {
-        var dfgInfo = this.getDFG(dfgName);
-        options = options || {};
-        dfgInfo.initialTime = options.initialTime || dfgInfo.initialTime;
-        dfgInfo.status = options.status || dfgInfo.status;
-        dfgInfo.backSchedName = options.backSchedName || dfgInfo.backSchedName;
-    },
-
-    "hasDFG": function(dfgName) {
-        var dfgs = this.DFGs;
-        for (var i = 0, len = dfgs.length; i < len; i++) {
-            if (dfgs[i].name === dfgName) {
-                return true;
-            }
-        }
-
-        return false;
-    },
-
-    "removeDFG": function(dfgName) {
-        var index = -1;
-        var dfgs = this.DFGs;
-        for (var i = 0, len = dfgs.length; i < len; i++) {
-            if (dfgs[i].name === dfgName) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index >= 0) {
-            this.DFGs.splice(index, 1);
-        } else {
-            console.error("error dfgName", dfgName);
-        }
-    }
-};
-/* End of SchedObj */
 
 /* Corrector */
 function Corrector(words) {

@@ -62,18 +62,6 @@ body {
 
         #menuBar {
             display: none;
-            // #workspaceTab, #dataStoresTab, #schedulerTab {
-            //     display: none;
-            // }
-            // .bottomMenuBarTab {
-            //     display: none;
-            // }
-
-            // #monitorTab {
-            //     .subTab:not(:nth-child(2)) {
-            //         display: none;
-            //     }
-            // }
         }
         #mainMenu {
             left: -@width-fullMenu; // do not show any of the main menu
@@ -90,7 +78,7 @@ body {
 
     &.workbookMode {
         @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
-        
+
         #userBox {
             z-index: @z-index-homeBtn;
         }
@@ -1300,7 +1288,7 @@ input {
                 content: "";
             }
         }
-        
+
         &.noRedirect {
             cursor: auto !important;
         }

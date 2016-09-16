@@ -94,7 +94,7 @@ window.StartManager = (function(StartManager, $) {
         WSManager.setup();
         MonitorPanel.setup();
         DagPanel.setup();
-        SchedulerPanel.setup();
+        DataflowPanel.setup();
         setupModals();
         TutorialsSetup.setup();
 

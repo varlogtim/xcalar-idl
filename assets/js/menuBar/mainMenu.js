@@ -48,7 +48,6 @@ window.MainMenu = (function($, MainMenu) {
         } else {
             return (isMenuOpen || BottomMenu.isMenuOpen());
         }
-        
     };
 
     MainMenu.open = function(noAnim) {
@@ -67,8 +66,8 @@ window.MainMenu = (function($, MainMenu) {
             case ('datastorePanel'):
                 $tab = $('#dataStoresTab');
                 break;
-            case ('schedulerPanel'):
-                $tab = $('#schedulerTab');
+            case ('dataflowPanel'):
+                $tab = $('#dataflowTab');
                 break;
             default:
                 break;
@@ -132,7 +131,7 @@ window.MainMenu = (function($, MainMenu) {
                 MainMenu.close(noAnim);
             }
         }
-       
+
         // restore worksheet list view or table list view
         $("#workspaceMenu").find('.menuSection').addClass('xc-hidden');
         prevState.$activeWorkspaceMenu.removeClass('xc-hidden');
@@ -162,7 +161,6 @@ window.MainMenu = (function($, MainMenu) {
                 ignoreRestoreState = false;
             }
             Workbook.hide(true);
-            
 
             var $curTab = $(this);
             var $target = $(event.target);
@@ -180,7 +178,7 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.find('.subTab').removeClass('active');
                     $subTab.addClass('active');
                 }
-               
+
                 return;
             }
             var $lastActiveTab = $tabs.filter(".active");
@@ -195,7 +193,6 @@ window.MainMenu = (function($, MainMenu) {
                      .removeClass('noTransition');
             }, 100);
 
-           
             var noAnim = true;
             if ($curTab.hasClass('mainMenuOpen')) {
                 openMenu($curTab, noAnim);
@@ -224,9 +221,9 @@ window.MainMenu = (function($, MainMenu) {
                 $("#workspacePanel").addClass("active");
                 WSManager.focusOnWorksheet();
                 break;
-            case ("schedulerTab"):
+            case ("dataflowTab"):
                 $('#schedulerPanel').addClass("active");
-                SchedulerPanel.active();
+                DataflowPanel.active();
                 break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
@@ -314,8 +311,7 @@ window.MainMenu = (function($, MainMenu) {
         $('#container').removeClass('mainMenuOpen');
         $curTab.removeClass('mainMenuOpen');
         isMenuOpen = false;
-        
-        
+
         setCloseTimer(noAnim);
 
         if (makeInactive) {

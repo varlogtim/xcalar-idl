@@ -206,10 +206,9 @@ window.StatusMessage = (function($, StatusMessage) {
                     } else {
                         panelName = "Worksheet";
                     }
-                    
                     break;
-                case ("schedulerTab"):
-                    panelName = "Scheduler";
+                case ("dataflowTab"):
+                    panelName = "Dataflow";
                     break;
                 case ("dataStoresTab"):
                     panelName = "Data Stores";

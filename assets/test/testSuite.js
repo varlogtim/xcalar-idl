@@ -991,7 +991,7 @@ window.TestSuite = (function($, TestSuite) {
     function schedTest(deferred, testName, currentTestNumber) {
         console.log("start schedTest");
         // Create a schedule
-        $("#schedulerTab").click();
+        $("#dataflowTab").click();
         var $subTab = $("#schedulesButton");
         if (!$subTab.hasClass("active")) {
             $subTab.click();
@@ -1054,7 +1054,7 @@ window.TestSuite = (function($, TestSuite) {
         $section.find(".confirm").click();
 
         // got to scheduler panel
-        $("#schedulerTab").click();
+        $("#dataflowTab").click();
         $("#dataflowButton").click();
 
         var selector = "#dfgMenu .dataFlowGroup .listBox " +

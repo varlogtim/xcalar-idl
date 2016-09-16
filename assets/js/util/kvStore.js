@@ -183,8 +183,6 @@ window.KVStore = (function($, KVStore) {
                     oldLogCursor = gInfos[METAKeys.LOGC];
 
                     DFG.restore(gInfos[EMetaKeys.DFG]);
-                    Scheduler.restore(gInfos[EMetaKeys.SCHE]);
-
 
                     if (isEmpty) {
                         console.info("KVStore is empty!");
