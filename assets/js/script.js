@@ -675,12 +675,14 @@ window.StartManager = (function(StartManager, $) {
             }
 
             // some code mirror elements don't have parents for some reason
+            // such as the pre tag
             if (!$target.hasClass('fnbarPre') &&
                 !$target.hasClass('CodeMirror-cursor') &&
                 !$target.closest('.CodeMirror-hint').length &&
                 !$target.closest('.fnbarPre').length &&
                 !$target.closest('#functionArea').length &&
-                !$target.closest('.header').length) {
+                !$target.closest('.header').length &&
+                !($target.is('pre') && $target.parents().length === 0)) {
                 if ($target.closest('.selectedCell').length !== 0) {
                     return;
                 } else if ($target.attr('id') === 'mainFrame') {

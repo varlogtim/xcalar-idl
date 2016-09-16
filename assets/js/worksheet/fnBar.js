@@ -538,6 +538,9 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function resetColNamesCache(tableId) {
+        if (!gTables[tableId]) {
+            return;
+        }
         colNamesCache = [];
         var cols = gTables[tableId].tableCols;
         var name;
