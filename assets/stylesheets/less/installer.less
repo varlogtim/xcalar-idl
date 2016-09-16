@@ -8,7 +8,7 @@ html, body {
     margin: 0;
     padding: 0;
     min-height: 100%;
-    min-width: 780px; 
+    min-width: 780px;
     height: 100%;
     font: 13px @font-base;
     font-weight: 600;
@@ -167,7 +167,7 @@ form {
                 vertical-align: top;
                 line-height: 16px;
                 display: inline-block;
-                
+
                 &.xi-radio-selected {
                     color: @color-font-softBlue;
                     display: none;
@@ -297,6 +297,26 @@ input:-webkit-autofill:focus {
                 background-color: @color-border-select-blue;
                 .transition(all 0.5s);
             }
+        }
+
+        textarea {
+            font-size: 14px;
+            margin-top: 20px;
+            display: inline-block;
+            font-family: "Source Code Pro", Courier;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: @color-white;
+            box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.2);
+            resize: none;
+            overflow: auto;
+            &:focus {
+                outline: none !important;
+            }
+        }
+
+        .link {
+            float: right;
+            margin-top: 5px;
         }
 
         label {
@@ -479,20 +499,6 @@ input:-webkit-autofill:focus {
                 height: 39px;
             }
 
-            textarea {
-                font-size: 14px;
-                margin-top: 20px;
-                display: inline-block;
-                font-family: "Source Code Pro", Courier;
-                background-color: rgba(0, 0, 0, 0.3);
-                color: @color-white;
-                box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.2);
-                resize: none;
-                overflow: auto;
-                &:focus {
-                    outline: none !important;
-                }
-            }
             .hostPassword {
                 width: 100%;
                 position: relative;

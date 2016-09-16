@@ -200,57 +200,11 @@ window.Installer = (function(Installer, $) {
         } catch (e) {
             // XXX Handle the different statuses and display relevant
             // error messages
-            
         }
     }
 
     function setUpStep0() {
-        $("input.licenseKey").eq(0).focus();
-        $("input.licenseKey").on("keyup", function(e) {
-            var keyCode = e.which;
-            if (keyCode === 8) {
-                // Backspace
-                if ($(this).val().length === 0) {
-                    $(this).prev().prev(".licenseKey").focus();
-                }
-            } else if (keyCode === 13) {
-                // Enter
-                // Check that it has 16 digits. Else error
-                var keyArray = $(".licenseKey");
-                var error = false;
-                for (var i = 0; i<keyArray.length; i++) {
-                    if (keyArray.eq(i).val().length !== 4) {
-                        error = true;
-                        break;
-                    }
-                }
-                if (error) {
-                    showFailure(0, ["License Length Mismatch",
-                                    "License key must be 16 digits long"]);
-                } else {
-                    $("input.next").eq(0).click();
-                }
-
-            } else if (keyCode === 38 || keyCode === 40) {
-                // Do not touch up down
-            } else if (keyCode === 37) {
-                if ($(this).caret() === 0) {
-                    $prevInput = $(this).prev().prev(".licenseKey");
-                    $prevInput.focus();
-                    $prevInput.caret($prevInput.val().length);
-                }
-            } else if (keyCode === 39) {
-                if ($(this).caret() === $(this).val().length) {
-                    $nextInput = $(this).next().next(".licenseKey");
-                    $nextInput.focus();
-                }
-            } else {
-                if ($(this).val().length === 4) {
-                    // At max length, focus on next field
-                    $(this).next().next(".licenseKey").focus();
-                }
-            }
-        });
+        $(".licenseKey").focus();
     }
 
     function setUpStep1() {
@@ -348,14 +302,7 @@ window.Installer = (function(Installer, $) {
 
     function validateKey() {
         var deferred = jQuery.Deferred();
-        var keyArray = $(".licenseKey");
-        var finalKey = "";
-
-        var finalArray = [];
-        for (var i = 0; i<keyArray.length; i++) {
-            finalArray.push(keyArray.eq(i).val());
-        }
-        finalKey = finalArray.join("-");
+        var finalKey = $(".licenseKey").val();
 
         verifyKey(finalKey)
         .then(function(retStruct) {
@@ -513,7 +460,7 @@ window.Installer = (function(Installer, $) {
     function verifyKey(key) {
         var deferred = jQuery.Deferred();
         // Make async call here
- 
+
         checkLicense(key)
         .then(function(ret) {
             if (ret === Status.Ok) {
