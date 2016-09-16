@@ -230,7 +230,7 @@ window.DagPanel = (function($, DagPanel) {
             handles    : "n",
             containment: 'parent',
             start      : function(event, ui) {
-                $dagPanel.addClass('noTransform resizing');
+                $dagPanel.addClass('noTransform');
                 $dagPanel.css('top', dagPanelTop);
                 ui.originalPosition.top = dagPanelTop;
                 ui.position.top = dagPanelTop;
@@ -270,7 +270,6 @@ window.DagPanel = (function($, DagPanel) {
                     }
                     return (style.replace(/height[^;]+;?/g, ''));
                 });
-                $dagPanel.removeClass('resizing');
 
                 if (dagPanelTop < 30) {
                     dagPanelTop = 0;
@@ -1474,7 +1473,7 @@ window.Dag = (function($, Dag) {
 
         $dags.removeClass('Ready')
              .addClass('Dropped');
-        $dags.find('.icon').attr({
+        $dags.find('.dagTableIcon ').attr({
             "data-toggle"        : "tooltip",
             "data-placement"     : "top",
             "data-container"     : "body",
@@ -2932,25 +2931,28 @@ window.Dag = (function($, Dag) {
             }
 
             var tableId = xcHelper.getTableId(tableName);
-            html += '<div class="dagTable ' + state + '" ' +
-                            'data-tablename="' + tableName + '" ' +
-                            'data-children="' + children + '" ' +
-                            'data-index="' + index + '" ' +
-                            'data-id="' + tableId + '" ' +
-                            'data-parents="' + parents + '">' +
-                            '<div class="dagTableIcon ' + icv + '"></div>';
-            var dagDroppedState = DgDagStateT.DgDagStateDropped;
-            if (dagInfo.state === DgDagStateTStr[dagDroppedState]) {
-                html += '<i class="icon xi_table" ' +
-                            'data-toggle="tooltip" ' +
-                            'data-placement="top" ' +
-                            'data-container="body" ' +
-                            'title="' + xcHelper.replaceMsg(TooltipTStr.DroppedTable,
-                            {"tablename": tableName}) + '"></i>';
+            var tooltipTxt;
+            if (dagInfo.state === 
+                DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
+                tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
+                            {"tablename": tableName});
             } else {
-                html += '<i class="icon xi_table"></i>';
+                tooltipTxt = CommonTxtTstr.ClickToOpts;
             }
-            html += '<span class="tableTitle" ' +
+            html += '<div class="dagTable ' + state + '" ' +
+                        'data-tablename="' + tableName + '" ' +
+                        'data-children="' + children + '" ' +
+                        'data-index="' + index + '" ' +
+                        'data-id="' + tableId + '" ' +
+                        'data-parents="' + parents + '">' +
+                        '<div class="dagTableIcon ' + icv + '" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'title="' + tooltipTxt + '"' +
+                        '></div>' +
+                        '<i class="icon xi_table"></i>'+
+                        '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +

@@ -719,7 +719,7 @@ html.edge {
         .lockedTableIcon {
             .position(absolute, @top: 40%, @left: 50%);
             display: inline-block;
-            z-index: 9;
+            z-index: @z-index-dfgPanel; // want dfgPanel to cover it
             width: 150px;
             opacity: 0.8;
             .transform(translateX(-50%));
@@ -794,6 +794,12 @@ html.edge {
 
         th:first-child input {
             box-shadow: none !important;
+        }
+    }
+
+    &.tableLocked {
+        .editableHead {
+            pointer-events: none;
         }
     }
 

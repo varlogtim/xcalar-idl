@@ -263,6 +263,16 @@
             .tableTitle {
                 width: 180px;
             }
+            &:hover {
+                .dagTableIcon {
+                    background-color: @color-bg-select-blue;
+                }
+                &.dataStore, &.export {
+                    .dagTableIcon, .dataStoreIcon {
+                        background-color: @color-bg-btn-hover-blue;
+                    }
+                }
+            }
             &.dataStore, &.export {
                 cursor: pointer;
             }
@@ -274,7 +284,7 @@
             }
             &.hasParam {
                 .dataStoreIcon, .dagTableIcon {
-                    background-color: @color-bg-fern-green;
+                    background-color: @color-bg-fern-green !important;
                 }
             }
         }

@@ -495,6 +495,7 @@ html.firefox, html.microsoft {
         .icon {
             .position(absolute, @top: 11px, @left: 10px);
             font-size: 15px;
+            pointer-events: none; // to allow tooltip on tableElement
         }
 
         .lockIcon {
@@ -510,6 +511,7 @@ html.firefox, html.microsoft {
         &.Cleaned, &.Dropped {
             .dagTableIcon {
                 background-color: @color-bg-white-five;
+                cursor: initial;
             }
         }
 
