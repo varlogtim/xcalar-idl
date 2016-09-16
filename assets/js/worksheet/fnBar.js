@@ -50,34 +50,21 @@ window.FnBar = (function(FnBar, $) {
             if (mismatch.index === -1) {
                 functionBarEnter();
             } else {
-                var savedStr = editor.getValue();
-                var savedColInput = $lastColInput;
                 var funcStr = "\"" + val.slice(0, mismatch.index) +
                                 '<span class="mismatchBracket">' +
                                 mismatch.char + "</span>" +
                                 val.slice(mismatch.index + 1) + "\"";
+                var pos = editor.charCoords({line: 0, ch: mismatch.index + 1},
+                                            "window")
 
-                Alert.show({
-                    "title"      : AlertTStr.BracketsMis,
-                    "msgTemplate": ErrTStr.BracketsMis + "<br/>" + funcStr,
-                    "isAlert"    : true,
-                    "onCancel"   : function() {
-                        if (savedColInput) {
-                            savedColInput.trigger({
-                                type : "mousedown",
-                                which: 1
-                            });
-                            $fnBar.removeAttr("disabled");
-                            editor.setValue(savedStr);
-                            $fnBar.focus();
-                        } else {
-                            $fnBar.removeAttr("disabled");
-                        }
-                    }
-                });
-
-                editor.setValue(savedStr);
-                $fnBar.prop("disabled", "true");
+                setTimeout(function() {
+                    StatusBox.show(ErrTStr.BracketsMis + "<br/>" + funcStr, 
+                        $fnBar.prev().prev(), null, {
+                        "offsetX": pos.left - 178,
+                        "side"   : "bottom",
+                        "html"   : true
+                    });
+                }, 0); // gets closed immediately without timeout;
             }
         });
 
@@ -514,6 +501,8 @@ window.FnBar = (function(FnBar, $) {
             }
         });
     }
+
+
 
     function saveInput() {
         if (!$lastColInput || !$lastColInput.length) {

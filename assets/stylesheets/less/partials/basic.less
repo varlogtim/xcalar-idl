@@ -899,6 +899,12 @@ input {
         white-space: normal;
     }
 
+    // specific styling for fnbar error
+    .mismatchBracket {
+        color: @color-error-border;
+        font-weight: bold;
+    }
+
     &.active {
         display: inline-block;
     }
@@ -1485,6 +1491,9 @@ input[type=number]::-webkit-outer-spin-button {
     z-index: 100;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     word-wrap: break-word;
+    .tooltip-arrow {
+        opacity: 0.95;
+    }
 }
 
 .tooltip-inner {
@@ -1495,17 +1504,17 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tooltip.bottom .tooltip-arrow {
-    border-bottom-color: @color-tooltip-border;
+    border-bottom-color: @color-bg-charcoal-grey;
 }
 .tooltip.top .tooltip-arrow {
-    border-top-color: @color-tooltip-border;
+    border-top-color: @color-bg-charcoal-grey;
 }
 
 .tooltip.left .tooltip-arrow {
-    border-left-color: @color-tooltip-border;
+    border-left-color: @color-bg-charcoal-grey;
 }
 .tooltip.right .tooltip-arrow {
-    border-right-color: @color-tooltip-border;
+    border-right-color: @color-bg-charcoal-grey;
 }
 
 .tooltip.error {
