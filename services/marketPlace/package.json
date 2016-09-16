@@ -1,0 +1,15 @@
+{
+  "name": "market",
+  "version": "1.0.0",
+  "description": "marketPlace server in Node.js on Docker",
+  "author": "Xcalar Inc. <support@xcalar.com>",
+  "main": "marketServer.js",
+  "scripts": {
+    "start": "node marketServer.js"
+  },
+  "dependencies": {
+    "express": "^4.13.4",
+    "shelljs": "^0.6.0",
+    "body-parser": "^1.15.0"
+  }
+}
