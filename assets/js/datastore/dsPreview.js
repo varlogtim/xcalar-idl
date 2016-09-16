@@ -1245,9 +1245,9 @@ window.DSPreview = (function($, DSPreview) {
         var lineDelim = loadArgs.getLineDelim();
         var data = lineSplitHelper(rawData, lineDelim);
 
-        for (var i = 0, len = data.length; i < len; i++) {
-            data[i] = data[i].split("");
-        }
+        data = data.map(function(d) {
+            return d.split("");
+        });
 
         var fieldDelim = loadArgs.getFieldDelim();
         if (format === formatMap.CSV && fieldDelim === "") {
@@ -1560,7 +1560,6 @@ window.DSPreview = (function($, DSPreview) {
     function getTbodyHTML(datas, delimiter) {
         var tbody = "<tbody>";
         var i = loadArgs.useHeader() ? 1 : 0;
-        i += getSkipRows();
         for (j = 0, len = datas.length; i < len; i++, j++) {
             tbody += '<tr>' +
                         '<td class="lineMarker">' +
@@ -1626,6 +1625,9 @@ window.DSPreview = (function($, DSPreview) {
         if (i === dataLen && startIndex !== dataLen) {
             res.push(data.substring(startIndex, dataLen));
         }
+
+        var skipRows = getSkipRows();
+        res = res.slice(skipRows);
 
         return res;
     }
