@@ -78,7 +78,7 @@
         }
 
         b {
-            color: @color-text-blue;
+            color: @color-font-select-blue;
         }
     }
 
@@ -489,7 +489,7 @@
 
         .colsSelected {
             display: none;
-            color: @color-text-blue;
+            color: @color-font-select-blue;
             margin-left: 4%;
             max-width: ~"calc(100% - 130px)";
             .textOverflowOneLine;
@@ -633,7 +633,7 @@
         padding: 0px 10px 0px 10px;
 
         .text {
-            color: @color-text-blue;
+            color: @color-font-select-blue;
         }
 
         .tableName {
@@ -888,7 +888,8 @@
 
         .text {
             margin-left: 10px;
-            .font(@weight: bold, @size: 13px, @line-height: 25px, @color: @color-text-blue);
+            .font(@weight: bold, @size: 13px, @line-height: 25px,
+                @color: @color-font-select-blue);
         }
     }
 
@@ -1058,7 +1059,7 @@
                 .flex-display;
                 .justify-content(center);
                 .align-items(center);
-                .font(@weight: bold, @size: 14px, @color: @color-text-midGray);
+                .font(@weight: bold, @size: 14px);
                 .textOverflow;
                 white-space: nowrap;
 
@@ -1075,7 +1076,7 @@
 
                 &.active {
                     background-color: @color-bg-white-nine !important;
-                    color: @color-text-black;
+                    color: @color-black;
                 }
             }
         }
