@@ -139,14 +139,14 @@
     .bottomMenuBarTab {
         line-height: 15px;
         .size(@width: 100%, @height: @height-mainTab);
-    
+
         &:first-child {
             border-top: 1px solid @color-bg-dusk-blue;
         }
     }
 }
 
-// ========== start Top / Main Menu ======= 
+// ========== Start Top / Main Menu =======
 #mainMenu {
     .position(absolute, @left: @width-menuBar - @width-topMenu + 10, @bottom: 0px);
     .size(@width: @width-topMenu,  @height: ~"calc(100% - @{height-homeBtn})");
@@ -288,7 +288,7 @@
         }
     }
 }
-// ==========  end Top / Main Menu ======= 
+// ==========  End Top / Main Menu =======
 
 // special case
 #addWorksheet, #importDataButton {
@@ -441,7 +441,6 @@
             background-color: @color-bg-dusk-blue;
 
             &.active {
-                
                 background-color: @color-bg-light-navy;
             }
 
@@ -559,7 +558,7 @@
         z-index: 1;
         .noSelection;
         cursor: pointer;
-        
+
         .icon {
             .size(@width: 20px, @height: 20px);
             margin-top: 8px;
@@ -966,6 +965,7 @@
         background-color: @color-black;
         color: @color-white;
         font-size: 13px;
+        outline: none;
 
         &:focus {
             // background-color: @color-white;

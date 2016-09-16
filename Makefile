@@ -33,6 +33,7 @@ build: $(DESTDIR) generateHtml
 	cd $(DESTDIR) && mkdir -p prod/assets/stylesheets/css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/login.less > prod/assets/stylesheets/css/login.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/style.less > prod/assets/stylesheets/css/style.css
+	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/mcf.less > prod/assets/stylesheets/css/mcf.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/installer.less > prod/assets/stylesheets/css/installer.css
 	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
 	@rm -rf $(DESTDIR)/prod/assets/dev
