@@ -873,13 +873,38 @@
 }
 
 #udf-manager {
-    height: 100%;
+    .size(@height: 100%);
+
+    &.loading {
+        .udfListSection  {
+            pointer-events: none;
+        }
+
+        .refresh {
+            // disable refresh again
+            pointer-events: none;
+        }
+    }
+
     .titleSection {
         .size(@height: 40px);
         padding: 0 16px;
         .font(@size: 16px, @line-height: 40px, @color: @color-font-bright-light-blue);
         background-color: @color-bg-tiber-blue;
         box-shadow: inset 0 -1px 0 0 @color-border-light-navy;
+
+        header {
+            .size(@width: ~"calc(100% - 30px)");
+            float: left;
+        }
+
+        .icon {
+            display: block;
+            float: right;
+            .size(@width: 17px, @height: 17px);
+            color: @color-font-bright-light-blue;
+            .vertical-align;
+        }
     }
 
     .udfListSection {

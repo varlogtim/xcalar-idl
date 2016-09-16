@@ -76,7 +76,7 @@ window.UDF = (function($, UDF) {
             }
 
             updateUDF();
-            deferred.resolve();
+            deferred.resolve(listXdfsObj);
         })
         .fail(function(error) {
             updateUDF(); // stil update
@@ -273,7 +273,28 @@ window.UDF = (function($, UDF) {
                 }
             });
         });
+
+        $udfManager.on("click", ".refresh", function() {
+            refreshUDF();
+        });
         /* end of udf manager section */
+    }
+
+    function refreshUDF(isInBg) {
+        var $udfManager = $("#udf-manager");
+        $udfManager.addClass("loading");
+        if (!isInBg) {
+            xcHelper.showRefreshIcon($udfManager);
+        }
+
+        initializeUDFList()
+        .then(function(listXdfsObj) {
+            DSPreview.update(listXdfsObj);
+            FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
+        })
+        .always(function() {
+            $udfManager.removeClass("loading");
+        });
     }
 
     function updateUDF() {
@@ -401,24 +422,15 @@ window.UDF = (function($, UDF) {
     }
 
     function deleteUDF(moduleName) {
-        if (!storedUDF.hasOwnProperty(moduleName)) {
-            console.error("Delete UDF error");
-            return;
-        }
+        xcHelper.assert(storedUDF.hasOwnProperty(moduleName),
+                        "Delete UDF error");
 
         XcalarDeletePython(moduleName)
         .then(function() {
             delete storedUDF[moduleName];
             updateUDF();
 
-            XcalarListXdfs('*', 'User*')
-            .then(function(listXdfsObj) {
-                DSPreview.update(listXdfsObj);
-                FnBar.updateOperationsMap(moduleName, true);
-            })
-            .fail(function(error) {
-                console.error("List UDF Fails!", error);
-            });
+            refreshUDF(true);
 
             xcHelper.showSuccess();
         })
@@ -470,14 +482,7 @@ window.UDF = (function($, UDF) {
                 KVStore.commit();
                 xcHelper.showSuccess();
 
-                XcalarListXdfs('*', 'User*')
-                .then(function(listXdfsObj) {
-                    DSPreview.update(listXdfsObj);
-                    FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
-                })
-                .fail(function(error) {
-                    console.error("List UDF Fails!", error);
-                });
+                refreshUDF(true);
 
                 deferred.resolve();
             })
