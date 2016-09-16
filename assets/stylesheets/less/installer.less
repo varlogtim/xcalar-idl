@@ -258,9 +258,9 @@ input:-webkit-autofill:focus {
     .section {
         position: relative;
         font-size: 13px;
-        height: 45px;
         font-weight: 500;
         padding-left: 5%;
+        overflow: hidden;
 
         .bar {
             position: absolute;
@@ -316,7 +316,7 @@ input:-webkit-autofill:focus {
 
         .link {
             float: right;
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
         label {
@@ -538,9 +538,10 @@ input:-webkit-autofill:focus {
     }
 
     .buttonSection {
-        padding-right: 40px;
         margin-top: 0px;
-        display: inline;
+        overflow: hidden; // Clearfix da shit
+        height: auto;
+        width: 100%;
     }
 
     .part {
