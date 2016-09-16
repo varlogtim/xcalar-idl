@@ -307,7 +307,7 @@ window.DS = (function ($, DS) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.LoadFailed,
-                "error": error
+                "error"  : error
             });
 
             deferred.reject(error);
@@ -1012,9 +1012,9 @@ window.DS = (function ($, DS) {
             }
 
             xcHelper.dropdownOpen($target, $gridMenu, {
-                "mouseCoors"   : {"x": event.pageX, "y": event.pageY + 10},
-                "classes"      : classes,
-                "floating"     : true
+                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                "classes"   : classes,
+                "floating"  : true
             });
             return false;
         };

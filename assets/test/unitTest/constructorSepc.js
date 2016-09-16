@@ -974,15 +974,15 @@ describe('Constructor Test', function() {
 
             expect(dfg.parameters.length).to.equal(0);
             expect(dfg.getParameter('a')).not.to.be.exist;
-            expect(dfg.addParameter('a', 'b'));
-            expect(dfg.getParameter('a')).to.equal('b');
+            expect(dfg.addParameter('a'));
+            expect(dfg.getParameter('a')).to.be.null;
             var params = dfg.getAllParameters();
             expect(params.length).to.equal(1);
             expect(params[0]).to.be.an('object');
             expect(params[0]).to.have.property('parameterName')
             .and.to.equal('a');
             expect(params[0]).to.have.property('parameterValue')
-            .and.to.equal('b');
+            .and.to.be.null;
 
             dfg.updateParameters([{
                 'name': 'a',

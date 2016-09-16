@@ -175,14 +175,14 @@ window.FnBar = (function(FnBar, $) {
             udfMap = {};
             var op;
             for (var i = 0; i < opMap.length; i++) {
-                op = opMap[i]
+                op = opMap[i];
                 if (op.category === FunctionCategoryT.FunctionCategoryUdf) {
                     udfMap[op.fnName.toLowerCase()] = op;
-                } else if (op.category !== 
+                } else if (op.category !==
                             FunctionCategoryT.FunctionCategoryAggregate) {
                     xdfMap[op.fnName.toLowerCase()] = op;
                 }
-               
+
                 op.template = createFuncTemplate(op);
                 var secondTemplate = createSecondaryTemplate(op);
                 op.templateTwo = secondTemplate.template;
@@ -196,7 +196,7 @@ window.FnBar = (function(FnBar, $) {
             var argDesc;
             for (var j = 0; j < len; j++) {
                 argDesc = op.argDescs[j].argDesc;
-                fnTemplate += '<span class="argDesc">' +  argDesc + '</span>';
+                fnTemplate += '<span class="argDesc">' + argDesc + '</span>';
                 if (j + 1 < len) {
                     fnTemplate += ",";
                 }
@@ -216,8 +216,8 @@ window.FnBar = (function(FnBar, $) {
                     argDesc = argDesc = "arg" + (j + 1);
                 } else if (argDescSplit.length === 2) {
                     // camel case and join 2 words together
-                    argDesc = argDescSplit[0] + 
-                            argDescSplit[1][0].toUpperCase() + 
+                    argDesc = argDescSplit[0] +
+                            argDescSplit[1][0].toUpperCase() +
                             argDescSplit[1].slice(1);
                 }
                 argDescs.push(argDesc);
@@ -303,13 +303,13 @@ window.FnBar = (function(FnBar, $) {
 
         // set up codemirror autcomplete command
         CodeMirror.commands.autocomplete = function(cm) {
-            CodeMirror.showHint(cm, CodeMirror.hint.fnBarHint,  {
-                alignWithWord: true,
-                completeSingle: false,
+            CodeMirror.showHint(cm, CodeMirror.hint.fnBarHint, {
+                alignWithWord        : true,
+                completeSingle       : false,
                 completeOnSingleClick: true
             });
         };
-        var timer1;
+        // var timer1;
         // set up autcomplete hint function that filters matches
         CodeMirror.registerHelper("hint", "fnBarHint", function(editor) {
             var fullVal = editor.getValue();
@@ -320,7 +320,7 @@ window.FnBar = (function(FnBar, $) {
             var word = /[\w$:]+/;
             var cur = editor.getCursor();
             var fnBarText = editor.getLine(0);
-            var list = []
+            var list = [];
             var seen = {};
             var end = cur.ch;
             var start = end;
@@ -328,27 +328,25 @@ window.FnBar = (function(FnBar, $) {
                 ++end;
             }
             while (start && word.test(fnBarText.charAt(start - 1))) {
-                --start
-            };
-            var curWord = start != end && fnBarText.slice(start, end);
+                --start;
+            }
+            var curWord = (start !== end && fnBarText.slice(start, end));
             if (!curWord) {
                 if (onlyMainOperators) {
                     for (var i = 0; i < mainOperators.length; i++) {
                         seen[mainOperators[i]] = true;
-                        list.push({text: mainOperators[i] + "()", 
-                                  displayText: mainOperators[i],
-                                  hint: autcompleteSelect,
-                                  render: renderMainOpLi,
-                                  className: "operator mainOperator"
-                              });
+                        list.push({
+                            text       : mainOperators[i] + "()",
+                            displayText: mainOperators[i],
+                            hint       : autcompleteSelect,
+                            render     : renderMainOpLi,
+                            className  : "operator mainOperator"
+                        });
                     }
                 } else {
                     return;
                 }
             }
-
-
-
             // to find words in the editor
             // var re = new RegExp(word.source, "g");
             // var line = cur.line;
@@ -358,7 +356,7 @@ window.FnBar = (function(FnBar, $) {
             //         // ignore current word that is being compared
             //         continue;
             //     }
-            //     if ((curWord && m[0].lastIndexOf(curWord, 0) === 0) && 
+            //     if ((curWord && m[0].lastIndexOf(curWord, 0) === 0) &&
             //         !Object.prototype.hasOwnProperty.call(seen, m[0])) {
             //         seen[m[0]] = true;
             //         list.push(m[0]);
@@ -370,12 +368,13 @@ window.FnBar = (function(FnBar, $) {
                     if (!seen.hasOwnProperty(mainOperators[i]) &&
                         mainOperators[i].indexOf(curWord) !== -1) {
                         seen[mainOperators[i]] = true;
-                        list.push({text: mainOperators[i] + "()", 
-                                displayText: mainOperators[i],
-                                hint: autcompleteSelect,
-                                render: renderMainOpLi,
-                                className: "operator mainOperator"
-                              });
+                        list.push({
+                            text       : mainOperators[i] + "()",
+                            displayText: mainOperators[i],
+                            hint       : autcompleteSelect,
+                            render     : renderMainOpLi,
+                            className  : "operator mainOperator"
+                        });
                         break;
                     }
                 }
@@ -385,11 +384,12 @@ window.FnBar = (function(FnBar, $) {
                     if (!seen.hasOwnProperty(colNamesCache[i]) &&
                         colNamesCache[i].lastIndexOf(curWord, 0) === 0) {
                         seen[colNamesCache[i]] = true;
-                        list.push({text: colNamesCache[i],
-                                  displayText: colNamesCache[i],
-                                  render: renderList,
-                                  className: "colName"
-                              });
+                        list.push({
+                            text       : colNamesCache[i],
+                            displayText: colNamesCache[i],
+                            render     : renderList,
+                            className  : "colName"
+                        });
                     }
                 }
 
@@ -400,14 +400,16 @@ window.FnBar = (function(FnBar, $) {
                         if (fnName.lastIndexOf(curWord, 0) === 0 &&
                             !seen.hasOwnProperty(fnName)) {
                             seen[fnName] = true;
-                            list.push({text: xdfMap[fnName].fnName + "()", 
-                                        displayText: fnName,
-                                        template: xdfMap[fnName].template,
-                                        templateTwo: xdfMap[fnName].templateTwo,
-                                        argDescs: xdfMap[fnName].modArgDescs,
-                                        hint: autcompleteSelect,
-                                        render: renderOpLi,
-                                        className: "operator"});
+                            list.push({
+                                text       : xdfMap[fnName].fnName + "()",
+                                displayText: fnName,
+                                template   : xdfMap[fnName].template,
+                                templateTwo: xdfMap[fnName].templateTwo,
+                                argDescs   : xdfMap[fnName].modArgDescs,
+                                hint       : autcompleteSelect,
+                                render     : renderOpLi,
+                                className  : "operator"
+                            });
                         }
                     }
 
@@ -416,14 +418,16 @@ window.FnBar = (function(FnBar, $) {
                         if (fnName.lastIndexOf(curWord, 0) === 0 &&
                             !seen.hasOwnProperty(fnName)) {
                             seen[fnName] = true;
-                            list.push({text: udfMap[fnName].fnName + "()", 
-                                        displayText: fnName,
-                                        template: udfMap[fnName].template,
-                                        templateTwo: udfMap[fnName].templateTwo,
-                                        argDescs: udfMap[fnName].modArgDescs,
-                                        hint: autcompleteSelect,
-                                        render: renderOpLi,
-                                        className: "operator"});
+                            list.push({
+                                text       : udfMap[fnName].fnName + "()",
+                                displayText: fnName,
+                                template   : udfMap[fnName].template,
+                                templateTwo: udfMap[fnName].templateTwo,
+                                argDescs   : udfMap[fnName].modArgDescs,
+                                hint       : autcompleteSelect,
+                                render     : renderOpLi,
+                                className  : "operator"
+                            });
                         }
                     }
                 }
@@ -433,18 +437,20 @@ window.FnBar = (function(FnBar, $) {
             //     debugger;
             // }, 2000);
             list.sort(function(a, b) {
-               return a.displayText.length - b.displayText.length;
+                return a.displayText.length - b.displayText.length;
             });
-            return ({list: list, 
-                    from: CodeMirror.Pos(0, start), 
-                    to: CodeMirror.Pos(0, end)});
+            return ({
+                list: list,
+                from: CodeMirror.Pos(0, start),
+                to  : CodeMirror.Pos(0, end)
+            });
         });
     
 
         function autcompleteSelect(cm, data, completion) {
             var text = completion.templateTwo || completion.text;
             cm.replaceRange(text, data.from, data.to, "complete");
-            var firstStartIndex;
+            // var firstStartIndex;
             var firstEndIndex;
 
             // highlight arguments and place cursor right after the end of the
@@ -456,11 +462,11 @@ window.FnBar = (function(FnBar, $) {
                     arg = completion.argDescs[i];
                     start = text.indexOf(arg, start);
                     if (!firstEndIndex && arg.length) {
-                        firstStartIndex = data.from.ch + start;
+                        // firstStartIndex = data.from.ch + start;
                         firstEndIndex = data.from.ch + start + arg.length;
                     }
-                    cm.markText({line: 0, ch: data.from.ch + start}, 
-                        {line: 0, ch: data.from.ch + start + arg.length}, 
+                    cm.markText({line: 0, ch: data.from.ch + start},
+                        {line: 0, ch: data.from.ch + start + arg.length},
                         {className: "argDesc", atomic: true});
                 }
             }
@@ -476,8 +482,11 @@ window.FnBar = (function(FnBar, $) {
         }
 
         function renderMainOpLi(el, data, cur) {
-            el.innerHTML = '<span class="displayText">' + cur.displayText +
-                          '</span><span class="template">' + cur.text + 
+            el.innerHTML = '<span class="displayText">' +
+                                cur.displayText +
+                            '</span>' +
+                            '<span class="template">' +
+                                cur.text +
                           '</span>';
         }
 
