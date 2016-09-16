@@ -132,6 +132,7 @@ describe('Workbook Test', function() {
             .then(function() {
                 var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
                 var dupName = $dupBox.find(".workbookName").val();
+                console.log(dupName, name);
                 expect(dupName.startsWith(name)).to.be.true;
                 expect($dupBox.find(".numWorksheets").text()).to.equal("1");
                 expect($dupBox.find(".isActive").text()).to.equal("Inactive");

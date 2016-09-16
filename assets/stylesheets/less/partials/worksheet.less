@@ -834,6 +834,12 @@ ul.CodeMirror-hints {
             float: right;
             cursor: pointer;
             opacity: @opacity-unhover;
+            // larger clickable area
+            .size(25px, 25px);
+            line-height: 25px;
+            margin-top: -5px;
+            margin-right: -5px;
+            text-align: center;
 
             &:hover {
                 opacity: @opacity-hover;

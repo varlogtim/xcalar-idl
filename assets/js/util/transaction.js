@@ -39,7 +39,8 @@ window.Transaction = (function(Transaction, $) {
             }
             var queryOptions = {
                 numSteps  : numSubQueries,
-                cancelable: options.cancelable
+                cancelable: options.cancelable,
+                exportName: options.exportName
             };
             
             QueryManager.addQuery(curId, operation, queryOptions);
@@ -216,8 +217,12 @@ window.Transaction = (function(Transaction, $) {
 
     Transaction.startSubQuery = function(txId, name, dstTable, query) {
         var subQueries = xcHelper.parseQuery(query);
-        if (dstTable && subQueries.length === 1) {
-            QueryManager.addSubQuery(txId, name, dstTable, query);
+        if (dstTable && subQueries.length === 1) { 
+            var options = {
+                exportFileName : subQueries[0].exportFileName
+            };
+            QueryManager.addSubQuery(txId, name, dstTable, query, null,
+                                    options);
         } else if (subQueries.length) {
             for (var i = 0; i < subQueries.length; i++) {
                 QueryManager.addSubQuery(txId, subQueries[i].name,

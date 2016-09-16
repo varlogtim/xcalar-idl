@@ -804,11 +804,11 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
 
      
         var def2 = XcalarGetQuery(workItem);
-        // XX query status not yet available for export
-        // def2.then(function(ret) {
-        //     console.log(ret);
-        //     Transaction.startSubQuery(txId, 'Export', null, ret);
-        // });
+        def2.then(function(query) {
+            Transaction.startSubQuery(txId, 'Export', options.handleName,
+                                      query);
+        });
+
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
             if (Transaction.checkAndSetCanceled(txId)) {

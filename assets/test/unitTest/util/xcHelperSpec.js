@@ -947,9 +947,10 @@ describe('xcHelper Test', function() {
         var fourthPart = 'load --url "nfs:///schedule/" --format json ' +
                          '--size 0B --name "f264.schedule";';
         var fifthPart = '   '; // blank
+        
 
         var query =  firstPart + secondPart + thirdPart + fourthPart + fifthPart;
-                    
+            
         var parsedQuery = xcHelper.parseQuery(query);
         expect(parsedQuery).to.be.an("array");
         expect(parsedQuery).to.have.lengthOf(4); // should exclude the blank
@@ -968,6 +969,23 @@ describe('xcHelper Test', function() {
         expect(parsedQuery[1].query).to.equal(secondPart.slice(0,-1));
         expect(parsedQuery[2].query).to.equal(thirdPart.slice(0,-1));
         expect(parsedQuery[3].query).to.equal(fourthPart.slice(0,-1));
+
+        // export
+        var sixthPart = 'export --targetType file --tableName A#dl4 ' +
+                        '--targetName Default --exportName B#dl5 ' +
+                        '--createRule --columnsNames class_id;time; ' +
+                        '--headerColumnsNames class_id;time; --format csv ' +
+                        '--fileName C.csv  --fieldDelim   --recordDelim b ' +
+                        '--quoteDelim';
+
+        var parsedQuery = xcHelper.parseQuery(sixthPart);
+        expect(parsedQuery).to.be.an("array");
+        expect(parsedQuery).to.have.lengthOf(1);
+
+        expect(parsedQuery[0].name).to.equal("export");
+        expect(parsedQuery[0].dstTable).to.equal("B#dl5");
+        expect(parsedQuery[0].exportFileName).to.equal("C.csv");
+        expect(parsedQuery[0].query).to.equal(sixthPart);
 
     });
 

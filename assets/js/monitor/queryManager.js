@@ -73,14 +73,16 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     // queryName will be empty if subquery doesn't belong to a xcalarQuery
-    QueryManager.addSubQuery = function(id, name, dstTable, query, queryName) {
+    // options = {exportFileName: string}
+    QueryManager.addSubQuery = function(id, name, dstTable, query, queryName,
+                                       options) {
         if (!queryLists[id] || Transaction.checkCanceled(id)) {
             // console.log("QueryHasBeenCancelled");
             return;
         }
         var mainQuery = queryLists[id];
         var time = new Date().getTime();
-
+        options = options || {};
         var subQuery = new XcSubQuery({
             "name"     : name,
             "time"     : time,
@@ -88,7 +90,8 @@ window.QueryManager = (function(QueryManager, $) {
             "dstTable" : dstTable,
             "id"       : id,
             "index"    : mainQuery.subQueries.length,
-            "queryName": queryName
+            "queryName": queryName,
+            "exportFileName": options.exportFileName
         });
         mainQuery.addSubQuery(subQuery);
         if (mainQuery.currStep === mainQuery.subQueries.length - 1) {
@@ -111,7 +114,12 @@ window.QueryManager = (function(QueryManager, $) {
 
         var mainQuery = queryLists[id];
         mainQuery.state = "done";
-        mainQuery.outputTableState = "active";
+        if (mainQuery.name === "exportTable") {
+            mainQuery.outputTableState = "exported";
+        } else {
+            mainQuery.outputTableState = "active";
+        }
+        
         mainQuery.setElapsedTime();
         clearInterval(queryCheckLists[id]);
         updateQueryBar(id, 100);
@@ -613,7 +621,8 @@ window.QueryManager = (function(QueryManager, $) {
 
     function updateQueryTextDisplay(query) {
         var queryString = "";
-        if (query) {
+        if (query && query.trim().indexOf('export') !== 0) {
+            // export has semicolons between colnames and breaks most rules
             // xx if semi-colon is in quotes split won't work properly
             var querySplit = query.split(";");
             for (var i = 0; i < querySplit.length; i++) {
@@ -624,7 +633,7 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             }
         } else {
-            queryString = query;
+            queryString = '<div class="queryRow">' + query + '</div>';
         }
         $queryDetail.find(".operationSection .content").html(queryString);
     }
@@ -679,10 +688,16 @@ window.QueryManager = (function(QueryManager, $) {
         var mainQuery = queryLists[id];
         var queryState = mainQuery.getState();
         var dstTableState = mainQuery.getOutputTableState();
-        if (queryState === "done" && dstTableState === "active" &&
+        if (queryState === "done" && 
+            (dstTableState === "active" || dstTableState === "exported") &&
             mainQuery.getOutputTableName()) {
             var dstTableName = mainQuery.getOutputTableName();
-            $("#monitor-inspect").removeClass('btn-disabled');
+
+            if (dstTableState === "exported") {
+                $("#monitor-inspect").addClass('btn-disabled');
+            } else {
+                $("#monitor-inspect").removeClass('btn-disabled');
+            }
             
             if (dstTableName.indexOf(gDSPrefix) < 0) {
                 $queryDetail.find('.outputSection').find('.text')
@@ -691,6 +706,7 @@ window.QueryManager = (function(QueryManager, $) {
                 $queryDetail.find('.outputSection').find('.text')
                             .text(dstTableName.slice(gDSPrefix.length));
             }
+            
         } else {
             $("#monitor-inspect").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')

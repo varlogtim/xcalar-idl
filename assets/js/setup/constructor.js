@@ -2322,7 +2322,13 @@ XcQuery.prototype = {
                              this.name);
                 return null;
             } else {
-                return (this.subQueries[this.subQueries.length - 1].dstTable);
+                var lastSubQuery = this.subQueries[this.subQueries.length - 1];
+                if (this.outputTableState === "exported") {
+                    return (lastSubQuery.exportFileName);
+                } else {
+                    return (lastSubQuery.dstTable);
+                }
+                
             }
         } else {
             return null;
@@ -2393,6 +2399,9 @@ function XcSubQuery(options) {
         this.state = QueryStateT.qrNotStarted;
     } else {
         this.state = options.state;
+    }
+    if (options.exportFileName) {
+        this.exportFileName = options.exportFileName;
     }
 
     return this;

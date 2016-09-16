@@ -2012,11 +2012,12 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    // XX Not tested in unit test
     // used to split query into array of subqueries by semicolons
     // XX not checking for /n or /r delimiter, just semicolon
     // returns array of objects, objects contain query, name, and dstTable
-    xcHelper.parseQuery = function(query) {
+    // options: {}, isExport: boolean, 
+    xcHelper.parseQuery = function(query, options) {
+        options = options || {};
         var tempString = "";
         var inQuotes = false;
         var singleQuote = false;
@@ -2024,7 +2025,8 @@ window.xcHelper = (function($, xcHelper) {
         var queries = [];
         var subQuery;
         var operationName;
-
+        var isExport = query.trim().indexOf('export') === 0;
+          // export has semicolons between colnames and breaks most rules
         for (var i = 0; i < query.length; i++) {
             if (isEscaped) {
                 tempString += query[i];
@@ -2053,7 +2055,7 @@ window.xcHelper = (function($, xcHelper) {
             } else if (inQuotes) {
                 tempString += query[i];
             } else {
-                if (query[i] === ";") {
+                if (query[i] === ";" && !isExport) {
                     tempString = tempString.trim();
                     operationName = tempString.split(" ")[0];
                     subQuery = {
@@ -2083,6 +2085,9 @@ window.xcHelper = (function($, xcHelper) {
                 "srcTables": getSrcTableFromQuery(tempString, operationName),
                 "dstTable" : getDstTableFromQuery(tempString, operationName)
             };
+            if (isExport) {
+                subQuery.exportFileName = getExportFileNameFromQuery(tempString);
+            }
             queries.push(subQuery);
         }
 
@@ -2122,11 +2127,13 @@ window.xcHelper = (function($, xcHelper) {
 
     function getDstTableFromQuery(query, type) {
         var keyWord = "--dsttable";
-        
+
         if (type === "join") {
             keyWord = "--joinTable";
         } else if (type === "load") {
             keyWord = "--name";
+        } else if (type === "export") {
+            keyWord = "--exportName";
         }
 
         var index = getKeyWordIndexFromQuery(query, keyWord);
@@ -2143,6 +2150,19 @@ window.xcHelper = (function($, xcHelper) {
             tableName = gDSPrefix + tableName;
         }
         return (tableName);
+    }
+
+    function getExportFileNameFromQuery(query) {
+       var keyWord = "--fileName";
+
+        var index = getKeyWordIndexFromQuery(query, keyWord);
+        if (index === -1) {
+            return null;
+        }
+
+        index += keyWord.length;
+        query = query.slice(index).trim();
+        return (parseSearchTerm(query));
     }
 
     // if passing in "tableNa\"me", will return tableNa\me and not tableNa

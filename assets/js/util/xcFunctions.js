@@ -749,7 +749,10 @@ window.xcFunction = (function($, xcFunction) {
         if (!retName || retName === "") {
             retName = "testing";
         }
-
+        options = options || {};
+        // XXX GUI-5271
+        options.handleName = tableName.split("#")[0] +
+                             Authentication.getHashId();
         // now disable retName
         // var fileName = retName + ".csv";
         // var location = hostname + ":/var/tmp/xcalar/" + exportName;
@@ -769,12 +772,12 @@ window.xcFunction = (function($, xcFunction) {
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.ExportTable + ": " + tableName,
             "operation": SQLOps.ExportTable,
-            "sql"      : sql
+            "sql"      : sql,
+            "steps"    : 1, // xx is it possible to be multiple steps?
+            // "exportName": options.handleName
         });
 
-        // XXX GUI-5271
-        options.handleName = tableName.split("#")[0] +
-                             Authentication.getHashId();
+        
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
                      frontColumns, keepOrder, options, txId)
