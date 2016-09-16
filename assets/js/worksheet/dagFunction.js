@@ -610,7 +610,8 @@ window.DagFunction = (function($, DagFunction) {
             leftOrigin = null;
             rightOrigin = null;
             endPoints.push(treeNode);
-        } else if (node.api === XcalarApisT.XcalarApiIndex) {
+        } else if (node.api === XcalarApisT.XcalarApiIndex ||
+                   node.api === XcalarApisT.XcalarApiExecuteRetina) {
             // Index
             leftOrigin = node.struct.source.xid;
             rightOrigin = null;
