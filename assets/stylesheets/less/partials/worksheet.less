@@ -517,15 +517,21 @@ ul.CodeMirror-hints {
     border-radius: 0px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
     border: 0px;
-    border-top: 1px solid @color-bg-pinkish-grey2;
     font-family: @font-base;
     margin-top: -3px;
+    z-index: @z-index-bottomMenu + 1;
+    background: transparent;
     .CodeMirror-hint {
+        &:first-child {
+            border-top: 1px solid @color-bg-pinkish-grey2;
+        }
+        font-size: 13px;
         color: @color-font-darkGray;
         border-radius: 0px;
         width: 100%;
         max-width: 400px;
         padding: 2px 0px 2px 4px;
+        background-color: @color-white;
         .textOverflowOneLine;
         .flex-display;
         .justify-content(space-between);

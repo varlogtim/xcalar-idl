@@ -104,6 +104,8 @@ window.UDF = (function($, UDF) {
             "autoCloseBrackets": true
         });
 
+        setupAutocomplete(editor);
+
         editor.setValue(udfDefault);
 
         var waiting;
@@ -278,6 +280,28 @@ window.UDF = (function($, UDF) {
             refreshUDF();
         });
         /* end of udf manager section */
+    }
+
+    function setupAutocomplete(editor) {
+        var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
+                            keyCode.Up, keyCode.Tab, keyCode.Enter];
+
+        // trigger autcomplete menu on keyup, except when keysToIgnore
+        editor.on("keyup", function(cm, e) {
+            var val = editor.getValue().trim();
+            if (keysToIgnore.indexOf(e.keyCode) < 0) {
+                editor.execCommand("autocompleteUDF");
+            }
+        });
+
+        // set up codemirror autcomplete command
+        CodeMirror.commands.autocompleteUDF = function(cm) {
+            CodeMirror.showHint(cm, CodeMirror.pythonHint, {
+                alignWithWord        : true,
+                completeSingle       : false,
+                completeOnSingleClick: true
+            });
+        };
     }
 
     function refreshUDF(isInBg) {
