@@ -28112,15 +28112,15 @@ WorkItem = function() {
     return (workItem);
 }
 
-function xcalarConnectThrift(hostname, port) {
+function xcalarConnectThrift(hostname) {
     // protocol needs to be part of hostname
     // If not it's assumed ot be http://
 
+    // If you have special ports, it needs to be part of the hostname
     if (hostname.indexOf("http") === -1) {
         hostname = "http://" + hostname;
     }
-    var thriftUrl = hostname + ":" + port.toString() +
-        "/thrift/service/XcalarApiService/";
+    var thriftUrl = hostname + "/thrift/service/XcalarApiService/";
 
     console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")")
 
@@ -34727,7 +34727,7 @@ function xcalarApiListFuncTest(thriftHandle, namePattern) {
     var port = content.slice(content.indexOf('Thrift.Port'))
     port = port.slice(port.indexOf('=') + 1, port.indexOf('\n'))
 
-    thriftHandle   = xcalarConnectThrift("localhost", port);
+    thriftHandle   = xcalarConnectThrift("localhost:"+port);
     loadArgs       = null;
     loadOutput     = null;
     origDataset    = null;

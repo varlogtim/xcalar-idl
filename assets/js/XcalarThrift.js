@@ -2,32 +2,12 @@ var tHandle;
 
 function setupThrift() {
     setupHostName();
-    if (!window.portNumber) {
-        portNumber = 80;
-    }
-    tHandle = xcalarConnectThrift(hostname, portNumber.toString());
+    tHandle = xcalarConnectThrift(hostname);
 }
 
 function setupHostName() {
     if (window.hostname == null || window.hostname === "") {
-        try {
-            var url = window.location.href;
-            var lastBackSlash = url.lastIndexOf("/");
-            url = url.substring(0, lastBackSlash);
-
-            if (url.indexOf("http") === -1) {
-                url = "http://" + url;
-            }
-            var portIndex = url.indexOf(":", 6);
-            if (portIndex === -1) {
-                window.hostname = url;
-            } else {
-                window.hostname = url.substring(0, portIndex);
-                window.portNumber = url.substring(portIndex+1, url.length);
-            }
-        } catch (error) {
-            console.error(error);
-        }
+        hostname = window.location.href;
     }
 }
 // for convenience, add the function list here and make them

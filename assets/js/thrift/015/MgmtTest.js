@@ -700,9 +700,9 @@
                 node = listTablesOutput.nodeInfo[i];
                 console.log("\ttable[" + i.toString() + "].tableName = " + node.name);
                 console.log("\ttable[" + i.toString() + "].tableId = " +
-                    node.dagNodeId.toString());
+                            node.dagNodeId);
                 console.log("\ttable[" + i.toString() + "].state = " +
-                    node.state.toString());
+                            node.state.toString());
                 if (node.name === origTable && node.size > 0) {
                     foundVotesFunny = true;
                 }
