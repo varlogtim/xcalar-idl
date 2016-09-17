@@ -429,49 +429,6 @@
             }
         }
     }
-
-    .scheduleListArea {
-        .position(relative);
-
-        .icon {
-            line-height: @listHeight;
-        }
-        .scheduleList { // li
-            padding-left: 15px;
-            background-color: @color-bg-dusk-blue;
-
-            &.active {
-                background-color: @color-bg-light-navy;
-            }
-
-            &:hover {
-                opacity: @opacity-hover;
-            }
-
-            .iconWrap {
-                .size(@width: 20px, @height: 100%);
-                float: left;
-                text-align: center;
-
-                .icon {
-                }
-            }
-
-            .scheduleName {
-                .size(@width: ~"calc(100% - 50px)");
-                float: left;
-                padding-left: 10px;
-                text-align: left;
-                .textOverflowOneLine;
-            }
-
-            .deleteSchedule {
-                margin-top: 1px;
-                opacity: @opacity-disabled;
-                float: right;
-            }
-        }
-    }
 }
 // ========== Bottom Menu ==========
 #bottomMenu {

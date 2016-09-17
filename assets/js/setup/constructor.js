@@ -611,7 +611,6 @@ function getEMetaKeys() {
 function EMetaConstructor(EMetaKeys) {
     EMetaKeys = EMetaKeys || {};
     this[EMetaKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
-    this[EMetaKeys.SCHE] = Scheduler.getAllSchedules(); // list of SchedObj
     return this;
 }
 
@@ -1720,8 +1719,7 @@ DFGObj.prototype = {
             }
         }
 
-        // JJJ: May not be necessary
-        $('#schedulerPanel').find('[data-table="' + tableName + '"]')
+        $('#dataflowPanel').find('[data-table="' + tableName + '"]')
                             .addClass('hasParam');
     },
 

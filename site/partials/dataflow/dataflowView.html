@@ -47,13 +47,12 @@
     <header class="cardHeader">
       <div class="leftSection">
         <h2 class="title"></h2>
-        <div class="schedulesList"></div>
       </div>
       <!-- Retina Tab Section -->
       <div class="retTabSection no-selection hidden">
         <div class="retTab">
           <div class="tabWrap btn">
-            <span class="retTitle"><%= dicts.sched.params %></span>
+            <span class="retTitle"><%= dicts.dataflow.params %></span>
             <div class="caret">
               <i class="icon fa-10 xi-arrow-down"></i>
             </div>
@@ -61,16 +60,16 @@
           <!-- retPopUp -->
           <div class="retPopUp retinaParameter">
             <div class="inputSection">
-              <input class="newParam" type="text" placeholder="<%= dicts.sched.inputNewParam %>" spellcheck="false">
+              <input class="newParam" type="text" placeholder="<%= dicts.dataflow.inputNewParam %>" spellcheck="false">
               <button class="btn iconBtn addParam">
                 <i class="icon fa-18 xi-add-parameters"></i>
-                <%= dicts.sched.newParam %>
+                <%= dicts.dataflow.newParam %>
               </button>
             </div>
             <div class="tableHeader">
-              <div class="cell paramNameWrap"><%= dicts.sched.param %></div>
-              <div class="cell paramValWrap"><%= dicts.sched.val %></div>
-              <div class="cell paramActionWrap"><%= dicts.sched.action %></div>
+              <div class="cell paramNameWrap"><%= dicts.dataflow.param %></div>
+              <div class="cell paramValWrap"><%= dicts.dataflow.val %></div>
+              <div class="cell paramActionWrap"><%= dicts.dataflow.action %></div>
             </div>
             <div class="tableContainer">
               <div id="retLists" class="tableWrapper"></div>

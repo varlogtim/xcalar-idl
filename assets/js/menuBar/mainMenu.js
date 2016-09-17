@@ -222,7 +222,7 @@ window.MainMenu = (function($, MainMenu) {
                 WSManager.focusOnWorksheet();
                 break;
             case ("dataflowTab"):
-                $('#schedulerPanel').addClass("active");
+                $('#dataflowPanel').addClass("active");
                 DataflowPanel.active();
                 break;
             case ("dataStoresTab"):

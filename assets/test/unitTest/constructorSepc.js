@@ -773,49 +773,6 @@ describe('Constructor Test', function() {
         });
     });
 
-    describe('SchedObj Constructor Test', function() {
-        it('SchedDFGInfo should be a constructor', function() {
-            var dfgInfo = new SchedDFGInfo({
-                'name'         : 'dfg',
-                'backSchedName': 'backDFG',
-                'initialTime'  : 123,
-            });
-
-            expect(dfgInfo).to.be.an('object');
-            expect(Object.keys(dfgInfo).length).to.equal(4);
-            expect(dfgInfo).to.have.property('name').and.to.equal('dfg');
-            expect(dfgInfo).to.have.property('backSchedName').and.to.equal('backDFG');
-            expect(dfgInfo).to.have.property('initialTime').and.to.equal(123);
-            expect(dfgInfo).to.have.property('status').and.to.equal('normal');
-        });
-
-        it('SchedObj should be a constructor', function() {
-            var sched = new SchedObj({'name': 'testSchedule'});
-            expect(sched).to.be.an('object');
-
-            sched.update({'startTime': 123});
-            expect(sched.startTime).to.equal(123);
-
-            expect(sched.getDFG('dfg')).not.to.be.exist;
-            expect(sched.hasDFG('dfg')).to.be.false;
-
-            sched.addDFG({
-                'name'         : 'dfg',
-                'backSchedName': 'backDFG',
-                'initialTime'  : 123,
-            });
-
-            expect(sched.hasDFG('dfg')).to.be.true;
-            sched.updateDFG('dfg', {'initialTime': 456});
-            var dfg = sched.getDFG('dfg');
-            expect(dfg).to.be.exist;
-            expect(dfg.initialTime).to.be.equal(456);
-
-            sched.removeDFG('dfg');
-            expect(sched.hasDFG('dfg')).to.be.false;
-        });
-    });
-
     describe('DFG Constructor Test', function() {
         var expandInfo;
         var opsInfo;
@@ -1000,20 +957,6 @@ describe('Constructor Test', function() {
 
             dfg.removeParameter('a');
             expect(dfg.getParameter('a')).not.to.be.exist;
-        });
-
-        it('DFG should add Schedule', function() {
-            var dfg = new DFGObj('testDFG');
-            expect(dfg).to.have.property('schedules')
-            .and.to.an('Array');
-
-            expect(dfg.schedules.length).to.equal(0);
-
-            expect(dfg.hasSchedule('testSched')).to.be.false;
-            dfg.addSchedule('testSched');
-            expect(dfg.hasSchedule('testSched')).to.be.true;
-            dfg.removeSchedule('testSched');
-            expect(dfg.hasSchedule('testSched')).to.be.false;
         });
     });
 

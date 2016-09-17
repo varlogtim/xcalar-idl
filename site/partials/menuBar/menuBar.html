@@ -122,16 +122,13 @@
     </div>
     <% } %>
 
-    <!-- scheduler tab -->
+    <!-- dataflow tab -->
     <div id="dataflowTab" class="topMenuBarTab mainMenuOpen" <%= (dicts.tutor.name == 'workbookDemo') ? 'data-introstep="w1-df"' : '' %> >
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.schde %>">
-        <i class="icon xi-menu-scheduler fa-20"></i>
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfgs %>">
+        <i class="icon xi-dataflow fa-20"></i>
       </div>
-      <div id="dataflowButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.sched.dfgs %>">
+      <div id="dataflowButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfgs %>">
         <i class="icon xi-dataflowgroup"></i>
-      </div>
-      <div id="schedulesButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.sched.scheds %>">
-        <i class="icon xi-schedules"></i>
       </div>
     </div>
   </div>

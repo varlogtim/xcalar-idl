@@ -73,7 +73,6 @@ TooltipTStr = {
     'ViewTableOptions': 'View table options',
     'RemoveQuery': 'Remove query',
     'CancelQuery': 'Cancel query',
-    'NeedCreateSchedule': 'Click on the schedule icon to attach a schedule',
     'AlreadyIcv': 'This table is already an ICV table',
     // Sync with htmlTStr
     "IcvRestriction": 'ICV only available for Map and Group By',
@@ -152,8 +151,6 @@ ErrTStr = {
     'ColumnConflict': 'A column with the same name already exists, ' +
                         'please choose another name.',
     'DFGConflict': 'A dataflow with the same name already exists, ' +
-                            'please choose another name.',
-    'ScheduleConflict': 'Schedule with the same name already exists, ' +
                             'please choose another name.',
     'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
                         'worksheet from the pop up list.',
@@ -409,16 +406,6 @@ MonitorTStr = {
     'Ext': 'Extension'
 };
 
-SchedTStr = {
-    'SelectSched': 'Select a schedule',
-    'NoScheds': 'No available schedules',
-    'AddSchedFail': 'Add schedule failed',
-    'UpdateFail': 'Update Schedule Failed',
-    'NotScheduled': 'not scheduled',
-    'Scheduled': 'scheduled',
-    "SchedTitle": "SCHEDULER/SCHEDULES"
-};
-
 DFGTStr = {
     'AddParamHint': 'Please create parameters in Dataflow Panel first.',
     'DFCreateFail': 'Dataflow Creation Failed',
@@ -429,7 +416,7 @@ DFGTStr = {
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran DFG!',
     'RunFail': 'Run DFG Failed',
-    "DFGTitle": "SCHEDULER/DATAFLOW",
+    "DFGTitle": "DATAFLOW",
     "PointTo": "File Path",
     "ExportTo": "Export As",
     "DelDFG": "Permanently Delete Dataflow",

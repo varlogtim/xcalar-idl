@@ -679,9 +679,6 @@ window.DFGParamModal = (function($, DFGParamModal){
 
             DFGCard.updateRetinaTab(retName);
 
-            return dfg.updateSchedule();
-        })
-        .then(function() {
             // this marks that the update retina is done
             dfg.addRetinaNode(dagNodeId, curParamInfo);
             KVStore.commit();
