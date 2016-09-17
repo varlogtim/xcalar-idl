@@ -866,6 +866,20 @@
     }
 }
 
+.xc-worksheetList {
+    li {
+        padding-right: 25px !important;
+        .position(relative);
+
+        .icon {
+            .size(@width: 14px);
+            .vertical-align;
+            .position(absolute, @right: 10px);
+            .font(@size: 14px, @color: @color-font-gray36);
+        }
+    }
+}
+
 .xc-expand-list {
     &.active {
         .expand {

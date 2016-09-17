@@ -422,7 +422,6 @@ body {
     .position(absolute, @bottom: 0);
     .size(@width: @width-mainPanel, @height: @height-bottomBar);
     margin-left:  @width-sideMenuMinimized + @width-menuBar;
-    overflow-x: hidden;
     background-color: @color-bg-topBarGray;
     .noSelection;
     z-index: @z-index-statusBar;
@@ -503,9 +502,7 @@ body {
         }
 
         .icon {
-            display: inline-block;
-            float: right;
-            font-size: 18px;
+            .font(@size: 18px, @color: @color-white);
         }
     }
 

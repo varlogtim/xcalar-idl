@@ -146,12 +146,6 @@ window.TblMenu = (function(TblMenu, $) {
             $list.empty().append(WSManager.getWSLists(false));
         });
 
-
-        $tableMenu.on('mouseenter', '.dupToWorksheet', function() {
-            var $list = $(this).find(".list");
-            $list.empty().append(WSManager.getWSLists(true));
-        });
-
         $tableMenu.on('mouseup', '.createDf', function(event) {
             if (event.which !== 1) {
                 return;
@@ -206,59 +200,6 @@ window.TblMenu = (function(TblMenu, $) {
                 closeMenu($allMenus);
             }
         });
-
-        // XXX Temporary disable it
-        // $tableMenu.on('keypress', '.dupToWorksheet input', function(event) {
-        //     if (event.which === keyCode.Enter) {
-        //         var $li = $(this).closest(".dupToWorksheet");
-        //         // there are two inputs in the sectin, so not use $(this)
-        //         var $wsInput        = $li.find(".wsName");
-        //         var $tableNameInput = $li.find(".tableName");
-        //         // validation check
-        //         var isValid = xcHelper.validate([
-        //             { "$selector": $wsInput
-        //             },
-        //             { "$selector": $tableNameInput
-        //             }
-        //         ]);
-
-        //         if (!isValid) {
-        //             return false;
-        //         }
-
-        //         var wsName       = $wsInput.val().trim();
-        //         var newTableName = $tableNameInput.val().trim();
-
-        //         var $option = $li.find(".list li").filter(function() {
-        //             return ($(this).text() === wsName);
-        //         });
-        //         // XXX also need to check table name conflict
-        //         isValid = xcHelper.validate({
-        //             "$selector": $wsInput,
-        //             "text"     : ErrTStr.InvalidWSInList,
-        //             "check"    : function() {
-        //                 return ($option.length === 0);
-        //             }
-        //         });
-
-        //         if (!isValid) {
-        //             return false;
-        //         }
-        //         var tableId = $tableMenu.data('tableId');
-        //         var table = gTables[tableId];
-        //         var wsId = $option.data("ws");
-
-        //         WSManager.copyTable(table.tableName, newTableName, wsId);
-
-        //         $wsInput.val("");
-        //         $wsInput.blur();
-
-        //         $tableNameInput.val(xcHelper.randName(table.tableName, undefined,
-        //                                               true));
-        //         $tableNameInput.blur();
-        //         closeMenu($allMenus);
-        //     }
-        // });
 
         $subMenu.on('mouseup', '.sortForward', function(event) {
             if (event.which !== 1) {
