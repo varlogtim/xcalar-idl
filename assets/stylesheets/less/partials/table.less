@@ -16,6 +16,18 @@ html.firefox, html.microsoft {
             }
         }
     }
+
+    .xcTableWrap {
+        &.tableLocked, &.jsonModalOpen {
+            .xcTbodyWrap {
+                // overflow hidden prevents scrolling but breaks styling
+                // in firefox and microsoft
+                overflow-x: hidden;
+                overflow-y: scroll;
+            }
+        }
+    }
+
 }
 
 html.edge {

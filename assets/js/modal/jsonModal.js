@@ -1275,6 +1275,7 @@ window.JSONModal = (function($, JSONModal) {
                   .removeClass('modalHighlighted jsonModalOpen');
             $('.modalOpen').removeClass('modalOpen');
             $('.tableCover.jsonCover').remove();
+            $tableWrap.find('.xcTbodyWrap').off('scroll.preventScrolling');
         } else {
             if (isDataCol) {
                 $tableWrap = $('.xcTableWrap:visible:not(.tableLocked)')
@@ -1295,6 +1296,15 @@ window.JSONModal = (function($, JSONModal) {
 
                 $tableWrap.find('.tableCover.jsonCover').addClass('visible');
                 $jsonModal.addClass('hidden').show();
+                // prevent vertical scrolling on the table
+                $tableWrap.find('.xcTbodyWrap').each(function() {
+                    var $tbody = $(this);
+                    var scrollTop = $tbody.scrollTop();
+                    $tbody.on('scroll.preventScrolling', function() {
+                        $tbody.scrollTop(scrollTop); 
+                    });
+                });
+
                 var hiddenClassTimer = 50;
                 if (noTimer) {
                     hiddenClassTimer = 0;
@@ -1319,6 +1329,15 @@ window.JSONModal = (function($, JSONModal) {
                 $jsonTd.addClass('modalHighlighted');
                 setTimeout(function() {
                     $jsonTd.addClass('jsonModalOpen');
+                });
+
+                // prevent vertical scrolling on the table
+                $jsonTd.closest('.xcTbodyWrap').each(function() {
+                    var $tbody = $(this);
+                    var scrollTop = $tbody.scrollTop();
+                    $tbody.on('scroll.preventScrolling', function() {
+                       $tbody.scrollTop(scrollTop); 
+                    });
                 });
             }
         }

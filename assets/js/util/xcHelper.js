@@ -1178,6 +1178,13 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.find('.tableCover').height(tbodyHeight);
             $('#rowScroller-' + tableId).addClass('locked');
             moveTableTitles();
+
+            // prevent vertical scrolling on the table
+            var $tbody = $tableWrap.find('.xcTbodyWrap');
+            var scrollTop = $tbody.scrollTop();
+            $tbody.on('scroll.preventScrolling', function() {
+                $tbody.scrollTop(scrollTop); 
+            });
         }
 
         gTables[tableId].lock();
@@ -1196,6 +1203,8 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.find('.tableCover').remove();
             $tableWrap.removeClass('tableLocked');
             $('#rowScroller-' + tableId).removeClass('locked');
+            var $tbody = $tableWrap.find('.xcTbodyWrap');
+            $tbody.off('scroll.preventScrolling');
         }
 
         WSManager.unlockTable(tableId);
