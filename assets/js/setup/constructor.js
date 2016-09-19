@@ -664,6 +664,7 @@ function DSFormAdvanceOption($section, container) {
     // add event listener
     $section.on("click", ".listInfo .expand, .listInfo .text", function() {
         $section.toggleClass("active");
+        $(container).toggleClass("has-expand-list");
     });
 
     var $limit = $section.find(".option.limit");

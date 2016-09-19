@@ -672,7 +672,7 @@ table.datasetTable {
 
 /* File Browser */
 #fileBrowser {
-    .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
+    .size(@min-width: 750px, @height: ~"calc(100% - 95px)");
     text-transform: capitalize;
     overflow: visible;
 
@@ -697,6 +697,18 @@ table.datasetTable {
     &.notChrome {
         #innerFileBrowserContainer {
             overflow: visible !important;
+        }
+    }
+
+    &.has-expand-list {
+        .size(@height: ~"calc(100% - 5px)");
+
+        .cardMain {
+            .size(@height: ~"calc(100% - 360px)");
+        }
+
+        .advanceSection {
+            .size(@height: 140px);
         }
     }
 
@@ -841,7 +853,7 @@ table.datasetTable {
 
     .cardMain {
         .position(relative);
-        .size(@height: ~"calc(100% - 360px)");
+        .size(@height: ~"calc(100% - 270px)");
         padding-top: 0;
 
         .loadingSection {
@@ -1021,7 +1033,8 @@ table.datasetTable {
     }
 
     .advanceSection {
-        padding: 20px 45px;
+        padding: 15px 45px;
+        .size(@height: 50px);
 
         .option {
             padding: 0 0 0 30px;
@@ -1029,8 +1042,8 @@ table.datasetTable {
     }
 
     .cardBottom {
-        .size(@height: 60px);
-        padding: 0 0 20px 0;
+        .size(@height: 55px);
+        padding: 0 0 15px 0;
 
         .btn {
             margin-right: 15px;
