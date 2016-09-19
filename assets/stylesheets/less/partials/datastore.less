@@ -1579,13 +1579,13 @@ table.datasetTable {
                 }
 
                 .grid-unit.ds > .dragWrap {
-                    .size(@width: ~"calc(50% + 7px)", @height: 100%);
+                    .size(@width: 50%, @height: 100%);
                     position: absolute;
                     background: transparent;
 
                     &.leftTopDragWrap {
                         // background-color: blue;
-                        left: -7px;
+                        left: 0;
                         &.active {
                              box-shadow: inset 2px 0px 0px @color-bg-softBlue;
                         }
@@ -1629,8 +1629,8 @@ table.datasetTable {
                         background: transparent;
 
                         &.leftTopDragWrap {
-                            left: -7px;
-                            width: ~"calc(16.5% + 7px)";
+                            left: 0;
+                            width: 16.5%;
 
                             &.active {
                                 box-shadow: inset 2px 0px 0px @color-bg-softBlue;
@@ -1639,7 +1639,7 @@ table.datasetTable {
 
                         &.rightBottomDragWrap {
                             left: 82.5%;
-                            width: ~"calc(16.5% + 7px)";
+                            width: 16.5%;
 
                             &.active {
                                 box-shadow: 2px 0px 0px @color-bg-softBlue;
@@ -1864,7 +1864,7 @@ table.datasetTable {
             }
 
             input {
-                .size(@height: 30px);
+                .size(@width: 100%, @height: 30px);
                 .flex(1 1 auto);
                 background-color: @color-bg-white-three;
                 border: 1px solid @color-bg-white-five;
@@ -1913,7 +1913,7 @@ table.datasetTable {
 
         .radioButtonGroup {
             margin-top: 30px;
-            padding-left: 150px;
+            padding-left: 100px;
 
             .label {
                 line-height: 20px;

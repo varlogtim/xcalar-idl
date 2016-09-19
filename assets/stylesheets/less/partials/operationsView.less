@@ -634,6 +634,12 @@
             text-transform: none !important;
         }
 
+        &.tableList  {
+            .text, li {
+                text-transform: none;
+            }
+        }
+
         .text {
             .size(@width: 100%, @height: @listHeight);
             padding-right: 26px;
@@ -824,26 +830,6 @@
     		margin-top: 4px;
     	}
     }
-}
-@media screen and (min-height: 750px) {
-	@listHeight: 26px;
-	.opView {
-		.catFuncMenus {
-			ul { 
-				height: @listHeight * 6 - 1px;
-			}
-		}
-	}
-}
-@media screen and (min-height: 900px) {
-	@listHeight: 26px;
-	.opView {
-		.catFuncMenus {
-			ul { 
-				height: @listHeight * 7 - 1px;
-			}
-		}
-	}
 }
 
 #joinView {
