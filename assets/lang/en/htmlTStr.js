@@ -506,6 +506,8 @@ module.exports = {
         "exportInstr": "Select that columns that you want to export at the end of your dataflow. These are the only columns that you will see in your exported result after running the dataflow. The time your dataflow runs is affected by the number of columns you select here.",
         "create": "CREATE",
         "noColsHint": "No columns available for export",
+        "newParam": "CREATE NEW PARAMETER",
+        "param": "Parameter",
         "params": "Parameters",
         "inputNewParam": "Input New Parameter",
         "val": "Value",
