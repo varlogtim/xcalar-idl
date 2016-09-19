@@ -515,7 +515,7 @@ window.DS = (function ($, DS) {
             // display new dataset
             refreshDS();
 
-            if (error != null &&
+            if (error == null &&
                 colsToPull != null &&
                 colsToPull instanceof Array)
             {
