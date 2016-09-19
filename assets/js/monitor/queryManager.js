@@ -107,6 +107,21 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
+    QueryManager.scrollToFocused = function() {
+        var $activeLi = $queryList.find('.active');
+        if ($activeLi.length && $('#monitorMenu').hasClass('active') &&
+            !$('#monitorMenu').find('.menuSection.query')
+            .hasClass('xc-hidden')) {
+            var listHeight = $queryList.height();
+            var liHeight = $activeLi.height();
+            var position = $activeLi.position();
+            if (position.top < 0 || position.top + liHeight > listHeight) {
+                var scrollTop = $queryList.scrollTop();
+                $queryList.scrollTop(scrollTop + position.top);
+            }
+        }
+    };
+
     QueryManager.queryDone = function(id) {
         if (!queryLists[id]) {
             return;

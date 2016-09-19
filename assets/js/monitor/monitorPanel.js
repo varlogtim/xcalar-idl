@@ -65,6 +65,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.active = function() {
         MonitorGraph.start();
         QueryManager.check();
+        QueryManager.scrollToFocused();
         graphIsActive = true;
     };
 

@@ -25,7 +25,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             $(this).toggleClass("on");
         });
 
-        $extLists.on("mousedown", ".item", function() {
+        $extLists.on("mousedown", ".item", function(event) {
             if (event.which !== 1) {
                 return;
             }
