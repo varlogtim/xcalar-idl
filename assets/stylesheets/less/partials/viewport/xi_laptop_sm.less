@@ -44,6 +44,24 @@
     }
 }
 
+@media screen and (max-height: 630px) {
+    #menuBar {
+        .subTabs {
+            max-height: @height-subTab * 3;
+            overflow: auto;
+          
+        }
+        .topMenuBarTab {
+            ::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            ::-webkit-scrollbar-thumb {
+                -webkit-box-shadow: none; 
+                background-color: rgb(67, 88, 113) !important; // xi2 temp
+            }
+        }
+    }
+}
 // for operation view
 @media screen and (min-height: 750px) {
     @listHeight: 26px;
@@ -54,6 +72,7 @@
             }
         }
     }
+    
 }
 @media screen and (min-height: 900px) {
     @listHeight: 26px;

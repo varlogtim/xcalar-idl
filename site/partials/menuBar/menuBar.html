@@ -47,23 +47,28 @@
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
-      <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.in %>">
-        <i class="icon xi-data-in"></i>
+      <div class="subTabs">
+        <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.in %>">
+          <i class="icon xi-data-in"></i>
+        </div>
+        <div id="outButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.out %>">
+          <i class="icon xi-data-out"></i>
+        </div>
       </div>
-      <div id="outButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.out %>">
-        <i class="icon xi-data-out"></i>
-      </div>
+      
     </div>
     <% } else if (dicts.tutor.name == "workbookDemo") { %>
     <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="w1-datastoresBut">
       <div class="mainTab">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
-      <div id="inButton" class="subTab active">
-        <i class="icon xi-data-in"></i>
-      </div>
-      <div id="outButton" class="subTab">
-        <i class="icon xi-data-out"></i>
+      <div class="subTabs">
+        <div id="inButton" class="subTab active">
+          <i class="icon xi-data-in"></i>
+        </div>
+        <div id="outButton" class="subTab">
+          <i class="icon xi-data-out"></i>
+        </div>
       </div>
     </div>
     <% } else { %>
@@ -71,11 +76,13 @@
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
-      <div id="inButton" class="subTab active">
-        <i class="icon xi-data-in"></i>
-      </div>
-      <div id="outButton" class="subTab">
-        <i class="icon xi-data-out"></i>
+      <div class="subTabs">
+        <div id="inButton" class="subTab active">
+          <i class="icon xi-data-in"></i>
+        </div>
+        <div id="outButton" class="subTab">
+          <i class="icon xi-data-out"></i>
+        </div>
       </div>
     </div>
     <% } %>
@@ -86,17 +93,19 @@
       <div class="mainTab">
         <i class="icon xi-menu-monitoring fa-20"></i>
       </div>
-      <div id="systemButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Syst %>">
-        <i class="icon xi-system"></i>
-      </div>
-      <div id="queriesButton" class="subTab">
-        <i class="icon xi-quary"></i>
-      </div>
-      <div id="setupButton" class="subTab">
-        <i class="icon xi-setup"></i>
-      </div>
-      <div id="settingsButton" class="subTab">
-        <i class="icon xi-setting"></i>
+      <div class="subTabs">
+        <div id="systemButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Syst %>">
+          <i class="icon xi-system"></i>
+        </div>
+        <div id="queriesButton" class="subTab">
+          <i class="icon xi-quary"></i>
+        </div>
+        <div id="setupButton" class="subTab">
+          <i class="icon xi-setup"></i>
+        </div>
+        <div id="settingsButton" class="subTab">
+          <i class="icon xi-setting"></i>
+        </div>
       </div>
     </div>
     <% } else { %>
@@ -104,21 +113,24 @@
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.monitor %>">
         <i class="icon xi-menu-monitoring fa-20"></i>
       </div>
-      <div id="queriesButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Queries %>">
-        <i class="icon xi-quary"></i>
+      <div class="subTabs">
+        <div id="queriesButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Queries %>">
+          <i class="icon xi-quary"></i>
+        </div>
+         <div id="systemButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Syst %>">
+          <i class="icon xi-system"></i>
+        </div>
+        <div id="setupButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Setup %>">
+          <i class="icon xi-setup"></i>
+        </div>
+        <div id="settingsButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Settings %>">
+          <i class="icon xi-setting"></i>
+        </div>
+        <div id="extensionSettingButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
+          <i class="icon xi-menu-extension"></i>
+        </div>
       </div>
-       <div id="systemButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Syst %>">
-        <i class="icon xi-system"></i>
-      </div>
-      <div id="setupButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Setup %>">
-        <i class="icon xi-setup"></i>
-      </div>
-      <div id="settingsButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.Settings %>">
-        <i class="icon xi-setting"></i>
-      </div>
-      <div id="extensionSettingButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
-        <i class="icon xi-menu-extension"></i>
-      </div>
+      
     </div>
     <% } %>
 
@@ -127,9 +139,12 @@
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfgs %>">
         <i class="icon xi-dataflow fa-20"></i>
       </div>
-      <div id="dataflowButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfgs %>">
-        <i class="icon xi-dataflowgroup"></i>
+      <div class="subTabs">
+        <div id="dataflowButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfgs %>">
+          <i class="icon xi-dataflowgroup"></i>
+        </div>
       </div>
+      
     </div>
   </div>
   <!-- end main menu -->
