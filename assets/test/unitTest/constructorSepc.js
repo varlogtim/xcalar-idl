@@ -122,7 +122,8 @@ describe('Constructor Test', function() {
             expect(progCol.getType()).to.equal('float');
             expect(progCol.isNumberCol()).to.be.true;
             expect(progCol.isEmptyCol()).to.be.false;
-
+            expect(progCol.getWidth()).to.equal(100);
+            expect(progCol.hasHidden()).to.be.false;
 
             // case 2
             progCol = new ProgCol({
@@ -232,7 +233,7 @@ describe('Constructor Test', function() {
             }, 50);
         });
 
-        it("Table should get keyNamae", function() {
+        it("Table should get keyName", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId"  : "a1",
@@ -391,6 +392,19 @@ describe('Constructor Test', function() {
             expect(table.showIndexStyle()).to.be.true;
             gEnableIndexStyle = cache;
         });
+
+        it("table should add prefix color", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+
+            expect(table.prefixColor).to.be.undefined;
+            expect(table.getPrefixColor("test")).to.equal("");
+            table.addPrefixColor("test", "white");
+            expect(table.prefixColor).to.be.an('object');
+            expect(table.getPrefixColor("test")).to.equal("white");
+        })
     });
 
     describe('Meta Constructor Test', function() {

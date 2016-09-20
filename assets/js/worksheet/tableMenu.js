@@ -6,6 +6,7 @@ window.TblMenu = (function(TblMenu, $) {
             addMenuBehaviors($('#cellMenu'));
             addTableMenuActions();
             addColMenuActions();
+            addPrefixColumnMenuActions();
         } catch (error) {
             console.error(error);
         }
@@ -178,7 +179,7 @@ window.TblMenu = (function(TblMenu, $) {
                 var isValid = xcHelper.validate([
                     {
                         "$selector": $input,
-                        "side": "left"
+                        "side"     : "left"
                     },
                     {
                         "$selector": $input,
@@ -904,6 +905,38 @@ window.TblMenu = (function(TblMenu, $) {
             }
             
         });
+    }
+
+    function addPrefixColumnMenuActions() {
+        var $prefixColorMenu = $("#prefixColorMenu");
+        $prefixColorMenu.on("mouseup", ".wrap", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            var $wrap = $(this);
+            var tableId = $prefixColorMenu.data("tableId");
+            var prefix = $prefixColorMenu.data("prefix");
+            var color = $(this).data("color");
+
+            $wrap.addClass("selected").siblings().removeClass("selected");
+            addPrefixColor(tableId, prefix, color);
+            closeMenu($prefixColorMenu);
+        });
+    }
+
+    function addPrefixColor(tableId, prefix, color) {
+        var table = gTables[tableId];
+        xcHelper.assert(table != null);
+
+        $("#xcTable-" + tableId).find(".th .topHeader").each(function() {
+            var $topHeader = $(this);
+            if ($topHeader.find(".prefix").text() === prefix) {
+                $topHeader.attr("data-color", color)
+                        .data("color", color);
+            }
+        });
+        table.addPrefixColor(prefix, color);
     }
 
     function sortColumn(colNum, tableId, order) {

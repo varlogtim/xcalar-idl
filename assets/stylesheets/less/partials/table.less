@@ -1107,6 +1107,10 @@ html.edge {
             padding-left: 6px;
         }
 
+        .prefix, .dotWrap {
+            display: none;
+        }
+
         .flex-left {
             display: none;
         }
@@ -1190,7 +1194,7 @@ html.edge {
             color: @color-white;
         }
         .flexWrap.flex-left, .topHeader {
-            background-color: @color-bg-select-blue;
+            background-color: @color-bg-select-blue !important;
         }
 
         .sortIcon  {
@@ -1300,6 +1304,18 @@ html.edge {
         }
     }
 
+    .dragArea {
+        .position(absolute, @top: -5px, @left: 0);
+        .size(@width: 100%, @height: @height-xcColHeaderOuter + 1);
+        .cursor-move;
+        z-index: 2;
+
+        .iconHelper {
+            .position(absolute, @top: @height-xcColPrefix, @left: 2px);
+            .size(20px, @height-colHeader);
+        }
+    }
+
     .header {
         .position(absolute, @top: 35px);
         width: inherit;
@@ -1312,6 +1328,9 @@ html.edge {
         .topHeader {
             height: @height-xcColPrefix;
             .flex-display;
+            .position(relative);
+            .rounded(2px 2px 0 0);
+            background-color: @color-white;
 
             .sortIcon {
                 .flex(0 1 20px);
@@ -1327,6 +1346,54 @@ html.edge {
                 opacity: 0.7;
                 line-height: @height-xcColPrefix;
                 .textOverflowOneLine;
+            }
+
+            .dotWrap {
+                .flex(0 1 20px);
+                .size(@height: 100%);
+                .position(relative);
+                cursor: pointer;
+                z-index: 2;
+                opacity: 0;
+
+                .dot {
+                    .size(6px, 6px);
+                    .rounded(100%);
+                    background-color: @color-font-greyish-brown;
+                    .position(absolute, @right: 4px, @bottom: 5px);
+                }
+            }
+
+            &[data-color="indigo"] {
+                background-color: @color-prefix-indigo;
+            }
+
+            &[data-color="orange"] {
+                background-color: @color-prefix-orange;
+            }
+
+            &[data-color="yellow"] {
+                background-color: @color-prefix-yellow;
+            }
+
+            &[data-color="green"] {
+                background-color: @color-prefix-green;
+            }
+
+            &[data-color="blue"] {
+                background-color: @color-prefix-blue;
+            }
+
+            &[data-color="violte"] {
+                background-color: @color-prefix-violte;
+            }
+
+            &[data-color="pink"] {
+                background-color: @color-prefix-pink;
+            }
+
+            &[data-color="white"] {
+                background-color: @color-white;
             }
         }
 
@@ -1350,7 +1417,11 @@ html.edge {
 
         &:hover {
             .flexWrap.flex-right > .dropdownBox {
-                opacity: 1.0;
+                opacity: @opacity-hover;
+            }
+
+            .topHeader .dotWrap {
+                opacity: @opacity-hover;
             }
         }
 

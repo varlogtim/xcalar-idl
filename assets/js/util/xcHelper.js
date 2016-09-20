@@ -2423,7 +2423,8 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         if (menuId === "tableMenu" || menuId === "colMenu" ||
-            menuId === "cellMenu") {
+            menuId === "cellMenu" || menuId === "prefixColorMenu")
+        {
             tableId = xcHelper.parseTableId($dropdownIcon.closest(".xcTableWrap"));
         }
 
@@ -2459,6 +2460,18 @@ window.xcHelper = (function($, xcHelper) {
         }
         if (menuId === "tableMenu") {
             $menu.data("tableId", tableId);
+        }
+
+        if (menuId === "prefixColorMenu") {
+            $menu.data("tableId", tableId)
+                .data("prefix", options.prefix || "");
+            $menu.find(".wrap").removeClass("selected");
+            var color = options.color;
+            if (!color) {
+                color = "white";
+            }
+
+            $menu.find("." + color).addClass("selected");
         }
 
         if (options.rowNum != null && options.rowNum > -1) {

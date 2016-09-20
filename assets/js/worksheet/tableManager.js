@@ -748,33 +748,43 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
     };
 
-    TblManager.generateColumnHeadHTML = function(columnClass, color, newColid, options) {
+    TblManager.generateColumnHeadHTML = function(colNum, tableId, options) {
         options = options || {};
 
-        var columnName = options.name || "";
-        var width = options.width || 0;
-        if (options.isHidden) {
+        var table = gTables[tableId];
+        var progCol = table.getCol(colNum);
+
+        var colName = progCol.getFronColName();
+        var width = progCol.getWidth();
+        var columnClass = options.columnClass || "";
+
+        if (progCol.hasHidden()) {
             width = 15;
             columnClass += " userHidden";
         }
 
         var disabledProp;
-        // var disabledClass;
         var editableClass;
-        if (columnName === "") {
+        if (colName === "") {
             disabledProp = "";
             editableClass = " editable";
         } else {
             disabledProp = "disabled";
             editableClass = "";
         }
-        columnName = columnName.replace(/\"/g, "&quot;");
+        colName = colName.replace(/\"/g, "&quot;");
 
         var indexed = columnClass.indexOf("indexedColumn") >= 0;
         // var tooltip = indexed ? ' title="Indexed Column" data-toggle="tooltip" ' +
         //                  'data-placement="top" data-container="body"': "";
-        var tooltip = ""; // xx conflicts with tablename on hover;
-        var sortIcon = "";
+        // xx conflicts with tablename on hover;
+        var tooltip = "";
+        var sortIcon = '<i class="sortIcon"></i>'; // placeholder
+
+        // XXX replace it when possible
+        var prefix = 'Placeholder';
+        var prefixColor = table.getPrefixColor(prefix);
+
         if (indexed) {
             if (options.order === XcalarOrderingT.XcalarOrderingAscending) {
                 sortIcon = '<i class="sortIcon icon xi-arrowtail-up fa-12"></i>';
@@ -783,9 +793,9 @@ window.TblManager = (function($, TblManager) {
             }
         }
 
-        var columnHeadTd =
-            '<th class="th' + color + columnClass +
-            ' col' + newColid + '" style="width:' + width + 'px;">' +
+        var th =
+            '<th class="th ' + columnClass + ' col' + colNum + '"' +
+            ' style="width:' + width + 'px;">' +
                 '<div class="header' + editableClass + ' ">' +
                     '<div class="dragArea">' +
                         '<div class="iconHelper" ' +
@@ -795,12 +805,14 @@ window.TblManager = (function($, TblManager) {
                         '</div>' +
                     '</div>' +
                     '<div class="colGrab"></div>' +
-                    '<div class="topHeader">' +
-                        // sortIcon +
-                        // '<div class="prefix">' +
-                        //     // XXX replace it when possible
-                        //     'Placeholder' +
-                        // '</div>' +
+                    '<div class="topHeader" data-color="' + prefixColor + '">' +
+                        sortIcon +
+                        '<div class="prefix">' +
+                            prefix +
+                        '</div>' +
+                        '<div class="dotWrap">' +
+                            '<div class="dot"></div>' +
+                        '</div>' +
                     '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
@@ -810,13 +822,13 @@ window.TblManager = (function($, TblManager) {
                         '<div class="flexWrap flex-mid' + editableClass +
                             '"' + tooltip + '>' +
                             '<input class="editableHead tooltipOverflow ' +
-                                'col' + newColid + '"' +
-                                ' type="text"  value="' + columnName + '"' +
+                                'col' + colNum + '"' +
+                                ' type="text"  value="' + colName + '"' +
                                 ' size="15" spellcheck="false" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" ' +
                                 'data-container="body" '+
-                                'title="' + columnName + '" ' +
+                                'title="' + colName + '" ' +
                                 disabledProp + '/>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +
@@ -833,7 +845,7 @@ window.TblManager = (function($, TblManager) {
                 '</div>' +
             '</th>';
 
-        return (columnHeadTd);
+        return (th);
     };
 
     TblManager.hideWorksheetTable = function(tableId) {
@@ -1923,8 +1935,9 @@ window.TblManager = (function($, TblManager) {
             var colNum = xcHelper.parseColNum($editableHead);
             FnBar.focusOnCol($editableHead, tableId, colNum);
 
-            var notDropDown = $(event.target).closest('.dropdownBox')
-                                                .length === 0;
+            var $target = $(event.target);
+            var notDropDown = $target.closest('.dropdownBox').length === 0 &&
+                                $target.closest(".dotWrap").length === 0;
             if ($table.find('.selectedCell').length === 0) {
                 $('.selectedCell').removeClass('selectedCell');
                 lastSelectedCell = $editableHead;
@@ -2004,10 +2017,27 @@ window.TblManager = (function($, TblManager) {
             });
         });
 
+        $thead.on("click", ".topHeader .dotWrap", function(event) {
+            // event.stopPropagation();
+            var $dotWrap = $(this);
+            var $dot = $dotWrap.find(".dot");
+            var $topHeader = $dotWrap.closest(".topHeader");
+            var x = $dot[0].getBoundingClientRect().left;
+            var y = $topHeader[0].getBoundingClientRect().bottom;
+            var $menu = $("#prefixColorMenu");
+            var prefix = $topHeader.find(".prefix").text();
+            var color = $topHeader.data("color");
+
+            xcHelper.dropdownOpen($dotWrap, $menu, {
+                "mouseCoors": {"x": x + 1, "y": y},
+                "floating"  : true,
+                "prefix"    : prefix,
+                "color"     : color
+            });
+        });
+
         $thead.on("click", ".dropdownBox", function(event) {
-            // if ($table.closest('.columnPicker').length ||
-            if (
-                $("#mainFrame").hasClass("modalOpen")) {
+            if ($("#mainFrame").hasClass("modalOpen")) {
                 // not focus when in modal
                 return;
             }
@@ -2404,7 +2434,6 @@ window.TblManager = (function($, TblManager) {
         var hasIndexStyle = table.showIndexStyle();
 
         for (var i = 0; i < numCols; i++) {
-            var color = "";
             var columnClass = "";
             var backName;
 
@@ -2421,7 +2450,7 @@ window.TblManager = (function($, TblManager) {
 
             var order = null;
             if (backName === table.keyName) {
-                columnClass = " indexedColumn";
+                columnClass = "indexedColumn";
                 if (!hasIndexStyle) {
                     columnClass += " noIndexStyle";
                 }
@@ -2446,13 +2475,12 @@ window.TblManager = (function($, TblManager) {
                 newTable += generateDataHeadHTML(newColid, thClass, width);
             } else {
                 var optoins = {
-                    "name"    : columns[i].name,
-                    "width"   : columns[i].width,
-                    "isHidden": columns[i].isHidden,
-                    "order"   : order
+                    "columnClass": columnClass,
+                    "order"      : order
                 };
-                newTable += TblManager.generateColumnHeadHTML(columnClass,
-                                                color, (i + 1), optoins);
+                newTable += TblManager.generateColumnHeadHTML((i + 1),
+                                                            tableId,
+                                                            optoins);
             }
         }
 

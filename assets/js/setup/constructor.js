@@ -126,6 +126,10 @@ function TableMeta(options) {
         self.tableCols = null;
     }
 
+    if (options.prefixColor != null) {
+        self.prefixColor = options.prefixColor;
+    }
+
     self.bookmarks = options.bookmarks || [];
     self.rowHeights = options.rowHeights || {}; // a map
 
@@ -423,6 +427,24 @@ TableMeta.prototype = {
         }
 
         return false;
+    },
+
+    addPrefixColor: function(prefix, color) {
+        xcHelper.assert(prefix != null && color != null);
+        var self = this;
+        if (!self.prefixColor) {
+            self.prefixColor = {};
+        }
+
+        self.prefixColor[prefix] = color;
+    },
+
+    getPrefixColor: function(prefix) {
+        var self = this;
+        if (!self.prefixColor) {
+            return "";
+        }
+        return self.prefixColor[prefix] || "";
     }
 };
 
@@ -490,7 +512,7 @@ ProgCol.prototype = {
     },
 
     "getFronColName": function() {
-        return this.name;
+        return this.name || "";
     },
 
     "getBackColName": function() {
@@ -543,6 +565,14 @@ ProgCol.prototype = {
 
     "getType": function() {
         return this.type;
+    },
+
+    "getWidth": function() {
+        return this.width;
+    },
+
+    "hasHidden": function() {
+        return this.isHidden;
     },
 
     "isNumberCol": function() {
@@ -604,7 +634,7 @@ function METAConstructor(METAKeys) {
 
 function getEMetaKeys() {
     return {
-        "DFG" : "DFG"
+        "DFG": "DFG"
     };
 }
 

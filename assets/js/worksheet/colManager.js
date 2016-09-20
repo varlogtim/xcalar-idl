@@ -71,21 +71,19 @@ window.ColManager = (function($, ColManager) {
 
         // options
         options = options || {};
-        var width       = options.width || gNewCellWidth;
-        // var resize      = options.resize || false;
-        var isNewCol    = options.isNewCol || false;
-        var select      = options.select || false;
-        var inFocus     = options.inFocus || false;
-        var newProgCol  = options.progCol;
-        var type        = newProgCol ? "undefined" : "newColumn";
-        var noAnimate   = options.noAnimate;
-        var isHidden    = options.isHidden || false;
-        var decimals    = options.decimals || -1;
-        var format      = options.format || null;
-        var columnClass;
-        var color;
+        var width = options.width || gNewCellWidth;
+        var isNewCol = options.isNewCol || false;
+        var select = options.select || false;
+        var inFocus = options.inFocus || false;
+        var newProgCol = options.progCol;
+        var type = newProgCol ? "undefined" : "newColumn";
+        var noAnimate = options.noAnimate;
+        var isHidden = options.isHidden || false;
+        var decimals = options.decimals || -1;
+        var format = options.format || null;
+        var columnClass = "";
+        var color = "";
         var order;
-
 
         if (options.direction !== "L") {
             newColid += 1;
@@ -94,9 +92,9 @@ window.ColManager = (function($, ColManager) {
         if (name == null) {
             name = "";
             select = true;
-            columnClass = " newColumn";
+            columnClass = "newColumn";
         } else if (name === table.getKeyName()) {
-            columnClass = " indexedColumn";
+            columnClass = "indexedColumn";
             if (!table.showIndexStyle()) {
                 columnClass += " noIndexStyle";
             }
@@ -106,10 +104,10 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (select) {
-            color = " selectedCell";
+            color = "selectedCell";
             $('.selectedCell').removeClass('selectedCell');
         } else if (isNewCol) {
-            color = " unusedCell";
+            color = "unusedCell";
         } else {
             color = "";
         }
@@ -139,14 +137,12 @@ window.ColManager = (function($, ColManager) {
         }
         // insert new th column
         options = {
-            "name"    : name,
-            "width"   : width,
-            "isHidden": isHidden,
-            "order"   : order
+            "columnClass": columnClass + " " + color,
+            "order"      : order
         };
 
-        var $th = $(TblManager.generateColumnHeadHTML(columnClass, color,
-                                                      newColid, options));
+        var $th = $(TblManager.generateColumnHeadHTML(newColid, tableId,
+                                                        options));
         $tableWrap.find('.th.col' + (newColid - 1)).after($th);
 
         if (isNewCol) {
@@ -1869,8 +1865,6 @@ window.ColManager = (function($, ColManager) {
         }
         var numKeys = colNames.length;
         var newColNum = colNum - 1;
-        var columnClass = "";
-        var color = "";
         var ths = "";
         var widthOptions = {
             defaultHeaderStyle: true
@@ -1902,10 +1896,12 @@ window.ColManager = (function($, ColManager) {
             }
 
             var order = null;
+            var columnClass = "";
+
             if (key === table.getKeyName()) {
-                columnClass += " indexedColumn";
+                columnClass += "indexedColumn";
                 if (!table.showIndexStyle()) {
-                    columnClass += "noIndexStyle";
+                    columnClass += " noIndexStyle";
                 }
                 order = table.getOrdering();
             }
@@ -1915,10 +1911,9 @@ window.ColManager = (function($, ColManager) {
                 colHeadNum++;
             }
             colNums.push(colHeadNum);
-            ths += TblManager.generateColumnHeadHTML(columnClass, color, colHeadNum, {
-                "name" : key,
-                "width": width,
-                "order": order
+            ths += TblManager.generateColumnHeadHTML(colHeadNum, tableId, {
+                "columnClass": columnClass,
+                "order"      : order
             });
         }
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
