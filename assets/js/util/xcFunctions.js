@@ -81,9 +81,17 @@ window.xcFunction = (function($, xcFunction) {
 
         var table = gTables[tableId];
         var tableName = table.getName();
-        var progCol = table.getCol(colNum);
-        var frontColName = progCol.getFronColName();
-        var backColName = progCol.getBackColName();
+        var frontColName;
+        var backColName;
+        if (colNum != null && colNum != -1) {
+            var progCol = table.getCol(colNum);
+            frontColName = progCol.getFronColName();
+            backColName = progCol.getBackColName();
+        } else {
+            frontColName = aggStr;
+            backColName = aggStr;
+        }
+       
 
         var title = xcHelper.replaceMsg(AggTStr.AggTitle, {"op": aggrOp});
         var instr = xcHelper.replaceMsg(AggTStr.AggInstr, {

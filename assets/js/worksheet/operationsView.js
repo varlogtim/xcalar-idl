@@ -379,19 +379,9 @@ window.OperationsView = (function($, OperationsView) {
             'keydown': function(event) {
                 var $input = $(this);
                 var $list = $input.siblings('.openList');
-                if (event.which === keyCode.Down && $list.length) {
-
-                    $operationsView.find('li.highlighted')
-                                    .removeClass('highlighted');
-                    $list.addClass('hovering').find('li')
-                                              .addClass('highlighted');
-                } else if (event.which === keyCode.Up && $list.length) {
-                    $list.removeClass('hovering').find('li')
-                                                 .removeClass('highlighted');
-                    $list.removeClass("openList").hide()
-                         .find('li').removeClass('openLi')
-                         .closest('.dropDownList').removeClass("open");
-                    event.preventDefault();
+                if ($list.length && (event.which === keyCode.Up || 
+                    event.which === keyCode.Down)) {
+                    listHighlight($input, event.which, event);
                 }
             },
             'keypress': function(event) {
@@ -793,6 +783,7 @@ window.OperationsView = (function($, OperationsView) {
                     colNames.push('$' + col.name);
                 }
             });
+            colNames.concat(aggNames);
 
             corrector = new Corrector(colNames);
 
@@ -1000,24 +991,43 @@ window.OperationsView = (function($, OperationsView) {
         var $ul = $input.siblings(".list");
         var $allGroups = $activeOpSection.find('.group');
         var groupIndex = $allGroups.index($ul.closest('.group'));
-        // var groupIndex = $ul.closest('.group').index() - 1;
         var argIndex = $ul.closest('.group').find('.hint').index($ul);
         var shouldSuggest = true;
         var corrected;
         var hasAggPrefix = false;
         var listLimit = 30; // do not show more than 30 results
+        var aggNameMatches = [];
+        var aggNameLis = "";
+        var hasCorrected = false;
 
         // when there is multi cols
         if (curVal.indexOf(",") > -1) {
             shouldSuggest = false;
-        } else if (curVal.indexOf(gAggVarPrefix) === 0) {
-            shouldSuggest = true;
-            hasAggPrefix = true;
         } else {
+            if (curVal.length) {
+                var count = 0;
+                for (var i = 0; i < aggNames.length; i++) {
+                    if (aggNames[i].toLowerCase().indexOf(curVal) > -1 ) {
+                        count++;
+                        aggNameMatches.push(aggNames[i]);
+                        if (count > listLimit) {
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            aggNameMatches.sort();
+            for (var i = 0; i < aggNameMatches.length; i++) {
+                aggNameLis += '<li class="openli">' + aggNameMatches[i] +
+                              '</li>';
+            }
             corrected = corrector.suggest(curVal);
-
+            if (corrected != null && corrected !== curVal) {
+                hasCorrected = true;
+            }
             // should not suggest if the input val is already a column name
-            if (corrected == null || corrected === curVal) {
+            if (!hasCorrected && !aggNameMatches.length) {
                 shouldSuggest = false;
             }
         }
@@ -1025,37 +1035,16 @@ window.OperationsView = (function($, OperationsView) {
         // should not suggest if the input val is already a column name
         if (shouldSuggest) {
             $ul.find('ul').empty();
-
-            if (hasAggPrefix) {
-                var lis = "";
-                var count = 0;
-                aggNames.forEach(function(name) {
-                    if (name.startsWith(curVal)) {
-                        lis += '<li class="openli">' + name + '</li>';
-                        count++;
-                    }
-                    if (count > listLimit) {
-                        return (false);
-                    }
-                });
-                if (!lis.length) {
-                    $ul.find('ul').empty().end().removeClass("openList").hide()
-                        .closest(".dropDownList").removeClass("open");
-                } else {
-                    var $lis = $(lis);
-                    $lis.sort(sortHTML);
-                    $ul.find('ul').append($lis).end().addClass('openList')
-                                                     .show();
-                    suggestLists[groupIndex][argIndex].showOrHideScrollers();
-                }
-            } else {
+            if (hasCorrected) {
                 $ul.find('ul').append('<li class="openli">' + corrected +
-                                      '</li>')
-                .end().addClass("openList")
-                .show();
-                suggestLists[groupIndex][argIndex].showOrHideScrollers();
+                                  '</li>');
             }
-
+            if (aggNameLis.length) {
+                $ul.find('ul').append(aggNameLis);
+            }
+            
+            $ul.addClass("openList").show();
+            suggestLists[groupIndex][argIndex].showOrHideScrollers();
 
             $input.closest('.dropDownList').addClass('open');
             positionDropdown($ul);
@@ -1500,7 +1489,10 @@ window.OperationsView = (function($, OperationsView) {
         }
         $argsSection.append(argsHtml);
         addCastDropDownListener();
-
+        suggestLists[groupIndex] = [];
+        if (operatorName === "group by") {
+            $activeOpSection.find('.hint').addClass('new');
+        }
         $activeOpSection.find('.hint.new').each(function() {
             var scroller = new MenuHelper($(this), {
                 scrollerOnly : true,
@@ -2660,20 +2652,33 @@ window.OperationsView = (function($, OperationsView) {
     // }
 
     function aggregateCheck(args) {
-        var aggColNum = getColNum(args[0]);
-        if (aggColNum < 1) {
-            StatusBox.show(ErrTStr.InvalidColName,
-                            $activeOpSection.find('.arg').eq(0));
-            return false;
+        if (!hasFuncFormat(args[0])) {
+            var aggColNum = getColNum(args[0]);
+            if (aggColNum < 1) {
+                StatusBox.show(ErrTStr.InvalidColName,
+                                $activeOpSection.find('.arg').eq(0));
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return true;
         }
     }
 
     function aggregate(aggrOp, args, colTypeInfos) {
-        var aggColNum = getColNum(args[0]);
-        var tableCol = gTables[tableId].getCol(aggColNum);
-        var aggStr = tableCol.getBackColName();
+        var aggColNum;
+        var tableCol;
+        var aggStr;
+        if (!hasFuncFormat(args[0])) {
+            aggColNum = getColNum(args[0]);
+            tableCol = gTables[tableId].getCol(aggColNum);
+            aggStr = tableCol.getBackColName();
+        } else {
+            aggStr = args[0];
+            aggColNum = getColNumFromFunc(aggStr);
+        }
+        
         var aggName = args[1];
         if (colTypeInfos.length) {
             aggStr = xcHelper.castStrHelper(args[0], colTypeInfos[0].type);
@@ -2820,9 +2825,14 @@ window.OperationsView = (function($, OperationsView) {
        
         var $groupByInput = $activeOpSection.find('.argsSection').last()
                                             .find('.arg').eq(0);
-        var isGroupbyColNameValid = checkValidColNames($groupByInput,
-                                                        groupbyColName,
-                                                        singleArg);
+        var isGroupbyColNameValid;
+        if (!hasFuncFormat(groupbyColName)) {
+            isGroupbyColNameValid = checkValidColNames($groupByInput, 
+                                                    groupbyColName, singleArg);
+        } else {
+            isGroupbyColNameValid = true;
+        }
+        
         if (!isGroupbyColNameValid) {
             StatusBox.show(ErrTStr.InvalidColName, $groupByInput);
             return (false);
@@ -2839,7 +2849,6 @@ window.OperationsView = (function($, OperationsView) {
                     break;
                 }
             }
-
             
             if (!areIndexedColNamesValid) {
                 StatusBox.show(ErrTStr.InvalidColName, $input);
@@ -3160,7 +3169,6 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function showInvalidAggregateName($input, errorTitle) {
-        // var container = $input.closest('.mainPanel').attr('id');
         var $toolTipTarget = $input.parent();
 
         $toolTipTarget.tooltip({
@@ -3297,6 +3305,28 @@ window.OperationsView = (function($, OperationsView) {
         }
         StatusBox.show(errorMsg, invalidInputs[0]);
         formHelper.enableSubmit();
+    }
+
+    function getColNumFromFunc(str) {
+        // assume we're passing in a valid func
+        var parenIndex = str.indexOf("(");
+        str = str.slice(parenIndex + 1);
+        var colName = "";
+        var colNum = null;
+        for (var i = 0; i < str.length; i++) {
+            if (str[i] === "," || str[i] === " " || str[i] === ")") {
+                break;
+            } else {
+                colName += str[i];
+            }
+        }
+        if (colName.length) {
+            colNum = getColNum(colName);
+            if (colNum === -1) {
+                colNum = null;
+            }
+        }
+        return colNum;
     }
 
     function showEmptyOptions($input) {
