@@ -748,23 +748,50 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
     };
 
-    TblManager.generateColumnHeadHTML = function(colNum, tableId, options) {
+    TblManager.getColHeadHTML = function(colNum, tableId, options) {
         options = options || {};
 
         var table = gTables[tableId];
+        xcHelper.assert(table != null);
+
         var progCol = table.getCol(colNum);
+        xcHelper.assert(progCol != null);
 
         var colName = progCol.getFronColName();
         var width = progCol.getWidth();
         var columnClass = options.columnClass || "";
+        var indexed = (progCol.getBackColName() === table.getKeyName());
+        var sortIcon = '<i class="sortIcon"></i>'; // placeholder
 
         if (progCol.hasHidden()) {
             width = 15;
             columnClass += " userHidden";
         }
 
+        if (indexed) {
+            columnClass += " indexedColumn";
+            if (!table.showIndexStyle()) {
+                columnClass += " noIndexStyle";
+            }
+
+            var order = table.getOrdering();
+            if (order === XcalarOrderingT.XcalarOrderingAscending) {
+                sortIcon = '<i class="sortIcon icon ' +
+                            'xi-arrowtail-up fa-12"></i>';
+            } else if (order === XcalarOrderingT.XcalarOrderingDescending) {
+                sortIcon = '<i class="sortIcon icon ' +
+                            'xi-arrowtail-down fa-12"></i>';
+            }
+        } else if (progCol.isEmptyCol()) {
+            columnClass += " newColumn";
+        }
+
+        // remove the beginning and end space
+        columnClass = columnClass.trim();
+
         var disabledProp;
         var editableClass;
+
         if (colName === "") {
             disabledProp = "";
             editableClass = " editable";
@@ -774,24 +801,14 @@ window.TblManager = (function($, TblManager) {
         }
         colName = colName.replace(/\"/g, "&quot;");
 
-        var indexed = columnClass.indexOf("indexedColumn") >= 0;
         // var tooltip = indexed ? ' title="Indexed Column" data-toggle="tooltip" ' +
         //                  'data-placement="top" data-container="body"': "";
         // xx conflicts with tablename on hover;
         var tooltip = "";
-        var sortIcon = '<i class="sortIcon"></i>'; // placeholder
 
         // XXX replace it when possible
         var prefix = 'Placeholder';
         var prefixColor = table.getPrefixColor(prefix);
-
-        if (indexed) {
-            if (options.order === XcalarOrderingT.XcalarOrderingAscending) {
-                sortIcon = '<i class="sortIcon icon xi-arrowtail-up fa-12"></i>';
-            } else if (options.order === XcalarOrderingT.XcalarOrderingDescending) {
-                sortIcon = '<i class="sortIcon icon xi-arrowtail-down fa-12"></i>';
-            }
-        }
 
         var th =
             '<th class="th ' + columnClass + ' col' + colNum + '"' +
@@ -2017,8 +2034,7 @@ window.TblManager = (function($, TblManager) {
             });
         });
 
-        $thead.on("click", ".topHeader .dotWrap", function(event) {
-            // event.stopPropagation();
+        $thead.on("click", ".topHeader .dotWrap", function() {
             var $dotWrap = $(this);
             var $dot = $dotWrap.find(".dot");
             var $topHeader = $dotWrap.closest(".topHeader");
@@ -2417,7 +2433,6 @@ window.TblManager = (function($, TblManager) {
 
     // returns {html: html, dataIndex: dataIndex};
     TblManager.generateTheadTbody = function(columns, tableId) {
-        var table = gTables[tableId];
         var newTable =
             '<thead>' +
               '<tr>' +
@@ -2431,36 +2446,11 @@ window.TblManager = (function($, TblManager) {
                 '</th>';
         var numCols = columns.length;
         var dataIndex = null;
-        var hasIndexStyle = table.showIndexStyle();
 
         for (var i = 0; i < numCols; i++) {
-            var columnClass = "";
-            var backName;
-
-            if (columns[i].isDATACol() || columns[i].isNewCol) {
-                backName = columns[i].name;
-            } else {
-                backName = columns[i].getBackColName();
-
-                if (backName == null) {
-                    // this is a handling of error case
-                    backName = columns[i].name;
-                }
-            }
-
-            var order = null;
-            if (backName === table.keyName) {
-                columnClass = "indexedColumn";
-                if (!hasIndexStyle) {
-                    columnClass += " noIndexStyle";
-                }
-                order = table.getOrdering();
-            } else if (columns[i].name === "" || columns[i].func.name === "") {
-                columnClass = " newColumn";
-            }
-            if (backName === "DATA") {
+            var newColid = i + 1;
+            if (columns[i].isDATACol()) {
                 dataIndex = i;
-                var newColid = i + 1;
                 var width;
                 var thClass = "";
                 if (columns[i].isHidden) {
@@ -2474,19 +2464,13 @@ window.TblManager = (function($, TblManager) {
                 }
                 newTable += generateDataHeadHTML(newColid, thClass, width);
             } else {
-                var optoins = {
-                    "columnClass": columnClass,
-                    "order"      : order
-                };
-                newTable += TblManager.generateColumnHeadHTML((i + 1),
-                                                            tableId,
-                                                            optoins);
+                newTable += TblManager.getColHeadHTML(newColid, tableId);
             }
         }
 
         newTable += '</tr></thead><tbody></tbody>';
 
-        return ({html: newTable, dataIndex: dataIndex});
+        return ({"html": newTable, "dataIndex": dataIndex});
     };
 
     function generateDataHeadHTML(newColid, thClass, width) {

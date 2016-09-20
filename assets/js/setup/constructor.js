@@ -500,7 +500,7 @@ ProgCol.prototype = {
     },
 
     "isEmptyCol": function() {
-        return this.isNewCol;
+        return this.isNewCol || this.name === "" || this.func.name === "";
     },
 
     "isImmediate": function() {

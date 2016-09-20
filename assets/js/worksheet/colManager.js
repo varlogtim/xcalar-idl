@@ -64,10 +64,10 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.addCol = function(colNum, tableId, name, options) {
         var $tableWrap = $("#xcTableWrap-" + tableId);
-        var $table     = $tableWrap.find(".xcTable");
-        var table      = gTables[tableId];
-        var numCols    = table.tableCols.length;
-        var newColid   = colNum;
+        var $table = $tableWrap.find(".xcTable");
+        var table = gTables[tableId];
+        var numCols  = table.tableCols.length;
+        var newColid = colNum;
 
         // options
         options = options || {};
@@ -82,8 +82,6 @@ window.ColManager = (function($, ColManager) {
         var decimals = options.decimals || -1;
         var format = options.format || null;
         var columnClass = "";
-        var color = "";
-        var order;
 
         if (options.direction !== "L") {
             newColid += 1;
@@ -93,30 +91,23 @@ window.ColManager = (function($, ColManager) {
             name = "";
             select = true;
             columnClass = "newColumn";
-        } else if (name === table.getKeyName()) {
-            columnClass = "indexedColumn";
-            if (!table.showIndexStyle()) {
-                columnClass += " noIndexStyle";
-            }
-            order = table.getOrdering();
         } else {
             columnClass = "";
         }
 
         if (select) {
-            color = "selectedCell";
+            columnClass += " selectedCell";
             $('.selectedCell').removeClass('selectedCell');
         } else if (isNewCol) {
-            color = "unusedCell";
-        } else {
-            color = "";
+            columnClass += " unusedCell";
         }
 
         if (!newProgCol) {
             name = name || "";
+            var backName = options.backName || name;
 
             newProgCol = ColManager.newCol({
-                "backName": name,
+                "backName": backName,
                 "name"    : name,
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
@@ -136,13 +127,9 @@ window.ColManager = (function($, ColManager) {
                       .addClass('col' + (i + 1));
         }
         // insert new th column
-        options = {
-            "columnClass": columnClass + " " + color,
-            "order"      : order
-        };
-
-        var $th = $(TblManager.generateColumnHeadHTML(newColid, tableId,
-                                                        options));
+        var $th = $(TblManager.getColHeadHTML(newColid, tableId, {
+            "columnClass": columnClass
+        }));
         $tableWrap.find('.th.col' + (newColid - 1)).after($th);
 
         if (isNewCol) {
@@ -157,7 +144,6 @@ window.ColManager = (function($, ColManager) {
             matchHeaderSizes($table);
             moveFirstColumn();
         } else {
-            // var $th = $tableWrap.find('.th.col' + newColid);
             $th.width(10);
             if (!isHidden) {
                 $th.animate({width: width}, 300, function() {
@@ -175,18 +161,20 @@ window.ColManager = (function($, ColManager) {
         }
 
         // get the first row in UI and start to add td to each row
-        // var numRow = $table.find("tbody tr").length;
-        var idOfFirstRow  = $table.find("tbody tr:first").attr("class");
-        var idOfLastRow  = $table.find("tbody tr:last").attr("class");
+        var idOfFirstRow = $table.find("tbody tr:first").attr("class");
+        var idOfLastRow = $table.find("tbody tr:last").attr("class");
         var startingIndex = idOfFirstRow ?
                                 parseInt(idOfFirstRow.substring(3)) : 1;
         var endingIndex = parseInt(idOfLastRow.substring(3));
 
-        if (columnClass.indexOf("indexedColumn") < 0) {
-            columnClass = ""; // we don't need to add class to td otherwise
+        if (backName === table.getKeyName()) {
+            columnClass += " indexedColumn";
+            if (!table.showIndexStyle()) {
+                columnClass += " noIndexStyle";
+            }
         }
-
-        var newCellHTML = '<td ' + 'class="' + color + ' ' + columnClass +
+        columnClass = columnClass.trim();
+        var newCellHTML = '<td ' + 'class="' + columnClass +
                           ' col' + newColid + '"></td>';
 
         var i = startingIndex;
@@ -1139,6 +1127,7 @@ window.ColManager = (function($, ColManager) {
         var decimals = progCol.decimals;
         var format   = progCol.format;
         var name = progCol.getFronColName();
+        var backName = progCol.getBackColName();
 
         name = xcHelper.getUniqColName(tableId, name);
 
@@ -1147,7 +1136,8 @@ window.ColManager = (function($, ColManager) {
             "isNewCol": isNewCol,
             "isHidden": progCol.isHidden,
             "decimals": decimals,
-            "format"  : format
+            "format"  : format,
+            "backName": backName
         });
         // add sql
         SQL.add("Duplicate Column", {
@@ -1162,9 +1152,7 @@ window.ColManager = (function($, ColManager) {
         tableCols[colNum].func.func = progCol.func.func;
         tableCols[colNum].func.args = progCol.func.args;
         tableCols[colNum].userStr = progCol.userStr;
-        tableCols[colNum].backName = progCol.backName;
-
-        pullColHelper(progCol.backName, colNum + 1, tableId);
+        pullColHelper(backName, colNum + 1, tableId);
 
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
@@ -1813,8 +1801,6 @@ window.ColManager = (function($, ColManager) {
             return;
         }
 
-        // var colNum = xcHelper.parseColNum($jsonTd);
-        // var jsonRowNum = xcHelper.parseRowNum($jsonTd.closest('tr'));
         var jsonRowNum = rowNum;
         var $table = $jsonTd.closest('table');
         var table = gTables[tableId];
@@ -1827,7 +1813,6 @@ window.ColManager = (function($, ColManager) {
         var openSymbol;
         var closingSymbol;
         var colNums = [];
-        // var tempName;
 
         for (var arrayKey in jsonTdObj) {
             if (options.isDataTd) {
@@ -1869,14 +1854,12 @@ window.ColManager = (function($, ColManager) {
         var widthOptions = {
             defaultHeaderStyle: true
         };
-        var width;
 
         for (var i = 0; i < numKeys; i++) {
             var key = colNames[i];
             var escapedKey = escapedColNames[i];
             var usrStr = '"' + key + '" = pull(' + escapedKey + ')';
-
-            width = getTextWidth($(), key, widthOptions);
+            var width = getTextWidth($(), key, widthOptions);
 
             var newCol = ColManager.newCol({
                 "backName": key,
@@ -1895,27 +1878,15 @@ window.ColManager = (function($, ColManager) {
                 cols.splice(newColNum + 1, 0, newCol);
             }
 
-            var order = null;
-            var columnClass = "";
-
-            if (key === table.getKeyName()) {
-                columnClass += "indexedColumn";
-                if (!table.showIndexStyle()) {
-                    columnClass += " noIndexStyle";
-                }
-                order = table.getOrdering();
-            }
             newColNum++;
             var colHeadNum = newColNum;
             if (!options.isDataTd) {
                 colHeadNum++;
             }
             colNums.push(colHeadNum);
-            ths += TblManager.generateColumnHeadHTML(colHeadNum, tableId, {
-                "columnClass": columnClass,
-                "order"      : order
-            });
+            ths += TblManager.getColHeadHTML(colHeadNum, tableId);
         }
+
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
         var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
         var jsonData = [];
