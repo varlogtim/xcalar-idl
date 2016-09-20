@@ -1969,6 +1969,7 @@ window.Profile = (function($, Profile, d3) {
         var $section = $("#profile-chart");
         var $chart = $section.find(".groupbyChart");
         var bound = $section.get(0).getBoundingClientRect();
+        $modal.addClass("selecting");
 
         function FilterSelection(x, y) {
             var self = this;
@@ -2000,6 +2001,7 @@ window.Profile = (function($, Profile, d3) {
                 selectRect.end();
                 $(document).off(".selectRect");
                 $(document).off("mousemove.checkMovement");
+                $modal.removeClass("selecting");
             });
         }
 

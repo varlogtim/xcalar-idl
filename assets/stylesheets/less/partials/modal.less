@@ -1455,7 +1455,6 @@ html.microsoft {
 
     .modalInstruction, .modalTopMain, .modalMain, .modalBottom {
         .size(@width: ~"calc(100% - @{width-stats})");
-        
     }
 
     .popBar {
@@ -1524,14 +1523,25 @@ html.microsoft {
     }
 
     &.dragging {
-        .noSelection;
         cursor: pointer;
+    }
+
+    &.dragging, &.selecting {
+        .noSelection;
+
+        .modalInstruction, #profile-stats, input {
+            .noSelection;
+        }
     }
 
     &:not(.type-number) {
         .rangeSection {
             opacity: @opacity-disabled !important;
             pointer-events: none;
+
+            input {
+                .noSelection;
+            }
         }
     }
 
