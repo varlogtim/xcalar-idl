@@ -141,9 +141,10 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         // opeartion for move to worksheet and copy to worksheet
-        $tableMenu.on('mouseenter', '.moveToWorksheet', function() {
+        $tableMenu.on('mouseenter', '.moveTable', function() {
             var $list = $subMenu.find(".list");
             $list.empty().append(WSManager.getWSLists(false));
+            
         });
 
         $tableMenu.on('mouseup', '.createDf', function(event) {
@@ -165,7 +166,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
         subMenuList.setupListeners();
 
-        $subMenu.on('keypress', '.moveToWorksheet input', function(event) {
+        $subMenu.on('keypress', '.moveTable input', function(event) {
             if (event.which === keyCode.Enter) {
                 var tableId = $tableMenu.data('tableId');
                 var $input  = $(this);
@@ -176,11 +177,13 @@ window.TblMenu = (function(TblMenu, $) {
 
                 var isValid = xcHelper.validate([
                     {
-                        "$selector": $input
+                        "$selector": $input,
+                        "side": "left"
                     },
                     {
                         "$selector": $input,
                         "text"     : ErrTStr.InvalidWSInList,
+                        "side"     : "left",
                         "check"    : function () {
                             return ($option.length === 0);
                         }
@@ -199,6 +202,28 @@ window.TblMenu = (function(TblMenu, $) {
                 $input.blur();
                 closeMenu($allMenus);
             }
+        });
+
+        $subMenu.on('mouseup', '.moveLeft', function(event) {
+            if (event.which !== 1 || $(this).hasClass('unavailable')) {
+                return;
+            }
+            var tableId = $tableMenu.data('tableId');
+            var curIndex = WSManager.getTableRelativePosition(tableId);
+            reorderAfterTableDrop(tableId, curIndex, curIndex - 1, {
+                moveHtml: true
+            });
+        });
+
+        $subMenu.on('mouseup', '.moveRight', function(event) {
+            if (event.which !== 1 || $(this).hasClass('unavailable')) {
+                return;
+            }
+            var tableId = $tableMenu.data('tableId');
+            var curIndex = WSManager.getTableRelativePosition(tableId);
+            reorderAfterTableDrop(tableId, curIndex, curIndex + 1, {
+                moveHtml: true
+            });
         });
 
         $subMenu.on('mouseup', '.sortForward', function(event) {

@@ -579,7 +579,7 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.ReorderTable] = function(options) {
         focusTableHelper(options);
         reorderAfterTableDrop(options.tableId, options.desIndex, options.srcIndex,
-                                {undoRedo: true});
+                                {moveHtml: true});
         return PromiseHelper.resolve(null);
     };
 

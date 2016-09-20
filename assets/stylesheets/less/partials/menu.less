@@ -102,7 +102,7 @@
     &.subMenu.tableMenu {
         overflow: visible !important;
 
-        ul.moveToWorksheet {
+        ul.moveTable {
             overflow: visible !important;
 
             .wsList {
@@ -319,12 +319,13 @@
         .dropdownBox {
             opacity: 0 !important;
         }
-        ul {
-            display: none !important;
-        }
+
         &.moveToWorksheet {
             &+ .tooltip {
                 display: block !important;
+            }
+            input {
+                pointer-events: none;
             }
         }
     }
@@ -718,7 +719,7 @@
     }
 }
 
-.moveToWorksheet {
+.moveTable {
     li {
        overflow: visible;
     }

@@ -1244,11 +1244,12 @@ function removeWaitCursor() {
 }
 
 //options:
-// undoRedo: boolean, if true we replace html (for undo/redo)
+// moveHtml: boolean, if true we replace html (for undo/redo or 
+// through table menu)
 function reorderAfterTableDrop(tableId, srcIndex, desIndex, options) {
     WSManager.reorderTable(tableId, srcIndex, desIndex);
     options = options || {};
-    var undoRedo = options.undoRedo;
+    var moveHtml = options.moveHtml;
 
     var newIndex = WSManager.getTablePosition(tableId);
 
@@ -1256,29 +1257,29 @@ function reorderAfterTableDrop(tableId, srcIndex, desIndex, options) {
     var $dagWraps = $('.dagWrap:not(.tableToRemove)');
     var $tableWrap;
     var $tableWraps;
-    if (undoRedo) {
+    if (moveHtml) {
         $tableWraps = $('.xcTableWrap:not(.tableToRemove)');
         $tableWrap = $('#xcTableWrap-' + tableId);
     }
 
     if (newIndex === 0) {
         $('.dagArea').find('.legendArea').after($dagWrap);
-        if (undoRedo) {
+        if (moveHtml) {
             $('#mainFrame').prepend($tableWrap);
         }
     } else if (srcIndex < desIndex) {
         $dagWraps.eq(newIndex).after($dagWrap);
-        if (undoRedo) {
+        if (moveHtml) {
             $tableWraps.eq(newIndex).after($tableWrap);
         }
     } else if (srcIndex > desIndex) {
         $dagWraps.eq(newIndex).before($dagWrap);
-        if (undoRedo) {
+        if (moveHtml) {
             $tableWraps.eq(newIndex).before($tableWrap);
         }
     }
 
-    if (undoRedo) {
+    if (moveHtml) {
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();

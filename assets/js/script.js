@@ -704,6 +704,7 @@ window.StartManager = (function(StartManager, $) {
         $(window).blur(function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
+            StatusBox.forceHide();
         });
 
         if (!window.isBrowseChrome) {

@@ -326,6 +326,7 @@ window.WSManager = (function($, WSManager) {
     //     toggleTableArchive(tableId, srcTables, desTables);
     // };
 
+    // relative to only tables in it's worksheet, not other worksheets
     WSManager.getTableRelativePosition = function(tableId) {
         var wsId  = tableIdToWSIdMap[tableId];
         var tableIndex = wsLookUp[wsId].tables.indexOf(tableId);

@@ -354,7 +354,7 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.ReorderTable] = function(options) {
         focusTableHelper(options);
         reorderAfterTableDrop(options.tableId, options.srcIndex, options.desIndex,
-                                {undoRedo: true});
+                                {moveHtml: true});
         return PromiseHelper.resolve(null);
     };
 

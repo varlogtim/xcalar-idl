@@ -959,6 +959,7 @@ window.xcHelper = (function($, xcHelper) {
            callback : if not null, will call it after check fails
            isAlert  : if set true, will show Alert Modal, default is StatusBox
            formMode : if set true, will use StatusBox's form mode
+           side     : string, side to show the pop up
            ...      : to be extened in the future.
 
          * Check will run in array's order.
@@ -987,14 +988,18 @@ window.xcHelper = (function($, xcHelper) {
                 if (ele.noWarn) {
                     return false;
                 }
+                var options = {};
+                if (ele.side) {
+                    options.side = ele.side;
+                }
 
                 if (ele.callback) {
-                    StatusBox.show(error, $e, ele.formMode);
+                    StatusBox.show(error, $e, ele.formMode, options);
                     ele.callback();
                 } else if (ele.isAlert) {
                     Alert.error(ErrTStr.InvalidField, ele.text);
                 } else {
-                    StatusBox.show(error, $e, ele.formMode);
+                    StatusBox.show(error, $e, ele.formMode, options);
                 }
 
                 return false;
@@ -2685,10 +2690,25 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             $menu.find('li').removeClass('unavailable');
         }
+        var $subMenu = $('#' + $menu.data('submenu'));
         if (WSManager.getWSLen() <= 1) {
-            $menu.find(".moveToWorksheet").addClass("unavailable");
+            $subMenu.find(".moveToWorksheet").addClass("unavailable");
         } else {
-            $menu.find(".moveToWorksheet").removeClass("unavailable");
+            $subMenu.find(".moveToWorksheet").removeClass("unavailable");
+        }
+        var tableId = gActiveTableId;
+        var index = WSManager.getTableRelativePosition(tableId);
+        if (index === 0) {
+            $subMenu.find('.moveLeft').addClass('unavailable');
+        } else {
+            $subMenu.find('.moveLeft').removeClass('unavailable');
+        }
+        var activeWS = WSManager.getActiveWS();
+        var numTables = WSManager.getWorksheets()[activeWS].tables.length;
+        if (index === (numTables - 1)) {
+            $subMenu.find('.moveRight').addClass('unavailable');
+        } else {
+            $subMenu.find('.moveRight').removeClass('unavailable');
         }
     }
 

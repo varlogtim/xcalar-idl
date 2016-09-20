@@ -16,11 +16,8 @@
     <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
     <!-- <li class="copyColNames"><%=dicts.MenuTStr.CPColNames  %></li> -->
     <li class="delAllDuplicateCols"><%= dicts.MenuTStr.DelAllDups %></li>
-    <li class="moveToWorksheet parentMenu"
-    data-submenu="moveToWorksheet" data-toggle="tooltip"
-    data-placement="top"
-    title="<%= TooltipTStr.NoWSToMV %>">
-      <%= dicts.MenuTStr.MVWS %>
+    <li class="moveTable parentMenu" data-submenu="moveTable">
+      <%= dicts.MenuTStr.Move %>
     </li>
     <li class="sort parentMenu" data-submenu="sort">
       <%= dicts.MenuTStr.SortCols %>
@@ -49,11 +46,15 @@
 </div>
 <!-- tableSubMenu -->
 <div id="tableSubMenu" class="menu subMenu">
-  <ul class="moveToWorksheet">
-    <li style="text-align: center" class="clickable">
-      <span><%= dicts.ws.WSName %></span>
+  <ul class="moveTable">
+    <li class="moveLeft"><%= dicts.MenuTStr.MoveLeft %></li>
+    <li class="moveRight"><%= dicts.MenuTStr.MoveRight %></li>
+    <li class="clickable moveToWorksheet" data-toggle="tooltip"
+    data-placement="top"
+    title="<%= TooltipTStr.NoWSToMV %>">
+      <span><%= dicts.MenuTStr.MVWS %></span>
       <div class="dropDownList">
-        <input class="wsName" type="text" width="100px"
+        <input class="wsName" type="text" 
         placeholder="<%= dicts.common.ClickToOpts %>"
         spellcheck="false" />
         <ul class="list wsList"></ul>

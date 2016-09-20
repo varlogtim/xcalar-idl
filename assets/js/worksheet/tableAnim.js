@@ -788,7 +788,8 @@ window.TblAnim = (function($, TblAnim) {
 
     function checkTableDrag(e) {
         dragInfo.pageX = e.pageX;
-        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 0) {
+        // must move by at least 3 pixels
+        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 2) {
             $(document).off('mousemove.checkTableDrag');
             $(document).on('mousemove.onTableDrag', onTableDrag);
 
