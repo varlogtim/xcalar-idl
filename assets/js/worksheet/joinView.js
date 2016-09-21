@@ -9,6 +9,8 @@ window.JoinView = (function($, JoinView) {
     var $lastInputFocused;
     var $renameSection; // $("#joinView .renameSection")
     var isNextNew = true; // if true, will run join estimator
+    var joinEstimatorType = "inner"; // if user changes join type,
+                                     // rerun estimator
     var isOpen = false;
     var lImmediatesCache;
     var rImmediatesCache;
@@ -67,7 +69,7 @@ window.JoinView = (function($, JoinView) {
         formHelper = new FormHelper($joinView, {
             "columnPicker": columnPicker
         });
-        
+
         $joinView.find('.cancel, .close').on('click', function() {
             JoinView.close();
         });
@@ -225,7 +227,7 @@ window.JoinView = (function($, JoinView) {
             if (!$li.hasClass('checked')) {
                 toHighlight = true;
             }
-            
+
             var $colList = $li.closest('ul');
             var isLeftSide = $colList.hasClass('leftCols');
             var toShift = event.shiftKey &&
@@ -293,18 +295,16 @@ window.JoinView = (function($, JoinView) {
                     .removeClass('checked')
                     .find('.checkbox').removeClass('checked');
         }
-        
 
         $joinView.find('.selectAll').on('click', function() {
             var $checkbox = $(this);
             var index = $joinView.find('.selectAll').index($checkbox);
             var $cols = $joinView.find('.columnsWrap ul').eq(index);
-            
+
             if ($checkbox.hasClass('checked')) {
                 $checkbox.removeClass('checked');
                 $cols.find('li').removeClass('checked')
                      .find('.checkbox').removeClass('checked');
-               
             } else {
                 $checkbox.addClass('checked');
                 $cols.find('li').addClass('checked')
@@ -320,10 +320,9 @@ window.JoinView = (function($, JoinView) {
             var $suggErrorArea = $(this).siblings(".suggError");
             // var $suggErrorArea = $(this);
             if (hasValidTableNames()) {
-                
                 $joinView.find('.joinClause:not(.placeholder)').each(function() {
                     var $row = $(this);
-                    
+
                     if ($row.find('.arg').eq(0).val().trim() !== "" &&
                         $row.find('.arg').eq(1).val().trim() === "") {
                         $inputToCheck = $row.find('.arg').eq(0);
@@ -396,7 +395,7 @@ window.JoinView = (function($, JoinView) {
                     "template" : TooltipTemplate.Error
                 });
             }
-            
+
             checkNextBtn();
             updatePreviewText();
         });
@@ -433,7 +432,7 @@ window.JoinView = (function($, JoinView) {
             BottomMenu.close(true);
         }
         formOpenTime = Date.now();
-        
+
         if (!restore) {
             resetJoinView();
             fillTableLists(tableId);
@@ -445,7 +444,6 @@ window.JoinView = (function($, JoinView) {
         $("body").on("keypress.joinModal", function(event) {
             switch (event.which) {
                 case keyCode.Enter:
-                    
                     // when focus on a button, no trigger
                     if (formHelper.checkBtnFocus()) {
                         return;
@@ -455,7 +453,7 @@ window.JoinView = (function($, JoinView) {
                     } else {
                         $joinView.find('.next').click();
                     }
-                    
+
                     break;
                 default:
                     break;
@@ -495,6 +493,10 @@ window.JoinView = (function($, JoinView) {
                     displayAllColumns();
                     isNextNew = false;
                     resetRenames();
+                } else if ($joinTypeSelect.find(".text").text() !==
+                           joinEstimatorType) {
+                    // Rerun estimator since type is now different
+                    estimateJoinSize();
                 }
 
                 $joinView.addClass('nextStep');
@@ -546,7 +548,6 @@ window.JoinView = (function($, JoinView) {
         var errorText;
         // xx need to refactor below
         if (leftColRes.invalid) {
-            
             var $input =
             $clauseContainer.find('.joinClause .leftClause').filter(function() {
                 return ($(this).val() === leftColRes.name);
@@ -615,6 +616,7 @@ window.JoinView = (function($, JoinView) {
         var argList = {
             "leftLimit" : 100,
             "rightLimit": 100,
+            "joinType"  : $joinTypeSelect.find(".text").text(),
             "lCol"      : cols[0],
             "rCol"      : cols[1],
             "rTable"    : new XcSDK.Table(rTableName),
@@ -629,6 +631,9 @@ window.JoinView = (function($, JoinView) {
         var extOptions = {
             noNotification: true
         };
+
+        joinEstimatorType = $joinTypeSelect.find(".text").text();
+
         ExtensionManager.trigger(tableIds[0], "UExtDev", "estimateJoin",
                                  argList, extOptions)
         .then(function(ret) {
@@ -637,7 +642,6 @@ window.JoinView = (function($, JoinView) {
             $estimatorWrap.find('.min .value').text(ret.minSum);
             $estimatorWrap.find('.med .value').text(ret.expSum);
             $estimatorWrap.find('.max .value').text(ret.maxSum);
-
         })
         .fail(function() {
             $joinView.find('.estimatorWrap .title')
@@ -687,7 +691,6 @@ window.JoinView = (function($, JoinView) {
             var rTableId = xcHelper.getTableId(rTableName);
             return ([lTableId, rTableId]);
         }
-        
     }
 
     function hasColsAndTableNames() {
@@ -805,7 +808,7 @@ window.JoinView = (function($, JoinView) {
     function submitJoin() {
         // check validation
         // if submit is enabled, that means first view is already valid
-        
+
         var newTableName = $joinTableName.val().trim();
 
         if (newTableName === "") {
@@ -879,13 +882,13 @@ window.JoinView = (function($, JoinView) {
         var $colLis;
         var lColsToKeep = [];
         var rColsToKeep = [];
-        
+
         // set up "joining on" columns
         for (var i = 0; i < lCols.length; i++) {
             var col = lTable.getColByFrontName(lCols[i]);
             lColNums[i] = lTable.getColNumByBackName(col.backName) - 1;
         }
-        
+
         for (var i = 0; i < rCols.length; i++) {
             var col = rTable.getColByFrontName(rCols[i]);
             rColNums[i] = rTable.getColNumByBackName(col.backName) - 1;
@@ -1220,7 +1223,7 @@ window.JoinView = (function($, JoinView) {
         } else {
             $div.find('.arg').eq(0).focus();
         }
-        
+
         if (!noAnimation) {
             $div.hide().slideDown(100);
         }
@@ -1612,7 +1615,6 @@ window.JoinView = (function($, JoinView) {
                     previewText += '<span class="keyword"><br/>AND </span>';
                 }
                 previewText += leftColText + ' = ' + rightColText;
-                            
             }
         }
         previewText += ";";

@@ -46,6 +46,15 @@ window.UExtDev = (function(UExtDev) {
             }
         },
         {
+            "type"      : "string",
+            "name"      : "Join Type(leftOuter,rightOuter,inner,fullOuter)",
+            "fieldClass": "joinType",
+            "autofill"  : "innerJoin",
+            "typeCheck" : {
+                "allowEmpty": true
+            }
+        },
+        {
             "type"      : "number",
             "name"      : "Limit on left table",
             "fieldClass": "leftLimit",
@@ -127,6 +136,14 @@ window.UExtDev = (function(UExtDev) {
                 rightLimit = 100;
             }
 
+            var joinType = args.joinType;
+            if (joinType == null) {
+                joinType = "inner";
+            } else {
+                joinType = joinType.toLowerCase().replace(/ /g, "")
+                                                 .replace("join", "");
+            }
+
             var leftGBColName = ext.createColumnName();
             var rightGBColName = ext.createColumnName();
 
@@ -135,6 +152,13 @@ window.UExtDev = (function(UExtDev) {
 
             var leftCount = -1;
             var rightCount = -1;
+
+            var origLeftNumRows = -1; // No groupby
+            var origRightNumRows = -1; // No groupby
+
+            var leftRowsPromise = ext.getNumRows(srcTableName);
+            var rightRowsPromise = ext.getNumRows(rTableName);
+
             var leftPromise = ext.groupBy(AggrOp.Count, lColNames, lColName,
                                           false, srcTableName, leftGBColName,
                                           ext.createTempTableName())
@@ -182,8 +206,11 @@ window.UExtDev = (function(UExtDev) {
                 return PromiseHelper.reject();
             });
 
-            XcSDK.Promise.when(leftPromise, rightPromise)
-            .then(function(leftArray, rightArray) {
+            XcSDK.Promise.when(leftPromise, rightPromise, leftRowsPromise,
+                               rightRowsPromise)
+            .then(function(leftArray, rightArray, leftRows, rightRows) {
+                var leftOrigRows = leftRows;
+                var rightOrigRows = rightRows;
                 var minLeftValue =
                         leftArray[leftArray.length - 1][leftGBColName];
                 var minRightValue =
@@ -206,6 +233,14 @@ window.UExtDev = (function(UExtDev) {
                 var minSum = 0;
 
                 var key;
+                var leftRowsCovered = 0;
+                var rightRowsCovered = 0;
+                for (key in leftObj) {
+                    leftRowsCovered += leftObj[key];
+                }
+                for (key in rightObj) {
+                    rightRowsCovered += rightObj[key];
+                }
                 for (key in leftObj) {
                     if (key in rightObj) {
                         maxSum += leftObj[key] * rightObj[key];
@@ -213,12 +248,20 @@ window.UExtDev = (function(UExtDev) {
                         minSum += leftObj[key] * rightObj[key];
                         delete rightObj[key];
                     } else {
+                        if (joinType === "leftouter" ||
+                            joinType === "fullouter") {
+                            minSum += leftObj[key];
+                        }
                         maxSum += leftObj[key] * minRightValue;
                         expSum += leftObj[key] * minRightValue / 2;
                     }
                 }
 
                 for (key in rightObj) {
+                    if (joinType === "rightouter" ||
+                        joinType === "fullouter") {
+                        minSum += rightObj[key];
+                    }
                     maxSum += rightObj[key] * minLeftValue;
                     expSum += rightObj[key] * minLeftValue/2;
                 }
@@ -226,10 +269,16 @@ window.UExtDev = (function(UExtDev) {
                 var numKeysLeftInLeftTable = leftCount - leftLimit;
                 var numKeysLeftInRightTable = rightCount - rightLimit;
 
-                maxSum += numKeysLeftInLeftTable * minRightValue;
-                maxSum += numKeysLeftInRightTable * minLeftValue;
-                expSum += numKeysLeftInLeftTable * minRightValue/2;
-                expSum += numKeysLeftInRightTable * minLeftValue/2;
+                maxSum += (numKeysLeftInLeftTable + numKeysLeftInRightTable) *
+                          minRightValue * minLeftValue;
+                expSum += (numKeysLeftInLeftTable + numKeysLeftInRightTable) *
+                          (minRightValue / 2) * (minLeftValue / 2);
+                if (joinType === "leftouter" || joinType === "fullouter") {
+                    minSum += leftRows - leftRowsCovered;
+                }
+                if (joinType === "rightouter" || joinType === "fuillouter") {
+                    minSum += rightRows - rightRowsCovered;
+                }
 
                 deferred.resolve({
                     "maxSum": maxSum.toLocaleString(),
