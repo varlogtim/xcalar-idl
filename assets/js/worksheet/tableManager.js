@@ -1105,10 +1105,11 @@ window.TblManager = (function($, TblManager) {
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             $th = $table.find('th.col' + (colNums[i]));
             oldWidthStates.push(columns[i].sizeToHeader);
-            columns[i].sizeToHeader = !sizeToHeader;
+            columns[i].sizedToHeader = sizeToHeader;
             newWidthStates.push(columns[i].sizeToHeader);
             columns[i].isHidden = false;
             oldColumnWidths.push(columns[i].width);
+
             newWidths.push(autosizeCol($th, {
                 "dblClick"      : true,
                 "minWidth"      : 17,
@@ -1151,7 +1152,7 @@ window.TblManager = (function($, TblManager) {
             }
             $table.find('th.col' + colNum).outerWidth(widths[i]);
             progCols[colNum - 1].width = widths[i];
-            progCols[colNum - 1].sizeToHeader = widthStates[i];
+            progCols[colNum - 1].sizedToHeader = widthStates[i];
         }
         matchHeaderSizes($table);
     };

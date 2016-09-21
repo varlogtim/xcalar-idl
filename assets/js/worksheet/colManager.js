@@ -368,6 +368,7 @@ window.ColManager = (function($, ColManager) {
         var newTableNames = [];
         var newFieldNames = [];
         var mapStrings = [];
+        var resizeHeaders = []; // booleans for whether to resize col header
 
         var i;
         for (i = numColInfos - 1; i >= 0; i--) {
@@ -379,6 +380,7 @@ window.ColManager = (function($, ColManager) {
             // here use front col name to generate newColName
             newFieldNames[i] = xcHelper.getUniqColName(tableId, colName);
             mapStrings[i] = xcHelper.castStrHelper(col.getBackColName(), colInfo.type);
+            resizeHeaders[i] = col.sizedToHeader;
         }
 
         // this makes it easy to get previous table name
@@ -412,7 +414,6 @@ window.ColManager = (function($, ColManager) {
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
             xcHelper.unlockTable(tableId);
-
             Transaction.done(txId, {"msgTable": newTableId});
             deferred.resolve(newTableId);
         })
@@ -436,10 +437,11 @@ window.ColManager = (function($, ColManager) {
             var fieldName = newFieldNames[index];
             var mapString = mapStrings[index];
             var curColNum = colTypeInfos[index].colNum;
+            var resize = resizeHeaders[index];
 
             XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
             .then(function() {
-                var mapOptions = {"replaceColumn": true};
+                var mapOptions = {"replaceColumn": true, "resize": resize};
                 var curTableId = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
 
@@ -457,6 +459,7 @@ window.ColManager = (function($, ColManager) {
                     var options = {
                         selectCol: colNums
                     };
+
                     return TblManager.refreshTable([newTableName], newTablCols,
                                                [tableName], worksheet, txId,
                                                options);
@@ -714,19 +717,27 @@ window.ColManager = (function($, ColManager) {
         curCol.name = newName;
         var wasEditable = $th.find('.flexWrap.editable').length;
         var $editableHead = $th.find('.editableHead');
-        if (!options.keepEditable) {
-            $th.find('.editable').removeClass('editable');
-            $editableHead.prop("disabled", true);
-
-            FnBar.focusOnCol($editableHead, tableId, colNum, true);
-        } else {
+        if (options.keepEditable) {
+            // used when undoing a rename on a new column
             $th.find('.flexWrap.flex-mid').addClass('editable');
             $th.find('.header').addClass('editable');
             $th.find('.editableHead').prop("disabled", false);
+            $th.width(gNewCellWidth);
+            curCol.width = gNewCellWidth;
+        } else {
+            $th.find('.editable').removeClass('editable');
+            $editableHead.prop("disabled", true);
+            FnBar.focusOnCol($editableHead, tableId, colNum, true);
         }
 
         $editableHead.val(newName).attr("value", newName);
-
+        if (!options.keepEditable && curCol.sizedToHeader) {
+            autosizeCol($th, {
+                "dblClick"      : true,
+                "minWidth"      : 17,
+                "includeHeader" : true
+            });
+        }
 
         // adjust tablelist column name
         TableList.updateColName(tableId, colNum, newName);
@@ -1780,7 +1791,7 @@ window.ColManager = (function($, ColManager) {
             }
             if ($currentTh.hasClass('selectedCell') ||
                 $currentTh.hasClass('modalHighlighted')) {
-                highlightColumn($currentTh);
+                highlightColumn($currentTh, true);
             }
         }
 

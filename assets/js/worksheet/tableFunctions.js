@@ -56,7 +56,9 @@ function getTextWidth($el, val, options) {
     dataStore: boolean, default is false. Set to true if measuring columns
                 located in the datastore panel
     dblClick: boolean, default is false. Set to true when resizing using a
-                double click
+                double click,
+    multipleCols: boolean, default is false. Set to true if this is one of many cols
+    being resized so we don't call matchHeaders() multiple times
 */
 function autosizeCol($th, options) {
     options = options || {};
@@ -179,7 +181,7 @@ function dblClickResize($el, options) {
         $(document).off('mouseup.endColResize');
         unhideOffScreenTables();
         xcHelper.reenableTextSelection();
-        $('.xcTheadWrap').find('.dropdownBox').show();
+        $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
@@ -233,14 +235,14 @@ function dblClickResize($el, options) {
 
         if (target === "datastore") {
             $selectedCols.find('.colGrab').each(function() {
-                if ($(this).data('sizetoheader')) {
+                if (!$(this).data('sizedtoheader')) {
                     includeHeader = true;
                     return false;
                 }
             });
 
             $selectedCols.find('.colGrab').each(function() {
-                $(this).data('sizetoheader', !includeHeader);
+                $(this).data('sizedtoheader', includeHeader);
             });
 
         } else {
@@ -248,15 +250,15 @@ function dblClickResize($el, options) {
             var columns = gTables[tableId].tableCols;
             var i;
             for (i = 0; i < numSelectedCols; i++) {
-                if (columns[indices[i]].sizeToHeader) {
+                if (!columns[indices[i]].sizedToHeader) {
                     includeHeader = true;
                     break;
                 }
             }
             for (i = 0; i < numSelectedCols; i++) {
-                oldWidthStates.push(columns[indices[i]].sizeToHeader);
-                columns[indices[i]].sizeToHeader = !includeHeader;
-                newWidthStates.push(!includeHeader);
+                oldWidthStates.push(columns[indices[i]].sizedToHeader);
+                columns[indices[i]].sizedToHeader = includeHeader;
+                newWidthStates.push(includeHeader);
                 oldColumnWidths.push(columns[indices[i]].width);
             }
         }

@@ -770,7 +770,9 @@ window.OperationsView = (function($, OperationsView) {
         var aggs = Aggregates.getAggs();
         aggNames = [];
         for (var i in aggs) {
-            aggNames.push(aggs[i].dagName);
+            if (aggs[i].dagName.indexOf(gAggVarPrefix) === 0) {
+                aggNames.push(aggs[i].dagName);
+            }
         }
 
         if (!restore) {

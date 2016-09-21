@@ -451,20 +451,28 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols, options) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
-
+        var sizedToHeader;
         if (colNum > 0) {
             var cellWidth;
             if (options.replaceColumn) {
-                if (options.width) {
-                    cellWidth = options.width;
+                // xx not sure if we're passing in width anywhere
+                // if (options.width) {
+                //     cellWidth = options.width;
+                // } else 
+                if (options.resize) {
+                    var widthOptions = {
+                        defaultHeaderStyle: true
+                    };
+                    cellWidth = getTextWidth($(), colName, widthOptions);
                 } else {
                     cellWidth = copiedCols[colNum - 1].width;
                 }
+                sizedToHeader = copiedCols[colNum - 1].sizedToHeader;
             } else {
                 var widthOptions = {
                     defaultHeaderStyle: true
                 };
-                cellWidth = getTextWidth($(), colName, widthOptions);
+                cellWidth = getTextWidth(null, colName, widthOptions);
             }
 
             // backend will return an escaped name and then we'll have to use
@@ -473,11 +481,12 @@ window.xcHelper = (function($, xcHelper) {
             var escapedName = colName;
 
             var newProgCol = ColManager.newCol({
-                "backName": escapedName,
-                "name"    : colName,
-                "width"   : cellWidth,
-                "userStr" : '"' + colName + '" = map(' + mapStr + ')',
-                "isNewCol": false
+                "backName"     : escapedName,
+                "name"         : colName,
+                "width"        : cellWidth,
+                "userStr"      : '"' + colName + '" = map(' + mapStr + ')',
+                "isNewCol"     : false,
+                "sizedToHeader": sizedToHeader
             });
 
             if (options.type) {

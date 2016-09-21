@@ -106,10 +106,10 @@ window.TblAnim = (function($, TblAnim) {
                 progCol.width = rescol.grabbedCell.outerWidth();
             }
             var column = gTables[rescol.tableId].tableCols[rescol.index - 1];
-            widthState = column.sizeToHeader;
+            widthState = column.sizedToHeader;
             if (Math.abs(rescol.newWidth - rescol.startWidth) > 1) {
                 // set autoresize to header only if column moved at least 2 pixels
-                column.sizeToHeader = true;
+                column.sizedToHeader = false;
             }
             if (rescol.newWidth === rescol.startWidth) {
                 wasResized = false;
@@ -118,7 +118,7 @@ window.TblAnim = (function($, TblAnim) {
             rescol.isDatastore = false;
             if (Math.abs(rescol.newWidth - rescol.startWidth) > 1) {
                 // set autoresize to header only if column moved at least 2 pixels
-                rescol.grabbedCell.find('.colGrab').data('sizetoheader', true);
+                rescol.grabbedCell.find('.colGrab').data('sizedtoheader', false);
             }
         }
 
@@ -163,16 +163,16 @@ window.TblAnim = (function($, TblAnim) {
             progCol.width = toWidth;
         }
         $th.outerWidth(toWidth);
-        var oldWidthState = progCol.sizeToHeader;
+        var oldWidthState = progCol.sizedToHeader;
         if (widthState == null) {
             if (Math.abs(toWidth - fromWidth) > 1) {
                 // set autoresize to header only if column moved at least 2 pixels
-                progCol.sizeToHeader = true;
+                progCol.sizedToHeader = false;
             }
         } else {
-            progCol.sizeToHeader = widthState;
+            progCol.sizedToHeader = widthState;
         }
-        var newWidthState = progCol.sizeToHeader;
+        var newWidthState = progCol.sizedToHeader;
         matchHeaderSizes($table);
 
         SQL.add("Resize Column", {

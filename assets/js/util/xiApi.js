@@ -594,6 +594,7 @@ window.XIApi = (function(XIApi, $) {
         var newFieldNames = [];
         var newTableNames = [];
         var newTypes = [];
+        var resizeHeaders = [];
 
         var promises = [];
 
@@ -622,6 +623,7 @@ window.XIApi = (function(XIApi, $) {
             newFieldNames.push(colName + suffix);
             newTableNames.push(tableNamePart + Authentication.getHashId());
             newTypes.push(type);
+            resizeHeaders.push(progCol.sizedToHeader);
 
             if (colName === colToIndex) {
                 // if colToIndex is pulled out, it's renamed
@@ -658,12 +660,14 @@ window.XIApi = (function(XIApi, $) {
             var fieldName = newFieldNames[index];
             var mapString = mapStrings[index];
             var curColNum = colNums[index];
+            var resize = resizeHeaders[index];
 
             XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
             .then(function() {
                 var mapOptions = {
                     "replaceColumn": true,
-                    "type"         : newTypes[index]
+                    "type"         : newTypes[index],
+                    "resize"       : resize
                 };
                 var curTableId = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
@@ -799,6 +803,15 @@ window.XIApi = (function(XIApi, $) {
                             {
                                 lCols[colNum].backName = lRename[j].new;
                                 lCols[colNum].name = lRename[j].new;
+                                if (lCols[colNum].sizedToHeader) {
+                                    var widthOptions = {
+                                        defaultHeaderStyle: true
+                                    };
+                                    cellWidth = getTextWidth(null, 
+                                                lRename[j].new, 
+                                                widthOptions);
+                                    lCols[colNum].width = cellWidth;
+                                }
                             }
                         }
                     }
@@ -824,6 +837,15 @@ window.XIApi = (function(XIApi, $) {
                             {
                                 rCols[colNum].backName = rRename[j].new;
                                 rCols[colNum].name = rRename[j].new;
+                                if (rCols[colNum].sizedToHeader) {
+                                    var widthOptions = {
+                                        defaultHeaderStyle: true
+                                    };
+                                    cellWidth = getTextWidth(null, 
+                                                rRename[j].new, 
+                                                widthOptions);
+                                    rCols[colNum].width = cellWidth;
+                                }
                             }
                         }
                     }

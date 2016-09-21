@@ -1481,7 +1481,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var headers = Object.keys(keys);
         var colLen = headers.length;
-        var colGrab = '<div class="colGrab" data-sizetoheader="true"></div>';
+        var colGrab = '<div class="colGrab" data-sizedtoheader="false"></div>';
         var html = '<thead><tr>' +
                     '<th class="rowNumHead">' +
                         '<div class="header"></div>' +
@@ -1526,7 +1526,7 @@ window.DSPreview = (function($, DSPreview) {
     function getTheadHTML(datas, delimiter, tdLen) {
         var thead = "<thead><tr>";
         var colGrab = (delimiter === "") ? "" : '<div class="colGrab" ' +
-                                            'data-sizetoheader="true"></div>';
+                                            'data-sizedtoheader="false"></div>';
 
         // when has header
         if (loadArgs.useHeader()) {
@@ -1641,7 +1641,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var hasDelimiter = (delLen !== 0);
         var colGrab = hasDelimiter ? '<div class="colGrab" ' +
-                                     'data-sizetoheader="true"></div>' : "";
+                                     'data-sizedtoheader="false"></div>' : "";
         var html = isTh ? '<th><div class="header">' + colGrab +
                             '<div class="text cell">'
                             : '<td class="cell">';

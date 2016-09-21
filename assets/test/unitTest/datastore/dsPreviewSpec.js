@@ -81,14 +81,14 @@ function dsPreviewModuleTest() {
                 "expectRes": '<th>' +
                                 '<div class="header">' +
                                     '<div class="colGrab"' +
-                                    ' data-sizetoheader="true"></div>' +
+                                    ' data-sizedtoheader="false"></div>' +
                                     '<div class="text cell">h</div>' +
                                 '</div>' +
                             '</th>' +
                             '<th>' +
                                 '<div class="header">' +
                                     '<div class="colGrab"' +
-                                    ' data-sizetoheader="true"></div>' +
+                                    ' data-sizedtoheader="false"></div>' +
                                     '<div class="text cell">i</div>' +
                                 '</div>' +
                             '</th>'
