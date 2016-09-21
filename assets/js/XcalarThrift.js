@@ -8,6 +8,20 @@ function setupThrift() {
 function setupHostName() {
     if (window.hostname == null || window.hostname === "") {
         hostname = window.location.href;
+        // remove path
+        var path = "/index.html";
+        if (hostname.endsWith(path)) {
+            var index = hostname.lastIndexOf(path);
+            hostname = hostname.substring(0, index);
+        }
+    }
+    // protocol needs to be part of hostname
+    // If not it's assumed to be http://
+    var protocol = window.location.protocol;
+
+    // If you have special ports, it needs to be part of the hostname
+    if (!hostname.startsWith(protocol)) {
+        hostname = "http://" + hostname;
     }
 }
 // for convenience, add the function list here and make them
