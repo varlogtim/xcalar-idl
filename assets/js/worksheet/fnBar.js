@@ -123,7 +123,7 @@ window.FnBar = (function(FnBar, $) {
             // if string is empty, then it should at least have a class searching
             // otherwise we do not search
             if (trimmedVal.indexOf('=') === 0) {
-                $functionArea.removeClass('searching');
+                clearSearch();
             } else {
                 $functionArea.addClass('searching');
                 if (!$fnBar.hasClass('inFocus')) {
@@ -248,18 +248,14 @@ window.FnBar = (function(FnBar, $) {
             // if ($lastColInput) {
             //     keepVal = true;
             // }
-
-            $functionArea.removeClass('searching');
-            $functionArea.find('.position').hide();
-            $functionArea.find('.counter').hide();
-            $functionArea.find('.arrows').hide();
+            clearSearch();
         } else {
             editor.getInputField().blur(); // hack to reset blur
             var userStr = progCol.userStr;
             userStr = userStr.substring(userStr.indexOf('='));
             editor.setValue(userStr);
             $fnBar.addClass('active').removeClass('disabled');
-            $fnBar.parent().removeClass('searching');
+            clearSearch();
             if (newFocus) {
                 resetColNamesCache(tableId);
             }
@@ -279,6 +275,13 @@ window.FnBar = (function(FnBar, $) {
         $fnBar.removeClass("active inFocus disabled");
         colNamesCache = {};
     };
+
+    function clearSearch() {
+        $functionArea.removeClass('searching');
+        $functionArea.find('.position').hide();
+        $functionArea.find('.counter').hide();
+        $functionArea.find('.arrows').hide();
+    }
 
     function setupAutocomplete() {
         var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
