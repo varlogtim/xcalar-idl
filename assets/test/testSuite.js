@@ -721,7 +721,7 @@ window.TestSuite = (function($, TestSuite) {
             console.log("move table to another worksheet");
             $("#mainFrame").scrollLeft("10000");
             $(".xcTableWrap:eq(2) .tableTitle .dropdownBox .innerBox").click();
-            $("#tableMenu .moveToWorksheet").trigger(fakeEvent.mouseenter);
+            $("#tableMenu .moveTable").trigger(fakeEvent.mouseenter);
             $("#tableSubMenu .wsName").click();
             $("#tableSubMenu .moveToWorksheet .list li").click();
             $("#tableSubMenu .moveToWorksheet .wsName")
@@ -1206,13 +1206,13 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(aggTest, "QuickAggregateTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(schedTest, "ScheduleTest",
-                  defaultTimeout, TestCaseEnabled);
+                  defaultTimeout, TestCaseDisabled);
     TestSuite.add(dfgTest, "DFGTest",
-                  defaultTimeout, TestCaseEnabled);
+                  defaultTimeout, TestCaseDisabled);
     TestSuite.add(retinaTest, "RetinaTest",
-                  defaultTimeout, TestCaseEnabled);
+                  defaultTimeout, TestCaseDisabled);
     TestSuite.add(addDFGToSchedTest, "AddDFGToScheduleTest",
-                  defaultTimeout, TestCaseEnabled);
+                  defaultTimeout, TestCaseDisabled);
     TestSuite.add(jsonModalTest, "JsonModalTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
