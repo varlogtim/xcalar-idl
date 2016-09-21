@@ -57,7 +57,7 @@ var ArchiveTable = {
 };
 
 var DelWSType = {
-    "Del": "delete tables",
+    "Del": "drop tables",
     "Archive": "archive tables",
     "Empty": 'empty sheet'
 };

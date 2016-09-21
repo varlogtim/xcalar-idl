@@ -79,7 +79,7 @@ TooltipTStr = {
 
     // with replace
     'CollapsedTables': '<number> tables are hidden',
-    'DroppedTable': 'Table \'<tablename>\' has been deleted',
+    'DroppedTable': 'Table \'<tablename>\' has been dropped',
     'NoExport': 'Cannot export column of type <type>',
     'Undo': 'Undo: <op>',
     'NoUndo': 'Last operation is "<op>", cannot undo',
@@ -506,9 +506,9 @@ UDFTStr = {
 
 TblTStr = {
     'Create': 'Create Table',
-    'Del': 'Delete Tables',
-    'DelMsg': 'Are you sure you want to delete table <table>?',
-    'DelFail': 'Delete Tables Failed',
+    'Del': 'Drop Tables',
+    'DelMsg': 'Are you sure you want to drop table <table>?',
+    'DelFail': 'Drop Tables Failed',
     'Archive': 'Archive Tables',
     'Active': 'Send Tables to Worksheet',
     'ActiveFail': 'Add Inactive Tables Failed',
@@ -536,7 +536,7 @@ SideBarTStr = {
     'PopBack': 'Dock',
     'PopOut': 'Undock',
     'WalkThroughUA': 'Walkthrough Unavailable',
-    'DelTablesMsg': 'Are you sure you want to delete the selected tables?',
+    'DelTablesMsg': 'Are you sure you want to drop the selected table(s)?',
     'SelectTable': 'Select table',
     'DupUDF': 'Duplicate Module',
     'DupUDFMsg': 'Python module <module> already exists ' +
