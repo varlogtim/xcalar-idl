@@ -241,8 +241,16 @@ window.UExtDev = (function(UExtDev) {
                     Alert.show({
                         "title": "Estimated Join Size",
                         "msg"  : "Max Rows: " + maxSum.toLocaleString() + "\n" +
-                                  "Expected Rows: " + expSum.toLocaleString() + "\n" +
-                                  "Min Rows: " + minSum.toLocaleString() + "\n"
+                                 "Expected Rows: " + expSum.toLocaleString() +
+                                 "\n" + "Min Rows: " + minSum.toLocaleString() +
+                                 "\n",
+                        "hideButtons": ["confirm"],
+                        "buttons": [
+                            {
+                                "name"     : AlertTStr.CLOSE,
+                                "className": "cancel"
+                            }
+                        ]
                     });
                 }
             })
