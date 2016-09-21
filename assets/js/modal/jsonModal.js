@@ -408,14 +408,6 @@ window.JSONModal = (function($, JSONModal) {
 
     function selectJsonKey($el) {
         var $jsonWrap = $el.closest('.jsonWrap');
-        var tableId   = $jsonWrap.data('tableid');
-        var table     = gTables[tableId];
-        var cols      = table.tableCols;
-        var colNum    = $jsonWrap.data('colnum');
-        var isArray   = $jsonWrap.data('isarray');
-        var nameInfo;
-        var numCols   = cols.length;
-        var colName;
 
         if ($jsonWrap.hasClass('projectMode')) {
             // $el.closest('.jInfo').data('key');
@@ -439,47 +431,49 @@ window.JSONModal = (function($, JSONModal) {
             $jsonWrap.find('.colsSelected').text(numSelected + '/' + totalCols +
                                                  ' selected');
         } else {
+            var tableId = $jsonWrap.data('tableid');
+            var table = gTables[tableId];
+            var colNum = $jsonWrap.data('colnum');
+            var isArray = $jsonWrap.data('isarray');
+
             var nameInfo = createJsonSelectionExpression($el);
             var animation = gMinModeOn ? false : true;
+            var backColName;
 
             if (isDataCol) {
-                colName = nameInfo.escapedName;
+                backColName = nameInfo.escapedName;
             } else {
-                var symbol = "";
-                if (!isArray) {
-                    symbol = ".";
-                }
-
-                colName = cols[colNum - 1].getBackColName() + symbol +
-                          nameInfo.escapedName;
-            }
-            // check if the column already exists
-            for (var i = 0; i < numCols; i++) {
-                // skip DATA col and new col
-                if (cols[i].isDATACol() || cols[i].isNewCol) {
-                    continue;
-                }
-
-                if (cols[i].getBackColName() === colName) {
-                    closeJSONModal();
-                    xcHelper.centerFocusedColumn(tableId, i, animation);
-                    return;
-                }
+                var symbol = isArray ? "" : ".";
+                var colName = table.getCol(colNum).getBackColName();
+                backColName = colName + symbol + nameInfo.escapedName;
+                nameInfo.name = colName.replace(/\\\./g, ".") + symbol +
+                                nameInfo.name;
             }
 
-            var pullColOptions = {
-                "isDataTd" : isDataCol,
-                "isArray"  : isArray,
-                "noAnimate": true
+            var checkedColNum = table.getColNumByBackName(backColName);
+            if (checkedColNum >= 0) {
+                // if the column already exists
+                closeJSONModal();
+                xcHelper.centerFocusedColumn(tableId, checkedColNum, animation);
+                return;
+            }
+
+            var options = {
+                "noAnimate"  : true,
+                "direction"  : isDataCol ? "L" : "R",
+                "fullName"   : nameInfo.name,
+                "escapedName": backColName
             };
 
-            ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
+            ColManager.pullCol(colNum, tableId, options)
             .always(function() {
+                var pulledColNum = colNum + 1;
                 closeJSONModal();
                 if (isDataCol) {
-                    colNum--; // column appended to left, so colNum - 1
+                    // column appended to left, so colNum - 1
+                    pulledColNum--;
                 }
-                xcHelper.centerFocusedColumn(tableId, colNum, animation);
+                xcHelper.centerFocusedColumn(tableId, pulledColNum, animation);
             });
         }
     }
@@ -1301,7 +1295,7 @@ window.JSONModal = (function($, JSONModal) {
                     var $tbody = $(this);
                     var scrollTop = $tbody.scrollTop();
                     $tbody.on('scroll.preventScrolling', function() {
-                        $tbody.scrollTop(scrollTop); 
+                        $tbody.scrollTop(scrollTop);
                     });
                 });
 
@@ -1336,7 +1330,7 @@ window.JSONModal = (function($, JSONModal) {
                     var $tbody = $(this);
                     var scrollTop = $tbody.scrollTop();
                     $tbody.on('scroll.preventScrolling', function() {
-                       $tbody.scrollTop(scrollTop); 
+                        $tbody.scrollTop(scrollTop);
                     });
                 });
             }
@@ -1472,7 +1466,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function createJsonSelectionExpression($el) {
-        var name        = "";
+        var name = "";
         var escapedName = "";
 
         // .parents() is different with .closest()
@@ -1514,8 +1508,10 @@ window.JSONModal = (function($, JSONModal) {
             escapedName = escapedName.substr(1);
         }
 
-        return ({"name"       : name,
-                 "escapedName": escapedName});
+        return {
+            "name"       : name,
+            "escapedName": escapedName
+        };
     }
 
     function submitProject(index) {

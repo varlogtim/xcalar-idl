@@ -426,8 +426,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ReorderTable] = ["tableId", "srcIndex", "desIndex"];
         argsMap[SQLOps.ReorderCol] = ["tableId", "oldColNum", "newColNum"];
         argsMap[SQLOps.RenameCol] = ["colNum", "tableId", "newName"];
-        argsMap[SQLOps.PullCol] = ["colNum", "tableId",
-                                    "nameInfo", "pullColOptions"];
+        argsMap[SQLOps.PullCol] = ["colNum", "tableId", "pullColOptions"];
         argsMap[SQLOps.PullAllCols] = ["tableId", "colNum", "rowNum", "isArray",
                                         "options"];
         argsMap[SQLOps.SortTableCols] = ["tableId", "direction"];
@@ -781,7 +780,8 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.DupCol] = function(options) {
         var args = getArgs(options);
-        return ColManager.dupCol.apply(window, args);
+        ColManager.dupCol.apply(window, args);
+        return PromiseHelper.resolve(null);
     };
 
     replayFuncs[SQLOps.DelDupCol] = function(options) {

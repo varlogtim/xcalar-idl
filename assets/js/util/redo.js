@@ -183,7 +183,7 @@ window.Redo = (function($, Redo) {
                                         options.colNum));
         } else {
             return (ColManager.pullCol(options.colNum, options.tableId,
-                                  options.nameInfo, options.pullColOptions));
+                                        options.pullColOptions));
         }
     };
 
@@ -196,7 +196,8 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.DupCol] = function(options) {
         focusTableHelper(options);
-        return (ColManager.dupCol(options.colNum, options.tableId));
+        ColManager.dupCol(options.colNum, options.tableId);
+        return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DelDupCol] = function(options) {

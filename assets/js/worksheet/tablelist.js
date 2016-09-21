@@ -1078,6 +1078,8 @@ window.TableList = (function($, TableList) {
         } else {
             animation = true;
         }
+
+        colNum = colNum + 1;
         xcHelper.centerFocusedColumn(tableId, colNum, animation);
     }
 

@@ -1437,7 +1437,7 @@ window.xcHelper = (function($, xcHelper) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
         var windowWidth = $(window).width();
         var currentScrollPosition = $('#mainFrame').scrollLeft();
-        var $th = $tableWrap.find('th.col' + (colNum + 1));
+        var $th = $tableWrap.find('th.col' + colNum);
         var columnOffset = $th.offset().left;
         var colWidth = $th.width();
 

@@ -469,7 +469,7 @@ function ProgCol(options) {
 
     this.type = options.type || "undefined";
     this.func = new ColFunc(options.func);
-    this.width = options.width || 0;
+    this.width = options.width || gNewCellWidth;
     this.userStr = options.userStr || "";
     this.textAlign = options.textAlign || "Center";
     if (options.sizedToHeader != null) {

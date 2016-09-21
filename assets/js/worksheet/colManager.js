@@ -66,7 +66,7 @@ window.ColManager = (function($, ColManager) {
         var $tableWrap = $("#xcTableWrap-" + tableId);
         var $table = $tableWrap.find(".xcTable");
         var table = gTables[tableId];
-        var numCols  = table.tableCols.length;
+        var numCols = table.tableCols.length;
         var newColid = colNum;
 
         // options
@@ -120,6 +120,7 @@ window.ColManager = (function($, ColManager) {
 
             insertColHelper(newColid - 1, tableId, newProgCol);
         }
+
         // change table class before insert a new column
         for (var i = numCols; i >= newColid; i--) {
             $tableWrap.find('.col' + i)
@@ -265,47 +266,24 @@ window.ColManager = (function($, ColManager) {
     };
 
     // specifically used for json modal
-    ColManager.pullCol = function(colNum, tableId, nameInfo, pullColOptions) {
+    ColManager.pullCol = function(colNum, tableId, options) {
         var deferred = jQuery.Deferred();
 
-        pullColOptions = pullColOptions || {};
+        options = options || {};
 
-        var isDataTd = pullColOptions.isDataTd || false;
-        var isArray  = pullColOptions.isArray || false;
-        var noAnimate = pullColOptions.noAnimate || false;
+        var noAnimate = options.noAnimate || false;
+        var fullName = options.fullName;
+        var escapedName = options.escapedName;
+        var direction = options.direction;
 
-        var $table    = $("#xcTable-" + tableId);
-        var table     = gTables[tableId];
-        var tableCols = table.tableCols;
-        var col       = tableCols[colNum - 1];
-        var fullName  = nameInfo.name;
-        var escapedName = nameInfo.escapedName;
-
-        if (!isDataTd) {
-            var symbol = "";
-            if (!isArray) {
-                symbol = ".";
-            }
-
-            escapedName = col.getBackColName() + symbol + escapedName;
-            fullName = col.getBackColName().replace(/\\\./g, ".") + symbol +
-                       fullName;
-        }
+        var table = gTables[tableId];
         var usrStr = '"' + fullName + '" = pull(' + escapedName + ')';
 
-        var tableName   = table.tableName;
-        var siblColName = table.tableCols[colNum - 1].name;
-        var newColName  = xcHelper.getUniqColName(tableId, fullName);
-        var direction;
-        if (isDataTd) {
-            direction = "L";
-        } else {
-            direction = "R";
-        }
-        var widthOptions = {
-            defaultHeaderStyle: true
-        };
-        var width = getTextWidth($(), newColName, widthOptions);
+        var newColName = xcHelper.getUniqColName(tableId, fullName);
+        var width = getTextWidth($(), newColName, {
+            "defaultHeaderStyle": true
+        });
+
         ColManager.addCol(colNum, tableId, newColName, {
             "direction": direction,
             "select"   : true,
@@ -313,36 +291,32 @@ window.ColManager = (function($, ColManager) {
             "width"    : width
         });
 
-        if (direction === "R") {
-            colNum++;
-        }
+        var pulledColNum = colNum;
 
+        if (direction === "R") {
+            pulledColNum++;
+        }
         // now the column is different as we add a new column
-        var newCol = table.tableCols[colNum - 1];
+        var newCol = table.tableCols[pulledColNum - 1];
         newCol.func.name = "pull";
         newCol.func.args = [escapedName];
         newCol.userStr = usrStr;
 
         var sqlOptions = {
             "operation"     : SQLOps.PullCol,
-            "tableName"     : tableName,
+            "tableName"     : table.getName(),
             "tableId"       : tableId,
-            "siblColName"   : siblColName,
             "newColName"    : newColName,
             "colNum"        : colNum,
             "direction"     : direction,
-            "nameInfo"      : nameInfo,
-            "pullColOptions": pullColOptions,
+            "pullColOptions": options,
             "htmlExclude"   : ["pullColOptions"]
         };
 
-        ColManager.execCol("pull", usrStr, tableId, colNum, {noLog: true})
+        ColManager.execCol("pull", usrStr, tableId, pulledColNum, {noLog: true})
         .then(function() {
             updateTableHeader(tableId);
             TableList.updateTableInfo(tableId);
-            $table.find("tr:first th.col" + (colNum + 1) +
-                        " .editableHead").focus();
-
             // add sql
             SQL.add("Pull Column", sqlOptions);
             deferred.resolve();
@@ -352,7 +326,7 @@ window.ColManager = (function($, ColManager) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     ColManager.changeType = function(colTypeInfos, tableId) {
@@ -1126,14 +1100,12 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.dupCol = function(colNum, tableId) {
-        var deferred = jQuery.Deferred();
-
         var $table = $("#xcTable-" + tableId);
-        var table  = gTables[tableId];
+        var table = gTables[tableId];
         var tableCols = table.tableCols;
 
-        var progCol  = tableCols[colNum - 1];
-        var width    = progCol.width;
+        var progCol = table.getCol(colNum);
+        var width = progCol.width;
         var isNewCol = $table.find('th.col' + colNum).hasClass('newColumn');
         var decimals = progCol.decimals;
         var format   = progCol.format;
@@ -1167,9 +1139,6 @@ window.ColManager = (function($, ColManager) {
 
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
-        deferred.resolve();
-
-        return (deferred.promise());
     };
 
     ColManager.delDupCols = function(colNum, tableId) {
