@@ -319,6 +319,12 @@ html.firefox, html.microsoft {
         display: none;
     }
 
+    &.locked {
+        .addDataFlow {
+            .btn-disabled;
+        }
+    }
+
     .header {
         margin: 15px 65px 0px 15px;
         border-bottom: 1px solid @color-border-pinkish-grey2;
@@ -490,6 +496,10 @@ html.firefox, html.microsoft {
             .icon {
                 // XX need icon for xi2
             }
+        }
+
+        &.trueLocked {
+            pointer-events: none;
         }
 
         .icon {

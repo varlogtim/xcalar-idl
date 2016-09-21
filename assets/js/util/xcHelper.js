@@ -1191,6 +1191,9 @@ window.xcHelper = (function($, xcHelper) {
                                                    '</div>');
             $tableWrap.find('.tableCover').height(tbodyHeight);
             $('#rowScroller-' + tableId).addClass('locked');
+            // add lock class to dataflow
+            $('#dagWrap-' + tableId).addClass('locked');
+            
             moveTableTitles();
 
             // prevent vertical scrolling on the table
@@ -1198,8 +1201,13 @@ window.xcHelper = (function($, xcHelper) {
             var scrollTop = $tbody.scrollTop();
             $tbody.on('scroll.preventScrolling', function() {
                 $tbody.scrollTop(scrollTop); 
-            });
+            }); 
         }
+        var lockHTML = '<div class="lockIcon"></div>';
+        $('#dagPanel').find('.dagTable[data-id="' + tableId + '"]')
+                        .filter(function() {
+                            return !$(this).hasClass('trueLocked');
+                        }).addClass('locked trueLocked').append(lockHTML);
 
         gTables[tableId].lock();
         WSManager.lockTable(tableId);
@@ -1217,10 +1225,14 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.find('.tableCover').remove();
             $tableWrap.removeClass('tableLocked');
             $('#rowScroller-' + tableId).removeClass('locked');
+            $('#dagWrap-' + tableId).removeClass('locked');
+
             var $tbody = $tableWrap.find('.xcTbodyWrap');
             $tbody.off('scroll.preventScrolling');
         }
-
+        $('#dagPanel').find('.dagTable[data-id="' + tableId + '"]')
+                      .removeClass('locked trueLocked')
+                      .find('.lockIcon').remove();
         WSManager.unlockTable(tableId);
         SQL.unlockUndoRedo();
     };

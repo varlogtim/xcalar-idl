@@ -515,7 +515,11 @@ window.DagPanel = (function($, DagPanel) {
             }).length > 0;
 
             if (!formBusy) {
-                DFCreateView.show($(this).closest('.dagWrap'));
+                var $dagWrap = $(this).closest('.dagWrap');
+                var tableId = $dagWrap.data('id');
+                if (!gTables[tableId].isLocked) {
+                    DFCreateView.show($dagWrap);
+                }
             }
             
         });
@@ -1333,6 +1337,17 @@ window.Dag = (function($, Dag) {
             Dag.createDagImage(dagObj.node, $dagWrap, {savable: true});
 
             Dag.focusDagForActiveTable(tableId);
+
+            // add lock icon to tables that should be locked
+            var lockHTML = '<div class="lockIcon"></div>';
+            for (var tId in gTables ) {
+                if (gTables[tId].hasLock()) {
+                    $dagWrap.find('.dagTable[data-id="' + tId + '"]')
+                    .filter(function() {
+                        return !$(this).hasClass('trueLocked');
+                    }).addClass('locked trueLocked').append(lockHTML);
+                }
+            }
 
             if ($('#xcTableWrap-' + tableId).find('.tblTitleSelected').length) {
                 $('.dagWrap.selected').removeClass('selected')

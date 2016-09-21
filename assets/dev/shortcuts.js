@@ -387,7 +387,7 @@ window.Shortcuts = (function($, Shortcuts) {
             secretAddTable(fileName, noCols);
         });
 
-        $subMenu.on('mouseup', '.tests li', function() {
+        $subMenu.on('mouseup', '.tests li', function(event) {
             var testName = $(this).text();
 
             var option;
