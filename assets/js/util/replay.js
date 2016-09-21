@@ -426,6 +426,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ReorderTable] = ["tableId", "srcIndex", "desIndex"];
         argsMap[SQLOps.ReorderCol] = ["tableId", "oldColNum", "newColNum"];
         argsMap[SQLOps.RenameCol] = ["colNum", "tableId", "newName"];
+        argsMap[SQLOps.AddNewCol] = ["colNum", "tableId", "direction"];
         argsMap[SQLOps.PullCol] = ["colNum", "tableId", "pullColOptions"];
         argsMap[SQLOps.PullAllCols] = ["tableId", "colNum", "rowNum", "isArray",
                                         "options"];
@@ -730,32 +731,10 @@ window.Replay = (function($, Replay) {
     };
 
     replayFuncs[SQLOps.AddNewCol] = function(options) {
-        // UI simulation
-        var deferred  = jQuery.Deferred();
-        var tableId   = getTableId(options.tableId);
-        var $mainMenu = $("#colMenu .addColumn.parentMenu");
-        var $subMenu  = $("#colSubMenu");
-        var $li;
-
-        $("#xcTable-" + tableId + " .th.col" + options.siblColNum +
-                                                " .dropdownBox").click();
-        if (options.direction === "L") {
-            $li = $subMenu.find(".addColumn .addColLeft");
-        } else {
-            $li = $subMenu.find(".addColumn .addColRight");
-        }
-
-        $mainMenu.trigger(fakeEvent.mouseenter);
-
-        var callback = function() {
-            $li.trigger(fakeEvent.mouseup);
-        };
-
-        delayAction(callback, "Show Col Menu", 1000)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        var args = getArgs(options);
+        ColManager.addNewCol.apply(window, args);
+        // has ui animation, so delay it
+        return delayAction();
     };
 
     replayFuncs[SQLOps.DeleteCol] = function(options) {
@@ -1456,7 +1435,7 @@ window.Replay = (function($, Replay) {
         var args = getArgs(options);
         TblManager.markPrefix.apply(window, args);
         return PromiseHelper.resolve(null);
-    }
+    };
 
     // renameOrphanTable: function(options) {
 

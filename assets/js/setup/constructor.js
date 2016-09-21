@@ -491,6 +491,10 @@ function ProgCol(options) {
     this.format = options.format || null;
     this.isHidden = options.isHidden || false;
 
+    if (this.isEmptyCol()) {
+        this.type = ColumnType.newColumn;
+    }
+
     return this;
 }
 
@@ -515,8 +519,13 @@ ProgCol.prototype = {
         }
     },
 
-    "getFronColName": function() {
+    "getFrontColName": function() {
         return this.name || "";
+    },
+
+    "setFrontColName": function(name) {
+        xcHelper.assert(typeof name === "string" && name !== "");
+        this.name = name;
     },
 
     "getBackColName": function() {

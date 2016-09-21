@@ -344,7 +344,7 @@ window.SmartCastView = (function($, SmartCastView) {
                 continue;
             }
 
-            var colName = progCol.getFronColName();
+            var colName = progCol.getFrontColName();
             var type = progCol.getType();
             var colNum = i + 1;
             var isChildOfArray = $table.find(".th.col" + colNum + " .header")

@@ -159,14 +159,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.AddNewCol] = function(options) {
         focusTableHelper(options);
-        var addColOptions = {
-            "direction": options.direction,
-            "isNewCol" : true,
-            "inFocus"  : true
-        };
-
-        ColManager.addCol(options.siblColNum, options.tableId, null,
-                          addColOptions);
+        ColManager.addNewCol(options.colNum, options.tableId, options.direction);
 
         return PromiseHelper.resolve(null);
     };

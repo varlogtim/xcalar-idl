@@ -459,21 +459,15 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             var options = {
-                "noAnimate"  : true,
                 "direction"  : isDataCol ? "L" : "R",
                 "fullName"   : nameInfo.name,
                 "escapedName": backColName
             };
 
             ColManager.pullCol(colNum, tableId, options)
-            .always(function() {
-                var pulledColNum = colNum + 1;
+            .always(function(newColNum) {
                 closeJSONModal();
-                if (isDataCol) {
-                    // column appended to left, so colNum - 1
-                    pulledColNum--;
-                }
-                xcHelper.centerFocusedColumn(tableId, pulledColNum, animation);
+                xcHelper.centerFocusedColumn(tableId, newColNum, animation);
             });
         }
     }

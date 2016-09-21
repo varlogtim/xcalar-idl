@@ -289,35 +289,14 @@ window.TblMenu = (function(TblMenu, $) {
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
 
-            // add sql
-            var table = gTables[tableId];
-            var sqlOptions = {
-                "operation"  : SQLOps.AddNewCol,
-                "tableName"  : table.tableName,
-                "tableId"    : tableId,
-                "siblColName": table.tableCols[colNum - 1].name,
-                "siblColNum" : colNum
-            };
-
             var direction;
             if ($(this).hasClass('addColLeft')) {
                 direction = "L";
-                sqlOptions.direction = "L";
             } else {
-                sqlOptions.direction = "R";
+                direction = "R";
             }
 
-            ColManager.addCol(colNum, tableId, null, {
-                "direction": direction,
-                "isNewCol" : true,
-                "inFocus"  : true
-            });
-            var $functionArea = $('#functionArea');
-            $functionArea.find('.position').hide();
-            $functionArea.find('.counter').hide();
-            $functionArea.find('.arrows').hide();
-
-            SQL.add("Add New Column", sqlOptions);
+            ColManager.addNewCol(colNum, tableId, direction);
         });
 
         $colMenu.on('mouseup', '.deleteColumn', function(event) {

@@ -748,7 +748,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 } else {
                     if (argType === "column") {
                         if (args[i].autofill && triggerCol != null) {
-                            inputVal = gColPrefix + triggerCol.getFronColName();
+                            inputVal = gColPrefix + triggerCol.getFrontColName();
                         }
                         if (args[i].typeCheck.multiColumn) {
                             inputClasses += " multiColumn";

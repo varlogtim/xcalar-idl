@@ -364,7 +364,7 @@ window.DFCreateView = (function($, DFCreateView) {
         for (var i = 0; i < colNums.length; i++) {
             var progCol = tableCols[colNums[i]];
             columns.push({
-                "frontCol": progCol.getFronColName(),
+                "frontCol": progCol.getFrontColName(),
                 "backCol" : progCol.getBackColName()
             });
         }

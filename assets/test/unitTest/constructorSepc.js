@@ -117,7 +117,7 @@ describe('Constructor Test', function() {
             });
 
             expect(progCol).to.be.an('object');
-            expect(progCol.getFronColName()).to.equal('test');
+            expect(progCol.getFrontColName()).to.equal('test');
             expect(progCol.getBackColName()).to.equal('backTest');
             expect(progCol.getType()).to.equal('float');
             expect(progCol.isNumberCol()).to.be.true;
@@ -321,13 +321,13 @@ describe('Constructor Test', function() {
             });
 
             expect(table.getCol(0)).to.be.null;
-            expect(table.getCol(1).getFronColName()).to.be.equal("testCol");
+            expect(table.getCol(1).getFrontColName()).to.be.equal("testCol");
             expect(table.getCol(3)).to.be.null;
 
             expect(table.getColNumByBackName("backTestCol")).to.equal(1);
             expect(table.getColNumByBackName("errorCol")).to.equal(-1);
 
-            expect(table.getColByBackName("backTestCol").getFronColName())
+            expect(table.getColByBackName("backTestCol").getFrontColName())
             .to.equal("testCol");
             expect(table.getColByBackName("errorCol")).to.be.null;
 

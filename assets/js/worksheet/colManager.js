@@ -7,7 +7,7 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.newPullCol = function(colName, type) {
-        return (ColManager.newCol({
+        return ColManager.newCol({
             "backName": colName,
             "name"    : colName,
             "type"    : type,
@@ -18,7 +18,7 @@ window.ColManager = (function($, ColManager) {
                 "name": "pull",
                 "args": [colName]
             }
-        }));
+        });
     };
 
     // special case, specifically for DATA col
@@ -40,137 +40,23 @@ window.ColManager = (function($, ColManager) {
         return (progCol);
     };
 
-    ColManager.addCol = function(colNum, tableId, name, options) {
-        var $tableWrap = $("#xcTableWrap-" + tableId);
-        var $table = $tableWrap.find(".xcTable");
+    ColManager.addNewCol = function(colNum, tableId, direction) {
         var table = gTables[tableId];
-        var numCols = table.tableCols.length;
-        var newColid = colNum;
+        var progCol = ColManager.newCol({
+            "isNewCol": true
+        });
 
-        // options
-        options = options || {};
-        var width = options.width || gNewCellWidth;
-        var isNewCol = options.isNewCol || false;
-        var select = options.select || false;
-        var inFocus = options.inFocus || false;
-        var newProgCol = options.progCol;
-        var type = newProgCol ? "undefined" : "newColumn";
-        var noAnimate = options.noAnimate;
-        var isHidden = options.isHidden || false;
-        var decimals = options.decimals || -1;
-        var format = options.format || null;
-        var columnClass = "";
+        addColHelper(colNum, tableId, progCol, {
+            "direction": direction
+        });
 
-        if (options.direction !== "L") {
-            newColid += 1;
-        }
-
-        if (name == null) {
-            name = "";
-            select = true;
-            columnClass = "newColumn";
-        } else {
-            columnClass = "";
-        }
-
-        if (select) {
-            columnClass += " selectedCell";
-            $('.selectedCell').removeClass('selectedCell');
-        } else if (isNewCol) {
-            columnClass += " unusedCell";
-        }
-
-        if (!newProgCol) {
-            name = name || "";
-            var backName = options.backName || name;
-
-            newProgCol = ColManager.newCol({
-                "backName": backName,
-                "name"    : name,
-                "width"   : width,
-                "userStr" : '"' + name + '" = ',
-                "isNewCol": isNewCol,
-                "type"    : type,
-                "isHidden": isHidden,
-                "decimals": decimals,
-                "format"  : format
-            });
-
-            insertColHelper(newColid - 1, tableId, newProgCol);
-        }
-
-        // change table class before insert a new column
-        for (var i = numCols; i >= newColid; i--) {
-            $tableWrap.find('.col' + i)
-                      .removeClass('col' + i)
-                      .addClass('col' + (i + 1));
-        }
-        // insert new th column
-        var $th = $(TblManager.getColHeadHTML(newColid, tableId, {
-            "columnClass": columnClass
-        }));
-        $tableWrap.find('.th.col' + (newColid - 1)).after($th);
-
-        if (isNewCol) {
-            $th.find(".flexContainer").mousedown()
-                .find(".editableHead").focus();
-        }
-
-        if (gMinModeOn || noAnimate) {
-            updateTableHeader(tableId);
-            TableList.updateTableInfo(tableId);
-            $tableWrap.find('.rowGrab').width($table.width());
-            matchHeaderSizes($table);
-            moveFirstColumn();
-        } else {
-            $th.width(10);
-            if (!isHidden) {
-                $th.animate({width: width}, 300, function() {
-                    updateTableHeader(tableId);
-                    TableList.updateTableInfo(tableId);
-                    matchHeaderSizes($table);
-                });
-                moveTableTitlesAnimated(tableId, $tableWrap.width(),
-                                    10 - width, 300);
-            } else {
-                updateTableHeader(tableId);
-                TableList.updateTableInfo(tableId);
-                matchHeaderSizes($table);
-            }
-        }
-
-        // get the first row in UI and start to add td to each row
-        var idOfFirstRow = $table.find("tbody tr:first").attr("class");
-        var idOfLastRow = $table.find("tbody tr:last").attr("class");
-        var startingIndex = idOfFirstRow ?
-                                parseInt(idOfFirstRow.substring(3)) : 1;
-        var endingIndex = parseInt(idOfLastRow.substring(3));
-
-        if (backName === table.getKeyName()) {
-            columnClass += " indexedColumn";
-            if (!table.showIndexStyle()) {
-                columnClass += " noIndexStyle";
-            }
-        }
-        columnClass = columnClass.trim();
-        var newCellHTML = '<td ' + 'class="' + columnClass +
-                          ' col' + newColid + '"></td>';
-
-        var i = startingIndex;
-        while (i <= endingIndex) {
-            $table.find(".row" + i + " .col" + (newColid - 1))
-                  .after(newCellHTML);
-            i++;
-        }
-
-        if (inFocus) {
-            var $input = $table.find('tr:first .editableHead.col' + newColid);
-            // Without doing this, the lastTarget will still be a div
-            // even we focus on the input, so press space will make table scroll
-            gMouseEvents.setMouseDownTarget($input);
-            gMouseEvents.setClickTarget($input);
-            $input.focus();
-        }
+        SQL.add("Add New Column", {
+            "operation": SQLOps.AddNewCol,
+            "tableName": table.getName(),
+            "tableId"  : tableId,
+            "colNum"   : colNum,
+            "direction": direction
+        });
     };
 
     //options
@@ -249,36 +135,33 @@ window.ColManager = (function($, ColManager) {
 
         options = options || {};
 
-        var noAnimate = options.noAnimate || false;
-        var fullName = options.fullName;
-        var escapedName = options.escapedName;
+        var backName = options.escapedName;
         var direction = options.direction;
 
         var table = gTables[tableId];
-        var usrStr = '"' + fullName + '" = pull(' + escapedName + ')';
-
-        var newColName = xcHelper.getUniqColName(tableId, fullName);
+        var newColName = xcHelper.getUniqColName(tableId, options.fullName);
+        var usrStr = '"' + newColName + '" = pull(' + backName + ')';
         var width = getTextWidth($(), newColName, {
             "defaultHeaderStyle": true
         });
 
-        ColManager.addCol(colNum, tableId, newColName, {
-            "direction": direction,
-            "select"   : true,
-            "noAnimate": noAnimate,
-            "width"    : width
+        var progCol = ColManager.newCol({
+            "backName": backName,
+            "name"    : newColName,
+            "width"   : width,
+            "isNewCol": false,
+            "userStr" : usrStr,
+            "func"    : {
+                "name": "pull",
+                "args": [backName]
+            }
         });
 
-        var pulledColNum = colNum;
-
-        if (direction === "R") {
-            pulledColNum++;
-        }
-        // now the column is different as we add a new column
-        var newCol = table.tableCols[pulledColNum - 1];
-        newCol.func.name = "pull";
-        newCol.func.args = [escapedName];
-        newCol.userStr = usrStr;
+        var newColNum = addColHelper(colNum, tableId, progCol, {
+            "direction": direction,
+            "select"   : true,
+            "noAnimate": true
+        });
 
         var sqlOptions = {
             "operation"     : SQLOps.PullCol,
@@ -291,17 +174,18 @@ window.ColManager = (function($, ColManager) {
             "htmlExclude"   : ["pullColOptions"]
         };
 
-        ColManager.execCol("pull", usrStr, tableId, pulledColNum, {noLog: true})
+        ColManager.execCol("pull", usrStr, tableId, newColNum, {noLog: true})
         .then(function() {
             updateTableHeader(tableId);
             TableList.updateTableInfo(tableId);
             // add sql
             SQL.add("Pull Column", sqlOptions);
-            deferred.resolve();
+            deferred.resolve(newColNum);
         })
         .fail(function(error) {
             SQL.errorLog("Pull Column", sqlOptions, null, error);
-            deferred.reject(error);
+            // still resolve the newColNum
+            deferred.resolve(newColNum);
         });
 
         return deferred.promise();
@@ -327,7 +211,7 @@ window.ColManager = (function($, ColManager) {
             newTableNames[i] = tableNamePart + Authentication.getHashId();
             var colInfo = colTypeInfos[i];
             var col = tableCols[colInfo.colNum - 1];
-            var colName = xcHelper.stripeColName(col.getFronColName()) +
+            var colName = xcHelper.stripeColName(col.getFrontColName()) +
                             "_" + colInfo.type;
             // here use front col name to generate newColName
             newFieldNames[i] = xcHelper.getUniqColName(tableId, colName);
@@ -1078,42 +962,30 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.dupCol = function(colNum, tableId) {
-        var $table = $("#xcTable-" + tableId);
         var table = gTables[tableId];
-        var tableCols = table.tableCols;
 
-        var progCol = table.getCol(colNum);
-        var width = progCol.width;
-        var isNewCol = $table.find('th.col' + colNum).hasClass('newColumn');
-        var decimals = progCol.decimals;
-        var format   = progCol.format;
-        var name = progCol.getFronColName();
-        var backName = progCol.getBackColName();
+        var oldCol = table.getCol(colNum);
+        var oldName = oldCol.getFrontColName();
+        var newName = xcHelper.getUniqColName(tableId, oldName);
 
-        name = xcHelper.getUniqColName(tableId, name);
+        var progCol = ColManager.newCol(oldCol);
+        progCol.setFrontColName(newName);
 
-        ColManager.addCol(colNum, tableId, name, {
-            "width"   : width,
-            "isNewCol": isNewCol,
-            "isHidden": progCol.isHidden,
-            "decimals": decimals,
-            "format"  : format,
-            "backName": backName
+        var newColNum = addColHelper(colNum, tableId, progCol, {
+            "direction": "R"
         });
         // add sql
         SQL.add("Duplicate Column", {
             "operation" : SQLOps.DupCol,
-            "tableName" : table.tableName,
+            "tableName" : table.getName(),
             "tableId"   : tableId,
-            "colName"   : progCol.getFronColName(),
-            "newColName": name,
+            "colName"   : oldName,
+            "newColName": newName,
             "colNum"    : colNum
         });
 
-        tableCols[colNum].func.func = progCol.func.func;
-        tableCols[colNum].func.args = progCol.func.args;
-        tableCols[colNum].userStr = progCol.userStr;
-        pullColHelper(backName, colNum + 1, tableId);
+        var backName = progCol.getBackColName();
+        pullColHelper(backName, newColNum, tableId);
 
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
@@ -1699,7 +1571,7 @@ window.ColManager = (function($, ColManager) {
             // DATA column is type-object
             if (tableCols[i].isDATACol()) {
                 columnType = ColumnType.object;
-            } else if (tableCols[i].isNewCol) {
+            } else if (tableCols[i].isEmptyCol()) {
                 columnType = ColumnType.newColumn;
             }
 
@@ -2171,6 +2043,116 @@ window.ColManager = (function($, ColManager) {
         if (tableCol.isHidden) {
             $table.find('td.col' + newColid).addClass('userHidden');
         }
+    }
+
+    function addColHelper(colNum, tableId, progCol, options) {
+        var $tableWrap = $("#xcTableWrap-" + tableId);
+        var $table = $tableWrap.find(".xcTable");
+        var table = gTables[tableId];
+        var numCols = table.tableCols.length;
+        var newColNum = colNum;
+
+        // options
+        options = options || {};
+        var select = options.select || false;
+        var noAnimate = options.noAnimate || false;
+
+        var width = progCol.getWidth();
+        var isNewCol = progCol.isEmptyCol();
+        var isHidden = progCol.hasHidden();
+        var columnClass = "";
+
+        if (options.direction !== "L") {
+            newColNum += 1;
+        }
+
+        if (isNewCol) {
+            select = true;
+        }
+
+        if (select) {
+            columnClass += " selectedCell";
+            $(".selectedCell").removeClass("selectedCell");
+        }
+
+        insertColHelper(newColNum - 1, tableId, progCol);
+
+        // change table class before insert a new column
+        for (var i = numCols; i >= newColNum; i--) {
+            $tableWrap.find('.col' + i)
+                      .removeClass('col' + i)
+                      .addClass('col' + (i + 1));
+        }
+        // insert new th column
+        var $th = $(TblManager.getColHeadHTML(newColNum, tableId, {
+            "columnClass": columnClass
+        }));
+        $tableWrap.find('.th.col' + (newColNum - 1)).after($th);
+
+        if (isNewCol) {
+            $th.find(".flexContainer").mousedown()
+                .find(".editableHead").focus();
+        }
+
+        if (gMinModeOn || noAnimate) {
+            updateTableHeader(tableId);
+            TableList.updateTableInfo(tableId);
+            $tableWrap.find('.rowGrab').width($table.width());
+            matchHeaderSizes($table);
+            moveFirstColumn();
+        } else {
+            $th.width(10);
+            if (!isHidden) {
+                $th.animate({width: width}, 300, function() {
+                    updateTableHeader(tableId);
+                    TableList.updateTableInfo(tableId);
+                    matchHeaderSizes($table);
+                });
+                moveTableTitlesAnimated(tableId, $tableWrap.width(),
+                                    10 - width, 300);
+            } else {
+                updateTableHeader(tableId);
+                TableList.updateTableInfo(tableId);
+                matchHeaderSizes($table);
+            }
+        }
+
+        // get the first row in UI and start to add td to each row
+        var idOfFirstRow = $table.find("tbody tr:first").attr("class");
+        var idOfLastRow = $table.find("tbody tr:last").attr("class");
+        var startingIndex = idOfFirstRow ?
+                                parseInt(idOfFirstRow.substring(3)) : 1;
+        var endingIndex = parseInt(idOfLastRow.substring(3));
+
+        if (isNewCol) {
+            columnClass += " newColumn";
+        } else if (progCol.getBackColName() === table.getKeyName()) {
+            columnClass += " indexedColumn";
+            if (!table.showIndexStyle()) {
+                columnClass += " noIndexStyle";
+            }
+        }
+        columnClass = columnClass.trim();
+        var newCellHTML = '<td ' + 'class="' + columnClass +
+                          ' col' + newColNum + '"></td>';
+
+        var i = startingIndex;
+        while (i <= endingIndex) {
+            $table.find(".row" + i + " .col" + (newColNum - 1))
+                  .after(newCellHTML);
+            i++;
+        }
+
+        if (isNewCol && select) {
+            var $input = $table.find('tr:first .editableHead.col' + newColNum);
+            // Without doing this, the lastTarget will still be a div
+            // even we focus on the input, so press space will make table scroll
+            gMouseEvents.setMouseDownTarget($input);
+            gMouseEvents.setClickTarget($input);
+            $input.focus();
+        }
+
+        return newColNum;
     }
 
     //  returns {colWidths: colWidths, colNums: colNums, progCOls: progCols};

@@ -319,7 +319,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         // update front col name
-        statsCol.frontColName = progCol.getFronColName();
+        statsCol.frontColName = progCol.getFrontColName();
 
         var sql = {
             "operation": SQLOps.Profile,

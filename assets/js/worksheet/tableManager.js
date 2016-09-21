@@ -757,7 +757,7 @@ window.TblManager = (function($, TblManager) {
         var progCol = table.getCol(colNum);
         xcHelper.assert(progCol != null);
 
-        var colName = progCol.getFronColName();
+        var colName = progCol.getFrontColName();
         var width = progCol.getWidth();
         var columnClass = options.columnClass || "";
         var indexed = (progCol.getBackColName() === table.getKeyName());

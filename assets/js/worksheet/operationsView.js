@@ -3461,8 +3461,8 @@ window.OperationsView = (function($, OperationsView) {
         var numCols = columns.length;
         var backColName = frontColName;
         for (var i = 0; i < numCols; i++) {
-            if (columns[i].getFronColName() === frontColName) {
-                var name = columns[i].getBackColName();
+            if (columns[i].getFrontColName() === frontColName) {
+                var name = columns[i].getFrontColName();
                 if (name != null) {
                     backColName = name;
                 }

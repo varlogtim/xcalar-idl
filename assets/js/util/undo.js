@@ -328,11 +328,11 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.AddNewCol] = function(options) {
         focusTableHelper(options);
-        var colNum = options.siblColNum;
+        var colNum = options.colNum;
         if (options.direction === "R") {
             colNum++;
         }
-        return (ColManager.delCol([colNum], options.tableId));
+        return ColManager.delCol([colNum], options.tableId);
     };
 
     undoFuncs[SQLOps.DeleteCol] = function(options) {
