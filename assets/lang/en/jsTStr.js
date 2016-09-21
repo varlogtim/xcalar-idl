@@ -139,7 +139,7 @@ ErrTStr = {
                             ' parameter braces.',
     'UnclosedParamBracket': 'Unclosed parameter bracket detected.',
     'NoEmptyList': 'Please choose an option on the dropdown list.',
-    'NoEmptyFn': 'Function field is empty, please input functions.',
+    'NoEmptyFn': 'There are no function definitions to upload.',
     'NoEmptyOrCheck': 'Please fill out this field ' +
                         'or keep it empty by checking the checkbox.',
     'NameInUse': 'Name is in use, please choose another name.',

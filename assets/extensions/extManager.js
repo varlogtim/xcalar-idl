@@ -681,6 +681,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         if (extMap[modName]._configParams.notTableDependent) {
             $extArgs.find(".tableSection").hide();
+        } else {
+            $extArgs.find(".tableSection").show();
         }
 
         var args = extMap[modName][fnName] || [];
