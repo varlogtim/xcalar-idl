@@ -7,7 +7,8 @@ window.StatusBox = (function($, StatusBox){
 
     // options:
     //      type: string, "error", "info"
-    //      offsetX: int
+    //      offsetX: int,
+    //      offsetY: int,
     //      side: 'top', 'bottom', 'left', 'right' (if not provided, box will
     //      default to the right side of the $target)
     StatusBox.show = function(text, $target, isFormMode, options) {
@@ -38,6 +39,7 @@ window.StatusBox = (function($, StatusBox){
         var side;
         var title;
         var offsetX = 0;
+        var offsetY = 0;
 
         // add more title if msgType is extended
         if (msgType === "info") {
@@ -62,6 +64,10 @@ window.StatusBox = (function($, StatusBox){
             }
             offsetX = options.offsetX;
         }
+        if (options.offsetY) {
+            offsetY = options.offsetY;
+            top += offsetY;
+        }
 
         $statusBox.addClass(msgType + " " + side);
         $statusBox.find('.titleText').text(title);
@@ -76,11 +82,11 @@ window.StatusBox = (function($, StatusBox){
         } else if (side === 'top') {
             left = (bound.left + ($target.width() / 2) - 100) + offsetX;
             var statusBoxHeight = $statusBox.height();
-            top = bound.top - statusBoxHeight - 15;
+            top = bound.top - statusBoxHeight - 15 + offsetY;
             $statusBox.css({top: top, left: left, right: 'auto'});
         } else if (side === "bottom") {
             left = (bound.left + ($target.width() / 2) - 100) + offsetX;
-            top = bound.bottom;
+            top = bound.bottom + offsetY;
             $statusBox.css({top: top, left: left, right: 'auto'});
         } else {
             $statusBox.css({top: top, right: right, left: 'auto'});

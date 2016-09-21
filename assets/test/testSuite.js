@@ -303,7 +303,8 @@ window.TestSuite = (function($, TestSuite) {
         if (whichModal === "join") {
             return checkExists("#joinView:not(.xc-hidden)");
         } else {
-            return checkExists("#operationsView:not(.xc-hidden)");
+            return checkExists(["#operationsView:not(.xc-hidden)", 
+                '#operationsView .opSection:not(.tempDisabled)']);
         }
     }
 // ======================== TEST DEFINITIONS GO HERE ======================= //

@@ -205,7 +205,7 @@ window.UDF = (function($, UDF) {
             $(this).blur();
             var $fnName = $("#udf-fnName");
             var fileName = $fnName.val();
-            var options = {"offsetX": 50};
+            var options = {"side": "top", "offsetY": -2};
             if (fileName === "") {
                 StatusBox.show(ErrTStr.NoEmpty, $fnName, true, options);
                 return;
@@ -216,9 +216,6 @@ window.UDF = (function($, UDF) {
             }
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
-            options = {
-                "side"   : "top"
-            };
             if (entireString.trim() === "" ||
                 entireString.trim() === udfDefault.trim())
             {
