@@ -217,8 +217,7 @@ window.UDF = (function($, UDF) {
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
             options = {
-                "offsetX": 30,
-                "side"   : "left"
+                "side"   : "top"
             };
             if (entireString.trim() === "" ||
                 entireString.trim() === udfDefault.trim())

@@ -1,7 +1,7 @@
 // module name must start with "UExt"
 
 window.UExtFuncTest = (function(UExtFuncTest) {
-    /* 
+    /*
      * Note of UExtFuncTest.buttons:
      * 1. it must be an array, each element is an object,
      *    which specify one function,
@@ -14,9 +14,9 @@ window.UExtFuncTest = (function(UExtFuncTest) {
      *
      * 3. Fields on arrayOfFields attribute:
      *      type: type of the arg, can be column, string, number or boolean
-     *      name: the button name, which will dispaly on XI,
+     *      name: the button name, which will display on XI,
      *      fieldClass: Use this name to find the arg in ext obj
-     *      tyepCheck: object to specify how to check the arg
+     *      typeCheck: object to specify how to check the arg
      *          if type is column, columnType can strict the column's type,
      *          if type is number, min and max can strict the range
      *          and integer attr can strict the number is integer only
@@ -45,13 +45,13 @@ window.UExtFuncTest = (function(UExtFuncTest) {
         "fnName"       : "listFuncTest",
         "arrayOfFields": [{
             "type"      : "string",
-            "name"      : "Pattern",
+            "name"      : "Pattern List (comma seperated)",
             "fieldClass": "namePattern",
             "autofill"  : "*"
         }]
     }];
 
-    // UExtFuncTest.actionFn must reutrn a XcSDK.Extension obj or null 
+    // UExtFuncTest.actionFn must reutrn a XcSDK.Extension obj or null
     UExtFuncTest.actionFn = function(functionName) {
         // it's a good convention to use switch/case to handle
         // different function in the extension and handle errors.
@@ -65,6 +65,9 @@ window.UExtFuncTest = (function(UExtFuncTest) {
         }
     };
 
+    UExtFuncTest.configParams = {
+        "notTableDependent": true
+    };
 
     // Thrift call wrappers
     function XcalarStartFuncTest(parallel, runAllTests, testNamePatterns) {
@@ -109,9 +112,13 @@ window.UExtFuncTest = (function(UExtFuncTest) {
 
             // JS convention, rename this to self in case of scoping issue
             var self = this;
-            var namePattern = self.getArgs().namePattern;
+            var namePattern = self.getArgs().namePattern.split(",");
             var parallel = self.getArgs().parallel;
             var runAllTests = self.getArgs().runAllTests;
+
+            namePattern = namePattern.map(function(e) {
+                return e.trim();
+            });
 
             // check extensionApi_Operations.js to see the api signature.
             XcalarStartFuncTest(parallel, runAllTests, namePattern)
@@ -129,7 +136,7 @@ window.UExtFuncTest = (function(UExtFuncTest) {
     }
 
     function listFuncTest() {
-        var ext = new XcSDK.Extension();
+        var ext = new XcSDK.Extension({"noTable": true});
         ext.start = function() {
             // seach "js promise" online if you do not understand it
             // check promiseApi.js to see the api.

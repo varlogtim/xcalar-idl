@@ -1,5 +1,4 @@
 window.ExtensionManager = (function(ExtensionManager, $) {
-    
     var extMap = {};
     var extFileNames = [];
     var numChecksLeft = 0;
@@ -18,9 +17,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         for (var objs in window) {
             if (objs.indexOf("UExt") === 0 ) {
                 for (var i = 0; i < extFileNames.length; i++) {
-                    if (objs.toLowerCase().substring(4, objs.length) + ".ext" ===
-                        extFileNames[i].toLowerCase())
-                    {
+                    if (objs.toLowerCase().substring(4, objs.length) +
+                        ".ext" === extFileNames[i].toLowerCase()) {
                         // Found it!
                         extList.push(objs);
                         break;
@@ -28,9 +26,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
             }
         }
-        
+
         extList.sort();
         generateExtList(extList);
+        storeExtConfigParams();
     }
 
     function removeExt(extName) {
@@ -189,7 +188,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     };
 
     ExtensionManager.openView = function(colNum, tableId) {
-    
         if (colNum != null && tableId != null) {
             var table = gTables[tableId];
             var progCol = gTables[tableId].getCol(colNum);
@@ -291,7 +289,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         "functionName": funcName
                     });
 
-                    xcHelper.lockTable(tableId, txId);
+                    if (!extMap[modName]._configParams.notTableDependent) {
+                        xcHelper.lockTable(tableId, txId);
+                    }
 
                     hasStart = true;
                     return ext.run(txId);
@@ -301,8 +301,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     return ext.runAfterFinish();
                 })
                 .then(function(finalTables, finalReplaces) {
-
-                    xcHelper.unlockTable(tableId);
+                    if (!extMap[modName]._configParams.notTableDependent) {
+                        xcHelper.unlockTable(tableId);
+                    }
 
                     sql.newTables = finalTables;
                     sql.replace = finalReplaces;
@@ -627,8 +628,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var fnName = $extArgs.data("fn");
         var $input = $extTriggerTableDropdown.find(".text");
         var tableName = $input.val();
-        
-        if (tableName === "") {
+
+        if (tableName === "" &&
+            !extMap[modName]._configParams.notTableDependent) {
             StatusBox.show(ErrTStr.NoEmptyList, $input);
             return;
         }
@@ -649,6 +651,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function updateArgs(modName, fnName, fnText) {
+
         var animating = false;
         if (!$extOpsView.hasClass("hasArgs")) {
             $extOpsView.addClass("hasArgs");
@@ -674,6 +677,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     return $(this).data("id") === focusedTable;
                 }).click();
             }
+        }
+
+        if (extMap[modName]._configParams.notTableDependent) {
+            $extArgs.find(".tableSection").hide();
         }
 
         var args = extMap[modName][fnName] || [];
@@ -786,6 +793,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }, 300);
         } else {
             focusOnAvailableInput($argSection.find('input'));
+        }
+    }
+
+    function storeExtConfigParams() {
+        for (var ext in extMap) {
+            if (window[ext].configParams) {
+                extMap[ext]._configParams = window[ext].configParams;
+            } else {
+                extMap[ext]._configParams = {};
+            }
         }
     }
 

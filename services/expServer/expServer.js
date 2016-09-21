@@ -28,7 +28,7 @@ app.get('/', function(req, res) {
 
 
 //var finalStruct = {
-    //"nfsOption": undefined, // Either empty struct (use ours) or 
+    //"nfsOption": undefined, // Either empty struct (use ours) or
     //         { "nfsServer": "netstore.int.xcalar.com",
     //           "nfsMountPoint": "/public/netstore",
     //           "nfsUsername": "jyang",
@@ -152,7 +152,7 @@ app.post('/', function(req, res) {
         // XXX change to write to config
         var fileLocation = "/tmp/license.txt";
         fs.writeFile(fileLocation, credArray.struct.licenseKey);
-        // Call bash to check license with this 
+        // Call bash to check license with this
         var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
         out.stdout.on('data', function(data) {
             if (data.indexOf("SUCCESS") > -1) {
@@ -200,7 +200,6 @@ app.post('/', function(req, res) {
 
         console.log(execString);
         out = exec(execString);
-        
         out.stdout.on('data', stdOutCallback);
 
         out.on('close', function(code) {
@@ -213,7 +212,7 @@ app.post('/', function(req, res) {
             }
 
         });
-        
+
         // Immediately ack after starting
         res.send({"status": Status.Ok});
         console.log("Immediately acking runInstaller");
@@ -228,7 +227,7 @@ app.post('/', function(req, res) {
         // XXX Do something!
         res.send({"status": Status.Ok});
         break;
-    
+
     // case (Api.completeInstallation):
     //     var execString = scriptDir + "/04-start.sh";
     //     execString += cliArguments;

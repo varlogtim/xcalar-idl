@@ -1,6 +1,6 @@
 window.XcSDK = window.XcSDK || {};
 // Do this becuase in prod build, the order of extensionApi.js
-// and extension_FASJ.js is unknown(true?)
+// and extensionApi_Operations.js is unknown(true?)
 if (window.XcSDK.Extension == null) {
     window.XcSDK.Extension = function() {
         return this;

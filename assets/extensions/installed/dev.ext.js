@@ -105,7 +105,7 @@ window.UExtDev = (function(UExtDev) {
 
             var args = self.getArgs();
             var rTableName = args.rTable.getName();
-            var lColNames = getColNamesHepler(args.lCol);
+            var lColNames = getColNamesHelper(args.lCol);
             var lColName = lColNames[0];
 
             var srcTableName = self.getTriggerTable().getName();
@@ -126,7 +126,7 @@ window.UExtDev = (function(UExtDev) {
             if (rightLimit == null) {
                 rightLimit = 100;
             }
-            
+
             var leftGBColName = ext.createColumnName();
             var rightGBColName = ext.createColumnName();
 
@@ -157,7 +157,7 @@ window.UExtDev = (function(UExtDev) {
                 return PromiseHelper.reject();
             });
 
-            var rColNames = getColNamesHepler(args.rCol);
+            var rColNames = getColNamesHelper(args.rCol);
             var rColName = rColNames[0];
 
             var rightPromise = ext.groupBy(AggrOp.Count, rColNames, rColName,
@@ -258,7 +258,7 @@ window.UExtDev = (function(UExtDev) {
         return ext;
     }
 
-    function getColNamesHepler(cols) {
+    function getColNamesHelper(cols) {
         return cols.map(function(col) { return col.getName(); });
     }
 
