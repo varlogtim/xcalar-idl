@@ -450,6 +450,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ChangeFormat] = ["colNums", "tableId", "formats"];
         argsMap[SQLOps.RoundToFixed] = ["colNums", "tableId", "decimals"];
         argsMap[SQLOps.Ext] = ["tableId", "modName", "funcName", "argList"];
+        argsMap[SQLOps.MarkPrefix] = ["tableId", "prefix", "newColor"];
     }
 
     function createTabMap() {
@@ -1450,6 +1451,12 @@ window.Replay = (function($, Replay) {
 
         return ExtensionManager.trigger.apply(window, args);
     };
+
+    replayFuncs[SQLOps.MarkPrefix] = function(options) {
+        var args = getArgs(options);
+        TblManager.markPrefix.apply(window, args);
+        return PromiseHelper.resolve(null);
+    }
 
     // renameOrphanTable: function(options) {
 

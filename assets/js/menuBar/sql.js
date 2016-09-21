@@ -953,6 +953,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.AddOtherUserDS):
             case (SQLOps.ChangeFormat):
             case (SQLOps.RoundToFixed):
+            case (SQLOps.MarkPrefix):
             // case (SQLOps.AddOtherUserDS):
                 return false;
             // thrift operation

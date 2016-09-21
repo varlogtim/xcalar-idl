@@ -606,6 +606,12 @@ window.Undo = (function($, Undo) {
         TblManager.hideTable(options.tableId);
         return PromiseHelper.resolve(null);
     };
+
+    undoFuncs[SQLOps.MarkPrefix] = function(options) {
+        focusTableHelper(options);
+        TblManager.markPrefix(options.tableId, options.prefix, options.oldColor);
+        return PromiseHelper.resolve(null);
+    };
     /* End of Table Operations */
 
 

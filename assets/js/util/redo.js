@@ -389,6 +389,12 @@ window.Redo = (function($, Redo) {
         TblManager.unHideTable(options.tableId);
         return PromiseHelper.resolve(null);
     };
+
+    redoFuncs[SQLOps.MarkPrefix] = function(options) {
+        focusTableHelper(options);
+        TblManager.markPrefix(options.tableId, options.prefix, options.newColor);
+        return PromiseHelper.resolve(null);
+    };
     /* End of Table Operations */
 
     /* Worksheet Opeartion */

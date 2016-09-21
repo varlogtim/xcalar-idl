@@ -262,6 +262,7 @@ var SQLOps = {
     ChangeFormat: "changeFormat",
     RoundToFixed: "roundToFixed",
     Ext: "extension",
+    MarkPrefix: "markPrefix",
     Replay: "Replay"
 };
 

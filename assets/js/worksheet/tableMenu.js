@@ -920,25 +920,9 @@ window.TblMenu = (function(TblMenu, $) {
             var color = $(this).data("color");
 
             $wrap.addClass("selected").siblings().removeClass("selected");
-            addPrefixColor(tableId, prefix, color);
+            TblManager.markPrefix(tableId, prefix, color);
             closeMenu($prefixColorMenu);
-            // need to remind user to save
-            KVStore.logChange();
         });
-    }
-
-    function addPrefixColor(tableId, prefix, color) {
-        var table = gTables[tableId];
-        xcHelper.assert(table != null);
-
-        $("#xcTable-" + tableId).find(".th .topHeader").each(function() {
-            var $topHeader = $(this);
-            if ($topHeader.find(".prefix").text() === prefix) {
-                $topHeader.attr("data-color", color)
-                        .data("color", color);
-            }
-        });
-        table.addPrefixColor(prefix, color);
     }
 
     function sortColumn(colNum, tableId, order) {

@@ -1157,6 +1157,30 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
     };
 
+    TblManager.markPrefix = function(tableId, prefix, newColor) {
+        var table = gTables[tableId];
+        xcHelper.assert(table != null);
+
+        var oldColor = table.getPrefixColor();
+        $("#xcTable-" + tableId).find(".th .topHeader").each(function() {
+            var $topHeader = $(this);
+            if ($topHeader.find(".prefix").text() === prefix) {
+                $topHeader.attr("data-color", newColor)
+                        .data("color", newColor);
+            }
+        });
+        table.addPrefixColor(prefix, newColor);
+
+        SQL.add("Mark Prefix", {
+            "operation": SQLOps.MarkPrefix,
+            "tableId"  : tableId,
+            "tableName": table.getName(),
+            "prefix"   : prefix,
+            "oldColor" : oldColor,
+            "newColor" : newColor,
+        });
+    };
+
     TblManager.adjustRowFetchQuantity = function() {
         // cannot calculate mainFrame height directly because sometimes
         // it may not be visible
@@ -1545,7 +1569,8 @@ window.TblManager = (function($, TblManager) {
             jsonData = jsons;
             keyName = key;
 
-            if (notIndexed) { // getNextPage will ColManager.setupProgCols()
+            if (notIndexed) {
+                // getNextPage will ColManager.setupProgCols()
                 progCols = table.tableCols;
             }
 
