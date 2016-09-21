@@ -1,4 +1,5 @@
 function getTextWidth($el, val, options) {
+    $el = $el || $();
     var width;
     var text;
     options = options || {};
