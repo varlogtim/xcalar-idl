@@ -359,9 +359,6 @@ window.RowScroller = (function($, RowScroller) {
                 return null;
             }
         } else {
-            // var offsetTop = $table.parent().offset().top;
-            // // tdYCoor may need to be changed when query graph is open
-            // tdYCoor += (offsetTop - 114);
             var $trs = $table.find('tbody tr');
             var $tr;
             var rowNum = null;

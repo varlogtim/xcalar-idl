@@ -1832,13 +1832,13 @@ window.Dag = (function($, Dag) {
         });
 
         dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
-    }
+    };
 
 
     Dag.showSchema = function($dagTable) {
         var tableId = $dagTable.data('id');
         var table = gTables[tableId];
-        var $dagWrap = $dagTable.closest('.dagWrap');
+        // var $dagWrap = $dagTable.closest('.dagWrap');
         var $schema = $('#dagSchema');
         var tableName;
         var numCols;
@@ -2404,7 +2404,7 @@ window.Dag = (function($, Dag) {
                 if (!canExpand) {
                     $dagWrap.find('.dagImage').addClass('unsavable');
                     $('.tooltip').hide();
-                    StatusBox.show(ErrTStr.QGNoExpand, $expandIcon, false,
+                    StatusBox.show(ErrTStr.DFGNoExpand, $expandIcon, false,
                                     {type: "info"}) ;
                 } else {
                     // $expandIcon.remove();
@@ -2932,7 +2932,7 @@ window.Dag = (function($, Dag) {
 
             var tableId = xcHelper.getTableId(tableName);
             var tooltipTxt;
-            if (dagInfo.state === 
+            if (dagInfo.state ===
                 DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
                 tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
                             {"tablename": tableName});

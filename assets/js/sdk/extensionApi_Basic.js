@@ -56,7 +56,7 @@ window.XcSDK.Extension.prototype = (function() {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.error("Delete Table Failed!", error);
+            console.error("Drop Table Failed!", error);
             deferred.reject(error);
         });
 

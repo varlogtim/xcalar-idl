@@ -1529,13 +1529,13 @@ window.WSManager = (function($, WSManager) {
 
         TblManager.deleteTables(activeTables, TableType.Active)
         .then(function() {
-            return (TableList.tableBulkAction("delete", TableType.Archived));
+            return TableList.tableBulkAction("delete", TableType.Archived);
         })
         .then(function() {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Delete Table Fails", error);
+            Alert.error(TblTStr.DelFail, error);
             deferred.reject(error);
         });
 

@@ -217,9 +217,9 @@ window.Transaction = (function(Transaction, $) {
 
     Transaction.startSubQuery = function(txId, name, dstTable, query) {
         var subQueries = xcHelper.parseQuery(query);
-        if (dstTable && subQueries.length === 1) { 
+        if (dstTable && subQueries.length === 1) {
             var options = {
-                exportFileName : subQueries[0].exportFileName
+                exportFileName: subQueries[0].exportFileName
             };
             QueryManager.addSubQuery(txId, name, dstTable, query, null,
                                     options);
@@ -294,11 +294,11 @@ window.Transaction = (function(Transaction, $) {
 
             TableList.refreshOrphanList(false)
             .then(function() {
-                console.info("delete", gOrphanTables);
+                console.info("drop", gOrphanTables);
                 return TblManager.deleteTables(gOrphanTables, TableType.Orphan, true);
             })
             .fail(function(error) {
-                console.error("delete table failse", error);
+                console.error("drop table failed", error);
             })
             .always(function() {
                 isDeleting = false;

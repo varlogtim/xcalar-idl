@@ -204,7 +204,7 @@ var SQLOps = {
     GroupBy: "groupBy",
     Project: "project",
     RenameTable: "renameTable",
-    RenameOrphanTable: "renameOrphanTable",
+    RenameOrphanTable: "renameTemporaryTable",
     DeleteTable: "deleteTable",
     PreviewDS: "previewDataSet",
     DestroyPreviewDS: "destroyPreviewDataSet",
