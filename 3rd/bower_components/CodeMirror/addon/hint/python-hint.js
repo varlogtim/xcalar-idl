@@ -127,6 +127,10 @@
           return a.displayText.length - b.displayText.length;
         });
         found = list.concat(found);
+        // do not show hint if only hint is an exact match
+        if (found.length === 1 && curWord === found[0].text) {
+            found = [];
+        }
     }
 
     if (context) {

@@ -2426,9 +2426,12 @@ ModalHelper.prototype = {
         xcHelper.removeSelectionRange();
         // hide tooltip when open the modal
         $(".tooltip").hide();
-        $(".selectedCell").removeClass("selectedCell");
-        FnBar.clear();
-
+        
+        if (!options.keepFnBar) {
+            FnBar.clear();
+            $(".selectedCell").removeClass("selectedCell");
+        }
+        
         if (!options.noResize) {
             // resize modal
             var winWidth  = $(window).width();

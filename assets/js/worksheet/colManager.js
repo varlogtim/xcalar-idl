@@ -2022,6 +2022,8 @@ window.ColManager = (function($, ColManager) {
         return (i + 1);
     }
 
+    ColManager.parseFuncString = parseFuncString;
+
     function pullColHelper(key, newColid, tableId, startIndex, numberOfRows) {
         if (key === "") {
             return;

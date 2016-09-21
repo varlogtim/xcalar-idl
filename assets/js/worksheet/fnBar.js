@@ -10,6 +10,7 @@ window.FnBar = (function(FnBar, $) {
     var udfMap = {};
     var colNamesCache = {};
     var lastFocusedCol;
+    var isAlertOpen = false;
 
     FnBar.setup = function() {
         $functionArea = $("#functionArea");
@@ -266,6 +267,9 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.clear = function(noSave) {
+        if (isAlertOpen) {
+            return;
+        }
         lastFocusedCol = undefined;
         if (!noSave) {
             saveInput();
@@ -426,6 +430,10 @@ window.FnBar = (function(FnBar, $) {
             list.sort(function(a, b) {
                 return a.displayText.length - b.displayText.length;
             });
+            // do not show hint if only hint is an exact match
+            if (list.length === 1 && curWord === list[0].text) {
+                list = [];
+            }
             return ({
                 list: list,
                 from: CodeMirror.Pos(0, start),
@@ -651,6 +659,44 @@ window.FnBar = (function(FnBar, $) {
                 return;
             }
 
+            if (!checkForSelectedColName(fnBarValTrim, colName)) {
+                var text = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
+                                colName: colName
+                            });
+                var cursor = editor.getCursor();
+                isAlertOpen = true;
+                Alert.show({
+                    "title"      : AlertTStr.CONFIRMATION,
+                    "msgTemplate": text,
+                    "keepFnBar"  : true,
+                    "focusOnConfirm": true,
+                    "onCancel"   : function() {
+                        if ($colInput) {
+                            $colInput.trigger(fakeEvent.mousedown);
+                            $colInput.trigger(fakeEvent.mouseup);
+
+                            $fnBar.removeAttr("disabled").focus();
+                            $fnBar.addClass("inFocus");
+                            editor.focus();
+                            editor.setCursor(cursor);
+                        }
+                        $fnBar.removeAttr("disabled");
+                        isAlertOpen = false;
+                    },
+                    "onConfirm" : function() {
+                        ColManager.execCol(operation, newFuncStr, tableId, colNum)
+                        .then(function(ret) {
+                            if (ret === "update") {
+                                updateTableHeader(tableId);
+                                TableList.updateTableInfo(tableId);
+                                KVStore.commit();
+                            }
+                        });
+                        isAlertOpen = false;
+                    }
+                });
+                return;
+            }
 
             ColManager.execCol(operation, newFuncStr, tableId, colNum)
             .then(function(ret) {
@@ -660,6 +706,39 @@ window.FnBar = (function(FnBar, $) {
                     KVStore.commit();
                 }
             });
+        }
+    }
+
+    // will return false if column names detected and colName is not found 
+    // among them. Otherwise, will return true
+    function checkForSelectedColName(funcStr, colName) {
+        var op = getOperationFromFuncStr(funcStr);
+        if (op === "pull") {
+            return true; // ignore check for pull
+        }
+        var func = {args: []};
+        ColManager.parseFuncString(funcStr, func);
+        var names = [];
+        getNames(func.args);
+
+        if (names.length && names.indexOf(colName) === -1) {
+            return false;
+        }
+
+        return true;
+
+        function getNames(args) {
+            for (var i = 0; i < args.length; i++) {
+                if (typeof args[i] === "string") {
+                    if (args[i][0] !== "\"" &&
+                        args[i][args.length - 1] !== "\"" &&
+                        names.indexOf(args[i]) === -1) {
+                        names.push(args[i]);
+                    }
+                } else if (typeof args[i] === "object") {
+                    getNames(args[i].args);
+                }
+            }
         }
     }
 

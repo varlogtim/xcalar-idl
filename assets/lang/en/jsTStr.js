@@ -271,14 +271,16 @@ AlertTStr = {
     'BracketsMis': 'Mismatched Brackets',
     'NoExt': 'Unknown Extension',
     'CLOSE': 'CLOSE',
-    'CANCEL': 'CANCEL'
+    'CANCEL': 'CANCEL',
+    'CONFIRMATION': 'CONFIRMATION'
 };
 
 FnBarTStr = {
     'NewCol': 'Please specify the new column name and press enter',
     'InvalidOpParen': 'Operation must be preceeded by operator name and ' +
                       'arguments in parenthesis',
-    'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.'
+    'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.',
+    'DiffColumn': 'The selected column (<colName>) is not included in this operation. Do you want to continue?'
 };
 
 ScrollTStr = {
