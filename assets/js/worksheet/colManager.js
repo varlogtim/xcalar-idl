@@ -40,28 +40,6 @@ window.ColManager = (function($, ColManager) {
         return (progCol);
     };
 
-    ColManager.setupProgCols = function(tableId) {
-        var keyName = gTables[tableId].keyName;
-        // We cannot rely on addCol to create a new progCol object because
-        // add col relies on gTableCol entry to determine whether or not to add
-        // the menus specific to the main key
-        var newProgCol = ColManager.newCol({
-            "backName": keyName,
-            "name"    : keyName,
-            "width"   : gNewCellWidth,
-            "userStr" : '"' + keyName + '" = pull(' + keyName + ')',
-            "func"    : {
-                "name": "pull",
-                "args": [keyName]
-            },
-            "isNewCol": false
-        });
-
-        insertColHelper(0, tableId, newProgCol);
-        // is this where we add the indexed column??
-        insertColHelper(1, tableId, ColManager.newDATACol(2));
-    };
-
     ColManager.addCol = function(colNum, tableId, name, options) {
         var $tableWrap = $("#xcTableWrap-" + tableId);
         var $table = $tableWrap.find(".xcTable");
@@ -707,9 +685,9 @@ window.ColManager = (function($, ColManager) {
         $editableHead.val(newName).attr("value", newName);
         if (!options.keepEditable && curCol.sizedToHeader) {
             autosizeCol($th, {
-                "dblClick"      : true,
-                "minWidth"      : 17,
-                "includeHeader" : true
+                "dblClick"     : true,
+                "minWidth"     : 17,
+                "includeHeader": true
             });
         }
 

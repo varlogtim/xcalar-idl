@@ -1534,46 +1534,19 @@ window.TblManager = (function($, TblManager) {
         });
     }
 
-    // function changeTableId(oldId, newId) {
-    //     $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + newId)
-    //                                 .attr("data-id", newId);
-    //     $("#xcTheadWrap-" + oldId).attr('id', 'xcTheadWrap-' + newId)
-    //                                 .attr("data-id", newId);
-    //     $("#xcTbodyWrap-" + oldId).attr('id', 'xcTbodyWrap-' + newId)
-    //                                 .attr("data-id", newId);
-    //     $("#xcTable-" + oldId).attr('id', 'xcTable-' + newId)
-    //                             .attr("data-id", newId);
-    //     $("#tableMenu-" + oldId).attr('id', 'tableMenu-' + newId)
-    //                             .attr("data-id", newId);
-    //     $("#colMenu-" + oldId).attr('id', 'colMenu-' + newId)
-    //                             .attr("data-id", newId);
-    // }
-
     /*
         Start the process of building table
         Possible Options:
         selectCol: number. column to be highlighted when table is ready
     */
     function startBuildTable(tableId, tablesToRemove, options) {
-        var deferred   = jQuery.Deferred();
-        var table      = gTables[tableId];
-        var tableName  = table.tableName;
-        var progCols   = table.tableCols;
-        var notIndexed = !(progCols && progCols.length > 0);
+        var deferred = jQuery.Deferred();
+        var table = gTables[tableId];
+        var tableName = table.getName();
 
-        var jsonData;
-        var keyName;
 
-        getFirstPage(table, notIndexed)
-        .then(function(jsons, key) {
-            jsonData = jsons;
-            keyName = key;
-
-            if (notIndexed) {
-                // getNextPage will ColManager.setupProgCols()
-                progCols = table.tableCols;
-            }
-
+        getFirstPage(table)
+        .then(function(jsonData, keyName) {
             if (tablesToRemove) {
                 for (var i = 0, len = tablesToRemove.length; i < len; i++) {
                     var tblId = tablesToRemove[i];
@@ -1582,10 +1555,10 @@ window.TblManager = (function($, TblManager) {
                 }
             }
             table.currentRowNumber = jsonData.length;
-            buildInitialTable(progCols, tableId, jsonData, keyName, options);
+            buildInitialTable(tableId, jsonData, keyName, options);
 
             var $table = $('#xcTable-' + tableId);
-            var requiredNumRows    = Math.min(gMaxEntriesPerPage,
+            var requiredNumRows = Math.min(gMaxEntriesPerPage,
                                               table.resultSetCount);
             var numRowsStillNeeded = requiredNumRows -
                                      $table.find('tbody tr').length;
@@ -1639,7 +1612,7 @@ window.TblManager = (function($, TblManager) {
             }
         })
         .then(function() {
-            autoSizeDataCol(tableId, progCols);
+            autoSizeDataCol(tableId);
             // position sticky row column on visible tables
             moveFirstColumn();
             RowScroller.updateViewRange(tableId);
@@ -1650,16 +1623,15 @@ window.TblManager = (function($, TblManager) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     /*
         Possible Options:
         selectCol: number. column to be highlighted when table is ready
     */
-    function buildInitialTable(progCols, tableId, jsonData, keyName, options) {
+    function buildInitialTable(tableId, jsonData, keyName, options) {
         var table = gTables[tableId];
-        table.tableCols = progCols;
         table.keyName = keyName;
 
         var dataIndex = generateTableShell(table.tableCols, tableId);
@@ -2671,7 +2643,8 @@ window.TblManager = (function($, TblManager) {
         return (deferred.promise());
     }
 
-    function autoSizeDataCol(tableId, progCols) {
+    function autoSizeDataCol(tableId) {
+        var progCols = gTables[tableId].tableCols;
         var numCols = progCols.length;
         var dataCol;
         var dataColIndex;

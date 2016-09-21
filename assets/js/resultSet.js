@@ -74,7 +74,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     XcalarSetAbsolute(table.resultSetId, rowPosition)
     .then(function() {
         setAbsolutePassed = true;
-        return generateDataColumnJson(table, null, false, numRowsToAdd);
+        return generateDataColumnJson(table, numRowsToAdd);
     })
     .then(function(jsonData) {
         prepullTableHeight = $table.height();
@@ -271,19 +271,17 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
 }
 
 
-function getFirstPage(table, notIndexed) {
+function getFirstPage(table) {
     if (table.resultSetId === 0) {
         return PromiseHelper.resolve(null);
     }
     TblManager.adjustRowFetchQuantity();
     var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetCount);
-    return generateDataColumnJson(table, null, notIndexed, numRowsToAdd);
+    return generateDataColumnJson(table, numRowsToAdd);
 }
 
 // produces an array of all the td values that will go into the DATA column
-function generateDataColumnJson(table, direction, notIndexed,
-                                numRowsToFetch, retry)
-{
+function generateDataColumnJson(table, numRowsToFetch, retry) {
     var jsons = [];
 
     if (table.resultSetId === 0) {
@@ -304,18 +302,12 @@ function generateDataColumnJson(table, direction, notIndexed,
         if (numKvPairs < gNumEntriesPerPage) {
             resultSetId = 0;
         }
-        if (notIndexed) {
-            ColManager.setupProgCols(table.getId());
-        }
 
         var numRows = Math.min(numRowsToFetch, numKvPairs);
         jsons = [];
 
         for (var i = 0; i < numRows; i++) {
-            var index = (direction === 1) ? (numRows - 1 - i) : i;
-            var value = kvPairs[index].value;
-
-            jsons.push(value);
+            jsons.push(kvPairs[i].value);
         }
 
         deferred.resolve(jsons, keyName);
@@ -325,8 +317,7 @@ function generateDataColumnJson(table, direction, notIndexed,
             XcalarMakeResultSetFromTable(table.getName())
             .then(function(result) {
                 table.resultSetId = result.resultSetId;
-                generateDataColumnJson(table, direction, notIndexed,
-                        numRowsToFetch, true)
+                generateDataColumnJson(table, numRowsToFetch, true)
                 .then(function(data1, data2) {
                     deferred.resolve(data1, data2);
                 })
