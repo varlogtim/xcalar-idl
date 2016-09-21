@@ -922,6 +922,8 @@ window.TblMenu = (function(TblMenu, $) {
             $wrap.addClass("selected").siblings().removeClass("selected");
             addPrefixColor(tableId, prefix, color);
             closeMenu($prefixColorMenu);
+            // need to remind user to save
+            KVStore.logChange();
         });
     }
 

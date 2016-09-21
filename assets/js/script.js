@@ -562,7 +562,7 @@ window.StartManager = (function(StartManager, $) {
 
         window.onbeforeunload = function() {
             unloadHandler(true);
-            if (SQL.hasUnCommitChange()) {
+            if (SQL.hasUnCommitChange() || KVStore.hasUnCommitChange) {
                 return CommonTxtTstr.LogoutWarn;
             } else if (backspaceIsPressed) {
                 // when no commit change but may caused by backSapce

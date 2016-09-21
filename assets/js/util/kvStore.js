@@ -129,6 +129,7 @@ window.KVStore = (function($, KVStore) {
             return XcalarSaveWorkbooks("*");
         })
         .then(function() {
+            KVStore.logSave(true);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -136,11 +137,42 @@ window.KVStore = (function($, KVStore) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
+    };
+
+    KVStore.hasUnCommitChange = function() {
+        return $("#autoSaveBtn").hasClass("unsave");
     };
 
     KVStore.logChange = function() {
         $("#autoSaveBtn").addClass("unsave");
+    };
+
+    KVStore.logSave = function(updateInfo) {
+        $("#autoSaveBtn").removeClass("unsave");
+
+        if (!updateInfo) {
+            return;
+        }
+
+        var name = "N/A";
+        var created = "N/A";
+        var modified = "N/A";
+        var activeWKBKId = WorkbookManager.getActiveWKBK();
+
+        if (activeWKBKId != null) {
+            var workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
+            if (workbook != null) {
+                name = workbook.name;
+                created = xcHelper.getDate("-", null, workbook.created);
+                modified = xcHelper.getDate("-", null, workbook.modified) +
+                           " " + xcHelper.getTime(null, workbook.modified);
+            }
+        }
+
+        $("#worksheetInfo .wkbkName").text(name);
+        $("#workspaceDate .date").text(created);
+        $("#autoSavedInfo").text(modified);
     };
 
     KVStore.restore = function() {

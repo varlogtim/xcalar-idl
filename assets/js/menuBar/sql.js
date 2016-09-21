@@ -270,7 +270,7 @@ window.SQL = (function($, SQL) {
             updateLogPanel(logCursor);
             passed = true;
             if (logCursor === lastSavedCursor) {
-                $("#autoSaveBtn").removeClass("unsave");
+                KVStore.logSave();
             } else {
                 KVStore.logChange();
             }
@@ -333,7 +333,7 @@ window.SQL = (function($, SQL) {
             updateLogPanel(logCursor);
             passed = true;
             if (logCursor === lastSavedCursor) {
-                $("#autoSaveBtn").removeClass("unsave");
+                KVStore.logSave();
             } else {
                 KVStore.logChange();
             }

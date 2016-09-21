@@ -35,7 +35,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             deferred.reject(error);
         })
         .always(function() {
-            updateBottomBar();
+            KVStore.logSave(true);
         });
 
         return deferred.promise();
@@ -53,8 +53,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         saveWorkbook()
         .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(updateBottomBar);
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
@@ -676,27 +675,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function saveWorkbook() {
         return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
-    }
-
-    function updateBottomBar() {
-        var name = "N/A";
-        var created = "N/A";
-        var modified = "N/A";
-
-        if (activeWKBKId != null) {
-            var workbook = wkbkSet.get(activeWKBKId);
-            if (workbook != null) {
-                name = workbook.name;
-                created = xcHelper.getDate("-", null, workbook.created);
-                modified = xcHelper.getDate("-", null, workbook.modified) +
-                           " " + xcHelper.getTime(null, workbook.modified);
-                $("#autoSaveBtn").removeClass("unsave");
-            }
-        }
-
-        $("#worksheetInfo .wkbkName").text(name);
-        $("#workspaceDate .date").text(created);
-        $("#autoSavedInfo").text(modified);
     }
 
     function resetActiveWKBK(newWKBKId) {
