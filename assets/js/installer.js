@@ -1,30 +1,11 @@
 window.Installer = (function(Installer, $) {
 
     var finalStruct = {
-        "nfsOption"  : undefined, // Either empty struct (use ours) or
-        //         { "nfsServer": "netstore.int.xcalar.com",
-        //           "nfsMountPoint": "/public/netstore",
-        //           "nfsUsername": "jyang",
-        //           "nfsGroup": "xcalarEmployee" }
+        "nfsOption"  : undefined,
         "hostnames"  : [],
         "username"   : "",
         "port"       : 22,
         "credentials": {} // Either password or sshKey
-    };
-
-    function ApiStruct(api, struct) {
-        this.api = api;
-        this.struct = struct;
-        return this;
-    }
-
-    var Api = {
-        "runPrecheck"         : 0,
-        "checkStatus"         : 1,
-        "runInstaller"        : 2,
-        "completeInstallation": 3,
-        "checkLicense"        : 4,
-        "cancelInstall"       : 5,
     };
 
     var Status = {
@@ -185,13 +166,11 @@ window.Installer = (function(Installer, $) {
         }
     }
 
-    function sendViaHttps(arrayToSend, successCB, failureCB) {
+    function sendViaHttps(action, arrayToSend, successCB, failureCB) {
         try {
             jQuery.ajax({
                 method     : "POST",
-                // url        : "http://cantor.int.xcalar.com:12124",
-                // url        : document.location.href+"install",
-                url        : "http://cantor.int.xcalar.com:8080/install",
+                url        : document.location.origin+"/install/"+action,
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
                 success    : successCB,
@@ -316,7 +295,7 @@ window.Installer = (function(Installer, $) {
             if (retStruct.verified) {
                 deferred.resolve();
             } else {
-                deferred.reject("Invalid license key", "The license key that " +
+                deferred.reject("Invalid server license key", "The license key that " +
                                 "you have entered is not valid. Please check " +
                                 "the key and try again");
             }
@@ -330,6 +309,7 @@ window.Installer = (function(Installer, $) {
     }
 
     function validateNfs() {
+
         var deferred = jQuery.Deferred();
         var nfsOption = $(".nfsOption.radioButton.active").data("option");
         if (nfsOption === "xcalarNfs") {
@@ -518,9 +498,9 @@ window.Installer = (function(Installer, $) {
         $(".row .curStatus").text("Installing...");
         $("input.back").hide();
         $("input.cancel").removeClass("hidden");
-        sendCommand(Api.runInstaller)
+        sendCommand("runInstaller")
         .then(function() {
-            return (getStatus(Api.checkStatus));
+            return (getStatus("checkStatus"));
         })
         .then(function() {
             // This function redirects and does not return.
@@ -558,8 +538,7 @@ window.Installer = (function(Installer, $) {
 
     function checkLicense(license) {
         var deferred = jQuery.Deferred();
-        var struct = new ApiStruct(Api.checkLicense, {"licenseKey": license});
-        sendViaHttps(struct, function(ret) {
+           sendViaHttps("checkLicense", {"licenseKey": license}, function(ret) {
             if (ret.status === Status.Ok) {
                 deferred.resolve(Status.Ok);
             } else {
@@ -574,8 +553,7 @@ window.Installer = (function(Installer, $) {
 
     function sendCommand(api) {
         var deferred = jQuery.Deferred();
-        var struct = new ApiStruct(api, finalStruct);
-        sendViaHttps(struct, function(ret) {
+        sendViaHttps(api, finalStruct, function(ret) {
             if (ret.status === Status.Ok) {
                 deferred.resolve();
             } else {
@@ -624,9 +602,7 @@ window.Installer = (function(Installer, $) {
                 clearInterval(intervalTimer);
 
             } else {
-                struct = new ApiStruct(statusApi, finalStruct);
-                sendViaHttps(struct, function(ret) {
-                    console.log(ret);
+                   sendViaHttps(statusApi, finalStruct, function(ret) {
                     if (ret.status === Status.Done) {
                         clearInterval(intervalTimer);
                         deferred.resolve();

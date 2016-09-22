@@ -12,39 +12,30 @@ var certificate = fs.readFileSync('cantor.int.xcalar.com.crt', 'utf8');
 var credentials = {key: privateKey, cert:certificate};
 */
 var app = express();
-app.all('/', function(req, res, next) {
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+app.all('/*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.header("Access-Control-Allow-Headers", "Content-Type");
     next();
 });
 
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
-
-app.get('/', function(req, res) {
+app.get('/*', function(req, res) {
     res.send('Please use post instead');
 });
 
-
-//var finalStruct = {
-    //"nfsOption": undefined, // Either empty struct (use ours) or
-    //         { "nfsServer": "netstore.int.xcalar.com",
-    //           "nfsMountPoint": "/public/netstore",
-    //           "nfsUsername": "jyang",
-    //           "nfsGroup": "xcalarEmployee" }
-    //"hostnames": [],
-    //"username": "",
-    //"credentials": {} // Either password or sshKey
-//};
-
-var Api = {
-    "runPrecheck": 0,
-    "checkStatus": 1,
-    "runInstaller": 2,
-    "completeInstallation": 3,
-    "checkLicense": 4,
-    "cancelInstall": 5,
+var finalStruct = {
+    "nfsOption": undefined, // Either empty struct (use ours) or
+            // { "nfsServer": "netstore.int.xcalar.com",
+            //   "nfsMountPoint": "/public/netstore",
+            //   "nfsUsername": "jyang",
+            //   "nfsGroup": "xcalarEmployee" }
+    "hostnames": [],
+    "username": "",
+    "credentials": {} // Either password or sshKey
 };
 
 var Status = {
@@ -100,7 +91,6 @@ function genExecString(hostnameLocation, credentialLocation, isPassword,
 function sendStatusArray(finalStruct, res) {
     var ackArray = [];
 
-    // console.log(curStep);
     // Check global array that has been populated by prev step
     for (var i = 0; i<finalStruct.hostnames.length; i++) {
         if (curStep.nodesCompletedCurrent[i] === true) {
@@ -141,129 +131,151 @@ function stdOutCallback(dataBlock) {
     }
 }
 
-app.post('/', function(req, res) {
+app.post('/checkLicense', function(req, res) {
+    console.log("Checking License");
     var credArray = req.body;
     var hasError = false;
     var errors = [];
-    console.log("Api: " + credArray.api);
-    switch(credArray.api) {
-    case (Api.checkLicense):
-        console.log("Checking License");
-        // XXX change to write to config
-        var fileLocation = "/tmp/license.txt";
-        fs.writeFile(fileLocation, credArray.struct.licenseKey);
-        // Call bash to check license with this
-        var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
-        out.stdout.on('data', function(data) {
-            if (data.indexOf("SUCCESS") > -1) {
-                res.send({"status": Status.Ok,
-                          // "numNodes": blah
-                        });
-                console.log("Success: Checking License");
-            } else if (data.indexOf("FAILURE") > -1) {
-                res.send({"status": Status.Error});
-                console.log("Error: Checking License");
-            }
-        });
-        break;
-    case (Api.runInstaller):
-        console.log("Executing Precheck");
-        // Write files to /config and chmod
-        var hostnameLocation = "/tmp/hosts.txt";
-        var credentialLocation = "/tmp/key.txt";
-        var isPassword = true;
 
-        if ("password" in credArray.struct.credentials) {
-            var password = credArray.struct.credentials.password;
-            fs.writeFile(credentialLocation, password,
-                         {mode: parseInt('600', 8)});
-        } else {
-            isPassword = false;
-            var sshkey = credArray.struct.credentials.sshKey;
-            fs.writeFile(credentialLocation, sshkey,
-                         {mode: parseInt('600', 8)});
+    // XXX change to write to config
+    var fileLocation = "/tmp/license.txt";
+    fs.writeFile(fileLocation, credArray.licenseKey);
+    // Call bash to check license with this
+    var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
+
+    out.stdout.on('data', function(data) {
+        if (data.indexOf("SUCCESS") > -1) {
+            res.send({"status": Status.Ok
+                      // "numNodes": blah
+                    });
+            console.log("Success: Checking License");
+        } else if (data.indexOf("FAILURE") > -1) {
+            res.send({"status": Status.Error});
+            console.log("Error: Checking License");
         }
+    });
 
-        fs.writeFile(licenseLocation, "1234-1234-1234-1234");
-
-        var hostArray = credArray.struct.hostnames;
-        fs.writeFile(hostnameLocation, hostArray.join("\n"));
-
-        var execString = scriptDir + "/cluster-install.sh";
-        cliArguments = genExecString(hostnameLocation, credentialLocation,
-                                     isPassword, credArray.struct.username,
-                                     credArray.struct.port,
-                                     credArray.struct.nfsOption);
-
-        execString += cliArguments;
-        initStepArray();
-
-        console.log(execString);
-        out = exec(execString);
-        out.stdout.on('data', stdOutCallback);
-
-        out.on('close', function(code) {
-            // Exit code. When we fail, we return non 0
-            if (code) {
-                console.log("Oh noes!");
-                curStep.status = Status.Error;
-            } else {
-                curStep.status = Status.Done;
-            }
-
-        });
-
-        // Immediately ack after starting
-        res.send({"status": Status.Ok});
-        console.log("Immediately acking runInstaller");
-        break;
-    case (Api.checkStatus):
-        console.log("Getting status");
-        var finalStruct = credArray.struct;
-        sendStatusArray(finalStruct, res);
-        break;
-    case (Api.cancelInstall):
-        console.log("Cancel install");
-        // XXX Do something!
-        res.send({"status": Status.Ok});
-        break;
-
-    // case (Api.completeInstallation):
-    //     var execString = scriptDir + "/04-start.sh";
-    //     execString += cliArguments;
-
-    //     out = exec(execString);
-    //     out.on('close', function(code) {
-    //         if (code) {
-    //             console.log("Oh Noes");
-    //             res.send({"status": Status.Error});
-    //         } else {
-    //             res.send({"status": Status.Ok});
-    //         }
-    //     });
-    //     break;
-    default:
-        console.log("Boo");
-        console.log(JSON.stringify(credArray));
-    }
-    /**
-    for (var i = 0; i<credArray.length; i++) {
-        console.log("host"+i+": "+credArray[i].hostname);
-        var ec = exec('/home/jyang/node/testScript.sh '+credArray[i].hostname+' '+
-                      credArray[i].username+' '+
-                      credArray[i].password).code;
-        if (ec !== 0) {
-            hasError = true;
-            errors[i] = ec;
-        }
-    }
-    if (hasError) {
-        res.send("Script executed with error code: "+JSON.stringify(ec));
-    } else {
-        res.send("Installation successful!");
-    }
-    */
 });
+
+app.post("/runInstaller", function(req, res) {
+    console.log("Executing Precheck");
+    var credArray = req.body;
+    var hasError = false;
+    var errors = [];
+
+    // Write files to /config and chmod
+    var hostnameLocation = "/tmp/hosts.txt";
+    var credentialLocation = "/tmp/key.txt";
+    var isPassword = true;
+
+    if ("password" in credArray.credentials) {
+        var password = credArray.credentials.password;
+        fs.writeFile(credentialLocation, password,
+                     {mode: parseInt('600', 8)});
+    } else {
+        isPassword = false;
+        var sshkey = credArray.credentials.sshKey;
+        fs.writeFile(credentialLocation, sshkey,
+                     {mode: parseInt('600', 8)});
+    }
+
+    fs.writeFile(licenseLocation, "1234-1234-1234-1234");
+
+    var hostArray = credArray.hostnames;
+    fs.writeFile(hostnameLocation, hostArray.join("\n"));
+
+    var execString = scriptDir + "/cluster-install.sh";
+    cliArguments = genExecString(hostnameLocation, credentialLocation,
+                                 isPassword, credArray.username,
+                                 credArray.port,
+                                 credArray.nfsOption);
+
+    execString += cliArguments;
+    initStepArray();
+
+    out = exec(execString);
+
+    out.stdout.on('data', stdOutCallback);
+
+    out.on('close', function(code) {
+        // Exit code. When we fail, we return non 0
+        if (code) {
+            console.log("Oh noes!");
+            curStep.status = Status.Error;
+        } else {
+            curStep.status = Status.Done;
+        }
+
+    });
+
+    // Immediately ack after starting
+    res.send({"status": Status.Ok});
+    console.log("Immediately acking runInstaller");
+
+});
+
+app.post("/checkStatus", function(req, res) {
+    console.log("Check Status");
+    var credArray = req.body;
+    var hasError = false;
+    var errors = [];
+    var finalStruct = credArray;
+    sendStatusArray(finalStruct, res);
+});
+
+app.post("/cancelInstall", function(req, res) {
+    console.log("Cancel install");
+    var credArray = req.body;
+    var hasError = false;
+    var errors = [];
+    res.send({"status": Status.Ok});
+});
+
+
+app.post("/listPackages", function(req, res) {
+    console.log("List Packages");
+    var credArray = req.body;
+    var hasError = false;
+    var errors = [];
+    var f = fs.readFile("marketplace.json", (err, data) => {
+        if (err) throw err;
+        res.send(data);
+    });
+});
+
+app.post("/completeInstallation", function(req, res) {
+    console.log("Complete Installation");
+    var execString = scriptDir + "/04-start.sh";
+    execString += cliArguments;
+
+    out = exec(execString);
+    out.on('close', function(code) {
+        if (code) {
+            console.log("Oh Noes");
+            res.send({"status": Status.Error});
+        } else {
+            res.send({"status": Status.Ok});
+        }
+    });
+});
+
+/**
+for (var i = 0; i<credArray.length; i++) {
+    console.log("host"+i+": "+credArray[i].hostname);
+    var ec = exec('/home/jyang/node/testScript.sh '+credArray[i].hostname+' '+
+                  credArray[i].username+' '+
+                  credArray[i].password).code;
+    if (ec !== 0) {
+        hasError = true;
+        errors[i] = ec;
+    }
+}
+if (hasError) {
+    res.send("Script executed with error code: "+JSON.stringify(ec));
+} else {
+    res.send("Installation successful!");
+}
+*/
 
 /**
 var httpsServer = https.createServer(credentials, app);
@@ -272,9 +284,11 @@ httpsServer.listen(12124, function() {
     console.log("https app listening!");
 });
 */
+
 var httpServer = http.createServer(app);
 
 httpServer.listen(12124, function() {
     console.log("http app listening!");
 });
+
 

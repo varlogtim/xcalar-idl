@@ -93,9 +93,8 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
         $.ajax({
             "type"       : "POST",
-            "data"       : JSON.stringify({"api": "listPackages"}),
             "contentType": "application/json",
-            "url"        : "https://authentication.xcalar.net/app",
+            "url"        : "https://authentication.xcalar.net/app/listPackages",
             "success"    : function(data) {
                 $panel.removeClass("wait");
                 try {
