@@ -381,6 +381,7 @@ window.DFGCard = (function($, DFGCard) {
 
     function getTableHtml(table, hasParam) {
         var iconClass = "dagTableIcon";
+        
         var icon = "xi_table";
         var paramClass = "";
         if (hasParam) {

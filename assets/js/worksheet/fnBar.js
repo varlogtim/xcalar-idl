@@ -252,7 +252,11 @@ window.FnBar = (function(FnBar, $) {
         } else {
             editor.getInputField().blur(); // hack to reset blur
             var userStr = progCol.userStr;
-            userStr = userStr.substring(userStr.indexOf('='));
+            if (userStr.trim() === "") {
+                userStr = "= ";
+            } else {
+                userStr = userStr.substring(userStr.indexOf('='));
+            }
             editor.setValue(userStr);
             $fnBar.addClass('active').removeClass('disabled');
             clearSearch();

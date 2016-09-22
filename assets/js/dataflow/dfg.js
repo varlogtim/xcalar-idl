@@ -72,7 +72,7 @@ window.DFG = (function($, DFG) {
         return dfGroups.hasOwnProperty(groupName);
     };
 
-    DFG.drawCanvas = function($dagImage, isDataflowPanel) {
+    DFG.drawCanvas = function($dagImage) {
         var dagImageWidth = $dagImage.width();
         var dagImageHeight = $dagImage.height();
         var canvas = $('<canvas class="previewCanvas" width="' +
@@ -92,31 +92,16 @@ window.DFG = (function($, DFG) {
             // var index = $dagTable.data('index');
             var children = ($dagTable.data('children') + "").split(",");
             var numChildren = children.length;
-            var child;
-            if (isDataflowPanel) {
-                child = children;
-            } else {
-                child = children[numChildren - 2];
-            }
-
+            var child = children;
+            
             var dagMidHeight = 21;
             var dagMidWidth = 20;
             if (child !== undefined) {
                 child = $dagImage.find('.dagTable[data-index=' + child + ']');
-                var top1, left1, top2, left2;
-                if (isDataflowPanel) {
-                    top1 = parseInt($dagTable.css('top')) + dagMidHeight;
-                    left1 = parseInt($dagTable.css('left')) + dagMidWidth;
-                    top2 = parseInt(child.css('top')) + dagMidHeight;
-                    left2 = parseInt(child.css('left')) + 10;
-                } else {
-                    top1 = parseInt($dagTable.parent().css('top')) + dagMidHeight;
-                    left1 = dagImageWidth -
-                            parseInt($dagTable.parent().css('right')) - 42;
-                    top2 = parseInt(child.parent().css('top')) + dagMidHeight;
-                    left2 = dagImageWidth -
-                            parseInt(child.parent().css('right')) - 42;
-                }
+                var top1 = parseInt($dagTable.css('top')) + dagMidHeight;
+                var left1 = parseInt($dagTable.css('left')) + dagMidWidth;
+                var top2 = parseInt(child.css('top')) + dagMidHeight;
+                var left2 = parseInt(child.css('left')) + 10;
 
                 ctx.beginPath();
                 ctx.moveTo(left1, top1);
@@ -153,22 +138,11 @@ window.DFG = (function($, DFG) {
         var numExpandIcons = $expandIcons.length;
         for (var i = 0; i < numExpandIcons; i++) {
             var $expandIcon = $expandIcons.eq(i);
-            var x, y, dist;
-            if (isDataflowPanel) {
-                x = parseInt($expandIcon.css('left')) + 200;
-                y = parseInt($expandIcon.css('top')) + 15;
-                dist = 260;
-            } else {
-                // x = dagImageWidth - parseInt($expandIcon.css('right')) - 33;
-                // y = parseInt($expandIcon.css('top')) + 16;
-                // dist = 8;
-            }
-            if (isDataflowPanel) {
-                ctx.moveTo(x, y);
-                ctx.lineTo(x - dist, y);
-            }
-            // ctx.moveTo(x, y);
-            // ctx.lineTo(x - dist, y);
+            var x = parseInt($expandIcon.css('left')) + 200;
+            var y = parseInt($expandIcon.css('top')) + 15;
+            var dist = 260;
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - dist, y);
         }
         ctx.stroke();
     };

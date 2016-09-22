@@ -1389,6 +1389,7 @@ window.Dag = (function($, Dag) {
         DagFunction.destruct(tableId);
     };
 
+    // options: {savable: boolean}
     Dag.createDagImage = function(nodeArray, $container, options) {
         options = options || {};
         var storedInfo = {
@@ -3429,6 +3430,7 @@ window.Dag = (function($, Dag) {
         return (canvasHTML[0]);
     }
 
+    // options: {savable: boolean}
     function drawAllLines($container, dagInfo, numNodes, width, options) {
         var $dagImage = $container.find('.dagImage');
         var canvas = createCanvas($container);
