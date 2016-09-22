@@ -452,26 +452,24 @@ window.xcHelper = (function($, xcHelper) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
         var sizedToHeader;
+        var widthOptions = {
+            defaultHeaderStyle: true
+        };
+
         if (colNum > 0) {
             var cellWidth;
             if (options.replaceColumn) {
                 // xx not sure if we're passing in width anywhere
                 // if (options.width) {
                 //     cellWidth = options.width;
-                // } else 
+                // } else
                 if (options.resize) {
-                    var widthOptions = {
-                        defaultHeaderStyle: true
-                    };
                     cellWidth = getTextWidth($(), colName, widthOptions);
                 } else {
                     cellWidth = copiedCols[colNum - 1].width;
                 }
                 sizedToHeader = copiedCols[colNum - 1].sizedToHeader;
             } else {
-                var widthOptions = {
-                    defaultHeaderStyle: true
-                };
                 cellWidth = getTextWidth(null, colName, widthOptions);
             }
 
@@ -1200,8 +1198,8 @@ window.xcHelper = (function($, xcHelper) {
             var $tbody = $tableWrap.find('.xcTbodyWrap');
             var scrollTop = $tbody.scrollTop();
             $tbody.on('scroll.preventScrolling', function() {
-                $tbody.scrollTop(scrollTop); 
-            }); 
+                $tbody.scrollTop(scrollTop);
+            });
         }
         var lockHTML = '<div class="lockIcon"></div>';
         $('#dagPanel').find('.dagTable[data-id="' + tableId + '"]')
@@ -2050,7 +2048,7 @@ window.xcHelper = (function($, xcHelper) {
     // used to split query into array of subqueries by semicolons
     // XX not checking for /n or /r delimiter, just semicolon
     // returns array of objects, objects contain query, name, and dstTable
-    // options: {}, isExport: boolean, 
+    // options: {}, isExport: boolean,
     xcHelper.parseQuery = function(query, options) {
         options = options || {};
         var tempString = "";
@@ -2188,7 +2186,7 @@ window.xcHelper = (function($, xcHelper) {
     }
 
     function getExportFileNameFromQuery(query) {
-       var keyWord = "--fileName";
+        var keyWord = "--fileName";
 
         var index = getKeyWordIndexFromQuery(query, keyWord);
         if (index === -1) {
@@ -2381,12 +2379,9 @@ window.xcHelper = (function($, xcHelper) {
         var numTableCols = tableCols.length;
         var colsArray = [];
         var invalidProgCols = [];
-        var col;
         for (var i = 0; i < numTableCols; i++) {
-            col = tableCols[i];
-            if (col.name !== "DATA" &&
-                !col.isNewCol)
-            {
+            var col = tableCols[i];
+            if (!col.isDATACol() && !col.isEmptyCol()) {
                 if (gExportNoCheck) {
                     colsArray.push(col);
                 } else {

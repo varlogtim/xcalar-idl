@@ -601,7 +601,7 @@ window.XIApi = (function(XIApi, $) {
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
-            if (progCol.isDATACol() || progCol.isNewCol) {
+            if (progCol.isDATACol() || progCol.isEmptyCol()) {
                 continue;
             }
 
@@ -807,8 +807,8 @@ window.XIApi = (function(XIApi, $) {
                                     var widthOptions = {
                                         defaultHeaderStyle: true
                                     };
-                                    cellWidth = getTextWidth(null, 
-                                                lRename[j].new, 
+                                    cellWidth = getTextWidth(null,
+                                                lRename[j].new,
                                                 widthOptions);
                                     lCols[colNum].width = cellWidth;
                                 }
@@ -841,8 +841,8 @@ window.XIApi = (function(XIApi, $) {
                                     var widthOptions = {
                                         defaultHeaderStyle: true
                                     };
-                                    cellWidth = getTextWidth(null, 
-                                                rRename[j].new, 
+                                    cellWidth = getTextWidth(null,
+                                                rRename[j].new,
                                                 widthOptions);
                                     rCols[colNum].width = cellWidth;
                                 }

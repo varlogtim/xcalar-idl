@@ -83,7 +83,7 @@ window.xcFunction = (function($, xcFunction) {
         var tableName = table.getName();
         var frontColName;
         var backColName;
-        if (colNum != null && colNum != -1) {
+        if (colNum != null && colNum !== -1) {
             var progCol = table.getCol(colNum);
             frontColName = progCol.getFrontColName();
             backColName = progCol.getBackColName();

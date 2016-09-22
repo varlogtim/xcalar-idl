@@ -56,11 +56,11 @@ window.FnBar = (function(FnBar, $) {
                                 mismatch.char + "</span>" +
                                 val.slice(mismatch.index + 1) + "\"";
                 var pos = editor.charCoords({line: 0, ch: mismatch.index + 1},
-                                            "window")
+                                            "window");
 
                 setTimeout(function() {
-                    StatusBox.show(ErrTStr.BracketsMis + "<br/>" + funcStr, 
-                        $fnBar.prev().prev(), null, {
+                    var error = ErrTStr.BracketsMis + "<br/>" + funcStr;
+                    StatusBox.show(error, $fnBar.prev().prev(), null, {
                         "offsetX": pos.left - 178,
                         "side"   : "bottom",
                         "html"   : true
@@ -384,7 +384,7 @@ window.FnBar = (function(FnBar, $) {
                             displayText: colNamesCache[name],
                             render     : renderList,
                             className  : "colName"
-                        })
+                        });
                     }
                 }
 
@@ -543,10 +543,9 @@ window.FnBar = (function(FnBar, $) {
         }
         colNamesCache = {};
         var cols = gTables[tableId].tableCols;
-        var name;
         for (var i = 0; i < cols.length; i++) {
-            name = cols[i].backName.trim();
-            if (name.length && name !== "DATA") {
+            var name = cols[i].backName.trim();
+            if (name.length && !cols[i].isDATACol()) {
                 colNamesCache[name.toLowerCase()] = name;
             }
         }
@@ -664,16 +663,16 @@ window.FnBar = (function(FnBar, $) {
 
             if (!checkForSelectedColName(fnBarValTrim, colName)) {
                 var text = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
-                                colName: colName
-                            });
+                    colName: colName
+                });
                 var cursor = editor.getCursor();
                 isAlertOpen = true;
                 Alert.show({
-                    "title"      : AlertTStr.CONFIRMATION,
-                    "msgTemplate": text,
-                    "keepFnBar"  : true,
+                    "title"         : AlertTStr.CONFIRMATION,
+                    "msgTemplate"   : text,
+                    "keepFnBar"     : true,
                     "focusOnConfirm": true,
-                    "onCancel"   : function() {
+                    "onCancel"      : function() {
                         if ($colInput) {
                             $colInput.trigger(fakeEvent.mousedown);
                             $colInput.trigger(fakeEvent.mouseup);
@@ -686,7 +685,7 @@ window.FnBar = (function(FnBar, $) {
                         $fnBar.removeAttr("disabled");
                         isAlertOpen = false;
                     },
-                    "onConfirm" : function() {
+                    "onConfirm": function() {
                         ColManager.execCol(operation, newFuncStr, tableId, colNum)
                         .then(function(ret) {
                             if (ret === "update") {
@@ -712,7 +711,7 @@ window.FnBar = (function(FnBar, $) {
         }
     }
 
-    // will return false if column names detected and colName is not found 
+    // will return false if column names detected and colName is not found
     // among them. Otherwise, will return true
     function checkForSelectedColName(funcStr, colName) {
         var op = getOperationFromFuncStr(funcStr);

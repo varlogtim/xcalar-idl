@@ -379,7 +379,7 @@ window.OperationsView = (function($, OperationsView) {
             'keydown': function(event) {
                 var $input = $(this);
                 var $list = $input.siblings('.openList');
-                if ($list.length && (event.which === keyCode.Up || 
+                if ($list.length && (event.which === keyCode.Up ||
                     event.which === keyCode.Down)) {
                     listHighlight($input, event.which, event);
                 }
@@ -780,7 +780,7 @@ window.OperationsView = (function($, OperationsView) {
             var colNames = [];
             tableCols.forEach(function(col) {
                 // skip data column
-                if (col.name !== "DATA") {
+                if (!col.isDATACol() && !col.isEmptyCol()) {
                     // Add $ since this is the current format of column
                     colNames.push('$' + col.name);
                 }
@@ -2382,6 +2382,7 @@ window.OperationsView = (function($, OperationsView) {
                     }
                     backColNames += getBackColName(tempColNames[i].trim());
                 }
+
                 arg = backColNames;
 
                 // Since there is currently no way for users to specify what
@@ -2829,7 +2830,7 @@ window.OperationsView = (function($, OperationsView) {
                                             .find('.arg').eq(0);
         var isGroupbyColNameValid;
         if (!hasFuncFormat(groupbyColName)) {
-            isGroupbyColNameValid = checkValidColNames($groupByInput, 
+            isGroupbyColNameValid = checkValidColNames($groupByInput,
                                                     groupbyColName, singleArg);
         } else {
             isGroupbyColNameValid = true;
@@ -3457,20 +3458,15 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function getBackColName(frontColName) {
-        var columns = gTables[tableId].tableCols;
-        var numCols = columns.length;
-        var backColName = frontColName;
-        for (var i = 0; i < numCols; i++) {
-            if (columns[i].getFrontColName() === frontColName) {
-                var name = columns[i].getFrontColName();
-                if (name != null) {
-                    backColName = name;
-                }
-                break;
-            }
+        var table = gTables[tableId];
+        var progCol = table.getColByFrontName(frontColName);
+        if (progCol != null) {
+            return progCol.getBackColName();
+        } else {
+            // XXX Cheng: it's an error case.
+            // is this the correct way to handle it?
+            return frontColName;
         }
-
-        return backColName;
     }
 
     function getAutoGenColName(name) {

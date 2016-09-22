@@ -932,7 +932,7 @@ window.TblManager = (function($, TblManager) {
 
         var numCols = tableCols.length;
         var dataCol;
-        if (tableCols[numCols - 1].name === 'DATA') {
+        if (tableCols[numCols - 1].isDATACol()) {
             dataCol = tableCols.splice(numCols - 1, 1)[0];
             numCols--;
         }
@@ -2649,7 +2649,7 @@ window.TblManager = (function($, TblManager) {
         var dataCol;
         var dataColIndex;
         for (var i = 0; i < numCols; i++) {
-            if (progCols[i].name === "DATA") {
+            if (progCols[i].isDATACol()) {
                 dataCol = progCols[i];
                 dataColIndex = i + 1;
                 break;

@@ -789,8 +789,8 @@ window.JoinView = (function($, JoinView) {
         var html = "";
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
-            if (allCols[i].type !== ColumnType.newColumn &&
-                allCols[i].backName !== "DATA") {
+            var progCol = allCols[i];
+            if (!progCol.isEmptyCol() && !progCol.isDATACol()) {
                 html += '<li class="checked" data-colnum="' + i + '">' +
                             '<span class="text">' +
                                 allCols[i].name +

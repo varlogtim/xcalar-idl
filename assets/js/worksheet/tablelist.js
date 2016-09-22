@@ -1063,7 +1063,7 @@ window.TableList = (function($, TableList) {
         var tableCols = gTables[tableId].tableCols;
         // var numTableCols = tableCols.length;
         for (var i = 0; i <= colNum; i++) {
-            if (tableCols[i].name === "DATA") {
+            if (tableCols[i].isDATACol()) {
                 colNum++;
                 break;
             }

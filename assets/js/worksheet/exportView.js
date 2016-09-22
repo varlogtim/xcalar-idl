@@ -491,8 +491,8 @@ window.ExportView = (function($, ExportView) {
             }
 
             if (gExportNoCheck) {
-                if (tableCols[colNum].isNewCol ||
-                    tableCols[colNum].name === "DATA") {
+                if (tableCols[colNum].isEmptyCol() ||
+                    tableCols[colNum].isDATACol()) {
                     return false;
                 }
                 return true;

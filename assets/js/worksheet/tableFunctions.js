@@ -1247,7 +1247,7 @@ function removeWaitCursor() {
 }
 
 //options:
-// moveHtml: boolean, if true we replace html (for undo/redo or 
+// moveHtml: boolean, if true we replace html (for undo/redo or
 // through table menu)
 function reorderAfterTableDrop(tableId, srcIndex, desIndex, options) {
     WSManager.reorderTable(tableId, srcIndex, desIndex);

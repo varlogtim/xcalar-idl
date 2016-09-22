@@ -1881,11 +1881,12 @@ window.Dag = (function($, Dag) {
         var html = '';
 
         for (var i = 0; i < numCols; i++) {
-            if (numCols === 1 || table.tableCols[i].name === 'DATA') {
+            var progCol = table.tableCols[i];
+            if (numCols === 1 || progCol.isDATACol()) {
                 continue;
             }
-            var type = table.tableCols[i].type;
-            var name = table.tableCols[i].name;
+            var type = progCol.getType();
+            var name = progCol.getFrontColName();
             html += '<li>' +
                         '<div>' +
                         '<span class="iconWrap">' +
