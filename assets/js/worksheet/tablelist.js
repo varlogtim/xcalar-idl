@@ -79,6 +79,11 @@ window.TableList = (function($, TableList) {
             TableList.refreshOrphanList(true);
         });
 
+         $("#constantsListSection .refresh").click(function() {
+            $(this).find(".clearAll").click();
+            TableList.refreshConstantList(true);
+        });
+
         $tableListSections.on("mouseenter", ".tableName", function(){
             xcHelper.autoTooltip(this);
         });
@@ -110,24 +115,35 @@ window.TableList = (function($, TableList) {
         $tableListSections.on("click", ".submit.delete", function() {
             var $section = $(this).closest(".tableListSection");
             var tableType;
+            var title = TblTStr.Del;
+            var msg = SideBarTStr.DelTablesMsg;
             if ($section.is("#archivedTableList")) {
                 tableType = TableType.Archived;
             } else if ($section.is("#orphanedTableList")) {
                 tableType = TableType.Orphan;
+            } else if ($section.is("#constantsListSection")) {
+                title = SideBarTStr.DropConsts;
+                msg = SideBarTStr.DropConstsMsg;
+                tableType = "constant";
             } else {
                 console.error("Error Case!");
             }
 
             Alert.show({
-                "title"    : TblTStr.Del,
-                "msg"      : SideBarTStr.DelTablesMsg,
+                "title"    : title,
+                "msg"      : msg,
                 "onConfirm": function() {
                     if (tableType === TableType.Orphan) {
                         searchHelper.clearSearch(function() {
                             clearTableListFilter($("#orphanedTableList"), null);
                         });
                     }
-                    TableList.tableBulkAction("delete", tableType);
+                    if (tableType === "constant") {
+                        deleteConstants();
+                    } else {
+                        TableList.tableBulkAction("delete", tableType);
+                    }
+                    
                 }
             });
         });
@@ -600,6 +616,23 @@ window.TableList = (function($, TableList) {
         }
     };
 
+    TableList.refreshConstantList = function(waitIcon) {
+        var $waitingIcon;
+        if (waitIcon) {
+            $waitingIcon = xcHelper.showRefreshIcon($('#constantsListSection'));
+        }
+        $('#constantsListSection').find(".clearAll").click();
+        var startTime = Date.now();
+        generateConstList()
+        .always(function() {
+            if (waitIcon && Date.now() - startTime > 2000) {
+                $waitingIcon.fadeOut(100, function() {
+                    $waitingIcon.remove();
+                });
+            }
+        });
+    };
+
 
     function addOrphanedTable(tableName, wsId) {
         var deferred = jQuery.Deferred();
@@ -909,6 +942,182 @@ window.TableList = (function($, TableList) {
         }
     }
 
+    function generateConstList() {
+        var deferred = jQuery.Deferred();
+        XcalarGetConstants('*')
+        .then(function(backConsts) {
+            var frontConsts = Aggregates.getAggs();
+            var backConstsList = [];
+            var allConsts = [];
+            var aggConst;
+            var backConstsMap = {};
+            
+            for (var i = 0; i < backConsts.length; i++) {
+                aggConst = backConsts[i];
+                if (!frontConsts[aggConst.name]) {
+                    aggConst.backColName = null;
+                    aggConst.dagName = aggConst.name;
+                    aggConst.op = null;
+                    aggConst.tableId = null;
+                    aggConst.value = null;
+                    backConstsList.push(aggConst);
+                }
+                backConstsMap[aggConst.name] = true;
+            }
+
+            // remove any constants that the front end has but the backend
+            // doesn't
+            for (var name in frontConsts) {
+                if (!backConstsMap.hasOwnProperty(name)) {
+                    Aggregates.removeAgg(name);
+                }
+            }
+
+            backConstsList.sort();
+            for (var name in frontConsts) {
+                allConsts.push(frontConsts[name]);
+            }
+            allConsts.sort();
+            allConsts = allConsts.concat(backConstsList);
+
+            var numConsts = allConsts.length;
+            var html = "";
+            for (var i = 0; i < numConsts; i++) {
+                aggConst = allConsts[i];
+                var name = aggConst.dagName;
+                var tableName;
+                var op;
+                var value;
+                if (aggConst.op) {
+                    op = aggConst.op + "(" + aggConst.backColName + ")";
+                } else {
+                    op = CommonTxtTstr.NA;
+                }
+                if (aggConst.tableId && gTables[aggConst.tableId]) {
+                    tableName = gTables[aggConst.tableId].tableName;
+                } else {
+                    tableName = CommonTxtTstr.NA;
+                }
+                if (aggConst.value != null) {
+                    value = aggConst.value;
+                } else {
+                    value = CommonTxtTstr.NA;
+                }
+              html += '<li class="clearfix tableInfo" ' +
+                    'data-id="' + name + '">' +
+                    '<div class="constInfoWrap" data-toggle="tooltip" ' +
+                    'data-container="body" title="' + op + '</br>' + 
+                        tableName + '">' +
+                        '<div class="op">' +
+                            op + 
+                        '</div>' +
+                        '<div class="srcName">' + tableName + '</div>' +
+                    '</div>' +
+                    '<div class="tableListBox xc-expand-list">' +
+                        '<span class="addTableBtn">' +
+                            '<i class="icon xi-aggregate fa-18"></i>' +
+                            '<i class="icon xi-ckbox-empty fa-18"></i>' +
+                            '<i class="icon xi-tick fa-11"></i>' +
+                        '</span>' +
+                        '<span class="constName textOverflowOneLine" title="' +
+                            name + '">' +
+                            name +
+                        '</span>' +
+                        // '<span>(</span>' +
+                        '<span class="value" data-toggle="tooltip" ' +
+                        'data-container="body" title="' + 
+                            CommonTxtTstr.Value + ': ' + value + '">(' +
+                            value + 
+                        ')</span>' +
+                    '</div>' +
+                '</li>';
+            }
+            $("#constantList").html(html);
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        
+        return (deferred.promise());
+    }
+
+    function deleteConstants() {
+        var constNames = [];
+        var promises = [];
+        var constName;
+        $('#constantList').find('.addTableBtn.selected').each(function() {
+            constName = $(this).closest('.tableInfo').data('id');
+            constNames.push(constName);
+            promises.push(XcalarDeleteTable(constName));
+        });
+
+        var $waitingIcon = xcHelper.showRefreshIcon($('#constantsListSection'), 
+                                                    true);
+        $('#constantsListSection').addClass('locked');
+        PromiseHelper.when.apply(window, promises)
+        .then(function() {
+            for (var i = 0; i < constNames.length; i++) {
+                $('#constantList').find('.tableInfo[data-id="' + 
+                                        constNames[i] + '"]').remove();
+                Aggregates.removeAgg(constNames[i]); 
+            }
+            $('#constantsListSection').find(".clearAll").click();
+        })
+        .fail(function() {
+            constDeleteFailHandler(arguments, constNames);
+        })
+        .always(function() {
+            $waitingIcon.fadeOut(100, function() {
+                $waitingIcon.remove();
+            });
+            $('#constantsListSection').removeClass('locked');
+        });
+    }
+
+    function constDeleteFailHandler(results, constNames) {
+        var hasSuccess = false;
+        var fails = [];
+        var errorMsg = "";
+        var tablesMsg = "";
+        var failedTables = "";
+        for (var i = 0, len = results.length; i < len; i++) {
+            if (results[i] != null && results[i].error != null) {
+                fails.push({tables: constNames[i], error: results[i].error});
+                failedTables += constNames[i] + ", ";
+            } else {
+                hasSuccess = true;
+                var constName = results[i].statuses[0].nodeInfo.name
+                $('#constantList').find('.tableInfo[data-id="' + constName +
+                                         '"]').remove();
+                Aggregates.removeAgg(constName); 
+            }
+        }
+
+        var numFails = fails.length;
+        if (numFails) {
+            failedTables = failedTables.substr(0, failedTables.length - 2);
+            if (numFails > 1) {
+                tablesMsg = ErrTStr.ConstsNotDeleted + " " + failedTables;
+            } else {
+                tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.ConstNotDeleted, {
+                    "name": failedTables
+                });
+            }
+        }
+
+        if (hasSuccess) {
+            if (numFails) {
+                errorMsg = fails[0].error + ". " + tablesMsg;
+                Alert.error(StatusMessageTStr.PartialDeleteConstFail, errorMsg);
+            }
+        } else {
+            Alert.error(StatusMessageTStr.DeleteConstFailed,  
+                fails[0].error + ". " + ErrTStr.NoConstsDeleted);
+        }
+        return (hasSuccess);
+    }
+
     function filterTableList($section, keyWord) {
         var $lis = $section.find(".tableInfo");
         // $lis.find('.highlightedText').contents().unwrap();
@@ -1106,6 +1315,7 @@ window.TableList = (function($, TableList) {
         TableList.addTables(archivedTables, IsActive.Inactive);
 
         generateOrphanList(gOrphanTables);
+        generateConstList();
     }
 
     function checkIfTablesInActiveWS(tableNames) {

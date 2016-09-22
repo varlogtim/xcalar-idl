@@ -13,7 +13,9 @@ StatusMessageTStr = {
     'JoinFailed' : 'Join table failed',
     'DeleteTable' : 'Dropping table',
     'DeleteTableFailed': 'Drop table failed',
+    'DeleteConstFailed': 'Drop constant failed',
     'PartialDeleteTableFail': 'Some tables could not be deleted',
+    'PartialDeleteConstFail': 'Some constants could not be deleted',
     'CouldNotDelete' : 'Could not be deleted',
     'ExportTable' : 'Exporting table',
     'ExportFailed' : 'Export failed',
@@ -117,6 +119,7 @@ CommonTxtTstr = {
     'InP': 'In progress',
     'NA': 'N/A',
     'ArrayVal': 'Array Value',
+    'Value': 'Value',
 
     // with replace
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated' +
@@ -184,7 +187,9 @@ ErrTStr = {
     'TooLong': 'Please use fewer than 255 characters',
     'NoTable': 'Table doesn\'t exists',
     'TablesNotDeleted': 'The following tables were not deleted:',
+    'ConstsNotDeleted': 'The following constants were not deleted:',
     'NoTablesDeleted': 'No tables were deleted.',
+    'NoConstsDeleted': 'No constants were deleted.',
     'LargeImgSave': 'Unable To Save Image',
     'LargeImgTab': 'Unable To Open Image',
     'LargeImgText': 'Image exceeds your browser\'s maximum allowable size',
@@ -225,6 +230,7 @@ ErrWRepTStr = {
     'NoLessNum': 'Please enter a value bigger than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
     'TableNotDeleted': 'Table <name> was not deleted.',
+    'ConstNotDeleted': 'Constant <name> was not deleted.',
     'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists, ' +
                     'please choose another name.',
     'OutputNotFound': '<name> Not Found',
@@ -551,6 +557,8 @@ SideBarTStr = {
     'DownloadError': 'Download UDF Failed',
     'DownoladMsg': 'UDF is empty',
     'OverwriteErr': 'Cannot overwrite default UDF',
+    'DropConsts' : 'Drop Constants',
+    'DropConstsMsg' : 'Are you sure you want to drop the selected constant(s)?',
 
     // With Replace
     'UDFError': '<reason> found in line <line>'

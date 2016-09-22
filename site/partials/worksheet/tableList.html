@@ -11,6 +11,7 @@
     <div class="tableListSectionTab active"><%= dicts.ws.ActiveList %></div>
     <div class="tableListSectionTab"><%= dicts.ws.InActiveList %></div>
     <div class="tableListSectionTab"><%= dicts.ws.OrphanList %></div>
+    <div class="tableListSectionTab"><%= dicts.ws.ConstList %></div>
   </section>
   <!-- Sections -->
   <section id="tableListSections">
@@ -31,7 +32,7 @@
         <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.ws.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
            <i class="icon xi-back-to-worksheet fa-17"></i>
         </div>
-        <div class="submit delete xc-hidden">
+        <div class="submit delete xc-hidden" title="<%= dicts.TooltipTStr.DropTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-trash fa-17"></i>
         </div>
         <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
@@ -45,7 +46,7 @@
         <div class="submit active xc-hidden" title="<%= dicts.ws.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-back-to-worksheet fa-17"></i>
         </div>
-        <div class="submit delete xc-hidden">
+        <div class="submit delete xc-hidden" title="<%= dicts.TooltipTStr.DropTables %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-trash fa-17"></i>
         </div>
         <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
@@ -73,6 +74,18 @@
           </div>
       </div>
       <ul id="orphanedTablesList" class="tableLists"></ul>
+    </div>
+    <div id="constantsListSection" class="tableListSection">
+      <div class="buttonSection">
+        <div class="submit delete xc-hidden" title="<%= dicts.TooltipTStr.DropConsts %>" data-toggle="tooltip" data-placement="top" data-container="body">
+          <i class="icon xi-trash fa-17"></i>
+        </div>
+        <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
+        <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
+        <div class="divider"></div>
+        <i class="icon xi-refresh refresh fa-18 blue" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="<%= dicts.common.Refresh %>"></i>
+      </div>
+      <ul id="constantList" class="tableLists"></ul>
     </div>
   </section>
   <!-- End Of Sections -->

@@ -796,7 +796,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.showRefreshIcon = function($location) {
+    xcHelper.showRefreshIcon = function($location, manualClose) {
         var $waitingIcon = $('<div class="refreshIcon"><img src=""' +
                             'style="display:none;height:0px;width:0px;"></div>');
         $location.append($waitingIcon);
@@ -807,11 +807,14 @@ window.xcHelper = (function($, xcHelper) {
                                     .width(35);
         }, 0);
 
-        setTimeout(function(){
-            $waitingIcon.fadeOut(100, function() {
-                $waitingIcon.remove();
-            });
-        }, 1400);
+        if (!manualClose) {
+            setTimeout(function(){
+                $waitingIcon.fadeOut(100, function() {
+                    $waitingIcon.remove();
+                });
+            }, 1400);
+        }
+        return ($waitingIcon);
     };
 
     xcHelper.toggleBtnInProgress = function($btn, isIconBtn) {

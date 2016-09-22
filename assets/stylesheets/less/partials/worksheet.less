@@ -904,7 +904,7 @@ ul.CodeMirror-hints {
     .flex-display;
 
     .tableListSectionTab {
-        .flex(1 1 33%);
+        .flex(1 1 25%);
         .size(@height: 100%);
         display: inline-block;
         .font(@weight: bold, @line-height: 35px, @size: 13px, @color: @color-white);
@@ -927,6 +927,8 @@ ul.CodeMirror-hints {
         &.active {
             .font(@color: @color-font-bright-light-blue);
             background-color: @color-bg-tiber-blue;
+            .flex(1 1 33%);
+            text-overflow: clip;
         }
     }
 }
@@ -1281,6 +1283,86 @@ ul.CodeMirror-hints {
             &.selected {
                 background-color: @color-macaroni-and-cheese;
             }
+        }
+    }
+}
+
+#constantsListSection {
+    &.locked {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+}
+#constantList {
+    &.tableLists {
+        .tableInfo {
+            padding-left: 5px;
+            padding-right: 10px;
+            &:hover {
+
+                .addTableBtn {
+                    .icon {
+                        &.xi-aggregate {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+        .tableListBox {
+            padding-left: 8px; 
+            .flex-display; 
+            width: 72%;
+
+            .constName, .value {
+                .flex(0 1 auto);
+                min-width: 20px;
+                .textOverflowOneLine;
+                max-width: none;
+            }
+            .constName {
+                padding-right: 2px; 
+                height: 25px;
+                line-height: 25px;
+            }
+            .value {
+                min-width: 30px;
+            }
+            .addTableBtn {
+                .flex(0 0 18px);
+
+                &.selected {
+                    .icon {
+                        &.xi-aggregate {
+                            display: none;
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+    .constInfoWrap {
+        .position(relative, @top: 1px);
+        .size(@width: 28%, @height: 25px);
+        display: inline-block;
+        float: left;
+        .font(@line-height: 12px, @size: 10px);
+        overflow: hidden;
+        // padding-right: 2px;
+
+        .op, .srcName {
+            .size(@width: 100%, @height: 12px);
+            text-align: right;
+            overflow: hidden;
+            .textOverflowOneLine;
+        }
+
+        .value {
+            height: 25px;
+            line-height: 25px;
+            max-width: 25px;
+            .textOverflowOneLine;
         }
     }
 }

@@ -240,7 +240,9 @@ module.exports = {
         "DoneQueries": "Show finished queries",
         "SelectCol": "Please select a column first!",
         "SelectFile": "Select a .tar.gz file first",
-        "IcvRestriction": "ICV only available for Map and Group By" // Sync with jsTstr
+        "IcvRestriction": "ICV only available for Map and Group By", // Sync with jsTstr
+        "DropTables": "Drop Tables",
+        "DropConsts": "Drop Constants",
     },
 
     "workspaceBar": {
@@ -304,6 +306,7 @@ module.exports = {
         "ActiveList": "Active",
         "InActiveList": "Archived",
         "OrphanList": "Temporary",
+        "ConstList": "Constants",
         "active": "Add To Worksheet",
         "archive": "Archive Tables",
         "filterOrphan": "Filter Temporary Tables",

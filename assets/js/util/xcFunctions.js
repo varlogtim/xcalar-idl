@@ -143,10 +143,10 @@ window.xcFunction = (function($, xcFunction) {
         // XXX temp hack because backend doesn't but should take gAggVarPrefix
         // as first char for aggName
         var hasPrefix = false;
-        if (aggName && aggName[0] === gAggVarPrefix) {
-            aggName = aggName.slice(1);
-            hasPrefix = true;
-        }
+        // if (aggName && aggName[0] === gAggVarPrefix) {
+        //     aggName = aggName.slice(1);
+        //     hasPrefix = true;
+        // }
 
         XIApi.aggregate(txId, aggrOp, aggStr, tableName, aggName)
         .then(function(value, dstDagName) {
@@ -162,6 +162,7 @@ window.xcFunction = (function($, xcFunction) {
             };
 
             Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);
+            TableList.refreshConstantList();
             Transaction.done(txId, {"msgTable": tableId});
 
             // show result in alert modal

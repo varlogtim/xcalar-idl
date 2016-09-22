@@ -24,7 +24,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 var $formRow = $nameInput.closest('.formRow');
                 var val = $nameInput.val();
                 $nameInput.data('value', val);
-
+                $nameInput.attr('disabled', true);
                 appendWaitingIcon($formRow);
 
                 getParamByName(val)
@@ -34,6 +34,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                   
                 })
                 .always(function() {
+                    $nameInput.attr('disabled', false);
                     $formRow.find('.waitingIcon').fadeOut(200, function() {
                         $(this).remove();
                     });
