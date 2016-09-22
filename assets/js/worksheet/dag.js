@@ -97,13 +97,13 @@ window.DagPanel = (function($, DagPanel) {
             } else {
                 $('#mainFrame').height(newHeight + '%');
             }
-            
+
             if (dagTopPct === undefined) {
                 setDagTranslate(0);
             } else {
                 setDagTranslate(newHeight - dagTopPct);
             }
-     
+
             $('#dagScrollBarWrap').hide();
             clickDisabled = true;
             setTimeout(function() {
@@ -394,7 +394,6 @@ window.DagPanel = (function($, DagPanel) {
 
             $menu.find('.deleteTable').removeClass('hidden');
 
-            
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
@@ -1244,11 +1243,13 @@ window.Dag = (function($, Dag) {
     var canvasLimit = 32767;
     var canvasAreaLimit = 268435456;
     // colors needed for drawing and saving canvas
-    var lineColor = '#111111';
+    var lineColor = '#848484';
     var tableTitleColor = "#555555";
     var titleBorderColor = '#A5A5A5';
     var tableFontColor = '#6E6E6E';
     var operationFontColor = '#4D4D4D';
+    var strokeWidth = 2; // 2px. make sure this is an even number. Or you have
+                         // to start your path on a 0.5px thingy
 
     Dag.construct = function(tableId, tablesToRemove) {
         var deferred = jQuery.Deferred();
@@ -2347,7 +2348,7 @@ window.Dag = (function($, Dag) {
     function drawExpandIconToCanvas($expandIcon, ctx, top, left, img) {
         ctx.drawImage(img, left + 35, top + 53);
         ctx.beginPath();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = strokeWidth;
         ctx.strokeStyle = lineColor;
         ctx.stroke();
     }
@@ -3433,7 +3434,7 @@ window.Dag = (function($, Dag) {
         var canvas = createCanvas($container);
         var ctx = canvas.getContext('2d');
         ctx.strokeStyle = lineColor;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = strokeWidth;
         ctx.beginPath();
 
         for (var node in dagInfo) {
@@ -3514,6 +3515,7 @@ window.Dag = (function($, Dag) {
     }
 
     function drawCurve(ctx, coor) {
+
         var x1 = coor.x1;
         var y1 = coor.y1;
         var x2 = coor.x2;
@@ -3525,14 +3527,18 @@ window.Dag = (function($, Dag) {
             xoffset = 1000 / vertDist;
         }
 
+        // Drawing the two curved lines
         ctx.moveTo(x1 + xoffset, y1);
         ctx.bezierCurveTo( x2 + 50, y1,
-                            x2 + 50, y1 + (vertDist + 16) * 2,
-                            x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
+                            x2 + 50, y1 + (vertDist + 17) * 2,
+                            x1 + xoffset, y1 + (vertDist + 17) * 2);
+        // Draw upper horizontal line
         ctx.moveTo(x1 - 10, y1);
         ctx.lineTo(x1 + xoffset, y1);
+
+        // Draw lower horizontal line
         ctx.moveTo(x1 - 10, y1 + (vertDist + 17) * 2);
-        ctx.lineTo(x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
+        ctx.lineTo(x1 + xoffset, y1 + (vertDist + 17) * 2);
     }
 
     function drawLine(ctx, x, y, length) {
