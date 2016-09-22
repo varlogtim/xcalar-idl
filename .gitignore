@@ -4,6 +4,7 @@
 /assets/widget/*.css
 /assets/customerPortal/*.css
 /assets/customerPortal/_table_render.html
+/assets/customerPortal/_error_license.html
 /assets/js/setup/constructorVersion.js
 /assets/dev/!shortCutStyles.css
 *.DS_Store
