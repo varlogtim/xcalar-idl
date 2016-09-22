@@ -516,11 +516,11 @@ window.DagPanel = (function($, DagPanel) {
             if (!formBusy) {
                 var $dagWrap = $(this).closest('.dagWrap');
                 var tableId = $dagWrap.data('id');
+                DagFunction.focusTable(tableId);
                 if (!gTables[tableId].isLocked) {
                     DFCreateView.show($dagWrap);
                 }
             }
-            
         });
 
         $dagPanel.on('click', '.saveImageBtn', function() {
@@ -955,7 +955,7 @@ window.DagPanel = (function($, DagPanel) {
                 break;
             }
         }
-       
+
         // Check whether this table already exists. If it does, then just add
         // or focus on that table
 
@@ -1560,7 +1560,7 @@ window.Dag = (function($, Dag) {
                 map[i].joined = false;
             }
             map[i].parents = [];
-            
+
             for (var j = 0; j < numParents; j++) {
                 // save parents indices for current node
                 map[i].parents.push(++parentIndex);
@@ -1570,7 +1570,7 @@ window.Dag = (function($, Dag) {
                     map[parentIndex] = {};
                 }
                 map[parentIndex].child = i;
-                  
+
                 if (numParents === 2) {
                     map[parentIndex].joined = true;
                 } else {
@@ -1934,7 +1934,7 @@ window.Dag = (function($, Dag) {
         }
 
         $schema.css({'top': top, 'left': left});
-        
+
         var rightBoundary = $(window).width() - 5;
 
         if ($schema[0].getBoundingClientRect().right > rightBoundary) {
@@ -2152,7 +2152,6 @@ window.Dag = (function($, Dag) {
         var ctx = canvas.getContext('2d');
         ctx.strokeStyle = lineColor;
         ctx.beginPath();
-        
 
         if (collapse) {
             for (var node in nodes) {
