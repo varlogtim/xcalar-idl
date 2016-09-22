@@ -502,6 +502,7 @@ module.exports = {
     },
 
     "dataflow": {
+        "DataflowTitle": "Batch Dataflow",
         "header": "Dataflow",
         "dfgs": "Dataflows",
         "instr" : "Create a batch dataflow based on your selected table. After you create a batch dataflow, you will be able to parameterize it and run it on demand with different data sources.",
