@@ -786,7 +786,7 @@ window.ColManager = (function($, ColManager) {
                     progCol.backName = progCol.func.args[0];
                 }
 
-                pullColHelper(progCol.backName, colNum, tableId);
+                pullColHelper(colNum, tableId);
 
                 if (!args || !args.noLog) {
                     var sqlOptions = {
@@ -984,8 +984,7 @@ window.ColManager = (function($, ColManager) {
             "colNum"    : colNum
         });
 
-        var backName = progCol.getBackColName();
-        pullColHelper(backName, newColNum, tableId);
+        pullColHelper(newColNum, tableId);
 
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
@@ -1287,73 +1286,32 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.pullAllCols = function(startIndex, jsonData, dataIndex,
-                                      tableId, direction, rowToPrependTo)
+    ColManager.pullAllCols = function(startIndex, jsonData, tableId,
+                                        direction, rowToPrependTo)
     {
-        var table     = gTables[tableId];
+        var table = gTables[tableId];
         var tableCols = table.tableCols;
-        var numCols   = tableCols.length;
+        var numCols = tableCols.length;
         var indexedColNums = [];
-        var nestedVals     = [];
-        var columnTypes    = []; // track column type
-        var childArrayVals = new Array(numCols);
+        var nestedVals = [];
 
-        var $table    = $('#xcTable-' + tableId);
+        var $table = $('#xcTable-' + tableId);
         var tBodyHTML = "";
-        var knf = false;
-        var dataValue;
-        var rowNum;
-        var childOfArray;
-        var col;
-        var tdValue;
-        var parsedVal;
-        var i;
-        var row;
-        var numRows;
-        var backColName;
         var nested;
-        var nestedLength;
-        var tdClass;
-        var originalVal;
-        var formatVal;
-        var decimals;
-        var format;
-        var jsonTdVal;
-        var jsonTdLen;
-        var jsonTdTruncated = false;
-        var truncPossible = false; // true if data td exceeds colTruncLimit
-        var truncLimit = 1000; // the character limit for the data td
-        var colTruncLimit = 500; // the character limit for other tds
-        var truncClass = "";
-        var originalDataClass = "";
-        var displayedVal;
-        var truncLen;
-        var colTruncLen;
-        var tdValLen;
-        var isColTruncated = false;
         var hasIndexStyle = table.showIndexStyle();
 
         startIndex = startIndex || 0;
 
-        for (i = 0; i < numCols; i++) {
-            if (i === dataIndex) {
+        for (var i = 0; i < numCols; i++) {
+            var progCol = tableCols[i];
+            if (progCol.isDATACol() || progCol.isEmptyCol()) {
                 // this is the data Column
                 nestedVals.push([""]);
-            } else if (tableCols[i].isNewCol) {
-                // new col
-                nestedVals.push("");
             } else {
-                backColName = tableCols[i].getBackColName();
+                var backColName = progCol.getBackColName();
                 nested = parseColFuncArgs(backColName);
-                if (backColName !== "" && backColName != null)
-                {
-                    if (/\\.([0-9])/.test(backColName)) {
-                        // slash followed by dot followed by number is ok
-                        // fall through
-                    } else if (/\.([0-9])/.test(backColName)) {
-                        // dot followed by number is invalid
-                        nested = [""];
-                    }
+                if (!isValidColToPull(backColName)) {
+                    nested = [""];
                 }
 
                 nestedVals.push(nested);
@@ -1362,29 +1320,12 @@ window.ColManager = (function($, ColManager) {
                     indexedColNums.push(i);
                 }
             }
-
-            // initial type
-            columnTypes.push(tableCols[i].getType());
         }
-        // loop through table tr and start building html
-        for (row = 0, numRows = jsonData.length; row < numRows; row++) {
-            jsonTdVal = jsonData[row];
-            dataValue = parseRowJSON(jsonData[row]);
-            rowNum = row + startIndex;
 
-            jsonTdLen = jsonTdVal.length;
-            if (jsonTdLen > truncLimit) {
-                jsonTdTruncated = true;
-                truncPossible = true;
-                truncLen = jsonTdLen - truncLimit;
-            } else {
-                jsonTdTruncated = false;
-                if (jsonTdLen > colTruncLimit) {
-                    truncPossible = true;
-                } else {
-                    truncPossible = false;
-                }
-            }
+        // loop through table tr and start building html
+        for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
+            var tdValue = parseRowJSON(jsonData[row]);
+            var rowNum = row + startIndex;
 
             tBodyHTML += '<tr class="row' + rowNum + '">';
 
@@ -1408,142 +1349,25 @@ window.ColManager = (function($, ColManager) {
                           '</div></td>';
 
             // loop through table tr's tds
-            for (col = 0; col < numCols; col++) {
+            for (var col = 0; col < numCols; col++) {
                 nested = nestedVals[col];
-                tdValue = dataValue;
-                childOfArray = childArrayVals[col];
-                knf = false;
 
-                if (col !== dataIndex) {
-                    if (nested == null) {
-                        console.error('Error this value should not be empty');
-                    } else if (nested === "") {
-                        tdValue = "";
-                    }
+                var indexed = (indexedColNums.indexOf(col) > -1);
+                var parseOptions = {
+                    "hasIndexStyle": hasIndexStyle,
+                    "indexed"      : indexed
+                };
+                var res = parseTdHelper(tdValue, nested,
+                                        tableCols[col], parseOptions);
+                var tdClass = "col" + (col + 1);
 
-                    nestedLength = nested.length;
-                    for (i = 0; i < nestedLength; i++) {
-                        if (tdValue[nested[i]] === null) {
-                            tdValue = tdValue[nested[i]];
-                            break;
-                        } else if (jQuery.isEmptyObject(tdValue) ||
-                            tdValue[nested[i]] == null)
-                        {
-                            knf = true;
-                            tdValue = null;
-                            break;
-                        }
-
-                        tdValue = tdValue[nested[i]];
-
-                        if (!childOfArray && i < nestedLength - 1 &&
-                            (tdValue instanceof Array))
-                        {
-                            childArrayVals[col] = true;
-                        }
-                    }
-
-                    tdClass = "col" + (col + 1);
-                    // class for indexed col
-                    if (indexedColNums.indexOf(col) > -1) {
-                        tdClass += " indexedColumn";
-                        if (!hasIndexStyle) {
-                            tdClass += " noIndexStyle";
-                        }
-                    }
-                    // class for textAlign
-                    if (tableCols[col].textAlign === "Left") {
-                        tdClass += " textAlignLeft";
-                    } else if (tableCols[col].textAlign === "Right") {
-                        tdClass += " textAlignRight";
-                    } else if (tableCols[col].textAlign === "Wrap") {
-                        tdClass += " textAlignWrap";
-                    }
-
-                    //define type of the column
-                    if (!tableCols[col].isImmediate()) {
-                        columnTypes[col] = xcHelper.parseColType(tdValue,
-                                                            columnTypes[col]);
-                    }
-
-                    originalVal = tdValue;
-                    parsedVal = xcHelper.parseJsonValue(tdValue, knf);
-
-                    if (!knf && originalVal != null) {
-                        originalVal = parsedVal;
-                    } else {
-                        // case that should not append data-val
-                        originalVal = null;
-                    }
-                    formatVal = parsedVal;
-                    decimals = tableCols[col].decimals;
-                    format = tableCols[col].format;
-                    if (originalVal != null && (decimals > -1 || format != null)) {
-                        formatVal = formatColumnCell(parsedVal, format, decimals);
-                    }
-
-                    displayedVal = formatVal;
-                    truncClass = "";
-                    if (truncPossible) {
-                        tdValLen = formatVal.length;
-                        if (tdValLen > colTruncLimit) {
-                            colTruncLen = tdValLen - colTruncLimit;
-                            displayedVal = formatVal.substr(0, colTruncLimit) +
-                                    "...(" + (colTruncLen.toLocaleString("en")) +
-                                    " " + TblTStr.Truncate + ")";
-                            truncClass = " truncated";
-                            isColTruncated = true;
-                        } else {
-                            isColTruncated = false;
-                        }
-                    } else {
-                        isColTruncated = false;
-                    }
-
-                    // XXX now only allow number in case weird string mess up html
-                    if (originalVal != null &&
-                        (columnTypes[col] === ColumnType.integer ||
-                        columnTypes[col] === ColumnType.float))
-                    {
-                        isColTruncated = true;
-                        formatVal = originalVal;
-                    }
-
-                    tBodyHTML += '<td class="' + tdClass + truncClass +
-                                    ' clickable">' +
-                                    getTableCellHtml(displayedVal, isColTruncated, formatVal);
-                    tBodyHTML += '</td>';
-                } else {
-                    // make data td;
-                    tdValue = jsonTdVal;
-                    parsedVal = xcHelper.parseJsonValue(tdValue);
-                    displayedVal = parsedVal;
-                    if (jsonTdTruncated) {
-                        truncClass = " truncated";
-                        originalDataClass = "";
-                        displayedVal = parsedVal.substr(0, truncLimit) +
-                                    "...(" + (truncLen.toLocaleString("en")) +
-                                    " " + TblTStr.Truncate + ")";
-                    } else {
-                        truncClass = "";
-                        originalDataClass = " originalData";
-                    }
-
-                    tBodyHTML +=
-                        '<td class="col' + (col + 1) + ' clickable jsonElement' +
-                            truncClass + '">' +
-                            '<i class="pop icon xi_popout fa-15 xc-action"></i>' +
-                            '<div class="dataColText clickable displayedData' +
-                                originalDataClass + truncClass + '">' +
-                                    displayedVal +
-                            '</div>';
-                    if (jsonTdTruncated) {
-                        tBodyHTML += '<div class="dataColText originalData">' +
-                                     parsedVal + '</div>';
-                    }
-
-                    tBodyHTML += '</td>';
+                if (res.tdClass !== "") {
+                    tdClass += " " + res.tdClass;
                 }
+
+                tBodyHTML += '<td class="' + tdClass + '">' +
+                                res.td +
+                            '</td>';
             }
             // end of loop through table tr's tds
             tBodyHTML += '</tr>';
@@ -1562,56 +1386,8 @@ window.ColManager = (function($, ColManager) {
             $table.find('tbody').append($tBody);
         }
 
-        for (i = 0; i < numCols; i++) {
-            var isImmediate = tableCols[i].isImmediate();
-            var $currentTh = $table.find('th.col' + (i + 1));
-            var $header = $currentTh.find('> .header');
-            var columnType = columnTypes[i] || ColumnType.undefined;
-
-            // DATA column is type-object
-            if (tableCols[i].isDATACol()) {
-                columnType = ColumnType.object;
-            } else if (tableCols[i].isEmptyCol()) {
-                columnType = ColumnType.newColumn;
-            }
-
-            if (!isImmediate) {
-                tableCols[i].type = columnType;
-            }
-
-            $header.removeClass("type-mixed")
-                    .removeClass("type-string")
-                    .removeClass("type-integer")
-                    .removeClass("type-float")
-                    .removeClass("type-object")
-                    .removeClass("type-array")
-                    .removeClass("type-undefined")
-                    .removeClass("type-boolean")
-                    .removeClass("recordNum")
-                    .removeClass("childOfArray")
-                    .addClass('type-' + columnType);
-
-            var adjustedColType = columnType;
-            if (!isImmediate && tableCols[i].isNumberCol()) {
-                adjustedColType = "number";
-            }
-            adjustedColType = xcHelper.capitalize(adjustedColType);
-            $header.find('.iconHelper').attr('title', adjustedColType);
-
-            if (tableCols[i].backName === "recordNum") {
-                $header.addClass('recordNum');
-            }
-
-            if (tableCols[i].isHidden) {
-                $table.find('td.col' + (i + 1)).addClass('userHidden');
-            }
-            if (childArrayVals[i]) {
-                $header.addClass('childOfArray');
-            }
-            if ($currentTh.hasClass('selectedCell') ||
-                $currentTh.hasClass('modalHighlighted')) {
-                highlightColumn($currentTh, true);
-            }
+        for (var i = 0; i < numCols; i++) {
+            styleColHeadHelper(i + 1, tableId);
         }
 
         return $tBody;
@@ -1772,12 +1548,13 @@ window.ColManager = (function($, ColManager) {
         var funcSt = funcString.substring(funcString.indexOf("=") + 1);
         var progCol;
 
+        progCol = ColManager.newCol();
+        progCol.name = name;
+        progCol.backName = name;
+
         if (modifyCol) {
-            progCol = table.tableCols[colNum - 1];
-        } else {
-            progCol = ColManager.newCol();
-            progCol.name = name;
-            progCol.backName = name;
+            table.tableCols[colNum - 1] = progCol;
+            progCol.isNewCol = false;
         }
 
         var colName;
@@ -1874,175 +1651,214 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.parseFuncString = parseFuncString;
 
-    function pullColHelper(key, newColid, tableId, startIndex, numberOfRows) {
-        if (key === "") {
-            return;
-        } else if (key != null) {
-            if (/\\.([0-9])/.test(key)) {
-                // slash followed by dot followed by number is ok
-            } else if (/\.([0-9])/.test(key)) {
-                // dot followed by number is invalid
-                return;
+    function isValidColToPull(colName) {
+        if (colName === "" || colName == null) {
+            return false;
+        }
+
+        if (/\\.([0-9])/.test(colName)) {
+            // slash followed by dot followed by number is ok
+            // fall through
+        } else if (/\.([0-9])/.test(colName)) {
+            // dot followed by number is invalid
+            return false;
+        }
+
+        return true;
+    }
+
+    function parseTdHelper(tdValue, nested, progCol, options) {
+        options = options || {};
+
+        var knf = false;
+        var truncLimit = 1000; // the character limit for the data td
+        var colTruncLimit = 500; // the character limit for other tds
+
+        var tdClass = "clickable";
+        var isDATACol = false;
+
+        if (progCol.isDATACol()) {
+            isDATACol = true;
+            tdClass += " jsonElement";
+        } else if (progCol.isEmptyCol()) {
+            tdValue = "";
+        } else {
+            if (!nested) {
+                console.error('Error this value should not be empty');
+                tdValue = "";
+            } else {
+                var nestedLength = nested.length;
+                for (var i = 0; i < nestedLength; i++) {
+                    if (tdValue[nested[i]] === null) {
+                        // when tdValue is null (not undefined)
+                        tdValue = tdValue[nested[i]];
+                        break;
+                    } else if (jQuery.isEmptyObject(tdValue) ||
+                        tdValue[nested[i]] == null)
+                    {
+                        knf = true;
+                        tdValue = null;
+                        break;
+                    }
+
+                    tdValue = tdValue[nested[i]];
+
+                    if (!progCol.isChildOfArray() &&
+                        i < nestedLength - 1 &&
+                        (tdValue instanceof Array))
+                    {
+                        progCol.beChidOfArray();
+                    }
+                }
+            }
+
+            // define type of the column
+            progCol.updateType(tdValue);
+
+            // class for textAlign
+            if (progCol.textAlign === "Left") {
+                tdClass += " textAlignLeft";
+            } else if (progCol.textAlign === "Right") {
+                tdClass += " textAlignRight";
+            } else if (progCol.textAlign === "Wrap") {
+                tdClass += " textAlignWrap";
             }
         }
-        var colTruncLimit = 500;
-        var truncHtml;
-        var colTruncLen;
-        var tdValLen;
-        var displayedVal;
 
-        var table    = gTables[tableId];
-        var tableCol = table.tableCols[newColid - 1];
-        var $table   = $("#xcTable-" + tableId);
+        if (options.indexed) {
+            tdClass += " indexedColumn";
+
+            if (!options.hasIndexStyle) {
+                tdClass += " noIndexStyle";
+            }
+        }
+
+        // formatting
+        var parsedVal = xcHelper.parseJsonValue(tdValue, knf);
+        var formatVal = parsedVal;
+        var decimals = progCol.decimals;
+        var format = progCol.format;
+
+        if (!knf && tdValue != null && (decimals > -1 || format != null)) {
+            formatVal = formatColumnCell(parsedVal, format, decimals);
+        }
+
+        var limit = isDATACol ? truncLimit : colTruncLimit;
+        var tdValLen = formatVal.length;
+        var truncated = (tdValLen > limit);
+
+        if (truncated) {
+            var truncLen = tdValLen - limit;
+            formatVal = formatVal.substr(0, limit) +
+                        "...(" + (truncLen.toLocaleString("en")) +
+                        " " + TblTStr.Truncate + ")";
+            tdClass += " truncated";
+        }
+
+        // For formated number, need seprate display of formatVal
+        // and original val
+        if (!knf && tdValue != null && progCol.isNumberCol()) {
+            truncated = true;
+        }
+
+        var td = getTableCellHtml(formatVal, truncated, parsedVal, isDATACol);
+        return {
+            "td"     : td,
+            "tdClass": tdClass.trim(),
+        };
+    }
+
+    function styleColHeadHelper(colNum, tableId) {
+        var $table = $("#xcTable-" + tableId);
+        var progCol = gTables[tableId].getCol(colNum);
+        var $th = $table.find("th.col" + colNum);
+        var $header = $th.find("> .header");
+        var colType = progCol.getType();
+
+        $header.removeClass("type-mixed")
+                .removeClass("type-string")
+                .removeClass("type-integer")
+                .removeClass("type-float")
+                .removeClass("type-object")
+                .removeClass("type-array")
+                .removeClass("type-undefined")
+                .removeClass("type-boolean")
+                .removeClass("recordNum")
+                .removeClass("childOfArray")
+                .addClass("type-" + colType);
+
+        // for integer or float, if we cannot distinct (if no info from backend)
+        // then we say it's a number
+        var adjustedColType = colType;
+        if (!progCol.isImmediate() && progCol.isNumberCol()) {
+            adjustedColType = "number";
+        }
+        adjustedColType = xcHelper.capitalize(adjustedColType);
+        $header.find(".iconHelper").attr("title", adjustedColType);
+
+        // XXX May not need it any more
+        // if (progCol.getBackColName() === "recordNum") {
+        //     $header.addClass("recordNum");
+        // }
+
+        if (progCol.hasHidden()) {
+            $table.find("td.col" + colNum).addClass("userHidden");
+        }
+        if (progCol.isChildOfArray()) {
+            $header.addClass("childOfArray");
+        }
+        // if (options.notNewCol) {
+        //     $th.removeClass("newColumn");
+        // }
+        if ($th.hasClass("selectedCell") ||
+            $th.hasClass("modalHighlighted")) {
+            highlightColumn($th, true);
+        }
+    }
+
+    function pullColHelper(colNum, tableId) {
+        var table = gTables[tableId];
+        var progCol = table.getCol(colNum);
+        var backColName = progCol.getBackColName();
+
+        if (!isValidColToPull(backColName)) {
+            return;
+        }
+
+        var $table = $("#xcTable-" + tableId);
         var $dataCol = $table.find("tr:first th").filter(function() {
             return ($(this).find("input").val() === "DATA");
         });
 
-        var colid = xcHelper.parseColNum($dataCol);
+        var dataColNum = xcHelper.parseColNum($dataCol);
 
-        var numRow        = -1;
-        var startingIndex = -1;
-        var endingIndex   = -1;
-        var decimals = tableCol.decimals;
-        var format   = tableCol.format;
 
-        if (!startIndex) {
-            startingIndex = parseInt($table.find("tbody tr:first")
+        var startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
-            numRow = $table.find("tbody tr").length;
-            endingIndex = parseInt($table.find("tbody tr:last")
+        var endingIndex = parseInt($table.find("tbody tr:last")
                                            .attr('class').substring(3)) + 1;
-        } else {
-            startingIndex = startIndex;
-            numRow = numberOfRows || gNumEntriesPerPage;
-            endingIndex = startIndex + numRow;
-        }
 
-        var nested = parseColFuncArgs(key);
-        var childOfArray = false;
-        var columnType;  // track column type, initial is undefined
-        var knf = false;
-        var $jsonTd;
-        var jsonTdTruncated = false;
-        var jsonStr;
+        var nested = parseColFuncArgs(backColName);
+        var indexed = (progCol.getBackColName() === table.getKeyName());
+        var hasIndexStyle = table.showIndexStyle();
+
         for (var i = startingIndex; i < endingIndex; i++) {
-            $jsonTd = $table.find('.row' + i + ' .col' + colid);
-            jsonStr = $jsonTd.find('.originalData').text();
-            if ($jsonTd.hasClass('truncated')) {
-                jsonTdTruncated = true;
-            } else {
-                jsonTdTruncated = false;
+            var $jsonTd = $table.find('.row' + i + ' .col' + dataColNum);
+            var jsonStr = $jsonTd.find('.originalData').text();
+            var tdValue = parseRowJSON(jsonStr);
+            var res = parseTdHelper(tdValue, nested, progCol, {
+                "indexed"      : indexed,
+                "hasIndexStyle": hasIndexStyle
+            });
+
+            var $td = $table.find('.row' + i + ' .col' + colNum);
+            $td.html(res.td);
+            if (res.tdClass !== "") {
+                $td.addClass(res.tdClass);
             }
-            var value = parseRowJSON(jsonStr);
-            knf = false;
-
-            for (var j = 0; j < nested.length; j++) {
-                if (value[nested[j]] === null) {
-                    value = value[nested[j]];
-                    break;
-                } else if (jQuery.isEmptyObject(value) ||
-                    value[nested[j]] == null)
-                {
-                    knf = true;
-                    value = null;
-                    break;
-                }
-                value = value[nested[j]];
-
-                if (!childOfArray && j < nested.length - 1 &&
-                    (value instanceof Array)) {
-                    childOfArray = true;
-                }
-            }
-
-            //define type of the column
-            columnType = xcHelper.parseColType(value, columnType);
-
-            var originalVal = value;
-            value = xcHelper.parseJsonValue(value, knf);
-
-            if (!knf && originalVal != null) {
-                originalVal = value;
-            } else {
-                // case that should not append data-val
-                originalVal = null;
-            }
-            var formatVal = value;
-            if (originalVal != null && (decimals > -1 || format != null)) {
-                formatVal = formatColumnCell(value, format, decimals);
-            }
-
-            var $td = $table.find('.row' + i + ' .col' + newColid);
-
-            displayedVal = formatVal;
-            if (jsonTdTruncated) {
-                tdValLen = formatVal.length;
-                if (tdValLen > colTruncLimit) {
-                    colTruncLen = tdValLen - colTruncLimit;
-                    displayedVal = formatVal.substr(0, colTruncLimit) +
-                            "...(" + (colTruncLen.toLocaleString("en")) +
-                            " " + TblTStr.Truncate + ")";
-                    isColTruncated = true;
-                } else {
-                    isColTruncated = false;
-                }
-            } else {
-                isColTruncated = false;
-            }
-            var formattedValSaved = false;
-            if (originalVal != null &&
-                (columnType === "integer" || columnType === "float"))
-            {
-                isColTruncated = true;
-                formatVal = originalVal;
-                formattedValSaved = true;
-            }
-
-            truncHtml = getTableCellHtml(displayedVal, isColTruncated, formatVal);
-            if (isColTruncated && !formattedValSaved) {
-                $td.addClass('truncated');
-            }
-            $td.html(truncHtml).addClass('clickable');
-            // XXX now only allow number in case weird string mess up html
-
         }
 
-        if (columnType == null) {
-            columnType = "undefined";
-        }
-
-        tableCol.type = columnType;
-
-        // add class to th
-        var $header = $table.find('th.col' + newColid + ' div.header');
-
-        $header.removeClass("type-mixed")
-               .removeClass("type-string")
-               .removeClass("type-integer")
-               .removeClass("type-float")
-               .removeClass("type-object")
-               .removeClass("type-array")
-               .removeClass("type-boolean")
-               .removeClass("type-undefined")
-               .removeClass("recordNum")
-               .removeClass("childOfArray");
-
-        $header.addClass('type-' + columnType);
-        $header.find('.iconHelper').attr('title', "")
-                                   .attr('data-original-title', columnType);
-
-        if (key === "recordNum") {
-            $header.addClass('recordNum');
-        }
-        if (childOfArray) {
-            $header.addClass('childOfArray');
-        }
-
-        $table.find('th.col' + newColid).removeClass('newColumn');
-
-        if (tableCol.isHidden) {
-            $table.find('td.col' + newColid).addClass('userHidden');
-        }
+        styleColHeadHelper(colNum, tableId);
     }
 
     function addColHelper(colNum, tableId, progCol, options) {
@@ -2075,7 +1891,7 @@ window.ColManager = (function($, ColManager) {
             $(".selectedCell").removeClass("selectedCell");
         }
 
-        insertColHelper(newColNum - 1, tableId, progCol);
+        table.addCol(newColNum - 1, progCol);
 
         // change table class before insert a new column
         for (var i = numCols; i >= newColNum; i--) {
@@ -2088,11 +1904,6 @@ window.ColManager = (function($, ColManager) {
             "columnClass": columnClass
         }));
         $tableWrap.find('.th.col' + (newColNum - 1)).after($th);
-
-        if (isNewCol) {
-            $th.find(".flexContainer").mousedown()
-                .find(".editableHead").focus();
-        }
 
         if (gMinModeOn || noAnimate) {
             updateTableHeader(tableId);
@@ -2124,16 +1935,7 @@ window.ColManager = (function($, ColManager) {
                                 parseInt(idOfFirstRow.substring(3)) : 1;
         var endingIndex = parseInt(idOfLastRow.substring(3));
 
-        if (isNewCol) {
-            columnClass += " newColumn";
-        } else if (progCol.getBackColName() === table.getKeyName()) {
-            columnClass += " indexedColumn";
-            if (!table.showIndexStyle()) {
-                columnClass += " noIndexStyle";
-            }
-        }
-        columnClass = columnClass.trim();
-        var newCellHTML = '<td ' + 'class="' + columnClass +
+        var newCellHTML = '<td ' + 'class="' + columnClass.trim() +
                           ' col' + newColNum + '"></td>';
 
         var i = startingIndex;
@@ -2143,13 +1945,13 @@ window.ColManager = (function($, ColManager) {
             i++;
         }
 
-        if (isNewCol && select) {
-            var $input = $table.find('tr:first .editableHead.col' + newColNum);
+        if (isNewCol) {
             // Without doing this, the lastTarget will still be a div
             // even we focus on the input, so press space will make table scroll
+            $th.find(".flexContainer").mousedown();
+            var $input = $th.find(".editableHead").focus();
             gMouseEvents.setMouseDownTarget($input);
             gMouseEvents.setClickTarget($input);
-            $input.focus();
         }
 
         return newColNum;
@@ -2369,17 +2171,35 @@ window.ColManager = (function($, ColManager) {
         return (true);
     }
 
-    function getTableCellHtml(value, isTruncated, fullValue) {
-        var originalDataClass = "";
-        if (!isTruncated) {
-            originalDataClass = " originalData";
-        }
-        var html = '<div class="tdText displayedData' + originalDataClass +
-                    ' clickable">' +
-                        value +
-                   '</div>';
-        if (isTruncated) {
-            html += '<div class="tdText originalData">' + fullValue + '</div>';
+    function getTableCellHtml(value, isTruncated, fullValue, isDATACol) {
+        var tdClass;
+        var html;
+
+        if (isDATACol) {
+            tdClass = isTruncated ? " truncated" : " originalData";
+            html = '<i class="pop icon xi_popout fa-15 xc-action"></i>' +
+                    '<div class="dataColText clickable displayedData' +
+                        tdClass + '">' +
+                            value +
+                    '</div>';
+            if (isTruncated) {
+                html += '<div class="dataColText originalData">' +
+                            fullValue +
+                        '</div>';
+            }
+
+        } else {
+            tdClass = isTruncated ? "" : " originalData";
+
+            html =
+                '<div class="tdText displayedData clickable' + tdClass + '">' +
+                    value +
+                '</div>';
+            if (isTruncated) {
+                html += '<div class="tdText originalData">' +
+                            fullValue +
+                        '</div>';
+            }
         }
         return (html);
     }

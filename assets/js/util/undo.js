@@ -344,7 +344,7 @@ window.Undo = (function($, Undo) {
         focusTableHelper(options);
         if (options.pullColOptions.source === "fnBar") {
             if (options.wasNewCol) {
-                var col = gTables[options.tableId].tableCols[options.colNum - 1];
+                var col = gTables[options.tableId].getCol(options.colNum);
                 col.userStr = options.origUsrStr;
                 col.backName = options.backName;
                 col.type = options.type;

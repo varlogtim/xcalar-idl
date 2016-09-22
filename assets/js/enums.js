@@ -78,7 +78,6 @@ var ColumnType = {
     "float": "float",
     "integer": "integer",
     "mixed": "mixed",
-    "newColumn": "newColumn",
     "number": "number",
     "object": "object",
     "string": "string",

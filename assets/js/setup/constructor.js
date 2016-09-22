@@ -173,7 +173,7 @@ TableMeta.prototype = {
         return this.isLocked;
     },
 
-    "getMeta": function() {
+    getMeta: function() {
         var deferred = jQuery.Deferred();
         var self = this;
 
@@ -206,6 +206,29 @@ TableMeta.prototype = {
         .fail(deferred.reject);
 
         return deferred.promise();
+    },
+
+    addCol: function(index, progCol) {
+        var self = this;
+        if (index < 0 || !progCol) {
+            return;
+        }
+
+        self.tableCols.splice(index, 0, progCol);
+        var backColName = progCol.getBackColName();
+        if (self.backTableMeta !== null) {
+            var valueAttrs = self.backTableMeta.valueAttrs || [];
+            valueAttrs.forEach(function(valueAttr) {
+                if (valueAttr.name === backColName &&
+                    valueAttr.type !== DfFieldTypeT.DfFatptr) {
+                    progCol.setImmediateType(valueAttr.type);
+                    // end loop
+                    return false;
+                }
+            });
+        } else {
+            console.error("no table meta!");
+        }
     },
 
     updateResultset: function() {
@@ -467,7 +490,7 @@ function ProgCol(options) {
         this.backName = options.backName;
     }
 
-    this.type = options.type || "undefined";
+    this.type = options.type || ColumnType.undefined;
     this.func = new ColFunc(options.func);
     this.width = options.width || gNewCellWidth;
     this.userStr = options.userStr || "";
@@ -491,8 +514,8 @@ function ProgCol(options) {
     this.format = options.format || null;
     this.isHidden = options.isHidden || false;
 
-    if (this.isEmptyCol()) {
-        this.type = ColumnType.newColumn;
+    if (options.childOfArray) {
+        this.childOfArray = true;
     }
 
     return this;
@@ -580,6 +603,14 @@ ProgCol.prototype = {
         return this.type;
     },
 
+    "updateType": function(val) {
+        var self = this;
+        if (!self.immediate && !self.isEmptyCol()) {
+            // don't check for immediate
+            self.type = xcHelper.parseColType(val, self.type);
+        }
+    },
+
     "getWidth": function() {
         return this.width;
     },
@@ -589,7 +620,16 @@ ProgCol.prototype = {
     },
 
     "isNumberCol": function() {
-        return (this.type === "integer" || this.type === "float");
+        return (this.type === ColumnType.integer ||
+                this.type === ColumnType.float);
+    },
+
+    "isChildOfArray": function() {
+        return this.childOfArray;
+    },
+
+    "beChidOfArray": function() {
+        this.childOfArray = true;
     }
 };
 

@@ -729,15 +729,8 @@ window.TblManager = (function($, TblManager) {
         // this function does some preparation for ColManager.pullAllCols()
         startIndex = startIndex || 0;
         var $table = $('#xcTable-' + tableId);
-        // var $tableWrap = $table.closest('.xcTableWrap');
-        // get the column number of the datacolumn
-        if (dataIndex == null) {
-            dataIndex = xcHelper.parseColNum($table.find('tr:first .dataCol')) -
-                                             1;
-        }
-        var newCells = ColManager.pullAllCols(startIndex, jsonData, dataIndex,
-                                              tableId, direction,
-                                              rowToPrependTo);
+        var newCells = ColManager.pullAllCols(startIndex, jsonData, tableId,
+                                                direction, rowToPrependTo);
         addRowListeners(newCells);
         adjustRowHeights(newCells, startIndex, tableId);
 
