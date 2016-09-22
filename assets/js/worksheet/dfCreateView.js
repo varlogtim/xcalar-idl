@@ -66,7 +66,6 @@ window.DFCreateView = (function($, DFCreateView) {
         createColumnsList();
         selectInitialTableCols();
         setupTableColListeners();
-     
         // $newNameInput.focus();
         formHelper.setup();
     };
@@ -156,7 +155,6 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function setupTableColListeners() {
-        
         $("#xcTableWrap-" + tableId).addClass("allowSelectAll");
         $("#xcTable-" + tableId).on("click.columnPicker", "th, td.clickable", function(event) {
             var $target = $(event.target);
@@ -307,7 +305,7 @@ window.DFCreateView = (function($, DFCreateView) {
                 selectAll();
             }
         });
- 
+
         $dfView.on("mouseenter", ".tooltipOverflow", function() {
             xcHelper.autoTooltip(this);
         });
@@ -337,7 +335,7 @@ window.DFCreateView = (function($, DFCreateView) {
         }
 
         var colNums = [];
-    
+
         $colList.find('li.checked').each(function() {
             colNums.push($(this).data('colnum'));
         });
@@ -368,7 +366,7 @@ window.DFCreateView = (function($, DFCreateView) {
                 "backCol" : progCol.getBackColName()
             });
         }
-        
+
         var isNewGroup = true;
 
         formHelper.disableSubmit();

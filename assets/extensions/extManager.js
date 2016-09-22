@@ -237,9 +237,19 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         if (modName !== "UExtATags" && modName !== "UExtGLM" &&
             modName !== "UExtIntel" && modName !== "UExtKMeans") {
-            var worksheet = WSManager.getWSFromTable(tableId);
-            var table = gTables[tableId];
-            var tableName = table.getName();
+            var worksheet;
+            var table;
+            var tableName;
+
+            if (!extMap[modName]._configParams.notTableDependent) {
+                worksheet = WSManager.getWSFromTable(tableId);
+                table = gTables[tableId];
+                tableName = table.getName();
+            } else {
+                worksheet = WSManager.getActiveWS();
+                table = {};
+                tableName = "";
+            }
 
             var hasStart = false;
             var txId;
