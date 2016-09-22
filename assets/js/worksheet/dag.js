@@ -2152,6 +2152,7 @@ window.Dag = (function($, Dag) {
         var ctx = canvas.getContext('2d');
         ctx.strokeStyle = lineColor;
         ctx.beginPath();
+        
 
         if (collapse) {
             for (var node in nodes) {

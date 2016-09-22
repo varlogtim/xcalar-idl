@@ -725,6 +725,28 @@
     }
 }
 
+.xc-input {
+    @width: 100%;
+    @height: 30px;
+    .size(@width: @width, @height: @height);
+    .font(@size: 14px, @weight: 600, @line-height: @height);
+    border: solid 1px @color-border-white-five-darker;
+    padding: 0 10px;
+    text-align: left;
+    background-color: @color-bg-white-three;
+    .textOverflowOneLine;
+
+    &:focus {
+        outline: none;
+        border-color: @color-border-softBlue;
+        background-color: @color-white;
+    }
+
+    &.error {
+        border-color: @color-error-border;
+    }
+}
+
 // style for close icon
 .closeIcon(@topOff: 0px, @rightOff: 0px) {
    .clear, .closeBox {

@@ -1021,7 +1021,11 @@
         > .text {
             margin-left: 10px;
         }
+        &:last-child {
+            display: none; // xx temp hiding the restart icon
+        }
     }
+
 }
 
 #monitor-setup {
@@ -1092,6 +1096,87 @@
             letter-spacing: normal;
             width: 160px; // decrease width if we decide to lower font weight
         }
+    }
+}
+
+#configCard {
+    display: none;
+    .cardMain {
+        padding: 30px 2% 20px 2%;
+    }
+
+    .formRow {
+        .flex-display;
+        .flex-wrap(wrap);
+        margin-bottom: 5px;
+        margin-top: 5px;
+        overflow: hidden; // for animation
+
+        &.animating {
+            .argWrap {
+                height: 0px;
+            }
+        }
+        .argWrap {
+            height: 30px;
+            .transition(0.5s height);
+        }
+        &.placeholder {
+            border: 1px dashed @color-border-pinkish-grey;
+            border: 1px dashed @color-border-darkGray;
+            opacity: @opacity-disabled;
+            cursor: pointer;
+            .transition(opacity 0.1s);
+            .argWrap {      
+                pointer-events: none;
+            }
+            &:hover {
+                opacity: 0.5;
+            }
+            .xc-input {
+                text-align: center;
+                .icon {
+                    color: @color-font-warm-grey-two;
+                    font-weight: bold;
+                    line-height: 30px;
+                }
+            }
+        }
+    }
+
+    .argWrap {
+        .flex(1 1 auto);
+        .flex-display;
+        margin-bottom: 5px;
+        margin-top: 5px;
+        padding-left: 15px;
+        padding-right: 15px;
+        position: relative;
+          
+        .text {
+            line-height: 30px;
+        }
+        .xc-input {
+            margin-left: 10px;
+            width: 50px;
+            // max-width: 240px;
+            .flex(1 1 50px);
+            // float: right;
+        }
+        .curVal {
+            border: 0px;
+            background-color: white;
+            color: @color-font-select-blue;
+        }
+
+        .waitingIcon {
+            top: -4px;
+        }
+    }
+
+    .cardBottom {
+        padding: 10px 3% 10px 60px;
+        margin-bottom: 10px;
     }
 }
 

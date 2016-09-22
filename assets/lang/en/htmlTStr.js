@@ -308,7 +308,7 @@ module.exports = {
         "archive": "Archive Tables",
         "filterOrphan": "Filter Temporary Tables",
     },
-
+    
     "queryGraph": {
         "numRows": "Num Rows",
         "type": "type",
@@ -319,6 +319,7 @@ module.exports = {
         "AutoRefresh": "Auto Refresh",
         "AutoSupport": "Auto Support Settings",
         "Config": "Configuration",
+        "ConfigParam": "Configure Parameters",
         "CPU": "CPU",
         "DetailQuery": "Detail of Query",
         "ElaspedTime": "Elapsed Time",
@@ -345,6 +346,7 @@ module.exports = {
         "RecentQueries": "Recent Queries",
         "ReleaseMem": "Release Memory",
         "RemainTime": "Remaining Time",
+        "RestartNode": "Restart Nodes",
         "SAMPLE": "SAMPLE",
         "SETTINGS": "SETTINGS",
         "Settings": "Settings",
