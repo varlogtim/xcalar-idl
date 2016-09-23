@@ -1,0 +1,16 @@
+{
+  "name": "ldap_auth",
+  "version": "1.0.0",
+  "description": "LDAP Authentication function for Node JS",
+  "author": "Ted Haining <thaining@xcalar.com>",
+  "main": "expServer.js",
+  "scripts": {
+    "start": "node expServer.js"
+  },
+  "dependencies": {
+    "express": "^4.13.4",
+    "shelljs": "^0.6.0",
+    "body-parser": "^1.15.0"
+    "ldapjs": "^1.0.0"
+  }
+}
