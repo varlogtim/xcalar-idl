@@ -10,31 +10,20 @@ window.TblAnim = (function($, TblAnim) {
         var $table = el.closest('.dataTable');
         var colNum;
         var $th = el.closest('th');
+        rescol.$th = $th;
         if (!options || options.target !== "datastore") {
             rescol.tableId = xcHelper.parseTableId($table);
             colNum = xcHelper.parseColNum(el.parent().parent());
-        }
-        if (options && options.target === "datastore") {
+        } else if (options && options.target === "datastore") {
             rescol.isDatastore = true;
             rescol.$tableWrap = $('#dsTableWrap');
             rescol.$dsTable = $('#dsTable');
             rescol.$previewTable = $('#previewTable');
-        } else if ($th.hasClass("userHidden")) {
-            // This is a hidden column! we need to unhide it
-            // return;
-            $table.find("th.col" + colNum + ",td.col" + colNum)
-                  .removeClass("userHidden");
-            gTables[rescol.tableId].tableCols[colNum - 1].isHidden = false;
         }
         event.preventDefault();
         rescol.mouseStart = event.pageX;
         rescol.grabbedCell = el.parent().parent();  // the th
         rescol.startWidth = rescol.grabbedCell.outerWidth();
-
-        hideOffScreenTables({
-            marginLeft : 0,
-            marginRight: rescol.startWidth
-        });
 
         rescol.index = colNum;
         rescol.newWidth = rescol.startWidth;
@@ -43,20 +32,48 @@ window.TblAnim = (function($, TblAnim) {
 
         rescol.tempCellMinWidth = rescol.cellMinWidth;
         rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
-        $table.addClass('resizingCol');
-        $('.xcTheadWrap').find('.dropdownBox').addClass('dropdownBoxHidden');
 
-        var cursorStyle = '<div id="resizeCursor"></div>';
-        $('body').addClass('tooltipOff').append(cursorStyle);
-
-        if (!rescol.grabbedCell.hasClass('selectedCell')) {
-            $('.selectedCell').removeClass('selectedCell');
-            FnBar.clear();
-        }
-
-        $(document).on('mousemove.onColResize', onColResize);
+        gMouseStatus = "checkingResizeCol";
+        $(document).on('mousemove.checkColResize', checkColResize);
         $(document).on('mouseup.endColResize', endColResize);
     };
+
+    function checkColResize(event) {
+        var rescol = gRescol;
+        rescol.pageX = event.pageX;
+        // mouse must move at least 3 pixels horizontally to trigger draggin
+        if (Math.abs(rescol.mouseStart - rescol.pageX) > 2) {
+            $(document).off('mousemove.checkColResize', checkColResize);
+            $(document).on('mousemove.onColResize', onColResize);
+            gMouseStatus = "resizingCol";
+
+            
+            var $table = rescol.$th.closest('.dataTable');
+            var colNum = rescol.index;
+            if (rescol.$th.hasClass("userHidden")) {
+                // This is a hidden column! we need to unhide it
+                $table.find("th.col" + colNum + ",td.col" + colNum)
+                      .removeClass("userHidden");
+                gTables[rescol.tableId].tableCols[colNum - 1].isHidden = false;
+            }
+
+            hideOffScreenTables({
+                marginLeft : 0,
+                marginRight: rescol.startWidth
+            });
+
+            $table.addClass('resizingCol');
+            $('.xcTheadWrap').find('.dropdownBox').addClass('dropdownBoxHidden');
+
+            var cursorStyle = '<div id="resizeCursor"></div>';
+            $('body').addClass('tooltipOff').append(cursorStyle);
+
+            if (!rescol.grabbedCell.hasClass('selectedCell')) {
+                $('.selectedCell').removeClass('selectedCell');
+                FnBar.clear();
+            }
+        }
+    }
 
     function onColResize(event) {
         var rescol = gRescol;
@@ -82,6 +99,12 @@ window.TblAnim = (function($, TblAnim) {
     function endColResize() {
         $(document).off('mousemove.onColResize');
         $(document).off('mouseup.endColResize');
+        if (gMouseStatus === "checkingResizeCol") {
+            $(document).off('mousemove.checkColResize');
+            gMouseStatus = null;
+            return;
+        }
+
         var rescol = gRescol;
         var isDatastore = rescol.isDatastore;
         var wasResized = true;
@@ -93,7 +116,7 @@ window.TblAnim = (function($, TblAnim) {
                                             .width(rescol.table.width());
         rescol.table.removeClass('resizingCol');
         $('.tooltip').remove();
-        if (!rescol.isDatastore) {
+        if (!isDatastore) {
             var table = gTables[rescol.tableId];
             var progCol = table.tableCols[rescol.index - 1];
 
@@ -401,8 +424,8 @@ window.TblAnim = (function($, TblAnim) {
     // checks if mouse has moved and will initiate the column dragging
     function checkColDrag(event) {
         dragInfo.pageX = event.pageX;
-        // mouse must move at least 3 pixels horizontally to trigger draggin
-        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 2) {
+        // mouse must move at least 2 pixels horizontally to trigger draggin
+        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 1) {
             $(document).off('mousemove.checkColDrag');
             $(document).on('mousemove.onColDrag', onColDrag);
             gMouseStatus = "dragging";

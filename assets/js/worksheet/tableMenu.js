@@ -843,7 +843,7 @@ window.TblMenu = (function(TblMenu, $) {
 
             var columns = $colMenu.data('columns');
             var tableId = $colMenu.data('tableId');
-            ColManager.unhideCols(columns, tableId, {"autoResize": true});
+            ColManager.unhideCols(columns, tableId);
         });
 
         $colMenu.on('mouseup', '.exitOp', function(event) {

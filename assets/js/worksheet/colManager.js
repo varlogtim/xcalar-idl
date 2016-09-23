@@ -1145,9 +1145,11 @@ window.ColManager = (function($, ColManager) {
         var $tds = $table.find(tdSelectors);
 
         if (!gMinModeOn) {
+            $tds.addClass('animating');
             $ths.animate({width: 15}, 250, "linear", function() {
                 $ths.addClass("userHidden");
                 $tds.addClass("userHidden");
+                $tds.removeClass('animating');
                 matchHeaderSizes($table); // needed to resize rowgrabs
             });
 
@@ -1190,6 +1192,7 @@ window.ColManager = (function($, ColManager) {
         var $ths = $();
         var promises = [];
         var $th;
+
         for (var i = 0; i < numCols; i++) {
             var colNum = colNums[i];
             $th = $table.find(".th.col" + colNum);
@@ -1202,9 +1205,13 @@ window.ColManager = (function($, ColManager) {
             colNames.push(col.name);
 
             if (!gMinModeOn && !noAnim) {
+                $table.find('.col' + colNum).addClass('animating');
                 promises.push(jQuery.Deferred());
                 var count = 0;
+
                 $th.animate({width: col.width}, 250, "linear", function() {
+                    var colNum = xcHelper.parseColNum($(this));
+                    $table.find('.col' + colNum).removeClass('animating');
                     promises[count].resolve();
                     count++;
                 });
@@ -1914,10 +1921,12 @@ window.ColManager = (function($, ColManager) {
         } else {
             $th.width(10);
             if (!isHidden) {
+                columnClass += " animating";
                 $th.animate({width: width}, 300, function() {
                     updateTableHeader(tableId);
                     TableList.updateTableInfo(tableId);
                     matchHeaderSizes($table);
+                    $table.find('.col' + newColNum).removeClass('animating');
                 });
                 moveTableTitlesAnimated(tableId, $tableWrap.width(),
                                     10 - width, 300);
@@ -1934,7 +1943,6 @@ window.ColManager = (function($, ColManager) {
         var startingIndex = idOfFirstRow ?
                                 parseInt(idOfFirstRow.substring(3)) : 1;
         var endingIndex = parseInt(idOfLastRow.substring(3));
-
         var newCellHTML = '<td ' + 'class="' + columnClass.trim() +
                           ' col' + newColNum + '"></td>';
 
@@ -2125,7 +2133,7 @@ window.ColManager = (function($, ColManager) {
             deferred.resolve();
             return (deferred.promise());
         }
-
+        $tableWrap.find('.col' + cellNum).addClass('animating');
         $tableWrap.find("th.col" + cellNum).animate({width: 0}, 200, function() {
             var currColNum = xcHelper.parseColNum($(this));
             $tableWrap.find(".col" + currColNum).remove();

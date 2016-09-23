@@ -178,6 +178,7 @@ function dblClickResize($el, options) {
         $('body').removeClass('tooltipOff');
         $el.tooltip('destroy');
         gMouseStatus = null;
+        $(document).off('mousemove.checkColResize');
         $(document).off('mousemove.onColResize');
         $(document).off('mouseup.endColResize');
         unhideOffScreenTables();
