@@ -51,9 +51,9 @@ describe('ColManager', function() {
     });
 
     it('parseFuncString(str, func) should work', function() {
-        // functions that call parseFuncString already make sure the params
-        // are validated
-        var fn = ColManager.__testOnly__.parseFuncString;
+        // functions that call ColManager.parseFuncString already
+        // make sure the params are validated
+        var fn = ColManager.parseFuncString;
         var func;
         var str;
         var desiredStr;

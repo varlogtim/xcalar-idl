@@ -500,8 +500,7 @@ window.xcHelper = (function($, xcHelper) {
             } else {
                 copiedCols.splice(colNum - 1, 0, newProgCol);
             }
-            ColManager.parseFunc(newProgCol.userStr, colNum,
-                                {tableCols: copiedCols}, true);
+            newProgCol.parseFunc();
         }
 
         return (copiedCols);

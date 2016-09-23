@@ -634,7 +634,27 @@ ProgCol.prototype = {
 
     "beChidOfArray": function() {
         this.childOfArray = true;
-    }
+    },
+
+    "parseFunc": function() {
+        var self = this;
+        if (!self.userStr) {
+            console.error("no userStr");
+            return;
+        }
+
+        var funcString = self.userStr;
+        // Everything must be in a "name" = function(args) format
+        // var open = funcString.indexOf("\"");
+        // var close = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
+        // var name = funcString.substring(open + 1, close);
+        var funcSt = funcString.substring(funcString.indexOf("=") + 1);
+    
+        var func = {args: []};
+
+        ColManager.parseFuncString(funcSt, func);
+        self.func = new ColFunc(func.args[0]);
+    },
 };
 
 function ColFunc(options) {

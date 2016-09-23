@@ -758,7 +758,6 @@ window.ColManager = (function($, ColManager) {
     // noLog: boolean, if true, no sql will be logged
     ColManager.execCol = function(operation, usrStr, tableId, colNum, args) {
         var deferred = jQuery.Deferred();
-        var progCol;
         var table = gTables[tableId];
 
         switch (operation) {
@@ -769,23 +768,29 @@ window.ColManager = (function($, ColManager) {
                 var origUsrStr = origCol.userStr;
                 var backName = origCol.backName;
                 var frontName = origCol.name;
-                progCol = ColManager.parseFunc(usrStr, colNum, table, true);
+                var wasNewCol = origCol.isNewCol;
+                var progCol = ColManager.newCol({
+                    "name"         : frontName,
+                    "width"        : origCol.width,
+                    "userStr"      : usrStr,
+                    "isNewCol"     : false,
+                    "sizedToHeader": origCol.sizedToHeader
+                });
+                progCol.parseFunc();
                 if ((!args || !args.undo) && !parsePullColArgs(progCol) ) {
                     console.error("Arg parsing failed");
                     progCol.func = xcHelper.deepCopy(origFunc);
                     deferred.reject("Arg parsing failed");
                     break;
                 }
-                var wasNewCol = progCol.isNewCol;
-                if (wasNewCol) {
-                    progCol.isNewCol = false;
-                }
+
                 if (args && args.undo) {
                     progCol.backName = args.backName;
                 } else {
                     progCol.backName = progCol.func.args[0];
                 }
 
+                table.tableCols[colNum - 1] = progCol;
                 pullColHelper(colNum, tableId);
 
                 if (!args || !args.noLog) {
@@ -854,12 +859,12 @@ window.ColManager = (function($, ColManager) {
                 deferred.resolve();
                 break;
             default:
-                console.warn("No such function yet!", progCol);
+                console.warn("No such function yet!");
                 deferred.resolve();
                 break;
         }
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // @$inputs: check $input against the names of $inputs
@@ -1545,43 +1550,8 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.parseFunc = function(funcString, colNum, table, modifyCol) {
-        // Everything must be in a "name" = function(args) format
-        var open   = funcString.indexOf("\"");
-        var close  = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
-        var name   = funcString.substring(open + 1, close);
-        var funcSt = funcString.substring(funcString.indexOf("=") + 1);
-        var progCol;
 
-        if (modifyCol) {
-            progCol = table.tableCols[colNum - 1];
-            // XXX this is a temp fix of pull col from fnBar mess up col type
-            progCol.type = ColumnType.undefined;
-            progCol.isNewCol = false;
-        } else {
-            progCol = ColManager.newCol();
-            progCol.name = name;
-            progCol.backName = name;
-        }
-
-        var colName;
-        if (!progCol.backName && progCol.func.name === "pull") {
-            colName = progCol.func.args[0];
-        } else {
-            colName = name;
-        }
-
-        // progCol.func = cleanseFunc(funcSt, name);
-
-        var func = {args: []};
-        parseFuncString(funcSt, func);
-        progCol.func = new ColFunc(func.args[0]);
-        progCol.userStr = '"' + colName + '" =' + funcSt;
-
-        return (progCol);
-    };
-
-    function parseFuncString(funcString, func) {
+    ColManager.parseFuncString = function (funcString, func) {
         // assumes we are sending in a valid func ex. map(add(3,2))
         var tempString = "";
         var newFunc;
@@ -1622,7 +1592,8 @@ window.ColManager = (function($, ColManager) {
                     newFunc = new ColFunc({name: tempString.trim()});
                     func.args.push(newFunc);
                     tempString = "";
-                    i += parseFuncString(funcString.substring(i + 1), newFunc);
+                    i += ColManager.parseFuncString(funcString.substring(i + 1),
+                                                    newFunc);
                 } else if (funcString[i] === "," || funcString[i] === ")") {
                     // tempString could be blank if funcString[i] is a comma
                     // after a )
@@ -1654,9 +1625,7 @@ window.ColManager = (function($, ColManager) {
             }
         }
         return (i + 1);
-    }
-
-    ColManager.parseFuncString = parseFuncString;
+    };
 
     function isValidColToPull(colName) {
         if (colName === "" || colName == null) {
@@ -2346,7 +2315,6 @@ window.ColManager = (function($, ColManager) {
     if (window.unitTestMode) {
         ColManager.__testOnly__ = {};
         ColManager.__testOnly__.parsePullColArgs = parsePullColArgs;
-        ColManager.__testOnly__.parseFuncString = parseFuncString;
         ColManager.__testOnly__.parseColFuncArgs = parseColFuncArgs;
         ColManager.__testOnly__.formatColumnCell = formatColumnCell;
     }
