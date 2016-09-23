@@ -33,6 +33,11 @@ window.TblAnim = (function($, TblAnim) {
         rescol.tempCellMinWidth = rescol.cellMinWidth;
         rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
 
+        if (!rescol.grabbedCell.hasClass('selectedCell')) {
+            $('.selectedCell').removeClass('selectedCell');
+            FnBar.clear();
+        }
+
         gMouseStatus = "checkingResizeCol";
         $(document).on('mousemove.checkColResize', checkColResize);
         $(document).on('mouseup.endColResize', endColResize);
@@ -67,11 +72,6 @@ window.TblAnim = (function($, TblAnim) {
 
             var cursorStyle = '<div id="resizeCursor"></div>';
             $('body').addClass('tooltipOff').append(cursorStyle);
-
-            if (!rescol.grabbedCell.hasClass('selectedCell')) {
-                $('.selectedCell').removeClass('selectedCell');
-                FnBar.clear();
-            }
         }
     }
 
