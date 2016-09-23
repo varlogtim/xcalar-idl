@@ -1553,13 +1553,15 @@ window.ColManager = (function($, ColManager) {
         var funcSt = funcString.substring(funcString.indexOf("=") + 1);
         var progCol;
 
-        progCol = ColManager.newCol();
-        progCol.name = name;
-        progCol.backName = name;
-
         if (modifyCol) {
-            table.tableCols[colNum - 1] = progCol;
+            progCol = table.tableCols[colNum - 1];
+            // XXX this is a temp fix of pull col from fnBar mess up col type
+            progCol.type = ColumnType.undefined;
             progCol.isNewCol = false;
+        } else {
+            progCol = ColManager.newCol();
+            progCol.name = name;
+            progCol.backName = name;
         }
 
         var colName;
