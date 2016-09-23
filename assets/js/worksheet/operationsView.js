@@ -767,12 +767,10 @@ window.OperationsView = (function($, OperationsView) {
 
     // functions that get called after list udfs is called during op view show
     function operationsViewShowHelper(restore) {
-        var aggs = Aggregates.getAggs();
+        var aggs = Aggregates.getNamedAggs();
         aggNames = [];
         for (var i in aggs) {
-            if (aggs[i].dagName.indexOf(gAggVarPrefix) === 0) {
-                aggNames.push(aggs[i].dagName);
-            }
+            aggNames.push(aggs[i].dagName);
         }
 
         if (!restore) {

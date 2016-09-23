@@ -88,6 +88,10 @@ window.TableList = (function($, TableList) {
             xcHelper.autoTooltip(this);
         });
 
+        $tableListSections.on("mouseenter", ".constName", function(){
+            xcHelper.autoTooltip(this);
+        });
+
         $tableListSections.on("click", ".submit.archive", function() {
             var tableIds = [];
             $("#activeTableList").find(".addTableBtn.selected").each(function() {
@@ -973,11 +977,11 @@ window.TableList = (function($, TableList) {
                 }
             }
 
-            backConstsList.sort();
+            backConstsList.sort(sortConst);
             for (var name in frontConsts) {
                 allConsts.push(frontConsts[name]);
             }
-            allConsts.sort();
+            allConsts.sort(sortConst);
             allConsts = allConsts.concat(backConstsList);
 
             var numConsts = allConsts.length;
@@ -1023,7 +1027,6 @@ window.TableList = (function($, TableList) {
                             name + '">' +
                             name +
                         '</span>' +
-                        // '<span>(</span>' +
                         '<span class="value" data-toggle="tooltip" ' +
                         'data-container="body" title="' + 
                             CommonTxtTstr.Value + ': ' + value + '">(' +
@@ -1040,6 +1043,10 @@ window.TableList = (function($, TableList) {
         });
         
         return (deferred.promise());
+    }
+
+    function sortConst(a, b) {
+        return xcHelper.sortVals(a.dagName, b.dagName, -1);
     }
 
     function deleteConstants() {

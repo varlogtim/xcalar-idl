@@ -916,6 +916,10 @@ ul.CodeMirror-hints {
         .textOverflow;
         cursor: pointer;
 
+        .fullText {
+            display: none;
+        }
+
         &:last-child {
             border-right: none;
         }
@@ -929,6 +933,13 @@ ul.CodeMirror-hints {
             background-color: @color-bg-tiber-blue;
             .flex(1 1 33%);
             text-overflow: clip;
+
+            .fullText {
+                display: inline;
+            }
+            .abbrText {
+                display: none;
+            }
         }
     }
 }
@@ -1294,6 +1305,8 @@ ul.CodeMirror-hints {
     }
 }
 #constantList {
+    padding-top: 10px;
+    
     &.tableLists {
         .tableInfo {
             padding-left: 5px;

@@ -101,19 +101,17 @@ window.xcFunction = (function($, xcFunction) {
 
         var aggInfo = Aggregates.checkAgg(tableId, backColName, aggrOp);
         if (aggInfo != null && (!aggName || aggName[0] !== gAggVarPrefix)) {
-            setTimeout(function() {
-                var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
-                    "val": aggInfo.value
-                });
-                Alert.show({
-                    "title"  : title,
-                    "instr"  : instr,
-                    "msg"    : alertMsg,
-                    "isAlert": true
-                });
+            var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
+                "val": aggInfo.value
+            });
+            Alert.show({
+                "title"  : title,
+                "instr"  : instr,
+                "msg"    : alertMsg,
+                "isAlert": true
+            });
 
-                deferred.resolve();
-            }, 500);
+            deferred.resolve();
 
             return deferred.promise();
         }
@@ -170,16 +168,13 @@ window.xcFunction = (function($, xcFunction) {
                 "val": value
             });
 
-            // dealy the show, because if it's too fast, ops modal may
-            // not close yet
-            setTimeout(function() {
-                Alert.show({
-                    "title"  : title,
-                    "instr"  : instr,
-                    "msg"    : alertMsg,
-                    "isAlert": true
-                });
-            }, 200);
+            Alert.show({
+                "title"  : title,
+                "instr"  : instr,
+                "msg"    : alertMsg,
+                "isAlert": true
+            });
+
 
             deferred.resolve();
         })

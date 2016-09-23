@@ -306,6 +306,8 @@ module.exports = {
         "ActiveList": "Active",
         "InActiveList": "Archived",
         "OrphanList": "Temporary",
+        "TempAbbr": "Temp",
+        "ConstAbbr": "Const",
         "ConstList": "Constants",
         "active": "Add To Worksheet",
         "archive": "Archive Tables",

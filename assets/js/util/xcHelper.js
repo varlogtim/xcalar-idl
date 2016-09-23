@@ -2024,6 +2024,9 @@ window.xcHelper = (function($, xcHelper) {
      * @param  {integer} order 1 for ascending, -1 for descending
      */
     xcHelper.sortVals = function(a, b, order) {
+        if (order == null) {
+            order = -1;
+        }
         a = a.toLowerCase();
         b = b.toLowerCase();
 
@@ -2031,7 +2034,6 @@ window.xcHelper = (function($, xcHelper) {
         // if a = "adfads", return null
         var matchA = a.match(/(^.*?)([0-9]+$)/);
         var matchB = b.match(/(^.*?)([0-9]+$)/);
-
         if (matchA != null && matchB != null && matchA[1] === matchB[1]) {
             // if the rest part that remove suffix number is same,
             // compare the suffix number
