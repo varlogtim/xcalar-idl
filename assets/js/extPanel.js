@@ -98,6 +98,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             "success"    : function(data) {
                 $panel.removeClass("wait");
                 try {
+                    debugger;
                     var d = JSON.parse(data);
                     initializeExtCategory(d);
                 } catch (error) {
