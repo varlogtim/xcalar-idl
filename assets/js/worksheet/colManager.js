@@ -970,6 +970,10 @@ window.ColManager = (function($, ColManager) {
 
         var progCol = ColManager.newCol(oldCol);
         progCol.setFrontColName(newName);
+        var cellWidth = getTextWidth(null, newName, {
+            defaultHeaderStyle: true
+        });
+        progCol.setWidth(cellWidth);
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
             "direction": "R"
@@ -1061,7 +1065,6 @@ window.ColManager = (function($, ColManager) {
         }
 
         var dataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
-        var newDataIndex;
         $table.find('th').each(function(i) {
             var colNum;
             var $th = $(this);
@@ -1075,7 +1078,6 @@ window.ColManager = (function($, ColManager) {
                 $th.removeClass('col' + colNum).addClass('col' + i);
                 $th.find('.col' + colNum).removeClass('col' + colNum)
                                             .addClass('col' + i);
-                newDataIndex = i - 1;
             }
         });
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
@@ -1086,8 +1088,7 @@ window.ColManager = (function($, ColManager) {
         });
         $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
 
-        TblManager.pullRowsBulk(tableId, jsonData, rowNum, newDataIndex,
-                                RowDirection.Bottom);
+        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
         matchHeaderSizes($table);
@@ -1526,10 +1527,7 @@ window.ColManager = (function($, ColManager) {
             $table.find('.th.col' + colNum).after(ths);
         }
 
-        var dataIndex = xcHelper.parseColNum($table.find('th.dataCol')) - 1;
-
-        TblManager.pullRowsBulk(tableId, jsonData, rowNum, dataIndex,
-                                RowDirection.Bottom);
+        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
         matchHeaderSizes($table);

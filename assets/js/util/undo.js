@@ -802,14 +802,12 @@ window.Undo = (function($, Undo) {
         });
 
         var tHeadBodyInfo = TblManager.generateTheadTbody(currProgCols, tableId);
-        var newDataIndex = tHeadBodyInfo.dataIndex;
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
 
         var tableHtml = tHeadBodyInfo.html;
         $table.html(tableHtml);
 
-        TblManager.pullRowsBulk(tableId, jsonData, rowNum, newDataIndex,
-                                RowDirection.Bottom);
+        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
         TblManager.addColListeners($table, tableId);
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);

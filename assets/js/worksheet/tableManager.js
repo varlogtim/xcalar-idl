@@ -724,7 +724,7 @@ window.TblManager = (function($, TblManager) {
         WSManager.dropUndoneTables();
     };
 
-    TblManager.pullRowsBulk = function(tableId, jsonData, startIndex, dataIndex,
+    TblManager.pullRowsBulk = function(tableId, jsonData, startIndex,
                                        direction, rowToPrependTo) {
         // this function does some preparation for ColManager.pullAllCols()
         startIndex = startIndex || 0;
@@ -1627,7 +1627,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         table.keyName = keyName;
 
-        var dataIndex = generateTableShell(table.tableCols, tableId);
+        generateTableShell(table.tableCols, tableId);
         var numRows = jsonData.length;
         var startIndex = 0;
         var $table = $('#xcTable-' + tableId);
@@ -1640,7 +1640,7 @@ window.TblManager = (function($, TblManager) {
             jsonData = [""];
         }
 
-        TblManager.pullRowsBulk(tableId, jsonData, startIndex, dataIndex, null);
+        TblManager.pullRowsBulk(tableId, jsonData, startIndex);
         addTableListeners(tableId);
         createTableHeader(tableId);
         TblManager.addColListeners($table, tableId);

@@ -45,9 +45,10 @@ function freeAllResultSetsSync() {
 
 // rowNumber is the row number we're starting from
 // if our table has rows 0-60 and we're scrolling downwards, rowNumber = 60
-// if our table has rows 60-120 and we're scrolling upwards, rowNumber = 40 if we're fetching 20 rows
+// if our table has rows 60-120 and we're scrolling upwards, rowNumber = 40
+// if we're fetching 20 rows
 function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
-    rowToPrependTo, retry) {
+                    rowToPrependTo, retry) {
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
@@ -78,8 +79,8 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     })
     .then(function(jsonData) {
         prepullTableHeight = $table.height();
-        TblManager.pullRowsBulk(tableId, jsonData, rowPosition, null,
-            direction, rowToPrependTo);
+        TblManager.pullRowsBulk(tableId, jsonData, rowPosition,
+                                direction, rowToPrependTo);
 
         var jsonLen = jsonData.length;
         info.numRowsAdded += jsonLen;

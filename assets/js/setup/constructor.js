@@ -615,6 +615,10 @@ ProgCol.prototype = {
         return this.width;
     },
 
+    "setWidth": function(width) {
+        this.width = width;
+    },
+
     "hasHidden": function() {
         return this.isHidden;
     },
