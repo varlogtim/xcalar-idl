@@ -727,11 +727,13 @@ ul.CodeMirror-hints {
 
 #udf-fnSection {
     .size(100%, 100%);
+    .flex-display;
+    .flex-flow(column);
 
     .action {
         .size(@width: 255px, @height: 30px);
         line-height: 30px;
-        margin: 0 auto;
+        margin: 0px 10px 10px;
         display: block;
     }
 
@@ -742,15 +744,17 @@ ul.CodeMirror-hints {
     }
 
     .topSection {
-        .size(@height: 100px);
         padding: 15px 20px;
         background-color: @color-bg-tiber-blue;
+        .flex-display;
+        .flex-wrap(wrap);
+        .flex(0 0 auto);
+        .justify-content(space-around);
     }
 
     .template {
-        margin-top: 10px;
         .size(@width: 255px, @height: 30px);
-        margin: 10px auto 0 auto;
+        margin: 0 10px;
 
         > div {
             float: left;
@@ -790,13 +794,16 @@ ul.CodeMirror-hints {
     }
 
     .editSection {
-        .size(@width: 100%, @height: ~"calc(100% - 154px)");
+        .flex(1 1 auto);
+        .flex-display;
+        .size(@width: 100%);
         .position(relative);
+        overflow: hidden;
         padding-right: 10px;
         margin-bottom: 5px;
 
         .editArea {
-            .size(100%, 100%);
+            .size(100%, inherit);
             .position(relative);
             .CodeMirror {
                 .size(@height: 100%);
@@ -807,10 +814,11 @@ ul.CodeMirror-hints {
     .bottomSection {
         padding: 10px 5px;
         background-color: @color-bg-tiber-blue;
-        .size(@height: 49px);
+        .flex(0 0 49px);
 
         input {
             .size(@width: ~"calc(100% - 99px)");
+            margin: 0;
 
             opacity: @opacity-unhover;
             border: 1px solid transparent;
