@@ -7,6 +7,8 @@ window.MainMenu = (function($, MainMenu) {
     var closedOffset = 65; // in pixels, how much the panels are horizonally
     // offset when a menu is closed (includes 5px padding in .mainContent)
     var openOffset = 350; // when the menu is open
+    var defaultWidth = 295;
+    var currWidth = defaultWidth;
     var isFormOpen = false; // if export, join, map etc is open
     var ignoreRestoreState = false; // boolean flag - if closing of a form is
     // triggered by the clicking of a mainMenu tab, we do not want to restore
@@ -16,6 +18,7 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu = $('#mainMenu');
         setupTabbing();
         setupBtns();
+        setupResizable();
     };
 
     MainMenu.initialize = function() {
@@ -137,6 +140,54 @@ window.MainMenu = (function($, MainMenu) {
         prevState.$activeWorkspaceMenu.removeClass('xc-hidden');
     };
 
+    function setupResizable() {
+        var $menuPanel = $mainMenu;
+        var minWidth = defaultWidth + 3;
+        var isSmall = true;
+        $mainMenu.resizable({
+            "handles"  : "e",
+            "minWidth" : 295,
+            "distance": 2,
+            "start"    : function() {
+                // set boundaries so it can't resize past window
+                var panelRight = $menuPanel[0].getBoundingClientRect().right;
+
+                panelRight = $(window).width() - panelRight +
+                             $menuPanel.width();
+                $menuPanel.css('max-width', panelRight - 10);
+                $mainMenu.addClass('resizing');
+               
+            },
+            "stop": function() {
+                $menuPanel.css('max-width', '').css('max-height', '');
+                var width = $menuPanel.width();
+
+                width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
+
+                $menuPanel.width(width);
+                $mainMenu.removeClass('resizing');
+                var newWidth = $mainMenu.width();
+                if (newWidth < minWidth) {
+                    $mainMenu.width(defaultWidth);
+                    $mainMenu.removeClass('expanded');
+                    isSmall = true;
+                } else {
+                    $mainMenu.addClass('expanded');
+                    isSmall = false;
+                }
+                currWidth = newWidth;
+            },
+            "resize": function(event, ui) {
+                if (!isSmall && ui.size.width < minWidth) {
+                    $mainMenu.removeClass('expanded');
+                    isSmall = true;
+                } else if (isSmall && ui.size.width >= minWidth) {
+                    $mainMenu.addClass('expanded');
+                    isSmall = false;
+                }
+            }
+        });
+    }
 
     function setupBtns() {
         $mainMenu.find('.minimizeBtn').click(function() {
@@ -267,8 +318,7 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function openMenu($curTab, noAnim) {
-        $mainMenu.addClass('open').removeClass('closed');
-
+        
         var id = $curTab.attr("id");
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
@@ -277,6 +327,9 @@ window.MainMenu = (function($, MainMenu) {
             noAnim = true;
         }
         checkAnim(noAnim, true);
+        $mainMenu.addClass('open').removeClass('closed');
+        $mainMenu.width(currWidth);
+
         var mainMenuOpening = true;
         BottomMenu.close(mainMenuOpening);
         $('#container').addClass('mainMenuOpen');
@@ -305,9 +358,11 @@ window.MainMenu = (function($, MainMenu) {
 
     // makeInactive is used in "noWorkbook" mode
     function closeMenu($curTab, noAnim, makeInactive) {
-        $mainMenu.removeClass("open");
-        $mainMenu.find(".commonSection").removeClass("active");
         checkAnim(noAnim);
+        $mainMenu.removeClass("open");
+        $mainMenu.width(defaultWidth);
+        $mainMenu.find(".commonSection").removeClass("active");
+        
         $('#container').removeClass('mainMenuOpen');
         $curTab.removeClass('mainMenuOpen');
         isMenuOpen = false;
@@ -347,7 +402,7 @@ window.MainMenu = (function($, MainMenu) {
             setTimeout(function() {
                 $mainMenu.removeClass('noAnim');
                 $('#container').removeClass('noMenuAnim');
-            }, delay);
+            }, delay + 50);
         }
     }
 

@@ -91,6 +91,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
     function getTableColList() {
         var html = "";
+        var numBlanks = 10; // to take up flexbox space
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
             if (validTypes.indexOf(allCols[i].type) > -1) {
@@ -107,6 +108,9 @@ window.DFCreateView = (function($, DFCreateView) {
                             '</div>' +
                         '</li>';
             }
+        }
+        for (var i = 0; i < numBlanks; i++) {
+            html += '<div class="flexSpace"></div>';
         }
         return (html);
     }

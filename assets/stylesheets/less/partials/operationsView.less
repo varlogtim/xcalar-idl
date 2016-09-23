@@ -616,10 +616,24 @@
 	}
 
 	.submit {
-		.horizontal-align;
-		margin-top: 30px;
-		margin-bottom: 50px;
+		display: block;
+		margin: 30px auto 50px;
+		// using left: 50%; translate -50% doesn't work well in IE
 	}
+	.bottomSection.flexWrap {
+        margin: 25px 10px 35px;
+        .flex-display;
+        .flex-wrap(wrap);
+        .justify-content(center);
+        .flex-direction(row-reverse);
+
+        button {
+            display: block;
+            margin-top: 10px;
+            margin-left: 9px;
+            margin-right: 9px;
+        }
+    }
 }
 
 #operationsView {
@@ -767,7 +781,8 @@
     	.addArg {
     		width: 260px;
     		height:  36px;
-    		.horizontal-align;
+    		display: block;
+    		margin: 0 auto;
     		.text {
     			font-size: 14px;
     		}
@@ -1214,8 +1229,6 @@
 		}
 	}
 	button {
-		display: block;
-		margin: 0 auto;
 		text-transform: uppercase;
 	}
 
@@ -1245,6 +1258,8 @@
 
 	.columnsWrap {
 		ul {
+			.flex-display;
+			.flex-wrap(wrap);
 			width: 100%;
 			border-top: 1px solid @color-border-pinkish-grey2;
 			background-color: transparent;
@@ -1253,13 +1268,31 @@
 			}
 		}
 		li {
-			width: 50%;
 			float: left;
 			border-right: 1px solid @color-border-pinkish-grey2;
 			background-color: @color-white;
+			padding-right: 22px;
+			position: relative;
+			.flex(1 1 100px);
+			width: 100px;
 			&:first-child {
 				border-top: none;
 			}
+
+			.text {
+				width: 100%;
+			}
+
+			.checkbox {
+				position: absolute;
+			}
+		}
+		.flexSpace {
+			.flex(1 1 100px);
+			width: 100px;
+			height: 0px;
+			overflow: hidden;
+			visibility: hidden;
 		}
 	}
 
@@ -1304,14 +1337,11 @@
 	.advancedSection {
         margin-top: 20px;
         .formRow {
-            // width: ~"calc(100% - 25px)";
-            // margin-left: 25px;
             .clearfix;
         }
 
         .advancedIcon {
         	cursor: pointer;
-        	// margin-left: 6px;
         	font-size: 16px;
         	position: relative;
         	top: 2px;
@@ -1500,19 +1530,30 @@
 
     }
     .bottomSection {
-    	padding-bottom: 50px;
+    	padding-bottom: 20px;
     }
-    .confirm {
-    	margin-top: 40px;
-    	margin-bottom: 10px;
-    }
+}
+
+#mainMenu.expanded {
+	#exportView, #dfCreateView	{
+		.columnsWrap {
+			li {
+				.flex(1 1 200px);
+				width: 200px;
+			}
+			.flexSpace {
+				.flex(1 1 200px);
+				width: 200px;
+			}
+		}
+	}
 }
 
 #smartCastView {
     .buttonSection {
-        padding-left: 20px;
         padding-top: 12px;
-        .size(@height: 60px);
+        .size(258px, 60px);
+        margin: 0 auto;
 
         button {
             .size(@width: 120px);
@@ -1662,19 +1703,6 @@
             // .divider {
             //     border-color: @color-border-pinkish-grey2;
             // }
-        }
-    }
-
-    .bottomSection {
-        margin: 35px 0;
-
-        button {
-            display: block;
-            margin: 0 auto;
-
-            &:last-child {
-                margin-top: 8px;
-            }
         }
     }
 }

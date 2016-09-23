@@ -251,6 +251,7 @@
         .tableTitle .dropdownBox {
             // allow exiting of smartcast through dropdown menu
            display: block;
+           pointer-events: initial;
         }
     }
 }
@@ -944,6 +945,23 @@ ul.CodeMirror-hints {
     }
 }
 
+#mainMenu.expanded {
+    #tableListSectionTabs {
+        .tableListSectionTab {
+            .abbrText {
+                display: none;
+            }
+            .fullText {
+                display: inline;
+            }
+            &.active {
+                .flex(1 1 25%);
+                text-overflow: ellipsis;
+            }
+        }
+    }
+}
+
 #tableListSections {
     overflow-x: hidden;
     overflow-y: auto;
@@ -1014,7 +1032,7 @@ ul.CodeMirror-hints {
     }
 
     .tableLists {
-        .size(@height: ~"calc(100% - 71px)", @max-width: 490px);
+        .size(@height: ~"calc(100% - 71px)");
         
         overflow: hidden;
         overflow-y: auto;

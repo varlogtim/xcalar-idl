@@ -803,7 +803,8 @@ window.OperationsView = (function($, OperationsView) {
             $(document).on('mousedown.mapCategoryListener', function(e) {
                 var $target = $(e.target);
                 if (!$target.closest('.catFuncMenus').length &&
-                    !$target.is('#mapFilter')) {
+                    !$target.is('#mapFilter') && 
+                    !$target.hasClass('ui-resizable-handle')) {
                     if ($categoryList.find('li.active').length && 
                         $functionsList.find('li.active').length === 0) {
                         var val = $('#mapFilter').val();
