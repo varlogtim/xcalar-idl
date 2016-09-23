@@ -9,7 +9,7 @@ COPY package.json /app
 RUN npm install
 
 COPY . /app
-EXPOSE 12123
+EXPOSE 12124
 
 USER node
 

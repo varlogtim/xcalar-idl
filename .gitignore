@@ -17,3 +17,4 @@ install.html
 *~
 /js/
 .swp
+/services/expServer/*.tar.gz
