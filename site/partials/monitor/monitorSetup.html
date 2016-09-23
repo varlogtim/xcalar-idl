@@ -56,37 +56,42 @@
   <div class="cardMain">
     <div class="formRow clearfix">
       <label class="argWrap">
-        <span class="text">Config Parameter Name:</span>
+        <span class="text"><%= dicts.monitor.ConfigParamName %>:</span>
         <input type="text" class="xc-input paramName" data-value="">
       </label>
-      <label class="argWrap">
-        <span class="text">Current Value:</span>
-        <input type="text" class="xc-input curVal" disabled>
-      </label>
-      <label class="argWrap">
-        <span class="text">New Value:</span>
-        <input type="text" class="xc-input newVal">
-      </label>
+      <div class="flexGroup">
+        <label class="argWrap">
+          <span class="text"><%= dicts.monitor.CurVal %>:</span>
+          <input type="text" class="xc-input curVal" disabled>
+        </label>
+        <label class="argWrap">
+          <span class="text"><%= dicts.monitor.NewVal %>:</span>
+          <input type="text" class="xc-input newVal">
+        </label>
+      </div>
+      
     </div>
     <div class="formRow clearfix placeholder" title="Add Config Parameter" data-toggle="tooltip">
       <label class="argWrap">
-        <span class="text">Config Parameter Name:</span>
+        <span class="text"><%= dicts.monitor.ConfigParamName %>:</span>
         <div class="xc-input">
           <i class="icon xi-plus"></i>
         </div>
       </label>
-      <label class="argWrap">
-        <span class="text">Current Value:</span>
-        <div class="xc-input">
-          <i class="icon xi-plus"></i>
-        </div>
-      </label>
-      <label class="argWrap">
-        <span class="text">New Value:</span>
-        <div class="xc-input">
-          <i class="icon xi-plus"></i>
-        </div>
-      </label>
+      <div class="flexGroup">
+        <label class="argWrap">
+          <span class="text"><%= dicts.monitor.CurVal %>:</span>
+          <div class="xc-input">
+            <i class="icon xi-plus"></i>
+          </div>
+        </label>
+        <label class="argWrap">
+          <span class="text"><%= dicts.monitor.NewVal %>:</span>
+          <div class="xc-input">
+            <i class="icon xi-plus"></i>
+          </div>
+        </label>
+      </div>
     </div>
   </div>
   <div class="cardBottom">

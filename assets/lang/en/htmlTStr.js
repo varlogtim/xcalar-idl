@@ -325,7 +325,9 @@ module.exports = {
         "AutoSupport": "Auto Support Settings",
         "Config": "Configuration",
         "ConfigParam": "Configure Parameters",
+        "ConfigParamName": "Config Parameter Name", // in jststr
         "CPU": "CPU",
+        "CurVal": "Current Value", // in jststr
         "DetailQuery": "Detail of Query",
         "ElaspedTime": "Elapsed Time",
         "GeneralSettings": "General Settings",
@@ -340,6 +342,7 @@ module.exports = {
         "Monitor": "Monitor",
         "Monitors": "Monitors",
         "NETWORK": "NETWORK",
+        "NewVal": "New Value", // in jststr
         "NRecv": "Bytes Recv",
         "NSent": "Bytes Sent",
         "Output": "Output",

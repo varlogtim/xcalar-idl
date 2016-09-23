@@ -1021,9 +1021,6 @@
         > .text {
             margin-left: 10px;
         }
-        &:last-child {
-            display: none; // xx temp hiding the restart icon
-        }
     }
 
 }
@@ -1091,12 +1088,17 @@
     }
 
     .cardBottom {
-        padding: 10px 60px 30px 60px;
+        padding: 10px 60px 20px 60px;
         .btn {
             letter-spacing: normal;
             width: 160px; // decrease width if we decide to lower font weight
+            margin-bottom: 10px;
         }
     }
+}
+
+#setupCard {
+    // display: none;
 }
 
 #configCard {
@@ -1108,8 +1110,8 @@
     .formRow {
         .flex-display;
         .flex-wrap(wrap);
-        margin-bottom: 5px;
-        margin-top: 5px;
+        margin-bottom: 10px;
+        margin-top: 10px;
         overflow: hidden; // for animation
 
         &.animating {
@@ -1117,10 +1119,10 @@
                 height: 0px;
             }
         }
-        .argWrap {
-            height: 30px;
-            .transition(0.5s height);
+        > .argWrap {
+            .flex(1 1 300px);
         }
+      
         &.placeholder {
             border: 1px dashed @color-border-pinkish-grey;
             border: 1px dashed @color-border-darkGray;
@@ -1144,24 +1146,33 @@
         }
     }
 
+    .flexGroup {
+        .flex-display;
+        .flex(2 1  auto);
+    }
+
     .argWrap {
         .flex(1 1 auto);
         .flex-display;
+        height: 30px;
+        .transition(0.5s height);
         margin-bottom: 5px;
         margin-top: 5px;
         padding-left: 15px;
         padding-right: 15px;
         position: relative;
+        font-size: 12px;
+        font-weight: 700;
           
         .text {
             line-height: 30px;
         }
         .xc-input {
             margin-left: 10px;
-            width: 50px;
-            // max-width: 240px;
-            .flex(1 1 50px);
-            // float: right;
+            width: 70px;
+            .flex(1 1 70px);
+            font-size: 12px;
+            font-weight: 700;
         }
         .curVal {
             border: 0px;

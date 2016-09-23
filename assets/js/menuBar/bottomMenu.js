@@ -94,7 +94,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
         $menuPanel.resizable({
             "handles"  : "n, e, s, w, se",
-            "minWidth" : 296,
+            "minWidth" : 295,
             "minHeight": 300,
             "start"    : function() {
                 if (!$menuPanel.hasClass('poppedOut')) {

@@ -411,7 +411,11 @@ MonitorTStr = {
     'Queries': 'Queries',
     'Setup': 'Setup',
     'Settings': 'Settings',
-    'Ext': 'Extension'
+    'Ext': 'Extension',
+    "ConfigParamName": "Config Parameter Name",
+    "CurVal": "Current Value",
+    "NewVal": "New Value",
+
 };
 
 DFGTStr = {
