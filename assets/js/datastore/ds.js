@@ -15,7 +15,7 @@ window.DS = (function ($, DS) {
     var dirStack = []; // for go back and forward
     var $backFolderBtn;    //$("#backFolderBtn");
     var $forwardFolderBtn; // $("#forwardFolderBtn")
-
+    var $dsListFocusTrakcer; // $("#dsListFocusTrakcer");
     // for DS drag n drop
     var $dragDS;
     var $dropTarget;
@@ -27,6 +27,7 @@ window.DS = (function ($, DS) {
 
         $backFolderBtn = $("#backFolderBtn");
         $forwardFolderBtn = $("#forwardFolderBtn");
+        $dsListFocusTrakcer = $("#dsListFocusTrakcer");
 
         setupGridViewButtons();
         setupGrids();
@@ -155,10 +156,11 @@ window.DS = (function ($, DS) {
         xcHelper.assert($grid != null && $grid.length !== 0, "error case");
 
         var deferred = jQuery.Deferred();
+        var dsId = $grid.data("dsid");
 
         $gridView.find(".active").removeClass("active");
         $grid.addClass("active");
-
+        $dsListFocusTrakcer.data("dsid", dsId).focus();
         // folder do not show anything
         if ($grid.hasClass("folder")) {
             return PromiseHelper.resolve();
@@ -172,7 +174,7 @@ window.DS = (function ($, DS) {
         }
 
         // when switch to a ds, should clear others' ref count first!!
-        DSTable.show($grid.data("dsid"), isLoading)
+        DSTable.show(dsId, isLoading)
         .then(function() {
             if (!isLoading) {
                 Tips.refresh();
@@ -962,6 +964,34 @@ window.DS = (function ($, DS) {
         $("#dsListSection .gridViewWrapper").on("click", function() {
             // this hanlder is called before the following one
             $gridView.find(".active").removeClass("active");
+        });
+
+        $dsListFocusTrakcer.on("keydown", function(event) {
+            // pre-check if it's the grid that focusing on
+            var dsid = $dsListFocusTrakcer.data("dsid");
+            var $grid = DS.getGrid(dsid);
+            if ($grid == null || !$grid.hasClass("active")) {
+                return;
+            }
+
+            var isFolder = $grid.hasClass("folder");
+            if (isFolder && $grid.find(".label").hasClass("active")) {
+                // don't do anything when renaming
+                return;
+            }
+
+            switch (event.which) {
+                case keyCode.Delete:
+                    DS.remove($grid);
+                    break;
+                case keyCode.Enter:
+                    if (isFolder) {
+                        goToDirHelper(dsid);
+                    }
+                    break;
+                default:
+                    break;
+            }
         });
 
         // click a folder/ds

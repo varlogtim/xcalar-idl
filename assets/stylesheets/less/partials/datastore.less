@@ -1703,10 +1703,18 @@ table.datasetTable {
 
                 .grid-unit.folder {
                     > .label {
+                        &.focused {
+                            .size(@width: ~"calc(100% - 85px)");
+                            padding: 5px 0;
+                        }
+
+                        @text-height: @height-grid-list - 10;
                         textarea {
                             width: 100%;
-                            height: @height-grid-list !important;
-                            .font(@size: 11px, @line-height: @height-grid-list);
+                            height: @text-height !important;
+                            padding: 0 2px;
+                            box-shadow: inset 0px 0px 3px @color-white;
+                            .font(@size: 11px, @line-height: @text-height);
                             .textOverflowOneLine;
                             background: transparent;
                         }
@@ -1749,6 +1757,13 @@ table.datasetTable {
                 }
             }
         }
+    }
+
+    #dsListFocusTrakcer {
+        .size(0, 0);
+        opacity: 0;
+        z-index: -1;
+        .position(absolute);
     }
 }
 
