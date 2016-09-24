@@ -325,9 +325,10 @@ window.DS = (function ($, DS) {
             });
             // add alert
             Alert.show({
-                "title"  : AlertTStr.NoDel,
-                "msg"    : msg,
-                "isAlert": true
+                "title"   : AlertTStr.NoDel,
+                "msg"     : msg,
+                "isAlert" : true,
+                "onCancel": focsueOnTracker
             });
 
             return;
@@ -341,6 +342,7 @@ window.DS = (function ($, DS) {
                 msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {"ds": dsName});
                 callback = function() {
                     cancelDSHelper(txId, $grid, dsObj);
+                    focsueOnTracker();
                 };
             } else {
                 // when remove ds
@@ -348,6 +350,7 @@ window.DS = (function ($, DS) {
                 msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {"ds": dsName});
                 callback = function() {
                     delDSHelper($grid, dsObj);
+                    focsueOnTracker();
                 };
             }
 
@@ -660,10 +663,11 @@ window.DS = (function ($, DS) {
         if (dsObj.beFolderWithDS()) {
             // add alert
             Alert.show({
-                "title"  : DSTStr.DelFolder,
-                "instr"  : DSTStr.DelFolderInstr,
-                "msg"    : DSTStr.DelFolderMsg,
-                "isAlert": true
+                "title"   : DSTStr.DelFolder,
+                "instr"   : DSTStr.DelFolderInstr,
+                "msg"     : DSTStr.DelFolderMsg,
+                "isAlert" : true,
+                "onCancel": focsueOnTracker
             });
 
             return false;
@@ -1140,6 +1144,10 @@ window.DS = (function ($, DS) {
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             DS.remove($grid);
         });
+    }
+
+    function focsueOnTracker() {
+        $dsListFocusTrakcer.focus();
     }
 
     function refreshHelper() {
