@@ -62,12 +62,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         })
         .then(function() {
             DFG.setGroup(retName, new DFGObj(retName), true,
-                         true);
-            DFGCard.updateDFG();
+                         {"isUpload": true,
+                          "noClick" : true});
+            DFGCard.updateDFG({"noClick": true});
             closeCard();
             // Click on the newly uploaded dataflow
-            $(".groupName:contains('" + retName + "')").closest(".listBox")
-                                                       .click();
+            $(".groupName:contains('" + retName +"')").closest(".dataFlowGroup")
+                                                      .click();
 
         })
         .always(function() {

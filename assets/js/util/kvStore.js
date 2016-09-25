@@ -214,6 +214,8 @@ window.KVStore = (function($, KVStore) {
                     Profile.restore(gInfos[METAKeys.STATS]);
                     oldLogCursor = gInfos[METAKeys.LOGC];
 
+                    // XXX: This call actually doesn't currently use the struct
+                    // Will decide whether to keep after parameterization impl
                     DFG.restore(gInfos[EMetaKeys.DFG]);
 
                     if (isEmpty) {

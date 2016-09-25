@@ -37,8 +37,9 @@ window.DFGCard = (function($, DFGCard) {
         setupRetinaTab();
     };
 
-    DFGCard.updateDFG = function() {
-        updateList();
+    DFGCard.updateDFG = function(options) {
+        // Only options is options.noClick
+        updateList(options);
     };
 
     DFGCard.getCurrentDFG = function() {
@@ -270,12 +271,9 @@ window.DFGCard = (function($, DFGCard) {
     }
 
     function drawDags(groupName) {
-        var html = "";
-        var group = DFG.getGroup(groupName);
-
-        if (!group.dataFlows) {
             // This is a uploaded dataflow
-            // JJJ handle this. Below is just a hack
+            debugger;
+            var deferred = jQuery.Deferred();
             html = '<div class="dagWrap clearfix">' +
                         '<div class="header clearfix">' +
                             '<div class="btn btn-small infoIcon">' +
@@ -295,80 +293,15 @@ window.DFGCard = (function($, DFGCard) {
                         '<div class="dagImageWrap">' +
                         '</div></div>';
             $dfgCard.find('.cardMain').html(html);
-            return;
-        }
-        var numDataFlows = group.dataFlows.length;
-        var retinaNodes = group.retinaNodes;
-        var nodeIds = group.nodeIds;
-        for (var i = 0; i < numDataFlows; i++) {
-            var dataFlow = group.dataFlows[i];
-            var runNowBtn = "";
-
-            if (i === 0) {
-                runNowBtn = '<button class="runNowBtn btn btn-small iconBtn">' +
-                                '<i class="icon xi-arrow-right"></i>' +
-                                '<div class="spin"></div>' +
-                            '</button>';
-            }
-
-            html += '<div class="dagWrap clearfix">' +
-                        '<div class="header clearfix">' +
-                            '<div class="btn btn-small infoIcon">' +
-                                '<i class="icon xi-info-rectangle"></i>' +
-                            '</div>' +
-                            '<div class="tableTitleArea">' +
-                                '<span>Table: </span>' +
-                                '<span class="tableName">' +
-                                    dataFlow.name +
-                                '</span>' +
-                            '</div>' +
-                            runNowBtn +
-                        '</div>' +
-                        '<div class="dagImageWrap">' +
-                            '<div class="dagImage" style="width:' +
-                            dataFlow.canvasInfo.width + 'px;height:' +
-                            dataFlow.canvasInfo.height + 'px;">';
-            var tables = dataFlow.canvasInfo.tables;
-            var expandIcons = dataFlow.canvasInfo.expandIcons;
-            var hasParam;
-            var tableName;
-            var nodeId;
-            for (var j = 0, numTables = tables.length; j < numTables; j++) {
-                hasParam = false;
-                tableName = tables[j].table;
-                if (tableName !== undefined) {
-                    nodeId = nodeIds[tableName];
-                    if (retinaNodes[nodeId]) {
-                        hasParam = true;
-                    }
-                }
-                html += getTableHtml(tables[j], hasParam);
-            }
-
-            var operations = dataFlow.canvasInfo.operations;
-            for (var j = 0, numOps = operations.length; j < numOps; j++) {
-                hasParam = false;
-                tableName = operations[j].table;
-                if (tableName !== undefined) {
-                    nodeId = nodeIds[tableName];
-                    if (retinaNodes[nodeId]) {
-                        hasParam = true;
-                    }
-                }
-                html += getOperationHtml(operations[j], hasParam);
-            }
-
-            for (var j = 0; j < expandIcons.length; j++) {
-                html += getExpandIconHtml(expandIcons[j]);
-            }
-
-            html += '</div></div></div>';
-        }
-
-        $dfgCard.find('.cardMain').html(html);
-        $dfgCard.find('.dagImage').each(function() {
-            DFG.drawCanvas($(this), true);
-        });
+            XcalarGetRetina(groupName)
+            .then(function(ret) {
+                Dag.createDagImage(ret.retina.retinaDag.node,
+                                   $("#dataflowPanel").find(".dagWrap"));
+                Dag.addDagEventListeners($("#dataflowPanel").find(".dagWrap"));
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
     }
 
     function getDagDropDownHTML() {
@@ -381,7 +314,7 @@ window.DFGCard = (function($, DFGCard) {
 
     function getTableHtml(table, hasParam) {
         var iconClass = "dagTableIcon";
-        
+
         var icon = "xi_table";
         var paramClass = "";
         if (hasParam) {
@@ -522,7 +455,11 @@ window.DFGCard = (function($, DFGCard) {
         });
     }
 
-    function updateList() {
+    function updateList(options) {
+        var noClick = false;
+        if (options) {
+            noClick = options.noClick;
+        }
         // resetDFGView();
         var groups = DFG.getAllGroups();
         var $activeGroup = $dfgMenu.find('.listBox.selected');
@@ -569,6 +506,9 @@ window.DFGCard = (function($, DFGCard) {
             $dfgCard.find('.cardMain').html(hint);
             $dfgCard.find('.leftSection .title').text("");
         } else {
+            if (noClick) {
+                return;
+            }
             $dfgCard.find(".cardMain").html("");
             if (activeGroupName) {
                 $dfgMenu.find('.listBox').filter(function() {

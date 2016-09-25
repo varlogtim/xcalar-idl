@@ -2350,8 +2350,8 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
         return (deferred.reject().promise());
     }
 
-    var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId, paramType,
-                                              paramValue);
+    var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId,
+                                              paramType, paramValue);
     var def1 = xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType,
                                   paramValue);
     var def2 = jQuery.Deferred().resolve().promise();

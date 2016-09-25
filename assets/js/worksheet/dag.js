@@ -1357,7 +1357,7 @@ window.Dag = (function($, Dag) {
                                         .addClass('selected');
             }
 
-            addDagEventListeners($dagWrap);
+            Dag.addDagEventListeners($dagWrap);
             if (!dagAdded) {
                 preventUnintendedScrolling();
             }
@@ -2405,8 +2405,7 @@ window.Dag = (function($, Dag) {
         ctx.restore();
     }
 
-    function addDagEventListeners($dagWrap) {
-
+    Dag.addDagEventListeners = function($dagWrap) {
         $dagWrap.on('click', '.expandWrap', function() {
             var $expandIcon = $(this);
             var data = $expandIcon.data();
@@ -3117,6 +3116,9 @@ window.Dag = (function($, Dag) {
                 } else {
                     iconClass = "arrowtail-down";
                 }
+                break;
+            case ("export"):
+                iconClass="pull-all-field";
                 break;
             default:
                 iconClass = "unknown";

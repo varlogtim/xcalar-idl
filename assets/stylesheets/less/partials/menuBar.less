@@ -368,7 +368,13 @@
     @listHeight: 35px;
 
     .dfgList {
+        .listSection {
+            height: ~"calc(100% - 75px)";
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
         .listInfo {
+            cursor: pointer;
             .size(@width: 100%, @height: @listHeight);
             white-space: nowrap;
             overflow: hidden;
@@ -425,7 +431,6 @@
                 font-size: 14px;
                 margin-left: 10px;
                 opacity: @opacity-unhover;
-                cursor: pointer;
             }
         }
     }

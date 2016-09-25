@@ -1,16 +1,40 @@
 window.DFG = (function($, DFG) {
     var dfGroups = {};
 
-    // JJJ May not need this function anymore. may not need to store anything
-    DFG.restore = function(groups) {
-        groups = groups || {};
-        dfGroups = {};
+    DFG.restore = function() {
 
-        for (var name in groups) {
-            dfGroups[name] = new DFGObj(name, groups[name]);
-        }
+        // This call now has to return a promise
+        // JJJ handle parameters
+        var deferred = jQuery.Deferred();
+        var retArray = [];
 
-        DFGCard.updateDFG();
+        XcalarListRetinas()
+        .then(function(list) {
+            for (var i = 0; i<list.numRetinas; i++) {
+                var retName = list.retinaDescs[i].retinaName;
+                retArray.push(XcalarGetRetina(retName));
+            }
+            return PromiseHelper.when.apply({}, retArray);
+        })
+        .then(function() {
+            var retStructs = arguments;
+            console.log(arguments);
+            for (var i = 0; i<arguments.length; i++) {
+                var retName = arguments[i].retina.retinaDesc.retinaName;
+                dfGroups[retName] = new DFGObj(retName);
+                dfGroups[retName].retinaNodes = arguments[i].retina.retinaDag
+                                                                   .node;
+                var nodes = {};
+                for (var j = 0; j<dfGroups[retName].retinaNodes.length; j++) {
+                    nodes[dfGroups[retName].retinaNodes[j].name.name] =
+                                     dfGroups[retName].retinaNodes[j].dagNodeId;
+                }
+                dfGroups[retName].nodeIds = nodes;
+            }
+            DFGCard.updateDFG();
+        });
+
+        return deferred.promise();
     };
 
     DFG.getAllGroups = function() {
@@ -21,7 +45,13 @@ window.DFG = (function($, DFG) {
         return (dfGroups[groupName]);
     };
 
-    DFG.setGroup = function(groupName, group, isNew, isUpload) {
+    DFG.setGroup = function(groupName, group, isNew, options) {
+        var isUpload = false;
+        var noClick = false;
+        if (options) {
+            isUpload = options.isUpload;
+            noClick = options.noClick;
+        }
         var deferred = jQuery.Deferred();
         dfGroups[groupName] = group;
 
@@ -39,7 +69,7 @@ window.DFG = (function($, DFG) {
         .then(function(retInfo) {
             updateDFGInfo(retInfo);
             // XXX TODO add sql
-            DFGCard.updateDFG();
+            DFGCard.updateDFG({"noClick": noClick});
             KVStore.commit();
             deferred.resolve();
         })
@@ -70,81 +100,6 @@ window.DFG = (function($, DFG) {
 
     DFG.hasGroup = function(groupName) {
         return dfGroups.hasOwnProperty(groupName);
-    };
-
-    DFG.drawCanvas = function($dagImage) {
-        var dagImageWidth = $dagImage.width();
-        var dagImageHeight = $dagImage.height();
-        var canvas = $('<canvas class="previewCanvas" width="' +
-                        dagImageWidth + '" height="' + dagImageHeight +
-                        '">')[0];
-        $dagImage.append(canvas);
-
-        var ctx = canvas.getContext('2d');
-
-        ctx.strokeStyle = '#999999';
-
-        var $dagTables = $dagImage.find('.dagTable');
-        var numTables = $dagTables.length;
-        for (var i = 0; i < numTables; i++) {
-            var $dagTable = $dagTables.eq(i);
-
-            // var index = $dagTable.data('index');
-            var children = ($dagTable.data('children') + "").split(",");
-            var numChildren = children.length;
-            var child = children;
-            
-            var dagMidHeight = 21;
-            var dagMidWidth = 20;
-            if (child !== undefined) {
-                child = $dagImage.find('.dagTable[data-index=' + child + ']');
-                var top1 = parseInt($dagTable.css('top')) + dagMidHeight;
-                var left1 = parseInt($dagTable.css('left')) + dagMidWidth;
-                var top2 = parseInt(child.css('top')) + dagMidHeight;
-                var left2 = parseInt(child.css('left')) + 10;
-
-                ctx.beginPath();
-                ctx.moveTo(left1, top1);
-
-                if (top1 !== top2) {
-                    var xoffset = 0;
-                    var vertDist = Math.abs(top2 - top1);
-                    if (vertDist < 60) {
-                        xoffset = 2000 / vertDist;
-                    }
-                    var midLeft = left2 - 190 + xoffset;
-                    ctx.lineTo(midLeft, top1);
-                    var endX = left2 - 100;
-                    var endY = top2;
-                    if (top1 < top2) {
-                        ctx.bezierCurveTo(midLeft, top1,
-                            endX, top1,
-                            endX, endY);
-                    } else {
-                        ctx.bezierCurveTo(midLeft, top1,
-                            endX, top1,
-                            endX, endY);
-                    }
-
-                    ctx.lineTo(left2 + dagMidWidth, top2);
-                } else {
-                    ctx.lineTo(left2, top2);
-                }
-                ctx.stroke();
-            }
-        }
-
-        var $expandIcons = $dagImage.find('.expandWrap');
-        var numExpandIcons = $expandIcons.length;
-        for (var i = 0; i < numExpandIcons; i++) {
-            var $expandIcon = $expandIcons.eq(i);
-            var x = parseInt($expandIcon.css('left')) + 200;
-            var y = parseInt($expandIcon.css('top')) + 15;
-            var dist = 260;
-            ctx.moveTo(x, y);
-            ctx.lineTo(x - dist, y);
-        }
-        ctx.stroke();
     };
 
     DFG.getCanvasInfo = function($dagImage, withExport) {
@@ -329,7 +284,16 @@ window.DFG = (function($, DFG) {
         var tableName;
 
         if (!nodeIds) {
+            // This is the case where the retina is uploaded.
+            // We really shouldn't do this here.. so XXX temp
             // JJJ Fixme. nodeIds doesn't exist for uploaded retinas
+            group.retinaNodes = retInfo.retina.retinaDag.node;
+            var nodes = {};
+            for (var j = 0; j<group.retinaNodes.length; j++) {
+                nodes[group.retinaNodes[j].name.name] =
+                                                 group.retinaNodes[j].dagNodeId;
+            }
+            group.nodeIds = nodes;
             return;
         }
         for (var i = 0; i < numNodes; i++) {
