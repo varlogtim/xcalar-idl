@@ -537,7 +537,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // select entire text on double click, if we don't do this, double click
         // won't select the $ sign that preceeds a column name
         $extArgs.on('dblclick', 'input', function() {
-            this.setSelectionRange(0, this.value.length);
+            if ($(this).attr("type") !== "number") {
+                // number cannot do it
+                this.setSelectionRange(0, this.value.length);
+            }
         });
 
         var colCallback = function($target) {
@@ -972,11 +975,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             if (arg == null) {
                 return { "vaild": false };
             }
-
-            if (typeCheck.multiColumn && !(arg instanceof Array)) {
-                // if set multiColumn to be true, then always return array
-                arg = [arg];
-            }
         } else if (argType === "number") {
             arg = Number(arg);
 
@@ -986,14 +984,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             } else if (typeCheck.integer && !Number.isInteger(arg)) {
                 StatusBox.show(ErrTStr.OnlyInt, $input);
                 return { "vaild": false };
-            } else if (typeCheck.min != null && arg < typeCheck.min) {
+            } else if (typeCheck.min != null &&
+                        !isNaN(typeCheck.min) &&
+                        arg < typeCheck.min)
+            {
                 error = xcHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
                     "num": typeCheck.min
                 });
 
                 StatusBox.show(error, $input);
                 return { "vaild": false };
-            } else if (typeCheck.max != null && arg > typeCheck.max) {
+            } else if (typeCheck.max != null &&
+                        !isNaN(typeCheck.max) &&
+                        arg > typeCheck.max)
+            {
                 error = xcHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
                     "num": typeCheck.max
                 });
@@ -1021,7 +1025,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function getColInfo(arg, typeCheck, $input, extTableId, argList) {
         arg = arg.replace(/\$/g, '');
 
-        var validType = typeCheck.validType;
+        var validType = typeCheck.columnType;
         var tempColNames = arg.split(",");
         var colLen = tempColNames.length;
         var cols = [];
@@ -1096,10 +1100,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         }
 
-        if (cols.length === 1) {
-            return cols[0];
-        } else {
+        if (typeCheck.multiColumn) {
             return cols;
+        } else {
+            return cols[0];
         }
     }
 

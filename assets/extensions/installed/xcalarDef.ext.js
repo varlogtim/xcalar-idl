@@ -1,4 +1,4 @@
-window.UExtXcalarDef = (function(UExtXcalarDef, $) {
+window.UExtXcalarDef = (function(UExtXcalarDef) {
     UExtXcalarDef.buttons = [{
         "buttonText"   : "Horizontal Partition",
         "fnName"       : "hPartition",
@@ -46,6 +46,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
             "type"      : "string",
             "name"      : "Sort Order",
             "autofill"  : "ascending",
+            "enums"     : ["ascending", "descending"],
             "fieldClass": "order"
         },
         {
@@ -561,5 +562,5 @@ window.UExtXcalarDef = (function(UExtXcalarDef, $) {
     }
 
     return (UExtXcalarDef);
-}({}, jQuery));
+}({}));
 
