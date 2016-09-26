@@ -107,12 +107,8 @@ window.OperationsView = (function($, OperationsView) {
         $('#mapFilter').on('input', function() {
             var val = $(this).val();
             var valTrimmed = val.trim();
-            if (valTrimmed.length) {
+            if (valTrimmed.length || val.length === 0) {
                 filterTheMapFunctions(valTrimmed);
-            } else if (val.length === 0) {
-                $categoryList.find('li').removeClass('filteredOut');
-                // $categoryList.find('li').eq(0).click();
-                updateMapFunctionsList($categoryList.find('li').eq(0));
             } else {
                 // blank but with spaces, do nothing
             }
@@ -163,10 +159,13 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         $categoryList.on('click', 'li', function() {
-            if ($(this).hasClass('active')) {
+            var $li = $(this);
+            if ($li.hasClass('active')) {
                 return; // do not update functions list if clicking on same li
             }
-            updateMapFunctionsList($(this));
+            $li.siblings().removeClass('active');
+            $li.addClass('active');
+            updateMapFunctionsList();
         });
 
         // for map
@@ -237,7 +236,6 @@ window.OperationsView = (function($, OperationsView) {
                 var $input = $(this);
                 if (event.which === keyCode.Enter || event.which ===
                     keyCode.Tab) {
-                    // var inputNum = 0;
                     var value = $input.val().trim().toLowerCase();
                     var prevValue = $input.data('value');
                     $input.data('value', value);
@@ -698,6 +696,7 @@ window.OperationsView = (function($, OperationsView) {
 
     OperationsView.turnOffClickHandlers = function() {
         $(document).off('click.OpSection');
+        $(document).off('mousedown.mapCategoryListener');
     };
 
     OperationsView.close = function() {
@@ -800,6 +799,23 @@ window.OperationsView = (function($, OperationsView) {
             }
         }
 
+        if (operatorName === "map") {
+            $(document).on('mousedown.mapCategoryListener', function(e) {
+                var $target = $(e.target);
+                if (!$target.closest('.catFuncMenus').length &&
+                    !$target.is('#mapFilter')) {
+                    if ($categoryList.find('li.active').length && 
+                        $functionsList.find('li.active').length === 0) {
+                        var val = $('#mapFilter').val();
+                        var valTrimmed = val.trim();
+                        if (valTrimmed.length || val.length === 0) {
+                            filterTheMapFunctions(valTrimmed);
+                        }
+                    }
+                }
+            });
+        }
+
         $operationsView.find('.list').removeClass('hovering');
         enableInputs();
         formHelper.removeWaitingBG();
@@ -873,7 +889,8 @@ window.OperationsView = (function($, OperationsView) {
     // any function names in the array will not have column name as 1st argument
 
     var firstArgExceptions = {
-        'conditional functions': ['not']
+        'conditional functions': ['not'],
+        'conditional': ['not']
     };
 
     function populateInitialCategoryField(operator) {
@@ -1303,40 +1320,61 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // for map
-    function updateMapFunctionsList($li) {
-        var category = $li.text().trim().toLowerCase();
-        var isUDF = category.indexOf('user') === 0;
-
-        $li.siblings().removeClass('active');
-        $li.addClass('active');
-        // var index = categoryNames.indexOf(category);
-        
-        var categoryNum = $li.data('category');
-        var ops;
-        if ($('#mapFilter').val().trim() !== "") {
-            ops = filteredOperatorsMap[categoryNum];
-        } else {
-            ops = functionsMap[categoryNum];
-        }
-
-        var html = "";
-        var numOps = ops.length;
-        if (isUDF) {
-            for (var i = 0; i < numOps; i++) {
-                html += '<li class="textNoCap" data-container="body" ' +
-                'data-placement="right" data-toggle="tooltip" title="' +
-                ops[i].fnName + '">' + ops[i].fnName + '</li>';
+    function updateMapFunctionsList(filtered) {
+        var opsMap;
+        if (!filtered) {
+            var $li = $categoryList.find('.active');
+            var categoryNum = $li.data('category');
+            opsMap = {};
+            if ($('#mapFilter').val().trim() !== "") {
+                opsMap[categoryNum] = filteredOperatorsMap[categoryNum];
+            } else {
+                opsMap[categoryNum] = functionsMap[categoryNum];
             }
         } else {
-            for (var i = 0; i < numOps; i++) {
-                html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
+            opsMap = filteredOperatorsMap;
+        }
+        var html= "";
+        var filterVal = $('#mapFilter').val().trim();
+        var startsWith = "";
+        var includes = "";
+        for (var cat in opsMap) {
+            var ops = opsMap[cat];
+            if (parseInt(cat) === FunctionCategoryT.FunctionCategoryUdf) {
+                for (var i = 0; i < ops.length; i++) {
+                    li = '<li class="textNoCap" data-category="' + cat +
+                    '" data-container="body" ' +
+                    'data-placement="right" data-toggle="tooltip" title="' +
+                    ops[i].fnName + '">' + ops[i].fnName + '</li>';
+                    if (filterVal && 
+                        ops[i].fnName.toLowerCase().startsWith(filterVal)) {
+                        startsWith += li;
+                    } else {
+                        includes += li;
+                    }
+                }
+            } else {
+                for (var i = 0; i < ops.length; i++) {
+                    li = '<li class="textNoCap" data-category="' + cat + 
+                    '">' + ops[i].fnName + '</li>';
+                    if (filterVal && 
+                        ops[i].fnName.toLowerCase().startsWith(filterVal)) {
+                        startsWith += li;
+                    } else {
+                        includes += li;
+                    }
+                }
             }
         }
 
-        var $list = $(html);
+        var $startsWith = $(startsWith);
+        var $includes = $(includes);
+        $startsWith.sort(sortHTML);
+        $includes.sort(sortHTML);
+
         $functionsList.empty();
-        $list.prependTo($functionsList);
-        $functionsList.data('category', category);
+        $functionsList.append($startsWith);
+        $functionsList.append($includes);
 
         $activeOpSection.find('.argsSection')
                        .addClass('inactive');
@@ -1370,9 +1408,8 @@ window.OperationsView = (function($, OperationsView) {
         var $argsGroup = $activeOpSection.find('.group').eq(groupIndex);
 
         if (operatorName === "map" && $li) {
-            var $categoryLi = $categoryList.find('.active');
-            category = $categoryLi.text().trim().toLowerCase();
-            categoryNum = $categoryLi.data('category');
+            categoryNum = $li.data('category');
+            category = categoryNames[categoryNum];
             func = $li.text().trim();
         } else {
             categoryNum = 0;
@@ -1750,7 +1787,8 @@ window.OperationsView = (function($, OperationsView) {
                 } else if (xcHelper.hasValidColPrefix(arg)) {
                     arg = parseColPrefixes(arg);
                     if (operatorName !== "map" ||
-                        $categoryList.find('.active').text() !== "user-defined")
+                        $functionsList.find('.active').data('category') !==
+                        FunctionCategoryT.FunctionCategoryUdf)
                     {
                         type = getColumnTypeFromArg(arg);
                     }
@@ -2059,7 +2097,8 @@ window.OperationsView = (function($, OperationsView) {
                 // skip this type check if the function category is user defined
                 // function.
                 if (operatorName !== "map" ||
-                    $categoryList.find('.active').text().indexOf('user') !== 0)
+                    $functionsList.find('.active').data('category') !==
+                    FunctionCategoryT.FunctionCategoryUdf)
                 {
                     type = getColumnTypeFromArg(arg);
                 }
@@ -2388,7 +2427,8 @@ window.OperationsView = (function($, OperationsView) {
                 // skip this type check if the function category is user defined
                 // function.
                 if (operatorName !== "map" ||
-                    $categoryList.find('.active').text() !== "user-defined")
+                    $functionsList.find('.active').data('category') !==
+                    FunctionCategoryT.FunctionCategoryUdf)
                 {
                     var types;
                     if (tempColNames.length > 1 &&
@@ -3887,6 +3927,9 @@ window.OperationsView = (function($, OperationsView) {
         var firstCategoryNumFound;
         val = val.toLowerCase();
         for (var i = 0; i < operatorsMap.length; i++) {
+            if (i === FunctionCategoryT.FunctionCategoryAggregate) {
+                continue;
+            }
             categorySet = operatorsMap[i];
             for (var j = 0; j < categorySet.length; j++) {
                 fn = categorySet[j];
@@ -3909,10 +3952,20 @@ window.OperationsView = (function($, OperationsView) {
                 $categoryList.find('li[data-category="' + i + '"]')
                              .removeClass('filteredOut');
             }
-            updateMapFunctionsList($categoryList.find('li:visible').eq(0));
+
+            updateMapFunctionsList(true);
         } else {
             $categoryList.find('li').addClass('filteredOut');
             $functionsList.find('li').addClass('filteredOut');
+            $activeOpSection.find('.argsSection')
+                       .addClass('inactive');
+            $operationsView.find('.icvMode').addClass('inactive');
+            $activeOpSection.find('.descriptionText').empty();
+            $operationsView.find('.strPreview').empty();
+        }
+        $categoryList.find('li').removeClass('active');
+        if (Object.keys(categoryNums).length === 1) {
+            $categoryList.find('li:visible').eq(0).addClass('active');
         }
     }
 
