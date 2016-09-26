@@ -47,9 +47,10 @@ window.UExtDev = (function(UExtDev) {
         },
         {
             "type"      : "string",
-            "name"      : "Join Type(leftOuter,rightOuter,inner,fullOuter)",
+            "name"      : "Join Type",
             "fieldClass": "joinType",
             "autofill"  : "innerJoin",
+            "enums"     : ["leftouter", "rightOuter", "innerJoin", "fullOuter"],
             "typeCheck" : {
                 "allowEmpty": true
             }
@@ -241,6 +242,7 @@ window.UExtDev = (function(UExtDev) {
                 for (key in rightObj) {
                     rightRowsCovered += rightObj[key];
                 }
+
                 for (key in leftObj) {
                     if (key in rightObj) {
                         maxSum += leftObj[key] * rightObj[key];

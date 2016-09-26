@@ -719,7 +719,7 @@ window.DS = (function ($, DS) {
                     '</span>' +
                     " / " + path;
         }
-        
+
         $("#dsListSection .pathSection").html(path);
     }
 

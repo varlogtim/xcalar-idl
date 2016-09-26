@@ -190,7 +190,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     ExtensionManager.openView = function(colNum, tableId) {
         if (colNum != null && tableId != null) {
             var table = gTables[tableId];
-            var progCol = gTables[tableId].getCol(colNum);
             triggerCol = table.getCol(colNum);
             $extTriggerTableDropdown.find(".text").val(table.getName());
         }
@@ -331,8 +330,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     }
 
                     Transaction.done(txId, {
-                        "msgTable": xcHelper.getTableId(finalTableName),
-                        "sql"     : sql,
+                        "msgTable"      : xcHelper.getTableId(finalTableName),
+                        "sql"           : sql,
                         "noNotification": options.noNotification
                     });
                     deferred.resolve(runBeforeStartRet);
@@ -410,8 +409,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
 
                 Transaction.done(txId, {
-                    "msgTable": finalTableId,
-                    "sql"     : sql,
+                    "msgTable"      : finalTableId,
+                    "sql"           : sql,
                     "noNotification": options.noNotification
                 });
 
@@ -661,7 +660,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function updateArgs(modName, fnName, fnText) {
-
         var animating = false;
         if (!$extOpsView.hasClass("hasArgs")) {
             $extOpsView.addClass("hasArgs");
@@ -690,104 +688,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         if (extMap[modName]._configParams.notTableDependent) {
-            $extArgs.find(".tableSection").hide();
+            $extArgs.find(".tableSection").addClass("xc-hidden");
         } else {
-            $extArgs.find(".tableSection").show();
+            $extArgs.find(".tableSection").removeClass("xc-hidden");
         }
 
         var args = extMap[modName][fnName] || [];
         var html = "";
         for (var i = 0, len = args.length; i < len; i++) {
-            var inputType = "text";
-            var inputVal = "";
-            var inputHint = "";
-            var argType = args[i].type;
-            var inputClasses = "";
-
-            if (argType === "table") {
-                html +=
-                    '<div class="field">' +
-                        '<div class="desc">' +
-                            args[i].name +
-                            '<div class="focusTable xc-action">' +
-                                '<i class="icon xi-show fa-16"></i>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="inputWrap">' +
-                            '<div class="dropDownList argDropdown">' +
-                                '<input class="argument type-table text ' +
-                                'dropdownInput" disabled>' +
-                                '<div class="iconWrapper">' +
-                                    '<i class="icon xi-arrow-down"></i>' +
-                                '</div>' +
-                                '<div class="list">' +
-                                    tableList +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-            } else if (argType === "boolean") {
-                if (args[i].autofill === true || args[i].autofill === false) {
-                    inputVal = args[i].autofill;
-                }
-
-                html +=
-                    '<div class="field">' +
-                        '<div class="desc">' +
-                            args[i].name +
-                        '</div>' +
-                        '<div class="inputWrap">' +
-                            '<div class="dropDownList argDropdown">' +
-                                '<input class="argument type-boolean text ' +
-                                'dropdownInput" value="' + inputVal + '" disabled>' +
-                                '<div class="iconWrapper">' +
-                                    '<i class="icon xi-arrow-down"></i>' +
-                                '</div>' +
-                                '<div class="list">' +
-                                    '<ul>' +
-                                        '<li>true</li>' +
-                                        '<li>false</li>' +
-                                    '</ul>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-            } else {
-                if (argType === "number") {
-                    inputType = "number";
-                } else {
-                    if (argType === "column") {
-                        if (args[i].autofill && triggerCol != null) {
-                            inputVal = gColPrefix + triggerCol.getFrontColName();
-                        }
-                        if (args[i].typeCheck.multiColumn) {
-                            inputClasses += " multiColumn";
-                        }
-                    } else {
-                        if (args[i].autofill != null) {
-                            inputVal = args[i].autofill;
-                        }
-                    }
-                }
-
-                html +=
-                    '<div class="field">' +
-                        '<div class="desc">' +
-                            args[i].name +
-                        '</div>' +
-                        '<div class="inputWrap">' +
-                            '<input class="argument type-' + argType +
-                             inputClasses +'"' +
-                            ' type="' + inputType + '"' +
-                            ' value="' + inputVal + '"' +
-                            ' placeholder="' + inputHint + '"' +
-                            ' spellcheck="false">' +
-                            '<div class="picker">' +
-                                '<i class="icon fa-13 xi_select-column"></i>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-            }
+            html += getArgHtml(args[i], tableList);
         }
 
         var $argSection = $extArgs.find(".argSection");
@@ -796,7 +705,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         new MenuHelper($argSection.find(".dropDownList"), {
             "onSelect": function($li) {
                 $li.closest(".dropDownList").find("input").val($li.text());
-            }
+            },
+            "container": "#extension-ops .argSection",
+            "bounds"   : "#extension-ops .argSection"
         }).setupListeners();
         formHelper.refreshTabbing();
         if (animating) {
@@ -806,6 +717,118 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         } else {
             focusOnAvailableInput($argSection.find('input'));
         }
+    }
+
+    function getArgHtml(arg, tableList) {
+        var inputType = "text";
+        var inputVal = "";
+        var argType = arg.type;
+        var inputClass = "argument type-" + argType;
+        // for dropdowns
+        var isDropdown = false;
+        var list = "";
+        var descIcon = "";
+
+        if (argType === "table") {
+            isDropdown = true;
+            descIcon = '<div class="focusTable xc-action">' +
+                            '<i class="icon xi-show fa-16"></i>' +
+                        '</div>';
+            list = tableList;
+        } else if (argType === "boolean") {
+            isDropdown = true;
+
+            if (arg.autofill === true || arg.autofill === false) {
+                inputVal = arg.autofill;
+            }
+
+            list = '<ul>' +
+                        '<li>true</li>' +
+                        '<li>false</li>' +
+                    '</ul>';
+        } else if (argType === "column") {
+            if (arg.autofill && triggerCol != null) {
+                inputVal = gColPrefix + triggerCol.getFrontColName();
+            }
+
+            if (arg.typeCheck.multiColumn) {
+                inputClass += " multiColumn";
+            }
+        } else {
+            if (argType === "number") {
+                inputType = "number";
+            } else if (arg.autofill != null) {
+                // when it's string
+                inputVal = arg.autofill;
+            }
+
+            if (arg.enums != null && arg.enums instanceof Array) {
+                isDropdown = true;
+                list = '<ul>';
+
+                arg.enums.forEach(function(val) {
+                    list += '<li>' + val + '</li>';
+                });
+
+                list += '</ul>';
+                if (inputVal !== "" && !arg.enums.includes(inputVal)) {
+                    // when has invalid auto value
+                    inputVal = "";
+                }
+            }
+        }
+
+        var html;
+        if (isDropdown) {
+            // generate dropdown
+            inputClass += " text dropdownInput";
+            html =
+                '<div class="field">' +
+                    '<div class="desc">' +
+                        arg.name +
+                        descIcon +
+                    '</div>' +
+                    '<div class="inputWrap">' +
+                        '<div class="dropDownList argDropdown">' +
+                            '<input class="' + inputClass +'"' +
+                            ' value="' + inputVal + '"' +
+                            ' spellcheck="false"' +
+                            ' disabled>' +
+                            '<div class="iconWrapper">' +
+                                '<i class="icon xi-arrow-down"></i>' +
+                            '</div>' +
+                            '<div class="list">' +
+                                list +
+                                '<div class="scrollArea top">' +
+                                    '<div class="arrow"></div>' +
+                                '</div>' +
+                                '<div class="scrollArea bottom">' +
+                                    '<div class="arrow"></div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        } else {
+            // generate input
+            html =
+                '<div class="field">' +
+                    '<div class="desc">' +
+                        arg.name +
+                    '</div>' +
+                    '<div class="inputWrap">' +
+                        '<input class="' + inputClass +'"' +
+                        ' type="' + inputType + '"' +
+                        ' value="' + inputVal + '"' +
+                        ' spellcheck="false">' +
+                        '<div class="picker">' +
+                            '<i class="icon fa-13 xi_select-column"></i>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        return html;
     }
 
     function storeExtConfigParams() {
