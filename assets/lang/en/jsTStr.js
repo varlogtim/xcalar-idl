@@ -225,6 +225,7 @@ ErrWRepTStr = {
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
+    'InvalidColOnTable': 'Column "<col>" does not exist in table <table>.',
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
     'InvalidColType': 'Column "<name>" has an invalid type: <type>',
     'NoLessNum': 'Please enter a value bigger than or equal to <num>',

@@ -272,7 +272,6 @@ window.DFGCard = (function($, DFGCard) {
 
     function drawDags(groupName) {
             // This is a uploaded dataflow
-            // debugger;
             var deferred = jQuery.Deferred();
             html = '<div class="dagWrap clearfix">' +
                         '<div class="header clearfix">' +

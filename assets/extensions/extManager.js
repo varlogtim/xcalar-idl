@@ -872,7 +872,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extTriggerTableDropdown.find(".text").val("");
     }
 
-    function getArgList(modName, fnName, tableId) {
+    function getArgList(modName, fnName, extTableId) {
         var argList = {};
         var $arguments = $extOpsView.find(".extArgs .argument");
         var args = extMap[modName][fnName];
@@ -880,12 +880,31 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         $arguments.each(function(i) {
             var argInfo = args[i];
-            var res = checkArg(argInfo, $(this), tableId);
-            if (!res.valid) {
-                invalidArg = true;
-                return false;
+            // check type column later
+            if (argInfo.type !== "column") {
+                var res = checkArg(argInfo, $(this));
+                if (!res.valid) {
+                    invalidArg = true;
+                    return false;
+                }
+                argList[argInfo.fieldClass] = res.arg;
             }
-            argList[argInfo.fieldClass] = res.arg;
+        });
+
+        if (invalidArg) {
+            return null;
+        }
+        // check col names
+        $arguments.each(function(i) {
+            var argInfo = args[i];
+            if (argInfo.type === "column") {
+                var res = checkArg(argInfo, $(this), extTableId, argList);
+                if (!res.valid) {
+                    invalidArg = true;
+                    return false;
+                }
+                argList[argInfo.fieldClass] = res.arg;
+            }
         });
 
         if (invalidArg) {
@@ -895,7 +914,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
     }
 
-    function checkArg(argInfo, $input, tableId) {
+    function checkArg(argInfo, $input, extTableId, argList) {
         var arg;
         var argType = argInfo.type;
         var typeCheck = argInfo.typeCheck || {};
@@ -949,13 +968,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return { "vaild": false };
             }
 
-            arg = getColInfo(arg, typeCheck.columnType, $input, tableId);
+            arg = getColInfo(arg, typeCheck, $input, extTableId, argList);
             if (arg == null) {
-                return { "vaild": false };
-            } else if (!typeCheck.multiColumn &&
-                        arg instanceof Array &&
-                        arg.length > 0) {
-                StatusBox.show(ErrTStr.NoMultiCol, $input);
                 return { "vaild": false };
             }
 
@@ -1004,44 +1018,81 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         };
     }
 
-    function getColInfo(arg, validType, $input, exTableId) {
+    function getColInfo(arg, typeCheck, $input, extTableId, argList) {
         arg = arg.replace(/\$/g, '');
+
+        var validType = typeCheck.validType;
         var tempColNames = arg.split(",");
-        // var backColNames = "";
-        var table = gTables[exTableId];
+        var colLen = tempColNames.length;
         var cols = [];
         var error;
+
+        if (!typeCheck.multiColumn && colLen > 1) {
+            StatusBox.show(ErrTStr.NoMultiCol, $input);
+            return null;
+        }
 
         if (validType != null && !(validType instanceof Array)) {
             validType = [validType];
         }
 
-        for (var i = 0, len = tempColNames.length; i < len; i++) {
-            var progCol = table.getColByFrontName(tempColNames[i].trim());
-            if (progCol != null) {
-                var colType = progCol.getType();
-                var type = colType;
-                if (colType === "integer" || colType === "float") {
-                    type = "number";
+        for (var i = 0, len = colLen; i < len; i++) {
+            var shouldCheck = true;
+            var tableId;
+            if (typeCheck.tableField != null) {
+                var tableArg = argList[typeCheck.tableField];
+                if (tableArg != null) {
+                    tableId = xcHelper.getTableId(tableArg.getName());
+                } else {
+                    // invalid table filed, not checking
+                    shouldCheck = false;
                 }
+            } else {
+                // if not specify table id, then use extTableId
+                tableId = extTableId;
+            }
 
-                if (validType != null && validType.indexOf(type) < 0) {
-                    error = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
-                        "type1": validType.join(","),
-                        "type2": type
+            if (!gTables.hasOwnProperty(tableId)) {
+                // invalid table, not checking
+                // Note: this can allow the skip of col checking if
+                // specify tableFiled to be empty string
+                shouldCheck = false;
+            }
+
+            var colName = tempColNames[i].trim();
+            if (shouldCheck) {
+                var table = gTables[tableId];
+                var progCol = table.getColByFrontName(colName);
+                if (progCol != null) {
+                    var colType = progCol.getType();
+                    var type = colType;
+                    if (progCol.isNumberCol()) {
+                        type = "number";
+                    }
+
+                    if (validType != null && validType.indexOf(type) < 0) {
+                        error = ErrWRepTStr.InvalidOpsType;
+                        error = xcHelper.replaceMsg(error, {
+                            "type1": validType.join(","),
+                            "type2": type
+                        });
+                        StatusBox.show(error, $input);
+                        return null;
+                    }
+
+                    var backColName = progCol.getBackColName();
+                    cols.push(new XcSDK.Column(backColName, colType));
+                } else {
+                    error = xcHelper.replaceMsg(ErrWRepTStr.InvalidColOnTable, {
+                        "col"  : colName,
+                        "table": table.getName()
                     });
                     StatusBox.show(error, $input);
                     return null;
                 }
-
-                var backColName = progCol.getBackColName();
-                cols.push(new XcSDK.Column(backColName, colType));
             } else {
-                error = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                    "name": tempColNames[i]
-                });
-                StatusBox.show(error, $input);
-                return null;
+                // when not do any checking
+                cols.push(new XcSDK.Column(colName));
             }
         }
 

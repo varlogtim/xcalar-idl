@@ -42,7 +42,8 @@ window.UExtDev = (function(UExtDev) {
             "name"      : "Right Column",
             "fieldClass": "rCol",
             "typeCheck" : {
-                "multiColumn": true
+                "multiColumn": true,
+                "tableField" : "rTable"
             }
         },
         {
@@ -305,9 +306,20 @@ window.UExtDev = (function(UExtDev) {
                     });
                 }
             })
-            .fail(function(leftError, rightError) {
-                console.log(leftError, rightError);
-                deferred.reject(leftError, rightError);
+            .fail(function() {
+                var error = null;
+                for (var i = 0; i < arguments.length; i++) {
+                    var arg = arguments[i];
+                    if (arg != null &&
+                        typeof arg === "object" &&
+                        !(arg instanceof Array)) {
+                        error = arg;
+                        break;
+                    }
+                }
+
+                console.log(error);
+                deferred.reject(error);
             });
 
             return deferred.promise();
