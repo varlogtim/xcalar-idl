@@ -762,6 +762,9 @@ input {
 /* Search Inputs */
 
 .searchbarArea {
+    .position(relative);
+    .input-box (100%, 25px);
+
     .counter {
         .position(absolute, @top: 5px, @right: 79px);
         .size (@height: 30px);
@@ -806,6 +809,21 @@ input {
         }
         .downArrow .icon {
             margin-left: 2px;
+        }
+    }
+
+    .closeBox {
+        .size(19px, 19px);
+        .position(absolute, @top: 5px, @right: 58px);
+        text-align: center;
+        line-height: 16px;
+        opacity: @opacity-unhover;
+
+        .icon {
+            margin-top: 1px;
+            font-size: 14px;
+            color: @color-bg-99-grey;
+            line-height: 16px;
         }
     }
 }

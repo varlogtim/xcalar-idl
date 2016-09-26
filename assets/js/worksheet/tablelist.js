@@ -93,7 +93,7 @@ window.TableList = (function($, TableList) {
         $("#orphanedTableList .refresh").click(function() {
             var $section = $("#orphanedTableList");
             searchHelper.clearSearch(function() {
-                clearTableListFilter($section, null);
+                clearTableListFilter($section);
             });
             $section.find(".clearAll").click();
             TableList.refreshOrphanList(true);

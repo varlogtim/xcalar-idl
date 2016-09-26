@@ -287,6 +287,11 @@ module.exports = {
         "save": "Last Saved On",
         "create": "Created On",
         "EC": "Establishing Connection",
+        "adminText": "This is what Xcalar Insight looks like to"
+    },
+
+    "admin": {
+      "searchUser": "Search users"
     },
 
     "ws": {
@@ -374,6 +379,8 @@ module.exports = {
         "TotalTime": "Total Time",
         "Uninstall": "Uninstall",
         "Upgrade": "Upgrade",
+        "UseAs": "Use Xcalar As",
+        "Users": "Users",
         "UserSettings": "User Settings",
         "UTotal": "User Total",
         "VIEWOUTPUT": "VIEW OUTPUT",
