@@ -26,7 +26,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var historyPath;
     var curFiles = [];
     var allFiles = [];
-    var sortKey  = defaultSortKey;
+    var sortKey = defaultSortKey;
     var sortRegEx;
     var reverseSort = false;
 
@@ -123,8 +123,9 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // click on title to sort
-        $fileBrowserMain.on("click", ".title", function(event) {
-            var $title = $(this);
+        var titleLabel = ".title .label, .title .xi-sort";
+        $fileBrowserMain.on("click", titleLabel, function(event) {
+            var $title = $(this).closest(".title");
 
             event.stopPropagation();
             if ($fileBrowser.hasClass('unsortable')) {

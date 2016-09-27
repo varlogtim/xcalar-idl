@@ -14,7 +14,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         $modalBg = $("#modalBackground");
         reset();
 
-        var minWidth  = 520;
+        var minWidth = 520;
         var minHeight = 500;
 
         modalHelper = new ModalHelper($modal, {
@@ -61,7 +61,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         });
 
         // click title to sort
-        $modal.on("click", ".title .xi-sort", function() {
+        $modal.on("click", ".title .label, .title .xi-sort", function() {
             var $title = $(this).closest(".title");
             var sortKey = $title.data("sortkey");
             var $section = $title.closest(".section");
@@ -169,6 +169,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         modalHelper.disableSubmit();
         PromiseHelper.when(orphanDef, archivedDef, activeDef)
+        .then(function() {
+            xcHelper.showRefreshIcon($modal);
+        })
         .fail(function(error1, error2, error3) {
             var error = error1 || error2 || error3;
             // XXX TODO: well handle the error
@@ -310,6 +313,14 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 var nameB = b.getName();
                 var sizeA = tableSizeMap[nameA];
                 var sizeB = tableSizeMap[nameB];
+                if (sizeA === unknown) {
+                    sizeA = null;
+                }
+
+                if (sizeB === unknown) {
+                    sizeB = null;
+                }
+
                 if (sizeA == null && sizeB == null) {
                     return 0;
                 } else if (sizeA == null) {
@@ -324,6 +335,14 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             tableList.sort(function(a, b) {
                 var tA = a.getTimeStamp();
                 var tB = b.getTimeStamp();
+                if (tA === unknown) {
+                    tA = null;
+                }
+
+                if (tB === unknown) {
+                    tB = null;
+                }
+
                 if (tA == null && tB == null) {
                     return 0;
                 } else if (tA == null) {
