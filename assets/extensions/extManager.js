@@ -704,14 +704,18 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         var $argSection = $extArgs.find(".argSection");
         $argSection.html(html);
+        $argSection.find(".dropDownList").each(function() {
+            var $list = $(this);
+            // should add one by one or the scroll will not work
+            new MenuHelper($list, {
+                "onSelect": function($li) {
+                    $li.closest(".dropDownList").find("input").val($li.text());
+                },
+                "container": "#extension-ops .argSection",
+                "bounds"   : "#extension-ops .argSection"
+            }).setupListeners();
+        });
 
-        new MenuHelper($argSection.find(".dropDownList"), {
-            "onSelect": function($li) {
-                $li.closest(".dropDownList").find("input").val($li.text());
-            },
-            "container": "#extension-ops .argSection",
-            "bounds"   : "#extension-ops .argSection"
-        }).setupListeners();
         formHelper.refreshTabbing();
         if (animating) {
             setTimeout(function() {
@@ -745,10 +749,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 inputVal = arg.autofill;
             }
 
-            list = '<ul>' +
-                        '<li>true</li>' +
-                        '<li>false</li>' +
-                    '</ul>';
+            list = '<li>true</li>' +
+                    '<li>false</li>';
         } else if (argType === "column") {
             if (arg.autofill && triggerCol != null) {
                 inputVal = gColPrefix + triggerCol.getFrontColName();
@@ -767,13 +769,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             if (arg.enums != null && arg.enums instanceof Array) {
                 isDropdown = true;
-                list = '<ul>';
 
                 arg.enums.forEach(function(val) {
                     list += '<li>' + val + '</li>';
                 });
 
-                list += '</ul>';
                 if (inputVal !== "" && !arg.enums.includes(inputVal)) {
                     // when has invalid auto value
                     inputVal = "";
@@ -801,7 +801,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                                 '<i class="icon xi-arrow-down"></i>' +
                             '</div>' +
                             '<div class="list">' +
-                                list +
+                                '<ul>' +
+                                    list +
+                                '</ul>' +
                                 '<div class="scrollArea top">' +
                                     '<div class="arrow"></div>' +
                                 '</div>' +

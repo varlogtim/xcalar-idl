@@ -3445,6 +3445,8 @@ MenuHelper.prototype = {
                 $(this).removeClass("hover");
             }
         }, ".list li");
+
+        return this;
     },
     hideDropdowns: function() {
         var $sections = this.$container.find(".dropDownList");
