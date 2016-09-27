@@ -877,7 +877,8 @@ window.DSPreview = (function($, DSPreview) {
         var $udfArgs = $("#udfArgs").removeClass("xc-hidden");
         var $headerRow = $headerCheckBox.parent().removeClass("xc-hidden");
         var $quoteRow = $quote.closest(".row").removeClass("xc-hidden");
-        var $skipRows = $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
+        var $skipRows = $("#dsForm-skipRows").closest(".row")
+                                             .removeClass("xc-hidden");
 
         if (format == null) {
             // reset case
@@ -998,7 +999,8 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
-        var $loadHiddenSection = $previeWrap.find(".loadHidden").addClass("hidden");
+        var $loadHiddenSection = $previeWrap.find(".loadHidden")
+                                            .addClass("hidden");
         var $waitSection = $previeWrap.find(".waitSection")
                                     .removeClass("hidden");
         $previeWrap.find(".errorSection").addClass("hidden");
@@ -1148,7 +1150,8 @@ window.DSPreview = (function($, DSPreview) {
                 if (loadError) {
                     error += '\n' + loadError;
                 } else {
-                    // XXX temporary code, after change to XcalarPreview, remove it
+                    // XXX temporary code, after change to XcalarPreview,
+                    // remove it
                     error += '\n' + DSTStr.NoRecrodsHint;
                 }
 

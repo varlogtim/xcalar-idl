@@ -466,7 +466,9 @@ window.DSCart = (function($, DSCart) {
             return;
         }
         $loadingBar.addClass('inProgress goingToFull');
-        $loadingBar.stop().animate({"width": '100%'}, intervalTime, "linear", function() {
+        $loadingBar
+        .stop()
+        .animate({"width": '100%'}, intervalTime, "linear", function() {
             $loadingBar.removeClass('inProgress goingToFull');
             $loadingBar.addClass('full');
             endBarAnimation();
@@ -488,7 +490,9 @@ window.DSCart = (function($, DSCart) {
         }
         $loadingBar.addClass('inProgress');
 
-        $loadingBar.stop().animate({"width": pct + '%'}, intervalTime, "linear", function() {
+        $loadingBar
+        .stop()
+        .animate({"width": pct + '%'}, intervalTime, "linear", function() {
             $loadingBar.removeClass('inProgress');
             if (pct === 100) {
                 $loadingBar.addClass('full');
@@ -532,17 +536,17 @@ window.DSCart = (function($, DSCart) {
 
             var escapedVal = xcHelper.escapeHTMlSepcialChar(value);
             html +=
-                '<li data-colnum="' + colNum + '">' +
-                    '<div class="itemWrap type-' + type + '">' +
-                        '<span class="iconWrap">' +
-                            '<i class="center icon fa-16 xi-' + type + '"></i>' +
-                        '</span>' +
-                        '<span class="colName textOverflow">' +
-                            escapedVal +
-                        '</span>' +
-                    '</div>' +
-                    '<i class="removeCol icon xi-trash xc-action fa-15"></i>' +
-                '</li>';
+            '<li data-colnum="' + colNum + '">' +
+                '<div class="itemWrap type-' + type + '">' +
+                    '<span class="iconWrap">' +
+                        '<i class="center icon fa-16 xi-' + type + '"></i>' +
+                    '</span>' +
+                    '<span class="colName textOverflow">' +
+                        escapedVal +
+                    '</span>' +
+                '</div>' +
+                '<i class="removeCol icon xi-trash xc-action fa-15"></i>' +
+            '</li>';
             cart.addItem(item);
         }
 

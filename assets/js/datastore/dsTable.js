@@ -30,7 +30,8 @@ window.DSTable = (function($, DSTable) {
             return PromiseHelper.reject("No DS");
         }
 
-        // only show buttons(select all, clear all, etc) when table can be disablyed
+        // only show buttons(select all, clear all, etc)
+        // when table can be disablyed
         var $dsColsBtn = $("#dsColsBtn");
         var notLastDSError = "not last ds";
 
@@ -73,8 +74,8 @@ window.DSTable = (function($, DSTable) {
         dsObj.fetch(0, initialNumRowsToFetch)
         .then(function(result) {
             if (lastDSToSample !== datasetName) {
-                // when network is slow and user trigger another get sample table
-                // code will goes here
+                // when network is slow and user trigger another
+                // get sample table code will goes here
                 return PromiseHelper.reject(notLastDSError);
             }
 
@@ -301,13 +302,11 @@ window.DSTable = (function($, DSTable) {
     }
 
     function parseSampleData(result) {
-        var deferred = jQuery.Deferred();
-
         if (!result) {
-            deferred.reject({"error": DSTStr.NoRecords});
-            return deferred.promise();
+            return PromiseHelper.reject({"error": DSTStr.NoRecords});
         }
 
+        var deferred = jQuery.Deferred();
         var value;
         var json;
         var uniqueJsonKey = {}; // store unique Json key

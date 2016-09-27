@@ -262,8 +262,8 @@ window.DS = (function ($, DS) {
     // Rename dsObj
     DS.rename = function(dsId, newName) {
         // now only for folders (later also rename datasets?)
-        var dsObj   = DS.getDSObj(dsId);
-        var $label  = DS.getGrid(dsId).find("> .label");
+        var dsObj = DS.getDSObj(dsId);
+        var $label = DS.getGrid(dsId).find("> .label");
         var oldName = dsObj.getName();
 
         if (newName === oldName || newName === "") {
@@ -293,7 +293,8 @@ window.DS = (function ($, DS) {
         }
         // now only check dataset name conflict
         var user = Support.getUser();
-        var $ds = $gridView.find('.grid-unit[data-dsname="' + dsName + '"]').filter(function() {
+        var $grid = $gridView.find('.grid-unit[data-dsname="' + dsName + '"]');
+        var $ds = $grid.filter(function() {
             // only check the dataset in user's namespace
             return $(this).data("user") === user;
         });
@@ -312,7 +313,7 @@ window.DS = (function ($, DS) {
 
     // Remove dataset/folder
     DS.remove = function($grid) {
-        xcHelper.assert(($grid != null && $grid.length !== 0), "Invalid remove of ds");
+        xcHelper.assert(($grid != null && $grid.length !== 0));
 
         var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
@@ -699,8 +700,8 @@ window.DS = (function ($, DS) {
                     name = dsObj.getName();
                 } else {
                     name = '<span class="path" data-dir="' + dirId + '">' +
-                            dsObj.getName() +
-                        '</span>';
+                                dsObj.getName() +
+                            '</span>';
                 }
             } else {
                 name = '...';
@@ -1181,7 +1182,8 @@ window.DS = (function ($, DS) {
         }
         $label.addClass("focused");
         var name = $label.data("dsname");
-        $label.html('<textarea spellcheck="false">' + name + '</textarea>').focus();
+        var html = '<textarea spellcheck="false">' + name + '</textarea>';
+        $label.html(html).focus();
 
         // select all text
         var $textarea = $label.find("textarea").select();
@@ -1464,7 +1466,8 @@ window.DS = (function ($, DS) {
 
     // Helper function for drag over event
     DS.allowDrop = function(event) {
-        // call the event.preventDefault() method for the ondragover allows a drop
+        // call the event.preventDefault() method for
+        // the ondragover allows a drop
         event.preventDefault();
     };
 

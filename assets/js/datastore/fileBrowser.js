@@ -6,7 +6,6 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $pathSection;     // $("#fileBrowserPath")
     var $pathLists;       // $("#fileBrowserPathMenu")
-    var $pathText;        // $pathSection.find(".text")
     var $visibleFiles;   // will hold nonhidden files
 
     var fileBrowserId;
@@ -39,7 +38,6 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileBrowserMain = $("#fileBrowserMain");
         $pathSection = $("#fileBrowserPath");
         $pathLists = $("#fileBrowserPathMenu");
-        $pathText = $pathSection.find(".text");
         $visibleFiles = $();
         if (!window.isBrowseChrome) {
             lowerFileLimit = 600;
@@ -327,8 +325,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
     // this should only be called if browser is Chrome
     function showScrolledFiles() {
-
         $innerContainer.height(getScrollHeight());
+
         var scrollTop = $container.scrollTop();
         var rowNum;
         var startIndex;
@@ -460,11 +458,16 @@ window.FileBrowser = (function($, FileBrowser) {
         return String($grid.find('.label').data("name"));
     }
 
+    function setPath(path) {
+        path = path || "";
+        $pathSection.find(".text").val(path);
+    }
+
     function appendPath(path, noPathUpdate) {
         var shortPath = getShortPath(path);
 
         if (!noPathUpdate) {
-            $pathText.val(shortPath);
+            setPath(shortPath);
         }
 
         $pathLists.prepend('<li>' + path + '</li>');
@@ -473,7 +476,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function clear(isALL) {
         if (isALL) {
             $("#fileBrowserUp").addClass("disabled");
-            $pathText.val("");
+            setPath("");
             $pathLists.empty();
             // performance when there's 1000+ files, is the remove slow?
             $container.removeClass("manyFiles");
@@ -525,8 +528,9 @@ window.FileBrowser = (function($, FileBrowser) {
         appendPath(path);
 
         var html = '<div class="error">' +
-                    '<div>' + error.error + '</div>' +
-                    '<div>' + DSTStr.DSSourceHint + '</div>';
+                        '<div>' + error.error + '</div>' +
+                        '<div>' + DSTStr.DSSourceHint + '</div>' +
+                    '</div>';
         $innerContainer.html(html);
         $innerContainer.height(getScrollHeight());
         $container.removeClass('manyFiles');
@@ -557,7 +561,8 @@ window.FileBrowser = (function($, FileBrowser) {
         }
         if (!isValidProtocol) {
             // for any edage case, use default file protocol
-            console.warn("Unsupported file path extension? Defaulting to", FileProtocol.nfs);
+            console.warn("Unsupported file path extension? Defaulting to",
+                         FileProtocol.nfs);
             protocol = FileProtocol.nfs;
         }
 
@@ -648,7 +653,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         listFiles(path)
         .then(function() {
-            $pathText.val(getShortPath(path));
+            setPath(getShortPath(path));
             $pathLists.find("li").removeClass("select");
             $newPath.addClass("select");
             // remove all previous siblings
@@ -795,7 +800,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function oversizeHandler() {
         var html = '<div class="error">' +
-                    '<div>' + 'Too many files in the folder, cannot read' + '</div>' +
+                    '<div>' + DSTStr.FileOversize + '</div>' +
                    '</div>';
         $innerContainer.html(html);
         $innerContainer.height(getScrollHeight());
@@ -1275,14 +1280,14 @@ window.FileBrowser = (function($, FileBrowser) {
 
                 $container.scrollTop(newScrollTop);
                 showScrolledFiles();
-                // browser's auto scrolling will be triggered here but will return when
-                // it finds that $container has class noscrolling;
+                // browser's auto scrolling will be triggered here
+                // but will return when it finds that $container
+                // has class noscrolling;
                 setTimeout(function() {
                     $container.removeClass('noScrolling');
                 });
             }
         } else {
-
             var iconOffsetTop = $icon.position().top;
             var iconBottom = iconOffsetTop + iconHeight;
 
