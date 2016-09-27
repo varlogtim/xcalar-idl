@@ -410,15 +410,14 @@
     .extArgs {
         display: none;
         .size(@height: 0);
-        padding: 10px 0;
+        padding: 0;
         overflow-x: hidden;
         overflow-y: auto;
 
         .titleSection {
-            .size(@height: 20px);
+            .size(@height: 30px);
             font-weight: 700;
-            padding-left: 20px;
-            padding-right: 5px;
+            padding: 10px 5px 0 20px;
 
             .title {
                 .size(@width: ~"calc(100% - 20px)");
@@ -473,7 +472,7 @@
         }
 
         .argSection {
-            .size(@min-height: ~"calc(100% - 130px)");
+            .size(@min-height: ~"calc(100% - 150px)");
             // overflow-x: hidden;
             // overflow-y: auto;
             .font(@size: 12px);
@@ -538,8 +537,8 @@
         }
 
         .bottomSection {
-            padding: 7px 0;
-            .size(@height: 50px);
+            padding: 12px 0;
+            .size(@height: 60px);
 
             .btn {
                 display: block;
