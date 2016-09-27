@@ -1877,7 +1877,7 @@ DFGObj.prototype = {
         var retinsNodes = this.retinaNodes;
 
         for (var dagNodeId in retinsNodes) {
-            var dagQuery = retinsNodes[dagNodeId].paramQuery;
+            var dagQuery = retinsNodes[dagNodeId].paramQuery || [];
             for (var i = 0, len = dagQuery.length; i < len; i++) {
                 if (dagQuery[i].indexOf(str) >= 0) {
                     return (true);

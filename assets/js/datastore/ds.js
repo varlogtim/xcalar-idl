@@ -1037,11 +1037,16 @@ window.DS = (function ($, DS) {
                 }
             },
             // make textarea's height flexible
-            'keyup': function() {
+            "keyup": function() {
                 var textarea = $(this).get(0);
                 // with this, textarea can back to 15px when do delete
                 textarea.style.height = "15px";
                 textarea.style.height = (textarea.scrollHeight) + "px";
+            },
+
+            "click": function(event) {
+                // make text are able to click
+                event.stopPropagation();
             },
 
             "blur": function() {
