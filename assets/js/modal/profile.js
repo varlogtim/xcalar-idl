@@ -99,12 +99,12 @@ window.Profile = (function($, Profile, d3) {
         // show tootip in barArea and do not let in blink in padding
         $modal.on("mouseover", ".barArea", function(event) {
             event.stopPropagation();
-            resetTooltip();
+            var rowToHover = null;
             // XXX FIXME g tag can not use addClass, fix it if it's not true
             if (!$modal.hasClass("drawing")) {
-                $(this).attr("class", $(this).attr("class") + " hover")
-                    .tooltip("show");
+                rowToHover = d3.select(this).attr("data-rowNum");
             }
+            resetTooltip(rowToHover);
         });
 
         // only trigger in padding area btw bars
@@ -112,7 +112,9 @@ window.Profile = (function($, Profile, d3) {
             event.stopPropagation();
         });
 
-        $modal.on("mouseover", resetTooltip);
+        $modal.on("mouseover", function() {
+            resetTooltip();
+        });
 
         var $groupbySection = $modal.find(".groubyInfoSection");
         $groupbySection.on("mousedown", ".bar-extra, .bar, .xlabel", function() {
@@ -456,7 +458,9 @@ window.Profile = (function($, Profile, d3) {
 
         refreshProfile();
         setupScrollBar();
-        $("#modalBackground").on("mouseover.profileModal", resetTooltip);
+        $("#modalBackground").on("mouseover.profileModal", function() {
+            resetTooltip();
+        });
     }
 
     // refresh profile
@@ -996,7 +1000,8 @@ window.Profile = (function($, Profile, d3) {
         }
 
         var nullData = {
-            "rowNum": 0
+            "rowNum": 0,
+            "type"  : "nullVal"
         };
         var colName = statsCol.groupByInfo.buckets[bucketNum].colName;
         nullData[colName] = "null";
@@ -1007,7 +1012,6 @@ window.Profile = (function($, Profile, d3) {
             nullData[bucketColName] = nullCount;
         }
 
-        nullData.type = "nullVal";
         data.unshift(nullData);
 
         return (data);
@@ -1317,6 +1321,10 @@ window.Profile = (function($, Profile, d3) {
 
             return "barArea";
         }
+    }
+
+    function getChart() {
+        return d3.select("#profile-chart .groupbyChart .barChart");
     }
 
 
@@ -1951,25 +1959,45 @@ window.Profile = (function($, Profile, d3) {
         if (rowNum == null) {
             rowNum = Number($skipInput.val());
         }
-        var $chart = $modal.find(".groubyInfoSection .groupbyChart .barChart");
-
-        $chart.find(".barArea.highlight").removeClass("highlight");
-        var $barArea = $chart.find(".barArea[data-rowNum=" + rowNum + "]");
-        $barArea.attr("class", $barArea.attr("class") + " highlight");
-    }
-
-    function resetTooltip() {
-        $(".barArea").tooltip("hide");
-        $(".barArea.hover").attr("class", function(index, d) {
-            return d.split(" hover").join("");
+        var chart = getChart();
+        chart.selectAll(".barArea")
+        .each(function(d) {
+            var bar = d3.select(this);
+            if (d.rowNum === rowNum) {
+                bar.classed("highlight", true);
+            } else {
+                bar.classed("highlight", false);
+            }
         });
     }
 
+    function resetTooltip(rowToHover) {
+        if (rowToHover != null) {
+            rowToHover = Number(rowToHover);
+        }
+
+        $(".barArea").tooltip("hide");
+
+        var chart = getChart();
+        var barArea = null;
+        chart.selectAll(".barArea")
+        .each(function(d) {
+            var bar = d3.select(this);
+            if (rowToHover != null && d.rowNum === rowToHover) {
+                barArea = this;
+                bar.classed("hover", true);
+            } else {
+                bar.classed("hover", false);
+            }
+        });
+
+        if (barArea != null) {
+            $(barArea).tooltip("show");
+        }
+    }
+
     function createFilterSelection(startX, startY) {
-        var $section = $("#profile-chart");
-        var $chart = $section.find(".groupbyChart");
-        var bound = $section.get(0).getBoundingClientRect();
-        $modal.addClass("selecting");
+        var bound = $("#profile-chart").get(0).getBoundingClientRect();
 
         function FilterSelection(x, y) {
             var self = this;
@@ -1984,8 +2012,8 @@ window.Profile = (function($, Profile, d3) {
 
             $("#profile-filterSelection").remove();
             $("#profile-filterOption").fadeOut(200);
-            $section.append(html);
-            $modal.addClass("drawing");
+            $("#profile-chart").append(html);
+            $modal.addClass("drawing, selecting");
             addSelectRectEvent(self);
 
             return self;
@@ -2048,21 +2076,21 @@ window.Profile = (function($, Profile, d3) {
 
                 $rect.css("left", left)
                     .css("top", top)
-                    .width(w).height(h);
+                    .width(w)
+                    .height(h);
 
-                $chart.find(".barArea").each(function() {
+                var chart = getChart();
+                chart.selectAll(".barArea").each(function() {
                     var barArea = this;
-                    var classList = barArea.classList;
-
                     var barBound = barArea.getBoundingClientRect();
                     var barTop = barBound.top - bound.top;
                     var barLeft = barBound.left - bound.left;
                     var barRight = barBound.right - bound.left;
 
                     if (bottom < barTop || right < barLeft || left > barRight) {
-                        classList.remove("selecting");
+                        d3.select(this).classed("selecting", false);
                     } else {
-                        classList.add("selecting");
+                        d3.select(this).classed("selecting", true);
                     }
                 });
             },
@@ -2071,26 +2099,27 @@ window.Profile = (function($, Profile, d3) {
                 $("#profile-filterSelection").remove();
                 $modal.removeClass("drawing");
 
-                var $barToSelect = $modal.find(".groupbyChart .barArea.selecting");
-                if ($barToSelect.length === 0) {
-                    $chart.find(".barArea").each(function() {
-                        var barArea = this;
-                        var classList = barArea.classList;
-                        classList.remove("unselected");
-                        classList.remove("selected");
+                var chart = getChart();
+                var barToSelect = chart.selectAll(".barArea.selecting");
+                var barAreas = chart.selectAll(".barArea");
+                if (barToSelect.size() === 0) {
+                    barAreas.each(function() {
+                        d3.select(this)
+                        .classed("unselected", false)
+                        .classed("selected", false);
                     });
                 } else {
-                    $chart.find(".barArea").each(function() {
-                        var barArea = this;
-                        var classList = barArea.classList;
-
-                        if (classList.contains("selecting")) {
-                            classList.remove("selecting");
-                            classList.remove("unselected");
-                            classList.add("selected");
+                    barAreas.each(function() {
+                        var barArea = d3.select(this);
+                        if (barArea.classed("selecting")) {
+                            barArea
+                            .classed("selecting", false)
+                            .classed("unselected", false)
+                            .classed("selected", true);
                         } else {
-                            classList.remove("selected");
-                            classList.add("unselected");
+                            barArea
+                            .classed("unselected", true)
+                            .classed("selected", false);
                         }
                     });
                 }
@@ -2109,11 +2138,14 @@ window.Profile = (function($, Profile, d3) {
 
     function toggleFilterOption(isHidden) {
         var $filterOption = $("#profile-filterOption");
-        var $bars = $modal.find(".groupbyChart .barArea.selected");
+        var chart = getChart();
+        var bars = chart.selectAll(".barArea.selected");
+        var barsSize = bars.size();
+        // var $bars = $modal.find(".groupbyChart .barArea.selected");
 
-        if ($bars.length === 0) {
+        if (barsSize === 0) {
             isHidden = true;
-        } else if ($bars.length === 1) {
+        } else if (barsSize === 1) {
             $filterOption.find(".filter .text").addClass("xc-hidden");
             $filterOption.find(".single").removeClass("xc-hidden");
         } else {
@@ -2122,15 +2154,21 @@ window.Profile = (function($, Profile, d3) {
         }
 
         if (isHidden) {
-            $bars.each(function() {
-                var classList = this.classList;
-                classList.remove("selected");
-                classList.remove("unselected");
+            bars.each(function() {
+                d3.select(this)
+                .classed("selected", false)
+                .classed("unselected", false);
             });
             $filterOption.fadeOut(200);
         } else {
             var bound = $("#profile-chart").get(0).getBoundingClientRect();
-            var barBound = $bars.get(-1).getBoundingClientRect();
+            var barBound;
+            bars.each(function(d, i) {
+                if (i === barsSize - 1) {
+                    barBound = this.getBoundingClientRect();
+                }
+            });
+
             var right = bound.right - barBound.right;
             var bottom = bound.bottom - barBound.bottom + 30;
             var w = $filterOption.width();
@@ -2154,29 +2192,24 @@ window.Profile = (function($, Profile, d3) {
         var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
         var bucketSize = tableInfo.bucketSize;
         var xName = tableInfo.colName;
-        var $bars = $modal.find(".groupbyChart .barArea.selected");
         var uniqueVals = {};
         var isExist = false;
 
         var colName = statsCol.colName;
         // in case close modal clear curTableId
         var filterTableId = curTableId;
-        var hasNull = (groupByData[0].type === "nullVal");
         var isString = (statsCol.type === "string");
+        var chart = getChart();
 
-        $bars.each(function() {
-            var rowNum = $(this).get(0).getAttribute("data-rowNum");
-            rowNum = Number(rowNum);
+        chart.selectAll(".barArea.selected").each(function(d) {
+            var rowNum = d.rowNum;
             if (isNaN(rowNum)) {
                 console.error("invalid row num!");
             } else {
-                // when has nullVal, the first ele's rowNum is 0,
-                // otherwise, the first ele's rowNum is 1
-                var index = hasNull ? rowNum : rowNum - 1;
-                if (groupByData[index].type === "nullVal") {
+                if (d.type === "nullVal") {
                     isExist = true;
                 } else {
-                    var val = groupByData[index][xName];
+                    var val = d[xName];
                     if (isString) {
                         val = JSON.stringify(val);
                     }
