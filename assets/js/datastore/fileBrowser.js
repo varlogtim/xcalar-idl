@@ -323,6 +323,8 @@ window.FileBrowser = (function($, FileBrowser) {
             showScrolledFiles();
         }
     }
+
+    // this should only be called if browser is Chrome
     function showScrolledFiles() {
 
         $innerContainer.height(getScrollHeight());
@@ -992,12 +994,9 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getHTMLFromFiles(files) {
-        var html = "";
-        if (window.isBrowseChrome) {
-            html += '<div class="sizer"></div>';
+        var html = '<div class="sizer"></div>';
             // used to keep file position when
             // files before it are hidden
-        }
 
         for (var i = 0, len = files.length; i < len; i++) {
             // fileObj: {name, attr{isDirectory, size}}

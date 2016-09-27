@@ -220,13 +220,9 @@ window.Compatible = (function($, Compatible) {
         }
         if (isBrowserMicrosoft) {
             $('html').addClass('microsoft');
-        }
-
-        if (/chrome/i.test(userAgent)) {
+        } else if (/chrome/i.test(userAgent)) {
             window.isBrowseChrome = true;
-        }
-
-        if (/firefox/i.test(userAgent)) {
+        } else if (/firefox/i.test(userAgent)) {
             window.isBrowseFireFox = true;
             $('html').addClass('firefox');
         }
