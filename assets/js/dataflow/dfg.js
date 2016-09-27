@@ -18,8 +18,10 @@ window.DFG = (function($, DFG) {
         })
         .then(function() {
             var retStructs = arguments;
-            console.log(arguments);
             for (var i = 0; i<arguments.length; i++) {
+                if (arguments[i] == null) {
+                    continue;
+                }
                 var retName = arguments[i].retina.retinaDesc.retinaName;
                 dfGroups[retName] = new DFGObj(retName);
                 dfGroups[retName].retinaNodes = arguments[i].retina.retinaDag
