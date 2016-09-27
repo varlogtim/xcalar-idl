@@ -830,8 +830,8 @@ DSFormAdvanceOption.prototype = {
 
         }
 
-        if (hasSet) {
-            $section.addClass("active");
+        if (hasSet && !$section.hasClass("active")) {
+            $section.find(".listInfo .expand").click();
         }
     },
 
@@ -843,7 +843,9 @@ DSFormAdvanceOption.prototype = {
         var unit = $unit.val();
         // validate preview size
         if (size !== "" && unit === "") {
-            $section.addClass("active");
+            if (!$section.hasClass("active")) {
+                $section.find(".listInfo .expand").click();
+            }
             StatusBox.show(ErrTStr.NoEmptyList, $unit, false);
             return null;
         }
