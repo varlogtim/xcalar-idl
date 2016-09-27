@@ -682,7 +682,8 @@ window.StartManager = (function(StartManager, $) {
                 !$target.closest('.fnbarPre').length &&
                 !$target.closest('#functionArea').length &&
                 !$target.closest('.header').length &&
-                !($target.is('pre') && $target.parents().length === 0)) {
+                !($target.closest('pre').length &&
+                  $target.parents('html').length === 0)) {
                 if ($target.closest('.selectedCell').length !== 0) {
                     return;
                 } else if ($target.attr('id') === 'mainFrame') {
@@ -690,9 +691,7 @@ window.StartManager = (function(StartManager, $) {
                 } else if ($target.closest('.menu').length !== 0) {
                     return;
                 }
-                $('#fnBar').removeClass('disabled');
                 $('.selectedCell').removeClass('selectedCell');
-
                 FnBar.clear();
             }
         });

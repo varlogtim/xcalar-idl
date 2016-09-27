@@ -21,6 +21,8 @@ window.JoinView = (function($, JoinView) {
     var formOpenTime; // stores the last time the form was opened
     var turnOnPrefix = true; // Set to false if backend crashes
 
+    var validTypes = ['integer', 'float', 'string', 'float']; 
+
     var formHelper;
     var multiClauseTemplate =
         '<div class="joinClause">' +
@@ -503,6 +505,19 @@ window.JoinView = (function($, JoinView) {
                 if ($joinTableName.val().trim() === "") {
                     $joinTableName.focus();
                 }
+
+                // clear any empty column rows
+                $clauseContainer.find(".joinClause:not(.placeholder)")
+                                .each(function() {
+                    var $joinClause = $(this);
+                    var lClause = $joinClause.find(".leftClause").val().trim();
+                    var rClause = $joinClause.find(".rightClause").val().trim();
+
+                    if (lClause === "" && rClause === "") {
+                        $joinClause.remove();
+                    }
+                });
+
                 formHelper.refreshTabbing();
             } else {
                 // checkfirstview is handling errors
@@ -540,7 +555,6 @@ window.JoinView = (function($, JoinView) {
             return false;
         }
 
-        var validTypes = ['integer', 'float', 'string', 'float'];
         var tableIds = getTableIds();
         var leftColRes = xcHelper.convertFrontColNamesToBack(lCols, tableIds[0],
                                                     validTypes);

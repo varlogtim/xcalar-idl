@@ -852,10 +852,6 @@
 	@standardFontSize: 12px;
 	@commonMargin: 10px;
 
-	.opSection {
-		padding-bottom: 60px;
-	}
-
 	&.nextStep {
 		.firstStep {
 			display: none;
@@ -867,6 +863,10 @@
 
 	.secondStep {
 		display: none;
+	}
+
+	.opSection {
+		padding-bottom: 20px;
 	}
 
 	input {
@@ -1092,6 +1092,7 @@
 
     .next {
     	margin-top: 20px;
+    	margin-bottom: 35px;
     }
 
     /* SECOND STEP */
@@ -1140,9 +1141,13 @@
     	}
     }
 
-    #joinTables {
-    	margin-top: 20px;
-    	margin-bottom: 10px;
+    #joinActions {
+    	margin-top: 10px;
+    	button {
+    		margin-left: 9px;
+    		margin-right: 9px;
+    		margin-top: 10px;
+    	}
     }
 
     .estimatorWrap {
