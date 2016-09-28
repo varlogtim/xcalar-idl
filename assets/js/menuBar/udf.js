@@ -677,14 +677,7 @@ window.UDF = (function($, UDF) {
             '\txl_sheet = xl_workbook.sheet_by_index(0)\n' +
             '\tnum_cols = xl_sheet.ncols   # Number of columns\n' +
             '\tfor row_idx in range(0, xl_sheet.nrows):    # Iterate through rows\n' +
-                '\t\tcurRow = list()\n' +
-                '\t\tfor col_idx in range(0, num_cols):  # Iterate through columns\n' +
-                    '\t\t\tval = xl_sheet.cell_value(row_idx, col_idx)  # Get cell object by row, col\n' +
-                    '\t\t\tif xl_sheet.cell_type(row_idx, col_idx) == xlrd.XL_CELL_DATE:\n' +
-                        '\t\t\t\tval = "%s,%s" % (val, xl_workbook.datemode)\n' +
-                    '\t\t\telse:\n' +
-                        '\t\t\t\tval = "%s" % val\n' +
-                    '\t\t\tcurRow.append(val)\n' +
+                '\t\tcurRow = [str(x) for x in xl_sheet.row_values(row_idx)]\n' +
                 '\t\tfileString += "\\t".join(curRow)\n' +
                 '\t\tfileString += "\\n"\n' +
             '\treturn str(fileString.encode("ascii", "ignore"))\n' +
