@@ -1489,31 +1489,10 @@ DSObj.prototype = {
         var self = this;
         var deferred = jQuery.Deferred();
 
-        makeResultSetHelper()
-        .then(function() {
-            if (self.numEntries <= 0) {
-                return PromiseHelper.resolve(null);
-            }
-
-            rowsToFetch = Math.min(self.numEntries, rowsToFetch);
-            return XcalarFetchData(self.resultSetId, rowToGo, rowsToFetch,
-                                    self.numEntries, []);
-        })
+        fetchHelper()
+        .then(parseHelper)
         .then(deferred.resolve)
-        .fail(function(error) {
-            if (error.status === StatusT.StatusInvalidResultSetId) {
-                // when old result is invalid
-                self.makeResultSet()
-                .then(function() {
-                    return XcalarFetchData(self.resultSetId, rowToGo, rowsToFetch,
-                                self.numEntries, []);
-                })
-                .then(deferred.resolve)
-                .fail(deferred.reject);
-            } else {
-                deferred.reject(error);
-            }
-        });
+        .fail(deferred.reject);
 
         function makeResultSetHelper() {
             if (self.resultSetId != null) {
@@ -1521,6 +1500,80 @@ DSObj.prototype = {
             }
 
             return self.makeResultSet();
+        }
+
+        function fetchHelper() {
+            var innerDeferred = jQuery.Deferred();
+
+            makeResultSetHelper()
+            .then(function() {
+                if (self.numEntries <= 0) {
+                    return PromiseHelper.resolve(null);
+                }
+
+                rowsToFetch = Math.min(self.numEntries, rowsToFetch);
+                return XcalarFetchData(self.resultSetId, rowToGo, rowsToFetch,
+                                        self.numEntries, []);
+            })
+            .then(innerDeferred.resolve)
+            .fail(function(error) {
+                if (error.status === StatusT.StatusInvalidResultSetId) {
+                    // when old result is invalid
+                    self.makeResultSet()
+                    .then(function() {
+                        return XcalarFetchData(self.resultSetId, rowToGo, rowsToFetch,
+                                    self.numEntries, []);
+                    })
+                    .then(innerDeferred.resolve)
+                    .fail(innerDeferred.reject);
+                } else {
+                    innerDeferred.reject(error);
+                }
+            });
+
+            return innerDeferred.promise();
+        }
+
+        function parseHelper(data) {
+            if (!data) {
+                return PromiseHelper.reject({"error": DSTStr.NoRecords});
+            }
+
+            var innerDeferred = jQuery.Deferred();
+            var value;
+            var json;
+            var uniqueJsonKey = {}; // store unique Json key
+            var jsonKeys = [];
+            var jsons = [];  // store all jsons
+
+            try {
+                for (var i = 0, len = data.length; i < len; i++) {
+                    value = data[i].value;
+                    json = jQuery.parseJSON(value);
+                    // HACK: this is based on the assumption no other
+                    // fields called recordNum, if more than one recordNum in
+                    // json, only one recordNum will be in the parsed obj,
+                    // which is incorrect behavior
+                    delete json.recordNum;
+                    jsons.push(json);
+                    // get unique keys
+                    for (var key in json) {
+                        uniqueJsonKey[key] = true;
+                    }
+                }
+
+                for (var uniquekey in uniqueJsonKey) {
+                    jsonKeys.push(uniquekey);
+                }
+
+                innerDeferred.resolve(jsons, jsonKeys);
+
+            } catch (error) {
+                console.error(error, value);
+                innerDeferred.reject(error);
+            }
+
+            return innerDeferred.promise();
         }
 
         return deferred.promise();

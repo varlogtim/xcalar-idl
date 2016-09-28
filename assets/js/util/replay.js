@@ -399,7 +399,7 @@ window.Replay = (function($, Replay) {
                                     "fieldDelim", "lineDelim", "hasHeader",
                                     "moduleName", "funcName",
                                     "isRecur", "previewSize", "quoteChar",
-                                    "skipRows", "isRegex", "colsToPull"];
+                                    "skipRows", "isRegex", "createTable"];
         argsMap[SQLOps.Sort] = ["colNum", "tableId", "order", "typeToCast"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];

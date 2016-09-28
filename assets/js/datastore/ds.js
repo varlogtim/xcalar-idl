@@ -193,7 +193,7 @@ window.DS = (function ($, DS) {
     // promise returns $grid element
     DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                         hasHeader, moduleName, funcName, isRecur, previewSize,
-                        quoteChar, skipRows, isRegex, colsToPull) {
+                        quoteChar, skipRows, isRegex, createTable) {
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
         var curFolder = DS.getDSObj(curDirId);
@@ -239,7 +239,7 @@ window.DS = (function ($, DS) {
             "previewSize": previewSize
         };
 
-        return pointToHelper(dsObj, colsToPull, sql);
+        return pointToHelper(dsObj, createTable, sql);
     };
 
     DS.reload = function(dsId, previewSize) {
@@ -478,7 +478,7 @@ window.DS = (function ($, DS) {
         return dsObj;
     }
 
-    function pointToHelper(dsObj, colsToPull, sql, isRetry) {
+    function pointToHelper(dsObj, createTabe, sql, isRetry) {
         var deferred = jQuery.Deferred();
         var dsName = dsObj.getName();
 
@@ -521,14 +521,9 @@ window.DS = (function ($, DS) {
             // display new dataset
             refreshDS();
 
-            if (error == null &&
-                colsToPull != null &&
-                colsToPull instanceof Array)
-            {
-                createTableHelper($grid, dsObj, colsToPull);
-            }
-
-            if ($grid.hasClass("active")) {
+            if (error == null && createTabe) {
+                createTableHelper($grid, dsObj);
+            } else if ($grid.hasClass("active")) {
                 // re-focus to trigger DSTable.show()
                 if (gMinModeOn) {
                     DS.focusOn($grid);
@@ -904,9 +899,15 @@ window.DS = (function ($, DS) {
         DataStore.update();
     }
 
-    function createTableHelper($grid, dsObj, colsToPull) {
+    function createTableHelper($grid, dsObj) {
         var deferred = jQuery.Deferred();
-        xcHelper.getUnusedTableName(dsObj.getName())
+        var colsToPull;
+
+        dsObj.fetch(0, 40)
+        .then(function(json, jsonKeys) {
+            colsToPull = jsonKeys;
+            return xcHelper.getUnusedTableName(dsObj.getName());
+        })
         .then(function(tableName) {
             var cart = DSCart.addCart(dsObj.getId(), tableName, true);
             colsToPull.forEach(function(colName) {
@@ -918,7 +919,10 @@ window.DS = (function ($, DS) {
 
             return DSCart.createTable(cart, worksheet, noFocus);
         })
-        .then(deferred.resolve)
+        .then(function() {
+            DS.focusOn($grid);
+            deferred.resolve();
+        })
         .fail(deferred.reject);
 
         return deferred.promise();

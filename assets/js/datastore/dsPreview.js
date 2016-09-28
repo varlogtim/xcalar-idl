@@ -550,17 +550,13 @@ window.DSPreview = (function($, DSPreview) {
 
         cacheUDF(udfModule, udfFunc);
 
-        var colNames = null;
+        var colLen = 0;
         if (toCreateTable) {
-            colNames = [];
-            $previewTable.find("th:not(.rowNumHead)").each(function() {
-                var colName = $(this).find(".text").text();
-                colNames.push(colName);
-            });
+            colLen = $previewTable.find("th:not(.rowNumHead)").length;
         }
 
         function alertHelper() {
-            if (colNames == null || colNames.length < gMaxColToPull) {
+            if (colLen < gMaxColToPull) {
                 return PromiseHelper.resolve();
             }
 
@@ -581,7 +577,7 @@ window.DSPreview = (function($, DSPreview) {
                         fieldDelim, lineDelim, header,
                         udfModule, udfFunc,
                         isRecur, previewSize, quote,
-                        skipRows, isRegex, colNames);
+                        skipRows, isRegex, toCreateTable);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

@@ -72,7 +72,7 @@ window.DSTable = (function($, DSTable) {
         lastDSToSample = datasetName;
 
         dsObj.fetch(0, initialNumRowsToFetch)
-        .then(function(result) {
+        .then(function(jsons, jsonKeys) {
             if (lastDSToSample !== datasetName) {
                 // when network is slow and user trigger another
                 // get sample table code will goes here
@@ -81,9 +81,6 @@ window.DSTable = (function($, DSTable) {
 
             // update info here
             updateTableInfo(dsObj);
-            return parseSampleData(result);
-        })
-        .then(function(jsonKeys, jsons) {
             clearTimeout(timer);
 
             $dsTableContainer.removeClass("loading");
@@ -115,7 +112,9 @@ window.DSTable = (function($, DSTable) {
 
             var $errorSection = $dsTableContainer.find(".errorSection");
             $errorSection.find(".error").html(errorText);
-            if (error.error === DSTStr.NoRecords) {
+            if (error.error === DSTStr.NoRecords &&
+                loadError.startsWith("Error: (Failed)")) {
+                // the way to detect if need reset limit might be buggy
                 $errorSection.find(".suggest").removeClass("xc-hidden");
             } else {
                 $errorSection.find(".suggest").addClass("xc-hidden");
@@ -264,8 +263,7 @@ window.DSTable = (function($, DSTable) {
         var deferred = jQuery.Deferred();
 
         dsObj.fetch(rowToGo, rowsToFetch)
-        .then(parseSampleData)
-        .then(function(jsonKeys, jsons) {
+        .then(function(jsons) {
             var curDSId = $("#dsTable").data("dsid");
             if (dsId !== curDSId) {
                 // when change ds
@@ -297,48 +295,6 @@ window.DSTable = (function($, DSTable) {
             deferred.resolve();
         })
         .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function parseSampleData(result) {
-        if (!result) {
-            return PromiseHelper.reject({"error": DSTStr.NoRecords});
-        }
-
-        var deferred = jQuery.Deferred();
-        var value;
-        var json;
-        var uniqueJsonKey = {}; // store unique Json key
-        var jsonKeys = [];
-        var jsons = [];  // store all jsons
-
-        try {
-            for (var i = 0, len = result.length; i < len; i++) {
-                value = result[i].value;
-                json = jQuery.parseJSON(value);
-                // HACK: this is based on the assumption no other
-                // fields called recordNum, if more than one recordNum in
-                // json, only one recordNum will be in the parsed obj,
-                // which is incorrect behavior
-                delete json.recordNum;
-                jsons.push(json);
-                // get unique keys
-                for (var key in json) {
-                    uniqueJsonKey[key] = true;
-                }
-            }
-
-            for (var uniquekey in uniqueJsonKey) {
-                jsonKeys.push(uniquekey);
-            }
-
-            deferred.resolve(jsonKeys, jsons);
-
-        } catch (error) {
-            console.error(error, value);
-            deferred.reject(error);
-        }
 
         return deferred.promise();
     }
