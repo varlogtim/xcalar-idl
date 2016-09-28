@@ -13,7 +13,7 @@ function dsTableTest() {
         testDS = xcHelper.uniqueRandName("unitTestFakeYelp", DS.has, 10);
         var dataset = testDatasets.fakeYelp;
 
-        DS.load(testDS, dataset.format, dataset.url,
+        DS.load(testDS, dataset.format, dataset.url, dataset.pattern,
                 dataset.fieldDelim, dataset.lineDelim,
                 dataset.hasHeader, dataset.moduleName, dataset.funcName, false)
         .then(function(dsObj) {

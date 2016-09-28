@@ -130,7 +130,7 @@ function dsObjTest() {
             var name = xcHelper.uniqueRandName("testSuites-dsObj-sp500", DS.has, 10);
             var dataset = testDatasets.sp500;
 
-            DS.load(name, dataset.format, dataset.url,
+            DS.load(name, dataset.format, dataset.url, dataset.pattern,
                     dataset.fieldDelim, dataset.lineDelim,
                     dataset.hasHeader, dataset.moduleName, dataset.funcName,
                     false)

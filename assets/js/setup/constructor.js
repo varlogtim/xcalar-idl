@@ -1277,6 +1277,7 @@ function DSObj(options) {
         this.resultSetId = options.resultSetId;
 
         // args to point to dataset
+        this.pattern = options.pattern;
         this.fieldDelim = options.fieldDelim;
         this.lineDelim = options.lineDelim;
         this.hasHeader = options.hasHeader;
@@ -1328,13 +1329,25 @@ DSObj.prototype = {
         return this.path;
     },
 
+    getPathWithPattern: function() {
+        var path = this.path;
+        if (this.pattern) {
+            // XXX not sure if it's right
+            path += this.pattern;
+        }
+
+        return path;
+    },
+
     getPointArgs: function() {
         // loadURL, format, fullName,
         // fieldDelim, lineDelim, hasHeader,
         // moduleName, funcName, isRecur, previewSize,
         // quoteChar, skipRows, isRegEx
         var self = this;
-        return [self.path, self.format, self.fullName,
+        var path = self.getPathWithPattern();
+
+        return [path, self.format, self.fullName,
                 self.fieldDelim, self.lineDelim, self.hasHeader,
                 self.moduleName, self.funcName, self.isRecur, self.previewSize,
                 self.quoteChar, self.skipRows, self.isRegex];

@@ -395,7 +395,7 @@ window.Replay = (function($, Replay) {
     function createFuncArgsMap() {
         argsMap = {};
         // DS.load()
-        argsMap[SQLOps.DSLoad] = ["dsName", "dsFormat", "loadURL",
+        argsMap[SQLOps.DSLoad] = ["dsName", "dsFormat", "loadURL", "pattern",
                                     "fieldDelim", "lineDelim", "hasHeader",
                                     "moduleName", "funcName",
                                     "isRecur", "previewSize", "quoteChar",

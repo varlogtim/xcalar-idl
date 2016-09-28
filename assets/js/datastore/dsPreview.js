@@ -118,6 +118,13 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     DSPreview.show = function(options, fromFormCard) {
+        var $dsFormView = $("#dsFormView");
+        if (!$dsFormView.is(":visible"))
+        {
+            $dsFormView.removeClass("xc-hidden");
+            DSTable.hide();
+        }
+
         $previewCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
 
         if (fromFormCard) {
@@ -536,11 +543,6 @@ window.DSPreview = (function($, DSPreview) {
 
         var loadURL = loadArgs.getPath();
         var pattern = loadArgs.getPattern();
-        if (pattern) {
-            // XXX not sure if it's right
-            loadURL += pattern;
-        }
-
         var isRecur = loadArgs.useRecur();
         var isRegex = loadArgs.useRegex();
         var previewSize = loadArgs.getPreviewSize();
@@ -573,7 +575,7 @@ window.DSPreview = (function($, DSPreview) {
 
         alertHelper()
         .then(function() {
-            return DS.load(dsName, format, loadURL,
+            return DS.load(dsName, format, loadURL, pattern,
                         fieldDelim, lineDelim, header,
                         udfModule, udfFunc,
                         isRecur, previewSize, quote,

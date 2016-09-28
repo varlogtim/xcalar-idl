@@ -129,14 +129,22 @@
       </div>
       <div class="errorSection">
         <div class="error"></div>
-        <div class="suggest">
-          <div class="title"><%= dicts.ds.RetryTitle %></div>
+        <div class="suggest limit">
+          <div class="title"><%= dicts.ds.RetryLimit %></div>
           <div class="advanceSection">
             include "advanceOption.html"
-            <div id="dsTable-retry" class="retry xc-action">
+            <div id="dsTable-retry" class="retry limit xc-action">
               <i class="icon xi-refresh blue"></i>
               <span><%= dicts.ds.Retry %></span>
             </div>
+          </div>
+          <div class="or">Or</div>
+        </div>
+        <div class="suggest point">
+          <div class="title"><%= dicts.ds.RetryPoint %></div>
+          <div id="dsTable-retry" class="retry point xc-action">
+            <i class="icon xi-refresh blue"></i>
+            <span><%= dicts.ds.Retry %></span>
           </div>
         </div>
       </div>

@@ -268,9 +268,19 @@
         }
 
         .suggest {
-            margin-top: 10px;
+            clear: both;
+
             .title {
                 color: @color-table-red;
+            }
+
+            &.point {
+                .size(@height: 20px);
+                margin-top: 10px;
+
+                .title {
+                    float: left;
+                }
             }
         }
 
@@ -300,17 +310,24 @@
             }
 
             .retry {
-                margin-left: 10px;
-                float: left;
-                color: @color-font-softBlue;
                 .vertical-align;
-
-                .icon, .text {
-                    display: inline-block;
-                    float: left;
-                    margin: 0 5px;
-                }
             }
+        }
+
+        .retry {
+            margin-left: 10px;
+            float: left;
+            color: @color-font-softBlue;
+
+            .icon, .text {
+                display: inline-block;
+                float: left;
+                margin: 0 5px;
+            }
+        }
+
+        .or {
+            color: @color-table-red;
         }
     }
 }

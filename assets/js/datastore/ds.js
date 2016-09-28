@@ -191,7 +191,7 @@ window.DS = (function ($, DS) {
 
     // Point to dataset
     // promise returns $grid element
-    DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+    DS.load = function(dsName, dsFormat, loadURL, pattern, fieldDelim, lineDelim,
                         hasHeader, moduleName, funcName, isRecur, previewSize,
                         quoteChar, skipRows, isRegex, createTable) {
         // Here null means the attr is a placeholder, will
@@ -208,6 +208,7 @@ window.DS = (function ($, DS) {
             "isFolder"   : false,
             "format"     : dsFormat,
             "path"       : loadURL,
+            "pattern"    : pattern,
             "fileSize"   : null,
             "numEntries" : null,
             "fieldDelim" : fieldDelim,
@@ -499,7 +500,6 @@ window.DS = (function ($, DS) {
         $grid.data("txid", txId);
 
         // focus on grid before load
-
         DS.focusOn($grid)
         .then(function() {
             return cleanupHelper();

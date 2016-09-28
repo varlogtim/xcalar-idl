@@ -36,7 +36,9 @@ window.DSTable = (function($, DSTable) {
         var notLastDSError = "not last ds";
 
         $dsTableContainer.removeClass("error");
-        beforeShowAction();
+        $("#dsTableView").removeClass("xc-hidden");
+        $("#dataCartBtn").removeClass("xc-hidden");
+        DSForm.hide();
 
         // update date part of the table info first to make UI smooth
         var partialUpdate = true;
@@ -115,15 +117,23 @@ window.DSTable = (function($, DSTable) {
             if (error.error === DSTStr.NoRecords &&
                 loadError.startsWith("Error: (Failed)")) {
                 // the way to detect if need reset limit might be buggy
-                $errorSection.find(".suggest").removeClass("xc-hidden");
+                $errorSection.find(".limit").removeClass("xc-hidden");
             } else {
-                $errorSection.find(".suggest").addClass("xc-hidden");
+                $errorSection.find(".limit").addClass("xc-hidden");
             }
 
             deferred.reject(error);
         });
 
         return deferred.promise();
+    };
+
+    DSTable.hide = function() {
+        $("#dsTableView").addClass("xc-hidden");
+        $("#dsTableWrap").empty();
+        $("#dataCartBtn").addClass("xc-hidden");
+        $("#dsListSection").find(".gridItems .grid-unit.active")
+                                .removeClass("active");
     };
 
     DSTable.getId = function() {
@@ -152,12 +162,6 @@ window.DSTable = (function($, DSTable) {
         $dsTableContainer.height(tableHeight + scrollBarPadding);
     };
 
-    function beforeShowAction() {
-        // clear preview table and ref count,
-        // always resolve it
-        DSForm.hide();
-    }
-
     function getSampleTable(dsObj, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);
         $tableWrap.html(html);
@@ -174,7 +178,7 @@ window.DSTable = (function($, DSTable) {
     function updateTableInfo(dsObj, partial, isLoading) {
         var dsName = dsObj.getName();
         var format = dsObj.getFormat();
-        var path = dsObj.getPath() || 'N/A';
+        var path = dsObj.getPathWithPattern() || 'N/A';
         var numEntries = dsObj.getNumEntries() || 'N/A';
 
         $("#dsInfo-title").text(dsName);
@@ -326,7 +330,7 @@ window.DSTable = (function($, DSTable) {
         });
 
         // reload ds with new preview size
-        $("#dsTable-retry").click(function() {
+        $("#dsTableView").on("click", ".errorSection .retry", function() {
             var $grid = $("#dsListSection .grid-unit.active");
             var dsId = $grid.data("dsid");
             if (dsId == null) {
@@ -334,14 +338,11 @@ window.DSTable = (function($, DSTable) {
                 return;
             }
 
-            var advancedArgs = advanceOption.getArgs();
-            if (advancedArgs == null) {
-                // invalid case
-                return;
+            if ($(this).hasClass("limit")) {
+                reloadDS(dsId);
+            } else {
+                rePointDS(dsId);
             }
-
-            var previewSize = advancedArgs.previewSize;
-            return DS.reload(dsId, previewSize);
         });
 
         // click to select a column
@@ -467,6 +468,31 @@ window.DSTable = (function($, DSTable) {
             $header.addClass("colAdded");
             $table.find(".col" + colNum).addClass("selectedCol");
         }
+    }
+
+    function reloadDS(dsId) {
+        var advancedArgs = advanceOption.getArgs();
+        if (advancedArgs == null) {
+            // invalid case
+            return;
+        }
+
+        var previewSize = advancedArgs.previewSize;
+        return DS.reload(dsId, previewSize);
+    }
+
+    function rePointDS(dsId) {
+        var dsObj = DS.getDSObj(dsId);
+        console.log(dsObj)
+
+        DSPreview.show({
+            "path"       : dsObj.getPath(),
+            "format"     : dsObj.getFormat(),
+            "previewSize": dsObj.previewSize,
+            "pattern"    : dsObj.pattern,
+            "isRecur"    : dsObj.isRecur,
+            "isRegex"    : dsObj.isRegex
+        }, false);
     }
 
     // sample table html
