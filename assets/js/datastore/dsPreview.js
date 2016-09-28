@@ -1755,26 +1755,32 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function smartDetect() {
-        toggleFormat("TEXT", null);
-        applyFieldDelim("");
-        applyLineDelim("\n");
-        applyQuote("\"");
-        getPreviewTable();
+        if (loadArgs.getFormat() === formatMap.EXCEL) {
+            detectArgs.format = detectFormat();
+            applyLineDelim("\n");
+            applyQuote("\"");
+        } else {
+            toggleFormat("TEXT", null);
+            applyFieldDelim("");
+            applyLineDelim("\n");
+            applyQuote("\"");
+            getPreviewTable();
 
-        detectArgs.format = detectFormat();
+            detectArgs.format = detectFormat();
 
-        var format = detectArgs.format;
-        var formatText;
-        for (var key in formatMap) {
-            if (formatMap[key] === format) {
-                formatText = key;
-                break;
+            var format = detectArgs.format;
+            var formatText;
+            for (var key in formatMap) {
+                if (formatMap[key] === format) {
+                    formatText = key;
+                    break;
+                }
             }
-        }
 
-        toggleFormat(formatText, null);
-        applyLineDelim("\n");
-        applyQuote("\"");
+            toggleFormat(formatText, null);
+            applyLineDelim("\n");
+            applyQuote("\"");
+        }
 
         if (detectArgs.format === formatMap.EXCEL ||
             detectArgs.format === formatMap.CSV) {
@@ -1838,13 +1844,6 @@ window.DSPreview = (function($, DSPreview) {
 
     function detectFormat() {
         var format = loadArgs.getFormat();
-        if (format === "raw") {
-            var path = loadArgs.getPath();
-            var ext = path.split(".");
-            if (ext[ext.length-1].toLowerCase().indexOf("xls") > -1) {
-                format = formatMap.EXCEL;
-            }
-        }
         if (format === formatMap.EXCEL) {
             return format;
         } else if (isJSONArray()) {

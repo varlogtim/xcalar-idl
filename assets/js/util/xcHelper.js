@@ -2005,6 +2005,7 @@ window.xcHelper = (function($, xcHelper) {
             "CSV" : "CSV",
             "TSV" : "CSV",
             "XLSX": "Excel",
+            "XLS" : "Excel",
             "TXT" : "TEXT"
         };
 
