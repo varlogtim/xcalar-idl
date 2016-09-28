@@ -998,11 +998,15 @@
                 }
 
                 .colLabel {
-                    .flex(0 0 120px);
+                    .flex(1 0 120px);
                     .size(@width: 120px, @height: 22px);
                     line-height: 22px;
                     margin-top: 0 !important;
                     padding: 0px;
+
+                    &.blankSpace {
+                        .flex(0 0 120px);
+                    }
                 }
             }
 
@@ -1041,14 +1045,13 @@
 
             .aggCol {
                 .position(relative);
-                .flex(0 0 120px); // has width 120px
+                .flex(1 0 120px); // has width 120px
                 .size(@width: 120px);
 
                 .flex-display;
                 .flex-flow(column);
 
                 .aggTableField {
-                    .size(@width: 120px);
                     .flex(1 0 30px);    // row has flex height with 30px
                 }
             }
