@@ -34,7 +34,7 @@ window.JoinView = (function($, JoinView) {
                 '</div>' +
               '</div>' +
               '<input class="clause rightClause inActive arg" type="text" ' +
-                'title="' + JoinTStr.NoRightTable +
+                'data-original-title="' + JoinTStr.NoRightTable +
                 '" data-toggle="tooltip" data-container="body" ' +
                 'spellcheck="false" disabled/>' +
         '</div>';

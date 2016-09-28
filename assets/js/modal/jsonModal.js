@@ -241,11 +241,7 @@ window.JSONModal = (function($, JSONModal) {
 
                 $compareIcons.each(function() {
                     $compareIcon = $(this);
-                    if ($compareIcon.attr('title')) {
-                        $compareIcon.attr('title', title);
-                    } else {
-                        $compareIcon.attr('data-original-title', title);
-                    }
+                    $compareIcon.attr('data-original-title', title);
                 });
             }
 
@@ -506,11 +502,7 @@ window.JSONModal = (function($, JSONModal) {
 
         $compareIcons.each(function() {
             $compareIcon = $(this);
-            if ($compareIcon.attr('title')) {
-                $compareIcon.attr('title', title);
-            } else {
-                $compareIcon.attr('data-original-title', title);
-            }
+            $compareIcon.attr('data-original-title', title);
         });
 
 
@@ -539,7 +531,7 @@ window.JSONModal = (function($, JSONModal) {
             $icon.attr('data-original-title', JsonModalTStr.SortDesc);
             order = -1;
         }
-        $icon.attr('title', "");
+
         $('.tooltip').hide();
         var $jsonWrap = $icon.closest('.jsonWrap');
         var $list = $jsonWrap.find('.primary').children().children().children();
@@ -812,11 +804,7 @@ window.JSONModal = (function($, JSONModal) {
             var title = JsonModalTStr.Compare;
             $compareIcons.each(function() {
                 $compareIcon = $(this);
-                if ($compareIcon.attr('title')) {
-                    $compareIcon.attr('title', title);
-                } else {
-                    $compareIcon.attr('data-original-title', title);
-                }
+                $compareIcon.attr('data-original-title', title);
             });
             if (allProjectMode) {
                 $jsonArea.find('.jsonWrap').last().addClass('projectMode');
@@ -1081,14 +1069,14 @@ window.JSONModal = (function($, JSONModal) {
                 '</div>' +
                 '<div class="compareIcon single checkbox" ' +
                     'data-toggle="tooltip" data-container="body" ' +
-                    'title="' + JsonModalTStr.SelectOther + '">' +
+                    'data-original-title="' + JsonModalTStr.SelectOther + '">' +
                     '<i class="icon xi-ckbox-empty"></i>' +
                     '<i class="icon xi-ckbox-selected"></i>' +
                 '</div>' +
                 '<div class="vertLine"></div>' +
                 '<div class="btn btn-small btn-secondary sort single" ' +
                     'data-toggle="tooltip" data-container="body" ' +
-                    'title="' + JsonModalTStr.SortAsc + '">' +
+                    'data-original-title="' + JsonModalTStr.SortAsc + '">' +
                     // '<i class="icon xi-arrow-down"></i>' +
                     '<i class="icon xi-sort"></i>' +
                 '</div>' +
@@ -1171,7 +1159,9 @@ window.JSONModal = (function($, JSONModal) {
                 // '<div class="submitProject hidden">' +
                 //     "Submit" +
                 // '</div>' +
-                '<div class="dropdownBox btn btn-small btn-secondary">' +
+                '<div class="dropdownBox btn btn-small btn-secondary" ' +
+                ' data-toggle="tooltip" data-container="body" ' +
+                'data-original-title="' + JsonModalTStr.ToggleMode + '">' +
                     '<i class="icon xi-down"></i>' +
                 '</div>' +
             '</div>' +

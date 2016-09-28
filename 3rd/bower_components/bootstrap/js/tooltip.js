@@ -21,7 +21,6 @@
     this.timeout    =
     this.hoverState =
     this.$element   = null
-
     this.init('tooltip', element, options)
   }
 
@@ -51,7 +50,6 @@
     this.$element  = $(element)
     this.options   = this.getOptions(options)
     this.$viewport = this.options.viewport && $(this.options.viewport.selector || this.options.viewport)
-
     var triggers = this.options.trigger.split(' ')
 
     for (var i = triggers.length; i--;) {
@@ -79,7 +77,22 @@
 
   Tooltip.prototype.getOptions = function (options) {
     options = $.extend({}, this.getDefaults(), this.$element.data(), options)
-
+    // start xcalar custom code
+    // make element's delay attribute take precedence over anything else
+    if (this.$element.data('delay') != null) {
+      var showDelay = this.$element.data('delay');
+      var hideDelay;
+      if (options.delay && typeof options.delay == "object") {
+        hideDelay = options.delay.hide;
+      } else {
+        hideDelay = showDelay;
+      }
+      options.delay = {
+        show: showDelay,
+        hide: hideDelay
+      };
+    }
+    // end xcalar custom code
     if (options.delay && typeof options.delay == 'number') {
       options.delay = {
         show: options.delay,
@@ -93,7 +106,6 @@
   Tooltip.prototype.getDelegateOptions = function () {
     var options  = {}
     var defaults = this.getDefaults()
-
     this._options && $.each(this._options, function (key, value) {
       if (defaults[key] != value) options[key] = value
     })
@@ -155,7 +167,6 @@
       var inDom = $.contains(this.$element[0].ownerDocument.documentElement, this.$element[0])
       if (e.isDefaultPrevented() || !inDom) return
       var that = this
-
       var $tip = this.tip()
 
       var tipId = this.getUID(this.type)
@@ -181,7 +192,6 @@
         .data('bs.' + this.type, this)
 
       this.options.container ? $tip.appendTo(this.options.container) : $tip.insertAfter(this.$element)
-
       var pos          = this.getPosition()
       var actualWidth  = $tip[0].offsetWidth
       var actualHeight = $tip[0].offsetHeight

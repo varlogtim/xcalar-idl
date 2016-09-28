@@ -241,7 +241,8 @@ window.TableList = (function($, TableList) {
     TableList.renameTable = function(tableId, newTableName) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
-        $tableList.find(".tableName").text(newTableName);
+        $tableList.find(".tableName").text(newTableName)
+                                    .attr('data-original-title', newTableName);
     };
 
     TableList.updateColName = function(tableId, colNum, newColName) {
@@ -842,7 +843,8 @@ window.TableList = (function($, TableList) {
                             '<i class="icon xi-ckbox-empty fa-18"></i>' +
                             '<i class="icon xi-tick fa-11"></i>' +
                         '</span>' +
-                        '<span class="tableName textOverflowOneLine" title="' +
+                        '<span class="tableName textOverflowOneLine" ' +
+                        'data-original-title="' +
                             tableName + '">' +
                             tableName +
                         '</span>' +
@@ -929,7 +931,7 @@ window.TableList = (function($, TableList) {
                                 '<i class="icon xi-ckbox-empty fa-18"></i>' +
                                 '<i class="icon xi-tick fa-11"></i>' +
                             '</span>' +
-                            '<span title="' + tableName + '" ' +
+                            '<span data-original-title="' + tableName + '" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" data-container="body" ' +
                                 'class="tableName textOverflow">' +
@@ -1023,7 +1025,8 @@ window.TableList = (function($, TableList) {
                             '<i class="icon xi-ckbox-empty fa-18"></i>' +
                             '<i class="icon xi-tick fa-11"></i>' +
                         '</span>' +
-                        '<span class="constName textOverflowOneLine" title="' +
+                        '<span class="constName textOverflowOneLine" ' +
+                            'data-original-title="' +
                             name + '">' +
                             name +
                         '</span>' +

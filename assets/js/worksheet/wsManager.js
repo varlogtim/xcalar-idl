@@ -1603,7 +1603,8 @@ window.WSManager = (function($, WSManager) {
             ' data-ws="' + wsId + '">' +
                 '<span class="draggableArea"></span>' +
                 '<i class="eye icon xi-show fa-15"></i>' +
-                '<input title="' + name + '" data-container="body"' +
+                '<input data-original-title="' + name + 
+                '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +
                 ' spellcheck="false" value="' + name + '" disabled>' +
@@ -1619,7 +1620,8 @@ window.WSManager = (function($, WSManager) {
         var html =
             '<li id="' + id + '"class="worksheetTab hiddenTab"' +
             ' data-ws="' + wsId + '">' +
-                '<input title="' + name + '" data-container="body"' +
+                '<input data-original-title="' + name +
+                '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +
                 ' spellcheck="false" value="' + name + '" disabled>' +

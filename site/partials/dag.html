@@ -80,7 +80,8 @@
       <li class="deleteTable">
         <%= dicts.MenuTStr.DelTbl %>
       </li>
-      <li class="lockTable" title="<%= dicts.TooltipTStr.LockTable %>">
+      <li class="lockTable" data-toggle="tooltip" data-placement="bottom"
+      data-container="body" data-original-title="<%= dicts.TooltipTStr.LockTable %>" data-delay="500">
         <%= dicts.MenuTStr.LockTbl %>
       </li>
       <li class="unlockTable"
@@ -94,7 +95,7 @@
       </li>
       <li class="generateIcv unavailable" data-toggle="tooltip"
           data-placement="bottom" data-container="body"
-          title="<%= dicts.TooltipTStr.IcvRestriction %> ">
+          data-original-title="<%= dicts.TooltipTStr.IcvRestriction %> ">
         <%= dicts.MenuTStr.GenIcv %>
       </li>
       <li class="showSchema">

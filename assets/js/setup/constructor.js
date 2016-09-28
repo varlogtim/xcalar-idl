@@ -2998,10 +2998,23 @@ function FormHelper($form, options) {
     this.id = $form.attr("id");
     this.state = null;
 
+    this.init();
+
     return this;
 }
 
 FormHelper.prototype = {
+    // called only once per form upon creation
+    init: function() {
+        // tooltip overflow setup
+        var self = this;
+        var $form = self.$form;
+        $form.on("mouseenter", ".tooltipOverflow", function() {
+            xcHelper.autoTooltip(this);
+        });
+    },
+
+    // called everytime the form opens
     setup: function(extraOptions) {
         var deferred = jQuery.Deferred();
         var self = this;
@@ -3088,11 +3101,6 @@ FormHelper.prototype = {
             Tips.refresh();
             deferred.resolve();
         }
-
-        // tooltip overflow setup
-        $form.on("mouseenter", ".tooltipOverflow", function() {
-            xcHelper.autoTooltip(this);
-        });
 
         if ($form.closest('#mainMenu').length) {
             MainMenu.setFormOpen();

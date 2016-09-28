@@ -97,7 +97,7 @@ window.DFCreateView = (function($, DFCreateView) {
             if (validTypes.indexOf(allCols[i].type) > -1) {
                 html += '<li class="checked" data-colnum="' + i + '">' +
                             '<span class="text tooltipOverflow" ' +
-                            'title="' + allCols[i].name + '" ' +
+                            'data-original-title="' + allCols[i].name + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
                                 allCols[i].name +
@@ -308,10 +308,6 @@ window.DFCreateView = (function($, DFCreateView) {
             } else {
                 selectAll();
             }
-        });
-
-        $dfView.on("mouseenter", ".tooltipOverflow", function() {
-            xcHelper.autoTooltip(this);
         });
     }
 

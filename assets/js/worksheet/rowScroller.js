@@ -207,7 +207,8 @@ window.RowScroller = (function($, RowScroller) {
                         '<div class="top arrow"' +
                             'data-toggle="tooltip" ' +
                             'data-container="body" ' +
-                            'data-placement="left" data-title="row 0">' +
+                            'data-placement="left" ' +
+                            'data-original-title="row 0">' +
                             '<div class="bar"></div>' +
                             '<div class="triangle"></div>' +
                         '</div>' +
@@ -215,7 +216,8 @@ window.RowScroller = (function($, RowScroller) {
                         '<div class="bottom arrow"' +
                             'data-toggle="tooltip" ' +
                             'data-container="body" ' +
-                            'data-placement="left" data-title="row 0">' +
+                            'data-placement="left" ' +
+                            'data-original-title="row 0">' +
                             '<div class="bar"></div>' +
                             '<div class="triangle"></div>' +
                         '</div>' +

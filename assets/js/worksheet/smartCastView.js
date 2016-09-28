@@ -52,10 +52,6 @@ window.SmartCastView = (function($, SmartCastView) {
             scrollToColumn(colNum);
         });
 
-        $castView.on("mouseenter", ".tooltipOverflow", function(){
-            xcHelper.autoTooltip(this);
-        });
-
         var $castMenu = $("#castMenu");
         addMenuBehaviors($castMenu);
 
@@ -269,7 +265,8 @@ window.SmartCastView = (function($, SmartCastView) {
                         '<div class="col colName ' +
                         'textOverflowOneLine tooltipOverflow" ' +
                         'data-toggle="tooltip" data-placement="top"' +
-                        'data-container="body" title="' + colName + '">' +
+                        'data-container="body" ' +
+                        'data-original-title="' + colName + '">' +
                             colName +
                         '</div>' +
                         '<div class="' + colTypeClass + '">' +

@@ -393,6 +393,10 @@ window.DSTable = (function($, DSTable) {
             dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
 
+        $tableWrap.on('mouseenter', '.tooltipOverflow', function() {
+            xcHelper.autoTooltip(this); 
+        });
+
         $dsTableContainer.scroll(function(){
             var $dsTable = $("#dsTable");
             $(this).scrollTop(0);
@@ -532,7 +536,7 @@ window.DSTable = (function($, DSTable) {
             var thClass = "th col" + (i + 1);
             var type = columnsType[i];
             th +=
-                '<th title=\'' + key + '\' class="' + thClass + '">' +
+                '<th class="' + thClass + '">' +
                     '<div class="header type-' + type + '" ' +
                          'data-type=' + type + '>' +
                         '<div class="colGrab"></div>' +
@@ -547,9 +551,13 @@ window.DSTable = (function($, DSTable) {
                             '</div>' +
                             '<div class="flexWrap flex-mid">' +
                                 '<input spellcheck="false"' +
-                                    'class="editableHead shoppingCartCol ' +
+                                    'class="tooltipOverflow editableHead ' +
+                                    'shoppingCartCol ' +
                                     thClass + '" value=\'' + key + '\' ' +
-                                    'disabled>' +
+                                    'disabled ' +
+                                    'data-original-title="' + key + '" ' +
+                                    'data-toggle="tooltip" ' +
+                                    'data-container="body" ' +'>' +
                             '</div>' +
                             '<div class="flexWrap flex-right">' +
                                 '<i class="icon xi-tick fa-8"></i>' +

@@ -75,7 +75,8 @@ window.xcHelper = (function($, xcHelper) {
             value = '<span class="undefined" data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +
                                 'data-container="body" ' +
-                                'title="Field Not Found">FNF</span>';
+                                'data-original-title="Field Not Found">FNF' +
+                                '</span>';
         } else if (value === null) {
             value = '<span class="null">' + value + '</span>';
         } else if (value === undefined) {
@@ -189,7 +190,7 @@ window.xcHelper = (function($, xcHelper) {
                 }
 
                 var tableName = table.getName();
-                tableLis += '<li title="' + tableName + '" ' +
+                tableLis += '<li data-original-title="' + tableName + '" ' +
                             'class="tooltipOverflow" ' +
                             'data-toggle="tooltip" data-container="body" ' +
                             'data-ws="' + wsId + '" data-id="' +
@@ -1844,7 +1845,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.removeTooltip = function($element, selector) {
-        $elementToChange = $element;
+        var $elementToChange = $element;
         if (selector) {
             $elementToChange = $element.find(selector);
         }
@@ -1859,17 +1860,17 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.addTooltip = function($element, selector, options) {
-        var title = options.title; // You must have this!
+        var title = options.title || ""; // You must have this!
         var toggle = "tooltip";
         var container = options.container || "body";
         var placement = options.placement || "top";
 
-        $elementToChange = $element;
+        var $elementToChange = $element;
         if (selector) {
             $elementToChange = $element.find(selector);
         }
 
-        $elementToChange.attr("title", title)
+        $elementToChange.attr("title", "")
                         .attr("data-toggle", toggle)
                         .attr("data-container", container)
                         .attr("data-placement", placement)
@@ -1878,7 +1879,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.temporarilyDisableTooltip = function($element, selector) {
-        $elementToChange = $element;
+        var $elementToChange = $element;
         if (selector) {
             $elementToChange = $element.find(selector);
         }
@@ -1888,7 +1889,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.reenableTooltip = function($element, selector) {
-        $elementToChange = $element;
+        var $elementToChange = $element;
         if (selector) {
             $elementToChange = $element.find(selector);
         }
@@ -1897,12 +1898,13 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.changeTooltipText = function($element, selector, text) {
-        $elementToChange = $element;
+        var $elementToChange = $element;
         if (selector) {
             $elementToChange = $element.find(selector);
         }
 
-        $elementToChange.attr("title", text)
+
+        $elementToChange.attr("title", "")
                         .attr("data-original-title", text);
     };
 

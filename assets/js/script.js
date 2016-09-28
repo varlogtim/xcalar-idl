@@ -305,6 +305,8 @@ window.StartManager = (function(StartManager, $) {
             }
         });
 
+        // element's delay attribute will take precedence - unique for xcalar
+
         $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
             $(".tooltip").hide();
         });

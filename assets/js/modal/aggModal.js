@@ -348,7 +348,7 @@ window.AggModal = (function($, AggModal) {
 
         for (var i = 0, len = operations.length; i < len; i++) {
             html += '<div class="aggTableField rowLabel">' +
-                        '<span title="' + operations[i] + '" ' +
+                        '<span data-original-title="' + operations[i] + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
@@ -367,7 +367,7 @@ window.AggModal = (function($, AggModal) {
 
         for (var i = 0, len = labels.length; i < len; i++) {
             html += '<div class="aggTableField colLabel">' +
-                        '<span title="' + labels[i] + '" ' +
+                        '<span data-original-title="' + labels[i] + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
@@ -552,7 +552,8 @@ window.AggModal = (function($, AggModal) {
             // error case force to have tooltip
             var spanClass = (error == null) ? "textOverflow tooltipOverflow" :
                                             "textOverflow";
-            var html = '<span class="' + spanClass + '" ' + 'title="' + title +
+            var html = '<span class="' + spanClass + '" ' + 
+                        'data-original-title="' + title +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                         (jQuery.isNumeric(value) ? value.toFixed(3) : value) +

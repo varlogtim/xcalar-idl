@@ -1462,8 +1462,7 @@ window.Dag = (function($, Dag) {
             return ($(this).text() === oldTableName);
         });
         $dagTableTitles.text(newTableName)
-                       .attr('data-original-title', newTableName)
-                       .attr('title', newTableName);
+                       .attr('data-original-title', newTableName);
 
         $dagTableTitles.parent().data('tablename', newTableName);
         var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
@@ -2947,7 +2946,7 @@ window.Dag = (function($, Dag) {
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
-                            'title="' + tableName + '">' +
+                            'data-original-title="' + tableName + '">' +
                             'Dataset ' +
                                 tableName +
                             '</span>';

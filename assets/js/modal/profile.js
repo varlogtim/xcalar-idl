@@ -573,13 +573,13 @@ window.Profile = (function($, Profile, d3) {
             if (aggVal == null) {
                 // when aggregate is still running
                 $infoSection.find("." + aggkey).html("...")
-                            .attr("title", "...")
+                            .attr("data-origina-title", "...")
                             .addClass("animatedEllipsis");
             } else {
                 var text = aggVal.toLocaleString();
                 $infoSection.find("." + aggkey)
                             .removeClass("animatedEllipsis")
-                            .attr("title", text)
+                            .attr("data-original-title", text)
                             .text(text);
             }
         });
@@ -605,13 +605,13 @@ window.Profile = (function($, Profile, d3) {
                 if (statsVal == null) {
                     // when stats is still running
                     $infoSection.find("." + statsKey).html("...")
-                                .attr("title", "...")
+                                .attr("data-original-title", "...")
                                 .addClass("animatedEllipsis");
                 } else {
                     var text = statsVal.toLocaleString();
                     $infoSection.find("." + statsKey)
                                 .removeClass("animatedEllipsis")
-                                .attr("title", text)
+                                .attr("data-original-title", text)
                                 .text(text);
                 }
             }

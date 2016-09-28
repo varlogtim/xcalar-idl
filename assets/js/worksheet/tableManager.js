@@ -839,7 +839,7 @@ window.TblManager = (function($, TblManager) {
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" ' +
                                 'data-container="body" '+
-                                'title="' + colName + '" ' +
+                                'data-original-title="' + colName + '" ' +
                                 disabledProp + '/>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +
