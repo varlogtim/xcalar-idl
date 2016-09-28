@@ -24,7 +24,7 @@ $(ARCHIVE): $(FILES)
 deploy: $(ARCHIVE)
 	gcloud compute ssh $(SERVER) --command="sudo mkdir -p $(DESTDIR)"
 	cat $< | gcloud compute ssh $(SERVER) --command="sudo tar zxvf - --no-same-owner -C $(DESTDIR)"
-	gcloud compute ssh $(SERVER) --command="cd $(DESTDIR) && sudo $(MAKE) run GIT_SHA1=$(GIT_SHA1) NOW=$(NOW) && echo $(GIT_SHA1) | sudo tee GIT_SHA1 && sudo ln -sfn $(NAME)-$(NOW) ../appserver"
+	gcloud compute ssh $(SERVER) --command="cd $(DESTDIR) && sudo make run GIT_SHA1=$(GIT_SHA1) NOW=$(NOW) && echo $(GIT_SHA1) | sudo tee GIT_SHA1 && sudo ln -sfn $(NAME)-$(NOW) ../appserver"
 	gcloud compute ssh $(SERVER) --command="sudo service caddy restart"
 
 build:
