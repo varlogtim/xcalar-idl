@@ -116,7 +116,7 @@ window.StartManager = (function(StartManager, $) {
             WSManager.focusOnWorksheet();
         })
         .then(function() {
-            if (!isBrowseFireFox) {
+            if (!isBrowseFireFox && !isBrowserIE) {
                 gMinModeOn = false; // turn off min mode
             }
 

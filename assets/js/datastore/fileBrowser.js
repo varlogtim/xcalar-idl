@@ -17,6 +17,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var dsListHeight = 30;
     var lowerFileLimit = 800; // when we start hiding files
     var upperFileLimit = 110000; // show error if over 110K
+    var subUpperFileLimit = 25000; // file limit if not chrome
     var sortFileLimit = 25000; // do not allow sort if over 25k
     var oldBrowserError = "Deferred From Old Browser";
     /* End Of Contants */
@@ -41,8 +42,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $visibleFiles = $();
         if (!window.isBrowseChrome) {
             lowerFileLimit = 600;
-            upperFileLimit = 1200;
-            $fileBrowser.addClass('notChrome');
+            upperFileLimit = subUpperFileLimit;
         }
 
         // advanced option
@@ -308,7 +308,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function fileBrowserScrolling() {
         var scrollTimer;
         $container.scroll(function() {
-            if ($(this).hasClass('noScrolling') || !window.isBrowseChrome ||
+            if ($(this).hasClass('noScrolling') || 
                 (curFiles.length <= lowerFileLimit ||
                 curFiles.length > upperFileLimit)) {
                 return;
@@ -323,7 +323,6 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
-    // this should only be called if browser is Chrome
     function showScrolledFiles() {
         $innerContainer.height(getScrollHeight());
 
@@ -1042,24 +1041,22 @@ window.FileBrowser = (function($, FileBrowser) {
         document.getElementById('innerFileBrowserContainer').innerHTML = html;
         refreshEllipsis();
 
-        if (window.isBrowseChrome) {
-            if (len > lowerFileLimit) {
-                $visibleFiles = $container.find('.visible');
-                $container.addClass('manyFiles');
-            } else {
-                $visibleFiles = $();
-                $container.removeClass('manyFiles');
-            }
+        if (len > lowerFileLimit) {
+            $visibleFiles = $container.find('.visible');
+            $container.addClass('manyFiles');
+        } else {
+            $visibleFiles = $();
+            $container.removeClass('manyFiles');
+        }
 
-            $innerContainer.height(getScrollHeight());
-            if (len > lowerFileLimit) {
-                showScrolledFiles();
-            }
-            if (len > sortFileLimit) {
-                $fileBrowser.addClass('unsortable');
-            } else {
-                $fileBrowser.removeClass('unsortable');
-            }
+        $innerContainer.height(getScrollHeight());
+        if (len > lowerFileLimit) {
+            showScrolledFiles();
+        }
+        if (len > sortFileLimit) {
+            $fileBrowser.addClass('unsortable');
+        } else {
+            $fileBrowser.removeClass('unsortable');
         }
     }
 

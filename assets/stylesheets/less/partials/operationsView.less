@@ -99,6 +99,9 @@
     			border-right: 1px solid @color-border-pinkish-grey2;
     			
     		}
+    		&.rightCols {
+    			width: ~"calc(50% - 1px)"; // -1px for border
+    		}
     	}
     	li {
     		.size(100%, @listHeight);
@@ -1293,9 +1296,12 @@
 			}
 		}
 		.flexSpace {
+			]border-right: 1px solid transparent;
 			.flex(1 1 100px);
 			width: 100px;
 			height: 0px;
+			padding-left: 10px;
+			padding-right: 22px;
 			overflow: hidden;
 			visibility: hidden;
 		}

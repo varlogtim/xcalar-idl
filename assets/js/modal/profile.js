@@ -116,7 +116,8 @@ window.Profile = (function($, Profile, d3) {
         });
 
         var $groupbySection = $modal.find(".groubyInfoSection");
-        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function() {
+
+        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -130,7 +131,7 @@ window.Profile = (function($, Profile, d3) {
             highlightBar();
         });
 
-        $groupbySection.on("mousedown", ".arrow", function() {
+        $groupbySection.on("mousedown", ".arrow", function(event) {
             if (event.which !== 1) {
                 return;
             }

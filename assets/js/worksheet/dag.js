@@ -118,6 +118,18 @@ window.DagPanel = (function($, DagPanel) {
                 var winHeight = $(window).height();
                 DagPanel.setScrollBarId(winHeight);
                 DagPanel.adjustScrollBarPositionAndSize();
+
+                if (window.isBrowserMicrosoft) {
+                    // hack because rows become invisible in IE/EDGE
+                    $('.xcTable').each(function() {
+                        var $tr = $(this).find('tr').last();
+                        var originalHeight = $tr.height();
+                        $tr.hide().show().height(originalHeight + 1);
+                        setTimeout(function() {
+                            $tr.hide().show().height(originalHeight);
+                        }, 0);
+                    });
+                }
             }, 300);
         }, animateDelay);
     };
@@ -1801,7 +1813,6 @@ window.Dag = (function($, Dag) {
         var all = true;
         updateCanvasAfterWidthChange($dagWrap, nodes, allDagInfo.condensedWidth,
                                      collapse, all);
-
         $dagImage.parent().scrollLeft(prevScrollLeft +
                                     (allDagInfo.condensedWidth - dagImageWidth));
     };
@@ -2002,7 +2013,8 @@ window.Dag = (function($, Dag) {
         var newWidth = storedInfo.width;
 
         $dagImage.outerWidth(newWidth);
-        $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth - dagImageWidth));
+        $dagImage.parent().scrollLeft(prevScrollLeft);
+        // $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth - dagImageWidth));
 
         var collapse = false;
         var all = false;
@@ -2089,8 +2101,8 @@ window.Dag = (function($, Dag) {
         });
 
         $dagImage.outerWidth(newWidth);
-        $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth - dagImageWidth));
-
+        // $dagImage.parent().scrollLeft(prevScrollLeft + (newWidth - dagImageWidth));
+        $dagImage.parent().scrollLeft(prevScrollLeft);
         var collapse = true;
         var all = false;
         updateCanvasAfterWidthChange($dagWrap, nodes, newWidth, collapse, all);
