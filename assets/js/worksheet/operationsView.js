@@ -2815,7 +2815,7 @@ window.OperationsView = (function($, OperationsView) {
         if (colTypeInfos.length) {
             for (var i = 0; i < colTypeInfos.length; i++) {
                 if (colTypeInfos[i].argNum === groupByColIndex) {
-                    groupbyColName = xcHelper.castStrHelper(
+                    groupByColName = xcHelper.castStrHelper(
                                                     args[groupByColIndex],
                                                     colTypeInfos[i].type);
                     break;
