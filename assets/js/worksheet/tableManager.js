@@ -815,15 +815,16 @@ window.TblManager = (function($, TblManager) {
                         '</div>' +
                     '</div>' +
                     '<div class="colGrab"></div>' +
-                    '<div class="topHeader" data-color="' + prefixColor + '">' +
-                        sortIcon +
-                        '<div class="prefix">' +
-                            prefix +
-                        '</div>' +
-                        '<div class="dotWrap">' +
-                            '<div class="dot"></div>' +
-                        '</div>' +
-                    '</div>' +
+                    // temporary disable it
+                    // '<div class="topHeader" data-color="' + prefixColor + '">' +
+                    //     sortIcon +
+                    //     '<div class="prefix">' +
+                    //         prefix +
+                    //     '</div>' +
+                    //     '<div class="dotWrap">' +
+                    //         '<div class="dot"></div>' +
+                    //     '</div>' +
+                    // '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
                             '<div class="iconHidden"></div>' +
