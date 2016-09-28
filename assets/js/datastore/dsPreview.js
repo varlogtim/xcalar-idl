@@ -1838,6 +1838,13 @@ window.DSPreview = (function($, DSPreview) {
 
     function detectFormat() {
         var format = loadArgs.getFormat();
+        if (format === "raw") {
+            var path = loadArgs.getPath();
+            var ext = path.split(".");
+            if (ext[ext.length-1].toLowerCase().indexOf("xls") > -1) {
+                format = formatMap.EXCEL;
+            }
+        }
         if (format === formatMap.EXCEL) {
             return format;
         } else if (isJSONArray()) {
