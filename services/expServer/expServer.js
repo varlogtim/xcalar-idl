@@ -1,17 +1,43 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
-var http = require("http");
+var http = require('http');
 var https = require("https");
 require('shelljs/global');
+var ldap = require('ldapjs');
 var exec = require('child_process').exec;
+
+var strictSecurity = false;
+var config = require('./ldapConfig.json');
+var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
+var app = express();
+
+
+// Example AD settings (now gotten from ldapConfig.json)
+//
+/*var ldap_uri = 'ldap://pdc1.int.xcalar.com:389';
+var userDN = "cn=users,dc=int,dc=xcalar,dc=net";
+var useTLS = true;
+var searchFilter = "(&(objectclass=user)(userPrincipalName=%username%))";
+var activeDir = true;
+var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
+
+//
+// Example OpenLDAP Settings (now gotten from ldapConfig.json)
+//
+
+/* var ldap_uri = 'ldap://turing.int.xcalar.com:389';
+var userDN = "uid=%username%,ou=People,dc=int,dc=xcalar,dc=com";
+var useTLS = false;
+var searchFilter = "";
+var activeDir = false;
+var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
 
 /**
 var privateKey = fs.readFileSync('cantor.int.xcalar.com.key', 'utf8');
 var certificate = fs.readFileSync('cantor.int.xcalar.com.crt', 'utf8');
 var credentials = {key: privateKey, cert:certificate};
 */
-var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -90,7 +116,6 @@ function genExecString(hostnameLocation, credentialLocation, isPassword,
 
 function sendStatusArray(finalStruct, res) {
     var ackArray = [];
-
     // Check global array that has been populated by prev step
     for (var i = 0; i<finalStruct.hostnames.length; i++) {
         if (curStep.nodesCompletedCurrent[i] === true) {
@@ -109,7 +134,6 @@ function sendStatusArray(finalStruct, res) {
 
 function stdOutCallback(dataBlock) {
     var lines = dataBlock.split("\n");
-
     for (var i = 0; i<lines.length; i++) {
         var data = lines[i];
         //console.log("Start =="+data+"==");
@@ -259,36 +283,157 @@ app.post("/completeInstallation", function(req, res) {
     });
 });
 
-/**
-for (var i = 0; i<credArray.length; i++) {
-    console.log("host"+i+": "+credArray[i].hostname);
-    var ec = exec('/home/jyang/node/testScript.sh '+credArray[i].hostname+' '+
-                  credArray[i].username+' '+
-                  credArray[i].password).code;
-    if (ec !== 0) {
-        hasError = true;
-        errors[i] = ec;
+app.post('/login', function(req, res) {
+    console.log("Login process");
+    var credArray = req.body;
+    var hasError = false;
+    var errors = [];
+    if (credArray) {
+        // here is the LDAP related material
+        // it's activated if xiusername is in the request body
+        if (("xiusername" in credArray) && ("xipassword" in credArray)) {
+
+            var username = credArray["xiusername"];
+            var password = credArray["xipassword"];
+
+            var client_url = config.ldap_uri.endsWith('/') ? config.ldap_uri : config.ldap_uri+'/';
+            console.log("client_url");
+            console.log(client_url);
+
+            var userDN = config.userDN;
+            var searchFilter = config.searchFilter;
+
+            var activeDir = (config.activeDir === 'true');
+            var useTLS = (config.useTLS === 'true');
+
+            console.log('connecting to: '+client_url);
+
+            var client = ldap.createClient({
+                url: client_url,
+                timeout: 10000,
+                connectTimeout: 20000
+            });
+
+            // two kinds of LDAP, one to connect to an Active Directory,
+            // another to a generic OpenLDAP server.
+            var searchOpts = {
+                filter: searchFilter != "" ?
+                    searchFilter.replace('%username%',username) : undefined,
+                scope: 'sub',
+                attributes: ['CN']
+            };
+
+            if (!activeDir) {
+                userDN = userDN.replace('%username%', username);
+                username = userDN;
+            }
+
+            var bindCallback = _bindCallback(client, searchOpts, res, userDN);
+
+            var excpUnbindErr = _unbindError('Unbind for unexpected error');
+
+            if (useTLS) {
+
+                var tlsOpts = {
+                    cert: trustedCerts,
+                    rejectUnauthorized: strictSecurity
+                };
+
+                console.log("Starting TLS...");
+                client.starttls(tlsOpts, [], function(err) {
+                    if (err) {
+                        console.log("TLS startup error: " + err.message);
+                        res.send("LDAP TLS Failure!\n");
+                        return;
+                    }
+                    ldapAuth(username, password, client, bindCallback, excpUnbindErr, res);
+                });
+
+            } else {
+                ldapAuth(username, password, client, bindCallback, excpUnbindErr, res);
+            };
+        } else {
+            res.send({"status": Status.Error});
+        }
+    } else {
+        res.send({"status": Status.Error});
     }
-}
-if (hasError) {
-    res.send("Script executed with error code: "+JSON.stringify(ec));
-} else {
-    res.send("Installation successful!");
-}
-*/
-
-/**
-var httpsServer = https.createServer(credentials, app);
-
-httpsServer.listen(12124, function() {
-    console.log("https app listening!");
 });
-*/
+
+function _unbindError(step) {
+    return function(err) {
+        if(err){
+            console.log(err.message);
+        } else {
+            console.log('client disconnected ' + step);
+        };
+    };
+};
+
+function _bindCallback(client, searchOpts, httpres, userDN) {
+    return function(err, res) {
+        var bindUnbindErr = _unbindError('Unbind after bind process');
+        var searchUnbindErr = _unbindError('Unbind after search process');
+
+        if (err) {
+            console.log(err.message);
+            client.unbind(bindUnbindErr);
+            httpres.send({"status": Status.Error});
+        } else {
+            console.log('connected');
+
+            client.search(userDN, searchOpts, function(error, search) {
+                console.log('Searching.....');
+                var entry_count = 0;
+
+                search.on('searchEntry', function(entry) {
+                    console.log('Checking entries.....');
+                    if(entry.object){
+                        console.log('entry: %j ' + JSON.stringify(entry.object));
+                        entry_count++;
+                    }
+                });
+
+                search.on('error', function(error) {
+                    console.error('LDAP search error: ' + error.message);
+                    httpres.send({"status": Status.Error});
+                    client.unbind(searchUnbindErr);
+                });
+
+                search.on('end', function(result) {
+                    console.log('status: ' + result.status);
+                    if (entry_count > 1) {
+                        console.log("More than one matched user was found");
+                        httpres.send({"status": Status.Ok});
+                    } else if (entry_count === 1) {
+                        httpres.send({"status": Status.Ok});
+                    } else {
+                        console.log("No matched user");
+                        httpres.send({"status": Status.Error});
+                    }
+                    client.unbind(searchUnbindErr);
+                });
+            });
+        };
+    };
+};
+
+
+
+function ldapAuth(username, password, client, bindCallback, bindErr, res) {
+    console.log('--- going to try to connect user ---');
+    try {
+        client.bind(username, password, bindCallback);
+    } catch(error){
+        console.log(error);
+        client.unbind(bindErr);
+        res.send({"status": Status.Error});
+    };
+};
+
 
 var httpServer = http.createServer(app);
-
-httpServer.listen(12124, function() {
-    console.log("http app listening!");
+var port = 12124;
+httpServer.listen(port, function() {
+    console.log("I am listening on port " + port);
 });
-
-

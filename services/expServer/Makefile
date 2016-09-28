@@ -8,7 +8,7 @@ GIT_SHA1=$(shell git rev-parse --short=8 HEAD)
 ARCHIVE := $(NAME)-$(NOW)-$(GIT_SHA1).tar.gz
 DESTDIR ?= /srv/apps/$(NAME)-$(NOW)
 
-FILES := Dockerfile expServer.js Makefile marketplace.json package.json
+FILES := Dockerfile expServer.js Makefile ldapConfig.json package.json marketplace.json
 
 all:
 	@echo deploy    - deploy to $(SERVER)

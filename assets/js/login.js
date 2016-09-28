@@ -6,7 +6,7 @@ $(document).ready(function() {
     setTimeout(function() {
         $('#loginForm').fadeIn(1000);
     }, 800);
-    
+
     $("#loginForm").submit(function(event) {
         // prevents form from having it's default action
         event.preventDefault();
@@ -23,35 +23,40 @@ $(document).ready(function() {
 
         console.log("username:", username);
         var pass = $('#loginPasswordBox').val();
-        var str = {"xipassword": pass};
+        var str = {"xipassword": pass, "xiusername": username};
 
-        /**
-        $.ajax({
-            type: 'POST',
-            data: JSON.stringify(str),
-            contentType: 'application/json',
-            url: 'http://104.197.165.32:12123',
-            success: function(data) {
-                // ret = JSON.stringify(data);
-                ret = data;
-                if (ret == "Success") {
-                    console.log('success');
-                    submit();
-                } else if (ret == "Fail") {
-                    alert('Incorrect Password. Please try again.');
-                    console.log('ret == "Fail"', data, ret);
-                } else {
+        var loginEnabled = false;
+        if(loginEnabled) {
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(str),
+                contentType: 'application/json',
+                url: "https://authentication.xcalar.net/app/login",
+                success: function(data) {
+                    ret = data;
+                    if (ret.status == Status.Ok) {
+                        console.log('success');
+                        submit();
+                    } else if (ret.status == Status.Error) {
+                        alert('Incorrect Password. Please try again.');
+                        console.log('return error', data, ret);
+                    } else {
+                        //Auth server probably down or something. Just let them in
+                        console.log('shouldnt be here', data, ret);
+                        submit();
+                    }
+
+                },
+                error: function(data) {
                     //Auth server probably down or something. Just let them in
-                    console.log('shouldnt be here', data, ret);
+                    console.error(error);
                     submit();
                 }
-            },
-            error: function(data) {
-                //Auth server probably down or something. Just let them in
-                console.error(error);
-                submit();
-            }
-        });*/
+            });
+
+        } else {
+            submit();
+        }
 
         function submit() {
             sessionStorage.setItem("xcalar-username", username);
@@ -59,7 +64,7 @@ $(document).ready(function() {
             // XXX this redirect is only for temporary use
             window.location = paths.indexAbsolute;
         }
-        submit();
+
     });
 
     $("#signupButton").click(function() {
@@ -68,7 +73,7 @@ $(document).ready(function() {
         setTimeout(function() {
             $('.signupHeader').removeClass('hidden');
         }, 800);
-        
+
         $("#loginForm").fadeOut(function() {
             loadBarAnimation();
             setTimeout(function() {

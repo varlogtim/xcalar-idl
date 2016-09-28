@@ -13,4 +13,5 @@ EXPOSE 12124
 
 USER node
 
+CMD [ "npm", "cache clean" ]
 CMD [ "npm", "start" ]
