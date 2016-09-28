@@ -144,11 +144,17 @@ window.UDF = (function($, UDF) {
         var $browserBtn = $("#udf-upload-fileBrowser");
         $("#udf-upload-browse").click(function() {
             $(this).blur();
+            // clear so we can trigger .change on a repeat file
+            $browserBtn.val(""); 
+
             $browserBtn.click();
             return false;
         });
         // display the chosen file's path
         $browserBtn.change(function() {
+            if ($browserBtn.val().trim() === "") {
+                return;
+            }
             var path = $(this).val().replace(/C:\\fakepath\\/i, '');
             var moduleName = path.substring(0, path.indexOf(".")).toLowerCase()
                                 .replace(/ /g, "");
@@ -418,6 +424,7 @@ window.UDF = (function($, UDF) {
     function readUDFFromFile(file, moduleName) {
         var reader = new FileReader();
         reader.onload = function(event) {
+
             var entireString = event.target.result;
             editor.setValue(entireString);
         };
