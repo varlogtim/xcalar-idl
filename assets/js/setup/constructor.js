@@ -134,7 +134,12 @@ function TableMeta(options) {
     self.rowHeights = options.rowHeights || {}; // a map
 
     self.currentRowNumber = -1;
-    self.resultSetId = -1;
+    if (options.resultSetId) {
+        self.resultSetId = options.resultSetId;
+    } else {
+        self.resultSetId = -1;
+    }
+
     self.keyName = "";
     self.resultSetCount = -1;
     self.numPages = -1;
@@ -235,7 +240,10 @@ TableMeta.prototype = {
         var deferred = jQuery.Deferred();
         var self = this;
 
-        XcalarMakeResultSetFromTable(self.tableName)
+        freeResultSetHelper()
+        .then(function() {
+            return XcalarMakeResultSetFromTable(self.tableName);
+        })
         .then(function(resultSet) {
             // Note that this !== self in this scope
             self.resultSetId = resultSet.resultSetId;
@@ -249,6 +257,15 @@ TableMeta.prototype = {
         .fail(deferred.reject);
 
         return deferred.promise();
+
+        function freeResultSetHelper() {
+            var innerDeferred = jQuery.Deferred();
+
+            self.freeResultset()
+            .always(innerDeferred.resolve);
+
+            return innerDeferred.promise();
+        }
     },
 
     "getMetaAndResultSet": function() {
@@ -698,7 +715,6 @@ function METAConstructor(METAKeys) {
         for (var tableId in persistTables) {
             var table = persistTables[tableId];
             delete table.currentRowNumber;
-            delete table.resultSetId;
             delete table.keyName;
             delete table.resultSetCount;
             delete table.numPages;
