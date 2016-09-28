@@ -1206,6 +1206,9 @@ function ProfileGroupbyInfo(options) {
     options = options || {};
     this.isComplete = options.isComplete || false;
     this.nullCount = options.nullCount || 0;
+    if (options.allNull === true) {
+        this.allNull = true;
+    }
     this.buckets = {};
 
     var buckets = options.buckets || {};

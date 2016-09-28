@@ -502,6 +502,7 @@ window.Profile = (function($, Profile, d3) {
             $loadHiddens.addClass("hidden");
         }
 
+        $modal.removeClass("allNull");
         $loadDisables.addClass("disabled");
         $errorSection.addClass("hidden").find(".text").text("");
 
@@ -509,6 +510,10 @@ window.Profile = (function($, Profile, d3) {
         if (statsCol.groupByInfo.isComplete === true) {
             // data is ready
             groupByData = [];
+
+            if (statsCol.groupByInfo.allNull) {
+                $modal.addClass("allNull");
+            }
 
             freePointer()
             .then(function() {
@@ -846,13 +851,14 @@ window.Profile = (function($, Profile, d3) {
             }
 
             if (hasIndexed) {
-                getAggResult(colName, indexedTableName, aggMap.count, txId)
+                XIApi.getNumRows(indexedTableName)
                 .then(function(val) {
                     // the table.resultSetCount should eqaul to the
                     // totalCount after right index, if not, a way to resolve
                     // is to get resulSetCount from the right src table
                     var nullCount = table.resultSetCount - val;
-                    innerDeferred.resolve(indexedTableName, nullCount);
+                    var allNull = (val === 0);
+                    innerDeferred.resolve(indexedTableName, nullCount, allNull);
                 })
                 .fail(innerDeferred.reject);
             } else {
@@ -861,8 +867,11 @@ window.Profile = (function($, Profile, d3) {
 
             return innerDeferred.promise();
         })
-        .then(function(indexedTableName, nullCount) {
+        .then(function(indexedTableName, nullCount, allNull) {
             curStatsCol.groupByInfo.nullCount = nullCount;
+            if (allNull) {
+                curStatsCol.groupByInfo.allNull = true;
+            }
 
             // here user old table name to generate table name
             groupbyTable = getNewName(tableName, ".profile.GB", true);
@@ -876,18 +885,13 @@ window.Profile = (function($, Profile, d3) {
                                 isIncSample, false, txId);
         })
         .then(function() {
+            if (curStatsCol.groupByInfo.allNull) {
+                finalTable = groupbyTable;
+                return PromiseHelper.resolve(0, 0);
+            }
+
             finalTable = getNewName(tableName, ".profile.final", true);
-            // both "a\.b" and "a.b" will become "a\.b" after groupby
-            var sortCol = xcHelper.unescapeColName(colName);
-            sortCol = xcHelper.escapeColName(sortCol);
-            return XcalarIndexFromTable(groupbyTable, sortCol, finalTable,
-                                        XcalarOrderingT.XcalarOrderingAscending,
-                                        txId);
-        })
-        .then(function() {
-            var def1 = getAggResult(statsColName, finalTable, aggMap.max, txId);
-            var def2 = getAggResult(statsColName, finalTable, aggMap.sum, txId);
-            return PromiseHelper.when(def1, def2);
+            return sortGroupby(groupbyTable, colName, finalTable, txId);
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(0, {
@@ -924,6 +928,25 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
+    function sortGroupby(srcTable, colName, finalTable, txId) {
+        var deferred = jQuery.Deferred();
+        // both "a\.b" and "a.b" will become "a\.b" after groupby
+        var sortCol = xcHelper.unescapeColName(colName);
+        sortCol = xcHelper.escapeColName(sortCol);
+
+        XcalarIndexFromTable(srcTable, sortCol, finalTable,
+                            XcalarOrderingT.XcalarOrderingAscending, txId)
+        .then(function() {
+            var def1 = getAggResult(statsColName, finalTable, aggMap.max, txId);
+            var def2 = getAggResult(statsColName, finalTable, aggMap.sum, txId);
+            return PromiseHelper.when(def1, def2);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function getAggResult(colName, tableName, aggOp, txId) {
         if (aggOp === "sd") {
             // standard deviation
@@ -938,6 +961,10 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function fetchGroupbyData(rowPosition, rowsToFetch) {
+        if (totalRows === 0) {
+            return PromiseHelper.resolve();
+        }
+
         var deferred = jQuery.Deferred();
 
         XcalarSetAbsolute(resultSetId, rowPosition)
@@ -988,7 +1015,7 @@ window.Profile = (function($, Profile, d3) {
         .then(deferred.resolve)
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function addNullValue(data) {
@@ -1959,6 +1986,11 @@ window.Profile = (function($, Profile, d3) {
         if (rowNum == null) {
             rowNum = Number($skipInput.val());
         }
+        if (rowNum < 1) {
+            // 0 is nullVal, < 0 is invalid value
+            return;
+        }
+
         var chart = getChart();
         chart.selectAll(".barArea")
         .each(function(d) {
@@ -2418,6 +2450,7 @@ window.Profile = (function($, Profile, d3) {
 
     function failureHandler(curStatsCol, error, txId) {
         console.error("Profile error", error);
+        curStatsCol.groupByInfo.isComplete = false;
         if (isModalVisible(curStatsCol)) {
             if (txId != null) {
                 Transaction.fail(txId, {

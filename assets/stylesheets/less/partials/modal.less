@@ -1494,6 +1494,12 @@ html.microsoft {
         }
     }
 
+    &.allNull {
+        .sortAndRangeSection {
+            pointer-events: none;
+        }
+    }
+
     &.loading {
         .loadDisabled {
             opacity: 0.7;
@@ -1931,6 +1937,10 @@ html.microsoft {
                     }
                     .bar {
                         fill: @color-profile-bar-hover;
+
+                        &.bar-nullVal {
+                            fill: darken(@color-profile-bar-null, 20%);
+                        }
                     }
                 }
             }
