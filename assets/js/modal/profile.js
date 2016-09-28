@@ -100,7 +100,6 @@ window.Profile = (function($, Profile, d3) {
         $modal.on("mouseover", ".barArea", function(event) {
             event.stopPropagation();
             var rowToHover = null;
-            // XXX FIXME g tag can not use addClass, fix it if it's not true
             if (!$modal.hasClass("drawing")) {
                 rowToHover = d3.select(this).attr("data-rowNum");
             }
@@ -117,7 +116,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         var $groupbySection = $modal.find(".groubyInfoSection");
-        $groupbySection.on("mousedown", ".bar-extra, .bar, .xlabel", function() {
+        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function() {
             if (event.which !== 1) {
                 return;
             }
@@ -2001,11 +2000,14 @@ window.Profile = (function($, Profile, d3) {
 
         function FilterSelection(x, y) {
             var self = this;
-            self.x = x;
+            // move it 1px so that the filterSelection
+            // not stop the click event to toggle percertageLabel
+            // to be trigger
+            self.x = x + 1;
             self.y = y;
 
-            var left = x - bound.left;
-            var top = y - bound.top;
+            var left = self.x - bound.left;
+            var top = self.y - bound.top;
 
             var html = '<div id="profile-filterSelection" style="left:' + left +
                         'px; top:' + top + 'px; width:0; height:0;"></div>';
@@ -2013,7 +2015,8 @@ window.Profile = (function($, Profile, d3) {
             $("#profile-filterSelection").remove();
             $("#profile-filterOption").fadeOut(200);
             $("#profile-chart").append(html);
-            $modal.addClass("drawing, selecting");
+            $modal.addClass("drawing")
+                .addClass("selecting");
             addSelectRectEvent(self);
 
             return self;
