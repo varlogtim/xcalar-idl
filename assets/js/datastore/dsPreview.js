@@ -342,11 +342,6 @@ window.DSPreview = (function($, DSPreview) {
                 xcHelper.enableSubmit($submitBtn);
             });
         });
-
-        $("#importDataForm-content").scroll(function() {
-            var scrollTop = $(this).scrollTop();
-            $("#dsForm-refresh").css("top", scrollTop);
-        });
     }
 
     function listUDFSection(listXdfsObj) {
@@ -489,7 +484,6 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             $checkbox.removeClass("checked");
             $udfArgs.removeClass("active");
-            $("#dsForm-refresh").css("top", 0);
         }
     }
 
@@ -525,7 +519,6 @@ window.DSPreview = (function($, DSPreview) {
         // to show \t, \ should be escaped
         $("#fieldText").val("Null").addClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
-        $("#dsForm-refresh").css("top", 0);
     }
 
     function submitForm(toCreateTable) {
@@ -921,6 +914,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         $formatText.data("format", format).val(text);
+        $form.removeClass("format-excel");
 
         switch (format) {
             case "CSV":
@@ -937,6 +931,7 @@ window.DSPreview = (function($, DSPreview) {
                 $fieldDelim.addClass("xc-hidden");
                 // excel not use udf section
                 $udfArgs.addClass("xc-hidden");
+                $form.addClass("format-excel");
                 break;
 
             // json and random

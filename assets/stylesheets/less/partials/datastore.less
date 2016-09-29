@@ -1369,6 +1369,27 @@ table.datasetTable {
     .size(@height: 100%);
     border-top: 1px solid @color-border-pinkish-grey2;
     @row-width: 170px;
+    .position(relative);
+
+    &.format-excel {
+        #dsForm-detect {
+            top: 60px !important;
+        }
+    }
+
+    .btn.fixed {
+        .size(@width: 170px);
+        .position(absolute, @right: 20px);
+        padding-right: 5px;
+
+        &#dsForm-refresh {
+            top: 7px;
+        }
+
+        &#dsForm-detect {
+            top: 100px;
+        }
+    }
 
     .contentSection {
         .size(@width: 100%, @height: ~"calc(100% - 50px)");
@@ -1419,12 +1440,6 @@ table.datasetTable {
             #dsForm-dsName {
                 .size(@width: 450px);
             }
-        }
-
-        button {
-            float: right;
-            .size(@width: 170px);
-            padding-right: 5px;
         }
     }
 

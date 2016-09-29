@@ -48,6 +48,18 @@
       <div class="border"></div>
     </div>
     <form id="importDataForm" target="_blank">
+      <!-- refresh -->
+      <button id="dsForm-refresh" type="button" class="fixed btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-refresh"' : '' %> >
+        <i class="icon xi-refresh fa-17"></i>
+        <%= dicts.dsForm.Refresh %>
+      </button>
+
+      <!-- auto detect -->
+      <button id="dsForm-detect" type="button" class="fixed btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-redetect"' : '' %> >
+        <i class="icon xi-magic-wand fa-17"></i>
+        <%= dicts.dsForm.REDETECT %>
+      </button>
+
       <div id="importDataForm-content" class="contentSection">
         <!-- row -->
         <div class="row">
@@ -58,13 +70,7 @@
             <% } else { %>
              <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
             <% } %>
-           
           </div>
-          <!-- refresh -->
-          <button id="dsForm-refresh" type="button" class="btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-refresh"' : '' %> >
-            <i class="icon xi-refresh fa-17"></i>
-            <%= dicts.dsForm.Refresh %>
-          </button>
         </div>
         <!-- row -->
         <div id="udfArgs" class="row udf clearfix">
@@ -135,11 +141,6 @@
               </div>
             </div>
           </div>
-          <!-- auto detect -->
-          <button id="dsForm-detect" type="button" class="btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-redetect"' : '' %> >
-            <i class="icon xi-magic-wand fa-17"></i>
-            <%= dicts.dsForm.REDETECT %>
-          </button>
         </div>
         <!-- row -->
         <div class="row">
