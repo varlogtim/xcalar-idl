@@ -35,6 +35,7 @@ window.DSPreview = (function($, DSPreview) {
 
     // constant
     var rowsToFetch = 40;
+    var minRowsToShow = 20;
     var numBytesRequest = 15000;
     var excelModule = "default";
     var excelFunc = "openExcel";
@@ -1114,10 +1115,39 @@ window.DSPreview = (function($, DSPreview) {
 
     function loadData(loadURL, isRecur, isRegex) {
         var deferred = jQuery.Deferred();
-
-        XcalarPreview(loadURL, isRecur, isRegex, numBytesRequest)
+        bufferData(loadURL, isRecur, isRegex, numBytesRequest)
         .then(function(res) {
             deferred.resolve(res.buffer);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function bufferData(loadURL, isRecur, isRegex, numBytesRequest, isRetry) {
+        var deferred = jQuery.Deferred();
+        XcalarPreview(loadURL, isRecur, isRegex, numBytesRequest)
+        .then(function(res) {
+            if (!isRetry && res.buffer != null) {
+                var d = res.buffer.split("\n");
+                var lines = d.length;
+                if (lines < minRowsToShow) {
+                    var maxBytesInLine = 0;
+                    for (var i = 0, len = d.length; i < len; i++) {
+                        maxBytesInLine = Math.max(maxBytesInLine, d[i].length);
+                    }
+
+                    var bytesNeed = maxBytesInLine * minRowsToShow;
+                    console.info("too small rows, request", bytesNeed);
+                    return bufferData(loadURL, isRecur, isRegex,
+                                      bytesNeed, true);
+                }
+            }
+
+            return PromiseHelper.resolve(res);
+        })
+        .then(function(res) {
+            deferred.resolve(res);
         })
         .fail(deferred.reject);
 
@@ -1448,6 +1478,10 @@ window.DSPreview = (function($, DSPreview) {
                     if (bracketCnt === 0) {
                         record.push(datas.substring(startIndex, i + 1));
                         startIndex = -1;
+                        // not show too much rows
+                        if (record.length >= rowsToFetch) {
+                            break;
+                        }
                     } else if (bracketCnt < 0) {
                         // error cse
                         errorHandler(DSFormTStr.NoParseJSON);
@@ -1561,7 +1595,9 @@ window.DSPreview = (function($, DSPreview) {
     function getTbodyHTML(datas, delimiter) {
         var tbody = "<tbody>";
         var i = loadArgs.useHeader() ? 1 : 0;
-        for (j = 0, len = datas.length; i < len; i++, j++) {
+        // not showing too much rows
+        var len = Math.min(datas.length, rowsToFetch);
+        for (j = 0; i < len; i++, j++) {
             tbody += '<tr>' +
                         '<td class="lineMarker">' +
                             (j + 1) +
