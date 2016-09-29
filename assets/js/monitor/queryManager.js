@@ -819,7 +819,8 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         var newClass = null;
-
+        progress = Math.max(progress, 0);
+        progress = Math.min(progress, 100);
         if (progress >= 100 && ((numSteps > 0 && currStep >= numSteps) ||
             (mainQuery.state === "done"))) {
             progress = "100%";
