@@ -1354,7 +1354,7 @@ window.DS = (function ($, DS) {
         if (dsObj.beFolder()) {
             // when it's a folder
             html =
-            '<div class="folder grid-unit"' +
+            '<div class="folder grid-unit uneditable"' +
                 ' data-dsId="' + id + '"' +
                 ' data-dsParentId=' + parentId + '>' +
                 '<div class="gridIcon"></div>' +
@@ -1367,7 +1367,7 @@ window.DS = (function ($, DS) {
         } else {
             // when it's a dataset
             html =
-            '<div class="ds grid-unit" ' +
+            '<div class="ds grid-unit uneditable" ' +
                 ' data-user="' + dsObj.getUser() + '"' +
                 ' data-dsname="' + name + '"' +
                 ' data-dsId="' + id + '"' +

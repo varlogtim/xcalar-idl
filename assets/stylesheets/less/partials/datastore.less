@@ -1573,6 +1573,12 @@ table.datasetTable {
                     background-color: @color-bg-light-navy;
                 }
 
+                &.uneditable {
+                    > .label {
+                        .no-selection;
+                    }
+                }
+
                 > .label {
                     textarea {
                         background-color: transparent;
