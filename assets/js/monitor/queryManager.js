@@ -166,11 +166,9 @@ window.QueryManager = (function(QueryManager, $) {
                         incrementStep(mainQuery);
                         subQuery = mainQuery.subQueries[mainQuery.currStep];
                         clearInterval(queryCheckLists[id]);
-                        // queryCheckLists[id]
                         if (mainQuery.currStep === mainQuery.numSteps) {
                             // query is done
                         } else {
-
                             while (subQuery && subQuery.state === "done") {
                                 incrementStep(mainQuery);
                                 subQuery = mainQuery.subQueries[mainQuery.currStep];
@@ -183,10 +181,8 @@ window.QueryManager = (function(QueryManager, $) {
                                 } else {
                                     subQueryCheck(subQuery);
                                 }
-
                             }
                         }
-
                     }
                     break;
                 }
@@ -196,9 +192,17 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.removeQuery = function(id) {
+    QueryManager.removeQuery = function(id, userTriggered) {
         if (!queryLists[id]) {
             return;
+        }
+        if (userTriggered) {
+            // do not allow user to click on trash if not started or processing
+            var state = queryLists[id].state;
+            if (state === QueryStateT.qrNotStarted ||
+                state === QueryStateT.qrProcessing) {
+                return;
+            }
         }
         clearInterval(queryCheckLists[id]);
         delete queryCheckLists[id];
@@ -979,7 +983,7 @@ window.QueryManager = (function(QueryManager, $) {
             var id = $clickTarget.closest('.query').data('id');
 
             if ($clickTarget.hasClass('deleteIcon')) {
-                QueryManager.removeQuery(id);
+                QueryManager.removeQuery(id, true);
             } else if ($clickTarget.hasClass('cancelIcon')) {
                 QueryManager.cancelQuery(id);
             } else {

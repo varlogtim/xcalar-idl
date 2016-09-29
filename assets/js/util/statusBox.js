@@ -96,7 +96,6 @@ window.StatusBox = (function($, StatusBox){
             $(window).blur(hideStatusBox);
         }
 
-       
         open = true;
     };
 
@@ -113,7 +112,6 @@ window.StatusBox = (function($, StatusBox){
     function hideStatusBox(event) {
         if (event.data && event.data.target) {
             var id = $(event.target).attr('id');
-
             if (id === "statusBoxClose" ||
                 id !== event.data.target.attr('id') ||
                 event.type === "keydown")
@@ -129,10 +127,10 @@ window.StatusBox = (function($, StatusBox){
             $doc.off('keydown', hideStatusBox);
             clear();
         }
-        open = false;
     }
 
-    function clear() {
+    function clear() { 
+        open = false;
         $statusBox.removeClass();
         $statusBox.find('.titleText').text('');
         $statusBox.find('.message').text('');

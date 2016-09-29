@@ -106,6 +106,7 @@ window.Workbook = (function($, Workbook) {
             MonitorPanel.inActive();
         }
         $('.tooltip').hide();
+        StatusBox.forceHide();
     };
 
     Workbook.forceShow = function() {
