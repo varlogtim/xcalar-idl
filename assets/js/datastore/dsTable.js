@@ -394,7 +394,7 @@ window.DSTable = (function($, DSTable) {
         });
 
         $tableWrap.on('mouseenter', '.tooltipOverflow', function() {
-            xcHelper.autoTooltip(this); 
+            xcHelper.autoTooltip(this);
         });
 
         $dsTableContainer.scroll(function(){
@@ -487,8 +487,6 @@ window.DSTable = (function($, DSTable) {
 
     function rePointDS(dsId) {
         var dsObj = DS.getDSObj(dsId);
-        console.log(dsObj)
-
         DSPreview.show({
             "path"       : dsObj.getPath(),
             "format"     : dsObj.getFormat(),
@@ -496,7 +494,7 @@ window.DSTable = (function($, DSTable) {
             "pattern"    : dsObj.pattern,
             "isRecur"    : dsObj.isRecur,
             "isRegex"    : dsObj.isRegex
-        }, false);
+        }, false, dsId);
     }
 
     // sample table html

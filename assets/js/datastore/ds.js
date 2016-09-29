@@ -53,6 +53,9 @@ window.DS = (function ($, DS) {
 
     // Get dsObj by dsId
     DS.getDSObj = function(dsId) {
+        if (dsId == null) {
+            return null;
+        }
         return dsLookUpTable[dsId];
     };
 
@@ -193,7 +196,7 @@ window.DS = (function ($, DS) {
     DS.point = function(pointArgs, options) {
         options = options || {};
         var createTable = options.createTable || false;
-
+        var dsToReplace = options.dsToReplace || null;
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
         var curFolder = DS.getDSObj(curDirId);
@@ -203,7 +206,7 @@ window.DS = (function ($, DS) {
             clearDirStack();
         }
 
-        var dsObj = createDS(pointArgs);
+        var dsObj = createDS(pointArgs, dsToReplace);
         var sql = {
             "operation": SQLOps.DSPoint,
             "pointArgs": pointArgs,
@@ -402,7 +405,7 @@ window.DS = (function ($, DS) {
     };
 
     // Create dsObj for new dataset/folder
-    function createDS(options) {
+    function createDS(options, dsToReplace) {
         options = options || {};
         // validation check
         xcHelper.assert((options.name != null), "Invalid Parameters");
@@ -415,7 +418,6 @@ window.DS = (function ($, DS) {
         options.uneditable = options.uneditable || false;
 
         var parent = DS.getDSObj(options.parentId);
-        // var $parent = DS.getGrid(options.parentId);
 
         if (options.isFolder) {
             var i = 1;
@@ -440,7 +442,27 @@ window.DS = (function ($, DS) {
         var dsObj = new DSObj(options);
         var $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
                                        $(getDSHTML(dsObj));
-        $gridView.append($ds);
+
+        var dsObjToReplace = DS.getDSObj(dsToReplace);
+        var $gridToReplace = null;
+        if (dsObjToReplace != null) {
+            // when replace ds
+            $gridToReplace = DS.getGrid(dsToReplace);
+        }
+
+        if ($gridToReplace != null) {
+            $gridToReplace.before($ds);
+            // hide replaced grid first and then delete
+            // use .xc-hidden is not good because refreshDS() may display it
+            $gridToReplace.hide();
+            delDSHelper($gridToReplace, dsObjToReplace, {
+                "forceRemove": true,
+                "noDeFocus"  : true
+            });
+        } else {
+            $gridView.append($ds);
+        }
+
         truncateDSName($ds.find(".label"));
 
         // cached in lookup table
@@ -484,12 +506,7 @@ window.DS = (function ($, DS) {
                 dsObj.setError(error);
             }
 
-            $grid.removeData("txid");
-            $grid.removeClass("inactive").find(".waitingIcon").remove();
-            $grid.show();
-
-            // display new dataset
-            refreshDS();
+            finishPoint();
 
             if (error == null && createTabe) {
                 createTableHelper($grid, dsObj);
@@ -517,13 +534,11 @@ window.DS = (function ($, DS) {
             deferred.resolve(dsObj);
         })
         .fail(function(error) {
-            removeDS($grid);
-            DataStore.update();
-
-            if ($('#dsInfo-title').text() === dsName) {
-                // if loading page is showing, remove and go to import form
-                DSForm.show({"noReset": true});
+            if (dsObj.getError() != null) {
+                dsObj.setError(error);
             }
+            finishPoint();
+            DS.focusOn($grid);
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.LoadFailed,
@@ -534,6 +549,13 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
+
+        function finishPoint() {
+            $grid.removeData("txid");
+            $grid.removeClass("inactive").find(".waitingIcon").remove();
+            // display new dataset
+            refreshDS();
+        }
 
         function cleanupHelper() {
             if (!isRetry) {
@@ -565,7 +587,11 @@ window.DS = (function ($, DS) {
     }
 
     // Helper function for DS.remove()
-    function delDSHelper($grid, dsObj) {
+    function delDSHelper($grid, dsObj, options) {
+        options = options || {};
+        var forceRemove = options.forceRemove || false;
+        var noDeFocus = options.noDeFocus || false;
+
         var deferred = jQuery.Deferred();
 
         $grid.removeClass("active")
@@ -599,8 +625,9 @@ window.DS = (function ($, DS) {
             // remove ds obj
             removeDS($grid);
             DataStore.update();
-
-            focusOnFirstDS();
+            if (!noDeFocus) {
+                focusOnFirstDS();
+            }
             UserSettings.logDSChange();
 
             Transaction.done(txId);
@@ -610,6 +637,10 @@ window.DS = (function ($, DS) {
             $grid.find('.waitingIcon').remove();
             $grid.removeClass("inactive")
                  .removeClass("deleting");
+            if (forceRemove) {
+                removeDS($grid);
+                DataStore.update();
+            }
 
             Transaction.fail(txId, {
                 "failMsg": DSTStr.DelDSFail,
@@ -623,7 +654,7 @@ window.DS = (function ($, DS) {
 
     // Helper function to remove ds
     function removeDS($grid) {
-        var dsId  = $grid.data("dsid");
+        var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
 
         if (dsObj.beFolderWithDS()) {

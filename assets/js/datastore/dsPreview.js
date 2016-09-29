@@ -119,12 +119,18 @@ window.DSPreview = (function($, DSPreview) {
         setupForm();
     };
 
-    DSPreview.show = function(options, fromFormCard) {
+    DSPreview.show = function(options, fromFormCard, dsId) {
         var $dsFormView = $("#dsFormView");
         if (!$dsFormView.is(":visible"))
         {
             $dsFormView.removeClass("xc-hidden");
             DSTable.hide();
+        }
+
+        if (dsId != null) {
+            $previewCard.data("dsid", dsId);
+        } else {
+            $previewCard.removeData("dsid", dsId);
         }
 
         $previewCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
@@ -577,11 +583,6 @@ window.DSPreview = (function($, DSPreview) {
 
         alertHelper()
         .then(function() {
-            // dsName, format, loadURL, pattern,
-            //             fieldDelim, lineDelim, header,
-            //             udfModule, udfFunc,
-            //             isRecur, previewSize, quote,
-            //             skipRows, isRegex, toCreateTable
             var pointArgs = {
                 "name"       : dsName,
                 "format"     : format,
@@ -599,8 +600,10 @@ window.DSPreview = (function($, DSPreview) {
                 "isRegex"    : isRegex
             };
 
+            var dsToReplace = $previewCard.data("dsid") || null;
             var options = {
-                "createTable": toCreateTable
+                "createTable": toCreateTable,
+                "dsToReplace": dsToReplace
             };
 
             return DS.point(pointArgs, options);
