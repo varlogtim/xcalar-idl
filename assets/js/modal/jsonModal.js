@@ -92,7 +92,6 @@ window.JSONModal = (function($, JSONModal) {
                 resortJsons(initialIndex, $(ui.item).index());
                 $(ui.item).css('top', 'auto');
             }
-            // containment: "parent"
         });
 
         addEventListeners();
@@ -522,17 +521,19 @@ window.JSONModal = (function($, JSONModal) {
 
     function sortData($icon) {
         var order;
+        var tooltipText;
         if ($icon.hasClass('desc')) {
             $icon.removeClass('desc');
-            $icon.attr('data-original-title', JsonModalTStr.SortAsc);
+            tooltipText = JsonModalTStr.SortAsc;
             order = 1;
         } else {
             $icon.addClass('desc');
-            $icon.attr('data-original-title', JsonModalTStr.SortDesc);
+            tooltipText = JsonModalTStr.SortDesc;
             order = -1;
         }
+        xcHelper.changeTooltipText($icon, null, tooltipText);
+        xcHelper.refreshTooltip($icon);
 
-        $('.tooltip').hide();
         var $jsonWrap = $icon.closest('.jsonWrap');
         var $list = $jsonWrap.find('.primary').children().children().children();
         $list.sort(sortList).prependTo($jsonWrap.find('.primary').children().children());
@@ -782,14 +783,14 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
+        fillJsonArea(jsonObj, $jsonTd, isArray, type);
+
         if (gMinModeOn || isModalOpen) {
-            fillJsonArea(jsonObj, $jsonTd, isArray, type);
             if (!isModalOpen) {
                 $jsonText = $jsonModal.find('.prettyJson:visible');
                 searchHelper.$matches = $jsonText.find('.highlightedText');
             }
         } else {
-            fillJsonArea(jsonObj, $jsonTd, isArray, type);
             // wait for jsonModal to become visible
             setTimeout(function() {
                 $jsonText = $jsonModal.find('.prettyJson:visible');
@@ -814,8 +815,12 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function fillJsonArea(jsonObj, $jsonTd, isArray, type) {
+    function fillJsonArea(jsonObj, $jsonTd, isArray, type, tableMeta) {
+        var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
+        var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+        var tableName = gTables[tableId].tableName;
         var prettyJson;
+
         if (type && (type !== "object" && type !== "array")) {
             var typeClass = "";
             switch (type) {
@@ -843,11 +848,20 @@ window.JSONModal = (function($, JSONModal) {
             notObject = true;
         } else {
             var checkboxes = true;
+            var tableMeta = gTables[tableId].backTableMeta;
+            var immds = [];
+            for (var i = 0; i < tableMeta.valueAttrs.length; i++) {
+                if (tableMeta.valueAttrs[i].type !== DfFieldTypeT.DfFatptr) {
+                    immds.push(tableMeta.valueAttrs[i].name);
+                }
+            }
             prettyJson = prettifyJson(jsonObj, null, checkboxes,
-                                      {inarray: isArray});
-            prettyJson = '<div class="jObject"><span class="jArray jInfo">' +
-                         prettyJson +
-                         '</span></div>';
+                                      {inarray: isArray, tableMeta: tableMeta,
+                                        immds: immds});
+            prettyJson = '<div class="jObject">' +
+                            '<span class="jArray jInfo">' + prettyJson +
+                            '</span>' +
+                         '</div>';
             if (isArray) {
                 prettyJson = '[' + prettyJson + ']';
             } else {
@@ -856,10 +870,7 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         // var $jsonWrap = $jsonArea.find('.jsonWrap:last');
-        var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
-        var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
-        var tableName = gTables[tableId].tableName;
-
+        
         $jsonArea.append(getJsonWrapHtml(prettyJson, tableName, rowNum));
 
         addDataToJsonWrap($jsonArea, $jsonTd, isArray);
@@ -1019,7 +1030,7 @@ window.JSONModal = (function($, JSONModal) {
                     html += '<div class="unmatched">';
                 }
                 for (var k = 0; k < arrLen; k++) {
-                    html += prettifyJson(jsons[obj][matchType][k], null, null,
+                    html += prettifyJson(jsons[obj][matchType][k], 0, null,
                                          {comparison: true});
                 }
                 html += '</div>';
@@ -1056,7 +1067,6 @@ window.JSONModal = (function($, JSONModal) {
             $jsonWrap.find('.colsSelected').data('totalcols', numFields)
                                            .text('0/' + numFields + ' selected');
         }
-
     }
 
     function getJsonWrapHtml(prettyJson, tableName, rowNum) {
@@ -1325,9 +1335,8 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         var result = "";
-        indent = indent || "";
+        indent = indent || 0;
         options = options || {};
-
         options.inarray = options.inarray || 0;
 
         for (var key in obj) {
@@ -1387,13 +1396,12 @@ window.JSONModal = (function($, JSONModal) {
                             prettifyJson(value, indent, null, options) +
                         '</span>],';
                     } else {
-                        var object = prettifyJson(value,
-                                        indent + '&nbsp;&nbsp;&nbsp;&nbsp;');
+                        var object = prettifyJson(value, indent + 1);
                         if (object === "") {
                             value = '{<span class="emptyObj">\n' +
-                                    object + indent + '</span>}';
+                                    object + getIndent(indent) + '</span>}';
                         } else {
-                            value = '{\n' + object + indent + '}';
+                            value = '{\n' + object + getIndent(indent) + '}';
                         }
 
                         if (options.inarray) {
@@ -1418,19 +1426,37 @@ window.JSONModal = (function($, JSONModal) {
             if (options.inarray) {
                 result += value;
             } else {
+                var row = "";
+                var classNames = "";
+                var isImmediate;
                 value = value.replace(/,$/, "");
-                result +=
-                    '<div class="jsonBlock jInfo" data-key="' + dataKey + '">';
+                
                 if (checkboxes) {
-                    result += '<div class="checkbox jsonCheckbox">' +
+                    classNames = " mainKey";
+                    if (options.immds && options.immds.indexOf(dataKey) > -1) {
+                        classNames += " immediate";
+                        isImmediate = true;
+                    }
+                }
+                row += '<div class="jsonBlock jInfo' + classNames + 
+                      '" data-key="' + dataKey + '">';
+                   
+                if (checkboxes) {
+                    row += '<div class="checkbox jsonCheckbox">' +
                                 '<i class="icon xi-ckbox-empty fa-11"></i>' +
                                 '<i class="icon xi-ckbox-selected fa-11"></i>' +
                               '</div>';
                 }
-                result += indent +
+                row += getIndent(indent) +
                         '"<span class="jKey text">' + dataKey + '</span>": ' +
                         value + ',' +
                     '</div>';
+                // xx will implement this soon 9/28/16
+                // if (isImmediate) { // put immediate in front
+                //     result = row + result;
+                // } else {
+                    result += row;
+                // }
             }
         }
 
@@ -1445,6 +1471,15 @@ window.JSONModal = (function($, JSONModal) {
                                                           .replace(/\,$/, ""));
 
         }
+    }
+
+    function getIndent(num) {
+        var singleIndent = "&nbsp;&nbsp;&nbsp;&nbsp";
+        var totalIndent = "";
+        for (var i = 0; i < num; i++) {
+            totalIndent += singleIndent;
+        }
+        return (totalIndent);
     }
 
     function createJsonSelectionExpression($el) {

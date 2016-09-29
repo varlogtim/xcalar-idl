@@ -1284,9 +1284,7 @@ function reorderAfterTableDrop(tableId, srcIndex, desIndex, options) {
     }
 
     if (moveHtml) {
-        moveTableDropdownBoxes();
-        moveFirstColumn();
-        moveTableTitles();
+        xcHelper.centerFocusedTable(tableId);
     }
 
     SQL.add("Change Table Order", {
