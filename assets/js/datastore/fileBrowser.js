@@ -308,7 +308,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function fileBrowserScrolling() {
         var scrollTimer;
         $container.scroll(function() {
-            if ($(this).hasClass('noScrolling') || 
+            if ($(this).hasClass('noScrolling') ||
                 (curFiles.length <= lowerFileLimit ||
                 curFiles.length > upperFileLimit)) {
                 return;
@@ -480,6 +480,7 @@ window.FileBrowser = (function($, FileBrowser) {
             // performance when there's 1000+ files, is the remove slow?
             $container.removeClass("manyFiles");
             $fileBrowser.removeClass("unsortable");
+            $("#fileBrowserSearch input").val("");
             advancedOption.reset();
 
             $visibleFiles = $();
@@ -731,7 +732,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function searchFiles(searchKey) {
         var grid = getFocusGrid();
         var regEx = (searchKey == null) ? null : new RegExp(searchKey);
-        sortFilesBy(sortKey, regEx, true);
+        sortFilesBy(sortKey, regEx);
         focusOn(grid);
     }
 
@@ -771,7 +772,7 @@ window.FileBrowser = (function($, FileBrowser) {
         centerUnitIfHighlighted($fileBrowserMain.hasClass('listView'));
     }
 
-    function sortFilesBy(key, regEx, searchAll) {
+    function sortFilesBy(key, regEx) {
         if (allFiles.length > upperFileLimit) {
             oversizeHandler();
             return;
@@ -780,7 +781,7 @@ window.FileBrowser = (function($, FileBrowser) {
         curFiles = allFiles;
         if (regEx) {
             sortRegEx = regEx;
-            curFiles = filterFiles(curFiles, regEx, searchAll);
+            curFiles = filterFiles(curFiles, regEx);
         } else {
             sortRegEx = undefined; // default
         }
@@ -807,16 +808,13 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileBrowser.removeClass('unsortable');
     }
 
-    function filterFiles(files, regEx, searchAll) {
+    function filterFiles(files, regEx) {
         var result = [];
 
         for (var i = 0, len = files.length; i < len; i++) {
             var fileObj = files[i];
             var name = fileObj.name;
-            // when searchAll, folder should be filtered,
-            // otherwise, not filter folder
-            if (!searchAll && fileObj.attr.isDirectory ||
-                regEx.test(name) === true)
+            if (regEx.test(name) === true)
             {
                 result.push(fileObj);
             }
