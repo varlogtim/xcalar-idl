@@ -1274,10 +1274,12 @@ function DSObj(options) {
     this.user = options.user;
     this.fullName = options.fullName;
     this.parentId = options.parentId;
-    this.isFolder = options.isFolder;
+    this.isFolder = options.isFolder || false;
     this.uneditable = options.uneditable;
     this.mDate = options.mDate;
-    this.error = options.error || null;
+    if (options.error != null) {
+        this.error = options.error;
+    }
 
     // initially, dataset count itself as one child,
     // folder has no child;
@@ -1288,8 +1290,8 @@ function DSObj(options) {
         this.totalChildren = 1;
         this.format = options.format;
         this.path = options.path;
-        this.fileSize = options.fileSize;
-        this.numEntries = options.numEntries;
+        this.fileSize = options.fileSize || null;
+        this.numEntries = options.numEntries || null;
         this.resultSetId = options.resultSetId;
 
         // args to point to dataset
@@ -1489,10 +1491,6 @@ DSObj.prototype = {
 
     isEditable: function() {
         return !this.uneditable;
-    },
-
-    setNumEntries: function(num) {
-        this.numEntries = num;
     },
 
     makeResultSet: function() {

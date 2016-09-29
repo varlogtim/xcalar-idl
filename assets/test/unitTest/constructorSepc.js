@@ -404,7 +404,7 @@ describe('Constructor Test', function() {
             table.addPrefixColor("test", "white");
             expect(table.prefixColor).to.be.an('object');
             expect(table.getPrefixColor("test")).to.equal("white");
-        })
+        });
     });
 
     describe('Meta Constructor Test', function() {
@@ -641,7 +641,7 @@ describe('Constructor Test', function() {
         // XXx TODO: add more to test basic attr
         it('Should get and set error', function() {
             var dsObj = new DSObj({"parentId": DSObjTerm.homeParentId});
-            expect(dsObj.getError()).to.be.null;
+            expect(dsObj.getError()).to.be.undefined;
             dsObj.setError("test");
             expect(dsObj.getError()).to.equal("test");
 

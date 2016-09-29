@@ -394,12 +394,8 @@ window.Replay = (function($, Replay) {
 
     function createFuncArgsMap() {
         argsMap = {};
-        // DS.load()
-        argsMap[SQLOps.DSLoad] = ["dsName", "dsFormat", "loadURL", "pattern",
-                                    "fieldDelim", "lineDelim", "hasHeader",
-                                    "moduleName", "funcName",
-                                    "isRecur", "previewSize", "quoteChar",
-                                    "skipRows", "isRegex", "createTable"];
+        // DS.point()
+        argsMap[SQLOps.DSPoint] = ["pointArgs", "options"];
         argsMap[SQLOps.Sort] = ["colNum", "tableId", "order", "typeToCast"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
@@ -457,7 +453,7 @@ window.Replay = (function($, Replay) {
     function createTabMap() {
         tabMap = {};
 
-        tabMap[SQLOps.DSLoad] = Tab.DS;
+        tabMap[SQLOps.DSPoint] = Tab.DS;
         tabMap[SQLOps.IndexDS] = Tab.DS;
         tabMap[SQLOps.CreateFolder] = Tab.DS;
         tabMap[SQLOps.DSRename] = Tab.DS;
@@ -485,7 +481,7 @@ window.Replay = (function($, Replay) {
     /* REPLAYFUNCS HOLDS ALL THE REPLAY FUNCTIONS */
     replayFuncs = {};
 
-    replayFuncs[SQLOps.DSLoad] = function(options) {
+    replayFuncs[SQLOps.DSPoint] = function(options) {
         if (options.isRetry) {
             var $grid = DS.getGridByName(options.dsName);
             var dsId = $grid.data("dsid");
@@ -497,7 +493,7 @@ window.Replay = (function($, Replay) {
             return DS.reload(dsId, options.previewSize);
         } else {
             var args = getArgs(options);
-            return DS.load.apply(window, args);
+            return DS.point.apply(window, args);
         }
     };
 

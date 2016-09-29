@@ -126,14 +126,11 @@ function dsObjTest() {
     });
 
     describe("New Dataset Test", function() {
-        it("Should load ds", function(done) {
+        it("Should point to ds", function(done) {
             var name = xcHelper.uniqueRandName("testSuites-dsObj-sp500", DS.has, 10);
             var dataset = testDatasets.sp500;
-
-            DS.load(name, dataset.format, dataset.url, dataset.pattern,
-                    dataset.fieldDelim, dataset.lineDelim,
-                    dataset.hasHeader, dataset.moduleName, dataset.funcName,
-                    false)
+            var pointArgs = $.extend({}, dataset, {"name": name});
+            DS.point(pointArgs)
             .then(function(dsObj) {
                 testDS = dsObj;
 
@@ -141,7 +138,7 @@ function dsObjTest() {
                 expect(testDS).to.have.property("id");
                 expect(testDS).to.have.property("name").to.equal(name);
                 expect(testDS).to.have.property("format").to.equal(dataset.format);
-                expect(testDS).to.have.property("path").to.equal(dataset.url);
+                expect(testDS).to.have.property("path").to.equal(dataset.path);
                 expect(testDS).to.have.property("fileSize");
                 expect(testDS).to.have.property("numEntries");
                 expect(testDS).to.have.property("parentId");

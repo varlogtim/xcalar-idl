@@ -72,8 +72,8 @@ function fileBrowserModuleTest() {
         it('Should filter files', function() {
             var regEx = new RegExp("json");
             var res = FileBrowser.__testOnly__.filterFiles(testFiles, regEx);
-            // have test2.json and folder test3
-            expect(res.length).to.equal(2);
+            // have test2.jsons
+            expect(res.length).to.equal(1);
             expect(res[0].name).to.equal("test2.json");
         });
 

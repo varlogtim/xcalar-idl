@@ -603,7 +603,7 @@ window.SQL = (function($, SQL) {
         }
 
         switch (operation) {
-            case SQLOps.DSLoad:
+            case SQLOps.DSPoint:
             case SQLOps.RenameOrphanTable:
             case SQLOps.DestroyDS:
             case SQLOps.DeleteTable:
@@ -950,7 +950,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.DestroyPreviewDS):
             case (SQLOps.DeleteTable):
             case (SQLOps.ExportTable):
-            case (SQLOps.DSLoad):
+            case (SQLOps.DSPoint):
             case (SQLOps.Filter):
             case (SQLOps.Sort):
             case (SQLOps.IndexDS):

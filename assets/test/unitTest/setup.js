@@ -97,9 +97,7 @@ function testChecker(checkFunc) {
 
 var testDatasets = {
     "sp500": {
-        "url"       : "nfs:///netstore/datasets/sp500.csv",
-        "protocol"  : "nfs:///",
-        "path"      : "netstore/datasets/sp500.csv",
+        "path"      : "nfs:///netstore/datasets/sp500.csv",
         "format"    : "CSV",
         "fieldDelim": "\t",
         "lineDelim" : "\n",
@@ -109,18 +107,14 @@ var testDatasets = {
     },
 
     "schedule": {
-        "url"       : "nfs:///var/tmp/qa/indexJoin/schedule/",
-        "protocol"  : "nfs:///",
-        "path"      : "var/tmp/qa/indexJoin/schedule/",
+        "path"      : "nfs:///var/tmp/qa/indexJoin/schedule/",
         "format"    : "JSON",
         "moduleName": "",
         "funcName"  : ""
     },
 
     "fakeYelp": {
-        "url"       : "nfs:///netstore/datasets/unittest/test_yelp.json",
-        "protocol"  : "nfs:///",
-        "path"      : "netstore/datasets/unittest/test_yelp.json",
+        "path"      : "nfs:///netstore/datasets/unittest/test_yelp.json",
         "format"    : "JSON",
         "moduleName": "",
         "funcName"  : ""

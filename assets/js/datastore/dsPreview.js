@@ -37,6 +37,7 @@ window.DSPreview = (function($, DSPreview) {
     var rowsToFetch = 40;
     var minRowsToShow = 20;
     var numBytesRequest = 15000;
+    var maxBytesRequest = 500000;
     var excelModule = "default";
     var excelFunc = "openExcel";
 
@@ -576,11 +577,33 @@ window.DSPreview = (function($, DSPreview) {
 
         alertHelper()
         .then(function() {
-            return DS.load(dsName, format, loadURL, pattern,
-                        fieldDelim, lineDelim, header,
-                        udfModule, udfFunc,
-                        isRecur, previewSize, quote,
-                        skipRows, isRegex, toCreateTable);
+            // dsName, format, loadURL, pattern,
+            //             fieldDelim, lineDelim, header,
+            //             udfModule, udfFunc,
+            //             isRecur, previewSize, quote,
+            //             skipRows, isRegex, toCreateTable
+            var pointArgs = {
+                "name"       : dsName,
+                "format"     : format,
+                "path"       : loadURL,
+                "pattern"    : pattern,
+                "fieldDelim" : fieldDelim,
+                "lineDelim"  : lineDelim,
+                "hasHeader"  : header,
+                "moduleName" : udfModule,
+                "funcName"   : udfFunc,
+                "isRecur"    : isRecur,
+                "previewSize": previewSize,
+                "quoteChar"  : quote,
+                "skipRows"   : skipRows,
+                "isRegex"    : isRegex
+            };
+
+            var options = {
+                "createTable": toCreateTable
+            };
+
+            return DS.point(pointArgs, options);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -1138,6 +1161,7 @@ window.DSPreview = (function($, DSPreview) {
                     }
 
                     var bytesNeed = maxBytesInLine * minRowsToShow;
+                    bytesNeed = Math.min(bytesNeed, maxBytesRequest);
                     console.info("too small rows, request", bytesNeed);
                     return bufferData(loadURL, isRecur, isRegex,
                                       bytesNeed, true);

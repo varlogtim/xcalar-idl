@@ -377,7 +377,7 @@ window.StatusMessage = (function($, StatusMessage) {
                             operation + status +
                     '<div class="close">+</div></div>');
 
-        if (operation === SQLOps.DSLoad) {
+        if (operation === SQLOps.DSPoint) {
             // only display notification if not on data store tab
             if (!$('#dataStoresTab').hasClass('active')) {
                 $popups = $('.tableDonePopup.datastoreNotify');

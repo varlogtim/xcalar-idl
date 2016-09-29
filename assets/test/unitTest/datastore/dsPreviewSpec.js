@@ -826,8 +826,8 @@ function dsPreviewModuleTest() {
         });
 
         it("DSPreview.show() should work", function(done) {
-            var loadUrl = testDatasets.sp500.protocol + testDatasets.sp500.path;
-            DSPreview.show({"path": loadUrl}, true)
+            var path = testDatasets.sp500.path;
+            DSPreview.show({"path": path}, true)
             .then(function() {
                 expect($previewTable.html()).not.to.equal("");
                 expect($formatText.data("format")).to.equal("CSV");

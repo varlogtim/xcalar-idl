@@ -189,11 +189,11 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
-    // Point to dataset
-    // promise returns $grid element
-    DS.load = function(dsName, dsFormat, loadURL, pattern, fieldDelim, lineDelim,
-                        hasHeader, moduleName, funcName, isRecur, previewSize,
-                        quoteChar, skipRows, isRegex, createTable) {
+    // Point to dataset, promise returns dsObj
+    DS.point = function(pointArgs, options) {
+        options = options || {};
+        var createTable = options.createTable || false;
+
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
         var curFolder = DS.getDSObj(curDirId);
@@ -203,41 +203,11 @@ window.DS = (function ($, DS) {
             clearDirStack();
         }
 
-        var dsObj = createDS({
-            "name"       : dsName,
-            "isFolder"   : false,
-            "format"     : dsFormat,
-            "path"       : loadURL,
-            "pattern"    : pattern,
-            "fileSize"   : null,
-            "numEntries" : null,
-            "fieldDelim" : fieldDelim,
-            "lineDelim"  : lineDelim,
-            "hasHeader"  : hasHeader,
-            "moduleName" : moduleName,
-            "funcName"   : funcName,
-            "isRecur"    : isRecur,
-            "previewSize": previewSize,
-            "quoteChar"  : quoteChar,
-            "skipRows"   : skipRows,
-            "isRegex"    : isRegex
-        });
-
+        var dsObj = createDS(pointArgs);
         var sql = {
-            "operation"  : SQLOps.DSLoad,
-            "loadURL"    : loadURL,
-            "dsName"     : dsName,
-            "dsFormat"   : dsFormat,
-            "hasHeader"  : hasHeader,
-            "fieldDelim" : fieldDelim,
-            "lineDelim"  : lineDelim,
-            "quoteChar"  : quoteChar,
-            "skipRows"   : skipRows,
-            "isRegex"    : isRegex,
-            "moduleName" : moduleName,
-            "funcName"   : funcName,
-            "isRecur"    : isRecur,
-            "previewSize": previewSize
+            "operation": SQLOps.DSPoint,
+            "pointArgs": pointArgs,
+            "options"  : options
         };
 
         return pointToHelper(dsObj, createTable, sql);
@@ -250,7 +220,7 @@ window.DS = (function ($, DS) {
         }
 
         var sql = {
-            "operation"  : SQLOps.DSLoad,
+            "operation"  : SQLOps.DSPoint,
             "dsName"     : dsObj.getName(),
             "previewSize": previewSize,
             "isRetry"    : true
@@ -491,7 +461,7 @@ window.DS = (function ($, DS) {
 
         var txId = Transaction.start({
             "msg"       : StatusMessageTStr.LoadingDataset + ": " + dsName,
-            "operation" : SQLOps.DSLoad,
+            "operation" : SQLOps.DSPoint,
             "sql"       : sql,
             "steps"     : 1,
             "cancelable": false
@@ -585,7 +555,7 @@ window.DS = (function ($, DS) {
 
     function cancelDSHelper(txId, $grid, dsObj) {
         $grid.removeClass("active").addClass("inactive deleting");
-        // if cancel success, it will trigger fail in ds.load, so it's fine
+        // if cancel success, it will trigger fail in DS.point, so it's fine
         QueryManager.cancelQuery(txId)
         .fail(function(error) {
             console.error(error);

@@ -1010,7 +1010,7 @@ window.QueryManager = (function(QueryManager, $) {
 
             if (!tableName) {
                 var type;
-                if (mainQuery.getName() === SQLOps.DSLoad) {
+                if (mainQuery.getName() === SQLOps.DSPoint) {
                     type = "dataset";
                 } else {
                     type = "table";

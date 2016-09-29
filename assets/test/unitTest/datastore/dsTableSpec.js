@@ -12,10 +12,9 @@ function dsTableTest() {
 
         testDS = xcHelper.uniqueRandName("unitTestFakeYelp", DS.has, 10);
         var dataset = testDatasets.fakeYelp;
+        var pointArgs = $.extend({}, dataset, {"name": testDS});
 
-        DS.load(testDS, dataset.format, dataset.url, dataset.pattern,
-                dataset.fieldDelim, dataset.lineDelim,
-                dataset.hasHeader, dataset.moduleName, dataset.funcName, false)
+        DS.point(pointArgs)
         .then(function(dsObj) {
             testDSObj = dsObj;
             testDSId = testDSObj.getId();
