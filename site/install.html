@@ -195,6 +195,85 @@
               <input class="btn cancel hidden" type="button" value="CANCEL">
             </div>
           </form>
+          <!-- Step 4: LDAP -->
+          <form id="ldapForm" autocomplete="off" class="hidden">
+            <div class="title">
+              <div class="step">
+                <span>STEP 4</span>
+                <span>SETUP LDAP</span>
+              </div>
+              <div class="hint">
+                <span></span>
+                <span>Configure Parameters for LDAP</span>
+              </div>
+            </div>
+            <div class="section ldapSection">
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[ldap://ldapServer.int.xcalar.com:389]">
+                <div class="bar">LDAP URI</div>
+              </div>
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[cn=users,dc=int,dc=xcalar,dc=net]">
+                <div class="bar">User DN</div>
+              </div>
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[(&(objectclass=user)(userPrincipalName=%username%))]">
+                <div class="bar">Search Filter</div>
+              </div>
+
+              <div class="inputWrap">
+                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[/etc/ssl/certs/ca-certificates.crt]">
+                <div class="bar">Server Key File</div>
+              </div>
+              <div class="hint">
+                <span>Transportation Layer Security (TLS)</span>
+              </div>
+              <div class="radioButtonGroup" id="useTLS">
+                <div class="radioButton useTLS active" data-option="true">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Use TLS</div>
+                </div>
+                <div class="radioButton useTLS" data-option="false">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Do not use TLS</div>
+                </div>
+              </div>
+              <div class="hint">
+                <span>Active Directory (AD)</span>
+              </div>
+              <div class="radioButtonGroup" id="AD">
+                <div class="radioButton AD active" data-option="true">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Use AD</div>
+                </div>
+                <div class="radioButton AD" data-option="false">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Do not use AD</div>
+                </div>
+              </div>
+            </div>
+            <div class="section error">
+              <div class="leftBar">&nbsp;</div>
+              <span>Unknown Error<br></span>
+              <span>Unknown Error!</span>
+            </div>
+            <div class="section buttonSection">
+              <input class="btn next" type="button" value="CONFIGURE">
+              <input class="btn clear" type="button" value="CLEAR">
+            </div>
+          </form>
         </div>
       </div>
     </div>

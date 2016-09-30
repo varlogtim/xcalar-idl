@@ -81,6 +81,7 @@ window.Installer = (function(Installer, $) {
         setUpStep0();
         setUpStep1();
         setUpStep2();
+        setUpStep3();
 
         // Set up ajax error handlers to catch server side issues
         /**
@@ -160,6 +161,9 @@ window.Installer = (function(Installer, $) {
                         break;
                 }
                 break;
+            case ("useTLS"):
+            case ("AD"):
+                break;
             default:
                 console.error("Unexpected radio group!");
                 break;
@@ -187,6 +191,10 @@ window.Installer = (function(Installer, $) {
     }
 
     function setUpStep1() {
+    }
+
+    function setUpStep3() {
+
     }
 
     function setUpStep2() {
@@ -273,6 +281,8 @@ window.Installer = (function(Installer, $) {
                 return validateNfs();
             case (2):
                 return validateCredentials();
+            case (3):
+                return validateLdap();
             default:
                 console.error("Unexpected step");
                 break;
@@ -399,6 +409,15 @@ window.Installer = (function(Installer, $) {
         return deferred.promise();
     }
 
+    function validateLdap() {
+        var deferred = jQuery.Deferred();
+        // JJJ Fill in
+        console.log("verified");
+        deferred.resolve();
+
+        return deferred.promise();
+    }
+
     function setupNextStep(curStepId) {
         switch (curStepId) {
             case (0):
@@ -410,6 +429,13 @@ window.Installer = (function(Installer, $) {
                 .fail(function() {
                     showFailure(curStepId, arguments);
                 });
+                break;
+            case (3):
+                writeConfigFile()
+                .fail(function() {
+                    showFailure(curStepId, arguments);
+                });
+                console.log("done!");
                 break;
             default:
                 return;
@@ -504,7 +530,7 @@ window.Installer = (function(Installer, $) {
         })
         .then(function() {
             // This function redirects and does not return.
-            finalize();
+            deferred.resolve();
         })
         .fail(function() {
             $(".credentialSection").show();
@@ -536,9 +562,46 @@ window.Installer = (function(Installer, $) {
         return deferred.promise();
     }
 
+    function writeConfigFile() {
+        var deferred = jQuery.Deferred();
+
+        // Lock the form
+        $("#ldapForm").addClass("disabled");
+        // Collect all the values
+        var values = $(".ldapSection input").map(function(a, b) {
+                                                    return $(b).val();
+                                                });
+        var adOption = $(".AD.radioButton.active").data("option");
+        var tlsOption = $(".useTLS.radioButton.active").data("option");
+
+        var struct = {
+            "ldap_uri": values[0],
+            "userDN": values[1],
+            "searchFilter": values[2],
+            "serverKeyFile": values[3],
+            "activeDir": adOption,
+            "useTLS": tlsOption
+        };
+
+        sendViaHttps("writeConfig", struct, function(ret) {
+            if (ret.status === Status.Ok) {
+                deferred.resolve(Status.Ok);
+            } else {
+                deferred.resolve(Status.Error);
+            }
+            $("#ldapForm").removeClass("disabled");
+        }, function(ret, textStatus, xhr) {
+            console.error(arguments);
+            $("#ldapForm").removeClass("disabled");
+            deferred.reject();
+        });
+
+        return deferred.promise();
+    }
+
     function checkLicense(license) {
         var deferred = jQuery.Deferred();
-           sendViaHttps("checkLicense", {"licenseKey": license}, function(ret) {
+        sendViaHttps("checkLicense", {"licenseKey": license}, function(ret) {
             if (ret.status === Status.Ok) {
                 deferred.resolve(Status.Ok);
             } else {
@@ -615,7 +678,6 @@ window.Installer = (function(Installer, $) {
                 }, function(ret, textStatus, xhr) {
                     clearInterval(intervalTimer);
                     console.error(arguments);
-
                     deferred.reject("Connection Error",
                                     "Connection to server cannot be " +
                                     "established. " +

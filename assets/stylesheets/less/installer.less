@@ -37,6 +37,10 @@ form {
         color: @color-font-softBlue;
         cursor: pointer;
     }
+    &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
 }
 
 [contenteditable=true]:empty:before{
@@ -203,13 +207,13 @@ input:-webkit-autofill:focus {
     width: @div-width;
     margin: 0 auto;
     padding-left: 50px;
+    position: relative;
 
     .title {
         font-weight: 500;
         .position(relative, @left: -50px);
-
-        > div {
-            span{
+        > div:not(.hint) {
+            span {
                 display: inline-block;
                 font-weight: 700;
                 &:first-child {
@@ -222,12 +226,18 @@ input:-webkit-autofill:focus {
             .font(@size: 14px);
         }
 
-        .hint {
-            span {
-                font-weight: 600;
+
+    }
+
+    .hint {
+        .font(@size: 12px);
+        margin-top: 9px;
+        span {
+            display: inline-block;
+            font-weight: 600;
+            &:first-child {
+                width: 78px;
             }
-            .font(@size: 12px);
-            margin-top: 9px;
         }
     }
 
@@ -515,6 +525,26 @@ input:-webkit-autofill:focus {
 
             .hostSshKey {
                 display: none;
+            }
+
+        }
+        &.ldapSection {
+            .inputWrap {
+                position: relative;
+            }
+            input {
+                margin-left: 128px;
+                font-size: 14px;
+            }
+            .bar {
+                width: 85%;
+            }
+            .hint {
+                span {
+                    width: auto;
+                }
+                margin-top: 10px;
+                margin-bottom: 10px;
             }
 
         }
