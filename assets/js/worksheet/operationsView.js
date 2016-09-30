@@ -666,9 +666,6 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.setup({"columnPicker": columnPicker});
 
         toggleOperationsViewDisplay(false);
-        if (!restore) {
-            fillInputPlaceholder(0);
-        }
 
         // load updated UDFs if operator is map
         if (operatorName === "map") {
@@ -3483,17 +3480,12 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function fillInputPlaceholder(inputNum) {
-        var placeholderText = "";
-        // xi2 broken
-        $activeOpSection.find('.list').eq(inputNum).find('li').each(function() {
-            if ($(this).css('opacity') > 0.2) {
-                placeholderText = $(this).text();
-                return (false);
-            }
+        var $inputs = $activeOpSection.find('.autocomplete');
+        $inputs.each(function() {
+            var placeholderText = $(this).siblings('.list').find('li')
+                                          .eq(0).text();
+            $(this).attr('placeholder', placeholderText);                             
         });
-
-        $operationsView.find('.autocomplete').eq(inputNum)
-                        .attr('placeholder', placeholderText);
     }
 
     function getBackColName(frontColName) {
@@ -3823,6 +3815,7 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.find('.group').last()
                         .after(getFilterGroupHtml(newGroupIndex));
         populateFunctionsListUl(newGroupIndex);
+        fillInputPlaceholder();
         var functionsListScroller = new MenuHelper(
             $('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
