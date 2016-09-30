@@ -543,6 +543,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
 
+        $extArgs.on("click", ".desc.checkboxWrap", function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
+
         var colCallback = function($target) {
             var options = {};
             if ($lastInputFocused.hasClass('multiColumn')) {
@@ -733,6 +737,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var inputClass = "argument type-" + argType;
         // for dropdowns
         var isDropdown = false;
+        var isCheckbox = false;
+
         var list = "";
         var descIcon = "";
 
@@ -743,14 +749,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         '</div>';
             list = tableList;
         } else if (argType === "boolean") {
-            isDropdown = true;
-
-            if (arg.autofill === true || arg.autofill === false) {
-                inputVal = arg.autofill;
+            isCheckbox = true;
+            inputClass += " checkbox";
+            if (arg.autofill === true ) {
+                inputClass += " checked";
             }
-
-            list = '<li>true</li>' +
-                    '<li>false</li>';
         } else if (argType === "column") {
             if (arg.autofill && triggerCol != null) {
                 inputVal = gColPrefix + triggerCol.getFrontColName();
@@ -782,7 +785,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         var html;
-        if (isDropdown) {
+        if (isCheckbox) {
+            html =
+                '<div class="field">' +
+                    '<div class="desc checkboxWrap">' +
+                        '<div class="' + inputClass + '">' +
+                            '<i class="icon xi-ckbox-empty fa-15"></i>' +
+                            '<i class="icon xi-ckbox-selected fa-15"></i>' +
+                        '</div>' +
+                        '<div class="text">' +
+                            arg.name +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        } else if (isDropdown) {
             // generate dropdown
             inputClass += " text dropdownInput";
             html =
@@ -925,6 +941,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var typeCheck = argInfo.typeCheck || {};
         var error;
 
+        if (argType === "boolean") {
+            arg = $input.hasClass("checked");
+            return {
+                "valid": true,
+                "arg"  : arg
+            };
+        }
+
         if (argType !== "string") {
             arg = $input.val().trim();
         } else {
@@ -1005,15 +1029,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 });
 
                 StatusBox.show(error, $input);
-                return { "vaild": false };
-            }
-        } else if (argType === "boolean") {
-            if (arg.toLowerCase() === "true") {
-                arg = true;
-            } else if (arg.toLowerCase() === "false") {
-                arg = false;
-            } else {
-                StatusBox.show(ErrTStr.NoEmptyList, $input);
                 return { "vaild": false };
             }
         }

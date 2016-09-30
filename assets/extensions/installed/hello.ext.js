@@ -70,7 +70,9 @@ window.UExtHello = (function(UExtHello) {
      *
      *
      *      6.1 Autofill for boolean type argument:
-     *          value should only be true/false, other values are invalid.
+     *          boolean type of field disaply as a checkbox in XI.
+     *          If autofill set to true, checkbox will be checked by default,
+     *          otherwise, checkbox will not be checked by default.
      *
      *      6.2 Autofill for column type argument:
      *          once the value exists, this field will be auto filled of

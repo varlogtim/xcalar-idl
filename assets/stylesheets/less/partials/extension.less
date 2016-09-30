@@ -484,6 +484,22 @@
                 padding: 0 10px;
                 .textOverflowOneLine;
 
+                &.checkboxWrap {
+                    cursor: pointer;
+
+                    .text {
+                        .size(@width: ~"calc(100% - 25px)");
+                        float: left;
+                    }
+
+                    .checkbox {
+                        float: left;
+                        .size(@width: 15px, @height: 15px);
+                        margin-right: 10px;
+                        .position(relative, @top: 6px);
+                    }
+                }
+
                 .focusTable {
                     .size(@width: 20px, @height: 100%);
                     .position(absolute, @top: 3px, @right: 5px);

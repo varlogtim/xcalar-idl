@@ -82,7 +82,7 @@ window.UExtDev = (function(UExtDev) {
             "fieldClass": "unlock",
             "autofill"  : false,
         }
-        ],
+        ]
     }];
 
     // UExtDev.actionFn must reutrn a XcSDK.Extension obj or null
