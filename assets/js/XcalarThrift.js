@@ -814,6 +814,38 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                 }
 
                 break;
+            case (ExTargetTypeT.ExTargetUDFType):
+                specInput.udfInput = new ExInitExportUDFInputT();
+                specInput.udfInput.fileName = exportName + ".csv";
+                specInput.udfInput.udfName = "exceloutput:writeExcel";
+                specInput.udfInput.format = options.format;
+                specInput.udfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
+                if (options.format === DfFormatTypeT.DfFormatCsv) {
+                    exportName += ".csv";
+                    specInput.udfInput.fileName = exportName;
+                    specInput.udfInput.formatArgs.csv = new ExInitExportCSVArgsT();
+                    specInput.udfInput.formatArgs.csv.fieldDelim =
+                                                    options.csvArgs.fieldDelim;
+                    specInput.udfInput.formatArgs.csv.recordDelim =
+                                                    options.csvArgs.recordDelim;
+                    specInput.udfInput.formatArgs.csv.quoteDelim = gDefaultQDelim;
+                } else if (options.format === DfFormatTypeT.DfFormatSql) {
+                    exportName += ".sql";
+                    specInput.udfInput.fileName = exportName;
+                    specInput.udfInput.formatArgs.sql = new ExInitExportSQLArgsT();
+                    specInput.udfInput.formatArgs.sql.tableName = exportName;
+                    specInput.udfInput.formatArgs.sql.createTable = true;
+                    if (options.createRule === ExExportCreateRuleT.ExExportCreateOnly) {
+                        specInput.udfInput.formatArgs.sql.dropTable = false;
+                    } else {
+                        specInput.udfInput.formatArgs.sql.dropTable = true;
+                    }
+                } else {
+                    deferred.reject(thriftLog("XcalarExport"),
+                                                "Invalid export type");
+                }
+                specInput.udfInput.headerType = options.headerType;
+                break;
             default:
                 deferred.reject(thriftLog("XcalarExport"));
                 break;
@@ -833,7 +865,6 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                                 options.createRule, keepOrder, numColumns,
                                 columns, options.handleName);
 
-     
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'Export', options.handleName,
