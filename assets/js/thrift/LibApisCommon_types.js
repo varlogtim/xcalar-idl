@@ -1727,8 +1727,8 @@ XcalarApiTableT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.tableId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.tableId = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -1757,8 +1757,8 @@ XcalarApiTableT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.tableId !== null && this.tableId !== undefined) {
-    output.writeFieldBegin('tableId', Thrift.Type.I64, 2);
-    output.writeI64(this.tableId);
+    output.writeFieldBegin('tableId', Thrift.Type.STRING, 2);
+    output.writeString(this.tableId);
     output.writeFieldEnd();
   }
   if (this.state !== null && this.state !== undefined) {
@@ -1821,8 +1821,8 @@ XcalarApiDatasetT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.datasetId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.datasetId = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -1872,8 +1872,8 @@ XcalarApiDatasetT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.datasetId !== null && this.datasetId !== undefined) {
-    output.writeFieldBegin('datasetId', Thrift.Type.I64, 2);
-    output.writeI64(this.datasetId);
+    output.writeFieldBegin('datasetId', Thrift.Type.STRING, 2);
+    output.writeString(this.datasetId);
     output.writeFieldEnd();
   }
   if (this.formatType !== null && this.formatType !== undefined) {
@@ -2714,8 +2714,8 @@ XcalarApiBulkLoadInputT.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I64) {
-        this.dagNodeId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.dagNodeId = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -2742,8 +2742,8 @@ XcalarApiBulkLoadInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
-    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 3);
-    output.writeI64(this.dagNodeId);
+    output.writeFieldBegin('dagNodeId', Thrift.Type.STRING, 3);
+    output.writeString(this.dagNodeId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -4672,8 +4672,8 @@ XcalarApiUpdateRetinaInputT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.dagNodeId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.dagNodeId = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -4703,8 +4703,8 @@ XcalarApiUpdateRetinaInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
-    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 2);
-    output.writeI64(this.dagNodeId);
+    output.writeFieldBegin('dagNodeId', Thrift.Type.STRING, 2);
+    output.writeString(this.dagNodeId);
     output.writeFieldEnd();
   }
   if (this.paramInput !== null && this.paramInput !== undefined) {
@@ -14157,9 +14157,9 @@ XcalarApiWorkItemResult.prototype.write = function(output) {
   return;
 };
 
-XcalarApiDatasetIdInvalidT = 0;
-XcalarApiTableIdInvalidT = 0;
-XcalarApiDagNodeIdInvalidT = 0;
+XcalarApiDatasetIdInvalidT = '';
+XcalarApiTableIdInvalidT = '';
+XcalarApiDagNodeIdInvalidT = '';
 XcalarApiMaxKeyLenT = 255;
 XcalarApiDefaultRecordDelimT = '\n';
 XcalarApiDefaultFieldDelimT = '\t';

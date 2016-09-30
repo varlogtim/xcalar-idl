@@ -19,6 +19,13 @@ WorkItem = function() {
 }
 
 function xcalarConnectThrift(hostname) {
+    // protocol needs to be part of hostname
+    // If not it's assumed ot be http://
+
+    // If you have special ports, it needs to be part of the hostname
+    if (hostname.indexOf("http") === -1) {
+        hostname = "http://" + hostname;
+    }
     var thriftUrl = hostname + "/thrift/service/XcalarApiService/";
 
     console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")")
@@ -90,9 +97,12 @@ function xcalarGetVersion(thriftHandle) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var getVersionOutput = result.output.outputResult.getVersionOutput;
-        // No status
+        var status = result.output.hdr.status;
         if (result.jobStatus != StatusT.StatusOk) {
-            deferred.reject(result.jobStatus);
+            status = status.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
         }
         deferred.resolve(getVersionOutput);
     })

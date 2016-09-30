@@ -501,6 +501,40 @@
         .fail(test.fail);
     }
 
+    function testIndexDatasetWithPrefix(test) {
+        var tableName = "yelpUserWithPrefix";
+        var resultSetId;
+        xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
+                           "user_id", tableName, "",
+                           XcalarOrderingT.XcalarOrderingUnordered,
+                           "prefix")
+        .then(function() {
+            return xcalarMakeResultSetFromTable(thriftHandle, tableName);
+        })
+        .then(function(ret) {
+            resultSetId = ret.resultSetId;
+            return xcalarResultSetAbsolute(thriftHandle, resultSetId, 0);
+        })
+        .then(function(ret) {
+            return xcalarResultSetNext(thriftHandle, resultSetId, 1);
+        })
+        .then(function(ret) {
+            var oneValue = JSON.parse(ret.kvPair[0].value);
+            printResult(oneValue);
+            for (var key in oneValue) {
+                printResult(key);
+                test.assert(key.indexOf("prefix::") === 0);
+            }
+
+            return xcalarFreeResultSet(thriftHandle, resultSetId)
+        })
+        .then(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(test.fail);
+    }
+
     function testIndexTable(test) {
         test.trivial(xcalarIndexTable(thriftHandle, origStrTable,
                          "name", "yelp/user-name", "",

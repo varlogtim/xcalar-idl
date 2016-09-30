@@ -3133,7 +3133,7 @@
     var port = content.slice(content.indexOf('Thrift.Port'))
     port = port.slice(port.indexOf('=') + 1, port.indexOf('\n'))
 
-    thriftHandle   = xcalarConnectThrift("localhost", port);
+    thriftHandle   = xcalarConnectThrift("localhost:"+port);
     loadArgs       = null;
     loadOutput     = null;
     origDataset    = null;
