@@ -272,14 +272,12 @@ window.JSONModal = (function($, JSONModal) {
                 $checkbox.removeClass('checked');
                 $jsonWrap.removeClass('projectMode');
                 $selectBtns.addClass('hidden');
-                // XX don't select all submits
-                $('.submitProject').addClass('hidden');
+                $jsonModal.find('.submitProject').addClass('hidden');
             } else {
                 $checkbox.addClass('checked');
                 $jsonWrap.addClass('projectMode');
                 $selectBtns.removeClass('hidden');
-                // XX don't select all submits
-                $('.submitProject').removeClass('hidden');
+                $jsonModal.find('.submitProject').removeClass('hidden');
             }
         });
 

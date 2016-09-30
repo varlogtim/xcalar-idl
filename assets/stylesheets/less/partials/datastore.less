@@ -1804,6 +1804,39 @@ table.datasetTable {
     }
 }
 
+#gridViewMenu {
+    li {
+        display: none;
+    }
+    &.dsOpts {
+        .dsOpt {
+            display: block;
+        }
+    }
+    &.folderOpts {
+        .folderOpt {
+            display: block;
+        }
+    }
+    &.bgOpts {
+        .bgOpt {
+            display: block;
+        }
+    }
+
+    .disabled {
+        opacity: @opacity-disabled;
+        pointer-events: none;
+    }
+
+    &.uneditable {
+        .moveUp, .rename, .delete {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+}
+
 #dsExportListSection {
     overflow: auto;
     height: ~"calc(100% - 75px)" !important;
@@ -1843,7 +1876,6 @@ table.datasetTable {
         .gridIcon .icon {
             .vertical-align;
         }
-        
 
         &.gridView {
             .gridIcon .icon {
@@ -1860,50 +1892,63 @@ table.datasetTable {
                 font-size: 18px;
             }
         }
-    }
-}
-#gridViewMenu {
-    li {
-        display: none;
-    }
-    &.dsOpts {
-        .dsOpt {
-            display: block;
-        }
-    }
-    &.folderOpts {
-        .folderOpt {
-            display: block;
-        }
-    }
-    &.bgOpts {
-        .bgOpt {
-            display: block;
-        }
-    }
 
-    .disabled {
-        opacity: @opacity-disabled;
-        pointer-events: none;
-    }
+        .grid-unit {
+            opacity: 0.8;
 
-    &.uneditable {
-        .moveUp, .rename, .delete {
-            opacity: @opacity-disabled;
-            pointer-events: none;
+            &:hover {
+                opacity: 1;
+            }
+
+            &.active {
+                background-color: @color-bg-light-navy;
+            }
         }
     }
 }
+
 
 #datastore-out-view {
     .cardContainer {
         min-height: ~"calc(100% - 5px)";
+        .gridInfoTitle {
+            display: none;
+        }
+        &.gridInfoMode {
+            .xc-input, .dropDownList .text {
+                background-color: @color-white;
+                border-color: transparent !important;
+                pointer-events: none;
+                color: @color-font-select-blue !important;
+
+            }
+            .iconWrapper {
+                visibility: hidden;
+            }
+            .formButton {
+                .xc-disabled;
+            }
+            .dropDownList, .udfSelectorRow {
+                pointer-events: none;
+            }
+            .defaultText {
+                display: none;
+            }
+            .gridInfoText {
+                .flex-display;
+            }
+        }
     }
 
     .cardInstruction {
         height: auto;
         .icon {
             .size(@width: 25px, @height: 25px);
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+        .gridInfoText {
+            display: none;
         }
     }
 

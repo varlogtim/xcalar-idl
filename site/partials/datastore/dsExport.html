@@ -6,7 +6,8 @@
   <!-- instuction -->
   <div class="cardInstruction">
     <i class="icon xi-info-circle"></i>
-    <span class="text"><%= dicts.dsExport.CreateTargetInstr %></span>
+    <span class="text defaultText"><%= dicts.dsExport.CreateTargetInstr %></span>
+    <span class="text gridInfoText"><%= dicts.dsExport.TargetInfo %></span>
   </div>
   <!-- cardMain -->
   <div class="cardMain">
@@ -22,7 +23,7 @@
         <div id="targetTypeSelector" class="formRow">
           <label for="targetTypeList"><%= dicts.dsExport.TargetType %>:</label>
           <div id="targetTypeList" class="dropDownList">
-            <input class="text hint" type="text" value="" spellcheck="false" disabled data-value="">
+            <input class="text" type="text" value="" spellcheck="false" disabled data-value="">
             <div class="iconWrapper">
               <i class="icon xi-arrow-down"></i>
             </div>
