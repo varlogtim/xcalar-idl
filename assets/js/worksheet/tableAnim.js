@@ -446,7 +446,6 @@ window.TblAnim = (function($, TblAnim) {
             dragInfo.grabOffset = pageX - el.offset().left;
             // dragInfo.grabOffset = distance from the left side of dragged column
             // to the point that was grabbed
-
             dragInfo.docHeight = $(document).height();
             dragInfo.val = $editableHead.val();
             var shadowDivHeight = $tbodyWrap.height();
@@ -750,6 +749,14 @@ window.TblAnim = (function($, TblAnim) {
             var dropTarget = $('#dropTarget' + swappedColIndex);
             dropTarget.css({'left': (colLeft - dragMargin + dragInfo.grabOffset) +
                             'px'});
+            if (isBrowserSafari) {
+                // safari has a display issue, use this to resolve T_T
+                var $header = swappedCol.find(".header");
+                $header.height($header.height() + 1);
+                setTimeout(function() {
+                    $header.height($header.height() - 1);
+                }, 1);
+            }
         }
     }
 
