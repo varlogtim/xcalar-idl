@@ -887,6 +887,8 @@ div.FloatingBox	/*Colorful boxes on the home page containing lists of topics*/
 	width: 32%;
 	margin: 0.5%;
 	/*So that there's white space separating the colorful boxes. Set to %. Don't set to px.*/
+	overflow-y: auto;
+	overflow-x: hidden;
 	height: 100%;
 	padding: 10px;
 	/*Gives space between border of a colorful box and the text inside it. Using px is OK because it's inside the box. It won't cause wrapping of the boxes even if browser window is narrow.*/

@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Counting occurrences of values in a table column</title>
+        <meta name="author" content="" /><title>Counting occurrences of unique values in a column</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
@@ -72,17 +72,19 @@
                             <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
                                 <div class="navigation-wrapper">
                                     <ul class="navigation clearfix">
-                                        <li class="has-children"><a href="../A_IntroductoryTopics/Getting Started.htm">Getting started</a>
+                                        <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_IntroductoryTopics/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/Requirements.htm">Requirements for Xcalar Insight</a>
                                                 </li>
-                                                <li><a href="../A_IntroductoryTopics/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
                                                 </li>
-                                                <li><a href="../A_IntroductoryTopics/FirstSteps.htm">First steps</a>
+                                                <li><a href="../A_GettingStarted/QuickStart.htm">Easy steps (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="Tasks.htm">Common tasks</a>
+                                        <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
                                                 <li><a href="CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -90,27 +92,29 @@
                                                 </li>
                                                 <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                 </li>
-                                                <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
-                                                </li>
-                                                <li><a href="#" class="selected">Counting occurrences of values in a table column</a>
+                                                <li><a href="#" class="selected">Counting occurrences of unique values in a column</a>
                                                 </li>
                                                 <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="FilterValue.htm">Filtering in a table column</a>
                                                 </li>
+                                                <li><a href="UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                </li>
                                                 <li><a href="JoinTables.htm">Joining tables</a>
                                                 </li>
                                                 <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                 </li>
-                                                <li><a href="Map.htm">Using the map function to create new values</a>
+                                                <li><a href="Map.htm">Using the Map function to create new values</a>
                                                 </li>
                                                 <li><a href="Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="QuickAggregates.htm">Determining aggregate values</a>
                                                 </li>
                                                 <li><a href="ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTopics.htm">Advanced tasks</a>
+                                        <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
                                             <ul class="sub-menu">
                                                 <li><a href="../C_AdvancedTasks/Extensions.htm">Using extensions</a>
                                                 </li>
@@ -118,29 +122,37 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/OperationalizeQueries.htm">Operationalizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/FunctionBar.htm">Using the function bar</a>
+                                                <li><a href="../C_AdvancedTasks/CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/UseBatchDataflow.htm">Using batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/OptimizeMemory.htm">Optimizing memory usage</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/Monitor.htm">Using the Monitor</a>
+                                                </li>
                                             </ul>
                                         </li>
-                                        <li class="has-children"><a href="../D_ReferenceInformation/Reference.htm">Reference information</a>
+                                        <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_ReferenceInformation/InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_Reference/InsightWindow.htm">Xcalar Insight window</a>
                                                 </li>
-                                                <li><a href="../D_ReferenceInformation/WkbkBrowser.htm">Workbook Browser</a>
+                                                <li><a href="../D_Reference/WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
-                                                <li><a href="../D_ReferenceInformation/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                <li><a href="../D_Reference/WorksheetWindow.htm">Worksheet window with tables</a>
                                                 </li>
-                                                <li><a href="../D_ReferenceInformation/DataBrowser.htm">Data Browser</a>
+                                                <li><a href="../D_Reference/DataBrowser.htm">Data Browser</a>
                                                 </li>
-                                                <li><a href="../D_ReferenceInformation/QueryGraph.htm">Query graph viewer</a>
+                                                <li><a href="../D_Reference/DataflowGraph.htm">Dataflow graph</a>
                                                 </li>
-                                                <li><a href="Table_options.htm">Table options</a>
+                                                <li><a href="../D_Reference/Table_options.htm">Table options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/ColumnOptions.htm">Column options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/CellOptions.htm">Cell options</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -210,7 +222,7 @@
                                             </div>
                                         </div>
                                         <ul class="menu _Skins_SideMenu mc-component">
-                                            <li class="has-children"><a href="Tasks.htm">Common tasks</a>
+                                            <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                                 <ul class="sub-menu">
                                                     <li><a href="CreateTable.htm">Creating a table</a>
                                                     </li>
@@ -218,21 +230,23 @@
                                                     </li>
                                                     <li><a href="ChangeDataType.htm">Changing the data type for a column</a>
                                                     </li>
-                                                    <li><a href="ManipulateColumns.htm">Manipulating table columns</a>
-                                                    </li>
-                                                    <li><a href="#" class="selected">Counting occurrences of values in a table column</a>
+                                                    <li><a href="#" class="selected">Counting occurrences of unique values in a column</a>
                                                     </li>
                                                     <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
                                                     </li>
                                                     <li><a href="FilterValue.htm">Filtering in a table column</a>
                                                     </li>
+                                                    <li><a href="UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                    </li>
                                                     <li><a href="JoinTables.htm">Joining tables</a>
                                                     </li>
                                                     <li><a href="GroupBy.htm">Grouping data in a table</a>
                                                     </li>
-                                                    <li><a href="Map.htm">Using the map function to create new values</a>
+                                                    <li><a href="Map.htm">Using the Map function to create new values</a>
                                                     </li>
                                                     <li><a href="Correlation.htm">Determining correlation between two values</a>
+                                                    </li>
+                                                    <li><a href="QuickAggregates.htm">Determining aggregate values</a>
                                                     </li>
                                                     <li><a href="ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                     </li>
@@ -240,41 +254,50 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="Tasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Counting occurrences of values in a table column</span>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Counting occurrences of unique values in a column</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Counting occurrences of values in a table column</h1>
+                                        <h1>Counting occurrences of unique values in a column</h1>
                                         <p>Follow these steps to count the occurrences (frequency) of each value in a column:</p>
                                         <ol>
                                             <li value="1">Right click the header of the column in which you want to count the occurrences of its values. </li>
                                             <li value="2">
                                                 <p>From the drop-down menu, select <span class="UIelement">Profile…</span>. The <span class="UIelement">Profile</span> window containing a bar graph is displayed. The bar graph shows the distribution of values in the column.</p>
-                                                <p>It might take a while for the bar graph to complete. You can close the window and re-select <span class="UIelement">Profile…</span> in the column drop-down menu later to view the finished bar graph.</p>
                                             </li>
                                         </ol>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;Using <span class="UIelement">Profile</span> to determine the frequency of each value does not create a table. If you need to create a table to show the frequency of each value, use the count function, which is one of the group by functions. For more information about group by functions, see <a href="GroupBy.htm" class="MCXref xref">Grouping data in a table</a>.</div>
-                                        <h2>Different ways to display the bar graph</h2>
-                                        <p>The following list describes the different ways you can display the bar graph in the <span class="UIelement">Profile</span> window</p>
+                                        <div class="Example"><span class="label">TIP:</span>&#160;It might take a while for the bar graph to complete. You can close the window and re-select <span class="UIelement">Profile…</span> in the column drop-down menu later to view the finished bar graph.</div>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;Using <span class="UIelement">Profile</span> to determine the frequency of each value does not create a table. If you need to create a table to show the frequency of each value, use the Count function, which is one of the Group By functions. For more information about Group By functions, see <a href="GroupBy.htm" class="MCXref xref">Grouping data in a table</a>.</div>
+                                        <h2>Sorting the frequency</h2>
+                                        <p>You can sort the bars in ascending or descending order. Or you can keep the original order. </p>
+                                        <div class="Example"><span class="label">EXAMPLE:</span> Suppose the values in the selected column represent days of the week, the bar graph is originally sorted by day1, day2, day3, and so on. You can sort the bars based on the frequency of each value. If you sort in ascending order, the value with the lowest frequency is displayed first.</div>
+                                        <h2>Displaying frequency for a range or a single value</h2>
+                                        <p>If the data type of a column is Integer or Float, you can  use the <span class="UIelement">Range Bucketing</span> section to determine how the bars are displayed as described in the following list:</p>
                                         <ul>
-                                            <li value="1">
-                                                <p>You can sort the bars in ascending or descending order. Or you can leave it in the original order. </p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span> Suppose the values in the selected column represent months of the week, the bar graph is originally sorted by day1, day2, day3, and so on. You can sort the bars based on the frequency of each value. If you sort in ascending order, the value with the lowest frequency is displayed first.</div>
-                                            </li>
-                                            <li value="2">
-                                                <p>By default, the number of occurrences is displayed at the top of each bar. You can click the bar to change the number to a percentage.</p>
-                                                <p>If the number or percentage is not completely visible because it is wider than the bar, hover over the bar to display a tooltip, which contains the field name, the value, and the frequency.</p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;Suppose the value day1 appears 3,000 times in a column, the frequency (3,000)&#160;is displayed on the bar. Click anywhere in the bar and the number changes to 2.5%, which means that  2.5% of the values in the column is day1.</div>
-                                            </li>
-                                            <li value="3">You can click the plus or minus icon in the upper right corner to display more or fewer bars.</li>
-                                            <li value="4">You can enter a number in the lower right corner to locate a particular bar. For example, entering 30 skips to the 30th bar in the graph.</li>
+                                            <li value="1">Select <span class="UIelement">Single</span> to  count occurrences of single values, in which case each bar represents the frequency of one value. If the data type is not Integer or Float, you can display bars for single values only.</li>
+                                            <li value="2">To count the occurrences of values that fall in a range, select <span class="UIelement">Range</span> and enter the range size. Each range is represented by a bar in the graph. </li>
+                                            <li value="3">If you want <span class="GeneralProductName">Xcalar Insight</span> to choose the range size  such that all bars can fit in the window, select <span class="UIelement">Fit All</span>. </li>
                                         </ul>
-                                        <h2>Filtering by using the Profile window</h2>
-                                        <p>To filter or exclude a value in a column, follow the instructions in <a href="FilterValue.htm" class="MCXref xref">Filtering in a table column</a>. In addition, you can perform filtering after viewing the frequencies of various values in a column. The <span class="UIelement">Profile</span> window provides a convenient way to filter a value or exclude a value in the table.</p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;A bar is displayed only if there is at least one occurrence of the value represented by the bar. For example, if the range size is 50, and there are no occurrences of any value in the range of 0 to 50, the graph does not display a bar for this range.</div>
+                                        <h2>Controlling the number of results displayed</h2>
+                                        <p>If you select <span class="UIelement">Fit All</span>, you cannot control the number of results displayed. Otherwise, you can increase or decrease the number of results displayed.&#160;The number is incremented by 10. The following screenshot shows where you can control the number of results.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/profile.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1067" data-mc-height="596" src="../Resources/Images/Insight_screenshots/profile_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;The bar showing the frequency of the null value is always displayed first. It is not counted in the number of results shown. The number of results reflects only the bars for the non-null values.</div>
+                                        <h2>Displaying counts or percentages</h2>
+                                        <p>By default, the frequency is displayed as a count at the top of each bar. Click the bar to change the count to a percentage.</p>
+                                        <p>If the number or percentage is not completely visible because it is wider than the bar, hover over the bar to display a tooltip, which contains the field name, the value (either as a single value or as a range), and the frequency.</p>
+                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;Suppose the value 1 in the selected column appears 3,000 times, the count (3,000)&#160;is displayed on the bar. Click anywhere in the bar and the count changes to 20%, which means that  20% of the values in the column are 1.</div>
+                                        <h2><a name="Filterin"></a>Filtering by using the Profile window</h2>
+                                        <p>To filter or exclude a value in a column, follow the instructions in <a href="FilterValue.htm" class="MCXref xref">Filtering in a table column</a>. In addition, you can perform filtering after viewing the frequencies of various values in a column. The <span class="UIelement">Profile</span> window provides a convenient way to filter or exclude a value in the table. You can also filter or exclude a range of values.</p>
                                         <p>Follow these steps to filter or exclude a value through the <span class="UIelement">Profile</span> window:</p>
                                         <ol>
-                                            <li value="1">Place the cursor in the bar for the value to be filtered or excluded. Drag in any direction inside the bar. A pop-up is displayed.</li>
-                                            <li value="2">Select <span class="UIelement">Filter</span> in the pop-up to include only this value in the column. Select <span class="UIelement">Exclude</span> to exclude this value in the column. The <span class="UIelement">Profile</span> window is closed after you make the selection, and the column in the table is updated to reflect the filter operation.</li>
+                                            <li value="1">Place the cursor in the bar for the value to be filtered or excluded. Drag in any direction inside the bar. When you release the mouse button, a pop-up is displayed. To select multiple bars in the graph to filter or exclude more values, drag the mouse across the bars. You can select only contiguous bars.</li>
+                                            <li value="2">Select <span class="UIelement">Filter</span> in the pop-up to include only this value (or a range of values) in the column. Select <span class="UIelement">Exclude</span> to exclude this value (or a range of values)&#160;in the column. The <span class="UIelement">Profile</span> window is closed after you make the selection, and the column in the table is updated to reflect the filter operation.</li>
                                         </ol>
+                                        <p>The following screenshot provides an example showing how to filter or exclude two values.</p>
+                                        <p>
+                                            <img src="../Resources/Images/Insight_screenshots/profile-filter.png" />
+                                        </p>
                                     </div>
                                 </div>
                             </div>

@@ -102,32 +102,35 @@ window.Help = (function($, Help) {
 
         // need to make into array in order to sort topics by titles
         var categories = [];
-        // Sort categories in order of
-        // Introductory Topics -> Common Tasks -> Advanced Tasks
-        if (categoriesObj["Introductory Topics"]) {
-            categories.push(categoriesObj["Introductory Topics"]);
-            delete categoriesObj["Introductory Topics"];
+        // Sort categories in order of the names of topics
+        for (var category in categoriesObj) {
+            categories.push(categoriesObj[category]);
         }
-        if (categoriesObj["Common Tasks"]) {
-            categories.push(categoriesObj["Common Tasks"]);
-            delete categoriesObj["Common Tasks"];
-        }
-        if (categoriesObj["Advanced Tasks"]) {
-            categories.push(categoriesObj["Advanced Tasks"]);
-            delete categoriesObj["Advanced Tasks"];
-        }
-        for (var topic in categoriesObj) {
-            categories.push(categoriesObj[topic]);
-        }
-        
-        // sortByTitles(categories);
+
+        categories.sort(function(elem1, elem2) {
+            if (elem1.fullName < elem2.fullName) {
+                return -1;
+            } else if (elem1.fullName > elem2.fullName) {
+                return 1;
+            }
+            return 0;
+        });
 
         for (var i = 0; i < categories.length; i++) {
 
             html += '<div class="categoryBlock">' +
                         '<div class="categoryWrap">' +
-                            '<div class="subHeading">' +
-                                categories[i].title + '</div>';
+                            '<div class="subHeading">';
+            if (categories[i].more) {
+                html += '<a href="' + paths.helpContent +
+                        getFormattedUrl(categories[i].more.url) +
+                        '" target="xchelp">' +
+                        categories[i].title +
+                        '</a>';
+            } else {
+                html += categories[i].title;
+            }
+            html += '</div>';
             subTopic = categories[i].subTopics;
 
             sortByTitles(subTopic);
@@ -139,7 +142,7 @@ window.Help = (function($, Help) {
             }
 
             for (var j = 0; j < numToDisplay; j++) {
-                // create new row for every 2 linkss
+                // create new row for every 2 links
                 if (j % 2 === 0) {
                     html += '<div class="row clearfix">';
                 }
@@ -155,17 +158,6 @@ window.Help = (function($, Help) {
             if (j % 2 !== 0) {
                 html += '</div>';
             }
-            if (categories[i].more) {
-                url = getFormattedUrl(categories[i].more.url);
-                var moreText = categories[i].title.toLowerCase();
-                if (moreText.indexOf('topics') !==
-                    categories[i].title.length - 6) {
-                    moreText += " topics";
-                }
-                html += '<div class="moreLink"><a href="' + paths.helpContent +
-                         url + '" target="xchelp">All ' +
-                         moreText + '</a></div>';
-            }
 
             html += '</div></div>';
         }
@@ -177,33 +169,31 @@ window.Help = (function($, Help) {
         var topic;
         var topicIndex;
         var url;
+        var fullName;
         for (var i = 0; i < helpHashTags.pages.length; i++) {
             page = helpHashTags.pages[i];
             topic = page.url;
             topicIndex = topic.indexOf('Content/');
-            url = topic.slice(topicIndex).slice(8);
-            topic = url.split('/')[0].slice(2);
+            url = topic.slice(topicIndex + 'Content/'.length);
+            fullName = url.split('/')[0];
+            topic = fullName.slice(2);
             topic = xcHelper.camelCaseToRegular(topic);
             if (topic === "" || topic.indexOf('.htm') > -1 ||
                 topic === "Feature Topics") {
                 continue;
             }
             if (!categories[topic]) {
-                categories[topic] = {title: topic, subTopics: []};
+                categories[topic] = {title: topic,
+                                     subTopics: [],
+                                     fullName: fullName};
             }
-            if ((topic === "Ref Information" &&
-                page.title === "Reference information") ||
-                (topic === "Common Tasks" &&
-                page.title === "Common tasks") ||
-                (topic === "Introduction Topics" &&
-                page.title === "Getting started")) {
+            // If topic and page.title are the same, then it's the link
+            if (topic.toLowerCase() === page.title.toLowerCase()) {
                 categories[topic].more = page;
             } else {
                 categories[topic].subTopics.push(page);
             }
         }
-        // Remove Reference Information
-        delete categories["Reference Information"];
     }
 
     function getFormattedUrl(url) {
