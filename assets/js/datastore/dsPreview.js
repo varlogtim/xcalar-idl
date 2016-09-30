@@ -235,45 +235,51 @@ window.DSPreview = (function($, DSPreview) {
             "bounds"   : "#importDataForm-content"
         }).setupListeners();
 
-        // setup delimiter
-        // set up dropdown list for csv de
-        var $csvDelim = $("#lineDelim, #fieldDelim");
-        // setUp both line delimiter and field delimiter
-        new MenuHelper($csvDelim, {
-            "onSelect": function($li) {
-                var $input = $li.closest(".dropDownList").find(".text");
-                var isField = ($input.attr("id") === "fieldText");
-
-                switch ($li.attr("name")) {
-                    case "default":
-                        if (isField) {
-                            $input.val("\\t");
-                        } else {
-                            $input.val("\\n");
-                        }
-                        $input.removeClass("nullVal");
-                        break;
-                    case "comma":
-                        $input.val(",").removeClass("nullVal");
-                        break;
-                    case "null":
-                        $input.val("Null").addClass("nullVal");
-                        break;
-                    default:
-                        console.error("error case");
-                        break;
-                }
-
-                if (isField) {
-                    setFieldDelim();
-                } else {
-                    setLineDelim();
-                }
-            },
-            "container": "#importDataForm-content",
-            "bounds"   : "#importDataForm-content"
+        // setUp line delimiter and field delimiter
+        new MenuHelper($("#lineDelim"), {
+            "onSelect"     : selectDelim,
+            "container"    : "#importDataForm-content",
+            "bounds"       : "#importDataForm-content"
         }).setupListeners();
 
+        new MenuHelper($("#fieldDelim"), {
+            "onSelect"     : selectDelim,
+            "container"    : "#importDataForm-content",
+            "bounds"       : "#importDataForm-content"
+        }).setupListeners();
+
+        function selectDelim($li) {
+            var $input = $li.closest(".dropDownList").find(".text");
+            var isField = ($input.attr("id") === "fieldText");
+
+            switch ($li.attr("name")) {
+                case "default":
+                    if (isField) {
+                        $input.val("\\t");
+                    } else {
+                        $input.val("\\n");
+                    }
+                    $input.removeClass("nullVal");
+                    break;
+                case "comma":
+                    $input.val(",").removeClass("nullVal");
+                    break;
+                case "null":
+                    $input.val("Null").addClass("nullVal");
+                    break;
+                default:
+                    console.error("error case");
+                    break;
+            }
+
+            if (isField) {
+                setFieldDelim();
+            } else {
+                setLineDelim();
+            }
+        }
+
+        var $csvDelim = $("#lineDelim, #fieldDelim");
         $csvDelim.on("input", "input", function() {
             var $input = $(this);
             $input.removeClass("nullVal");

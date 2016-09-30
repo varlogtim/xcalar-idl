@@ -480,8 +480,11 @@
         .font(@size: 14px);
         padding-left: 10px;
         float: left;
-        .no-selection;
         .textOverflowOneLine;
+
+        &:not(.inputable) {
+            .no-selection;
+        }
     }
 
     .iconWrapper {
