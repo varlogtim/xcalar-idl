@@ -608,15 +608,16 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var target = new ExExportTargetT();
-    var specInput = new ExAddTargetSpecificInputT();
-    target.name = targetName;
-    target.type = ExTargetTypeT.ExTargetODBCType;
-    specInput.odbcInput = new ExAddTargetODBCInputT();
-    specInput.odbcInput.connectionString = connStr;
 
-    var workItem = xcalarAddExportTargetWorkItem(target, specInput);
-    var def1 = xcalarAddExportTarget(tHandle, target, specInput);
+    var target = new ExExportTargetT();
+    target.hdr = new ExExportTargetHdrT();
+    target.hdr.name = targetName;
+    target.hdr.type = ExTargetTypeT.ExTargetODBCType;
+    target.specificInput = new ExAddTargetSpecificInputT();
+    target.specificInput.odbcInput = new ExAddTargetODBCInputT()
+    target.specificInput.odbcInput.connectionString = connStr;
+
+    var def1 = xcalarAddExportTarget(tHandle, target);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -633,7 +634,6 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     return (deferred.promise());
 }
 
-// XXX: Not tested
 function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -643,15 +643,16 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var target = new ExExportTargetT();
-    var specInput = new ExAddTargetSpecificInputT();
-    target.name = targetName;
-    target.type = ExTargetTypeT.ExTargetSFType;
-    specInput.sfInput = new ExAddTargetSFInputT();
-    specInput.sfInput.url = path;
 
-    var workItem = xcalarAddExportTargetWorkItem(target, specInput);
-    var def1 = xcalarAddExportTarget(tHandle, target, specInput);
+    var target = new ExExportTargetT();
+    target.hdr = new ExExportTargetHdrT();
+    target.hdr.name = targetName;
+    target.hdr.type = ExTargetTypeT.ExTargetSFType;
+    target.specificInput = new ExAddTargetSpecificInputT();
+    target.specificInput.sfInput = new ExAddTargetSFInputT();
+    target.specificInput.sfInput.url = path;
+
+    var def1 = xcalarAddExportTarget(tHandle, target);
     // var def2 = XcalarGetQuery(workItem);
     var def2 = jQuery.Deferred().resolve().promise();
     jQuery.when(def1, def2)
@@ -667,6 +668,42 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
 
     return (deferred.promise());
 }
+
+function XcalarAddUDFExportTarget(targetName, path, txId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (Transaction.checkAndSetCanceled(txId)) {
+        return (deferred.reject().promise());
+    }
+
+    var target = new ExExportTargetT();
+    target.hdr = new ExExportTargetHdrT();
+    target.hdr.name = targetName;
+    target.hdr.type = ExTargetTypeT.ExTargetUDFType;
+    target.specificInput = new ExAddTargetSpecificInputT();
+    target.specificInput.udfInput = new ExAddTargetUDFInputT();
+    target.specificInput.udfInput.url = path;
+
+    var def1 = xcalarAddExportTarget(tHandle, target);
+    // var def2 = XcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // XXX Add sql for this thing
+        // Transaction.log(txId, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarAddExportTarget", error);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 
 function XcalarListExportTargets(typePattern, namePattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {

@@ -22,7 +22,10 @@ window.UDF = (function($, UDF) {
 
     UDF.initialize = function() {
         initializeUDFList()
-        .then(defaultUDFUpload);
+        .then(function(listXdfsObj) {
+            DSExport.refreshUDF(listXdfsObj);
+            defaultUDFUpload();
+        });
         // Note that defaultUDFUpload() will append the default UDF
         // to udf list, so it should come after initializeUDFList();
     };
@@ -317,6 +320,7 @@ window.UDF = (function($, UDF) {
         .then(function(listXdfsObj) {
             DSPreview.update(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
+            DSExport.refreshUDF(listXdfsObj);
         })
         .always(function() {
             $udfManager.removeClass("loading");

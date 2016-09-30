@@ -243,6 +243,7 @@ module.exports = {
         "IcvRestriction": "ICV only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Constants",
+        "ChooseUdfModule": 'Please choose a module first' // used in jststr
     },
 
     "workspaceBar": {
@@ -495,7 +496,9 @@ module.exports = {
         "LocalFS": "Local Filesystem",
         "AddConnector": "Add New Connector",
         "windowsAuth": "Use windows authentication",
-        "usernameAuth": "Use specific username and password"
+        "usernameAuth": "Use specific username and password",
+        "ConnectionString": "Connection String",
+        "AdditionalInfo": "Additional Information"
     },
 
     "aggModal": {

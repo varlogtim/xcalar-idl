@@ -366,37 +366,9 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function updateUDFList(listXdfsObj) {
-        var i;
-        var len = listXdfsObj.numXdfs;
-        var udfs = listXdfsObj.fnDescs;
-        var moduleMap = {};
-        var modules = [];
-
-        for (i = 0; i < len; i++) {
-            modules.push(udfs[i].fnName);
-        }
-
-        modules.sort();
-
-        var moduleLi = "";
-        var fnLi = "";
-        for (i = 0; i < len; i++) {
-            var udf = modules[i].split(":");
-            var moduleName = udf[0];
-            var fnName = udf[1];
-
-            if (!moduleMap.hasOwnProperty(moduleName)) {
-                moduleMap[moduleName] = true;
-                moduleLi += "<li>" + moduleName + "</li>";
-            }
-
-            fnLi += '<li data-module="' + moduleName + '">' +
-                        fnName +
-                    '</li>';
-        }
-
-        $udfModuleList.find("ul").html(moduleLi);
-        $udfFuncList.find("ul").html(fnLi);
+        var udfObj = xcHelper.getUDFList(listXdfsObj);
+        $udfModuleList.find("ul").html(udfObj.moduleLis);
+        $udfFuncList.find("ul").html(udfObj.fnLis);
     }
 
     function validateUDFModule(module) {

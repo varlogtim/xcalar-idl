@@ -48,7 +48,7 @@ StatusMessageTStr = {
 TooltipTStr = {
     'ComingSoon': 'Coming Soon',
     'FocusColumn': 'Focused Column',
-    'ChooseUdfModule': 'Please choose a module first',
+    'ChooseUdfModule': 'Please choose a module first', // used in htmltstr
     'ChooseColToExport': 'Please select the columns you want to export',
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'No worksheet to move to',
@@ -344,7 +344,7 @@ JoinTStr = {
 };
 
 ExportTStr = {
-    'Success': 'Export Success',
+    'Success': 'Export Successful',
     'InvalidType': 'Invalid type selected',
 
     // With replace

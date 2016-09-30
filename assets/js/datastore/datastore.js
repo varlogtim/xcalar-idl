@@ -59,7 +59,7 @@ window.DataStore = (function($, DataStore) {
                     .end()
                     .find(".in").addClass("xc-hidden");
                 if ($exportView.hasClass("firstTouch")) {
-                    DSExport.refresh();
+                    DSExport.refresh(true);
                     $exportView.removeClass("firstTouch");
                 }
             } else {

@@ -36,12 +36,18 @@
 
             &.out {
                 display: block;
+                overflow: visible;
             }
         }
 
         #dataCartBtn {
             display: none;
         }
+
+        .mainContent {
+            overflow: auto;
+        }
+
     }
 }
 
@@ -1630,7 +1636,6 @@ table.datasetTable {
                     background: transparent;
 
                     &.leftTopDragWrap {
-                        // background-color: blue;
                         left: 0;
                         &.active {
                              box-shadow: inset 2px 0px 0px @color-bg-softBlue;
@@ -1638,7 +1643,6 @@ table.datasetTable {
                     }
 
                     &.rightBottomDragWrap {
-                        // background-color: green;
                         left: 50%;
                         &.active {
                             box-shadow: 2px 0px 0px @color-bg-softBlue;
@@ -1801,6 +1805,8 @@ table.datasetTable {
 }
 
 #dsExportListSection {
+    overflow: auto;
+    height: ~"calc(100% - 75px)" !important;
     .targetSection {
         margin-top: 10px;
 
@@ -1821,6 +1827,15 @@ table.datasetTable {
             .expand {
                 .size(@width: 10px, @height: 100%);
             }
+        }
+    }
+
+    .gridArea {
+        display: none;
+    }
+    .active {
+        .gridArea {
+            display: block;
         }
     }
 
@@ -1882,19 +1897,14 @@ table.datasetTable {
 
 #datastore-out-view {
     .cardContainer {
-        .size(@height: 100%);
+        min-height: ~"calc(100% - 5px)";
     }
 
     .cardInstruction {
+        height: auto;
         .icon {
             .size(@width: 25px, @height: 25px);
         }
-    }
-
-    @minusHeight: @height-card-instr + @height-card-header;
-
-    .cardMain {
-        .size(@height: ~"calc(100% - @{minusHeight})");
     }
 
     .divider {
@@ -1905,62 +1915,8 @@ table.datasetTable {
     .formSection {
         padding-bottom: 20px;
 
-        .formTitle {
-            .size(@height: 20px);
-            .font(@weight: 700, @color: @color-font-select-blue);
-            margin: 18px 0 18px 5%;
-        }
-
-        .formRow {
-            .size(@width: 80%);
-            margin: 0 10%;
-            .flex-display;
-            .size(@height: 30px);
-            line-height: 30px;
-            margin-bottom: 10px;
-
-            label {
-                .flex(0 0 100px);
-                .font(@size: 14px, @weight: 600, @color: @color-font-greyish-brown);
-            }
-
-            input {
-                .size(@width: 100%, @height: 30px);
-                .flex(1 1 auto);
-                background-color: @color-bg-white-three;
-                border: 1px solid @color-bg-white-five;
-            }
-
-            .inputSet {
-                .flex(0 0 50%);
-                .flex-display;
-                padding-right: 30px;
-
-                &:last-child {
-                    padding-right: 0;
-
-                    label {
-                        .flex(0 0 50px);
-                    }
-                }
-            }
-        }
-
-        .formButton {
-            .size(@width: 80%, @height: 30px);
-            margin: 30px 10%;
-            line-height: 30px;
-
-            .btn {
-                float: right;
-                &:last-child {
-                    margin-right: 10px;
-                }
-            }
-        }
-
         .dropDownList {
-            .styleDropDownList(~"calc(100% - 100px)", 30px, true);
+            .styleDropDownList(~"calc(100% - 130px)", 30px);
             .list li {
                 font-size: 14px;
                 &.unavailable {
@@ -1983,6 +1939,106 @@ table.datasetTable {
             .windowsAuth {
                 .flex(0 0 auto);
                 margin-right: 50px;
+            }
+        }
+
+        .formatSpecificRow {
+            display: none;
+            &.active {
+                .flex-display;
+            }
+        }
+    }
+
+    .formTitle {
+        .size(@height: 20px);
+        .font(@weight: 700, @color: @color-font-select-blue);
+        margin: 18px 0 18px 5%;
+    }
+
+    .formRow {
+        .size(@width: 80%);
+        margin: 0 10%;
+        .flex-display;
+        .size(@height: 30px);
+        line-height: 30px;
+        margin-bottom: 10px;
+
+        &.placeholderRow {
+           .xc-disabled;
+        }
+
+        &.disabled {
+            pointer-events: none;
+        }
+
+        label {
+            .flex(0 0 130px);
+            .font(@size: 14px, @weight: 600, @color: @color-font-greyish-brown);
+        }
+
+        input {
+            .size(@width: 100%, @height: 30px);
+            .flex(1 1 auto);
+            background-color: @color-bg-white-three;
+            border: 1px solid @color-bg-white-five;
+        }
+
+        .inputSet {
+            .flex(0 0 50%);
+            .flex-display;
+            padding-right: 30px;
+
+            &:last-child {
+                padding-right: 0;
+
+                label {
+                    .flex(0 0 50px);
+                }
+            }
+        }
+    }
+
+    .udfSelectorRow {
+        height: auto;
+        display: none;
+
+        &.active {
+            .flex-display;
+        }
+
+        .rowWrap {
+            .flex-display;
+            .flex-wrap(wrap);
+            width: ~"calc(100% + 30px)";
+            margin-left: -30px;
+        }
+        .list li.hidden {
+            display: none;
+        }
+
+        .dropDownList {
+            &.disabled {
+                pointer-events: none;
+            }
+        }
+    }
+    .formGroup {
+        .flex-display;
+        .flex(1 1 350px);
+        margin-left: 30px;
+        margin-bottom: 10px;
+    }
+
+    .formButton {
+        .size(@width: 80%, @height: 30px);
+        margin: 30px 10%;
+        line-height: 30px;
+
+        .btn {
+            float: right;
+            &:last-child {
+                margin-right: 10px;
             }
         }
     }
