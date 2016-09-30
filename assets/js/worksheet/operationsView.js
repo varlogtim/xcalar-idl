@@ -3998,8 +3998,8 @@ window.OperationsView = (function($, OperationsView) {
                         '</div>' +
                         '<div data-fnlistnum="' + index + '" ' +
                             'class="dropDownList firstList functionsList">' +
-                            '<input data-fninputnum="' + index +
-                            '"  class="text autocomplete functionsInput" ' +
+                            '<input data-fninputnum="' + index + '" ' +
+                            'class="text inputable autocomplete functionsInput" ' +
                             'tabindex="10" spellcheck="false" required>' +
                             '<div class="iconWrapper dropdown">' +
                               '<i class="icon xi-arrow-down"></i>' +
