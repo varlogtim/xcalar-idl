@@ -54,9 +54,9 @@ window.DFCreateView = (function($, DFCreateView) {
 
         $(document).on("keypress.DFView", function(e) {
             if (e.which === keyCode.Enter &&
-                gMouseEvents.getLastMouseDownTarget()
-                            .closest('#dfCreateView').length) {
-
+                (gMouseEvents.getLastMouseDownTarget()
+                             .closest('#dfCreateView').length ||
+                $newNameInput.is(':focus'))) {
                 submitForm();
             }
         });

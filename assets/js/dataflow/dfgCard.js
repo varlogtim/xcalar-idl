@@ -284,7 +284,10 @@ window.DFGCard = (function($, DFGCard) {
                                     groupName +
                                 '</span>' +
                             '</div>' +
-                            '<button class="runNowBtn btn btn-small iconBtn">' +
+                            '<button class="runNowBtn btn btn-small iconBtn" ' +
+                            'data-toggle="tooltip" data-container="body" ' +
+                            'data-placement="top" data-original-title="' +
+                            DFGTStr.Run + '">' +
                                 '<i class="icon xi-arrow-right"></i>' +
                                 '<div class="spin"></div>' +
                             '</button>' +
@@ -297,6 +300,13 @@ window.DFGCard = (function($, DFGCard) {
                 Dag.createDagImage(ret.retina.retinaDag.node,
                                    $("#dataflowPanel").find(".dagWrap"));
                 Dag.addDagEventListeners($("#dataflowPanel").find(".dagWrap"));
+                var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
+                xcHelper.temporarilyDisableTooltip($tooltipTables);
+                xcHelper.addTooltip($('#dfgViz').find('.dataStoreIcon'), null, {
+                    container: "body",
+                    placement: "top",
+                    title: CommonTxtTstr.ClickToOpts
+                });
                 deferred.resolve();
             })
             .fail(deferred.reject);

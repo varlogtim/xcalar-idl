@@ -426,6 +426,7 @@ DFGTStr = {
     'UpdateParamFail': 'Update Parameters Failed',
     'NoDFG1': 'No dataflows added',
     'NoDFG2': 'Add a dataflow in Dataflow Graph',
+    'Run': 'Run batch dataflow',
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran DFG!',
     'RunFail': 'Run DFG Failed',
