@@ -61,6 +61,7 @@ window.DSExport = (function($, DSExport) {
                     var func = $funcListLis.text();
                     $udfFuncList.find('.udfFuncName').val(func);
                 }
+                StatusBox.forceHide();
             },
             "bounds"   : "#datastorePanel > .mainContent",
             "bottomPadding": 5
@@ -70,6 +71,7 @@ window.DSExport = (function($, DSExport) {
             "onSelect": function($li) {
                 var func = $li.text();
                 $udfFuncList.find('.udfFuncName').val(func);
+                StatusBox.forceHide();
             },
             "bounds"   : "#datastorePanel > .mainContent",
             "bottomPadding": 5
@@ -99,8 +101,13 @@ window.DSExport = (function($, DSExport) {
             var name = $('#targetName').val().trim();
             var formatSpecificArg = $form.find('.active .formatSpecificArg')
                                          .val();
+            var options = {};
+            if (targetType === "UDF") {
+                options.module = $form.find('.udfModuleName').val().trim();
+                options.fn = $form.find('.udfFuncName').val().trim();
+            }
 
-            submitForm(targetType, name, formatSpecificArg)
+            submitForm(targetType, name, formatSpecificArg, options)
             .then(function() {
                 xcHelper.showSuccess();
                 resetForm();
@@ -121,6 +128,8 @@ window.DSExport = (function($, DSExport) {
             $targetTypeInput.data('value', "");
             xcHelper.reenableTooltip($udfFuncList.parent());
             $udfFuncList.addClass("disabled");
+            $('#targetName').focus();
+
         });
 
         $("#dsExportListSection").on("click", ".targetInfo", function() {
@@ -194,7 +203,7 @@ window.DSExport = (function($, DSExport) {
         $('#exportFormReset').click();
     }
 
-    function submitForm(targetType, name, formatSpecificArg) {
+    function submitForm(targetType, name, formatSpecificArg, options) {
         var deferred = jQuery.Deferred();
         var $targetTypeInput = $('#targetTypeList').find('.text');
         var $formatSpecificInput = $form.find('.active .formatSpecificArg');
@@ -217,13 +226,37 @@ window.DSExport = (function($, DSExport) {
             },
             {
                 "$selector": $formatSpecificInput,
-                "text"     : "Required field",
+                "text"     : ErrTStr.NoEmpty,
                 "side"     : "top",
                 "check"    : function() {
                     if (targetType === "ODBC") {
                         return false;
                     } else {
                         return (formatSpecificArg.trim() === "");
+                    }
+                }
+            },
+            {
+                "$selector": $form.find('.udfModuleName'),
+                "text"     : ErrTStr.NoEmptyList,
+                "side"     : "top",
+                "check"    : function() {
+                    if (targetType === "UDF") {
+                        return (options.module === "");
+                    } else {
+                        return false;
+                    }
+                }
+            },
+            {
+                "$selector": $form.find('.udfFuncName'),
+                "text"     : ErrTStr.NoEmptyList,
+                "side"     : "top",
+                "check"    : function() {
+                    if (targetType === "UDF") {
+                        return (options.fn === "");
+                    } else {
+                        return false;
                     }
                 }
             }
