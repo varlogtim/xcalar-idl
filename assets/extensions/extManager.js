@@ -745,6 +745,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         var list = "";
         var descIcon = "";
+        var placeholder = "";
 
         if (argType === "table") {
             isDropdown = true;
@@ -784,6 +785,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 if (inputVal !== "" && !arg.enums.includes(inputVal)) {
                     // when has invalid auto value
                     inputVal = "";
+                }
+            } else {
+                var max = arg.typeCheck.max;
+                var min = arg.typeCheck.min;
+                if (!isNaN(min)) {
+                    placeholder = "range: >=" + min;
+                }
+
+                if (!isNaN(max)) {
+                    if (placeholder !== "") {
+                        placeholder += ", <=" + max;
+                    } else {
+                        placeholder = "range: <=" + max;
+                    }
                 }
             }
         }
@@ -845,6 +860,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         '<input class="' + inputClass +'"' +
                         ' type="' + inputType + '"' +
                         ' value="' + inputVal + '"' +
+                        ' placeholder="' + placeholder + '"' +
                         ' spellcheck="false">' +
                         '<div class="picker xc-action">' +
                             '<i class="icon fa-13 xi_select-column"></i>' +
