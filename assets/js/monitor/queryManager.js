@@ -133,7 +133,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else {
             mainQuery.outputTableState = "active";
         }
-        
+
         mainQuery.setElapsedTime();
         clearInterval(queryCheckLists[id]);
         updateQueryBar(id, 100);
@@ -255,7 +255,7 @@ window.QueryManager = (function(QueryManager, $) {
         // unfinished tables will be dropped when Transaction.fail is reached
         var onlyFinishedTables = true;
         dropCanceledTables(mainQuery, onlyFinishedTables);
-        
+
         var currStep = mainQuery.currStep;
 
         if (!mainQuery.subQueries[currStep]) {
@@ -263,7 +263,7 @@ window.QueryManager = (function(QueryManager, $) {
             deferred.reject('step vs query mismatch');
             return deferred.promise();
         }
-        
+
         var statusesToIgnore = [StatusT.StatusOperationHasFinished];
 
         // this is a xcalar query so we must cancel all future subqueries
@@ -279,7 +279,7 @@ window.QueryManager = (function(QueryManager, $) {
                 // errors being handled inside XcalarCancelOp
                 deferred.reject(error);
             });
-           
+
         } else { // xcFunction
             XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
                            statusesToIgnore)
@@ -302,7 +302,6 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
         clearInterval(queryCheckLists[id]);
-        
 
         var mainQuery = queryLists[id];
         mainQuery.state = "canceled";
@@ -610,7 +609,6 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (state === QueryStateT.qrError) {
             state = QueryStatus.Error;
         }
-        
 
         $queryDetail.find(".querySection")
                     .removeClass(QueryStatus.Run)
@@ -717,7 +715,7 @@ window.QueryManager = (function(QueryManager, $) {
             } else {
                 $("#monitor-inspect").removeClass('btn-disabled');
             }
-            
+
             if (dstTableName.indexOf(gDSPrefix) < 0) {
                 $queryDetail.find('.outputSection').find('.text')
                                                .text(dstTableName);
@@ -725,7 +723,7 @@ window.QueryManager = (function(QueryManager, $) {
                 $queryDetail.find('.outputSection').find('.text')
                             .text(dstTableName.slice(gDSPrefix.length));
             }
-            
+
         } else {
             $("#monitor-inspect").addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
@@ -888,7 +886,6 @@ window.QueryManager = (function(QueryManager, $) {
                                       .animate({"width": progress},
                                             checkInterval, "linear",
                                             progressBarContinuation);
-                    
                 }
             } else {
                 $extraProgressBar.stop().animate({"width": progress},
@@ -1113,7 +1110,6 @@ window.QueryManager = (function(QueryManager, $) {
             $queryDetail.find('.outputSection').find('.text')
                                                .text(CommonTxtTstr.NA);
         }
-        
     }
 
     function filterQuery($el) {
@@ -1156,7 +1152,7 @@ window.QueryManager = (function(QueryManager, $) {
                         '<i class="icon xi-trash xc-action deleteIcon" ' +
                         'data-container="body" data-toggle="tooltip" ' +
                         'title="' + TooltipTStr.RemoveQuery + '"></i>' +
-                        '<i class="icon xi-stop xc-action cancelIcon ' +
+                        '<i class="icon xi-cancel xc-action cancelIcon ' +
                         cancelClass + '" ' +
                         'data-container="body" data-toggle="tooltip" ' +
                         'title="' + TooltipTStr.CancelQuery + '"></i>' +
@@ -1208,7 +1204,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else {
             numQueries = queries.length;
         }
-        
+
         for (var i = 0; i < numQueries; i++) {
             if (queries[i].dstTable &&
                 queries[i].dstTable.indexOf(gDSPrefix) === -1) {
