@@ -1,5 +1,6 @@
 window.TableList = (function($, TableList) {
     var searchHelper;
+    var focusedListNum;
     TableList.setup = function() {
         // setup table list section listeners
         var $tableListSections = $("#tableListSections");
@@ -14,6 +15,7 @@ window.TableList = (function($, TableList) {
 
             var $sections = $("#tableListSections .tableListSection").hide();
             $sections.eq(index).show();
+            focusedListNum = null;
         });
 
         // toggle table list box
@@ -34,14 +36,29 @@ window.TableList = (function($, TableList) {
         });
 
         // select a table list
-        $tableListSections.on("click", ".addTableBtn", function() {
+        $tableListSections.on("click", ".addTableBtn", function(event) {
             var $btn = $(this);
 
             if ($btn.closest(".tableInfo").hasClass("hiddenWS")) {
                 return true;
             }
+            var toSelect = !$btn.hasClass('selected');
+            var curListNum = $btn.closest('li').index();
+            var $lists = $btn.closest('li').siblings().andSelf();
+            if (event.shiftKey && focusedListNum !== null) {
+                var start = Math.min(focusedListNum, curListNum);
+                var end = Math.max(focusedListNum, curListNum);
+                for (var i = start; i <= end; i++) {
+                    if (toSelect) {
+                        $lists.eq(i).find('.addTableBtn').addClass('selected');
+                    } else {
+                        $lists.eq(i).find('.addTableBtn').removeClass('selected');
+                    }
+                }
+            } else {
+                $btn.toggleClass('selected');
+            }
 
-            $btn.toggleClass("selected");
             var $section = $btn.closest(".tableListSection");
             var $submitBtns = $section.find(".submit");
 
@@ -50,6 +67,7 @@ window.TableList = (function($, TableList) {
             } else {
                 $submitBtns.removeClass("xc-hidden");
             }
+            focusedListNum = curListNum;
             // stop propogation
             return false;
         });
@@ -61,6 +79,7 @@ window.TableList = (function($, TableList) {
             if ($btn.length > 0) {
                 $section.find(".submit").removeClass("xc-hidden");
             }
+            focusedListNum = null;
         });
 
         $tableListSections.on("click", ".clearAll", function() {
@@ -68,6 +87,7 @@ window.TableList = (function($, TableList) {
             $section.find(".submit").addClass("xc-hidden")
                     .end()
                     .find(".addTableBtn").removeClass("selected");
+            focusedListNum = null;
         });
 
         $("#orphanedTableList .refresh").click(function() {
@@ -77,11 +97,13 @@ window.TableList = (function($, TableList) {
             });
             $section.find(".clearAll").click();
             TableList.refreshOrphanList(true);
+            focusedListNum = null;
         });
 
          $("#constantsListSection .refresh").click(function() {
             $(this).find(".clearAll").click();
             TableList.refreshConstantList(true);
+            focusedListNum = null;
         });
 
         $tableListSections.on("mouseenter", ".tableName", function(){
@@ -100,6 +122,7 @@ window.TableList = (function($, TableList) {
             if (tableIds.length) {
                 TblManager.archiveTables(tableIds);
             }
+            focusedListNum = null;
         });
 
         $tableListSections.on("click", ".submit.active", function() {
@@ -114,6 +137,7 @@ window.TableList = (function($, TableList) {
             } else {
                 console.error("Error Case!");
             }
+            focusedListNum = null;
         });
 
         $tableListSections.on("click", ".submit.delete", function() {
@@ -150,6 +174,7 @@ window.TableList = (function($, TableList) {
                     
                 }
             });
+            focusedListNum = null;
         });
 
         $("#activeTablesList").on("click", ".column", function() {
@@ -236,6 +261,7 @@ window.TableList = (function($, TableList) {
         $activeTableList.find(".submit").addClass("xc-hidden")
                         .end()
                         .find(".addTableBtn").removeClass("selected");
+        focusedListNum = null;
     };
 
     TableList.renameTable = function(tableId, newTableName) {
@@ -322,7 +348,7 @@ window.TableList = (function($, TableList) {
 
         // validation check
         xcHelper.assert(validAction.indexOf(action) >= 0);
-
+        focusedListNum = null;
         var $tableList;
         var hiddenWS = false;
 
@@ -513,7 +539,7 @@ window.TableList = (function($, TableList) {
 
     TableList.refreshOrphanList = function(prettyPrint) {
         var deferred = jQuery.Deferred();
-
+        focusedListNum = null;
         XcalarGetTables()
         .then(function(backEndTables) {
             var backTables = backEndTables.nodeInfo;
@@ -595,6 +621,7 @@ window.TableList = (function($, TableList) {
         }
 
         $tableList.find('.addTableBtn').removeClass('selected');
+        focusedListNum = null;
     };
 
     TableList.checkTableInList = function(tableIdOrName, type) {
@@ -626,6 +653,7 @@ window.TableList = (function($, TableList) {
         if (waitIcon) {
             $waitingIcon = xcHelper.showRefreshIcon($('#constantsListSection'));
         }
+        focusedListNum = null;
         $('#constantsListSection').find(".clearAll").click();
         var startTime = Date.now();
         generateConstList()
