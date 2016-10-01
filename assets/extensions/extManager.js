@@ -738,6 +738,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var inputType = "text";
         var inputVal = "";
         var argType = arg.type;
+        var typeCheck = arg.typeCheck || {};
         var inputClass = "argument type-" + argType;
         // for dropdowns
         var isDropdown = false;
@@ -764,7 +765,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 inputVal = gColPrefix + triggerCol.getFrontColName();
             }
 
-            if (arg.typeCheck.multiColumn) {
+            if (typeCheck.multiColumn) {
                 inputClass += " multiColumn";
             }
         } else {
@@ -787,13 +788,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     inputVal = "";
                 }
             } else {
-                var max = arg.typeCheck.max;
-                var min = arg.typeCheck.min;
-                if (!isNaN(min)) {
+                var max = typeCheck.max;
+                var min = typeCheck.min;
+                if (min != null && !isNaN(min)) {
                     placeholder = "range: >=" + min;
                 }
 
-                if (!isNaN(max)) {
+                if (max != null && !isNaN(max)) {
                     if (placeholder !== "") {
                         placeholder += ", <=" + max;
                     } else {
