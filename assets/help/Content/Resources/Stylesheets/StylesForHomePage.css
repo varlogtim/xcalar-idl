@@ -894,6 +894,16 @@ div.FloatingBox	/*Colorful boxes on the home page containing lists of topics*/
 	/*Gives space between border of a colorful box and the text inside it. Using px is OK because it's inside the box. It won't cause wrapping of the boxes even if browser window is narrow.*/
 }
 
+body:not(.web) div.FloatingBoxesContainer {
+	height: auto;
+}
+
+body:not(.web) div.FloatingBox {
+	padding-left: 30px;
+	padding-right: 10px;
+	width: 100%;
+}
+
 .leftBox	/*The leftBox, rightBox, middleBox classes specify only the color of each box and nothing else.*/
 {
 	background-color: #ddeaf2;
