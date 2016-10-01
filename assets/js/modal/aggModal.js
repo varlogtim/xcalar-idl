@@ -552,7 +552,7 @@ window.AggModal = (function($, AggModal) {
             // error case force to have tooltip
             var spanClass = (error == null) ? "textOverflow tooltipOverflow" :
                                             "textOverflow";
-            var html = '<span class="' + spanClass + '" ' + 
+            var html = '<span class="' + spanClass + '" ' +
                         'data-original-title="' + title +
                         '" data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +

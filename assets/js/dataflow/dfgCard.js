@@ -271,46 +271,46 @@ window.DFGCard = (function($, DFGCard) {
     }
 
     function drawDags(groupName) {
-            // This is a uploaded dataflow
-            var deferred = jQuery.Deferred();
-            html = '<div class="dagWrap clearfix">' +
-                        '<div class="header clearfix">' +
-                            '<div class="btn btn-small infoIcon">' +
-                                '<i class="icon xi-info-rectangle"></i>' +
-                            '</div>' +
-                            '<div class="tableTitleArea">' +
-                                '<span>Table: </span>' +
-                                '<span class="tableName">' +
-                                    groupName +
-                                '</span>' +
-                            '</div>' +
-                            '<button class="runNowBtn btn btn-small iconBtn" ' +
-                            'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="top" data-original-title="' +
-                            DFGTStr.Run + '">' +
-                                '<i class="icon xi-arrow-right"></i>' +
-                                '<div class="spin"></div>' +
-                            '</button>' +
+        // This is a uploaded dataflow
+        var deferred = jQuery.Deferred();
+        html = '<div class="dagWrap clearfix">' +
+                    '<div class="header clearfix">' +
+                        '<div class="btn btn-small infoIcon">' +
+                            '<i class="icon xi-info-rectangle"></i>' +
                         '</div>' +
-                        '<div class="dagImageWrap">' +
-                        '</div></div>';
-            $dfgCard.find('.cardMain').html(html);
-            XcalarGetRetina(groupName)
-            .then(function(ret) {
-                Dag.createDagImage(ret.retina.retinaDag.node,
-                                   $("#dataflowPanel").find(".dagWrap"));
-                Dag.addDagEventListeners($("#dataflowPanel").find(".dagWrap"));
-                var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
-                xcHelper.temporarilyDisableTooltip($tooltipTables);
-                xcHelper.addTooltip($('#dfgViz').find('.dataStoreIcon'), null, {
-                    container: "body",
-                    placement: "top",
-                    title: CommonTxtTstr.ClickToOpts
-                });
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-            return deferred.promise();
+                        '<div class="tableTitleArea">' +
+                            '<span>Table: </span>' +
+                            '<span class="tableName">' +
+                                groupName +
+                            '</span>' +
+                        '</div>' +
+                        '<button class="runNowBtn btn btn-small iconBtn" ' +
+                        'data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" data-original-title="' +
+                        DFGTStr.Run + '">' +
+                            '<i class="icon xi-arrow-right"></i>' +
+                            '<div class="spin"></div>' +
+                        '</button>' +
+                    '</div>' +
+                    '<div class="dagImageWrap">' +
+                    '</div></div>';
+        $dfgCard.find('.cardMain').html(html);
+        XcalarGetRetina(groupName)
+        .then(function(ret) {
+            Dag.createDagImage(ret.retina.retinaDag.node,
+                               $("#dataflowPanel").find(".dagWrap"));
+            Dag.addDagEventListeners($("#dataflowPanel").find(".dagWrap"));
+            var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
+            xcHelper.temporarilyDisableTooltip($tooltipTables);
+            xcHelper.addTooltip($('#dfgViz').find('.dataStoreIcon'), null, {
+                "container": "body",
+                "placement": "top",
+                "title"    : CommonTxtTstr.ClickToOpts
+            });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     function getDagDropDownHTML() {

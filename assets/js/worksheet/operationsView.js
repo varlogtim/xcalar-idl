@@ -800,10 +800,12 @@ window.OperationsView = (function($, OperationsView) {
             $(document).on('mousedown.mapCategoryListener', function(e) {
                 var $target = $(e.target);
                 if (!$target.closest('.catFuncMenus').length &&
-                    !$target.is('#mapFilter') && 
-                    !$target.hasClass('ui-resizable-handle')) {
-                    if ($categoryList.find('li.active').length && 
-                        $functionsList.find('li.active').length === 0) {
+                    !$target.is('#mapFilter') &&
+                    !$target.hasClass('ui-resizable-handle'))
+                {
+                    if ($categoryList.find('li.active').length &&
+                        $functionsList.find('li.active').length === 0)
+                    {
                         var val = $('#mapFilter').val();
                         var valTrimmed = val.trim();
                         if (valTrimmed.length || val.length === 0) {
@@ -888,7 +890,7 @@ window.OperationsView = (function($, OperationsView) {
 
     var firstArgExceptions = {
         'conditional functions': ['not'],
-        'conditional': ['not']
+        'conditional'          : ['not']
     };
 
     function populateInitialCategoryField(operator) {
@@ -1009,7 +1011,6 @@ window.OperationsView = (function($, OperationsView) {
         var argIndex = $ul.closest('.group').find('.hint').index($ul);
         var shouldSuggest = true;
         var corrected;
-        var hasAggPrefix = false;
         var listLimit = 30; // do not show more than 30 results
         var aggNameMatches = [];
         var aggNameLis = "";
@@ -1332,7 +1333,6 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             opsMap = filteredOperatorsMap;
         }
-        var html= "";
         var filterVal = $('#mapFilter').val().trim();
         var startsWith = "";
         var includes = "";
@@ -1344,8 +1344,9 @@ window.OperationsView = (function($, OperationsView) {
                     '" data-container="body" ' +
                     'data-placement="right" data-toggle="tooltip" title="' +
                     ops[i].fnName + '">' + ops[i].fnName + '</li>';
-                    if (filterVal && 
-                        ops[i].fnName.toLowerCase().startsWith(filterVal)) {
+                    if (filterVal &&
+                        ops[i].fnName.toLowerCase().startsWith(filterVal))
+                    {
                         startsWith += li;
                     } else {
                         includes += li;
@@ -1353,10 +1354,11 @@ window.OperationsView = (function($, OperationsView) {
                 }
             } else {
                 for (var i = 0; i < ops.length; i++) {
-                    li = '<li class="textNoCap" data-category="' + cat + 
+                    li = '<li class="textNoCap" data-category="' + cat +
                     '">' + ops[i].fnName + '</li>';
-                    if (filterVal && 
-                        ops[i].fnName.toLowerCase().startsWith(filterVal)) {
+                    if (filterVal &&
+                        ops[i].fnName.toLowerCase().startsWith(filterVal))
+                    {
                         startsWith += li;
                     } else {
                         includes += li;
@@ -2738,16 +2740,6 @@ window.OperationsView = (function($, OperationsView) {
         return true;
     }
 
-    // function hasAggPrefix(val) {
-    //     if (val[0] === gAggVarPrefix) {
-    //         return true;
-    //     } else if (val[0] === "\\" && val[1] === gAggVarPrefix) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
-
     function filterCheck(operator, args, $input) {
         if (!hasFuncFormat(args[0])) {
             var filterColNum = getColNum(args[0]);
@@ -3479,12 +3471,12 @@ window.OperationsView = (function($, OperationsView) {
         return (types);
     }
 
-    function fillInputPlaceholder(inputNum) {
+    function fillInputPlaceholder() {
         var $inputs = $activeOpSection.find('.autocomplete');
         $inputs.each(function() {
             var placeholderText = $(this).siblings('.list').find('li')
                                           .eq(0).text();
-            $(this).attr('placeholder', placeholderText);                             
+            $(this).attr('placeholder', placeholderText);
         });
     }
 

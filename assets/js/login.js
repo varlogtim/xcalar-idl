@@ -26,7 +26,7 @@ $(document).ready(function() {
         var str = {"xipassword": pass, "xiusername": username};
 
         var loginEnabled = false;
-        if(loginEnabled) {
+        if (loginEnabled) {
             $.ajax({
                 type: 'POST',
                 data: JSON.stringify(str),
@@ -34,10 +34,10 @@ $(document).ready(function() {
                 url: "https://authentication.xcalar.net/app/login",
                 success: function(data) {
                     ret = data;
-                    if (ret.status == Status.Ok) {
+                    if (ret.status === Status.Ok) {
                         console.log('success');
                         submit();
-                    } else if (ret.status == Status.Error) {
+                    } else if (ret.status === Status.Error) {
                         alert('Incorrect Password. Please try again.');
                         console.log('return error', data, ret);
                     } else {

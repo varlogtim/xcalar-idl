@@ -853,9 +853,11 @@ window.JSONModal = (function($, JSONModal) {
                     immds.push(tableMeta.valueAttrs[i].name);
                 }
             }
-            prettyJson = prettifyJson(jsonObj, null, checkboxes,
-                                      {inarray: isArray, tableMeta: tableMeta,
-                                        immds: immds});
+            prettyJson = prettifyJson(jsonObj, null, checkboxes, {
+                "inarray"  : isArray,
+                "tableMeta": tableMeta,
+                "immds"    : immds
+            });
             prettyJson = '<div class="jObject">' +
                             '<span class="jArray jInfo">' + prettyJson +
                             '</span>' +
@@ -1436,7 +1438,7 @@ window.JSONModal = (function($, JSONModal) {
                         isImmediate = true;
                     }
                 }
-                row += '<div class="jsonBlock jInfo' + classNames + 
+                row += '<div class="jsonBlock jInfo' + classNames +
                       '" data-key="' + dataKey + '">';
                    
                 if (checkboxes) {
@@ -1453,7 +1455,7 @@ window.JSONModal = (function($, JSONModal) {
                 // if (isImmediate) { // put immediate in front
                 //     result = row + result;
                 // } else {
-                    result += row;
+                result += row;
                 // }
             }
         }

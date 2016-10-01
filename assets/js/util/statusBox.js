@@ -129,7 +129,7 @@ window.StatusBox = (function($, StatusBox){
         }
     }
 
-    function clear() { 
+    function clear() {
         open = false;
         $statusBox.removeClass();
         $statusBox.find('.titleText').text('');

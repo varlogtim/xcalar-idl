@@ -813,6 +813,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             copyToClipboard(valArray);
+            xcHelper.showSuccess();
             $highlightBoxs.remove();
         });
 

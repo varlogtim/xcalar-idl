@@ -569,18 +569,18 @@ window.Installer = (function(Installer, $) {
         $("#ldapForm").addClass("disabled");
         // Collect all the values
         var values = $(".ldapSection input").map(function(a, b) {
-                                                    return $(b).val();
-                                                });
+            return $(b).val();
+        });
         var adOption = $(".AD.radioButton.active").data("option");
         var tlsOption = $(".useTLS.radioButton.active").data("option");
 
         var struct = {
-            "ldap_uri": values[0],
-            "userDN": values[1],
-            "searchFilter": values[2],
+            "ldap_uri"     : values[0],
+            "userDN"       : values[1],
+            "searchFilter" : values[2],
             "serverKeyFile": values[3],
-            "activeDir": adOption,
-            "useTLS": tlsOption
+            "activeDir"    : adOption,
+            "useTLS"       : tlsOption
         };
 
         sendViaHttps("writeConfig", struct, function(ret) {
@@ -665,7 +665,7 @@ window.Installer = (function(Installer, $) {
                 clearInterval(intervalTimer);
 
             } else {
-                   sendViaHttps(statusApi, finalStruct, function(ret) {
+                sendViaHttps(statusApi, finalStruct, function(ret) {
                     if (ret.status === Status.Done) {
                         clearInterval(intervalTimer);
                         deferred.resolve();

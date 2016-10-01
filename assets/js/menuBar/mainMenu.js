@@ -145,10 +145,10 @@ window.MainMenu = (function($, MainMenu) {
         var minWidth = defaultWidth + 3;
         var isSmall = true;
         $mainMenu.resizable({
-            "handles"  : "e",
-            "minWidth" : 295,
+            "handles" : "e",
+            "minWidth": 295,
             "distance": 2,
-            "start"    : function() {
+            "start"   : function() {
                 // set boundaries so it can't resize past window
                 var panelRight = $menuPanel[0].getBoundingClientRect().right;
 

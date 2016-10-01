@@ -17,7 +17,6 @@ window.QueryManager = (function(QueryManager, $) {
         addEventHandlers();
     };
 
-
     QueryManager.test = function() {
         var ds1 = "cheng." + xcHelper.randName("yelpUser");
         var ds2 = "cheng." + xcHelper.randName("yelpReviews");
@@ -84,13 +83,13 @@ window.QueryManager = (function(QueryManager, $) {
         var time = new Date().getTime();
         options = options || {};
         var subQuery = new XcSubQuery({
-            "name"     : name,
-            "time"     : time,
-            "query"    : query,
-            "dstTable" : dstTable,
-            "id"       : id,
-            "index"    : mainQuery.subQueries.length,
-            "queryName": queryName,
+            "name"          : name,
+            "time"          : time,
+            "query"         : query,
+            "dstTable"      : dstTable,
+            "id"            : id,
+            "index"         : mainQuery.subQueries.length,
+            "queryName"     : queryName,
             "exportFileName": options.exportFileName
         });
         mainQuery.addSubQuery(subQuery);
@@ -707,9 +706,10 @@ window.QueryManager = (function(QueryManager, $) {
         var mainQuery = queryLists[id];
         var queryState = mainQuery.getState();
         var dstTableState = mainQuery.getOutputTableState();
-        if (queryState === "done" && 
+        if (queryState === "done" &&
             (dstTableState === "active" || dstTableState === "exported") &&
-            mainQuery.getOutputTableName()) {
+            mainQuery.getOutputTableName())
+        {
             var dstTableName = mainQuery.getOutputTableName();
 
             if (dstTableState === "exported") {

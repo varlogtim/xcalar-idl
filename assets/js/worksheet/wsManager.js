@@ -593,7 +593,7 @@ window.WSManager = (function($, WSManager) {
         })
         .fail(function(error) {
             console.error("Move inactive to worksheet failed", error);
-            deferred.reject();
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -1603,7 +1603,7 @@ window.WSManager = (function($, WSManager) {
             ' data-ws="' + wsId + '">' +
                 '<span class="draggableArea"></span>' +
                 '<i class="eye icon xi-show fa-15"></i>' +
-                '<input data-original-title="' + name + 
+                '<input data-original-title="' + name +
                 '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +

@@ -26,14 +26,14 @@ window.DSExport = (function($, DSExport) {
 
         $('#createExportButton').click(function() {
             if ($exportTargetCard.hasClass('gridInfoMode')) {
-                $exportTargetCard.removeClass('gridInfoMode')
+                $exportTargetCard.removeClass('gridInfoMode');
                 resetForm();
             } else {
                 $('#targetName').focus();
             }
-        })
+        });
 
-        $gridView.on("click", ".grid-unit", function(event) {
+        $gridView.on("click", ".grid-unit", function() {
             // event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
             selectGrid($grid);
@@ -87,7 +87,7 @@ window.DSExport = (function($, DSExport) {
             $udfFuncList.addClass("disabled");
             $exportTargetCard.removeClass('gridInfoMode');
             $gridView.find(".gridArea .active").removeClass("active");
-            var $inputs = $exportTargetCard.find('input:enabled');
+            // var $inputs = $exportTargetCard.find('input:enabled');
             $exportTargetCard.find('.tempDisabled').removeClass('tempDisabled')
                              .prop('disabled', false);
             $('#targetName').focus();
@@ -117,7 +117,7 @@ window.DSExport = (function($, DSExport) {
             var targets = targs.targets;
             var numTargs = targs.numTargets;
             var types = [];
-            var formartArg;
+            // var formartArg;
             var target;
             exportTargets = [];
     
@@ -141,9 +141,11 @@ window.DSExport = (function($, DSExport) {
                     typeIndex = types.length - 1;
                     exportTargets.push({name: type, targets: []});
                 }
-                target = {name: targets[i].hdr.name,
-                          formatArg: formatArg,
-                          options: {}};
+                target = {
+                    name     : targets[i].hdr.name,
+                    formatArg: formatArg,
+                    options  : {}
+                };
                 exportTargets[typeIndex].targets.push(target);
                 // Here we can make use of targets[i].specificInput.(odbcInput|
                 // sfInput).(connectionString|url) to display more information
@@ -219,7 +221,7 @@ window.DSExport = (function($, DSExport) {
                 }
                 StatusBox.forceHide();
             },
-            "bounds"   : "#datastorePanel > .mainContent",
+            "bounds"       : "#datastorePanel > .mainContent",
             "bottomPadding": 5
         }).setupListeners();
 
@@ -229,7 +231,7 @@ window.DSExport = (function($, DSExport) {
                 $udfFuncList.find('.udfFuncName').val(func);
                 StatusBox.forceHide();
             },
-            "bounds"   : "#datastorePanel > .mainContent",
+            "bounds"       : "#datastorePanel > .mainContent",
             "bottomPadding": 5
         }).setupListeners();
     }
@@ -278,7 +280,7 @@ window.DSExport = (function($, DSExport) {
         var deferred = jQuery.Deferred();
         var $targetTypeInput = $('#targetTypeList').find('.text');
         var $formatSpecificInput = $form.find('.active .formatSpecificArg');
-        var isValid = xcHelper.validate([  
+        var isValid = xcHelper.validate([
             {
                 "$selector": $('#targetName'),
                 "text"     : ErrTStr.NoEmpty,
@@ -401,14 +403,14 @@ window.DSExport = (function($, DSExport) {
     function getGridHtml(target) {
         var name = target.name;
         var formatArg = target.formatArg;
-        var options = target.options;
+        // var options = target.options;
         var extraDataAttr = "";
         if (target.options.module && target.options.fn) {
-            extraDataAttr = 'data-module="' + target.options.module + '" '  +
+            extraDataAttr = 'data-module="' + target.options.module + '" ' +
                             'data-fn="' + target.options.fn + '"';
         }
         var html = '<div class="target grid-unit" data-name="' + name + '" ' +
-                    'data-formatarg="' + formatArg + '" ' + extraDataAttr + 
+                    'data-formatarg="' + formatArg + '" ' + extraDataAttr +
                     '>' +
                         '<div class="gridIcon">' +
                             '<i class="icon xi-data-target"></i>' +
@@ -423,9 +425,11 @@ window.DSExport = (function($, DSExport) {
     }
 
     function addGridIcon(targetType, name, formatSpecificArg, options) {
-        var target = {name: name, 
-                      formatArg: formatSpecificArg,
-                      options: options};
+        var target = {
+            name     : name,
+            formatArg: formatSpecificArg,
+            options  : options
+        };
  
         var $grid = $(getGridHtml(target));
         var targetTypeId = targetType.replace(/\s/g, '');

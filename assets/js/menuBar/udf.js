@@ -148,7 +148,7 @@ window.UDF = (function($, UDF) {
         $("#udf-upload-browse").click(function() {
             $(this).blur();
             // clear so we can trigger .change on a repeat file
-            $browserBtn.val(""); 
+            $browserBtn.val("");
 
             $browserBtn.click();
             return false;
@@ -293,7 +293,7 @@ window.UDF = (function($, UDF) {
 
         // trigger autcomplete menu on keyup, except when keysToIgnore
         editor.on("keyup", function(cm, e) {
-            var val = editor.getValue().trim();
+            // var val = editor.getValue().trim();
             if (keysToIgnore.indexOf(e.keyCode) < 0) {
                 editor.execCommand("autocompleteUDF");
             }

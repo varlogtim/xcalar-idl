@@ -43,8 +43,8 @@ window.Aggregates = (function(Aggregates, $) {
             // XXX now if this agg ops is exist, do not update it,
             // since update will make the old table info lost
             console.warn("Aggregate result already exists!");
-        } else {  
-            // used for checking duplicate aggs   
+        } else {
+            // used for checking duplicate aggs
             // use this as key so that if later you want to sort,
             // write a sort function that split by "#" and
             // extract tableId/colNam/aggOp to sort by one of them

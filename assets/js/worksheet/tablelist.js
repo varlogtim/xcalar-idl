@@ -100,7 +100,7 @@ window.TableList = (function($, TableList) {
             focusedListNum = null;
         });
 
-         $("#constantsListSection .refresh").click(function() {
+        $("#constantsListSection .refresh").click(function() {
             $(this).find(".clearAll").click();
             TableList.refreshConstantList(true);
             focusedListNum = null;
@@ -1037,13 +1037,14 @@ window.TableList = (function($, TableList) {
                 } else {
                     value = CommonTxtTstr.NA;
                 }
-              html += '<li class="clearfix tableInfo" ' +
+                html +=
+                '<li class="clearfix tableInfo" ' +
                     'data-id="' + name + '">' +
                     '<div class="constInfoWrap" data-toggle="tooltip" ' +
-                    'data-container="body" title="' + op + '</br>' + 
+                    'data-container="body" title="' + op + '</br>' +
                         tableName + '">' +
                         '<div class="op">' +
-                            op + 
+                            op +
                         '</div>' +
                         '<div class="srcName">' + tableName + '</div>' +
                     '</div>' +
@@ -1054,14 +1055,13 @@ window.TableList = (function($, TableList) {
                             '<i class="icon xi-tick fa-11"></i>' +
                         '</span>' +
                         '<span class="constName textOverflowOneLine" ' +
-                            'data-original-title="' +
-                            name + '">' +
+                            'data-original-title="' + name + '">' +
                             name +
                         '</span>' +
                         '<span class="value" data-toggle="tooltip" ' +
-                        'data-container="body" title="' + 
+                        'data-container="body" title="' +
                             CommonTxtTstr.Value + ': ' + value + '">(' +
-                            value + 
+                            value +
                         ')</span>' +
                     '</div>' +
                 '</li>';
@@ -1090,17 +1090,17 @@ window.TableList = (function($, TableList) {
             promises.push(XcalarDeleteTable(constName));
         });
 
-        var $waitingIcon = xcHelper.showRefreshIcon($('#constantsListSection'), 
-                                                    true);
-        $('#constantsListSection').addClass('locked');
+        var $constantSection = $('#constantsListSection');
+        var $waitingIcon = xcHelper.showRefreshIcon($constantSection, true);
+        $constantSection.addClass('locked');
         PromiseHelper.when.apply(window, promises)
         .then(function() {
             for (var i = 0; i < constNames.length; i++) {
-                $('#constantList').find('.tableInfo[data-id="' + 
+                $('#constantList').find('.tableInfo[data-id="' +
                                         constNames[i] + '"]').remove();
-                Aggregates.removeAgg(constNames[i]); 
+                Aggregates.removeAgg(constNames[i]);
             }
-            $('#constantsListSection').find(".clearAll").click();
+            $constantSection.find(".clearAll").click();
         })
         .fail(function() {
             constDeleteFailHandler(arguments, constNames);
@@ -1109,7 +1109,7 @@ window.TableList = (function($, TableList) {
             $waitingIcon.fadeOut(100, function() {
                 $waitingIcon.remove();
             });
-            $('#constantsListSection').removeClass('locked');
+            $constantSection.removeClass('locked');
         });
     }
 
@@ -1125,10 +1125,10 @@ window.TableList = (function($, TableList) {
                 failedTables += constNames[i] + ", ";
             } else {
                 hasSuccess = true;
-                var constName = results[i].statuses[0].nodeInfo.name
+                var constName = results[i].statuses[0].nodeInfo.name;
                 $('#constantList').find('.tableInfo[data-id="' + constName +
                                          '"]').remove();
-                Aggregates.removeAgg(constName); 
+                Aggregates.removeAgg(constName);
             }
         }
 
@@ -1150,8 +1150,8 @@ window.TableList = (function($, TableList) {
                 Alert.error(StatusMessageTStr.PartialDeleteConstFail, errorMsg);
             }
         } else {
-            Alert.error(StatusMessageTStr.DeleteConstFailed,  
-                fails[0].error + ". " + ErrTStr.NoConstsDeleted);
+            errorMsg = fails[0].error + ". " + ErrTStr.NoConstsDeleted;
+            Alert.error(StatusMessageTStr.DeleteConstFailed, errorMsg);
         }
         return (hasSuccess);
     }

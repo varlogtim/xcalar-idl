@@ -21,7 +21,7 @@ window.JoinView = (function($, JoinView) {
     var formOpenTime; // stores the last time the form was opened
     var turnOnPrefix = true; // Set to false if backend crashes
 
-    var validTypes = ['integer', 'float', 'string', 'float']; 
+    var validTypes = ['integer', 'float', 'string', 'float'];
 
     var formHelper;
     var multiClauseTemplate =
@@ -508,7 +508,7 @@ window.JoinView = (function($, JoinView) {
 
                 // clear any empty column rows
                 $clauseContainer.find(".joinClause:not(.placeholder)")
-                                .each(function() {
+                .each(function() {
                     var $joinClause = $(this);
                     var lClause = $joinClause.find(".leftClause").val().trim();
                     var rClause = $joinClause.find(".rightClause").val().trim();

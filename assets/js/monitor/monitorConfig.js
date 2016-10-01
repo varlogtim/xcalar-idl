@@ -1,6 +1,6 @@
 window.MonitorConfig = (function(MonitorConfig, $) {
     var $configCard;
-    var placeholder;
+    var $placeholder;
     MonitorConfig.setup = function() {
         $configCard = $('#configCard');
         $placeholder = $configCard.find('.placeholder');
@@ -22,7 +22,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             if (e.which === keyCode.Enter) {
                 var $nameInput = $(this);
                 var val = $nameInput.val();
-                if (val === $nameInput.data('value')) { 
+                if (val === $nameInput.data('value')) {
                 // no change do not resubmit
                     return;
                 }
@@ -41,9 +41,10 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 })
                 .fail(function(error) {
                     var errorText = "Parameter not found";
-                    StatusBox.show(errorText, $nameInput, false, 
-                                    {"offsetX": -5, "side": "top"});
-
+                    StatusBox.show(errorText, $nameInput, false, {
+                        "offsetX": -5,
+                        "side"   : "top"
+                    });
                 })
                 .always(function() {
                     $nameInput.attr('disabled', false);
@@ -54,9 +55,9 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             }
         });
 
-        $configCard.on('blur', '.paramName', function(e) {
+        $configCard.on('blur', '.paramName', function() {
             var $nameInput = $(this);
-            $nameInput.val($nameInput.data('value'));   
+            $nameInput.val($nameInput.data('value'));
         });
     };
 
@@ -122,22 +123,22 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                   '</label>' +
                   '<div class="flexGroup">' +
                       '<label class="argWrap">' +
-                        '<span class="text">' + MonitorTStr.CurVal + 
+                        '<span class="text">' + MonitorTStr.CurVal +
                         ':</span>' +
                         '<input type="text" class="xc-input curVal" disabled>' +
                       '</label>' +
                       '<label class="argWrap">' +
-                        '<span class="text">' + MonitorTStr.NewVal + 
+                        '<span class="text">' + MonitorTStr.NewVal +
                         ':</span>' +
                         '<input type="text" class="xc-input newVal">' +
                       '</label>' +
-                  '</div>'+
+                  '</div>' +
                 '</div>';
         $placeholder.before(html);
         setTimeout(function() {
             $placeholder.prev().removeClass('animating');
         }, 0);
-        var $mainContent = $('#monitorPanel').children('.mainContent')
+        var $mainContent = $('#monitorPanel').children('.mainContent');
         $mainContent.scrollTop($mainContent.height());
     }
 
