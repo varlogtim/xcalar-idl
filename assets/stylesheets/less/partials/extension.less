@@ -147,8 +147,11 @@
         .hintSection, .errorSection, .waitSection {
             display: none;
             overflow: hidden;
-            .center-align;
+            // .center-align; // horizontal align doesn't work well in IE
+            .vertical-align;
             text-align: center;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .hintSection {

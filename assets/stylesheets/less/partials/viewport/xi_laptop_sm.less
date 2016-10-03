@@ -46,6 +46,10 @@
 
 @media screen and (max-height: 630px) {
     #menuBar {
+        .topMenuBarTab:not(.active) {
+            max-height: @height-mainTab + 1; // for IE
+            overflow: hidden;
+        }
         .subTabs {
             max-height: @height-subTab * 3;
             overflow: auto;
