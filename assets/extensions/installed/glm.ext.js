@@ -1,29 +1,11 @@
-// Every extension must be named UExt<EXTENSIONNAME>
-// Every extension must be named after the file which will be
-// <EXTENSIONNAME>.ext.js
-// Extensions are case INSENSITIVE
-// Every extension must have 3 functions:
-// buttons
-// actionFn
-// undoActionFn
-// buttons must return an array of structs. each struct must have a field
-// called "buttonText" which populates the text in the button
-// each struct must have a fnName field which contains the name of the function
-// that will be triggered
-// each struct must also have a field called arrayOfFields that is an array of
-// requirements for each of the arguments that must be passed into the struct
-// actionFn is a function that will get invoked once the user presses any of
-// the buttons belonging to the extension
-// undoActionFn is a function that will get invoked once the user tries to undo
-// an action that belongs to this extension
-window.UExtGLM = (function(UExtGLM, $) {
+window.UExtGLM = (function(UExtGLM) {
     UExtGLM.buttons = [{
         "buttonText"   : "Simple Linear Regression",
         "fnName"       : "simpleLinearRegression",
         "arrayOfFields": [{
             "type"      : "column",
-            "name"      : "column 1",
-            "fieldClass": "col1",
+            "name"      : "Independent Variable (x)",
+            "fieldClass": "xCol",
             "autofill"  : true,
             "typeCheck" : {
                 "columnType": ["number"]
@@ -31,41 +13,37 @@ window.UExtGLM = (function(UExtGLM, $) {
         },
         {
             "type"      : "column",
-            "name"      : "column 2",
-            "fieldClass": "col2",
+            "name"      : "Dependent Variable (y)",
+            "fieldClass": "yCol",
             "typeCheck" : {
                 "columnType": ["number"]
             }
         }]
     }];
 
-    UExtGLM.actionFn = function(txId, tableId, functionName, argList) {
-        var table = gTables[tableId];
-        var tableName = table.tableName;
-        var tableNameRoot = tableName.split("#")[0];
-        var tmpTableTag = "_" + tableNameRoot + "_GLMtemp";
+    UExtGLM.actionFn = function(functionName) {
         switch (functionName) {
             case ("simpleLinearRegression"):
-                var xCol = argList['col1'].getName();
-                var yCol = argList['col2'].getName();
-                return simpleLinearRegression(xCol, yCol, tableName);
+                return simpleLinearRegression();
             default:
-                return PromiseHelper.reject("Invalid Function");
+                return null;
         }
+    };
 
-        function simpleLinearRegression(xCol, yCol, tableName) {
-            if (verbose) {
-                console.log("Starting Simple Linear Regression");
-            }
-            // Step 1: INIT
+    function simpleLinearRegression() {
+        var ext = new XcSDK.Extension();
+
+        ext.start = function() {
+            // Step 1: Initialize
 
             // REGRESSION:
             // Step 2: Aggregate avg(x) and avg(y)
 
-            // Step 3: Calculate B
+            // Step 3: Calculate B (intercept)
             // Step 3a: Map each x point to its difference from avg(x)
             // Step 3b: Map the difference to the squared difference
-            // Step 3c: Aggregate sum of squared differences to find the variance
+            // Step 3c: Aggregate sum of squared differences
+            //          to find the variance
             // Step 3d: Map each y point to its difference from avg(y)
             // Step 3e: Map the product of xDiff and yDiff
             // Step 3f: Map the product divided by variance
@@ -79,20 +57,25 @@ window.UExtGLM = (function(UExtGLM, $) {
 
             // FINAL:
             // Step 5: Display x, y, and the output from the line function
-            // Step 6: Unlock the table and end the transaction
 
-            // Step 1: INIT
-            var deferred = jQuery.Deferred();
-            var tableId = xcHelper.getTableId(tableName);
-            var table = gTables[tableId];
-            var workSheet = WSManager.getWSFromTable(tableId);
-            var resultSet;
+            // Step 1: Initialize
+            var deferred = XcSDK.Promise.deferred();
+            var self = this;
+
+            var args = self.getArgs();
+            var xCol = args.xCol.getName();
+            var yCol = args.yCol.getName();
+
+            var tableName = self.getTriggerTable().getName();
+            var tmpTableTag = ext.createTableName("_", "_GLMtemp");
 
             // REGRESSION:
             // Step 2: Aggregate avg(x) and avg(y)
-            var xAvg = "xAvg" + tmpTableTag + Authentication.getHashId();
-            var yAvg = "yAvg" + tmpTableTag + Authentication.getHashId();
-            avgStr =
+            var xAvg = ext.createTableName(null, tmpTableTag, "xAvg");
+            var yAvg = ext.createTableName(null, tmpTableTag, "yAvg");
+            var xConst = ext.getConstant(xAvg);
+            var yConst = ext.getConstant(yAvg);
+            var avgStr =
                 "aggregate --eval \"avg(" + xCol + ")\"" +
                 " --srctable " + tableName +
                 " --dsttable " + xAvg + ";" +
@@ -102,79 +85,82 @@ window.UExtGLM = (function(UExtGLM, $) {
 
             // Step 3: Calculate B
             var xDiff = "slr_xDiff";
-            var xDiffTableName = xDiff + tmpTableTag + Authentication.getHashId();
+            var xDiffTName = ext.createTableName(null, tmpTableTag, xDiff);
 
             var squared = "slr_xDiff_squared";
-            var squaredTableName = squared + tmpTableTag + Authentication.getHashId();
+            var squaredTName = ext.createTableName(null, tmpTableTag, squared);
 
-            var variance = "slr_variance" + tmpTableTag + Authentication.getHashId();
+            var variance = ext.createTableName(null, tmpTableTag,
+                                                "slr_variance");
+            var varConst = ext.getConstant(variance);
 
             var yDiff = "slr_yDiff";
-            var yDiffTableName = yDiff + tmpTableTag + Authentication.getHashId();
+            var yDiffTName = ext.createTableName(null, tmpTableTag, yDiff);
 
             var prod = "slr_xDiff_mult_yDiff";
-            var prodTableName = prod + tmpTableTag + Authentication.getHashId();
+            var prodTName = ext.createTableName(null, tmpTableTag, prod);
 
             var div = "slr_prod_div_variance";
-            var divTableName = div + tmpTableTag + Authentication.getHashId();
+            var divTName = ext.createTableName(null, tmpTableTag, div);
 
-            var B = "B" + tableNameRoot + Authentication.getHashId();
+            var B = ext.createTableName(null, tmpTableTag, "B");
             var BStr =
                 // Step 3a: Map each x point to its difference from avg(x)
-                "map --eval \"sub(" + xCol + "," + gAggVarPrefix + xAvg +")\"" +
+                "map --eval \"sub(" + xCol + "," + xConst + ")\"" +
                 " --fieldName " + xDiff +
                 " --srctable " + tableName +
-                " --dsttable " + xDiffTableName + ";" +
+                " --dsttable " + xDiffTName + ";" +
 
                 // Step 3b: Map the difference to the squared difference
                 "map --eval \"pow(" + xDiff + ",2)\"" +
                 " --fieldName " + squared +
-                " --srctable " + xDiffTableName +
-                " --dsttable " + squaredTableName + ";" +
+                " --srctable " + xDiffTName +
+                " --dsttable " + squaredTName + ";" +
 
-                // Step 3c: Aggregate sum of squared differences to find the variance
+                // Step 3c: Aggregate sum of squared differences to
+                // find the variance
                 "aggregate --eval \"sum(" + squared + ")\"" +
-                " --srctable " + squaredTableName +
+                " --srctable " + squaredTName +
                 " --dsttable " + variance + ";" +
 
                 // Step 3d: Map each y point to its difference from avg(y)
-                "map --eval \"sub(" + yCol + "," + gAggVarPrefix + yAvg +")\"" +
+                "map --eval \"sub(" + yCol + "," + yConst + ")\"" +
                 " --fieldName " + yDiff +
-                " --srctable " + xDiffTableName +
-                " --dsttable " + yDiffTableName + ";" +
+                " --srctable " + xDiffTName +
+                " --dsttable " + yDiffTName + ";" +
 
                 // Step 3e: Map the product of xDiff and yDiff
-                "map --eval \"mult(" + xDiff + "," + yDiff +")\"" +
+                "map --eval \"mult(" + xDiff + "," + yDiff + ")\"" +
                 " --fieldName " + prod +
-                " --srctable " + yDiffTableName +
-                " --dsttable " + prodTableName + ";" +
+                " --srctable " + yDiffTName +
+                " --dsttable " + prodTName + ";" +
 
                 // Step 3f: Map the product divided by variance
-                "map --eval \"div(" + prod + "," + gAggVarPrefix + variance +
-                    ")\"" +
+                "map --eval \"div(" + prod + "," + varConst + ")\"" +
                 " --fieldName " + div +
-                " --srctable " + prodTableName +
-                " --dsttable " + divTableName + ";" +
+                " --srctable " + prodTName +
+                " --dsttable " + divTName + ";" +
 
                 // Step 3g: Aggregate the sum of the division to find B
                 "aggregate --eval \"sum(" + div + ")\"" +
-                " --srctable " + divTableName +
+                " --srctable " + divTName +
                 " --dsttable " + B + ";";
 
             // Step 4: Plot the line
             // Step 4a: Assign a to its formula in eval string format
-            var aEval = "sub(" + gAggVarPrefix + yAvg + ",mult(" +
-                        gAggVarPrefix +B + "," + gAggVarPrefix + xAvg + "))";
+            var Bconst = ext.getConstant(B);
+            var aEval = "sub(" + yConst + ",mult(" +
+                        Bconst + "," + xConst + "))";
 
             // Step 4b: Map each x point to (y = a + Bx)
             var outputLine = "slr_output_line";
-            var outputTableName = "slr_" + tableNameRoot + Authentication.getHashId();
+            var outputTName = ext.createTableName("slr_");
             var lineStr =
-                "map --eval \"add(" + aEval + ",mult(" + gAggVarPrefix + B +
+                "map --eval \"add(" + aEval + ",mult(" + Bconst +
                     "," + xCol + "))\"" +
                 " --fieldName " + outputLine +
                 " --srctable " + tableName +
-                " --dsttable " + outputTableName + ";";
+                " --dsttable " + outputTName + ";";
 
             // Step 5: Drop all temporaries
             var dropStr = "drop table *" + tmpTableTag + "*;" +
@@ -182,30 +168,25 @@ window.UExtGLM = (function(UExtGLM, $) {
 
             // submit query here
             var queryStr = avgStr + BStr + lineStr + dropStr;
-            XcalarQueryWithCheck("slr_" + tableNameRoot +"_query_" +
-                                 Authentication.getHashId(), queryStr, txId)
+            ext.query(queryStr)
             .then(function() {
                 // FINAL:
                 // Step 5: Display x, y, and the output from line function
-                var finalTableId = xcHelper.getTableId(outputTableName);
-                var finalCols = [];
+                var finalTable = ext.createNewTable(outputTName);
+                finalTable.addCol(new XcSDK.Column(xCol, "float"));
+                finalTable.addCol(new XcSDK.Column(yCol, "float"));
+                finalTable.addCol(new XcSDK.Column(outputLine, "float"));
 
-                finalCols[0] = ColManager.newPullCol(xCol, "float");
-                finalCols[1] = ColManager.newPullCol(yCol, "float");
-                finalCols[2] = ColManager.newPullCol(outputLine, "float");
-                finalCols[3] = ColManager.newDATACol();
-
-                return TblManager.refreshTable([outputTableName], finalCols,
-                                               [], workSheet, txId);
+                return finalTable.addToWorksheet();
             })
-            .then(function() {
-                // Step 6: Finish and return final table name
-                deferred.resolve(outputTableName);
-            })
+            .then(deferred.resolve)
             .fail(deferred.reject);
 
             return deferred.promise();
-        }
-    };
+        };
+
+        return ext;
+    }
+
     return (UExtGLM);
-}({}, jQuery));
+}({}));

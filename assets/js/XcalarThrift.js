@@ -2145,7 +2145,6 @@ function XcalarQueryCheck(queryName) {
     return (deferred.promise());
 }
 
-
 function XcalarQueryWithCheck(queryName, queryString, txId) {
     var deferred = jQuery.Deferred();
     if (Transaction.checkAndSetCanceled(txId)) {

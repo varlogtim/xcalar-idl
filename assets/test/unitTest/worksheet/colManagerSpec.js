@@ -1,4 +1,31 @@
 describe('ColManager', function() {
+    describe('Basic API Test', function() {
+        it('ColManager.newCol() should work', function() {
+            var progCol = ColManager.newCol({
+                "name"    : "test",
+                "type"    : "string",
+                "width"   : gNewCellWidth,
+                "isNewCol": false
+            });
+
+            expect(progCol.getFrontColName()).to.equal('test');
+        });
+
+        it('ColManager.newPullCol() should work', function() {
+            var progCol = ColManager.newPullCol("test", "integer");
+            expect(progCol.getFrontColName()).to.equal('test');
+            expect(progCol.getBackColName()).to.equal('test');
+            expect(progCol.getType()).to.equal("integer");
+            expect(progCol.isEmptyCol()).to.be.false;
+            expect(progCol.getWidth()).to.equal(gNewCellWidth);
+        });
+
+        it('ColManager.newDATACol() should work', function() {
+            var progCol = ColManager.newDATACol();
+            expect(progCol.isDATACol()).to.be.true;
+        });
+    });
+
     it('parsePullColArgs(progCol) should work', function() {
         var fn = ColManager.__testOnly__.parsePullColArgs;
         var progCol = {func: {}};

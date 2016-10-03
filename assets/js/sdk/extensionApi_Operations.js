@@ -147,6 +147,14 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
+        "query": function(queryStr) {
+            var txId = this.txId;
+            var queryName = this.tableNameRoot + "_ext_query";
+            // in case of query name conflict
+            queryName = xcHelper.randName(queryName);
+            return XIApi.query(txId, queryName, queryStr);
+        },
+
         "getRowNum": function(tableName, newColName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
@@ -160,6 +168,10 @@ window.XcSDK.Extension.prototype = (function() {
             .fail(deferred.reject);
 
             return deferred.promise();
+        },
+
+        "getConstant": function(aggName) {
+            return gAggVarPrefix + aggName;
         },
 
         "getNumRows": function(tableName) {

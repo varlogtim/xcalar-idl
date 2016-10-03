@@ -37,7 +37,7 @@ window.XIApi = (function(XIApi, $) {
         var deferred = jQuery.Deferred();
 
         if (!isValidTableName(dstAggName)) {
-            dstAggName = getNewTableName(tableName, "-aggregate");
+            dstAggName = getNewTableName(tableName, "-agg");
         }
 
         XcalarAggregate(evalStr, dstAggName, tableName, txId)
@@ -319,6 +319,13 @@ window.XIApi = (function(XIApi, $) {
 
             return innerDeferred.promise();
         }
+    };
+
+    XIApi.query = function(txId, queryName, queryStr) {
+        if (txId == null || queryName == null || queryStr == null) {
+            return PromiseHelper.reject("Invalid args in query");
+        }
+        return XcalarQueryWithCheck(queryName, queryStr, txId);
     };
 
     XIApi.getRowNum = function(txId, tableName, newColName, newTableName) {

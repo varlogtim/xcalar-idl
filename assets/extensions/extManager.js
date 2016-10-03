@@ -234,8 +234,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return;
         }
 
-        if (modName !== "UExtATags" && modName !== "UExtGLM" &&
-            modName !== "UExtIntel" && modName !== "UExtKMeans") {
+        if (modName !== "UExtATags" && modName !== "UExtIntel" &&
+            modName !== "UExtKMeans")
+        {
             var worksheet;
             var table;
             var tableName;
@@ -355,6 +356,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     deferred.reject(error);
                 });
             } catch (error) {
+                console.error(error.stack);
                 if (hasStart) {
                     xcHelper.unlockTable(tableId);
 

@@ -2,8 +2,7 @@
 window.ColManager = (function($, ColManager) {
     // new ProgCol obj
     ColManager.newCol = function(options) {
-        var progCol = new ProgCol(options);
-        return (progCol);
+        return new ProgCol(options);
     };
 
     ColManager.newPullCol = function(colName, type) {
@@ -23,7 +22,7 @@ window.ColManager = (function($, ColManager) {
 
     // special case, specifically for DATA col
     ColManager.newDATACol = function() {
-        var progCol = ColManager.newCol({
+        return ColManager.newCol({
             "backName": "DATA",
             "name"    : "DATA",
             "type"    : "object",
@@ -36,8 +35,6 @@ window.ColManager = (function($, ColManager) {
             "isNewCol": false,
             "isHidden": UserSettings.getPref('hideDataCol')
         });
-
-        return (progCol);
     };
 
     ColManager.addNewCol = function(colNum, tableId, direction) {

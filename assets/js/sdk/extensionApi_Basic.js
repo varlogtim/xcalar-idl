@@ -145,6 +145,20 @@ window.XcSDK.Extension.prototype = (function() {
             return this.createTableName(prefix, suffix);
         },
 
+        "createNewTable": function(tableName) {
+            var self = this;
+            var newTables = self.newTables;
+            for (var i = 0, len = newTables; i < len; i++) {
+                if (newTables[i].name === tableName) {
+                    return newTables[i];
+                }
+            }
+
+            var newTable = new XcSDK.Table(tableName, self.worksheet);
+            self.newTables.push(newTable);
+            return newTable;
+        },
+
         "createColumnName": function() {
             return xcHelper.randName("randCol");
         },
