@@ -2446,6 +2446,44 @@ window.xcHelper = (function($, xcHelper) {
         };
     };
 
+    xcHelper.repositionModalOnWinResize = function(modalSpecs, windowSpecs) {
+        var $modal = modalSpecs.$modal;
+        var modalWidth = $modal.width();
+        var modalHeight = $modal.height();
+        var prevWinWidth = windowSpecs.winWidth;
+        var prevWinHeight = windowSpecs.winHeight;
+        // this will be used as the starting window  width/height for the 
+        // next window resize rather than measuring at the beginning of the
+        // next resize because the maximize/minimize button will not show
+        // the starting window size during the resize event
+        windowSpecs.winHeight = $(window).height();
+        windowSpecs.winWidth = $(window).width();
+        var curWinHeight = windowSpecs.winHeight;
+        var curWinWidth = windowSpecs.winWidth;
+        var prevWidthAround = prevWinWidth - modalWidth;
+        var prevHeightAround = prevWinHeight - modalHeight;
+        if (modalWidth > curWinWidth) {
+            var diff = curWinWidth - modalWidth;
+            $modal.css('left', diff);
+        } else if (prevWidthAround < 10) {
+            $modal.css('left', (curWinWidth - modalWidth) / 2)
+        } else {
+            var widthAroundChangeRatio = (curWinWidth - modalWidth) / 
+                                          prevWidthAround;
+            $modal.css('left', modalSpecs.left * widthAroundChangeRatio);
+        }
+
+        if (modalHeight > curWinHeight) {
+            $modal.css('top', 0);
+        } else if (prevHeightAround < 10) {
+            $modal.css('top', (curWinHeight - modalHeight) / 2);
+        } else {
+            var heightAroundChangeRatio = (curWinHeight - modalHeight) / 
+                                           prevHeightAround;
+            $modal.css('top', modalSpecs.top * heightAroundChangeRatio);
+        }
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

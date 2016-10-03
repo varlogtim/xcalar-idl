@@ -133,6 +133,7 @@ window.StartManager = (function(StartManager, $) {
         })
         .fail(function(error) {
             setupStatus = SetupStatus.Fail;
+            setupWinResize();
             if (error === WKBKTStr.NoWkbk){
                 // when it's new workbook
                 $('#initialLoadScreen').hide();
@@ -206,6 +207,44 @@ window.StartManager = (function(StartManager, $) {
                 RowScroller.genFirstVisibleRowNum();
             }
         });
+
+        // currently just used to center the modals on window resize
+        function setupWinResize() {
+            var winResizeTimer;
+            var resizing = false;
+            var modalSpecs;
+            var windowSpecs = {
+                winHeight: $(window).height(),
+                winWidth: $(window).width()
+            };
+
+            $(window).resize(function(event) {
+                if (!resizing) {
+                    resizing = true;
+                    var $modal = $('.modalContainer:visible');
+                    if ($modal.length) {
+                        modalSpecs = {
+                            $modal: $modal,
+                            top: $modal.offset().top,
+                            left: $modal.offset().left
+                        };
+                    } else {
+                        modalSpecs = null;
+                    }
+                }
+
+                clearTimeout(winResizeTimer);
+                winResizeTimer = setTimeout(winResizeStop, 100);
+            });
+
+            function winResizeStop() {
+                if (modalSpecs) {
+                    xcHelper.repositionModalOnWinResize(modalSpecs, 
+                                                        windowSpecs);
+                }
+                resizing = false;
+            }
+        }
 
         return deferred.promise();
     };
@@ -579,11 +618,27 @@ window.StartManager = (function(StartManager, $) {
         var winResizeTimer;
         var resizing = false;
         var otherResize = false; // true if winresize is triggered by 3rd party code
+        var modalSpecs;
+        var windowSpecs = {
+            winHeight: $(window).height(),
+            winWidth: $(window).width()
+        };
+
         $(window).resize(function(event) {
             if (!resizing) {
                 $('.menu').hide();
                 $('#dagScrollBarWrap').hide();
                 resizing = true;
+                var $modal = $('.modalContainer:visible');
+                if ($modal.length) {
+                    modalSpecs = {
+                        $modal: $modal,
+                        top: $modal.offset().top,
+                        left: $modal.offset().left
+                    };
+                } else {
+                    modalSpecs = null;
+                }
             }
 
             if (event.target !== window) {
@@ -609,9 +664,14 @@ window.StartManager = (function(StartManager, $) {
                 TblManager.adjustRowFetchQuantity();
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();
+                if (modalSpecs) {
+                    xcHelper.repositionModalOnWinResize(modalSpecs, 
+                                                        windowSpecs);
+                }
             }
             resizing = false;
         }
+
 
         // using this to keep window from scrolling on dragdrop
         $(window).scroll(function() {
