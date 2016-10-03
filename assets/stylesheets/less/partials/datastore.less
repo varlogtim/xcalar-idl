@@ -75,7 +75,7 @@
 }
 
 /* DS Table Section */
-#dsTableView {    
+#dsTableView {
     &.fullSize {
         .leftSection {
             .size(@width: ~"calc(100% - 6px)");
@@ -189,7 +189,7 @@
                     background-color: @color-bg-select-blue;
                 }
             }
-        }        
+        }
     }
 
     .cardMain {
@@ -216,9 +216,9 @@
     }
 
     .icon {
-       color: @color-font-warm-grey-two; 
+       color: @color-font-warm-grey-two;
     }
-    
+
     .text {
         .size(@min-width: 24px, @max-width: 35px, @height: 12px);
         .position(absolute, @top: -5px, @left: -15px);
@@ -451,7 +451,7 @@ table.datasetTable {
             .hint {
                 display: block;
             }
-        }        
+        }
     }
 
     @height-title: 40px;
@@ -576,7 +576,7 @@ table.datasetTable {
                 .itemWrap {
                     color: @color-font-select-blue;
                     border-color: @color-border-select-blue;
-                
+
                     .iconWrap {
                         background-color: @color-bg-select-blue;
                     }
@@ -598,7 +598,7 @@ table.datasetTable {
                 .iconWrap {
                     .size(@width: 24px, @height: 22px);
                     background-color: @color-bg-unselect-gray;
-                
+
                     .icon {
                         left: 45%;
                     }
@@ -639,7 +639,7 @@ table.datasetTable {
 
             .dropDownList {
                 .styleDropDownList(~"calc(100% - 310px)", 30px);
-                
+
                 .list {
                     left: 1px;
                 }
@@ -980,7 +980,6 @@ table.datasetTable {
 
                 &.active {
                     background-color: @color-bg-light-blue-grey;
-                
                     .gridIcon {
                         color: @color-font-softBlue;
                     }
@@ -1004,7 +1003,7 @@ table.datasetTable {
                     background: transparent !important;
                     .position(relative, @top: 5px);
                     .size(@width: 40px);
-                    .font(@size: 30px); 
+                    .font(@size: 30px);
                 }
 
                 > .label {
@@ -1221,7 +1220,7 @@ table.datasetTable {
                 .size(@width: ~"calc(100% - 200px)");
                 float: left;
             }
-            
+
             .buttonGroup {
                 .size(@width: 200px);
                 float: right;
@@ -1562,6 +1561,7 @@ table.datasetTable {
 
             .waitingIcon {
                 z-index: 20;
+
             }
 
             .xc-hidden .waitingIcon {
@@ -1626,7 +1626,7 @@ table.datasetTable {
                     }
 
                     .waitingIcon {
-                        left: 8px;
+                        left: 15px;
                     }
                 }
 
@@ -1716,6 +1716,13 @@ table.datasetTable {
                         .edit, .delete {
                             display: inline-block;
                         }
+                    }
+                    > .waitingIcon {
+                        width: 25px;
+                        height: 25px;
+                        background-size: contain;
+                        top: 5px;
+                        left: 5px;
                     }
                 }
 

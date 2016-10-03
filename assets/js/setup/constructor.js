@@ -2584,12 +2584,12 @@ ModalHelper.prototype = {
         xcHelper.removeSelectionRange();
         // hide tooltip when open the modal
         $(".tooltip").hide();
-        
+
         if (!options.keepFnBar) {
             FnBar.clear();
             $(".selectedCell").removeClass("selectedCell");
         }
-        
+
         if (!options.noResize) {
             // resize modal
             var winWidth  = $(window).width();
@@ -2806,7 +2806,7 @@ ModalHelper.prototype = {
             } else {
                 fadeOutTime = options.time;
             }
-            
+
             // when close the modal
             $modalBg.fadeOut(fadeOutTime, function() {
                 $modalBg.removeClass('light');
@@ -2834,7 +2834,6 @@ ModalHelper.prototype = {
                     $('.xcTableWrap').not('#xcTableWrap-' + tableId)
                                  .addClass('tableDarkened');
                 }
-                
             }
 
             $menuPanel.addClass('modalOpen');
@@ -3212,7 +3211,7 @@ FormHelper.prototype = {
         var eleLists = [
             $form.find("button.btn, input:visible")
         ];
-        
+
         var $focusables = [];
         // make an array for all focusable element
         eleLists.forEach(function($eles) {
@@ -3228,7 +3227,6 @@ FormHelper.prototype = {
         } else {
             focusIndex = 0;
         }
-       
 
         for (var i = 0, len = $focusables.length; i < len; i++) {
             addFocusEvent($focusables[i], i);
@@ -3343,7 +3341,6 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
             return;
         }
         self.handleClick(event);
-        
     });
 
     $rangeSliderWrap.find('.rightArea').on('mousedown', function(event) {
@@ -3384,7 +3381,7 @@ RangeSlider.prototype = {
     updateSlider: function(val) {
         var width = ((val - this.minVal) / this.valRange) * this.widthRange +
                     this.minWidth;
-   
+
         width = Math.max(this.minWidth, Math.min(this.maxWidth, width));
         this.$rangeSliderWrap.find('.leftArea').width(width);
     },
@@ -3483,7 +3480,7 @@ MenuHelper.prototype = {
             });
         } else {
             $dropDownList.addClass('yesclickable');
-        
+
             $dropDownList.on("click", function(event) {
                 // console.log('toggling', this.$list.parents());
                 if (self.exclude &&
