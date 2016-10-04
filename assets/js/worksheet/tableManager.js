@@ -24,7 +24,6 @@ window.TblManager = (function($, TblManager) {
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
                                        worksheet, txId, options)
     {
-    
         var deferred = jQuery.Deferred();
 
         options = options || {};
@@ -1098,9 +1097,9 @@ window.TblManager = (function($, TblManager) {
 
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             $th = $table.find('th.col' + (colNums[i]));
-            oldWidthStates.push(columns[i].sizeToHeader);
+            oldWidthStates.push(columns[i].sizedToHeader);
             columns[i].sizedToHeader = sizeToHeader;
-            newWidthStates.push(columns[i].sizeToHeader);
+            newWidthStates.push(columns[i].sizedToHeader);
             columns[i].isHidden = false;
             oldColumnWidths.push(columns[i].width);
 

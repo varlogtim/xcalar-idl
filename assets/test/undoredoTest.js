@@ -115,8 +115,17 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
     function fetchLogs() {
         var deferred = jQuery.Deferred();
-        $.getJSON("/assets/test/json/testLogs.json", function(data) {
+        $.getJSON("/assets/test/json/testLogs.json")
+        .done(function(data) {
+            // replace "userTestUser" in log files with actual user's name
+            var strData = JSON.stringify(data);
+            strData = strData.replace(/undoTestUser/g, userIdName);
+            data = JSON.parse(strData);
             deferred.resolve(data);
+        })
+        .fail(function(jqxhr, textStatus, error) {
+            console.warn(arguments);
+            deferred.reject(error);
         });
 
         return (deferred.promise());
@@ -158,7 +167,6 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     function undoAndRecord(step, secondPass) {
         var deferred = jQuery.Deferred();
         var currentReplayLog = replayLogs[replayLogs.length - step - 1];
-
 
         var activeTables = xcHelper.deepCopy(getActiveTables());
         for (var i = 0; i < activeTables.length; i++) {
@@ -203,9 +211,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             // invalid order
             for (var table in stepInfo[step].tables) {
                 delete stepInfo[step].tables[table].ordering;
+                delete stepInfo[step].tables[table].backTableMeta;
             }
             for (var table in info.tables) {
                 delete info.tables[table].ordering;
+                delete info.tables[table].backTableMeta;
             }
 
             for (var key in info) {
@@ -239,9 +249,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             // invalid order
             for (var table in currentReplayLog.tables) {
                 delete currentReplayLog.tables[table].ordering;
+                delete currentReplayLog.tables[table].backTableMeta;
             }
             for (var table in info.tables) {
                 delete info.tables[table].ordering;
+                delete info.tables[table].backTableMeta;
             }
 
 
@@ -327,9 +339,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             // invalid order
             for (var table in stepInfo[step].tables) {
                 delete stepInfo[step].tables[table].ordering;
+                delete stepInfo[step].tables[table].backTableMeta;
             }
             for (var table in info.tables) {
                 delete info.tables[table].ordering;
+                delete info.tables[table].backTableMeta;
             }
 
 
