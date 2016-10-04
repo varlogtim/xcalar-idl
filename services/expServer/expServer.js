@@ -136,7 +136,7 @@ function stdOutCallback(dataBlock) {
     var lines = dataBlock.split("\n");
     for (var i = 0; i<lines.length; i++) {
         var data = lines[i];
-        //console.log("Start =="+data+"==");
+        console.log("Start =="+data+"==");
         if (data.indexOf("Step [") === 0 || data.indexOf("STEP [") === 0) {
             // New Step! Means all the old ones are done
             curStep.stepString = data;
@@ -265,6 +265,19 @@ app.post("/listPackages", function(req, res) {
         if (err) throw err;
         res.send(data);
     });
+});
+
+app.post("/writeConfig", function(req, res) {
+    console.log("Writing Ldap configurations");
+    var credArray = req.body;
+    var file = "/etc/xcalar/ldapConfig.json";
+    try {
+        fs.writeFileSync(file, JSON.stringify(credArray, null, 4));
+        res.send({"status": Status.Ok});
+    } catch (err) {
+        console.log(err);
+        res.send({"status": Status.Error});
+    }
 });
 
 app.post("/completeInstallation", function(req, res) {
