@@ -11,7 +11,5 @@ RUN npm install
 COPY . /app
 EXPOSE 12124
 
-USER node
-
 CMD [ "npm", "cache clean" ]
 CMD [ "npm", "start" ]
