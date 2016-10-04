@@ -463,7 +463,7 @@ window.Installer = (function(Installer, $) {
               '<input class="input ipOrFqdn" type="text" autocomplete="off" ' +
               'value="" ' +
               'name="useless" placeholder="[IP or FQDN]">' +
-              '<div class="bar">Host '+id+'.</div>' +
+              '<div class="bar">Node '+id+'.</div>' +
             '</div>' +
             '<div class="rightCol status">' +
               '<span class="curStatus">' +
@@ -629,6 +629,9 @@ window.Installer = (function(Installer, $) {
             if (ret.status === Status.Ok) {
                 deferred.resolve();
             } else {
+                if (ret && ret.errorLog) {
+                    console.log(ret.errorLog);
+                }
                 deferred.reject(ret);
             }
         }, function(ret, textStatus, xhr) {

@@ -114,8 +114,14 @@ function sendStatusArray(finalStruct, res) {
         }
     }
 
-    res.send({"status": curStep.status,
-              "retVal": ackArray});
+    if (curStep.status !== Status.Ok) {
+        res.send({"status": curStep.status,
+                  "retVal": ackArray,
+                  "errorLog": errorLog});
+    } else {
+        res.send({"status": curStep.status,
+                  "retVal": ackArray});
+    }
     console.log("Success: send status array");
 }
 
@@ -131,11 +137,6 @@ function stdOutCallback(dataBlock) {
         } else if (data.indexOf("[") === 0) {
             // One node completed current step!
             var hostId = (getNodeRegex.exec(data))[1];
-            if (hostId === 0) { // Hack because the above clause isn't working
-                stepNum++;
-                curStep.stepString = "Step "+stepNum;
-                curStep.nodesCompletedCurrent = [];
-            }
             var status = (getStatusRegex.exec(data))[1];
             if (status === "SUCCESS") {
                 curStep.nodesCompletedCurrent[hostId] = true;
@@ -145,6 +146,11 @@ function stdOutCallback(dataBlock) {
             }
         }
     }
+}
+
+var errorLog = "";
+function stdErrCallback(dataBlock) {
+    errorLog += dataBlock + "\n";
 }
 
 app.post('/checkLicense', function(req, res) {
@@ -212,6 +218,7 @@ app.post("/runInstaller", function(req, res) {
     out = exec(execString);
 
     out.stdout.on('data', stdOutCallback);
+    out.stderr.on('data', stdErrCallback);
 
     out.on('close', function(code) {
         // Exit code. When we fail, we return non 0
