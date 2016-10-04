@@ -519,6 +519,9 @@ window.Installer = (function(Installer, $) {
         for (var i = 0; i<hostnames.length; i++) {
             if (hostnames.eq(i).find("input").val().trim().length === 0) {
                 hostnames.eq(i).hide();
+            } else {
+                hostnames.eq(i).find(".hostname input")
+                               .prop("disabled", "true");
             }
         }
 
@@ -541,6 +544,7 @@ window.Installer = (function(Installer, $) {
             $(".credentialSection").show();
             $(".credentialSection").prev().show();
             $(".row:not(.header)").show();
+            $(".row:not(.header) .hostname input").prop("disabled", false);
             $("#numServers").prop("disabled", false);
             $("#installButton").val("INSTALL")
                                .removeClass("inactive");

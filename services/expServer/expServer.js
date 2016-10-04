@@ -88,7 +88,7 @@ function genExecString(hostnameLocation, credentialLocation, isPassword,
     execString += " --license-file " + licenseLocation;
     // execString += " --installer " + installerLocation;
 
-    if ("nfsServer" in nfsOptions) {
+    if (nfsOptions && "nfsServer" in nfsOptions) {
         execString += " --nfs-host " + nfsOptions.nfsServer;
         execString += " --nfs-folder " + nfsOptions.nfsMountPoint;
         if ("nfsUsername" in nfsOptions) {
