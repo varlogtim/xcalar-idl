@@ -1,3 +1,7 @@
+// This is the service that is run anywhere so most of the time there will be
+// calls that aren't used
+
+// Start of generic setup stuff
 var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
@@ -11,27 +15,6 @@ var strictSecurity = false;
 var config = require('./ldapConfig.json');
 var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
 var app = express();
-
-
-// Example AD settings (now gotten from ldapConfig.json)
-//
-/*var ldap_uri = 'ldap://pdc1.int.xcalar.com:389';
-var userDN = "cn=users,dc=int,dc=xcalar,dc=net";
-var useTLS = true;
-var searchFilter = "(&(objectclass=user)(userPrincipalName=%username%))";
-var activeDir = true;
-var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
-
-//
-// Example OpenLDAP Settings (now gotten from ldapConfig.json)
-//
-
-/* var ldap_uri = 'ldap://turing.int.xcalar.com:389';
-var userDN = "uid=%username%,ou=People,dc=int,dc=xcalar,dc=com";
-var useTLS = false;
-var searchFilter = "";
-var activeDir = false;
-var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
 
 /**
 var privateKey = fs.readFileSync('cantor.int.xcalar.com.key', 'utf8');
@@ -53,6 +36,9 @@ app.get('/*', function(req, res) {
     res.send('Please use post instead');
 });
 
+// End of generic setup stuff
+
+// Start of installer calls
 var finalStruct = {
     "nfsOption": undefined, // Either empty struct (use ours) or
             // { "nfsServer": "netstore.int.xcalar.com",
@@ -162,7 +148,7 @@ app.post('/checkLicense', function(req, res) {
     var errors = [];
 
     // XXX change to write to config
-    var fileLocation = "/tmp/license.txt";
+    var fileLocation = "/config/license.txt";
     fs.writeFile(fileLocation, credArray.licenseKey);
     // Call bash to check license with this
     var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
@@ -188,7 +174,7 @@ app.post("/runInstaller", function(req, res) {
     var errors = [];
 
     // Write files to /config and chmod
-    var hostnameLocation = "/tmp/hosts.txt";
+    var hostnameLocation = "/config/hosts.txt";
     var credentialLocation = "/tmp/key.txt";
     var isPassword = true;
 
@@ -255,22 +241,10 @@ app.post("/cancelInstall", function(req, res) {
     res.send({"status": Status.Ok});
 });
 
-
-app.post("/listPackages", function(req, res) {
-    console.log("List Packages");
-    var credArray = req.body;
-    var hasError = false;
-    var errors = [];
-    var f = fs.readFile("marketplace.json", (err, data) => {
-        if (err) throw err;
-        res.send(data);
-    });
-});
-
 app.post("/writeConfig", function(req, res) {
     console.log("Writing Ldap configurations");
     var credArray = req.body;
-    var file = "/etc/xcalar/ldapConfig.json";
+    var file = "/config/ldapConfig.json";
     try {
         fs.writeFileSync(file, JSON.stringify(credArray, null, 4));
         res.send({"status": Status.Ok});
@@ -295,6 +269,40 @@ app.post("/completeInstallation", function(req, res) {
         }
     });
 });
+
+// End of installer calls
+
+// Start of marketplace calls
+app.post("/listPackages", function(req, res) {
+    console.log("List Packages");
+    var credArray = req.body;
+    var hasError = false;
+    var errors = [];
+    var f = fs.readFile("marketplace.json", (err, data) => {
+        if (err) throw err;
+        res.send(data);
+    });
+});
+// End of marketplace calls
+
+// Start of LDAP calls
+/**
+Example AD settings (now gotten from ldapConfig.json)
+var ldap_uri = 'ldap://pdc1.int.xcalar.com:389';
+var userDN = "cn=users,dc=int,dc=xcalar,dc=net";
+var useTLS = true;
+var searchFilter = "(&(objectclass=user)(userPrincipalName=%username%))";
+var activeDir = true;
+var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt';
+
+Example OpenLDAP Settings (now gotten from ldapConfig.json)
+
+var ldap_uri = 'ldap://turing.int.xcalar.com:389';
+var userDN = "uid=%username%,ou=People,dc=int,dc=xcalar,dc=com";
+var useTLS = false;
+var searchFilter = "";
+var activeDir = false;
+var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
 
 app.post('/login', function(req, res) {
     console.log("Login process");
@@ -330,7 +338,7 @@ app.post('/login', function(req, res) {
             // two kinds of LDAP, one to connect to an Active Directory,
             // another to a generic OpenLDAP server.
             var searchOpts = {
-                filter: searchFilter != "" ?
+                filter: searchFilter !== "" ?
                     searchFilter.replace('%username%',username) : undefined,
                 scope: 'sub',
                 attributes: ['CN']
@@ -364,7 +372,7 @@ app.post('/login', function(req, res) {
 
             } else {
                 ldapAuth(username, password, client, bindCallback, excpUnbindErr, res);
-            };
+            }
         } else {
             res.send({"status": Status.Error});
         }
@@ -379,9 +387,9 @@ function _unbindError(step) {
             console.log(err.message);
         } else {
             console.log('client disconnected ' + step);
-        };
+        }
     };
-};
+}
 
 function _bindCallback(client, searchOpts, httpres, userDN) {
     return function(err, res) {
@@ -427,23 +435,21 @@ function _bindCallback(client, searchOpts, httpres, userDN) {
                     client.unbind(searchUnbindErr);
                 });
             });
-        };
+        }
     };
-};
-
-
+}
 
 function ldapAuth(username, password, client, bindCallback, bindErr, res) {
     console.log('--- going to try to connect user ---');
     try {
         client.bind(username, password, bindCallback);
-    } catch(error){
+    } catch(error) {
         console.log(error);
         client.unbind(bindErr);
         res.send({"status": Status.Error});
-    };
-};
-
+    }
+}
+// End of LDAP calls
 
 var httpServer = http.createServer(app);
 var port = 12124;

@@ -164,7 +164,7 @@ window.Installer = (function(Installer, $) {
         try {
             jQuery.ajax({
                 method     : "POST",
-                //url        : "https://cantor.int.xcalar.com:8443/install/"+action,
+                // url        : "https://cantor.int.xcalar.com:8443/install/"+action,
                 url        : document.location.origin+"/install/"+action,
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
@@ -592,7 +592,7 @@ window.Installer = (function(Installer, $) {
             if (ret.status === Status.Ok) {
                 deferred.resolve(Status.Ok);
             } else {
-                deferred.resolve(Status.Error);
+                deferred.reject(Status.Error);
             }
             $("#ldapForm").removeClass("disabled");
         }, function(ret, textStatus, xhr) {
