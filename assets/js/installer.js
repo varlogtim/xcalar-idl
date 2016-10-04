@@ -20,9 +20,11 @@ window.Installer = (function(Installer, $) {
     var checkInterval = 2000; // How often to check for status
 
     var $forms = $("form");
-    var lastStep = 2; // Last step of form
+    var lastStep = 3; // Last step of form
     var numServers = 4;
     var cancel = false;
+    var done = false;
+
     Installer.clearInterval = function() {
         if (intervalTimer) {
             clearInterval(intervalTimer);
@@ -31,7 +33,7 @@ window.Installer = (function(Installer, $) {
 
     Installer.setup = function() {
         // Set up submit buttons and back buttons for all screens
-        $("input.next").click(function() {
+        $(".buttonSection").on("click", "input.next", function() {
             var curFormId = $(this).closest("form").attr("id");
             var curStepId = findStepId(curFormId);
 
@@ -45,14 +47,25 @@ window.Installer = (function(Installer, $) {
             });
         });
 
-        $("input.back").click(function() {
+        // $(".buttonSection").on("click", "input.ldap", function() {
+        //     // This is special-cased because the same input button is
+        //     // clicked twice. Once for the submission of the install
+        //     // and once to go to the next screen. After the install is complete
+        //     // The button's .next class is removed and replaced with .ldap to
+        //     // trigger this action
+        //     var curFormId = $(this).closest("form").attr("id");
+        //     var curStepId = findStepId(curFormId);
+        //     Installer.showStep(curStepId+1);
+        // });
+
+        $(".buttonSection").on("click", "input.back", function() {
             var curFormId = $(this).closest("form").attr("id");
             var curStepId = findStepId(curFormId);
 
             Installer.showStep(curStepId - 1);
         });
 
-        $("input.clear").click(function() {
+        $(".buttonSection").on("click", "input.clear", function() {
             var $form = $(this).closest("form");
             // Clear inputs
             $form[0].reset();
@@ -82,29 +95,6 @@ window.Installer = (function(Installer, $) {
         setUpStep1();
         setUpStep2();
         setUpStep3();
-
-        // Set up ajax error handlers to catch server side issues
-        /**
-        jQuery.ajaxSetup({
-            error: function() {
-                debugger;
-            },
-            complete: function() {
-                debugger;
-            },
-            success: function() {
-                debugger;
-            },
-            dataFilter: function() {
-                debugger;
-            },
-            abort: function() {
-                debugger;
-            },
-            statusCode: function() {
-                debugger;
-            }
-        }); */
 
     };
 
@@ -174,6 +164,7 @@ window.Installer = (function(Installer, $) {
         try {
             jQuery.ajax({
                 method     : "POST",
+                //url        : "https://cantor.int.xcalar.com:8443/install/"+action,
                 url        : document.location.origin+"/install/"+action,
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
@@ -346,6 +337,10 @@ window.Installer = (function(Installer, $) {
 
     function validateCredentials() {
         var deferred = jQuery.Deferred();
+        if (done) {
+            return deferred.resolve().promise();
+        }
+
         var $hostInputs = $(".hostUsername input:visible");
         var i;
         for (i = 0; i<$hostInputs.length; i++) {
@@ -404,7 +399,18 @@ window.Installer = (function(Installer, $) {
         }
 
         finalStruct.hostnames = allHosts;
-        deferred.resolve();
+
+        // Execute array
+        executeFinalArray()
+        .then(function() {
+            $("form").eq(2).find(".next").val("NEXT").removeClass("inactive");
+            deferred.resolve();
+        })
+        .fail(function() {
+            // JJJ handle this cleanly
+            deferred.reject(arguments);
+        });
+
 
         return deferred.promise();
     }
@@ -425,13 +431,10 @@ window.Installer = (function(Installer, $) {
             case (1):
                 break;
             case (2):
-                executeFinalArray()
-                .fail(function() {
-                    showFailure(curStepId, arguments);
-                });
                 break;
             case (3):
                 writeConfigFile()
+                .then(finalize)
                 .fail(function() {
                     showFailure(curStepId, arguments);
                 });
@@ -529,7 +532,9 @@ window.Installer = (function(Installer, $) {
             return (getStatus("checkStatus"));
         })
         .then(function() {
-            // This function redirects and does not return.
+            $(".curStatus").each(function(a, b) {
+                $(b).text("Installation Complete");
+            });
             deferred.resolve();
         })
         .fail(function() {
@@ -667,6 +672,7 @@ window.Installer = (function(Installer, $) {
             } else {
                 sendViaHttps(statusApi, finalStruct, function(ret) {
                     if (ret.status === Status.Done) {
+                        done = true;
                         clearInterval(intervalTimer);
                         deferred.resolve();
                     } else if (ret.status === Status.Error) {
@@ -674,7 +680,11 @@ window.Installer = (function(Installer, $) {
                         deferred.reject("Status Error",
                                         JSON.stringify(ret.retVal));
                     }
-                    updateStatus(ret.retVal);
+                    if (!done) {
+                        // In case we have one last outstanding status check
+                        // prior to the success being acked
+                        updateStatus(ret.retVal);
+                    }
                 }, function(ret, textStatus, xhr) {
                     clearInterval(intervalTimer);
                     console.error(arguments);

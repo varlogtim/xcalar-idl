@@ -2967,11 +2967,20 @@ window.Dag = (function($, Dag) {
             } else {
                 tooltipTxt = CommonTxtTstr.ClickToOpts;
             }
+
+            var additionalData = "";
+
+            if (dagNode.api === XcalarApisT.XcalarApiExport) {
+                state += " export";
+                additionalData = 'data-type="export" ';
+            }
+
             html += '<div class="dagTable ' + state + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-children="' + children + '" ' +
                         'data-index="' + index + '" ' +
                         'data-id="' + tableId + '" ' +
+                        additionalData +
                         'data-parents="' + parents + '">' +
                         '<div class="dagTableIcon ' + icv + '" ' +
                         'data-toggle="tooltip" ' +
@@ -2987,6 +2996,7 @@ window.Dag = (function($, Dag) {
                             'title="' + tableName + '">' +
                             tableName +
                         '</span>';
+
         }
         html += '</div></div>';
 
