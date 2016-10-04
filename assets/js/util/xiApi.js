@@ -35,23 +35,37 @@ window.XIApi = (function(XIApi, $) {
         }
 
         var deferred = jQuery.Deferred();
+        var toDelete = false;
 
         if (!isValidTableName(dstAggName)) {
-            dstAggName = getNewTableName(tableName, "-agg");
+            var nameRoot = xcHelper.getTableName(tableName);
+            dstAggName = xcHelper.randName(nameRoot + "-agg");
+            toDelete = true;
         }
 
         XcalarAggregate(evalStr, dstAggName, tableName, txId)
         .then(function(value, dstDagName) {
-            try {
-                var val = JSON.parse(value);
-                deferred.resolve(val.Value, dstDagName);
-            } catch (error) {
-                deferred.reject({"error": error});
-            }
+            deleteHelper(dstDagName)
+            .always(function() {
+                try {
+                    var val = JSON.parse(value);
+                    deferred.resolve(val.Value, dstAggName, toDelete);
+                } catch (error) {
+                    deferred.reject({"error": error});
+                }
+            });
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+
+        function deleteHelper(tableToDelete) {
+            if (toDelete) {
+                return XcalarDeleteTable(tableToDelete, txId);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        }
     };
 
     XIApi.checkOrder = function(tableName) {
@@ -61,18 +75,18 @@ window.XIApi = (function(XIApi, $) {
 
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
+        var keyName;
+        var order;
 
         if (table != null) {
-            var keyName = table.getKeyName();
-            var ordering = table.getOrdering();
-            if (keyName != null && XcalarOrderingTStr.hasOwnProperty(ordering)) {
-                return PromiseHelper.resolve(ordering, keyName);
+            keyName = table.getKeyName();
+            order = table.getOrdering();
+            if (keyName != null && XcalarOrderingTStr.hasOwnProperty(order)) {
+                return PromiseHelper.resolve(order, keyName);
             }
         }
 
         var deferred = jQuery.Deferred();
-        var order;
-        var keyName;
 
         XcalarMakeResultSetFromTable(tableName)
         .then(function(resultSet) {

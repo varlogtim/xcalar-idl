@@ -99,7 +99,7 @@ window.xcFunction = (function($, xcFunction) {
             "op" : aggrOp
         });
 
-        var aggInfo = Aggregates.checkAgg(tableId, backColName, aggrOp);
+        var aggInfo = Aggregates.getAgg(tableId, backColName, aggrOp);
         if (aggInfo != null && (!aggName || aggName[0] !== gAggVarPrefix)) {
             var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
                 "val": aggInfo.value
@@ -147,7 +147,7 @@ window.xcFunction = (function($, xcFunction) {
         // }
 
         XIApi.aggregate(txId, aggrOp, aggStr, tableName, aggName)
-        .then(function(value, dstDagName) {
+        .then(function(value, dstDagName, toDelete) {
             if (hasPrefix) {
                 dstDagName = gAggVarPrefix + dstDagName;
             }
@@ -159,8 +159,14 @@ window.xcFunction = (function($, xcFunction) {
                 "op"         : aggrOp
             };
 
-            Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);
-            TableList.refreshConstantList();
+            if (toDelete) {
+                // and to UI cache only
+                Aggregates.addAgg(tableId, backColName, aggrOp, aggRes, true);
+            } else {
+                Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);
+                TableList.refreshConstantList();
+            }
+
             Transaction.done(txId, {"msgTable": tableId});
 
             // show result in alert modal

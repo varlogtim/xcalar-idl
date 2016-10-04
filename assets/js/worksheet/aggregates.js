@@ -1,5 +1,6 @@
 window.Aggregates = (function(Aggregates, $) {
     var aggs = {};
+    var tempAggs = {}; // UI cache only, not persist to kv store
 
     Aggregates.restore = function(aggInfos) {
         aggs = aggInfos || {};
@@ -25,21 +26,30 @@ window.Aggregates = (function(Aggregates, $) {
         return namedAggs;
     };
 
-    Aggregates.checkAgg = function(tableId, colName, aggOp) {
+    Aggregates.getAgg = function(tableId, colName, aggOp) {
         var key = tableId + "#" + colName + "#" + aggOp;
-        for (var i in aggs) {
-            if (aggs[i].key === key) {
-                return (aggs[i]);
+        var c;
+        for (c in aggs) {
+            if (aggs[c].key === key) {
+                return aggs[c];
             }
         }
+
+        // if not found, try temp agg
+        for (c in tempAggs) {
+            if (tempAggs[c].key === key) {
+                return tempAggs[c];
+            }
+        }
+        // not found
         return null;
     };
 
-    Aggregates.addAgg = function(tableId, colName, aggOp, aggRes) {
-       
+    Aggregates.addAgg = function(tableId, colName, aggOp, aggRes, isTemp) {
+        var container = isTemp ? tempAggs : aggs;
         var name = aggRes.dagName;
 
-        if (aggs.hasOwnProperty(name)) {
+        if (container.hasOwnProperty(name)) {
             // XXX now if this agg ops is exist, do not update it,
             // since update will make the old table info lost
             console.warn("Aggregate result already exists!");
@@ -49,11 +59,11 @@ window.Aggregates = (function(Aggregates, $) {
             // write a sort function that split by "#" and
             // extract tableId/colNam/aggOp to sort by one of them
             aggRes.key = tableId + "#" + colName + "#" + aggOp;
-            aggs[name] = aggRes;
+            container[name] = aggRes;
         }
     };
 
-     // remove one entry of aggregate information
+    // remove one entry of aggregate information
     Aggregates.removeAgg = function(key) {
         delete aggs[key];
     };
