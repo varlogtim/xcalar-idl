@@ -118,7 +118,8 @@ window.DFGParamModal = (function($, DFGParamModal){
 
     DFGParamModal.show = function($currentIcon) {
         var type = $currentIcon.data('type');
-        var tableName = $currentIcon.data('table');
+        var tableName = $currentIcon.data('table') || // For aliased tables
+                        $currentIcon.data('tablename');
         var dfgName = DFGCard.getCurrentDFG();
         var dfg = DFG.getGroup(dfgName);
         var id = dfg.nodeIds[tableName];

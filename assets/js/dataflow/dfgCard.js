@@ -1,7 +1,7 @@
 window.DFGCard = (function($, DFGCard) {
     var $dfgView;       // $('#dataflowView');
     var $dfgCard;       // $('#dfgViz');
-    var $dfgMenu;          // $('#dfgMenu').find('.dfgList');
+    var $dfgMenu;       // $('#dfgMenu').find('.dfgList');
     var $listSection;   // $dfgMenu.find('.listSection');
     var $header;        // $dfgCard.find('.cardHeader h2');
     var $retTabSection; // $dfgCard.find('.retTabSection');
@@ -318,80 +318,6 @@ window.DFGCard = (function($, DFGCard) {
         '<ul class="menu dagDropDown">' +
             '<li class="createParamQuery">Create Parameterized Query</li>' +
         '</ul>';
-        return (html);
-    }
-
-    function getTableHtml(table, hasParam) {
-        var iconClass = "dagTableIcon";
-
-        var icon = "xi_table";
-        var paramClass = "";
-        if (hasParam) {
-            paramClass = " hasParam";
-        }
-        var html =
-        '<div class="dagTable ' + table.type + paramClass + '" data-index="' +
-        table.index +
-        '" data-children="' + table.children + '" data-type="' +
-        table.type + '"';
-        if (table.type === 'dataStore') {
-            html += ' data-url="' + table.url + '"' +
-                    ' data-table="' + table.table + '"';
-            iconClass = 'dataStoreIcon';
-            icon = "xi_data";
-        } else if (table.type === "export") {
-            html += ' data-url="' + table.url + '"' +
-                    ' data-table="' + table.table + '"';
-        }
-        html += ' style="top: ' + table.top + 'px; left: ' + table.left +
-        'px; position: absolute;">' +
-            '<div class="' + iconClass + '"></div>' +
-            '<i class="icon ' + icon + '"></i>' +
-            '<span class="tableTitle" data-toggle="tooltip" ' +
-                'data-placement="bottom" data-container="body"' +
-                'title="' + table.title + '">' + table.title +
-            '</span>' +
-        '</div>';
-
-        return (html);
-    }
-
-    function getOperationHtml(operation, hasParam) {
-        var paramClass = "";
-        if (hasParam) {
-            paramClass = " hasParam";
-        }
-        // console.log(operation);
-        var html =
-        '<div class="actionType ' + operation.type + paramClass +
-        '" style="top: ' + operation.top + 'px; left: ' +
-        operation.left + 'px; position: absolute;" ' +
-        'data-type="' + operation.type + '" data-info="' + operation.info +
-        '" data-table="' + operation.table + '"' +
-        '" data-column="' + operation.column +
-        '" data-toggle="tooltip" ' +
-        'data-placement="top" data-container="body" title="' +
-        operation.tooltip + '">' +
-            '<div class="actionTypeWrap">' +
-                '<div class="' + operation.classes + '">' +
-                    '<i class="' + operation.iconClasses + '"></i>' +
-                '</div>' +
-                '<span class="typeTitle">' + operation.type + '</span>' +
-                '<span class="parentsTitle">' + operation.parents + '</span>' +
-            '</div>' +
-        '</div>';
-
-        return (html);
-    }
-
-    function getExpandIconHtml(expandIcon) {
-        var html = "";
-        html += '<div class="expandWrap horz" style="left:' + expandIcon.left +
-                    'px;top:' + expandIcon.top + 'px;" ' +
-                    ' data-toggle="tooltip"' +
-                    ' data-placement="top" data-container="body" ' +
-                    'title="' + expandIcon.tooltip + '">...</div>';
-
         return (html);
     }
 

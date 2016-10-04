@@ -2972,7 +2972,8 @@ window.Dag = (function($, Dag) {
 
             if (dagNode.api === XcalarApisT.XcalarApiExport) {
                 state += " export";
-                additionalData = 'data-type="export" ';
+                additionalData = 'data-type="export" '+
+                                 'data-url="' + dagNode.name.name + '" ';
             }
 
             html += '<div class="dagTable ' + state + '" ' +
