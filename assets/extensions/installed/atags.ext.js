@@ -1,37 +1,42 @@
 window.UExtATags = (function(UExtATags, $) {
     UExtATags.buttons = [{
-        "buttonText"   : "Enable A Tags",
-        "fnName"       : "",
-        "arrayOfFields": []
+        "buttonText": "Enable A Tags",
     }];
 
-    UExtATags.actionFn = function(txId, tableId, functionName, argList) {
+    UExtATags.configParams = {
+        "notTableDependent": true
+    };
+
+    UExtATags.actionFn = function() {
         var $cellMenu = $("#cellMenu");
         if ($cellMenu.find(".tdLink").length === 0) {
             // Add the follow link feature
             $cellMenu.append("<li class='tdLink'>Open Link</li>");
             $cellMenu.on('mouseup', '.tdLink', function(event) {
                 var $li = $(this);
-                if (event.which !== 1 || $li.hasClass('unavailable')) {
-                    Alert.error("Cannot Follow Link", "Option not available for selected cells");
-                    $highlightBoxes.remove();
-                    return PromiseHelper.resolve();
-                }
-
-                var $table = $("#xcTable-"+$cellMenu.data('tableId'));
+                var $table = $("#xcTable-" + $cellMenu.data('tableId'));
                 var $highlightBoxes = $table.find('.highlightBox');
-                if ($highlightBoxes.length !== 1) {
-                    Alert.error("More than 1 cell", "MultiCell not allowed. Pay Jerene $5 for this feature.");
+
+                if (event.which !== 1 || $li.hasClass('unavailable')) {
+                    Alert.error("Cannot Follow Link",
+                                "Option not available for selected cells");
                     $highlightBoxes.remove();
-                    return PromiseHelper.resolve();
+                    return;
                 }
 
+                if ($highlightBoxes.length !== 1) {
+                    Alert.error("More than 1 cell",
+                    "MultiCell not allowed. Pay Jerene $5 for this feature.");
+                    $highlightBoxes.remove();
+                    return;
+                }
+
+                $highlightBoxes.remove();
                 var $td = $highlightBoxes.eq(0).closest("td");
                 var colVal = $td.find('.originalData').text();
                 if (colVal == null || colVal === "") {
                     Alert.error("Empty Link", "Cannot open empty link");
-                    $highlightBoxes.remove();
-                    return PromiseHelper.resolve();
+                    return;
                 }
 
                 var url = colVal;
@@ -40,19 +45,19 @@ window.UExtATags = (function(UExtATags, $) {
                 }
                 var popup = window.open(url, "_blank");
                 if (!popup) {
-                    Alert.error("Popup Blocked", "Your browser has blocked your popup.");
-                    $highlightBoxes.remove();
+                    Alert.error("Popup Blocked",
+                                "Your browser has blocked your popup.");
+                    return;
                 }
-                $highlightBoxes.remove();
             });
             Alert.error("Enabled", "This extension has been enabled.\n" +
                                     " Click on any cell and select open link.");
         } else {
             Alert.error("Already enabled", "This extension is already enabled");
             closeMenu($cellMenu);
-            return PromiseHelper.resolve();
         }
-        return PromiseHelper.resolve();
+
+        return new XcSDK.Extension();
     };
 
     return (UExtATags);
