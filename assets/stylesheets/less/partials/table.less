@@ -736,10 +736,6 @@ html.edge {
         .tableTitle .dropdownBox {
             pointer-events: auto;
         }
-        .xcTbodyWrap {
-            pointer-events: none;
-            overflow: hidden; // prevents scrolling
-        }
 
         .lockedTableIcon {
             .position(absolute, @top: 40%, @left: 50%);
@@ -825,6 +821,10 @@ html.edge {
     &.tableLocked {
         .editableHead {
             pointer-events: none;
+        }
+        .xcTbodyWrap {
+            pointer-events: none;
+            overflow: hidden; // prevents scrolling
         }
     }
 
@@ -1157,6 +1157,9 @@ html.edge {
             border-color: @color-table-border-gray !important;
             position: relative;
             z-index:36;
+            &:not(.jsonElement) {
+                pointer-events: none;
+            }
         }
     }
     .dataCol {

@@ -14,6 +14,7 @@ window.JSONModal = (function($, JSONModal) {
     var notObject = false; // true if in preview mode due to truncated text
     var lastModeIsProject = false; // saves project mode state when closing modal
     var isSaveModeOff = false;
+    var refCounts = {}; // to track clicked json tds
 
     // constant
     var jsonAreaMinWidth = 340;
@@ -123,7 +124,6 @@ window.JSONModal = (function($, JSONModal) {
                 return PromiseHelper.resolve();
             }});
             jsonModalDocumentEvent();
-            $("body").addClass("hideScroll");
         }
 
         // shows json modal
@@ -136,6 +136,24 @@ window.JSONModal = (function($, JSONModal) {
 
         increaseModalSize();
     };
+
+    JSONModal.rehighlightTds = function($table) {
+        $table.find('.jsonElement').addClass('modalHighlighted');
+        var tableId = xcHelper.parseTableId($table);
+        $('#jsonModal').find('.jsonWrap').each(function() {
+            var data = $(this).data();
+            var jsonTableId = data.tableid;
+            if (jsonTableId === tableId) {
+                var $td = $table.find('.row' + data.rownum).find('.jsonElement');
+                if ($td.length && !$td.find('.jsonModalHighlightBox').length) {
+                    highlightCell($td, jsonTableId, data.rownum, data.colnum, 
+                                false,
+                                {jsonModal: true});
+            
+                }
+            }
+        });
+    }
 
     function addEventListeners() {
         var $searchArea = $('#jsonSearch');
@@ -198,8 +216,13 @@ window.JSONModal = (function($, JSONModal) {
             var rowNum = $jsonWrap.data('rownum');
             var colNum = $jsonWrap.data('colnum');
             var tableId =  $jsonWrap.data('tableid');
-            // var $table = $("#xcTable-" + tableId);
-            // var $td = $table.find(".row" + rowNum + " .col" + colNum);
+            var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
+           
+            if (!rowExists) {
+                // the table is scrolled past the selected row, so we just
+                // take the jsonData from the first visibile row
+                rowNum = RowScroller.getFirstVisibleRowNum() - 1;
+            }
 
             closeJSONModal();
             //set timeout to allow modal to close before unnesting many cols
@@ -213,13 +236,17 @@ window.JSONModal = (function($, JSONModal) {
             var jsonWrapData = $jsonWrap.data();
 
             // remove highlightbox if no other jsonwraps depend on it
-            var $highlightBox = $('#xcTable-' + jsonWrapData.tableid)
+           
+            var id = jsonWrapData.tableid + jsonWrapData.rownum + 
+                     jsonWrapData.colnum;
+            refCounts[id]--;
+            if (refCounts[id] === 0) {
+                var $highlightBox = $('#xcTable-' + jsonWrapData.tableid)
                                     .find('.row' + jsonWrapData.rownum)
                                     .find('td.col' + jsonWrapData.colnum)
                                     .find('.jsonModalHighlightBox');
-            $highlightBox.data().count--;
-            if ($highlightBox.data().count === 0) {
                 $highlightBox.remove();
+                delete refCounts[id];
             }
 
             // handle removal of comparisons
@@ -487,11 +514,9 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         var jsonWrapData = $jsonClone.data();
-        var $highlightBox = $('#xcTable-' + jsonWrapData.tableid)
-                                .find('.row' + jsonWrapData.rownum)
-                                .find('td.col' + jsonWrapData.colnum)
-                                .find('.jsonModalHighlightBox');
-        $highlightBox.data().count++;
+        var id = jsonWrapData.tableid + jsonWrapData.rownum + 
+                 jsonWrapData.colnum;
+        refCounts[id]++;
 
         var $compareIcons = $jsonArea.find('.compareIcon').removeClass('single');
         var title = "Click to select for comparison";
@@ -705,13 +730,13 @@ window.JSONModal = (function($, JSONModal) {
             // json modal use its own closer
             $('.modalHighlighted').removeClass('modalHighlighted');
             $('.jsonModalHighlightBox').remove();
+            refCounts = {};
             toggleModal(null, true, 200);
             $jsonModal.hide().width(500);
             $modalBg.hide().removeClass('light');
 
             $('#sideBarModal').hide();
             $('#bottomMenu').removeClass('modalOpen');
-            $("body").removeClass("hideScroll");
             $('.tooltip').hide();
         }});
 
@@ -1062,6 +1087,13 @@ window.JSONModal = (function($, JSONModal) {
         if (isDataCol) {
             highlightCell($jsonTd, tableId, rowNum, colNum, false,
                             {jsonModal: true});
+            var id = tableId + rowNum + colNum;
+            if (refCounts[id] == null) {
+                refCounts[id] = 1;
+            } else {
+                refCounts[id]++; 
+            }
+            
             var numFields = $jsonWrap.find('.primary').children().children()
                                                       .children().length;
             $jsonWrap.find('.colsSelected').data('totalcols', numFields)
@@ -1282,14 +1314,6 @@ window.JSONModal = (function($, JSONModal) {
 
                 $tableWrap.find('.tableCover.jsonCover').addClass('visible');
                 $jsonModal.addClass('hidden').show();
-                // prevent vertical scrolling on the table
-                $tableWrap.find('.xcTbodyWrap').each(function() {
-                    var $tbody = $(this);
-                    var scrollTop = $tbody.scrollTop();
-                    $tbody.on('scroll.preventScrolling', function() {
-                        $tbody.scrollTop(scrollTop);
-                    });
-                });
 
                 var hiddenClassTimer = 50;
                 if (noTimer) {

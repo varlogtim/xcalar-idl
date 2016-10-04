@@ -1377,6 +1377,9 @@ window.TblManager = (function($, TblManager) {
 
             innerDeferred
             .then(function() {
+                if ($table.find('.jsonElement.modalHighlighted').length) {
+                    JSONModal.rehighlightTds($table);
+                }
                 var rowScrollerMove = true;
                 RowScroller.genFirstVisibleRowNum(rowScrollerMove);
                 clearTimeout(updateRangeTimer);
