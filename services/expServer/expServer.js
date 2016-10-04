@@ -66,7 +66,9 @@ var cliArguments  = "";
 var stepNum = 0;
 
 var scriptDir = "/installer";
-var licenseLocation = "/tmp/license.txt";
+var licenseLocation = "/config/license.txt";
+var hostnameLocation = "/config/hosts.txt";
+var credentialLocation = "/tmp/key.txt";
 
 function initStepArray() {
     curStep = {
@@ -160,7 +162,7 @@ app.post('/checkLicense', function(req, res) {
     var errors = [];
 
     // XXX change to write to config
-    var fileLocation = "/config/license.txt";
+    var fileLocation = licenseLocation;
     fs.writeFile(fileLocation, credArray.licenseKey);
     // Call bash to check license with this
     var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
@@ -186,8 +188,7 @@ app.post("/runInstaller", function(req, res) {
     var errors = [];
 
     // Write files to /config and chmod
-    var hostnameLocation = "/config/hosts.txt";
-    var credentialLocation = "/tmp/key.txt";
+
     var isPassword = true;
 
     if ("password" in credArray.credentials) {
