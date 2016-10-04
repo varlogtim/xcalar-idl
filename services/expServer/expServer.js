@@ -63,6 +63,7 @@ var getNodeRegex = /\[([0-9]+)\]/;
 var getStatusRegex = /\[([A-Z]+)\]/;
 var installerLocation = "";
 var cliArguments  = "";
+var stepNum = 0;
 
 var scriptDir = "/installer";
 var licenseLocation = "/tmp/license.txt";
@@ -130,6 +131,11 @@ function stdOutCallback(dataBlock) {
         } else if (data.indexOf("[") === 0) {
             // One node completed current step!
             var hostId = (getNodeRegex.exec(data))[1];
+            if (hostId === 0) { // Hack because the above clause isn't working
+                stepNum++;
+                curStep.stepString = "Step "+stepNum;
+                curStep.nodesCompletedCurrent = [];
+            }
             var status = (getStatusRegex.exec(data))[1];
             if (status === "SUCCESS") {
                 curStep.nodesCompletedCurrent[hostId] = true;
