@@ -225,26 +225,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         noNotification: boolean, to hide success message pop up
     }
      */
-    ExtensionManager.trigger = function(tableId, modName, funcName, argList,
-        options) {
+    ExtensionManager.trigger = function(tableId, module, func, args, options) {
         var deferred = jQuery.Deferred();
         options = options || {};
-        if (modName == null ||
-            funcName == null ||
-            modName.indexOf("UExt") !== 0)
-        {
+        if (module == null || func == null || module.indexOf("UExt") !== 0) {
             throw "error extension!";
             return;
         }
 
-        if (modName !== "UExtIntel" &&
-            modName !== "UExtKMeans")
-        {
+        if (module !== "UExtIntel") {
             var worksheet;
             var table;
             var tableName;
 
-            if (!extMap[modName]._configParams.notTableDependent) {
+            if (!extMap[module]._configParams.notTableDependent) {
                 worksheet = WSManager.getWSFromTable(tableId);
                 table = gTables[tableId];
                 tableName = table.getName();
@@ -256,32 +250,33 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             var hasStart = false;
             var txId;
-            // in case argList is changed by ext writer
-            var copyArgList = xcHelper.deepCopy(argList);
+            // in case args is changed by ext writer
+            var copyArgs = xcHelper.deepCopy(args);
             var sql = {
                 "operation"  : SQLOps.Ext,
                 "tableName"  : tableName,
                 "tableId"    : tableId,
-                "modName"    : modName,
-                "funcName"   : funcName,
-                "argList"    : copyArgList,
-                "htmlExclude": ["argList"]
+                "module"     : module,
+                "func"       : func,
+                "args"       : copyArgs,
+                "options"    : options,
+                "htmlExclude": ["args", "options"]
             };
 
             // Note Use try catch in case user has come error in extension code
             try {
-                var ext = window[modName].actionFn(funcName);
+                var ext = window[module].actionFn(func);
 
                 if (ext == null || !(ext instanceof XcSDK.Extension)) {
                     Alert.error(StatusMessageTStr.ExtFailed, ErrTStr.InvalidExt);
                     return;
                 }
 
-                var buttons = window[modName].buttons;
+                var buttons = window[module].buttons;
                 var extButton = null;
                 if (buttons instanceof Array) {
                     for (var i = 0, len = buttons.length; i < len; i++) {
-                        if (buttons[i].fnName === funcName) {
+                        if (buttons[i].fnName === func) {
                             extButton = buttons[i].arrayOfFields;
                             break;
                         }
@@ -289,20 +284,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
                 var runBeforeStartRet;
 
-                ext.initialize(tableName, worksheet, argList);
+                ext.initialize(tableName, worksheet, args);
                 ext.runBeforeStart(extButton)
                 .then(function() {
                     var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
-                        "extension": funcName
+                        "extension": func
                     });
                     txId = Transaction.start({
                         "msg"         : msg,
                         "operation"   : SQLOps.Ext,
                         "steps"       : -1,
-                        "functionName": funcName
+                        "functionName": func
                     });
 
-                    if (!extMap[modName]._configParams.notTableDependent) {
+                    if (!extMap[module]._configParams.notTableDependent) {
                         xcHelper.lockTable(tableId, txId);
                     }
 
@@ -314,7 +309,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     return ext.runAfterFinish();
                 })
                 .then(function(finalTables, finalReplaces) {
-                    if (!extMap[modName]._configParams.notTableDependent) {
+                    if (!extMap[module]._configParams.notTableDependent) {
                         xcHelper.unlockTable(tableId);
                     }
 
@@ -377,31 +372,32 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         var table = gTables[tableId];
-        var copyArgList = xcHelper.deepCopy(argList);
+        var copyArgs = xcHelper.deepCopy(args);
         var sql = {
             "operation"  : SQLOps.Ext,
             "tableName"  : table.getName(),
             "tableId"    : tableId,
-            "modName"    : modName,
-            "funcName"   : funcName,
-            "argList"    : copyArgList,
-            "htmlExclude": ["argList"]
+            "module"     : module,
+            "func"       : func,
+            "args"       : copyArgs,
+            "options"    : options,
+            "htmlExclude": ["args", "options"]
         };
 
         var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
-            "extension": funcName
+            "extension": func
         });
         var txId = Transaction.start({
             "msg"         : msg,
             "operation"   : SQLOps.Ext,
             "steps"       : -1,
-            "functionName": funcName
+            "functionName": func
         });
 
         xcHelper.lockTable(tableId, txId);
 
         try {
-            window[modName].actionFn(txId, tableId, funcName, argList)
+            window[module].actionFn(txId, tableId, func, args)
             .then(function(newTables) {
                 xcHelper.unlockTable(tableId);
                 var finalTableId;
@@ -662,13 +658,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         var tableId = xcHelper.getTableId(tableName);
 
-        var argList = getArgList(modName, fnName, tableId);
-        if (argList == null) {
-            // error message is being handled in getArgList
+        var args = getArgs(modName, fnName, tableId);
+        if (args == null) {
+            // error message is being handled in getArgs
             return;
         }
 
-        ExtensionManager.trigger(tableId, modName, fnName, argList);
+        ExtensionManager.trigger(tableId, modName, fnName, args);
         // close tab, do this because if new table created, they don't have the
         // event listener
         // XXXX should change event listerer to pop up
@@ -919,8 +915,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extTriggerTableDropdown.find(".text").val("");
     }
 
-    function getArgList(modName, fnName, extTableId) {
-        var argList = {};
+    function getArgs(modName, fnName, extTableId) {
+        var args = {};
         var $arguments = $extOpsView.find(".extArgs .argument");
         var args = extMap[modName][fnName];
         var invalidArg = false;
@@ -934,7 +930,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     invalidArg = true;
                     return false;
                 }
-                argList[argInfo.fieldClass] = res.arg;
+                args[argInfo.fieldClass] = res.arg;
             }
         });
 
@@ -945,23 +941,23 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $arguments.each(function(i) {
             var argInfo = args[i];
             if (argInfo.type === "column") {
-                var res = checkArg(argInfo, $(this), extTableId, argList);
+                var res = checkArg(argInfo, $(this), extTableId, args);
                 if (!res.valid) {
                     invalidArg = true;
                     return false;
                 }
-                argList[argInfo.fieldClass] = res.arg;
+                args[argInfo.fieldClass] = res.arg;
             }
         });
 
         if (invalidArg) {
             return null;
         } else {
-            return argList;
+            return args;
         }
     }
 
-    function checkArg(argInfo, $input, extTableId, argList) {
+    function checkArg(argInfo, $input, extTableId, args) {
         var arg;
         var argType = argInfo.type;
         var typeCheck = argInfo.typeCheck || {};
@@ -1023,7 +1019,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return { "vaild": false };
             }
 
-            arg = getColInfo(arg, typeCheck, $input, extTableId, argList);
+            arg = getColInfo(arg, typeCheck, $input, extTableId, args);
             if (arg == null) {
                 return { "vaild": false };
             }
@@ -1065,7 +1061,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         };
     }
 
-    function getColInfo(arg, typeCheck, $input, extTableId, argList) {
+    function getColInfo(arg, typeCheck, $input, extTableId, args) {
         arg = arg.replace(/\$/g, '');
 
         var validType = typeCheck.columnType;
@@ -1087,7 +1083,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var shouldCheck = true;
             var tableId;
             if (typeCheck.tableField != null) {
-                var tableArg = argList[typeCheck.tableField];
+                var tableArg = args[typeCheck.tableField];
                 if (tableArg != null) {
                     tableId = xcHelper.getTableId(tableArg.getName());
                 } else {

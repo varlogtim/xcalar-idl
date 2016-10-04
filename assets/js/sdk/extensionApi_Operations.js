@@ -170,10 +170,6 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "getConstant": function(aggName) {
-            return gAggVarPrefix + aggName;
-        },
-
         "getNumRows": function(tableName) {
             return XIApi.getNumRows(tableName);
         },

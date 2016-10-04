@@ -163,6 +163,10 @@ window.XcSDK.Extension.prototype = (function() {
             return xcHelper.randName("randCol");
         },
 
+        "getConstant": function(aggName) {
+            return gAggVarPrefix + aggName;
+        },
+
         // basically execution function
         "initialize": function(tableName, worksheet, args) {
             // Important: User cannot change this function!!!

@@ -446,7 +446,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
         argsMap[SQLOps.ChangeFormat] = ["colNums", "tableId", "formats"];
         argsMap[SQLOps.RoundToFixed] = ["colNums", "tableId", "decimals"];
-        argsMap[SQLOps.Ext] = ["tableId", "modName", "funcName", "argList"];
+        argsMap[SQLOps.Ext] = ["tableId", "module", "func", "args", "options"];
         argsMap[SQLOps.MarkPrefix] = ["tableId", "prefix", "newColor"];
     }
 
