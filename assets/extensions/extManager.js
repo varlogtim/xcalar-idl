@@ -918,11 +918,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function getArgs(modName, fnName, extTableId) {
         var args = {};
         var $arguments = $extOpsView.find(".extArgs .argument");
-        var args = extMap[modName][fnName];
+        var extFields = extMap[modName][fnName];
         var invalidArg = false;
 
         $arguments.each(function(i) {
-            var argInfo = args[i];
+            var argInfo = extFields[i];
             // check type column later
             if (argInfo.type !== "column") {
                 var res = checkArg(argInfo, $(this));
@@ -939,7 +939,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
         // check col names
         $arguments.each(function(i) {
-            var argInfo = args[i];
+            var argInfo = extFields[i];
             if (argInfo.type === "column") {
                 var res = checkArg(argInfo, $(this), extTableId, args);
                 if (!res.valid) {
