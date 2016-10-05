@@ -2726,7 +2726,9 @@ window.xcHelper = (function($, xcHelper) {
         var isChildOfArray = $('#xcTable-' + tableId)
                                 .find('th.col' + options.colNum)
                                 .find('.header').hasClass('childOfArray');
-        var shouldNotFilter = options.isMutiCol || isChildOfArray ||
+        var isUndef = $div.hasClass('undefined') ||
+                      $div.find('.undefined').length;
+        var shouldNotFilter = options.isMutiCol || isChildOfArray || isUndef ||
                             (
                                 columnType !== "string" &&
                                 columnType !== "float" &&
