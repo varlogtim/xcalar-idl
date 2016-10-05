@@ -1337,27 +1337,31 @@ window.ColManager = (function($, ColManager) {
         for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
             var tdValue = parseRowJSON(jsonData[row]);
             var rowNum = row + startIndex;
+            var idTitle = "";
 
             tBodyHTML += '<tr class="row' + rowNum + '">';
 
             // add bookmark
             if (table.bookmarks.indexOf(rowNum) > -1) {
                 tBodyHTML += '<td align="center" class="col0 rowBookmarked">';
+                idTitle = TooltipTStr.Bookmarked;
             } else {
                 tBodyHTML += '<td align="center" class="col0">';
+                idTitle = TooltipTStr.Bookmark;
             }
 
             // Line Marker Column
             tBodyHTML += '<div class="idWrap">' +
-                            '<span class="idSpan" ' +
-                                'data-toggle="tooltip" ' +
-                                'data-placement="bottom" ' +
-                                'data-container="body" ' +
-                                'title="click to add bookmark">' +
-                                    (rowNum + 1) +
+                            '<span class="idSpan"' +
+                            ' data-toggle="tooltip"' +
+                            ' data-placement="bottom"' +
+                            ' data-container="body"' +
+                            ' data-original-title="' + idTitle + '">' +
+                                (rowNum + 1) +
                             '</span>' +
                             '<div class="rowGrab"></div>' +
-                          '</div></td>';
+                          '</div>' +
+                        '</td>';
 
             // loop through table tr's tds
             for (var col = 0; col < numCols; col++) {

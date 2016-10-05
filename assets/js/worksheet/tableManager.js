@@ -1201,7 +1201,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
 
         $td.addClass('rowBookmarked');
-        xcHelper.changeTooltipText($td.find('.idSpan'), TooltipTStr.Bookmarked);
+        xcHelper.changeTooltipText($td, '.idSpan', TooltipTStr.Bookmarked);
         $('.tooltip').hide();
         RowScroller.addBookmark(rowNum, tableId);
         table.addBookmark(rowNum);
@@ -1220,9 +1220,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
 
         $td.removeClass('rowBookmarked');
-        xcHelper.changeTooltipText($td.find('.idSpan'), TooltipTStr.Bookmark);
-
-
+        xcHelper.changeTooltipText($td, '.idSpan', TooltipTStr.Bookmark);
         $('.tooltip').hide();
         RowScroller.removeBookmark(rowNum, tableId);
         table.removeBookmark(rowNum);
@@ -1235,7 +1233,7 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
-    // returns {hasSuccess:boolean, 
+    // returns {hasSuccess:boolean,
     //          fails: [{tables: "tableName", error: "error"}]}
     function tableDeleteFailHandler(results, tables, noAlert, noLog, txId) {
         var hasSuccess = false;
@@ -1243,7 +1241,7 @@ window.TblManager = (function($, TblManager) {
         var errorMsg = "";
         var tablesMsg = "";
         var failedTablesStr = "";
-        var failedTables = [];
+        // var failedTables = [];
         for (var i = 0, len = results.length; i < len; i++) {
             if (results[i] != null && results[i].error != null) {
                 fails.push({tables: tables[i], error: results[i].error});
@@ -1255,7 +1253,7 @@ window.TblManager = (function($, TblManager) {
 
         var numFails = fails.length;
         if (numFails) {
-            failedTablesStr = failedTablesStr.substr(0, 
+            failedTablesStr = failedTablesStr.substr(0,
                               failedTablesStr.length - 2);
             if (numFails > 1) {
                 tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTablesStr;
