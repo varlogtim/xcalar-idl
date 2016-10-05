@@ -233,7 +233,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return;
         }
 
-        if (module !== "UExtIntel") {
+        if (module !== "UExtNN") {
             var worksheet;
             var table;
             var tableName;
@@ -428,6 +428,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 deferred.reject(error);
             });
         } catch (error) {
+            console.error(error.stack);
             // in case there is some run time error
             xcHelper.unlockTable(tableId);
             Transaction.fail(txId, {

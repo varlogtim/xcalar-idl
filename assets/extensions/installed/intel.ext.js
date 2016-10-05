@@ -2,10 +2,9 @@
 // Every extension must be named after the file which will be
 // <EXTENSIONNAME>.ext.js
 // Extensions are case INSENSITIVE
-// Every extension must have 3 functions:
+// Every extension must have 2 functions:
 // buttons
 // actionFn
-// undoActionFn
 // buttons must return an array of structs. each struct must have a field
 // called "buttonText" which populates the text in the button
 // each struct must have a fnName field which contains the name of the function
@@ -16,11 +15,11 @@
 // the buttons belonging to the extension
 // undoActionFn is a function that will get invoked once the user tries to undo
 // an action that belongs to this extension
-window.UExtIntel = (function(UExtIntel, $) {
+window.UExtIntel = (function(UExtIntel) {
     UExtIntel.buttons = [{
-        "buttonText"    : "Last Touch",
-         "fnName"       : "lastTouch",
-         "arrayOfFields": []
+        "buttonText"   : "Last Touch",
+        "fnName"       : "lastTouch",
+        "arrayOfFields": []
     },
     {
         "buttonText"   : "Final PT",
@@ -28,9 +27,9 @@ window.UExtIntel = (function(UExtIntel, $) {
         "arrayOfFields": []
     },
     {
-        "buttonText"    : "Line Item PT",
-        "fnName"        : "genLineItemPT",
-         "arrayOfFields": []
+        "buttonText"   : "Line Item PT",
+        "fnName"       : "genLineItemPT",
+        "arrayOfFields": []
     },
     {
         "buttonText"   : "No Of Days Since",
@@ -38,338 +37,225 @@ window.UExtIntel = (function(UExtIntel, $) {
         "arrayOfFields": []
     }];
 
-    UExtIntel.actionFn = function(txId, tableId, functionName, argList) {
-        var table = gTables[tableId];
-        // XXX this one is broken becaues colNum is removed
-        var colName = table.tableCols[colNum - 1].name;
-        var tableName = table.tableName;
-        var tableNameRoot = tableName.split("#")[0];
+    UExtIntel.actionFn = function(functionName) {
+        var ext = new XcSDK.Extension();
+
         switch (functionName) {
             case ("lastTouch"):
                 // colName should be the string column Date in AuditTrail
-                return genLastTouch(colName, tableName);
+                ext.start = genLastTouch;
+                return ext;
                 // This will generate a groupByTable with 2 cols and the a map
             case ("genFinalPT"):
-                // TableName should be optyLineItem. We will look for pdt type or
-                // line item pdt type
-                return genFinalPT(tableName);
+                // TableName should be optyLineItem. We will look for pdt type
+                // or line item pdt type
+                ext.start = genFinalPT;
+                return ext;
             case ("genLineItemPT"):
-                // TableName should be optyLineItem. We will look for the 3 columns
-                return genLineItemPT(tableName);
+                // TableName should be optyLineItem. We will look for
+                // the 3 columns
                 // This will generate a groupby table
+                ext.start = genLineItemPT;
+                return ext;
             case ("genNoOfDays"):
                 // This must be run on the last_modified_latest col
-                return genNoOfDays(colName, tableName);
+                ext.start = genNoOfDays;
+                return ext;
             default:
-                return PromiseHelper.reject("Invalid Function");
-        }
-
-        function genLastTouch(colName, tableName) {
-            // Steps:
-            // Step 1: We convert colName to UTS
-            // Step 2: We do a groupBy on Record ID with max UTS
-            // Step 3: We do a map on max UTS to convert back to %m/%d/%Y
-            // Step 4: We add table to current worksheet
-            var deferred = jQuery.Deferred();
-            var newTableName = tableNameRoot + Authentication.getHashId();
-            var mapStr = "default:convertToUnixTS(Date, \"%m/%d/%Y\")";
-            var newColName = "Date_UTS";
-            var srcTable = tableName;
-            var tableId = xcHelper.getTableId(tableName);
-            var worksheet = WSManager.getWSFromTable(tableId);
-
-            XcalarMap(newColName, mapStr, srcTable, newTableName,
-                      null, false)
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                var idx = getColNum("Date", tableId);
-                newCols.splice(idx+1, 0, ColManager.newPullCol("Date_UTS"));
-
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [srcTable], worksheet, txId));
-            })
-            .then(function() {
-                srcTable = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                newColName = "Date_UTS_integer";
-                mapStr = "int(Date_UTS)";
-                return (XcalarMap(newColName, mapStr, srcTable, newTableName,
-                                  null, false));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(srcTable);
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                var idx = getColNum("Date_UTS", tableId);
-                newCols.splice(idx+1, 0,
-                               ColManager.newPullCol("Date_UTS_integer"));
-
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [srcTable], worksheet, txId));
-            })
-            .then(function() {
-                srcTable = newTableName;
-                tableId = xcHelper.getTableId(srcTable);
-                return (xcFunction.groupBy(AggrOp.Max, tableId,
-                                           "Record ID", "Date_UTS_integer",
-                                           false, "Max_Date"));
-            })
-            .then(function(tn) {
-                srcTable = tn;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                newColName = "Final Touch";
-                mapStr = "default:convertFromUnixTS(Max_Date, \"%m/%d/%Y\")";
-                return (XcalarMap(newColName, mapStr, srcTable, newTableName,
-                                  null, false)
-                        .then(function() {
-                            tableId = xcHelper.getTableId(srcTable);
-                            var newCols = xcHelper.deepCopy(gTables[tableId].
-                                                            tableCols);
-                            var idx = getColNum("Max_Date", tableId);
-                            newCols.splice(idx+1, 0,
-                                          (ColManager.newPullCol("Final Touch",
-                                                                 "string")));
-                            return (TblManager.refreshTable([newTableName],
-                                                            newCols,
-                                                            [srcTable],
-                                                            worksheet, txId));
-                        }));
-            })
-            .then(function() {
-                deferred.resolve(newTableName);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-
-        function genFinalPT(tableName) {
-            var deferred = jQuery.Deferred();
-            var tableId = xcHelper.getTableId(tableName);
-            var table = gTables[tableId];
-            var newTableName = tableNameRoot + Authentication.getHashId();
-            var mapStr = "intel:genFinalPT(Product Type, Line Item Product Type)";
-            var worksheet = WSManager.getWSFromTable(tableId);
-            XcalarMap("Final PT", mapStr, tableName, newTableName, null, false)
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                var idx = getColNum("Line Item Product Type", tableId);
-                newCols.splice(idx+1, 0,
-                               ColManager.newPullCol("Final PT", "string"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet, txId));
-            })
-            .then(function() {
-                deferred.resolve(newTableName);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-
-        function genLineItemPT(tableName) {
-            // Step 1: Change Forecasted Detail Actual Dollar Amount to float
-            // Step 2: xcFunction.groupBy(sum, tableId, indexedCols,
-            // aggColName, false, newColName)
-            // Step 3: single groupBy(max
-            // Step 4: multi join ROW ID, max == forecasted_float
-            // Step 5: GroupBy Row_ID count inc sample to randomly pick
-            var deferred = jQuery.Deferred();
-            var tableId = xcHelper.getTableId(tableName);
-            var table = gTables[tableId];
-            var newTableName = tableNameRoot + Authentication.getHashId();
-            var mapStr = "float(Forecasted Detail Actual Dollar Amount)";
-            var worksheet = WSManager.getWSFromTable(tableId);
-            var tableNameStore = [];
-
-            XcalarMap("Forecasted_float", mapStr, tableName, newTableName,
-                      null, false)
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                var idx = getColNum("Forecasted Detail Actual Dollar Amount",
-                                    tableId);
-                newCols.splice(idx+1, 0,
-                               ColManager.newPullCol("Forecasted_float",
-                                                     "float"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet, txId));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                return (xcFunction.groupBy(AggrOp.Sum, tableId,
-                                           "ROW_ID,Product Type",
-                                        "Forecasted_float", false, "SumByPdt"));
-            })
-            .then(function(tn) {
-                tableNameStore.push(tn);
-                newTableName = tn;
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                return (xcFunction.groupBy(AggrOp.Max, tableId, "ROW_ID",
-                                           "SumByPdt", false, "MaxForRow"));
-            })
-            .then(function(tn) {
-                tableNameStore.push(tn);
-                newTableName = tn;
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                // Let's get the column numbers for the left table
-                var lId = xcHelper.getTableId(tableNameStore[0]);
-                var rId = xcHelper.getTableId(tableNameStore[1]);
-                tableNameStore.unshift(newTableName);
-                var lColNums = [getColNum("ROW_ID", lId),
-                                getColNum("SumByPdt", lId)];
-                var rColNums = [getColNum("ROW_ID", rId),
-                                getColNum("MaxForRow", rId)];
-                return (xcFunction.join(lColNums, lId, rColNums, rId,
-                                        "Inner Join", newTableName));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                return (xcFunction.groupBy(AggrOp.Count, tableId, "ROW_ID",
-                                           "ROW_ID", true, "NumOccur"));
-            })
-            .then(function(tn) {
-                // XXX Why is delCol 1-indexed? Leftover from last time?
-                ColManager.delCol([1, 4, 5, 6], xcHelper.getTableId(tn));
-                TblManager.archiveTable(xcHelper.getTableId(tableNameStore[0]));
-            })
-            .then(function() {
-                deferred.resolve(tableNameStore);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-        // TODO this should be in xcHelper
-        function getColNum(colName, tableId) {
-            var table = gTables[tableId];
-            var cols = table.tableCols;
-            for (var i = 0; i<cols.length; i++) {
-                if (cols[i].name == colName) {
-                    return (i);
-                }
-            }
-            return (-1);
-        }
-
-        function genNoOfDays(colName, tableName) {
-            // Step 1: Create column Modified No Blank
-            // Step 2: Create column Last_Modified_Latest by doing ifelse on
-            // Final Date and ModifiedNoBlank
-            // Step 3: Create No Days since col
-            // Step 4: Change col to float
-            // Step 5: Map <= 60
-            var deferred = jQuery.Deferred();
-            var tableId = xcHelper.getTableId(tableName);
-            var table = gTables[tableId];
-            var newTableName = tableNameRoot + Authentication.getHashId();
-            var mapStr = "intel:ifElse(Last Modified, Created Date)";
-            var worksheet = WSManager.getWSFromTable(tableId);
-
-            XcalarMap("Last Modified_NoBlank", mapStr, tableName, newTableName,
-                      null, false)
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("Last Modified_NoBlank",
-                                                      "string"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet, txId));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                mapStr = "intel:convertDateValueToUTS(Last Modified_NoBlank)";
-                return (XcalarMap("LastModified_UTS", mapStr, tableName,
-                                  newTableName, null, false));
-            })
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("LastModified_UTS",
-                                                      "string"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet, txId));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                mapStr = "default:convertFromUnixTS(LastModified_UTS,"+
-                                                    "\"%m/%d/%Y %H:%S\")";
-                return (XcalarMap("LastModified_readable", mapStr, tableName,
-                                  newTableName, null, false));
-            })
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("LastModified_readable",
-                                                      "string"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                               [tableName], worksheet, txId));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                mapStr = "intel:ifElse(Final Touch, LastModified_readable)";
-                return (XcalarMap("Last_Modified_Latest", mapStr, tableName,
-                                  newTableName, null, false));
-            })
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("Last_Modified_Latest",
-                                                      "string"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet, txId));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                mapStr = "intel:noOfDays(Last_Modified_Latest)";
-                return (XcalarMap("DaysSince",
-                                  mapStr, tableName, newTableName, null, false));
-            })
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol("DaysSince", "string"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet, txId));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                tableName = newTableName;
-                newTableName = tableNameRoot + Authentication.getHashId();
-                mapStr = "float(DaysSince)";
-                return (XcalarMap("No of Days since last modified", mapStr,
-                                  tableName, newTableName, null, false));
-            })
-            .then(function() {
-                var newCols = xcHelper.deepCopy(gTables[tableId].tableCols);
-                newCols.unshift(ColManager.newPullCol(
-                "No of Days since last modified", "float"));
-                return (TblManager.refreshTable([newTableName], newCols,
-                                                [tableName], worksheet, txId));
-            })
-            .then(function() {
-                tableId = xcHelper.getTableId(newTableName);
-                ColManager.delCol([2, 3, 4, 5, 6], tableId);
-                $("#xcTable-"+tableId).find("th.col1 .flexContainer")
-                                      .mousedown() ;
-            })
-            .then(function() {
-                deferred.resolve(newTableName);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
+                return null;
         }
     };
+
+    function genLastTouch() {
+        // Steps:
+        // Step 1: We convert Date column to UTS (also convert to int)
+        // Step 2: We do a groupBy on Record ID with max UTS
+        // Step 3: We do a map on max UTS to convert back to %m/%d/%Y
+        // Step 4: We add table to current worksheet
+        var deferred = XcSDK.Promise.deferred();
+        var ext = this;
+
+        var tableName = ext.getTriggerTable().getName();
+        var mapStr = "int(default:convertToUnixTS(Date, \"%m/%d/%Y\"))";
+        var dateCol = "Date_UTS";
+        var finalCol = "Final_Touch";
+        var mapTable = ext.createTempTableName();
+
+        ext.map(mapStr, tableName, dateCol, mapTable)
+        .then(function(tableAfterMap) {
+            var operator = XcSDK.Enums.AggType.Max;
+            var newTable = ext.createTempTableName();
+            return ext.groupBy(operator, "Record ID", dateCol,
+                            false, tableAfterMap, "Max_Date", newTable);
+        })
+        .then(function(tableAfterGroupby) {
+            var map = "default:convertFromUnixTS(Max_Date, \"%m/%d/%Y\")";
+            var newTable = ext.createTableName();
+            return ext.map(map, tableAfterGroupby, finalCol, newTable);
+        })
+        .then(function(finalTable) {
+            var table = ext.getTable(finalTable);
+            var colNum = getColNum("Max_Date", table);
+            var newCol = new XcSDK.Column(finalCol, "string");
+            table.addCol(newCol, colNum);
+
+            return table.addToWorksheet();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function genFinalPT() {
+        var deferred = XcSDK.Promise.deferred();
+        var ext = this;
+        var tableName = ext.getTriggerTable().getName();
+
+        var mapStr = "intel:genFinalPT(Product Type, Line Item Product Type)";
+        var newColName = "Final PT";
+
+        ext.map(mapStr, tableName, newColName)
+        .then(function(tableAfterMap) {
+            var table = ext.getTable(tableAfterMap);
+            var colNum = getColNum("Line Item Product Type", table);
+            var newCol = new XcSDK.Column(newColName, "string");
+            table.addCol(newCol, colNum);
+
+            return table.addToWorksheet();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function genLineItemPT() {
+        // Step 1: Change Forecasted Detail Actual Dollar Amount to float
+        // Step 2: groupBy on "ROW_ID,Product Type", sum "Forecasted_float"
+        // Step 3: groupBy on "ROW_ID", max "SumByPdt"
+        // Step 4: multi join ROW ID, SumByPdt == ROW_ID, MaxForRow
+        // Step 5: GroupBy Row_ID count inc sample to randomly pick
+        var deferred = XcSDK.Promise.deferred();
+        var ext = this;
+
+        var tableName = ext.getTriggerTable().getName();
+        var mapStr = "float(Forecasted Detail Actual Dollar Amount)";
+        var mapTable = ext.createTempTableName();
+        var lTable;
+        var rTable;
+
+        ext.map(mapStr, tableName, "Forecasted_float", mapTable)
+        .then(function(tableAfterMap) {
+            var newTable = ext.createTempTableName();
+
+            var operator = XcSDK.Enums.AggType.Sum;
+            var groupByCols = ["ROW_ID", "Product Type"];
+            return ext.groupBy(operator, groupByCols, "Forecasted_float",
+                                false, tableAfterMap, "SumByPdt", newTable);
+        })
+        .then(function(tableAfterGroupby) {
+            var newTable = ext.createTempTableName();
+            lTable = tableAfterGroupby;
+
+            var operator = XcSDK.Enums.AggType.Max;
+            return ext.groupBy(operator, "ROW_ID", "SumByPdt",
+                            false, tableAfterGroupby, "MaxForRow", newTable);
+        })
+        .then(function(tableAfterGroupby) {
+            var newTable = ext.createTempTableName();
+            rTable = tableAfterGroupby;
+
+            var joinType = XcSDK.Enums.JoinType.InnerJoin;
+            var lCols = ["ROW_ID", "SumByPdt"];
+            var rCols = ["ROW_ID", "MaxForRow"];
+            return ext.join(joinType, lCols, lTable, rCols, rTable, newTable);
+        })
+        .then(function(tableAfterJoin) {
+            var newTable = ext.createTableName();
+            var operator = XcSDK.Enums.AggType.Count;
+            return ext.groupBy(operator, "ROW_ID", "ROW_ID",
+                                true, tableAfterJoin, "NumOccur", newTable);
+        })
+        .then(function(finalTable) {
+            var table = ext.getTable(finalTable);
+            table.deleteAllCols();
+            table.addCol(new XcSDK.Column("ROW_ID"));
+            table.addCol(new XcSDK.Column("Product Type"));
+            table.addCol(new XcSDK.Column("NumOccur"));
+            table.addCol(new XcSDK.Column("SumByPdt"));
+
+            return table.addToWorksheet();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function genNoOfDays() {
+        // Step 1: Create column Modified No Blank
+        // Step 2: Create column Last_Modified_Latest by doing ifelse on
+        // Final Date and ModifiedNoBlank
+        // Step 3: Create No Days since col
+        // Step 4: Change col to float
+        // Step 5: Map <= 60
+        var deferred = XcSDK.Promise.deferred();
+        var ext = this;
+
+        var tableName = ext.getTriggerTable().getName();
+        var mapStr = "intel:ifElse(Last Modified, Created Date)";
+        var mapTable = ext.createTempTableName();
+
+        ext.map(mapStr, tableName, "Last Modified_NoBlank", mapTable)
+        .then(function(tableAfterMap) {
+            var map = "intel:convertDateValueToUTS(Last Modified_NoBlank)";
+            var newTable = ext.createTempTableName();
+            return ext.map(map, tableAfterMap, "LastModified_UTS", newTable);
+        })
+        .then(function(tableAfterMap) {
+            var map = "default:convertFromUnixTS(LastModified_UTS," +
+                                                "\"%m/%d/%Y %H:%S\")";
+            var newTable = ext.createTempTableName();
+            return ext.map(map, tableAfterMap, "LastModified_readable",
+                            newTable);
+        })
+        .then(function(tableAfterMap) {
+            var map = "intel:ifElse(Final Touch, LastModified_readable)";
+            var newTable = ext.createTempTableName();
+            return ext.map(map, tableAfterMap, "Last_Modified_Latest",
+                            newTable);
+        })
+        .then(function(tableAfterMap) {
+            var map = "intel:noOfDays(Last_Modified_Latest)";
+            var newTable = ext.createTempTableName();
+            return ext.map(map, tableAfterMap, "DaysSince", newTable);
+        })
+        .then(function(tableAfterMap) {
+            var map = "float(DaysSince)";
+            var newTable = ext.createTableName();
+            return ext.map(map, tableAfterMap, "No of Days since last modified",
+                            newTable);
+        })
+        .then(function(finalTable) {
+            var table = ext.getTable(finalTable);
+            table.deleteAllCols();
+            table.addCol(new XcSDK.Column("No of Days since last modified"));
+            table.addCol(new XcSDK.Column("Last_Modified_Latest"));
+
+            return table.addToWorksheet();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function getColNum(colName, table) {
+        var col = new XcSDK.Column(colName);
+        return table.getColNum(col);
+    }
+
     return (UExtIntel);
-}({}, jQuery));
+}({}));
 
