@@ -389,8 +389,10 @@ window.DSTable = (function($, DSTable) {
             if (event.which !== 1) {
                 return;
             }
-            TblAnim.startColResize($(this), event, {target: "datastore"});
-            dblClickResize($(this), {minWidth: 25, target: "datastore"});
+            TblAnim.startColResize($(this), event, {
+                target  : "datastore",
+                minWidth: 25
+            });
         });
 
         $tableWrap.on('mouseenter', '.tooltipOverflow', function() {

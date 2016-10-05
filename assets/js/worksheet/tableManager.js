@@ -194,7 +194,7 @@ window.TblManager = (function($, TblManager) {
         afterStartup: boolean to indicate if the table is added after page load
         selectCol: number. column to be highlighted when table is ready
     */
-    TblManager.parallelConstruct = function (tableId, tablesToRemove, options) {
+    TblManager.parallelConstruct = function(tableId, tablesToRemove, options) {
         options = options || {};
         var deferred  = jQuery.Deferred();
         var deferred1 = startBuildTable(tableId, tablesToRemove, options);
@@ -2128,7 +2128,6 @@ window.TblManager = (function($, TblManager) {
             }
 
             TblAnim.startColResize($(this), event);
-            dblClickResize($(this));
         });
 
         $thead.on('mousedown', '.dragArea', function(event) {

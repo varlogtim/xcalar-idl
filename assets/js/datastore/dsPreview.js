@@ -106,8 +106,10 @@ window.DSPreview = (function($, DSPreview) {
             if (event.which !== 1) {
                 return;
             }
-            TblAnim.startColResize($(this), event, {target: "datastore"});
-            dblClickResize($(this), {minWidth: 25, target: "datastore"});
+            TblAnim.startColResize($(this), event, {
+                target  : "datastore",
+                minWidth: 25
+            });
         });
 
         // minimize
@@ -237,15 +239,15 @@ window.DSPreview = (function($, DSPreview) {
 
         // setUp line delimiter and field delimiter
         new MenuHelper($("#lineDelim"), {
-            "onSelect"     : selectDelim,
-            "container"    : "#importDataForm-content",
-            "bounds"       : "#importDataForm-content"
+            "onSelect" : selectDelim,
+            "container": "#importDataForm-content",
+            "bounds"   : "#importDataForm-content"
         }).setupListeners();
 
         new MenuHelper($("#fieldDelim"), {
-            "onSelect"     : selectDelim,
-            "container"    : "#importDataForm-content",
-            "bounds"       : "#importDataForm-content"
+            "onSelect" : selectDelim,
+            "container": "#importDataForm-content",
+            "bounds"   : "#importDataForm-content"
         }).setupListeners();
 
         function selectDelim($li) {

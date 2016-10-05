@@ -5,30 +5,35 @@ window.TblAnim = (function($, TblAnim) {
     var rowInfo = {};
 
     /* START COLUMN RESIZING */
-    TblAnim.startColResize = function(el, event, options) {
+    TblAnim.startColResize = function($el, event, options) {
+        options = options || {};
+
         var rescol = gRescol;
-        var $table = el.closest('.dataTable');
-        var colNum;
-        var $th = el.closest('th');
+        var $table = $el.closest('.dataTable');
+        var target = options.target;
+        var colNum = null;
+        var $th = $el.closest('th');
         rescol.$th = $th;
-        if (!options || options.target !== "datastore") {
-            rescol.tableId = xcHelper.parseTableId($table);
-            colNum = xcHelper.parseColNum(el.parent().parent());
-        } else if (options && options.target === "datastore") {
+
+        if (target === "datastore") {
             rescol.isDatastore = true;
             rescol.$tableWrap = $('#dsTableWrap');
             rescol.$dsTable = $('#dsTable');
             rescol.$previewTable = $('#previewTable');
+        } else {
+            rescol.tableId = xcHelper.parseTableId($table);
+            colNum = xcHelper.parseColNum($th);
         }
+
         event.preventDefault();
         rescol.mouseStart = event.pageX;
-        rescol.grabbedCell = el.parent().parent();  // the th
+        rescol.grabbedCell = $th;  // the th
         rescol.startWidth = rescol.grabbedCell.outerWidth();
 
         rescol.index = colNum;
         rescol.newWidth = rescol.startWidth;
         rescol.table = $table;
-        rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
+        rescol.tableHead = $el.closest('.xcTableWrap').find('.xcTheadWrap');
 
         rescol.tempCellMinWidth = rescol.cellMinWidth;
         rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
@@ -41,6 +46,8 @@ window.TblAnim = (function($, TblAnim) {
         gMouseStatus = "checkingResizeCol";
         $(document).on('mousemove.checkColResize', checkColResize);
         $(document).on('mouseup.endColResize', endColResize);
+
+        dblClickResize($el, target, options.minWidth);
     };
 
     function checkColResize(event) {
@@ -68,7 +75,8 @@ window.TblAnim = (function($, TblAnim) {
             });
 
             $table.addClass('resizingCol');
-            $('.xcTheadWrap').find('.dropdownBox').addClass('dropdownBoxHidden');
+            $('.xcTheadWrap').find('.dropdownBox')
+                            .addClass('dropdownBoxHidden');
 
             var cursorStyle = '<div id="resizeCursor"></div>';
             $('body').addClass('tooltipOff').append(cursorStyle);
@@ -166,6 +174,140 @@ window.TblAnim = (function($, TblAnim) {
         }
     }
 
+    function dblClickResize($el, target, minWidth) {
+        minWidth = minWidth || 17;
+        // $el is the colGrab div inside the header
+        gRescol.clicks++;  //count clicks
+        if (gRescol.clicks === 1) {
+            gRescol.timer = setTimeout(function() {
+                gRescol.clicks = 0; //after action performed, reset counter
+            }, gRescol.delay);
+        } else {
+            $('#resizeCursor').remove();
+            $('body').removeClass('tooltipOff');
+            $el.tooltip('destroy');
+            gMouseStatus = null;
+            $(document).off('mousemove.checkColResize');
+            $(document).off('mousemove.onColResize');
+            $(document).off('mouseup.endColResize');
+            unhideOffScreenTables();
+            xcHelper.reenableTextSelection();
+            $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
+            $('#col-resizeCursor').remove();
+            clearTimeout(gRescol.timer);    //prevent single-click action
+            gRescol.clicks = 0;      //after action performed, reset counter
+
+            var tableId;
+            var $th = $el.closest('th');
+            var $table = $th.closest('.dataTable');
+            $table.removeClass('resizingCol');
+
+            // check if unhiding
+            if (target !== "datastore" && $th.outerWidth() === 15) {
+                tableId = $table.data('id');
+                var index = xcHelper.parseColNum($th);
+                $th.addClass('userHidden');
+                $table.find('td.col' + index).addClass('userHidden');
+                gTables[tableId].tableCols[index - 1].isHidden = true;
+                ColManager.unhideCols([index], tableId, true);
+                return;
+            }
+
+            var oldColumnWidths = [];
+            var newColumnWidths = [];
+            var oldWidthStates = [];
+            var newWidthStates = [];
+
+            $table.find('.colGrab')
+                  .removeAttr('data-toggle data-original-title title');
+
+            var $selectedCols;
+            if (target === "datastore") {
+                $selectedCols = $table.find('th.selectedCol');
+            } else {
+                $selectedCols = $table.find('th.selectedCell');
+            }
+            var numSelectedCols = $selectedCols.length;
+            if (numSelectedCols === 0) {
+                $selectedCols = $th;
+                numSelectedCols = 1;
+            }
+            var indices = [];
+            var colNums = [];
+            $selectedCols.each(function() {
+                indices.push($(this).index() - 1);
+                colNums.push($(this).index());
+            });
+
+            var includeHeader = false;
+
+            if (target === "datastore") {
+                $selectedCols.find('.colGrab').each(function() {
+                    if (!$(this).data('sizedtoheader')) {
+                        includeHeader = true;
+                        return false;
+                    }
+                });
+
+                $selectedCols.find('.colGrab').each(function() {
+                    $(this).data('sizedtoheader', includeHeader);
+                });
+
+            } else {
+                tableId = $table.data('id');
+                var columns = gTables[tableId].tableCols;
+                var i;
+                for (i = 0; i < numSelectedCols; i++) {
+                    if (!columns[indices[i]].sizedToHeader) {
+                        includeHeader = true;
+                        break;
+                    }
+                }
+                for (i = 0; i < numSelectedCols; i++) {
+                    oldWidthStates.push(columns[indices[i]].sizedToHeader);
+                    columns[indices[i]].sizedToHeader = includeHeader;
+                    newWidthStates.push(includeHeader);
+                    oldColumnWidths.push(columns[indices[i]].width);
+                }
+            }
+
+            $selectedCols.each(function() {
+                newColumnWidths.push(autosizeCol($(this), {
+                    "dblClick"      : true,
+                    "minWidth"      : minWidth,
+                    "unlimitedWidth": true,
+                    "includeHeader" : includeHeader,
+                    "datastore"     : target === "datastore"
+                }));
+            });
+
+            if (target !== "datastore") {
+                var table = gTables[tableId];
+                var resizeTo;
+                if (includeHeader) {
+                    resizeTo = "sizeToHeader";
+                } else {
+                    resizeTo = "sizeToContents";
+                }
+
+                SQL.add("Resize Columns", {
+                    "operation"      : SQLOps.ResizeTableCols,
+                    "tableName"      : table.tableName,
+                    "tableId"        : tableId,
+                    "resizeTo"       : resizeTo,
+                    "columnNums"     : colNums,
+                    "oldColumnWidths": oldColumnWidths,
+                    "newColumnWidths": newColumnWidths,
+                    "oldWidthStates" : oldWidthStates,
+                    "newWidthStates" : newWidthStates,
+                    "htmlExclude"    : ["columnNums", "oldColumnWidths",
+                                        "newColumnWidths","oldWidthStates",
+                                        "newWidthStates"]
+                });
+            }
+        }
+    }
+
     // used for replaying and redo/undo
     TblAnim.resizeColumn = function(tableId, colNum, fromWidth, toWidth,
                                     widthState) {
@@ -189,7 +331,8 @@ window.TblAnim = (function($, TblAnim) {
         var oldWidthState = progCol.sizedToHeader;
         if (widthState == null) {
             if (Math.abs(toWidth - fromWidth) > 1) {
-                // set autoresize to header only if column moved at least 2 pixels
+                // set autoresize to header only if
+                // column moved at least 2 pixels
                 progCol.sizedToHeader = false;
             }
         } else {
@@ -207,8 +350,8 @@ window.TblAnim = (function($, TblAnim) {
             "toWidth"      : toWidth,
             "oldWidthState": oldWidthState,
             "newWidthState": newWidthState,
-            "htmlExclude"  : ["colNum", "fromWidth", "toWidth", "oldWidthState",
-                              "newWidthState"]
+            "htmlExclude"  : ["colNum", "fromWidth", "toWidth",
+                                "oldWidthState", "newWidthState"]
         });
     };
 
