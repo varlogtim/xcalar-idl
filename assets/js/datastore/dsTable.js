@@ -533,8 +533,15 @@ window.DSTable = (function($, DSTable) {
             var key = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
             var type = columnsType[i];
+            var width = getTextWidth(null, key, {
+                "defaultHeaderStyle": true
+            });
+
+            width += 2; // text will overflow without it
+            width = Math.max(width, 130); // min of 130px
+
             th +=
-                '<th class="' + thClass + '">' +
+                '<th class="' + thClass + '" style="width:' + width + 'px;">' +
                     '<div class="header type-' + type + '" ' +
                          'data-type=' + type + '>' +
                         '<div class="colGrab"></div>' +
