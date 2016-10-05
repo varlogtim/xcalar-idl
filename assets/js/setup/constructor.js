@@ -2657,6 +2657,8 @@ ModalHelper.prototype = {
                 $modalBg.fadeIn(300, function() {
                     Tips.refresh();
                     deferred.resolve();
+                    $modalBg.css('display', 'block'); // when alert modal opens
+                    // and drop table modal is open
                 });
             }
         } else {
@@ -2688,14 +2690,16 @@ ModalHelper.prototype = {
         var deferred = jQuery.Deferred();
         var options = $.extend(this.options, extraOptions) || {};
         var $modal = this.$modal;
-
+        var numModalsOpen = $('.modalContainer:visible').length;
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.find(".focusable").off(".xcModal")
                                   .removeClass("focusable");
         this.enableSubmit();
-        $("body").removeClass("no-selection");
-
+        if (numModalsOpen) {
+            $("body").removeClass("no-selection");
+        }
+        
         if (options.close != null && options.close instanceof Function) {
             jQuery.when(options.close())
             .then(deferred.resolve)
@@ -2709,20 +2713,17 @@ ModalHelper.prototype = {
             $modal.hide();
             if (options.noBackground) {
                 Tips.refresh();
-                if (options.afterClose != null &&
-                    options.afterClose instanceof Function) {
-                    options.afterClose();
-                }
                 deferred.resolve();
             } else {
-                $modalBg.fadeOut(fadeOutTime, function() {
+                if (numModalsOpen < 2) {
+                    $modalBg.fadeOut(fadeOutTime, function() {
+                        Tips.refresh();
+                        deferred.resolve();
+                    });
+                } else {
                     Tips.refresh();
-                    if (options.afterClose != null &&
-                        options.afterClose instanceof Function) {
-                        options.afterClose();
-                    }
                     deferred.resolve();
-                });
+                }
             }
         }
 
@@ -2787,14 +2788,10 @@ ModalHelper.prototype = {
     toggleBG: function(tableId, isHide, options) {
         var $modalBg = $("#modalBackground");
         var $mainFrame = $("#mainFrame");
-        var $sideBarModal = $("#sideBarModal");
-        var $menuPanel = $("#bottomMenu");
         var $tableWrap;
 
         if (tableId === "all") {
             $tableWrap = $('.xcTableWrap:visible');
-        } else {
-            $tableWrap = $("#xcTableWrap-" + tableId);
         }
 
         options = options || {};
@@ -2813,30 +2810,17 @@ ModalHelper.prototype = {
                 $mainFrame.removeClass('modalOpen');
             });
 
-            $sideBarModal.fadeOut(fadeOutTime, function() {
-                $(this).removeClass('light');
-                $menuPanel.removeClass('modalOpen');
-            });
-
-            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .removeClass('tableDarkened tableOpSectionDarkened');
-
-            $tableWrap.removeClass('modalOpen');
+            if (tableId) {
+                $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                          .removeClass('tableDarkened tableOpSectionDarkened');
+                $tableWrap.removeClass('modalOpen');
+            }
         } else {
             // when open the modal
-            $tableWrap.addClass('modalOpen');
-            if (tableId !== "all") {
-                // special styling for when opSection is open
-                if (options.opSection) {
-                    $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                                 .addClass('tableDarkened tableOpSectionDarkened');
-                } else {
-                    $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                                 .addClass('tableDarkened');
-                }
+            if (tableId) { 
+                $tableWrap.addClass('modalOpen');
             }
 
-            $menuPanel.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');
             var fadeInTime;
             if (options.time == null) {
@@ -2844,7 +2828,6 @@ ModalHelper.prototype = {
             } else {
                 fadeInTime = options.time;
             }
-            $sideBarModal.addClass('light').fadeIn(fadeInTime);
             $modalBg.addClass('light').fadeIn(fadeInTime);
         }
     },
@@ -3148,13 +3131,7 @@ FormHelper.prototype = {
                 Tips.refresh();
             });
         } else {
-            // var fadeOutTime = gMinModeOn ? 0 : 300;
-            // $form.hide();
             Tips.refresh();
-            if (options.afterClose != null &&
-                options.afterClose instanceof Function) {
-                options.afterClose();
-            }
             deferred.resolve();
         }
 
@@ -3482,7 +3459,6 @@ MenuHelper.prototype = {
             $dropDownList.addClass('yesclickable');
 
             $dropDownList.on("click", function(event) {
-                // console.log('toggling', this.$list.parents());
                 if (self.exclude &&
                     $(event.target).closest(self.exclude).length) {
                     return;

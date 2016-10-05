@@ -819,6 +819,10 @@ input {
     display: none;
     z-index: 100;
 
+    &.highZindex {
+        z-index: @z-index-locked + 2;
+    }
+
     .boxInnerWrap {
         .position(relative);
         .size(@width: 240px, @min-height: 100px, @max-height: 300px);

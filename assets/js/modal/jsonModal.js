@@ -11,7 +11,6 @@ window.JSONModal = (function($, JSONModal) {
     var jsonData = [];
     var modalHelper;
     var searchHelper;
-    var notObject = false; // true if in preview mode due to truncated text
     var lastModeIsProject = false; // saves project mode state when closing modal
     var isSaveModeOff = false;
     var refCounts = {}; // to track clicked json tds
@@ -732,10 +731,13 @@ window.JSONModal = (function($, JSONModal) {
             $('.jsonModalHighlightBox').remove();
             refCounts = {};
             toggleModal(null, true, 200);
+            
+            $modalBg.removeClass('light');
+            if ($('.modalContainer:visible').length < 2) {
+                $modalBg.hide();
+            } 
             $jsonModal.hide().width(500);
-            $modalBg.hide().removeClass('light');
 
-            $('#sideBarModal').hide();
             $('#bottomMenu').removeClass('modalOpen');
             $('.tooltip').hide();
         }});
@@ -763,7 +765,6 @@ window.JSONModal = (function($, JSONModal) {
         jsonData = [];
         comparisonObjs = {};
         $jsonText = null;
-        notObject = false;
     }
 
     function refreshJsonModal($jsonTd, isArray, isModalOpen, type) {
@@ -791,7 +792,6 @@ window.JSONModal = (function($, JSONModal) {
             $jsonModal.height(height).width(500);
 
             if (gMinModeOn) {
-                $('#sideBarModal').show();
                 $modalBg.show();
                 $jsonModal.show();
                 toggleModal($jsonTd, false, 0);
@@ -868,7 +868,6 @@ window.JSONModal = (function($, JSONModal) {
             if (type === "string") {
                 prettyJson = '"' + prettyJson + '"';
             }
-            notObject = true;
         } else {
             var checkboxes = true;
             var tableMeta = gTables[tableId].backTableMeta;
@@ -1276,7 +1275,7 @@ window.JSONModal = (function($, JSONModal) {
 
     function toggleModal($jsonTd, isHide, time) {
         if (isDataCol && !isHide) {
-            modalHelper.toggleBG("all", isHide, {"time": time});
+            modalHelper.toggleBG("all", false, {"time": time});
         }
         var noTimer = false;
         if (time === 0) {
@@ -1329,7 +1328,6 @@ window.JSONModal = (function($, JSONModal) {
                     shortTimer = 0;
                     longTimer = 0;
                 }
-                $('#sideBarModal').fadeIn(longTimer);
                 $('#bottomMenu').addClass('modalOpen');
                 $modalBg.addClass('light').fadeIn(longTimer);
                 setTimeout(function() {

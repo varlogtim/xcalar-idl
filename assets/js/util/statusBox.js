@@ -11,6 +11,8 @@ window.StatusBox = (function($, StatusBox){
     //      offsetY: int,
     //      side: 'top', 'bottom', 'left', 'right' (if not provided, box will
     //      default to the right side of the $target)
+    //      highZindex: boolean, if true will add class to bring statusbox 
+    //                  z-index above locked background z-index
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
         $doc = $(document);
@@ -28,7 +30,11 @@ window.StatusBox = (function($, StatusBox){
             $doc.mousedown(hideStatusBox);
             $doc.keydown(hideStatusBox);
         }
-        
+        if (options.highZindex) {
+            $statusBox.addClass('highZindex');
+        } else {
+            $statusBox.removeClass('highZindex');
+        }
 
         // position the message
         $statusBox.addClass("active"); // shows the box

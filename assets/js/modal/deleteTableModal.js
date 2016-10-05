@@ -43,7 +43,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         });
 
         // click checkbox
-        $modal.on("click", ".listSection .checkboxSection", function() {
+        $modal.on("click", ".listSection .grid-unit", function() {
             $(this).find(".checkbox").toggleClass("checked");
         });
 
@@ -154,12 +154,15 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         reverseList[TableType.Orphan] = false;
         reverseList[TableType.Archived] = false;
         reverseList[TableType.Active] = false;
+
+        $modal.find('.grid-unit.failed').removeClass('failed');
     }
 
     function submitForm() {
         var orphanDef = deleteTableHelper(TableType.Orphan);
         var archivedDef = deleteTableHelper(TableType.Archived);
         var activeDef = deleteTableHelper(TableType.Active);
+        var failed = false;
 
         var timer = setTimeout(function() {
             // if delete takes too long, show the loading section
@@ -173,14 +176,17 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             xcHelper.showRefreshIcon($modal);
         })
         .fail(function(error1, error2, error3) {
+            failed = true;
             var error = error1 || error2 || error3;
-            // XXX TODO: well handle the error
             console.error(error);
         })
         .always(function() {
             clearTimeout(timer);
             $modal.removeClass("load");
             populateTableLists();
+            if (failed) {
+                failHandler(arguments);
+            }
             modalHelper.enableSubmit();
         });
     }
@@ -214,8 +220,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         if (tablesToDel.length === 0) {
             return PromiseHelper.resolve();
         }
-
-        return TblManager.deleteTables(tablesToDel, type);
+        var noAlert = true;
+        return TblManager.deleteTables(tablesToDel, type, noAlert);
     }
 
     function getTableSizeMap() {
@@ -278,6 +284,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         sortTableList(orphanList, TableType.Orphan);
         sortTableList(archivedList, TableType.Archived);
         sortTableList(activeList, TableType.Active);
+
+        $modal.find('.modalMain').find('.checkbox').removeClass('checked');
     }
 
     function sortTableList(tableList, type, sortKey) {
@@ -402,6 +410,36 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         }
 
         $container.find(".listSection").html(html);
+    }
+
+    function failHandler(args) {
+        var $containers = $("#deleteTableModal-orphan, " + 
+                            "#deleteTableModal-archived, " +
+                            "#deleteTableModal-active");
+        var errorMsg = "";
+        for (var i = 0; i < args.length; i++) {
+            if (args[i] && args[i].fails) {
+                if (!errorMsg) {
+                    errorMsg = args[i].fails[0].error;
+                }
+                for (var j = 0; j < args[i].fails.length; j++) {
+                    var tableName = args[i].fails[j].tables;
+
+                    var $gridUnit = $containers.find('.grid-unit')
+                        .filter(function() {
+                           $grid = $(this);
+                           return ($grid.find('.name').text() === tableName);
+                        });
+                    $gridUnit.addClass('failed');
+                }
+            }
+        }
+     
+        var $firstGrid = $containers.find('.grid-unit.failed').eq(0);
+        StatusBox.show(errorMsg, $firstGrid, false, {
+            "side": "left",
+            "highZindex": true
+        });
     }
 
     return DeleteTableModal;

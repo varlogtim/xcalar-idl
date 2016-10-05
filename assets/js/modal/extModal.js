@@ -2,8 +2,6 @@ window.ExtModal = (function($, ExtModal){
     var $extModal;   // $("#extModal")
     var $btnSection; // $("#extActions")
 
-    // var modalHelper;
-
     /**
         Options currently has one option only. onClose which should
         be a function decl.

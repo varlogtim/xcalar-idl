@@ -658,21 +658,25 @@ window.TblManager = (function($, TblManager) {
         }
 
         var defArray = [];
+        var tableNames = [];
 
         if (tableType === TableType.Orphan) {
             // delete orphaned
             tables.forEach(function(tableName) {
+                tableNames.push(tableName);
                 var def = delOrphanedHelper(tableName, txId);
                 defArray.push(def);
             });
         } else if (tableType === TableType.Undone) {
             tables.forEach(function(tableId) {
+                tableNames.push(gTables[tableId].getName());
                 var def = delUndoneTableHelper(tableId);
                 defArray.push(def);
             });
         }
         else {
             tables.forEach(function(tableId) {
+                tableNames.push(gTables[tableId].getName());
                 var def = delTableHelper(tableId, tableType, txId);
                 defArray.push(def);
             });
@@ -689,15 +693,16 @@ window.TblManager = (function($, TblManager) {
             deferred.resolve();
         })
         .fail(function() {
-            var success = tableDeleteFailHandler(arguments, tables, noAlert,
+            var res = tableDeleteFailHandler(arguments, tableNames, noAlert,
                                                  noLog, txId);
-            if (success) {
+            res.errors = arguments;
+            if (res.success) {
                 if (tableType === TableType.Undone) {
                     KVStore.commit();
                 }
-                deferred.resolve(arguments);
+                deferred.resolve(res);
             } else {
-                deferred.reject(arguments);
+                deferred.reject(res);
             }
         });
 
@@ -1189,16 +1194,19 @@ window.TblManager = (function($, TblManager) {
         gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
     };
 
+    // returns {hasSuccess:boolean, 
+    //          fails: [{tables: "tableName", error: "error"}]}
     function tableDeleteFailHandler(results, tables, noAlert, noLog, txId) {
         var hasSuccess = false;
         var fails = [];
         var errorMsg = "";
         var tablesMsg = "";
-        var failedTables = "";
+        var failedTablesStr = "";
+        var failedTables = [];
         for (var i = 0, len = results.length; i < len; i++) {
             if (results[i] != null && results[i].error != null) {
                 fails.push({tables: tables[i], error: results[i].error});
-                failedTables += tables[i] + ", ";
+                failedTablesStr += tables[i] + ", ";
             } else {
                 hasSuccess = true;
             }
@@ -1206,12 +1214,13 @@ window.TblManager = (function($, TblManager) {
 
         var numFails = fails.length;
         if (numFails) {
-            failedTables = failedTables.substr(0, failedTables.length - 2);
+            failedTablesStr = failedTablesStr.substr(0, 
+                              failedTablesStr.length - 2);
             if (numFails > 1) {
-                tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTables;
+                tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTablesStr;
             } else {
                 tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
-                    "name": failedTables
+                    "name": failedTablesStr
                 });
             }
         }
@@ -1229,7 +1238,10 @@ window.TblManager = (function($, TblManager) {
                 "noAlert": noAlert
             });
         }
-        return (hasSuccess);
+        return ({
+            hasSuccess: hasSuccess,
+            fails: fails
+        });
     }
 
     function infScrolling(tableId) {
