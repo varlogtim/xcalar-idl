@@ -241,8 +241,7 @@ window.DSCart = (function($, DSCart) {
             }
 
             deferred.reject(error);
-        })
-        .always(removeWaitCursor);
+        });
 
         return deferred.promise();
     };

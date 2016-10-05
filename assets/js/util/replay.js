@@ -943,13 +943,13 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.BookmarkRow] = function(options) {
         var args = getArgs(options);
-        bookmarkRow.apply(window, args);
+        TblManager.bookmarkRow.apply(window, args);
         return PromiseHelper.resolve(null);
     };
 
     replayFuncs[SQLOps.RemoveBookmark] = function(options) {
         var args = getArgs(options);
-        unbookmarkRow.apply(window, args);
+        TblManager.unbookmarkRow.apply(window, args);
         return PromiseHelper.resolve(null);
     };
 

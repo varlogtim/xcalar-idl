@@ -405,6 +405,48 @@ describe('Constructor Test', function() {
             expect(table.prefixColor).to.be.an('object');
             expect(table.getPrefixColor("test")).to.equal("white");
         });
+
+        it("table should add and remove book mark", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+
+            expect(table.bookmarks).to.be.an('array')
+            .and.to.have.length(0);
+
+            // case 1
+            table.addBookmark(1);
+            expect(table.bookmarks).to.have.length(1);
+            expect(table.bookmarks[0]).to.equal(1);
+
+            // case 2
+            table.addBookmark(1);
+            expect(table.bookmarks).to.have.length(1);
+
+            // case 3
+            try {
+                table.addBookmark(null);
+            } catch (error) {
+                expect(error).not.to.be.null;
+            }
+
+            // unbookmark
+            // case 1
+            table.removeBookmark(2);
+            expect(table.bookmarks).to.have.length(1);
+
+            // case 2
+            table.removeBookmark(1);
+            expect(table.bookmarks).to.have.length(0);
+
+            // case 3
+            try {
+                table.removeBookmark(null);
+            } catch (error) {
+                expect(error).not.to.be.null;
+            }
+        });
     });
 
     describe('Meta Constructor Test', function() {

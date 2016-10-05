@@ -1194,6 +1194,47 @@ window.TblManager = (function($, TblManager) {
         gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
     };
 
+    TblManager.bookmarkRow = function(rowNum, tableId) {
+        //XXX allow user to select color in future?
+        var $table = $('#xcTable-' + tableId);
+        var $td = $table.find('.row' + rowNum + ' .col0');
+        var table = gTables[tableId];
+
+        $td.addClass('rowBookmarked');
+        xcHelper.changeTooltipText($td.find('.idSpan'), TooltipTStr.Bookmarked);
+        $('.tooltip').hide();
+        RowScroller.addBookmark(rowNum, tableId);
+        table.addBookmark(rowNum);
+
+        SQL.add("Bookmark Row", {
+            "operation": SQLOps.BookmarkRow,
+            "tableId"  : tableId,
+            "tableName": table.getName(),
+            "rowNum"   : rowNum
+        });
+    };
+
+    TblManager.unbookmarkRow = function(rowNum, tableId) {
+        var $table = $('#xcTable-' + tableId);
+        var $td = $table.find('.row' + rowNum + ' .col0');
+        var table = gTables[tableId];
+
+        $td.removeClass('rowBookmarked');
+        xcHelper.changeTooltipText($td.find('.idSpan'), TooltipTStr.Bookmark);
+
+
+        $('.tooltip').hide();
+        RowScroller.removeBookmark(rowNum, tableId);
+        table.removeBookmark(rowNum);
+
+        SQL.add("Remove Bookmark", {
+            "operation": SQLOps.RemoveBookmark,
+            "tableId"  : tableId,
+            "tableName": table.getName(),
+            "rowNum"   : rowNum
+        });
+    };
+
     // returns {hasSuccess:boolean, 
     //          fails: [{tables: "tableName", error: "error"}]}
     function tableDeleteFailHandler(results, tables, noAlert, noLog, txId) {
@@ -1240,7 +1281,7 @@ window.TblManager = (function($, TblManager) {
         }
         return ({
             hasSuccess: hasSuccess,
-            fails: fails
+            fails     : fails
         });
     }
 
@@ -1890,9 +1931,9 @@ window.TblManager = (function($, TblManager) {
             var tableId = xcHelper.parseTableId($(this).closest('table'));
             var rowNum = parseInt($(this).closest('tr').attr('class').substring(3));
             if (gTables[tableId].bookmarks.indexOf(rowNum) < 0) {
-                bookmarkRow(rowNum, tableId);
+                TblManager.bookmarkRow(rowNum, tableId);
             } else {
-                unbookmarkRow(rowNum, tableId);
+                TblManager.unbookmarkRow(rowNum, tableId);
             }
         });
 

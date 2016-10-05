@@ -585,13 +585,13 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.BookmarkRow] = function(options) {
         focusTableHelper(options);
-        unbookmarkRow(options.rowNum, options.tableId);
+        TblManager.unbookmarkRow(options.rowNum, options.tableId);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RemoveBookmark] = function(options) {
         focusTableHelper(options);
-        bookmarkRow(options.rowNum, options.tableId);
+        TblManager.bookmarkRow(options.rowNum, options.tableId);
         return PromiseHelper.resolve(null);
     };
 

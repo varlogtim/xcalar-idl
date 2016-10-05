@@ -232,10 +232,8 @@ window.RowScroller = (function($, RowScroller) {
 
         $rowScrollerArea.append(rowScrollerHTML);
 
-        var rows = gTables[tableId].bookmarks;
-        for (var i = 0, numRows = rows.length; i < numRows; i++) {
-            RowScroller.addBookMark(rows[i], tableId);
-        }
+        var bookmarks = gTables[tableId].bookmarks;
+        RowScroller.addBookmark(bookmarks, tableId);
 
         if ($(".xcTable").length > 1) {
             $(".rowScroller").last().hide();
@@ -282,21 +280,32 @@ window.RowScroller = (function($, RowScroller) {
     };
 
     // for book mark tick
-    RowScroller.addBookMark = function(rowNum, tableId) {
-        var table = gTables[tableId];
-        var leftPos = 100 * (rowNum / table.resultSetCount);
-        var title = xcHelper.replaceMsg(ScrollTStr.BookMark, {
-            "row": (rowNum + 1)
+    RowScroller.addBookmark = function(rowNums, tableId) {
+        if (rowNums != null && !(rowNums instanceof Array)) {
+            rowNums = [rowNums];
+        }
+
+        var totalRows = gTables[tableId].resultSetCount;
+        var bookmark = "";
+
+        rowNums.forEach(function(rowNum) {
+            var leftPos = 100 * (rowNum / totalRows);
+            var title = xcHelper.replaceMsg(ScrollTStr.BookMark, {
+                "row": (rowNum + 1)
+            });
+
+            bookmark += '<div class="bookmark bkmkRow' + rowNum + '"' +
+                       ' style="left:' + leftPos + '%;"' +
+                       ' data-toggle="tooltip"' +
+                       ' data-placement="bottom"' +
+                       ' data-original-title="' + title + '"' +
+                       ' data-container="body"></div>';
         });
-        var bookmark = '<div class="bookmark bkmkRow' + rowNum + '" ' +
-                       'style="left:' + leftPos + '%;" data-toggle="tooltip" ' +
-                       ' data-placement="bottom" ' +
-                       'data-container="body" title="' + title + '"></div>';
-        var $rowScroller = $('#rowScroller-' + tableId);
-        $rowScroller.append(bookmark);
+
+        $('#rowScroller-' + tableId).append(bookmark);
     };
 
-    RowScroller.removeBookMark = function(rowNum, tableId) {
+    RowScroller.removeBookmark = function(rowNum, tableId) {
         var $rowScroller = $('#rowScroller-' + tableId);
         $rowScroller.find('.bkmkRow' + rowNum).remove();
     };

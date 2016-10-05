@@ -988,46 +988,6 @@ function isTableScrollable(tableId) {
     }
 }
 
-function bookmarkRow(rowNum, tableId) {
-    //XXX allow user to select color in future?
-    var $table = $('#xcTable-' + tableId);
-    var td = $table.find('.row' + rowNum + ' .col0');
-    td.addClass('rowBookmarked');
-    td.find('.idSpan').attr('data-original-title', TooltipTStr.Bookmarked);
-    td.find('.idSpan').attr('title', '');
-    $('.tooltip').hide();
-    RowScroller.addBookMark(rowNum, tableId);
-    var table = gTables[tableId];
-    if (table.bookmarks.indexOf(rowNum) < 0) {
-        table.bookmarks.push(rowNum);
-    }
-    SQL.add("Bookmark Row", {
-        "operation": SQLOps.BookmarkRow,
-        "tableId"  : tableId,
-        "tableName": gTables[tableId].tableName,
-        "rowNum"   : rowNum
-    });
-}
-
-function unbookmarkRow(rowNum, tableId) {
-    var $table = $('#xcTable-' + tableId);
-    var td = $table.find('.row' + rowNum + ' .col0');
-    td.removeClass('rowBookmarked');
-    td.find('.idSpan').attr('title', '');
-    td.find('.idSpan').attr('data-original-title', TooltipTStr.Bookmark);
-    $('.tooltip').hide();
-    RowScroller.removeBookMark(rowNum, tableId);
-    var table = gTables[tableId];
-    var index = table.bookmarks.indexOf(rowNum);
-    table.bookmarks.splice(index, 1);
-    SQL.add("Remove Bookmark", {
-        "operation": SQLOps.RemoveBookmark,
-        "tableId"  : tableId,
-        "tableName": gTables[tableId].tableName,
-        "rowNum"   : rowNum
-    });
-}
-
 function moveFirstColumn($targetTable) {
     var rightOffset;
     var datasetPreview;

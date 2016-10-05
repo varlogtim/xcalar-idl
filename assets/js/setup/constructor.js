@@ -485,6 +485,29 @@ TableMeta.prototype = {
             return "";
         }
         return self.prefixColor[prefix] || "";
+    },
+
+    addBookmark: function(rowNum) {
+        xcHelper.assert(Number.isInteger(rowNum));
+
+        if (this.bookmarks.indexOf(rowNum) < 0) {
+            this.bookmarks.push(rowNum);
+        } else {
+            // error case
+            console.error("Duplicate bookmark in", rowNum);
+        }
+    },
+
+    removeBookmark: function(rowNum) {
+        xcHelper.assert(Number.isInteger(rowNum));
+
+        var index = this.bookmarks.indexOf(rowNum);
+        if (index >= 0) {
+            this.bookmarks.splice(index, 1);
+        } else {
+            // error case
+            console.error("No bookmark in", rowNum);
+        }
     }
 };
 

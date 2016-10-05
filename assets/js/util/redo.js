@@ -354,13 +354,13 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.BookmarkRow] = function(options) {
         focusTableHelper(options);
-        bookmarkRow(options.rowNum, options.tableId);
+        TblManager.bookmarkRow(options.rowNum, options.tableId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RemoveBookmark] = function(options) {
         focusTableHelper(options);
-        unbookmarkRow(options.rowNum, options.tableId);
+        TblManager.unbookmarkRow(options.rowNum, options.tableId);
         return PromiseHelper.resolve(null);
     };
 
