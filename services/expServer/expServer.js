@@ -202,8 +202,6 @@ app.post("/runInstaller", function(req, res) {
                      {mode: parseInt('600', 8)});
     }
 
-    fs.writeFile(licenseLocation, "1234-1234-1234-1234");
-
     var hostArray = credArray.hostnames;
     fs.writeFile(hostnameLocation, hostArray.join("\n"));
 

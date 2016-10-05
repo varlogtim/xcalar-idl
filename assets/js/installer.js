@@ -683,6 +683,9 @@ window.Installer = (function(Installer, $) {
                         clearInterval(intervalTimer);
                         deferred.resolve();
                     } else if (ret.status === Status.Error) {
+                        if (ret.errorLog) {
+                            console.log(ret.errorLog);
+                        }
                         clearInterval(intervalTimer);
                         deferred.reject("Status Error",
                                         JSON.stringify(ret.retVal));
