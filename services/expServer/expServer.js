@@ -10,11 +10,30 @@ var https = require("https");
 require('shelljs/global');
 var ldap = require('ldapjs');
 var exec = require('child_process').exec;
+var jQuery;
+
+require("jsdom").env("", function(err, window) {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    jQuery = require("jquery")(window);
+});
 
 var strictSecurity = false;
 var config = require('./ldapConfig.json');
 var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
 var app = express();
+
+var users = new Map();
+var loginId = 0;
+var UserInformation = {
+    loginId: 0,
+    entry_count: 0,
+    mail: "",
+    firstName: "",
+    employeeType: ""
+}
 
 /**
 var privateKey = fs.readFileSync('cantor.int.xcalar.com.key', 'utf8');
@@ -321,147 +340,145 @@ app.post('/login', function(req, res) {
     var credArray = req.body;
     var hasError = false;
     var errors = [];
+
     if (credArray) {
         // here is the LDAP related material
         // it's activated if xiusername is in the request body
         if (("xiusername" in credArray) && ("xipassword" in credArray)) {
 
+            // Save the information of current user into a HashTable
+            var currentUser = Object.create(UserInformation);
+            currentUser.loginId = loginId;
+            users.set(loginId, currentUser);
+
+            // Configuration Parameter to Connect to LDAP
             var username = credArray["xiusername"];
             var password = credArray["xipassword"];
-
-            var client_url = config.ldap_uri.endsWith('/') ? config.ldap_uri : config.ldap_uri+'/';
-            console.log("client_url");
-            console.log(client_url);
-
+            var client_url = config.ldap_uri.endsWith('/') ?
+                             config.ldap_uri : config.ldap_uri+'/';
             var userDN = config.userDN;
             var searchFilter = config.searchFilter;
-
             var activeDir = (config.activeDir === 'true');
             var useTLS = (config.useTLS === 'true');
-
-            console.log('connecting to: '+client_url);
-
             var client = ldap.createClient({
                 url: client_url,
                 timeout: 10000,
                 connectTimeout: 20000
             });
-
-            // two kinds of LDAP, one to connect to an Active Directory,
-            // another to a generic OpenLDAP server.
             var searchOpts = {
-                filter: searchFilter !== "" ?
-                    searchFilter.replace('%username%',username) : undefined,
+                filter: searchFilter != "" ?
+                    searchFilter.replace('%username%',username):undefined,
                 scope: 'sub',
-                attributes: ['CN']
+                attributes: ['cn','mail','employeeType']
             };
-
             if (!activeDir) {
                 userDN = userDN.replace('%username%', username);
                 username = userDN;
             }
 
-            var bindCallback = _bindCallback(client, searchOpts, res, userDN);
-
-            var excpUnbindErr = _unbindError('Unbind for unexpected error');
-
+            // Use TLS Protocol
             if (useTLS) {
-
                 var tlsOpts = {
                     cert: trustedCerts,
                     rejectUnauthorized: strictSecurity
                 };
-
                 console.log("Starting TLS...");
                 client.starttls(tlsOpts, [], function(err) {
                     if (err) {
                         console.log("TLS startup error: " + err.message);
-                        res.send("LDAP TLS Failure!\n");
+                        responseError(res);
                         return;
                     }
-                    ldapAuth(username, password, client, bindCallback, excpUnbindErr, res);
                 });
-
-            } else {
-                ldapAuth(username, password, client, bindCallback, excpUnbindErr, res);
             }
-        } else {
-            res.send({"status": Status.Error});
-        }
-    } else {
-        res.send({"status": Status.Error});
-    }
-});
 
-function _unbindError(step) {
-    return function(err) {
-        if(err){
-            console.log(err.message);
-        } else {
-            console.log('client disconnected ' + step);
-        }
-    };
-}
-
-function _bindCallback(client, searchOpts, httpres, userDN) {
-    return function(err, res) {
-        var bindUnbindErr = _unbindError('Unbind after bind process');
-        var searchUnbindErr = _unbindError('Unbind after search process');
-
-        if (err) {
-            console.log(err.message);
-            client.unbind(bindUnbindErr);
-            httpres.send({"status": Status.Error});
-        } else {
-            console.log('connected');
-
-            client.search(userDN, searchOpts, function(error, search) {
-                console.log('Searching.....');
-                var entry_count = 0;
-
+            // LDAP Authentication
+            var deferred = jQuery.Deferred();
+            client.bind(username, password, function(error) {
+                if (error) {
+                    console.log("Bind Error! " + error.message)
+                    loginId++;
+                    deferred.reject();
+                } else {
+                    console.log('Bind Successful!');
+                    client.search(userDN, searchOpts,
+                                  function(error, search) {
+                        deferred.resolve(error, search, loginId);
+                        loginId++;
+                    });
+               }
+            });
+            deferred
+            .then(function(error, search, currLogin) {
+                var deferred2 = jQuery.Deferred();
                 search.on('searchEntry', function(entry) {
-                    console.log('Checking entries.....');
-                    if(entry.object){
-                        console.log('entry: %j ' + JSON.stringify(entry.object));
-                        entry_count++;
-                    }
+                    console.log('Searching entries.....');
+                    writeEntry(entry, currLogin);
                 });
 
                 search.on('error', function(error) {
-                    console.error('LDAP search error: ' + error.message);
-                    httpres.send({"status": Status.Error});
-                    client.unbind(searchUnbindErr);
+                    console.log('Search error: ' + error.message);
+                    deferred2.reject();
                 });
 
                 search.on('end', function(result) {
-                    console.log('status: ' + result.status);
-                    if (entry_count > 1) {
-                        console.log("More than one matched user was found");
-                        httpres.send({"status": Status.Ok});
-                    } else if (entry_count === 1) {
-                        httpres.send({"status": Status.Ok});
-                    } else {
-                        console.log("No matched user");
-                        httpres.send({"status": Status.Error});
-                    }
-                    client.unbind(searchUnbindErr);
+                    console.log('Finished Search!');
+                    client.unbind();
+                    deferred2.resolve(currLogin);
                 });
+                return deferred2.promise();
+            })
+            .then(function(currLogin) {
+                responseResult(currLogin, res);
+            })
+            .fail(function() {
+                client.unbind();
+                responseError(res);
             });
+        } else {
+             responseError(res);
         }
-    };
-}
+    } else {
+        responseError(res);
+    }
 
-function ldapAuth(username, password, client, bindCallback, bindErr, res) {
-    console.log('--- going to try to connect user ---');
-    try {
-        client.bind(username, password, bindCallback);
-    } catch(error) {
-        console.log(error);
-        client.unbind(bindErr);
-        res.send({"status": Status.Error});
+});
+
+
+function writeEntry(entry, loginId) {
+    if(entry.object){
+        var entryObject = JSON.parse(JSON.stringify(entry.object));
+        var user = users.get(loginId);
+        user.entry_count++;
+        user.mail = entryObject.mail;
+        user.firstName = entryObject.cn;
+        user.employeeType = entryObject.employeeType;
     }
 }
-// End of LDAP calls
+
+function responseResult(loginId, res) {
+    var user = users.get(loginId);
+    if (user.entry_count >= 1) {
+        if (user.entry_count > 1) {
+            console.log("More than one matched user was found");
+        }
+        // The employeeType is defined when adding new user
+        // "administrator" for administrators, "normal user"
+        // for normal users.
+        var isAdmin = (user.employeeType == "administrator");
+        res.send({"status": Status.Ok,
+                  "firstName ": user.firstName,
+                  "mail": user.mail,
+                  "isAdmin": isAdmin});
+    } else {
+        console.log("No matched user");
+        responseError(res);
+    }
+}
+
+function responseError(res) {
+    res.send({"status": Status.Error});
+}
 
 var httpServer = http.createServer(app);
 var port = 12124;
