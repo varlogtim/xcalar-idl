@@ -493,21 +493,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         new MenuHelper($extTriggerTableDropdown, {
-            "onSelect": function($li) {
-                var tableName = $li.text();
-                var $input = $extTriggerTableDropdown.find(".text");
-
-                if ($input.val() !== tableName) {
-                    // if switch table, then no trigger col
-                    triggerCol = null;
-                    $input.val(tableName);
-                    $li.addClass("selected")
-                        .siblings().removeClass("selected");
-
-                    var tableId = xcHelper.getTableId(tableName);
-                    xcHelper.centerFocusedTable(tableId, true);
-                }
-            }
+            "onSelect": selectTriggerTableDropdown
         }).setupListeners();
 
         // focus on table
@@ -694,9 +680,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         if ($input.val() === "") {
             var focusedTable = xcHelper.getFocusedTable();
             if (focusedTable != null) {
-                $extTriggerTableDropdown.find("li").filter(function() {
+                var $li = $extTriggerTableDropdown.find("li")
+                .filter(function() {
                     return $(this).data("id") === focusedTable;
-                }).click();
+                });
+
+                selectTriggerTableDropdown($li, true);
             }
         }
 
@@ -733,6 +722,25 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }, 300);
         } else {
             focusOnAvailableInput($argSection.find('input'));
+        }
+    }
+
+    function selectTriggerTableDropdown($li, noAnim) {
+        var tableName = $li.text();
+        var $input = $extTriggerTableDropdown.find(".text");
+
+        if ($input.val() !== tableName) {
+            // if switch table, then no trigger col
+            triggerCol = null;
+            $input.val(tableName);
+            $li.addClass("selected")
+                .siblings().removeClass("selected");
+
+            var tableId = xcHelper.getTableId(tableName);
+            var anim = !noAnim;
+            // this animation will mess up focus if true
+            // in setup time
+            xcHelper.centerFocusedTable(tableId, anim);
         }
     }
 
@@ -887,9 +895,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function focusOnAvailableInput($inputs) {
         var $input;
-        var $tempInput;
         $inputs.each(function() {
-            $tempInput = $(this);
+            var $tempInput = $(this);
             if ($tempInput.is(":visible") &&
                 $tempInput.val().trim().length === 0) {
                 $input = $tempInput;
@@ -899,6 +906,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         if (!$input) {
             $input = $inputs.last();
         }
+
         $input.focus();
         if ($input.attr('type') === "text") {
             $input.caret(-1);// put cursor at the end;
