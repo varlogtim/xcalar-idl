@@ -879,6 +879,7 @@ window.OperationsView = (function($, OperationsView) {
                                        .data('casted', casted)
                                        .data('casttype', type);
                 StatusBox.forceHide();
+                updateStrPreview();
             },
             "container": "#operationsView"
         });
@@ -1829,12 +1830,17 @@ window.OperationsView = (function($, OperationsView) {
                             arg[0] !== gAggVarPrefix &&
                             parsedType.indexOf("string") > -1 &&
                             !hasFuncFormat(arg)) {
+                    // one of the valid types is string
 
                     if (parsedType.length === 1) {
                         // if input only accepts strings
                         quotesNeeded.push(true);
                     } else if (existingTypes.hasOwnProperty("string")) {
-                        quotesNeeded.push(true);
+                        if (isNumberInQuotes(arg)) {
+                            quotesNeeded.push(false);
+                        } else {
+                            quotesNeeded.push(true);
+                        }
                     } else {
                         quotesNeeded.push(false);
                     }
@@ -1844,7 +1850,6 @@ window.OperationsView = (function($, OperationsView) {
             });
         });
 
-        
         updateStrPreview(noHighlight);
     }
 
@@ -1888,6 +1893,8 @@ window.OperationsView = (function($, OperationsView) {
                     var $input = $(this);
                     var $row = $input.closest('.row');
                     var noArgsChecked = $row.find('.noArg.checked').length > 0;
+                    var casted;
+
                     var val = $input.val();
 
                     val = parseColPrefixes(parseAggPrefixes(val));
@@ -1896,6 +1903,11 @@ window.OperationsView = (function($, OperationsView) {
                         // no quotes if noArgs and nothing in the input
                     } else if (quotesNeeded[i]) {
                         val = "\"" + val + "\"";
+                    }
+
+                    if ($input.data('casted')) {
+                        val = xcHelper.castStrHelper(val, 
+                                                     $input.data('casttype'));
                     }
 
                     if (numNonBlankArgs > 0) {
@@ -2122,6 +2134,28 @@ window.OperationsView = (function($, OperationsView) {
             }
         });
         return (existingTypes);
+    }
+
+    // used in cases where arg could be type string and number
+    function isNumberInQuotes(arg) {
+        if (arg[0] === "'" || arg[0] === '"') {
+            var quote = arg[0];
+            arg = arg.slice(1);
+            if (arg.length > 1 && arg[arg.length - 1] === quote) {
+                arg = arg.slice(0, arg.length - 1);
+                var parsedVal = parseFloat(arg);
+                if (!isNaN(parsedVal) && String(parsedVal) === arg) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+           
+        } else {
+            return false;
+        }
     }
 
     function submitForm() {
@@ -2568,6 +2602,7 @@ window.OperationsView = (function($, OperationsView) {
             }
         } else {
             resetCastOptions($errorInput);
+            updateStrPreview();
             StatusBox.show(errorText, $errorInput);
         }
     }
@@ -3397,7 +3432,7 @@ window.OperationsView = (function($, OperationsView) {
 
         if (shouldBeString) {
             // handle edge case
-            var parsedVal = parseInt(value);
+            var parsedVal = parseFloat(value);
             if (!isNaN(parsedVal) &&
                 String(parsedVal) === value &&
                 shouldBeNumber)
@@ -3412,6 +3447,9 @@ window.OperationsView = (function($, OperationsView) {
                     // when its number
                     value = parsedVal;
                 }
+            } else if (existingTypes.hasOwnProperty("string") && 
+                    isNumberInQuotes(value)) {
+                // keep value as is
             } else if (shouldBeBoolean &&
                         (value === "true" || value === "false")) {
                 shouldBeString = false;
@@ -4033,7 +4071,9 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.argumentFormatHelper = argumentFormatHelper;
         OperationsView.__testOnly__.parseType = parseType;
         OperationsView.__testOnly__.formulateMapFilterString = formulateMapFilterString;
+        OperationsView.__testOnly__.isNumberInQuotes = isNumberInQuotes;
         OperationsView.__testOnly__.submitForm = submitForm;
+        
     }
     /* End Of Unit Test Only */
 

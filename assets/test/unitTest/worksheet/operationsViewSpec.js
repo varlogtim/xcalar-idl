@@ -79,7 +79,30 @@ describe('OperationsView', function() {
         });
     });
 
-    describe.skip('group by', function() {
+    describe('function isNumberInQuotes', function() {
+        var func;
+        before(function() {
+            func = OperationsView.__testOnly__.isNumberInQuotes;
+        });
+
+        it('isNumberInQuotes() should return correctly', function() {
+            expect(func('"3"')).to.be.true;
+            expect(func("'3'")).to.be.true;
+            expect(func("'3.342'")).to.be.true;
+
+            expect(func("'3")).to.be.false;
+            expect(func("3'")).to.be.false;
+            expect(func('"3')).to.be.false;
+            expect(func(3)).to.be.false;
+            expect(func("3")).to.be.false;
+            expect(func("''3")).to.be.false;
+            expect(func("'3''")).to.be.false;
+            expect(func("'3t'")).to.be.false;
+            expect(func("'3.342t'")).to.be.false;
+        });
+    });
+
+    describe('group by', function() {
         var tableId;
         var $operationsModal;
         var $operationsView;
@@ -523,15 +546,11 @@ describe('OperationsView', function() {
 
 
         describe('map\'s search filter', function() {
-            // it('menu should be visible', function() {
-            //     expect($categoryMenu.is(":visible")).to.equal(true);
-            //     expect($categoryMenu.find('li').length).to.be.above(7);
-            // });
             
             it('filter on input should update menus', function() {
-                // xx dependent on there not being a UDF that hahs the word
+                // xx dependent on there not being a UDF that has the word
                 // add or sub
-                // 
+
                 $filterInput.val('add').trigger(fakeEvent.input);
                 expect($categoryMenu.find('li:visible')).to.have.length(2);
                 expect($categoryMenu.find('li:visible').text()).to.equal("arithmeticconversion");
@@ -647,6 +666,40 @@ describe('OperationsView', function() {
                 });
             });
 
+            it ('string-concat with empty param should not work', function(done) {
+                var options = {
+                    category: "string",
+                    func: "concat",
+                    args: [{
+                        num: 1,
+                        str: ""
+                    }],
+                    expectedMapStr: 'concat(yelping_since, "")',
+                    transform: null
+                };
+
+                runMap(options)
+                .always(function() {
+                    done();
+                });
+            });
+
+            it ('arithmetic-add with string should not work', function(done) {
+                var options = {
+                    category: "arithmetic",
+                    func: "add",
+                    args: [{num: 0, str: '"2"'}, {num: 1, str: '"3"'}],
+                    expectedMapStr: 'add("2", "3")',
+                    transform: null
+                };
+
+                runMap(options)
+                .always(function() {
+                    done();
+                });
+            });
+
+
             it ('udf default:splitWithDelim should work', function(done) {
                 var options = {
                     category: "user-defined",
@@ -704,11 +757,23 @@ describe('OperationsView', function() {
                     $argInputs.eq(argNum).val(args[i].str).trigger(fakeEvent.input);
                     var previewStr = $strPreview.find('.descArgs').text();
                 }
-               
-                expect(previewStr).to.equal(expectedMapStr);
-
-                submitForm()
+                
+                var promise = function() {
+                    var innerDeferred = jQuery.Deferred();
+                    setTimeout(function() {
+                        // quotes/parsing doesn't get applied til 200 ms after inputed
+                        expect(previewStr).to.equal(expectedMapStr);
+                        innerDeferred.resolve();
+                    }, 250);
+                    return innerDeferred.promise();
+                }
+             
+                promise()
                 .then(function() {
+                    return submitForm();
+                })
+                .then(function() {
+                    expect(options.transform).to.not.be.null;
                     var $tableWrap;
                     var tableId;
                     $('.xcTableWrap').each(function() {
@@ -734,7 +799,7 @@ describe('OperationsView', function() {
                     });
                 })
                 .fail(function() {
-                    expect(false).to.equal.true;
+                    expect(options.transform).to.be.null;
                     deferred.reject();
                 });
 
@@ -744,10 +809,21 @@ describe('OperationsView', function() {
 
         after(function(done) {
             OperationsView.close();
-
-            setTimeout(function() { // allow time for op menu to close
+            var tableId;
+            $('.xcTableWrap').each(function() {
+                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                    tableId = $(this).find('.hashName').text().slice(1);
+                    return false;
+                }
+            });
+            if (tableId) {
+                TblManager.deleteTables(tableId, TableType.Active, true, true)
+                .always(function() {
+                   done(); 
+                });
+            } else {
                 done();
-            }, 500);
+            }
         });
 
     });

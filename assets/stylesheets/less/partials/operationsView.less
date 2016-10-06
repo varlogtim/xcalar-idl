@@ -521,21 +521,16 @@
 
 			.dropDownList {
 				.list.hint {
-					// .size(@width: 269px);
-				 //    top: 27px;
 				    text-align: left;
 				    padding-left: 0px;
 				    text-transform: none;
-				    // position: fixed;
-				    // margin-top: -1px;
+				    z-index: 101; // to get in front of cast dropdown
 				}
 			}
 		}
 		.dropDownList {
 			width: 100% !important; // ignore js input width increasing 
 			background-color: transparent;
-
-		
 		
 			.arg {
 				height: @listHeight;
