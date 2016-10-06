@@ -339,7 +339,7 @@ window.TblManager = (function($, TblManager) {
         }
 
         // add sql
-        SQL.add('Archive Table', {
+        SQL.add('Hide Table', {
             "operation"  : SQLOps.ArchiveTable,
             "tableIds"   : tableIds,
             "tableNames" : tableNames,
@@ -888,7 +888,7 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
         moveFirstColumn();
 
-        SQL.add("Hide Table", {
+        SQL.add("Minimize Table", {
             "operation": SQLOps.HideTable,
             "tableName": tableName,
             "tableId"  : tableId
@@ -909,7 +909,7 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
         moveFirstColumn();
 
-        SQL.add("UnHide Table", {
+        SQL.add("Maximize Table", {
             "operation": SQLOps.UnhideTable,
             "tableName": gTables[tableId].tableName,
             "tableId"  : tableId

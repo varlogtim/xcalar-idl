@@ -1495,7 +1495,7 @@ window.WSManager = (function($, WSManager) {
                 "buttons": [
                     {
                         "name"     : TblTStr.Del,
-                        "className": "deleteTale",
+                        "className": "deleteTable",
                         "func"     : function() {
                             WSManager.delWS(wsId, DelWSType.Del);
                         }
@@ -1625,7 +1625,7 @@ window.WSManager = (function($, WSManager) {
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +
                 ' spellcheck="false" value="' + name + '" disabled>' +
-                '<i title="' + TooltipTStr.Unhide + '" data-container="body"' +
+                '<i title="' + TooltipTStr.UnhideWS + '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' class="unhide icon xi-monitor fa-15"></i>' +
             '</li>';

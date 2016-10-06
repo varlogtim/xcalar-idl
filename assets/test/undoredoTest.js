@@ -384,11 +384,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         "Change Format", "Round To Fixed", "Resize Column",
                         "Resize Columns", "Sort Table Columns", "Delete Column",
                         "Pull All Columns", "Resize Row", "Bookmark Row",
-                        "Remove Bookmark", "Hide Table", "UnHide Table"];
+                        "Remove Bookmark", "Minimize Table", "Maximize Table"];
 
     // create 3 tables
     var worksheetOps = ["Change Table Order",
-                        "Archive Table",
+                        "Hide Table",
                         "Send Tables to Worksheet",
                         "Map",
                         "Revert Table",

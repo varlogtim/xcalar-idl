@@ -54,7 +54,7 @@ TooltipTStr = {
     'NoWSToMV': 'No worksheet to move to',
     'NoUndoNoOp': 'No operation to undo',
     'NoRedo': 'No operation to redo',
-    'Unhide': 'Unhide',
+    'UnhideWS': 'Unhide worksheet',
     'LockedTableUndo': 'Cannot undo while table is locked',
     'LockedTableRedo': 'Cannot redo while table is locked',
     'CloseQG': 'Click to hide dataflow graph',
@@ -69,7 +69,7 @@ TooltipTStr = {
     'ToGridView': 'Switch to Grid View',
     'ToListView': 'Switch to List View',
     'ClickCollapse': 'Click to collapse',
-    'CollapsedTable': '1 table is hidden',
+    'CollapsedTable': '1 table is collapsed',
     'SelectAllColumns': 'Select all columns',
     'ViewColumnOptions': 'View column options',
     'ViewTableOptions': 'View table options',
@@ -80,7 +80,7 @@ TooltipTStr = {
     "IcvRestriction": 'ICV only available for Map and Group By',
 
     // with replace
-    'CollapsedTables': '<number> tables are hidden',
+    'CollapsedTables': '<number> tables are collapsed',
     'DroppedTable': 'Table \'<tablename>\' has been dropped',
     'NoExport': 'Cannot export column of type <type>',
     'Undo': 'Undo: <op>',
@@ -523,9 +523,9 @@ TblTStr = {
     'Del': 'Drop Tables',
     'DelMsg': 'Are you sure you want to drop table <table>?',
     'DelFail': 'Drop Tables Failed',
-    'Archive': 'Archive Tables',
+    'Archive': 'Hide Tables',
     'Active': 'Send Tables to Worksheet',
-    'ActiveFail': 'Add Inactive Tables Failed',
+    'ActiveFail': 'Active Tables Failed',
     'Truncate': 'Additional characters were truncated'
 };
 

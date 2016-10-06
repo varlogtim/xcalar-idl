@@ -1,6 +1,6 @@
 {"_COMMENT": ["this json includes test logs for worksheet operations,",
                 "table operations, and front end operations such as",
-                "resize column, hide table etc"],
+                "resize column, minimize table etc"],
 "worksheetOperationLogs":
     [{"title":"PointToDataset",
     "options":{"operation":"pointToDataset",
@@ -91,8 +91,8 @@
     "desIndex":0},
     "timestamp":1460667894077},
 
-    {"title":"Archive Table",
-    "options":{"operation":"archiveTable",
+    {"title":"Minimize Table",
+    "options":{"operation":"minimizeTable",
     "tableIds":["yz0"],
     "tableNames":["schedule1555#yz0"],
     "tablePos":[1],
@@ -886,14 +886,14 @@
     "rowNum":4},
     "timestamp":1460602895194},
 
-    {"title":"Hide Table",
-    "options":{"operation":"hideTable",
+    {"title":"Minimize Table",
+    "options":{"operation":"minimizeTable",
     "tableName":"testyelp#dU0",
     "tableId":"dU0"},
     "timestamp":1460602914720},
 
-    {"title":"UnHide Table",
-    "options":{"operation":"unhideTable",
+    {"title":"Maximize Table",
+    "options":{"operation":"maximizeTable",
     "tableName":"testyelp#dU0",
     "tableId":"dU0"},
     "timestamp":1460602917060}
