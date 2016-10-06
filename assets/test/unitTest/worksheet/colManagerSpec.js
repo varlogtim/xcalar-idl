@@ -12,12 +12,11 @@ describe('ColManager', function() {
         });
 
         it('ColManager.newPullCol() should work', function() {
-            var progCol = ColManager.newPullCol("test", "integer");
+            var progCol = ColManager.newPullCol("test", "test2", "integer");
             expect(progCol.getFrontColName()).to.equal('test');
-            expect(progCol.getBackColName()).to.equal('test');
+            expect(progCol.getBackColName()).to.equal('test2');
             expect(progCol.getType()).to.equal("integer");
             expect(progCol.isEmptyCol()).to.be.false;
-            expect(progCol.getWidth()).to.equal(gNewCellWidth);
         });
 
         it('ColManager.newDATACol() should work', function() {

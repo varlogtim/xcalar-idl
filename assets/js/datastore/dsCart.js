@@ -172,25 +172,12 @@ window.DSCart = (function($, DSCart) {
         }
 
         var items = cart.items;
-        var widthOptions = {"defaultHeaderStyle": true};
 
         for (var i = 0, len = items.length; i < len; i++) {
             var colName = items[i].value;
             // var escapedName = xcHelper.escapeColName(colName);
             var escapedName = colName;
-            var width = getTextWidth($(), colName, widthOptions);
-
-            var progCol = ColManager.newCol({
-                "backName": escapedName,
-                "name"    : colName,
-                "width"   : width,
-                "isNewCol": false,
-                "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
-                "func"    : {
-                    "name": "pull",
-                    "args": [escapedName]
-                }
-            });
+            var progCol = ColManager.newPullCol(colName, escapedName);
 
             newTableCols.push(progCol);
             sql.columns.push(colName);

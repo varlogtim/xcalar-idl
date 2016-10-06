@@ -976,11 +976,8 @@ window.xcFunction = (function($, xcFunction) {
             // loop through colnames that weren't pulled out in table
             var newProgCol;
             var colName;
-            var width;
-            var widthOptions = {
-                defaultHeaderStyle: true
-            };
             var escapedName;
+
             function filterColNames(colNameObj) {
                 return (!colNameObj.found);
             }
@@ -989,18 +986,7 @@ window.xcFunction = (function($, xcFunction) {
                 colName = allColNames[i].name;
                 // escapedName = xcHelper.escapeColName(colName);
                 escapedName = colName;
-                width = getTextWidth($(), colName, widthOptions);
-                newProgCol = ColManager.newCol({
-                    "backName": escapedName,
-                    "name"    : colName,
-                    "width"   : width,
-                    "isNewCol": false,
-                    "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
-                    "func"    : {
-                        "name": "pull",
-                        "args": [escapedName]
-                    }
-                });
+                newProgCol = ColManager.newPullCol(colName, escapedName);
                 finalTableCols.push(newProgCol);
             }
             finalTableCols.push(dataCol);

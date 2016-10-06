@@ -917,22 +917,7 @@ window.XIApi = (function(XIApi, $) {
         var escapedName = newColName;
         // front name of a.b turns into a\.b in the backend and then
         // we need to escape the \ and . in a\.b to access it so it becomes a\\\.b
-        var width = getTextWidth($(), newColName, {
-            "defaultHeaderStyle": true
-        });
-
-        var newProgCol = ColManager.newCol({
-            "backName": escapedName,
-            "name"    : newColName,
-            "width"   : width,
-            "isNewCol": false,
-            "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
-            "func"    : {
-                "func": "pull",
-                "args": [escapedName]
-            }
-        });
-
+        var newProgCol = ColManager.newPullCol(newColName, escapedName);
         var numGroupByCols = groupByCols.length;
         var finalCols;
 

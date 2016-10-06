@@ -5,17 +5,26 @@ window.ColManager = (function($, ColManager) {
         return new ProgCol(options);
     };
 
-    ColManager.newPullCol = function(colName, type) {
+    ColManager.newPullCol = function(colName, backColName, type) {
+        if (backColName == null) {
+            backColName = colName;
+        }
+
+        type = type || null;
+
+        var width = getTextWidth(null, colName, {
+            "defaultHeaderStyle": true
+        });
         return ColManager.newCol({
-            "backName": colName,
+            "backName": backColName,
             "name"    : colName,
             "type"    : type,
-            "width"   : gNewCellWidth,
+            "width"   : width,
             "isNewCol": false,
-            "userStr" : '"' + colName + '" = pull(' + colName + ')',
+            "userStr" : '"' + colName + '" = pull(' + backColName + ')',
             "func"    : {
                 "name": "pull",
-                "args": [colName]
+                "args": [backColName]
             }
         });
     };
@@ -138,22 +147,9 @@ window.ColManager = (function($, ColManager) {
 
         var table = gTables[tableId];
         var newColName = xcHelper.getUniqColName(tableId, options.fullName);
-        var usrStr = '"' + newColName + '" = pull(' + backName + ')';
-        var width = getTextWidth($(), newColName, {
-            "defaultHeaderStyle": true
-        });
 
-        var progCol = ColManager.newCol({
-            "backName": backName,
-            "name"    : newColName,
-            "width"   : width,
-            "isNewCol": false,
-            "userStr" : usrStr,
-            "func"    : {
-                "name": "pull",
-                "args": [backName]
-            }
-        });
+        var progCol = ColManager.newPullCol(newColName, backName);
+        var usrStr = progCol.userStr;
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
             "direction": direction,
@@ -1472,27 +1468,12 @@ window.ColManager = (function($, ColManager) {
         var numKeys = colNames.length;
         var newColNum = colNum - 1;
         var ths = "";
-        var widthOptions = {
-            defaultHeaderStyle: true
-        };
 
         for (var i = 0; i < numKeys; i++) {
             var key = colNames[i];
             var escapedKey = escapedColNames[i];
-            var usrStr = '"' + key + '" = pull(' + escapedKey + ')';
-            var width = getTextWidth($(), key, widthOptions);
+            var newCol = ColManager.newPullCol(key, escapedKey);
 
-            var newCol = ColManager.newCol({
-                "backName": key,
-                "name"    : key,
-                "width"   : width,
-                "userStr" : usrStr,
-                "func"    : {
-                    "name": "pull",
-                    "args": [escapedKey]
-                },
-                "isNewCol": false
-            });
             if (options.isDataTd) {
                 cols.splice(newColNum, 0, newCol);
             } else {

@@ -201,9 +201,9 @@ window.UExtNN = (function(UExtNN, $) {
                 var finalTableId = xcHelper.getTableId(output);
                 var finalCols = [];
 
-                finalCols[0] = ColManager.newPullCol(outputRow, "integer");
-                finalCols[1] = ColManager.newPullCol(outputCol, "integer");
-                finalCols[2] = ColManager.newPullCol(outputData, "float");
+                finalCols[0] = ColManager.newPullCol(outputRow, null, "integer");
+                finalCols[1] = ColManager.newPullCol(outputCol, null, "integer");
+                finalCols[2] = ColManager.newPullCol(outputData, null, "float");
 
                 return TblManager.refreshTable([output], finalCols,
                                                [], workSheet);
@@ -395,9 +395,9 @@ window.UExtNN = (function(UExtNN, $) {
               var finalTableId = xcHelper.getTableId(hw);
               var finalCols = [];
 
-              finalCols[0] = ColManager.newPullCol(hwRow, "integer");
-              finalCols[1] = ColManager.newPullCol(hwCol, "integer");
-              finalCols[2] = ColManager.newPullCol(hwData, "float");
+              finalCols[0] = ColManager.newPullCol(hwRow, null, "integer");
+              finalCols[1] = ColManager.newPullCol(hwCol, null, "integer");
+              finalCols[2] = ColManager.newPullCol(hwData, null, "float");
 
               return TblManager.refreshTable([hw], finalCols,
               [], workSheet);
@@ -407,9 +407,9 @@ window.UExtNN = (function(UExtNN, $) {
               var finalTableId = xcHelper.getTableId(ow);
               var finalCols = [];
 
-              finalCols[0] = ColManager.newPullCol(owRow, "integer");
-              finalCols[1] = ColManager.newPullCol(owCol, "integer");
-              finalCols[2] = ColManager.newPullCol(owData, "float");
+              finalCols[0] = ColManager.newPullCol(owRow, null, "integer");
+              finalCols[1] = ColManager.newPullCol(owCol, null, "integer");
+              finalCols[2] = ColManager.newPullCol(owData, null, "float");
 
               return TblManager.refreshTable([ow], finalCols,
               [], workSheet);
