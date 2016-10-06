@@ -395,6 +395,11 @@
 			display: none;
 			.size(100%, 100%);
 
+			&.safari {
+				// safari has issue when use height 100% T_T
+				height:  180px;
+			}
+
 			.animatedEllipsisWrapper {
 				.size(@width: 140px, @height: 20px);
 				.center-align;

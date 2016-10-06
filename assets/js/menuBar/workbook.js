@@ -556,12 +556,17 @@ window.Workbook = (function($, Workbook) {
             activateTooltip = WKBKTStr.Activate;
         }
 
+        var loadSection = "loadSection";
+        if (isBrowserSafari) {
+            loadSection += " safari";
+        }
+
         var html =
             '<div class="box box-small workbookBox ' +
             extraClasses.join(" ") + '"' +
             ' data-workbook-id="' + workbookId +'">' +
                 '<div class="innerBox">' +
-                    '<div class="loadSection">' +
+                    '<div class="' + loadSection + '">' +
                         '<div class="refreshIcon">' +
                             '<img src="' + paths.waitIcon + '">' +
                         '</div>' +
