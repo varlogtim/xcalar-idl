@@ -2125,6 +2125,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function submitForm() {
+        var deferred = jQuery.Deferred();
         var isPassing = true;
         formHelper.disableSubmit(); // disabling it early because there are
         // async calls to follow that shouldn't be triggered multiple times
@@ -2132,7 +2133,7 @@ window.OperationsView = (function($, OperationsView) {
         if (!gTables[tableId]) {
             StatusBox.show('Table no longer exists',
                             $activeOpSection.find('.tableList'));
-            return false;
+            return deferred.reject().promise();
         }
 
         // check if function name is valid (not checking arguments)
@@ -2151,14 +2152,14 @@ window.OperationsView = (function($, OperationsView) {
   
         if (!isPassing) {
             formHelper.enableSubmit();
-            return;
+            return deferred.reject().promise();
         }
 
         var invalidInputs = [];
 
         if (!checkIfBlanksAreValid(invalidInputs)) {
             handleInvalidBlanks(invalidInputs);
-            return;
+            return deferred.reject().promise();
         }
 
         var multipleArgSets = [];
@@ -2185,7 +2186,7 @@ window.OperationsView = (function($, OperationsView) {
         
         if (!isPassing) {
             formHelper.enableSubmit();
-            return;
+            return deferred.reject().promise();
         }
 
         // name duplication check
@@ -2242,12 +2243,14 @@ window.OperationsView = (function($, OperationsView) {
                     args = multipleArgSets;
                     hasMultipleSets = true;
                 }
-                submitFinalForm(args, hasMultipleSets);
+                submitFinalForm(args, hasMultipleSets, deferred);
             }
         }
+
+        return deferred.promise();
     }
 
-    function submitFinalForm(args, hasMultipleSets) {
+    function submitFinalForm(args, hasMultipleSets, deferred) {
         var func = funcName;
         var funcLower = func;
         var isPassing;
@@ -2271,9 +2274,6 @@ window.OperationsView = (function($, OperationsView) {
                         isPassing = filterCheck(func, args, $input);
                     }
                 });
-                if (!isPassing) {
-                    return false;
-                }
                 break;
             case ('group by'):
                 isPassing = groupByCheck(args);
@@ -2302,26 +2302,28 @@ window.OperationsView = (function($, OperationsView) {
 
             switch (operatorName) {
                 case ('aggregate'):
-                    aggregate(func, args, colTypeInfos);
+                    aggregate(func, args, colTypeInfos, deferred);
                     break;
                 case ('filter'):
-                    filter(func, args, colTypeInfos, hasMultipleSets);
+                    filter(func, args, colTypeInfos, hasMultipleSets, deferred);
                     break;
                 case ('group by'):
-                    groupBy(func, args, colTypeInfos);
+                    groupBy(func, args, colTypeInfos, deferred);
                     break;
                 case ('map'):
-                    map(funcLower, args, colTypeInfos);
+                    map(funcLower, args, colTypeInfos, deferred);
                     break;
                 default:
                     showErrorMessage(0);
                     isPassing = false;
+                    deferred.reject();
                     break;
             }
 
             closeOpSection();
         } else {
             formHelper.enableSubmit();
+            deferred.reject();
         }
     }
 
@@ -2707,7 +2709,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function aggregate(aggrOp, args, colTypeInfos) {
+    function aggregate(aggrOp, args, colTypeInfos, deferred) {
         var aggColNum;
         var tableCol;
         var aggStr;
@@ -2734,8 +2736,10 @@ window.OperationsView = (function($, OperationsView) {
         var startTime = Date.now();
         xcFunction.aggregate(aggColNum, tableId, aggrOp, aggStr, aggName,
                              options)
+        .then(deferred.resolve)
         .fail(function(error) {
             submissionFailHandler(startTime, error);
+            deferred.reject();
         });
         return true;
     }
@@ -2754,7 +2758,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function filter(operator, args, colTypeInfos, hasMultipleSets) {
+    function filter(operator, args, colTypeInfos, hasMultipleSets, deferred) {
         var filterColNum;
         // var colName;
         var firstArg;
@@ -2780,8 +2784,10 @@ window.OperationsView = (function($, OperationsView) {
             filterString: filterString,
             formOpenTime: formOpenTime
         })
+        .then(deferred.resolve)
         .fail(function(error) {
             submissionFailHandler(startTime, error);
+            deferred.reject();
         });
 
         return true;
@@ -2791,7 +2797,7 @@ window.OperationsView = (function($, OperationsView) {
         return gTables[tableId].getColNumByBackName(backColName);
     }
 
-    function groupBy(operator, args, colTypeInfos) {
+    function groupBy(operator, args, colTypeInfos, deferred) {
         // Current groupBy args has at least 3 arguments:
         // 1. grouby col
         // 2. indexed col
@@ -2843,8 +2849,10 @@ window.OperationsView = (function($, OperationsView) {
         var startTime = Date.now();
         xcFunction.groupBy(operator, tableId, indexedColNames, groupByColName,
                             newColName, options)
+        .then(deferred.resolve)
         .fail(function(error) {
             submissionFailHandler(startTime, error);
+            deferred.reject();
         });
     }
 
@@ -2890,7 +2898,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function map(operator, args, colTypeInfos) {
+    function map(operator, args, colTypeInfos, deferred) {
         var numArgs = args.length;
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapFilterString(operator, args, colTypeInfos);
@@ -2912,8 +2920,10 @@ window.OperationsView = (function($, OperationsView) {
                         .hasClass("checked");
 
         xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
+        .then(deferred.resolve)
         .fail(function(error) {
             submissionFailHandler(startTime, error);
+            deferred.reject();
         });
     }
     //show alert to go back to op view
@@ -4023,6 +4033,7 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.argumentFormatHelper = argumentFormatHelper;
         OperationsView.__testOnly__.parseType = parseType;
         OperationsView.__testOnly__.formulateMapFilterString = formulateMapFilterString;
+        OperationsView.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */
 

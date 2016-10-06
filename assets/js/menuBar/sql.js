@@ -362,10 +362,14 @@ window.SQL = (function($, SQL) {
         return isRedo;
     };
 
-    SQL.viewLastAction = function() {
+    SQL.viewLastAction = function(detailed) {
         var curSql = logs[logCursor];
         if (logCursor !== -1) {
-            return curSql.getTitle();
+            if (detailed) {
+                return curSql;
+            } else {
+                return curSql.getTitle();
+            }
         } else {
             return "none";
         }

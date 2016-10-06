@@ -79,7 +79,7 @@ describe('OperationsView', function() {
         });
     });
 
-    describe('group by', function() {
+    describe.skip('group by', function() {
         var tableId;
         var $operationsModal;
         var $operationsView;
@@ -364,7 +364,7 @@ describe('OperationsView', function() {
     });
 
     // using map in operations view
-    describe('column picker in map', function() {
+    describe('column pickers test', function() {
         var tableId;
         var $operationsView;
         var $categoryMenu;
@@ -389,7 +389,7 @@ describe('OperationsView', function() {
             });
         });
 
-        describe('category menu', function() {
+        describe('category menu in map', function() {
             it('menu should be visible', function() {
                 expect($categoryMenu.is(":visible")).to.equal(true);
                 expect($categoryMenu.find('li').length).to.be.above(7);
@@ -408,7 +408,7 @@ describe('OperationsView', function() {
             });
         });
 
-        describe('functions menu', function() {
+        describe('functions menu in map', function() {
             it('should not have selected li', function() {
                 expect($functionsMenu.find('li.active').length).to.equal(0);
                 expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.equal(true);
@@ -424,7 +424,7 @@ describe('OperationsView', function() {
             });
         });
 
-        describe('argument section', function() {
+        describe('argument section in map', function() {
             it('should have 3 visible text inputs', function() {
                 expect($operationsView.find('.arg[type=text]:visible')).to.have.length(3);
                 $argInputs = $operationsView.find('.arg[type=text]:visible');
@@ -481,6 +481,275 @@ describe('OperationsView', function() {
             });
         });
 
+        after(function(done) {
+            OperationsView.close();
+            setTimeout(function() { // allow time for op menu to close
+                done();
+            }, 500);
+        });
+
     });
 
+    // using map in operations view
+    describe('map', function() {
+        var tableId;
+        var $operationsView;
+        var $filterInput;
+        var $categoryMenu;
+        var $functionsMenu;
+        var $argInputs;
+        var $strPreview;
+
+        before(function(done) {
+            $operationsView = $('#operationsView');
+            $strPreview = $operationsView.find('.strPreview');
+            $('.xcTableWrap').each(function() {
+                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                    tableId = $(this).find('.hashName').text().slice(1);
+                    return false;
+                }
+            });
+
+            OperationsView.show(tableId, 1, 'map')
+            .then(function() {
+                operatorsMap = OperationsView.getOperatorsMap();
+                $categoryMenu = $operationsView.find('.map .categoryMenu');
+                $functionsMenu = $operationsView.find('.map .functionsMenu');
+                $filterInput = $('#mapFilter');
+
+                done();
+            });
+        });
+
+
+        describe('map\'s search filter', function() {
+            // it('menu should be visible', function() {
+            //     expect($categoryMenu.is(":visible")).to.equal(true);
+            //     expect($categoryMenu.find('li').length).to.be.above(7);
+            // });
+            
+            it('filter on input should update menus', function() {
+                // xx dependent on there not being a UDF that hahs the word
+                // add or sub
+                // 
+                $filterInput.val('add').trigger(fakeEvent.input);
+                expect($categoryMenu.find('li:visible')).to.have.length(2);
+                expect($categoryMenu.find('li:visible').text()).to.equal("arithmeticconversion");
+
+                expect($functionsMenu.find('li:visible')).to.have.length(3);
+                expect($functionsMenu.find('li:visible').text()).to.equal("addipAddrToIntmacAddrToInt");
+
+                $filterInput.val('').trigger(fakeEvent.input);
+                expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
+                expect($functionsMenu.find('li:visible').length).to.be.above(70);
+
+                $filterInput.val('add').trigger(fakeEvent.input);
+                expect($functionsMenu.find('li:visible').text()).to.equal("addipAddrToIntmacAddrToInt");
+                $filterInput.val('sub').trigger(fakeEvent.input);
+                expect($functionsMenu.find('li:visible').text()).to.equal("subsubstring");
+            });
+
+            it('clicking on filtered category list should work', function() {
+                $filterInput.val('sub').trigger(fakeEvent.input);
+                $categoryMenu.find('li:visible').eq(0).trigger(fakeEvent.click);
+                expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
+                expect($functionsMenu.find('li:visible')).to.have.length(1);
+                expect($functionsMenu.find('li:visible').text()).to.equal("sub");
+            });
+
+            it('clicking away from category list should reset func list', function() {
+                expect($functionsMenu.find('li:visible').text()).to.equal("sub");
+                $operationsView.find('.map .catFuncHeadings').trigger(fakeEvent.mousedown);
+                expect($functionsMenu.find('li:visible').text()).to.equal("subsubstring");
+                expect($categoryMenu.find("li.active")).to.have.length(0);
+                $filterInput.val('').trigger(fakeEvent.input);
+            });
+        });
+
+        describe('autofilled input args', function() {
+            it('should select category when clicked', function() {
+                // string - concat
+                $categoryMenu.find('li').filter(function() {
+                    return ($(this).text() === "string");
+                }).trigger(fakeEvent.click);
+                expect($categoryMenu.find("li.active").text()).to.equal('string');
+
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === "concat");
+                }).trigger(fakeEvent.click);
+                var $argInputs = $operationsView.find('.arg[type=text]:visible');
+                expect($argInputs.eq(0).val()).to.equal("$yelping_since");
+                expect($argInputs.eq(1).val()).to.equal("");
+                expect($argInputs.eq(2).val()).to.startsWith("yelping_since_concat");
+
+                // user-defined - default:splitWithDelim
+                $categoryMenu.find('li').filter(function() {
+                    return ($(this).text() === "user-defined");
+                }).trigger(fakeEvent.click);
+
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === "default:splitWithDelim");
+                }).trigger(fakeEvent.click);
+
+                var $argInputs = $operationsView.find('.arg[type=text]:visible');
+                expect($argInputs.eq(0).val()).to.equal("$yelping_since");
+                expect($argInputs.eq(1).val()).to.equal("");
+                expect($argInputs.eq(2).val()).to.equal("");
+                expect($argInputs.eq(3).val()).to.startsWith("yelping_since_udf");
+
+                // check arg descriptions
+                var $descriptions = $argInputs.closest('.row').find('.description');
+                expect($descriptions.eq(0).text()).to.equal("txt:");
+                expect($descriptions.eq(1).text()).to.equal("index:");
+                expect($descriptions.eq(2).text()).to.equal("delim:");
+                expect($descriptions.eq(3).text()).to.equal("New Resultant Column Name:");
+                
+            });
+
+            it('should focus on first empty input', function() {
+                $categoryMenu.find('li').filter(function() {
+                    return ($(this).text() === "string");
+                }).trigger(fakeEvent.click);
+
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === "concat");
+                }).trigger(fakeEvent.click);
+
+                var $argInputs = $operationsView.find('.arg[type=text]:visible');
+                expect($argInputs.eq(1).is(document.activeElement)).to.be.true;
+            });
+        });
+
+        describe('run map functions', function() {
+            this.timeout(10000);
+            var submitForm;
+            before(function() {
+                submitForm = OperationsView.__testOnly__.submitForm;
+            });
+
+            it ('string-concat should work', function(done) {
+                var options = {
+                    category: "string",
+                    func: "concat",
+                    args: [{
+                        num: 1,
+                        str: "zz"
+                    }],
+                    expectedMapStr: 'concat(yelping_since, "zz")',
+                    transform: function(colVal) {
+                        return (colVal + this.args[0].str);
+                    }
+                };
+
+                runMap(options)
+                .always(function() {
+                    done();
+                });
+                
+            });
+
+            it ('udf default:splitWithDelim should work', function(done) {
+                var options = {
+                    category: "user-defined",
+                    func: "default:splitWithDelim",
+                    args: [{num: 1,str: 1}, {num:2, str: "\"-\""}],
+                    expectedMapStr: 'default:splitWithDelim(yelping_since, 1, "-")',
+                    transform: function(colVal) {
+                        var delim = "-";
+                        var index = this.args[0].str;
+                        return colVal.split(delim).splice(index).join(delim);
+                    }
+                };
+
+                runMap(options)
+                .always(function() {
+                    done();
+                });
+            });
+
+            it ('add with string to int conversion should work', function(done) {
+                var options = {
+                    category: "arithmetic",
+                    func: "add",
+                    args: [{num: 0,str: 'int(yelping_since, 10)'}, {num:1, str: 5}],
+                    expectedMapStr: 'add(int(yelping_since, 10), 5)',
+                    transform: function(colVal) {
+                        return parseInt(colVal) + this.args[1].str + "";
+                    }
+                };
+
+                runMap(options)
+                .always(function() {
+                    done();
+                });
+            });
+           
+            function runMap(options) {
+                var deferred = jQuery.Deferred();
+                var category = options.category;
+                var func = options.func;
+                var args = options.args;
+                var expectedMapStr = options.expectedMapStr;
+
+                $categoryMenu.find('li').filter(function() {
+                    return ($(this).text() === category);
+                }).trigger(fakeEvent.click);
+
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === func);
+                }).trigger(fakeEvent.click);
+
+                var $argInputs = $operationsView.find('.arg[type=text]:visible');
+                for (var i = 0; i < args.length; i++) {
+                    var argNum = args[i].num;
+                    $argInputs.eq(argNum).val(args[i].str).trigger(fakeEvent.input);
+                    var previewStr = $strPreview.find('.descArgs').text();
+                }
+               
+                expect(previewStr).to.equal(expectedMapStr);
+
+                submitForm()
+                .then(function() {
+                    var $tableWrap;
+                    var tableId;
+                    $('.xcTableWrap').each(function() {
+                        if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                            tableId = $(this).find('.hashName').text().slice(1);
+                            $tableWrap = $(this);
+                            return false;
+                        }
+                    });
+                    var orgCellText = $tableWrap.find('.row0 .col2 .originalData').text();
+                    var newCellText = $tableWrap.find('.row0 .col1 .originalData').text();
+                    expect(newCellText).to.equal(options.transform(orgCellText));
+
+                    var orgCellText = $tableWrap.find('.row15 .col2 .originalData').text();
+                    var newCellText = $tableWrap.find('.row15 .col1 .originalData').text();
+                    expect(newCellText).to.equal(options.transform(orgCellText));
+                    var sqlCli = SQL.viewLastAction(true).cli;
+                   
+                    expect(sqlCli).to.contain(JSON.stringify(expectedMapStr));
+                    SQL.undo()
+                    .always(function() {
+                        deferred.resolve();
+                    });
+                })
+                .fail(function() {
+                    expect(false).to.equal.true;
+                    deferred.reject();
+                });
+
+                return deferred.promise();
+            }
+        });
+
+        after(function(done) {
+            OperationsView.close();
+
+            setTimeout(function() { // allow time for op menu to close
+                done();
+            }, 500);
+        });
+
+    });
 });
