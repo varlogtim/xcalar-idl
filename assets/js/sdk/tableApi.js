@@ -137,10 +137,13 @@ window.XcSDK.Table.prototype = {
         }
 
         var colName = col.getName();
+        var cellWidth = getTextWidth(null, colName, {
+            defaultHeaderStyle: true
+        });
         var progCol = ColManager.newCol({
             "name"    : colName,
             "type"    : col.getType(),
-            "width"   : gNewCellWidth,
+            "width"   : cellWidth,
             "isNewCol": false,
             "userStr" : '"' + colName + '" = pull(' + colName + ')',
             "func"    : {

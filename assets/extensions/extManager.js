@@ -226,156 +226,35 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
      */
     ExtensionManager.trigger = function(tableId, module, func, args, options) {
-        var deferred = jQuery.Deferred();
-        options = options || {};
         if (module == null || func == null || module.indexOf("UExt") !== 0) {
             throw "error extension!";
             return;
         }
 
-        if (module !== "UExtNN") {
-            var worksheet;
-            var table;
-            var tableName;
+        options = options || {};
 
-            if (!extMap[module]._configParams.notTableDependent) {
-                worksheet = WSManager.getWSFromTable(tableId);
-                table = gTables[tableId];
-                tableName = table.getName();
-            } else {
-                worksheet = WSManager.getActiveWS();
-                table = {};
-                tableName = "";
-            }
+        var deferred = jQuery.Deferred();
+        var worksheet;
+        var table;
+        var tableName;
 
-            var hasStart = false;
-            var txId;
-            // in case args is changed by ext writer
-            var copyArgs = xcHelper.deepCopy(args);
-            var sql = {
-                "operation"  : SQLOps.Ext,
-                "tableName"  : tableName,
-                "tableId"    : tableId,
-                "module"     : module,
-                "func"       : func,
-                "args"       : copyArgs,
-                "options"    : options,
-                "htmlExclude": ["args", "options"]
-            };
-
-            // Note Use try catch in case user has come error in extension code
-            try {
-                var ext = window[module].actionFn(func);
-
-                if (ext == null || !(ext instanceof XcSDK.Extension)) {
-                    Alert.error(StatusMessageTStr.ExtFailed, ErrTStr.InvalidExt);
-                    return;
-                }
-
-                var buttons = window[module].buttons;
-                var extButton = null;
-                if (buttons instanceof Array) {
-                    for (var i = 0, len = buttons.length; i < len; i++) {
-                        if (buttons[i].fnName === func) {
-                            extButton = buttons[i].arrayOfFields;
-                            break;
-                        }
-                    }
-                }
-                var runBeforeStartRet;
-
-                ext.initialize(tableName, worksheet, args);
-                ext.runBeforeStart(extButton)
-                .then(function() {
-                    var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
-                        "extension": func
-                    });
-                    txId = Transaction.start({
-                        "msg"         : msg,
-                        "operation"   : SQLOps.Ext,
-                        "steps"       : -1,
-                        "functionName": func
-                    });
-
-                    if (!extMap[module]._configParams.notTableDependent) {
-                        xcHelper.lockTable(tableId, txId);
-                    }
-
-                    hasStart = true;
-                    return ext.run(txId);
-                })
-                .then(function(ret) {
-                    runBeforeStartRet = ret;
-                    return ext.runAfterFinish();
-                })
-                .then(function(finalTables, finalReplaces) {
-                    if (!extMap[module]._configParams.notTableDependent) {
-                        xcHelper.unlockTable(tableId);
-                    }
-
-                    sql.newTables = finalTables;
-                    sql.replace = finalReplaces;
-
-                    var finalTableName;
-                    if (finalTables != null && finalTables.length > 0) {
-                        // use the last finalTable as msgTable
-                        finalTableName = finalTables[finalTables.length - 1];
-                    } else if (finalReplaces != null) {
-                        for (var key in finalReplaces) {
-                            // use a random table in finalReplaces as msgTable
-                            finalTableName = key;
-                            break;
-                        }
-                    }
-
-                    Transaction.done(txId, {
-                        "msgTable"      : xcHelper.getTableId(finalTableName),
-                        "sql"           : sql,
-                        "noNotification": options.noNotification
-                    });
-                    deferred.resolve(runBeforeStartRet);
-                })
-                .fail(function(error) {
-                    if (error == null) {
-                        error = ErrTStr.Unknown;
-                    }
-
-                    if (hasStart) {
-                        xcHelper.unlockTable(tableId);
-
-                        Transaction.fail(txId, {
-                            "failMsg": StatusMessageTStr.ExtFailed,
-                            "error"  : error,
-                            "sql"    : sql
-                        });
-                    } else {
-                        Alert.error(StatusMessageTStr.ExtFailed, error);
-                    }
-                    deferred.reject(error);
-                });
-            } catch (error) {
-                console.error(error.stack);
-                if (hasStart) {
-                    xcHelper.unlockTable(tableId);
-
-                    Transaction.fail(txId, {
-                        "failMsg": StatusMessageTStr.ExtFailed,
-                        "error"  : error.toLocaleString(),
-                        "sql"    : sql
-                    });
-                } else {
-                    Alert.error(StatusMessageTStr.ExtFailed, error.toLocaleString());
-                }
-                deferred.reject(error);
-            }
-            return deferred.promise();
+        if (!extMap[module]._configParams.notTableDependent) {
+            worksheet = WSManager.getWSFromTable(tableId);
+            table = gTables[tableId];
+            tableName = table.getName();
+        } else {
+            worksheet = WSManager.getActiveWS();
+            table = {};
+            tableName = "";
         }
 
-        var table = gTables[tableId];
+        var hasStart = false;
+        var txId;
+        // in case args is changed by ext writer
         var copyArgs = xcHelper.deepCopy(args);
         var sql = {
             "operation"  : SQLOps.Ext,
-            "tableName"  : table.getName(),
+            "tableName"  : tableName,
             "tableId"    : tableId,
             "module"     : module,
             "func"       : func,
@@ -384,59 +263,109 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             "htmlExclude": ["args", "options"]
         };
 
-        var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
-            "extension": func
-        });
-        var txId = Transaction.start({
-            "msg"         : msg,
-            "operation"   : SQLOps.Ext,
-            "steps"       : -1,
-            "functionName": func
-        });
-
-        xcHelper.lockTable(tableId, txId);
-
+        // Note Use try catch in case user has come error in extension code
         try {
-            window[module].actionFn(txId, tableId, func, args)
-            .then(function(newTables) {
-                xcHelper.unlockTable(tableId);
-                var finalTableId;
-                if (newTables != null) {
-                    if (!(newTables instanceof Array)) {
-                        newTables = [newTables];
+            var ext = window[module].actionFn(func);
+
+            if (ext == null || !(ext instanceof XcSDK.Extension)) {
+                Alert.error(StatusMessageTStr.ExtFailed, ErrTStr.InvalidExt);
+                return;
+            }
+
+            var buttons = window[module].buttons;
+            var extButton = null;
+            if (buttons instanceof Array) {
+                for (var i = 0, len = buttons.length; i < len; i++) {
+                    if (buttons[i].fnName === func) {
+                        extButton = buttons[i].arrayOfFields;
+                        break;
                     }
-                    sql.newTables = newTables;
-                    finalTableId = xcHelper.getTableId(newTables[newTables.length - 1]);
+                }
+            }
+            var runBeforeStartRet;
+
+            ext.initialize(tableName, worksheet, args);
+            ext.runBeforeStart(extButton)
+            .then(function() {
+                var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
+                    "extension": func
+                });
+                txId = Transaction.start({
+                    "msg"         : msg,
+                    "operation"   : SQLOps.Ext,
+                    "steps"       : -1,
+                    "functionName": func
+                });
+
+                if (!extMap[module]._configParams.notTableDependent) {
+                    xcHelper.lockTable(tableId, txId);
+                }
+
+                hasStart = true;
+                return ext.run(txId);
+            })
+            .then(function(ret) {
+                runBeforeStartRet = ret;
+                return ext.runAfterFinish();
+            })
+            .then(function(finalTables, finalReplaces) {
+                if (!extMap[module]._configParams.notTableDependent) {
+                    xcHelper.unlockTable(tableId);
+                }
+
+                sql.newTables = finalTables;
+                sql.replace = finalReplaces;
+
+                var finalTableName;
+                if (finalTables != null && finalTables.length > 0) {
+                    // use the last finalTable as msgTable
+                    finalTableName = finalTables[finalTables.length - 1];
+                } else if (finalReplaces != null) {
+                    for (var key in finalReplaces) {
+                        // use a random table in finalReplaces as msgTable
+                        finalTableName = key;
+                        break;
+                    }
                 }
 
                 Transaction.done(txId, {
-                    "msgTable"      : finalTableId,
+                    "msgTable"      : xcHelper.getTableId(finalTableName),
                     "sql"           : sql,
                     "noNotification": options.noNotification
                 });
-
-                deferred.resolve();
+                deferred.resolve(runBeforeStartRet);
             })
             .fail(function(error) {
-                xcHelper.unlockTable(tableId);
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.ExtFailed,
-                    "error"  : error,
-                    "sql"    : sql
-                });
+                if (error == null) {
+                    error = ErrTStr.Unknown;
+                }
 
+                if (hasStart) {
+                    xcHelper.unlockTable(tableId);
+
+                    Transaction.fail(txId, {
+                        "failMsg": StatusMessageTStr.ExtFailed,
+                        "error"  : error,
+                        "sql"    : sql
+                    });
+                } else {
+                    Alert.error(StatusMessageTStr.ExtFailed, error);
+                }
                 deferred.reject(error);
             });
         } catch (error) {
             console.error(error.stack);
-            // in case there is some run time error
-            xcHelper.unlockTable(tableId);
-            Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.ExtFailed,
-                "error"  : error,
-                "sql"    : sql
-            });
+            if (hasStart) {
+                xcHelper.unlockTable(tableId);
 
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.ExtFailed,
+                    "error"  : error.toLocaleString(),
+                    "sql"    : sql
+                });
+            } else {
+                Alert.error(StatusMessageTStr.ExtFailed, error.toLocaleString());
+            }
             deferred.reject(error);
         }
 

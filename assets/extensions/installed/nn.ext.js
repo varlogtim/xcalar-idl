@@ -25,7 +25,8 @@ window.UExtNN = (function(UExtNN, $) {
             "name"      : "num datapoints",
             "fieldClass": "numDatapoints",
             "typeCheck" : {
-                "integer": true
+                "integer": true,
+                "min"    : 1
             }
         },
         {
@@ -38,12 +39,13 @@ window.UExtNN = (function(UExtNN, $) {
             "name"      : "max iter",
             "fieldClass": "maxIter",
             "typeCheck" : {
-                "integer": true
+                "integer": true,
+                "min"    : 1
             }
         }]
     },
     {
-        "buttonText": "Neural Network Training",
+        "buttonText": "Neural Network Testing",
          "fnName": "nnTest",
          "arrayOfFields": [{
             "type"      : "number",
@@ -57,34 +59,41 @@ window.UExtNN = (function(UExtNN, $) {
         }]
     }];
 
-    UExtNN.actionFn = function(txId, colList, tableId, functionName, argList) {
-        var table = gTables[tableId];
-        var tableName = table.tableName;
-        var tableNameRoot = tableName.split("#")[0];
+    // XXX Cheng: this extension is not used
+    // so just use a hack to adapt it to the SDK code
+    // may need to rewrite if want to use it
+    UExtNN.actionFn = function(functionName) {
         // all temporary tables will have this tag appended in tableName
         var tmpTableTag = "_" + Authentication.getHashId().split("#")[1]
             + "nnTmpTable";
         var delim = '\\",\\"';
+        var ext = new XcSDK.Extension();
+
         switch (functionName) {
             case ("nnTrain"):
-                if (argList["numDatpoints"] != "") {
-                    return nnTrain(txId, tableName, argList["numDatapoints"],
-                                    argList["rate"], argList["maxIter"]);
-                } else {
-                    return PromiseHelper.reject(ErrTStr.NoEmpty);
-                }
+                ext.start = nnTrain;
+                return ext;
             case ("nnTest"):
-                return nnTest(txId, tableName, argList["dataNumTag"], argList["iterTag"]);
+                ext.start = nnTest;
+                return ext;
             default:
-                return PromiseHelper.reject("Invalid Function");
+                return null;
         }
 
-        function nnTest(txId, input, dataNumTag, iterTag) {
+        function nnTest() {
             if (verbose) {
                 console.log("Starting Neural Network Testing");
             }
 
             var deferred = jQuery.Deferred();
+            var ext = this;
+            // XXX hack of args
+            var input = ext.getTriggerTable().getName();
+            var txId = ext.txId;
+            var args = ext.getArgs();
+            var dataNumTag = args.dataNumTag;
+            var iterTag = args.iterTag;
+
             var tableId = xcHelper.getTableId(input);
             var table = gTables[tableId];
             var workSheet = WSManager.getWSFromTable(tableId);
@@ -281,12 +290,21 @@ window.UExtNN = (function(UExtNN, $) {
             }
         }
 
-        function nnTrain(txId, tableName, inputSize, rate, maxIter) {
+        function nnTrain() {
             if (verbose) {
                 console.log("Starting Neural Network Training");
             }
 
             var deferred = jQuery.Deferred();
+            var ext = this;
+            // XXX hack of args
+            var tableName = ext.getTriggerTable().getName();
+            var txId = ext.txId;
+            var args = ext.getArgs();
+            var inputSize = args.numDatapoints;
+            var rate = args.rate;
+            var maxIter = args.maxIter;
+
             var tableId = xcHelper.getTableId(tableName);
             var table = gTables[tableId];
             var workSheet = WSManager.getWSFromTable(tableId);
