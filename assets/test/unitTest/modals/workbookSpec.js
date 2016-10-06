@@ -75,14 +75,15 @@ describe('Workbook Test', function() {
 
     describe("Advanced Behavior Test", function() {
         it("Should create new workbook", function(done) {
-            var wkbkNum = $workbookPanel.find(".workbookBox").length;
+            var selector = ".workbookBox:not(.loading)";
+            var wkbkNum = $workbookPanel.find(selector).length;
             var name = xcHelper.randName("testWorkbook");
             var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
             $newWorkbookBox.find("input").val(name)
                     .end()
                     .find(".btn").click();
             var checkFunc = function() {
-                var diff = $workbookPanel.find(".workbookBox").length - wkbkNum;
+                var diff = $workbookPanel.find(selector).length - wkbkNum;
                 if (diff < 0) {
                     // error case
                     return null;
@@ -114,13 +115,14 @@ describe('Workbook Test', function() {
         });
 
         it("Should duplicate workbook", function(done) {
-            var wkbkNum = $workbookPanel.find(".workbookBox").length;
+            var selector = ".workbookBox:not(.loading)";
+            var wkbkNum = $workbookPanel.find(selector).length;
             var $box = $workbookPanel.find(".workbookBox").eq(0);
             var name = $box.find(".workbookName").val();
             $box.find(".duplicate").click();
 
             var checkFunc = function() {
-                var diff = $workbookPanel.find(".workbookBox").length - wkbkNum;
+                var diff = $workbookPanel.find(selector).length - wkbkNum;
                 if (diff < 0) {
                     // error case
                     return null;
