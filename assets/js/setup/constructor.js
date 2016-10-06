@@ -1123,9 +1123,37 @@ function WKBK(options) {
 }
 
 WKBK.prototype = {
-    "update": function() {
+    update: function() {
         // store modified data
         this.modified = xcHelper.getCurrentTimeStamp();
+    },
+
+    getId: function() {
+        return this.id;
+    },
+
+    getName: function() {
+        return this.name;
+    },
+
+    getCreateTime: function() {
+        return this.created;
+    },
+
+    getModifyTime: function() {
+        return this.modified;
+    },
+
+    getSrcUser: function() {
+        return this.srcUser;
+    },
+
+    getNumWorksheets: function() {
+        return this.numWorksheets;
+    },
+
+    isNoMeta: function() {
+        return this.noMeta || false;
     }
 };
 
@@ -2840,7 +2868,7 @@ ModalHelper.prototype = {
             }
         } else {
             // when open the modal
-            if (tableId) { 
+            if (tableId) {
                 $tableWrap.addClass('modalOpen');
             }
 

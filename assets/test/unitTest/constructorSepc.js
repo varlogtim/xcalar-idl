@@ -803,9 +803,33 @@ describe('Constructor Test', function() {
             .and.to.equal(2234);
             expect(wkbk).to.have.property('numWorksheets')
             .and.to.equal(12);
+        });
+
+        it('WKBK Basic function should work', function() {
+            var wkbk = new WKBK({
+                'name'         : 'test',
+                'id'           : 'testId',
+                'noMeta'       : false,
+                'srcUser'      : 'testUser',
+                'curUser'      : 'testUser',
+                'created'      : 1234,
+                'modified'     : 2234,
+                'numWorksheets': 12
+            });
+
+            expect(wkbk.getId()).to.equal('testId');
+            expect(wkbk.getName()).to.equal('test');
+            expect(wkbk.getCreateTime()).to.equal(1234);
+            expect(wkbk.getModifyTime()).to.equal(2234);
+            expect(wkbk.getSrcUser()).to.equal('testUser');
+            expect(wkbk.getNumWorksheets()).to.equal(12);
+            expect(wkbk.isNoMeta()).to.be.false;
+
+            wkbk.noMeta = true;
+            expect(wkbk.isNoMeta()).to.be.true;
 
             wkbk.update();
-            expect(wkbk.modified).not.to.equal(2234);
+            expect(wkbk.getModifyTime()).not.to.equal(2234);
         });
 
         it('WKBKSet should be constructor', function() {

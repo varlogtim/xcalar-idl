@@ -41,7 +41,6 @@
 
 	}
 
-
 	#workbookTopBar {
 		.title {
 			opacity: 1;
@@ -235,7 +234,6 @@
 	}
 
 	.newsBox {
-		
 		.description {
 			margin-top: 8px;
 			li {
@@ -374,10 +372,39 @@
 			}
 		}
 
+		&.loading {
+			.loadSection {
+				display: block;
+			}
+
+			.content, .rightBar {
+				display: none;
+			}
+		}
+
 		.content {
 			.flex(1 0 225px);
 			.innerContent {
 				width: 220px;
+			}
+		}
+
+		.loadSection {
+			position: relative;
+			opacity: 0.5;
+			display: none;
+			.size(100%, 100%);
+
+			.animatedEllipsisWrapper {
+				.size(@width: 140px, @height: 20px);
+				.center-align;
+
+				.animatedEllipsis {
+					> div {
+						.font(@weight: bold);
+						margin-left: 1px;
+					}
+				}
 			}
 		}
 

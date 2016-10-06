@@ -403,7 +403,15 @@ WKBKTStr = {
     "DelErr": "Error occurred in deleting workbook",
     // With replace
     'Conflict': 'Workbook "<name>" already exists, ' +
-                'please choose another name.'
+                'please choose another name.',
+    'Active': 'Active',
+    'Inactive': 'Inactive',
+    'Createby': 'Created by',
+    'CreateOn': 'Created on',
+    'Modified': 'Last modified',
+    'WS': 'Worksheets',
+    'Status': 'Status',
+    'Creating': 'Creating Workbook'
 };
 
 MonitorTStr = {

@@ -281,29 +281,24 @@ window.Workbook = (function($, Workbook) {
                 currentWorkbookName += "-" + Math.floor(Math.random()*100000);
             }
 
-            $workbookBox.find('.duplicate').addClass('inActive');
-            WorkbookManager.copyWKBK(workbookId, currentWorkbookName)
-            .then(function(newId) {
-                var newWorkbook = WorkbookManager.getWorkbook(newId);
-                var dup = createWorkbookCard(newId, currentWorkbookName,
-                                             newWorkbook.created,
-                                             newWorkbook.modified,
-                                             newWorkbook.srcUser,
-                                             newWorkbook.numWorksheets,
-                                             ["new", "animating"]);
-                $workbookBox.after(dup);
-                var $newCard = $(".workbookBox[data-workbook-id='" +
-                                     newId + "']");
-                setTimeout(function() {
-                    $newCard.removeClass('new');
-                    $workbookBox.find('.duplicate').removeClass('inActive');
-                }, 100);
-                // this class hides the right bar tabs during the slide out
-                // so they don't come out when the cursor is hovering over
-                setTimeout(function() {
-                    $newCard.removeClass('animating');
-                }, newBoxSlideTime);
+            var $dupButton = $workbookBox.find('.duplicate');
+            $dupButton.addClass('inActive');
+
+            var deferred1 = createLoadingCard($workbookBox);
+            var deferred2 = WorkbookManager.copyWKBK(workbookId,
+                                                    currentWorkbookName);
+
+            PromiseHelper.when(deferred1, deferred2)
+            .then(function($fauxCard, newId) {
+                replaceLoadingCard($fauxCard, newId);
+            })
+            .fail(function(error) {
+                StatusBox.show(error.error, $dupButton);
+            })
+            .always(function() {
+                $dupButton.removeClass('inActive');
             });
+
             $(".tooltip").remove();
         });
 
@@ -437,46 +432,29 @@ window.Workbook = (function($, Workbook) {
             return;
         }
 
+        $newWorkbookInput.blur();
+        var $buttons = $newWorkbookInput.find('button').addClass('inActive');
+
         Support.commitCheck()
         .then(function() {
-            return createNewWorkbook(workbookName);
+            var deferred1 = createLoadingCard($newWorkbookCard);
+            var deferred2 = WorkbookManager.newWKBK(workbookName);
+            return PromiseHelper.when(deferred1, deferred2);
         })
-        .then(function(id) {
-            // Get activeness
-            var classes = ['new', 'animating'];
-            if (WorkbookManager.getActiveWKBK() === id) {
-                classes.push('active');
-            }
-            var workbook = WorkbookManager.getWorkbook(id);
+        .then(function($fauxCard, id) {
+            replaceLoadingCard($fauxCard, id);
 
-            var html = createWorkbookCard(id, workbookName,
-                                          workbook.created,
-                                          workbook.modified,
-                                          workbook.srcUser,
-                                          workbook.numWorksheets,
-                                          classes);
-            $newWorkbookCard.after(html);
-            $newWorkbookCard.find('button').addClass('inActive');
-            var $newCard = $(".workbookBox[data-workbook-id='" +
-                                  id + "']");
-
-            // need to remove "new" class from workbookcard a split second
-            // after it's appended or it won't animate
-            setTimeout(function() {
-                $newCard.removeClass('new');
-                $newWorkbookInput.val('');
-                $newWorkbookCard.find('button').removeClass('inActive');
-                $lastFocusedInput = '';
-            }, 100);
-
-            // this class hides the right bar tabs during the slide out
-            // so they don't come out when the cursor is hovering over
-            setTimeout(function() {
-                $newCard.removeClass('animating');
-            }, newBoxSlideTime);
+            $newWorkbookInput.val('');
+            $lastFocusedInput = '';
         })
         .fail(function(error) {
             StatusBox.show(error.error, $newWorkbookInput);
+
+            $lastFocusedInput = $newWorkbookInput;
+            $newWorkbookInput.focus();
+        })
+        .always(function() {
+            $buttons.removeClass('inActive');
         });
     }
 
@@ -495,10 +473,68 @@ window.Workbook = (function($, Workbook) {
     //     }
     // }
 
-    function createWorkbookCard(workbookId, workbookName, createdTime,
-                                modifiedTime, username, numWorksheets,
-                                extraClasses) {
+    function createLoadingCard($sibling) {
+        var deferred = jQuery.Deferred();
+        // placeholder
+        var workbook = new WKBK({
+            "id"  : "",
+            "name": ""
+        });
+        var extraClasses = ["loading", "new", "animating"];
+        var html = createWorkbookCard(workbook, extraClasses);
+
+        var $newCard = $(html);
+        $sibling.after($newCard);
+
+        // need to remove "new" class from workbookcard a split second
+        // after it's appended or it won't animate
+        setTimeout(function() {
+            $newCard.removeClass('new');
+        }, 100);
+
+        // this class hides the right bar tabs during the slide out
+        // so they don't come out when the cursor is hovering over
+        setTimeout(function() {
+            $newCard.removeClass('animating');
+            deferred.resolve($newCard);
+        }, newBoxSlideTime);
+
+        return deferred.promise();
+    }
+
+    function replaceLoadingCard($card, workbookId) {
+        var classes = ['loading'];
+        // Get activeness
+        if (WorkbookManager.getActiveWKBK() === workbookId) {
+            classes.push('active');
+        }
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        var $updateCard = $(createWorkbookCard(workbook, classes));
+        $card.replaceWith($updateCard);
+
+        var animClasses = ".label, .info, .workbookName, .rightBar";
+        $updateCard.removeClass("loading")
+            .find(".loadSection").remove()
+            .end()
+            .find(animClasses).hide().fadeIn();
+    }
+
+    function createWorkbookCard(workbook, extraClasses) {
+        var workbookId = workbook.getId() || "";
+        var workbookName = workbook.getName() || "";
+        var createdTime = workbook.getCreateTime() || "";
+        var modifiedTime = workbook.getModifyTime() || "";
+        var username = workbook.getSrcUser() || "";
+        var numWorksheets = workbook.getNumWorksheets() || 0;
         var noSeconds = true;
+
+        extraClasses = extraClasses || [];
+
+        if (workbook.isNoMeta()) {
+            extraClasses.push("noMeta");
+            workbookName += " (" + WKBKTStr.NoMeta + ")";
+        }
+
         if (createdTime) {
             createdTime = xcHelper.getDate("-", null, createdTime) + ' ' +
                           xcHelper.getTime(null, createdTime, noSeconds);
@@ -510,90 +546,118 @@ window.Workbook = (function($, Workbook) {
                            xcHelper.getTime(null, modifiedTime, noSeconds);
         }
         var activateTooltip;
-        if (extraClasses.indexOf("active") > -1) {
-            isActive = "Active";
+        var isActive;
+
+        if (extraClasses.includes("active")) {
+            isActive = WKBKTStr.Active;
             activateTooltip = WKBKTStr.ReturnWKBK;
         } else {
-            isActive = "Inactive";
+            isActive = WKBKTStr.Inactive;
             activateTooltip = WKBKTStr.Activate;
         }
 
-        return '<div class="box box-small workbookBox ' +
-                    extraClasses.join(" ") + '" data-workbook-id="' +
-                    workbookId +'">' +
-                    '<div class="innerBox">' +
-                        '<div class="content">' +
-                            '<div class="innerContent">' +
-                                '<div class="subHeading">' +
-                                    '<input type="text" class="workbookName" ' +
-                                    'value="' + workbookName +
-                                    '" spellcheck="false"/>' +
-                                '</div>' +
-                                '<div class="infoSection topInfo">' +
-                                    '<div class="row clearfix">' +
-                                        '<div class="label">Created by:</div>' +
-                                        '<div class="info username">' +
+        var html =
+            '<div class="box box-small workbookBox ' +
+            extraClasses.join(" ") + '"' +
+            ' data-workbook-id="' + workbookId +'">' +
+                '<div class="innerBox">' +
+                    '<div class="loadSection">' +
+                        '<div class="refreshIcon">' +
+                            '<img src="' + paths.waitIcon + '">' +
+                        '</div>' +
+                        '<div class="animatedEllipsisWrapper">' +
+                            '<div class="text">' +
+                                WKBKTStr.Creating +
+                            '</div>' +
+                            '<div class="animatedEllipsis">' +
+                                '<div>.</div>' +
+                                '<div>.</div>' +
+                                '<div>.</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="content">' +
+                        '<div class="innerContent">' +
+                            '<div class="subHeading">' +
+                                '<input type="text" class="workbookName"' +
+                                ' value="' + workbookName + '"' +
+                                ' spellcheck="false"/>' +
+                            '</div>' +
+                            '<div class="infoSection topInfo">' +
+                                '<div class="row clearfix">' +
+                                    '<div class="label">' +
+                                        WKBKTStr.Createby + ':' +
+                                    '</div>' +
+                                    '<div class="info username">' +
                                         username +
-                                        '</div>' +
-                                    '</div>'+
-                                    '<div class="row clearfix">'+
-                                        '<div class="label">Created on:</div>'+
-                                        '<div class="info createdTime">' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="row clearfix">' +
+                                    '<div class="label">' +
+                                        WKBKTStr.CreateOn + ':' +
+                                    '</div>' +
+                                    '<div class="info createdTime">' +
                                         createdTime +
-                                        '</div>'+
-                                    '</div>'+
-                                    '<div class="row clearfix">'+
-                                        '<div class="label">Last Modified:' +
-                                        '</div>'+
-                                        '<div class="info modifiedTime">' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="row clearfix">' +
+                                    '<div class="label">' +
+                                        WKBKTStr.Modified + ':' +
+                                    '</div>' +
+                                    '<div class="info modifiedTime">' +
                                         modifiedTime +
-                                        '</div>'+
-                                    '</div>'+
-                                '</div>'+
-                                '<div class="infoSection bottomInfo">'+
-                                    '<div class="row clearfix">'+
-                                        '<div class="label">Worksheets:</div>' +
-                                        '<div class="info numWorksheets">' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="infoSection bottomInfo">' +
+                                '<div class="row clearfix">' +
+                                    '<div class="label">' +
+                                        WKBKTStr.WS + ':' +
+                                    '</div>' +
+                                    '<div class="info numWorksheets">' +
                                         numWorksheets +
-                                        '</div>'+
-                                    '</div>'+
-                                    '<div class="row clearfix">'+
-                                        '<div class="label">Status:</div>'+
-                                        '<div class="info isActive">' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="row clearfix">' +
+                                    '<div class="label">' +
+                                        WKBKTStr.Status + ':' +
+                                    '</div>' +
+                                    '<div class="info isActive">' +
                                         isActive +
-                                        '</div>'+
-                                    '</div>'+
-                                '</div>'+
-                            '</div>'+
-                        '</div>'+
-                        '<div class="rightBar vertBar">'+
-                            '<div class="tab btn btn-small activate" ' +
-                            'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="auto right"' +
-                            'title="' + activateTooltip + '">'+
-                                '<i class="icon xi-play-circle"></i>'+
-                            '</div>'+
-                            '<div class="tab btn btn-small modify" '+
-                            'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="auto right"' +
-                            'title="' + WKBKTStr.EditName + '">'+
-                                '<i class="icon xi-edit"></i>'+
-                            '</div>'+
-                            '<div class="tab btn btn-small duplicate" '+
-                            'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="auto right"' +
-                            'title="' + WKBKTStr.Duplicate + '">'+
-                                '<i class="icon xi-duplicate"></i>'+
-                            '</div>'+
-                            '<div class="tab btn btn-small delete" '+
-                            'data-toggle="tooltip" data-container="body" ' +
-                            'data-placement="auto right"' +
-                            'title="' + WKBKTStr.Delete + '">'+
-                                '<i class="icon xi-trash"></i>'+
-                            '</div>'+
-                        '</div>'+
-                    '</div>'+
-                '</div>';
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="rightBar vertBar">' +
+                        '<div class="tab btn btn-small activate"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="auto right"' +
+                        ' title="' + activateTooltip + '">' +
+                            '<i class="icon xi-play-circle"></i>' +
+                        '</div>' +
+                        '<div class="tab btn btn-small modify"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="auto right"' +
+                        ' title="' + WKBKTStr.EditName + '">' +
+                            '<i class="icon xi-edit"></i>' +
+                        '</div>' +
+                        '<div class="tab btn btn-small duplicate"' +
+                        ' data-toggle="tooltip" data-container="body" ' +
+                        ' data-placement="auto right"' +
+                        ' title="' + WKBKTStr.Duplicate + '">' +
+                            '<i class="icon xi-duplicate"></i>' +
+                        '</div>' +
+                        '<div class="tab btn btn-small delete"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="auto right"' +
+                        ' title="' + WKBKTStr.Delete + '">' +
+                            '<i class="icon xi-trash"></i>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        return html;
     }
 
     function addWorkbooks() {
@@ -609,47 +673,15 @@ window.Workbook = (function($, Workbook) {
         var isNum = (sortkey === "created" || sortkey === "modified");
         sorted = sortObj(sorted, sortkey, isNum);
         sorted.forEach(function(workbook) {
-            var wkbkId        = workbook.id;
-            var created       = workbook.created;
-            var modified      = workbook.modified;
-            var numWorksheets = workbook.numWorksheets;
-            var extraClasses  = [];
-            var name          = workbook.name;
-
-            if (wkbkId === activeWKBKId) {
-                isActive = true;
+            var extraClasses = [];
+            if (workbook.getId() === activeWKBKId) {
                 extraClasses.push("active");
             }
 
-            if (workbook.noMeta) {
-                extraClasses.push("noMeta");
-                name += " (" + WKBKTStr.NoMeta + ")";
-            }
-
-            var createdTime = created || "";
-            var modifiedTime = modified || "";
-
-            html = createWorkbookCard(wkbkId, name, createdTime, modifiedTime,
-                                       workbook.srcUser, numWorksheets,
-                                       extraClasses) + html;
-
+            html = createWorkbookCard(workbook, extraClasses) + html;
         });
 
         $newWorkbookCard.after(html);
-    }
-
-    function createNewWorkbook(workbookName) {
-        var deferred = jQuery.Deferred();
-        WorkbookManager.newWKBK(workbookName)
-        .then(function(id) {
-            deferred.resolve(id);
-            $newWorkbookInput.blur();
-        })
-        .fail(function(error) {
-            deferred.reject(error);
-            $lastFocusedInput = $newWorkbookInput;
-        });
-        return deferred.promise();
     }
 
     function sortObj(objs, key, isNum) {
