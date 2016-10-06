@@ -398,7 +398,7 @@ window.TblAnim = (function($, TblAnim) {
                                         ') td > div');
             xcHelper.disableTextSelection();
 
-            $('body').addClass('hideScroll tooltipOff')
+            $('body').addClass('tooltipOff')
                      .append('<div id="rowResizeCursor"></div>');
             rowInfo.targetTd.closest('tr').addClass('changedHeight');
             rowInfo.actualTd.closest('tr').addClass('dragging');
@@ -443,7 +443,7 @@ window.TblAnim = (function($, TblAnim) {
         // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
         var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
         xcHelper.reenableTextSelection();
-        $('body').removeClass('hideScroll tooltipOff');
+        $('body').removeClass('tooltipOff');
         $('#rowResizeCursor').remove();
         unlockScrolling($('#mainFrame'), 'horizontal');
         var $table = $('#xcTable-' + rowInfo.tableId);
@@ -647,7 +647,6 @@ window.TblAnim = (function($, TblAnim) {
             // create a fake transparent column by cloning
 
             createTransparentDragDropCol(pageX);
-            $tbodyWrap.addClass('hideScroll');
 
             // create a replica shadow with same column width, height,
             // and starting position
@@ -716,7 +715,6 @@ window.TblAnim = (function($, TblAnim) {
         $('#mainFrame').off('scroll', mainFrameScrollDropTargets)
                        .scrollTop(0);
         xcHelper.reenableTextSelection();
-        $tableWrap.find('.xcTbodyWrap').removeClass('hideScroll');
         if (dragInfo.inFocus) {
             dragInfo.element.find('.editableHead').focus();
         }

@@ -417,14 +417,19 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                             "#deleteTableModal-archived, " +
                             "#deleteTableModal-active");
         var errorMsg = "";
+        var hasSuccess = false;
+        var failedTablesStr = "";
+        var failedTables = [];
+        var failedMsgs = [];
         for (var i = 0; i < args.length; i++) {
             if (args[i] && args[i].fails) {
-                if (!errorMsg) {
-                    errorMsg = args[i].fails[0].error;
+                if (args[i].hasSuccess) {
+                    hasSuccess = true;
                 }
                 for (var j = 0; j < args[i].fails.length; j++) {
                     var tableName = args[i].fails[j].tables;
-
+                    failedTables.push(tableName);
+                    failedMsgs.push(args[i].fails[j].error);
                     var $gridUnit = $containers.find('.grid-unit')
                         .filter(function() {
                            $grid = $(this);
@@ -433,6 +438,19 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                     $gridUnit.addClass('failed');
                 }
             }
+        }
+        if (hasSuccess) {
+            if (failedTables.length === 1) {
+                errorMsg = failedMsgs[0] + ". " +
+                            xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
+                                                    "name": failedTables[0]
+                                                });
+            } else {
+                errorMsg = failedMsgs[0] + ". " +
+                           StatusMessageTStr.PartialDeleteTableFail;
+            }
+        } else {
+            errorMsg = failedMsgs[0] + ". " + ErrTStr.NoTablesDeleted;
         }
      
         var $firstGrid = $containers.find('.grid-unit.failed').eq(0);

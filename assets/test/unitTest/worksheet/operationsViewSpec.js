@@ -621,7 +621,7 @@ describe('OperationsView', function() {
         });
 
         describe('run map functions', function() {
-            this.timeout(10000);
+            this.timeout(15000);
             var submitForm;
             before(function() {
                 submitForm = OperationsView.__testOnly__.submitForm;
@@ -645,7 +645,6 @@ describe('OperationsView', function() {
                 .always(function() {
                     done();
                 });
-                
             });
 
             it ('udf default:splitWithDelim should work', function(done) {

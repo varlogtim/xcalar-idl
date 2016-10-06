@@ -1233,7 +1233,7 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
-    // returns {hasSuccess:boolean,
+    // returns {hasSuccess:boolean, 
     //          fails: [{tables: "tableName", error: "error"}]}
     function tableDeleteFailHandler(results, tables, noAlert, noLog, txId) {
         var hasSuccess = false;
@@ -1241,7 +1241,7 @@ window.TblManager = (function($, TblManager) {
         var errorMsg = "";
         var tablesMsg = "";
         var failedTablesStr = "";
-        // var failedTables = [];
+        var failedTables = [];
         for (var i = 0, len = results.length; i < len; i++) {
             if (results[i] != null && results[i].error != null) {
                 fails.push({tables: tables[i], error: results[i].error});
@@ -1253,33 +1253,37 @@ window.TblManager = (function($, TblManager) {
 
         var numFails = fails.length;
         if (numFails) {
-            failedTablesStr = failedTablesStr.substr(0,
+            failedTablesStr = failedTablesStr.substr(0, 
                               failedTablesStr.length - 2);
-            if (numFails > 1) {
-                tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTablesStr;
-            } else {
+            if (numFails === 1) {
                 tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
                     "name": failedTablesStr
                 });
+            } else { // numFails > 1
+                tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTablesStr;
             }
         }
 
         if (hasSuccess) {
             Transaction.done(txId);
+            errorMsg = fails[0].error + ". " + tablesMsg; 
             if (numFails && !noAlert) {
-                errorMsg = fails[0].error + ". " + tablesMsg;
                 Alert.error(StatusMessageTStr.PartialDeleteTableFail, errorMsg);
             }
-        } else if (!noLog) {
-            Transaction.fail(txId, {
-                "error"  : fails[0].error + ". " + ErrTStr.NoTablesDeleted,
-                "failMsg": StatusMessageTStr.DeleteTableFailed,
-                "noAlert": noAlert
-            });
+        } else {
+            errorMsg = fails[0].error + ". " + ErrTStr.NoTablesDeleted;
+            if (!noLog) {
+                Transaction.fail(txId, {
+                    "error"  : errorMsg,
+                    "failMsg": StatusMessageTStr.DeleteTableFailed,
+                    "noAlert": noAlert
+                });
+            }
         }
         return ({
             hasSuccess: hasSuccess,
-            fails     : fails
+            fails: fails,
+            errorMsg: errorMsg
         });
     }
 

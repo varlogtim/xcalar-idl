@@ -533,8 +533,13 @@ window.FnBar = (function(FnBar, $) {
         var $colInput = $lastColInput;
         var $table   = $colInput.closest('.dataTable');
         var tableId  = xcHelper.parseTableId($table);
-        var colNum   = xcHelper.parseColNum($colInput);
         var table    = gTables[tableId];
+        if (!table) {
+            return;
+        }
+        var colNum   = xcHelper.parseColNum($colInput);
+        
+        
         var tableCol = table.tableCols[colNum - 1];
 
         tableCol.userStr = "\"" + tableCol.name + "\"" + " = " +
