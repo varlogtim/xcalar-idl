@@ -883,12 +883,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $arguments.each(function(i) {
             var argInfo = extFields[i];
             // check type column later
+            var res = checkArg(argInfo, $(this));
+            if (!res.valid) {
+                invalidArg = true;
+                return false;
+            }
+
             if (argInfo.type !== "column") {
-                var res = checkArg(argInfo, $(this));
-                if (!res.valid) {
-                    invalidArg = true;
-                    return false;
-                }
                 args[argInfo.fieldClass] = res.arg;
             }
         });
@@ -900,7 +901,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $arguments.each(function(i) {
             var argInfo = extFields[i];
             if (argInfo.type === "column") {
-                var res = checkArg(argInfo, $(this), extTableId, args);
+                var res = checkArg(argInfo, $(this), extTableId, args, true);
                 if (!res.valid) {
                     invalidArg = true;
                     return false;
@@ -916,7 +917,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
     }
 
-    function checkArg(argInfo, $input, extTableId, args) {
+    function checkArg(argInfo, $input, extTableId, args, checkColName) {
         var arg;
         var argType = argInfo.type;
         var typeCheck = argInfo.typeCheck || {};
@@ -973,14 +974,18 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             });
 
         } else if (argType === "column") {
-            if (!xcHelper.hasValidColPrefix(arg)) {
+            // check in first round
+            if (!checkColName && !xcHelper.hasValidColPrefix(arg)) {
                 StatusBox.show(ErrTStr.ColInModal, $input);
                 return { "vaild": false };
             }
 
-            arg = getColInfo(arg, typeCheck, $input, extTableId, args);
-            if (arg == null) {
-                return { "vaild": false };
+            // check in second round
+            if (checkColName) {
+                arg = getColInfo(arg, typeCheck, $input, extTableId, args);
+                if (arg == null) {
+                    return { "vaild": false };
+                }
             }
         } else if (argType === "number") {
             arg = Number(arg);
