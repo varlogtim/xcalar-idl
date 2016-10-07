@@ -375,7 +375,7 @@ TblTStr = {
 ColTStr = {
 'SplitColWarn': '许多列将产生',
 'SplitColWarnMsg': '关于<num>列将产生，还要不要继续操作？',
-'RenamSpecialChar': '无效的名称，不能包含，\'（）\“或开始或结束空间'
+'RenameSpecialChar': '无效的名称，不能包含，\'（）\“或开始或结束空间'
 };
 SideBarTStr = {
 'SendToWS': '发送到工作表',

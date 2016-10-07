@@ -3242,7 +3242,7 @@ window.OperationsView = (function($, OperationsView) {
             });
             invalid = false;
         } else if (/^ | $|[,\(\)'"]/.test(val) === true) {
-            errorTitle = ColTStr.RenamSpecialChar;
+            errorTitle = ColTStr.RenameSpecialChar;
             invalid = true;
         } else if (val.length < 2) {
             errorTitle = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggLength, {

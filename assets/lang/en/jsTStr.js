@@ -540,9 +540,9 @@ TblTStr = {
 
 ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
-    'RenamSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\"::or ' +
+    'RenameSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\"::or ' +
                         'starting or ending spaces',
-    'RenameStartNum': 'Invalid name, cannot starts with number',
+    'RenameStartNum': 'Invalid name, cannot begin with a number',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',
     // With Replace
