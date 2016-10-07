@@ -159,7 +159,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         setupView();
         // extensions.html should be autopopulated by the backend
         $("#extension-ops-script").empty(); // Clean up for idempotency
-        // XXX change to async call later
+        // change to async call later
+        // jquery 3 should not need it
+        $.ajaxPrefilter("script", function( options, originalOptions, jqXHR ) {
+            // only apply when it's loading extension
+            if (options.url.indexOf("assets/extensions/") >= 0) {
+                options.async = true;
+            }
+        });
         $("#extension-ops-script").load("assets/extensions/extensions.html",
                                 undefined, setupPart2);
     };
