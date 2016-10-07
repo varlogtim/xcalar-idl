@@ -189,39 +189,15 @@ window.ColManager = (function($, ColManager) {
         var deferred = jQuery.Deferred();
 
         var numColInfos = colTypeInfos.length;
-        var worksheet   = WSManager.getWSFromTable(tableId);
-        var table       = gTables[tableId];
-        var tableName   = table.tableName;
-        var tableCols   = table.tableCols;
-
-        var tableNamePart = tableName.split("#")[0];
-        var newTableNames = [];
-        var newFieldNames = [];
-        var mapStrings = [];
-        var resizeHeaders = []; // booleans for whether to resize col header
-
-        var i;
-        for (i = numColInfos - 1; i >= 0; i--) {
-            newTableNames[i] = tableNamePart + Authentication.getHashId();
-            var colInfo = colTypeInfos[i];
-            var col = tableCols[colInfo.colNum - 1];
-            var colName = xcHelper.stripeColName(col.getFrontColName()) +
-                            "_" + colInfo.type;
-            // here use front col name to generate newColName
-            newFieldNames[i] = xcHelper.getUniqColName(tableId, colName);
-            mapStrings[i] = xcHelper.castStrHelper(col.getBackColName(), colInfo.type);
-            resizeHeaders[i] = col.sizedToHeader;
-        }
-
-        // this makes it easy to get previous table name
-        // when index === numColInfos
-        newTableNames[numColInfos] = tableName;
+        var worksheet = WSManager.getWSFromTable(tableId);
+        var table = gTables[tableId];
+        var tableName = table.getName();
+        var curTableName = tableName;
 
         var sql = {
             "operation"   : SQLOps.ChangeType,
             "tableName"   : tableName,
             "tableId"     : tableId,
-            "newTableName": newTableNames[0],
             "colTypeInfos": colTypeInfos
         };
 
@@ -235,16 +211,21 @@ window.ColManager = (function($, ColManager) {
         xcHelper.lockTable(tableId, txId);
 
         var promises = [];
-        for (i = numColInfos - 1; i >= 0; i--) {
+        for (var i = 0; i < numColInfos; i++) {
             promises.push(changeTypeHelper.bind(this, i));
         }
 
         PromiseHelper.chain(promises)
-        .then(function(newTableId) {
+        .then(function(newTableName) {
+            sql.newTableName = newTableName;
+            var newTableId = xcHelper.getTableId(newTableName);
             // map do not change stats of the table
             Profile.copy(tableId, newTableId);
             xcHelper.unlockTable(tableId);
-            Transaction.done(txId, {"msgTable": newTableId});
+            Transaction.done(txId, {
+                "msgTable": newTableId,
+                "sql"     : sql
+            });
             deferred.resolve(newTableId);
         })
         .fail(function(error) {
@@ -257,53 +238,64 @@ window.ColManager = (function($, ColManager) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
 
         function changeTypeHelper(index) {
             var innerDeferred = jQuery.Deferred();
 
-            var curTableName = newTableNames[index + 1];
-            var newTableName = newTableNames[index];
-            var fieldName = newFieldNames[index];
-            var mapString = mapStrings[index];
-            var curColNum = colTypeInfos[index].colNum;
-            var resize = resizeHeaders[index];
+            var srcTable = curTableName;
+            var newTable;
 
-            XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
-            .then(function() {
-                var mapOptions = {"replaceColumn": true, "resize": resize};
-                var curTableId = xcHelper.getTableId(curTableName);
-                var curTableCols = gTables[curTableId].tableCols;
+            var colInfo = colTypeInfos[index];
+            var colNum = colInfo.colNum;
+            var colType = colInfo.type;
 
-                var newTablCols = xcHelper.mapColGenerate(curColNum, fieldName,
-                                        mapString, curTableCols, mapOptions);
+            var progCol = table.getCol(colNum);
+            var frontName = progCol.getFrontColName();
+            var backName = progCol.getBackColName();
 
-                if (index > 0) {
-                    TblManager.setOrphanTableMeta(newTableName, newTablCols);
-                    return PromiseHelper.resolve(null);
+            var mapStr = xcHelper.castStrHelper(backName, colType);
+            var fieldName = xcHelper.stripeColName(frontName) + "_" + colType;
+            // here use front col name to generate newColName
+            fieldName = xcHelper.getUniqColName(tableId, fieldName);
+
+            XIApi.map(txId, mapStr, srcTable, fieldName)
+            .then(function(tableAfterMap) {
+                newTable = tableAfterMap;
+
+                var mapOptions = {
+                    "replaceColumn": true,
+                    "resize"       : true
+                };
+                var srcTableId = xcHelper.getTableId(srcTable);
+                var srcTableCols = gTables[srcTableId].tableCols;
+
+                var newTablCols = xcHelper.mapColGenerate(colNum, fieldName,
+                                        mapStr, srcTableCols, mapOptions);
+
+                if (index !== numColInfos - 1) {
+                    TblManager.setOrphanTableMeta(newTable, newTablCols);
+                    return;
                 } else {
-                    var colNums = [];
-                    for (var i = 0; i < colTypeInfos.length; i++) {
-                        colNums.push(colTypeInfos[i].colNum);
-                    }
+                    var colNums = colTypeInfos.map(function(info) {
+                        return info.colNum;
+                    });
                     var options = {
-                        selectCol: colNums
+                        "selectCol": colNums
                     };
 
-                    return TblManager.refreshTable([newTableName], newTablCols,
-                                               [tableName], worksheet, txId,
-                                               options);
+                    return TblManager.refreshTable([newTable], newTablCols,
+                                                [tableName], worksheet, txId,
+                                                options);
                 }
             })
             .then(function() {
-                var newTableId = xcHelper.getTableId(newTableName);
-                innerDeferred.resolve(newTableId);
+                curTableName = newTable;
+                innerDeferred.resolve(newTable);
             })
-            .fail(function(error) {
-                innerDeferred.reject(error);
-            });
+            .fail(innerDeferred.reject);
 
-            return (innerDeferred.promise());
+            return innerDeferred.promise();
         }
     };
 
@@ -502,9 +494,9 @@ window.ColManager = (function($, ColManager) {
                 return XIApi.aggregate(txId, AggrOp.MaxInteger, fieldName, newTableName);
             })
             .then(function(value) {
+                XcalarDeleteTable(newTableName, txId);
                 // Note that the splitColNum should be charCountNum + 1
                 alertHelper(value + 1, null, innerDeferred);
-                // XXXX Should delete the newTableName when delete is enabled
             })
             .fail(innerDeferred.reject);
 
