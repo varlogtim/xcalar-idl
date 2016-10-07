@@ -5,7 +5,7 @@ window.Workbook = (function($, Workbook) {
     var $newWorkbookCard; // $workbookPanel.find(".newWorkbookBox")
     var $newWorkbookInput; // $newWorkbookCard.find("input")
     var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
-    var sortkey = "created"; // No longer user configurable
+    var sortkey = "modified"; // No longer user configurable
     var $lastFocusedInput; // Should always get reset to empty
     var wasMonitorActive = false; // Track previous monitor panel state for when
                                   // workbook closes
@@ -117,9 +117,7 @@ window.Workbook = (function($, Workbook) {
         // Create a new workbook with the name already selected - Prompting
         // the user to click Create Workbook
         var name = getNewWorkbookName();
-        $newWorkbookInput.val(name);
-        var input = $newWorkbookInput.get(0);
-        input.setSelectionRange(0, input.value.length);
+        $newWorkbookInput.val(name).select();
     };
 
     function resetWorkbook() {
@@ -205,7 +203,7 @@ window.Workbook = (function($, Workbook) {
         });
 
         // New Workbook card
-        $newWorkbookCard.on("click", "button", createNewWorkbookListener);
+        $newWorkbookCard.on("click", "button", createNewWorkbook);
 
         $newWorkbookInput.on("focus", function() {
             clearActives();
@@ -401,13 +399,13 @@ window.Workbook = (function($, Workbook) {
         $welcomeMsg.text(WKBKTStr.CurWKBKInstr);
     }
 
-    function createNewWorkbookListener() {
+    function createNewWorkbook() {
         var workbookName = $newWorkbookInput.val();
-        var err1 = xcHelper.replaceMsg(WKBKTStr.Conflict, {
+        var error = xcHelper.replaceMsg(WKBKTStr.Conflict, {
             "name": workbookName
         });
 
-        isValid = xcHelper.validate([
+        var isValid = xcHelper.validate([
             {
                 "$selector": $newWorkbookInput,
                 "formMode" : true
@@ -415,11 +413,11 @@ window.Workbook = (function($, Workbook) {
             {
                 "$selector": $newWorkbookInput,
                 "formMode" : true,
-                "text"     : err1,
+                "text"     : error,
                 "check"    : function() {
                     var workbooks = WorkbookManager.getWorkbooks();
                     for (var wkbkId in workbooks) {
-                        if (workbooks[wkbkId].name === workbookName) {
+                        if (workbooks[wkbkId].getName() === workbookName) {
                             return true;
                         }
                     }

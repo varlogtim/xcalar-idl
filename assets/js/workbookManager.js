@@ -141,6 +141,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
             if (isCopy) {
                 options.numWorksheets = copySrc.numWorksheets;
+                options.modified = copySrc.modified;
             }
 
             wkbk = new WKBK(options);
