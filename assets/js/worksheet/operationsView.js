@@ -2263,13 +2263,17 @@ window.OperationsView = (function($, OperationsView) {
                     .then(function(isPassing) {
                         if (!isPassing) {
                             formHelper.enableSubmit();
+                            deferred.reject();
                         } else {
-                            submitFinalForm(args);
+                            submitFinalForm(args)
+                            .then(deferred.resolve)
+                            .fail(deferred.reject);
                         }
                     })
                     .fail(function(error) {
                         console.error(error);
                         formHelper.enableSubmit();
+                        deferred.reject();
                     });
                 } else {
                     isPassing = true;
@@ -2282,6 +2286,7 @@ window.OperationsView = (function($, OperationsView) {
         if (!isPromise) {
             if (!isPassing) {
                 formHelper.enableSubmit();
+                deferred.reject();
             } else {
                 // if there are multiple sets of arguments such as filter
                 var hasMultipleSets = false;
@@ -2289,19 +2294,22 @@ window.OperationsView = (function($, OperationsView) {
                     args = multipleArgSets;
                     hasMultipleSets = true;
                 }
-                submitFinalForm(args, hasMultipleSets, deferred);
+                submitFinalForm(args, hasMultipleSets)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
             }
         }
 
         return deferred.promise();
     }
 
-    function submitFinalForm(args, hasMultipleSets, deferred) {
+    function submitFinalForm(args, hasMultipleSets) {
+        var deferred = jQuery.Deferred();
         var func = funcName;
         var funcLower = func;
         var isPassing;
 
-        // all operation have their own way to show error StatusBox
+        // all operations have their own way to show error StatusBox
         switch (operatorName) {
             case ('aggregate'):
                 isPassing = aggregateCheck(args);
@@ -2345,32 +2353,39 @@ window.OperationsView = (function($, OperationsView) {
                 colTypeInfos = getCastInfo(args, 0);
             }
            
-
+            var promise;
             switch (operatorName) {
                 case ('aggregate'):
-                    aggregate(func, args, colTypeInfos, deferred);
+                    promise = aggregate(func, args, colTypeInfos);
                     break;
                 case ('filter'):
-                    filter(func, args, colTypeInfos, hasMultipleSets, deferred);
+                    promise = filter(func, args, colTypeInfos, hasMultipleSets);
                     break;
                 case ('group by'):
-                    groupBy(func, args, colTypeInfos, deferred);
+                    promise = groupBy(func, args, colTypeInfos);
                     break;
                 case ('map'):
-                    map(funcLower, args, colTypeInfos, deferred);
+                    promise = map(funcLower, args, colTypeInfos);
                     break;
                 default:
                     showErrorMessage(0);
                     isPassing = false;
-                    deferred.reject();
+                    // deferred.reject();
+                    promise = PromiseHelper.reject();
                     break;
             }
+
+            promise
+            .then(deferred.resolve)
+            .fail(deferred.reject);
 
             closeOpSection();
         } else {
             formHelper.enableSubmit();
             deferred.reject();
         }
+
+        return deferred.promise();
     }
 
 
@@ -2756,7 +2771,8 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function aggregate(aggrOp, args, colTypeInfos, deferred) {
+    function aggregate(aggrOp, args, colTypeInfos) {
+        var deferred = jQuery.Deferred();
         var aggColNum;
         var tableCol;
         var aggStr;
@@ -2788,7 +2804,7 @@ window.OperationsView = (function($, OperationsView) {
             submissionFailHandler(startTime, error);
             deferred.reject();
         });
-        return true;
+        return deferred.promise();
     }
 
     function filterCheck(operator, args, $input) {
@@ -2805,7 +2821,8 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function filter(operator, args, colTypeInfos, hasMultipleSets, deferred) {
+    function filter(operator, args, colTypeInfos, hasMultipleSets) {
+        var deferred = jQuery.Deferred();
         var filterColNum;
         // var colName;
         var firstArg;
@@ -2837,19 +2854,19 @@ window.OperationsView = (function($, OperationsView) {
             deferred.reject();
         });
 
-        return true;
+        return deferred.promise();
     }
 
     function getColNum(backColName) {
         return gTables[tableId].getColNumByBackName(backColName);
     }
 
-    function groupBy(operator, args, colTypeInfos, deferred) {
+    function groupBy(operator, args, colTypeInfos) {
         // Current groupBy args has at least 3 arguments:
         // 1. grouby col
         // 2. indexed col
         // 3. new col name
-        
+        var deferred = jQuery.Deferred();
         var numArgs = args.length;
         var groupByColIndex = numArgs - 2;
         var groupByColName = args[groupByColIndex];
@@ -2901,6 +2918,7 @@ window.OperationsView = (function($, OperationsView) {
             submissionFailHandler(startTime, error);
             deferred.reject();
         });
+        return deferred.promise();
     }
 
     function groupByCheck(args) {
@@ -2945,7 +2963,8 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function map(operator, args, colTypeInfos, deferred) {
+    function map(operator, args, colTypeInfos) {
+        var deferred = jQuery.Deferred();
         var numArgs = args.length;
         var newColName = args.splice(numArgs - 1, 1)[0];
         var mapStr = formulateMapFilterString(operator, args, colTypeInfos);
@@ -2972,6 +2991,7 @@ window.OperationsView = (function($, OperationsView) {
             submissionFailHandler(startTime, error);
             deferred.reject();
         });
+        return deferred.promise();
     }
     //show alert to go back to op view
     function submissionFailHandler(startTime) {
