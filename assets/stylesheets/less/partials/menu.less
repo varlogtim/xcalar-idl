@@ -565,7 +565,7 @@
         }
     }
 
-    &.type-undefined {
+    &.type-undefined, {
         .sort, .aggregate, .groupby, .joinList, .operations,
         .profile
         {
@@ -573,13 +573,13 @@
         }
     }
 
-    &.type-undefined {
+    &.type-undefined, &.type-newColumn {
         .operations, .map {
             display: list-item;
         }
     }
 
-    &.type-object, &.type-array, &.type-undefined,
+    &.type-object, &.type-array, &.type-undefined, &.type-newColumn,
     &.recordNum {
         .changeDataType, .hPartition, .format, .roundToFixed, .extensions {
             display: none;

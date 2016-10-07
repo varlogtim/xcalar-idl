@@ -513,50 +513,36 @@ TableMeta.prototype = {
 
 function ProgCol(options) {
     options = options || {};
-
-    if (options.isNewCol == null) {
-        this.isNewCol = true;
-    } else {
-        this.isNewCol = options.isNewCol;
+    var defaultOptions = {
+        childOfArray : false,
+        decimals     : -1,
+        format       : null,
+        immediate    : false,
+        isHidden     : false,
+        isNewCol     : true,
+        name         : "",
+        sizedToHeader: true,
+        textAlign    : "Center",
+        type         : ColumnType.undefined,
+        userStr      : "",
+        width        : gNewCellWidth
+    };
+    options = $.extend(defaultOptions, options);
+    for (var option in options) {
+        if (option !== "backName" && option !== "func"
+            && typeof options[option] !== "function") {
+           this[option] = options[option]; 
+        } 
     }
 
-    this.name = options.name || "";
-
     if (options.backName == null) {
-        // xx kinda crazy but the backend returns a lot of \ slashes
         // this.backName = xcHelper.escapeColName(this.name.replace(/\./g, "\\."));
         this.backName = this.name;
     } else {
         this.backName = options.backName;
     }
 
-    this.type = options.type || ColumnType.undefined;
     this.func = new ColFunc(options.func);
-    this.width = options.width || gNewCellWidth;
-    this.userStr = options.userStr || "";
-    this.textAlign = options.textAlign || "Center";
-    if (options.sizedToHeader != null) {
-        this.sizedToHeader = options.sizedToHeader;
-    } else {
-        this.sizedToHeader = true;
-    }
-
-    if (options.immediate === true) {
-        this.immediate = true;
-    }
-
-    if (options.decimals == null) {
-        this.decimals = -1;
-    } else {
-        this.decimals = options.decimals;
-    }
-
-    this.format = options.format || null;
-    this.isHidden = options.isHidden || false;
-
-    if (options.childOfArray) {
-        this.childOfArray = true;
-    }
 
     return this;
 }
@@ -674,6 +660,40 @@ ProgCol.prototype = {
 
     "beChidOfArray": function() {
         this.childOfArray = true;
+    },
+
+    "stringifyFunc": function() {
+        var self = this;
+        var str = "";
+
+        parseFunc(self.func);
+
+        function parseFunc(func) {
+            if (func.name) {
+                if (str !== "") {
+                    str += "(";
+                }
+                str += func.name;
+            }
+
+            var args = func.args;
+            for (var i = 0; i < args.length; i++) {
+                if (typeof args[i] !== "object") {
+                    if (i === 0) {
+                        str += "(";
+                    } else {
+                        str += ",";
+                    }
+                    str += args[i];
+                } else if (typeof args[i] === "object") {
+                    parseFunc(args[i]);
+                }
+                if (i === func.args.length - 1) {
+                    str += ")";
+                }
+            }
+        }
+        return str;
     },
 
     "parseFunc": function() {

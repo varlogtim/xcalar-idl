@@ -603,21 +603,21 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function functionBarEnter() {
-        var fnBarVal = editor.getValue();
-        var fnBarValTrim = fnBarVal.trim();
+        var fnBarVal = editor.getValue().trim();
         var $colInput = $lastColInput;
 
         if (!$colInput || !$colInput.length) {
             return;
         }
 
-        if (fnBarValTrim.indexOf('=') === 0) {
+        if (fnBarVal.indexOf('=') === 0) {
             var $table   = $colInput.closest('.dataTable');
             var tableId  = xcHelper.parseTableId($table);
             var colNum   = xcHelper.parseColNum($colInput);
             var table    = gTables[tableId];
             var tableCol = table.tableCols[colNum - 1];
             var colName  = tableCol.name;
+            var cursor = editor.getCursor();
 
             if (tableCol.isNewCol && colName === "") {
                 // when it's new column and do not give name yet
@@ -627,12 +627,15 @@ window.FnBar = (function(FnBar, $) {
 
             $fnBar.removeClass("inFocus");
 
-            var newFuncStr = '"' + colName + '" ' + fnBarValTrim;
+            var newFuncStr = '"' + colName + '" ' + fnBarVal;
             var oldUsrStr  = tableCol.userStr;
+            var fnBarValNoSpace = xcHelper.removeNonQuotedSpaces(
+                                                        fnBarVal.slice(1));
+            var oldUsrStrNoSpace =  tableCol.stringifyFunc();
 
             $colInput.blur();
             // when usrStr not change
-            if (newFuncStr === oldUsrStr) {
+            if (fnBarValNoSpace === oldUsrStrNoSpace) {
                 return;
             }
 
@@ -642,83 +645,136 @@ window.FnBar = (function(FnBar, $) {
 
             var operation = getOperationFromFuncStr(newFuncStr);
             if (mainOperators.indexOf(operation) < 0) {
-                var text = "";
-                var endText = false;
-
-                if (operation.length) {
-                    text = "Invalid Operator: <b>" + operation + "</b>.<br/>";
-                } else {
-                    if (fnBarValTrim.indexOf("(") === -1) {
-                        text = FnBarTStr.InvalidOpParen;
-                        endText = true;
-                    } else {
-                        text = "Invalid Operator.<br/>";
-                    }
+                invalidOperationHandler(operation, fnBarVal);
+                return;
+            } else if (operation !== "pull") {
+                // check if correct number of parenthesis exists, should have
+                // at least two
+                if (newFuncStr.replace(/[^(]/g, "").length < 2) {
+                    invalidNumParensHandler();
+                    return;
                 }
-                if (!endText) {
-                    text += FnBarTStr.ValidOps;
-                }
-
-                setTimeout(function() {
-                    StatusBox.show(text, $fnBar.prev().prev(), null, {
-                        "offsetX": 50,
-                        "side"   : "bottom",
-                        "html"   : true
+            }
+           
+            // prevent doing a map on an existing column
+            if (operation === "map" && !tableCol.isNewCol) {
+                var alertTitle = FnBarTStr.NewColTitle;
+                var alertMsg = FnBarTStr.NewColMsg;
+                
+                var confirmFunc = function() {
+                    tableCol.userStr = oldUsrStr;
+                    ColManager.addNewCol(colNum, tableId, "L", {
+                        userStr: '"" ' + fnBarVal
                     });
-                }, 0); // gets closed immediately without timeout;
-
-                return;
-            }
-
-            if (!checkForSelectedColName(fnBarValTrim, colName)) {
-                var text = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
-                    colName: colName
-                });
-                var cursor = editor.getCursor();
-                isAlertOpen = true;
-                Alert.show({
-                    "title"         : AlertTStr.CONFIRMATION,
-                    "msgTemplate"   : text,
-                    "keepFnBar"     : true,
-                    "focusOnConfirm": true,
-                    "onCancel"      : function() {
-                        if ($colInput) {
-                            $colInput.trigger(fakeEvent.mousedown);
-                            $colInput.trigger(fakeEvent.mouseup);
-
-                            $fnBar.removeAttr("disabled").focus();
-                            $fnBar.addClass("inFocus");
-                            editor.focus();
-                            editor.setCursor(cursor);
+                    isAlertOpen = false;
+                }; 
+                var buttonOption = {
+                    name: CommonTxtTstr.NEWCOLUMN,
+                    func: confirmFunc
+                };
+                showConfirmAlert($colInput, alertTitle, alertMsg, cursor, 
+                                 confirmFunc, buttonOption);
+            } else {
+                var confirmFunc = function() {
+                    ColManager.execCol(operation, newFuncStr, tableId, colNum)
+                    .then(function(ret) {
+                        if (ret === "update") {
+                            updateTableHeader(tableId);
+                            TableList.updateTableInfo(tableId);
+                            KVStore.commit();
                         }
-                        $fnBar.removeAttr("disabled");
-                        isAlertOpen = false;
-                    },
-                    "onConfirm": function() {
-                        ColManager.execCol(operation, newFuncStr, tableId, colNum)
-                        .then(function(ret) {
-                            if (ret === "update") {
-                                updateTableHeader(tableId);
-                                TableList.updateTableInfo(tableId);
-                                KVStore.commit();
-                            }
-                        });
-                        isAlertOpen = false;
-                    }
-                });
-                return;
-            }
-
-            ColManager.execCol(operation, newFuncStr, tableId, colNum)
-            .then(function(ret) {
-                if (ret === "update") {
-                    updateTableHeader(tableId);
-                    TableList.updateTableInfo(tableId);
-                    KVStore.commit();
+                    });
+                    isAlertOpen = false;
                 }
-            });
+
+                // show alert if column in string does not match selected col
+                if (!checkForSelectedColName(fnBarVal, colName)) {
+                    var alertTitle = AlertTStr.CONFIRMATION;
+                    var alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
+                        colName: colName
+                    });
+                    showConfirmAlert($colInput, alertTitle, alertMsg, cursor, 
+                                     confirmFunc);
+                } else {
+                    // no errors, submit the function
+                    confirmFunc();
+                }
+            }
         }
     }
+
+    function invalidOperationHandler(operation, fnBarVal) {
+        var text = "";
+        var endText = false;
+
+        if (operation.length) {
+            text = "Invalid Operator: <b>" + operation + "</b>.<br/>";
+        } else {
+            if (fnBarVal.indexOf("(") === -1) {
+                text = FnBarTStr.InvalidOpParen;
+                endText = true;
+            } else {
+                text = "Invalid Operator.<br/>";
+            }
+        }
+        if (!endText) {
+            text += FnBarTStr.ValidOps;
+        }
+
+        setTimeout(function() {
+            StatusBox.show(text, $fnBar.prev().prev(), null, {
+                "offsetX": 50,
+                "side"   : "bottom",
+                "html"   : true
+            });
+        }, 0); // gets closed immediately without timeout;
+    }
+
+    function invalidNumParensHandler(operation) {
+        var text = xcHelper.replaceMsg(FnBarTStr.FnBarTStr, {
+                        operation: operation
+                    });
+        setTimeout(function() {
+            StatusBox.show(text, $fnBar.prev().prev(), null, {
+                "offsetX": 50,
+                "side"   : "bottom"
+            });
+        }, 0);
+    }
+
+    function showConfirmAlert($colInput, alertTitle, alertMsg, cursor, confirm,
+                             btnOption) {
+        var btns;
+        if (btnOption) {
+            btns = [btnOption];
+        }
+        isAlertOpen = true;
+        Alert.show({
+            "title"         : alertTitle,
+            "msgTemplate"   : alertMsg,
+            "keepFnBar"     : true,
+            "focusOnConfirm": true,
+            "buttons"       : btns,
+            "onCancel"      : function() {
+                if ($colInput.length) {
+                    $colInput.trigger(fakeEvent.mousedown);
+                    $colInput.trigger(fakeEvent.mouseup);
+
+                    $fnBar.removeAttr("disabled").focus();
+                    $fnBar.addClass("inFocus");
+                    editor.focus();
+                    editor.setCursor(cursor);
+                }
+                $fnBar.removeAttr("disabled");
+                isAlertOpen = false;
+            },
+            "onConfirm"    : function() {
+                confirm();
+                isAlertOpen = false;
+            }
+        });
+    }
+                    
 
     // will return false if column names detected and colName is not found
     // among them. Otherwise, will return true

@@ -46,11 +46,12 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.addNewCol = function(colNum, tableId, direction) {
+    ColManager.addNewCol = function(colNum, tableId, direction, options) {
+        options = options || {};
+        var defaultOptions = {"isNewCol": true};
+        options = $.extend(defaultOptions, options);
         var table = gTables[tableId];
-        var progCol = ColManager.newCol({
-            "isNewCol": true
-        });
+        var progCol = ColManager.newCol(options);
 
         addColHelper(colNum, tableId, progCol, {
             "direction": direction

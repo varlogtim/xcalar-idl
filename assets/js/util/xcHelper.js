@@ -1995,6 +1995,49 @@ window.xcHelper = (function($, xcHelper) {
                              }).trim());
     };
 
+    //xx not tested
+    // turns 'map(concat  ("a   ", "b"))' into 'map(concat("a   ","b"))'
+    xcHelper.removeNonQuotedSpaces = function(str) {
+        var tempString = "";
+        var inQuotes = false;
+        var singleQuote = false;
+        var isEscaped = false;
+        for (var i = 0; i < str.length; i++) {
+            if (isEscaped) {
+                tempString += str[i];
+                isEscaped = false;
+                continue;
+            }
+
+            if (inQuotes) {
+                if ((str[i] === '"' && !singleQuote) ||
+                    (str[i] === "'" && singleQuote)) {
+                    inQuotes = false;
+                }
+            } else {
+                if (str[i] === "\"") {
+                    inQuotes = true;
+                    singleQuote = false;
+                } else if (str[i] === "'") {
+                    inQuotes = true;
+                    singleQuote = true;
+                }
+            }
+
+            if (str[i] === "\\") {
+                isEscaped = true;
+                tempString += str[i];
+            } else if (inQuotes) {
+                tempString += str[i];
+            } else {
+                if (str[i] !== " ") {
+                    tempString += str[i];
+                }
+            }
+        }
+        return (tempString);
+    }
+
     // a.json returns JSON
     xcHelper.getFormat = function(name) {
         var index = name.lastIndexOf(".");

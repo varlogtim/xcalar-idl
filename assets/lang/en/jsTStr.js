@@ -120,6 +120,7 @@ CommonTxtTstr = {
     'NA': 'N/A',
     'ArrayVal': 'Array Value',
     'Value': 'Value',
+    'NEWCOLUMN': 'NEW COLUMN',
 
     // with replace
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated' +
@@ -284,11 +285,17 @@ AlertTStr = {
 };
 
 FnBarTStr = {
-    'NewCol': 'Please specify the new column name and press enter',
+    'NewCol': 'Please specify the new column name and press enter.',
     'InvalidOpParen': 'Operation must be preceeded by operator name and ' +
-                      'arguments in parenthesis',
+                      'arguments in parenthesis.',
     'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.',
-    'DiffColumn': 'The selected column (<colName>) is not included in this operation. Do you want to continue?'
+    'DiffColumn': 'The selected column (<colName>) is not included ' +
+                    'in this operation. Do you want to continue?',
+    'NewColTitle': 'New Column Required',
+    'NewColMsg': 'Please create a new column to perform a map.',
+    // with replace
+    'InvalidNumParens': 'Your function string should take the form ' +
+                        'of <operation> (eq(2, 3))'
 };
 
 ScrollTStr = {
