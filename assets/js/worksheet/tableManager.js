@@ -686,21 +686,40 @@ window.TblManager = (function($, TblManager) {
             if (!noLog) {
                 Transaction.done(txId);
             }
+
             if (tableType === TableType.Undone) {
                 KVStore.commit();
             }
             deferred.resolve();
         })
         .fail(function() {
-            var res = tableDeleteFailHandler(arguments, tableNames, noAlert,
-                                                 noLog, txId);
+            var res = tableDeleteFailHandler(arguments, tableNames);
             res.errors = arguments;
-            if (res.success) {
+            if (res.hasSuccess) {
+                if (!noLog) {
+                    sql.tables = res.successTables;
+                    Transaction.done(txId, {
+                        "sql": sql
+                    });
+
+                    if (res.fails && !noAlert) {
+                        Alert.error(StatusMessageTStr.PartialDeleteTableFail,
+                                    res.errorMsg);
+                    }
+                }
+
                 if (tableType === TableType.Undone) {
                     KVStore.commit();
                 }
                 deferred.resolve(res);
             } else {
+                if (!noLog) {
+                    Transaction.fail(txId, {
+                        "error"  : res.errorMsg,
+                        "failMsg": StatusMessageTStr.DeleteTableFailed,
+                        "noAlert": noAlert
+                    });
+                }
                 deferred.reject(res);
             }
         });
@@ -1232,27 +1251,31 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
-    // returns {hasSuccess:boolean, 
-    //          fails: [{tables: "tableName", error: "error"}]}
-    function tableDeleteFailHandler(results, tables, noAlert, noLog, txId) {
+    // returns {
+    //    hasSuccess:boolean,
+    //    fails: [{tables: "tableName", error: "error"}]
+    //    successTables: []
+    // }
+    function tableDeleteFailHandler(results, tables) {
         var hasSuccess = false;
         var fails = [];
         var errorMsg = "";
         var tablesMsg = "";
         var failedTablesStr = "";
-        var failedTables = [];
+        var successTables = [];
         for (var i = 0, len = results.length; i < len; i++) {
             if (results[i] != null && results[i].error != null) {
                 fails.push({tables: tables[i], error: results[i].error});
                 failedTablesStr += tables[i] + ", ";
             } else {
                 hasSuccess = true;
+                successTables.push(tables[i]);
             }
         }
 
         var numFails = fails.length;
         if (numFails) {
-            failedTablesStr = failedTablesStr.substr(0, 
+            failedTablesStr = failedTablesStr.substr(0,
                               failedTablesStr.length - 2);
             if (numFails === 1) {
                 tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
@@ -1264,26 +1287,17 @@ window.TblManager = (function($, TblManager) {
         }
 
         if (hasSuccess) {
-            Transaction.done(txId);
-            errorMsg = fails[0].error + ". " + tablesMsg; 
-            if (numFails && !noAlert) {
-                Alert.error(StatusMessageTStr.PartialDeleteTableFail, errorMsg);
-            }
+            errorMsg = fails[0].error + ". " + tablesMsg;
         } else {
             errorMsg = fails[0].error + ". " + ErrTStr.NoTablesDeleted;
-            if (!noLog) {
-                Transaction.fail(txId, {
-                    "error"  : errorMsg,
-                    "failMsg": StatusMessageTStr.DeleteTableFailed,
-                    "noAlert": noAlert
-                });
-            }
         }
-        return ({
-            hasSuccess: hasSuccess,
-            fails: fails,
-            errorMsg: errorMsg
-        });
+
+        return {
+            "hasSuccess"   : hasSuccess,
+            "fails"        : fails,
+            "errorMsg"     : errorMsg,
+            "successTables": successTables
+        };
     }
 
     function infScrolling(tableId) {
