@@ -977,6 +977,11 @@ ul.CodeMirror-hints {
         &:first-child {
             display: block;
         }
+
+        &.locked {
+            pointer-events: none;
+            opacity: @opacity-hint;
+        }
     }
 
     .buttonSection {
@@ -1317,12 +1322,6 @@ ul.CodeMirror-hints {
     }
 }
 
-#constantsListSection {
-    &.locked {
-        pointer-events: none;
-        opacity: 0.5;
-    }
-}
 #constantList {
     padding-top: 10px;
     

@@ -685,7 +685,9 @@ window.Workbook = (function($, Workbook) {
             }
         });
         // active workbook always comes first
-        html = createWorkbookCard(activeWorkbook, ["active"]) + html;
+        if (activeWorkbook != null) {
+            html = createWorkbookCard(activeWorkbook, ["active"]) + html;
+        }
 
         $newWorkbookCard.after(html);
     }

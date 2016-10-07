@@ -155,23 +155,14 @@ window.TableList = (function($, TableList) {
                 tableType = "constant";
             } else {
                 console.error("Error Case!");
+                return;
             }
 
             Alert.show({
                 "title"    : title,
                 "msg"      : msg,
                 "onConfirm": function() {
-                    if (tableType === TableType.Orphan) {
-                        searchHelper.clearSearch(function() {
-                            clearTableListFilter($("#orphanedTableList"), null);
-                        });
-                    }
-                    if (tableType === "constant") {
-                        deleteConstants();
-                    } else {
-                        TableList.tableBulkAction("delete", tableType);
-                    }
-                    
+                    deleteFromList($section, tableType);
                 }
             });
             focusedListNum = null;
@@ -1081,6 +1072,7 @@ window.TableList = (function($, TableList) {
     }
 
     function deleteConstants() {
+        var deferred = jQuery.Deferred();
         var constNames = [];
         var promises = [];
         var constName;
@@ -1090,9 +1082,6 @@ window.TableList = (function($, TableList) {
             promises.push(XcalarDeleteTable(constName));
         });
 
-        var $constantSection = $('#constantsListSection');
-        var $waitingIcon = xcHelper.showRefreshIcon($constantSection, true);
-        $constantSection.addClass('locked');
         PromiseHelper.when.apply(window, promises)
         .then(function() {
             for (var i = 0; i < constNames.length; i++) {
@@ -1100,17 +1089,15 @@ window.TableList = (function($, TableList) {
                                         constNames[i] + '"]').remove();
                 Aggregates.removeAgg(constNames[i]);
             }
-            $constantSection.find(".clearAll").click();
+            $("#constantsListSection").find(".clearAll").click();
+            deferred.resolve();
         })
         .fail(function() {
             constDeleteFailHandler(arguments, constNames);
-        })
-        .always(function() {
-            $waitingIcon.fadeOut(100, function() {
-                $waitingIcon.remove();
-            });
-            $constantSection.removeClass('locked');
+            deferred.reject();
         });
+
+        return deferred.promise();
     }
 
     function constDeleteFailHandler(results, constNames) {
@@ -1210,6 +1197,26 @@ window.TableList = (function($, TableList) {
                 searchHelper.$arrows.hide();
             }
         }
+    }
+
+    function deleteFromList($section, tableType) {
+        var $waitingIcon = xcHelper.showRefreshIcon($section, true);
+        $section.addClass('locked');
+
+        var deferred;
+        if (tableType === "constant") {
+            deferred = deleteConstants();
+        } else {
+            deferred = TableList.tableBulkAction("delete", tableType);
+        }
+
+        deferred
+        .always(function() {
+            $waitingIcon.fadeOut(100, function() {
+                $waitingIcon.remove();
+            });
+            $section.removeClass('locked');
+        });
     }
 
     function scrollMatchIntoView($section, $match) {
