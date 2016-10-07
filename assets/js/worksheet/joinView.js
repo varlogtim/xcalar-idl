@@ -108,6 +108,9 @@ window.JoinView = (function($, JoinView) {
         joinTypeList.setupListeners();
 
         var leftTableList = new MenuHelper($leftTableDropdown, {
+            "onOpen": function($curList) {
+                fillTableLists(null, true);
+            },
             "onSelect": function($li) {
                 var tableName = $li.text();
                 var $textBox = $leftTableDropdown.find(".text");
@@ -130,6 +133,9 @@ window.JoinView = (function($, JoinView) {
         leftTableList.setupListeners();
 
         var rightTableList = new MenuHelper($rightTableDropdown, {
+            "onOpen": function($curList) {
+                fillTableLists(null, true);
+            },
             "onSelect": function($li) {
                 var tableName = $li.text();
                 var $textBox = $rightTableDropdown.find(".text");
@@ -1267,18 +1273,31 @@ window.JoinView = (function($, JoinView) {
         $joinTableName.val(joinTableName);
     }
 
-    function fillTableLists(origTableId) {
+    function fillTableLists(origTableId, refresh) {
         var tableLis = xcHelper.getWSTableList();
 
         $leftTableDropdown.find('ul').html(tableLis);
         $rightTableDropdown.find('ul').html(tableLis);
+        var tableName;
 
-        // select li and fill left table name dropdown
-        var tableName = gTables[origTableId].getName();
-        $leftTableDropdown.find('.text').text(tableName);
-        $leftTableDropdown.find('li').filter(function() {
-            return ($(this).text() === tableName);
-        }).addClass('selected');
+        if (refresh) {
+            var leftTableName = $leftTableDropdown.find('.text').text();
+            $leftTableDropdown.find('li').filter(function() {
+                return ($(this).text() === leftTableName);
+            }).addClass('selected');
+
+            var rightTableName = $rightTableDropdown.find('.text').text();
+            $rightTableDropdown.find('li').filter(function() {
+                return ($(this).text() === rightTableName);
+            }).addClass('selected');
+        } else {
+            // select li and fill left table name dropdown
+            var tableName = gTables[origTableId].getName();
+            $leftTableDropdown.find('.text').text(tableName);
+            $leftTableDropdown.find('li').filter(function() {
+                return ($(this).text() === tableName);
+            }).addClass('selected');
+        }     
     }
 
     function getType($th) {
