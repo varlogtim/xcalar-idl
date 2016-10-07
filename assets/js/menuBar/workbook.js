@@ -674,15 +674,18 @@ window.Workbook = (function($, Workbook) {
         var activeWKBKId = WorkbookManager.getActiveWKBK();
         // sort by workbook.name
         var isNum = (sortkey === "created" || sortkey === "modified");
+        var activeWorkbook;
+
         sorted = sortObj(sorted, sortkey, isNum);
         sorted.forEach(function(workbook) {
-            var extraClasses = [];
             if (workbook.getId() === activeWKBKId) {
-                extraClasses.push("active");
+                activeWorkbook = workbook;
+            } else {
+                html = createWorkbookCard(workbook) + html;
             }
-
-            html = createWorkbookCard(workbook, extraClasses) + html;
         });
+        // active workbook always comes first
+        html = createWorkbookCard(activeWorkbook, ["active"]) + html;
 
         $newWorkbookCard.after(html);
     }
