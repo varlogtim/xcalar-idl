@@ -377,7 +377,6 @@ window.DagPanel = (function($, DagPanel) {
         dagTableDropDownActions($menu);
 
         var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
-                        '.dagTable:not(.dataStore) .icon,' +
                         '.dagTable:not(.dataStore) .tableTitle,' +
                         '.dagTable:not(.dataStore) .lockIcon';
 
@@ -2967,21 +2966,11 @@ window.Dag = (function($, Dag) {
             } else {
                 tooltipTxt = CommonTxtTstr.ClickToOpts;
             }
-
-            var additionalData = "";
-
-            if (dagNode.api === XcalarApisT.XcalarApiExport) {
-                state += " export";
-                additionalData = 'data-type="export" '+
-                                 'data-url="' + dagNode.name.name + '" ';
-            }
-
             html += '<div class="dagTable ' + state + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-children="' + children + '" ' +
                         'data-index="' + index + '" ' +
                         'data-id="' + tableId + '" ' +
-                        additionalData +
                         'data-parents="' + parents + '">' +
                         '<div class="dagTableIcon ' + icv + '" ' +
                         'data-toggle="tooltip" ' +
@@ -2997,7 +2986,6 @@ window.Dag = (function($, Dag) {
                             'title="' + tableName + '">' +
                             tableName +
                         '</span>';
-
         }
         html += '</div></div>';
 

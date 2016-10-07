@@ -620,6 +620,10 @@ window.StatusMessage = (function($, StatusMessage) {
             return (wsId);
         }
         var $table = $("#xcTable-" + tableId);
+        if (!$table.length) {
+            position = 'visible';
+            return;
+        }
         var rect = $table[0].getBoundingClientRect();
         var windowWidth = $(window).width() - 5;
         var position;

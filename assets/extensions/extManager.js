@@ -422,6 +422,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         new MenuHelper($extTriggerTableDropdown, {
+            "onOpen": function() {
+                updateTableList(null, true);
+            },
             "onSelect": selectTriggerTableDropdown
         }).setupListeners();
 
@@ -470,6 +473,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         var colCallback = function($target) {
             var options = {};
+            if (!$lastInputFocused) {
+                return;
+            }
             if ($lastInputFocused.hasClass('multiColumn')) {
                 options.append = true;
             }
@@ -602,27 +608,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var modText = getModuleText(modName);
         $extArgs.find(".titleSection .title").text(modText + ": " + fnText);
 
-        var tableList = xcHelper.getWSTableList();
-        $extTriggerTableDropdown.find(".list ul").html(tableList);
-
-        var $input = $extTriggerTableDropdown.find(".text");
-        if ($input.val() === "") {
-            var focusedTable = xcHelper.getFocusedTable();
-            if (focusedTable != null) {
-                var $li = $extTriggerTableDropdown.find("li")
-                .filter(function() {
-                    return $(this).data("id") === focusedTable;
-                });
-
-                selectTriggerTableDropdown($li, true);
-            }
-        }
-
-        if (extMap[modName]._configParams.notTableDependent) {
-            $extArgs.find(".tableSection").addClass("xc-hidden");
-        } else {
-            $extArgs.find(".tableSection").removeClass("xc-hidden");
-        }
+        var tableList = updateTableList(modName);
 
         var args = extMap[modName][fnName] || [];
         var html = "";
@@ -636,6 +622,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var $list = $(this);
             // should add one by one or the scroll will not work
             new MenuHelper($list, {
+                "onOpen": function($curList) {
+                    if ($curList.find('.argument.type-table').length) {
+                        $curList.find('.list ul')
+                                 .html(xcHelper.getWSTableList());
+                    }
+                },
                 "onSelect": function($li) {
                     $li.closest(".dropDownList").find("input").val($li.text());
                 },
@@ -652,6 +644,35 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         } else {
             focusOnAvailableInput($argSection.find('input'));
         }
+    }
+
+    function updateTableList(modName, refresh) {      
+        var $extArgs = $extOpsView.find(".extArgs");
+        var tableList = xcHelper.getWSTableList();
+        $extTriggerTableDropdown.find(".list ul").html(tableList);
+
+        if (!refresh) {
+            var $input = $extTriggerTableDropdown.find(".text");
+            if ($input.val() === "") {
+                var focusedTable = xcHelper.getFocusedTable();
+                if (focusedTable != null) {
+                    var $li = $extTriggerTableDropdown.find("li")
+                    .filter(function() {
+                        return $(this).data("id") === focusedTable;
+                    });
+
+                    selectTriggerTableDropdown($li, true);
+                }
+            }
+
+            if (extMap[modName]._configParams.notTableDependent) {
+                $extArgs.find(".tableSection").addClass("xc-hidden");
+            } else {
+                $extArgs.find(".tableSection").removeClass("xc-hidden");
+            }
+        }
+        
+        return tableList;
     }
 
     function selectTriggerTableDropdown($li, noAnim) {

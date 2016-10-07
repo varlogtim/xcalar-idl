@@ -88,6 +88,9 @@ window.ExportView = (function($, ExportView) {
         });
 
         var tableListScroller = new MenuHelper($exportView.find('.tableList'), {
+            "onOpen": function() {
+                fillTableList(true);
+            },
             "onSelect": function($li) {
                 var tableName = $li.text();
                 var $textBox = $exportView.find('.tableList').find(".text");
@@ -579,15 +582,18 @@ window.ExportView = (function($, ExportView) {
         }
     }
 
-    function fillTableList() {
+     function fillTableList(refresh) {
         var tableLis = xcHelper.getWSTableList();
         var $tableListSection = $exportView.find('.tableListSection');
-
         $tableListSection.find('ul').html(tableLis);
-
+        var tableName;
         // select li and fill left table name dropdown
-        var tableName = gTables[tableId].getName();
-        $tableListSection.find('.dropDownList .text').text(tableName);
+        if (refresh) {
+            tableName =  $tableListSection.find('.dropDownList .text').text();
+        } else {
+            tableName = gTables[tableId].getName();
+            $tableListSection.find('.dropDownList .text').text(tableName); 
+        }
 
         $tableListSection.find('li').filter(function() {
             return ($(this).text() === tableName);

@@ -673,8 +673,7 @@ window.TblManager = (function($, TblManager) {
                 var def = delUndoneTableHelper(tableId);
                 defArray.push(def);
             });
-        }
-        else {
+        } else {
             tables.forEach(function(tableId) {
                 tableNames.push(gTables[tableId].getName());
                 var def = delTableHelper(tableId, tableType, txId);

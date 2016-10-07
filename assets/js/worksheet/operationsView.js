@@ -576,6 +576,9 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.tableList').each(function() {
             var $list = $(this);
             var tableListScroller = new MenuHelper($list, {
+                "onOpen": function() {
+                    fillTableList(true);
+                },
                 "onSelect": function($li) {
                     var tableName = $li.text();
                     var $textBox = $list.find(".text");
@@ -700,6 +703,12 @@ window.OperationsView = (function($, OperationsView) {
         if (isOpen) {
             closeOpSection();
         }
+    };
+
+    OperationsView.updateTableLists = function() {
+        if (isOpen) {
+
+        }  
     };
 
     // for functions dropdown list
@@ -1384,15 +1393,18 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.strPreview').empty();
     }
 
-    function fillTableList() {
+    function fillTableList(refresh) {
         var tableLis = xcHelper.getWSTableList();
         var $tableListSection = $activeOpSection.find('.tableListSection');
-
         $tableListSection.find('ul').html(tableLis);
-
+        var tableName;
         // select li and fill left table name dropdown
-        var tableName = gTables[tableId].getName();
-        $tableListSection.find('.dropDownList .text').text(tableName);
+        if (refresh) {
+            tableName =  $tableListSection.find('.dropDownList .text').text();
+        } else {
+            tableName = gTables[tableId].getName();
+            $tableListSection.find('.dropDownList .text').text(tableName); 
+        }
 
         $tableListSection.find('li').filter(function() {
             return ($(this).text() === tableName);
@@ -3768,7 +3780,6 @@ window.OperationsView = (function($, OperationsView) {
         // for filter, unminimize first argument box
         $operationsView.find('.group').removeClass('minimized fnInputEmpty');
 
-        // xx list is only being refreshed when operations view opens
         fillTableList();
 
         // clear string preview
