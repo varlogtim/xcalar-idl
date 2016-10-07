@@ -740,10 +740,6 @@ window.TblManager = (function($, TblManager) {
 
             gTables[tableId] = table;
         }
-        // since we are not storing any redo states on start up, we should
-        // drop any tables that were undone since there's no way to go forward
-        // to reach them
-        WSManager.dropUndoneTables();
     };
 
     TblManager.pullRowsBulk = function(tableId, jsonData, startIndex,
@@ -2698,10 +2694,18 @@ window.TblManager = (function($, TblManager) {
                 WSManager.removeTable(tableId);
                 delete gTables[tableId];
             }
-
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function() {
+            // remove the table from our records regardless
+            // it will just go in the temp table list anyways
+            var tableId = xcHelper.getTableId(tableName);
+            if (tableId != null && gTables[tableId] != null) {
+                WSManager.removeTable(tableId);
+                delete gTables[tableId];
+            }
+            deferred.reject();
+        })
 
         return (deferred.promise());
     }

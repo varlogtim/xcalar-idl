@@ -387,8 +387,13 @@ window.StartManager = (function(StartManager, $) {
         var deferred = jQuery.Deferred();
 
         StatusMessage.updateLocation(true, StatusMessageTStr.LoadingTables);
-
-        xcHelper.getBackTableSet()
+        // since we are not storing any redo states on start up, we should
+        // drop any tables that were undone since there's no way to go forward
+        // to reach them
+        WSManager.dropUndoneTables()
+        .then(function() {
+            return (xcHelper.getBackTableSet());
+        })
         .then(function(backTableSet) {
             var tableId;
             var tableName;
@@ -417,7 +422,9 @@ window.StartManager = (function(StartManager, $) {
                 wsId = wsOrder[i];
                 ws = worksheets[wsId];
 
-                var wsTables = ws.tables;
+                // deep copy because checkIfTableHasMeta may remove table from
+                // array and mess up the position of the for loop
+                var wsTables = xcHelper.deepCopy(ws.tables);
                 var numWsTables = wsTables.length;
 
                 if (!hasTable && numWsTables > 0) {
@@ -436,7 +443,7 @@ window.StartManager = (function(StartManager, $) {
                 }
 
                 // create archived tables
-                var wsArchivedTables = ws.archivedTables;
+                var wsArchivedTables = xcHelper.deepCopy(ws.archivedTables);
                 var numArchivedWsTables = wsArchivedTables.length;
                 for (var j = 0; j < numArchivedWsTables; j++) {
                     tableId = wsArchivedTables[j];
@@ -450,7 +457,7 @@ window.StartManager = (function(StartManager, $) {
             }
 
             // create no worksheet tables
-            var noSheetTables = WSManager.getNoSheetTables();
+            var noSheetTables = xcHelper.deepCopy(WSManager.getNoSheetTables());
             var numNoSheetTables = noSheetTables.length;
 
             for (var i = 0; i < numNoSheetTables; i++) {
@@ -471,7 +478,7 @@ window.StartManager = (function(StartManager, $) {
 
             for (var i = 0; i < numHiddenWsTables; i++) {
                 wsId = hiddenWorksheets[i];
-                ws = worksheets[wsId];
+                ws = xcHelper.deepCopy(worksheets[wsId]);
                 numTables = ws.tempHiddenTables.length;
 
                 for (var j = 0; j < numTables; j++) {

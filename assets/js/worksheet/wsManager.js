@@ -1031,17 +1031,26 @@ window.WSManager = (function($, WSManager) {
     };
 
     WSManager.dropUndoneTables = function() {
+        var deferred = jQuery.Deferred();
         var ws;
         var tables = [];
-        for (var wsId in wsLookUp) {
-            ws = wsLookUp[wsId];
-            for (var i = 0; i < ws.undoneTables.length; i++) {
-                tables.push(ws.undoneTables[i]);
+        var table;
+        for (var tableId in gTables) {
+            table = gTables[tableId];
+            if (table.getType() === TableType.Undone) {
+                tables.push(table.getId());
             }
         }
+        
         if (tables.length) {
-            TblManager.deleteTables(tables, TableType.Undone, true, true);
+            TblManager.deleteTables(tables, TableType.Undone, true, true)
+            .always(function() {
+                deferred.resolve(); // just resolve even if it fails 
+            });
+        } else {
+            deferred.resolve();
         }
+        return deferred.promise();
     };
 
     // Add worksheet events, helper function for WSManager.setup()

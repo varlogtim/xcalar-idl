@@ -1345,13 +1345,14 @@ window.TableList = (function($, TableList) {
             var table = gTables[tableId];
             var tableType = table.getType();
             if (tableType === TableType.Orphan ||
-                tableType === TableType.Trash) {
+                tableType === TableType.Trash ||
+                tableType === TableType.Undone) {
                 continue;
             }
 
             if (tableType === TableType.Active) {
                 activeTables.push(table);
-            } else {
+            } else if (tableType === TableType.Archived) {
                 archivedTables.push(table);
             }
         }
