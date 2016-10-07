@@ -175,8 +175,10 @@ window.SmartCastView = (function($, SmartCastView) {
 
         if (colTypeInfos.length > 0) {
             ColManager.changeType(colTypeInfos, curTableId);
+            SmartCastView.close();
+        } else {
+            StatusBox.show(ErrTStr.NoTypeChange, $castTable);
         }
-        SmartCastView.close();
     }
 
     function selectCol(colNum) {
