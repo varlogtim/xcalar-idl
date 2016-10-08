@@ -582,17 +582,17 @@ window.ExportView = (function($, ExportView) {
         }
     }
 
-     function fillTableList(refresh) {
+    function fillTableList(refresh) {
         var tableLis = xcHelper.getWSTableList();
         var $tableListSection = $exportView.find('.tableListSection');
         $tableListSection.find('ul').html(tableLis);
         var tableName;
         // select li and fill left table name dropdown
         if (refresh) {
-            tableName =  $tableListSection.find('.dropDownList .text').text();
+            tableName = $tableListSection.find('.dropDownList .text').text();
         } else {
             tableName = gTables[tableId].getName();
-            $tableListSection.find('.dropDownList .text').text(tableName); 
+            $tableListSection.find('.dropDownList .text').text(tableName);
         }
 
         $tableListSection.find('li').filter(function() {

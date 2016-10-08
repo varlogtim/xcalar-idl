@@ -135,7 +135,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         .then(function(result) {
             apiTopResult = result;
             numNodes = result.numNodes;
-            return (XcalarGetStats(numNodes));
+            return XcalarGetStats(numNodes);
         })
         .then(function(nodes) {
             var allStats = MonitorPanel.processNodeStats(nodes,

@@ -95,8 +95,9 @@ function thriftLog() {
                 console.warn('Checked XcalarGetVersion and did not return ' +
                               'a successful response');
                 alertError = {"error": ThriftTStr.CCNBE};
-                Alert.error(ThriftTStr.CCNBEErr, alertError,
-                            {"lockScreen": true});
+                Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                    "lockScreen": true
+                });
             });
             return thriftError;
         } else {
@@ -106,13 +107,13 @@ function thriftLog() {
                 // This is bad, connection was lost so UI cannot do anything
                 // LOCK THE SCREEN
                 alertError = {"error": ThriftTStr.CCNBE};
-                Alert.error(ThriftTStr.CCNBEErr, alertError, {"lockScreen": true});
+                Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                    "lockScreen": true
+                });
 
                 return thriftError;
             }
         }
-
-
     }
 
     // case other than connection reset and no mem,
@@ -614,7 +615,7 @@ function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     target.hdr.name = targetName;
     target.hdr.type = ExTargetTypeT.ExTargetODBCType;
     target.specificInput = new ExAddTargetSpecificInputT();
-    target.specificInput.odbcInput = new ExAddTargetODBCInputT()
+    target.specificInput.odbcInput = new ExAddTargetODBCInputT();
     target.specificInput.odbcInput.connectionString = connStr;
 
     var def1 = xcalarAddExportTarget(tHandle, target);
@@ -715,7 +716,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
         return (deferred.promise());
     }
 
-    var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
+    // var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
     var def1 = xcalarListExportTargets(tHandle, typePattern, namePattern);
     // var def2 = XcalarGetQuery(workItem);
     var def2 = jQuery.Deferred().resolve().promise();
@@ -747,7 +748,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     target.name = targetName;
     var specInput = new ExInitExportSpecificInputT();
 
-    var exportHandleName = options.handleName;
+    // var exportHandleName = options.handleName;
 
     XcalarListExportTargets("*", targetName)
     .then(function(out) {
@@ -1024,7 +1025,7 @@ function XcalarDeleteTable(tableName, txId) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred(); 
+    var deferred = jQuery.Deferred();
 
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
@@ -1595,7 +1596,6 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
     }
 
     if (evalStr === "") {
-        console.error("Unknown op " + evalStr);
         deferred.reject("Unknown op " + evalStr);
         return (deferred.promise());
     } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen)
@@ -2334,7 +2334,7 @@ function XcalarMakeRetina(retName, tableArray, txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
+    // var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
     var def1 = xcalarMakeRetina(tHandle, retName, tableArray);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
@@ -2418,8 +2418,8 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
         return (deferred.reject().promise());
     }
 
-    var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId,
-                                              paramType, paramValue);
+    // var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId,
+    //                                           paramType, paramValue);
     var def1 = xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType,
                                   paramValue);
     var def2 = jQuery.Deferred().resolve().promise();
@@ -2453,7 +2453,7 @@ function XcalarExecuteRetina(retName, params, txId) {
         return (deferred.reject().promise());
     }
 
-    var workItem = xcalarExecuteRetinaWorkItem(retName, params);
+    // var workItem = xcalarExecuteRetinaWorkItem(retName, params);
     var def1 = xcalarExecuteRetina(tHandle, retName, params);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = xcalarGetQuery(workItem);
@@ -2498,7 +2498,7 @@ function XcalarDeleteRetina(retName, txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var workItem = xcalarApiDeleteRetinaWorkItem(retName);
+    // var workItem = xcalarApiDeleteRetinaWorkItem(retName);
     var def1 = xcalarApiDeleteRetina(tHandle, retName);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
@@ -2524,8 +2524,8 @@ function XcalarImportRetina(retinaName, overwrite, retina, txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite,
-                                                 retina);
+    // var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite,
+    //                                              retina);
     var def1 = xcalarApiImportRetina(tHandle, retinaName, overwrite, retina);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
@@ -2550,7 +2550,7 @@ function XcalarExportRetina(retName, txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var workItem = xcalarApiExportRetinaWorkItem(retName);
+    // var workItem = xcalarApiExportRetinaWorkItem(retName);
     var def1 = xcalarApiExportRetina(tHandle, retName);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
@@ -2575,7 +2575,7 @@ function XcalarDeleteSched(schedName, txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var workItem = xcalarDeleteSchedTaskWorkItem(schedName);
+    // var workItem = xcalarDeleteSchedTaskWorkItem(schedName);
     var def1 = xcalarDeleteSchedTask(tHandle, schedName);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = XcalarGetQuery(workItem);
@@ -2614,8 +2614,8 @@ function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
     if (Transaction.checkAndSetCanceled(txId)) {
         return (deferred.reject().promise());
     }
-    var workItem = xcalarScheduleTaskWorkItem(schedName, schedInSec, period,
-                                              recurCount, type, arg);
+    // var workItem = xcalarScheduleTaskWorkItem(schedName, schedInSec, period,
+    //                                           recurCount, type, arg);
     var def1 = xcalarScheduleTask(tHandle, schedName, schedInSec, period,
                                   recurCount, type, arg);
     var def2 = jQuery.Deferred().resolve().promise();

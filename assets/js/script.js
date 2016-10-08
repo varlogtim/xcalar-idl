@@ -134,6 +134,8 @@ window.StartManager = (function(StartManager, $) {
         .fail(function(error) {
             setupStatus = SetupStatus.Fail;
             setupWinResize();
+
+            var title;
             if (error === WKBKTStr.NoWkbk){
                 // when it's new workbook
                 $('#initialLoadScreen').hide();
@@ -172,14 +174,13 @@ window.StartManager = (function(StartManager, $) {
                     "hideButtons": ['copySql']
                 });
             } else if (error.status === StatusT.StatusSessionActiveElsewhere) {
-                var title = ThriftTStr.SessionElsewhere;
+                title = ThriftTStr.SessionElsewhere;
                 Alert.error(title, error.error + '\n' +
                             ThriftTStr.LogInDifferent,
                             {"lockScreen": true});
 
             } else {
                 // when it's an error from backend we cannot handle
-                var title;
                 if (error.error != null && error.error.indexOf('Update required') !== -1) {
                     title = ThriftTStr.UpdateErr;
                 } else if (error.error != null && error.error.indexOf('Connection') !== -1) {
@@ -215,18 +216,18 @@ window.StartManager = (function(StartManager, $) {
             var modalSpecs;
             var windowSpecs = {
                 winHeight: $(window).height(),
-                winWidth: $(window).width()
+                winWidth : $(window).width()
             };
 
-            $(window).resize(function(event) {
+            $(window).resize(function() {
                 if (!resizing) {
                     resizing = true;
                     var $modal = $('.modalContainer:visible');
                     if ($modal.length) {
                         modalSpecs = {
                             $modal: $modal,
-                            top: $modal.offset().top,
-                            left: $modal.offset().left
+                            top   : $modal.offset().top,
+                            left  : $modal.offset().left
                         };
                     } else {
                         modalSpecs = null;
@@ -239,7 +240,7 @@ window.StartManager = (function(StartManager, $) {
 
             function winResizeStop() {
                 if (modalSpecs) {
-                    xcHelper.repositionModalOnWinResize(modalSpecs, 
+                    xcHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);
                 }
                 resizing = false;
@@ -628,7 +629,7 @@ window.StartManager = (function(StartManager, $) {
         var modalSpecs;
         var windowSpecs = {
             winHeight: $(window).height(),
-            winWidth: $(window).width()
+            winWidth : $(window).width()
         };
 
         $(window).resize(function(event) {
@@ -640,8 +641,8 @@ window.StartManager = (function(StartManager, $) {
                 if ($modal.length) {
                     modalSpecs = {
                         $modal: $modal,
-                        top: $modal.offset().top,
-                        left: $modal.offset().left
+                        top   : $modal.offset().top,
+                        left  : $modal.offset().left
                     };
                 } else {
                     modalSpecs = null;
@@ -672,7 +673,7 @@ window.StartManager = (function(StartManager, $) {
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();
                 if (modalSpecs) {
-                    xcHelper.repositionModalOnWinResize(modalSpecs, 
+                    xcHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);
                 }
             }

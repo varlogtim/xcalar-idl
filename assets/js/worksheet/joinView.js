@@ -108,7 +108,7 @@ window.JoinView = (function($, JoinView) {
         joinTypeList.setupListeners();
 
         var leftTableList = new MenuHelper($leftTableDropdown, {
-            "onOpen": function($curList) {
+            "onOpen": function() {
                 fillTableLists(null, true);
             },
             "onSelect": function($li) {
@@ -133,7 +133,7 @@ window.JoinView = (function($, JoinView) {
         leftTableList.setupListeners();
 
         var rightTableList = new MenuHelper($rightTableDropdown, {
-            "onOpen": function($curList) {
+            "onOpen": function() {
                 fillTableLists(null, true);
             },
             "onSelect": function($li) {
@@ -1297,7 +1297,7 @@ window.JoinView = (function($, JoinView) {
             $leftTableDropdown.find('li').filter(function() {
                 return ($(this).text() === tableName);
             }).addClass('selected');
-        }     
+        }
     }
 
     function getType($th) {

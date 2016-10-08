@@ -1032,7 +1032,6 @@ window.WSManager = (function($, WSManager) {
 
     WSManager.dropUndoneTables = function() {
         var deferred = jQuery.Deferred();
-        var ws;
         var tables = [];
         var table;
         for (var tableId in gTables) {
@@ -1045,7 +1044,8 @@ window.WSManager = (function($, WSManager) {
         if (tables.length) {
             TblManager.deleteTables(tables, TableType.Undone, true, true)
             .always(function() {
-                deferred.resolve(); // just resolve even if it fails 
+                // just resolve even if it fails
+                deferred.resolve();
             });
         } else {
             deferred.resolve();

@@ -617,16 +617,18 @@ window.StatusMessage = (function($, StatusMessage) {
         var activeWS = WSManager.getActiveWS();
 
         if (wsId !== activeWS) {
-            return (wsId);
+            return null;
         }
+
+        var position;
         var $table = $("#xcTable-" + tableId);
         if (!$table.length) {
             position = 'visible';
-            return;
+            return position;
         }
         var rect = $table[0].getBoundingClientRect();
         var windowWidth = $(window).width() - 5;
-        var position;
+
         var leftBoundary = MainMenu.getOffset() + 40;
         if (rect.left < leftBoundary) {
             if (rect.right > leftBoundary) {

@@ -708,7 +708,7 @@ window.OperationsView = (function($, OperationsView) {
     OperationsView.updateTableLists = function() {
         if (isOpen) {
 
-        }  
+        }
     };
 
     // for functions dropdown list
@@ -1400,10 +1400,10 @@ window.OperationsView = (function($, OperationsView) {
         var tableName;
         // select li and fill left table name dropdown
         if (refresh) {
-            tableName =  $tableListSection.find('.dropDownList .text').text();
+            tableName = $tableListSection.find('.dropDownList .text').text();
         } else {
             tableName = gTables[tableId].getName();
-            $tableListSection.find('.dropDownList .text').text(tableName); 
+            $tableListSection.find('.dropDownList .text').text(tableName);
         }
 
         $tableListSection.find('li').filter(function() {
@@ -1905,7 +1905,7 @@ window.OperationsView = (function($, OperationsView) {
                     var $input = $(this);
                     var $row = $input.closest('.row');
                     var noArgsChecked = $row.find('.noArg.checked').length > 0;
-                    var casted;
+                    // var casted;
 
                     var val = $input.val();
 
@@ -1918,7 +1918,7 @@ window.OperationsView = (function($, OperationsView) {
                     }
 
                     if ($input.data('casted')) {
-                        val = xcHelper.castStrHelper(val, 
+                        val = xcHelper.castStrHelper(val,
                                                      $input.data('casttype'));
                     }
 
@@ -3479,8 +3479,8 @@ window.OperationsView = (function($, OperationsView) {
                     // when its number
                     value = parsedVal;
                 }
-            } else if (existingTypes.hasOwnProperty("string") && 
-                    isNumberInQuotes(value)) {
+            } else if (existingTypes.hasOwnProperty("string") &&
+                        isNumberInQuotes(value)) {
                 // keep value as is
             } else if (shouldBeBoolean &&
                         (value === "true" || value === "false")) {

@@ -413,12 +413,12 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     }
 
     function failHandler(args) {
-        var $containers = $("#deleteTableModal-orphan, " + 
+        var $containers = $("#deleteTableModal-orphan, " +
                             "#deleteTableModal-archived, " +
                             "#deleteTableModal-active");
         var errorMsg = "";
         var hasSuccess = false;
-        var failedTablesStr = "";
+        // var failedTablesStr = "";
         var failedTables = [];
         var failedMsgs = [];
         for (var i = 0; i < args.length; i++) {
@@ -431,10 +431,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                     failedTables.push(tableName);
                     failedMsgs.push(args[i].fails[j].error);
                     var $gridUnit = $containers.find('.grid-unit')
-                        .filter(function() {
-                           $grid = $(this);
-                           return ($grid.find('.name').text() === tableName);
-                        });
+                    .filter(function() {
+                        $grid = $(this);
+                        return ($grid.find('.name').text() === tableName);
+                    });
                     $gridUnit.addClass('failed');
                 }
             }
@@ -442,9 +442,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         if (hasSuccess) {
             if (failedTables.length === 1) {
                 errorMsg = failedMsgs[0] + ". " +
-                            xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
-                                                    "name": failedTables[0]
-                                                });
+                xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
+                    "name": failedTables[0]
+                });
             } else {
                 errorMsg = failedMsgs[0] + ". " +
                            StatusMessageTStr.PartialDeleteTableFail;
@@ -455,7 +455,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
      
         var $firstGrid = $containers.find('.grid-unit.failed').eq(0);
         StatusBox.show(errorMsg, $firstGrid, false, {
-            "side": "left",
+            "side"      : "left",
             "highZindex": true
         });
     }

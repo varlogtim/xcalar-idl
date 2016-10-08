@@ -145,14 +145,12 @@ window.JSONModal = (function($, JSONModal) {
             if (jsonTableId === tableId) {
                 var $td = $table.find('.row' + data.rownum).find('.jsonElement');
                 if ($td.length && !$td.find('.jsonModalHighlightBox').length) {
-                    highlightCell($td, jsonTableId, data.rownum, data.colnum, 
-                                false,
-                                {jsonModal: true});
-            
+                    highlightCell($td, jsonTableId, data.rownum, data.colnum,
+                                    false, {jsonModal: true});
                 }
             }
         });
-    }
+    };
 
     function addEventListeners() {
         var $searchArea = $('#jsonSearch');
@@ -236,7 +234,7 @@ window.JSONModal = (function($, JSONModal) {
 
             // remove highlightbox if no other jsonwraps depend on it
            
-            var id = jsonWrapData.tableid + jsonWrapData.rownum + 
+            var id = jsonWrapData.tableid + jsonWrapData.rownum +
                      jsonWrapData.colnum;
             refCounts[id]--;
             if (refCounts[id] === 0) {
@@ -513,7 +511,7 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         var jsonWrapData = $jsonClone.data();
-        var id = jsonWrapData.tableid + jsonWrapData.rownum + 
+        var id = jsonWrapData.tableid + jsonWrapData.rownum +
                  jsonWrapData.colnum;
         refCounts[id]++;
 
@@ -735,7 +733,7 @@ window.JSONModal = (function($, JSONModal) {
             $modalBg.removeClass('light');
             if ($('.modalContainer:visible').length < 2) {
                 $modalBg.hide();
-            } 
+            }
             $jsonModal.hide().width(500);
 
             $('#bottomMenu').removeClass('modalOpen');
@@ -1090,7 +1088,7 @@ window.JSONModal = (function($, JSONModal) {
             if (refCounts[id] == null) {
                 refCounts[id] = 1;
             } else {
-                refCounts[id]++; 
+                refCounts[id]++;
             }
             
             var numFields = $jsonWrap.find('.primary').children().children()

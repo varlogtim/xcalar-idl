@@ -2489,7 +2489,7 @@ window.Dag = (function($, Dag) {
         });
 
         dagScrollListeners($dagWrap.find('.dagImageWrap'));
-    }
+    };
 
     function checkCanExpand(group, depth, index, $dagWrap) {
         var allDagInfo = $dagWrap.data('allDagInfo');

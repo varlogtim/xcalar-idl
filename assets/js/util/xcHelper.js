@@ -2444,7 +2444,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         return {
             moduleLis: moduleLi,
-            fnLis: fnLi
+            fnLis    : fnLi
         };
     };
 
@@ -2454,7 +2454,7 @@ window.xcHelper = (function($, xcHelper) {
         var modalHeight = $modal.height();
         var prevWinWidth = windowSpecs.winWidth;
         var prevWinHeight = windowSpecs.winHeight;
-        // this will be used as the starting window  width/height for the 
+        // this will be used as the starting window  width/height for the
         // next window resize rather than measuring at the beginning of the
         // next resize because the maximize/minimize button will not show
         // the starting window size during the resize event
@@ -2468,9 +2468,9 @@ window.xcHelper = (function($, xcHelper) {
             var diff = curWinWidth - modalWidth;
             $modal.css('left', diff);
         } else if (prevWidthAround < 10) {
-            $modal.css('left', (curWinWidth - modalWidth) / 2)
+            $modal.css('left', (curWinWidth - modalWidth) / 2);
         } else {
-            var widthAroundChangeRatio = (curWinWidth - modalWidth) / 
+            var widthAroundChangeRatio = (curWinWidth - modalWidth) /
                                           prevWidthAround;
             $modal.css('left', modalSpecs.left * widthAroundChangeRatio);
         }
@@ -2480,7 +2480,7 @@ window.xcHelper = (function($, xcHelper) {
         } else if (prevHeightAround < 10) {
             $modal.css('top', (curWinHeight - modalHeight) / 2);
         } else {
-            var heightAroundChangeRatio = (curWinHeight - modalHeight) / 
+            var heightAroundChangeRatio = (curWinHeight - modalHeight) /
                                            prevHeightAround;
             $modal.css('top', modalSpecs.top * heightAroundChangeRatio);
         }

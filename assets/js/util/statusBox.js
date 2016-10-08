@@ -11,7 +11,7 @@ window.StatusBox = (function($, StatusBox){
     //      offsetY: int,
     //      side: 'top', 'bottom', 'left', 'right' (if not provided, box will
     //      default to the right side of the $target)
-    //      highZindex: boolean, if true will add class to bring statusbox 
+    //      highZindex: boolean, if true will add class to bring statusbox
     //                  z-index above locked background z-index
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");

@@ -2705,7 +2705,7 @@ window.TblManager = (function($, TblManager) {
                 delete gTables[tableId];
             }
             deferred.reject();
-        })
+        });
 
         return (deferred.promise());
     }
