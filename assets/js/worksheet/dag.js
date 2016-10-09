@@ -3513,8 +3513,12 @@ window.Dag = (function($, Dag) {
     }
 
     function drawExpandLines($expandIcon, ctx) {
-        var x = $expandIcon.position().left + 60;
-        var y = $expandIcon.position().top + 15;
+        // NOTE: Cannot do .position() when the pane that you are trying to
+        // paint on is not visible.
+        var x = parseInt($expandIcon.parent().width()) -
+                parseInt($expandIcon.css("right")) + 43 +
+                parseInt($expandIcon.width());
+        var y = parseInt($expandIcon.css("top")) + 15;
         var length = 80;
         drawLine(ctx, x, y, length);
     }

@@ -292,8 +292,7 @@ window.DFGCard = (function($, DFGCard) {
                             '<div class="spin"></div>' +
                         '</button>' +
                     '</div>' +
-                    '<div class="dagImageWrap">' +
-                    '</div></div>';
+                '</div>';
         $dfgCard.find('.cardMain').html(html);
         XcalarGetRetina(groupName)
         .then(function(ret) {

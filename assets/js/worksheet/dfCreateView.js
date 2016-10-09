@@ -243,17 +243,14 @@ window.DFCreateView = (function($, DFCreateView) {
         }
     }
 
+    // XXX broken until next checkin
+    function saveDataFlow(groupName, columns, tableName) {
+        var dataflowParams = {
+            "tableName": tableName,
+            "columns": columns,
+        };
 
-    function saveDataFlow(groupName, columns, isNewGroup) {
-        var $dagImage = $curDagWrap.find('.dagImage');
-        var canvasInfo = DFG.getCanvasInfo($dagImage);
-
-        var group = DFG.getGroup(groupName) || new DFGObj(groupName);
-        group.addDataFlow({
-            "name"      : canvasInfo.tableName,
-            "columns"   : columns,
-            "canvasInfo": canvasInfo.canvasInfo
-        });
+        var group = new Dataflow(groupName, dataflowParams);
 
         return (DFG.setGroup(groupName, group, isNewGroup));
     }
@@ -375,7 +372,7 @@ window.DFCreateView = (function($, DFCreateView) {
         // thrift call maybe slow, and next time open the modal
         // the call may still not finish yet!!!
         saveFinished = false;
-        saveDataFlow(dfName, columns, isNewGroup)
+        saveDataFlow(dfName, columns, gTables[tableId].tableName)
         .then(function() {
             xcHelper.showSuccess();
             // refresh dataflow lists in modal and scheduler panel
