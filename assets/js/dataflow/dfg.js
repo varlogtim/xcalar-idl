@@ -36,6 +36,7 @@ window.DFG = (function($, DFG) {
             // JJJ Draw dataflows and hide
             // JJJ Make updateDFG instead of draw, to do show
             DFGCard.updateDFG();
+            DFGCard.drawDags();
         });
 
         return deferred.promise();
@@ -73,7 +74,8 @@ window.DFG = (function($, DFG) {
         .then(function(retInfo) {
             updateDFGInfo(retInfo);
             // XXX TODO add sql
-            DFGCard.updateDFG({"noClick": noClick});
+            DFGCard.drawOneDag(dataflowName);
+            DFGCard.updateDFG();
             KVStore.commit();
             deferred.resolve();
         })
@@ -132,33 +134,18 @@ window.DFG = (function($, DFG) {
         return (XcalarMakeRetina(retName, tableArray));
     }
 
-    // called after retina is created or updated in order to update
-    // the ids of dag nodes
+    // called after retina is created to update the ids of dag nodes
     function updateDFGInfo(retInfo) {
         var retina = retInfo.retina;
         var retName = retina.retinaDesc.retinaName;
-        var group = dataflows[retName];
+        var dataflow = dataflows[retName];
         var nodes = retina.retinaDag.node;
-        var numNodes = retina.retinaDag.numNodes;
-        var nodeIds = group.nodeIds;
-        var tableName;
 
-        if (!nodeIds) {
-            // This is the case where the retina is uploaded.
-            // We really shouldn't do this here.. so XXX temp
-            // JJJ Fixme. nodeIds doesn't exist for uploaded retinas
-            group.retinaNodes = retInfo.retina.retinaDag.node;
-            var nodes = {};
-            for (var j = 0; j<group.retinaNodes.length; j++) {
-                nodes[group.retinaNodes[j].name.name] =
-                                                 group.retinaNodes[j].dagNodeId;
-            }
-            group.nodeIds = nodes;
-            return;
-        }
-        for (var i = 0; i < numNodes; i++) {
-            tableName = nodes[i].name.name;
-            nodeIds[tableName] = nodes[i].dagNodeId;
+        dataflow.retinaNodes = nodes;
+
+        for (var i = 0; i < retina.retinaDag.numNodes; i++) {
+            var tableName = nodes[i].name.name;
+            dataflow.nodeIds[tableName] = nodes[i].dagNodeId;
         }
     }
 

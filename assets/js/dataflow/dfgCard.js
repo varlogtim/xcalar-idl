@@ -37,9 +37,17 @@ window.DFGCard = (function($, DFGCard) {
         setupRetinaTab();
     };
 
-    DFGCard.updateDFG = function(options) {
-        // Only options is options.noClick
-        updateList(options);
+    DFGCard.updateDFG = function() {
+        updateList();
+    };
+
+    DFGCard.drawDags = function() {
+        drawAllDags();
+        updateList();
+    };
+
+    DFGCard.drawOneDag = function(dataflowName) {
+        drawDags(dataflowName);
     };
 
     DFGCard.getCurrentDFG = function() {
@@ -205,7 +213,15 @@ window.DFGCard = (function($, DFGCard) {
             var groupName = $groupLi.find('.groupName').text();
             currentDFG = groupName;
             $header.text(groupName);
-            drawDags(groupName);
+            $("#dataflowView .dagWrap").filter(function(idx, val) {
+                if ($(this).attr("data-dataflowName") === groupName) {
+                    $(this).removeClass("xc-hidden");
+                } else {
+                    $(this).addClass("xc-hidden");
+                }
+            });
+            enableDagTooltips();
+
             DFGCard.updateRetinaTab(groupName);
 
             $listSection.find('.listBox').removeClass('selected');
@@ -270,10 +286,25 @@ window.DFGCard = (function($, DFGCard) {
         });
     }
 
-    function drawDags(groupName) {
-        // This is a uploaded dataflow
-        var deferred = jQuery.Deferred();
-        html = '<div class="dagWrap clearfix">' +
+    function drawAllDags() {
+        $dfgCard.find(".cardMain").html("");
+        var allDataflows = DFG.getAllDataflows();
+
+        for (var df in allDataflows) {
+            try {
+                drawDags(df);
+            } catch (error) {
+                // This is in case it's an illegal retina and backend returns us
+                // garbage. Skip that retina and go print the next one.
+                // TODO: Can print some error message here actually.
+                console.error(error);
+            }
+        }
+    }
+
+    function drawDags(dataflowName) {
+        html = '<div class="dagWrap xc-hidden clearfix" '+
+                    'data-dataflowName="' + dataflowName + '">' +
                     '<div class="header clearfix">' +
                         '<div class="btn btn-small infoIcon">' +
                             '<i class="icon xi-info-rectangle"></i>' +
@@ -281,7 +312,7 @@ window.DFGCard = (function($, DFGCard) {
                         '<div class="tableTitleArea">' +
                             '<span>Table: </span>' +
                             '<span class="tableName">' +
-                                groupName +
+                                dataflowName +
                             '</span>' +
                         '</div>' +
                         '<button class="runNowBtn btn btn-small iconBtn" ' +
@@ -293,23 +324,23 @@ window.DFGCard = (function($, DFGCard) {
                         '</button>' +
                     '</div>' +
                 '</div>';
-        $dfgCard.find('.cardMain').html(html);
-        XcalarGetRetina(groupName)
-        .then(function(ret) {
-            Dag.createDagImage(ret.retina.retinaDag.node,
-                               $("#dataflowPanel").find(".dagWrap"));
-            Dag.addDagEventListeners($("#dataflowPanel").find(".dagWrap"));
-            var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
-            xcHelper.temporarilyDisableTooltip($tooltipTables);
-            xcHelper.addTooltip($('#dfgViz').find('.dataStoreIcon'), null, {
-                "container": "body",
-                "placement": "top",
-                "title"    : CommonTxtTstr.ClickToOpts
-            });
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
+        $dfgCard.find('.cardMain').append(html);
+
+        var nodes = DFG.getDataflow(dataflowName).retinaNodes;
+        var $dagWrap = $("#dataflowPanel").find(".dagWrap[data-dataflowName=" +
+                                                dataflowName+"]");
+        Dag.createDagImage(nodes, $dagWrap);
+        Dag.addDagEventListeners($dagWrap);
+    }
+
+    function enableDagTooltips() {
+        var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
+        xcHelper.temporarilyDisableTooltip($tooltipTables);
+        xcHelper.addTooltip($('#dfgViz').find('.dataStoreIcon'), null, {
+            "container": "body",
+            "placement": "top",
+            "title"    : CommonTxtTstr.ClickToOpts
+        });
     }
 
     function getDagDropDownHTML() {
@@ -389,12 +420,10 @@ window.DFGCard = (function($, DFGCard) {
         });
     }
 
-    function updateList(options) {
-        var noClick = false;
-        if (options) {
-            noClick = options.noClick;
-        }
-        // resetDFGView();
+    function updateList() {
+        // XXX Do we really need to redo this everything or can we just
+        // apply the delta?
+
         var groups = DFG.getAllDataflows();
         var $activeGroup = $dfgMenu.find('.listBox.selected');
         var activeGroupName;
@@ -440,10 +469,6 @@ window.DFGCard = (function($, DFGCard) {
             $dfgCard.find('.cardMain').html(hint);
             $dfgCard.find('.leftSection .title').text("");
         } else {
-            if (noClick) {
-                return;
-            }
-            $dfgCard.find(".cardMain").html("");
             if (activeGroupName) {
                 $dfgMenu.find('.listBox').filter(function() {
                     return ($(this).find('.groupName').text() === activeGroupName);

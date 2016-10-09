@@ -64,7 +64,8 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             DFG.addDataflow(retName, new Dataflow(retName),
                          {"isUpload": true,
                           "noClick" : true});
-            DFGCard.updateDFG({"noClick": true});
+
+            DFGCard.updateDFG();
             closeCard();
             // Click on the newly uploaded dataflow
             $(".groupName:contains('" + retName +"')").closest(".dataFlowGroup")
