@@ -61,7 +61,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return readRetinaFromFile(file, retName);
         })
         .then(function() {
-            DFG.setGroup(retName, new DFGObj(retName), true,
+            DFG.addDataflow(retName, new Dataflow(retName),
                          {"isUpload": true,
                           "noClick" : true});
             DFGCard.updateDFG({"noClick": true});

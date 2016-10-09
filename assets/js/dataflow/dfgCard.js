@@ -54,7 +54,7 @@ window.DFGCard = (function($, DFGCard) {
 
         $retLists.html(html);
 
-        var dfg = DFG.getGroup(retName);
+        var dfg = DFG.getDataflow(retName);
         var paramMap = dfg.paramMap;
 
         dfg.parameters.forEach(function(paramName) {
@@ -84,7 +84,7 @@ window.DFGCard = (function($, DFGCard) {
     function deleteParamFromRetina($row) {
         var $paramName = $row.find(".paramName");
         var paramName = $paramName.text();
-        var dfg = DFG.getGroup(currentDFG);
+        var dfg = DFG.getDataflow(currentDFG);
 
         if (dfg.checkParamInUse(paramName)) {
             StatusBox.show(ErrTStr.ParamInUse, $paramName);
@@ -180,7 +180,7 @@ window.DFGCard = (function($, DFGCard) {
                 return;
             }
 
-            DFG.getGroup(currentDFG).addParameter(paramName);
+            DFG.getDataflow(currentDFG).addParameter(paramName);
 
             addParamToRetina(paramName);
             $input.val("");
@@ -238,7 +238,7 @@ window.DFGCard = (function($, DFGCard) {
         });
 
         function deleteDataflow(retName) {
-            DFG.removeGroup(retName)
+            DFG.removeDataflow(retName)
             .then(function() {
                 // Click on top most retina
                 if ($(".listBox").eq(0)) {
@@ -395,7 +395,7 @@ window.DFGCard = (function($, DFGCard) {
             noClick = options.noClick;
         }
         // resetDFGView();
-        var groups = DFG.getAllGroups();
+        var groups = DFG.getAllDataflows();
         var $activeGroup = $dfgMenu.find('.listBox.selected');
         var activeGroupName;
 
@@ -458,7 +458,7 @@ window.DFGCard = (function($, DFGCard) {
         var deferred = jQuery.Deferred();
 
         var paramsArray = [];
-        var parameters = DFG.getGroup(retName).paramMap;
+        var parameters = DFG.getDataflow(retName).paramMap;
         for (var param in parameters) {
             var p = new XcalarApiParameterT();
             p.parameterName = param;

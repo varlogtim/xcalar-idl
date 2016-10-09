@@ -59,7 +59,6 @@ window.DFGParamModal = (function($, DFGParamModal){
             }
         });
 
-
         $dfgParamModal.find('.cancel, .close').click(function() {
             closeDFGParamModal();
         });
@@ -121,7 +120,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         var tableName = $currentIcon.data('table') || // For aliased tables
                         $currentIcon.data('tablename');
         var dfgName = DFGCard.getCurrentDFG();
-        var dfg = DFG.getGroup(dfgName);
+        var dfg = DFG.getDataflow(dfgName);
         var id = dfg.nodeIds[tableName];
 
         $dfgParamModal.data({
@@ -206,7 +205,7 @@ window.DFGParamModal = (function($, DFGParamModal){
 
         var draggableInputs = "";
         validParams = [];
-        DFG.getGroup(dfgName).parameters.forEach(function(paramName) {
+        DFG.getDataflow(dfgName).parameters.forEach(function(paramName) {
             draggableInputs += generateDraggableParams(paramName);
             validParams.push(paramName);
         });
@@ -544,7 +543,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                 return ($(this).text() === param);
             });
             if (!$paramFound.length && validParams.indexOf(param) !== -1) {
-                var dfg = DFG.getGroup($dfgParamModal.data("dfg"));
+                var dfg = DFG.getDataflow($dfgParamModal.data("dfg"));
                 var paramVal = dfg.getParameter(param) || "";
                 addParamToLists(param, paramVal);
             }
@@ -668,7 +667,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
 
         var retName = $dfgParamModal.data("dfg");
-        var dfg = DFG.getGroup(retName);
+        var dfg = DFG.getDataflow(retName);
         var dagNodeId = $dfgParamModal.data("id");
         var curParamInfo;
 
@@ -827,7 +826,7 @@ window.DFGParamModal = (function($, DFGParamModal){
     }
 
     function populateSavedFields(dagNodeId, retName) {
-        var dfg = DFG.getGroup(retName);
+        var dfg = DFG.getDataflow(retName);
         var retinaNode = dfg.getRetinaNode(dagNodeId);
         var paramMap = dfg.paramMap;
         var nameMap = {};

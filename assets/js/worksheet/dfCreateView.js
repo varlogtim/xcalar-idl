@@ -244,15 +244,15 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     // XXX broken until next checkin
-    function saveDataFlow(groupName, columns, tableName) {
+    function saveDataFlow(dataflowName, columns, tableName) {
         var dataflowParams = {
             "tableName": tableName,
             "columns": columns,
         };
 
-        var group = new Dataflow(groupName, dataflowParams);
+        var df = new Dataflow(dataflowName, dataflowParams);
 
-        return (DFG.setGroup(groupName, group, isNewGroup));
+        return (DFG.addDataflow(dataflowName, df));
     }
 
     function addFormEvents() {
@@ -321,7 +321,7 @@ window.DFCreateView = (function($, DFCreateView) {
                 "$selector": $newNameInput,
                 "text"     : ErrTStr.DFGConflict,
                 "check"    : function() {
-                    return DFG.hasGroup(dfName);
+                    return DFG.hasDataflow(dfName);
                 }
             }
         ]);

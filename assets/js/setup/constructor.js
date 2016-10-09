@@ -776,7 +776,7 @@ function getEMetaKeys() {
 
 function EMetaConstructor(EMetaKeys) {
     EMetaKeys = EMetaKeys || {};
-    this[EMetaKeys.DFG] = DFG.getAllGroups(); // a set of DFGObj
+    this[EMetaKeys.DFG] = DFG.getAllDataflows(); // a set of Dataflow
     return this;
 }
 
@@ -1846,9 +1846,10 @@ DSObj.prototype = {
 };
 /* End of DSObj */
 
-/* Start of DFGObj */
+/* Start of Dataflow */
 /* dataflow.js */
-// a inner part of DFGObj
+// a inner part of Dataflow
+// Stores the original values for the parameterized node
 function RetinaNode(options) {
     options = options || {};
     this.paramType = options.paramType;
@@ -1858,103 +1859,17 @@ function RetinaNode(options) {
     return this;
 }
 
-// a inner part of DFGObj
-function DFGFlow(options) {
+function Dataflow(name, options) {
     options = options || {};
-    this.name = options.name;
-    this.columns = options.columns;
-    this.canvasInfo = new CanvasInfo(options.canvasInfo);
-
-    return this;
-}
-
-// a inner part of DFGFlow
-function CanvasInfo(options) {
-    options = options || {};
-    this.height = options.height;
-    this.width = options.width;
-
-    this.tables = [];
-    this.operations = [];
-    this.expandIcons = [];
-
-    var tables = options.tables || [];
-    for (var i = 0, len = tables.length; i < len; i++) {
-        var canvasTableInfo = new CanvasTableInfo(tables[i]);
-        this.tables.push(canvasTableInfo);
-    }
-
-    var operations = options.operations || [];
-    for (var i = 0, len = operations.length; i < len; i++) {
-        var canvasOpsInfo = new CanvasOpsInfo(operations[i]);
-        this.operations.push(canvasOpsInfo);
-    }
-
-    var expandIcons = options.expandIcons || [];
-    for (var i = 0, len = expandIcons.length; i < len; i++) {
-        var canvasExpandInfo = new CanvasExpandInfo(expandIcons[i]);
-        this.expandIcons.push(canvasExpandInfo);
-    }
-
-    return this;
-}
-
-// a inner part of CanvasInfo
-function CanvasTableInfo(options) {
-    options = options || {};
-    this.index = options.index;
-    this.children = options.children;
-    this.type = options.type;
-    this.left = options.left;
-    this.top = options.top;
-    this.title = options.title;
-    this.table = options.table;
-    this.url = options.url;
-
-    return this;
-}
-
-function CanvasOpsInfo(options) {
-    options = options || {};
-
-    this.tooltip = options.tooltip;
-    this.type = options.type;
-    this.column = options.column;
-    this.info = options.info;
-    this.table = options.table;
-    this.parents = options.parents;
-    this.left = options.left;
-    this.top = options.top;
-    this.classes = options.classes;
-    this.iconClasses = options.iconClasses;
-
-    return this;
-}
-
-function CanvasExpandInfo(options) {
-    options = options || {};
-
-    this.tooltip = options.tooltip;
-    this.left = options.left;
-    this.top = options.top;
-
-    return this;
-}
-
-function DFGObj(name, options) {
-    options = options || {};
-    this.name = name;
-    this.parameters = options.parameters || [];
+    this.name = name; // Retina name
+    this.tableName = options.tableName; // Original table name
+    this.columns = options.columns; // Columns to export
+    this.parameters = options.parameters || []; // Array of parameters in
+                                                // Dataflow
     this.paramMap = options.paramMap || {}; // a map
     this.nodeIds = options.nodeIds || {}; // a map
 
-    this.dataFlows = [];
     this.retinaNodes = {};
-
-    var dataFlows = options.dataFlows || [];
-    for (var i = 0, len = dataFlows.length; i < len; i++) {
-        this.addDataFlow(dataFlows[i]);
-    }
 
     if (options.retinaNodes != null) {
         for (var nodeId in options.retinaNodes) {
@@ -1966,12 +1881,7 @@ function DFGObj(name, options) {
     return this;
 }
 
-DFGObj.prototype = {
-    "addDataFlow": function(options) {
-        var dfgFlow = new DFGFlow(options);
-        this.dataFlows.push(dfgFlow);
-    },
-
+Dataflow.prototype = {
     "addRetinaNode": function(dagNodeId, paramInfo) {
         this.retinaNodes[dagNodeId] = new RetinaNode(paramInfo);
         // var numNodes = this.nodeIds.length;
@@ -3026,10 +2936,6 @@ ModalHelper.prototype = {
         }
     }
 };
-
-
-
-
 
 /* Form Helper */
 // an object used for global Form Actions

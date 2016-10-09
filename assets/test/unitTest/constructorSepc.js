@@ -972,14 +972,14 @@ describe('Constructor Test', function() {
             expect(retinaNode.paramQuery[0]).to.equal('testQuery');
         });
 
-        it('DFGObj should be a constructor', function() {
-            var dfg = new DFGObj('testDFG');
+        it('Dataflow should be a constructor', function() {
+            var dfg = new Dataflow('testDFG');
             expect(dfg).to.be.an('object');
             expect(dfg).to.have.property('name').and.to.equal('testDFG');
         });
 
         it('DFG should add dataflow', function() {
-            var dfg = new DFGObj('testDFG');
+            var dfg = new Dataflow('testDFG');
             expect(dfg).to.have.property('dataFlows')
             .and.to.an('Array');
 
@@ -991,7 +991,7 @@ describe('Constructor Test', function() {
         });
 
         it('DFG should add RetinaNode', function() {
-            var dfg = new DFGObj('testDFG');
+            var dfg = new Dataflow('testDFG');
             expect(dfg).to.have.property('retinaNodes')
             .and.to.an('Object');
 
@@ -1002,7 +1002,7 @@ describe('Constructor Test', function() {
         });
 
         it('DFG should add Parameter', function() {
-            var dfg = new DFGObj('testDFG');
+            var dfg = new Dataflow('testDFG');
             expect(dfg).to.have.property('parameters')
             .and.to.an('Array');
 
