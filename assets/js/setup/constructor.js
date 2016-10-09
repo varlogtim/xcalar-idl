@@ -776,7 +776,7 @@ function getEMetaKeys() {
 
 function EMetaConstructor(EMetaKeys) {
     EMetaKeys = EMetaKeys || {};
-    this[EMetaKeys.DF] = DF.getAllDataflows(); // a set of Dataflow
+    this[EMetaKeys.DF] = DF.getAllCommitKeys(); // Only persiste necessary stuff
     return this;
 }
 
@@ -1866,15 +1866,19 @@ function Dataflow(name, options) {
     this.columns = options.columns; // Columns to export
     this.parameters = options.parameters || []; // Array of parameters in
                                                 // Dataflow
-    this.paramMap = options.paramMap || {}; // a map
-    this.nodeIds = options.nodeIds || {}; // a map
+    this.paramMap = options.paramMap || {}; // Map for parameters.
+    // Map of dagNames and dagIds
+    this.nodeIds = options.nodeIds || {};
+    // Map of dagNodeIds to parameterized structs
+    this.parameterizedNodes = {};
 
     this.retinaNodes = {};
 
-    if (options.retinaNodes != null) {
-        for (var nodeId in options.retinaNodes) {
-            var retinaNode = options.retinaNodes[nodeId];
-            this.retinaNodes[nodeId] = new RetinaNode(retinaNode);
+
+    if (options.parameterizedNodes != null) {
+        for (var nodeId in options.parameterizedNodes) {
+            var parameterizedNodes = options.parameterizedNodes[nodeId];
+            this.parameterizedNodes[nodeId] =new RetinaNode(parameterizedNodes);
         }
     }
 
@@ -1882,9 +1886,12 @@ function Dataflow(name, options) {
 }
 
 Dataflow.prototype = {
-    "addRetinaNode": function(dagNodeId, paramInfo) {
-        this.retinaNodes[dagNodeId] = new RetinaNode(paramInfo);
-        // var numNodes = this.nodeIds.length;
+    "addParameterizedNode": function(dagNodeId, oldParamNode, paramInfo) {
+        this.parameterizedNodes[dagNodeId] = new RetinaNode(oldParamNode);
+        this.updateParameterizedNode(dagNodeId, paramInfo);
+    },
+
+    "updateParameterizedNode": function(dagNodeId, paramInfo) {
         var tableName;
         for (var name in this.nodeIds) {
             if (this.nodeIds[name] === dagNodeId) {
@@ -1893,12 +1900,17 @@ Dataflow.prototype = {
             }
         }
 
-        $('#dataflowPanel').find('[data-table="' + tableName + '"]')
-                            .addClass('hasParam');
+        var $tableNode = $('#dataflowPanel').find('[data-table="' + tableName +
+                                                  '"]');
+        $tableNode.addClass('hasParam');
+        if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
+            $tableNode.find(".tableTitle").text(paramInfo.paramValue)
+                      .attr("data-original-title", paramInfo.paramValue);
+        }
     },
 
-    "getRetinaNode": function(dagNodeId) {
-        return (this.retinaNodes[dagNodeId]);
+    "getParameterizedNode": function(dagNodeId) {
+        return (this.parameterizedNodes[dagNodeId]);
     },
 
     "addParameter": function(name) {
@@ -1938,10 +1950,10 @@ Dataflow.prototype = {
 
     "checkParamInUse": function(paramName) {
         var str = "<" + paramName + ">";
-        var retinsNodes = this.retinaNodes;
+        var paramNodes = this.parameterizedNodes;
 
-        for (var dagNodeId in retinsNodes) {
-            var dagQuery = retinsNodes[dagNodeId].paramQuery || [];
+        for (var dagNodeId in paramNodes) {
+            var dagQuery = paramNodes[dagNodeId].paramQuery || [];
             for (var i = 0, len = dagQuery.length; i < len; i++) {
                 if (dagQuery[i].indexOf(str) >= 0) {
                     return (true);

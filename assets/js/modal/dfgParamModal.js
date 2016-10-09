@@ -3,6 +3,7 @@ window.DFParamModal = (function($, DFParamModal){
 
     var $paramLists;    // $("#dagModleParamList")
     var $editableRow;   // $dfgParamModal.find(".editableRow")
+    var $iconTrigger;   // Which icon triggered this modal
 
     var validParams = [];
     var modalHelper;
@@ -123,6 +124,8 @@ window.DFParamModal = (function($, DFParamModal){
         var dfg = DF.getDataflow(dfgName);
         var id = dfg.nodeIds[tableName];
 
+        $iconTrigger = $currentIcon; // Set cache
+
         $dfgParamModal.data({
             "id" : id,
             "dfg": dfgName
@@ -149,7 +152,7 @@ window.DFParamModal = (function($, DFParamModal){
                             '</td>' +
                             '<td>' +
                                 '<div class="boxed xlarge">' +
-                                    $currentIcon.data('url') +
+                                    $currentIcon.attr('data-tablename') +
                                 '</div>' +
                             '</td>';
 
@@ -679,8 +682,13 @@ window.DFParamModal = (function($, DFParamModal){
 
             DFCard.updateRetinaTab(retName);
 
-            // this marks that the update retina is done
-            dfg.addRetinaNode(dagNodeId, curParamInfo);
+            if (!dfg.getParameterizedNode(dagNodeId)) {
+                var val = genOrigQueryStruct();
+                dfg.addParameterizedNode(dagNodeId, val, curParamInfo);
+            } else {
+                dfg.updateParameterizedNode(dagNodeId, curParamInfo);
+            }
+
             KVStore.commit();
             closeDFParamModal();
             // show success message??
@@ -690,6 +698,37 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         return;
+
+        function genOrigQueryStruct() {
+            var type = $iconTrigger.data('type');
+            var $oldVals = $(".template .boxed");
+            var paramType;
+            var paramValue;
+            var paramQuery;
+            switch (type) {
+            case ("filter"):
+                paramType = XcalarApisT.XcalarApiFilter;
+                var filterText = $oldVals.eq(1).text().trim();
+                var str1 = $oldVals.eq(0).text().trim();
+                var str2 = $oldVals.eq(2).text().trim();
+                paramValue = filterText + "(" + str1 + "," + str2 + ")";
+                paramQuery = [str1, filterText, str2];
+                break;
+            case ("dataStore"):
+                paramType = XcalarApisT.XcalarApiBulkLoad;
+                paramValue = $oldVals.eq(0).text().trim();
+                paramQuery = [paramValue];
+                break;
+            case ("export"):
+                paramType = XcalarApisT.XcalarApiExport;
+                paramValue = $oldVals.eq(0).text().trim();
+                paramQuery = [paramValue];
+                break;
+            }
+            return {"paramType": paramType,
+                    "paramValue": paramValue,
+                    "paramQuery": paramQuery};
+        }
 
         function updateRetina() {
             var deferred  = jQuery.Deferred();
@@ -827,7 +866,7 @@ window.DFParamModal = (function($, DFParamModal){
 
     function populateSavedFields(dagNodeId, retName) {
         var dfg = DF.getDataflow(retName);
-        var retinaNode = dfg.getRetinaNode(dagNodeId);
+        var retinaNode = dfg.getParameterizedNode(dagNodeId);
         var paramMap = dfg.paramMap;
         var nameMap = {};
 

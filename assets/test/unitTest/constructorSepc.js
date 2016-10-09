@@ -995,10 +995,10 @@ describe('Constructor Test', function() {
             expect(dfg).to.have.property('retinaNodes')
             .and.to.an('Object');
 
-            expect(dfg.getRetinaNode(123)).not.to.be.exist;
+            expect(dfg.getParameterizedNode(123)).not.to.be.exist;
 
-            dfg.addRetinaNode(123, retinaNode);
-            expect(dfg.getRetinaNode(123)).to.be.exist;
+            dfg.addParameterizedNode(123, retinaNode);
+            expect(dfg.getParameterizedNode(123)).to.be.exist;
         });
 
         it('DF should add Parameter', function() {
@@ -1028,7 +1028,7 @@ describe('Constructor Test', function() {
             expect(dfg.getParameter('a')).to.equal('c');
 
             expect(dfg.checkParamInUse('a')).to.be.false;
-            dfg.addRetinaNode(123, {
+            dfg.addParameterizedNode(123, {
                 'paramType' : 'test',
                 'paramValue': 'test',
                 'paramQuery': ['load <a>']

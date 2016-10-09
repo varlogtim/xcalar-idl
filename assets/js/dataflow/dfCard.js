@@ -303,6 +303,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function drawDags(dataflowName) {
+
         html = '<div class="dagWrap xc-hidden clearfix" '+
                     'data-dataflowName="' + dataflowName + '">' +
                     '<div class="header clearfix">' +
@@ -330,7 +331,22 @@ window.DFCard = (function($, DFCard) {
         var $dagWrap = $("#dataflowPanel").find(".dagWrap[data-dataflowName=" +
                                                 dataflowName+"]");
         Dag.createDagImage(nodes, $dagWrap);
+
+        applyDeltaTagsToDag(dataflowName, $dagWrap);
         Dag.addDagEventListeners($dagWrap);
+    }
+
+    function applyDeltaTagsToDag(dataflowName, $wrap) {
+        // This function adds the different tags between a regular dag
+        // and a retina dag. For example, it colors parameterized nodes.
+        // It also adds extra classes to the dag that is needed for parameteri-
+        // zation later
+        var $action = $wrap.find(".actionType.export");
+        var $exportTable = $action.next(".dagTable");
+        $exportTable.addClass("export").data("type", "export")
+                    .attr("data-table", $exportTable.attr("data-tablename"));
+        // Data table moved so that the hasParam class is added correctly
+        $wrap.find(".actionType.export").attr("data-table", "");
     }
 
     function enableDagTooltips() {

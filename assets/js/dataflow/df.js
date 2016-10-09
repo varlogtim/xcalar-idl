@@ -1,8 +1,7 @@
 window.DF = (function($, DF) {
     var dataflows = {};
 
-    DF.restore = function() {
-
+    DF.restore = function(ret) {
         // This call now has to return a promise
         // JJJ handle parameters
         var deferred = jQuery.Deferred();
@@ -25,18 +24,36 @@ window.DF = (function($, DF) {
                 var retName = arguments[i].retina.retinaDesc.retinaName;
                 dataflows[retName] = new Dataflow(retName);
                 dataflows[retName].retinaNodes = arguments[i].retina.retinaDag
-                                                                   .node;
+                                                                    .node;
                 var nodes = {};
                 for (var j = 0; j<dataflows[retName].retinaNodes.length; j++) {
                     nodes[dataflows[retName].retinaNodes[j].name.name] =
-                                     dataflows[retName].retinaNodes[j].dagNodeId;
+                                    dataflows[retName].retinaNodes[j].dagNodeId;
                 }
                 dataflows[retName].nodeIds = nodes;
             }
-            // JJJ Draw dataflows and hide
-            // JJJ Make updateDF instead of draw, to do show
+
             DFCard.updateDF();
             DFCard.drawDags();
+
+            // restore old parameterized data
+            for (var i = 0; i<arguments.length; i++) {
+                if (arguments[i] == null) {
+                    continue;
+                }
+                var retName = arguments[i].retina.retinaDesc.retinaName;
+
+                if (retName in ret) {
+                    jQuery.extend(dataflows[retName], ret[retName]);
+                    for (var nodeId in ret[retName].parameterizedNodes) {
+                        // XXX JJJ this is the wrong call!!! This is just temp
+                        // to see the green stuff.
+                        // XXX JJJ The values are somehow cut off by 2 characters
+                        dataflows[retName].updateParameterizedNode(nodeId,
+                            ret[retName].parameterizedNodes[nodeId]);
+                    }
+                }
+            }
         });
 
         return deferred.promise();
@@ -44,6 +61,16 @@ window.DF = (function($, DF) {
 
     DF.getAllDataflows = function() {
         return (dataflows);
+    };
+
+    DF.getAllCommitKeys = function() {
+        // Only commit stuff that we cannot recreate
+        var deepCopy = xcHelper.deepCopy(dataflows);
+        for (var df in deepCopy) {
+            delete deepCopy[df].nodeIds;
+            delete deepCopy[df].retinaNodes;
+        }
+        return deepCopy;
     };
 
     DF.getDataflow = function(dataflowName) {
