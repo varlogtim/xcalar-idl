@@ -1,4 +1,4 @@
-window.DFGParamModal = (function($, DFGParamModal){
+window.DFParamModal = (function($, DFParamModal){
     var $dfgParamModal; // $("#dfgParameterModal")
 
     var $paramLists;    // $("#dagModleParamList")
@@ -28,7 +28,7 @@ window.DFGParamModal = (function($, DFGParamModal){
             '</div>' +
         '</div>';
 
-    DFGParamModal.setup = function() {
+    DFParamModal.setup = function() {
         // constant
         var minHeight = 425;
         var minWidth  = 750;
@@ -60,7 +60,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
 
         $dfgParamModal.find('.cancel, .close').click(function() {
-            closeDFGParamModal();
+            closeDFParamModal();
         });
 
         $dfgParamModal.find('.confirm').click(function() {
@@ -115,12 +115,12 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
     };
 
-    DFGParamModal.show = function($currentIcon) {
+    DFParamModal.show = function($currentIcon) {
         var type = $currentIcon.data('type');
         var tableName = $currentIcon.data('table') || // For aliased tables
                         $currentIcon.data('tablename');
-        var dfgName = DFGCard.getCurrentDFG();
-        var dfg = DFG.getDataflow(dfgName);
+        var dfgName = DFCard.getCurrentDF();
+        var dfg = DF.getDataflow(dfgName);
         var id = dfg.nodeIds[tableName];
 
         $dfgParamModal.data({
@@ -131,7 +131,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         var editableText = ""; // The html corresponding to Parameterized Query:
         if (type === "dataStore") {
             defaultText += '<td>' +
-                                DFGTStr.PointTo + ':' +
+                                DFTStr.PointTo + ':' +
                             '</td>' +
                             '<td>' +
                                 '<div class="boxed xlarge">' +
@@ -140,12 +140,12 @@ window.DFGParamModal = (function($, DFGParamModal){
                             '</td>';
 
             editableText += '<td class="static" data-op="load">' +
-                                DFGTStr.PointTo + ':' +
+                                DFTStr.PointTo + ':' +
                             '</td>' +
                             getParameterInputHTML(0, "xlarge");
         } else if (type === "export") {
             defaultText += '<td>' +
-                                DFGTStr.ExportTo + ':' +
+                                DFTStr.ExportTo + ':' +
                             '</td>' +
                             '<td>' +
                                 '<div class="boxed xlarge">' +
@@ -154,7 +154,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                             '</td>';
 
             editableText += '<td class="static" data-op="export">' +
-                                DFGTStr.ExportTo + ':' +
+                                DFTStr.ExportTo + ':' +
                             '</td>' +
                             getParameterInputHTML(0, "xlarge");
         } else { // not a datastore but a table
@@ -205,13 +205,13 @@ window.DFGParamModal = (function($, DFGParamModal){
 
         var draggableInputs = "";
         validParams = [];
-        DFG.getDataflow(dfgName).parameters.forEach(function(paramName) {
+        DF.getDataflow(dfgName).parameters.forEach(function(paramName) {
             draggableInputs += generateDraggableParams(paramName);
             validParams.push(paramName);
         });
 
         if (draggableInputs === "") {
-            draggableInputs = DFGTStr.AddParamHint;
+            draggableInputs = DFTStr.AddParamHint;
             $dfgParamModal.find('.draggableParams').addClass("hint")
                         .html(draggableInputs);
         } else {
@@ -265,7 +265,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                 $list.find('ul').html(html);
             })
             .fail(function(error) {
-                Alert.error(DFGTStr.ParamModalFail, error);
+                Alert.error(DFTStr.ParamModalFail, error);
             });
         }
 
@@ -288,7 +288,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         });
     };
 
-    DFGParamModal.paramDragStart = function(event) {
+    DFParamModal.paramDragStart = function(event) {
         event.dataTransfer.effectAllowed = "copyMove";
         event.dataTransfer.dropEffect = "copy";
         event.dataTransfer.setData("text", event.target.id);
@@ -321,27 +321,27 @@ window.DFGParamModal = (function($, DFGParamModal){
                     chr = "&nbsp;";
                 }
                 html += '<span class="line" ' +
-                      'ondragover="DFGParamModal.allowParamDrop(event)" ' +
-                      'ondrop="DFGParamModal.paramDropLine(event)">' + chr +
+                      'ondragover="DFParamModal.allowParamDrop(event)" ' +
+                      'ondrop="DFParamModal.paramDropLine(event)">' + chr +
                       '</span>';
             }
             html += '<span class="space" ' +
-                    'ondragover="DFGParamModal.allowParamDrop(event)" ' +
-                    'ondrop="DFGParamModal.paramDropSpace(event)"></span>';
+                    'ondragover="DFParamModal.allowParamDrop(event)" ' +
+                    'ondrop="DFParamModal.paramDropSpace(event)"></span>';
             $(this).siblings('.dummyWrap').find('.dummy').html(html);
         });
 
         $editableRow.data('origin', origin);
     };
 
-    DFGParamModal.paramDragEnd = function (event) {
+    DFParamModal.paramDragEnd = function (event) {
         event.stopPropagation();
         $editableRow.data('copying', false);
         $dfgParamModal.find('.dummyWrap').hide();
         $dfgParamModal.find('input.editableParamDiv').show();
     };
 
-    DFGParamModal.paramDrop = function(event) {
+    DFParamModal.paramDrop = function(event) {
         event.stopPropagation();
         var $dropTarget = $(event.target);
         var paramId = event.dataTransfer.getData("text");
@@ -367,7 +367,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         checkInputForParam($dropTarget.parent().siblings('input'));
     };
 
-    DFGParamModal.paramDropLine = function(event) {
+    DFParamModal.paramDropLine = function(event) {
         event.stopPropagation();
         var $dropTarget = $(event.target);
         var $dropTargParent = $dropTarget.parent();
@@ -386,7 +386,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         checkInputForParam($dropTargParent.parent().siblings('input'));
     };
 
-    DFGParamModal.paramDropSpace = function(event) {
+    DFParamModal.paramDropSpace = function(event) {
         event.stopPropagation();
         var $dropTarget = $(event.target);
         var $dropTargParent = $dropTarget.parent();
@@ -402,7 +402,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         checkInputForParam($dropTargParent.parent().siblings('input'));
     };
 
-    DFGParamModal.allowParamDrop = function(event) {
+    DFParamModal.allowParamDrop = function(event) {
         event.preventDefault();
     };
 
@@ -543,7 +543,7 @@ window.DFGParamModal = (function($, DFGParamModal){
                 return ($(this).text() === param);
             });
             if (!$paramFound.length && validParams.indexOf(param) !== -1) {
-                var dfg = DFG.getDataflow($dfgParamModal.data("dfg"));
+                var dfg = DF.getDataflow($dfgParamModal.data("dfg"));
                 var paramVal = dfg.getParameter(param) || "";
                 addParamToLists(param, paramVal);
             }
@@ -667,7 +667,7 @@ window.DFGParamModal = (function($, DFGParamModal){
         }
 
         var retName = $dfgParamModal.data("dfg");
-        var dfg = DFG.getDataflow(retName);
+        var dfg = DF.getDataflow(retName);
         var dagNodeId = $dfgParamModal.data("id");
         var curParamInfo;
 
@@ -677,16 +677,16 @@ window.DFGParamModal = (function($, DFGParamModal){
             // store meta
             dfg.updateParameters(params);
 
-            DFGCard.updateRetinaTab(retName);
+            DFCard.updateRetinaTab(retName);
 
             // this marks that the update retina is done
             dfg.addRetinaNode(dagNodeId, curParamInfo);
             KVStore.commit();
-            closeDFGParamModal();
+            closeDFParamModal();
             // show success message??
         })
         .fail(function(error) {
-            Alert.error(DFGTStr.UpdateParamFail, error);
+            Alert.error(DFTStr.UpdateParamFail, error);
         });
 
         return;
@@ -798,8 +798,8 @@ window.DFGParamModal = (function($, DFGParamModal){
                 'spellcheck="false" type="text">' +
                 '<div class="dummyWrap ' + divClass + '">' +
                 '<div class="dummy ' + divClass + '" ' +
-                'ondragover="DFGParamModal.allowParamDrop(event)"' +
-                'ondrop="DFGParamModal.paramDrop(event)" ' +
+                'ondragover="DFParamModal.allowParamDrop(event)"' +
+                'ondrop="DFParamModal.paramDrop(event)" ' +
                 'data-target="' + inputNum + '"></div></div>';
 
         if (options.filter) {
@@ -826,7 +826,7 @@ window.DFGParamModal = (function($, DFGParamModal){
     }
 
     function populateSavedFields(dagNodeId, retName) {
-        var dfg = DFG.getDataflow(retName);
+        var dfg = DF.getDataflow(retName);
         var retinaNode = dfg.getRetinaNode(dagNodeId);
         var paramMap = dfg.paramMap;
         var nameMap = {};
@@ -880,8 +880,8 @@ window.DFGParamModal = (function($, DFGParamModal){
         var html = '<div id="draggableParam-' + paramName +
                 '" class="draggableDiv" ' +
                 'draggable="true" ' +
-                'ondragstart="DFGParamModal.paramDragStart(event)" ' +
-                'ondragend="DFGParamModal.paramDragEnd(event)" ' +
+                'ondragstart="DFParamModal.paramDragStart(event)" ' +
+                'ondragend="DFParamModal.paramDragEnd(event)" ' +
                 'ondrop="return false" ' +
                 'title="' + CommonTxtTstr.HoldToDrag + '" ' +
                 'contenteditable="false">' +
@@ -894,13 +894,13 @@ window.DFGParamModal = (function($, DFGParamModal){
         return (html);
     }
 
-    function closeDFGParamModal() {
+    function closeDFParamModal() {
         modalHelper.clear();
         $editableRow.empty();
         $dfgParamModal.find('.draggableParams').empty();
         $paramLists.empty();
     }
 
-    return (DFGParamModal);
+    return (DFParamModal);
 
 }(jQuery, {}));

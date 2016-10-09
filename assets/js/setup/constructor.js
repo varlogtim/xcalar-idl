@@ -770,13 +770,13 @@ function METAConstructor(METAKeys) {
 
 function getEMetaKeys() {
     return {
-        "DFG": "DFG"
+        "DF": "DF"
     };
 }
 
 function EMetaConstructor(EMetaKeys) {
     EMetaKeys = EMetaKeys || {};
-    this[EMetaKeys.DFG] = DFG.getAllDataflows(); // a set of Dataflow
+    this[EMetaKeys.DF] = DF.getAllDataflows(); // a set of Dataflow
     return this;
 }
 

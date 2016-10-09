@@ -117,7 +117,7 @@ ErrTStr = {
 'TableConflict': '表具有相同的名称已经存在，请选择其他名称。',
 'ExportConflict': '此文件名取，请选择其他名称。',
 'ColumnConflict': '列具有相同名称已经存在，请选择其他名称。',
-'DFGConflict': '数据流组具有相同名称已经存在，请选择其他名称。',
+'DFConflict': '数据流组具有相同名称已经存在，请选择其他名称。',
 'ScheduleConflict': '时间表具有相同名称已经存在，请选择其他名称。',
 'InvalidWSInList': '无效的工作表的名称，请从弹出列表中选择一个工作表。',
 'OnlyNumber': '请输入一个号码。',
@@ -280,17 +280,17 @@ SchedTStr = {
 'AddSchedFail': '添加日程失败',
 'UpdateFail': '更新计划失败'
 };
-DFGTStr = {
+DFTStr = {
 'DFExists': '数据流已存在',
 'AddParamHint': '请首先创建数据流组面板参数。',
 'DFCreateFail': '数据流创建失败',
 'ParamModalFail': '参数模式失败',
 'UpdateParamFail': '更新PARAMS失败',
-'NoDFG1': '没有数据流添加组',
-'NoDFG2': '在查询图添加一个数据流组。',
+'NoDF1': '没有数据流添加组',
+'NoDF2': '在查询图添加一个数据流组。',
 'RunDone': '运行完毕',
-'RunDoneMsg': '成功运行DFG！',
-'RunFail': '运行DFG失败'
+'RunDoneMsg': '成功运行DF！',
+'RunFail': '运行DF失败'
 };
 DSTStr = {
 'UnknownUser': '未知用户',

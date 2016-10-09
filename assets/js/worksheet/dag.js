@@ -2431,7 +2431,7 @@ window.Dag = (function($, Dag) {
                 if (!canExpand) {
                     $dagWrap.find('.dagImage').addClass('unsavable');
                     $('.tooltip').hide();
-                    StatusBox.show(ErrTStr.DFGNoExpand, $expandIcon, false,
+                    StatusBox.show(ErrTStr.DFNoExpand, $expandIcon, false,
                                     {type: "info"}) ;
                 } else {
                     // $expandIcon.remove();

@@ -1,7 +1,7 @@
-window.DFG = (function($, DFG) {
+window.DF = (function($, DF) {
     var dataflows = {};
 
-    DFG.restore = function() {
+    DF.restore = function() {
 
         // This call now has to return a promise
         // JJJ handle parameters
@@ -34,23 +34,23 @@ window.DFG = (function($, DFG) {
                 dataflows[retName].nodeIds = nodes;
             }
             // JJJ Draw dataflows and hide
-            // JJJ Make updateDFG instead of draw, to do show
-            DFGCard.updateDFG();
-            DFGCard.drawDags();
+            // JJJ Make updateDF instead of draw, to do show
+            DFCard.updateDF();
+            DFCard.drawDags();
         });
 
         return deferred.promise();
     };
 
-    DFG.getAllDataflows = function() {
+    DF.getAllDataflows = function() {
         return (dataflows);
     };
 
-    DFG.getDataflow = function(dataflowName) {
+    DF.getDataflow = function(dataflowName) {
         return (dataflows[dataflowName]);
     };
 
-    DFG.addDataflow = function(dataflowName, dataflow, options) {
+    DF.addDataflow = function(dataflowName, dataflow, options) {
         var isUpload = false;
         var noClick = false;
         if (options) {
@@ -72,10 +72,10 @@ window.DFG = (function($, DFG) {
             return (XcalarGetRetina(dataflowName));
         })
         .then(function(retInfo) {
-            updateDFGInfo(retInfo);
+            updateDFInfo(retInfo);
             // XXX TODO add sql
-            DFGCard.drawOneDag(dataflowName);
-            DFGCard.updateDFG();
+            DFCard.drawOneDag(dataflowName);
+            DFCard.updateDF();
             KVStore.commit();
             deferred.resolve();
         })
@@ -87,12 +87,12 @@ window.DFG = (function($, DFG) {
         return (deferred.promise());
     };
 
-    DFG.removeDataflow = function(groupName) {
+    DF.removeDataflow = function(dataflowName) {
         var deferred = jQuery.Deferred();
-        XcalarDeleteRetina(groupName)
+        XcalarDeleteRetina(dataflowName)
         .then(function() {
-            delete dataflows[groupName];
-            DFGCard.updateDFG();
+            delete dataflows[dataflowName];
+            DFCard.updateDF();
             return (KVStore.commit());
         })
         .then(function() {
@@ -104,8 +104,8 @@ window.DFG = (function($, DFG) {
         return deferred.promise();
     };
 
-    DFG.hasDataflow = function(groupName) {
-        return dataflows.hasOwnProperty(groupName);
+    DF.hasDataflow = function(dataflowName) {
+        return dataflows.hasOwnProperty(dataflowName);
     };
 
     function createRetina(retName) {
@@ -135,7 +135,7 @@ window.DFG = (function($, DFG) {
     }
 
     // called after retina is created to update the ids of dag nodes
-    function updateDFGInfo(retInfo) {
+    function updateDFInfo(retInfo) {
         var retina = retInfo.retina;
         var retName = retina.retinaDesc.retinaName;
         var dataflow = dataflows[retName];
@@ -149,6 +149,6 @@ window.DFG = (function($, DFG) {
         }
     }
 
-    return (DFG);
+    return (DF);
 
 }(jQuery, {}));

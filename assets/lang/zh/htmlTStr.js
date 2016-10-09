@@ -212,8 +212,8 @@ module.exports = {
         "sum": "和"
     },
     "dataFlowModal": {
-        "AppendDFG": "附加到现有的数据流",
-        "NewDFG": "新的数据流组",
+        "AppendDF": "附加到现有的数据流",
+        "NewDF": "新的数据流组",
         "NewGroupName": "新的组名称",
         "header": "添加到数据流组",
         "instr": "添加一个数据流的数据流组。选择您想在当前的数据流添加到，然后点击保存按钮的数据流组。"
@@ -526,7 +526,7 @@ module.exports = {
     },
     "sched": {
         "DETAIL": "详情",
-        "DFG": "数据流GRP",
+        "DF": "数据流GRP",
         "SCHEDS": "时间表",
         "action": "行动",
         "biweekly": "双周",

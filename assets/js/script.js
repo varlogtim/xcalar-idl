@@ -289,7 +289,7 @@ window.StartManager = (function(StartManager, $) {
         OperationsView.setup();
         Workbook.setup();
         DFCreateView.setup();
-        DFGParamModal.setup();
+        DFParamModal.setup();
         SmartCastView.setup();
         DeleteTableModal.setup();
         ExtModal.setup();

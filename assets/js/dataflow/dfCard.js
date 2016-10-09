@@ -1,10 +1,10 @@
-window.DFGCard = (function($, DFGCard) {
-    var $dfgView;       // $('#dataflowView');
-    var $dfgCard;       // $('#dfgViz');
-    var $dfgMenu;       // $('#dfgMenu').find('.dfgList');
-    var $listSection;   // $dfgMenu.find('.listSection');
-    var $header;        // $dfgCard.find('.cardHeader h2');
-    var $retTabSection; // $dfgCard.find('.retTabSection');
+window.DFCard = (function($, DFCard) {
+    var $dfView;       // $('#dataflowView');
+    var $dfCard;       // $('#dfgViz');
+    var $dfMenu;       // $('#dfgMenu').find('.dfgList');
+    var $listSection;   // $dfMenu.find('.listSection');
+    var $header;        // $dfCard.find('.cardHeader h2');
+    var $retTabSection; // $dfCard.find('.retTabSection');
     var $retLists;      // $("#retLists");
 
     var retinaTrLen = 7;
@@ -21,15 +21,15 @@ window.DFGCard = (function($, DFGCard) {
                         '</div>' +
                    '</div>';
 
-    var currentDFG = null;
+    var currentDataflow = null;
 
-    DFGCard.setup = function() {
-        $dfgView = $('#dataflowView');
-        $dfgCard = $('#dfgViz');
-        $dfgMenu = $('#dfgMenu').find('.dfgList');
-        $listSection = $dfgMenu.find('.listSection');
-        $header = $dfgCard.find('.cardHeader h2');
-        $retTabSection = $dfgCard.find('.retTabSection');
+    DFCard.setup = function() {
+        $dfView = $('#dataflowView');
+        $dfCard = $('#dfgViz');
+        $dfMenu = $('#dfgMenu').find('.dfgList');
+        $listSection = $dfMenu.find('.listSection');
+        $header = $dfCard.find('.cardHeader h2');
+        $retTabSection = $dfCard.find('.retTabSection');
         $retLists = $("#retLists");
 
         addListeners();
@@ -37,24 +37,24 @@ window.DFGCard = (function($, DFGCard) {
         setupRetinaTab();
     };
 
-    DFGCard.updateDFG = function() {
+    DFCard.updateDF = function() {
         updateList();
     };
 
-    DFGCard.drawDags = function() {
+    DFCard.drawDags = function() {
         drawAllDags();
         updateList();
     };
 
-    DFGCard.drawOneDag = function(dataflowName) {
+    DFCard.drawOneDag = function(dataflowName) {
         drawDags(dataflowName);
     };
 
-    DFGCard.getCurrentDFG = function() {
-        return (currentDFG);
+    DFCard.getCurrentDF = function() {
+        return (currentDataflow);
     };
 
-    DFGCard.updateRetinaTab = function(retName) {
+    DFCard.updateRetinaTab = function(retName) {
         var html = "";
         for (var i = 0; i < retinaTrLen; i++) {
             html += retinaTr;
@@ -62,7 +62,7 @@ window.DFGCard = (function($, DFGCard) {
 
         $retLists.html(html);
 
-        var dfg = DFG.getDataflow(retName);
+        var dfg = DF.getDataflow(retName);
         var paramMap = dfg.paramMap;
 
         dfg.parameters.forEach(function(paramName) {
@@ -92,7 +92,7 @@ window.DFGCard = (function($, DFGCard) {
     function deleteParamFromRetina($row) {
         var $paramName = $row.find(".paramName");
         var paramName = $paramName.text();
-        var dfg = DFG.getDataflow(currentDFG);
+        var dfg = DF.getDataflow(currentDataflow);
 
         if (dfg.checkParamInUse(paramName)) {
             StatusBox.show(ErrTStr.ParamInUse, $paramName);
@@ -108,7 +108,7 @@ window.DFGCard = (function($, DFGCard) {
     }
 
     function setupRetinaTab() {
-        $dfgView.on("mousedown", function(event) {
+        $dfView.on("mousedown", function(event) {
             if ($(event.target).closest('#statusBox').length) {
                 return;
             }
@@ -188,7 +188,7 @@ window.DFGCard = (function($, DFGCard) {
                 return;
             }
 
-            DFG.getDataflow(currentDFG).addParameter(paramName);
+            DF.getDataflow(currentDataflow).addParameter(paramName);
 
             addParamToRetina(paramName);
             $input.val("");
@@ -205,16 +205,16 @@ window.DFGCard = (function($, DFGCard) {
         $listSection.on('click', '.dataFlowGroup', function(event, options) {
             options = options || {};
             var $dfg = $(this);
-            var $groupLi = $dfg.find('.listBox');
-            if ($groupLi.hasClass('selected')) {
+            var $dataflowLi = $dfg.find('.listBox');
+            if ($dataflowLi.hasClass('selected')) {
                 return;
             }
 
-            var groupName = $groupLi.find('.groupName').text();
-            currentDFG = groupName;
-            $header.text(groupName);
+            var dataflowName = $dataflowLi.find('.groupName').text();
+            currentDataflow = dataflowName;
+            $header.text(dataflowName);
             $("#dataflowView .dagWrap").filter(function(idx, val) {
-                if ($(this).attr("data-dataflowName") === groupName) {
+                if ($(this).attr("data-dataflowName") === dataflowName) {
                     $(this).removeClass("xc-hidden");
                 } else {
                     $(this).addClass("xc-hidden");
@@ -222,10 +222,10 @@ window.DFGCard = (function($, DFGCard) {
             });
             enableDagTooltips();
 
-            DFGCard.updateRetinaTab(groupName);
+            DFCard.updateRetinaTab(dataflowName);
 
             $listSection.find('.listBox').removeClass('selected');
-            $groupLi.addClass('selected');
+            $dataflowLi.addClass('selected');
 
             if (gMinModeOn || options.show) {
                 $listSection.find('.subList').hide();
@@ -245,8 +245,8 @@ window.DFGCard = (function($, DFGCard) {
         $listSection.on('click', '.deleteDataflow', function() {
             var retName = $(this).siblings('.groupName').text();
             Alert.show({
-                'title'    : DFGTStr.DelDFG,
-                'msg'      : DFGTStr.DelDFGMsg,
+                'title'    : DFTStr.DelDF,
+                'msg'      : DFTStr.DelDFMsg,
                 'onConfirm': function() {
                     deleteDataflow(retName);
                 }
@@ -254,7 +254,7 @@ window.DFGCard = (function($, DFGCard) {
         });
 
         function deleteDataflow(retName) {
-            DFG.removeDataflow(retName)
+            DF.removeDataflow(retName)
             .then(function() {
                 // Click on top most retina
                 if ($(".listBox").eq(0)) {
@@ -273,13 +273,13 @@ window.DFGCard = (function($, DFGCard) {
             UploadDataflowCard.show();
         });
 
-        $dfgCard.on("click", ".runNowBtn", function() {
+        $dfCard.on("click", ".runNowBtn", function() {
             var $btn = $(this);
             var retName = $("#dfgMenu .listSection").find(".selected .groupName")
                                                     .text();
             $btn.addClass("running");
 
-            runDFG(retName)
+            runDF(retName)
             .always(function() {
                 $btn.removeClass("running");
             });
@@ -287,8 +287,8 @@ window.DFGCard = (function($, DFGCard) {
     }
 
     function drawAllDags() {
-        $dfgCard.find(".cardMain").html("");
-        var allDataflows = DFG.getAllDataflows();
+        $dfCard.find(".cardMain").html("");
+        var allDataflows = DF.getAllDataflows();
 
         for (var df in allDataflows) {
             try {
@@ -318,15 +318,15 @@ window.DFGCard = (function($, DFGCard) {
                         '<button class="runNowBtn btn btn-small iconBtn" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" data-original-title="' +
-                        DFGTStr.Run + '">' +
+                        DFTStr.Run + '">' +
                             '<i class="icon xi-arrow-right"></i>' +
                             '<div class="spin"></div>' +
                         '</button>' +
                     '</div>' +
                 '</div>';
-        $dfgCard.find('.cardMain').append(html);
+        $dfCard.find('.cardMain').append(html);
 
-        var nodes = DFG.getDataflow(dataflowName).retinaNodes;
+        var nodes = DF.getDataflow(dataflowName).retinaNodes;
         var $dagWrap = $("#dataflowPanel").find(".dagWrap[data-dataflowName=" +
                                                 dataflowName+"]");
         Dag.createDagImage(nodes, $dagWrap);
@@ -353,8 +353,8 @@ window.DFGCard = (function($, DFGCard) {
 
     function setupDagDropdown() {
         var dropdownHtml = getDagDropDownHTML();
-        var $dagArea = $dfgCard;
-        $dfgCard.append(dropdownHtml);
+        var $dagArea = $dfCard;
+        $dfCard.append(dropdownHtml);
 
         var $currentIcon;
 
@@ -416,7 +416,7 @@ window.DFGCard = (function($, DFGCard) {
             if (event.which !== 1) {
                 return;
             }
-            DFGParamModal.show($currentIcon);
+            DFParamModal.show($currentIcon);
         });
     }
 
@@ -424,8 +424,8 @@ window.DFGCard = (function($, DFGCard) {
         // XXX Do we really need to redo this everything or can we just
         // apply the delta?
 
-        var groups = DFG.getAllDataflows();
-        var $activeGroup = $dfgMenu.find('.listBox.selected');
+        var dataflows = DF.getAllDataflows();
+        var $activeGroup = $dfMenu.find('.listBox.selected');
         var activeGroupName;
 
         if ($activeGroup.length) {
@@ -433,14 +433,14 @@ window.DFGCard = (function($, DFGCard) {
         }
         var html = "";
         var numGroups = 0;
-        for (var group in groups) {
+        for (var dataflow in dataflows) {
             numGroups++;
             html += '<div class="dataFlowGroup listWrap">' +
                       '<div class="listBox listInfo">' +
                         '<div class="iconWrap">' +
                           '<i class="icon xi-dataflowgroup"></i>' +
                         '</div>' +
-                        '<span class="groupName">' + group + '</span>' +
+                        '<span class="groupName">' + dataflow + '</span>' +
                         '<i class="icon xi-trash deleteDataflow" ' +
                             'title="Delete dataflow" data-toggle="tooltip" ' +
                             'data-placement="top" data-container="body">' +
@@ -454,36 +454,36 @@ window.DFGCard = (function($, DFGCard) {
                     '</div>';
         }
 
-        $dfgMenu.find('.listSection').html(html);
-        $dfgMenu.find('.numGroups').text(numGroups);
+        $dfMenu.find('.listSection').html(html);
+        $dfMenu.find('.numGroups').text(numGroups);
 
         if (numGroups === 0) {
             var hint = '<div class="hint no-selection">' +
                         '<i class="icon xi-warning"></i>' +
                         '<div class="text">' +
-                            DFGTStr.NoDFG1 + '.' +
+                            DFTStr.NoDF1 + '.' +
                             '<br>' +
-                            DFGTStr.NoDFG2 + '.' +
+                            DFTStr.NoDF2 + '.' +
                         '</div>' +
                        '</div>';
-            $dfgCard.find('.cardMain').html(hint);
-            $dfgCard.find('.leftSection .title').text("");
+            $dfCard.find('.cardMain').html(hint);
+            $dfCard.find('.leftSection .title').text("");
         } else {
             if (activeGroupName) {
-                $dfgMenu.find('.listBox').filter(function() {
+                $dfMenu.find('.listBox').filter(function() {
                     return ($(this).find('.groupName').text() === activeGroupName);
                 }).closest('.listBox').trigger('click', {show: true});
             } else {
-                $dfgMenu.find('.listBox').eq(0).trigger('click', {show: true});
+                $dfMenu.find('.listBox').eq(0).trigger('click', {show: true});
             }
         }
     }
 
-    function runDFG(retName) {
+    function runDF(retName) {
         var deferred = jQuery.Deferred();
 
         var paramsArray = [];
-        var parameters = DFG.getDataflow(retName).paramMap;
+        var parameters = DF.getDataflow(retName).paramMap;
         for (var param in parameters) {
             var p = new XcalarApiParameterT();
             p.parameterName = param;
@@ -495,20 +495,20 @@ window.DFGCard = (function($, DFGCard) {
         .then(function() {
             /// XXX TODO: add sql
             Alert.show({
-                "title"  : DFGTStr.RunDone,
-                "msg"    : DFGTStr.RunDoneMsg,
+                "title"  : DFTStr.RunDone,
+                "msg"    : DFTStr.RunDoneMsg,
                 "isAlert": true
             });
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(DFGTStr.RunFail, error);
+            Alert.error(DFTStr.RunFail, error);
             deferred.reject(error);
         });
 
         return (deferred.promise());
     }
 
-    return (DFGCard);
+    return (DFCard);
 
 }(jQuery, {}));

@@ -61,11 +61,11 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return readRetinaFromFile(file, retName);
         })
         .then(function() {
-            DFG.addDataflow(retName, new Dataflow(retName),
+            DF.addDataflow(retName, new Dataflow(retName),
                          {"isUpload": true,
                           "noClick" : true});
 
-            DFGCard.updateDFG();
+            DFCard.updateDF();
             closeCard();
             // Click on the newly uploaded dataflow
             $(".groupName:contains('" + retName +"')").closest(".dataFlowGroup")

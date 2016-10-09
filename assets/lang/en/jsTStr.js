@@ -154,7 +154,7 @@ ErrTStr = {
     'ExportConflict': 'This file name is taken, please choose another name.',
     'ColumnConflict': 'A column with the same name already exists, ' +
                         'please choose another name.',
-    'DFGConflict': 'A dataflow with the same name already exists, ' +
+    'DFConflict': 'A dataflow with the same name already exists, ' +
                             'please choose another name.',
     'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
                         'worksheet from the pop up list.',
@@ -194,7 +194,7 @@ ErrTStr = {
     'LargeImgSave': 'Unable To Save Image',
     'LargeImgTab': 'Unable To Open Image',
     'LargeImgText': 'Image exceeds your browser\'s maximum allowable size',
-    'DFGNoExpand': 'This dataflow graph has reached your browser\'s maximum ' +
+    'DFNoExpand': 'This dataflow graph has reached your browser\'s maximum ' +
                   'allowable size.',
     'InvalidExt': 'Invalid Extension',
     'InvalidExtParam': 'Invalid Extension Parameters',
@@ -435,22 +435,22 @@ MonitorTStr = {
 
 };
 
-DFGTStr = {
+DFTStr = {
     'AddParamHint': 'Please create parameters in Dataflow Panel first.',
     'DFCreateFail': 'Dataflow Creation Failed',
     'ParamModalFail': 'Parameter Creation Failed',
     'UpdateParamFail': 'Update Parameters Failed',
-    'NoDFG1': 'No dataflows added',
-    'NoDFG2': 'Add a dataflow in Dataflow Graph',
+    'NoDF1': 'No dataflows added',
+    'NoDF2': 'Add a dataflow in Dataflow Graph',
     'Run': 'Run batch dataflow',
     'RunDone': 'Run Complete',
-    'RunDoneMsg': 'Successfully ran DFG!',
-    'RunFail': 'Run DFG Failed',
-    "DFGTitle": "DATAFLOW",
+    'RunDoneMsg': 'Successfully ran DF!',
+    'RunFail': 'Run DF Failed',
+    "DFTitle": "DATAFLOW",
     "PointTo": "File Path",
     "ExportTo": "Export As",
-    "DelDFG": "Permanently Delete Dataflow",
-    "DelDFGMsg": "Are you sure you want to permanently delete " +
+    "DelDF": "Permanently Delete Dataflow",
+    "DelDFMsg": "Are you sure you want to permanently delete " +
                  "this dataflow? This action cannot be undone.",
     "DownloadErr": "Download Failed"
 };

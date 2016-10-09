@@ -1,7 +1,7 @@
 window.DataflowPanel = (function($, DataflowPanel) {
 
     DataflowPanel.setup = function() {
-        DFGCard.setup();
+        DFCard.setup();
         UploadDataflowCard.setup();
     };
 

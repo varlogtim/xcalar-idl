@@ -1119,8 +1119,8 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
-    function addDFGToSchedTest(deferred, testName, currentTestNumber) {
-        console.log("start addDFGToSchedTest");
+    function addDFToSchedTest(deferred, testName, currentTestNumber) {
+        console.log("start addDFToSchedTest");
         // Attach schedule to dfg
         var $listBox = $("#dfgMenu .dataFlowGroup .listBox").filter(function() {
             return $(this).find(".groupName").text() === dfgName;
@@ -1208,11 +1208,11 @@ window.TestSuite = (function($, TestSuite) {
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(schedTest, "ScheduleTest",
                   defaultTimeout, TestCaseDisabled);
-    TestSuite.add(dfgTest, "DFGTest",
+    TestSuite.add(dfgTest, "DFTest",
                   defaultTimeout, TestCaseDisabled);
     TestSuite.add(retinaTest, "RetinaTest",
                   defaultTimeout, TestCaseDisabled);
-    TestSuite.add(addDFGToSchedTest, "AddDFGToScheduleTest",
+    TestSuite.add(addDFToSchedTest, "AddDFToScheduleTest",
                   defaultTimeout, TestCaseDisabled);
     TestSuite.add(jsonModalTest, "JsonModalTest",
                   defaultTimeout, TestCaseEnabled);

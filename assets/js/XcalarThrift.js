@@ -2316,7 +2316,7 @@ function XcalarListFiles(url, isRecur) {
 // Each struct is of the form: numColumns, tableName, columnNames
 // TableName is of the form namedInput columnNames is just an array of strings
 // that correspond to the column names
-// If you have 2 DFs in your DFG, put the last table of both DFs into the
+// If you have 2 DFs in your DF, put the last table of both DFs into the
 // tableArray
 // When you call makeRetina, we duplicate the DAG, append an export DAG node,
 // and give it all new DagNodeIds. So when you call updateRetina, make sure to

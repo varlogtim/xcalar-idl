@@ -271,7 +271,7 @@ window.Support = (function(Support, $) {
             xcHelper.downloadAsFile(lrqName + ".tar.gz", a.retina, true);
         })
         .fail(function(error) {
-            Alert.error(DFGTStr.DownloadErr, error);
+            Alert.error(DFTStr.DownloadErr, error);
         });
     };
 

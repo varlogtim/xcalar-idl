@@ -252,7 +252,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
         var df = new Dataflow(dataflowName, dataflowParams);
 
-        return (DFG.addDataflow(dataflowName, df));
+        return (DF.addDataflow(dataflowName, df));
     }
 
     function addFormEvents() {
@@ -319,9 +319,9 @@ window.DFCreateView = (function($, DFCreateView) {
             },
             {
                 "$selector": $newNameInput,
-                "text"     : ErrTStr.DFGConflict,
+                "text"     : ErrTStr.DFConflict,
                 "check"    : function() {
-                    return DFG.hasDataflow(dfName);
+                    return DF.hasDataflow(dfName);
                 }
             }
         ]);
@@ -378,7 +378,7 @@ window.DFCreateView = (function($, DFCreateView) {
             // refresh dataflow lists in modal and scheduler panel
         })
         .fail(function(error) {
-            Alert.error(DFGTStr.DFCreateFail, error);
+            Alert.error(DFTStr.DFCreateFail, error);
 
         })
         .always(function() {

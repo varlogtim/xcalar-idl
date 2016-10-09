@@ -853,7 +853,7 @@ describe('Constructor Test', function() {
         });
     });
 
-    describe('DFG Constructor Test', function() {
+    describe('DF Constructor Test', function() {
         var expandInfo;
         var opsInfo;
         var tableInfo;
@@ -942,8 +942,8 @@ describe('Constructor Test', function() {
             expect(canvasInfo).to.have.property('expandIcons');
         });
 
-        it('DFGFlow should be a constructor', function() {
-            dataFlow = new DFGFlow({
+        it('DFFlow should be a constructor', function() {
+            dataFlow = new DFFlow({
                 'name'   : 'testFlow',
                 'columns': ['col1', 'col2']
             });
@@ -973,13 +973,13 @@ describe('Constructor Test', function() {
         });
 
         it('Dataflow should be a constructor', function() {
-            var dfg = new Dataflow('testDFG');
+            var dfg = new Dataflow('testDF');
             expect(dfg).to.be.an('object');
-            expect(dfg).to.have.property('name').and.to.equal('testDFG');
+            expect(dfg).to.have.property('name').and.to.equal('testDF');
         });
 
-        it('DFG should add dataflow', function() {
-            var dfg = new Dataflow('testDFG');
+        it('DF should add dataflow', function() {
+            var dfg = new Dataflow('testDF');
             expect(dfg).to.have.property('dataFlows')
             .and.to.an('Array');
 
@@ -990,8 +990,8 @@ describe('Constructor Test', function() {
             expect(dfg.dataFlows[0].name).to.equal('testFlow');
         });
 
-        it('DFG should add RetinaNode', function() {
-            var dfg = new Dataflow('testDFG');
+        it('DF should add RetinaNode', function() {
+            var dfg = new Dataflow('testDF');
             expect(dfg).to.have.property('retinaNodes')
             .and.to.an('Object');
 
@@ -1001,8 +1001,8 @@ describe('Constructor Test', function() {
             expect(dfg.getRetinaNode(123)).to.be.exist;
         });
 
-        it('DFG should add Parameter', function() {
-            var dfg = new Dataflow('testDFG');
+        it('DF should add Parameter', function() {
+            var dfg = new Dataflow('testDF');
             expect(dfg).to.have.property('parameters')
             .and.to.an('Array');
 
