@@ -41,6 +41,7 @@ THandleDoesntExistError.prototype = Error.prototype;
 function thriftLog() {
     var errorLists = [];
     var title = arguments[0] || "thrift call";
+    console.log("lala");
     // check all errors
     for (var i = 1, len = arguments.length; i < len; i++) {
         var errRes = arguments[i];
@@ -86,11 +87,7 @@ function thriftLog() {
         var alertError;
 
         if (status === StatusT.StatusOk) {
-            // if we get this status, there may not be a connection to the backend
-            // if xcalargetversion doesn't work then it's very probably that
-            // there is no connection so alert.
-            var connectionCheck = true;
-            XcalarGetVersion(connectionCheck)
+            Support.checkConnection()
             .fail(function() {
                 console.warn('Checked XcalarGetVersion and did not return ' +
                               'a successful response');

@@ -6,6 +6,9 @@ window.Support = (function(Support, $) {
     var commitCheckError = "commit key not match";
     var memoryCheck = true;
 
+    var connectionCheckTimer;
+    var connectionCheckInterval = 10000; // 10s/check
+
     var numNodes;
     var statsMap = null;
     // constant
@@ -154,6 +157,23 @@ window.Support = (function(Support, $) {
 
     Support.stopHeartbeatCheck = function() {
         clearInterval(commitCheckTimer);
+    };
+
+    Support.checkConnection = function() {
+        // if we get this status, there may not be a connection to the backend
+        // if xcalargetversion doesn't work then it's very probably that
+        // there is no connection so alert.
+        var connectionCheck = true;
+        var deferred = jQuery.Deferred();
+
+        XcalarGetVersion(connectionCheck)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            checkConnection();
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     };
 
     Support.checkStats = function(stats) {
@@ -314,6 +334,20 @@ window.Support = (function(Support, $) {
 
             return (innerDeferred.promise());
         }
+    }
+
+    function checkConnection() {
+        clearTimeout(connectionCheckTimer);
+
+        connectionCheckTimer = setTimeout(function() {
+            // if fail, continue to another check
+            Support.checkConnection()
+            .then(function() {
+                clearTimeout(connectionCheckTimer);
+                // reload browser if connection back
+                location.reload();
+            });
+        }, connectionCheckInterval);
     }
 
     function commitMismatchHandler() {
