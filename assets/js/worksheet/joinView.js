@@ -858,11 +858,6 @@ window.JoinView = (function($, JoinView) {
 
         // XXX some bugs here
         formHelper.enableSubmit();
-        /**
-        if (!isValid) {
-            // JJJ StatusBox.show(Errblah)
-            formHelper.enableSubmit();
-        } */
 
     }
 

@@ -21,38 +21,58 @@ window.DF = (function($, DF) {
                 if (arguments[i] == null) {
                     continue;
                 }
+                var j = 0;
+                // Populate node information
                 var retName = arguments[i].retina.retinaDesc.retinaName;
                 dataflows[retName] = new Dataflow(retName);
                 dataflows[retName].retinaNodes = arguments[i].retina.retinaDag
                                                                     .node;
                 var nodes = {};
-                for (var j = 0; j<dataflows[retName].retinaNodes.length; j++) {
+                for (j = 0; j<dataflows[retName].retinaNodes.length; j++) {
                     nodes[dataflows[retName].retinaNodes[j].name.name] =
                                     dataflows[retName].retinaNodes[j].dagNodeId;
                 }
                 dataflows[retName].nodeIds = nodes;
-                // JJJ populate columns information
+
+                // Populate export column information
+                dataflows[retName].columns = [];
+                for (j = 0; j<dataflows[retName].retinaNodes.length; i++) {
+                    if (dataflows[retName].retinaNodes[j].api ===
+                        XcalarApisT.XcalarApiExport) {
+                        var exportCols = dataflows[retName].retinaNodes[i].input
+                                                      .exportInput.meta.columns;
+                        for (var k = 0; k<exportCols.length; k++) {
+                            var newCol = {};
+                            newCol.frontCol = exportCols[k].headerAlias;
+                            newCol.backCol = exportCols[k].name;
+                            dataflows[retName].columns.push(newCol);
+                        }
+                        break;
+                    }
+                }
             }
 
-            DFCard.updateDF();
             DFCard.drawDags();
 
             // restore old parameterized data
             // updateParameterizedNode requires dag to be printed since it
             // directly modifies the css for the node
-            for (var i = 0; i<arguments.length; i++) {
-                if (arguments[i] == null) {
-                    continue;
-                }
-                var retinaName = arguments[i].retina.retinaDesc.retinaName;
+            if (ret) {
+                for (var i = 0; i<arguments.length; i++) {
+                    if (arguments[i] == null) {
+                        continue;
+                    }
+                    var retinaName = arguments[i].retina.retinaDesc.retinaName;
 
-                if (retinaName in ret) {
-                    jQuery.extend(dataflows[retinaName], ret[retinaName]);
-                    for (var nodeId in ret[retinaName].parameterizedNodes) {
-                        dataflows[retinaName].colorNodes(nodeId);
+                    if (retinaName in ret) {
+                        jQuery.extend(dataflows[retinaName], ret[retinaName]);
+                        for (var nodeId in ret[retinaName].parameterizedNodes) {
+                            dataflows[retinaName].colorNodes(nodeId);
+                        }
                     }
                 }
             }
+            DFCard.updateDF();
         });
 
         return deferred.promise();

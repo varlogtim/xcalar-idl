@@ -216,13 +216,12 @@ window.DFCard = (function($, DFCard) {
             $("#dataflowView .dagWrap").filter(function(idx, val) {
                 if ($(this).attr("data-dataflowName") === dataflowName) {
                     $(this).removeClass("xc-hidden");
+                    DFCard.updateRetinaTab(dataflowName);
                 } else {
                     $(this).addClass("xc-hidden");
                 }
             });
             enableDagTooltips();
-
-            DFCard.updateRetinaTab(dataflowName);
 
             $listSection.find('.listBox').removeClass('selected');
             $dataflowLi.addClass('selected');
@@ -366,7 +365,6 @@ window.DFCard = (function($, DFCard) {
                     .attr("title", encodeURI(paramValue))
                     .attr("data-original-title", encodeURI(paramValue));
 
-        // JJJ make sure that the exportName is taking from the paramValue
         // Data table moved so that the hasParam class is added correctly
         $wrap.find(".actionType.export").attr("data-table", "");
 

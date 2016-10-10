@@ -133,8 +133,6 @@ window.DFParamModal = (function($, DFParamModal){
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized Query:
 
-        // JJJ: The info here is all wrong. Export should be reading from the struct, so should filter
-        // but instead they are reading from the original
         if (type === "dataStore") {
             defaultText += '<td>' +
                                 DFTStr.PointTo + ':' +

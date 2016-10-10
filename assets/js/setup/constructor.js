@@ -775,8 +775,9 @@ function getEMetaKeys() {
 }
 
 function EMetaConstructor(EMetaKeys) {
+    // This is a global key. All users see the same stuff
     EMetaKeys = EMetaKeys || {};
-    this[EMetaKeys.DF] = DF.getAllCommitKeys(); // Only persiste necessary stuff
+    this[EMetaKeys.DF] = DF.getAllCommitKeys(); // Only persist necessary stuff
     return this;
 }
 
