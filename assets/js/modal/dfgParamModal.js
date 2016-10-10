@@ -132,13 +132,16 @@ window.DFParamModal = (function($, DFParamModal){
         });
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized Query:
+
+        // JJJ: The info here is all wrong. Export should be reading from the struct, so should filter
+        // but instead they are reading from the original
         if (type === "dataStore") {
             defaultText += '<td>' +
                                 DFTStr.PointTo + ':' +
                             '</td>' +
                             '<td>' +
                                 '<div class="boxed xlarge">' +
-                                    $currentIcon.data('url') +
+                                    $currentIcon.data('paramValue') +
                                 '</div>' +
                             '</td>';
 
@@ -152,10 +155,9 @@ window.DFParamModal = (function($, DFParamModal){
                             '</td>' +
                             '<td>' +
                                 '<div class="boxed xlarge">' +
-                                    $currentIcon.attr('data-tablename') +
+                                    $currentIcon.data('paramValue') +
                                 '</div>' +
                             '</td>';
-
             editableText += '<td class="static" data-op="export">' +
                                 DFTStr.ExportTo + ':' +
                             '</td>' +
@@ -173,21 +175,22 @@ window.DFParamModal = (function($, DFParamModal){
                             '</td>';
 
             if (type === "filter") {
-                var filterInfo = $currentIcon.data('info') + " ";
-                var parenIndex = filterInfo.indexOf("(");
-                var abbrFilterType = filterInfo.slice(0, parenIndex);
-                var filterValue = filterInfo.slice(filterInfo.indexOf(',') + 2,
-                                                    filterInfo.indexOf(')'));
+                var filterInfo = $currentIcon.data('paramValue') + " ";
+                var retStruct = xcHelper.extractOpAndArgs(filterInfo, ',');
+
 
                 defaultText += '<td class="static">by</td>' +
                                 '<td>' +
                                     '<div class="boxed sm-med">' +
-                                        abbrFilterType +
+                                        retStruct.op +
                                     '</div>' +
                                 '</td>' +
                                 '<td>' +
                                     '<div class="boxed medium">' +
-                                        filterValue +
+                                    // XXX FIXME current method does not handle
+                                    // operators like between because they have
+                                    // more than 1 value!!!
+                                        encodeURI(retStruct.args[1]) +
                                     '</div>' +
                                 '</td>';
 
@@ -686,6 +689,7 @@ window.DFParamModal = (function($, DFParamModal){
                 var val = genOrigQueryStruct();
                 dfg.addParameterizedNode(dagNodeId, val, curParamInfo);
             } else {
+                // Only updates view. Doesn't change any stored information
                 dfg.updateParameterizedNode(dagNodeId, curParamInfo);
             }
 
@@ -871,9 +875,19 @@ window.DFParamModal = (function($, DFParamModal){
         var nameMap = {};
 
         if (retinaNode != null && retinaNode.paramQuery != null) {
+            var $templateVals = $editableRow.closest(".modalTopMain")
+                                            .find(".template .boxed");
+            xcHelper.assert(retinaNode.paramQuery.length ===
+                            $templateVals.length);
+            var i = 0;
+            var parameterizedVals = [];
+            for (; i<retinaNode.paramQuery.length; i++) {
+                parameterizedVals.push(decodeURI($templateVals.eq(i).text()));
+                $templateVals.eq(i).text(retinaNode.paramQuery[i]);
+            }
             var $editableDivs = $editableRow.find("input.editableParamDiv");
 
-            retinaNode.paramQuery.forEach(function(query, index) {
+            parameterizedVals.forEach(function(query, index) {
                 var html = query;
                 var len = query.length;
                 var p = 0;

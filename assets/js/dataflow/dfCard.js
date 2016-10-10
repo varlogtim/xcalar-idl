@@ -343,10 +343,45 @@ window.DFCard = (function($, DFCard) {
         // zation later
         var $action = $wrap.find(".actionType.export");
         var $exportTable = $action.next(".dagTable");
+
+        var i = 0;
+        var retNodes = DF.getDataflow(dataflowName).retinaNodes;
+        var paramValue = '';
+        for (i = 0; i<retNodes.length; i++) {
+            if (retNodes[i].dagNodeId === $action.attr("data-id")) {
+                var specInput = retNodes[i].input.exportInput.meta
+                                                             .specificInput;
+                paramValue = specInput.odbcInput.tableName ||
+                             specInput.sfInput.fileName ||
+                             specInput.udfInput.fileName; // Only one of the
+                             // 3 should have a non "" value
+
+            }
+        }
         $exportTable.addClass("export").data("type", "export")
-                    .attr("data-table", $exportTable.attr("data-tablename"));
+                    .attr("data-table", $exportTable.attr("data-tablename"))
+                    .data("paramValue", encodeURI(paramValue));
+
+        $exportTable.find(".tableTitle").text(paramValue)
+                    .attr("title", encodeURI(paramValue))
+                    .attr("data-original-title", encodeURI(paramValue));
+
+        // JJJ make sure that the exportName is taking from the paramValue
         // Data table moved so that the hasParam class is added correctly
         $wrap.find(".actionType.export").attr("data-table", "");
+
+        // Add data-paramValue tags to all parameterizable nodes
+        var $loadNodes = $wrap.find(".dagTable.dataStore");
+        $loadNodes.each(function(idx, val) {
+            var $val = $(val);
+            $val.data("paramValue", $val.data("url"));
+        });
+
+        var $opNodes = $wrap.find(".actionType.dropdownBox");
+        $opNodes.each(function(idx, val) {
+            var $op = $(val);
+            $op.data("paramValue", $op.attr("data-info"));
+        });
     }
 
     function enableDagTooltips() {

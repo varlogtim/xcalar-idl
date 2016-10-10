@@ -381,6 +381,64 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.rfind = function(string, character) {
+        for (var i = string.length-1; i>=0; i--) {
+            if (string[i] === character) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    // extract op and arguments from a string delimited by delimiter
+    xcHelper.extractOpAndArgs = function(string, delim) {
+        // For example, eq("agwe", 3)
+        // You will call this function with delim=','
+        // And the function will return {"op": "eq", "args": ["agwe", 3]}
+        // This handles edge conditions like eq("eqt,et", ",")
+        var leftParenLocation = string.indexOf('(');
+        var op = jQuery.trim(string.slice(0, leftParenLocation));
+        var argString = jQuery.trim(string.slice(leftParenLocation+1,
+                                                xcHelper.rfind(string, ')')));
+
+        var args = [];
+        var i = 0;
+        var inQuote = false;
+        var curArg = "";
+
+        for (i = 0; i<argString.length; i++) {
+            switch(argString[i]) {
+                case('"'):
+                    curArg += argString[i];
+                    inQuote = !inQuote;
+                    break;
+                case ('\\'):
+                    curArg += argString[i];
+                    curArg += argString[i+1];
+                    i++;
+                    break;
+                case (delim):
+                    if (!inQuote) {
+                        args.push(curArg);
+                        curArg = "";
+                    } else {
+                        curArg += argString[i];
+                    }
+                    break;
+                default:
+                    curArg += argString[i];
+            }
+        }
+
+        args.push(curArg);
+
+        for (i = 0; i<args.length; i++) {
+            args[i] = jQuery.trim(args[i]);
+        }
+
+        return ({"op": op, "args": args});
+    };
+
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
         var string = JSON.stringify(obj);
@@ -1187,14 +1245,14 @@ window.xcHelper = (function($, xcHelper) {
             var topPos = 50 * ((tableHeight - (iconHeight/2))/ mainFrameHeight);
             topPos = Math.min(topPos, 40);
             $lockedIcon.css('top', topPos + '%');
-            
+
             $tableWrap.find('.xcTbodyWrap').append('<div class="tableCover">' +
                                                    '</div>');
             $tableWrap.find('.tableCover').height(tbodyHeight);
             $('#rowScroller-' + tableId).addClass('locked');
             // add lock class to dataflow
             $('#dagWrap-' + tableId).addClass('locked');
-            
+
             moveTableTitles();
 
             // prevent vertical scrolling on the table
@@ -2230,7 +2288,7 @@ window.xcHelper = (function($, xcHelper) {
         index += keyWord.length;
         query = query.slice(index).trim();
         var tableName = parseSearchTerm(query);
-        
+
         if (type === "load" && tableName.indexOf(gDSPrefix) === -1) {
             tableName = gDSPrefix + tableName;
         }

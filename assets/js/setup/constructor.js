@@ -1891,7 +1891,7 @@ Dataflow.prototype = {
         this.updateParameterizedNode(dagNodeId, paramInfo);
     },
 
-    "updateParameterizedNode": function(dagNodeId, paramInfo) {
+    "colorNodes": function(dagNodeId) {
         var tableName;
         for (var name in this.nodeIds) {
             if (this.nodeIds[name] === dagNodeId) {
@@ -1900,11 +1900,22 @@ Dataflow.prototype = {
             }
         }
 
+        if (!tableName) {
+            console.info("update must be called after add. Noop.");
+            return;
+        }
+
         var $tableNode = $('#dataflowPanel').find('[data-table="' + tableName +
                                                   '"]');
         $tableNode.addClass('hasParam');
+        return $tableNode;
+    },
+
+    "updateParameterizedNode": function(dagNodeId, paramInfo) {
+        var $tableNode = this.colorNodes(dagNodeId);
         if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
             $tableNode.find(".tableTitle").text(paramInfo.paramValue)
+                      .attr("title", paramInfo.paramValue)
                       .attr("data-original-title", paramInfo.paramValue);
         }
     },

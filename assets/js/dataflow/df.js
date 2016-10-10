@@ -31,26 +31,25 @@ window.DF = (function($, DF) {
                                     dataflows[retName].retinaNodes[j].dagNodeId;
                 }
                 dataflows[retName].nodeIds = nodes;
+                // JJJ populate columns information
             }
 
             DFCard.updateDF();
             DFCard.drawDags();
 
             // restore old parameterized data
+            // updateParameterizedNode requires dag to be printed since it
+            // directly modifies the css for the node
             for (var i = 0; i<arguments.length; i++) {
                 if (arguments[i] == null) {
                     continue;
                 }
-                var retName = arguments[i].retina.retinaDesc.retinaName;
+                var retinaName = arguments[i].retina.retinaDesc.retinaName;
 
-                if (retName in ret) {
-                    jQuery.extend(dataflows[retName], ret[retName]);
-                    for (var nodeId in ret[retName].parameterizedNodes) {
-                        // XXX JJJ this is the wrong call!!! This is just temp
-                        // to see the green stuff.
-                        // XXX JJJ The values are somehow cut off by 2 characters
-                        dataflows[retName].updateParameterizedNode(nodeId,
-                            ret[retName].parameterizedNodes[nodeId]);
+                if (retinaName in ret) {
+                    jQuery.extend(dataflows[retinaName], ret[retinaName]);
+                    for (var nodeId in ret[retinaName].parameterizedNodes) {
+                        dataflows[retinaName].colorNodes(nodeId);
                     }
                 }
             }
