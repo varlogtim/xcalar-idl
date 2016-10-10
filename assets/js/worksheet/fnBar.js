@@ -178,6 +178,7 @@ window.FnBar = (function(FnBar, $) {
             }
         }
 
+        // the text that shows up in the list
         function createFuncTemplate(op) {
             var fnTemplate = op.fnName + '(';
             var len = op.argDescs.length;
@@ -190,8 +191,11 @@ window.FnBar = (function(FnBar, $) {
                 }
             }
             fnTemplate += ')';
+
             return fnTemplate;
         }
+
+        // the text that shows up in the fnBar when selected
         function createSecondaryTemplate(op) {
             var fnTemplate = op.fnName + '(';
             var len = op.argDescs.length;
@@ -467,6 +471,7 @@ window.FnBar = (function(FnBar, $) {
                         // firstStartIndex = data.from.ch + start;
                         firstEndIndex = data.from.ch + start + arg.length;
                     }
+
                     cm.markText({line: 0, ch: data.from.ch + start},
                         {line: 0, ch: data.from.ch + start + arg.length},
                         {className: "argDesc", atomic: true});
@@ -688,7 +693,8 @@ window.FnBar = (function(FnBar, $) {
                 }
 
                 // show alert if column in string does not match selected col
-                if (!checkForSelectedColName(fnBarVal, colName)) {
+                if (!tableCol.isEmptyCol() && 
+                    !checkForSelectedColName(fnBarVal, colName)) {
                     var alertTitle = AlertTStr.CONFIRMATION;
                     var alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
                         colName: colName

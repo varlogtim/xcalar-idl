@@ -253,6 +253,9 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.RenameCol] = function(options) {
         focusTableHelper(options);
         ColManager.renameCol(options.colNum, options.tableId, options.newName);
+        var $th = $('#xcTable-' + options.tableId)
+                    .find('th.col' + options.colNum);
+        highlightColumn($th);
         return PromiseHelper.resolve(null);
     };
 
