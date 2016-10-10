@@ -306,6 +306,7 @@ window.Shortcuts = (function($, Shortcuts) {
         subMenu += '</ul>' +
                     '<ul class="tests">' +
                         '<li class="testSuite">Test Suite</li>' +
+                        '<li class="testSuite-clean">Test Suite(Clean)</li>' +
                         '<li class="unitTest">Unit Test</li>' +
                         '<li class="undoTest">Undo Test' +
                         '<span class="menuOption">FE</span>' + // front end test
@@ -414,6 +415,8 @@ window.Shortcuts = (function($, Shortcuts) {
     function startTest(testName, option) {
         if (testName === "Test Suite") {
             TestSuite.run();
+        } else if (testName === "Test Suite(Clean)") {
+            TestSuite.run(false, true);
         } else if (testName === "Unit Test") {
             TestSuite.unitTest();
         } else if (testName === "Undo Test") {

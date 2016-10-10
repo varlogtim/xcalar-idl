@@ -19,6 +19,7 @@ window.TestSuite = (function($, TestSuite) {
     var totTime = 0;
     var testCases = [];
     var startTableId;
+    var testDS = [];
 
     // For assert to use
     var curTestNumber;
@@ -102,7 +103,7 @@ window.TestSuite = (function($, TestSuite) {
         });
     };
 
-    TestSuite.run = function(hasAnimation) {
+    TestSuite.run = function(hasAnimation, toClean) {
         var initialDeferred = jQuery.Deferred();
         var deferred = initialDeferred;
         var minModeCache = gMinModeOn;
@@ -161,6 +162,15 @@ window.TestSuite = (function($, TestSuite) {
         });
 
         deferred.always(function() {
+            if (toClean) {
+                cleanup()
+                .always(finish);
+            } else {
+                finish();
+            }
+        });
+
+        function finish() {
             console.log("# pass", passes);
             console.log("# fail", fails);
             console.log("# skips", skips);
@@ -192,7 +202,7 @@ window.TestSuite = (function($, TestSuite) {
             console.log(alertMsg); // if pop ups are disabled
             alert(alertMsg);
             gMinModeOn = minModeCache;
-        });
+        }
 
         // This starts the entire PromiseHelper.chain
         initialDeferred.resolve();
@@ -290,6 +300,91 @@ window.TestSuite = (function($, TestSuite) {
         }
         return (Math.floor(Math.random() * 10000));
     }
+
+    TestSuite.cleanup = cleanup;
+
+    function cleanup() {
+        var deferred = jQuery.Deferred();
+
+        deleteTables()
+        .then(function() {
+            deleteWorksheets();
+            return deleteDS();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        function deleteTables() {
+            console.log("Delete Tables");
+            var innerDeferred = jQuery.Deferred();
+
+            var $workspaceMenu = $("#workspaceMenu");
+            if (!$workspaceMenu.hasClass("active")) {
+                $("#workspaceTab .mainTab").click();
+            }
+
+            if ($workspaceMenu.find(".tables").hasClass("xc-hidden")) {
+                $("#tableListTab").click();
+            }
+
+            var $tabs = $("#tableListSectionTabs .tableListSectionTab");
+            var tabeTypes = [TableType.Active, TableType.Archived, TableType.Orphan];
+            var promises = [];
+
+            TableList.refreshOrphanList()
+            .then(function() {
+                tabeTypes.forEach(function(tableType, index) {
+                    $tabs.eq(index).click();
+                    var $section = $("#tableListSections .tableListSection:visible");
+                    $section.find(".selectAll").click();
+
+                    if (tableType === TableType.Active) {
+                        // to achive active tables
+                        $section.find(".submit").click();
+                    } else {
+                        promises.push(TableList.tableBulkAction("delete",
+                                                                tableType));
+                    }
+                });
+
+                return PromiseHelper.when.apply(this, promises);
+            })
+            .then(function() {
+                innerDeferred.resolve();
+            })
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
+
+        function deleteWorksheets() {
+            console.log("Delete Worksheets");
+            var wsId = WSManager.getWSIdByName("Multi group by");
+            WSManager.delWS(wsId, DelWSType.Empty);
+        }
+
+        function deleteDS() {
+            var deferred = jQuery.Deferred();
+            var minModeCache = gMinModeOn;
+            gMinModeOn = true;
+            $("#dataStoresTab .mainTab").click();
+
+            testDS.forEach(function(ds) {
+                var $grid = DS.getGridByName(ds);
+                DS.remove($grid);
+                $("#alertModal .confirm").click();
+            });
+
+            setTimeout(function() {
+                // wait for some time
+                gMinModeOn = minModeCache;
+                deferred.resolve();
+            }, 2000);
+        }
+
+        return deferred.promise();
+    }
+
 // ========================= COMMON ACTION TRIGGERS ======================== //
     function trigOpModal(tableId, columnName, funcClassName, whichModal) {
         var $header = $("#xcTbodyWrap-" + tableId)
@@ -303,7 +398,7 @@ window.TestSuite = (function($, TestSuite) {
         if (whichModal === "join") {
             return checkExists("#joinView:not(.xc-hidden)");
         } else {
-            return checkExists(["#operationsView:not(.xc-hidden)", 
+            return checkExists(["#operationsView:not(.xc-hidden)",
                 '#operationsView .opSection:not(.tempDisabled)']);
         }
     }
@@ -356,7 +451,10 @@ window.TestSuite = (function($, TestSuite) {
             var dsIcon = getDSIcon(dsName);
             return checkExists(dsIcon);
         })
-        .then(innerDeferred.resolve)
+        .then(function() {
+            testDS.push(dsName);
+            innerDeferred.resolve();
+        })
         .fail(innerDeferred.reject);
 
         return innerDeferred.promise();

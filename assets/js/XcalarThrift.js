@@ -41,7 +41,6 @@ THandleDoesntExistError.prototype = Error.prototype;
 function thriftLog() {
     var errorLists = [];
     var title = arguments[0] || "thrift call";
-    console.log("lala");
     // check all errors
     for (var i = 1, len = arguments.length; i < len; i++) {
         var errRes = arguments[i];
