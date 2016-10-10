@@ -1,5 +1,18 @@
 describe('OperationsView', function() {
     // xx currently depends on table with the name "unitTestFakeYelp" to exist
+    var testDs;
+    var tableName;
+    before(function(done) {
+        var testDSObj = testDatasets.fakeYelp;
+        UnitTest.addAll(testDSObj, "unitTestFakeYelp")
+        .always(function(ds, tName) {
+            console.log(ds, tName);
+            testDs = ds;
+            tableName = tName;
+            done();
+        });
+    });
+    
     describe('function hasFuncFormat', function() {
         var func;
         before(function() {
@@ -816,15 +829,19 @@ describe('OperationsView', function() {
                     return false;
                 }
             });
-            if (tableId) {
-                TblManager.deleteTables(tableId, TableType.Active, true, true)
-                .always(function() {
-                   done(); 
-                });
-            } else {
-                done();
-            }
-        });
 
+            // allow time for operations view to close
+            setTimeout(function() {
+               done(); 
+            }, 300);
+        });
+    });
+
+    after(function(done) {
+        UnitTest.deleteAll(tableName, testDs)
+        // UnitTest.deleteTable(tableName)
+        .always(function() {
+           done();
+        });
     });
 });

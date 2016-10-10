@@ -522,8 +522,6 @@ window.FnBar = (function(FnBar, $) {
         });
     }
 
-
-
     function saveInput() {
         if (!$lastColInput || !$lastColInput.length) {
             return;
