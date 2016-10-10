@@ -92,20 +92,32 @@ window.DSTable = (function($, DSTable) {
             deferred.resolve();
         })
         .fail(function(error) {
+            var errorMsg;
+            if (typeof error === "object" && error.error != null) {
+                errorMsg = error.error;
+            } else if (error instanceof Error){
+                errorMsg = String(error);
+            } else if (typeof error === "string") {
+                errorMsg = error;
+            } else {
+                // unhanled type of error;
+                errorMsg = ErrTStr.Unknown;
+            }
+
             clearTimeout(timer);
             dsObj.release();
 
-            if (error === notLastDSError) {
+            if (errorMsg === notLastDSError) {
                 return;
             }
 
             $dsColsBtn.addClass("xc-hidden");
             $dsTableContainer.removeClass("loading").addClass("error");
-            var errorText = StatusMessageTStr.LoadFailed + ". " + error.error;
+            var errorText = StatusMessageTStr.LoadFailed + ". " + errorMsg;
 
             var loadError = dsObj.getError();
             if (loadError == null) {
-                if (error.error === DSTStr.NoRecords) {
+                if (errorMsg === DSTStr.NoRecords) {
                     errorText += "\n" + DSTStr.NoRecrodsHint;
                 }
             } else {
@@ -114,7 +126,7 @@ window.DSTable = (function($, DSTable) {
 
             var $errorSection = $dsTableContainer.find(".errorSection");
             $errorSection.find(".error").html(errorText);
-            if (error.error === DSTStr.NoRecords &&
+            if (errorMsg === DSTStr.NoRecords &&
                 loadError.startsWith("Error: (Failed)")) {
                 // the way to detect if need reset limit might be buggy
                 $errorSection.find(".limit").removeClass("xc-hidden");

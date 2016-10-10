@@ -451,13 +451,14 @@ window.DS = (function ($, DS) {
         }
 
         if ($gridToReplace != null) {
-            $gridToReplace.before($ds);
+            $gridToReplace.after($ds);
             // hide replaced grid first and then delete
             // use .xc-hidden is not good because refreshDS() may display it
             $gridToReplace.hide();
             delDSHelper($gridToReplace, dsObjToReplace, {
-                "forceRemove": true,
-                "noDeFocus"  : true
+                // it fail, show it back
+                "failToShow": true,
+                "noDeFocus" : true
             });
         } else {
             $gridView.append($ds);
@@ -591,6 +592,7 @@ window.DS = (function ($, DS) {
         options = options || {};
         var forceRemove = options.forceRemove || false;
         var noDeFocus = options.noDeFocus || false;
+        var failToShow = options.failToShow || false;
 
         var deferred = jQuery.Deferred();
 
@@ -637,14 +639,20 @@ window.DS = (function ($, DS) {
             $grid.find('.waitingIcon').remove();
             $grid.removeClass("inactive")
                  .removeClass("deleting");
+
+            var noAlert = false;
             if (forceRemove) {
                 removeDS($grid);
                 DataStore.update();
+            } else if (failToShow) {
+                $grid.show();
+                noAlert = true;
             }
 
             Transaction.fail(txId, {
                 "failMsg": DSTStr.DelDSFail,
-                "error"  : error
+                "error"  : error,
+                "noAlert": noAlert
             });
             deferred.reject(error);
         });
