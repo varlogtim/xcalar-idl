@@ -2,7 +2,12 @@
 // --badil: will stop when first test fails
 mocha.setup({
     "ui"  : "bdd",
-    "bail": true
+    "bail": true,
+    // must include Setup Test and optionally include other test
+    // e.g. /Mocha Setup Test|Workbook Test/
+    // defulat:
+    // "grep": /Mocha Setup Test|.*/
+    "grep": /Mocha Setup Test|.*/
 });
 // global
 expect = chai.expect;
