@@ -103,25 +103,31 @@ function testChecker(checkFunc) {
 var testDatasets = {
     "sp500": {
         "path"      : "nfs:///netstore/datasets/sp500.csv",
+        "url"       : "netstore/datasets/sp500.csv",
         "format"    : "CSV",
         "fieldDelim": "\t",
         "lineDelim" : "\n",
         "hasHeader" : false,
         "moduleName": "",
-        "funcName"  : ""
+        "funcName"  : "",
+        "pointCheck": "#previewTable td:contains(20041101)"
     },
 
     "schedule": {
         "path"      : "nfs:///var/tmp/qa/indexJoin/schedule/",
+        "url"       : "var/tmp/qa/indexJoin/schedule/",
         "format"    : "JSON",
         "moduleName": "",
-        "funcName"  : ""
+        "funcName"  : "",
+        "pointCheck": "#previewTable td:contains(1)"
     },
 
     "fakeYelp": {
         "path"      : "nfs:///netstore/datasets/unittest/test_yelp.json",
+        "url"       : "netstore/datasets/unittest/test_yelp.json",
         "format"    : "JSON",
         "moduleName": "",
-        "funcName"  : ""
+        "funcName"  : "",
+        "pointCheck": "#previewTable th:eq(1):contains(yelping_since)"
     }
 };

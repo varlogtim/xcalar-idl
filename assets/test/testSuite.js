@@ -313,22 +313,28 @@ window.TestSuite = (function($, TestSuite) {
                             dsName + '"]:not(.inactive)';
     }
 
-    function createTable(dsName, check) {
+    function createTable(dsName) {
         var $grid = $(getDSIcon(dsName));
         var dsId = $grid.data("dsid");
         var innerDeferred = jQuery.Deferred();
+        var tableName;
+        var header;
 
         $grid.find(".gridIcon").click();
         checkExists('#dsTable[data-dsid="' + dsId + '"]')
         .then(function() {
             $("#selectDSCols").click();
-            $("#dataCart-submit").click();
 
-            var header = ".xcTable .flexWrap.flex-mid" +
-                         " input[value='" + check + "']:eq(0)";
+            tableName = $("#dataCart .tableNameEdit").val();
+            header = ".tableTitle .tableName[value='" + tableName + "']";
+
+            $("#dataCart-submit").click();
             return checkExists(header);
         })
-        .then(innerDeferred.resolve)
+        .then(function() {
+            var hasName = $(header).siblings(".hashName").text();
+            innerDeferred.resolve(tableName + hasName);
+        })
         .fail(innerDeferred.reject);
 
         return innerDeferred.promise();
@@ -414,10 +420,10 @@ window.TestSuite = (function($, TestSuite) {
         // Select columns in dataset and send to worksheet
         function flightTestPart2(dsName1, dsName2) {
             console.log("start flightTestPart2", "send to worksheet");
-            createTable(dsName1, "ArrDelay")
+            createTable(dsName1)
             .then(function() {
                 $("#dataStoresTab").click();
-                return createTable(dsName2, "iata");
+                return createTable(dsName2);
             })
             .then(function() {
                 var header = ".xcTable .flexWrap.flex-mid" +
@@ -794,7 +800,7 @@ window.TestSuite = (function($, TestSuite) {
             // XXX there is a point to ds error when not do setTimeout
             // need to fix later
             setTimeout(function() {
-                createTable(dsName, "class_id")
+                createTable(dsName)
                 .then(innerDeferred.resolve)
                 .fail(innerDeferred.reject);
             }, 1000);

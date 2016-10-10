@@ -154,7 +154,7 @@ function autoAddTable() {
 
     promise
     .then(function() {
-        return TestSuite.__testOnly__.createTable(dsName, "class_id");
+        return TestSuite.__testOnly__.createTable(dsName);
     })
     .then(function() {
         $("#mainTab").click();

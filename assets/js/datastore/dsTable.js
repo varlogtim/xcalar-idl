@@ -107,7 +107,7 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             dsObj.release();
 
-            if (errorMsg === notLastDSError) {
+            if (errorMsg === notLastDSError || lastDSToSample !== datasetName) {
                 return;
             }
 
