@@ -1547,6 +1547,7 @@ table.datasetTable {
 
         .gridItems {
             .size(@width: 100%);
+            padding: 1px;
 
             &.drag {
                 .dragWrap {
@@ -1570,7 +1571,6 @@ table.datasetTable {
 
             .grid-unit {
                 opacity: 0.8;
-                border: 1px solid transparent;
 
                 &:hover {
                     opacity: 1;
@@ -1587,7 +1587,10 @@ table.datasetTable {
                 }
 
                 &.selected {
-                    border: 1px solid @color-white;
+                    outline: 1px solid @color-white;
+                    // should have highter z-index to show outline
+                    // but should lower than menu
+                    z-index: @z-index-gridViewMenu - 1;
                 }
 
                 > .label {
@@ -1817,6 +1820,7 @@ table.datasetTable {
 }
 
 #gridViewMenu {
+    z-index: @z-index-gridViewMenu;
     li {
         display: none;
     }
