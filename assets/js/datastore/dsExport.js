@@ -123,7 +123,7 @@ window.DSExport = (function($, DSExport) {
     
             for (var i = 0; i < numTargs; i++) {
                 var type = ExTargetTypeTStr[targets[i].hdr.type];
-               
+                var options = {};
                 if (type === "file") {
                     type = "Local Filesystem";
                     formatArg = targets[i].specificInput.sfInput.url;
@@ -134,6 +134,12 @@ window.DSExport = (function($, DSExport) {
                 } else if (type === "udf") {
                     type = "UDF";
                     formatArg = targets[i].specificInput.udfInput.url;
+                    var udfName = targets[i].specificInput.udfInput.udfName;
+                    udfName = udfName.split(":");
+                    if (udfName.length === 2) {
+                        options.module = udfName[0];
+                        options.fn = udfName[1];
+                    }
                 }
                 var typeIndex = types.indexOf(type);
                 if (typeIndex === -1) {
@@ -144,7 +150,7 @@ window.DSExport = (function($, DSExport) {
                 target = {
                     name     : targets[i].hdr.name,
                     formatArg: formatArg,
-                    options  : {}
+                    options  : options
                 };
                 exportTargets[typeIndex].targets.push(target);
                 // Here we can make use of targets[i].specificInput.(odbcInput|
@@ -346,7 +352,9 @@ window.DSExport = (function($, DSExport) {
         } else if (targetType === "ODBC") {
             promise = XcalarAddODBCExportTarget(name, formatSpecificArg);
         } else if (targetType === "UDF") {
-            promise = XcalarAddUDFExportTarget(name, formatSpecificArg);
+            var udfName = options.module + ":" + options.fn;
+            promise = XcalarAddUDFExportTarget(name, formatSpecificArg, 
+                                                udfName);
         } else {
             var error = {error: DSExportTStr.InvalidTypeMsg};
             Alert.error(DSExportTStr.InvalidType, error.error);
@@ -457,7 +465,6 @@ window.DSExport = (function($, DSExport) {
         var $gridTarget = $('#gridTarget-' + targetTypeId).find('.gridArea');
         $gridTarget.append($grid);
         var groupIndex = $gridTarget.parent().index();
-        // exportTargets[groupIndex].targets.push(name);
         exportTargets[groupIndex].targets.push(target);
 
         updateNumGrids();

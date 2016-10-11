@@ -683,7 +683,7 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     return (deferred.promise());
 }
 
-function XcalarAddUDFExportTarget(targetName, path, txId) {
+function XcalarAddUDFExportTarget(targetName, path, udfName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -700,6 +700,7 @@ function XcalarAddUDFExportTarget(targetName, path, txId) {
     target.specificInput = new ExAddTargetSpecificInputT();
     target.specificInput.udfInput = new ExAddTargetUDFInputT();
     target.specificInput.udfInput.url = path;
+    target.specificInput.udfInput.udfName = udfName;
 
     var def1 = xcalarAddExportTarget(tHandle, target);
     // var def2 = XcalarGetQuery(workItem);
@@ -850,7 +851,6 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
             case (ExTargetTypeT.ExTargetUDFType):
                 specInput.udfInput = new ExInitExportUDFInputT();
                 specInput.udfInput.fileName = exportName + ".csv";
-                specInput.udfInput.udfName = "exceloutput:writeExcel";
                 specInput.udfInput.format = options.format;
                 specInput.udfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
                 if (options.format === DfFormatTypeT.DfFormatCsv) {
