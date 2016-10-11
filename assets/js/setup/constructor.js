@@ -645,6 +645,30 @@ ProgCol.prototype = {
         this.width = width;
     },
 
+    getFormat: function() {
+        if (this.format == null) {
+            return ColFormat.Default;
+        } else {
+            return this.format;
+        }
+    },
+
+    setFormat: function(format) {
+        if (format === ColFormat.Default) {
+            delete this.format;
+        } else {
+            this.format = format;
+        }
+    },
+
+    getDecimal: function() {
+        return this.decimals;
+    },
+
+    setDecimal: function(decimal) {
+        this.decimals = decimal;
+    },
+
     "hasHidden": function() {
         return this.isHidden;
     },

@@ -47,11 +47,11 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.addNewCol = function(colNum, tableId, direction, options) {
-        options = options || {};
         var defaultOptions = {"isNewCol": true};
-        options = $.extend(defaultOptions, options);
+        var colOptions = $.extend(defaultOptions, options);
+
         var table = gTables[tableId];
-        var progCol = ColManager.newCol(options);
+        var progCol = ColManager.newCol(colOptions);
 
         addColHelper(colNum, tableId, progCol, {
             "direction": direction
@@ -62,51 +62,52 @@ window.ColManager = (function($, ColManager) {
             "tableName": table.getName(),
             "tableId"  : tableId,
             "colNum"   : colNum,
-            "direction": direction
+            "direction": direction,
+            "options"  : options
         });
     };
 
     //options
     // noAnimate: boolean, if true, no animation is applied
     ColManager.delCol = function(colNums, tableId, options) {
+        options = options || {};
         // deletes an array of columns
-        var deferred  = jQuery.Deferred();
-        var table     = gTables[tableId];
-        var tableName = table.tableName;
-        var $table    = $('#xcTable-' + tableId);
-        var numCols   = colNums.length;
-        var colNum;
-        var colIndex;
+        var deferred = jQuery.Deferred();
+        var table = gTables[tableId];
+        var $table = $('#xcTable-' + tableId);
         var colNames = [];
         var promises = [];
         var colWidths = 0;
         var tableWidth = $table.closest('.xcTableWrap').width();
         var progCols = [];
-        options = options || {};
-        for (var i = 0; i < numCols; i++) {
-            colNum = colNums[i];
-            colIndex = colNum - i;
-            var col = table.tableCols[colIndex - 1];
-            colNames.push(col.name);
-            progCols.push(col);
-            if (col.isHidden) {
+        var noAnimate = options.noAnimate || false;
+
+        for (var i = 0, numCols = colNums.length; i < numCols; i++) {
+            var colNum = colNums[i];
+            var colIndex = colNum - i;
+            var progCol = table.getCol(colIndex);
+
+            colNames.push(progCol.getFrontColName());
+            progCols.push(progCol);
+
+            if (progCol.hasHidden()) {
                 colWidths += 15;
             } else {
-                colWidths += table.tableCols[colIndex - 1].width;
+                colWidths += progCol.getWidth();
             }
             promises.push(delColHelper(colNum, colNum, tableId, true, colIndex,
-                                       options.noAnimate));
+                                       noAnimate));
         }
-        if (gMinModeOn || options && options.noAnimate) {
+        if (gMinModeOn || noAnimate) {
             moveTableTitles($table.closest('.xcTableWrap'));
         } else {
             moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         }
 
-        var noSave = true;
-        FnBar.clear(noSave);
+        FnBar.clear(true);
 
-        jQuery.when.apply($, promises).done(function() {
+        jQuery.when.apply($, promises)
+        .done(function() {
             var numAllCols = table.tableCols.length;
             updateTableHeader(tableId);
             TableList.updateTableInfo(tableId);
@@ -123,7 +124,7 @@ window.ColManager = (function($, ColManager) {
              // add SQL
             SQL.add("Delete Column", {
                 "operation"  : SQLOps.DeleteCol,
-                "tableName"  : tableName,
+                "tableName"  : table.getName(),
                 "tableId"    : tableId,
                 "colNames"   : colNames,
                 "colNums"    : colNums,
@@ -133,7 +134,7 @@ window.ColManager = (function($, ColManager) {
             deferred.resolve();
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     // specifically used for json modal
@@ -530,23 +531,25 @@ window.ColManager = (function($, ColManager) {
     // keepEditable: boolean, if true then we dont remove disabled and editable
     // class
     ColManager.renameCol = function(colNum, tableId, newName, options) {
-        var table   = gTables[tableId];
-        var $table  = $("#xcTable-" + tableId);
-        var $th     = $table.find('th.col' + colNum);
-        var curCol  = table.tableCols[colNum - 1];
-        var oldName = curCol.name;
         options = options || {};
+
+        var table = gTables[tableId];
+        var $table = $("#xcTable-" + tableId);
+        var $th = $table.find('th.col' + colNum);
+        var curCol  = table.getCol(colNum);
+        var oldName = curCol.getFrontColName();
+        var keepEditable = options.keepEditable || false;
 
         curCol.name = newName;
         var wasEditable = $th.find('.flexWrap.editable').length;
         var $editableHead = $th.find('.editableHead');
-        if (options.keepEditable) {
+        if (keepEditable) {
             // used when undoing a rename on a new column
             $th.find('.flexWrap.flex-mid').addClass('editable');
             $th.find('.header').addClass('editable');
-            $th.find('.editableHead').prop("disabled", false);
+            $editableHead.prop("disabled", false);
             $th.width(gNewCellWidth);
-            curCol.width = gNewCellWidth;
+            curCol.setWidth(gNewCellWidth);
         } else {
             $th.find('.editable').removeClass('editable');
             $editableHead.prop("disabled", true);
@@ -554,7 +557,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         $editableHead.val(newName).attr("value", newName);
-        if (!options.keepEditable && curCol.sizedToHeader) {
+        if (!keepEditable && curCol.sizedToHeader) {
             autosizeCol($th, {
                 "dblClick"     : true,
                 "minWidth"     : 17,
@@ -580,36 +583,26 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.format = function(colNums, tableId, formats) {
+        // pass in array of format is for undo to bring back origin formats
         var table = gTables[tableId];
-        var tableCols = [];
         var oldFormats = [];
-        var decimals = [];
         var colNames = [];
-        var tableCol;
-        var decimal;
-        var colNum;
         var $tableWrap = $('#xcTableWrap-' + tableId);
         var filteredColNums = [];
         var filteredFormats = [];
-        // var format;
 
-        for (var i = 0; i < colNums.length; i++) {
-            colNum = colNums[i];
-            tableCol = table.tableCols[colNum - 1];
-            if (formats[i] === "default") {
-                formats[i] = null;
-            }
-            if (tableCol.format === formats[i]) {
-                continue;
+        colNums.forEach(function(colNum, i) {
+            var progCol = table.getCol(colNum);
+            var format = formats[i];
+            var colFormat = progCol.getFormat();
+            if (format === colFormat) {
+                return;
             }
 
             filteredColNums.push(colNum);
-            filteredFormats.push(formats[i]);
-
-            tableCols.push(tableCol);
-            oldFormats.push(tableCol.format);
-            decimal = tableCol.decimals;
-            decimals.push(decimal);
+            filteredFormats.push(format);
+            oldFormats.push(colFormat);
+            var decimal = progCol.getDecimal();
 
             $tableWrap.find('td.col' + colNum).each(function() {
                 var $td = $(this);
@@ -620,16 +613,17 @@ window.ColManager = (function($, ColManager) {
                     $td.children(".displayedData").text(newVal);
                 }
             });
-            tableCol.format = formats[i];
-            colNames.push(tableCol.name);
-        }
+            progCol.setFormat(format);
+            colNames.push(progCol.getFrontColName());
+        });
+
         if (!filteredColNums.length) {
             return;
         }
 
         SQL.add("Change Format", {
             "operation"  : SQLOps.ChangeFormat,
-            "tableName"  : table.tableName,
+            "tableName"  : table.getName(),
             "tableId"    : tableId,
             "colNames"   : colNames,
             "colNums"    : filteredColNums,
@@ -968,7 +962,7 @@ window.ColManager = (function($, ColManager) {
         progCol.setWidth(cellWidth);
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
-            "direction": "R"
+            "direction": ColDir.Right
         });
         // add sql
         SQL.add("Duplicate Column", {
@@ -1830,7 +1824,7 @@ window.ColManager = (function($, ColManager) {
         var isHidden = progCol.hasHidden();
         var columnClass = "";
 
-        if (options.direction !== "L") {
+        if (options.direction !== ColDir.Left) {
             newColNum += 1;
         }
 
@@ -2245,8 +2239,8 @@ window.ColManager = (function($, ColManager) {
             val = Math.round(val * pow) / pow;
         }
 
-        switch (format) {
-            case "percent":
+        switch (format.toLowerCase()) {
+            case ColFormat.Percent:
                 // there is a case that 2009.877 * 100 =  200987.69999999998
                 // so must round it
                 var newVal = val * 100;

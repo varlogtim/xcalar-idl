@@ -329,7 +329,7 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.AddNewCol] = function(options) {
         focusTableHelper(options);
         var colNum = options.colNum;
-        if (options.direction === "R") {
+        if (options.direction === ColDir.Right) {
             colNum++;
         }
         return ColManager.delCol([colNum], options.tableId);
@@ -365,7 +365,7 @@ window.Undo = (function($, Undo) {
             }
         } else {
             var colNum = options.colNum;
-            if (options.direction === "R") {
+            if (options.direction === ColDir.Right) {
                 colNum++;
             }
             return (ColManager.delCol([colNum], options.tableId));
@@ -458,13 +458,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.ChangeFormat] = function(options) {
         focusTableHelper(options);
-        var formats = options.oldFormats;
-        for (var i = 0; i < formats.length; i++) {
-            if (formats[i] == null) {
-                formats[i] = "default";
-            }
-        }
-        ColManager.format(options.colNums, options.tableId, formats);
+        ColManager.format(options.colNums, options.tableId, options.oldFormats);
         return PromiseHelper.resolve(null);
     };
 

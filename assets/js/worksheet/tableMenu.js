@@ -291,9 +291,9 @@ window.TblMenu = (function(TblMenu, $) {
 
             var direction;
             if ($(this).hasClass('addColLeft')) {
-                direction = "L";
+                direction = ColDir.Left;
             } else {
-                direction = "R";
+                direction = ColDir.Right;
             }
 
             ColManager.addNewCol(colNum, tableId, direction);
@@ -362,21 +362,19 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $colMenu.data('tableId');
             var format = $(this).data("format");
             var formats = [];
-            var colNums;
+            var colNums = [];
+
             if ($li.closest('.multiFormat').length !== 0) {
-                colNums = $colMenu.data('columns');
-                var tableCols = gTables[tableId].tableCols;
-                var tableCol;
-                for (var i = 0; i < colNums.length; i++) {
-                    tableCol = tableCols[colNums[i] - 1];
-                    if (tableCol.type !== "integer" &&
-                        tableCol.type !== "float") {
-                        colNums.splice(i, 1);
-                        i--;
-                    } else {
+                var allColNums = $colMenu.data('columns');
+                var table = gTables[tableId];
+
+                allColNums.forEach(function(colNum) {
+                    var progCol = table.getCol(colNum);
+                    if (progCol.isNumberCol()) {
                         formats.push(format);
+                        colNums.push(colNum);
                     }
-                }
+                });
             } else {
                 colNums = [$colMenu.data('colNum')];
                 formats.push(format);

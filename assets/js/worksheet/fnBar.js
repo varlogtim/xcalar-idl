@@ -666,7 +666,7 @@ window.FnBar = (function(FnBar, $) {
                 
                 var confirmFunc = function() {
                     tableCol.userStr = oldUsrStr;
-                    ColManager.addNewCol(colNum, tableId, "L", {
+                    ColManager.addNewCol(colNum, tableId, ColDir.Left, {
                         userStr: '"" ' + fnBarVal
                     });
                     isAlertOpen = false;

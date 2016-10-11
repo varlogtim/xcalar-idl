@@ -1,6 +1,10 @@
 window.UnitTest = (function(UnitTest) {
     UnitTest.addDS = function(testDSObj, dsName) {
         var deferred = jQuery.Deferred();
+        if (dsName == null) {
+            dsName = "uniteTest";
+        }
+
         dsName = dsName + Math.floor(Math.random() * 10000);
 
         var url = testDSObj.url;
@@ -21,6 +25,7 @@ window.UnitTest = (function(UnitTest) {
     };
 
     // add both ds and table
+    // deferred dsName, tableName
     UnitTest.addAll = function(testDSObj, dsName) {
         var deferred = jQuery.Deferred();
         var testDS;
@@ -33,7 +38,10 @@ window.UnitTest = (function(UnitTest) {
         .then(function(tableName) {
             deferred.resolve(testDS, tableName);
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            console.error("Add fail", error);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     };
@@ -67,7 +75,10 @@ window.UnitTest = (function(UnitTest) {
             return UnitTest.deleteDS(ds);
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(function(error) {
+            console.error("Delete fail", error);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     };

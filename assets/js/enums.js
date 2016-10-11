@@ -72,6 +72,16 @@ var TableType = {
     "Undone"  : "undone"
 };
 
+var ColDir = {
+    "Left" : "L",
+    "Right": "R"
+};
+
+var ColFormat = {
+    "Default": "default",
+    "Percent": "percent"
+};
+
 var ColumnType = {
     "array": "array",
     "boolean": "boolean",

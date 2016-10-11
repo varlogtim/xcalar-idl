@@ -476,7 +476,7 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             var options = {
-                "direction"  : isDataCol ? "L" : "R",
+                "direction"  : isDataCol ? ColDir.Left : ColDir.Right,
                 "fullName"   : nameInfo.name,
                 "escapedName": backColName
             };

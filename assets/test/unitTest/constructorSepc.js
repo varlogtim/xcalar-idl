@@ -195,6 +195,47 @@ describe('Constructor Test', function() {
                 expect(progCol.getType()).to.equal(testCase.type);
             });
         });
+
+        it("Should get and set format", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimals": 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.format).to.be.null;
+            expect(progCol.getFormat()).to.equal(ColFormat.Default);
+            progCol.setFormat(ColFormat.Percent);
+            expect(progCol.format).to.equal(ColFormat.Percent);
+            expect(progCol.getFormat()).to.equal(ColFormat.Percent);
+
+            progCol.setFormat(ColFormat.Default);
+            expect(progCol.format).to.be.undefined;
+            expect(progCol.getFormat()).to.equal(ColFormat.Default);
+        });
+
+        it("Should get and set decimals", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getDecimal()).to.equal(-1);
+            progCol.setDecimal(2);
+            expect(progCol.getDecimal()).to.equal(2);
+        });
     });
 
     describe('Table Constructor Test', function() {

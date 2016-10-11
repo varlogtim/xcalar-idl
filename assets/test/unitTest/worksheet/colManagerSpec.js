@@ -1,4 +1,11 @@
 describe('ColManager Test', function() {
+    var minModeCache;
+
+    before(function() {
+        minModeCache = gMinModeOn;
+        gMinModeOn = true;
+    });
+
     describe('Basic API Test', function() {
         it('ColManager.newCol() should work', function() {
             var progCol = ColManager.newCol({
@@ -17,6 +24,12 @@ describe('ColManager Test', function() {
             expect(progCol.getBackColName()).to.equal('test2');
             expect(progCol.getType()).to.equal("integer");
             expect(progCol.isEmptyCol()).to.be.false;
+
+            // case 2
+            progCol = ColManager.newPullCol("test3");
+            expect(progCol.getFrontColName()).to.equal('test3');
+            expect(progCol.getBackColName()).to.equal('test3');
+            expect(progCol.getType()).to.be.null;
         });
 
         it('ColManager.newDATACol() should work', function() {
@@ -25,7 +38,7 @@ describe('ColManager Test', function() {
         });
     });
 
-    describe("Parse Test", function() {
+    describe("Helper Function Test", function() {
         it('parsePullColArgs(progCol) should work', function() {
             var fn = ColManager.__testOnly__.parsePullColArgs;
             var progCol = {func: {}};
@@ -205,7 +218,7 @@ describe('ColManager Test', function() {
 
         });
 
-        it ('parseColFuncArgs(key) should work', function() {
+        it('parseColFuncArgs(key) should work', function() {
             var fn = ColManager.__testOnly__.parseColFuncArgs;
 
             expect(fn('colname')).to.deep.equal(['colname']);
@@ -224,10 +237,8 @@ describe('ColManager Test', function() {
 
             expect(fn('colname.child')).to.not.deep.equal(['child', 'colname']);
         });
-    });
 
-    describe('Foramt Test', function() {
-        it ('formatColumnCell(val, format, decimals) should work', function() {
+        it('formatColumnCell(val, format, decimals) should work', function() {
             var fn = ColManager.__testOnly__.formatColumnCell;
 
             // always takes a number-like string from an int or float column
@@ -263,33 +274,109 @@ describe('ColManager Test', function() {
         });
     });
 
-    // describe('Advanced Test', function() {
-    //     var ds, table;
+    describe('Column Modification Test', function() {
+        var dsName, tableName, tableId;
 
-    //     it('Should add table', function(done) {
-    //         var testDSObj = testDatasets.fakeYelp;
-    //         UnitTest.addAll(testDSObj, "yelp_colManager_test")
-    //         .then(function(dsName, tableName) {
-    //             ds = dsName;
-    //             table = tableName;
+        before(function(done) {
+            UnitTest.addAll(testDatasets.fakeYelp, "yelp_colManager_test")
+            .then(function(resDS, resTable) {
+                dsName = resDS;
+                tableName = resTable;
+                tableId = xcHelper.getTableId(tableName);
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
 
-    //             expect(true).to.be.true;
-    //             done();
-    //         })
-    //         .fail(function(error) {
-    //             throw error;
-    //         });
-    //     });
+        it("Should Add New Column", function() {
+            var table = gTables[tableId];
+            var colLen = getColLen(tableId);
 
-    //     it('Should delete table', function(done) {
-    //         UnitTest.deleteAll(table, ds)
-    //         .then(function() {
-    //             expect(true).to.be.true;
-    //             done();
-    //         })
-    //         .fail(function(error) {
-    //             throw error;
-    //         });
-    //     });
-    // });
+            ColManager.addNewCol(1, tableId, ColDir.Left);
+            expect(getColLen(tableId) - colLen).to.equal(1);
+            expect(table.getCol(1).isEmptyCol()).to.be.true;
+        });
+
+        it("Should Delete Column", function() {
+            var table = gTables[tableId];
+            var colLen = getColLen(tableId);
+
+            ColManager.delCol([1, 2], tableId);
+            expect(getColLen(tableId) - colLen).to.equal(-2);
+            var progCol = table.getCol(1);
+            expect(progCol.isEmptyCol()).to.be.false;
+            expect(progCol.getFrontColName()).not.to.equal("yelping_since");
+        });
+
+        it("Should Pull Column", function(done) {
+            var table = gTables[tableId];
+            var colLen = getColLen(tableId);
+
+            var options = {
+                "direction"  : ColDir.Left,
+                "fullName"   : "yelping_since",
+                "escapedName": "yelping_since"
+            };
+
+            ColManager.pullCol(1, tableId, options)
+            .then(function() {
+                expect(getColLen(tableId) - colLen).to.equal(1);
+                var progCol = table.getCol(1);
+                expect(progCol.getFrontColName()).to.equal("yelping_since");
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should Rename Column", function() {
+            // the yelping_since col
+            var progCol = gTables[tableId].getCol(1);
+            var $input = $("#xcTable-" + tableId + " th.col1 .editableHead");
+
+            ColManager.renameCol(1, tableId, "yelping_since_test", {
+                "keepEditable": true
+            });
+            expect(progCol.getFrontColName()).to.equal("yelping_since_test");
+            expect(progCol.getBackColName()).to.equal("yelping_since");
+            expect($input.val()).to.equal("yelping_since_test");
+            expect($input.prop("disabled")).to.be.false;
+            // rename back
+            ColManager.renameCol(1, tableId, "yelping_since");
+            expect(progCol.getFrontColName()).to.equal("yelping_since");
+            expect(progCol.getBackColName()).to.equal("yelping_since");
+            expect($input.val()).to.equal("yelping_since");
+            expect($input.prop("disabled")).to.be.true;
+        });
+
+        // it("Should Format Column", function() {
+        //     var table = gTables[tableId];
+        //     var progCol = table.getColByFrontName("average_stars");
+        //     expect(progCol).not.to.be.null;
+
+        //     var colNum = table.getColNumByBackName("average_stars");
+
+        //     ColManager.format([colNum], tableId, [ColFormat.Percent]);
+        //     expect(progCol.getFormat()).to.equal(ColFormat.Percent);
+        // });
+
+        after(function(done) {
+            UnitTest.deleteAll(tableName, dsName)
+            .always(function() {
+                done();
+            });
+        });
+    });
+
+    after(function() {
+        gMinModeOn = minModeCache;
+    });
+
+    function getColLen(tableId) {
+        var table = gTables[tableId];
+        return table.tableCols.length;
+    }
 });

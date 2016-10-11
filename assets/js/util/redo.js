@@ -261,14 +261,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ChangeFormat] = function(options) {
         focusTableHelper(options);
-
-        var formats = options.formats;
-        for (var i = 0; i < formats; i++) {
-            if (formats[i] == null) {
-                formats[i] = "default";
-            }
-        }
-        ColManager.format(options.colNums, options.tableId, formats);
+        ColManager.format(options.colNums, options.tableId, options.formats);
         return PromiseHelper.resolve(null);
     };
 
