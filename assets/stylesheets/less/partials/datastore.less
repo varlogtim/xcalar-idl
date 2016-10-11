@@ -1570,6 +1570,7 @@ table.datasetTable {
 
             .grid-unit {
                 opacity: 0.8;
+                border: 1px solid transparent;
 
                 &:hover {
                     opacity: 1;
@@ -1583,6 +1584,10 @@ table.datasetTable {
                     > .label {
                         .no-selection;
                     }
+                }
+
+                &.selected {
+                    border: 1px solid @color-white;
                 }
 
                 > .label {

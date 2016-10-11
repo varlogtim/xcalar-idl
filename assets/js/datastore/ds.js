@@ -1061,6 +1061,7 @@ window.DS = (function ($, DS) {
             "click": function(event) {
                 // make text are able to click
                 event.stopPropagation();
+                cleanDSSelect();
             },
 
             "blur": function() {
@@ -1092,8 +1093,10 @@ window.DS = (function ($, DS) {
             var $target = $(event.target);
             var $grid = $target.closest(".grid-unit");
             var classes = "";
+            cleanDSSelect();
             if ($grid.length) {
-                focusDSHelper($grid);
+                // focusDSHelper($grid);
+                $grid.addClass("selected");
                 var dsId = $grid.data("dsid");
                 var dsObj = DS.getDSObj(dsId);
                 if (!dsObj.isEditable()) {
@@ -1128,40 +1131,48 @@ window.DS = (function ($, DS) {
         // bg opeartion
         $gridMenu.on("mouseup", ".newFolder", function() {
             DS.newFolder();
+            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".back", function() {
             if (!$(this).hasClass("disabled")) {
                 DS.upDir();
             }
+            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".refresh", function() {
             refreshHelper();
+            cleanDSSelect();
         });
 
         // folder/ds operation
         $gridMenu.on("mouseup", ".open", function() {
             goToDirHelper($gridMenu.data("dsid"));
+            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".moveUp", function() {
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             DS.dropToParent($grid);
+            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".rename", function() {
             renameHelper(null, $gridMenu.data("dsid"));
+            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".preview", function() {
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             focusDSHelper($grid);
+            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".delete", function() {
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             DS.remove($grid);
+            cleanDSSelect();
         });
     }
 
@@ -1408,6 +1419,10 @@ window.DS = (function ($, DS) {
             xcHelper.middleEllipsis(name, $label, maxChar, maxWidth,
                                     !isListView, ctx);
         });
+    }
+
+    function cleanDSSelect() {
+        $gridView.find(".selected").removeClass("selected");
     }
 
     /*** Drag and Drop API ***/
