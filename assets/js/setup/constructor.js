@@ -2459,11 +2459,11 @@ XcQuery.prototype = {
             } else {
                 var lastSubQuery = this.subQueries[this.subQueries.length - 1];
                 if (this.outputTableState === "exported") {
-                    return (lastSubQuery.exportFileName);
+                    this.outputTableName = lastSubQuery.exportFileName;
                 } else {
-                    return (lastSubQuery.dstTable);
+                    this.outputTableName = lastSubQuery.dstTable;
                 }
-                
+                return this.outputTableName;
             }
         } else {
             return null;

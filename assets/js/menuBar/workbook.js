@@ -243,8 +243,10 @@ window.Workbook = (function($, Workbook) {
             var $workbookBox = $(this).closest(".workbookBox");
             var $workbookName = $workbookBox.find("input");
             $workbookName.addClass("active");
+            $workbookName.parent().removeAttr('data-container data-toggle');
             // sets focus and puts cursor at end of input
             $workbookName.focus().val($workbookName.val());
+
             $(".tooltip").remove();
         });
 
@@ -318,6 +320,17 @@ window.Workbook = (function($, Workbook) {
             });
             $(".tooltip").remove();
         });
+
+        $workbookSection.on('mouseenter', '.tooltipOverflow', function() {
+            var $input = $(this).find('input');
+            if ($input.is(':focus')) {
+                // no tooltip when input is in focus, gets in the way of typing
+                $(this).removeAttr('data-container data-toggle');
+                return;
+            }
+
+            xcHelper.autoTooltip(this, $input[0]);
+        });
     }
 
     function workbookKeyPress(event) {
@@ -354,6 +367,10 @@ window.Workbook = (function($, Workbook) {
                         })
                         .always(function() {
                             $workbookBox.removeClass("edit");
+                            var name = $workbookBox.find(".subHeading input")
+                                                    .val();
+                            $workbookBox.find(".subHeading")
+                                        .attr('data-original-title', name);
                         });
                         $workbookBox.find(".subHeading input")
                                     .removeClass("active");
@@ -581,9 +598,14 @@ window.Workbook = (function($, Workbook) {
                     '</div>' +
                     '<div class="content">' +
                         '<div class="innerContent">' +
-                            '<div class="subHeading">' +
-                                '<input type="text" class="workbookName"' +
+                            '<div class="subHeading tooltipOverflow" ' +
+                                ' data-toggle="tooltip" data-container="body"' +
+                                ' data-original-title="' + workbookName + '"' +
+                            '>' +
+                                '<input type="text" class="workbookName ' +
+                                 'tooltipOverflow"' +
                                 ' value="' + workbookName + '"' +
+                               
                                 ' spellcheck="false"/>' +
                             '</div>' +
                             '<div class="infoSection topInfo">' +

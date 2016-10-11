@@ -1968,9 +1968,15 @@ window.xcHelper = (function($, xcHelper) {
                         .attr("data-original-title", text);
     };
 
-    xcHelper.autoTooltip = function(ele) {
-        var $ele = $(ele);
-        if (ele.offsetWidth < ele.scrollWidth) {
+    xcHelper.autoTooltip = function(outerEl, targEl) {
+        var $ele = $(outerEl);
+        var targetEl;
+        if (targEl) {
+            targetEl = targEl;
+        } else {
+            targetEl = outerEl;
+        }
+        if (targetEl.offsetWidth < targetEl.scrollWidth) {
             $ele.attr({
                 'data-container': 'body',
                 'data-toggle'   : 'tooltip'
