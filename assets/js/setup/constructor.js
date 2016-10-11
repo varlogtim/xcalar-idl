@@ -2348,15 +2348,22 @@ function XcQuery(options) {
     options = options || {};
     this.name = options.name;
     this.time = options.time;
-    this.elapsedTime = 0;
+    this.elapsedTime = options.elapsedTime || 0;
     this.fullName = options.fullName; // real name for backend
     this.type = options.type;
     this.subQueries = [];
     this.id = options.id;
     this.numSteps = options.numSteps;
     this.currStep = 0;
-    this.outputTableName = "";
-    this.outputTableState = "";
+    this.outputTableName = options.outputTableName || "";
+    this.outputTableState = options.outputTableState || "";
+    this.queryStr = options.queryStr || "";
+
+    if (options.sqlNum != null) {
+        this.sqlNum = options.sqlNum;
+    } else {
+        this.sqlNum = null;
+    }
 
     if (options.state == null) {
         this.state = QueryStateT.qrNotStarted;
@@ -2400,6 +2407,10 @@ XcQuery.prototype = {
     "getQuery": function() {
         // XXX XcalarQueryState also return the query,
         // so maybe not store it into backend?
+        if (this.queryStr) {
+            return this.queryStr;
+        }
+
         if (this.subQueries.length) {
             var queries = "";
             for (var i = 0; i < this.subQueries.length; i++) {
@@ -2413,6 +2424,10 @@ XcQuery.prototype = {
 
     "getOutputTableName": function() {
         if (this.state === "done") {
+            if (this.outputTableName) {
+                return this.outputTableName;
+            }
+            
             if (!this.subQueries.length) {
                 console.warn('no subQueries were added to the mainQuery: ' +
                              this.name);

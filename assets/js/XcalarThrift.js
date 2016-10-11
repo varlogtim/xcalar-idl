@@ -2109,7 +2109,7 @@ function XcalarQueryState(queryName) {
     return (deferred.promise());
 }
 
-function XcalarQueryCheck(queryName) {
+function XcalarQueryCheck(queryName, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -2157,6 +2157,7 @@ function XcalarQueryWithCheck(queryName, queryString, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
+            Transaction.log(txId, queryString); 
             deferred.resolve();
         }
     })

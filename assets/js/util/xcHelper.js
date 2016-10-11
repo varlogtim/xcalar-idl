@@ -2154,7 +2154,6 @@ window.xcHelper = (function($, xcHelper) {
             return (0);
         }
     };
-
     // used to split query into array of subqueries by semicolons
     // XX not checking for /n or /r delimiter, just semicolon
     // returns array of objects, objects contain query, name, and dstTable

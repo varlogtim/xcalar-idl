@@ -513,8 +513,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gLogKey     = generateKey(wkbkId, "gLog");
         var gErrKey     = generateKey(wkbkId, "gErr");
         var gUserKey    = generateKey(username, 'gUser');
+        var gQueryKey    = generateKey(wkbkId, 'gQuery');
 
-        KVStore.setup(gInfoKey, gEphInfoKey, gLogKey, gErrKey, gUserKey);
+        var keys = {
+            gStorageKey   : gInfoKey,
+            gEphStorageKey: gEphInfoKey, // Global key!!!
+            gLogKey       : gLogKey,
+            gErrKey       : gErrKey,
+            gUserKey      : gUserKey,
+            gQueryKey     : gQueryKey
+        };
+
+        KVStore.setup(keys);
     }
 
     function syncSessionInfo(oldWorkbooks, sessionInfo) {

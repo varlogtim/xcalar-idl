@@ -582,6 +582,7 @@ window.SQL = (function($, SQL) {
             var logStr = JSON.stringify(logs);
             // strip "[" and "]" and add comma
             logStr = logStr.substring(1, logStr.length - 1) + ",";
+   
             KVStore.put(KVStore.gLogKey, logStr, true, gKVScope.LOG)
             .then(function() {
                 localCommit();

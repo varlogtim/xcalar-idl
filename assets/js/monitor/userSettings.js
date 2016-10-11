@@ -36,13 +36,12 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     UserSettings.commit = function() {
+        var deferred = jQuery.Deferred();
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
             // and userPrefs has not been set up.
-            return;
+            return deferred.resolve().promise();
         }
-
-        var deferred = jQuery.Deferred();
 
         userPrefs.update();
 

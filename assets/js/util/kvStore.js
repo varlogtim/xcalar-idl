@@ -4,16 +4,14 @@ window.KVStore = (function($, KVStore) {
     // apply to all places
     var METAKeys;
     var EMetaKeys; // Ephemeral meta data keys
-
-    KVStore.setup = function(gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey) {
+    // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey, gQueryKey
+    KVStore.setup = function(keys) {
         METAKeys = getMETAKeys();
         EMetaKeys = getEMetaKeys();
-        KVStore.gStorageKey = gStorageKey;
-        KVStore.gEphStorageKey = gEphStorageKey;
-        KVStore.gLogKey = gLogKey;
-        KVStore.gErrKey = gErrKey;
-        KVStore.gUserKey = gUserKey;
-        KVStore.commitKey = gStorageKey + "-" + "commitkey";
+        for (var keyName in keys) {
+            KVStore[keyName] = keys[keyName];
+        }
+        KVStore.commitKey = KVStore.gStorageKey + "-" + "commitKey";
     };
 
     KVStore.get = function(key, scope) {
@@ -37,7 +35,6 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.getAndParse = function(key, scope) {
         var deferred = jQuery.Deferred();
-
         XcalarKeyLookup(key, scope)
         .then(function(value) {
             // "" can not be JSO.parse
@@ -129,6 +126,9 @@ window.KVStore = (function($, KVStore) {
             return XcalarSaveWorkbooks("*");
         })
         .then(function() {
+            return QueryManager.commit();
+        })
+        .then(function() {
             KVStore.logSave(true);
             deferred.resolve();
         })
@@ -201,6 +201,7 @@ window.KVStore = (function($, KVStore) {
             .then(function(gInfosPart) {
                 var isEmpty = (gInfosPart == null);
                 gInfosPart = gInfosPart || {};
+                // console.log(gInfosPart);
 
                 for (var key in gInfosPart) {
                     gInfos[key] = gInfosPart[key];
@@ -213,7 +214,6 @@ window.KVStore = (function($, KVStore) {
                     DSCart.restore(gInfos[METAKeys.CART]);
                     Profile.restore(gInfos[METAKeys.STATS]);
                     oldLogCursor = gInfos[METAKeys.LOGC];
-                    console.log(gInfos[EMetaKeys.DF]);
                     DF.restore(gInfos[EMetaKeys.DF]);
 
                     if (isEmpty) {
@@ -225,6 +225,9 @@ window.KVStore = (function($, KVStore) {
                     console.error(error);
                     return PromiseHelper.reject(error);
                 }
+            })
+            .then(function() {
+                return QueryManager.restore(); // must come after sql.restore
             })
             .then(function() {
                 // KVStore.commit(true);

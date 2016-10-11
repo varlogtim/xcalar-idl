@@ -84,11 +84,10 @@ window.Transaction = (function(Transaction, $) {
             var sql = options.sql || txLog.getSQL();
             var title = options.title || txLog.getOperation();
             title = xcHelper.capitalize(title);
-
             SQL.add(title, sql, cli, willCommit);
         }
 
-        QueryManager.queryDone(txId);
+        QueryManager.queryDone(txId, SQL.getCursor());
 
         // remove transaction
         removeTX(txId);
@@ -199,6 +198,7 @@ window.Transaction = (function(Transaction, $) {
         transactionCleaner();
     };
 
+    // dstTableName is optional - only needed to trigger subQueryDone
     Transaction.log = function(txId, cli, dstTableName) {
         if (!isValidTX(txId)) {
             return;
@@ -335,7 +335,10 @@ window.Transaction = (function(Transaction, $) {
 
         "addCli": function(cli) {
             // XXX the ";" should be remove after backend change!
-            this.cli += cli + ";";
+            this.cli += cli;
+            if (cli.slice(-1) !== ";") {
+                this.cli += ";";
+            }
         }
     };
 
