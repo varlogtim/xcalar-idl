@@ -295,8 +295,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.copyWKBK = function(srcWKBKId, wkbkName) {
         var deferred = jQuery.Deferred();
         var newId;
+        var promise;
 
-        KVStore.commit()
+        if (activeWKBKId == null) {
+            // no active workbook
+            promise = PromiseHelper.resolve();
+        } else {
+            promise = KVStore.commit();
+        }
+
+        promise
         .then(function() {
             return WorkbookManager.newWKBK(wkbkName, srcWKBKId);
         })
@@ -368,9 +376,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         // 5. update wkbkSet meta
         // 6. reset KVStore and change active key if change current wkbk's name
         // 7. restart heart beat check
-        Support.stopHeartbeatCheck();
+        var promise = null;
+        if (activeWKBKId == null) {
+            // when no active workbook
+            promise = PromiseHelper.resolve();
+        } else {
+            Support.stopHeartbeatCheck();
+            promise = KVStore.commit();
+        }
 
-        KVStore.commit()
+        promise
         .then(function() {
             return copyHelper(srcWKBKId, newWKBKId);
         })
@@ -409,7 +424,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
             deferred.resolve(newWKBKId);
         })
         .fail(deferred.reject)
-        .always(Support.heartbeatCheck);
+        .always(function() {
+            if (activeWKBKId != null) {
+                Support.heartbeatCheck();
+            }
+        });
 
         return deferred.promise();
     };
@@ -513,7 +532,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gLogKey     = generateKey(wkbkId, "gLog");
         var gErrKey     = generateKey(wkbkId, "gErr");
         var gUserKey    = generateKey(username, 'gUser');
-        var gQueryKey    = generateKey(wkbkId, 'gQuery');
+        var gQueryKey   = generateKey(wkbkId, 'gQuery');
 
         var keys = {
             gStorageKey   : gInfoKey,

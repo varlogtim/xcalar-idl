@@ -361,7 +361,16 @@ window.Workbook = (function($, Workbook) {
                             updateWorkbookInfo($workbookBox, newWorkbookId);
                         })
                         .fail(function(error) {
-                            StatusBox.show(error, $workbookBox);
+                            var errorText = error;
+                            if (typeof error === "object" &&
+                                error.error != null)
+                            {
+                                errorText = error.error;
+                            } else {
+                                errorText = JSON.stringify(error);
+                            }
+
+                            StatusBox.show(errorText, $workbookBox);
                             $workbookBox.find(".subHeading input")
                                         .val(oldWorkbookName);
                         })
