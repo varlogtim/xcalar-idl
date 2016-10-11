@@ -612,7 +612,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     return (deferred.promise());
 }
 
-// XXX Not tested!!
+// XXX Not tested!! CURRENTLY NO SUPPORT FOR ODBC
 function XcalarAddODBCExportTarget(targetName, connStr, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);

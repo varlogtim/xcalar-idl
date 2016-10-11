@@ -350,11 +350,10 @@ window.DFCard = (function($, DFCard) {
             if (retNodes[i].dagNodeId === $action.attr("data-id")) {
                 var specInput = retNodes[i].input.exportInput.meta
                                                              .specificInput;
-                paramValue = specInput.odbcInput.tableName ||
-                             specInput.sfInput.fileName ||
+                paramValue = specInput.sfInput.fileName ||
                              specInput.udfInput.fileName; // Only one of the
                              // 3 should have a non "" value
-
+                             //xx specInput.odbcInput.tableName no longer exists
             }
         }
         $exportTable.addClass("export").data("type", "export")

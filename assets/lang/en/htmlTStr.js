@@ -482,7 +482,7 @@ module.exports = {
     },
 
     "dsExport": {
-        "Targets": "Targets",
+        "Targets": "Export Targets",
         "createBtn": "CREATE EXPORT TARGET",
         "CreateTarget": "Create Export Target",
         "CreateTargetInstr": "Select a target type and choose a name for your export target. Provided any additional information as needed.",
