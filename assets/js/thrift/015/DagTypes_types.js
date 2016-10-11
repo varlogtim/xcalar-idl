@@ -50,8 +50,8 @@ XcalarApiNamedInputT.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I64) {
-        this.xid = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.xid = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -78,8 +78,8 @@ XcalarApiNamedInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.xid !== null && this.xid !== undefined) {
-    output.writeFieldBegin('xid', Thrift.Type.I64, 3);
-    output.writeI64(this.xid);
+    output.writeFieldBegin('xid', Thrift.Type.STRING, 3);
+    output.writeString(this.xid);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -87,4 +87,4 @@ XcalarApiNamedInputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiXidInvalidT = 0;
+XcalarApiXidInvalidT = '';

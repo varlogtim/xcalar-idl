@@ -5,59 +5,6 @@
 //
 
 
-ExAddTargetODBCInputT = function(args) {
-  this.connectionString = null;
-  if (args) {
-    if (args.connectionString !== undefined) {
-      this.connectionString = args.connectionString;
-    }
-  }
-};
-ExAddTargetODBCInputT.prototype = {};
-ExAddTargetODBCInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.connectionString = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-ExAddTargetODBCInputT.prototype.write = function(output) {
-  output.writeStructBegin('ExAddTargetODBCInputT');
-  if (this.connectionString !== null && this.connectionString !== undefined) {
-    output.writeFieldBegin('connectionString', Thrift.Type.STRING, 1);
-    output.writeString(this.connectionString);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 ExAddTargetSFInputT = function(args) {
   this.url = null;
   if (args) {
@@ -113,9 +60,13 @@ ExAddTargetSFInputT.prototype.write = function(output) {
 
 ExAddTargetUDFInputT = function(args) {
   this.url = null;
+  this.udfName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
+    }
+    if (args.udfName !== undefined) {
+      this.udfName = args.udfName;
     }
   }
 };
@@ -140,9 +91,13 @@ ExAddTargetUDFInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.udfName = input.readString().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -159,19 +114,20 @@ ExAddTargetUDFInputT.prototype.write = function(output) {
     output.writeString(this.url);
     output.writeFieldEnd();
   }
+  if (this.udfName !== null && this.udfName !== undefined) {
+    output.writeFieldBegin('udfName', Thrift.Type.STRING, 2);
+    output.writeString(this.udfName);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
 };
 
 ExAddTargetSpecificInputT = function(args) {
-  this.odbcInput = null;
   this.sfInput = null;
   this.udfInput = null;
   if (args) {
-    if (args.odbcInput !== undefined) {
-      this.odbcInput = args.odbcInput;
-    }
     if (args.sfInput !== undefined) {
       this.sfInput = args.sfInput;
     }
@@ -194,14 +150,6 @@ ExAddTargetSpecificInputT.prototype.read = function(input) {
     }
     switch (fid)
     {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.odbcInput = new ExAddTargetODBCInputT();
-        this.odbcInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
         this.sfInput = new ExAddTargetSFInputT();
@@ -229,11 +177,6 @@ ExAddTargetSpecificInputT.prototype.read = function(input) {
 
 ExAddTargetSpecificInputT.prototype.write = function(output) {
   output.writeStructBegin('ExAddTargetSpecificInputT');
-  if (this.odbcInput !== null && this.odbcInput !== undefined) {
-    output.writeFieldBegin('odbcInput', Thrift.Type.STRUCT, 1);
-    this.odbcInput.write(output);
-    output.writeFieldEnd();
-  }
   if (this.sfInput !== null && this.sfInput !== undefined) {
     output.writeFieldBegin('sfInput', Thrift.Type.STRUCT, 2);
     this.sfInput.write(output);
@@ -376,59 +319,6 @@ ExExportTargetT.prototype.write = function(output) {
   if (this.specificInput !== null && this.specificInput !== undefined) {
     output.writeFieldBegin('specificInput', Thrift.Type.STRUCT, 2);
     this.specificInput.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-ExInitExportODBCInputT = function(args) {
-  this.tableName = null;
-  if (args) {
-    if (args.tableName !== undefined) {
-      this.tableName = args.tableName;
-    }
-  }
-};
-ExInitExportODBCInputT.prototype = {};
-ExInitExportODBCInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.tableName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-ExInitExportODBCInputT.prototype.write = function(output) {
-  output.writeStructBegin('ExInitExportODBCInputT');
-  if (this.tableName !== null && this.tableName !== undefined) {
-    output.writeFieldBegin('tableName', Thrift.Type.STRING, 1);
-    output.writeString(this.tableName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -989,16 +879,12 @@ ExInitExportSFInputT.prototype.write = function(output) {
 
 ExInitExportUDFInputT = function(args) {
   this.fileName = null;
-  this.udfName = null;
   this.format = null;
   this.headerType = null;
   this.formatArgs = null;
   if (args) {
     if (args.fileName !== undefined) {
       this.fileName = args.fileName;
-    }
-    if (args.udfName !== undefined) {
-      this.udfName = args.udfName;
     }
     if (args.format !== undefined) {
       this.format = args.format;
@@ -1033,27 +919,20 @@ ExInitExportUDFInputT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.udfName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
       if (ftype == Thrift.Type.I32) {
         this.format = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 4:
+      case 3:
       if (ftype == Thrift.Type.I32) {
         this.headerType = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 5:
+      case 4:
       if (ftype == Thrift.Type.STRUCT) {
         this.formatArgs = new ExInitExportFormatSpecificArgsT();
         this.formatArgs.read(input);
@@ -1077,23 +956,18 @@ ExInitExportUDFInputT.prototype.write = function(output) {
     output.writeString(this.fileName);
     output.writeFieldEnd();
   }
-  if (this.udfName !== null && this.udfName !== undefined) {
-    output.writeFieldBegin('udfName', Thrift.Type.STRING, 2);
-    output.writeString(this.udfName);
-    output.writeFieldEnd();
-  }
   if (this.format !== null && this.format !== undefined) {
-    output.writeFieldBegin('format', Thrift.Type.I32, 3);
+    output.writeFieldBegin('format', Thrift.Type.I32, 2);
     output.writeI32(this.format);
     output.writeFieldEnd();
   }
   if (this.headerType !== null && this.headerType !== undefined) {
-    output.writeFieldBegin('headerType', Thrift.Type.I32, 4);
+    output.writeFieldBegin('headerType', Thrift.Type.I32, 3);
     output.writeI32(this.headerType);
     output.writeFieldEnd();
   }
   if (this.formatArgs !== null && this.formatArgs !== undefined) {
-    output.writeFieldBegin('formatArgs', Thrift.Type.STRUCT, 5);
+    output.writeFieldBegin('formatArgs', Thrift.Type.STRUCT, 4);
     this.formatArgs.write(output);
     output.writeFieldEnd();
   }
@@ -1103,13 +977,9 @@ ExInitExportUDFInputT.prototype.write = function(output) {
 };
 
 ExInitExportSpecificInputT = function(args) {
-  this.odbcInput = null;
   this.sfInput = null;
   this.udfInput = null;
   if (args) {
-    if (args.odbcInput !== undefined) {
-      this.odbcInput = args.odbcInput;
-    }
     if (args.sfInput !== undefined) {
       this.sfInput = args.sfInput;
     }
@@ -1132,14 +1002,6 @@ ExInitExportSpecificInputT.prototype.read = function(input) {
     }
     switch (fid)
     {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.odbcInput = new ExInitExportODBCInputT();
-        this.odbcInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
         this.sfInput = new ExInitExportSFInputT();
@@ -1167,11 +1029,6 @@ ExInitExportSpecificInputT.prototype.read = function(input) {
 
 ExInitExportSpecificInputT.prototype.write = function(output) {
   output.writeStructBegin('ExInitExportSpecificInputT');
-  if (this.odbcInput !== null && this.odbcInput !== undefined) {
-    output.writeFieldBegin('odbcInput', Thrift.Type.STRUCT, 1);
-    this.odbcInput.write(output);
-    output.writeFieldEnd();
-  }
   if (this.sfInput !== null && this.sfInput !== undefined) {
     output.writeFieldBegin('sfInput', Thrift.Type.STRUCT, 2);
     this.sfInput.write(output);

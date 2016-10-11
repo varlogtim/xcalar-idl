@@ -75,7 +75,9 @@ window.UExtFuncTest = (function(UExtFuncTest) {
             return PromiseHelper.resolve(null);
         }
         var deferred = jQuery.Deferred();
-        xcalarApiStartFuncTest(tHandle, parallel, runAllTests, testNamePatterns)
+        var runOnAllNodes = false; // XXX Make this a param
+        xcalarApiStartFuncTest(tHandle, parallel, runOnAllNodes,
+                               runAllTests, testNamePatterns)
         .then(function(output) {
             deferred.resolve(output);
         })

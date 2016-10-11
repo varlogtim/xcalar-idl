@@ -9,6 +9,7 @@ XcalarApisConstantsT = {
   'XcalarApiMaxEvalStringLen' : 1024,
   'XcalarApiMaxNumParameters' : 20,
   'XcalarApiDefaultTopIntervalInMs' : 100,
+  'XcalarApiMaxTopIntervalInMs' : 10000,
   'XcalarApiMaxUdfModuleNameLen' : 255,
   'XcalarApiMaxUdfFuncNameLen' : 255,
   'XcalarApiMaxUdfSourceLen' : 10485760,
@@ -20,11 +21,13 @@ XcalarApisConstantsT = {
   'XcalarApiMaxSingleQuerySize' : 1024,
   'XcalarApiMaxFileNameLen' : 255,
   'XcalarApiMaxNumFuncTests' : 255,
-  'XcalarApiMaxFieldNameLen' : 255
+  'XcalarApiMaxFieldNameLen' : 255,
+  'XcalarApiMaxAppNameLen' : 255
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
 100 : 'XcalarApiDefaultTopIntervalInMs',
+10000 : 'XcalarApiMaxTopIntervalInMs',
 255 : 'XcalarApiMaxUdfModuleNameLen',
 255 : 'XcalarApiMaxUdfFuncNameLen',
 10485760 : 'XcalarApiMaxUdfSourceLen',
@@ -36,5 +39,6 @@ XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 1024 : 'XcalarApiMaxSingleQuerySize',
 255 : 'XcalarApiMaxFileNameLen',
 255 : 'XcalarApiMaxNumFuncTests',
-255 : 'XcalarApiMaxFieldNameLen'
+255 : 'XcalarApiMaxFieldNameLen',
+255 : 'XcalarApiMaxAppNameLen'
 };

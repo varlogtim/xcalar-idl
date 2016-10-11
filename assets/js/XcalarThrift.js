@@ -407,6 +407,23 @@ function XcalarGetVersion(connectionCheck) {
     return (deferred.promise());
 }
 
+function XcalarGetLicense() {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarGetLicense(tHandle)
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return (deferred.promise());
+}
+
 // Call this exactly with the url and isRecur that you
 function XcalarPreview(url, isRecur, isRegex, numBytesRequested) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -570,7 +587,6 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             Transaction.log(txId, ret2, parseDS(datasetName));
             deferred.resolve(ret1, loadError);
         }
-        
     })
     .fail(function(error1, error2) {
         if (error1 && error1.status === 502) {
@@ -702,6 +718,22 @@ function XcalarAddUDFExportTarget(targetName, path, txId) {
     return (deferred.promise());
 }
 
+function XcalarRemoveExportTarget(hdr) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+
+    xcalarRemoveExportTarget(thriftHandle, hdr)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarRemoveExportTarget", error);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
 
 function XcalarListExportTargets(typePattern, namePattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -898,9 +930,8 @@ function XcalarDestroyDataset(dsName, txId) {
     }
 
     dsName = parseDS(dsName);
-    var workItem = xcalarDeleteDagNodesWorkItem(dsName,
-                                                SourceTypeT.SrcDataset);
-    var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+    var workItem = xcalarApiDeleteDatasetsWorkItem(dsName);
+    var def1 = xcalarApiDeleteDatasets(tHandle, dsName);
     var def2 = XcalarGetQuery(workItem);
 
     jQuery.when(def1, def2)
@@ -1042,7 +1073,6 @@ function XcalarDeleteTable(tableName, txId) {
             if (txId != null) {
                 Transaction.log(txId, ret2);
             }
-            
             deferred.resolve(ret1);
         }
     })
@@ -1140,6 +1170,48 @@ function XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, data,
     .fail(deferred.reject);
 
     return deferred.promise();
+}
+
+function XcalarGetConfigParams() {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(0);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarGetConfigParams(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetConfigParams", error);
+        SQL.errorLog("Get Config Params", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarSetConfigParams(pName, pValue) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(0);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarSetConfigParams(pName, pValue)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarSetConfigParams", error);
+        SQL.errorLog("Set Config Params", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
 }
 
 // XXX NOT TESTED
@@ -2202,6 +2274,27 @@ function XcalarQueryCancel(queryName, statusesToIgnore) {
     return (deferred.promise());
 }
 
+function XcalarQueryDelete(qName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarQueryDelete(tHandle, queryName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarQueryDelete" + qName, error);
+        SQL.errorLog("Xcalar Query Delete " + qName, null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 /**
  * XcalarCancelOp
  * @param {Array} statusesToIgnore array of status numbers to ignore
@@ -2451,8 +2544,14 @@ function XcalarExecuteRetina(retName, params, txId) {
         return (deferred.reject().promise());
     }
 
+    var activeSession = false;
+    var newTableName = ""; // If activeSession is true, it exports to the
+                           // current active session and creates a table
+                           // with newTableName
+
     // var workItem = xcalarExecuteRetinaWorkItem(retName, params);
-    var def1 = xcalarExecuteRetina(tHandle, retName, params);
+    var def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
+                                   newTableName);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -3236,6 +3335,7 @@ function XcalarRenameWorkbook(newName, oldName) {
     return (deferred.promise());
 }
 
+// XXX Not used since listworkbooks return the information needed
 function XcalarWorkbookInfo(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -3313,6 +3413,21 @@ function XcalarSupportGenerate() {
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSupportGenerate", error);
+        SQL.errorLog("Support Generate", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+function XcalarAppSet(name, hostType, execStr) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+    xcalarAppSet(thriftHandle, name, hostType, execStr)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarAppSet", error);
         SQL.errorLog("Support Generate", null, null, thriftError);
         deferred.reject(thriftError);
     });
