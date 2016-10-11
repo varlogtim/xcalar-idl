@@ -718,14 +718,17 @@ function XcalarAddUDFExportTarget(targetName, path, txId) {
     return (deferred.promise());
 }
 
-function XcalarRemoveExportTarget(hdr) {
+function XcalarRemoveExportTarget(targetName, targetType) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
+    var hdr = new ExExportTargetHdrT();
+    hdr.name = targetName;
+    hdr.type = targetType;
 
-    xcalarRemoveExportTarget(thriftHandle, hdr)
+    xcalarRemoveExportTarget(tHandle, hdr)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarRemoveExportTarget", error);

@@ -436,17 +436,18 @@ window.DSExport = (function($, DSExport) {
         // $grid.append('<div class="waitingIcon"></div>');
         if ($('#gridTarget-' + targetTypeId).length === 0) {
 
-            var gridSectionHtml = '<div class="gridIconSection clearfix"' +
-                                      'id="gridTarget-' + targetTypeId + '">';
+            var gridSectionHtml = '<div id="gridTarget-' + targetTypeId + '"' +
+                        ' class="targetSection xc-expand-list clearfix ' +
+                        'active" data-type="' + targetType + '">' +
+                        '<div class="targetInfo">' +
+                            '<span class="expand">' +
+                                '<i class="icon xi-arrow-down fa-7"></i>' +
+                            '</span>' +
+                            '<span class="text">' + name + '</span>' +
+                        '</div>' +
+                        '<div class="gridArea"></div>' +
+                        '</div>';
 
-            if ($gridView.children().length > 0) {
-                gridSectionHtml += '<div class="divider clearfix"></div>';
-            }
-
-            gridSectionHtml += '<div class="title">' + targetType +
-                                      '</div>' +
-                                      '<div class="gridArea"></div>' +
-                                  '</div>';
             $gridView.append(gridSectionHtml);
 
             var targetGroup = {"name": targetType, "targets": []};
