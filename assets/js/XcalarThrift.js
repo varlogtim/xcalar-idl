@@ -3427,7 +3427,7 @@ function XcalarAppSet(name, hostType, execStr) {
         return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
-    xcalarAppSet(thriftHandle, name, hostType, execStr)
+    xcalarAppSet(tHandle, name, hostType, execStr)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAppSet", error);
