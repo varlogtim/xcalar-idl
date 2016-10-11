@@ -94,6 +94,7 @@ function thriftLog() {
                 Alert.error(ThriftTStr.CCNBEErr, alertError, {
                     "lockScreen": true
                 });
+                SQL.backup();
             });
             return thriftError;
         } else {
@@ -106,7 +107,7 @@ function thriftLog() {
                 Alert.error(ThriftTStr.CCNBEErr, alertError, {
                     "lockScreen": true
                 });
-
+                SQL.backup();
                 return thriftError;
             }
         }

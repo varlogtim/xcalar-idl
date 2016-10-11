@@ -210,6 +210,22 @@ window.SQL = (function($, SQL) {
         return localStorage.getItem(sqlLocalStoreKey);
     };
 
+    SQL.getBackup = function() {
+        var key = sqlLocalStoreKey + "-backup";
+        return localStorage.getItem(key);
+    };
+
+    SQL.backup = function() {
+        if (StartManager.isStart()) {
+            // start up time error don't trigger backup
+            // or it may overwrite old log backup
+            return;
+        }
+
+        var key = sqlLocalStoreKey + "-backup";
+        localStorage.setItem(key, JSON.stringify(sqlCache));
+    };
+
     SQL.clear = function() {
         $textarea.html("");
         $machineTextarea.html("");

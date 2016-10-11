@@ -132,6 +132,7 @@ window.StartManager = (function(StartManager, $) {
             deferred.resolve();
         })
         .fail(function(error) {
+            $("body").addClass("xc-setup-error");
             setupStatus = SetupStatus.Fail;
             setupWinResize();
 
@@ -248,6 +249,11 @@ window.StartManager = (function(StartManager, $) {
         }
 
         return deferred.promise();
+    };
+
+    StartManager.isStart = function() {
+        return $("body").hasClass("xc-setup") ||
+               $("body").hasClass("xc-setup-error");
     };
 
     StartManager.getStatus = function() {

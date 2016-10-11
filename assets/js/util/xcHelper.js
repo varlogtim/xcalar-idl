@@ -951,7 +951,7 @@ window.xcHelper = (function($, xcHelper) {
                     if (sqlCaches.logs.length === 0 &&
                         sqlCaches.errors.length === 0)
                     {
-                        sql = SQL.getLocalStorage();
+                        sql = SQL.getLocalStorage() || SQL.getBackup();
                         if (sql == null) {
                             sql = "";
                         }
