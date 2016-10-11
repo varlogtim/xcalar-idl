@@ -609,7 +609,7 @@ window.ColManager = (function($, ColManager) {
                 var oldVal = $td.find(".originalData").text();
                 if (oldVal != null) {
                     // not knf
-                    var newVal = formatColumnCell(oldVal, formats[i], decimal);
+                    var newVal = formatColumnCell(oldVal, format, decimal);
                     $td.children(".displayedData").text(newVal);
                 }
             });
@@ -635,34 +635,34 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.roundToFixed = function(colNums, tableId, decimals) {
         var table = gTables[tableId];
-        var tableCol;
-        var format;
         var prevDecimals = [];
         var $tableWrap = $('#xcTableWrap-' + tableId);
-        var colNum;
         var colNames = [];
 
-        for (var i = 0; i < colNums.length; i++) {
-            colNum = colNums[i];
-            tableCol = table.tableCols[colNum - 1];
-            format = tableCol.format;
-            prevDecimals.push(tableCol.decimals);
-            colNames.push(tableCol.name);
+        colNums.forEach(function(colNum, i) {
+            var progCol = table.getCol(colNum);
+            var format = progCol.getFormat();
+            var newDecimal = decimals[i];
+
+            prevDecimals.push(progCol.getDecimal());
+            colNames.push(progCol.getFrontColName());
+
             $tableWrap.find('td.col' + colNum).each(function() {
                 var $td = $(this);
                 var oldVal = $td.find(".originalData").text();
                 if (oldVal != null) {
                     // not knf
-                    var newVal = formatColumnCell(oldVal, format, decimals[i]);
+                    var newVal = formatColumnCell(oldVal, format, newDecimal);
                     $td.children(".displayedData").text(newVal);
                 }
             });
-            tableCol.decimals = decimals[i];
-        }
+
+            progCol.setDecimal(newDecimal);
+        });
 
         SQL.add("Round To Fixed", {
             "operation"   : SQLOps.RoundToFixed,
-            "tableName"   : table.tableName,
+            "tableName"   : table.getName(),
             "tableId"     : tableId,
             "colNames"    : colNames,
             "colNums"     : colNums,
@@ -1682,11 +1682,11 @@ window.ColManager = (function($, ColManager) {
         // formatting
         var parsedVal = xcHelper.parseJsonValue(tdValue, knf);
         var formatVal = parsedVal;
-        var decimals = progCol.decimals;
-        var format = progCol.format;
+        var decimal = progCol.getDecimal();
+        var format = progCol.getFormat();
 
-        if (!knf && tdValue != null && (decimals > -1 || format != null)) {
-            formatVal = formatColumnCell(parsedVal, format, decimals);
+        if (!knf && tdValue != null && (decimal > -1 || format != null)) {
+            formatVal = formatColumnCell(parsedVal, format, decimal);
         }
 
         var limit = isDATACol ? truncLimit : colTruncLimit;
@@ -2221,9 +2221,9 @@ window.ColManager = (function($, ColManager) {
     /*
     *@property {string} val: Text that would be in a table td
     *@property {string} format: "percent" or null which defaults to decimal rounding
-    *@property {integer} decimals: Number of decimal places to show, -1 for default
+    *@property {integer} decimal: Number of decimal places to show, -1 for default
     */
-    function formatColumnCell(val, format, decimals) {
+    function formatColumnCell(val, format, decimal) {
         var cachedVal = val;
         val = parseFloat(val);
 
@@ -2233,20 +2233,20 @@ window.ColManager = (function($, ColManager) {
 
         // round it first
         var pow;
-        if (decimals > -1) {
+        if (decimal > -1) {
             // when no roundToFixed, only percent
-            pow = Math.pow(10, decimals);
+            pow = Math.pow(10, decimal);
             val = Math.round(val * pow) / pow;
         }
 
-        switch (format.toLowerCase()) {
+        switch (format) {
             case ColFormat.Percent:
                 // there is a case that 2009.877 * 100 =  200987.69999999998
                 // so must round it
                 var newVal = val * 100;
                 var decimalPartLen;
 
-                if (decimals === -1) {
+                if (decimal === -1) {
                     // when no roundToFixed
                     var decimalPart = (val + "").split(".")[1];
                     if (decimalPart != null) {
@@ -2258,20 +2258,20 @@ window.ColManager = (function($, ColManager) {
                     }
                 } else {
                     // when has roundToFixed
-                    decimalPartLen = Math.max(0, decimals - 2);
+                    decimalPartLen = Math.max(0, decimal - 2);
                     pow = Math.pow(10, decimalPartLen);
                 }
 
                 newVal = Math.round(newVal * pow) / pow;
 
-                if (decimals > -1) {
+                if (decimal > -1) {
                     // when has roundToFixed, need to fix the decimal digits
                     newVal = newVal.toFixed(decimalPartLen);
                 }
                 return newVal + "%";
             default:
-                if (decimals > -1) {
-                    val = val.toFixed(decimals);
+                if (decimal > -1) {
+                    val = val.toFixed(decimal);
                 } else {
                     val = val + ""; // change to type string
                 }

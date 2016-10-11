@@ -398,7 +398,7 @@ window.xcHelper = (function($, xcHelper) {
         // This handles edge conditions like eq("eqt,et", ",")
         var leftParenLocation = string.indexOf('(');
         var op = jQuery.trim(string.slice(0, leftParenLocation));
-        var argString = jQuery.trim(string.slice(leftParenLocation+1,
+        var argString = jQuery.trim(string.slice(leftParenLocation + 1,
                                                 xcHelper.rfind(string, ')')));
 
         var args = [];
@@ -406,15 +406,15 @@ window.xcHelper = (function($, xcHelper) {
         var inQuote = false;
         var curArg = "";
 
-        for (i = 0; i<argString.length; i++) {
-            switch(argString[i]) {
-                case('"'):
+        for (i = 0; i < argString.length; i++) {
+            switch (argString[i]) {
+                case ('"'):
                     curArg += argString[i];
                     inQuote = !inQuote;
                     break;
                 case ('\\'):
                     curArg += argString[i];
-                    curArg += argString[i+1];
+                    curArg += argString[i + 1];
                     i++;
                     break;
                 case (delim):
@@ -432,7 +432,7 @@ window.xcHelper = (function($, xcHelper) {
 
         args.push(curArg);
 
-        for (i = 0; i<args.length; i++) {
+        for (i = 0; i < args.length; i++) {
             args[i] = jQuery.trim(args[i]);
         }
 
@@ -2856,7 +2856,8 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         if (!options.isMutiCol &&
-            (tableCol.format != null || tableCol.decimals > -1))
+            (tableCol.getFormat() !== ColFormat.Default ||
+            tableCol.getDecimal() > -1))
         {
             // when it's only on one column and column is formatted
             if (isMultiCell) {

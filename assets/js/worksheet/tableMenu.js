@@ -388,43 +388,34 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
 
-            var val = parseInt($(this).val().trim());
-            if (isNaN(val) || val < 0 || val > 14) {
+            var $input = $(this);
+            var decimal = parseInt($input.val().trim());
+            if (isNaN(decimal) || decimal < 0 || decimal > 14) {
                 // when this field is empty
                 var error = xcHelper.replaceMsg(ErrWRepTStr.InvalidRange, {
                     "num1": 0,
                     "num2": 14
                 });
-                StatusBox.show(error, $(this), null, {
+                StatusBox.show(error, $input, null, {
                     "side"     : "left",
                     "closeable": true
                 });
                 return;
             }
-            var $li = $(this);
+
             var tableId = $colMenu.data('tableId');
             var colNums;
-            var vals = [];
+            var decimals = [];
 
-            if ($li.closest('.multiRoundToFixed').length !== 0) {
+            if ($input.closest('.multiRoundToFixed').length !== 0) {
                 colNums = $colMenu.data('columns');
-                var tableCols = gTables[tableId].tableCols;
-                var tableCol;
-                for (var i = 0; i < colNums.length; i++) {
-                    tableCol = tableCols[colNums[i] - 1];
-                    if (tableCol.type !== "float") {
-                        colNums.splice(i, 1);
-                        i--;
-                    } else {
-                        vals.push(val);
-                    }
-                }
+                decimals = getDecimals(tableId, decimal, colNums);
             } else {
                 colNums = [$colMenu.data('colNum')];
-                vals.push(val);
+                decimals.push(decimal);
             }
 
-            ColManager.roundToFixed(colNums, tableId, vals);
+            ColManager.roundToFixed(colNums, tableId, decimals);
             closeMenu($allMenus);
         });
 
@@ -440,18 +431,7 @@ window.TblMenu = (function(TblMenu, $) {
 
             if ($li.closest('.multiRoundToFixed').length !== 0) {
                 colNums = $colMenu.data('columns');
-                var tableCols = gTables[tableId].tableCols;
-                var tableCol;
-
-                for (var i = 0; i < colNums.length; i++) {
-                    tableCol = tableCols[colNums[i] - 1];
-                    if (tableCol.type !== "float") {
-                        colNums.splice(i, 1);
-                        i--;
-                    } else {
-                        decimals.push(-1);
-                    }
-                }
+                decimals = getDecimals(tableId, -1, colNums);
             } else {
                 colNums = [$colMenu.data('colNum')];
                 decimals.push(-1);
@@ -459,6 +439,20 @@ window.TblMenu = (function(TblMenu, $) {
 
             ColManager.roundToFixed(colNums, tableId, decimals);
         });
+
+        function getDecimals(tableId, decimal, colNums) {
+            var decimals = [];
+            var table = gTables[tableId];
+
+            colNums.forEach(function(colNum) {
+                var progCol = table.getCol(colNum);
+                if (progCol.getType() === ColumnType.float) {
+                    decimals.push(decimal);
+                }
+            });
+
+            return decimals;
+        }
 
         $subMenu.on('keypress', '.splitCol input', function(event) {
             if (event.which === keyCode.Enter) {

@@ -110,7 +110,7 @@ describe('Constructor Test', function() {
                 "type"    : "float",
                 "isNewCol": false,
                 "width"   : 100,
-                "decimals": 10,
+                "decimal" : 10,
                 "func"    : {
                     "name": "pull"
                 }
@@ -143,7 +143,7 @@ describe('Constructor Test', function() {
                 "type"    : "float",
                 "isNewCol": false,
                 "width"   : 100,
-                "decimals": 10,
+                "decimal" : 10,
                 "func"    : {
                     "name": "pull"
                 }
@@ -203,7 +203,7 @@ describe('Constructor Test', function() {
                 "type"    : "float",
                 "isNewCol": false,
                 "width"   : 100,
-                "decimals": 10,
+                "decimal" : 10,
                 "func"    : {
                     "name": "pull"
                 }
@@ -220,7 +220,7 @@ describe('Constructor Test', function() {
             expect(progCol.getFormat()).to.equal(ColFormat.Default);
         });
 
-        it("Should get and set decimals", function() {
+        it("Should get and set decimal", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",

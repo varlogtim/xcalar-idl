@@ -512,10 +512,9 @@ TableMeta.prototype = {
 };
 
 function ProgCol(options) {
-    options = options || {};
     var defaultOptions = {
         childOfArray : false,
-        decimals     : -1,
+        decimal      : -1,
         format       : null,
         immediate    : false,
         isHidden     : false,
@@ -531,8 +530,8 @@ function ProgCol(options) {
     for (var option in options) {
         if (option !== "backName" && option !== "func"
             && typeof options[option] !== "function") {
-           this[option] = options[option]; 
-        } 
+            this[option] = options[option];
+        }
     }
 
     if (options.backName == null) {
@@ -662,11 +661,11 @@ ProgCol.prototype = {
     },
 
     getDecimal: function() {
-        return this.decimals;
+        return this.decimal;
     },
 
     setDecimal: function(decimal) {
-        this.decimals = decimal;
+        this.decimal = decimal;
     },
 
     "hasHidden": function() {

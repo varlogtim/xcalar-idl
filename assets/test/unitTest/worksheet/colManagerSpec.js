@@ -238,7 +238,7 @@ describe('ColManager Test', function() {
             expect(fn('colname.child')).to.not.deep.equal(['child', 'colname']);
         });
 
-        it('formatColumnCell(val, format, decimals) should work', function() {
+        it('formatColumnCell should work', function() {
             var fn = ColManager.__testOnly__.formatColumnCell;
 
             // always takes a number-like string from an int or float column
@@ -259,18 +259,18 @@ describe('ColManager Test', function() {
             expect(fn('1.23567', 'percent', 3)).to.equal('123.6%');
             expect(fn('1.23567', 'percent', 0)).to.equal('100%');
 
-            expect(fn('123', null, -1)).to.equal('123');
-            expect(fn('123', null, 0)).to.equal('123');
-            expect(fn('123', null, 3)).to.equal('123.000');
-            expect(fn('123', null, 3)).to.equal('123.000');
+            expect(fn('123', 'default', -1)).to.equal('123');
+            expect(fn('123', 'default', 0)).to.equal('123');
+            expect(fn('123', 'default', 3)).to.equal('123.000');
+            expect(fn('123', 'default', 3)).to.equal('123.000');
 
-            expect(fn('123.456', null, -1)).to.equal('123.456');
-            expect(fn('123.456', null, 0)).to.equal('123');
-            expect(fn('123.456', null, 1)).to.equal('123.5'); // ceil round
-            expect(fn('123.41', null, 1)).to.equal('123.4'); // floor round
-            expect(fn('123.456789', null, 2)).to.equal('123.46');// ceil round
-            expect(fn('123.45123', null, 2)).to.equal('123.45');// floor round
-            expect(fn('123.456', null, 5)).to.equal('123.45600');
+            expect(fn('123.456', 'default', -1)).to.equal('123.456');
+            expect(fn('123.456', 'default', 0)).to.equal('123');
+            expect(fn('123.456', 'default', 1)).to.equal('123.5'); // ceil round
+            expect(fn('123.41', 'default', 1)).to.equal('123.4'); // floor round
+            expect(fn('123.456789', 'default', 2)).to.equal('123.46');// ceil round
+            expect(fn('123.45123', 'default', 2)).to.equal('123.45');// floor round
+            expect(fn('123.456', 'default', 5)).to.equal('123.45600');
         });
     });
 
@@ -352,16 +352,52 @@ describe('ColManager Test', function() {
             expect($input.prop("disabled")).to.be.true;
         });
 
-        // it("Should Format Column", function() {
-        //     var table = gTables[tableId];
-        //     var progCol = table.getColByFrontName("average_stars");
-        //     expect(progCol).not.to.be.null;
+        it("Should Format Column", function() {
+            var table = gTables[tableId];
+            var progCol = table.getColByFrontName("average_stars");
+            expect(progCol).not.to.be.null;
 
-        //     var colNum = table.getColNumByBackName("average_stars");
+            var colNum = table.getColNumByBackName("average_stars");
+            var $td = $("#xcTable-" + tableId).find("td.col" + colNum).eq(0);
+            // case 1
+            ColManager.format([colNum], tableId, [ColFormat.Percent]);
+            expect(progCol.getFormat()).to.equal(ColFormat.Percent);
+            var text = $td.find(".displayedData").text();
+            expect(text.endsWith("%")).to.be.true;
+            // case 2
+            ColManager.format([colNum], tableId, [ColFormat.Default]);
+            expect(progCol.getFormat()).to.equal(ColFormat.Default);
+            text = $td.find(".displayedData").text();
+            expect(text.endsWith("%")).to.be.false;
+            // case 3 (nothing happen if change to same format)
+            ColManager.format([colNum], tableId, [ColFormat.Default]);
+            expect(progCol.getFormat()).to.equal(ColFormat.Default);
+            text = $td.find(".displayedData").text();
+            expect(text.endsWith("%")).to.be.false;
+        });
 
-        //     ColManager.format([colNum], tableId, [ColFormat.Percent]);
-        //     expect(progCol.getFormat()).to.equal(ColFormat.Percent);
-        // });
+        it("Should Round Column", function() {
+            var table = gTables[tableId];
+            var progCol = table.getColByFrontName("average_stars");
+            expect(progCol).not.to.be.null;
+
+            var colNum = table.getColNumByBackName("average_stars");
+            var $td = $("#xcTable-" + tableId).find("td.col" + colNum).eq(0);
+            var srcText = $td.find(".displayedData").text();
+            // case 1
+            ColManager.roundToFixed([colNum], tableId, [3]);
+            expect(progCol.getDecimal()).to.equal(3);
+            var text = $td.find(".displayedData").text();
+            expect(text).not.to.be.equal(srcText);
+            var index = text.indexOf(".");
+            // has 3 decimals after dot, include dot is 4
+            expect(text.length - index).to.equal(4);
+            // case 2
+            ColManager.roundToFixed([colNum], tableId, [-1]);
+            expect(progCol.getDecimal()).to.equal(-1);
+            text = $td.find(".displayedData").text();
+            expect(text).to.be.equal(srcText);
+        });
 
         after(function(done) {
             UnitTest.deleteAll(tableName, dsName)
