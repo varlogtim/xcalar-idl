@@ -399,6 +399,36 @@ describe('ColManager Test', function() {
             expect(text).to.be.equal(srcText);
         });
 
+        it("Should Reorder Column", function() {
+            var table = gTables[tableId];
+            var progCol = table.getCol(1);
+
+            ColManager.reorderCol(tableId, 1, 2, {
+                "undoRedo": true
+            });
+            expect(table.getCol(2)).to.equal(progCol);
+
+            // order back
+            ColManager.reorderCol(tableId, 2, 1, {
+                "undoRedo": true
+            });
+            expect(table.getCol(1)).to.equal(progCol);
+        });
+
+        it("Should Duplicate Column", function() {
+            var table = gTables[tableId];
+            var colLen = getColLen(tableId);
+            var progCol = table.getCol(1);
+
+            ColManager.dupCol(1, tableId);
+            expect(getColLen(tableId) - colLen).to.equal(1);
+            var dupCol = table.getCol(2);
+            expect(dupCol.getFrontColName())
+            .not.to.equal(progCol.getFrontColName());
+            expect(dupCol.getBackColName())
+            .to.equal(progCol.getBackColName());
+        });
+
         after(function(done) {
             UnitTest.deleteAll(tableName, dsName)
             .always(function() {

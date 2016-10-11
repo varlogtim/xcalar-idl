@@ -673,18 +673,16 @@ window.ColManager = (function($, ColManager) {
     };
 
     // currently only being used by drag and drop (and undo/redo)
-    // options:
-    // undoRedo: boolean, if true change html of columns
+    // options {
+    //      undoRedo: boolean, if true change html of columns
+    // }
     ColManager.reorderCol = function(tableId, oldColNum, newColNum, options) {
-        var oldIndex = oldColNum - 1;
-        var newIndex = newColNum - 1;
-        var $table   = $("#xcTable-" + tableId);
-        var table    = gTables[tableId];
-        var colName  = table.tableCols[oldIndex].name;
+        var $table = $("#xcTable-" + tableId);
+        var table = gTables[tableId];
+        var colName = table.getCol(oldColNum).getFrontColName();
 
-        var progCol = removeColHelper(oldIndex, tableId);
-
-        insertColHelper(newIndex, tableId, progCol);
+        var progCol = table.removeCol(oldColNum);
+        table.addCol(newColNum, progCol);
 
         $table.find('.col' + oldColNum)
                  .removeClass('col' + oldColNum)
@@ -1837,7 +1835,7 @@ window.ColManager = (function($, ColManager) {
             $(".selectedCell").removeClass("selectedCell");
         }
 
-        table.addCol(newColNum - 1, progCol);
+        table.addCol(newColNum, progCol);
 
         // change table class before insert a new column
         for (var i = numCols; i >= newColNum; i--) {
@@ -2028,12 +2026,6 @@ window.ColManager = (function($, ColManager) {
         return (value);
     }
     // End Of Help Functon for pullAllCols and pullCOlHelper
-
-    function insertColHelper(index, tableId, progCol) {
-         // tableCols is an array of ProgCol obj
-        var tableCols = gTables[tableId].tableCols;
-        tableCols.splice(index, 0, progCol);
-    }
 
     function removeColHelper(index, tableId) {
         var tableCols = gTables[tableId].tableCols;

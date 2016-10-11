@@ -384,6 +384,47 @@ describe('Constructor Test', function() {
             expect(table.hasCol("errorCol")).to.be.false;
         });
 
+        it("Should add and remove col", function() {
+            var dataCol = ColManager.newDATACol();
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [dataCol],
+                "isLocked" : false
+            });
+
+            var progCol =  new ProgCol({
+                "name"    : "testCol",
+                "backName": "backTestCol",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            // add col case 1
+            table.addCol(-1, progCol);
+            expect(table.tableCols.length).to.equal(1);
+            // add col case 2
+            table.addCol(1);
+            expect(table.tableCols.length).to.equal(1);
+            // add col case 3
+            table.addCol(1, progCol);
+            expect(table.tableCols.length).to.equal(2);
+            expect(table.getCol(1)).to.equal(progCol);
+
+            // remove col case 1
+            table.removeCol(-1);
+            expect(table.tableCols.length).to.equal(2);
+            // remove col case 2
+            table.removeCol(3);
+            expect(table.tableCols.length).to.equal(2);
+            // remove col case 3
+            var col = table.removeCol(1);
+            expect(table.tableCols.length).to.equal(1);
+            expect(col).to.equal(progCol);
+        });
+
         it('table should free result set', function(done) {
             var table = new TableMeta({
                 "tableName": "test#a1",

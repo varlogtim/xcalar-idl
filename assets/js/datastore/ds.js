@@ -982,6 +982,7 @@ window.DS = (function ($, DS) {
         $("#dsListSection .gridViewWrapper").on("click", function() {
             // this hanlder is called before the following one
             $gridView.find(".active").removeClass("active");
+            cleanDSSelect();
         });
 
         $dsListFocusTrakcer.on("keydown", function(event) {
@@ -1015,6 +1016,7 @@ window.DS = (function ($, DS) {
         // click a folder/ds
         $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
+            cleanDSSelect();
             focusDSHelper($(this));
         });
 
@@ -1061,7 +1063,6 @@ window.DS = (function ($, DS) {
             "click": function(event) {
                 // make text are able to click
                 event.stopPropagation();
-                cleanDSSelect();
             },
 
             "blur": function() {

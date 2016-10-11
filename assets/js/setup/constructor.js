@@ -213,15 +213,16 @@ TableMeta.prototype = {
         return deferred.promise();
     },
 
-    addCol: function(index, progCol) {
+    addCol: function(colNum, progCol) {
         var self = this;
+        var index = colNum - 1;
         if (index < 0 || !progCol) {
             return;
         }
 
         self.tableCols.splice(index, 0, progCol);
         var backColName = progCol.getBackColName();
-        if (self.backTableMeta !== null) {
+        if (self.backTableMeta != null) {
             var valueAttrs = self.backTableMeta.valueAttrs || [];
             valueAttrs.forEach(function(valueAttr) {
                 if (valueAttr.name === backColName &&
@@ -234,6 +235,17 @@ TableMeta.prototype = {
         } else {
             console.error("no table meta!");
         }
+    },
+
+    removeCol: function(colNum) {
+        var index = colNum - 1;
+        if (index < 0 || this.tableCols[index] == null) {
+            return null;
+        }
+
+        var removed = this.tableCols[index];
+        this.tableCols.splice(index, 1);
+        return removed;
     },
 
     updateResultset: function() {
