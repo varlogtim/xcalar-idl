@@ -84,6 +84,8 @@ window.Workbook = (function($, Workbook) {
         }
 
         addWorkbooks();
+        // Keypress
+        $(document).on("keypress", workbookKeyPress);
     };
 
     Workbook.hide = function(immediate) {
@@ -195,8 +197,6 @@ window.Workbook = (function($, Workbook) {
     }
 
     function addWorkbookEvents() {
-        // Keypress
-        $(document).on("keypress", workbookKeyPress);
         $newWorkbookInput.on("keypress", function() {
             clearActives();
             $lastFocusedInput = $(this);
