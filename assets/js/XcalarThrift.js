@@ -930,20 +930,32 @@ function XcalarDestroyDataset(dsName, txId) {
     }
 
     dsName = parseDS(dsName);
-    var workItem = xcalarApiDeleteDatasetsWorkItem(dsName);
-    var def1 = xcalarApiDeleteDatasets(tHandle, dsName);
+    var workItem = xcalarDeleteDagNodesWorkItem(dsName,
+                                                SourceTypeT.SrcDataset);
+    var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
     var def2 = XcalarGetQuery(workItem);
+
+    var delDagNodesRes;
+    var query;
 
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
+        delDagNodesRes = ret1;
+        query = ret2;
+        return xcalarApiDeleteDatasets(tHandle, dsName);
+    })
+    .then(function(ret3) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2);
-            deferred.resolve(ret1);
+            Transaction.log(txId, query);
+            deferred.resolve(delDagNodesRes);
         }
     })
     .fail(function(error1, error2) {
+        if (!error2) {
+            error2 = "";
+        }
         Transaction.checkAndSetCanceled(txId);
         var thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
         deferred.reject(thriftError);
