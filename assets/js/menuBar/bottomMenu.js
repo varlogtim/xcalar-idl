@@ -296,6 +296,10 @@ window.BottomMenu = (function($, BottomMenu) {
             $("#helpButtonWrap").addClass("xc-hidden");
         }
 
+        if (sectionId === "udfSection") {
+            UDF.getEditor().refresh();
+        }
+
         OperationsView.close();
         JoinView.close();
         ExportView.close();
