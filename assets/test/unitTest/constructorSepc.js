@@ -347,7 +347,7 @@ describe('Constructor Test', function() {
         it('Table should get col info', function() {
             var progCol =  new ProgCol({
                 "name"    : "testCol",
-                "backName": "backTestCol",
+                "backName": "prefix::backTestCol",
                 "isNewCol": false,
                 "func"    : {
                     "name": "pull"
@@ -366,22 +366,27 @@ describe('Constructor Test', function() {
             expect(table.getCol(1).getFrontColName()).to.be.equal("testCol");
             expect(table.getCol(3)).to.be.null;
 
-            expect(table.getColNumByBackName("backTestCol")).to.equal(1);
+            expect(table.getColNumByBackName("prefix::backTestCol"))
+            .to.equal(1);
             expect(table.getColNumByBackName("errorCol")).to.equal(-1);
 
-            expect(table.getColByBackName("backTestCol").getFrontColName())
-            .to.equal("testCol");
+            expect(table.getColByBackName("prefix::backTestCol")
+            .getFrontColName()).to.equal("testCol");
             expect(table.getColByBackName("errorCol")).to.be.null;
 
             expect(table.getColByFrontName("testCol").getBackColName())
-            .to.equal("backTestCol");
+            .to.equal("prefix::backTestCol");
             expect(table.getColByFrontName("errorCol")).to.be.null;
 
-            expect(table.hasColWithBackName("backTestCol")).to.be.true;
+            expect(table.hasColWithBackName("prefix::backTestCol")).to.be.true;
             expect(table.hasColWithBackName("errorCol")).to.be.false;
 
+            expect(table.hasCol("testCol", "")).to.be.false;
             expect(table.hasCol("testCol")).to.be.true;
-            expect(table.hasCol("backTestCol")).to.be.true;
+            expect(table.hasCol("testCol", "prefix")).to.be.true;
+            expect(table.hasCol("prefix::backTestCol", "")).to.be.false;
+            expect(table.hasCol("prefix::backTestCol")).to.be.true;
+            expect(table.hasCol("prefix::backTestCol", "prefix")).to.be.true;
             expect(table.hasCol("errorCol")).to.be.false;
         });
 

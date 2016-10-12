@@ -15,6 +15,15 @@ window.ColManager = (function($, ColManager) {
         var width = getTextWidth(null, colName, {
             "defaultHeaderStyle": true
         });
+
+        var prefix = xcHelper.parsePrefixColName(backColName).prefix;
+        if (prefix) {
+            var prefixW = getTextWidth(null, prefix, {
+                "defaultHeaderStyle": true
+            });
+            width = Math.max(width, prefixW);
+        }
+
         return ColManager.newCol({
             "backName": backColName,
             "name"    : colName,
@@ -356,7 +365,7 @@ window.ColManager = (function($, ColManager) {
                         newFieldNames[i] = colPrefix + "-" + i;
                     }
 
-                    if (table.hasCol(newFieldNames[i])) {
+                    if (table.hasCol(newFieldNames[i], "")) {
                         newFieldNames = [];
                         colPrefix = colName + "-split-" + tryCount;
                         break;
@@ -950,13 +959,25 @@ window.ColManager = (function($, ColManager) {
 
         var oldCol = table.getCol(colNum);
         var oldName = oldCol.getFrontColName();
-        var newName = xcHelper.getUniqColName(tableId, oldName);
+        var prefix = oldCol.getPrefix();
+        // need to pass in prefix to check
+        var newName = xcHelper.getPrefixColName(prefix, oldName);
+        newName = xcHelper.getUniqColName(tableId, newName);
 
         var progCol = ColManager.newCol(oldCol);
         progCol.setFrontColName(newName);
         var cellWidth = getTextWidth(null, newName, {
             defaultHeaderStyle: true
         });
+
+        if (prefix) {
+            var prefixW = getTextWidth(null, prefix, {
+                defaultHeaderStyle: true
+            });
+
+            cellWidth = Math.max(cellWidth, prefixW);
+        }
+
         progCol.setWidth(cellWidth);
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
@@ -1683,7 +1704,9 @@ window.ColManager = (function($, ColManager) {
         var decimal = progCol.getDecimal();
         var format = progCol.getFormat();
 
-        if (!knf && tdValue != null && (decimal > -1 || format != null)) {
+        if (!knf && tdValue != null && (decimal > -1 ||
+            format !== ColFormat.Default))
+        {
             formatVal = formatColumnCell(parsedVal, format, decimal);
         }
 

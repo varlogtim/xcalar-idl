@@ -456,9 +456,31 @@ TableMeta.prototype = {
         return false;
     },
 
-    hasCol: function(colName) {
+    hasCol: function(colName, prefix) {
         // check both fronName and backName
+        var self = this;
         var tableCols = this.tableCols || [];
+        var hasBackMeta = (self.backTableMeta != null &&
+                          self.backTableMeta.valueAttrs != null);
+        if (prefix === "" && hasBackMeta) {
+            // when it's immediates, when use backMeta to check
+            var found = false;
+            self.backTableMeta.valueAttrs.forEach(function(valueAttr) {
+                if (valueAttr.type === DfFieldTypeT.DfFatptr) {
+                    // fat pointer
+                    return;
+                }
+                if (colName === valueAttr.name) {
+                    found = true;
+                    // stop loop
+                    return false;
+                }
+            });
+
+            return found;
+        }
+
+        // when it's fatPtr or no back meta to check
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
@@ -467,12 +489,16 @@ TableMeta.prototype = {
                 continue;
             }
 
+            if (prefix != null && progCol.getPrefix() !== prefix) {
+                continue;
+            }
+
             if (!progCol.isNewCol && progCol.getBackColName() === colName) {
                 // check backColName
                 return true;
             }
 
-            if (progCol.name === colName) {
+            if (progCol.getFrontColName() === colName) {
                 // check fronColName
                 return true;
             }

@@ -374,14 +374,15 @@ window.xcHelper = (function($, xcHelper) {
             return xcHelper.randName("NewCol");
         }
 
-        colName = xcHelper.parsePrefixColName(colName).name;
+        var parseName = xcHelper.parsePrefixColName(colName);
+        colName = parseName.name;
         var table = gTables[tableId];
         if (table == null) {
             console.error("table not has meta, cannot check");
             return colName;
         }
 
-        if (!table.hasCol(colName)) {
+        if (!table.hasCol(colName, parseName.prefix)) {
             return colName;
         }
 
@@ -391,7 +392,7 @@ window.xcHelper = (function($, xcHelper) {
             ++tryCount;
             newColName = colName + "_" + tryCount;
 
-            if (!table.hasCol(newColName)) {
+            if (!table.hasCol(newColName, parseName.prefix)) {
                 break;
             }
         }
