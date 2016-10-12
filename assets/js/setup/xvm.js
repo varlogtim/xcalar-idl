@@ -31,12 +31,18 @@ window.XVM = (function(XVM) {
     XVM.checkVersionMatch = function() {
         var deferred = jQuery.Deferred();
 
-        XcalarGetVersion()
-        .then(function(result) {
+        var def1 = XcalarGetLicense();
+        var def2 = XcalarGetVersion();
+        PromiseHelper
+        .when(def1, def2)
+        .then(function(licKey, result) {
             try {
                 var versionNum = result.apiVersionSignatureShort;
                 backendVersion = result.version;
-                licenseKey = result.licenseKey;
+                var utcSeconds = parseInt(licKey.expiration);
+                var d = new Date(0);
+                d.setUTCSeconds(utcSeconds)
+                licenseKey = d.toDateString();
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                     console.log("Thrift version mismatch! Backend's thrift " +
                       "version is:" +

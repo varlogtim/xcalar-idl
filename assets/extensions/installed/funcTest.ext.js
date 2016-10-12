@@ -35,6 +35,11 @@ window.UExtFuncTest = (function(UExtFuncTest) {
             "fieldClass": "runAllTests"
         },
         {
+            "type"      : "boolean",
+            "name"      : "Run On All Nodes",
+            "fieldClass": "runOnAllNodes"
+        },
+        {
             "type"      : "string",
             "name"      : "Name Pattern",
             "fieldClass": "namePattern"
@@ -70,12 +75,12 @@ window.UExtFuncTest = (function(UExtFuncTest) {
     };
 
     // Thrift call wrappers
-    function XcalarStartFuncTest(parallel, runAllTests, testNamePatterns) {
+    function XcalarStartFuncTest(parallel, runAllTests, runOnAllNodes,
+                                 testNamePatterns) {
         if ([null, undefined].indexOf(tHandle) !== -1) {
             return PromiseHelper.resolve(null);
         }
         var deferred = jQuery.Deferred();
-        var runOnAllNodes = false; // XXX Make this a param
         xcalarApiStartFuncTest(tHandle, parallel, runOnAllNodes,
                                runAllTests, testNamePatterns)
         .then(function(output) {
@@ -117,13 +122,15 @@ window.UExtFuncTest = (function(UExtFuncTest) {
             var namePattern = self.getArgs().namePattern.split(",");
             var parallel = self.getArgs().parallel;
             var runAllTests = self.getArgs().runAllTests;
+            var runOnAllNodes = self.getArgs().runOnAllNodes;
 
             namePattern = namePattern.map(function(e) {
                 return e.trim();
             });
 
             // check extensionApi_Operations.js to see the api signature.
-            XcalarStartFuncTest(parallel, runAllTests, namePattern)
+            XcalarStartFuncTest(parallel, runAllTests, runOnAllNodes,
+                                namePattern)
             .then(function(ret) {
                 console.log(ret);
                 deferred.resolve();

@@ -81,7 +81,7 @@ function thriftLog() {
         if (status !== StatusT.StatusCanceled) {
             console.error('(╯°□°）╯︵ ┻━┻ ' + msg);
         }
-        
+
         errorLists.push(thriftError);
         var alertError;
 
@@ -390,9 +390,6 @@ function XcalarGetVersion(connectionCheck) {
 
     xcalarGetVersion(tHandle)
     .then(function(ret) {
-        // XXX Backend needs to return license key in GetVersion
-        // For now we'll just write in some junk
-        ret.licenseKey = "Unlicensed";
         deferred.resolve(ret);
     })
     .fail(function(error) {

@@ -716,7 +716,7 @@ module.exports = {
       "FrontVersion": "XI Version",
       "BackVersion": "XCE Version",
       "ThriftSHA": "Thrift Version",
-      "License": "License Key",
+      "License": "License Key Expiration",
       "copyRight": "Copyright © 2016 Xcalar, Inc. All rights reserved."
     },
 
