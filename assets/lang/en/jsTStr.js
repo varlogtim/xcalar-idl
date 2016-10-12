@@ -513,7 +513,12 @@ DSExportTStr = {
     'ExportFail': 'Failed to add export target',
     'InvalidType': 'Invalid Target Type',
     'InvalidTypeMsg': 'Please select a valid target type',
-    'RestoreFail': 'Export Target Restoration Failed'
+    'RestoreFail': 'Export Target Restoration Failed',
+    'DeleteFail': 'Target Deletion Failed',
+    'DeleteExportTarget': 'DELETE EXPORT TARGET',
+
+    // with replace
+    'DeleteConfirmMsg': 'Are you sure you want to delete <target>?'
 };
 
 WSTStr = {

@@ -1861,7 +1861,7 @@ table.datasetTable {
     }
 }
 
-#gridViewMenu {
+#gridViewMenu, #expTargetGridMenu {
     z-index: @z-index-gridViewMenu;
     li {
         display: none;
@@ -1875,6 +1875,11 @@ table.datasetTable {
         .folderOpt {
             display: block;
         }
+    }
+    &.targetOpts {
+        .targetOpt {
+            display: block;
+        }  
     }
     &.bgOpts {
         .bgOpt {
@@ -1931,6 +1936,8 @@ table.datasetTable {
     }
 
     .xc-grid {
+        padding: 1px;
+        
         .gridIcon .icon {
             .vertical-align;
         }
@@ -1961,41 +1968,21 @@ table.datasetTable {
             &.active {
                 background-color: @color-bg-light-navy;
             }
+
+            &.selected {
+                outline: 1px solid @color-white;
+                // should have highter z-index to show outline
+                // but should lower than menu
+                z-index: @z-index-gridViewMenu - 1;
+            }
         }
     }
 }
 
-
+// ds export targets
 #datastore-out-view {
     .cardContainer {
         min-height: ~"calc(100% - 5px)";
-        .gridInfoTitle {
-            display: none;
-        }
-        &.gridInfoMode {
-            .xc-input, .dropDownList .text {
-                background-color: @color-white;
-                border-color: transparent !important;
-                pointer-events: none;
-                color: @color-font-select-blue !important;
-
-            }
-            .iconWrapper {
-                visibility: hidden;
-            }
-            .formButton {
-                .xc-disabled;
-            }
-            .dropDownList, .udfSelectorRow {
-                pointer-events: none;
-            }
-            .defaultText {
-                display: none;
-            }
-            .gridInfoText {
-                .flex-display;
-            }
-        }
     }
 
     .cardInstruction {
@@ -2139,6 +2126,39 @@ table.datasetTable {
             float: right;
             &:last-child {
                 margin-right: 10px;
+            }
+        }
+    }
+
+    #exportTargetEditCard {
+        .cardMain {
+            .text-selection;
+        }
+        .xc-input, .dropDownList .text {
+            background-color: @color-white;
+            border-color: transparent !important;
+            // pointer-events: none;
+            color: @color-font-select-blue !important;
+
+        }
+        .iconWrapper {
+            visibility: hidden;
+        }
+
+        .dropDownList {
+            .text {
+                .text-selection;
+            }
+        }
+        .defaultText {
+            display: none;
+        }
+        .gridInfoText {
+            .flex-display;
+        }
+        .formButton {
+            .btn {
+                margin-right: 0px;
             }
         }
     }

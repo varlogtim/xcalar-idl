@@ -7,20 +7,20 @@
   <div class="cardInstruction">
     <i class="icon xi-info-circle"></i>
     <span class="text defaultText"><%= dicts.dsExport.CreateTargetInstr %></span>
-    <span class="text gridInfoText"><%= dicts.dsExport.TargetInfo %></span>
+
   </div>
   <!-- cardMain -->
   <div class="cardMain">
     <form id="exportDataForm" target="_blank" autocomplete="off">
       <!-- Top Form -->
-      <div id="exportDataTopForm" class="formSection no-selection"> 
+      <div class="formSection no-selection"> 
         <!-- file name -->
-        <div id="targetNameSelector" class="formRow">
+        <div class="formRow">
           <label for="targetName"><%= dicts.common.Name %>:</label>
           <input id="targetName" class="xc-input" name="targetName" type="text" placeholder="" autocomplete="off" pattern="^\w+$" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" autofocus>
         </div>
         <!-- file path -->
-        <div id="targetTypeSelector" class="formRow">
+        <div class="formRow">
           <label for="targetTypeList"><%= dicts.dsExport.TargetType %>:</label>
           <div id="targetTypeList" class="dropDownList">
             <input class="text" type="text" value="" spellcheck="false" disabled data-value="">
@@ -39,7 +39,7 @@
       </div>
       <div class="divider"></div>
       <!-- Bottom Form -->
-      <div id="exportDataBottomForm" class="formSection no-selection">
+      <div class="formSection no-selection">
         <header class="formTitle"><%= dicts.dsExport.AdditionalInfo %></header>
         <div class="formRow placeholderRow">
           <label for="exportURL">Additional:</label>
@@ -99,44 +99,114 @@
           
         </div>
 
-      <!--   <div class="formRow">
-          <div class="inputSet">
-            <label for="exportService"><%= dicts.common.Service %>:</label>
-            <input type="text" id="exportService" spellcheck="false">
-          </div>
-          <div class="inputSet">
-            <label for="exportPort"><%= dicts.common.Port %>:</label>
-            <input type="text" id="exportPort" spellcheck="false">
-          </div>
-        </div> -->
-        <!-- <div class="formRow radioButtonGroup">
-          <div class="radioButton windowsAuth">
-            <div class="radio">
-              <i class="icon xi-radio-selected"></i>
-              <i class="icon xi-radio-empty"></i>
-            </div>
-            <div class="label"><%= dicts.dsExport.windowsAuth %></div>
-          </div>
-          <div class="radioButton usernameAuth">
-            <div class="radio">
-              <i class="icon xi-radio-selected"></i>
-              <i class="icon xi-radio-empty"></i>
-            </div>
-            <div class="label"><%= dicts.dsExport.usernameAuth %></div>
-          </div>
-        </div> -->
-        <!-- may not be used any more -->
-      <!--   <div class="formRow">
-          <label for="userNameExport"><%= dicts.common.UserName %>:</label>
-          <input type="text" id="userNameExport" spellcheck="false">
-        </div>
-        <div class="formRow">
-          <label for="passwordExport"><%= dicts.common.Password %>:</label>
-          <input type="password" id="passwordExport" spellcheck="false">
-        </div> -->
         <div class="formButton">
           <button id="exportFormSubmit" class="btn" type="submit"><%= dicts.common.ADD %></button>
           <button id="exportFormReset" class="btn btn-cancel" type="reset"><%= dicts.common.CLEAR %></button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- end card main -->
+</div>
+
+<div id="exportTargetEditCard" class="cardContainer gridInfoMode xc-hidden">
+  <!-- header -->
+  <div class="cardHeader">
+    <header class="title"><%= dicts.dsExport.EditTarget %></header>
+  </div>
+  <!-- instuction -->
+  <div class="cardInstruction">
+    <i class="icon xi-info-circle"></i>
+    <span class="text gridInfoText"><%= dicts.dsExport.TargetInfo %></span>
+  </div>
+  <!-- cardMain -->
+  <div class="cardMain">
+    <form id="exportDataEditForm" target="_blank" autocomplete="off">
+      <!-- Top Form -->
+      <div class="formSection"> 
+        <!-- file name -->
+        <div class="formRow">
+          <label for="targetName-edit"><%= dicts.common.Name %>:</label>
+          <input id="targetName-edit" class="xc-input" name="targetName" type="text" placeholder="" autocomplete="off" pattern="^\w+$" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" autofocus>
+        </div>
+        <!-- file path -->
+        <div class="formRow">
+          <label for="targetTypeList-edit"><%= dicts.dsExport.TargetType %>:</label>
+          <div id="targetTypeList-edit" class="dropDownList">
+            <input class="text" type="text" value="" spellcheck="false" disabled data-value="">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <ul id="fileFormatMenu-edit" class="list fileFormatMenu">
+              <!-- <li class="hint"></li> -->
+              <li name="LocalFilesystem"><%= dicts.dsExport.LocalFS %></li>
+              <!-- currently no support for ODBC -->
+              <!-- <li name="ODBC">ODBC</li> -->
+              <li name="UDF">UDF</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- Bottom Form -->
+      <div class="formSection">
+        <header class="formTitle"><%= dicts.dsExport.AdditionalInfo %></header>
+        <div class="formRow formatSpecificRow">
+          <label for="exportURL-edit"><%= dicts.common.URL %>:</label>
+          <input type="url" id="exportURL-edit" class="formatSpecificArg xc-input" spellcheck="false" autocomplete="off">
+        </div>
+
+        <div class="formRow formatSpecificRow">
+          <label for="connectionStr-edit"><%= dicts.dsExport.ConnectionString %>:</label>
+          <input type="text" id="connectionStr-edit" class="formatSpecificArg xc-input" spellcheck="false" autocomplete="off">
+        </div>
+
+
+        <div class="formRow formatSpecificRow udfSelectorRow">
+        <!-- .rowWrap used to fix margins on .formGroup -->
+          <div class="rowWrap">
+            <div class="formGroup">
+            <label><%= dicts.UDF.Module %>:</label>
+            <div class="dropDownList udfModuleListWrap">
+              <input class="text udfModuleName" type="text" value="" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+              </div>
+              <div class="list udfList udfModuleList">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="formGroup">
+            <label><%= dicts.UDF.Func %>:</label>
+            <div class="dropDownList udfFuncListWrap">
+              <input class="text udfFuncName" type="text" value="" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+              </div>
+              <div class="list udfList udfFuncList">
+                <ul></ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+          
+        </div>
+
+        <div class="formButton">
+          <button id="exportTargetDelete" class="btn" type="button"><%= dicts.dsExport.DELETETARGET %></button>
         </div>
       </div>
     </form>

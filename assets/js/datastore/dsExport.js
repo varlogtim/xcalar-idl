@@ -2,35 +2,38 @@ window.DSExport = (function($, DSExport) {
     var exportTargets = [];
     var $gridView;  // $("#dsExportListSection .gridItems");
     var $form;
+    var $editForm;
     var $udfModuleList;
     var $udfFuncList;
     var $targetTypeList;
     var $targetTypeInput;
     var $exportTargetCard;
+    var $exportTargetEditCard;
+    var $gridMenu; // $('#expTargetGridMenu');
 
     DSExport.setup = function() {
         $gridView = $("#dsExportListSection .gridItems");
         $form = $('#exportDataForm');
+        $editForm = $('#exportDataEditForm');
         $udfModuleList = $form.find('.udfModuleListWrap');
         $udfFuncList = $form.find('.udfFuncListWrap');
         $exportTargetCard = $('#exportTargetCard');
+        $exportTargetEditCard = $('#exportTargetEditCard');
+        $gridMenu = $('#expTargetGridMenu');
 
         $targetTypeList = $('#targetTypeList');
         $targetTypeInput = $targetTypeList.find('.text');
 
         setupDropdowns();
+        setupGridMenu();
+        addMenuBehaviors($gridMenu);
 
         $("#dsExport-refresh").click(function() {
             DSExport.refresh();
         });
 
         $('#createExportButton').click(function() {
-            if ($exportTargetCard.hasClass('gridInfoMode')) {
-                $exportTargetCard.removeClass('gridInfoMode');
-                resetForm();
-            } else {
-                $('#targetName').focus();
-            }
+            showExportTargetForm();
         });
 
         $gridView.on("click", ".grid-unit", function() {
@@ -41,9 +44,6 @@ window.DSExport = (function($, DSExport) {
 
         $form.submit(function(event) {
             event.preventDefault();
-            if ($exportTargetCard.hasClass('gridInfoMode')) {
-                return;
-            }
             $form.find('input').blur();
 
             var $submitBtn = $("#exportFormSubmit").blur();
@@ -75,17 +75,12 @@ window.DSExport = (function($, DSExport) {
             });
         });
 
-        $('#exportFormReset').click(function(e) {
-            if ($exportTargetCard.hasClass('gridInfoMode')) {
-                e.preventDefault();
-                return;
-            }
+        $('#exportFormReset').click(function() {
             $form.find('.formatSpecificRow').removeClass('active');
             $form.find('.placeholderRow').removeClass('xc-hidden');
             $targetTypeInput.data('value', "");
             xcHelper.reenableTooltip($udfFuncList.parent());
             $udfFuncList.addClass("disabled");
-            $exportTargetCard.removeClass('gridInfoMode');
             $gridView.find(".gridArea .active").removeClass("active");
             // var $inputs = $exportTargetCard.find('input:enabled');
             $exportTargetCard.find('.tempDisabled').removeClass('tempDisabled')
@@ -97,19 +92,22 @@ window.DSExport = (function($, DSExport) {
             $(this).closest(".xc-expand-list").toggleClass("active");
         });
 
-
-        // xxx TEMPORARILY DISABLE THE ENTIRE FORM
-        // $form.find('input, button').prop('disabled', true)
-        //                            .css({'cursor': 'not-allowed'});
-        // $form.find('button').css('pointer-events', 'none')
-        //                     .addClass('btn-cancel');
-        // $form.find('.iconWrapper').css('background', '#AEAEAE');
-        // $('#targetTypeList').css('pointer-events', 'none');
+        $('#exportTargetDelete').click(function() {
+            deleteTarget(); 
+        });
     };
 
     DSExport.refresh = function(noWaitIcon) {
         if (!noWaitIcon) {
             xcHelper.showRefreshIcon($('#dsExportListSection'));
+        }
+
+        var $activeIcon = $gridView.find('.target.active');
+        var activeName;
+        var activeType;
+        if ($activeIcon.length) {
+            activeName = $activeIcon.data('name');
+            activeType = $activeIcon.closest('.targetSection').data('type');
         }
         
         XcalarListExportTargets("*", "*")
@@ -153,13 +151,8 @@ window.DSExport = (function($, DSExport) {
                     options  : options
                 };
                 exportTargets[typeIndex].targets.push(target);
-                // Here we can make use of targets[i].specificInput.(odbcInput|
-                // sfInput).(connectionString|url) to display more information
-                // For eg for sfInput, we can now get back the exact location.
-                // We no longer require the users to memorize where default
-                // points to
             }
-            restoreGrids();
+            restoreGrids(activeName, activeType);
         })
         .fail(function(error) {
             Alert.error(DSExportTStr.RestoreFail, error.error);
@@ -243,11 +236,14 @@ window.DSExport = (function($, DSExport) {
     }
 
     function selectGrid($grid) {
+        clearSelectedGrid();
         if ($grid.hasClass('active')) {
             return;
         }
-        $exportTargetCard.addClass('gridInfoMode');
-        var $activeInputs = $exportTargetCard.find('input:enabled');
+
+        $exportTargetCard.addClass('xc-hidden');
+        $exportTargetEditCard.removeClass('xc-hidden')
+        var $activeInputs = $exportTargetEditCard.find('input:enabled');
         $activeInputs.addClass('tempDisabled').prop('disabled', true);
 
 
@@ -257,29 +253,139 @@ window.DSExport = (function($, DSExport) {
         var type = $grid.closest('.targetSection').data('type');
         var formatArg = $grid.data('formatarg');
 
-        $('#targetName').val(name);
-        $targetTypeInput.val(type);
+        $('#targetName-edit').val(name);
+        $('#targetTypeList-edit').find('.text').val(type);
+ 
 
-        $form.find('.placeholderRow').addClass('xc-hidden');
+        // $form.find('.placeholderRow').addClass('xc-hidden');
         $form.find('.formatSpecificRow').removeClass('active');
+        $editForm.find('.formatSpecificRow').removeClass('active');
         if (type === "ODBC") {
-            $('#connectionStr').closest('.formatSpecificRow')
+            $('#connectionStr-edit').closest('.formatSpecificRow')
                                .addClass('active');
-            $('#connectionStr').val(formatArg);
+            $('#connectionStr-edit').val(formatArg);
         } else {
-            $('#exportURL').closest('.formatSpecificRow')
+            $('#exportURL-edit').closest('.formatSpecificRow')
                            .addClass('active');
-            $('#exportURL').val(formatArg);
+            $('#exportURL-edit').val(formatArg);
         }
         if (type === "UDF") {
-            $form.find('.udfSelectorRow').addClass('active');
-            $form.find('.udfModuleName').val($grid.data('module'));
-            $form.find('.udfFuncName').val($grid.data('fn'));
+            $editForm.find('.udfSelectorRow').addClass('active');
+            $editForm.find('.udfModuleName').val($grid.data('module'));
+            $editForm.find('.udfFuncName').val($grid.data('fn'));
         }
     }
 
     function resetForm() {
         $('#exportFormReset').click();
+    }
+
+    function clearSelectedGrid() {
+        $gridView.find(".selected").removeClass("selected");
+    }
+
+    function docTempMouseup() {
+        clearSelectedGrid();
+        $(document).off('mouseup', docTempMouseup);
+    }
+
+    function setupGridMenu() {
+        $gridView.closest('.mainSection')[0].oncontextmenu = function(event) {
+            var $target = $(event.target);
+            var $grid = $target.closest(".grid-unit");
+            var classes = "";
+            clearSelectedGrid();
+            
+            if ($grid.length) {
+                $grid.addClass("selected");
+                $(document).on('mouseup', docTempMouseup);
+                classes += " targetOpts";
+            } else {
+                classes += " bgOpts";
+            }
+
+            xcHelper.dropdownOpen($target, $gridMenu, {
+                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                "classes"   : classes,
+                "floating"  : true
+            });
+            return false;
+        };
+
+        $gridMenu.on('mouseup', 'li', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var action = $(this).data('action');
+            if (!action) {
+                return;
+            }
+            switch (action) {
+                case ('view'):
+                    selectGrid($gridView.find(".selected"));
+                    break;
+                case ('delete'):
+                    deleteTarget();
+                    break;
+                case ('create'):
+                    showExportTargetForm();
+                    break;
+                case ('refresh'):
+                    DSExport.refresh();
+                    break;
+                default:
+                    console.warn('menu action not recognized: ' + action);
+                    break;
+            }
+            clearSelectedGrid();
+        });
+    }
+
+    function showExportTargetForm() {
+        if ($exportTargetCard.hasClass('xc-hidden')) {
+            $exportTargetCard.removeClass('xc-hidden');
+            $exportTargetEditCard.addClass('xc-hidden');
+            resetForm();
+        } else {
+            $('#targetName').focus();
+        }
+    }
+
+    function deleteTarget() {
+        var $activeIcon = $gridView.find('.target.selected');
+        if ($activeIcon.length === 0) {
+            $activeIcon  = $gridView.find('.target.active');
+        }
+
+        var targetName = $activeIcon.data('name');
+        var targetTypeText = $activeIcon.closest('.targetSection').data('type');
+
+        var targetType;
+        if (targetTypeText === "UDF") {
+            targetType = ExTargetTypeT.ExTargetUDFType;
+        } else if (targetTypeText === "Local Filesystem") {
+            targetType = ExTargetTypeT.ExTargetSFType;
+        }
+
+        Alert.show({
+            "title"         : DSExportTStr.DeleteExportTarget,
+            "msgTemplate"   : xcHelper.replaceMsg(DSExportTStr.DeleteConfirmMsg,
+                                {'target': targetName}),
+            "onConfirm"    : function() {
+               XcalarRemoveExportTarget(targetName, targetType)
+                .then(function() {
+                    if ($activeIcon.hasClass('active')) {
+                        showExportTargetForm();
+                    }
+                    DSExport.refresh();
+                    
+                })
+                .fail(function(error) {
+                    Alert.error(DSExportTStr.DeleteFail, error.error);
+                });
+            }
+        });
+       
     }
 
     function submitForm(targetType, name, formatSpecificArg, options) {
@@ -375,7 +481,7 @@ window.DSExport = (function($, DSExport) {
         return deferred.promise();
     }
 
-    function restoreGrids() {
+    function restoreGrids(activeName, activeType) {
         var numTypes = exportTargets.length;
         var html = "";
         var name;
@@ -405,6 +511,14 @@ window.DSExport = (function($, DSExport) {
                     '</div>';
         }
         $gridView.html(html);
+
+        if (activeName && activeType) {
+            var $section = $gridView.find('.targetSection[data-type="' +
+                                            activeType + '"]');
+            $section.find('.target[data-name="' + activeName + '"]')
+                    .addClass('active');
+        }
+
         updateNumGrids();
     }
 
@@ -451,7 +565,7 @@ window.DSExport = (function($, DSExport) {
                             '<span class="expand">' +
                                 '<i class="icon xi-arrow-down fa-7"></i>' +
                             '</span>' +
-                            '<span class="text">' + name + '</span>' +
+                            '<span class="text">' + targetType + '</span>' +
                         '</div>' +
                         '<div class="gridArea"></div>' +
                         '</div>';
@@ -468,6 +582,8 @@ window.DSExport = (function($, DSExport) {
         exportTargets[groupIndex].targets.push(target);
 
         updateNumGrids();
+        // selectGrid($grid); // problem with this because the mouse was on
+        // the "add" button but is now hovering over the "delete" button
     }
 
     function updateNumGrids() {

@@ -22,6 +22,7 @@ module.exports = {
         "DateCreated": "Date Created",
         "DateModified": "Date Modified",
         "Default": "Default",
+        "DELETE": "DELETE",
         "Descrip": "Description",
         "DeSelectAll": "Deselect All",
         "Details": "Details",
@@ -135,11 +136,13 @@ module.exports = {
        "CPCell": "Copy to clipboard",
        "CPColNames": "Copy column names",
        "CreateDF": "Create batch dataflow",
+       "CreateTarget": "Create new target",
        "Del": "Delete",
        "DelAllDups": "Delete all duplicates",
        "DelCol": "Delete column",
        "DelColPlura": "Delete columns",
        "DelOtherDups": "Delete other duplicates",
+       "DelTarget": "Delete Target",
        "DelTbl": "Drop table",
        "DelTblDesc": "Drop table & descendents",
        "DupCol": "Duplicate column",
@@ -218,6 +221,7 @@ module.exports = {
        "UnHideTbl": "Maximize table",
        "UnlockTbl": "Unlock table",
        "Unsavable": "Cannot save image",
+       "ViewDetails": "View details",
        "Visual": "Visualize in Tableau"
     },
 
@@ -485,15 +489,17 @@ module.exports = {
         "Targets": "Export Targets",
         "createBtn": "CREATE EXPORT TARGET",
         "CreateTarget": "Create Export Target",
+        "EditTarget": "Export Target Information",
         "CreateTargetInstr": "Select a target type and choose a name for your export target. Provided any additional information as needed.",
-        "TargetInfo": "Information about the selected export target is provided below. To create a new target, click the button on the top left corner of the left panel.",
+        "TargetInfo": "Details about the selected export target are provided below. To create a new target, click the button on the top left corner of the left panel.",
         "TargetType": "Target Type",
         "LocalFS": "Local Filesystem",
         "AddConnector": "Add New Connector",
         "windowsAuth": "Use windows authentication",
         "usernameAuth": "Use specific username and password",
         "ConnectionString": "Connection String",
-        "AdditionalInfo": "Additional Information"
+        "AdditionalInfo": "Additional Information",
+        "DELETETARGET": "DELETE TARGET"
     },
 
     "aggModal": {
