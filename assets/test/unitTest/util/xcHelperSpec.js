@@ -1054,5 +1054,31 @@ describe('xcHelper Test', function() {
 
     });
 
+    it('xcHelper.getPrefixColName should work', function() {
+        // case 1
+        var res = xcHelper.getPrefixColName(null, "test");
+        expect(res).to.equal("test");
+        // case 2
+        res = xcHelper.getPrefixColName("", "test");
+        expect(res).to.equal("test");
+        // case 3
+        res = xcHelper.getPrefixColName("prefix", "test");
+        expect(res).to.equal("prefix::test");
+    });
+
+    it('xcHelper.parsePrefixColName should work', function() {
+        // case 1
+        var res = xcHelper.parsePrefixColName("test");
+        expect(res).to.be.an('object');
+        expect(res).to.have.property('prefix').to.equal("");;
+        expect(res).to.have.property('name').to.equal("test");;
+
+        // case 2
+        res = xcHelper.parsePrefixColName("prefix::test");
+
+        expect(res.prefix).to.equal("prefix");
+        expect(res.name).to.equal("test");
+    });
+
 });
 

@@ -346,12 +346,35 @@ window.xcHelper = (function($, xcHelper) {
         return deferred.promise();
     };
 
+    xcHelper.getPrefixColName = function(prefix, colName) {
+        if (prefix == null || prefix === "") {
+            return colName;
+        } else {
+            return prefix + gPrefixSign + colName;
+        }
+    };
+
+    xcHelper.parsePrefixColName = function(colName) {
+        var index = colName.indexOf(gPrefixSign);
+        var prefix = "";
+        if (index >= 0) {
+            prefix = colName.substring(0, index);
+            colName = colName.substring(index + gPrefixSign.length);
+        }
+
+        return {
+            "prefix": prefix,
+            "name"  : colName,
+        };
+    };
+
     // get unique column name
     xcHelper.getUniqColName = function(tableId, colName) {
         if (colName == null) {
             return xcHelper.randName("NewCol");
         }
 
+        colName = xcHelper.parsePrefixColName(colName).name;
         var table = gTables[tableId];
         if (table == null) {
             console.error("table not has meta, cannot check");
@@ -2100,7 +2123,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
         return (tempString);
-    }
+    };
 
     // a.json returns JSON
     xcHelper.getFormat = function(name) {

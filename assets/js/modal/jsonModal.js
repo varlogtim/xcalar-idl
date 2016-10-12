@@ -1508,8 +1508,8 @@ window.JSONModal = (function($, JSONModal) {
 
         // .parents() is different with .closest()
         $el.parents(".jInfo").each(function(){
-            var $jInfo     = $(this);
-            var key        = "";
+            var $jInfo = $(this);
+            var key = "";
             var escapedKey = "";
             // var modifiedKey = "";
             var needsBrackets = false;

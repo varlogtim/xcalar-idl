@@ -321,7 +321,10 @@ window.xcFunction = (function($, xcFunction) {
 
             XIApi.map(txId, mapString, tableName, mapColName)
             .then(function(mapTableName) {
-                var mapOptions = {"replaceColumn": true};
+                var mapOptions = {
+                    "replaceColumn": true,
+                    "resize"       : true
+                };
                 var mapTablCols = xcHelper.mapColGenerate(colNum, mapColName,
                                         mapString, tableCols, mapOptions);
                 innerDeferred.resolve(mapTableName, mapColName, mapTablCols);

@@ -106,7 +106,7 @@ describe('Constructor Test', function() {
             // case 1
             var progCol = new ProgCol({
                 "name"    : "test",
-                "backName": "backTest",
+                "backName": "prefix::backTest",
                 "type"    : "float",
                 "isNewCol": false,
                 "width"   : 100,
@@ -118,7 +118,8 @@ describe('Constructor Test', function() {
 
             expect(progCol).to.be.an('object');
             expect(progCol.getFrontColName()).to.equal('test');
-            expect(progCol.getBackColName()).to.equal('backTest');
+            expect(progCol.getBackColName()).to.equal('prefix::backTest');
+            expect(progCol.getPrefix()).to.equal('prefix');
             expect(progCol.getType()).to.equal('float');
             expect(progCol.isNumberCol()).to.be.true;
             expect(progCol.isEmptyCol()).to.be.false;
@@ -814,8 +815,12 @@ describe('Constructor Test', function() {
 
             expect(cart.getId()).to.equal('test');
             expect(cart.getTableName()).to.equal('testTable');
-            cart.updateTableName('table2');
+            cart.setTableName('table2');
             expect(cart.getTableName()).to.equal('table2');
+
+            expect(cart.getPrefix()).to.be.null;
+            cart.setPrefix('testPrefix');
+            expect(cart.getPrefix()).to.equal('testPrefix');
 
             cart.addItem(new CartItem({'colNum': 1, 'value': 't1'}));
             cart.addItem(new CartItem({'colNum': 2, 'value': 't2'}));

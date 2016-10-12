@@ -553,13 +553,15 @@ function ProgCol(options) {
         this.backName = options.backName;
     }
 
+    this.prefix = xcHelper.parsePrefixColName(this.backName).prefix;
+
     this.func = new ColFunc(options.func);
 
     return this;
 }
 
 ProgCol.prototype = {
-    "isDATACol": function() {
+    isDATACol: function() {
         if (this.name === "DATA" && this.func.name === "raw") {
             return true;
         } else {
@@ -567,11 +569,11 @@ ProgCol.prototype = {
         }
     },
 
-    "isEmptyCol": function() {
+    isEmptyCol: function() {
         return this.isNewCol || this.name === "" || this.func.name === "";
     },
 
-    "isImmediate": function() {
+    isImmediate: function() {
         if (this.immediate === true) {
             return true;
         } else {
@@ -579,20 +581,20 @@ ProgCol.prototype = {
         }
     },
 
-    "getFrontColName": function() {
+    getFrontColName: function() {
         return this.name || "";
     },
 
-    "setFrontColName": function(name) {
+    setFrontColName: function(name) {
         xcHelper.assert(typeof name === "string" && name !== "");
         this.name = name;
     },
 
-    "getBackColName": function() {
+    getBackColName: function() {
         return this.backName;
     },
 
-    "setImmediateType": function(typeId) {
+    setImmediateType: function(typeId) {
         if (!DfFieldTypeTStr.hasOwnProperty(typeId)) {
             // error case
             console.error("Invalid typeId");
@@ -636,11 +638,15 @@ ProgCol.prototype = {
         }
     },
 
-    "getType": function() {
+    getPrefix: function() {
+        return this.prefix;
+    },
+
+    getType: function() {
         return this.type;
     },
 
-    "updateType": function(val) {
+    updateType: function(val) {
         var self = this;
         if (!self.immediate && !self.isEmptyCol()) {
             // don't check for immediate
@@ -648,11 +654,11 @@ ProgCol.prototype = {
         }
     },
 
-    "getWidth": function() {
+    getWidth: function() {
         return this.width;
     },
 
-    "setWidth": function(width) {
+    setWidth: function(width) {
         this.width = width;
     },
 
@@ -680,24 +686,24 @@ ProgCol.prototype = {
         this.decimal = decimal;
     },
 
-    "hasHidden": function() {
+    hasHidden: function() {
         return this.isHidden;
     },
 
-    "isNumberCol": function() {
+    isNumberCol: function() {
         return (this.type === ColumnType.integer ||
                 this.type === ColumnType.float);
     },
 
-    "isChildOfArray": function() {
+    isChildOfArray: function() {
         return this.childOfArray;
     },
 
-    "beChidOfArray": function() {
+    beChidOfArray: function() {
         this.childOfArray = true;
     },
 
-    "stringifyFunc": function() {
+    stringifyFunc: function() {
         var self = this;
         var str = "";
 
@@ -731,7 +737,7 @@ ProgCol.prototype = {
         return str;
     },
 
-    "parseFunc": function() {
+    parseFunc: function() {
         var self = this;
         if (!self.userStr) {
             console.error("no userStr");
@@ -1097,29 +1103,41 @@ function Cart(options) {
 }
 
 Cart.prototype = {
-    "getId": function() {
+    getId: function() {
         return this.dsId;
     },
 
-    "getDSName": function() {
+    getDSName: function() {
         var ds = DS.getDSObj(this.dsId);
         return ds.getFullName();
     },
 
-    "getTableName": function() {
+    getTableName: function() {
         return this.tableName;
     },
 
-    "updateTableName": function(tableName) {
+    setTableName: function(tableName) {
         this.tableName = tableName;
     },
 
-    "addItem": function(options) {
+    getPrefix: function() {
+        if (this.prefix) {
+            return this.prefix;
+        } else {
+            return null;
+        }
+    },
+
+    setPrefix: function(prefix) {
+        this.prefix = prefix;
+    },
+
+    addItem: function(options) {
         var cartItem = new CartItem(options);
         this.items.push(cartItem);
     },
 
-    "removeItem": function(colNum) {
+    removeItem: function(colNum) {
         var items = this.items;
         for (var i = 0, len = items.length; i < len; i++) {
             if (items[i].colNum === colNum) {
@@ -1129,7 +1147,7 @@ Cart.prototype = {
         }
     },
 
-    "emptyItem": function() {
+    emptyItem: function() {
         this.items = [];
     }
 };

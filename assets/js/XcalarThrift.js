@@ -964,7 +964,7 @@ function XcalarDestroyDataset(dsName, txId) {
     return (deferred.promise());
 }
 
-function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
+function XcalarIndexFromDataset(datasetName, key, tablename, prefix, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -976,12 +976,11 @@ function XcalarIndexFromDataset(datasetName, key, tablename, txId) {
     datasetName = parseDS(datasetName);
     var dhtName = ""; // XXX TODO fill in later
     // XXX TRUE IS WRONG, THIS IS JUST TEMPORARY TO GET STUFF TO WORK
+    var ordering = XcalarOrderingT.XcalarOrderingUnordered;
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
-                                              dhtName,
-                                      XcalarOrderingT.XcalarOrderingUnordered);
+                                              dhtName, prefix, ordering);
     var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
-                                  dhtName,
-                                  XcalarOrderingT.XcalarOrderingUnordered);
+                                  dhtName, ordering, prefix);
     var def2 = XcalarGetQuery(workItem);
 
     def2.then(function(query) {

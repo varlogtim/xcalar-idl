@@ -817,8 +817,7 @@ window.TblManager = (function($, TblManager) {
         // xx conflicts with tablename on hover;
         var tooltip = "";
 
-        // XXX replace it when possible
-        var prefix = 'Placeholder';
+        var prefix = progCol.getPrefix();
         var prefixColor = table.getPrefixColor(prefix);
 
         var th =
@@ -833,16 +832,15 @@ window.TblManager = (function($, TblManager) {
                         '</div>' +
                     '</div>' +
                     '<div class="colGrab"></div>' +
-                    // temporary disable it
-                    // '<div class="topHeader" data-color="' + prefixColor + '">' +
-                    //     sortIcon +
-                    //     '<div class="prefix">' +
-                    //         prefix +
-                    //     '</div>' +
-                    //     '<div class="dotWrap">' +
-                    //         '<div class="dot"></div>' +
-                    //     '</div>' +
-                    // '</div>' +
+                    '<div class="topHeader" data-color="' + prefixColor + '">' +
+                        sortIcon +
+                        '<div class="prefix">' +
+                            prefix +
+                        '</div>' +
+                        '<div class="dotWrap">' +
+                            '<div class="dot"></div>' +
+                        '</div>' +
+                    '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
                             '<div class="iconHidden"></div>' +

@@ -516,7 +516,7 @@ table.datasetTable {
 
     .mainSection {
         .size(@width: 100%, @height: ~"calc(100% - @{height-main})");
-        padding: 10px 10px 10px 20px;
+        padding: 10px 5px 10px 20px;
         overflow-y: scroll;
 
         .hint {
@@ -551,12 +551,54 @@ table.datasetTable {
         }
 
         .cartTitleArea {
-            .size(@width: 100%, @height: 30px);
-            .input-box(@w: 220px, @h: 30px);
+            .size(@width: 100%, @height: 50px);
 
-            .tableNameEdit {
-                display: inline-block;
-                float: left;
+            &.prefix {
+                margin-top: 10px;
+
+                .qMark {
+                    margin-left: 5px;
+                    .position(relative, @top: -1px);
+                }
+            }
+
+            .subTitle {
+                .size(@height: 15px);
+                .font(@size: 11px, @color: @color-font-gray36);
+                margin-bottom: 5px;
+            }
+
+            .input {
+                .size(@height: 30px);
+                .input-box(@w: 215px, @h: 30px);
+
+                input {
+                    display: inline-block;
+                    float: left;
+                }
+
+                .edit {
+                    float: left;
+                }
+
+                .action {
+                    .size(@width: 15px, @height: 30px);
+                    float: left;
+
+                    &.active {
+                        .collapse {
+                            display: inline-block;
+                        }
+
+                        .expand {
+                            display: none;
+                        }
+                    }
+
+                    .collapse {
+                        display: none;
+                    }
+                }
             }
         }
 
@@ -584,7 +626,7 @@ table.datasetTable {
             }
 
             .itemWrap {
-                .size(@width: 210px, @height: 100%);
+                .size(@width: 205px, @height: 100%);
                 border: solid 1px @color-border-warm-grey-two;
                 float: left;
                 display: inline-block;

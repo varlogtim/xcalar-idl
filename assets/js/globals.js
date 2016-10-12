@@ -50,6 +50,7 @@ var gMinModeOn = false;
 var gMutePromises = true; // mutes .when() console logs
 var gAggVarPrefix = "^";
 var gColPrefix = '$';
+var gPrefixSign = '::';
 var gDSPrefix = '.XcalarDS.';
 // ======== Support Parameters ======== //
 var gExportNoCheck = false;
