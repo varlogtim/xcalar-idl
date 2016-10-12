@@ -3893,7 +3893,6 @@ XcalarApiStatT = function(args) {
   this.statName = null;
   this.statValue = null;
   this.statType = null;
-  this.statLife = null;
   this.groupId = null;
   if (args) {
     if (args.statName !== undefined) {
@@ -3904,9 +3903,6 @@ XcalarApiStatT = function(args) {
     }
     if (args.statType !== undefined) {
       this.statType = args.statType;
-    }
-    if (args.statLife !== undefined) {
-      this.statLife = args.statLife;
     }
     if (args.groupId !== undefined) {
       this.groupId = args.groupId;
@@ -3949,13 +3945,6 @@ XcalarApiStatT.prototype.read = function(input) {
       }
       break;
       case 4:
-      if (ftype == Thrift.Type.I32) {
-        this.statLife = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 5:
       if (ftype == Thrift.Type.I64) {
         this.groupId = input.readI64().value;
       } else {
@@ -3988,13 +3977,8 @@ XcalarApiStatT.prototype.write = function(output) {
     output.writeI32(this.statType);
     output.writeFieldEnd();
   }
-  if (this.statLife !== null && this.statLife !== undefined) {
-    output.writeFieldBegin('statLife', Thrift.Type.I32, 4);
-    output.writeI32(this.statLife);
-    output.writeFieldEnd();
-  }
   if (this.groupId !== null && this.groupId !== undefined) {
-    output.writeFieldBegin('groupId', Thrift.Type.I64, 5);
+    output.writeFieldBegin('groupId', Thrift.Type.I64, 4);
     output.writeI64(this.groupId);
     output.writeFieldEnd();
   }

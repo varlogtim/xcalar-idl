@@ -1357,8 +1357,6 @@ PromiseHelper = (function(PromiseHelper, $) {
                         stat.statValue.toString());
                 console.log("\tstat[" + i.toString() + "].statType = " +
                         stat.statType.toString());
-                console.log("\tstat[" + i.toString() + "].statLife = " +
-                        stat.statLife.toString());
                 console.log("\tstat[" + i.toString() + "].groupId = " +
                         stat.groupId.toString());
             }
@@ -1409,8 +1407,6 @@ PromiseHelper = (function(PromiseHelper, $) {
                         stat.statValue.toString());
                 console.log("\tstat[" + i.toString() + "].statType = " +
                         stat.statType.toString());
-                console.log("\tstat[" + i.toString() + "].statLife = " +
-                        stat.statLife.toString());
                 console.log("\tstat[" + i.toString() + "].groupId = " +
                         stat.groupId.toString());
             }

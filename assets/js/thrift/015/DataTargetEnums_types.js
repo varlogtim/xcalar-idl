@@ -7,9 +7,8 @@
 
 ExTargetTypeT = {
   'ExTargetUnknownType' : 0,
-  'ExTargetODBCType' : 1,
-  'ExTargetSFType' : 2,
-  'ExTargetUDFType' : 3
+  'ExTargetSFType' : 1,
+  'ExTargetUDFType' : 2
 };
 ExExportCreateRuleT = {
   'ExExportUnknownRule' : 0,
@@ -31,9 +30,8 @@ ExSFHeaderTypeT = {
   'ExSFHeaderNone' : 3
 };
 ExTargetTypeTStr = {0 : 'unknown',
-1 : 'odbc',
-2 : 'file',
-3 : 'udf'
+1 : 'file',
+2 : 'udf'
 };
 ExExportCreateRuleTStr = {0 : 'unknown',
 1 : 'createOnly',
