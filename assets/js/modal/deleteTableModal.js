@@ -39,7 +39,27 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         $modal.on("click", ".confirm", function() {
             $(this).blur();
-            submitForm();
+            if (!hasCheckedTables()) {
+                return;
+            }
+            var msg = SideBarTStr.DelTablesMsg;
+            $modal.addClass('lowZindex');
+            Alert.show({
+                "title"         : TblTStr.Del,
+                "msg"           : msg,
+                "highZindex"    : true,
+                "onCancel"      : function() {
+                    $modal.removeClass('lowZindex');
+                    $('#modalBackground').hide(); 
+                    // by default background won't hide because modalHelper
+                    // detects more than 1 modal open
+                },
+                "onConfirm"     : function() {
+                    $modal.removeClass('lowZindex');
+                    $('#modalBackground').hide();
+                    submitForm();
+                }
+            });
         });
 
         // click checkbox
@@ -171,6 +191,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         }, 500);
 
         modalHelper.disableSubmit();
+
         PromiseHelper.when(orphanDef, archivedDef, activeDef)
         .then(function() {
             xcHelper.showRefreshIcon($modal);
@@ -222,6 +243,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         }
         var noAlert = true;
         return TblManager.deleteTables(tablesToDel, type, noAlert);
+    }
+
+    function hasCheckedTables() {
+        return $modal.find('.grid-unit .checkbox.checked').length > 0
     }
 
     function getTableSizeMap() {

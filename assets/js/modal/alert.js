@@ -52,7 +52,9 @@ window.Alert = (function($, Alert){
             onConfirm: callback to trigger when click confirm button
             onCancel:  callback to trigger when click cancel button
             lockScreen: if screen should be frozen
-            focusOnConfirm: boolean, if true then set focus on confirm button
+            focusOnConfirm: boolean, if true then set focus on confirm button,
+            highZIndex: boolean, if true then will set z-index above locked
+                        background modal
         */
         if ($modal.hasClass('locked')) {
             // this handle the case that some modal failure handler
@@ -76,6 +78,12 @@ window.Alert = (function($, Alert){
             $("#container").addClass('locked');
             // should not show initial screen
             $("#initialLoadScreen").hide();
+        }
+
+        if (options.highZindex) {
+            $modal.addClass('highZindex');
+        } else {
+            $modal.removeClass('highZindex');
         }
 
         modalHelper.setup(extraOptions)

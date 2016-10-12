@@ -1209,6 +1209,10 @@ html.microsoft {
         }
     }
 
+    &.highZindex {
+        z-index: @z-index-locked + 2;
+    }
+
     .funcBtn {
         &.inActive {
             background: @color-bg-pinkish-grey;
@@ -1339,6 +1343,11 @@ html.microsoft {
         }
     }
 
+    &.lowZindex {
+        z-index: @z-index-locked - 1;
+        box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.2);
+    }
+
     .auto {
         display: none;
     }
@@ -1350,7 +1359,7 @@ html.microsoft {
         z-index: 10;
 
         .loadWrap {
-            .size(@width: 110px, @height: 30px);
+            .size(@width: 115px, @height: 30px);
             .center-align;
 
             .animatedEllipsisWrapper {

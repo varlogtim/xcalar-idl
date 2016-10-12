@@ -385,7 +385,6 @@ window.DSExport = (function($, DSExport) {
                 });
             }
         });
-       
     }
 
     function submitForm(targetType, name, formatSpecificArg, options) {
