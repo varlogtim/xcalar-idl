@@ -3573,48 +3573,26 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function getAutoGenColName(name) {
-        var takenNames = {};
-        if (!gTables[tableId]) {
+        var table = gTables[tableId];
+        if (!table) {
             return "";
         }
-        var tableCols  = gTables[tableId].tableCols;
-        var numCols = tableCols.length;
-        for (var i = 0; i < numCols; i++) {
-            takenNames[tableCols[i].name] = 1;
 
-            if (!tableCols[i].isDATACol()) {
-                var backName = tableCols[i].getBackColName();
-                if (backName != null) {
-                    takenNames[backName] = 1;
-                }
-            }
-        }
-
-        // var limit = 20; // we won't try more than 20 times
+        var limit = 20; // we won't try more than 20 times
         name = name.replace(/\s/g, '');
         var newName = name;
-        var validNameFound = false;
-        // if (newName in takenNames) {
-            // for (var i = 1; i < limit; i++) {
-            //     newName = name + i;
-            //     if (!(newName in takenNames)) {
-            //         validNameFound = true;
-            //         break;
-            //     }
-            // }
 
-        // XXX Now just rand a name since check in gTables cannot include
-        // all cols of the table... May need better way in the future
-        if (!validNameFound) {
-            var tries = 0;
-            newName = name + tableId.substring(2);
-            while (takenNames.hasOwnProperty(name) && tries < 20) {
-                newName = xcHelper.randName(name, 3);
-                tries++;
-            }
+        var tries = 0;
+        while (tries < limit && table.hasCol(newName, "")) {
+            tries++;
+            newName = name + tries;
         }
-        // }
-        return (newName);
+
+        if (tries >= limit) {
+            newName = xcHelper.randName(name);
+        }
+
+        return newName;
     }
 
     function listHighlightListener(event) {
