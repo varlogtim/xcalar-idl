@@ -324,6 +324,7 @@ window.DFCard = (function($, DFCard) {
                         '</button>' +
                     '</div>' +
                 '</div>';
+        $dfCard.find('.cardMain').children('.hint').remove();
         $dfCard.find('.cardMain').append(html);
 
         var nodes = DF.getDataflow(dataflowName).retinaNodes;
