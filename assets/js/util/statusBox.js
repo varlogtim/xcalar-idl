@@ -39,9 +39,11 @@ window.StatusBox = (function($, StatusBox){
         // position the message
         $statusBox.addClass("active"); // shows the box
         var bound = $target[0].getBoundingClientRect();
+        var winWidth = $(window).width();
+        var statusBoxWidth = $statusBox.width();
         var top   = bound.top - 30;
-        var right = $(window).width() - bound.right - $statusBox.width() - 12;
-        var left = bound.left - $statusBox.width() - 12;
+        var right = winWidth - bound.right - statusBoxWidth - 12;
+        var left = bound.left - statusBoxWidth - 12;
         var side;
         var title;
         var offsetX = 0;
@@ -82,20 +84,28 @@ window.StatusBox = (function($, StatusBox){
         } else {
             $statusBox.find('.message').text(text);
         }
-
-        if (side === 'left') {
-            $statusBox.css({top: top, left: left, right: 'auto'});
-        } else if (side === 'top') {
+       
+        if (side === 'top') {
             left = (bound.left + ($target.width() / 2) - 100) + offsetX;
+            left = Math.min(left, winWidth - statusBoxWidth);
             var statusBoxHeight = $statusBox.height();
-            top = bound.top - statusBoxHeight - 15 + offsetY;
-            $statusBox.css({top: top, left: left, right: 'auto'});
+            top = bound.top - statusBoxHeight - 15 + offsetY; 
         } else if (side === "bottom") {
             left = (bound.left + ($target.width() / 2) - 100) + offsetX;
             top = bound.bottom + offsetY;
-            $statusBox.css({top: top, left: left, right: 'auto'});
-        } else {
+        }
+
+        // prevent too far left
+        left = Math.min(left, winWidth - statusBoxWidth);
+        // prevent too far right
+        right = Math.max(right, 0);
+        // prevent too far top
+        top = Math.max(top, 0);
+
+        if (side === "right") {
             $statusBox.css({top: top, right: right, left: 'auto'});
+        } else {
+            $statusBox.css({top: top, left: left, right: 'auto'});
         }
 
         if (options.closeable) {
