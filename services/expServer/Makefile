@@ -33,7 +33,7 @@ build:
 run: build
 	-docker stop $(NAME)
 	-docker rm -f $(NAME)
-	docker run -p 12124:12124 -v /etc/xcalar:/etc/xcalar --restart=always --name=$(NAME) -d $(NAME)
+	docker run -p 12124:12124 -v /etc/xcalar:/etc/xcalar -v /var/log:/var/log --restart=always --name=$(NAME) -d $(NAME)
 
 clean:
 	-rm -vf $(NAME)-*.tar.gz

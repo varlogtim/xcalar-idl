@@ -9,16 +9,7 @@ var http = require('http');
 var https = require("https");
 require('shelljs/global');
 var ldap = require('ldapjs');
-var exec = require('child_process').exec;
-var jQuery;
-
-require("jsdom").env("", function(err, window) {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    jQuery = require("jquery")(window);
-});
+var tail = require('./tail');
 
 var strictSecurity = false;
 var config = require('./ldapConfig.json');
@@ -34,6 +25,14 @@ var UserInformation = {
     firstName: "",
     employeeType: ""
 }
+
+require("jsdom").env("", function(err, window) {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    jQuery = require("jquery")(window);
+});
 
 /**
 var privateKey = fs.readFileSync('cantor.int.xcalar.com.key', 'utf8');
@@ -284,6 +283,19 @@ app.post("/cancelInstall", function(req, res) {
     var hasError = false;
     var errors = [];
     res.send({"status": Status.Ok});
+});
+
+app.post("/recentLogs", function(req, res) {
+    console.log("Fetch Recent Logs");
+    var credArray = req.body;
+    var file = "/var/log/Xcalar.log";
+    var requireLineNum =  credArray["requireLineNum"];
+    if(!tail.isLogNumValid(requireLineNum)) {
+        res.send({"status": Status.Error,
+                  "message": "Please Enter a nonnegative integer not over 500"});
+        return;
+    }
+    tail.tailByLargeBuffer(file, requireLineNum, res);
 });
 
 app.post("/writeConfig", function(req, res) {

@@ -25,8 +25,7 @@ $(document).ready(function() {
         var pass = $('#loginPasswordBox').val();
         var str = {"xipassword": pass, "xiusername": username};
 
-        var loginEnabled = false;
-        if (loginEnabled) {
+        if (gLoginEnabled) {
             $.ajax({
                 type: 'POST',
                 data: JSON.stringify(str),
@@ -47,9 +46,9 @@ $(document).ready(function() {
                     }
 
                 },
-                error: function(data) {
+                error: function(error) {
                     //Auth server probably down or something. Just let them in
-                    console.error(error);
+                    console.log(error);
                     submit();
                 }
             });
