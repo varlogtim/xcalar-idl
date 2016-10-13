@@ -539,7 +539,7 @@ describe('xcHelper Test', function() {
         // case 1
         var $e = $('<div></div>');
         var res = xcHelper.validate({
-            "$selector": $e
+            "$ele": $e
         });
         expect(res).to.be.false;
         assert.isTrue($("#statusBox").is(":visible"));
@@ -550,20 +550,20 @@ describe('xcHelper Test', function() {
 
         // case 2
         res = xcHelper.validate({
-            "$selector": $e,
-            "check"    : function() { return false; }
+            "$ele" : $e,
+            "check": function() { return false; }
         });
         expect(res).to.be.true;
         assert.isFalse($("#statusBox").is(":visible"));
 
         // case 3
         res = xcHelper.validate([{
-            "$selector": $e,
-            "check"    : function() { return false; }
+            "$ele" : $e,
+            "check": function() { return false; }
         },{
-            "$selector": $e,
-            "check"    : function() { return true; },
-            "noWarn"   : true
+            "$ele" : $e,
+            "check": function() { return true; },
+            "quite": true
         }]);
         expect(res).to.be.false;
         assert.isFalse($("#statusBox").is(":visible"));
@@ -571,9 +571,9 @@ describe('xcHelper Test', function() {
         // case 4
         var test = null;
         res = xcHelper.validate({
-            "$selector": $e,
-            "check"    : function() { return true; },
-            "callback" : function() { test = "test"; }
+            "$ele"    : $e,
+            "check"   : function() { return true; },
+            "callback": function() { test = "test"; }
         });
         expect(res).to.be.false;
         expect(test).to.be.equal("test");
@@ -585,9 +585,9 @@ describe('xcHelper Test', function() {
         // case 5
         test = null;
         res = xcHelper.validate({
-            "$selector": $e,
-            "isAlert"  : true,
-            "text"     : "test error"
+            "$ele"   : $e,
+            "isAlert": true,
+            "error"  : "test error"
         });
         expect(res).to.be.false;
         assert.isTrue($("#alertModal").is(":visible"));
@@ -595,6 +595,20 @@ describe('xcHelper Test', function() {
         assert.equal(text, "test error");
         $("#alertModal .close").click();
         assert.isFalse($("#alertModal").is(":visible"));
+
+        // case 6
+        test = null;
+        res = xcHelper.validate({
+            "$ele" : $e,
+            "check": function() { return true; },
+            "onErr": function() { test = "test"; }
+        });
+        expect(res).to.be.false;
+        expect(test).to.be.equal("test");
+        assert.isTrue($("#statusBox").is(":visible"));
+        assert.equal($("#statusBox .message").text(), ErrTStr.InvalidField);
+        $("#statusBox").find(".close").mousedown();
+        assert.isFalse($("#statusBox").is(":visible"));
 
         gMinModeOn = cacheMinMode;
     });
@@ -723,60 +737,60 @@ describe('xcHelper Test', function() {
         var testCases = [
             {
                 "str": "abc^",
-                "res": false
+                "res": true
             },
             {
                 "str": "ab(c",
+                "res": true
+            },
+            {
+                "str": "ab[c",
+                "res": true
+            },
+            {
+                "str": "ab]c",
+                "res": true
+            },
+            {
+                "str": "ab:c",
+                "res": true
+            },
+            {
+                "str": "ab:c",
+                "res": true
+            },
+            {
+                "str": "ab\'c",
+                "res": true
+            },
+            {
+                "str": "ab\"c",
+                "res": true
+            },
+            {
+                "str": "abc",
+                "res": false
+            },
+            {
+                "str": "ab!c",
+                "res": false
+            },
+            {
+                "str": "ab@c",
+                "res": false
+            },
+            {
+                "str": "ab#c",
+                "res": false
+            },
+            {
+                "str": "ab$c",
                 "res": false
             },
             {
                 "str": "ab}c",
                 "res": false
             },
-            {
-                "str": "ab[c",
-                "res": false
-            },
-            {
-                "str": "ab]c",
-                "res": false
-            },
-            {
-                "str": "ab:c",
-                "res": false
-            },
-            {
-                "str": "ab:c",
-                "res": false
-            },
-            {
-                "str": "ab\'c",
-                "res": false
-            },
-            {
-                "str": "ab\"c",
-                "res": false
-            },
-            {
-                "str": "abc",
-                "res": true
-            },
-            {
-                "str": "ab!c",
-                "res": true
-            },
-            {
-                "str": "ab@c",
-                "res": true
-            },
-            {
-                "str": "ab#c",
-                "res": true
-            },
-            {
-                "str": "ab$c",
-                "res": true
-            }
         ]
 
         testCases.forEach(function(test) {

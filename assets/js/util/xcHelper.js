@@ -1042,17 +1042,18 @@ window.xcHelper = (function($, xcHelper) {
         /*
          * eles is an object or an array of object, each object includes:
 
-           $selector: selector to check
-           check    : function to check validation, if empty, will check if the
-                      value of selecor is empty. Val of the selector will be
-                      passed into the function
-           text     : text to show if now pass the check
-           noWarn   : if set true, will not show any warnning box.
-           callback : if not null, will call it after check fails
-           isAlert  : if set true, will show Alert Modal, default is StatusBox
-           formMode : if set true, will use StatusBox's form mode
-           side     : string, side to show the pop up
-           ...      : to be extened in the future.
+           $ele: jquery element to check
+           check: function to check validation, if empty, will check if the
+                  value of selecor is empty. Val of the $ele will be
+                  passed into the function
+           error: error to show if now pass the check
+           quite: if set true, will not show any warnning box.
+           onErr: if not null, will call it before showing the StatusBox
+           callback: if not null, will call it after check fails
+           isAlert: if set true, will show Alert Modal, default is StatusBox
+           formMode: if set true, will use StatusBox's form mode
+           side: string, side to show the pop up
+           ...: to be extened in the future.
 
          * Check will run in array's order.
          */
@@ -1063,21 +1064,21 @@ window.xcHelper = (function($, xcHelper) {
 
         for (var i = 0; i < eles.length; i++) {
             var ele = eles[i];
-            var $e  = ele.$selector;
+            var $e = ele.$ele;
             var val = $e.is("input") ? $e.val() : $e.text();
             var error;
             var notValid;
 
             if (ele.check != null) {
                 notValid = ele.check(val);
-                error = ele.text || ErrTStr.InvalidField;
+                error = ele.error || ErrTStr.InvalidField;
             } else {
                 notValid = (val.trim() === "");
-                error = ele.text || ErrTStr.NoEmpty;
+                error = ele.error || ErrTStr.NoEmpty;
             }
 
             if (notValid) {
-                if (ele.noWarn) {
+                if (ele.quite) {
                     return false;
                 }
                 var options = {};
@@ -1085,13 +1086,21 @@ window.xcHelper = (function($, xcHelper) {
                     options.side = ele.side;
                 }
 
-                if (ele.callback) {
-                    StatusBox.show(error, $e, ele.formMode, options);
-                    ele.callback();
-                } else if (ele.isAlert) {
-                    Alert.error(ErrTStr.InvalidField, ele.text);
+                // before error
+                if (ele.onErr && ele.onErr instanceof Function) {
+                    ele.onErr();
+                }
+
+                // show error
+                if (ele.isAlert) {
+                    Alert.error(ErrTStr.InvalidField, error);
                 } else {
                     StatusBox.show(error, $e, ele.formMode, options);
+                }
+
+                // callback
+                if (ele.callback && ele.callback instanceof Function) {
+                    ele.callback();
                 }
 
                 return false;

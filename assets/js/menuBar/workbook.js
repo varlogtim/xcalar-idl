@@ -433,14 +433,14 @@ window.Workbook = (function($, Workbook) {
 
         var isValid = xcHelper.validate([
             {
-                "$selector": $newWorkbookInput,
-                "formMode" : true
+                "$ele"    : $newWorkbookInput,
+                "formMode": true
             },
             {
-                "$selector": $newWorkbookInput,
-                "formMode" : true,
-                "text"     : error,
-                "check"    : function() {
+                "$ele"    : $newWorkbookInput,
+                "formMode": true,
+                "error"   : error,
+                "check"   : function() {
                     var workbooks = WorkbookManager.getWorkbooks();
                     for (var wkbkId in workbooks) {
                         if (workbooks[wkbkId].getName() === workbookName) {

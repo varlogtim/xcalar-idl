@@ -290,34 +290,34 @@ window.ExportView = (function($, ExportView) {
 
         var isValid = xcHelper.validate([
             {
-                "$selector": $exportName // checks if it's empty
+                "$ele": $exportName // checks if it's empty
             },
             {
-                "$selector": $exportName,
-                "text"     : ErrTStr.NoSpecialChar,
-                "check"    : function() {
+                "$ele" : $exportName,
+                "error": ErrTStr.NoSpecialChar,
+                "check": function() {
                     return xcHelper.hasSpecialChar(exportName);
                 }
             },
             {
-                "$selector": $exportName,
-                "text"     : ErrTStr.TooLong,
-                "check"    : function() {
+                "$ele" : $exportName,
+                "error": ErrTStr.TooLong,
+                "check": function() {
                     return ($exportName.val().length >=
                             XcalarApisConstantsT.XcalarApiMaxTableNameLen);
                 }
             },
             {
-                "$selector": $exportView.find('.columnsWrap'),
-                "text"     : ErrTStr.NoColumns,
-                "check"    : function() {
+                "$ele" : $exportView.find('.columnsWrap'),
+                "error": ErrTStr.NoColumns,
+                "check": function() {
                     return (columnsVal.length === 0);
                 }
             },
             {
-                "$selector": $exportView.find('.columnsWrap'),
-                "text"     : ErrTStr.InvalidColName,
-                "check"    : function() {
+                "$ele" : $exportView.find('.columnsWrap'),
+                "error": ErrTStr.InvalidColName,
+                "check": function() {
                     if (!gExportNoCheck) {
                         return (columnsValStr.indexOf('[') !== -1);
                     }
@@ -351,9 +351,9 @@ window.ExportView = (function($, ExportView) {
             }
 
             xcHelper.validate([{
-                "$selector": $exportColumns,
-                "text"     : errorText,
-                "check"    : function() {
+                "$ele" : $exportColumns,
+                "error": errorText,
+                "check": function() {
                     return (true);
                 }
             }]);
@@ -369,9 +369,9 @@ window.ExportView = (function($, ExportView) {
         var advancedOptions = getAdvancedOptions();
         if (advancedOptions.error) {
             xcHelper.validate([{
-                "$selector": advancedOptions.$target,
-                "text"     : advancedOptions.errorMsg,
-                "check"    : function() {
+                "$ele" : advancedOptions.$target,
+                "error": advancedOptions.errorMsg,
+                "check": function() {
                     return true;
                 }
             }]);
@@ -382,9 +382,9 @@ window.ExportView = (function($, ExportView) {
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
                 xcHelper.validate([{
-                    "$selector": $exportName,
-                    "text"     : ErrTStr.ExportConflict,
-                    "check"    : function() {
+                    "$ele" : $exportName,
+                    "error": ErrTStr.ExportConflict,
+                    "check": function() {
                         return true;
                     }
                 }]);

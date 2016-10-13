@@ -31,9 +31,9 @@ window.SmartCastView = (function($, SmartCastView) {
 
         $castView.on("click", ".confirm", function() {
             var isValid = xcHelper.validate([{
-                "$selector": $castTable,
-                "text"     : ErrTStr.NoCast,
-                "check"    : function() {
+                "$ele" : $castTable,
+                "error": ErrTStr.NoCast,
+                "check": function() {
                     return ($castTable.find(".row").length === 0);
                 }
             }]);

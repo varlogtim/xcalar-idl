@@ -173,13 +173,13 @@ window.Profile = (function($, Profile, d3) {
                 // when do $rangeInput.val()
                 var isValid = xcHelper.validate([
                     {
-                        "$selector": $rangeInput,
-                        "text"     : ErrTStr.OnlyPositiveNumber
+                        "$ele" : $rangeInput,
+                        "error": ErrTStr.OnlyPositiveNumber
                     },
                     {
-                        "$selector": $rangeInput,
-                        "text"     : ErrTStr.OnlyPositiveNumber,
-                        "check"    : function() {
+                        "$ele" : $rangeInput,
+                        "error": ErrTStr.OnlyPositiveNumber,
+                        "check": function() {
                             return (Number(val) <= 0);
                         }
                     }

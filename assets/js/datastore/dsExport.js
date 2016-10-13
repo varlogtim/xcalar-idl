@@ -393,26 +393,26 @@ window.DSExport = (function($, DSExport) {
         var $formatSpecificInput = $form.find('.active .formatSpecificArg');
         var isValid = xcHelper.validate([
             {
-                "$selector": $('#targetName'),
-                "text"     : ErrTStr.NoEmpty,
-                "side"     : "top",
-                "check"    : function() {
+                "$ele" : $('#targetName'),
+                "error": ErrTStr.NoEmpty,
+                "side" : "top",
+                "check": function() {
                     return (name === "");
                 }
             },
             {
-                "$selector": $targetTypeInput,
-                "text"     : ErrTStr.NoEmptyList,
-                "side"     : "top",
-                "check"    : function() {
+                "$ele" : $targetTypeInput,
+                "error": ErrTStr.NoEmptyList,
+                "side" : "top",
+                "check": function() {
                     return (targetType === "");
                 }
             },
             {
-                "$selector": $formatSpecificInput,
-                "text"     : ErrTStr.NoEmpty,
-                "side"     : "top",
-                "check"    : function() {
+                "$ele" : $formatSpecificInput,
+                "error": ErrTStr.NoEmpty,
+                "side" : "top",
+                "check": function() {
                     if (targetType === "ODBC") {
                         return false;
                     } else {
@@ -421,10 +421,10 @@ window.DSExport = (function($, DSExport) {
                 }
             },
             {
-                "$selector": $form.find('.udfModuleName'),
-                "text"     : ErrTStr.NoEmptyList,
-                "side"     : "top",
-                "check"    : function() {
+                "$ele" : $form.find('.udfModuleName'),
+                "error": ErrTStr.NoEmptyList,
+                "side" : "top",
+                "check": function() {
                     if (targetType === "UDF") {
                         return (options.module === "");
                     } else {
@@ -433,10 +433,10 @@ window.DSExport = (function($, DSExport) {
                 }
             },
             {
-                "$selector": $form.find('.udfFuncName'),
-                "text"     : ErrTStr.NoEmptyList,
-                "side"     : "top",
-                "check"    : function() {
+                "$ele" : $form.find('.udfFuncName'),
+                "error": ErrTStr.NoEmptyList,
+                "side" : "top",
+                "check": function() {
                     if (targetType === "UDF") {
                         return (options.fn === "");
                     } else {

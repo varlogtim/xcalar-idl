@@ -315,12 +315,12 @@ window.DFCreateView = (function($, DFCreateView) {
 
         isValid = xcHelper.validate([
             {
-                "$selector": $newNameInput
+                "$ele": $newNameInput
             },
             {
-                "$selector": $newNameInput,
-                "text"     : ErrTStr.DFConflict,
-                "check"    : function() {
+                "$ele" : $newNameInput,
+                "error": ErrTStr.DFConflict,
+                "check": function() {
                     return DF.hasDataflow(dfName);
                 }
             }

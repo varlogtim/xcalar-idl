@@ -593,27 +593,27 @@ window.DSPreview = (function($, DSPreview) {
         // validate name
         var isValid = xcHelper.validate([
             {
-                "$selector": $dsName
+                "$ele": $dsName
             },
             {
-                "$selector": $dsName,
-                "check"    : function() {
+                "$ele"    : $dsName,
+                "error"   : ErrTStr.TooLong,
+                "formMode": true,
+                "check"   : function() {
                     return (dsName.length >=
                             XcalarApisConstantsT.XcalarApiMaxTableNameLen);
-                },
-                "formMode": true,
-                "text"    : ErrTStr.TooLong
+                }
             },
             {
-                "$selector": $dsName,
-                "check"    : DS.has,
+                "$ele"     : $dsName,
                 "formMode" : true,
-                "text"     : ErrTStr.DSNameConfilct
+                "error"    : ErrTStr.DSNameConfilct,
+                "check"    : DS.has
             },
             {
-                "$selector": $dsName,
+                "$ele"     : $dsName,
                 "formMode" : true,
-                "text"     : ErrTStr.NoSpecialCharOrSpace,
+                "error"    : ErrTStr.NoSpecialCharOrSpace,
                 "check"    : function() {
                     return (!/^\w+$/.test(dsName));
                 }
@@ -627,9 +627,9 @@ window.DSPreview = (function($, DSPreview) {
         // validate format
         var format = loadArgs.getFormat();
         isValid = xcHelper.validate([{
-            "$selector": $formatText,
-            "text"     : ErrTStr.NoEmptyList,
-            "check"    : function() {
+            "$ele" : $formatText,
+            "error": ErrTStr.NoEmptyList,
+            "check": function() {
                 return (format == null);
             }
         }]);
@@ -649,12 +649,12 @@ window.DSPreview = (function($, DSPreview) {
 
             isValid = xcHelper.validate([
                 {
-                    "$selector": $moduleInput,
-                    "text"     : ErrTStr.NoEmptyList
+                    "$ele" : $moduleInput,
+                    "error": ErrTStr.NoEmptyList
                 },
                 {
-                    "$selector": $funcInput,
-                    "text"     : ErrTStr.NoEmptyList
+                    "$ele" : $funcInput,
+                    "error": ErrTStr.NoEmptyList
                 }
             ]);
 
@@ -673,27 +673,27 @@ window.DSPreview = (function($, DSPreview) {
 
         isValid = xcHelper.validate([
             {
-                "$selector": $fieldText,
-                "text"     : DSFormTStr.InvalidDelim,
-                "formMode" : true,
-                "check"    : function() {
+                "$ele"    : $fieldText,
+                "error"   : DSFormTStr.InvalidDelim,
+                "formMode": true,
+                "check"   : function() {
                     return (typeof fieldDelim === "object");
                 }
             },
             {
-                "$selector": $lineText,
-                "text"     : DSFormTStr.InvalidDelim,
-                "formMode" : true,
-                "check"    : function() {
+                "$ele"    : $lineText,
+                "error"   : DSFormTStr.InvalidDelim,
+                "formMode": true,
+                "check"   : function() {
                     return (typeof lineDelim === "object");
                 }
             },
 
             {
-                "$selector": $quote,
-                "text"     : DSFormTStr.InvalidQuote,
-                "formMode" : true,
-                "check"    : function() {
+                "$ele"    : $quote,
+                "error"   : DSFormTStr.InvalidQuote,
+                "formMode": true,
+                "check"   : function() {
                     return (typeof quote === "object") ||
                            (xcHelper.delimiterTranslate($quote).length > 1);
                 }
@@ -708,10 +708,10 @@ window.DSPreview = (function($, DSPreview) {
         var skipRows = getSkipRows();
         isValid = xcHelper.validate([
             {
-                "$selector": $("#dsForm-skipRows"),
-                "text"     : ErrTStr.NoNegativeNumber,
-                "formMode" : true,
-                "check"    : function() {
+                "$ele"    : $("#dsForm-skipRows"),
+                "error"   : ErrTStr.NoNegativeNumber,
+                "formMode": true,
+                "check"   : function() {
                     return (skipRows < 0);
                 }
             }

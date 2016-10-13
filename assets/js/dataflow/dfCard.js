@@ -155,12 +155,12 @@ window.DFCard = (function($, DFCard) {
 
             var isValid = xcHelper.validate([
                 {
-                    "$selector": $input
+                    "$ele": $input
                 },
                 {
-                    "$selector": $input,
-                    "text"     : ErrTStr.NoSpecialCharOrSpace,
-                    "check"    : function() {
+                    "$ele" : $input,
+                    "error": ErrTStr.NoSpecialCharOrSpace,
+                    "check": function() {
                         return xcHelper.hasSpecialChar(paramName);
                     }
                 }

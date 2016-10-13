@@ -178,14 +178,14 @@ window.TblMenu = (function(TblMenu, $) {
 
                 var isValid = xcHelper.validate([
                     {
-                        "$selector": $input,
-                        "side"     : "left"
+                        "$ele": $input,
+                        "side": "left"
                     },
                     {
-                        "$selector": $input,
-                        "text"     : ErrTStr.InvalidWSInList,
-                        "side"     : "left",
-                        "check"    : function () {
+                        "$ele" : $input,
+                        "error": ErrTStr.InvalidWSInList,
+                        "side" : "left",
+                        "check": function () {
                             return ($option.length === 0);
                         }
                     }
@@ -484,17 +484,17 @@ window.TblMenu = (function(TblMenu, $) {
                     numColToGet = Number(num);
                     var isValid = xcHelper.validate([
                         {
-                            "$selector": $numInput,
-                            "text"     : ErrTStr.OnlyNumber,
+                            "$ele": $numInput,
+                            "error": ErrTStr.OnlyNumber,
                             "check"    : function() {
                                 return (isNaN(numColToGet) ||
                                         !Number.isInteger(numColToGet));
                             }
                         },
                         {
-                            "$selector": $numInput,
-                            "text"     : ErrTStr.OnlyPositiveNumber,
-                            "check"    : function() {
+                            "$ele" : $numInput,
+                            "error": ErrTStr.OnlyPositiveNumber,
+                            "check": function() {
                                 return (numColToGet < 1);
                             }
                         }

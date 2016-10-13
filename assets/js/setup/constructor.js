@@ -1801,24 +1801,24 @@ DSObj.prototype = {
         //check name confliction
         var isValid = xcHelper.validate([
             {
-                "$selector": DS.getGrid(self.id),
-                "text"     : ErrTStr.NoSpecialChar,
-                "check"    : function() {
+                "$ele" : DS.getGrid(self.id),
+                "error": ErrTStr.NoSpecialChar,
+                "check": function() {
                     return /[^a-zA-Z\(\)\d\s:]/.test(newName);
                 }
             },
             {
-                "$selector": DS.getGrid(self.id),
-                "text"     : error,
-                "check"    : function() {
+                "$ele" : DS.getGrid(self.id),
+                "error": error,
+                "check": function() {
                     return (parent.checkNameConflict(self.id, newName,
                                                      self.isFolder));
                 }
             },
             {
-                "$selector": DS.getGrid(self.id),
-                "text"     : ErrTStr.PreservedName,
-                "check"    : function() {
+                "$ele" : DS.getGrid(self.id),
+                "error": ErrTStr.PreservedName,
+                "check": function() {
                     return newName === DSObjTerm.OtherUserFolder;
                 }
             }

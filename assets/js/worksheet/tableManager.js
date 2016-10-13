@@ -2568,7 +2568,8 @@ window.TblManager = (function($, TblManager) {
     }
 
     function renameTableHelper($div) {
-        var newName = $div.find(".tableName").val().trim();
+        var $tableName = $div.find(".tableName");
+        var newName = $tableName.val().trim();
         var $th = $div.closest('.xcTheadWrap');
         var tableId = xcHelper.parseTableId($th);
         var newTableName = newName + "#" + tableId;
@@ -2581,23 +2582,19 @@ window.TblManager = (function($, TblManager) {
 
         var isValid = xcHelper.validate([
             {
-                "$selector": $div.find(".tableName"),
-                "text"     : ErrTStr.NoSpecialChar,
-                "check"    : function() {
+                "$ele" : $tableName
+            },
+            {
+                "$ele" : $tableName,
+                "error": ErrTStr.NoSpecialChar,
+                "check": function() {
                     return xcHelper.hasSpecialChar(newName);
                 }
             },
             {
-                "$selector": $div.find(".tableName"),
-                "text"     : ErrTStr.InvalidColName,
-                "check"    : function() {
-                    return (newName.length === 0);
-                }
-            },
-            {
-                "$selector": $div.find(".tableName"),
-                "text"     : ErrTStr.TooLong,
-                "check"    : function() {
+                "$ele" : $tableName,
+                "error": ErrTStr.TooLong,
+                "check": function() {
                     return (newName.length >=
                             XcalarApisConstantsT.XcalarApiMaxTableNameLen);
                 }

@@ -77,7 +77,7 @@ window.DSForm = (function($, DSForm) {
 
     function isValidToPreview() {
         var isValid = xcHelper.validate([{
-            "$selector": $filePath
+            "$ele": $filePath
         }]);
 
         if (isValid) {
