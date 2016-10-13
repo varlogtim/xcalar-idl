@@ -851,7 +851,7 @@ window.DSCart = (function($, DSCart) {
                 "side" : "left",
                 "onErr": onPrefixErr,
                 "check": function() {
-                    return (prefix.length >= prefixLimit);
+                    return (prefix != null && prefix.length >= prefixLimit);
                 }
             },
             {
