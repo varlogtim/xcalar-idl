@@ -1877,7 +1877,7 @@ window.OperationsView = (function($, OperationsView) {
                 return ($(this).find('.argsSection.inactive').length === 0);
             });
             var numGroups = $groups.length;
-
+            var inputCount = 0;
             $groups.each(function(groupNum) {
                 var funcName;
                 if (operatorName === "filter") {
@@ -1913,7 +1913,7 @@ window.OperationsView = (function($, OperationsView) {
 
                     if (noArgsChecked && val.trim() === "") {
                         // no quotes if noArgs and nothing in the input
-                    } else if (quotesNeeded[i]) {
+                    } else if (quotesNeeded[inputCount]) {
                         val = "\"" + val + "\"";
                     }
 
@@ -1939,7 +1939,7 @@ window.OperationsView = (function($, OperationsView) {
                     }
 
                     newText += val;
-
+                    inputCount ++;
                 });
                 newText += ")";
             });
@@ -2316,18 +2316,6 @@ window.OperationsView = (function($, OperationsView) {
                 break;
             case ('filter'):
                 isPassing = true;
-                $activeOpSection.find('.group').each(function(i) {
-                    if ($(this).find('.argsSection.inactive').length) {
-                        return;
-                    }
-                    var $input = $(this).find('.arg:visible').eq(0);
-                    func = $(this).find('.functionsInput').val().trim();
-                    if (hasMultipleSets) {
-                        isPassing = filterCheck(func, args[i], $input);
-                    } else {
-                        isPassing = filterCheck(func, args, $input);
-                    }
-                });
                 break;
             case ('group by'):
                 isPassing = groupByCheck(args);
@@ -2807,20 +2795,6 @@ window.OperationsView = (function($, OperationsView) {
         return deferred.promise();
     }
 
-    function filterCheck(operator, args, $input) {
-        if (!hasFuncFormat(args[0])) {
-            var filterColNum = getColNum(args[0]);
-            if (filterColNum < 1) {
-                StatusBox.show(ErrTStr.InvalidColName, $input);
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
-
     function filter(operator, args, colTypeInfos, hasMultipleSets) {
         var deferred = jQuery.Deferred();
         var filterColNum;
@@ -2835,6 +2809,9 @@ window.OperationsView = (function($, OperationsView) {
         if (!hasFuncFormat(firstArg)) {
             filterColNum = getColNum(firstArg);
         } else {
+            filterColNum = colNum;
+        }
+        if (filterColNum == null || filterColNum < 0) {
             filterColNum = colNum;
         }
 
@@ -3623,6 +3600,9 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function hasFuncFormat(val) {
+        if (typeof val !== "string") {
+            return false;
+        }
         val = val.trim();
         var valLen = val.length;
 

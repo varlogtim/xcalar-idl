@@ -139,7 +139,7 @@ describe('OperationsView', function() {
             $operationsModal = $('#operationsView');
             $operationsView = $('#operationsView');
             $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
                     return false;
                 }
@@ -251,9 +251,13 @@ describe('OperationsView', function() {
                     arg1Types.push(arg1Type);
                 }
                 for (var i = 0; i < testArgs2.length; i++) {
-                    gTableColNum = gTables[tableId].getColNumByBackName(testArgs2Unprefixed[i]);
-                    arg2Type = gTables[tableId].getCol(gTableColNum).getType();
-
+                    var progCol = gTables[tableId].getColByFrontName(testArgs2Unprefixed[i]);
+                    if (testArgs2Unprefixed[i] === "DATA") {
+                        args2Type = "object";
+                    } else {
+                        arg2Type = progCol.getType();
+                    }
+                    
                     arg2Types.push(arg2Type);
                 }
 
@@ -375,10 +379,10 @@ describe('OperationsView', function() {
                     argInfos.push(argumentFormatHelper(existingTypes, groupNum));
 
                     if (hasValidColPrefix(testArgs1[i]) &&
-                        gTables[tableId].getColNumByBackName(testArgs1[i].slice(1)) === -1) {
+                        !gTables[tableId].hasCol(testArgs1[i].slice(1))) {
                         hasValidTypes = false;
                     } else if (hasValidColPrefix(testArgs2[j]) &&
-                                gTables[tableId].getColNumByBackName(testArgs2[j].slice(1)) === -1) {
+                                !gTables[tableId].hasCol(testArgs2[j].slice(1))) {
                         hasValidTypes = false;
                     } else if (arg1ValidTypes.indexOf(arg1Types[i]) > -1 &&
                         arg2ValidTypes.indexOf(arg2Types[j]) > -1) {
@@ -387,8 +391,10 @@ describe('OperationsView', function() {
                         hasValidTypes = false;
                     }
                     if (hasValidTypes !== argInfos[count].isPassing) {
-                        console.error(arg1ValidTypes, arg1Types[i], arg2ValidTypes,
-                            arg2Types[j], testArgs1[i], testArgs2[j], argInfos[count]);
+                        console.error(arg1ValidTypes, arg1Types[i]);
+                        console.warn(arg2ValidTypes, arg2Types[j]);
+                        console.info(testArgs1[i], testArgs2[j], argInfos[count]);
+                        debugger;
                     }
 
                     expect(hasValidTypes).to.equal(argInfos[count].isPassing);
@@ -410,7 +416,7 @@ describe('OperationsView', function() {
         before(function(done) {
             $operationsView = $('#operationsView');
             $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
                     return false;
                 }
@@ -540,7 +546,7 @@ describe('OperationsView', function() {
             $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
             $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
                     return false;
                 }
@@ -667,6 +673,7 @@ describe('OperationsView', function() {
                         str: "zz"
                     }],
                     expectedMapStr: 'concat(yelping_since, "zz")',
+                    expectedCliMapStr: 'concat(' + testDs + gPrefixSign + 'yelping_since, "zz")',
                     transform: function(colVal) {
                         return (colVal + this.args[0].str);
                     }
@@ -687,6 +694,7 @@ describe('OperationsView', function() {
                         str: ""
                     }],
                     expectedMapStr: 'concat(yelping_since, "")',
+                    expectedCliMapStr: 'concat(' + testDs + gPrefixSign + 'yelping_since, "")',
                     transform: null
                 };
 
@@ -702,6 +710,7 @@ describe('OperationsView', function() {
                     func: "add",
                     args: [{num: 0, str: '"2"'}, {num: 1, str: '"3"'}],
                     expectedMapStr: 'add("2", "3")',
+                    expectedCliMapStr: 'add("2", "3")',
                     transform: null
                 };
 
@@ -718,6 +727,7 @@ describe('OperationsView', function() {
                     func: "default:splitWithDelim",
                     args: [{num: 1,str: 1}, {num:2, str: "\"-\""}],
                     expectedMapStr: 'default:splitWithDelim(yelping_since, 1, "-")',
+                    expectedCliMapStr: 'default:splitWithDelim(' + testDs + gPrefixSign + 'yelping_since, 1, "-")',
                     transform: function(colVal) {
                         var delim = "-";
                         var index = this.args[0].str;
@@ -735,8 +745,9 @@ describe('OperationsView', function() {
                 var options = {
                     category: "arithmetic",
                     func: "add",
-                    args: [{num: 0,str: 'int(yelping_since, 10)'}, {num:1, str: 5}],
-                    expectedMapStr: 'add(int(yelping_since, 10), 5)',
+                    args: [{num: 0,str: 'int(' + testDs + gPrefixSign + 'yelping_since, 10)'}, {num:1, str: 5}],
+                    expectedMapStr: 'add(int(' + testDs + gPrefixSign + 'yelping_since, 10), 5)',
+                    expectedCliMapStr: 'add(int(' + testDs + gPrefixSign + 'yelping_since, 10), 5)',
                     transform: function(colVal) {
                         return parseInt(colVal) + this.args[1].str + "";
                     }
@@ -754,6 +765,7 @@ describe('OperationsView', function() {
                 var func = options.func;
                 var args = options.args;
                 var expectedMapStr = options.expectedMapStr;
+                var expectedCliMapStr = options.expectedCliMapStr;
 
                 $categoryMenu.find('li').filter(function() {
                     return ($(this).text() === category);
@@ -789,7 +801,7 @@ describe('OperationsView', function() {
                     var $tableWrap;
                     var tableId;
                     $('.xcTableWrap').each(function() {
-                        if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                        if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
                             tableId = $(this).find('.hashName').text().slice(1);
                             $tableWrap = $(this);
                             return false;
@@ -804,7 +816,7 @@ describe('OperationsView', function() {
                     expect(newCellText).to.equal(options.transform(orgCellText));
                     var sqlCli = SQL.viewLastAction(true).cli;
                    
-                    expect(sqlCli).to.contain(JSON.stringify(expectedMapStr));
+                    expect(sqlCli).to.contain(JSON.stringify(expectedCliMapStr));
                     SQL.undo()
                     .always(function() {
                         deferred.resolve();
@@ -823,7 +835,7 @@ describe('OperationsView', function() {
             OperationsView.close();
             var tableId;
             $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
                     return false;
                 }
@@ -844,7 +856,7 @@ describe('OperationsView', function() {
             $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
             $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
                     return false;
                 }
@@ -880,7 +892,7 @@ describe('OperationsView', function() {
             OperationsView.close();
             var tableId;
             $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf('unitTestFakeYelp') > -1) {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
                     tableId = $(this).find('.hashName').text().slice(1);
                     return false;
                 }
