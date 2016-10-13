@@ -166,7 +166,7 @@ module.exports = {
        "FocusTbl": "Find table in worksheet",
        "Format": "Format",
        "GB": "Group by",
-       "GenIcv": "Integrity constraints table",
+       "GenIcv": "Create ICV table",
        "HideCol": "Hide column",
        "HideColPlura": "Hide columns",
        "HideTbl": "Minimize table",
