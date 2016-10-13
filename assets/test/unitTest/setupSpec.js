@@ -24,6 +24,7 @@ describe('Mocha Setup Test', function() {
             done();
         })
         .fail(function(error) {
+            console.error(error);
             // fail case
             throw error;
         });

@@ -773,13 +773,14 @@ window.ColManager = (function($, ColManager) {
                 }
 
                 if (args && args.undo) {
-                    progCol.backName = args.backName;
+                    progCol.setBackColName(args.backName);
                 } else {
-                    progCol.backName = progCol.func.args[0];
+                    progCol.setBackColName(progCol.func.args[0]);
                 }
 
                 table.tableCols[colNum - 1] = progCol;
                 pullColHelper(colNum, tableId);
+                TblManager.updatePrefix(tableId, colNum);
 
                 if (!args || !args.noLog) {
                     var sqlOptions = {
@@ -1476,7 +1477,7 @@ window.ColManager = (function($, ColManager) {
         var ths = "";
 
         for (var i = 0; i < numKeys; i++) {
-            var key = colNames[i];
+            var key = xcHelper.parsePrefixColName(colNames[i]).name;
             var escapedKey = escapedColNames[i];
             var newCol = ColManager.newPullCol(key, escapedKey);
 

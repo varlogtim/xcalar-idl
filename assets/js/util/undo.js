@@ -346,17 +346,16 @@ window.Undo = (function($, Undo) {
             if (options.wasNewCol) {
                 var col = gTables[options.tableId].getCol(options.colNum);
                 col.userStr = options.origUsrStr;
-                col.backName = options.backName;
+                col.setBackColName(options.backName);
                 col.type = options.type;
                 col.func = options.func;
-                $('#xcTable-' + options.tableId)
-                        .find('td.col' + options.colNum).empty();
-                $('#xcTable-' + options.tableId).find('th.col' + options.colNum)
-                                                .addClass('newColumn')
-                                                .find('.header')
-                                                .attr('class', 'header')
-                                                .find('.iconHelper')
-                                                .attr('title', '');
+                var $table = $('#xcTable-' + options.tableId);
+                $table.find('td.col' + options.colNum).empty();
+                var $th = $table.find('th.col' + options.colNum);
+                $th.addClass('newColumn')
+                    .find('.header').attr('class', 'header')
+                    .find('.iconHelper').attr('title', '');
+                TblManager.updatePrefix(options.tableId, options.colNum);
                 return PromiseHelper.resolve(null);
             } else {
                 return (ColManager.execCol("pull", options.origUsrStr,

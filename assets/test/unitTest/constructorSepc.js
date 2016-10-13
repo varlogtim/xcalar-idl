@@ -137,6 +137,33 @@ describe('Constructor Test', function() {
             expect(progCol.isDATACol()).to.be.true;
         });
 
+        it("Should get and set back col name", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimal" : 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getBackColName()).to.equal("prefix::backTest");
+            // case 1
+            progCol.setBackColName();
+            expect(progCol.getBackColName()).to.equal("prefix::backTest");
+            // case 2
+            progCol.setBackColName("prefix2::test2");
+            expect(progCol.getBackColName()).to.equal("prefix2::test2");
+            expect(progCol.getPrefix()).to.equal("prefix2");
+            // case 3
+            progCol.setBackColName("test3");
+            expect(progCol.getBackColName()).to.equal("test3");
+            expect(progCol.getPrefix()).to.equal("");
+        });
+
         it("Should set immediates type", function() {
             var progCol = new ProgCol({
                 "name"    : "test",

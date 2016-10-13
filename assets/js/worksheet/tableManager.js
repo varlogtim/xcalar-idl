@@ -1171,7 +1171,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         xcHelper.assert(table != null);
 
-        var oldColor = table.getPrefixColor();
+        var oldColor = table.getPrefixColor(prefix);
         $("#xcTable-" + tableId).find(".th .topHeader").each(function() {
             var $topHeader = $(this);
             if ($topHeader.find(".prefix").text() === prefix) {
@@ -1189,6 +1189,17 @@ window.TblManager = (function($, TblManager) {
             "oldColor" : oldColor,
             "newColor" : newColor,
         });
+    };
+
+    TblManager.updatePrefix = function(tableId, colNum) {
+        var table = gTables[tableId];
+        var $topHeader = $("#xcTable-" + tableId).find(".th.col" + colNum +
+                                                        " .topHeader");
+
+        var prefix = table.getCol(colNum).getPrefix();
+        $topHeader.find(".prefix").text(prefix);
+        var color = table.getPrefixColor(prefix);
+        $topHeader.attr("data-color", color).data("color", color);
     };
 
     TblManager.adjustRowFetchQuantity = function() {

@@ -620,6 +620,15 @@ ProgCol.prototype = {
         return this.backName;
     },
 
+    setBackColName: function(backColName) {
+        if (backColName == null) {
+            return;
+        }
+
+        this.backName = backColName;
+        this.prefix = xcHelper.parsePrefixColName(backColName).prefix;
+    },
+
     setImmediateType: function(typeId) {
         if (!DfFieldTypeTStr.hasOwnProperty(typeId)) {
             // error case
