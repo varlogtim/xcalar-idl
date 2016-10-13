@@ -719,6 +719,72 @@ describe('xcHelper Test', function() {
         expect(res).to.be.false;
     });
 
+    it('xcHelper.hasInvalidCharInCol should work', function() {
+        var testCases = [
+            {
+                "str": "abc^",
+                "res": false
+            },
+            {
+                "str": "ab(c",
+                "res": false
+            },
+            {
+                "str": "ab}c",
+                "res": false
+            },
+            {
+                "str": "ab[c",
+                "res": false
+            },
+            {
+                "str": "ab]c",
+                "res": false
+            },
+            {
+                "str": "ab:c",
+                "res": false
+            },
+            {
+                "str": "ab:c",
+                "res": false
+            },
+            {
+                "str": "ab\'c",
+                "res": false
+            },
+            {
+                "str": "ab\"c",
+                "res": false
+            },
+            {
+                "str": "abc",
+                "res": true
+            },
+            {
+                "str": "ab!c",
+                "res": true
+            },
+            {
+                "str": "ab@c",
+                "res": true
+            },
+            {
+                "str": "ab#c",
+                "res": true
+            },
+            {
+                "str": "ab$c",
+                "res": true
+            }
+        ]
+
+        testCases.forEach(function(test) {
+            var res = xcHelper.hasInvalidCharInCol(test.str);
+            expect(res).to.equal(test.res);
+        });
+    });
+
     it('xcHelper.escapeRegExp should work', function() {
         // case 1
         var res = xcHelper.escapeRegExp(']');

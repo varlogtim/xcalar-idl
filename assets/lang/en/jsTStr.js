@@ -135,7 +135,7 @@ ErrTStr = {
     'InvalidFilePath': 'Invalid file path.',
     'InvalidFile': 'Please select a file or a folder',
     'InvalidTableName': 'Table name cannot contain any of the ' +
-                        'following characters: *#\'\"',
+                        'following characters: *#\'\": or starting or ending spaces',
     'NoHashTag': 'Please input a valid name with no # symbols.',
     'NoSpecialChar': 'Please input a valid name with no special characters.',
     'NoSpecialCharOrSpace': 'Please input a valid name with no special' +
@@ -558,8 +558,10 @@ TblTStr = {
 
 ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
-    'RenameSpecialChar': 'Invalid name, cannot contain \\,\.\'()[]\"::or ' +
+    'RenameSpecialChar': 'Invalid name, cannot contain ^\\,\.\'()[]\":or ' +
                         'starting or ending spaces',
+    'RenameSpecialCharAgg': 'Invalid name, cannot contain \\,\.\'()[]\":or ' +
+                            'starting or ending spaces or ^ in the middle',
     'RenameStartNum': 'Invalid name, cannot begin with a number',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',

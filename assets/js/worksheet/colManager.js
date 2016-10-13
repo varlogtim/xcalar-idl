@@ -872,7 +872,7 @@ window.ColManager = (function($, ColManager) {
 
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
-        if (/^ | $|[,\(\)\[\]'"\.\\]|::/.test(name) === true) {
+        if (xcHelper.hasInvalidCharInCol(name)) {
             title = ColTStr.RenameSpecialChar;
             isDuplicate = true;
         } else if (name === 'DATA') {

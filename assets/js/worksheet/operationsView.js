@@ -3241,8 +3241,9 @@ window.OperationsView = (function($, OperationsView) {
                 "aggPrefix": gAggVarPrefix
             });
             invalid = false;
-        } else if (/^ | $|[,\(\)'"]/.test(val) === true) {
-            errorTitle = ColTStr.RenameSpecialChar;
+        } else if (xcHelper.hasInvalidCharInCol(val.substring(1))) {
+            // test the value after gAggVarPrefix
+            errorTitle = ColTStr.RenameSpecialCharAgg;
             invalid = true;
         } else if (val.length < 2) {
             errorTitle = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggLength, {

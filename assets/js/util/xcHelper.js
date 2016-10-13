@@ -1585,6 +1585,10 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.hasInvalidCharInCol = function(str) {
+        return /^ | $|[\^,\(\)\[\]'"\.\\]|:/.test(str);
+    };
+
     xcHelper.escapeHTMlSepcialChar = function(str) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
