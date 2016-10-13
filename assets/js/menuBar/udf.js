@@ -712,13 +712,14 @@ window.UDF = (function($, UDF) {
         'def convertNewLineJsonToArrayJson(instring, inpath):\n' +
             '\treturn "["+",".join(filter(None, re.split("\\n|,\\s*\\n", instring)))+"]"\n';
 
+        /**
         XcalarUploadPython(moduleName, entireString)
         .then(function() {
             UDF.storePython(moduleName, entireString);
         })
         .fail(function(error) {
             console.error("upload default udf failed", error);
-        });
+        }); */
     }
 
     return (UDF);

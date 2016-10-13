@@ -65,6 +65,10 @@ window.Installer = (function(Installer, $) {
             Installer.showStep(curStepId - 1);
         });
 
+        $(".buttonSection").on("click", "input.servers", function() {
+            step2Helper();
+        });
+
         $(".buttonSection").on("click", "input.clear", function() {
             var $form = $(this).closest("form");
             // Clear inputs
@@ -188,34 +192,38 @@ window.Installer = (function(Installer, $) {
 
     }
 
+    function step2Helper() {
+        numServers = $("#numServers").val();
+        var html = "";
+        var i;
+
+        var curNum = $(".row").length - 1;
+        if (curNum < numServers) {
+            // Add extra rows at bottom
+            var extraRows = numServers - curNum;
+            for (i = 0; i < extraRows; i++) {
+                html += hostnameHtml(i + 1 + curNum);
+            }
+            $(".row").last().after(html);
+        } else if (curNum > numServers) {
+            // Remove from the bottom
+            var toRemove = curNum - numServers;
+            for (i = 0; i < toRemove; i++) {
+                $(".row").last().remove();
+            }
+        }
+
+        $(".hostnameSection").removeClass("hidden");
+        $(".credentialSection").removeClass("hidden");
+        $(".title").removeClass("hidden");
+        $("#installButton").removeClass("hidden");
+    }
+
     function setUpStep2() {
         $("#numServers").on("keyup", function(e) {
             var keyCode = e.which;
             if (keyCode === 13) {
-                numServers = $("#numServers").val();
-                var html = "";
-                var i;
-
-                var curNum = $(".row").length - 1;
-                if (curNum < numServers) {
-                    // Add extra rows at bottom
-                    var extraRows = numServers - curNum;
-                    for (i = 0; i < extraRows; i++) {
-                        html += hostnameHtml(i + 1 + curNum);
-                    }
-                    $(".row").last().after(html);
-                } else if (curNum > numServers) {
-                    // Remove from the bottom
-                    var toRemove = curNum - numServers;
-                    for (i = 0; i < toRemove; i++) {
-                        $(".row").last().remove();
-                    }
-                }
-
-                $(".hostnameSection").removeClass("hidden");
-                $(".credentialSection").removeClass("hidden");
-                $(".title").removeClass("hidden");
-                $("#installButton").removeClass("hidden");
+                step2Helper();
             }
         });
 
@@ -605,6 +613,7 @@ window.Installer = (function(Installer, $) {
             deferred.reject();
         });
 
+        deferred.resolve();
         return deferred.promise();
     }
 
@@ -724,7 +733,14 @@ window.Installer = (function(Installer, $) {
         // This function is called when everything is done.
         // Maybe we can remove the installer here?
         // Redirect to first node's index
-        window.location = "http://" + finalStruct.hostnames[0];
+        $("form:visible .btn.next").val("LAUNCH XI").removeClass('next')
+                                                    .addClass("redirect");
+        $(".redirect").click(function() {
+            window.location = "http://" + finalStruct.hostnames[0];
+        });
+        $(".ldapSection").hide();
+        $(".successSection").show();
+        $("form:visible .btn.clear").hide();
     }
 
     return (Installer);

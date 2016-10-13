@@ -71,30 +71,30 @@
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
-                  <div class="label">Xcalar Deployed NFS</div>
+                  <div class="label">Xcalar Deployed</div>
                 </div>
                 <div class="radioButton nfsOption" data-option="customerNfs">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
-                  <div class="label">Pre-Existing NFS</div>
+                  <div class="label">Existing Shared Storage</div>
                 </div>
               </div>
               <div class="customerNfsOptions">
                 <div class="nfsMountPoint nfsSubOption">
-                  <div class="input" id="nfsServer" contenteditable="true" placeholder="[NFS Server]"></div>
+                  <div class="input" id="nfsServer" contenteditable="true" placeholder="[Server]"></div>
                   <span>:/</span>
                   <div class="input" id="nfsMountPoint" type="text" contenteditable="true" placeholder="[Mount Point]"></div>
-                  <div class="bar">NFS Path</div>
+                  <div class="bar">Path</div>
                 </div>
                 <div class="nfsUser nfsSubOption">
                   <input class="input" id="nfsUserName" type="text" autocomplete="off" placeholder="[user_id]  (optional)">
-                  <div class="bar">NFS Username</div>
+                  <div class="bar">Username</div>
                 </div>
                 <div class="nfsUser nfsSubOption">
                   <input class="input" id="nfsUserGroup" type="text" autocomplete="off" placeholder="[user_group]  (optional)">
-                  <div class="bar">NFS Group</div>
+                  <div class="bar">Group</div>
                 </div>
               </div>
             </div>
@@ -185,6 +185,7 @@
               <span>Unknown Error!</span>
             </div>
             <div class="section buttonSection">
+              <input class="btn servers" type="button" id="serversButton" value = "NEXT">
               <input class="btn next hidden" type="button" id="installButton" value="INSTALL">
               <input class="btn back" type="button" value="BACK">
               <input class="btn cancel hidden" type="button" value="CANCEL">
@@ -201,6 +202,9 @@
                 <span></span>
                 <span>Configure Parameters for LDAP</span>
               </div>
+            </div>
+            <div class="section successSection">
+              <h2> Installation Complete - Click on the button to launch Xcalar Insight </h2>
             </div>
             <div class="section ldapSection">
               <div class="inputWrap">

@@ -483,5 +483,10 @@ function responseError(res) {
 var httpServer = http.createServer(app);
 var port = 12124;
 httpServer.listen(port, function() {
-    console.log("I am listening on port " + port);
+    var hostname = process.env.DEPLOY_HOST;
+    if (!hostname) {
+        hostname = "localhost";
+    }
+    console.log("To start the installation process, please open a browser to\n" +
+                hostname + ":8443");
 });
