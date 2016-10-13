@@ -327,12 +327,7 @@ window.JSONModal = (function($, JSONModal) {
         });
 
         $jsonArea.on("mousedown", ".tab", function() {
-            var $tab = $(this);
-            if ($tab.hasClass('active')) {
-                return;
-            }
-            $tab.closest('.tabs').find('.tab').removeClass('active');
-            $tab.addClass('active');
+            selectTab($(this));
         });
 
         $jsonArea.on("mousedown", ".jsonDragHandle", function() {
@@ -350,6 +345,36 @@ window.JSONModal = (function($, JSONModal) {
                 $(document).off('.dragHandleMouseUp');
             });
         });
+    }
+
+    function selectTab($tab) {
+        if ($tab.hasClass('active')) {
+            return;
+        }
+       
+        var isImmediate = $tab.hasClass('immediates');
+        var isSeeAll = $tab.hasClass('seeAll');
+        var $jsonWrap = $tab.closest('.jsonWrap');
+        var $prefixGroups = $jsonWrap.find('.primary').find('.prefixGroup');
+        $tab.closest('.tabs').find('.tab').removeClass('active');
+        $tab.addClass('active');
+
+        if (isSeeAll) {
+            $prefixGroups.removeClass('xc-hidden');
+            $prefixGroups.find('.prefix').removeClass('xc-hidden');
+        } else {
+            $prefixGroups.addClass('xc-hidden');
+             $prefixGroups.find('.prefix').addClass('xc-hidden');
+            if (isImmediate) {
+                $prefixGroups.find('.prefix.immediates').parent()
+                                                    .removeClass('xc-hidden');
+            } else {
+                var prefix = $tab.data('id');
+                $prefixGroups.find('.prefix').filter(function() {
+                    return $(this).text() === prefix;
+                }).parent().removeClass('xc-hidden');
+            }
+        }
     }
 
     function compareIconSelect($compareIcon) {
@@ -555,14 +580,25 @@ window.JSONModal = (function($, JSONModal) {
         xcHelper.refreshTooltip($icon);
 
         var $jsonWrap = $icon.closest('.jsonWrap');
-        var $list = $jsonWrap.find('.primary').children().children().children();
-        $list.sort(sortList).prependTo($jsonWrap.find('.primary').children().children());
+        var $list = $jsonWrap.find('.primary').find('.mainKey');
+        var $groups = $jsonWrap.find('.prefixGroup');
+        $groups.sort(sortGroups).prependTo($jsonWrap.find('.groupWrap'));
+
+        $groups.each(function() {
+            var $group = $(this);
+            $group.find('.mainKey').sort(sortList).prependTo(
+                                                $group.children('.jObject'));
+        });
 
         searchHelper.$matches = [];
         searchHelper.clearSearch(function() {
             clearSearch();
         });
 
+        function sortGroups(a, b) {
+            return xcHelper.sortVals($(a).children('.prefix').text(), 
+                                     $(b).children('.prefix').text(), order);
+        }
         function sortList(a, b) {
             return xcHelper.sortVals($(a).data('key'), $(b).data('key'), order);
         }
@@ -840,7 +876,7 @@ window.JSONModal = (function($, JSONModal) {
         var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
         var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
         var tableName = gTables[tableId].tableName;
-        var prettyJson;
+        var prettyJson = "";
 
         if (type && (type !== "object" && type !== "array")) {
             var typeClass = "";
@@ -875,27 +911,119 @@ window.JSONModal = (function($, JSONModal) {
                     immds.push(tableMeta.valueAttrs[i].name);
                 }
             }
-            prettyJson = prettifyJson(jsonObj, null, checkboxes, {
-                "inarray"  : isArray,
-                "tableMeta": tableMeta,
-                "immds"    : immds
-            });
-            prettyJson = '<div class="jObject">' +
-                            '<span class="jArray jInfo">' + prettyJson +
+
+            var groups = splitJsonIntoGroups(jsonObj);
+            var count = 0;
+            var prefixHtml;
+            if (isArray) {
+                prettyJson = "[";
+            } else {
+                prettyJson = "{";
+            }
+            prettyJson += '<div class="groupWrap">'
+            for (var i = 0; i < groups.length; i++) {
+                var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
+                    "inarray"  : isArray,
+                    "tableMeta": tableMeta,
+                    "immds"    : []
+                });
+                tempJson = '<div class="jObject">' +
+                            '<span class="jArray jInfo">' + tempJson +
                             '</span>' +
                          '</div>';
-            if (isArray) {
-                prettyJson = '[' + prettyJson + ']';
-            } else {
-                prettyJson = '{' + prettyJson + '}';
-            }
-        }
 
-        // var $jsonWrap = $jsonArea.find('.jsonWrap:last');
+                if (!isArray && isDataCol) {
+                    if (groups[i].prefix === gPrefixSign) {
+                        prefix = '<div class="prefix immediates">Immediates</div>'
+                    } else {
+                        prefix = '<div class="prefix">' + groups[i].prefix +
+                                 '</div>';
+                    }
+                    tempJson =  '<div class="prefixGroup">' +
+                                    prefix + 
+                                    tempJson +
+                                '</div>';
+                }
+                prettyJson += tempJson;
+            }
+            prettyJson += '</div>';
+
+            if (isArray) {
+                prettyJson += "]";
+            } else {
+                prettyJson += "}";
+               
+            }
+            
+        }
         
         $jsonArea.append(getJsonWrapHtml(prettyJson, tableName, rowNum));
+        if (isDataCol) {
+            setPrefixTabs($jsonArea, groups);
+        }
 
         addDataToJsonWrap($jsonArea, $jsonTd, isArray);
+        
+    }
+
+    function splitJsonIntoGroups(jsonObj) {
+        var groups = {};
+        var splitName;
+        for (var key in jsonObj) {
+            var splitName = xcHelper.parsePrefixColName(key);
+            if (!splitName.prefix) {
+                if (!groups[gPrefixSign]) {
+                    groups[gPrefixSign] = {}; 
+                    // use :: for immediates since it's not allowed and 
+                    //          can't be taken 
+                }
+                groups[gPrefixSign][splitName.name] = jsonObj[key];
+            } else {
+                if (!groups[splitName.prefix]) {
+                    groups[splitName.prefix] = {};
+                }
+                groups[splitName.prefix][splitName.name] = jsonObj[key];
+            }
+        }
+        var groupsArray = [];
+        var groupObj;
+        for (var i in groups) {
+            if (i !== gPrefixSign) {
+                groupObj = {prefix: i};
+                groupObj.objs = groups[i];
+                groupsArray.push(groupObj);
+            }
+        }
+        groupsArray.sort(function(a, b) {
+            return a.prefix > b.prefix;
+        });
+        if (groups[gPrefixSign]) {
+            groupObj = {prefix: gPrefixSign, objs: groups[gPrefixSign]};
+            groupsArray.unshift(groupObj);
+        }
+
+        return groupsArray;
+    }
+
+    function setPrefixTabs($jsonArea, groups) {
+        var $tabWrap = $jsonArea.find('.tabWrap .tabs');
+        var html = "";
+        var prefix;
+        var classNames;
+        for (var i = 0; i < groups.length; i++) {
+            classNames = "";
+            prefix = groups[i].prefix;
+            if (prefix === gPrefixSign) {
+                prefix = "Immediates";
+                classNames += " immediates";
+            }
+            html += '<div class="tab' + classNames +  '" ' +
+                        'data-id="' + prefix + '">' +
+                        '<span class="text">' + prefix +
+                        '</span>' +
+                    '</div>';
+        }
+        $tabWrap.append(html);
     }
 
     function compare(jsonObjs, indices, multiple) {
@@ -1091,8 +1219,7 @@ window.JSONModal = (function($, JSONModal) {
                 refCounts[id]++;
             }
             
-            var numFields = $jsonWrap.find('.primary').children().children()
-                                                      .children().length;
+            var numFields = $jsonWrap.find('.primary').find('.mainKey').length;
             $jsonWrap.find('.colsSelected').data('totalcols', numFields)
                                            .text('0/' + numFields + ' selected');
         }
@@ -1164,20 +1291,20 @@ window.JSONModal = (function($, JSONModal) {
                             '<span class="text">' + JsonModalTStr.SeeAll +
                             '</span>' +
                         '</div>' +
-                        '<div class="tab original" data-toggle="tooltip" ' +
-                        'data-container="body" ' +
-                        'title="' + JsonModalTStr.OriginalTip + '">' +
-                            '<span class="icon"></span>' +
-                            '<span class="text">' + JsonModalTStr.Original +
-                            '</span>' +
-                        '</div>' +
-                        '<div class="tab xcOriginated" data-toggle="tooltip" ' +
-                        'data-container="body" ' +
-                        'title="' + JsonModalTStr.XcOriginatedTip + '">' +
-                            '<span class="icon"></span>' +
-                            '<span class="text">' + JsonModalTStr.XcOriginated +
-                            '</span>' +
-                        '</div>' +
+                        // '<div class="tab original" data-toggle="tooltip" ' +
+                        // 'data-container="body" ' +
+                        // 'title="' + JsonModalTStr.OriginalTip + '">' +
+                        //     '<span class="icon"></span>' +
+                        //     '<span class="text">' + JsonModalTStr.Original +
+                        //     '</span>' +
+                        // '</div>' +
+                        // '<div class="tab xcOriginated" data-toggle="tooltip" ' +
+                        // 'data-container="body" ' +
+                        // 'title="' + JsonModalTStr.XcOriginatedTip + '">' +
+                        //     '<span class="icon"></span>' +
+                        //     '<span class="text">' + JsonModalTStr.XcOriginated +
+                        //     '</span>' +
+                        // '</div>' +
                     '</div>' +
                 '</div>' +
                 // '<div class="projectWrap">' +
@@ -1237,6 +1364,7 @@ window.JSONModal = (function($, JSONModal) {
         return (html);
     }
 
+    // adjusting positions after drag and drop
     function resortJsons(initialIndex, newIndex) {
         var json = jsonData.splice(initialIndex, 1)[0];
         jsonData.splice(newIndex, 0, json);
@@ -1543,6 +1671,15 @@ window.JSONModal = (function($, JSONModal) {
         if (name.charAt(0) === '.') {
             name = name.substr(1);
             escapedName = escapedName.substr(1);
+        }
+
+        var $prefixGroup = $el.closest('.prefixGroup');
+        if ($prefixGroup.length) {
+            var $prefix = $prefixGroup.find('.prefix');
+            if (!$prefix.hasClass('immediates')) {
+                name = $prefix.text() + gPrefixSign + name;
+                escapedName = $prefix.text() + gPrefixSign + escapedName;
+            }
         }
 
         return {

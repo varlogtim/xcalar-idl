@@ -496,9 +496,10 @@
         }
 
         .tabWrap {
-            width: ~"calc(100% - 130px)";
+            // width: ~"calc(100% - 130px)";
+            width: ~"calc(100% - 215px)";
             height: 100%;
-            background-color:  @color-json-tab;
+            // background-color:  @color-json-tab;
             cursor: default;
             margin-left: 10px;
             display: none;
@@ -509,6 +510,7 @@
             max-width: 400px;
             height: 100%;
             float: left;
+            .flex-display;
         }
 
         .tab {
@@ -519,6 +521,9 @@
             line-height: 28px;
             border-left: 1px solid @color-json-tab-border;
             padding-right: 4px;
+            padding-left: 4px;
+            text-align: center;
+            .flex(1 1 auto);
 
             &:last-child {
                 border-right: 1px solid @color-json-tab-border;
@@ -536,18 +541,22 @@
                 width: 26px;
                 height: 100%;
                 float: left;
-                margin: 0 5%;
+                margin: 0 4%;
             }
 
             .text {
                 .textOverflowOneLine;
-                width: ~"calc(90% - 26px)";
+                text-align: center;
+                
             }
 
             &.seeAll {
-                width: 28%;
+                // width: 28%;
                 .icon {
                     .image("../../images/jsonModal/eye-dark.png", 50%, 50%);
+                }
+                .text {
+                    width: ~"calc(90% - 26px)";
                 }
             }
              &.original {
@@ -693,7 +702,7 @@
     }
 
     .jsonCheckbox {
-        .position(absolute, @top: 5px, @left: -15px);
+        .position(absolute, @top: 5px, @left: -14px);
         height: 16px;
         display: none;
     }
@@ -743,6 +752,20 @@
         white-space: nowrap;
         word-break: break-all;
     }
+
+    .groupWrap {
+        margin-top: -20px;
+    }
+    .prefixGroup {
+        margin-top: 20px; 
+    }
+
+    .prefix {
+        color: @color-prefix-gray;
+        margin-bottom: 4px;
+        margin-left: 11px;
+    }
+
 
     .emptyObj, .emptyArray {
         font-size: 4px;
