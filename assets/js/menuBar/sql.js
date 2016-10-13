@@ -299,12 +299,12 @@ window.SQL = (function($, SQL) {
             isUndo = false;
 
             updateUndoRedoState();
-            xcHelper.refreshTooltip($undo, 2000);
+            xcTooltip.refresh($undo);
             if (passed) {
                 deferred.resolve();
             }
         });
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     SQL.redo = function(step) {
@@ -362,12 +362,12 @@ window.SQL = (function($, SQL) {
             isRedo = false;
 
             updateUndoRedoState();
-            xcHelper.refreshTooltip($redo, 2000);
+            xcTooltip.refresh($redo);
             if (passed) {
                 deferred.resolve();
             }
         });
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     SQL.isUndo = function() {

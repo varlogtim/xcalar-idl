@@ -57,7 +57,7 @@ window.AggModal = (function($, AggModal) {
         });
 
         $quickAgg.on("mouseenter", ".tooltipOverflow", function() {
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
 
         $aggModal.on("click", ".tab", function() {

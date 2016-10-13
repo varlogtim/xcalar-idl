@@ -1532,8 +1532,13 @@ table.datasetTable {
             .dropDownList {
                 .size(@width: 300px);
                 clear: both;
+
                 &:first-child {
                     margin-bottom: 10px;
+                }
+
+                &.disabled {
+                    pointer-events: none;
                 }
             }
 

@@ -455,19 +455,17 @@ window.DagPanel = (function($, DagPanel) {
 
             if ($dagTable.find(".dagTableIcon").hasClass("icv")) {
                 $genIcvLi.addClass('unavailable');
-                xcHelper.changeTooltipText($genIcvLi, undefined,
-                                           TooltipTStr.AlreadyIcv);
-                xcHelper.reenableTooltip($genIcvLi);
+                xcTooltip.changeText($genIcvLi, TooltipTStr.AlreadyIcv);
+                xcTooltip.enable($genIcvLi);
             } else {
                 if (!$dagTable.hasClass("icv") &&
                     (operator === 'map' || operator === 'groupBy')) {
                     $genIcvLi.removeClass('unavailable');
-                    xcHelper.temporarilyDisableTooltip($genIcvLi);
+                    xcTooltip.disable($genIcvLi);
                 } else {
                     $genIcvLi.addClass('unavailable');
-                    xcHelper.changeTooltipText($genIcvLi, undefined,
-                                               TooltipTStr.IcvRestriction);
-                    xcHelper.reenableTooltip($genIcvLi);
+                    xcTooltip.changeText($genIcvLi, TooltipTStr.IcvRestriction);
+                    xcTooltip.enable($genIcvLi);
                 }
             }
 

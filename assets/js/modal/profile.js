@@ -93,7 +93,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         $modal.on("mouseenter", ".tooltipOverflow", function(){
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
 
         // show tootip in barArea and do not let in blink in padding

@@ -1089,7 +1089,7 @@ window.WSManager = (function($, WSManager) {
         });
 
         $section.on("mouseenter", ".tooltipOverflow", function() {
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
 
         // rename

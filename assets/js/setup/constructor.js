@@ -3094,7 +3094,7 @@ FormHelper.prototype = {
         var self = this;
         var $form = self.$form;
         $form.on("mouseenter", ".tooltipOverflow", function() {
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
     },
 

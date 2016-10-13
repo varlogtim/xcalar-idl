@@ -865,16 +865,16 @@ window.xcHelper = (function($, xcHelper) {
             $btn.removeClass("gridView").addClass("listView")
                 .removeClass("xi-list-view").addClass("xi-grid-view");
             // suggest become 'to grid view'
-            $btn.attr("data-original-title", TooltipTStr.ToGridView);
+            xcTooltip.changeText($btn, TooltipTStr.ToGridView);
         } else {
             // toggle to grid view
             $btn.removeClass("listView").addClass("gridView")
                 .removeClass("xi-grid-view").addClass("xi-list-view");
-            $btn.attr("data-original-title", TooltipTStr.ToListView);
+            xcTooltip.changeText($btn, TooltipTStr.ToListView);
         }
         // refresh tooltip
         if (!noRefresh) {
-            xcHelper.refreshTooltip($btn);
+            xcTooltip.refresh($btn);
         }
     };
 
@@ -1939,100 +1939,6 @@ window.xcHelper = (function($, xcHelper) {
         }
         xcHelper.insertText($input, value, {append: options.append});
         gMouseEvents.setMouseDownTarget($input);
-    };
-
-    xcHelper.removeTooltip = function($element, selector) {
-        var $elementToChange = $element;
-        if (selector) {
-            $elementToChange = $element.find(selector);
-        }
-
-        $elementToChange.removeAttr("title")
-                        .removeAttr("data-toggle")
-                        .removeAttr("data-container")
-                        .removeAttr("data-placement")
-                        .removeAttr("data-original-title");
-        $(".tooltip").hide();
-        return ($element);
-    };
-
-    xcHelper.addTooltip = function($element, selector, options) {
-        var title = options.title || ""; // You must have this!
-        var toggle = "tooltip";
-        var container = options.container || "body";
-        var placement = options.placement || "top";
-
-        var $elementToChange = $element;
-        if (selector) {
-            $elementToChange = $element.find(selector);
-        }
-
-        $elementToChange.attr("title", "")
-                        .attr("data-toggle", toggle)
-                        .attr("data-container", container)
-                        .attr("data-placement", placement)
-                        .attr("data-original-title", title);
-        return ($element);
-    };
-
-    xcHelper.temporarilyDisableTooltip = function($element, selector) {
-        var $elementToChange = $element;
-        if (selector) {
-            $elementToChange = $element.find(selector);
-        }
-
-        $elementToChange.removeAttr("data-toggle")
-                        .removeAttr("title");
-    };
-
-    xcHelper.reenableTooltip = function($element, selector) {
-        var $elementToChange = $element;
-        if (selector) {
-            $elementToChange = $element.find(selector);
-        }
-
-        $elementToChange.attr("data-toggle", "tooltip");
-    };
-
-    xcHelper.changeTooltipText = function($element, selector, text) {
-        var $elementToChange = $element;
-        if (selector) {
-            $elementToChange = $element.find(selector);
-        }
-
-
-        $elementToChange.attr("title", "")
-                        .attr("data-original-title", text);
-    };
-
-    xcHelper.autoTooltip = function(outerEl, targEl) {
-        var $ele = $(outerEl);
-        var targetEl;
-        if (targEl) {
-            targetEl = targEl;
-        } else {
-            targetEl = outerEl;
-        }
-        if (targetEl.offsetWidth < targetEl.scrollWidth) {
-            $ele.attr({
-                'data-container': 'body',
-                'data-toggle'   : 'tooltip'
-            });
-        } else {
-            $ele.removeAttr('data-container data-toggle');
-        }
-    };
-
-    var tooltipTimer;
-    xcHelper.refreshTooltip = function($ele, timer) {
-        clearTimeout(tooltipTimer);
-        $ele.mouseenter();
-        $ele.mouseover();
-        if (timer) {
-            tooltipTimer = setTimeout(function() {
-                $ele.mouseleave();
-            }, timer);
-        }
     };
 
     // not only looks for gColPrefix but checks to make sure it's not preceded by

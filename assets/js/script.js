@@ -84,7 +84,7 @@ window.StartManager = (function(StartManager, $) {
         // Support.setup() get username, so need to be at very eary time
         Support.setup();
 
-        setupTooltips();
+        xcTooltip.setup();
         MainMenu.setup();
         setupWorkspaceBar();
         StatusMessage.setup();
@@ -338,23 +338,6 @@ window.StartManager = (function(StartManager, $) {
 
         $("#signout").click(function() {
             unloadHandler();
-        });
-    }
-
-    function setupTooltips() {
-        $("body").tooltip({
-            "selector": '[data-toggle="tooltip"]',
-            "html"    : true,
-            "delay"   : {
-                "show": 250,
-                "hide": 100
-            }
-        });
-
-        // element's delay attribute will take precedence - unique for xcalar
-
-        $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
-            $(".tooltip").hide();
         });
     }
 

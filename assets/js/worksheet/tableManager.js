@@ -1224,7 +1224,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
 
         $td.addClass('rowBookmarked');
-        xcHelper.changeTooltipText($td, '.idSpan', TooltipTStr.Bookmarked);
+        xcTooltip.changeText($td.find('.idSpan'), TooltipTStr.Bookmarked);
         $('.tooltip').hide();
         RowScroller.addBookmark(rowNum, tableId);
         table.addBookmark(rowNum);
@@ -1243,7 +1243,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
 
         $td.removeClass('rowBookmarked');
-        xcHelper.changeTooltipText($td, '.idSpan', TooltipTStr.Bookmark);
+        xcTooltip.changeText($td.find('.idSpan'), TooltipTStr.Bookmark);
         $('.tooltip').hide();
         RowScroller.removeBookmark(rowNum, tableId);
         table.removeBookmark(rowNum);
@@ -1914,7 +1914,7 @@ window.TblManager = (function($, TblManager) {
             // So we are going to handle this, which removes the background
             // And the handler below will move the focus onto this table
             var txId = $(this).data("txid");
-            xcHelper.refreshTooltip($(".lockedTableIcon .iconPart"), 100);
+            xcTooltip.refresh($(".lockedTableIcon .iconPart"), 100);
             QueryManager.cancelQuery(txId);
         });
 
@@ -2442,7 +2442,7 @@ window.TblManager = (function($, TblManager) {
         };
 
         $thead.on("mouseenter", ".tooltipOverflow", function() {
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
     };
 

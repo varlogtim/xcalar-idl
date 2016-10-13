@@ -101,7 +101,7 @@ window.FnBar = (function(FnBar, $) {
                 lastFocusedCol === undefined) {
                 // No active column, disallow user from typing in a
                 newText = "";
-                xcHelper.refreshTooltip($('#funcBarMenuArea'), 1000);
+                xcTooltip.refresh($('#funcBarMenuArea'), 1000);
             }
             if (change.update) {
                 change.update(change.from, change.to, [newText]);

@@ -576,8 +576,8 @@ window.JSONModal = (function($, JSONModal) {
             tooltipText = JsonModalTStr.SortDesc;
             order = -1;
         }
-        xcHelper.changeTooltipText($icon, null, tooltipText);
-        xcHelper.refreshTooltip($icon);
+        xcTooltip.changeText($icon, tooltipText);
+        xcTooltip.refresh($icon);
 
         var $jsonWrap = $icon.closest('.jsonWrap');
         var $list = $jsonWrap.find('.primary').find('.mainKey');

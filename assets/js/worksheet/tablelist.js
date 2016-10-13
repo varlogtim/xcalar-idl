@@ -107,11 +107,11 @@ window.TableList = (function($, TableList) {
         });
 
         $tableListSections.on("mouseenter", ".tableName", function(){
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
 
         $tableListSections.on("mouseenter", ".constName", function(){
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
 
         $tableListSections.on("click", ".submit.archive", function() {

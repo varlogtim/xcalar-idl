@@ -33,10 +33,10 @@ window.JoinView = (function($, JoinView) {
                   '<i class="icon xi-equal-circle fa-14"></i>' +
                 '</div>' +
               '</div>' +
-              '<input class="clause rightClause inActive arg" type="text" ' +
-                'data-original-title="' + JoinTStr.NoRightTable +
-                '" data-toggle="tooltip" data-container="body" ' +
-                'spellcheck="false" disabled/>' +
+              '<input class="clause rightClause inActive arg" type="text"' +
+                ' data-original-title="' + JoinTStr.NoRightTable + '"' +
+                ' data-toggle="tooltip" data-container="body"' +
+                ' spellcheck="false" disabled/>' +
         '</div>';
 
     var renameTemplate =
@@ -142,20 +142,14 @@ window.JoinView = (function($, JoinView) {
                 var originalText = $textBox.text();
                 $(".rightClause").removeClass("inActive")
                                  .attr("disabled", false);
-                xcHelper.removeTooltip($(".rightClause"));
-                xcHelper.removeTooltip($rightTableDropdown
-                                 .siblings('.subHeading').find('.tooltipWrap'));
+                var $subHeading = $rightTableDropdown.siblings('.subHeading');
+                xcTooltip.remove($(".rightClause"));
+                xcTooltip.remove($subHeading.find('.tooltipWrap'));
 
                 if (originalText !== tableName) {
                     // $tableNameText.text(tableName).data('id', tableId);
                     $textBox.text(tableName);
-                    xcHelper.removeTooltip(
-                        $rightTableDropdown.siblings('.subHeading')
-                                           .find('.tooltipWrap')
-                    );
-                    $rightTableDropdown.siblings('.subHeading')
-                                       .find('.iconWrap')
-                                       .removeClass('inactive');
+                    $subHeading.find('.iconWrap').removeClass('inactive');
 
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
@@ -1226,10 +1220,9 @@ window.JoinView = (function($, JoinView) {
     function addClause($placeholder, noAnimation, tableId, colNum) {
         var $newClause = $(multiClauseTemplate);
         if ($("#joinRightTableList .text").text().trim().length > 0) {
-            $newClause = xcHelper.removeTooltip($(multiClauseTemplate),
-                                                ".rightClause");
-            $newClause.find(".rightClause").attr("disabled", false)
-                                           .removeClass("inActive");
+            var $rightClause = $newClause.find(".rightClause");
+            xcTooltip.remove($rightClause);
+            $rightClause.attr("disabled", false).removeClass("inActive");
         }
         var $div = $newClause.insertBefore($placeholder);
         if (tableId) {
@@ -1250,11 +1243,11 @@ window.JoinView = (function($, JoinView) {
         $clauseContainer.find('.clause').val("");
         $joinView.find('.next').addClass('btn-disabled');
         $rightTableDropdown.find('.text').empty();
-        $rightTableDropdown.siblings('.subHeading').find('.iconWrap')
-                                       .addClass('inactive');
-        xcHelper.addTooltip($rightTableDropdown.siblings('.subHeading')
-                                               .find('.tooltipWrap'),
-                            false, {"title": JoinTStr.NoRightTable});
+        var $subHeading = $rightTableDropdown.siblings('.subHeading');
+        $subHeading.find('.iconWrap').addClass('inactive');
+        xcTooltip.add($subHeading.find('.tooltipWrap'), {
+            "title": JoinTStr.NoRightTable
+        });
         isNextNew = true;
 
         updatePreviewText();

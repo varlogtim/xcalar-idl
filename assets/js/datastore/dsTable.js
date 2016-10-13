@@ -408,7 +408,7 @@ window.DSTable = (function($, DSTable) {
         });
 
         $tableWrap.on('mouseenter', '.tooltipOverflow', function() {
-            xcHelper.autoTooltip(this);
+            xcTooltip.auto(this);
         });
 
         $dsTableContainer.scroll(function(){

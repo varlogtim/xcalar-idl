@@ -79,7 +79,7 @@ window.DSExport = (function($, DSExport) {
             $form.find('.formatSpecificRow').removeClass('active');
             $form.find('.placeholderRow').removeClass('xc-hidden');
             $targetTypeInput.data('value', "");
-            xcHelper.reenableTooltip($udfFuncList.parent());
+            xcTooltip.enable($udfFuncList.parent());
             $udfFuncList.addClass("disabled");
             $gridView.find(".gridArea .active").removeClass("active");
             // var $inputs = $exportTargetCard.find('input:enabled');
@@ -203,7 +203,7 @@ window.DSExport = (function($, DSExport) {
             "onSelect": function($li) {
                 var module = $li.text();
                 $udfModuleList.find('.udfModuleName').val(module);
-                xcHelper.temporarilyDisableTooltip($udfFuncList.parent());
+                xcTooltip.disable($udfFuncList.parent());
                 var $funcListLis = $udfFuncList.removeClass("disabled")
                                     .find("input").val("")
                                     .end()

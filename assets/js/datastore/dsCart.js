@@ -729,7 +729,7 @@ window.DSCart = (function($, DSCart) {
             // });
         }
 
-        function scrollHelper(showToolTip) {
+        function scrollHelper(showTooltip) {
             var $table = $("#dsTable");
             var $dsTableContainer = $('#dsTableContainer');
             var colNum = $cartArea.find(".colSelected").data("colnum");
@@ -741,7 +741,7 @@ window.DSCart = (function($, DSCart) {
             $dsTableContainer.scrollLeft(position - (dataWrapWidth / 2) +
                                         (columnWidth / 2));
 
-            if (showToolTip) {
+            if (showTooltip) {
                 $column.parent().find(".header").tooltip("destroy");
                 var $header = $column.children(".header");
                 $header.tooltip({

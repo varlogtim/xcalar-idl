@@ -329,7 +329,7 @@ window.Workbook = (function($, Workbook) {
                 return;
             }
 
-            xcHelper.autoTooltip(this, $input[0]);
+            xcTooltip.auto(this, $input[0]);
         });
     }
 

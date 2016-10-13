@@ -384,11 +384,9 @@ window.DFCard = (function($, DFCard) {
 
     function enableDagTooltips() {
         var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
-        xcHelper.temporarilyDisableTooltip($tooltipTables);
-        xcHelper.addTooltip($('#dfgViz').find('.dataStoreIcon'), null, {
-            "container": "body",
-            "placement": "top",
-            "title"    : CommonTxtTstr.ClickToOpts
+        xcTooltip.disable($tooltipTables);
+        xcTooltip.add($('#dfgViz').find('.dataStoreIcon'), {
+            "title": CommonTxtTstr.ClickToOpts
         });
     }
 

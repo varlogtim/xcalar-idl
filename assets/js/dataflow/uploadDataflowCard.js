@@ -118,13 +118,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             $dfName.val(retName);
             if (path.indexOf(".tar.gz") > 0) {
                 $card.find(".confirm").removeClass("btn-disabled");
-                xcHelper.temporarilyDisableTooltip(
-                                              $card.find(".buttonTooltipWrap"));
+                xcTooltip.disable($card.find(".buttonTooltipWrap"));
             } else {
                 $card.find(".confirm").addClass("btn-disabled");
-                xcHelper.reenableTooltip($card.find(".buttonTooltipWrap"));
-                StatusBox.show(ErrTStr.RetinaFormat, $retPath, false,
-                               {"side": "bottom"});
+                xcTooltip.enable($card.find(".buttonTooltipWrap"));
+                StatusBox.show(ErrTStr.RetinaFormat, $retPath, false, {
+                    "side": "bottom"
+                });
             }
         });
 
@@ -156,7 +156,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         $browserBtn.val("");
         // Not user friendly but safer
         $card.find(".checkbox").removeClass("checked");
-        xcHelper.reenableTooltip($card.find(".buttonTooltipWrap"));
+        xcTooltip.enable($card.find(".buttonTooltipWrap"));
     }
 
     return (UploadDataflowCard);
