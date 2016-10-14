@@ -504,32 +504,25 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
     };
 
-    xcFunction.groupBy = function(operator, tableId,
-                                   indexedCols, aggColName,
+    xcFunction.groupBy = function(operator, tableId, groupByCols, aggCol,
                                    newColName, options)
     {
-        // indexedCols is the 2nd argument in the groupby modal
-        // aggColName is the 1st argument in the groupby modal
-        var deferred = jQuery.Deferred();
-
         // Validation
-        if (tableId < 0 || indexedCols.length < 1 || aggColName.length < 1) {
-            deferred.reject("Invalid Parameters!");
-            return (deferred.promise());
+        if (tableId == null ||
+            groupByCols.length < 1 ||
+            aggCol.length < 1)
+        {
+            return PromiseHelper.reject("Invalid Parameters!");
         }
+
         options = options || {};
+
+        var deferred = jQuery.Deferred();
         var isIncSample = options.isIncSample || false;
         var isJoin = options.isJoin || false;
         var icvMode = options.icvMode || false;
 
-        // extract groupByCols
-        var groupByCols = indexedCols.split(",");
-        // trim each groupbycol
-        for (var i = 0; i < groupByCols.length; i++) {
-            groupByCols[i] = groupByCols[i].trim();
-        }
-
-        var tableName = gTables[tableId].tableName;
+        var tableName = gTables[tableId].getName();
         var finalTableName;
         var finalTableCols;
 
@@ -544,18 +537,32 @@ window.xcFunction = (function($, xcFunction) {
             steps = 2;
         }
 
+        var sql = {
+            "operation"  : SQLOps.GroupBy,
+            "operator"   : operator,
+            "tableName"  : tableName,
+            "tableId"    : tableId,
+            "groupByCols": groupByCols,
+            "aggCol"     : aggCol,
+            "newColName" : newColName,
+            "options"    : options,
+            "htmlExclude": ["options"]
+        };
+
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.GroupBy + " " + operator,
             "operation": SQLOps.GroupBy,
-            "steps"    : steps
+            "steps"    : steps,
+            "sql"      : sql
         });
 
         xcHelper.lockTable(tableId, txId);
+
         var startTime = (new Date()).getTime();
         var focusOnTable = false;
-        var startScrollPosition = $('#mainFrame').scrollLeft();
+        var scrollPos = $('#mainFrame').scrollLeft();
 
-        XIApi.groupBy(txId, operator, groupByCols, aggColName,
+        XIApi.groupBy(txId, operator, groupByCols, aggCol,
                       isIncSample, tableName, newColName, null, icvMode)
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
@@ -570,10 +577,10 @@ window.xcFunction = (function($, xcFunction) {
             finalTableCols = nTableCols;
             finalTableName = nTableName;
 
-            focusOnTable = checkIfShouldScrollNewTable(startTime,
-                                                        startScrollPosition);
+            focusOnTable = checkIfShouldScrollNewTable(startTime, scrollPos);
             var tableOptions = {"focusWorkspace": focusOnTable};
             var tablesToReplace = null;
+
             if (isJoin) {
                 tablesToReplace = [tableName];
                 tableOptions.selectCol = 1;
@@ -585,23 +592,10 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function() {
             xcHelper.unlockTable(tableId);
+            sql.newTableName = finalTableName;
 
-            var sql = {
-                "operation"   : SQLOps.GroupBy,
-                "operator"    : operator,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "indexedCols" : indexedCols,
-                "aggColName"  : aggColName,
-                "newColName"  : newColName,
-                "options"     : options,
-                "newTableName": finalTableName,
-                "htmlExclude" : ["options"]
-            };
-
-            var finalTableId = xcHelper.getTableId(finalTableName);
             Transaction.done(txId, {
-                "msgTable"      : finalTableId,
+                "msgTable"      : xcHelper.getTableId(finalTableName),
                 "sql"           : sql,
                 "noNotification": focusOnTable
             });
@@ -610,18 +604,6 @@ window.xcFunction = (function($, xcFunction) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
-
-            var sql = {
-                "operation"   : SQLOps.GroupBy,
-                "operator"    : operator,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "indexedCols" : indexedCols,
-                "aggColName"  : aggColName,
-                "newColName"  : newColName,
-                "isIncSample" : isIncSample,
-                "newTableName": finalTableName
-            };
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.GroupByFailed,

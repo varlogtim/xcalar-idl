@@ -404,8 +404,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Join] = ["lColNums", "lTableId", "rColNums", "rTableId",
                                 "joinStr", "newTableName", "lRename", "rRename"
                                 ];
-        argsMap[SQLOps.GroupBy] = ["operator", "tableId", "indexedCols",
-                                    "aggColName", "newColName", "options"];
+        argsMap[SQLOps.GroupBy] = ["operator", "tableId", "groupByCols",
+                                    "aggCol", "newColName", "options"];
         argsMap[SQLOps.Project] = ["colNames", "tableId"];
         argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
         argsMap[SQLOps.HideTable] = ["tableId"];

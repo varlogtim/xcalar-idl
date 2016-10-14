@@ -2840,33 +2840,26 @@ window.OperationsView = (function($, OperationsView) {
 
     function groupBy(operator, args, colTypeInfos) {
         // Current groupBy args has at least 3 arguments:
-        // 1. grouby col
-        // 2. indexed col
+        // 1. agg col
+        // 2. grouby col(cols)
         // 3. new col name
         var deferred = jQuery.Deferred();
         var numArgs = args.length;
         var groupByColIndex = numArgs - 2;
-        var groupByColName = args[groupByColIndex];
+        var aggCol = args[groupByColIndex];
 
-        if (colTypeInfos.length) {
-            for (var i = 0; i < colTypeInfos.length; i++) {
-                if (colTypeInfos[i].argNum === groupByColIndex) {
-                    groupByColName = xcHelper.castStrHelper(
-                                                    args[groupByColIndex],
-                                                    colTypeInfos[i].type);
-                    break;
-                }
+        colTypeInfos = colTypeInfos || [];
+        colTypeInfos.forEach(function(colInfo) {
+            if (colInfo.argNum === groupByColIndex) {
+                aggCol = xcHelper.castStrHelper(aggCol, colInfo.type);
+                // stop looping
+                return false;
             }
-        }
+        });
 
-        // var singleArg = true;
-        // var indexedColNames = args[1];
-        var indexedColNames = "";
+        var groupByCols = [];
         for (var i = 0; i < groupByColIndex; i++) {
-            indexedColNames += ", " + args[i];
-        }
-        if (indexedColNames) {
-            indexedColNames = indexedColNames.slice(2);
+            groupByCols.push(args[i].trim());
         }
 
         var newColName = args[numArgs - 1];
@@ -2888,7 +2881,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var startTime = Date.now();
-        xcFunction.groupBy(operator, tableId, indexedColNames, groupByColName,
+        xcFunction.groupBy(operator, tableId, groupByCols, aggCol,
                             newColName, options)
         .then(deferred.resolve)
         .fail(function(error) {

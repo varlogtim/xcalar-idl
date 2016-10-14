@@ -21,7 +21,9 @@ window.XIApi = (function(XIApi, $) {
 
     // dstAggName is optional and can be left blank (will autogenerate)
     XIApi.aggregate = function(txId, aggOp, colName, tableName, dstAggName) {
-        if (colName == null || tableName == null || aggOp == null || txId == null) {
+        if (colName == null || tableName == null ||
+            aggOp == null || txId == null)
+        {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
         var evalStr = generateAggregateString(colName, aggOp);
