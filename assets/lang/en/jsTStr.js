@@ -11,6 +11,7 @@ StatusMessageTStr = {
     'TableCreationFailed' : 'Table creation failed',
     'Join' : 'Joining tables',
     'JoinFailed' : 'Join table failed',
+    'JoinFailedAlt' : 'Join failed',
     'DeleteTable' : 'Dropping table',
     'DeleteTableFailed': 'Drop table failed',
     'DeleteConstFailed': 'Drop constant failed',
@@ -350,9 +351,15 @@ JoinTStr = {
                   'mismatch, cannot join',
     'EstimatedJoin': 'Estimated join size',
     'EstimatingJoin': 'Estimating join size...',
+    'JOIN': 'JOIN',
+    'ModifyDesc': 'Would you like to modify the join?',
+
+
 
     //with replace
-    'NoJoin': 'Cannot join <type>'
+    'NoJoin': 'Cannot join <type>',
+    'MismatchDetail': 'Cannot join column of type <type1> with column of type ' +
+                     '<type2>'
 };
 
 ExportTStr = {

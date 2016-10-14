@@ -2986,6 +2986,7 @@ window.OperationsView = (function($, OperationsView) {
             name: operatorName.toUpperCase()
         });
         var title;
+        var btnClass = "";
         switch (operatorName) {
             case "filter":
                 title = StatusMessageTStr.FilterFailedAlt;
@@ -2995,13 +2996,16 @@ window.OperationsView = (function($, OperationsView) {
                 break;
             case "group by":
                 title = StatusMessageTStr.GroupByFailed;
+                btnClass = "larger";
                 break;
             default:
                 return;
         }
+        
         Alert.error(title, newMsg, {
             buttons: [{
                 name: btnText,
+                className: btnClass,
                 func: function() {
                     OperationsView.show(null , null , null , true);
                 }

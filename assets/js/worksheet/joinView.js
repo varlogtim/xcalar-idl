@@ -21,7 +21,7 @@ window.JoinView = (function($, JoinView) {
     var formOpenTime; // stores the last time the form was opened
     var turnOnPrefix = true; // Set to false if backend crashes
 
-    var validTypes = ['integer', 'float', 'string', 'float'];
+    var validTypes = ['integer', 'float', 'string', 'boolean'];
 
     var formHelper;
     var multiClauseTemplate =
@@ -512,7 +512,7 @@ window.JoinView = (function($, JoinView) {
                 return;
             }
         }
-        $joinView.scrollTop(0);
+        $joinView.find('.mainContent').scrollTop(0);
     }
 
     function checkFirstView() {
@@ -593,12 +593,69 @@ window.JoinView = (function($, JoinView) {
                     "title": errorText
                 });
                 return (false);
-            } else {
-                return (true);
             }
+        }
+        var matchRes = checkMatchingColTypes(lCols, rCols, tableIds);
+
+        if (!matchRes.success) {
+            var $row = $clauseContainer.find('.joinClause').eq(matchRes.row);
+            showErrorTooltip($row, {
+                "title": xcHelper.replaceMsg(JoinTStr.MismatchDetail, {
+                    type1: '<b>' + matchRes.types[0] + '</b>',
+                    type2: '<b>' + matchRes.types[1] + '</b>'
+                }),
+                "html": true
+            },
+            {time: 3000});
+            return false;
         }
 
         return (true);
+    }
+
+    // assumes lCols and rCols exist, returns obj with sucess property
+    // will return obj with success:false if has definitivly mistmatching types
+    function checkMatchingColTypes(lCols, rCols, tableIds) {
+        var lTable = gTables[tableIds[0]];
+        var rTable = gTables[tableIds[1]];
+        var lProgCol;
+        var rProgCol;
+        var lType;
+        var rType;
+        var problemTypes = ["integer", "float", "number"];
+
+        for (var i = 0; i < lCols.length; i++) {
+            lProgCol = lTable.getColByFrontName(lCols[i]);
+            rProgCol = rTable.getColByFrontName(rCols[i]);
+            lType = lProgCol.getType();
+            rType = rProgCol.getType();
+
+            if (lType !== rType) {
+                if (problemTypes.indexOf(lType) !== -1 && 
+                    problemTypes.indexOf(rType) !== -1) {
+                    if (lProgCol.isImmediate() && rProgCol.isImmediate()) {
+                        return {
+                            success: false,
+                            types: [lType, rType],
+                            row: i
+                        };
+                    } else {
+                        // if one of the columns has a problematic type but is 
+                        // not an immediate, we really don't know it's true type
+                        // and could be matching
+                    }
+                } else {
+                    // types don't match and they're not problematic types so
+                    // they really must not match
+                    return {
+                        success: false,
+                        types: [lType, rType],
+                        row: i
+                    };
+                }
+            }
+        }
+        return {success: true};
     }
 
     function estimateJoinSize() {
@@ -1123,14 +1180,55 @@ window.JoinView = (function($, JoinView) {
 
             JoinView.close();
 
+            var startTime = Date.now();
+
             xcFunction.join(lColNums, lTableId, rColNums, rTableId, joinType,
-                            newTableName, leftRenames, rightRenames, options);
+                            newTableName, leftRenames, rightRenames, options)
+            .fail(function(error) {
+                submissionFailHandler(startTime, error);
+            });
         }
 
         function removeNoChanges(elem) {
             return (!(elem.orig === elem.new));
         }
     }
+
+    //show alert to go back to op view
+    function submissionFailHandler(startTime) {
+        var endTime = Date.now();
+        var elapsedTime = endTime - startTime;
+        var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
+        if (timeSinceLastClick < elapsedTime) {
+            return;
+        }
+        var origMsg = $("#alertContent .text").text().trim();
+        if (origMsg.length && origMsg[origMsg.length - 1] !== ".") {
+            origMsg += ".";
+        }
+        var newMsg = origMsg;
+        if (origMsg.length) {
+            newMsg += "\n";
+        }
+        newMsg += JoinTStr.ModifyDesc;
+        var btnText = xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
+            name: JoinTStr.JOIN
+        });
+
+        var btnClass = "";
+        var title = StatusMessageTStr.JoinFailedAlt;
+
+        Alert.error(title, newMsg, {
+            buttons: [{
+                name: btnText,
+                className: btnClass,
+                func: function() {
+                    JoinView.show(null , null , true);
+                }
+            }]
+        });
+    }
+
 
     function autoResolveImmediatesCollisions(clashes,
                                              leftColsToKeep, rightColsToKeep,
@@ -1292,7 +1390,7 @@ window.JoinView = (function($, JoinView) {
 
     var tooltipTimer;
 
-    function showErrorTooltip($el, options) {
+    function showErrorTooltip($el, options, otherOptions) {
         var deafultOptions = {
             "title"    : "",
             "placement": "top",
@@ -1301,6 +1399,8 @@ window.JoinView = (function($, JoinView) {
             "trigger"  : "manual",
             "template" : xcTooltip.Template.Error
         };
+        otherOptions = otherOptions || {};
+        var displayTime = otherOptions.time || 2000;
 
         options = $.extend(deafultOptions, options);
 
@@ -1308,7 +1408,7 @@ window.JoinView = (function($, JoinView) {
         // cannot overwrite previous title without removing the title attributes
         clearTimeout(tooltipTimer);
 
-        tooltipTimer = xcTooltip.transient($el, options, 2000);
+        tooltipTimer = xcTooltip.transient($el, options, displayTime);
         $el.focus();
     }
 
