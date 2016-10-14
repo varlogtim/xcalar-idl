@@ -157,6 +157,14 @@ describe('xcHelper Test', function() {
         expect(openCount).to.equal(closeCount);
     });
 
+    it('xcHelper.getJoinRenameMap should work', function() {
+        var res = xcHelper.getJoinRenameMap("oldName", "newName");
+        expect(res).to.be.an("object");
+        expect(Object.keys(res).length).to.equal(2);
+        expect(res).to.have.property("orig").and.to.equal("oldName");
+        expect(res).to.have.property("new").and.to.equal("newName");
+    });
+
     it('xcHelper.getFilterOptions should work', function() {
         // error case
         var res = xcHelper.getFilterOptions(null);

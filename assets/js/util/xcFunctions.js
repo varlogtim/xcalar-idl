@@ -560,7 +560,8 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
                 var dataColNum = gTables[tableId].getColNumByBackName("DATA");
-                return groupByJoinHelper(nTableName, nTableCols, dataColNum);
+                return groupByJoinHelper(nTableName, nTableCols, dataColNum,
+                                         isIncSample);
             } else {
                 return PromiseHelper.resolve(nTableName, nTableCols);
             }
@@ -631,41 +632,61 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         });
 
-        function groupByJoinHelper(nTableName, nTableCols, dataColNum) {
+        function groupByJoinHelper(nTable, nCols, dataColNum, isIncSample) {
             var innerDeferred = jQuery.Deferred();
 
             var joinType = JoinOperatorT.FullOuterJoin;
-            var joinedTableId = Authentication.getHashId();
-            finalTableName = xcHelper.getTableName(nTableName) + joinedTableId;
-            var lTable     = gTables[tableId];
-            var lTableName = lTable.tableName;
-            // var rTableId   = xcHelper.getTableId(nTableName);
-            var rTableName = nTableName;
+            var jonTable = xcHelper.getTableName(nTable) +
+                            Authentication.getHashId();
+            var lTable = gTables[tableId];
+            var lTName = gTables[tableId].getName();
 
-            var lColNames = groupByCols;
-            var rColNames = [];
-            for (var i = 0; i < lColNames.length; i++) {
-                rColNames.push(lColNames[i]);
-            }
+            var rTName = nTable;
+            var lCols = groupByCols;
 
-            TblManager.setOrphanTableMeta(nTableName, nTableCols);
+            var rRenam = [];
 
-            XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
-                        finalTableName)
-            .then(function(finalTableName, finalTableCols) {
-                // remove the duplicated columns that were joined
-                finalTableCols.splice(finalTableCols.length -
-                                    (nTableCols.length), nTableCols.length - 1);
-                // put datacol back to where it was
-                finalTableCols.splice(dataColNum - 1, 0,
-                        finalTableCols.splice(finalTableCols.length - 1, 1)[0]);
-                // put the groupBy column in front
-                finalTableCols.unshift(nTableCols[0]);
-                innerDeferred.resolve(finalTableName, finalTableCols);
-            })
-            .fail(function(error) {
-                innerDeferred.reject(error);
+            var rCols = groupByCols.map(function(colName) {
+                var parse = xcHelper.parsePrefixColName(colName);
+                var hasNameConflict;
+
+                if (isIncSample) {
+                    // XXX Cheng: now we don't support join back with incSample
+                    // once support, need to verify if it works
+                    hasNameConflict = lTable.hasCol(parse.name, parse.prefix);
+                } else {
+                    colName = parse.name;
+                    hasNameConflict = lTable.hasCol(parse.name, "");
+                }
+
+                if (hasNameConflict) {
+                    // when has immediates conflict
+                    console.info("Has immediates conflict, auto resolved");
+
+                    var newName = xcHelper.randName(parse.name + "_GB", 3);
+                    renameMap = xcHelper.getJoinRenameMap(colName, newName);
+                    rRenam.push(renameMap);
+                }
+
+                return colName;
             });
+
+            TblManager.setOrphanTableMeta(nTable, nCols);
+
+            XIApi.join(txId, joinType, lCols, lTName, rCols, rTName, jonTable,
+                        null, null, [], rRenam)
+            .then(function(jonTable, joinTableCols) {
+                // remove the duplicated columns that were joined
+                joinTableCols.splice(joinTableCols.length -
+                                    (nCols.length), nCols.length - 1);
+                // put datacol back to where it was
+                joinTableCols.splice(dataColNum - 1, 0,
+                        joinTableCols.splice(joinTableCols.length - 1, 1)[0]);
+                // put the groupBy column in front
+                joinTableCols.unshift(nCols[0]);
+                innerDeferred.resolve(jonTable, joinTableCols);
+            })
+            .fail(innerDeferred.reject);
 
             return innerDeferred.promise();
         }

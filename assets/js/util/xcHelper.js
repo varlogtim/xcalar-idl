@@ -203,6 +203,13 @@ window.xcHelper = (function($, xcHelper) {
         return tableLis;
     };
 
+    xcHelper.getJoinRenameMap = function(oldName, newName) {
+        return {
+            "orig": oldName,
+            "new" : newName
+        };
+    };
+
     xcHelper.getMultiJoinMapString = function(args) {
         var mapStr = "";
         var len = args.length;

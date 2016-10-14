@@ -926,7 +926,7 @@ window.XIApi = (function(XIApi, $) {
             // getIndexOfFirstGroupByCol
             for (var i = 0; i < tableCols.length; i++) {
                 // Skip DATA and new column
-                if (tableCols[i].isDATACol() || tableCols[i].isNewCol) {
+                if (tableCols[i].isDATACol() || tableCols[i].isEmptyCol()) {
                     continue;
                 }
 
@@ -955,6 +955,8 @@ window.XIApi = (function(XIApi, $) {
                 // both "a\.b" and "a.b" will become "a\.b" after groupby
                 escapedName = xcHelper.unescapeColName(backColName);
                 escapedName = xcHelper.escapeColName(escapedName);
+                // with no sample, group col is immediates
+                escapedName = xcHelper.parsePrefixColName(escapedName).name;
                 var colName = progCol.name || backColName;
 
                 finalCols[1 + i] = ColManager.newCol({
@@ -995,7 +997,7 @@ window.XIApi = (function(XIApi, $) {
             for (var i = 0; i < numGroupByCols; i++) {
                 var progCol = srcTable.getColByBackName(groupByCols[i]);
                 if (progCol != null) {
-                    groupByColTypes[i] = progCol.type;
+                    groupByColTypes[i] = progCol.getType();
                 } else {
                     console.error("Error Case!");
                     groupByColTypes[i] = null;
@@ -1028,8 +1030,9 @@ window.XIApi = (function(XIApi, $) {
             var isLastTable = (i === groupByCols.length - 1);
             tableCols = extractColGetColHelper(finalTableCols, i + 1, isIncSample);
 
+            var parsedName = xcHelper.parsePrefixColName(groupByCols[i]).name;
             var args = {
-                "colName"     : groupByCols[i],
+                "colName"     : parsedName,
                 "mapString"   : mapStr,
                 "srcTableName": currTableName,
                 "newTableName": newTableName

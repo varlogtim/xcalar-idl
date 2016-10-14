@@ -1163,26 +1163,29 @@ window.JoinView = (function($, JoinView) {
         // If only one is undefed, then we rename the other defined one
 
         for (i = 0; i < leftClashArray.length; i++) {
+            var oldName;
+            var newName;
+            var renameMap;
+
             if (leftClashArray[i] === undefined) {
                 if (rightClashArray[i] === undefined) {
                     // Both undefined, do nothing
                 } else {
                     // Push right clash into rename
-                    rightRenameOut.push({
-                        "orig": rightClashArray[i],
-                        "new" : rightClashArray[i] + "_" + suff
-                    });
+                    oldName = rightClashArray[i];
+                    newName = rightClashArray[i] + "_" + suff;
+                    renameMap = xcHelper.getJoinRenameMap(oldName, newName);
+                    rightRenameOut.push(renameMap);
                 }
             } else {
                 // For both cases where only left is def or both are def
                 // we rename the left
-                leftRenameOut.push({
-                    "orig": leftClashArray[i],
-                    "new" : leftClashArray[i] + "_" + suff
-                });
+                oldName = leftClashArray[i];
+                newName = leftClashArray[i] + "_" + suff;
+                renameMap = xcHelper.getJoinRenameMap(oldName, newName);
+                leftRenameOut.push(renameMap);
             }
         }
-
         return;
     }
 
