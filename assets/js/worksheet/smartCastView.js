@@ -9,7 +9,6 @@ window.SmartCastView = (function($, SmartCastView) {
     var recTypes = [];
     var isOpen = false;
     var formHelper;
-    var mainMenuPrevState;
 
     // constant
     var validTypes = ["string", "integer", "float", "boolean"];
@@ -17,7 +16,6 @@ window.SmartCastView = (function($, SmartCastView) {
     SmartCastView.setup = function() {
         $castView = $("#smartCastView");
         $castTable = $("#smartCast-table");
-
 
         formHelper = new FormHelper($castView);
 
@@ -79,22 +77,13 @@ window.SmartCastView = (function($, SmartCastView) {
 
         $castMenu.on("mouseup", "li", function() {
             var colNum = $castMenu.data("col");
-            var $li = $(this);
-            var colType = $li.data("type");
+            var colType = $(this).data("type");
             changeColType(colNum, colType);
         });
-
     };
 
     SmartCastView.show = function(tableId) {
-        mainMenuPrevState = MainMenu.getState();
-        $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
-        $castView.removeClass("xc-hidden");
-        if (!MainMenu.isMenuOpen("mainMenu")) {
-            MainMenu.open();
-        } else {
-            BottomMenu.close(true);
-        }
+        formHelper.showView();
 
         curTableId = tableId;
         isOpen = true;
@@ -133,8 +122,7 @@ window.SmartCastView = (function($, SmartCastView) {
         }
 
         isOpen = false;
-        $castView.addClass('xc-hidden');
-        MainMenu.restoreState(mainMenuPrevState);
+        formHelper.hideView();
 
         clearCast();
 

@@ -13,7 +13,6 @@ window.DFCreateView = (function($, DFCreateView) {
     var validTypes = ['string', 'integer', 'float', 'boolean'];
     var isOpen = false; // tracks if form is open
     var saveFinished = true; // tracks if last submit ended
-    var mainMenuPrevState;
 
     DFCreateView.setup = function() {
         $dfView = $('#dfCreateView');
@@ -37,17 +36,8 @@ window.DFCreateView = (function($, DFCreateView) {
         }
         isOpen = true;
         $curDagWrap = $dagWrap;
-        mainMenuPrevState = MainMenu.getState();
-        $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
-        $dfView.removeClass('xc-hidden');
-        var wasMenuOpen = false;
-        if (!MainMenu.isMenuOpen("mainMenu")) {
-            MainMenu.open();
-        } else {
-            BottomMenu.close(true);
-            wasMenuOpen = false;
-        }
 
+        var wasMenuOpen = formHelper.showView();
         tableName = $dagWrap.find('.tableName').text();
         tableId = xcHelper.getTableId(tableName);
 
@@ -392,8 +382,7 @@ window.DFCreateView = (function($, DFCreateView) {
         $("#xcTable-" + tableId).off(".columnPicker");
         $("#xcTable-" + tableId).find('.modalHighlighted')
                                 .removeClass('modalHighlighted');
-        $dfView.addClass('xc-hidden');
-        MainMenu.restoreState(mainMenuPrevState);
+        formHelper.hideView();
 
         $newNameInput.val("");
         $(document).off('keypress.DFView');

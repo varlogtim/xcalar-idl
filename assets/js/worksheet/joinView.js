@@ -17,7 +17,6 @@ window.JoinView = (function($, JoinView) {
     var allClashingImmediatesCache;
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
-    var mainMenuPrevState;
     var formOpenTime; // stores the last time the form was opened
     var turnOnPrefix = true; // Set to false if backend crashes
 
@@ -412,15 +411,7 @@ window.JoinView = (function($, JoinView) {
             return;
         }
         isOpen = true;
-        mainMenuPrevState = MainMenu.getState();
-
-        $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
-        $joinView.removeClass('xc-hidden');
-        if (!MainMenu.isMenuOpen("mainMenu")) {
-            MainMenu.open();
-        } else {
-            BottomMenu.close(true);
-        }
+        formHelper.showView();
         formOpenTime = Date.now();
 
         if (!restore) {
@@ -459,8 +450,7 @@ window.JoinView = (function($, JoinView) {
         isOpen = false;
         lastSideClicked = null;
         focusedListNum = null;
-        MainMenu.restoreState(mainMenuPrevState);
-        $joinView.addClass('xc-hidden');
+        formHelper.hideView();
         formHelper.clear();
         $("body").off(".joinModal");
         $lastInputFocused = null;
@@ -631,16 +621,16 @@ window.JoinView = (function($, JoinView) {
             rType = rProgCol.getType();
 
             if (lType !== rType) {
-                if (problemTypes.indexOf(lType) !== -1 && 
+                if (problemTypes.indexOf(lType) !== -1 &&
                     problemTypes.indexOf(rType) !== -1) {
                     if (lProgCol.isImmediate() && rProgCol.isImmediate()) {
                         return {
                             success: false,
-                            types: [lType, rType],
-                            row: i
+                            types  : [lType, rType],
+                            row    : i
                         };
                     } else {
-                        // if one of the columns has a problematic type but is 
+                        // if one of the columns has a problematic type but is
                         // not an immediate, we really don't know it's true type
                         // and could be matching
                     }
@@ -649,8 +639,8 @@ window.JoinView = (function($, JoinView) {
                     // they really must not match
                     return {
                         success: false,
-                        types: [lType, rType],
-                        row: i
+                        types  : [lType, rType],
+                        row    : i
                     };
                 }
             }

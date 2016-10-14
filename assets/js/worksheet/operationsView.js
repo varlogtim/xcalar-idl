@@ -31,8 +31,6 @@ window.OperationsView = (function($, OperationsView) {
     var aggFunctionsListScroller;
     var tableId;
     var formHelper;
-    var mainMenuPrevState; // used to restore main menu state once operation is
-                            // closed
     var formOpenTime; // stores the last time the form was opened
 
     // shows valid cast types
@@ -624,14 +622,7 @@ window.OperationsView = (function($, OperationsView) {
         var deferred = jQuery.Deferred();
         isOpen = true;
 
-        mainMenuPrevState = MainMenu.getState();
-        $('#workspaceMenu').find('.menuSection').addClass('xc-hidden');
-        $operationsView.removeClass('xc-hidden');
-        if (!MainMenu.isMenuOpen("mainMenu")) {
-            MainMenu.open();
-        } else {
-            BottomMenu.close(true);
-        }
+        formHelper.showView();
         formOpenTime = Date.now();
 
         if (restore) {
@@ -3721,9 +3712,8 @@ window.OperationsView = (function($, OperationsView) {
         toggleOperationsViewDisplay(true);
         formHelper.removeWaitingBG();
         enableInputs();
-        $operationsView.addClass('xc-hidden');
+        formHelper.hideView();
         $activeOpSection.addClass('xc-hidden');
-        MainMenu.restoreState(mainMenuPrevState);
 
         formHelper.clear();
         StatusBox.forceHide();// hides any error boxes;

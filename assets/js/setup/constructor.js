@@ -3073,6 +3073,7 @@ function FormHelper($form, options) {
      * noEsc: if set true, no event listener on key esc,
      * columnPicker: a object with column picker options, has attrs:
      *      state: the column picker's state
+     *      mainMenuState: main menu's state before open the view
      *      noEvent: if set true, no picker event handler
      *      colCallback: called when click on column
      *      headCallback: called when click on table head
@@ -3081,6 +3082,7 @@ function FormHelper($form, options) {
     this.options = options || {};
     this.id = $form.attr("id");
     this.state = null;
+    this.mainMenuState = null;
 
     this.init();
 
@@ -3191,6 +3193,28 @@ FormHelper.prototype = {
         }
 
         return deferred.promise();
+    },
+
+    showView: function() {
+        this.mainMenuState = MainMenu.getState();
+        $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
+        this.$form.removeClass("xc-hidden");
+
+        var wasMenuOpen = false;
+        if (MainMenu.isMenuOpen("mainMenu")) {
+            BottomMenu.close(true);
+            wasMenuOpen = true;
+        } else {
+            MainMenu.open();
+        }
+
+        return wasMenuOpen;
+    },
+
+    hideView: function() {
+        this.$form.addClass('xc-hidden');
+        MainMenu.restoreState(this.mainMenuState);
+        this.mainMenuState = null;
     },
 
     checkBtnFocus: function() {
