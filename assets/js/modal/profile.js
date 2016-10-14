@@ -891,6 +891,7 @@ window.Profile = (function($, Profile, d3) {
             }
 
             finalTable = getNewName(tableName, ".profile.final", true);
+            colName = xcHelper.parsePrefixColName(colName).name;
             return sortGroupby(groupbyTable, colName, finalTable, txId);
         })
         .then(function(maxVal, sumVal) {
@@ -902,7 +903,6 @@ window.Profile = (function($, Profile, d3) {
             });
 
             curStatsCol.groupByInfo.isComplete = true;
-
             if (tableToDelete != null) {
                 var innerDeferred = jQuery.Deferred();
                 // delete the indexed table if exist
@@ -1919,6 +1919,7 @@ window.Profile = (function($, Profile, d3) {
         // both "a\.b" and "a.b" will become "a\.b" after groupby
         colName = xcHelper.unescapeColName(colName);
         colName = xcHelper.escapeColName(colName);
+        colName = xcHelper.parsePrefixColName(colName).name;
         var mapCol = xcHelper.randName("bucketMap", 4);
 
         // example map(mult(floor(div(review_count, 10)), 10))
