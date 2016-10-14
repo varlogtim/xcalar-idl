@@ -140,7 +140,7 @@ window.XcSDK.Extension.prototype = (function() {
                             newColName, newTableName, false)
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);
-                deferred.resolve(dstTable);
+                deferred.resolve(dstTable, dstCols);
             })
             .fail(deferred.reject);
 

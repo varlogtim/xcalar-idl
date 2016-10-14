@@ -160,7 +160,6 @@ window.UExtDev = (function(UExtDev) {
 
             var leftRowsPromise = ext.getNumRows(srcTableName);
             var rightRowsPromise = ext.getNumRows(rTableName);
-
             var leftPromise = ext.groupBy(AggrOp.Count, lColNames, lColName,
                                           false, srcTableName, leftGBColName,
                                           ext.createTempTableName())
@@ -221,12 +220,14 @@ window.UExtDev = (function(UExtDev) {
                 var i = 0;
                 var leftObj = {};
                 var rightObj = {};
+                var lKeyCol = ext.convertPrefixColumn(lColName);
                 for (i = 0; i < leftArray.length; i++) {
-                    leftObj[leftArray[i][lColName]] =
+                    leftObj[leftArray[i][lKeyCol]] =
                                                     leftArray[i][leftGBColName];
                 }
+                var rKeyCol = ext.convertPrefixColumn(rColName);
                 for (i = 0; i < rightArray.length; i++) {
-                    rightObj[rightArray[i][rColName]] =
+                    rightObj[rightArray[i][rKeyCol]] =
                                                   rightArray[i][rightGBColName];
                 }
 

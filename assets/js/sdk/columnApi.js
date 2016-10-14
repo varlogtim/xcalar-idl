@@ -15,11 +15,19 @@ window.XcSDK.Column = function(colName, colType) {
 };
 
 window.XcSDK.Column.prototype = {
-    "getName": function() {
+    getName: function() {
         return this.colName;
     },
 
-    "getType": function() {
+    getType: function() {
         return this.colType;
-    }
+    },
+
+    getPrefix: function() {
+        return xcHelper.parsePrefixColName(this.colName).prefix;
+    },
+
+    getParsedName: function() {
+        return xcHelper.parsePrefixColName(this.colName).name;
+    },
 };

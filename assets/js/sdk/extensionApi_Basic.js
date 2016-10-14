@@ -167,6 +167,10 @@ window.XcSDK.Extension.prototype = (function() {
             return gAggVarPrefix + aggName;
         },
 
+        convertPrefixColumn: function(colName) {
+            return xcHelper.parsePrefixColName(colName).name;
+        },
+
         // basically execution function
         "initialize": function(tableName, worksheet, args) {
             // Important: User cannot change this function!!!

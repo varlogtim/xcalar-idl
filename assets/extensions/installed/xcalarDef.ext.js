@@ -180,7 +180,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             })
             .then(function(tableWithRowNum, rowNumCol) {
                 // Step 3: Generate the columns for lag and lead. We need to
-                // duplicate current table to have a unique column name if not
+                // duplicate current table to have a unique column name, if not
                 // later we will suffer when we self join
                 var defArray = [];
                 var i;
@@ -399,7 +399,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
         var winColName = winCol.getName();
         var winColType = winCol.getType();
-        var newColName;
 
         var srcTable;
         var suffix = (index + 1);
@@ -410,18 +409,19 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             mapStr = "float" + mapStr;
         }
 
+        var newColName = winCol.getParsedName();
         if (state === WinState.lag) {
             // lag
             srcTable = tableNames.lag[index];
-            newColName = "lag_" + suffix + "_" + winColName;
+            newColName = "lag_" + suffix + "_" + newColName;
         } else if (state === WinState.lead) {
             // lead
             srcTable = tableNames.lead[index];
-            newColName = "lead_" + suffix + "_" + winColName;
+            newColName = "lead_" + suffix + "_" + newColName;
         } else if (state === WinState.cur) {
             // cur
             srcTable = tableNames.cur;
-            newColName = "cur_" + winColName;
+            newColName = "cur_" + newColName;
         } else {
             return XcSDK.Promise.reject("Error Case");
         }
@@ -482,7 +482,8 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         var tableNames = ext.getAttribute("tableNames");
         var srcTable = tableNames.cur;
 
-        var newColName = "orig_" + colName + "_" + ext.getAttribute("randNumber");
+        var newColName = "orig_" + sortCol.getParsedName() + "_" +
+                         ext.getAttribute("randNumber");
         var newTableName = ext.createTableName(null, null, srcTable);
 
         tableNames.cur = newTableName;
@@ -498,30 +499,32 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
     function getUniqueValues(ext) {
         var deferred = XcSDK.Promise.deferred();
-        var keyCol = ext.getArgs().partitionCol.getName();
+        var partitionCol = ext.getArgs().partitionCol;
+        var keyColName = partitionCol.getName();
         var srcTable = ext.getTriggerTable().getName();
         var rowsToFetch = ext.getArgs().partitionNums;
 
-        // Step 1. Do groupby count($keyCol), GROUP BY ($keyCol)
-        // aka, index on keyCol and then groupby count
+        // Step 1. Do groupby count($partitionCol), GROUP BY ($partitionCol)
+        // aka, index on partitionCol and then groupby count
         // this way we get the unique value of src table
         var isIncSample = false;
         var groupByCol = ext.createColumnName();
         var groupbyTable = ext.createTempTableName("GB.");
         var aggOp = XcSDK.Enums.AggType.Count;
 
-        ext.groupBy(aggOp, keyCol, keyCol,
+        ext.groupBy(aggOp, keyColName, keyColName,
                     isIncSample, srcTable,
                     groupByCol, groupbyTable)
         .then(function(tableAfterGroupby) {
             // Step 2. Sort on desc on groupby table by groupByCol
-            // this way, the keyCol that has most count comes first
+            // this way, the partitionCol that has most count comes first
             var sortTable = ext.createTempTableName("GB-Sort.");
             return ext.sortDescending(groupByCol, tableAfterGroupby, sortTable);
         })
         .then(function(tableAfterSort) {
+            var fetchCol = partitionCol.getParsedName();
             // Step 3, fetch data
-            return ext.fetchColumnData(keyCol, tableAfterSort, 1, rowsToFetch);
+            return ext.fetchColumnData(fetchCol, tableAfterSort, 1, rowsToFetch);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
