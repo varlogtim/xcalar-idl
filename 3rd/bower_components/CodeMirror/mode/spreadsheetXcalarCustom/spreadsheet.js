@@ -30,7 +30,9 @@
         };
       },
       token: function (stream, state) {
-        if (!stream) return;
+        if (!stream) {
+          return;
+        } 
 
         //check for state changes
         if (state.stack.length === 0) {
@@ -41,7 +43,6 @@
             state.stack.unshift("string");
           }
         }
-
 
         //return state
         //stack has
@@ -62,11 +63,13 @@
 
         case "characterClass":
           while (state.stack[0] === "characterClass" && !stream.eol()) {
-            if (!(stream.match(/^[^\]\\]+/) || stream.match(/^\\./)))
+            if (!(stream.match(/^[^\]\\]+/) || stream.match(/^\\./))) {
               state.stack.shift();
+            }
           }
           return "operator";
         }
+
 
         var peek = stream.peek();
         //no stack
@@ -88,8 +91,10 @@
           stream.next();
           return "comma";
         case ":":
-          stream.next();
-          return "udfColon";
+          // stream.next();
+
+          break;
+          // return "udfColon";
         case ";":
         case "*":
         case "-":
@@ -114,25 +119,38 @@
           }
         }
 
-        // xcalar custom code - tag map, pull, filter, null, true, false
+        // tag map, pull, filter, null, true, false
         if (stream.match(keywords, false)) {
             stream.match(/^[a-zA-Z_]\w*/);
             // ok if followed by paren or space
-            if (stream.match(/(?=[\( ])/, false)) return "xckeyword";
-            return "variable-2";
+            if (stream.match(/(?=[\(:])/, false)) {
+              return "xckeyword";
+            } else {
+              return "variable-2";
+            }
+          
         } else if (stream.match(specialWords, false)) {
             stream.match(/^[a-zA-Z_]\w*/);
-            if (stream.match(/(?=[\(])/, false)) return "keyword";
-            return "xcspecial";
+            if (stream.match(/(?=[\(])/, false)) {
+              return "keyword";
+            } else {
+              return "xcspecial";
+            }
         }
-        // end xcalar custom code
 
         if (stream.match(/\d+/)) {
-          if (stream.match(/^\w+/)) return "error"; // 4sdf produces error
-          return "number";
-        } else if (stream.match(/^[a-zA-Z_]\w*/)) {
-          if (stream.match(/(?=[\(:])/, false)) return "keyword";
-          return "variable-2";
+          if (stream.match(/^\w+/)) {
+            return "error"; // 4sdf produces error
+          } else {
+            return "number";
+          }
+        } else if (stream.match(/^[a-zA-Z_]\w*\:*\w*/)) { 
+          if (stream.match(/(?=[\(])/, false)) {
+            return "keyword";
+          } else {
+            return "variable-2";
+          }    
+
         } else if (["[", "]", "(", ")", "{", "}"].indexOf(peek) != -1) {
           stream.next();
           return "bracket";

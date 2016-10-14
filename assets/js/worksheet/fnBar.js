@@ -384,7 +384,7 @@ window.FnBar = (function(FnBar, $) {
                 curWord = curWord.toLowerCase();
                 // search columnNames
                 for (var name in colNamesCache) {
-                    if (name.lastIndexOf(curWord, 0) === 0 &&
+                    if (name.indexOf(curWord) !== -1 &&
                         !seen.hasOwnProperty(name)) {
                         seen[name] = true;
                         list.push({
@@ -445,6 +445,7 @@ window.FnBar = (function(FnBar, $) {
             if (list.length === 1 && curWord === list[0].text) {
                 list = [];
             }
+            
             return ({
                 list: list,
                 from: CodeMirror.Pos(0, start),
