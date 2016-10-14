@@ -126,6 +126,17 @@ window.ExportView = (function($, ExportView) {
                 }
 
                 $exportPath.val($li.text());
+                var type = $li.data('type');
+                $exportPath.data('type', type);
+
+                // only show export in sorted order if file stystem
+                if (parseInt(type) === ExTargetTypeT.ExTargetSFType) {
+                    $exportView.find('.exportRowOrderSection')
+                                .removeClass('xc-hidden');
+                } else {
+                    $exportView.find('.exportRowOrderSection')
+                                .addClass('xc-hidden');
+                }
             }
         });
         expList.setupListeners();
@@ -178,8 +189,6 @@ window.ExportView = (function($, ExportView) {
             focusedListNum = colNum;
             focusedThNum = null;
         });
-
-        $exportView.find('.clearInput').click(clearAllCols);
 
     };
 
@@ -248,7 +257,7 @@ window.ExportView = (function($, ExportView) {
         $tableWraps.find('.modalHighlighted')
                   .removeClass('modalHighlighted');
            
-
+        $exportView.find('.exportRowOrderSection').addClass('xc-hidden');
         exportTableName = null;
         exportTargInfo = null;
         $exportPath.val("");
@@ -275,8 +284,9 @@ window.ExportView = (function($, ExportView) {
         var deferred = jQuery.Deferred();
 
         var keepOrder = false;
-        if ($exportView.find('.keepOrderedCBWrap')
-                        .find('.checkbox.checked').length) {
+        if (parseInt($exportPath.data('type')) === ExTargetTypeT.ExTargetSFType 
+            && $exportView.find('.keepOrderedCBWrap')
+                          .find('.checkbox.checked').length) {
             keepOrder = true;
         }
 
@@ -465,7 +475,7 @@ window.ExportView = (function($, ExportView) {
         var $exportList = $('#exportLists').find('ul');
         var lis = '<li class="hint">Choose a target</li>';
         for (var i = 0; i < numTargets; i++) {
-            lis += "<li>" + targets[i].hdr.name + "</li>";
+            lis += '<li data-type="' + targets[i].hdr.type + '">' + targets[i].hdr.name + '</li>';
         }
         $exportList.html(lis);
         var $defaultLi = $exportList.find('li').filter(function() {
@@ -473,6 +483,15 @@ window.ExportView = (function($, ExportView) {
         });
 
         $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());
+        var type = $defaultLi.data('type')
+        $exportPath.data('type', type);
+        if (parseInt(type) === ExTargetTypeT.ExTargetSFType) {
+            $exportView.find('.exportRowOrderSection')
+                        .removeClass('xc-hidden');
+        } else {
+            $exportView.find('.exportRowOrderSection')
+                        .addClass('xc-hidden');
+        }
     }
 
     function addColumnSelectListeners() {
