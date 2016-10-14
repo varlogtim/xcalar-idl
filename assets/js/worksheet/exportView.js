@@ -379,7 +379,7 @@ window.ExportView = (function($, ExportView) {
             return (deferred.promise());
         }
 
-        checkDuplicateExportName(exportName)
+        checkDuplicateExportName(exportName, advancedOptions)
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
                 xcHelper.validate([{
@@ -425,8 +425,14 @@ window.ExportView = (function($, ExportView) {
     }
 
     // if duplicate is found, returns true
-    function checkDuplicateExportName(name) {
+    function checkDuplicateExportName(name, advancedOptions) {
         var deferred = jQuery.Deferred();
+        if (advancedOptions.createRule !== 
+            ExExportCreateRuleT.ExExportCreateOnly) {
+            deferred.resolve(false);
+            return deferred.promise();
+        }
+
         var targName = $exportPath.val();
         var numTargs = exportTargInfo.numTargets;
         var filePath = "";
