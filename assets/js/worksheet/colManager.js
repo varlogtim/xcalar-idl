@@ -930,15 +930,11 @@ window.ColManager = (function($, ColManager) {
             // bugs
             var $toolTipTarget = $input.parent();
 
-            $toolTipTarget.tooltip({
-                "title"    : title,
-                "placement": "top",
-                "trigger"  : "manual",
-                "container": "body",
-                "template" : TooltipTemplate.Error
+            xcTooltip.transient($toolTipTarget, {
+                "title"   : title,
+                "template": xcTooltip.Template.Error
             });
 
-            $toolTipTarget.tooltip('show');
             $input.click(hideTooltip);
 
             var timeout = setTimeout(function() {

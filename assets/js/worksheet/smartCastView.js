@@ -313,17 +313,9 @@ window.SmartCastView = (function($, SmartCastView) {
         xcHelper.centerFocusedColumn(curTableId, colNum, true);
 
         var $th = $("#xcTable-" + curTableId).find("th.col" + colNum);
-        $th.tooltip({
+        xcTooltip.transient($th, {
             "title"    : TooltipTStr.FocusColumn,
-            "placement": "top",
-            "animation": "true",
             "container": "#container",
-            "trigger"  : "manual"
-        });
-
-        $th.tooltip("show");
-        setTimeout(function() {
-            $th.tooltip("destroy");
         }, 1000);
     }
 

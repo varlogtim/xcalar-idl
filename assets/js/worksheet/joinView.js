@@ -369,32 +369,20 @@ window.JoinView = (function($, JoinView) {
                                                 JoinTStr.NoMatchLeft;
                         showErrorTooltip($suggErrorArea, {
                             "title"    : text,
-                            "placement": "right",
-                            "animation": "true",
-                            "container": "body",
-                            "trigger"  : "manual",
-                            "template" : TooltipTemplate.Error
+                            "placement": "right"
                         });
                     }
                 } else {
                     showErrorTooltip($suggErrorArea, {
-                        "title"    : 'No available column names to check',
-                        "placement": "right",
-                        "animation": "true",
-                        "container": "body",
-                        "trigger"  : "manual",
-                        "template" : TooltipTemplate.Error
+                        "title"    : JoinTStr.NoColToCheck,
+                        "placement": "right"
                     });
                 }
             } else {
                 // no table selected in dropdown
                 showErrorTooltip($suggErrorArea, {
-                    "title"    : 'Select a left and right table first',
-                    "placement": "right",
-                    "animation": "true",
-                    "container": "body",
-                    "trigger"  : "manual",
-                    "template" : TooltipTemplate.Error
+                    "title"    : JoinTStr.NoRightTable,
+                    "placement": "right"
                 });
             }
 
@@ -578,12 +566,7 @@ window.JoinView = (function($, JoinView) {
                 });
             }
             showErrorTooltip($input, {
-                "title"    : errorText,
-                "placement": "top",
-                "animation": "true",
-                "container": "body",
-                "trigger"  : "manual",
-                "template" : TooltipTemplate.Error
+                "title": errorText
             });
             return false;
         } else {
@@ -607,12 +590,7 @@ window.JoinView = (function($, JoinView) {
                     });
                 }
                 showErrorTooltip($input, {
-                    "title"    : errorText,
-                    "placement": "top",
-                    "animation": "true",
-                    "container": "body",
-                    "trigger"  : "manual",
-                    "template" : TooltipTemplate.Error
+                    "title": errorText
                 });
                 return (false);
             } else {
@@ -1305,29 +1283,30 @@ window.JoinView = (function($, JoinView) {
 
         showErrorTooltip($invalidClause, {
             "title"    : title,
-            "placement": "top",
-            "animation": "true",
-            "container": id,
-            "trigger"  : "manual",
-            "template" : TooltipTemplate.Error
+            "container": id
         });
     }
 
     var tooltipTimer;
 
     function showErrorTooltip($el, options) {
-        $el.removeAttr('title');
-        $el.removeAttr('data-original-title');
+        var deafultOptions = {
+            "title"    : "",
+            "placement": "top",
+            "animation": true,
+            "container": "body",
+            "trigger"  : "manual",
+            "template" : xcTooltip.Template.Error
+        };
+
+        options = $.extend(deafultOptions, options);
+
+        xcTooltip.remove($el);
         // cannot overwrite previous title without removing the title attributes
-        $el.tooltip("destroy");
         clearTimeout(tooltipTimer);
-        $(".tooltip").hide();
-        $el.tooltip(options);
-        $el.tooltip("show");
+
+        tooltipTimer = xcTooltip.transient($el, options, 2000);
         $el.focus();
-        tooltipTimer = setTimeout(function() {
-            $el.tooltip("destroy");
-        }, 2000);
     }
 
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {

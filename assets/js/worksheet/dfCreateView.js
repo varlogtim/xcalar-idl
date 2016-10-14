@@ -338,17 +338,9 @@ window.DFCreateView = (function($, DFCreateView) {
         });
 
         if (colNums.length === 0) {
-            $colList.tooltip({
-                "title"    : TooltipTStr.ChooseColToExport,
-                "placement": "top",
-                "animation": "true",
-                "container": "body",
-                "trigger"  : "manual",
-                "template" : TooltipTemplate.Error
-            });
-            $colList.tooltip('show');
-            setTimeout(function() {
-                $colList.tooltip("destroy");
+            xcTooltip.transient($colList, {
+                "title"   : TooltipTStr.ChooseColToExport,
+                "template": xcTooltip.Template.Error
             }, 1500);
             return;
         }

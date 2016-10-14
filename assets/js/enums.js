@@ -276,13 +276,6 @@ var SQLOps = {
     Replay: "Replay"
 };
 
-var TooltipTemplate = {
-    "Error": '<div class="tooltip error" role="tooltip">' +
-                    '<div class="tooltip-arrow"></div>' +
-                    '<div class="tooltip-inner"></div>' +
-                '</div>'
-};
-
 var Status = {
     "Ok"     : 0,
     "Done"   : 1,

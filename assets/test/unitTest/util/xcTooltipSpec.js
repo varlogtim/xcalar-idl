@@ -40,6 +40,27 @@ describe('xcTooltip Test', function() {
         expect($ele.attr("data-placement")).to.be.undefined;
     });
 
+    it('Should show transient in', function(done) {
+        // test 1
+        var timer = xcTooltip.transient($ele, {
+            "title": "test2"
+        });
+        expect(timer).to.be.null;
+        expect($(".tooltip:visible").length).not.to.equal(0);
+
+        // test 2
+        timer = xcTooltip.transient($ele, {
+            "title": "test3"
+        }, 100);
+        expect(timer).not.to.be.null;
+        expect($(".tooltip:visible").length).not.to.equal(0);
+
+        setTimeout(function() {
+            expect($(".tooltip:visible").length).to.equal(0);
+            done();
+        }, 200);
+    });
+
     it('Should auto tooltip', function() {
         xcTooltip.add($ele, {
             "title": "test"

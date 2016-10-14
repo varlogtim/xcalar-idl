@@ -744,16 +744,9 @@ window.DSCart = (function($, DSCart) {
             if (showTooltip) {
                 $column.parent().find(".header").tooltip("destroy");
                 var $header = $column.children(".header");
-                $header.tooltip({
+                xcTooltip.transient($header, {
                     "title"    : TooltipTStr.FocusColumn,
-                    "placement": "top",
-                    "trigger"  : "manual",
                     "container": "#datastore-in-view"
-                });
-                $header.tooltip("show");
-
-                setTimeout(function() {
-                    $header.tooltip("destroy");
                 }, 1000);
             }
         }

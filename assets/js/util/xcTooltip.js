@@ -1,4 +1,11 @@
 window.xcTooltip = (function(xcTooltip, $) {
+    xcTooltip.Template = {
+        'Error': '<div class="tooltip error" role="tooltip">' +
+                    '<div class="tooltip-arrow"></div>' +
+                    '<div class="tooltip-inner"></div>' +
+                 '</div>'
+    };
+
     xcTooltip.setup = function() {
         $("body").tooltip({
             "selector": '[data-toggle="tooltip"]',
@@ -43,6 +50,30 @@ window.xcTooltip = (function(xcTooltip, $) {
                 .removeAttr("data-placement")
                 .removeAttr("data-original-title");
         xcTooltip.hideAll();
+    };
+
+    // tooltip on element that only show for a short time
+    xcTooltip.transient = function($element, options, delay) {
+        var defaultOptions = {
+            "title"    : "",
+            "placement": "top",
+            "animation": true,
+            "container": "body",
+            "trigger"  : "manual"
+        };
+
+        options = $.extend(defaultOptions, options);
+
+        $element.tooltip(options).tooltip("show");
+
+        var timer = null;
+        if (delay != null) {
+            timer = setTimeout(function() {
+                $element.tooltip("destroy");
+            }, delay);
+        }
+
+        return timer;
     };
 
     xcTooltip.auto = function(element, target) {

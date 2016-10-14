@@ -3257,15 +3257,12 @@ window.OperationsView = (function($, OperationsView) {
     function showInvalidAggregateName($input, errorTitle) {
         var $toolTipTarget = $input.parent();
 
-        $toolTipTarget.tooltip({
+        xcTooltip.transient($toolTipTarget, {
             "title"    : errorTitle,
             "placement": "right",
-            "trigger"  : "manual",
-            "container": "body",
-            "template" : TooltipTemplate.Error
+            "template" : xcTooltip.Template.Error
         });
 
-        $toolTipTarget.tooltip('show');
         $input.click(hideTooltip);
 
         var timeout = setTimeout(function() {
