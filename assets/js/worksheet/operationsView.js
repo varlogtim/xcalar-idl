@@ -1328,6 +1328,11 @@ window.OperationsView = (function($, OperationsView) {
         StatusBox.show(text, $target, false, {"offsetX": -5});
     }
 
+    // scrolls to target before showing statusbox
+    function statusBoxShowHelper(text, $input) {
+        StatusBox.show(text, $input, false, {preventImmediateHide: true});
+    }
+
     // for map
     function updateMapFunctionsList(filtered) {
         var opsMap;
@@ -1905,8 +1910,6 @@ window.OperationsView = (function($, OperationsView) {
                     var $input = $(this);
                     var $row = $input.closest('.row');
                     var noArgsChecked = $row.find('.noArg.checked').length > 0;
-                    // var casted;
-
                     var val = $input.val();
 
                     val = parseColPrefixes(parseAggPrefixes(val));
@@ -2177,7 +2180,7 @@ window.OperationsView = (function($, OperationsView) {
         // async calls to follow that shouldn't be triggered multiple times
 
         if (!gTables[tableId]) {
-            StatusBox.show('Table no longer exists',
+            statusBoxShowHelper('Table no longer exists',
                             $activeOpSection.find('.tableList'));
             return deferred.reject().promise();
         }
@@ -2599,32 +2602,32 @@ window.OperationsView = (function($, OperationsView) {
             .then(function() {
                 if (!castIsVisible) {
                     var $castDropdown = $errorInput.closest('.inputWrap')
-                                        .next()
+                                        .siblings('.cast')
                                         .find('.dropDownList:visible');
                     if ($castDropdown.length) {
                         $errorInput = $castDropdown.find('input');
                     }
-                    StatusBox.show(errorText, $errorInput);
+                    statusBoxShowHelper(errorText, $errorInput);
                 }
             });
             if (castIsVisible) {
-                var $castDropdown = $errorInput.closest('.inputWrap').next()
-                                        .find('.dropDownList:visible');
+                var $castDropdown = $errorInput.closest('.inputWrap')
+                                                .siblings('.cast')
+                                                .find('.dropDownList:visible');
                 if ($castDropdown.length) {
                     $errorInput = $castDropdown.find('input');
                 }
-                StatusBox.show(errorText, $errorInput);
+                statusBoxShowHelper(errorText, $errorInput);
             }
         } else {
             resetCastOptions($errorInput);
             updateStrPreview();
-            StatusBox.show(errorText, $errorInput);
+            statusBoxShowHelper(errorText, $errorInput);
         }
     }
 
     function showCastRow(allColTypes, groupNum) {
         var deferred = jQuery.Deferred();
-
         getProperCastOptions(allColTypes);
         var isCastAvailable = displayCastOptions(allColTypes, groupNum);
         $activeOpSection.find('.cast .list li').show();
@@ -2693,17 +2696,28 @@ window.OperationsView = (function($, OperationsView) {
         $castDropdowns.addClass('hidden');
         var lis;
         var castAvailable = false;
-        for (var i = 0; i < allColTypes.length; i++) {
+        var start = 0;
+        if (operatorName === "group by") {
+            // ignore "index on" args
+            start = allColTypes.length - 1;
+        }
+        var inputNum;
+        for (var i = start; i < allColTypes.length; i++) {
             if (allColTypes[i].filteredTypes &&
                 allColTypes[i].filteredTypes.length) {
                 castAvailable = true;
                 lis = "<li class='default'>default</li>";
-                $castDropdowns.eq(allColTypes[i].inputNum)
-                              .removeClass('hidden');
+                inputNum = allColTypes[i].inputNum;
+                if (operatorName === "group by") {
+                    // have to adjust because in groupby, cast dropdowns
+                    // and args indexes don't match up
+                    inputNum -= (allColTypes.length - 1);
+                }
+                $castDropdowns.eq(inputNum).removeClass('hidden');
                 for (var j = 0; j < allColTypes[i].filteredTypes.length; j++) {
                     lis += "<li>" + allColTypes[i].filteredTypes[j] + "</li>";
                 }
-                $castDropdowns.eq(allColTypes[i].inputNum).find('ul').html(lis);
+                $castDropdowns.eq(inputNum).find('ul').html(lis);
             }
         }
         return (castAvailable);
@@ -2748,7 +2762,7 @@ window.OperationsView = (function($, OperationsView) {
         if (!hasFuncFormat(args[0])) {
             var aggColNum = getColNum(args[0]);
             if (aggColNum < 1) {
-                StatusBox.show(ErrTStr.InvalidColName,
+                statusBoxShowHelper(ErrTStr.InvalidColName,
                                 $activeOpSection.find('.arg').eq(0));
                 return false;
             } else {
@@ -2908,7 +2922,7 @@ window.OperationsView = (function($, OperationsView) {
         }
         
         if (!isGroupbyColNameValid) {
-            StatusBox.show(ErrTStr.InvalidColName, $groupByInput);
+            statusBoxShowHelper(ErrTStr.InvalidColName, $groupByInput);
             return (false);
         } else {
             var indexedColNames;
@@ -2925,7 +2939,7 @@ window.OperationsView = (function($, OperationsView) {
             }
             
             if (!areIndexedColNamesValid) {
-                StatusBox.show(ErrTStr.InvalidColName, $input);
+                statusBoxShowHelper(ErrTStr.InvalidColName, $input);
                 return (false);
             } else {
                 return (true);
@@ -3164,7 +3178,7 @@ window.OperationsView = (function($, OperationsView) {
             text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                 "name": colNames
             });
-            StatusBox.show(text, $input);
+            statusBoxShowHelper(text, $input);
             return (false);
         }
         var values = colNames.split(",");
@@ -3173,7 +3187,7 @@ window.OperationsView = (function($, OperationsView) {
             text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                 "name": colNames
             });
-            StatusBox.show(text, $input);
+            statusBoxShowHelper(text, $input);
             return (false);
         }
 
@@ -3196,7 +3210,7 @@ window.OperationsView = (function($, OperationsView) {
                     });
                 }
 
-                StatusBox.show(text, $input);
+                statusBoxShowHelper(text, $input);
                 return (false);
             }
         }
@@ -3383,7 +3397,7 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             errorMsg = ErrTStr.NoEmpty;
         }
-        StatusBox.show(errorMsg, invalidInputs[0]);
+        statusBoxShowHelper(errorMsg, invalidInputs[0]);
         formHelper.enableSubmit();
     }
 

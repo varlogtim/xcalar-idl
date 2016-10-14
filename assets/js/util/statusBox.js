@@ -12,7 +12,10 @@ window.StatusBox = (function($, StatusBox){
     //      side: 'top', 'bottom', 'left', 'right' (if not provided, box will
     //      default to the right side of the $target)
     //      highZindex: boolean, if true will add class to bring statusbox
-    //                  z-index above locked background z-index
+    //                  z-index above locked background z-index,
+    //      preventImmediateHide: boolean, if true, will set timeout that will
+    //                          prevent closing for a split second (useful if
+    //                          scroll event tries to close status box)
     StatusBox.show = function(text, $target, isFormMode, options) {
         $statusBox = $("#statusBox");
         $doc = $(document);
@@ -112,7 +115,13 @@ window.StatusBox = (function($, StatusBox){
             $(window).blur(hideStatusBox);
         }
 
-        open = true;
+        if (options.preventImmediateHide) {
+            setTimeout(function() {
+                open = true;
+            });
+        } else {
+            open = true;
+        }        
     };
 
     StatusBox.forceHide = function() {
