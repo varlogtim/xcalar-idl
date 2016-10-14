@@ -207,22 +207,42 @@
               <h2> Installation Complete - Click on the button to launch Xcalar Insight </h2>
             </div>
             <div class="section ldapSection">
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[ldap://ldapServer.int.xcalar.com:389]">
-                <div class="bar">LDAP URI</div>
+              <div class="hint">
+                <span>LDAP</span>
               </div>
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[cn=users,dc=int,dc=xcalar,dc=net]">
-                <div class="bar">User DN</div>
+              <div class="radioButtonGroup" id="AD">
+                <div class="radioButton AD active" data-option="true">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Active Directory (AD)</div>
+                </div>
+                <div class="radioButton AD" data-option="false">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Open LDAP</div>
+                </div>
               </div>
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[(&(objectclass=user)(userPrincipalName=%username%))]">
-                <div class="bar">Search Filter</div>
-              </div>
-
-              <div class="inputWrap">
-                <input class="input" name="useless" type="text" autocomplete="off" placeholder="[/etc/ssl/certs/ca-certificates.crt]">
-                <div class="bar">Server Key File</div>
+              <div class="fieldWrap">
+                <div class="inputWrap">
+                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[ldap://ldapServer.int.xcalar.com:389]">
+                  <div class="bar">LDAP URI</div>
+                </div>
+                <div class="inputWrap">
+                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[cn=users,dc=int,dc=xcalar,dc=net]">
+                  <div class="bar">User DN</div>
+                </div>
+                <div class="inputWrap">
+                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[(&(objectclass=user)(userPrincipalName=%username%))]">
+                  <div class="bar">Search Filter</div>
+                </div>
+                <div class="inputWrap">
+                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[/etc/ssl/certs/ca-certificates.crt]">
+                  <div class="bar">Server Key File</div>
+                </div>
               </div>
               <div class="hint">
                 <span>Transportation Layer Security (TLS)</span>
@@ -241,25 +261,6 @@
                     <i class="icon xi-radio-empty"></i>
                   </div>
                   <div class="label">Do not use TLS</div>
-                </div>
-              </div>
-              <div class="hint">
-                <span>Active Directory (AD)</span>
-              </div>
-              <div class="radioButtonGroup" id="AD">
-                <div class="radioButton AD active" data-option="true">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                  </div>
-                  <div class="label">Use AD</div>
-                </div>
-                <div class="radioButton AD" data-option="false">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                  </div>
-                  <div class="label">Do not use AD</div>
                 </div>
               </div>
             </div>

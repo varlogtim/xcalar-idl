@@ -968,6 +968,12 @@ window.DagPanel = (function($, DagPanel) {
         // Check whether this table already exists. If it does, then just add
         // or focus on that table
 
+        if (!xcalarInput) {
+            Alert.error(AlertTStr.Error, ErrTStr.IcvAlt);
+            console.error("Failed. Check GetDag");
+            return;
+        }
+
         var origTableName = xcalarInput.dstTable.tableName;
         var tableRoot = xcHelper.getTableName(origTableName);
         var newTableId = Authentication.getHashId();

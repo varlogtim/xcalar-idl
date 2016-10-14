@@ -208,6 +208,8 @@ ErrTStr = {
     'NoCast': 'No columns to cast.',
     'NoTypeChange': 'Please change at least one column\'s type to apply the cast.',
     'IcvFailed': 'Failed to generate ICV table',
+    'IcvAlt': 'Failed to generate ICV table. Please use map with show ' +
+              'erroneous values selected instead.',
     'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload retina',
 

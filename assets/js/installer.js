@@ -156,7 +156,35 @@ window.Installer = (function(Installer, $) {
                 }
                 break;
             case ("useTLS"):
+                break;
             case ("AD"):
+                switch(radioOption) {
+                    case (true):
+                        // AD
+                        var inputs = $(".fieldWrap .inputWrap input");
+                        inputs.eq(0).attr("placeholder",
+                                            "[ldap://pdc1.int.xcalar.com:389]");
+                        inputs.eq(1).attr("placeholder",
+                                          "[cn=users,dc=int,dc=xcalar,dc=net]");
+                        inputs.eq(2).attr("placeholder",
+                       "[(&(objectclass=user)(userPrincipalName=%username%))]");
+                        inputs.eq(3).attr("placeholder",
+                                        "[/etc/ssl/certs/ca-certificates.crt]");
+                        break;
+                    case (false):
+                        // LDAP
+                        var inputs = $(".fieldWrap .inputWrap input");
+                        inputs.eq(0).attr("placeholder",
+                                         "[ldap://openldap1-1.xcalar.net:389]");
+                        inputs.eq(1).attr("placeholder",
+                         "[mail=%username%,ou=People,dc=int,dc=xcalar,dc=com]");
+                        inputs.eq(2).attr("placeholder",
+                  "[(memberof=cn=xceUsers,ou=Groups,dc=int,dc=xcalar,dc=com)]");
+                        inputs.eq(3).attr("placeholder",
+                                        "[/etc/ssl/certs/ca-certificates.crt]");
+                        break;
+                }
+
                 break;
             default:
                 console.error("Unexpected radio group!");
