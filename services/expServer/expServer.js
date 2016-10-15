@@ -65,7 +65,9 @@ var finalStruct = {
             //   "nfsUsername": "jyang",
             //   "nfsGroup": "xcalarEmployee" }
     "hostnames": [],
+    "privHostNames": [],
     "username": "",
+    "port": 22,
     "credentials": {} // Either password or sshKey
 };
 
@@ -87,6 +89,7 @@ var stepNum = 0;
 var scriptDir = "/installer";
 var licenseLocation = "/config/license.txt";
 var hostnameLocation = "/config/hosts.txt";
+var privHostnameLocation = "/config/privHosts.txt";
 var credentialLocation = "/tmp/key.txt";
 
 function initStepArray() {
@@ -97,9 +100,13 @@ function initStepArray() {
     };
 }
 
-function genExecString(hostnameLocation, credentialLocation, isPassword,
+function genExecString(hostnameLocation, hasPrivHosts,
+                       credentialLocation, isPassword,
                        username, port, nfsOptions) {
     var execString = " -h " + hostnameLocation;
+    if (hasPrivHosts) {
+        execString += " --priv-hosts-file " + privHostnameLocation;
+    }
     if (isPassword) {
         execString += " --password-file ";
     } else {
@@ -222,10 +229,17 @@ app.post("/runInstaller", function(req, res) {
     }
 
     var hostArray = credArray.hostnames;
+    var hasPrivHosts = false;
     fs.writeFile(hostnameLocation, hostArray.join("\n"));
 
+    if (credArray.privHostNames.length > 0) {
+        fs.writeFile(privHostnameLocation, credArray.privHostNames.join("\n"));
+        hasPrivHosts = true;
+    }
+
     var execString = scriptDir + "/cluster-install.sh";
-    cliArguments = genExecString(hostnameLocation, credentialLocation,
+    cliArguments = genExecString(hostnameLocation, hasPrivHosts,
+                                 credentialLocation,
                                  isPassword, credArray.username,
                                  credArray.port,
                                  credArray.nfsOption);

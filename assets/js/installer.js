@@ -1,11 +1,12 @@
 window.Installer = (function(Installer, $) {
 
     var finalStruct = {
-        "nfsOption"  : undefined,
-        "hostnames"  : [],
-        "username"   : "",
-        "port"       : 22,
-        "credentials": {} // Either password or sshKey
+        "nfsOption"    : undefined,
+        "hostnames"    : [],
+        "privHostNames": [],
+        "username"     : "",
+        "port"         : 22,
+        "credentials"  : {} // Either password or sshKey
     };
 
     var Status = {
@@ -196,7 +197,7 @@ window.Installer = (function(Installer, $) {
         try {
             jQuery.ajax({
                 method     : "POST",
-                // url        : "https://cantor.int.xcalar.com:8443/install/"+action,
+                //url        : "http://cantor.int.xcalar.com:12124/"+action,
                 url        : document.location.origin+"/install/"+action,
                 data       : JSON.stringify(arrayToSend),
                 contentType: "application/json",
@@ -245,6 +246,7 @@ window.Installer = (function(Installer, $) {
         $(".credentialSection").removeClass("hidden");
         $(".title").removeClass("hidden");
         $("#installButton").removeClass("hidden");
+        $("#serversButton").addClass("hidden");
     }
 
     function setUpStep2() {
@@ -383,6 +385,7 @@ window.Installer = (function(Installer, $) {
             if ($hostInputs.eq(i).val().trim().length === 0) {
                 deferred.reject("Empty Username / Port",
                                 "Your SSH username / port cannot be empty.");
+                return deferred.promise();
             }
         }
 
@@ -394,6 +397,7 @@ window.Installer = (function(Installer, $) {
             if ($(".hostPassword input").val().length === 0) {
                 deferred.reject("Empty Password",
                                 "For passwordless ssh, upload your ssh key");
+                return deferred.promise();
             } else {
                 finalStruct.credentials = {};
                 finalStruct.credentials.password = $(".hostPassword input")
@@ -403,6 +407,7 @@ window.Installer = (function(Installer, $) {
             if ($(".hostSshKey textarea").val().trim().length === 0) {
                 deferred.reject("Empty Ssh Key",
                           "Your ssh key is generally located at ~/.ssh/id_rsa");
+                return deferred.promise();
             } else {
                 finalStruct.credentials = {};
                 finalStruct.credentials.sshKey = $(".hostSshKey textarea").val()
@@ -411,30 +416,61 @@ window.Installer = (function(Installer, $) {
         } else {
             deferred.reject("Illegal Password Option",
                             "Not a legal password option");
+            return deferred.promise();
         }
 
-        var hostArray = $(".row .hostname input");
+        var hostArray = $(".row .hostname .publicName input");
+        var hostPrivateArray = $(".row .hostname .privateName input");
         var allHosts = [];
+        var allPrivHosts = [];
         for (i = 0; i<hostArray.length; i++) {
             var nameOrIP = hostArray.eq(i).val().trim();
+            var privNameOrIp = hostPrivateArray.eq(i).val().trim();
             if (nameOrIP.length > 0) {
                 allHosts.push(nameOrIP);
+                if (privNameOrIp.length > 0) {
+                    allPrivHosts.push(privNameOrIp);
+                }
+            } else {
+                if (privNameOrIp.length > 0) {
+                    deferred.reject("No public name",
+                        "You must provide a public name for all private names");
+                    return deferred.promise();
+                }
             }
         }
 
         if (allHosts.length === 0) {
             deferred.reject("No hosts","You must install on at least 1 host");
+            return deferred.promise();
+        }
+
+        if (allPrivHosts.length !== 0 &&
+            allPrivHosts.length !== allHosts.length) {
+            deferred.reject("Private / Public Hostname Error",
+         "Either provide private hostnames / IPs for all or none of the hosts");
+            return deferred.promise();
         }
 
         // Find dups
         for (i = 0; i<allHosts.length; i++) {
             if (allHosts.indexOf(allHosts[i], i+1) > -1) {
                 deferred.reject("Duplicate Hosts",
-                                "Hostname " + allHosts[i] + " is a duplicate");
+                                "Public Hostname " + allHosts[i] +
+                                " is a duplicate");
+                return deferred.promise();
+            }
+
+            if (allPrivHosts.indexOf(allPrivHosts[i], i+1) > -1) {
+                deferred.reject("Duplicate Hosts",
+                                "Private Hostname " + allPrivHosts[i] +
+                                " is a duplicate");
+                return deferred.promise();
             }
         }
 
         finalStruct.hostnames = allHosts;
+        finalStruct.privHostNames = allPrivHosts;
 
         // Execute array
         executeFinalArray()
@@ -494,12 +530,21 @@ window.Installer = (function(Installer, $) {
     }
 
     function hostnameHtml(id) {
+        // Currently no longer using id
         return ('<div class="row">' +
             '<div class="leftCol hostname">' +
-              '<input class="input ipOrFqdn" type="text" autocomplete="off" ' +
-              'value="" ' +
-              'name="useless" placeholder="[IP or FQDN]">' +
-              '<div class="bar">Node '+id+'.</div>' +
+              '<div class="publicName">' +
+                '<input class="input ipOrFqdn" type="text" autocomplete="off" ' +
+                'value="" ' +
+                'name="useless" placeholder="[IP or FQDN]">' +
+                '<div class="bar">Public</div>' +
+              '</div>' +
+              '<div class="privateName">' +
+                '<input class="input ipOrFqdn" type="text" autocomplete="off" ' +
+                'value="" ' +
+                'name="useless" placeholder="[IP or FQDN (Optional)]">' +
+                '<div class="bar">Private</div>' +
+              '</div>' +
             '</div>' +
             '<div class="rightCol status">' +
               '<span class="curStatus">' +
