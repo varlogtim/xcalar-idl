@@ -655,8 +655,8 @@ OpModalTStr = {
 };
 
 JsonModalTStr = {
-  'RemoveCol': 'Remove this column',
-  'Duplicate': 'Duplicate this column',
+  'RemoveCol': 'Remove this panel',
+  'Duplicate': 'Duplicate this panel',
   'PullAll': 'Pull all fields',
   'Compare': 'Click to select for comparison',
   'SelectOther': 'Select another data cell from a table to compare',
@@ -666,7 +666,7 @@ JsonModalTStr = {
   'SeeAllTip': 'View all fields',
   'OriginalTip': 'View the original data fields',
   'XcOriginatedTip': 'View Xcalar generated fields',
-  'SortAsc': 'Sort Ascending',
-  'SortDesc': 'Sort Descending',
-  'ToggleMode': 'Toggle Mode'
+  'SortAsc': 'Sort ascending',
+  'SortDesc': 'Sort descending',
+  'ToggleMode': 'Toggle mode'
 };

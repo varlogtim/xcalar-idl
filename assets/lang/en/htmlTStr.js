@@ -397,6 +397,8 @@ module.exports = {
         "OUT": "OUT",
         "in": "in",
         "out": "out",
+        "In":  "In",
+        "Out": "Out",
         "Format": "Format",
         "Protocol": "Data Source Protocol",
         "Retry": "Retry",
