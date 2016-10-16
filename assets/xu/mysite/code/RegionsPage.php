@@ -189,6 +189,7 @@ class RegionsPage_Controller extends Page_Controller {
                 $classType = "default";
                 $disabled = "";
                 $btnDisabled = "";
+                $btnQuestion = "";
 
                 // the previous answered questions are all shown correct
                 if ($i < $bottomQuestionId) {
@@ -205,12 +206,13 @@ class RegionsPage_Controller extends Page_Controller {
                         $classType = "incorrect";
                         $userAnswer = $_SESSION["answer".$i];
                     }
+                    $btnQuestion = "btnQuestion";
                 }
 
                 $res = $res.
                 '<div class="region">'.
-                    '<div class="description" type="text">'.nl2br($description).'</div>'.
-                    '<div class="question" type="text">'.nl2br($question).'</div>'.
+                    '<div class="description '. $btnQuestion. '" type="text">'.nl2br($description).'</div>'.
+                    '<div class="question '. $btnQuestion. '" type="text">'.nl2br($question).'</div>'.
                     '<form action="'. $host . '" method="post">'.
                         '<div class="entireInput '. $classType.'">'.
                             '<input class="userInput" type="text" name="answerInput" value="'.$userAnswer.'"'.$disabled.'autocomplete="off">'.
@@ -230,6 +232,7 @@ class RegionsPage_Controller extends Page_Controller {
                 $append = "";
                 $disabled = "";
                 $btnDisabled = "";
+                $btnQuestion = "";
 
                 if($isFirstTime == false) {
                     $userAnswer = $_SESSION["answer".$i];
@@ -237,12 +240,14 @@ class RegionsPage_Controller extends Page_Controller {
                     $append = '<p>You have completed the adventure Successfully! </p>';
                     $disabled = "disabled";
                     $btnDisabled = "btn-disabled";
+                } else {
+                    $btnQuestion = "btnQuestion";
                 }
 
                 $res = $res.
                 '<div class="region">'.
-                    '<div class="description" type="text">'.nl2br($description). '</div>'.
-                    '<div class="question" type="text">'.nl2br($question). '</div>'.
+                    '<div class="description '. $btnQuestion. '" type="text">'.nl2br($description).'</div>'.
+                    '<div class="question '. $btnQuestion.'" type="text">'.nl2br($question).'</div>'.
                     '<form class="textareaForm" action="'.$host.'" method="post" id="formID">'.
                     '<div class="textareaContainer">'.
                     '<textarea class="textarea-lastQuestion '. $classType .'" name="answerInput" form="formID"' .$disabled.'>'. $userAnswer .'</textarea>'.
@@ -250,7 +255,7 @@ class RegionsPage_Controller extends Page_Controller {
                             '<button class="btn-textarea '. $classType . ' btn '. $btnDisabled.' " >SUBMIT</button>'.
                     '</div>'. $append.
                     '</form>'.
-                '</div>';
+                '</div>';      
             }
 
         }

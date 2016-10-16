@@ -2,8 +2,8 @@
     <ul>
         <% loop $Menu(1) %>
             <li class="$LinkingMode"><a href="$Link" title="$Title.XML">$MenuTitle.XML</a></li>
-            <li class="$LinkingMode">|</li>
+            <li class="$LinkingMode"></li>
         <% end_loop %>
-        <div class="legal">©2016 Xcalar. All rights reserved.</div>
+        <div class="legal">©2016 Xcalar, Inc.  All rights reserved.</div>
     </ul>
 </nav>

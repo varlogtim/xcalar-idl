@@ -1,6 +1,8 @@
 <div class="regionsPage">
     <article>
-        <h1 class="adventure">$Title</h1>
+        <div class="h1Region">
+            <h1 class="adventure">$Title</h1>
+        </div>
         <div class="content">
             $Content
         </div>

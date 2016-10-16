@@ -1,0 +1,391 @@
+@import "partials/mixins/common.less";
+@import "partials/icon.less";
+@import "partials/basic.less";
+
+body {
+    margin: 0;
+    padding: 0;
+    .font-baseText;
+    background-color: @color-white;
+    height: 100vh;
+}
+
+.font-baseText {
+    .font(@size: 14px,@line-height: 1.7, @family: "Open Sans", @weight: 400);
+}
+
+.font-baseHeading {
+    .font(@weight: 300, @family: @font-base, @color: @color-bg-select-blue);
+}
+
+/* header */
+header {
+    .headerInner {
+        .size(@width: 100%, @height: 70px);
+        background-color: @color-bg-select-blue;
+        min-height: 70px;
+        max-height:70px;
+            a {
+                 text-decoration: none;
+                 position: relative;
+                 .logo {
+                    position: absolute;
+                    .size(@width: 85px, @height: 55px);
+                    margin-left: 25px;
+                    margin-top: 5px;
+                 }
+                 .siteName {
+                     position: absolute;
+                    .font-baseText;
+                    .font(@size: 24px, @color: @color-white);
+                    margin-left: 120px;
+                    margin-top: 15px;
+                 }
+            }
+            .userInfo, .xi-human, .xi-alert {
+                position: relative;
+                display: inline;
+                float:right;
+            }
+            .userInfo {
+                width: 300px;
+                margin-top: 23px;
+                .font(@color: @color-white);
+
+                > span {
+                    margin-right: 10px;
+                    float: right;
+                    .textOverflowOneLine;
+                }
+                .emailPart {
+                    width: 130px;
+
+                }
+                .namePart {
+                    width: 139px;
+                    text-align: right;
+                }
+
+            }
+            .xi-alert {
+                @size(@width: 36px, @height: 36px);
+                // width: 140px;
+                font-size: 14px;
+                margin-top: 17px;
+                color: @color-bg-bright-light-blue;
+                margin-right: 25px;
+            }
+
+            .userIcon {
+                @size(@width: 36px, @height: 36px);
+            }
+
+            .xi-human {
+                font-size: 18px;
+                margin-top: 26.6px;
+                color: @color-bg-white-three;
+            }
+
+            .progressBar {
+                background-color: @color-bg-bright-light-blue;
+                height:5px;
+                width:0px;
+                position: absolute;
+                top: 65px;
+            }
+        }
+}
+
+/* heading */
+h1, h2, h3, h4, h5, h6 {
+    .font-baseHeading;
+    width: 100%;
+    text-align: center;
+    float: left;
+    background-color: @color-white;
+    margin-top: 20px;
+}
+
+h1 {
+    .font(@size: 36px);
+}
+
+h2 {
+    .font(@size: 30px);
+}
+
+h3 {
+    .font(@size: 24px);
+}
+
+
+/* main content*/
+.main {
+    overflow-y: auto;
+    height: ~"calc(100% - 110px)";
+}
+
+/*
+.regionsPage, .homePage {
+    .size(@width: 60%);
+    margin-left: 20%;
+    margin-right: 20%;
+    overflow: hidden;
+}
+*/
+
+.regionsPage, .homeHeader {
+    .size(@width: 60%);
+    margin-left: 20%;
+    margin-right: 20%;
+    overflow: hidden;
+}
+
+.region {
+    margin-top: 20px;
+}
+
+.adventure {
+}
+
+.h1Region {
+    overflow: hidden;
+}
+.content {
+    background-color: @color-bg-white-three;
+    border: solid 1px @color-border-white-five;
+    padding: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+form {
+    display: inline-block;
+    margin-top: 10px;
+    padding-bottom: 20px;
+    .entireInput {
+        width: 500px;
+        margin-right: 10px;
+        &.correct, &.incorrect {
+            background-color: @color-white;
+        }
+
+        &.default {
+            .userInput, .userIcon{
+                background-color: @color-bg-white-three;
+                border: solid 1px @color-border-white-five;
+        }
+
+            &:focus, &:hover {
+                .userInput, .userIcon {
+                    background-color: @color-white;
+                    border: solid 1px @color-border-softBlue;
+                }
+                .userInput {
+                    border-right: none;
+                }
+                .userIcon{
+                    border-left: none;
+                }
+            }
+        }
+
+        &.correct {
+            .userInput, .userIcon {
+                border: solid 1px @color-bg-apple-green;
+            }
+            .userInput {
+
+            }
+            .userIcon {
+                .xi-error {
+                    display: none;
+                }
+                .xi-success {
+                    color: @color-bg-apple-green;
+                    display: inline;
+                }
+            }
+        }
+        &.incorrect {
+            .userInput, .userIcon {
+                border: solid 1px @color-error-border;
+            }
+            .userIcon {
+                .xi-error {
+                color: @color-error-border;
+                display: inline;
+                }
+                .xi-success {
+                    display: none;
+                }
+            }
+        }
+
+        &.default, &.correct, &.incorrect {
+            .userInput {
+                border-right: none;
+             }
+             .userIcon{
+                border-left: none;
+             }
+        }
+    }
+
+    .userInput {
+        .size(@width: 284px, @height: 36px);
+        .font-baseText;
+        object-fit: contain;
+        margin-left: 10px;
+        outline: none;
+        float: left;
+    }
+
+    .userIcon {
+        width: 30px;
+        height: 36px;
+        float: left;
+        outline: none;
+        i {
+            color: black;
+            display: none;
+            line-height: 36px;
+            font-size: 22px;
+        }
+    }
+
+    .btn {
+        margin-left:16px;
+    }
+}
+
+.textareaForm {
+    .size(@width: 100%);
+}
+.textareaContainer {
+    .size(@width: 100%);
+}
+
+.textarea-lastQuestion {
+    .size(@width: ~"calc(100% - 10px)", @height: 100px);
+    .font-baseText;
+    object-fit: contain;
+    margin-left: 10px;
+    background-color: @color-bg-white-three;
+    border: solid 1px @color-border-white-five;
+    resize: none;
+    &:focus, &:hover {
+        background-color: @color-white;
+        border: solid 1px @color-border-softBlue;
+        outline: none;
+    }
+    &.correct {
+       background-color: @color-white;
+       border: solid 1px @color-bg-apple-green;
+    }
+}
+
+.btn-textarea {
+    float: right;
+    margin-right: 0px;
+    margin-top: 10px;
+}
+
+.question {
+    .bold;
+    margin-top: 10px;
+}
+
+.bold {
+    .font(@weight: bold);
+}
+
+a {
+    .font-baseText;
+    .font(@color: @color-font-select-blue);
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.btnQuestion {
+    .font(@color: @color-bg-dusk-blue);
+}
+
+/* footer */
+footer {
+    .size(@width: 100%, @height: 40px);
+    background-color: @color-bg-white-three;
+    min-height: 40px;
+    max-height: 40px;
+    .footerInner {
+        background-color: @color-bg-white-three;
+        margin-top: 10px;
+        margin-left: 20px;
+        height:19px;
+    }
+    .legal {
+        display: inline;
+        float: right;
+        margin-right: 20px;
+    }
+    li {
+        display: inline;
+        margin-right: 10px;
+    }
+    a {
+         text-decoration: none;
+        .font(@color: @color-font-greyish-brown);
+    }
+}
+
+.loginForm {
+    text-align: center;
+    form {
+        background-color: @color-selectedCell-light;
+        margin-top: 30px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 400px;
+    }
+    fieldset {
+        border: none;
+         margin-top: 5px;
+        .field {
+            margin-left: auto;
+            margin-right: auto;
+            width: 400px;
+            position: relative;
+            display: block;
+            margin-top: 10px;
+        }
+        .left {
+            float: left;
+            width: 50px;
+            height: 30px;
+            margin-left: 60px;
+            overflow: hidden;
+        }
+        .middleColumn {
+            margin-right: 90px;
+            display: inline-block;
+            height: 30px;
+            text-align: right;
+        }
+    }
+
+    input {
+        outline: none;
+    }
+
+    .action {
+        .btn;
+        margin-top: 5px;
+        margin-right: 90px;
+        width: 120px;
+        float: right;
+        height: 30px;
+        line-height: 0px;
+    }
+}

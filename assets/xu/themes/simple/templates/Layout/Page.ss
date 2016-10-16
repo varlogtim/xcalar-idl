@@ -1,6 +1,8 @@
 <div class="homePage">
     <article>
-        <h1>$Title</h1>
+        <div class="h1Region homeHeader">
+            <h1>$Title</h1>
+        </div>
     </article>
     <div class="loginForm">
         $Form
