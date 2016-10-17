@@ -72,6 +72,25 @@ window.Shortcuts = (function($, Shortcuts) {
         }
     }
 
+    Shortcuts.toggleAdmin = function(turnOn) {
+        if (turnOn) {
+            $('#shortcutSubMenu').find('.adminOff').show();
+            $('#shortcutSubMenu').find('.adminOn').hide();
+            $('#container').addClass('admin');
+            $('#shortcutMenuIcon').css('margin-right', 20);
+            localStorage.admin = true;
+            gAdmin = true;
+        } else {
+            $('#shortcutSubMenu').find('.adminOff').hide();
+            $('#shortcutSubMenu').find('.adminOn').show();
+            $('#container').removeClass('admin');
+            $('#shortcutMenuIcon').css('margin-right', 0);
+            localStorage.admin = false;
+            gAdmin = false;
+
+        }
+    }
+
     Shortcuts.toggleJoinKey = function(turnOn) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.joinKeyOff').show();
@@ -104,6 +123,13 @@ window.Shortcuts = (function($, Shortcuts) {
             localStorage.verbose = false;
         }
 
+        if (localStorage.admin) {
+            gAdmin = JSON.parse(localStorage.admin);
+        } else {
+            gAdmin = false;
+            localStorage.admin = false;
+        }
+
         if (localStorage.gEnableJoinKeyCheck) {
             gEnableJoinKeyCheck = JSON.parse(localStorage.gEnableJoinKeyCheck);
         } else {
@@ -114,6 +140,7 @@ window.Shortcuts = (function($, Shortcuts) {
         dsForm();
         createMainMenu();
         Shortcuts.toggleVerbose(verbose);
+        Shortcuts.toggleAdmin(gAdmin);
         Shortcuts.toggleJoinKey(gEnableJoinKeyCheck);
     };
 
@@ -318,6 +345,8 @@ window.Shortcuts = (function($, Shortcuts) {
                         '<li class="joinKeyOn">Turn on gEnableJoinKeyCheck</li>' +
                         '<li class="verboseOff">Turn off verbose</li>' +
                         '<li class="verboseOn">Turn on verbose</li>' +
+                        '<li class="adminOn">Turn on admin mode</li>' +
+                        '<li class="adminOff">Turn off admin mode</li>' +
                     '</ul>' +
                 '</div>';
 
@@ -367,6 +396,14 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $subMenu.on('mouseup', '.verboseOn', function() {
             Shortcuts.toggleVerbose(true);
+        });
+
+        $subMenu.on('mouseup', '.adminOff', function() {
+            Shortcuts.toggleAdmin();
+        });
+
+        $subMenu.on('mouseup', '.adminOn', function() {
+            Shortcuts.toggleAdmin(true);
         });
 
         $subMenu.on('mouseup', '.joinKeyOff', function() {

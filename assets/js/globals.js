@@ -71,6 +71,8 @@ var gUdfDefaultNoCheck = false; // when set true, allow update default udf
 var gSessionNoCleanup = true;
 var gIcvMode = false;
 var gEnableIndexStyle = false;
+var gAdmin = true; // if admin user
+var gXcSupport = false; // if xcalar support user
 // ==================================== //
 
 var KB = 1024;

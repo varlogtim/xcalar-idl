@@ -1214,7 +1214,7 @@ function XcalarSetConfigParams(pName, pValue) {
         return (deferred.promise());
     }
 
-    xcalarSetConfigParams(pName, pValue)
+    xcalarSetConfigParam(tHandle, pName, pValue)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSetConfigParams", error);

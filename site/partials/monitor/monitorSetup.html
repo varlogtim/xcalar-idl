@@ -54,23 +54,6 @@
     <span class="title"><%= dicts.monitor.ConfigParam %></span>
   </header>
   <div class="cardMain">
-    <div class="formRow clearfix">
-      <label class="argWrap">
-        <span class="text"><%= dicts.monitor.ConfigParamName %>:</span>
-        <input type="text" class="xc-input paramName" data-value="">
-      </label>
-      <div class="flexGroup">
-        <label class="argWrap">
-          <span class="text"><%= dicts.monitor.CurVal %>:</span>
-          <input type="text" class="xc-input curVal" disabled>
-        </label>
-        <label class="argWrap">
-          <span class="text"><%= dicts.monitor.NewVal %>:</span>
-          <input type="text" class="xc-input newVal">
-        </label>
-      </div>
-      
-    </div>
     <div class="formRow clearfix placeholder" title="Add Config Parameter" data-toggle="tooltip">
       <label class="argWrap">
         <span class="text"><%= dicts.monitor.ConfigParamName %>:</span>
@@ -95,8 +78,9 @@
     </div>
   </div>
   <div class="cardBottom">
-    <button class="btn"><%= dicts.common.CONFIRMSAVE %></button>
-    <button class="btn"><%= dicts.common.CONFIRMRESTART %></button>
+    <button class="btn" id="paramSettingsSave"><%= dicts.common.CONFIRMSAVE %></button>
+    <!-- restart temporarily disabled -->
+    <!-- <button class="btn" d="paramSettingsRestart"><%= dicts.common.CONFIRMRESTART %></button> -->
     <button class="btn btn-cancel"><%= dicts.common.CANCEL %></button>
   </div>
 </div>

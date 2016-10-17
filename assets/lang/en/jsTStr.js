@@ -78,6 +78,7 @@ TooltipTStr = {
     'RemoveQuery': 'Remove query',
     'CancelQuery': 'Cancel query',
     'AlreadyIcv': 'This table is already an ICV table',
+    'ParamValNoChange': 'This parameter value cannot be changed',
     // Sync with htmlTStr
     "IcvRestriction": 'ICV only available for Map and Group By',
 
@@ -213,6 +214,7 @@ ErrTStr = {
               'erroneous values selected instead.',
     'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload retina',
+    'ConfigParamNotFound': 'Parameter not found.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -443,7 +445,11 @@ MonitorTStr = {
     "ConfigParamName": "Config Parameter Name",
     "CurVal": "Current Value",
     "NewVal": "New Value",
+    'ParamConfigFailed': 'Parameter Configuration Failed',
 
+    // with replace
+    'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
+                          '<b><value></b>.'
 };
 
 DFTStr = {

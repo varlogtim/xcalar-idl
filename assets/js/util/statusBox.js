@@ -89,19 +89,21 @@ window.StatusBox = (function($, StatusBox){
         }
        
         if (side === 'top') {
-            left = (bound.left + ($target.width() / 2) - 100) + offsetX;
+            left = (bound.left + ($target.outerWidth() / 2) -
+                    (statusBoxWidth / 2)) + offsetX;
             left = Math.min(left, winWidth - statusBoxWidth);
             var statusBoxHeight = $statusBox.height();
             top = bound.top - statusBoxHeight - 15 + offsetY; 
         } else if (side === "bottom") {
-            left = (bound.left + ($target.width() / 2) - 100) + offsetX;
+            left = (bound.left + ($target.outerWidth() / 2) - 
+                    (statusBoxWidth / 2)) + offsetX;
             top = bound.bottom + offsetY;
         }
 
         // prevent too far left
-        left = Math.min(left, winWidth - statusBoxWidth);
+        left = Math.min(left, winWidth - statusBoxWidth - 10);
         // prevent too far right
-        right = Math.max(right, 0);
+        right = Math.max(right, 5);
         // prevent too far top
         top = Math.max(top, 0);
 

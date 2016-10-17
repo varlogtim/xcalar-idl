@@ -1111,14 +1111,17 @@
 #configCard {
     // display: none;
     .cardMain {
-        padding: 30px 2% 20px 2%;
+        padding: 30px 2.5% 20px 2.5%;
     }
 
     .formRow {
         .flex-display;
         .flex-wrap(wrap);
+        position: relative;
         margin-bottom: 10px;
         margin-top: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
         overflow: hidden; // for animation
 
         &.animating {
@@ -1127,7 +1130,32 @@
             }
         }
         > .argWrap {
-            .flex(1 1 300px);
+            .flex(1 1 350px);
+        }
+
+        .removeRow {
+            position: absolute;
+            padding: 5px;
+            top: 5px;
+            left: -3px;
+            z-index: 1;
+            cursor: pointer;
+            // display: none;
+            opacity: 0;
+            .transition(opacity 0s linear 0.2s);
+
+            &:hover {
+                opacity: @opacity-hover;
+            }
+            .icon {
+                color: @color-font-darkGray;
+            }
+        }
+
+        &:hover {
+            .removeRow {
+                opacity: @opacity-disabled;
+            }
         }
       
         &.placeholder {
@@ -1146,9 +1174,16 @@
                 text-align: center;
                 .icon {
                     color: @color-font-warm-grey-two;
-                    font-weight: bold;
                     line-height: 30px;
                 }
+            }
+        }
+
+        &.nameIsSet {
+            .paramName {
+                border: 0px;
+                background-color: white;
+                color: @color-font-select-blue;
             }
         }
     }
@@ -1168,23 +1203,27 @@
         padding-left: 15px;
         padding-right: 15px;
         position: relative;
-        font-size: 12px;
-        font-weight: 700;
+        font-size: 13px;
+        // font-weight: 700;
           
         .text {
             line-height: 30px;
+            font-weight: 700;
         }
         .xc-input {
             margin-left: 10px;
             width: 70px;
             .flex(1 1 70px);
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 13px;
+            // font-weight: 700;
         }
-        .curVal {
+        .disabled {
             border: 0px;
             background-color: white;
             color: @color-font-select-blue;
+            &.newVal {
+                cursor: not-allowed;
+            }
         }
 
         .waitingIcon {
@@ -1193,7 +1232,7 @@
     }
 
     .cardBottom {
-        padding: 10px 3% 10px 60px;
+        padding: 10px 2.5% 10px 60px;
         margin-bottom: 10px;
     }
 }
