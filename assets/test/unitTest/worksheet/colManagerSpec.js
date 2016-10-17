@@ -275,14 +275,15 @@ describe('ColManager Test', function() {
     });
 
     describe('Column Modification Test', function() {
-        var dsName, tableName, tableId;
+        var dsName, tableName, tableId, prefix;
 
         before(function(done) {
             UnitTest.addAll(testDatasets.fakeYelp, "yelp_colManager_test")
-            .then(function(resDS, resTable) {
+            .then(function(resDS, resTable, resPrefix) {
                 dsName = resDS;
                 tableName = resTable;
                 tableId = xcHelper.getTableId(tableName);
+                prefix = resPrefix;
                 done();
             })
             .fail(function(error) {
@@ -313,11 +314,12 @@ describe('ColManager Test', function() {
         it("Should Pull Column", function(done) {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);
+            var colName = xcHelper.getPrefixColName(prefix, "yelping_since");
 
             var options = {
                 "direction"  : ColDir.Left,
-                "fullName"   : "yelping_since",
-                "escapedName": "yelping_since"
+                "fullName"   : colName,
+                "escapedName": colName
             };
 
             ColManager.pullCol(1, tableId, options)
@@ -336,28 +338,30 @@ describe('ColManager Test', function() {
             // the yelping_since col
             var progCol = gTables[tableId].getCol(1);
             var $input = $("#xcTable-" + tableId + " th.col1 .editableHead");
+            var backCol = xcHelper.getPrefixColName(prefix, "yelping_since");
 
             ColManager.renameCol(1, tableId, "yelping_since_test", {
                 "keepEditable": true
             });
             expect(progCol.getFrontColName()).to.equal("yelping_since_test");
-            expect(progCol.getBackColName()).to.equal("yelping_since");
+            expect(progCol.getBackColName()).to.equal(backCol);
             expect($input.val()).to.equal("yelping_since_test");
             expect($input.prop("disabled")).to.be.false;
             // rename back
             ColManager.renameCol(1, tableId, "yelping_since");
             expect(progCol.getFrontColName()).to.equal("yelping_since");
-            expect(progCol.getBackColName()).to.equal("yelping_since");
+            expect(progCol.getBackColName()).to.equal(backCol);
             expect($input.val()).to.equal("yelping_since");
             expect($input.prop("disabled")).to.be.true;
         });
 
         it("Should Format Column", function() {
             var table = gTables[tableId];
-            var progCol = table.getColByFrontName("average_stars");
+            var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
+            var colNum = table.getColNumByBackName(backCol);
+            var progCol = table.getCol(colNum);
             expect(progCol).not.to.be.null;
 
-            var colNum = table.getColNumByBackName("average_stars");
             var $td = $("#xcTable-" + tableId).find("td.col" + colNum).eq(0);
             // case 1
             ColManager.format([colNum], tableId, [ColFormat.Percent]);
@@ -378,10 +382,11 @@ describe('ColManager Test', function() {
 
         it("Should Round Column", function() {
             var table = gTables[tableId];
-            var progCol = table.getColByFrontName("average_stars");
+            var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
+            var colNum = table.getColNumByBackName(backCol);
+            var progCol = table.getCol(colNum);
             expect(progCol).not.to.be.null;
-
-            var colNum = table.getColNumByBackName("average_stars");
+            
             var $td = $("#xcTable-" + tableId).find("td.col" + colNum).eq(0);
             var srcText = $td.find(".displayedData").text();
             // case 1
@@ -427,6 +432,29 @@ describe('ColManager Test', function() {
             .not.to.equal(progCol.getFrontColName());
             expect(dupCol.getBackColName())
             .to.equal(progCol.getBackColName());
+        });
+
+        it("Should Delete Duplicate Column", function() {
+            var table = gTables[tableId];
+            var colLen = getColLen(tableId);
+            var progCol = table.getCol(1);
+
+            ColManager.delDupCols(2, tableId);
+
+            expect(getColLen(tableId) - colLen).to.equal(-1);
+            expect(table.getCol(2).getBackColName())
+            .not.to.equal(progCol.getBackColName());
+        });
+
+        it("Should Delete All Dups", function() {
+            var table = gTables[tableId];
+            var colLen = getColLen(tableId);
+            ColManager.dupCol(1, tableId);
+            ColManager.dupCol(2, tableId);
+            ColManager.dupCol(3, tableId);
+
+            ColManager.delAllDupCols(tableId);
+            expect(getColLen(tableId) - colLen).to.equal(0);
         });
 
         after(function(done) {

@@ -137,6 +137,27 @@ describe('Constructor Test', function() {
             expect(progCol.isDATACol()).to.be.true;
         });
 
+        it("Should get display width", function() {
+            // case 1
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimal" : 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getDisplayWidth()).to.equal(100);
+
+            // case 2
+            progCol.isHidden = true;
+            expect(progCol.getDisplayWidth()).to.equal(15);
+        });
+
         it("Should get and set back col name", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
@@ -389,6 +410,7 @@ describe('Constructor Test', function() {
                 "isLocked" : false
             });
 
+            expect(table.getNumCols()).to.equal(2);
             expect(table.getCol(0)).to.be.null;
             expect(table.getCol(1).getFrontColName()).to.be.equal("testCol");
             expect(table.getCol(3)).to.be.null;
@@ -972,7 +994,7 @@ describe('Constructor Test', function() {
         });
     });
 
-    describe('DF Constructor Test', function() {
+    describe.skip('DF Constructor Test', function() {
         var expandInfo;
         var opsInfo;
         var tableInfo;

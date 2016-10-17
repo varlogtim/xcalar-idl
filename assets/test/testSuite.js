@@ -427,8 +427,20 @@ window.TestSuite = (function($, TestSuite) {
             return checkExists(header);
         })
         .then(function() {
-            var hasName = $(header).siblings(".hashName").text();
-            innerDeferred.resolve(tableName + hasName);
+            var $header = $(header);
+            var hasName = $header.siblings(".hashName").text();
+            var $prefix = $header.closest(".xcTableWrap")
+                            .find(".xcTable .topHeader .prefix");
+            var prefix = "";
+            $prefix.each(function() {
+                var text = $(this).text();
+                if (text !== "") {
+                    prefix = text;
+                    return false; // stop loop
+                }
+            })
+
+            innerDeferred.resolve(tableName + hasName, prefix);
         })
         .fail(innerDeferred.reject);
 

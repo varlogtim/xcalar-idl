@@ -280,7 +280,7 @@ TableMeta.prototype = {
         }
     },
 
-    "getMetaAndResultSet": function() {
+    getMetaAndResultSet: function() {
         var deferred = jQuery.Deferred();
         var self = this;
 
@@ -378,7 +378,7 @@ TableMeta.prototype = {
         return this;
     },
 
-    "isActive": function() {
+    isActive: function() {
         return (this.status === TableType.Active);
     },
 
@@ -389,6 +389,11 @@ TableMeta.prototype = {
         }
 
         return tableCols[colNum - 1];
+    },
+
+    getNumCols: function() {
+        var tableCols = this.tableCols || [];
+        return tableCols.length;
     },
 
     getColNumByBackName: function(backColName) {
@@ -686,6 +691,14 @@ ProgCol.prototype = {
         if (!self.immediate && !self.isEmptyCol()) {
             // don't check for immediate
             self.type = xcHelper.parseColType(val, self.type);
+        }
+    },
+
+    getDisplayWidth: function() {
+        if (this.isHidden) {
+            return 15;
+        } else {
+            return this.width;
         }
     },
 

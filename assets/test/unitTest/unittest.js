@@ -35,8 +35,8 @@ window.UnitTest = (function(UnitTest) {
             testDS = res;
             return UnitTest.addTable(res);
         })
-        .then(function(tableName) {
-            deferred.resolve(testDS, tableName);
+        .then(function(tableName, prefix) {
+            deferred.resolve(testDS, tableName, prefix);
         })
         .fail(function(error) {
             console.error("Add fail", error);
