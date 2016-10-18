@@ -773,6 +773,9 @@ window.TblManager = (function($, TblManager) {
         var columnClass = options.columnClass || "";
         var indexed = (progCol.getBackColName() === table.getKeyName());
         var sortIcon = '<i class="sortIcon"></i>'; // placeholder
+        var prefixAction = '<div class="dotWrap">' +
+                                '<div class="dot"></div>' +
+                            '</div>';
 
         if (progCol.hasHidden()) {
             width = 15;
@@ -818,7 +821,13 @@ window.TblManager = (function($, TblManager) {
         var tooltip = "";
 
         var prefix = progCol.getPrefix();
-        var prefixColor = table.getPrefixColor(prefix);
+        var prefixColor = "";
+
+        if (prefix == "") {
+            prefixAction = "";
+        } else {
+            prefixColor = TPrefix.getColor(prefix);
+        }
 
         var th =
             '<th class="th ' + columnClass + ' col' + colNum + '"' +
@@ -837,9 +846,7 @@ window.TblManager = (function($, TblManager) {
                         '<div class="prefix">' +
                             prefix +
                         '</div>' +
-                        '<div class="dotWrap">' +
-                            '<div class="dot"></div>' +
-                        '</div>' +
+                        prefixAction +
                     '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +
@@ -1165,41 +1172,6 @@ window.TblManager = (function($, TblManager) {
             progCols[colNum - 1].sizedToHeader = widthStates[i];
         }
         matchHeaderSizes($table);
-    };
-
-    TblManager.markPrefix = function(tableId, prefix, newColor) {
-        var table = gTables[tableId];
-        xcHelper.assert(table != null);
-
-        var oldColor = table.getPrefixColor(prefix);
-        $("#xcTable-" + tableId).find(".th .topHeader").each(function() {
-            var $topHeader = $(this);
-            if ($topHeader.find(".prefix").text() === prefix) {
-                $topHeader.attr("data-color", newColor)
-                        .data("color", newColor);
-            }
-        });
-        table.addPrefixColor(prefix, newColor);
-
-        SQL.add("Mark Prefix", {
-            "operation": SQLOps.MarkPrefix,
-            "tableId"  : tableId,
-            "tableName": table.getName(),
-            "prefix"   : prefix,
-            "oldColor" : oldColor,
-            "newColor" : newColor,
-        });
-    };
-
-    TblManager.updatePrefix = function(tableId, colNum) {
-        var table = gTables[tableId];
-        var $topHeader = $("#xcTable-" + tableId).find(".th.col" + colNum +
-                                                        " .topHeader");
-
-        var prefix = table.getCol(colNum).getPrefix();
-        $topHeader.find(".prefix").text(prefix);
-        var color = table.getPrefixColor(prefix);
-        $topHeader.attr("data-color", color).data("color", color);
     };
 
     TblManager.adjustRowFetchQuantity = function() {

@@ -126,10 +126,6 @@ function TableMeta(options) {
         self.tableCols = null;
     }
 
-    if (options.prefixColor != null) {
-        self.prefixColor = options.prefixColor;
-    }
-
     self.bookmarks = options.bookmarks || [];
     self.rowHeights = options.rowHeights || {}; // a map
 
@@ -518,24 +514,6 @@ TableMeta.prototype = {
         return false;
     },
 
-    addPrefixColor: function(prefix, color) {
-        xcHelper.assert(prefix != null && color != null);
-        var self = this;
-        if (!self.prefixColor) {
-            self.prefixColor = {};
-        }
-
-        self.prefixColor[prefix] = color;
-    },
-
-    getPrefixColor: function(prefix) {
-        var self = this;
-        if (!self.prefixColor) {
-            return "";
-        }
-        return self.prefixColor[prefix] || "";
-    },
-
     addBookmark: function(rowNum) {
         xcHelper.assert(Number.isInteger(rowNum));
 
@@ -833,10 +811,11 @@ function getMETAKeys() {
     return {
         "TI"   : "TILookup",
         "WS"   : "worksheets",
-        "AGGS" : 'aggregates',
+        "AGGS" : "aggregates",
         "CART" : "datacarts",
         "STATS": "statsCols",
-        "LOGC" : "sqlcursor"
+        "LOGC" : "sqlcursor",
+        "TPFX" : "tablePrefix"
     };
 }
 
@@ -850,6 +829,7 @@ function METAConstructor(METAKeys) {
     this[METAKeys.CART] = DSCart.getCarts();
     this[METAKeys.STATS] = Profile.getCache();
     this[METAKeys.LOGC] = SQL.getCursor();
+    this[METAKeys.TPFX] = TPrefix.getCache();
     return this;
 
     function savegTables() {

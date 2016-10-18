@@ -209,6 +209,7 @@ window.KVStore = (function($, KVStore) {
 
                 try {
                     WSManager.restore(gInfos[METAKeys.WS]);
+                    TPrefix.restore(gInfos[METAKeys.TPFX]);
                     Aggregates.restore(gInfos[METAKeys.AGGS]);
                     TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
                     DSCart.restore(gInfos[METAKeys.CART]);

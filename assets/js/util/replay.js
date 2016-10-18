@@ -447,7 +447,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ChangeFormat] = ["colNums", "tableId", "formats"];
         argsMap[SQLOps.RoundToFixed] = ["colNums", "tableId", "decimals"];
         argsMap[SQLOps.Ext] = ["tableId", "module", "func", "args", "options"];
-        argsMap[SQLOps.MarkPrefix] = ["tableId", "prefix", "newColor"];
+        argsMap[SQLOps.MarkPrefix] = ["prefix", "newColor"];
     }
 
     function createTabMap() {
@@ -1429,7 +1429,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.MarkPrefix] = function(options) {
         var args = getArgs(options);
-        TblManager.markPrefix.apply(window, args);
+        TPrefix.markColor.apply(window, args);
         return PromiseHelper.resolve(null);
     };
 

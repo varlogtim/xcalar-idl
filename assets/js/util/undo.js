@@ -355,7 +355,7 @@ window.Undo = (function($, Undo) {
                 $th.addClass('newColumn')
                     .find('.header').attr('class', 'header')
                     .find('.iconHelper').attr('title', '');
-                TblManager.updatePrefix(options.tableId, options.colNum);
+                TPrefix.updateColor(options.tableId, options.colNum);
                 return PromiseHelper.resolve(null);
             } else {
                 return (ColManager.execCol("pull", options.origUsrStr,
@@ -601,8 +601,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.MarkPrefix] = function(options) {
-        focusTableHelper(options);
-        TblManager.markPrefix(options.tableId, options.prefix, options.oldColor);
+        TPrefix.markColor(options.prefix, options.oldColor);
         return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */

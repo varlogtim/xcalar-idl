@@ -887,12 +887,11 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             var $wrap = $(this);
-            var tableId = $prefixColorMenu.data("tableId");
             var prefix = $prefixColorMenu.data("prefix");
             var color = $(this).data("color");
 
             $wrap.addClass("selected").siblings().removeClass("selected");
-            TblManager.markPrefix(tableId, prefix, color);
+            TPrefix.markColor(prefix, color);
             closeMenu($prefixColorMenu);
         });
     }

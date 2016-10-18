@@ -531,19 +531,6 @@ describe('Constructor Test', function() {
             gEnableIndexStyle = cache;
         });
 
-        it("table should add prefix color", function() {
-            var table = new TableMeta({
-                "tableName": "test#a1",
-                "tableId"  : "a1"
-            });
-
-            expect(table.prefixColor).to.be.undefined;
-            expect(table.getPrefixColor("test")).to.equal("");
-            table.addPrefixColor("test", "white");
-            expect(table.prefixColor).to.be.an('object');
-            expect(table.getPrefixColor("test")).to.equal("white");
-        });
-
         it("table should add and remove book mark", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",

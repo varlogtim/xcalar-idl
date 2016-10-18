@@ -380,8 +380,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.MarkPrefix] = function(options) {
-        focusTableHelper(options);
-        TblManager.markPrefix(options.tableId, options.prefix, options.newColor);
+        TPrefix.markColor(options.prefix, options.newColor);
         return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */
