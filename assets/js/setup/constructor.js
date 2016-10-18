@@ -3419,8 +3419,10 @@ FormHelper.prototype = {
 
     hideView: function() {
         this.$form.addClass('xc-hidden');
-        MainMenu.restoreState(this.mainMenuState);
-        this.mainMenuState = null;
+        if (this.mainMenuState != null) {
+            MainMenu.restoreState(this.mainMenuState);
+            this.mainMenuState = null;
+        }
     },
 
     checkBtnFocus: function() {
