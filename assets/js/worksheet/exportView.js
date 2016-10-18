@@ -275,7 +275,7 @@ window.ExportView = (function($, ExportView) {
         var deferred = jQuery.Deferred();
 
         var keepOrder = false;
-        if (parseInt($exportPath.data('type')) === ExTargetTypeT.ExTargetSFType 
+        if (parseInt($exportPath.data('type')) === ExTargetTypeT.ExTargetSFType
             && $exportView.find('.keepOrderedCBWrap')
                           .find('.checkbox.checked').length) {
             keepOrder = true;
@@ -379,6 +379,25 @@ window.ExportView = (function($, ExportView) {
             return (deferred.promise());
         }
 
+        // XXX a temp way to reolsve name conflict
+        // XXX be sure to also fix dfCreateView, it has the same issue
+        var nameMap = {};
+        frontColumnNames = frontColumnNames.map(function(colName) {
+            var res = xcHelper.parsePrefixColName(colName);
+            colName = res.name;
+            if (nameMap.hasOwnProperty(colName)) {
+                colName = res.prefix + "-" + colName;
+                if (nameMap.hasOwnProperty(colName)) {
+                    colName = xcHelper.randName(colName, 3);
+                }
+            }
+
+            nameMap[colName] = true;
+
+            return colName;
+        });
+
+
         checkDuplicateExportName(exportName, advancedOptions)
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
@@ -392,7 +411,6 @@ window.ExportView = (function($, ExportView) {
             } else {
                 var closeModal = true;
                 var modalClosed = false;
-
                 xcFunction.exportTable(exportTableName, exportName,
                                        $exportPath.val(),
                                        frontColumnNames.length,
@@ -427,7 +445,7 @@ window.ExportView = (function($, ExportView) {
     // if duplicate is found, returns true
     function checkDuplicateExportName(name, advancedOptions) {
         var deferred = jQuery.Deferred();
-        if (advancedOptions.createRule !== 
+        if (advancedOptions.createRule !==
             ExExportCreateRuleT.ExExportCreateOnly) {
             deferred.resolve(false);
             return deferred.promise();
@@ -480,7 +498,7 @@ window.ExportView = (function($, ExportView) {
         });
 
         $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());
-        var type = $defaultLi.data('type')
+        var type = $defaultLi.data('type');
         $exportPath.data('type', type);
         if (parseInt(type) === ExTargetTypeT.ExTargetSFType) {
             $exportView.find('.exportRowOrderSection')

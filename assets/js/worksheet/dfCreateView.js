@@ -240,7 +240,7 @@ window.DFCreateView = (function($, DFCreateView) {
     function saveDataFlow(dataflowName, columns, tableName) {
         var dataflowParams = {
             "tableName": tableName,
-            "columns": columns,
+            "columns"  : columns,
         };
 
         var df = new Dataflow(dataflowName, dataflowParams);
@@ -340,11 +340,23 @@ window.DFCreateView = (function($, DFCreateView) {
 
         var columns = [];
         var tableCols = gTables[tableId].tableCols;
+        var nameMap = {};
 
         for (var i = 0; i < colNums.length; i++) {
             var progCol = tableCols[colNums[i]];
+            var colName = progCol.getFrontColName();
+            // XXX a temp way to reolsve name conflict
+            if (nameMap.hasOwnProperty(colName)) {
+                colName = progCol.getPrefix() + "-" + colName;
+                if (nameMap.hasOwnProperty(colName)) {
+                    colName = xcHelper.randName(colName);
+                }
+            }
+
+            nameMap[colName] = true;
+
             columns.push({
-                "frontCol": progCol.getFrontColName(true),
+                "frontCol": colName,
                 "backCol" : progCol.getBackColName()
             });
         }
