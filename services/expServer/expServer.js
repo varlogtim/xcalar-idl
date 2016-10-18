@@ -192,17 +192,22 @@ app.post('/checkLicense', function(req, res) {
     // Call bash to check license with this
     var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
 
-    out.stdout.on('data', function(data) {
-        if (data.indexOf("SUCCESS") > -1) {
-            res.send({"status": Status.Ok
-                      // "numNodes": blah
-                    });
-            console.log("Success: Checking License");
-        } else if (data.indexOf("FAILURE") > -1) {
-            res.send({"status": Status.Error});
-            console.log("Error: Checking License");
-        }
-    });
+    if (!out || !out.stdout) {
+        res.send({"status": Status.Error});
+        console.log("Error: Checking License");
+    } else {
+        out.stdout.on('data', function(data) {
+            if (data.indexOf("SUCCESS") > -1) {
+                res.send({"status": Status.Ok
+                          // "numNodes": blah
+                        });
+                console.log("Success: Checking License");
+            } else if (data.indexOf("FAILURE") > -1) {
+                res.send({"status": Status.Error});
+                console.log("Error: Checking License");
+            }
+        });
+    }
 
 });
 
@@ -248,22 +253,30 @@ app.post("/runInstaller", function(req, res) {
 
     out = exec(execString);
 
-    out.stdout.on('data', stdOutCallback);
-    out.stderr.on('data', stdErrCallback);
+    var sts = Status.Ok;
 
-    out.on('close', function(code) {
-        // Exit code. When we fail, we return non 0
-        if (code) {
-            console.log("Oh noes!");
-            curStep.status = Status.Error;
-        } else {
-            curStep.status = Status.Done;
-        }
+    if (!out || !out.stdout || !out.stderr) {
+        console.log("Error execing install script");
+        curStep.status = Status.Error;
+        sts = Status.Error;
+    } else {
+        out.stdout.on('data', stdOutCallback);
+        out.stderr.on('data', stdErrCallback);
 
-    });
+        out.on('close', function(code) {
+            // Exit code. When we fail, we return non 0
+            if (code) {
+                console.log("Oh noes!");
+                curStep.status = Status.Error;
+            } else {
+                curStep.status = Status.Done;
+            }
+
+        });
+    }
 
     // Immediately ack after starting
-    res.send({"status": Status.Ok});
+    res.send({"status": sts});
     console.log("Immediately acking runInstaller");
 
 });
