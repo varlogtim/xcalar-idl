@@ -11,10 +11,11 @@ DESTDIR ?= /srv/apps/$(NAME)-$(NOW)
 FILES := Dockerfile expServer.js Makefile ldapConfig.json package.json marketplace.json
 
 all:
-	@echo deploy    - deploy to $(SERVER)
-	@echo archive   - build archive file ($(ARCHIVE))
-	@echo build     - build docker image
-	@echo run       - run docker image
+	@echo "deploy    - deploy to $(SERVER)"
+	@echo "archive   - build archive file ($(ARCHIVE))"
+	@echo "build     - build docker image"
+	@echo "run       - run docker image"
+	@echo "debug     - run a shell"
 
 archive: $(ARCHIVE)
 
@@ -28,12 +29,18 @@ deploy: $(ARCHIVE)
 	gcloud compute ssh $(SERVER) --command="sudo service caddy restart"
 
 build:
-	docker build -t $(NAME) .
+	docker build -q -t $(NAME) .
 
 run: build
-	-docker stop $(NAME)
-	-docker rm -f $(NAME)
+	@-docker stop $(NAME) 2>/dev/null
+	@-docker rm -f $(NAME) 2>/dev/null
 	docker run -p 12124:12124 -v /etc/xcalar:/etc/xcalar -v /var/log:/var/log --restart=always --name=$(NAME) -d $(NAME)
+
+
+debug: build
+	@-docker stop $(NAME) 2>/dev/null
+	@-docker rm -f $(NAME) 2>/dev/null
+	docker run -it -p 12124:12124 -v /etc/xcalar:/etc/xcalar -v /var/log:/var/log --restart=always --name=$(NAME) $(NAME) /bin/bash -l
 
 clean:
 	-rm -vf $(NAME)-*.tar.gz
