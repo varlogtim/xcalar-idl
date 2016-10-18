@@ -882,15 +882,58 @@ function UserInfoConstructor(UserInfoKeys, options) {
     return this;
 }
 
+function GenSettings(options) {
+    options = options || {};
+    var defaultSettings = {
+        hideDataCol: false,
+        memoryLimit: 70,
+        monitorGraphInterval: 3  
+    }; 
+
+    var adminSettings = options.adminSettings || {};
+    var xcSettings = options.xcSettings || {};
+    this.adminSettings = adminSettings;
+    this.xcSettings = xcSettings;
+
+    // adminSettings have higher priority than xcSettings, 
+    // xcSettings (xcalar admin) has higher priority than defaultSettings
+
+    this.baseSettings = $.extend({}, defaultSettings, xcSettings,
+                                 adminSettings);
+}
+
+GenSettings.prototype =  {
+    "getPref": function(pref) {
+        return this.baseSettings[pref];
+    },
+    "getBaseSettings": function() {
+        return this.baseSettings;
+    },
+    "updateAdminSettings": function(settings) {
+        var prevAdminSettings = this.adminSettings;
+        this.adminSettings = $.extend({}, prevAdminSettings, settings);
+    },
+    "updateXcSettings": function(settings) {
+        var prevXcSettings = this.xcSettings;
+        this.xcSettings = $.extend({}, prevXcSettings, settings);
+    },
+    "getAdminAndXcSettings": function() {
+        return {
+            adminSettings: this.adminSettings,
+            xcSettings: this.xcSettings
+        };
+    },
+};
+
 function UserPref(options) {
     options = options || {};
     this.datasetListView = options.datasetListView || false;
     this.browserListView = options.browserListView || false;
     this.keepJoinTables = options.keepJoinTables || false;
-    this.hideDataCol = options.hideDataCol || false;
-    this.memoryLimit = options.memoryLimit || 70;
-    this.monitorGraphInterval = options.monitorGraphInterval || 3;
     this.activeMainTab = options.activeMainTab || "workspaceTab";
+    this.general = options.general || {}; // holds general settings that can
+    // be set by user but if a setting is not set, will default to those in 
+    // GenSettings
 
     return this;
 }
@@ -3639,7 +3682,7 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
         "maxWidth": self.maxWidth,
         "stop"    : function(event, ui) {
             var val = self.updateInput(ui.size.width);
-            UserSettings.setPref(prefName, val);
+            UserSettings.setPref(prefName, val, true);
             if (options.onChangeEnd) {
                 options.onChangeEnd(val);
             }
@@ -3672,7 +3715,7 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
         var val = $(this).val();
         val = Math.min(self.maxVal, Math.max(val, self.minVal));
         $(this).val(val);
-        UserSettings.setPref(self.prefName, val);
+        UserSettings.setPref(self.prefName, val, true);
         if (options.onChangeEnd) {
             options.onChangeEnd(val);
         }
@@ -3708,7 +3751,7 @@ RangeSlider.prototype = {
         mouseX = Math.min(self.maxWidth, Math.max(self.minWidth, mouseX));
         var val = self.updateInput(mouseX);
         self.updateSlider(val);
-        UserSettings.setPref(self.prefName, val);
+        UserSettings.setPref(self.prefName, val, true);
         if (self.options.onChangeEnd) {
             self.options.onChangeEnd(val);
         }

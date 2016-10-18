@@ -27,7 +27,8 @@ var gMinTableWidth = 30;
   "META": all meta data need for UI (XXX this should be XcalarApiKeyScopeSession, no support yet!)
   "LOG" : SQL Log (this use append) (XXX this should be XcalarApiKeyScopeSession, no support yet!)
   "Err" : SQL Error (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
-  "FLAG": special commitFlag to make sure UI have right to write (should be XcalarApiKeyScopeSession)
+  "FLAG": special commitFlag to make sure UI have right to write (should be XcalarApiKeyScopeSession),
+  "GLOB": general global
  */
 var gKVScope = {
     "AUTH": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
@@ -38,7 +39,8 @@ var gKVScope = {
     "LOG" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "ERR" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-    "VER" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
+    "VER" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "GLOB": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
 };
 var gTables = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
@@ -71,7 +73,7 @@ var gUdfDefaultNoCheck = false; // when set true, allow update default udf
 var gSessionNoCleanup = true;
 var gIcvMode = false;
 var gEnableIndexStyle = false;
-var gAdmin = true; // if admin user
+var gAdmin = false; // if admin user
 var gXcSupport = false; // if xcalar support user
 // ==================================== //
 

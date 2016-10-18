@@ -1,10 +1,11 @@
 window.UserSettings = (function($, UserSettings) {
     var userPrefs;
     var UserInfoKeys;
-    var hasDSChange;
+    var hasDSChange; // becomes true if ds.js detected settings change
     var cachedPrefs = {};
     var memLimitSlider;
     var monIntervalSlider;
+    var genSettings;
 
     UserSettings.restore = function() {
         var deferred = jQuery.Deferred();
@@ -21,12 +22,18 @@ window.UserSettings = (function($, UserSettings) {
                 userPrefs = new UserPref();
                 result = null;
             }
-            restoreSettingsPanel();
             restoreMainTabs();
+
             var atStartup = true;
-            return DS.restore(result, atStartup);
+            return (DS.restore(result, atStartup));
+        }).then(function() {
+            return (KVStore.getAndParse(KVStore.gSettingsKey, gKVScope.GLOB));
         })
-        .then(deferred.resolve)
+        .then(function(res) {
+            genSettings = new GenSettings(res);
+            restoreSettingsPanel();
+            deferred.resolve();
+        })
         .fail(function(error) {
             console.error("Restore user info failed", error);
             deferred.reject(error);
@@ -36,6 +43,7 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     UserSettings.commit = function() {
+
         var deferred = jQuery.Deferred();
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
@@ -44,19 +52,37 @@ window.UserSettings = (function($, UserSettings) {
         }
 
         userPrefs.update();
-
         var shouldCommit = hasDSChange || userPrefChangeCheck();
-
         if (shouldCommit) {
-            hasDSChange = false;
-
             var userInfos = new UserInfoConstructor(UserInfoKeys, {
                 "DS"  : DS.getHomeDir(),
                 "PREF": userPrefs
             });
 
-            KVStore.put(KVStore.gUserKey, JSON.stringify(userInfos), true, gKVScope.USER)
+            var kvKey;
+            var kvScope;
+            var info;
+
+            if (gXcSupport) {
+                kvKey = KVStore.gSettingsKey;
+                kvScope = KVStore.GLOB;
+                genSettings.updateXcSettings(UserSettings.getPref('general'));
+                info = genSettings.getAdminAndXcSettings();
+            } else if (Admin.isAdmin()) {
+                kvKey = KVStore.gSettingsKey;
+                kvScope = KVStore.GLOB;
+                genSettings.updateAdminSettings(
+                                        UserSettings.getPref('general'));
+                info = genSettings.getAdminAndXcSettings();
+            } else {
+                kvKey = KVStore.gUserKey;
+                kvScope = gKVScope.USER;
+                info = userInfos;
+            }
+
+            KVStore.put(kvKey, JSON.stringify(info), true, kvScope)
             .then(function() {
+                hasDSChange = false;
                 saveLastPrefs();
                 deferred.resolve();
             })
@@ -80,11 +106,26 @@ window.UserSettings = (function($, UserSettings) {
         if (!userPrefs) {
             return null;
         }
-        return userPrefs[pref];
+        if (userPrefs[pref]) {
+            return userPrefs[pref];
+        } else if (!userPrefs[pref]) {
+            for (var i in userPrefs) {
+                if (typeof userPrefs[i] === "object" &&
+                    userPrefs[i][pref]) {
+                    return userPrefs[i][pref];
+                }
+            }
+        }
+        
+        return genSettings.getPref(pref);
     };
 
-    UserSettings.setPref = function(pref, val) {
-        userPrefs[pref] = val;
+    UserSettings.setPref = function(pref, val, isGeneral) {
+        if (isGeneral) {
+            userPrefs.general[pref] = val;
+        } else {
+            userPrefs[pref] = val;
+        }
     };
 
     UserSettings.logDSChange = function() {
@@ -148,9 +189,9 @@ window.UserSettings = (function($, UserSettings) {
             var $checkbox = $(this);
             $checkbox.toggleClass('checked');
             if ($checkbox.hasClass("checked")) {
-                userPrefs.hideDataCol = false;
+                UserSettings.setPref('hideDataCol', false, true);
             } else {
-                userPrefs.hideDataCol = true;
+                UserSettings.setPref('hideDataCol', true, true);
             }
         });
 
@@ -158,7 +199,8 @@ window.UserSettings = (function($, UserSettings) {
             minVal: 50,
             maxVal: 99
         });
-        monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'), 'monitorGraphInterval', {
+        monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
+            'monitorGraphInterval', {
             minVal     : 1,
             maxVal     : 60,
             onChangeEnd: function(val) {
@@ -168,12 +210,15 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     function restoreSettingsPanel() {
-        if (!userPrefs.hideDataCol) {
+        var hideDataCol = UserSettings.getPref('hideDataCol');
+        var memoryLimit = UserSettings.getPref('memoryLimit');
+        var graphInterval = UserSettings.getPref('monitorGraphInterval');
+        if (!hideDataCol) {
             $('#showDataColBox').addClass('checked');
         }
        
-        memLimitSlider.setSliderValue(userPrefs.memoryLimit);
-        monIntervalSlider.setSliderValue(userPrefs.monitorGraphInterval);
+        memLimitSlider.setSliderValue(memoryLimit);
+        monIntervalSlider.setSliderValue(graphInterval);
     }
 
     function restoreMainTabs() {

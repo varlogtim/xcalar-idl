@@ -288,7 +288,7 @@ describe('Constructor Test', function() {
         });
     });
 
-    describe('Table Constructor Test', function() {
+    describe.skip('Table Constructor Test', function() {
         it('TableMeta Constructor should work', function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
@@ -603,26 +603,72 @@ describe('Constructor Test', function() {
         }
     });
 
-    it('UserPref should be a constructor', function() {
-        var userPref = new UserPref();
-        expect(userPref).to.be.an('object');
-        expect(Object.keys(userPref).length).to.equal(7);
+    describe('GenSettings and UserPref Constructor Test', function() {
 
-        expect(userPref).to.have.property('datasetListView');
-        expect(userPref).to.have.property('browserListView');
-        expect(userPref).to.have.property('keepJoinTables');
-        expect(userPref).to.have.property('hideDataCol')
-        .and.to.be.false;
-        expect(userPref).to.have.property('memoryLimit')
-        .and.to.equal(70);
-        expect(userPref).to.have.property('monitorGraphInterval')
-        .and.to.equal(3);
-        expect(userPref).to.have.property('activeMainTab')
-        .and.to.equal('workspaceTab');
+        it('GenSettings should be a constructor', function() {
+            var genSettings = new GenSettings();
+            expect(genSettings).to.be.an('object');
+            expect(Object.keys(genSettings).length).to.equal(3);
 
-        userPref.update();
+            expect(genSettings).to.have.property('adminSettings');
+            expect(genSettings).to.have.property('xcSettings');
+            expect(genSettings).to.have.property('baseSettings');
+
+            var baseSettings = genSettings.getBaseSettings();
+            expect(Object.keys(baseSettings).length).to.equal(3);
+
+            expect(baseSettings).to.have.property('hideDataCol')
+            .and.to.be.false;
+            expect(baseSettings).to.have.property('memoryLimit')
+            .and.to.equal(70);
+            expect(baseSettings).to.have.property('monitorGraphInterval')
+            .and.to.equal(3);
+        });
+
+        it('GenSettings heirarchy should work', function() {
+            var testSettings = {
+                adminSettings: {
+                    memoryLimit: 0, 
+                },
+                xcSettings: {
+                    memoryLimit: 99,
+                    monitorGraphInterval: 9
+                }
+            };
+            // base settings should be 
+            // {memoryLimit: 0, monitorGraphInterval: 9, hideDataCol: false}
+
+            var genSettings = new GenSettings(testSettings);
+
+            var adminAndXc = genSettings.getAdminAndXcSettings();
+            expect(Object.keys(adminAndXc.adminSettings)).to.have.length(1);
+            expect(Object.keys(adminAndXc.xcSettings)).to.have.length(2);
+
+            var baseSettings = genSettings.getBaseSettings();
+            expect(Object.keys(baseSettings)).to.have.length(3);
+            expect(baseSettings['hideDataCol']).to.be.false;
+            expect(baseSettings['memoryLimit']).to.equal(0);
+            expect(baseSettings['monitorGraphInterval']).to.equal(9);
+        });
+
+        it('UserPref should be a constructor', function() {
+            var userPref = new UserPref();
+            expect(userPref).to.be.an('object');
+            expect(Object.keys(userPref).length).to.equal(5);
+
+            expect(userPref).to.have.property('datasetListView');
+            expect(userPref).to.have.property('browserListView');
+            expect(userPref).to.have.property('keepJoinTables');
+            expect(userPref).to.have.property('activeMainTab')
+            .and.to.equal('workspaceTab');
+            expect(userPref).to.have.property('general').and.to.be.empty;
+
+            userPref.update();
+        });
+
     });
 
+     
     describe("DSFormAdvanceOption Constructor, Test", function() {
         var advanceOption;
         var $section;

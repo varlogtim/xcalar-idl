@@ -4,7 +4,8 @@ window.KVStore = (function($, KVStore) {
     // apply to all places
     var METAKeys;
     var EMetaKeys; // Ephemeral meta data keys
-    // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey
+    // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey, 
+    // gSettingsKey
     KVStore.setup = function(keys) {
         METAKeys = getMETAKeys();
         EMetaKeys = getEMetaKeys();
@@ -104,7 +105,6 @@ window.KVStore = (function($, KVStore) {
         var deferred = jQuery.Deferred();
         var meta = new METAConstructor(METAKeys);
         var ephMeta = new EMetaConstructor(EMetaKeys);
-
         KVStore.put(KVStore.gStorageKey, JSON.stringify(meta), true,
                     gKVScope.META)
         .then(function() {
