@@ -20,7 +20,7 @@ require("jsdom").env("", function(err, window) {
 
 var tail = require('./tail');
 var config = require('./ldapConfig.json');
-
+var app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
@@ -358,7 +358,6 @@ var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
 var strictSecurity = false;
 
 var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
-var app = express();
 
 var users = new Map();
 var loginId = 0;
