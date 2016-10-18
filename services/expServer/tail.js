@@ -20,7 +20,7 @@ var Status = {
     "Error": -1,
 };
 
-exports.tailByChildProcess = function (filename, requireLineNum, res) {
+exports.tailByChildProcess = function(filename, requireLineNum, res) {
     var deferred = jQuery.Deferred();
     var command = 'tail ' + filename + ' -n ' + requireLineNum;
     cp.exec(command, function(err,stdout,stderr){

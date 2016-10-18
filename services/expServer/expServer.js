@@ -9,23 +9,7 @@ var http = require('http');
 var https = require("https");
 require('shelljs/global');
 var ldap = require('ldapjs');
-var tail = require('./tail');
-
-var strictSecurity = false;
-var config = require('./ldapConfig.json');
-var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
-var app = express();
-
-var users = new Map();
-var loginId = 0;
-var UserInformation = {
-    loginId: 0,
-    entry_count: 0,
-    mail: "",
-    firstName: "",
-    employeeType: ""
-}
-
+var exec = require('child_process').exec;
 require("jsdom").env("", function(err, window) {
     if (err) {
         console.error(err);
@@ -34,11 +18,8 @@ require("jsdom").env("", function(err, window) {
     jQuery = require("jquery")(window);
 });
 
-/**
-var privateKey = fs.readFileSync('cantor.int.xcalar.com.key', 'utf8');
-var certificate = fs.readFileSync('cantor.int.xcalar.com.crt', 'utf8');
-var credentials = {key: privateKey, cert:certificate};
-*/
+var tail = require('./tail');
+var config = require('./ldapConfig.json');
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -373,6 +354,21 @@ var useTLS = false;
 var searchFilter = "";
 var activeDir = false;
 var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
+
+var strictSecurity = false;
+
+var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
+var app = express();
+
+var users = new Map();
+var loginId = 0;
+var UserInformation = {
+    loginId: 0,
+    entry_count: 0,
+    mail: "",
+    firstName: "",
+    employeeType: ""
+}
 
 app.post('/login', function(req, res) {
     console.log("Login process");
