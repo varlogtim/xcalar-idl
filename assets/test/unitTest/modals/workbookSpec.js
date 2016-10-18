@@ -127,17 +127,21 @@ describe('Workbook Test', function() {
                     // error case
                     return null;
                 }
-                return (diff === 1);
+
+                if (diff === 1) {
+                    // has a fadeIn animation, so need to wait for it
+                    var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
+                    if ($dupBox.find(".workbookName").val()) {
+                        return true;
+                    }
+                }
+                return false;
             };
 
             testChecker(checkFunc)
             .then(function() {
                 var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
                 var dupName = $dupBox.find(".workbookName").val();
-                if (!dupName.startsWith(name)) {
-                    console.log(dupName, name);
-                    debugger;
-                }
                 expect(dupName.startsWith(name)).to.be.true;
                 expect($dupBox.find(".numWorksheets").text()).to.equal("1");
                 expect($dupBox.find(".isActive").text()).to.equal("Inactive");

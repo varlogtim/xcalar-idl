@@ -1199,9 +1199,9 @@ window.JoinView = (function($, JoinView) {
 
         Alert.error(title, newMsg, {
             buttons: [{
-                name: btnText,
+                name     : btnText,
                 className: btnClass,
-                func: function() {
+                func     : function() {
                     JoinView.show(null , null , true);
                 }
             }]

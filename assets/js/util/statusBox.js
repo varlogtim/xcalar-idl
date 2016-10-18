@@ -93,9 +93,9 @@ window.StatusBox = (function($, StatusBox){
                     (statusBoxWidth / 2)) + offsetX;
             left = Math.min(left, winWidth - statusBoxWidth);
             var statusBoxHeight = $statusBox.height();
-            top = bound.top - statusBoxHeight - 15 + offsetY; 
+            top = bound.top - statusBoxHeight - 15 + offsetY;
         } else if (side === "bottom") {
-            left = (bound.left + ($target.outerWidth() / 2) - 
+            left = (bound.left + ($target.outerWidth() / 2) -
                     (statusBoxWidth / 2)) + offsetX;
             top = bound.bottom + offsetY;
         }
@@ -123,7 +123,7 @@ window.StatusBox = (function($, StatusBox){
             });
         } else {
             open = true;
-        }        
+        }
     };
 
     StatusBox.forceHide = function() {

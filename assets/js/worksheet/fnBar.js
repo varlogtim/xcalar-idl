@@ -671,12 +671,12 @@ window.FnBar = (function(FnBar, $) {
                         userStr: '"" ' + fnBarVal
                     });
                     isAlertOpen = false;
-                }; 
+                };
                 var buttonOption = {
                     name: CommonTxtTstr.NEWCOLUMN,
                     func: confirmFunc
                 };
-                showConfirmAlert($colInput, alertTitle, alertMsg, cursor, 
+                showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
                                  confirmFunc, buttonOption);
             } else {
                 var confirmFunc = function() {
@@ -689,16 +689,16 @@ window.FnBar = (function(FnBar, $) {
                         }
                     });
                     isAlertOpen = false;
-                }
+                };
 
                 // show alert if column in string does not match selected col
-                if (!tableCol.isEmptyCol() && 
+                if (!tableCol.isEmptyCol() &&
                     !checkForSelectedColName(fnBarVal, colName)) {
                     var alertTitle = AlertTStr.CONFIRMATION;
                     var alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
                         colName: colName
                     });
-                    showConfirmAlert($colInput, alertTitle, alertMsg, cursor, 
+                    showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
                                      confirmFunc);
                 } else {
                     // no errors, submit the function
@@ -737,8 +737,8 @@ window.FnBar = (function(FnBar, $) {
 
     function invalidNumParensHandler(operation) {
         var text = xcHelper.replaceMsg(FnBarTStr.FnBarTStr, {
-                        operation: operation
-                    });
+            operation: operation
+        });
         setTimeout(function() {
             StatusBox.show(text, $fnBar.prev().prev(), null, {
                 "offsetX": 50,
@@ -773,7 +773,7 @@ window.FnBar = (function(FnBar, $) {
                 $fnBar.removeAttr("disabled");
                 isAlertOpen = false;
             },
-            "onConfirm"    : function() {
+            "onConfirm": function() {
                 confirm();
                 isAlertOpen = false;
             }

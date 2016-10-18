@@ -424,7 +424,7 @@ describe('Constructor Test', function() {
             .getFrontColName()).to.equal("testCol");
             expect(table.getColByBackName("errorCol")).to.be.null;
 
-            expect(table.getColByFrontName("testCol").getBackColName())
+            expect(table.getColByFrontName("prefix::testCol").getBackColName())
             .to.equal("prefix::backTestCol");
             expect(table.getColByFrontName("errorCol")).to.be.null;
 
