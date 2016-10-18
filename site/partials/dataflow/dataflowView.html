@@ -82,5 +82,20 @@
     </header>
     <!-- End of cardHeader -->
     <div class="cardMain"></div>
+    <ul class="menu dagDropDown">
+        <li class="createParamQuery"><%= dicts.MenuTStr.CreateParamQuery %></li>
+        <li class="showExportCols"><%= dicts.MenuTStr.ShowExportCols %></li>
+    </ul>
+    <div id="exportColPopup" class="schemaPopup">
+      <div class="title">
+        <span class="tableName"></span>
+        <span class="numCols" title=""></span>
+      </div>
+      <div class="heading">
+          <div class="field">Columns</div>
+          <div class="sample"></div>
+      </div>
+      <ul></ul>
+    </div>
   </div>
 </div>

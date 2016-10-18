@@ -346,6 +346,35 @@
             }
         }
     }
+
+    .schemaPopup {
+
+        .heading {
+            > div {
+                &:first-child {
+                    text-indent: 0px;
+                    // text-align: center;
+                    margin-left: 5px;
+                    width: 100%;
+                }
+            }
+        }
+
+        ul {
+            max-height: 300px;
+            li {
+                &> div {
+                    &:first-child {
+                        color: @color-font-select-blue;
+                        margin-left: 5px;
+                        width: 100%;
+                        max-width: 100%;
+                        padding-right: 0px;
+                    }
+                }
+            }
+        }
+    }
 }
 
 #uploadDataflowCard {

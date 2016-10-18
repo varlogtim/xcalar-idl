@@ -390,21 +390,9 @@ window.DFCard = (function($, DFCard) {
         });
     }
 
-    function getDagDropDownHTML() {
-        var html =
-        '<ul class="menu dagDropDown">' +
-            '<li class="createParamQuery">Create Parameterized Query</li>' +
-        '</ul>';
-        return (html);
-    }
-
     function setupDagDropdown() {
-        var dropdownHtml = getDagDropDownHTML();
         var $dagArea = $dfCard;
-        $dfCard.append(dropdownHtml);
-
         var $currentIcon;
-
         var $menu = $dagArea.find('.dagDropDown');
 
         $dagArea[0].oncontextmenu = function(e) {
@@ -436,10 +424,8 @@ window.DFCard = (function($, DFCard) {
 
             var el = $(this);
             //position colMenu
-            var topMargin = 0;
-            var leftMargin = 0;
-            var top = el[0].getBoundingClientRect().bottom + topMargin;
-            var left = el[0].getBoundingClientRect().left + leftMargin;
+            var top = el[0].getBoundingClientRect().bottom;
+            var left = el[0].getBoundingClientRect().left;
 
             $menu.css({'top': top, 'left': left});
             $menu.show();
@@ -465,6 +451,79 @@ window.DFCard = (function($, DFCard) {
             }
             DFParamModal.show($currentIcon);
         });
+
+        $menu.find('.showExportCols').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            showExportCols($currentIcon);
+        })
+    }
+
+    function showExportCols($dagTable) {
+        var df = DF.getDataflow(DFCard.getCurrentDF());
+        var $popup = $('#exportColPopup');
+        var tableName = $dagTable.data('table') || $dagTable.data('tablename');
+        var cols = df.columns;
+        var numCols = cols.length;
+
+        $popup.find('.tableName').text(tableName);
+        $popup.find('.numCols').attr('title', CommonTxtTstr.NumCol)
+                                   .text('[' + numCols + ']');
+
+        var html = '';
+
+        for (var i = 0; i < numCols; i++) {
+            var name = cols[i].backCol;
+            html += '<li>' +
+                        '<div title="' + name + '" class="name">' +
+                            name + '</div>' +
+                    '</li>';
+        }
+        if (numCols === 0) {
+            html += '<span class="noFields">No fields present</span>';
+        }
+
+        $popup.find('ul').html(html);
+        $popup.show();
+
+        var width = $popup.outerWidth();
+        var height = $popup.outerHeight();
+        var dagPanelLeft = $('#dagPanelContainer').offset().left;
+
+        var top = $dagTable[0].getBoundingClientRect().bottom - 100;
+        var left = $dagTable[0].getBoundingClientRect().left - width - 20;
+
+        $popup.css({'top': top, 'left': left});
+
+        //positioning if menu is on the right side of screen
+        if ($popup[0].getBoundingClientRect().right >
+            $(window).width() - 5) {
+            left = $(window).width() - $popup.width() - 7;
+            $popup.css('left', left);
+        } else if ($popup[0].getBoundingClientRect().left <
+                    MainMenu.getOffset()) {
+            // if on the left side of the screen
+            $popup.css('left', MainMenu.getOffset() + 5);
+        }
+
+        var menuBottom = $popup[0].getBoundingClientRect().bottom;
+        if (menuBottom > $(window).height()) {
+            $popup.css('top', '-=' + ((menuBottom - $(window).height()) + 5));
+        }
+
+        $('.tooltip').hide();
+
+        $(document).on('mousedown.hideExportColPopup', function(event) {
+            if ($(event.target).closest('#exportColPopup').length === 0) {
+                hideExportColPopup();
+            }
+        });
+    }
+
+    function hideExportColPopup() {
+        $('#exportColPopup').hide();
+        $(document).off('.hideExportColPopup');
     }
 
     function updateList() {

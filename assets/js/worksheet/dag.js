@@ -1911,9 +1911,9 @@ window.Dag = (function($, Dag) {
                         '</div>' +
                         '<div title="' + name + '" class="name">' +
                             name + '</div>' +
-                        '<div>' +
-                        // XX SAMPLE DATA GOES HERE
-                        '</div>' +
+                        // '<div>' +
+                        // // XX SAMPLE DATA GOES HERE
+                        // '</div>' +
                     '</li>';
         }
         if (numCols === 1) {
