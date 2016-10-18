@@ -815,7 +815,8 @@ function getMETAKeys() {
         "CART" : "datacarts",
         "STATS": "statsCols",
         "LOGC" : "sqlcursor",
-        "TPFX" : "tablePrefix"
+        "TPFX" : "tablePrefix",
+        "QUERY": "query"
     };
 }
 
@@ -830,6 +831,7 @@ function METAConstructor(METAKeys) {
     this[METAKeys.STATS] = Profile.getCache();
     this[METAKeys.LOGC] = SQL.getCursor();
     this[METAKeys.TPFX] = TPrefix.getCache();
+    this[METAKeys.QUERY] = QueryManager.getCache();
     return this;
 
     function savegTables() {

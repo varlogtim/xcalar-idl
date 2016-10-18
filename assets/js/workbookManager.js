@@ -532,7 +532,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gLogKey     = generateKey(wkbkId, "gLog");
         var gErrKey     = generateKey(wkbkId, "gErr");
         var gUserKey    = generateKey(username, 'gUser');
-        var gQueryKey   = generateKey(wkbkId, 'gQuery');
 
         var keys = {
             gStorageKey   : gInfoKey,
@@ -540,7 +539,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
             gLogKey       : gLogKey,
             gErrKey       : gErrKey,
             gUserKey      : gUserKey,
-            gQueryKey     : gQueryKey
         };
 
         KVStore.setup(keys);

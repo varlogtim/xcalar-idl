@@ -366,7 +366,7 @@ window.QueryManager = (function(QueryManager, $) {
                 if (query.type === "restored") {
                     continue;
                 }
-                if (query.state !== QueryStatus.Done && 
+                if (query.state !== QueryStatus.Done &&
                     query.state !== QueryStatus.Cancel) {
                     if (query.type === "xcFunction") {
                         for (var i = 0; i < query.subQueries.length; i++) {
@@ -396,68 +396,55 @@ window.QueryManager = (function(QueryManager, $) {
         });
     };
 
-    QueryManager.commit = function() {
-        var deferred = jQuery.Deferred();
-        var queries = getAbbrQueries();
-        KVStore.put(KVStore.gQueryKey, JSON.stringify(queries), true, 
-                    gKVScope.USER)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-        deferred.resolve();
-        return deferred.promise();
+    QueryManager.getCache = function() {
+        return getAbbrQueries();
     };
 
-    QueryManager.restore = function() {
-        var deferred = jQuery.Deferred(); 
-        KVStore.getAndParse(KVStore.gQueryKey, gKVScope.USER)
-        .then(function(queries) {
-            if (!queries) {
-                return deferred.resolve();
+    QueryManager.restore = function(queries) {
+        if (!queries) {
+            return;
+        }
+
+        var logs = SQL.getLogs();
+        var sqlLog;
+        var query;
+        var numQueries = queries.length;
+        var html = "";
+        var name;
+        var fullName;
+        var cli;
+        for (var i = 0; i < numQueries; i++) {
+            sqlLog = logs[queries[i].sqlNum];
+            if (sqlLog) {
+                name = sqlLog.options.operation;
+                cli = sqlLog.cli;
+            } else {
+                name = queries[i].name;
+                cli = queries[i].queryStr;
             }
-            var logs = SQL.getLogs();
-            var sqlLog;
-            var query;
-            var numQueries = queries.length;
-            var html = "";
-            var name;
-            var fullName;
-            var cli;
-            for (var i = 0; i < numQueries; i++) {
-                sqlLog = logs[queries[i].sqlNum];
-                if (sqlLog) {
-                    name = sqlLog.options.operation;
-                    cli = sqlLog.cli;
-                } else {
-                    name = queries[i].name;
-                    cli = queries[i].queryStr;
-                }
-                fullName = name;
-                
-                query = new XcQuery({
-                    "name"            : name,
-                    "fullName"        : fullName,
-                    "time"            : queries[i].time,
-                    "id"              : i - numQueries,
-                    "numSteps"        : 1,
-                    "queryStr"        : cli,
-                    "sqlNum"          : queries[i].sqlNum,
-                    "elapsedTime"     : queries[i].elapsedTime,
-                    "outputTableName" : queries[i].outputTableName,
-                    "outputTableState": queries[i].outputTableState,
-                    "state"           : queries[i].state,
-                    "type"            : "restored"
-                });
-                queryLists[i - numQueries] = query;
-                html += getQueryHTML(query, true);
-            }
-            if (html) {
-                $queryList.find('.hint').addClass('xc-hidden')
-                           .end().append(html);
-            }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
+            fullName = name;
+
+            query = new XcQuery({
+                "name"            : name,
+                "fullName"        : fullName,
+                "time"            : queries[i].time,
+                "id"              : i - numQueries,
+                "numSteps"        : 1,
+                "queryStr"        : cli,
+                "sqlNum"          : queries[i].sqlNum,
+                "elapsedTime"     : queries[i].elapsedTime,
+                "outputTableName" : queries[i].outputTableName,
+                "outputTableState": queries[i].outputTableState,
+                "state"           : queries[i].state,
+                "type"            : "restored"
+            });
+            queryLists[i - numQueries] = query;
+            html += getQueryHTML(query, true);
+        }
+        if (html) {
+            $queryList.find('.hint').addClass('xc-hidden')
+                       .end().append(html);
+        }
     };
 
     function runXcQuery(id, mainQuery, subQueries) {
@@ -675,10 +662,10 @@ window.QueryManager = (function(QueryManager, $) {
         if (state === QueryStateT.qrNotStarted ||
             state === QueryStateT.qrProcessing) {
             state = QueryStatus.Run;
-        } else if (state === QueryStateT.qrFinished || 
+        } else if (state === QueryStateT.qrFinished ||
                    state === QueryStatus.Done) {
             state = QueryStatus.Done;
-        } else if (state === QueryStateT.qrCancelled || 
+        } else if (state === QueryStateT.qrCancelled ||
                    state === QueryStatus.Cancel) {
             state = QueryStatus.Cancel;
         } else if (state === QueryStateT.qrError) {
@@ -792,7 +779,7 @@ window.QueryManager = (function(QueryManager, $) {
                         mainQuery.outputTableState = TableType.Undone;
                         $("#monitor-inspect").addClass('btn-disabled');
                     } else {
-                        mainQuery.outputTableState = "active"; 
+                        mainQuery.outputTableState = "active";
                         $("#monitor-inspect").removeClass('btn-disabled');
                     }
                 }
@@ -816,6 +803,10 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function checkIfTableIsUndone(tableName) {
+        if (tableName.startsWith(gDSPrefix)) {
+            return false;
+        }
+
         var tableId = xcHelper.getTableId(tableName);
         if (gTables[tableId]) {
             return gTables[tableId].getType() === TableType.Undone;
@@ -868,7 +859,7 @@ window.QueryManager = (function(QueryManager, $) {
                 if (numSteps === -1) {
                     $query.find('.querySteps').text('step ' + (currStep + 1));
                 } else if (currStep < numSteps) {
-                    $query.find('.querySteps').text('step ' + (currStep + 1) + 
+                    $query.find('.querySteps').text('step ' + (currStep + 1) +
                                                     ' of ' + numSteps);
                 }
                 return;
@@ -1143,7 +1134,7 @@ window.QueryManager = (function(QueryManager, $) {
 
             if (gTables[tableId]) {
                
-                if (gTables[tableId].status === TableType.Active) { 
+                if (gTables[tableId].status === TableType.Active) {
                     $('#workspaceTab').click();
                     wsId = WSManager.getWSFromTable(tableId);
                     $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
@@ -1211,9 +1202,9 @@ window.QueryManager = (function(QueryManager, $) {
 
             Alert.error(title, desc);
             if (status) {
-                mainQuery.outputTableState = status; 
+                mainQuery.outputTableState = status;
             } else {
-                mainQuery.outputTableState = 'deleted'; 
+                mainQuery.outputTableState = 'deleted';
             }
             
             $('#monitor-inspect').addClass('btn-disabled');
@@ -1224,27 +1215,25 @@ window.QueryManager = (function(QueryManager, $) {
 
     // put minimal query properties into an array and order by query start time
     function getAbbrQueries() {
-        var sqlNums = [];
-        var sqlNum;
         var queryObjs = [];
         var abbrQueryObj;
         var queryObj;
         for (var id in queryLists) {
             queryObj = queryLists[id];
-            if (queryObj.state === QueryStatus.Done || 
+            if (queryObj.state === QueryStatus.Done ||
                 queryObj.state === QueryStatus.Cancel) {
-                
+
                 abbrQueryObj = {
-                    sqlNum: queryObj.sqlNum,
-                    time: queryObj.time,
-                    elapsedTime: queryObj.elapsedTime,
-                    outputTableName: queryObj.getOutputTableName(),
-                    outputTableState: queryObj.getOutputTableState(),
-                    state: queryObj.state
+                    "sqlNum"          : queryObj.sqlNum,
+                    "time"            : queryObj.time,
+                    "elapsedTime"     : queryObj.elapsedTime,
+                    "outputTableName" : queryObj.getOutputTableName(),
+                    "outputTableState": queryObj.getOutputTableState(),
+                    "state"           : queryObj.state
                 };
                 if (queryObj.state === QueryStatus.Cancel) {
                     abbrQueryObj.name = queryObj.name;
-                    abbrQueryObj.queryStr = queryObj.getQuery(); 
+                    abbrQueryObj.queryStr = queryObj.getQuery();
                 }
                 queryObjs.push(abbrQueryObj);
             }
@@ -1304,9 +1293,8 @@ window.QueryManager = (function(QueryManager, $) {
             step = "";
         }
         var html =
-            '<div class="xc-query query no-selection ' + statusClass + 
-                '" data-id="' + id +
-                '">' +
+            '<div class="xc-query query no-selection ' + statusClass +
+            '" data-id="' + id + '">' +
                 '<div class="queryInfo">' +
                     '<div class="leftPart">' +
                         '<i class="icon queryIcon processing xi-progress"></i>' +

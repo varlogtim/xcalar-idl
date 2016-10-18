@@ -4,7 +4,7 @@ window.KVStore = (function($, KVStore) {
     // apply to all places
     var METAKeys;
     var EMetaKeys; // Ephemeral meta data keys
-    // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey, gQueryKey
+    // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey
     KVStore.setup = function(keys) {
         METAKeys = getMETAKeys();
         EMetaKeys = getEMetaKeys();
@@ -126,9 +126,6 @@ window.KVStore = (function($, KVStore) {
             return XcalarSaveWorkbooks("*");
         })
         .then(function() {
-            return QueryManager.commit();
-        })
-        .then(function() {
             KVStore.logSave(true);
             deferred.resolve();
         })
@@ -228,10 +225,8 @@ window.KVStore = (function($, KVStore) {
                 }
             })
             .then(function() {
-                return QueryManager.restore(); // must come after sql.restore
-            })
-            .then(function() {
-                // KVStore.commit(true);
+                // must come after sql.restore
+                QueryManager.restore(gInfos[METAKeys.QUERY]);
                 deferred.resolve();
             })
             .fail(function(error) {
