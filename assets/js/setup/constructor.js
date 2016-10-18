@@ -3102,6 +3102,10 @@ ExportHelper.prototype = {
     },
 
     checkColumnNames: function(columnNames) {
+        if (columnNames == null) {
+            return null;
+        }
+
         var self = this;
         if (self.$view.find(".renameSection").hasClass("xc-hidden")) {
             // when need check name conflict

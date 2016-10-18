@@ -509,31 +509,26 @@ window.ExportView = (function($, ExportView) {
         var $ths = $tables.find('.header').filter(function() {
             var $header = $(this);
             var $th = $header.parent();
-            var colNum = xcHelper.parseColNum($th) - 1;
+            var colNum = xcHelper.parseColNum($th);
             var tblId = $th.closest('.xcTable').data('id');
-            var tableCols = gTables[tblId].tableCols;
-            if (colNum === -1) {
+            var table = gTables[tblId];
+
+            if (colNum <= 0) {
+                // row marker
                 return true;
             }
 
+            var progCol = table.getCol(colNum);
+
             if (gExportNoCheck) {
-                if (tableCols[colNum].isEmptyCol() ||
-                    tableCols[colNum].isDATACol()) {
+                if (progCol.isEmptyCol() ||
+                    progCol.isDATACol()) {
                     return false;
                 }
                 return true;
             }
 
-            var classes = $header.attr('class').replace('type-', '').split(' ');
-            var validTypeFound = false;
-            for (var i = 0; i < classes.length; i++) {
-                if (validTypes.indexOf(classes[i]) > -1) {
-                    validTypeFound = true;
-                    break;
-                }
-            }
-            return (validTypeFound);
-
+            return validTypes.includes(progCol.getType());
         }).parent();
 
         $selectableThs = $ths.not('.rowNumHead');
@@ -572,7 +567,7 @@ window.ExportView = (function($, ExportView) {
                 return;
             }
 
-            var colNum = xcHelper.parseColNum($th) - 1;
+            var colNum = xcHelper.parseColNum($th);
             var toHighlight = !$th.hasClass("modalHighlighted");
 
             if (event.shiftKey && focusedThNum != null) {
@@ -628,11 +623,11 @@ window.ExportView = (function($, ExportView) {
     }
 
     function selectCol(colNum) {
-        var colType = gTables[tableId].tableCols[colNum].type;
-        if (validTypes.indexOf(colType) === -1) {
+        var colType = gTables[tableId].getCol(colNum).getType();
+        if (!validTypes.includes(colType)) {
             return;
         }
-        $table.find('.col' + (colNum + 1)).addClass('modalHighlighted');
+        $table.find('.col' + colNum).addClass('modalHighlighted');
 
         $colList.find('li[data-colnum="' + colNum + '"]')
                 .addClass('checked')
@@ -641,7 +636,7 @@ window.ExportView = (function($, ExportView) {
     }
 
     function deselectCol(colNum) {
-        $table.find('.col' + (colNum + 1))
+        $table.find('.col' + colNum)
                             .removeClass('modalHighlighted');
 
         $colList.find('li[data-colnum="' + colNum + '"]')
@@ -835,7 +830,8 @@ window.ExportView = (function($, ExportView) {
             var progCol = allCols[i];
             if (validTypes.indexOf(progCol.getType()) > -1) {
                 var colName = progCol.getFrontColName(true);
-                html += '<li class="checked" data-colnum="' + i + '">' +
+                var colNum = (i + 1);
+                html += '<li class="checked" data-colnum="' + colNum + '">' +
                             '<span class="text  tooltipOverflow" ' +
                             'data-original-title="' + colName + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +

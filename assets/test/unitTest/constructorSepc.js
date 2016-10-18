@@ -1285,6 +1285,142 @@ describe('Constructor Test', function() {
         expect(corrector.suggest('t')).to.equal('test');
     });
 
+    describe('ExportHelper Constructor Test', function() {
+        var $view;
+        var exportHelper;
+
+        before(function() {
+            var fakeHtml =
+            '<div id="unitst-view">' +
+                '<div class="columnsToExport">' +
+                    '<ul class="cols">' +
+                        '<li class="checked">' +
+                            '<span class="text">user::user_id</span>' +
+                        '</li>' +
+                        '<li class="checked">' +
+                            '<span class="text">reviews::user_id</span>' +
+                       '</li>' +
+                       '<li class="checked">' +
+                            '<span class="text">reviews::test</span>' +
+                       '</li>' +
+                    '</ul>' +
+                '</div>' +
+                '<div class="renameSection xc-hidden">' +
+                    '<div class="renamePart"></div>' +
+                '</div>' +
+            '</div>';
+
+            $view = $(fakeHtml).appendTo("body");
+        });
+
+        it("Should create exportHelper", function() {
+            exportHelper = new ExportHelper($view);
+            exportHelper.setup();
+
+            expect(exportHelper).to.be.an("object");
+            expect(Object.keys(exportHelper).length).to.equal(1);
+            expect(exportHelper.$view).to.equal($view);
+        });
+
+        it("Should get export columns", function() {
+            var exportColumns = exportHelper.getExportColumns();
+            expect(exportColumns).to.be.an("array");
+            expect(exportColumns.length).to.equal(3);
+            expect(exportColumns[0]).to.equal("user::user_id");
+            expect(exportColumns[1]).to.equal("reviews::user_id");
+            expect(exportColumns[2]).to.equal("reviews::test");
+        });
+
+        it("Should not pass name check with invalid arg", function() {
+            // error case
+            var exportColumns = exportHelper.checkColumnNames();
+            expect(exportColumns).to.be.null;
+        });
+
+        it("Should pass name check with valid names", function() {
+            var exportColumns = exportHelper.checkColumnNames(["a", "b", "c"]);
+            expect(exportColumns).to.be.an("array");
+            expect(exportColumns.length).to.equal(3);
+            expect(exportColumns[0]).to.equal("a");
+            expect(exportColumns[1]).to.equal("b");
+            expect(exportColumns[2]).to.equal("c");
+        });
+
+        it("Should check the conflict of column names", function() {
+            var exportColumns = exportHelper.getExportColumns();
+            exportColumns = exportHelper.checkColumnNames(exportColumns);
+            expect(exportColumns).to.be.null;
+
+            var $renameSection = $view.find(".renameSection");
+            var $renames = $renameSection.find(".rename");
+            expect($renameSection.hasClass("xc-hidden")).to.be.false;
+            expect($renames.length).to.equal(2);
+            expect($renames.eq(0).find(".origName").val())
+            .to.equal("user::user_id");
+            expect($renames.eq(1).find(".origName").val())
+            .to.equal("reviews::user_id");
+        });
+
+        it("Should check empty rename", function() {
+            var exportColumns = exportHelper.getExportColumns();
+            exportColumns = exportHelper.checkColumnNames(exportColumns);
+            expect(exportColumns).to.be.null;
+
+            assert.isTrue($("#statusBox").is(":visible"));
+            assert.equal($("#statusBox .message").text(), ErrTStr.NoEmpty);
+            StatusBox.forceHide();
+            assert.isFalse($("#statusBox").is(":visible"));
+        });
+
+        it("Should check name conflict", function() {
+            var $renames = $view.find(".rename");
+            $renames.eq(0).find(".newName").val("user_id");
+            $renames.eq(1).find(".newName").val("user_id");
+
+            var exportColumns = exportHelper.getExportColumns();
+            exportColumns = exportHelper.checkColumnNames(exportColumns);
+            expect(exportColumns).to.be.null;
+
+            assert.isTrue($("#statusBox").is(":visible"));
+            assert.equal($("#statusBox .message").text(), ErrTStr.NameInUse);
+            StatusBox.forceHide();
+            assert.isFalse($("#statusBox").is(":visible"));
+        });
+
+        it("Should smartly rename", function() {
+            var $renames = $view.find(".rename");
+            $renames.eq(0).find(".renameIcon").click();
+            $renames.eq(1).find(".renameIcon").click();
+
+            expect($renames.eq(0).find(".newName").val())
+            .to.equal("user-user_id");
+            expect($renames.eq(1).find(".newName").val())
+            .to.equal("reviews-user_id");
+        });
+
+        it("Should pass name check after rename", function() {
+            var exportColumns = exportHelper.getExportColumns();
+            exportColumns = exportHelper.checkColumnNames(exportColumns);
+
+            expect(exportColumns).to.be.an("array");
+            expect(exportColumns.length).to.equal(3);
+            expect(exportColumns[0]).to.equal("user-user_id");
+            expect(exportColumns[1]).to.equal("reviews-user_id");
+            expect(exportColumns[2]).to.equal("test");
+        });
+
+        it("Should clear the helper", function() {
+            exportHelper.clear();
+            var $renameSection = $view.find(".renameSection");
+            expect($renameSection.hasClass("xc-hidden")).to.be.true;
+            expect($renameSection.find(".rename").length).to.equal(0);
+        });
+
+        after(function() {
+            $view.remove();
+        });
+    });
+
     // XX incomplete since the change where monitor query bars are working
     describe('XcQuery Constructor Test', function() {
         it('XcQuery should be a constructor', function() {
