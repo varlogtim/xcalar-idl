@@ -80,11 +80,25 @@
             </div>
             <div class="text"><%= dicts.common.SelectAll %></div>
           </div>
-          <div class="columnsWrap clearfix">
+          <div class="columnsToExport columnsWrap clearfix">
             <ul class="cols"></ul>
           </div>
+          <!-- rename section -->
+          <div class="renameSection clearfix xc-hidden">
+            <div class="subHeading clearfix">
+              <div><%= dicts.common.ColRenames %></div>
+            </div>
+            <p><%= dicts.common.ColRenameInstr %></p>
+            <div class="tableRenames">
+              <div class="subSubHeading clearfix">
+                <div><%= dicts.exportView.CurrentColName %></div>
+                <div><%= dicts.exportView.NewColName %></div>
+              </div>
+              <div class="renamePart"></div>
+            </div>
+          </div>
         </div>
-
+        <!-- RowOrder -->
         <div class="exportRowOrderSection formRow xc-hidden">
           <div class="checkboxWrap keepOrderedCBWrap">
             <div class="checkbox">

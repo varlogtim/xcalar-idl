@@ -126,8 +126,7 @@ window.DSTable = (function($, DSTable) {
 
             var $errorSection = $dsTableContainer.find(".errorSection");
             $errorSection.find(".error").html(errorText);
-            if (errorMsg === DSTStr.NoRecords &&
-                loadError.startsWith("Error: (Failed)")) {
+            if (errorMsg === DSTStr.NoRecords) {
                 // the way to detect if need reset limit might be buggy
                 $errorSection.find(".limit").removeClass("xc-hidden");
             } else {

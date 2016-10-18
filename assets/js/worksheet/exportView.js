@@ -15,6 +15,7 @@ window.ExportView = (function($, ExportView) {
 
     var exportTargInfo;
     var formHelper;
+    var exportHelper;
     var isOpen = false; // tracks if form is open
 
     // constant
@@ -36,6 +37,8 @@ window.ExportView = (function($, ExportView) {
             "columnPicker": columnPicker
         });
 
+        exportHelper = new ExportHelper($exportView);
+        exportHelper.setup();
         // click cancel or close button
         $exportView.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
@@ -188,7 +191,6 @@ window.ExportView = (function($, ExportView) {
             focusedListNum = colNum;
             focusedThNum = null;
         });
-
     };
 
     ExportView.show = function(tablId) {
@@ -209,10 +211,11 @@ window.ExportView = (function($, ExportView) {
 
         addColumnSelectListeners();
 
-        $(document).on("keypress.exportView", function(e) {
-            if (e.which === keyCode.Enter &&
-                                gMouseEvents.getLastMouseDownTarget()
-                                            .closest('#dfCreateView').length) {
+        $(document).on("keypress.exportView", function(event) {
+            if (event.which === keyCode.Enter &&
+                gMouseEvents.getLastMouseDownTarget()
+                .closest('#dfCreateView').length)
+            {
                 submitForm();
             }
         });
@@ -258,6 +261,7 @@ window.ExportView = (function($, ExportView) {
         $(document).off(".exportView");
         $exportView.find('.checkbox').removeClass('checked');
         $exportView.find('.checked').removeClass('checked');
+        exportHelper.clear();
         $table = null;
         focusedThNum = null;
         focusedListNum = null;
@@ -282,13 +286,8 @@ window.ExportView = (function($, ExportView) {
         }
 
         var exportName = $exportName.val().trim();
-        var columnsVal = [];
-        var columnsValStr = ""; // used to search for invalid characters
-        $exportView.find('.cols li.checked').each(function() {
-            columnsVal.push($(this).text().trim());
-            columnsValStr += $(this).text().trim();
-        });
 
+        // check export name
         var isValid = xcHelper.validate([
             {
                 "$ele": $exportName // checks if it's empty
@@ -304,34 +303,43 @@ window.ExportView = (function($, ExportView) {
                 "$ele" : $exportName,
                 "error": ErrTStr.TooLong,
                 "check": function() {
-                    return ($exportName.val().length >=
+                    return (exportName.length >=
                             XcalarApisConstantsT.XcalarApiMaxTableNameLen);
                 }
-            },
+            }
+        ]);
+
+        if (!isValid) {
+            return PromiseHelper.reject({"error": "invalid input"});
+        }
+
+        // check columns to export
+        var frontColumnNames = exportHelper.getExportColumns();
+        var $columnsExportSection = $exportView.find('.columnsToExport');
+
+        isValid = xcHelper.validate([
             {
-                "$ele" : $exportView.find('.columnsWrap'),
+                "$ele" : $columnsExportSection,
                 "error": ErrTStr.NoColumns,
                 "check": function() {
-                    return (columnsVal.length === 0);
+                    return (frontColumnNames.length === 0);
                 }
             },
             {
-                "$ele" : $exportView.find('.columnsWrap'),
+                "$ele" : $columnsExportSection,
                 "error": ErrTStr.InvalidColName,
                 "check": function() {
                     if (!gExportNoCheck) {
-                        return (columnsValStr.indexOf('[') !== -1);
+                        return (frontColumnNames.join("").includes('['));
                     }
                 }
             }
         ]);
 
         if (!isValid) {
-            deferred.reject({error: 'invalid input'});
-            return (deferred.promise());
+            return PromiseHelper.reject({"error": "invalid input"});
         }
 
-        var frontColumnNames = columnsVal;
         var backColumnNames = xcHelper.convertFrontColNamesToBack(
                                     frontColumnNames, tableId, validTypes);
         // convertFrontColnamesToBack will return an array of column names if
@@ -363,8 +371,12 @@ window.ExportView = (function($, ExportView) {
 
 
         if (!isValid) {
-            deferred.reject({error: 'invalid input'});
-            return (deferred.promise());
+            return PromiseHelper.reject({"error": "invalid input"});
+        }
+
+        frontColumnNames = exportHelper.checkColumnNames(frontColumnNames);
+        if (frontColumnNames == null) {
+            return PromiseHelper.reject({"error": "invalid input"});
         }
 
         var advancedOptions = getAdvancedOptions();
@@ -378,25 +390,6 @@ window.ExportView = (function($, ExportView) {
             }]);
             return (deferred.promise());
         }
-
-        // XXX a temp way to reolsve name conflict
-        // XXX be sure to also fix dfCreateView, it has the same issue
-        var nameMap = {};
-        frontColumnNames = frontColumnNames.map(function(colName) {
-            var res = xcHelper.parsePrefixColName(colName);
-            colName = res.name;
-            if (nameMap.hasOwnProperty(colName)) {
-                colName = res.prefix + "-" + colName;
-                if (nameMap.hasOwnProperty(colName)) {
-                    colName = xcHelper.randName(colName, 3);
-                }
-            }
-
-            nameMap[colName] = true;
-
-            return colName;
-        });
-
 
         checkDuplicateExportName(exportName, advancedOptions)
         .then(function(hasDuplicate) {
@@ -439,7 +432,7 @@ window.ExportView = (function($, ExportView) {
         })
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     // if duplicate is found, returns true

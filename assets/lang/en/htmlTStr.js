@@ -13,6 +13,8 @@ module.exports = {
         "ClickToOpts": "Click to see options",
         "Close": "Close",
         "CLOSE": "CLOSE",
+        "ColRenames": "Column Renames",
+        "ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
         "ComeSoon": "Coming Soon",
         "Comma": "Comma",
         "CONFIRM": "CONFIRM",
@@ -573,7 +575,9 @@ module.exports = {
         "exportFilename": "Export Filename",
         "colsToExport": "Columns to export",
         "exportInOrder": "Export Rows in Sorted Order (slow)",
-        "restoreDefaults": "RESTORE DEFAULTS"
+        "restoreDefaults": "RESTORE DEFAULTS",
+        "CurrentColName": "Current Name",
+        "NewColName": "New Name"
     },
 
     "joinView": {
@@ -605,8 +609,6 @@ module.exports = {
         "colSelectInstr": "Please select pairs of columns, one column from the left table and one column from the right table, to be joined together.",
         "colKeepTitle": "Column Selector",
         "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are collisions in column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table.",
-        "colNamaes": "Column Renames",
-        "colRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
         "Estimate": "Estimating join size"
     },
 

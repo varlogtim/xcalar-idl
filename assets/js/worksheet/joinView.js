@@ -38,19 +38,6 @@ window.JoinView = (function($, JoinView) {
                 ' spellcheck="false" disabled/>' +
         '</div>';
 
-    var renameTemplate =
-        '<div class="rename">' +
-            '<input class="columnName origName arg" type="text" ' +
-            'spellcheck="false" disabled/>' +
-            '<div class="middleIcon">' +
-                '<div class="iconWrapper">' +
-                    '<i class="icon xi-play-circle fa-14"></i>' +
-                '</div>' +
-            '</div>' +
-            '<input class="columnName newName arg" type="text" ' +
-              'spellcheck="false"/>' +
-        '</div>';
-
     JoinView.setup = function () {
         $mainJoin = $("#mainJoin");
         $joinView = $("#joinView");
@@ -389,7 +376,7 @@ window.JoinView = (function($, JoinView) {
             updatePreviewText();
         });
 
-        $renameSection.on("click", ".iconWrapper", function() {
+        $renameSection.on("click", ".renameIcon", function() {
             var $colToRename = $(this).closest(".rename");
             var origName = $colToRename.find(".origName").val();
             $colToRename.find(".newName").val(origName);
@@ -1281,8 +1268,8 @@ window.JoinView = (function($, JoinView) {
 
 
     function addRenameRows($placeholder, renames) {
-        for (var i = 0; i<renames.length; i++) {
-            $rename = $(renameTemplate);
+        for (var i = 0; i < renames.length; i++) {
+            var $rename = $(FormHelper.Template.rename);
             $rename.find(".origName").val(renames[i]);
             $rename.insertBefore($placeholder);
         }

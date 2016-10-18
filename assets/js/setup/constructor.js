@@ -3068,6 +3068,181 @@ ModalHelper.prototype = {
     }
 };
 
+/* Export Helper */
+function ExportHelper($view) {
+    this.$view = $view;
+
+    return this;
+}
+
+ExportHelper.prototype = {
+    setup: function() {
+        var self = this;
+        var $renameSection = self.$view.find(".renameSection");
+        $renameSection.on("click", ".renameIcon", function() {
+            self._smartRename($(this).closest(".rename"));
+        });
+    },
+
+    clear: function() {
+        this.$view.find(".renameSection").addClass("xc-hidden")
+                    .find(".renamePart").empty();
+    },
+
+    getExportColumns: function() {
+        var self = this;
+        var colsToExport = [];
+        var $colsToExport = self.$view.find('.columnsToExport');
+
+        $colsToExport.find('.cols li.checked').each(function() {
+            colsToExport.push($(this).text().trim());
+        });
+
+        return colsToExport;
+    },
+
+    checkColumnNames: function(columnNames) {
+        var self = this;
+        if (self.$view.find(".renameSection").hasClass("xc-hidden")) {
+            // when need check name conflict
+            return self._checkNameConflict(columnNames);
+        } else {
+            // when in rename step
+            return self._checkRename(columnNames);
+        }
+    },
+
+    _checkNameConflict: function(columnNames) {
+        var self = this;
+        var takenName = {};
+        var invalidNames = [];
+        var colNamesAfterCheck = [];
+
+        columnNames.forEach(function(colName) {
+            var parsedName = xcHelper.parsePrefixColName(colName).name;
+            if (takenName.hasOwnProperty(parsedName)) {
+                var nameWithConfilct = takenName[parsedName];
+                // also need to include the name with conflict in rename
+                if (!invalidNames.includes(nameWithConfilct)) {
+                    invalidNames.push(nameWithConfilct);
+                }
+                invalidNames.push(colName);
+            } else {
+                takenName[parsedName] = colName;
+                colNamesAfterCheck.push(parsedName);
+            }
+        });
+
+        if (invalidNames.length > 0) {
+            // when has name conflict
+            self._addRenameRows(invalidNames);
+            return null;
+        } else {
+            return colNamesAfterCheck;
+        }
+    },
+
+    _checkRename: function(columnNames) {
+        var self = this;
+        var takenName = {};
+        var renameMap = {};
+        var invalid = false;
+
+        // put all names first
+        columnNames.forEach(function(colName) {
+            takenName[colName] = true;
+        });
+
+        var $renameSection = self.$view.find(".renameSection");
+        $renameSection.find(".rename").each(function() {
+            var $row = $(this);
+            var newName = $row.find(".newName").val();
+            if (!newName) {
+                StatusBox.show(ErrTStr.NoEmpty, $row);
+                invalid = true;
+                return false;
+            }
+
+            if (takenName.hasOwnProperty(newName)) {
+                StatusBox.show(ErrTStr.NameInUse, $row);
+                invalid = true;
+                return false;
+            }
+
+            var origName = $row.find(".origName").val();
+            renameMap[origName] = newName;
+            takenName[newName] = true;
+        });
+
+        if (invalid) {
+            return null;
+        }
+
+        var colNamesAfterCheck = [];
+        columnNames.forEach(function(colName) {
+            if (renameMap.hasOwnProperty(colName)) {
+                colNamesAfterCheck.push(renameMap[colName]);
+            } else {
+                var parsedName = xcHelper.parsePrefixColName(colName).name;
+                colNamesAfterCheck.push(parsedName);
+            }
+        });
+
+        return colNamesAfterCheck;
+    },
+
+    _addRenameRows: function(columnsToRename) {
+        var $renameSection = this.$view.find(".renameSection");
+        var $renamePart = $renameSection.find(".renamePart");
+
+        $renamePart.empty();
+
+        for (var i = 0, len = columnsToRename.length; i < len; i++) {
+            var $row = $(FormHelper.Template.rename);
+            $row.find(".origName").val(columnsToRename[i]);
+            $renamePart.append($row);
+        }
+
+        $renameSection.removeClass("xc-hidden");
+    },
+
+    _smartRename: function($colToRename) {
+        var self = this;
+        var origName = $colToRename.find(".origName").val();
+        var currentColumNames = self.getExportColumns();
+        var nameMap = {};
+
+        // collect all existing names
+        currentColumNames.forEach(function(columnName) {
+            nameMap[columnName] = true;
+        });
+
+        $colToRename.siblings(".rename").each(function() {
+            var columnName = $(this).find(".newName").val();
+            if (columnName) {
+                nameMap[columnName] = true;
+            }
+        });
+
+        var parsedResult = xcHelper.parsePrefixColName(origName);
+        var newName = parsedResult.prefix + "-" + parsedResult.name;
+        var validName = newName;
+        var tryCnt = 0;
+        var maxTry = 20;
+
+        while (nameMap.hasOwnProperty(validName) && tryCnt <= maxTry) {
+            tryCnt++;
+            validName = newName + tryCnt;
+        }
+
+        if (tryCnt > maxTry) {
+            validName = xcHelper.randName(newName);
+        }
+
+        $colToRename.find(".newName").val(validName);
+    }
+};
+
 /* Form Helper */
 // an object used for global Form Actions
 function FormHelper($form, options) {
@@ -3092,6 +3267,20 @@ function FormHelper($form, options) {
 
     return this;
 }
+
+FormHelper.Template = {
+    "rename": '<div class="rename">' +
+                '<input class="columnName origName arg" type="text" ' +
+                'spellcheck="false" disabled/>' +
+                '<div class="middleIcon">' +
+                    '<div class="renameIcon iconWrapper">' +
+                        '<i class="icon xi-play-circle fa-14"></i>' +
+                    '</div>' +
+                '</div>' +
+                '<input class="columnName newName arg" type="text" ' +
+                  'spellcheck="false"/>' +
+            '</div>'
+};
 
 FormHelper.prototype = {
     // called only once per form upon creation

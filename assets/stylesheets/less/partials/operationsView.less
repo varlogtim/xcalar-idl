@@ -1161,58 +1161,65 @@
     }
 
     .renameSection {
-    	.tableRenames {
-    		display: none;
-    	}
-	    .rename {
-	        .position(relative);
-	        .size(@width: 100%, @height: @listHeight);
+        .tableRenames {
+            display: none;
+        }
+    }
+}
 
-	        .columnName {
-	            .size(@width: ~"calc(50% + 1px)", @height: @listHeight);
-	            .font(@size: @standardFontSize, @line-height: @listHeight);
-	            padding: 0px 8px;
-	            text-align: center;
-	            float: left;
-	            outline: none;
-	            border-bottom: 1px solid @color-border-pinkish-grey2;
+#joinView, #exportView, #dfCreateView {
+    @listHeight: 26px;
+    @standardFontSize: 12px;
 
-	            &:focus {
-	            	border-bottom: 1px solid @color-border-softBlue;
-	            }
+    .renameSection {
+        .rename {
+            .position(relative);
+            .size(@width: 100%, @height: @listHeight);
 
-	            &.newName {
-	            	.size(@width: ~"calc(50% - 1px)");
-	            }
+            .columnName {
+                .size(@width: ~"calc(50% + 1px)", @height: @listHeight);
+                .font(@size: @standardFontSize, @line-height: @listHeight);
+                padding: 0px 8px;
+                text-align: center;
+                float: left;
+                outline: none;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
 
-	            &:first-child {
-	            	border-right: 1px solid @color-border-pinkish-grey2;
+                &:focus {
+                    border-bottom: 1px solid @color-border-softBlue;
+                }
 
-	            }
-	        
-	        }
+                &.newName {
+                    .size(@width: ~"calc(50% - 1px)");
+                }
 
-	        .middleIcon {
-	            .size(@width: 25px, @height: @listHeight);
-	            float: left;
-	            cursor: pointer;
-	            .horizontal-align(absolute);
-	            z-index: 1;
-	            
-	            .iconWrapper {
-	            	.size(14px, 14px);
-	            	border-radius: 100%;
-	            	background-color: @color-white;
-	            	.center-align;
-	            	top: 13px;
-	            	margin-left: 1px;
-	            }
+                &:first-child {
+                    border-right: 1px solid @color-border-pinkish-grey2;
 
-	            .icon {
-	            	color: @color-font-select-blue;
-	            }  
-	        }
-	    }
+                }
+            }
+
+            .middleIcon {
+                .size(@width: 25px, @height: @listHeight);
+                float: left;
+                cursor: pointer;
+                .horizontal-align(absolute);
+                z-index: 1;
+
+                .iconWrapper {
+                    .size(14px, 14px);
+                    border-radius: 100%;
+                    background-color: @color-white;
+                    .center-align;
+                    top: 13px;
+                    margin-left: 1px;
+                }
+
+                .icon {
+                    color: @color-font-select-blue;
+                }
+            }
+        }
     }
 }
 

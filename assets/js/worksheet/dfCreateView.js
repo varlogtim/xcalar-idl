@@ -4,10 +4,11 @@ window.DFCreateView = (function($, DFCreateView) {
     var focusedThNum = null; // last table header clicked, for shift+click
     var focusedListNum = null; // last list number clicked, for shift+click
     var $colList;           //$dfView.find('.cols')
-    var $curDagWrap;
+    // var $curDagWrap;
 
     var tableName;
     var formHelper;
+    var exportHelper;
     var tableId;
     // constant
     var validTypes = ['string', 'integer', 'float', 'boolean'];
@@ -26,6 +27,9 @@ window.DFCreateView = (function($, DFCreateView) {
                 "noEvent": true
             }
         });
+
+        exportHelper = new ExportHelper($dfView);
+        exportHelper.setup();
 
         addFormEvents();
     };
@@ -88,7 +92,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
             if (validTypes.indexOf(progCol.getType()) > -1) {
                 var name = allCols[i].getFrontColName(true);
-                html += '<li class="checked" data-colnum="' + i + '">' +
+                html += '<li class="checked" data-colnum="' + (i + 1) + '">' +
                             '<span class="text tooltipOverflow" ' +
                             'data-original-title="' + name + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
@@ -116,7 +120,7 @@ window.DFCreateView = (function($, DFCreateView) {
             if (!$li.hasClass('checked')) {
                 var colNum = $li.data('colnum');
                 $li.addClass('checked').find('.checkbox').addClass('checked');
-                $xcTable.find('.col' + (colNum + 1))
+                $xcTable.find('.col' + colNum)
                         .addClass('modalHighlighted');
             }
         });
@@ -132,7 +136,7 @@ window.DFCreateView = (function($, DFCreateView) {
             var $li = $(this);
             var colNum = $li.data('colnum');
             $li.removeClass('checked').find('.checkbox').removeClass('checked');
-            $xcTable.find('.col' + (colNum + 1))
+            $xcTable.find('.col' + colNum)
                     .removeClass('modalHighlighted');
         });
         $dfView.find('.selectAllWrap').find('.checkbox')
@@ -163,7 +167,7 @@ window.DFCreateView = (function($, DFCreateView) {
                 return;
             }
             var $cell = $(this);
-            var colNum = xcHelper.parseColNum($cell) - 1;
+            var colNum = xcHelper.parseColNum($cell);
             var toHighlight = !$cell.hasClass("modalHighlighted");
 
 
@@ -201,11 +205,11 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function selectCol(colNum) {
-        var colType = gTables[tableId].tableCols[colNum].type;
+        var colType = gTables[tableId].getCol(colNum).getType();
         if (validTypes.indexOf(colType) === -1) {
             return;
         }
-        $('#xcTable-' + tableId).find('.col' + (colNum + 1))
+        $('#xcTable-' + tableId).find('.col' + colNum)
                                 .addClass('modalHighlighted');
 
         $colList.find('li[data-colnum="' + colNum + '"]').addClass('checked')
@@ -215,7 +219,7 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function deselectCol(colNum) {
-        $('#xcTable-' + tableId).find('.col' + (colNum + 1))
+        $('#xcTable-' + tableId).find('.col' + colNum)
                                 .removeClass('modalHighlighted');
 
         $colList.find('li[data-colnum="' + colNum + '"]').removeClass('checked')
@@ -324,44 +328,38 @@ window.DFCreateView = (function($, DFCreateView) {
             return;
         }
 
-        var colNums = [];
+        var table = gTables[tableId];
+        var frontColNames = [];
+        var backColNames = [];
 
         $colList.find('li.checked').each(function() {
-            colNums.push($(this).data('colnum'));
+            var colNum = $(this).data('colnum');
+            var progCol = table.getCol(colNum);
+            frontColNames.push(progCol.getFrontColName(true));
+            backColNames.push(progCol.getBackColName());
         });
 
-        if (colNums.length === 0) {
+        if (frontColNames.length === 0) {
             xcTooltip.transient($colList, {
                 "title"   : TooltipTStr.ChooseColToExport,
                 "template": xcTooltip.Template.Error
             }, 1500);
+
+            return;
+        }
+
+        frontColNames = exportHelper.checkColumnNames(frontColNames);
+        if (frontColNames == null) {
             return;
         }
 
         var columns = [];
-        var tableCols = gTables[tableId].tableCols;
-        var nameMap = {};
-
-        for (var i = 0; i < colNums.length; i++) {
-            var progCol = tableCols[colNums[i]];
-            var colName = progCol.getFrontColName();
-            // XXX a temp way to reolsve name conflict
-            if (nameMap.hasOwnProperty(colName)) {
-                colName = progCol.getPrefix() + "-" + colName;
-                if (nameMap.hasOwnProperty(colName)) {
-                    colName = xcHelper.randName(colName);
-                }
-            }
-
-            nameMap[colName] = true;
-
+        for (var i = 0, len = frontColNames.length; i < len; i++) {
             columns.push({
-                "frontCol": colName,
-                "backCol" : progCol.getBackColName()
+                "frontCol": frontColNames[i],
+                "backCol" : backColNames[i]
             });
         }
-
-        var isNewGroup = true;
 
         formHelper.disableSubmit();
 
