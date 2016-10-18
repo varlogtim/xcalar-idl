@@ -233,7 +233,10 @@ window.Workbook = (function($, Workbook) {
                 $(".tooltip").remove();
                 Workbook.hide();
             } else {
-                WorkbookManager.switchWKBK(workbookId);
+                WorkbookManager.switchWKBK(workbookId)
+                .fail(function(error) {
+                    StatusBox.show(error.error, $workbookBox);
+                });
             }
         });
 
