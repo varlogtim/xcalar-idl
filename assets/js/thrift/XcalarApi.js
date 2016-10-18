@@ -208,7 +208,7 @@ function xcalarSetConfigParam(thriftHandle, paramName, paramValue) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
+        if (result.jobStats != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
@@ -247,7 +247,7 @@ function xcalarAppSet(thriftHandle, name, hostType, execStr) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
+        if (result.jobStats != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {

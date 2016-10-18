@@ -302,12 +302,16 @@ XcalarEvalFnDescT.prototype.write = function(output) {
 DfFieldAttrHeaderT = function(args) {
   this.name = null;
   this.type = null;
+  this.valueArrayIndex = null;
   if (args) {
     if (args.name !== undefined) {
       this.name = args.name;
     }
     if (args.type !== undefined) {
       this.type = args.type;
+    }
+    if (args.valueArrayIndex !== undefined) {
+      this.valueArrayIndex = args.valueArrayIndex;
     }
   }
 };
@@ -339,6 +343,13 @@ DfFieldAttrHeaderT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.valueArrayIndex = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -358,6 +369,11 @@ DfFieldAttrHeaderT.prototype.write = function(output) {
   if (this.type !== null && this.type !== undefined) {
     output.writeFieldBegin('type', Thrift.Type.I32, 2);
     output.writeI32(this.type);
+    output.writeFieldEnd();
+  }
+  if (this.valueArrayIndex !== null && this.valueArrayIndex !== undefined) {
+    output.writeFieldBegin('valueArrayIndex', Thrift.Type.I32, 3);
+    output.writeI32(this.valueArrayIndex);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -11086,6 +11102,7 @@ XcalarApiConfigParamT = function(args) {
   this.visible = null;
   this.changeable = null;
   this.restartRequired = null;
+  this.defaultValue = null;
   if (args) {
     if (args.paramName !== undefined) {
       this.paramName = args.paramName;
@@ -11101,6 +11118,9 @@ XcalarApiConfigParamT = function(args) {
     }
     if (args.restartRequired !== undefined) {
       this.restartRequired = args.restartRequired;
+    }
+    if (args.defaultValue !== undefined) {
+      this.defaultValue = args.defaultValue;
     }
   }
 };
@@ -11153,6 +11173,13 @@ XcalarApiConfigParamT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 6:
+      if (ftype == Thrift.Type.STRING) {
+        this.defaultValue = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -11187,6 +11214,11 @@ XcalarApiConfigParamT.prototype.write = function(output) {
   if (this.restartRequired !== null && this.restartRequired !== undefined) {
     output.writeFieldBegin('restartRequired', Thrift.Type.BOOL, 5);
     output.writeBool(this.restartRequired);
+    output.writeFieldEnd();
+  }
+  if (this.defaultValue !== null && this.defaultValue !== undefined) {
+    output.writeFieldBegin('defaultValue', Thrift.Type.STRING, 6);
+    output.writeString(this.defaultValue);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

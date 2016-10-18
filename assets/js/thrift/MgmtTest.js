@@ -423,8 +423,9 @@ PromiseHelper = (function(PromiseHelper, $) {
                     ", Value: " + getConfigParamsOutput.parameter[ii].paramValue +
                     ", Visible: " + getConfigParamsOutput.parameter[ii].visible +
                     ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
-                    ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired);
-                // All current require restart
+                    ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
+                    ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
+                // All currently require restart
                 test.assert(getConfigParamsOutput.parameter[ii].restartRequired == true);
                 // Check one of them.
                 if (getConfigParamsOutput.parameter[ii].paramName == "TotalSystemMemory") {
