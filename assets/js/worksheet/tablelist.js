@@ -925,7 +925,7 @@ window.TableList = (function($, TableList) {
                             '<i class="icon center fa-16 ' + typeClass + '"></i>' +
                         '</div>' +
                         '<span class="text">' +
-                            no + ". " + progCol.getFrontColName() +
+                            no + ". " + progCol.getFrontColName(true) +
                         '</span>' +
                     '</li>';
         }

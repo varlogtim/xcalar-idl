@@ -633,11 +633,10 @@ window.OperationsView = (function($, OperationsView) {
             // changes mainMenu and assigns activeOpSection
             showOpSection();
             resetForm();
-            
-            var tableCols = gTables[tableId].tableCols;
-            currentCol = tableCols[currColNum - 1];
+
+            currentCol = gTables[tableId].getCol(currColNum);
             colNum = currColNum;
-            colName = currentCol.name;
+            colName = currentCol.getFrontColName(true);
             isNewCol = currentCol.isNewCol;
         }
         $operationsView.find('.title').text(operatorName);
@@ -1596,14 +1595,14 @@ window.OperationsView = (function($, OperationsView) {
     // sets up the last argument for map
     function mapArgumentsSetup(numArgs, categoryNum, func, operObj) {
         var description = OpModalTStr.ColNameDesc + ":";
-        var tempName = colName;
+        var tempName = xcHelper.parsePrefixColName(colName).name;
         var autoGenColName;
         var $rows = $activeOpSection.find('.row');
         if (colName === "") {
             tempName = "mapped";
         }
         if (isNewCol && colName !== "") {
-            autoGenColName = currentCol.name;
+            autoGenColName = currentCol.getFrontColName();
         } else {
             if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
                 autoGenColName = getAutoGenColName(tempName + "_udf");
@@ -1646,7 +1645,9 @@ window.OperationsView = (function($, OperationsView) {
         // new col name field
         description = 'New Column Name for the groupBy' +
                         ' resultant column';
-        autoGenColName = getAutoGenColName(colName + "_" + operObj.fnName );
+        autoGenColName = xcHelper.parsePrefixColName(colName).name;
+        autoGenColName = getAutoGenColName(autoGenColName + "_" +
+                                            operObj.fnName);
         autoGenColName = xcHelper.stripeColName(autoGenColName);
 
         $rows.eq(numArgs).addClass('colNameRow')
@@ -1784,8 +1785,8 @@ window.OperationsView = (function($, OperationsView) {
 
             $inputs.each(function() {
                 var $input = $(this);
-                var arg    = $input.val().trim();
-                var type   = null;
+                var arg = $input.val().trim();
+                var type = null;
 
                 // ignore new colname input
                 if ($input.closest(".dropDownList").hasClass("colNameSection"))
@@ -3088,17 +3089,13 @@ window.OperationsView = (function($, OperationsView) {
         if (spaces.length > 0) {
             value = spaces;
         }
-        var colType;
-        // var colArg;
-        var columns = gTables[tableId].tableCols;
-        for (var i = 0, numCols = columns.length; i < numCols; i++) {
-            if (columns[i].name === value) {
-                colType = columns[i].type;
-                break;
-            }
+        var colType = null;
+        var progCol = gTables[tableId].getColByFrontName(value);
+        if (progCol != null) {
+            colType = progCol.getType();
         }
 
-        return (colType);
+        return colType;
     }
 
     function getAllColumnTypesFromArg(argValue) {

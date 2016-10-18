@@ -84,13 +84,16 @@ window.DFCreateView = (function($, DFCreateView) {
         var numBlanks = 10; // to take up flexbox space
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
-            if (validTypes.indexOf(allCols[i].type) > -1) {
+            var progCol = allCols[i];
+
+            if (validTypes.indexOf(progCol.getType()) > -1) {
+                var name = allCols[i].getFrontColName(true);
                 html += '<li class="checked" data-colnum="' + i + '">' +
                             '<span class="text tooltipOverflow" ' +
-                            'data-original-title="' + allCols[i].name + '" ' +
+                            'data-original-title="' + name + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
-                                allCols[i].name +
+                                name +
                             '</span>' +
                             '<div class="checkbox checked">' +
                                 '<i class="icon xi-ckbox-empty fa-13"></i>' +
@@ -341,7 +344,7 @@ window.DFCreateView = (function($, DFCreateView) {
         for (var i = 0; i < colNums.length; i++) {
             var progCol = tableCols[colNums[i]];
             columns.push({
-                "frontCol": progCol.getFrontColName(),
+                "frontCol": progCol.getFrontColName(true),
                 "backCol" : progCol.getBackColName()
             });
         }

@@ -118,6 +118,7 @@ describe('Constructor Test', function() {
 
             expect(progCol).to.be.an('object');
             expect(progCol.getFrontColName()).to.equal('test');
+            expect(progCol.getFrontColName(true)).to.equal('prefix::test');
             expect(progCol.getBackColName()).to.equal('prefix::backTest');
             expect(progCol.getPrefix()).to.equal('prefix');
             expect(progCol.getType()).to.equal('float');

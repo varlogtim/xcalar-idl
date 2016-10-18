@@ -12,7 +12,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var table = gTables[tableId];
         var tableName = table.getName();
-        var frontColName = table.getCol(colNum).getFrontColName();
+        var frontColName = table.getCol(colNum).getFrontColName(true);
         var fltStr = fltOptions.filterString;
         var worksheet = WSManager.getWSFromTable(tableId);
         var formOpenTime;
@@ -85,7 +85,7 @@ window.xcFunction = (function($, xcFunction) {
         var backColName;
         if (colNum != null && colNum !== -1) {
             var progCol = table.getCol(colNum);
-            frontColName = progCol.getFrontColName();
+            frontColName = progCol.getFrontColName(true);
             backColName = progCol.getBackColName();
         } else {
             frontColName = aggStr;
@@ -208,7 +208,7 @@ window.xcFunction = (function($, xcFunction) {
         var tableCols = table.tableCols;
         var progCol = tableCols[colNum - 1];
         var backColName = progCol.getBackColName();
-        var frontColName = progCol.getFrontColName();
+        var frontColName = progCol.getFrontColName(true);
 
         var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
         var xcOrder;

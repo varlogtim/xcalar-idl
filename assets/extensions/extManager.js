@@ -729,7 +729,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         } else if (argType === "column") {
             if (arg.autofill && triggerCol != null) {
-                inputVal = gColPrefix + triggerCol.getFrontColName();
+                inputVal = gColPrefix + triggerCol.getFrontColName(true);
             }
 
             if (typeCheck.multiColumn) {

@@ -301,6 +301,15 @@ window.TestSuite = (function($, TestSuite) {
         return (Math.floor(Math.random() * 10000));
     }
 
+    function getColNameWithPrefix(tableId, colName) {
+        var $header = $("#xcTable-" + tableId).find(".editableHead")
+        .filter(function() {
+            return $(this).val() === colName;
+        }).closest(".header");
+        var prefix = $header.find(".topHeader .prefix").text();
+        return xcHelper.getPrefixColName(prefix, colName);
+    }
+
     TestSuite.cleanup = cleanup;
 
     function cleanup() {
@@ -557,16 +566,18 @@ window.TestSuite = (function($, TestSuite) {
         // Change column type
         function flightTestPart3() {
             console.log("start flightTestPart3", "change column type");
-            var $header = $(".flexWrap.flex-mid input[value='ArrDelay']").eq(0);
-            $header.closest(".flexContainer").find(".flex-right .innerBox").click();
+            // var $header = $(".flexWrap.flex-mid input[value='ArrDelay']").eq(0);
+            // $header.closest(".flexContainer").find(".flex-right .innerBox").click();
 
-            var $colMenu = $("#colMenu .changeDataType");
-            var $colSubMenu = $('#colSubMenu');
-            $colMenu.mouseover();
-            $colSubMenu.find(".changeDataType .type-integer")
-                       .trigger(fakeEvent.mouseup);
-            checkExists(".flexWrap.flex-mid" +
-                        " input[value='ArrDelay_integer']:eq(0)")
+            // var $colMenu = $("#colMenu .changeDataType");
+            // var $colSubMenu = $('#colSubMenu');
+            // $colMenu.mouseover();
+            // $colSubMenu.find(".changeDataType .type-integer")
+            //            .trigger(fakeEvent.mouseup);
+            // checkExists(".flexWrap.flex-mid" +
+            //             " input[value='ArrDelay_integer']:eq(0)")
+
+            changeTypeToInteger(null, "ArrDelay")
             .then(function() {
                 flightTestPart3_2();
             })
@@ -705,7 +716,10 @@ window.TestSuite = (function($, TestSuite) {
                 // fisrt step of join
                 $("#joinRightTableList").find("li:contains('airport')")
                                         .trigger(fakeEvent.click);
-                $("#mainJoin .rightClause").val("iata").change();
+                var rTableName = $("#joinRightTableList").find(".text").text();
+                var rTableId = xcHelper.getTableId(rTableName);
+                var rightClause = getColNameWithPrefix(rTableId, "iata");
+                $("#mainJoin .rightClause").val(rightClause).change();
                 var lTableName = $("#joinLeftTableList").find(".text").text();
                 var rTableName = $("#joinRightTableList").find(".text").text();
                 var newName = xcHelper.getTableName(lTableName) + '-' +
@@ -872,12 +886,27 @@ window.TestSuite = (function($, TestSuite) {
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
             var $section = $("#operationsView .opSection.groupby");
-            $section.find(".gbOnArg").val(gColPrefix + "Dest, " +
-                                          gColPrefix + "AirTime");
+            $section.find(".addGroupArg").click();
+            var prefix = null;
+            $("#xcTable-" + tableId).find(".topHeader .prefix")
+            .each(function() {
+                var text = $(this).text();
+                if (text) {
+                    prefix = text;
+                    return false;
+                }
+            });
+
+            var col1 = xcHelper.getPrefixColName(prefix, "Dest");
+            var col2 = xcHelper.getPrefixColName(prefix, "AirTime");
+
+            $section.find(".gbOnArg").eq(0).val(gColPrefix + col1)
+            .end()
+            .eq(1).val(gColPrefix + col2);
 
             $section.find(".functionsList .functionsInput").val("count")
                         .trigger(fakeEvent.enterKeydown);
-            $section.find(".arg").eq(1).val(gColPrefix + "ArrDelay_integer");
+            $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay_integer");
             $("#operationsView .submit").click();
             // need to check in this worksheet because
             // there is another groupby table
@@ -893,6 +922,32 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
+    function changeTypeToInteger(tableId, col) {
+        var deferred = jQuery.Deferred();
+        var $header;
+
+        if (tableId == null) {
+            $header = $(".flexWrap.flex-mid input[value='" + col + "']").eq(0);
+        } else {
+            var $table = $("#xcTable-" + tableId);
+            $header = $table
+            .find(".flexWrap.flex-mid input[value='" + col + "']").eq(0);
+        }
+        $header.closest(".flexContainer").find(".flex-right .innerBox").click();
+
+        var $colMenu = $("#colMenu .changeDataType");
+        var $colSubMenu = $('#colSubMenu');
+        $colMenu.mouseover();
+        $colSubMenu.find(".changeDataType .type-integer")
+                   .trigger(fakeEvent.mouseup);
+        checkExists(".flexWrap.flex-mid" +
+                    " input[value='" + col + "_integer']:eq(0)")
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function multiJoinTest(deferred, testName, currentTestNumber) {
         console.log("start multiJoinTest");
         // point to schedule dataset
@@ -903,6 +958,7 @@ window.TestSuite = (function($, TestSuite) {
         var check = "#previewTable td:eq(1):contains(1)";
         var wsId = WSManager.getOrders()[1];
         var ws = WSManager.getWSById(wsId);
+        var lPrefix;
 
         loadDS(dsName, url, check)
         .then(function() {
@@ -917,6 +973,15 @@ window.TestSuite = (function($, TestSuite) {
 
             return innerDeferred.promise();
         })
+        .then(function(tableName, resPrefix) {
+            lPrefix = resPrefix;
+            var rightTableId = ws.tables[0];
+            return changeTypeToInteger(rightTableId, "DayofMonth");
+        })
+        .then(function() {
+            var rightTableId = ws.tables[0];
+            return changeTypeToInteger(rightTableId, "DayOfWeek");
+        })
         .then(function(){
             console.log("multi join with flight-airport table");
             var tableId = ws.tables[2];
@@ -926,12 +991,15 @@ window.TestSuite = (function($, TestSuite) {
             var rightTableId = ws.tables[0];
             $("#joinRightTableList").find("li[data-id='" + rightTableId + "']")
                                     .trigger(fakeEvent.click);
-            $("#mainJoin .leftClause").eq(0).val("class_id").change();
-            $("#mainJoin .rightClause").eq(0).val("DayofMonth").change();
+            var lCol1 = xcHelper.getPrefixColName(lPrefix, "class_id");
+            var lCol2 = xcHelper.getPrefixColName(lPrefix, "teacher_id");
+
+            $("#mainJoin .leftClause").eq(0).val(lCol1).change();
+            $("#mainJoin .rightClause").eq(0).val("DayofMonth_integer").change();
             // add another clause
             $("#mainJoin .joinClause.placeholder .btn").click();
-            $("#mainJoin .leftClause").eq(1).val("teacher_id").change();
-            $("#mainJoin .rightClause").eq(1).val("DayOfWeek").change();
+            $("#mainJoin .leftClause").eq(1).val(lCol2).change();
+            $("#mainJoin .rightClause").eq(1).val("DayOfWeek_integer").change();
 
             var lTableName = $("#joinLeftTableList").find(".text").text();
             var rTableName = $("#joinRightTableList").find(".text").text();

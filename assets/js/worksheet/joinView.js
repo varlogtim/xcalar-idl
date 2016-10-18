@@ -829,17 +829,19 @@ window.JoinView = (function($, JoinView) {
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
             var progCol = allCols[i];
-            if (!progCol.isEmptyCol() && !progCol.isDATACol()) {
-                html += '<li class="checked" data-colnum="' + i + '">' +
-                            '<span class="text">' +
-                                allCols[i].name +
-                            '</span>' +
-                            '<div class="checkbox checked">' +
-                                '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                                '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                            '</div>' +
-                        '</li>';
+            if (progCol.isEmptyCol() || progCol.isDATACol()) {
+                continue;
             }
+
+            html += '<li class="checked" data-colnum="' + i + '">' +
+                        '<span class="text">' +
+                            progCol.getFrontColName(true) +
+                        '</span>' +
+                        '<div class="checkbox checked">' +
+                            '<i class="icon xi-ckbox-empty fa-13"></i>' +
+                            '<i class="icon xi-ckbox-selected fa-13"></i>' +
+                        '</div>' +
+                    '</li>';
         }
         return (html);
     }
@@ -1295,7 +1297,8 @@ window.JoinView = (function($, JoinView) {
         }
         var $div = $newClause.insertBefore($placeholder);
         if (tableId) {
-            var colName = gTables[tableId].tableCols[colNum - 1].name;
+            var progCol = gTables[tableId].getCol(colNum);
+            var colName = progCol.getFrontColName(true);
             $div.find('.arg').eq(0).val(colName);
         } else {
             $div.find('.arg').eq(0).focus();
@@ -1406,44 +1409,41 @@ window.JoinView = (function($, JoinView) {
         // var tableCols = gTables[tableId].tableCols;
         var col = gTables[tableId].getColByFrontName(val);
         var type = col.type;
-        var backColName = col.backName;
-        var frontColName = col.name;
+        var backColName = col.getBackColName();
+        var frontColName = col.getFrontColName(true);
         var colNum = gTables[tableId].getColNumByBackName(backColName);
 
         var context1 = contextCheck($('#xcTable-' + tableId), colNum, type);
-
-        var $thToClick;
-        var tableIdToClick;
+        var colToSugg = null;
 
         // only score that more than -50 will be suggested, can be modified
         var maxScore = -50;
 
         var $suggTable = $('#xcTable-' + suggTableId);
-        $suggTable.find(".header").each(function(index) {
+        var suggTable = gTables[suggTableId];
+        $suggTable.find(".header").each(function(colNum) {
             var $curTh = $(this);
-
-            if (index !== 0 && !$curTh.hasClass('dataCol') &&
+            // 0 is rowMarker
+            if (colNum !== 0 && !$curTh.hasClass('dataCol') &&
                 getType($curTh) === type) {
-                var context2 = contextCheck($suggTable, index, type);
+                var context2 = contextCheck($suggTable, colNum, type);
 
-                var curColName = $curTh.find(".editableHead").val();
+                var curColName = suggTable.getCol(colNum)
+                                            .getFrontColName(true);
                 var dist = getTitleDistance(frontColName, curColName);
                 var score = getScore(context1, context2, dist, type);
 
                 if (score > maxScore) {
                     maxScore = score;
-                    $thToClick = $curTh;
-                    tableIdToClick = suggTableId;
+                    colToSugg = curColName;
                 }
             }
         });
 
 
         // if find the suggeest join key
-        if (tableIdToClick != null) {
-
-            var suggColName = $thToClick.find('.editableHead').val();
-            $inputToFill.val(suggColName);
+        if (colToSugg != null) {
+            $inputToFill.val(colToSugg);
 
             return true;
         }
@@ -1592,8 +1592,8 @@ window.JoinView = (function($, JoinView) {
             return 0;
         }
 
-        name1 = name1.toLowerCase();
-        name2 = name2.toLowerCase();
+        name1 = xcHelper.parsePrefixColName(name1.toLowerCase()).name;
+        name2 = xcHelper.parsePrefixColName(name2.toLowerCase()).name;
 
         if (name1 === name2) {
             // same name

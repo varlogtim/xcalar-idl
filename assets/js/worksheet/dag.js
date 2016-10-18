@@ -1901,7 +1901,7 @@ window.Dag = (function($, Dag) {
                 continue;
             }
             var type = progCol.getType();
-            var name = progCol.getFrontColName();
+            var name = progCol.getFrontColName(true);
             html += '<li>' +
                         '<div>' +
                         '<span class="iconWrap">' +

@@ -427,6 +427,10 @@ TableMeta.prototype = {
 
     getColByFrontName: function(frontColName) {
         var tableCols = this.tableCols || [];
+        var res = xcHelper.parsePrefixColName(frontColName);
+        var prefix = res.prefix;
+        var colName = res.name;
+
         for (var i = 0, len = tableCols.length; i < len; i++) {
             var progCol = tableCols[i];
 
@@ -435,7 +439,9 @@ TableMeta.prototype = {
                 continue;
             }
 
-            if (progCol.name === frontColName) {
+            if (progCol.getPrefix() === prefix &&
+                progCol.getFrontColName() === colName)
+            {
                 // check fronColName
                 return progCol;
             }
@@ -612,8 +618,13 @@ ProgCol.prototype = {
         }
     },
 
-    getFrontColName: function() {
-        return this.name || "";
+    getFrontColName: function(includePrefix) {
+        var name = this.name || "";
+        if (includePrefix) {
+            name = xcHelper.getPrefixColName(this.prefix, name);
+        }
+
+        return name;
     },
 
     setFrontColName: function(name) {

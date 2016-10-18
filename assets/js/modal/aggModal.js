@@ -256,7 +256,7 @@ window.AggModal = (function($, AggModal) {
             var progCol = aggCol.col;
             var isChildOfArray = aggCol.isChildOfArray;
 
-            colLabels.push(progCol.getFrontColName());
+            colLabels.push(progCol.getFrontColName(true));
             wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < funLen; row++) {
@@ -303,7 +303,7 @@ window.AggModal = (function($, AggModal) {
             var progCol = aggCol.col;
             var isChildOfArray = aggCol.isChildOfArray;
 
-            colLabels.push(progCol.getFrontColName());
+            colLabels.push(progCol.getFrontColName(true));
             wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < colLen; row++) {
@@ -329,7 +329,7 @@ window.AggModal = (function($, AggModal) {
 
         var vertLabels = [];
         for (var i = colLen - 1; i >= 0; i--) {
-            vertLabels.push(aggCols[i].col.getFrontColName());
+            vertLabels.push(aggCols[i].col.getFrontColName(true));
         }
 
         if (wholeTable === "") {

@@ -1935,14 +1935,18 @@ window.xcHelper = (function($, xcHelper) {
             $target = $target.find('.text');
             value = prefix + $target.data('title');
         } else {
-            if ($target.closest('.header').length) {
+            var $header = $target.closest('.header');
+            if ($header.length) {
                 $target = $target.closest('.header').find('.editableHead');
             } else {
                 var colNum = xcHelper.parseColNum($target.closest('td'));
                 $target = $target.closest('table')
                                 .find('.editableHead.col' + colNum);
+                $header = $target.closest('.header');
             }
-            value = prefix + $target.val();
+            var colPrefix = $header.find(".topHeader .prefix").text();
+            value = xcHelper.getPrefixColName(colPrefix, $target.val());
+            value = prefix + value;
         }
         xcHelper.insertText($input, value, {append: options.append});
         gMouseEvents.setMouseDownTarget($input);
@@ -2347,15 +2351,13 @@ window.xcHelper = (function($, xcHelper) {
     // type   : string
     xcHelper.convertFrontColNamesToBack = function(frontColNames, tblId,
                                                     validTypes) {
+        // XXx Cheng: this function may need to refactor
         var backCols = [];
         var tableCols = gTables[tblId].tableCols;
         var foundColsArray = [];
         var numColsFound = 0;
         var numFrontColNames = frontColNames.length;
         var i;
-        // var numFoundCols;
-        // var isObj;
-        var frontColName;
 
         // take all of gTables columns and filter out arrays, data, newcols, objs etc
         // put these columns into colsArray
@@ -2369,7 +2371,7 @@ window.xcHelper = (function($, xcHelper) {
             var colFound = false;
             var tableCol;
             var j;
-            frontColName = frontColNames[i];
+            var frontColName = frontColNames[i];
 
             for (j = 0; j < numTableCols; j++) {
                 tableCol = colsArray[j];
@@ -2378,7 +2380,7 @@ window.xcHelper = (function($, xcHelper) {
                 // foundColsArray. If we later have a duplicate backcolumn name
                 // it will no longer be in colsArray and we will search for it
                 // in foundColsArray
-                if (frontColName === tableCol.name) {
+                if (frontColName === tableCol.getFrontColName(true)) {
                     if (tableCol.backName) {
                         backCols.push(tableCol.backName);
                     }
@@ -2396,10 +2398,9 @@ window.xcHelper = (function($, xcHelper) {
             // column could be a duplicate so check against the columns we
             // already found and had removed
             if (!colFound) {
-
                 for (j = 0; j < numColsFound; j++) {
                     tableCol = foundColsArray[j];
-                    if (frontColName === tableCol.name) {
+                    if (frontColName === tableCol.getFrontColName(true)) {
                         backCols.push(tableCol.backName);
                         colFound = true;
                         break;
@@ -2413,7 +2414,7 @@ window.xcHelper = (function($, xcHelper) {
                     var numInvalidCols = invalidProgCols.length;
                     for (j = 0; j < numInvalidCols; j++) {
                         tableCol = invalidProgCols[j];
-                        if (frontColName === tableCol.name) {
+                        if (frontColName === tableCol.getFrontColName(true)) {
                             return {
                                 invalid: true,
                                 reason : 'type',

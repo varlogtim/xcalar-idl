@@ -96,7 +96,7 @@ window.ColManager = (function($, ColManager) {
             var colIndex = colNum - i;
             var progCol = table.getCol(colIndex);
 
-            colNames.push(progCol.getFrontColName());
+            colNames.push(progCol.getFrontColName(true));
             progCols.push(progCol);
 
             colWidths += progCol.getDisplayWidth();
@@ -619,7 +619,7 @@ window.ColManager = (function($, ColManager) {
                 }
             });
             progCol.setFormat(format);
-            colNames.push(progCol.getFrontColName());
+            colNames.push(progCol.getFrontColName(true));
         });
 
         if (!filteredColNums.length) {
@@ -650,7 +650,7 @@ window.ColManager = (function($, ColManager) {
             var newDecimal = decimals[i];
 
             prevDecimals.push(progCol.getDecimal());
-            colNames.push(progCol.getFrontColName());
+            colNames.push(progCol.getFrontColName(true));
 
             $tableWrap.find('td.col' + colNum).each(function() {
                 var $td = $(this);
@@ -684,7 +684,7 @@ window.ColManager = (function($, ColManager) {
     ColManager.reorderCol = function(tableId, oldColNum, newColNum, options) {
         var $table = $("#xcTable-" + tableId);
         var table = gTables[tableId];
-        var colName = table.getCol(oldColNum).getFrontColName();
+        var colName = table.getCol(oldColNum).getFrontColName(true);
 
         var progCol = table.removeCol(oldColNum);
         table.addCol(newColNum, progCol);
@@ -951,11 +951,10 @@ window.ColManager = (function($, ColManager) {
         var table = gTables[tableId];
 
         var oldCol = table.getCol(colNum);
-        var oldName = oldCol.getFrontColName();
+        var oldName = oldCol.getFrontColName(true);
         var prefix = oldCol.getPrefix();
         // need to pass in prefix to check
-        var newName = xcHelper.getPrefixColName(prefix, oldName);
-        newName = xcHelper.getUniqColName(tableId, newName);
+        var newName = xcHelper.getUniqColName(tableId, oldName);
 
         var progCol = ColManager.newCol(oldCol);
         progCol.setFrontColName(newName);

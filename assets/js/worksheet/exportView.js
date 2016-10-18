@@ -821,13 +821,15 @@ window.ExportView = (function($, ExportView) {
         var numBlanks = 10; // to take up flexbox space
         var allCols = gTables[tableId].tableCols;
         for (var i = 0; i < allCols.length; i++) {
-            if (validTypes.indexOf(allCols[i].type) > -1) {
+            var progCol = allCols[i];
+            if (validTypes.indexOf(progCol.getType()) > -1) {
+                var colName = progCol.getFrontColName(true);
                 html += '<li class="checked" data-colnum="' + i + '">' +
                             '<span class="text  tooltipOverflow" ' +
-                            'data-original-title="' + allCols[i].name + '" ' +
+                            'data-original-title="' + colName + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
-                                allCols[i].name +
+                                colName +
                             '</span>' +
                             '<div class="checkbox checked">' +
                                 '<i class="icon xi-ckbox-empty fa-13"></i>' +
