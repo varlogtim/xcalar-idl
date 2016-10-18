@@ -783,6 +783,11 @@ window.DFParamModal = (function($, DFParamModal){
             } else {
                 XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue)
                 .then(function() {
+                    return XcalarGetRetina(retName);
+                })
+                .then(function(retStruct) {
+                    DF.getDataflow(retName).retinaNodes =
+                                                retStruct.retina.retinaDag.node;
                     var paramInfo = {
                         "paramType" : paramType,
                         "paramValue": paramValue,
@@ -871,6 +876,17 @@ window.DFParamModal = (function($, DFParamModal){
         var retinaNode = dfg.getParameterizedNode(dagNodeId);
         var paramMap = dfg.paramMap;
         var nameMap = {};
+
+        // Here's what we are doing:
+        // For parameterized nodes, the retDag is actually the post-param
+        // version, so we must store the original pre-param version.
+        // This is what is stored in the dfg's paramMap and parameterizedNodes
+        // struct. Upon getting the dag, we first assume that everything is not
+        // parameterized, and stick everything into the template. We then
+        // iterate through the parameterized nodes array and apply the
+        // parameterization by moving the template values to the new values,
+        // and setting the template values to the ones that are stored inside
+        // paramMap.
 
         if (retinaNode != null && retinaNode.paramQuery != null) {
             var $templateVals = $editableRow.closest(".modalTopMain")

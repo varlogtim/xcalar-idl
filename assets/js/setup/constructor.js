@@ -1998,10 +1998,16 @@ Dataflow.prototype = {
             return;
         }
 
-        var $tableNode = $('#dataflowPanel').find('[data-table="' + tableName +
-                                                  '"]');
-        $tableNode.addClass('hasParam');
-        return $tableNode;
+        var $nodeOrAction = $('#dataflowPanel').find('[data-id="' + dagNodeId +
+                                                     '"]');
+        // Exception is for export. XXX Consider attaching the id to the table
+        // node instead of the operation during draw dag. I think it will clean
+        // up a lot of the exception cases here
+        if ($nodeOrAction.hasClass("export")) {
+            $nodeOrAction = $nodeOrAction.next(".dagTable");
+        }
+        $nodeOrAction.addClass('hasParam');
+        return $nodeOrAction;
     },
 
     "updateParameterizedNode": function(dagNodeId, paramInfo) {
@@ -2010,7 +2016,10 @@ Dataflow.prototype = {
             $tableNode.find(".tableTitle").text(paramInfo.paramValue)
                       .attr("title", paramInfo.paramValue)
                       .attr("data-original-title", paramInfo.paramValue);
+        } else if (paramInfo.paramType === XcalarApisT.XcalarApiBulkLoad) {
+            $tableNode.find(".tableTitle").text(paramInfo.paramValue);
         }
+        $tableNode.data('paramValue', encodeURI(paramInfo.paramValue));
     },
 
     "getParameterizedNode": function(dagNodeId) {

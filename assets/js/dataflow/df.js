@@ -3,7 +3,6 @@ window.DF = (function($, DF) {
 
     DF.restore = function(ret) {
         // This call now has to return a promise
-        // JJJ handle parameters
         var deferred = jQuery.Deferred();
         var retArray = [];
 

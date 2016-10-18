@@ -54,7 +54,7 @@ html.firefox, html.microsoft {
         .position(relative);
         .size(@width: 100%, @height: 5px);
         background-color: @color-bg-dusk-blue;
-    } 
+    }
 
     #dagPulloutTab {
         .position(absolute, @left: 50%, @top: 0px);
@@ -467,6 +467,16 @@ html.firefox, html.microsoft {
         }
     }
 
+    .paramMixin {
+        border: 3px solid @color-bg-select-blue;
+        position: absolute;
+        content: " ";
+    }
+
+    .hasParamMixin {
+        border: 3px solid @color-bg-fern-green;
+    }
+
     .dagTable {
         .position(relative, @top: 1px, @right: 0);
         .size(40px, 40px);
@@ -486,17 +496,42 @@ html.firefox, html.microsoft {
             .icon {
                 color: @color-bg-select-blue;
             }
-   
+
         }
         &.dataStore.highlighted {
             .icon {
-            
             }
         }
 
-        &.export {
-            .icon {
-                // XX need icon for xi2
+        &.dataStore.parameterizable {
+            .dataStoreIcon:after {
+                top: -5px;
+                left: -5px;
+                height: 30px;
+                width: 30px;
+                border-radius: 5px;
+                .paramMixin;
+            }
+            &.hasParam {
+                .dataStoreIcon:after {
+                    .hasParamMixin;
+                }
+            }
+        }
+
+        &.export.parameterizable {
+            .dagTableIcon:after {
+                top: -6px;
+                left: -6px;
+                border-radius: 18px;
+                height: 32px;
+                width: 42px;
+                .paramMixin;
+            }
+            &.hasParam {
+                .dagTableIcon:after {
+                    .hasParamMixin;
+                }
             }
         }
 
@@ -611,6 +646,20 @@ html.firefox, html.microsoft {
             }
         }
 
+        &.parameterizable {
+            &:after {
+                top: -2px;
+                left: 14px;
+                border-radius: 7px;
+                height: 38px;
+                width: 106px;
+                .paramMixin;
+            }
+            &.hasParam:after {
+                .hasParamMixin;
+            }
+        }
+
         .groupBy {
             .icon {
 
@@ -646,7 +695,6 @@ html.firefox, html.microsoft {
 
         .project {
             .icon {
-               
             }
         }
 

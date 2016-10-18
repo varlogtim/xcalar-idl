@@ -340,7 +340,7 @@ window.DFCard = (function($, DFCard) {
         // This function adds the different tags between a regular dag
         // and a retina dag. For example, it colors parameterized nodes.
         // It also adds extra classes to the dag that is needed for parameteri-
-        // zation later
+        // zation later.
         var $action = $wrap.find(".actionType.export");
         var $exportTable = $action.next(".dagTable");
 
@@ -380,12 +380,18 @@ window.DFCard = (function($, DFCard) {
             var $op = $(val);
             $op.data("paramValue", $op.attr("data-info"));
         });
+
+        var selector = '.dagTable.export, .dagTable.dataStore, ' +
+                       '.actionType.filter';
+        // Attach styling to all nodes that have a dropdown
+        $(selector).addClass("parameterizable");
     }
 
     function enableDagTooltips() {
         var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
         xcTooltip.disable($tooltipTables);
-        xcTooltip.add($('#dfgViz').find('.dataStoreIcon'), {
+        xcTooltip.add($('#dfgViz').find('.dataStoreIcon, ' +
+                                 '.export .dagTableIcon, .actionType.filter'), {
             "title": CommonTxtTstr.ClickToOpts
         });
     }
@@ -410,6 +416,10 @@ window.DFCard = (function($, DFCard) {
         };
 
         var selector = '.dagTable.export, .dagTable.dataStore, .actionType';
+
+        // Attach styling to all nodes that have a dropdown
+        $(selector).addClass("parameterizable");
+
         $dagArea.on('click', selector, function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
