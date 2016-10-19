@@ -64,21 +64,17 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
             var valLower = val.toLowerCase();
             var $formRow = $nameInput.closest('.formRow');
+            var $curValInput = $formRow.find('.curVal');
             var $newValInput = $formRow.find('.newVal');
-            
-            $nameInput.data('value', val);
-            $nameInput.attr('disabled', true);
-            // appendWaitingIcon($formRow);
-            $formRow.find('.curVal').val('');
+            var paramObj = getParamObjFromInput($nameInput);
 
-            getParamByName(valLower)
-            .then(function(paramObj) {
-                $nameInput.val(paramObj.paramName);
-                $nameInput.data('value', paramObj.paramName);
-                $nameInput.prop('disabled', true);
+            if (paramObj) {
+                $nameInput.data('value', paramObj.paramName)
+                          .prop('disabled', true)
+                          .val(paramObj.paramName);
+                $curValInput.val(paramObj.paramValue);
                 $formRow.addClass('nameIsSet');
-                $formRow.find('.curVal').val(paramObj.paramValue);
-
+                
                 if (paramObj.changeable) {
                     if ($newValInput.val() === "") {
                         $newValInput.val(paramObj.paramValue);
@@ -87,27 +83,21 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 } else {
                     $formRow.addClass('uneditable');
                     $newValInput.addClass('disabled')
-                                            .prop('disabled', true);
-                    $newValInput.val("");
+                                .prop('disabled', true)
+                                .val("");
+                    $formRow.find('.defaultParam').addClass('xc-hidden');
                     xcTooltip.enable($newValInput);
                 }
-            })
-            .fail(function(error) {
-                $nameInput.attr('disabled', false);
-                var errorText = "Parameter not found";
-                StatusBox.show(errorText, $nameInput, false, {
+            } else {
+                $nameInput.data('value', val);
+                $curValInput.val('');
+
+                StatusBox.show(ErrTStr.ConfigParamNotFound, $nameInput, false, {
                     "offsetX": -5,
                     "side"   : "top"
                 });
-                // $formRow.find('.newVal').val(paramObj.paramValue)
-                //                         .prop('disabled', true);
-            })
-            .always(function() {
-                // $nameInput.attr('disabled', false);
-                $formRow.find('.waitingIcon').fadeOut(200, function() {
-                    $(this).remove();
-                });
-            });
+            }
+           
         });
 
         $configCard.on('blur', '.paramName', function() {
@@ -151,7 +141,29 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             $(this).closest('.formRow').remove();
         });
 
+        $configCard.on('click', '.defaultParam', function() {
+            resetDefaultParam($(this).closest('.formRow')); 
+        });
+
         $('#paramSettingsSave').on("click", submitForm);
+    }
+
+    // fills in user's val input with default value
+    function resetDefaultParam($row) {
+        var $nameInput = $row.find('.paramName');
+        var paramObj = getParamObjFromInput($nameInput);
+        if (!paramObj) {
+            return;
+        }
+        var defaultVal = paramObj.defaultValue;
+        if (defaultVal === "(null)") {
+            defaultVal = "";
+        }
+        $row.find('.newVal').val(defaultVal);
+    }
+
+    function getParamObjFromInput($nameInput) {
+        return paramsCache[$nameInput.val().toLowerCase().trim()];
     }
 
     //xx need to handle submitting duplicate rows
@@ -164,18 +176,22 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             if ($row.hasClass('placeholder') || $row.hasClass('uneditable')) {
                 return true;
             }
+
             var $newValInput = $row.find('.newVal');
-            var newVal = $newValInput.val().trim(); 
-            var pName = $row.find('.paramName').val().trim();
-            var curVal = $row.find('.curVal').val().trim();
-            
-            if (!paramsCache[pName.toLowerCase()]) {
+            var newVal = $newValInput.val().trim();
+            var $nameInput = $row.find('.paramName');
+            var paramObj = getParamObjFromInput($nameInput);
+            var pName;
+
+            if (!paramObj) {
                 errorFound = {
-                    input: $row.find('.paramName'),
+                    input: $nameInput,
                     reason: "invalidName"
                 }
                 return false;
             }
+
+            pName = paramObj.paramName;
 
             if (!newVal.length) {
                 errorFound = {
@@ -281,8 +297,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         for (var i = 0; i < rows.length; i++) {
             $row = rows[i];
             $nameInput = $row.find('.paramName');
-            name = $nameInput.val();
-            paramObj = paramsCache[name.toLowerCase()];
+            paramObj = getParamObjFromInput($nameInput);
             if (paramObj) {
                 $nameInput.val(paramObj.paramName);
                 $row.find('.curVal').val(paramObj.paramValue);
@@ -418,9 +433,17 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     '" data-container="body" ' +
                     'value="' + newVal + '">';
         }
-                        
-        html += '</label>' +
-                  '</div>' +
+
+        html += '</label>';
+        if (!uneditable) {
+            html += '<div class="defaultParam iconWrap xc-action" ' +
+                        'data-toggle="tooltip" data-container="body" ' +
+                        'data-original-title="' + CommonTxtTstr.DefaultVal + 
+                        '">' +
+                        '<i class="icon xi-restore center fa-15"></i>' +
+                    '</div>';
+        }
+        html +=   '</div>' +
                 '</div>';
         return (html);
     }

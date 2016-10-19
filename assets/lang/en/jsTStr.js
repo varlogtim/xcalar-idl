@@ -96,7 +96,7 @@ CommonTxtTstr = {
     'Create': 'Create',
     'Continue': 'Continue',
     'Copy': 'Copy',
-    'DefaultVal': 'Default Value',
+    'DefaultVal': 'Default value',
     'HoldToDrag': 'Click and hold to drag',
     'NumCol': 'Number of columns',
     'Exit': 'Exit',

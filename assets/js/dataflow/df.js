@@ -35,7 +35,7 @@ window.DF = (function($, DF) {
 
                 // Populate export column information
                 dataflows[retName].columns = [];
-                for (j = 0; j<dataflows[retName].retinaNodes.length; i++) {
+                for (j = 0; j<dataflows[retName].retinaNodes.length; j++) {
                     if (dataflows[retName].retinaNodes[j].api ===
                         XcalarApisT.XcalarApiExport) {
                         var exportCols = dataflows[retName].retinaNodes[j].input
