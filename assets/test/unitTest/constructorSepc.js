@@ -941,6 +941,68 @@ describe('Constructor Test', function() {
         expect(meta).to.have.property('activeWS');
     });
 
+    describe('WorksheetObj Constructor Test', function() {
+        it("WorksheetObj Should be a constructor", function() {
+            var worksheet = new WorksheetObj({
+                "id"  : "testId",
+                "name": "testName",
+                "date": "testDate"
+            });
+
+            expect(worksheet).to.be.an('object');
+            expect(Object.keys(worksheet).length).to.equal(9);
+            expect(worksheet.id).to.equal("testId");
+            expect(worksheet.name).to.equal("testName");
+            expect(worksheet.date).to.equal("testDate");
+
+            for (var key in WSTableType) {
+                var tableType = WSTableType[key];
+                expect(worksheet[tableType]).to.be.an("array");
+                expect(worksheet[tableType].length).to.be.equal(0);
+            }
+        });
+
+        it("Should have basic getter", function() {
+            var worksheet = new WorksheetObj({
+                "id"  : "testId2",
+                "name": "testName2",
+                "date": "testDate"
+            });
+
+            expect(worksheet.getId()).to.equal("testId2");
+            expect(worksheet.getName()).to.equal("testName2");
+        });
+
+        it("Should add table to worksheet", function() {
+            var worksheet = new WorksheetObj({
+                "id"  : "testId",
+                "name": "testName",
+            });
+
+            // error case1
+            var res = worksheet.addTable();
+            expect(res).to.be.false;
+
+            // error case2
+            res = worksheet.addTable("tableId", "invalidType");
+            expect(res).to.be.false;
+
+            var count = 0;
+            for (var key in WSTableType) {
+                var tableType = WSTableType[key];
+                var tableId = "tableId";
+                res = worksheet.addTable(tableId, tableType);
+                expect(res).to.be.true
+                expect(worksheet[tableType].length).to.be.equal(1);
+                count++;
+            }
+
+            // error case 3
+            res = worksheet.addTable("tableId", WSTableType.Active);
+            expect(res).to.be.false;
+        });
+    });
+
     describe('WKBK Constructor Test', function() {
         it('WKBK should be a constructor', function() {
             try {

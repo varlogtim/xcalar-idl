@@ -513,9 +513,9 @@ window.Undo = (function($, Undo) {
                 var status = gTables[options.tableId].status;
                 var type;
                 if (status === TableType.Archived) {
-                    type = "archivedTables";
+                    type = WSTableType.Archive;
                 } else if (status === TableType.Orphan) {
-                    type = "orphanedTables";
+                    type = WSTableType.Orphan;
                 }
                 WSManager.moveTable(options.tableId, options.worksheet, type);
                 var hiddenWS = WSManager.getHiddenWS();

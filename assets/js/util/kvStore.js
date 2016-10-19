@@ -220,7 +220,7 @@ window.KVStore = (function($, KVStore) {
                         return SQL.restore(oldLogCursor);
                     }
                 } catch (error) {
-                    console.error(error);
+                    console.error(error.stack);
                     return PromiseHelper.reject(error);
                 }
             })

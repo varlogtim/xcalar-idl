@@ -56,6 +56,15 @@ var ArchiveTable = {
     Keep: false
 };
 
+var WSTableType = {
+    "Active"    : "tables",
+    "Archive"   : "archivedTables",
+    "TempHidden": "tempHiddenTables",
+    "Orphan"    : "orphanedTables",
+    "Undo"      : "undoneTables",
+    "Lock"      : "lockedTables",
+};
+
 var DelWSType = {
     "Del": "drop tables",
     "Archive": "archive tables",

@@ -1258,6 +1258,49 @@ function WSMETA(options) {
     return this;
 }
 
+function WorksheetObj(options) {
+    var self = this;
+
+    for (var key in WSTableType) {
+        var tableType = WSTableType[key];
+        self[tableType] = options[tableType] || [];
+    }
+
+    self.id = options.id;
+    self.name = options.name;
+    self.date = options.date || xcHelper.getDate();
+    return self;
+}
+
+WorksheetObj.prototype = {
+    getId: function() {
+        return this.id;
+    },
+
+    getName: function() {
+        return this.name;
+    },
+
+    addTable: function(tableId, tableType) {
+        if (tableId == null) {
+            return false;
+        }
+
+        var tableArray = this[tableType];
+        if (tableArray == null) {
+            return false;
+        }
+
+        if (tableArray.includes(tableId)) {
+            console.error(tableId, "already in worksheets!");
+            return false;
+        }
+
+        tableArray.push(tableId);
+        return true;
+    },
+};
+
 // workbook.js
 function WKBK(options) {
     options = options || {};
