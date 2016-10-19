@@ -186,22 +186,13 @@ TableMeta.prototype = {
 
             self.backTableMeta = tableMeta;
             self.ordering = tableMeta.ordering;
-
-            var keyAttr = tableMeta.keyAttr;
-            var keyName = keyAttr.name;
-            var valueArrayIndex = keyAttr.valueArrayIndex;
+            self.keyName = xcHelper.getTableKeyFromMeta(tableMeta);
 
             // update immediates
             var valueAttrs = [];
             if (tableMeta.valueAttrs != null) {
                 valueAttrs = tableMeta.valueAttrs;
             }
-
-            var prefixOfKey = "";
-            if (valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr) {
-                prefixOfKey = valueAttrs[valueArrayIndex].name;
-            }
-            self.keyName = xcHelper.getPrefixColName(prefixOfKey, keyName);
 
             valueAttrs.forEach(function(valueAttr) {
                 if (valueAttr.type === DfFieldTypeT.DfFatptr) {

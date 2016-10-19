@@ -274,6 +274,36 @@ describe('xcHelper Test', function() {
         delete gTables["xc-Test"];
     });
 
+    it('xcHelper.getTableKeyFromMeta should work', function() {
+        var tableMeta = {
+            "keyAttr": {
+                "name"           : "test",
+                "valueArrayIndex": 0
+            },
+            "valueAttrs": [{
+                "name": "user",
+                "type": DfFieldTypeT.DfFatptr
+            }]
+        }
+
+        var res = xcHelper.getTableKeyFromMeta(tableMeta);
+        expect(res).to.equal("user::test");
+        // case 2
+        tableMeta = {
+            "keyAttr": {
+                "name"           : "test",
+                "valueArrayIndex": 0
+            },
+            "valueAttrs": [{
+                "name": "user",
+                "type": DfFieldTypeT.DfString
+            }]
+        }
+
+        res = xcHelper.getTableKeyFromMeta(tableMeta);
+        expect(res).to.equal("test");
+    });
+
     it('xcHelper.deepCopy should work', function() {
         var obj = {"a": 1, "b": "test"};
         var res = xcHelper.deepCopy(obj);

@@ -90,12 +90,10 @@ window.XIApi = (function(XIApi, $) {
 
         var deferred = jQuery.Deferred();
 
-        XcalarMakeResultSetFromTable(tableName)
-        .then(function(resultSet) {
-            order = resultSet.metaOutput.ordering;
-            keyName = resultSet.keyAttrHeader.name;
-            // Note that this !== self in this scope
-            return XcalarSetFree(resultSet.resultSetId);
+        XcalarGetTableMeta(tableName)
+        .then(function(tableMeta) {
+            order = tableMeta.ordering;
+            keyName = xcHelper.getTableKeyFromMeta(tableMeta);
         })
         .then(function() {
             deferred.resolve(order, keyName);
@@ -520,26 +518,6 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
-    function checkTableKey(tableName, tableKey) {
-        var deferred = jQuery.Deferred();
-
-        if (tableKey != null && tableKey !== "") {
-            deferred.resolve(tableKey);
-        } else {
-            XcalarMakeResultSetFromTable(tableName)
-            .then(function(resultSet) {
-                resultSet = resultSet || {};
-                var key = resultSet.keyAttrHeader.name;
-                deferred.resolve(key);
-                // free result count
-                XcalarSetFree(resultSet.resultSetId);
-            })
-            .fail(deferred.reject);
-        }
-
-        return deferred.promise();
-    }
-
     function checkIfNeedIndex(colToIndex, tableName, tableKey, txId) {
         var deferred = jQuery.Deferred();
         var shouldIndex = false;
@@ -548,10 +526,8 @@ window.XIApi = (function(XIApi, $) {
         .then(function(unsorted) {
             if (unsorted !== tableName) {
                 // this is sorted table, should index a unsorted one
-                XcalarMakeResultSetFromTable(unsorted)
-                .then(function(resultSet) {
-                    resultSet = resultSet || {};
-                    var parentKey = resultSet.keyAttrHeader.name;
+                XIApi.checkOrder(unsorted)
+                .then(function(parentOrder, parentKey) {
                     if (parentKey !== colToIndex) {
                         if (tableKey != null && parentKey !== tableKey) {
                             // if current is sorted, the parent should also
@@ -585,9 +561,6 @@ window.XIApi = (function(XIApi, $) {
                         shouldIndex = false;
                         deferred.resolve(shouldIndex, unsorted);
                     }
-
-                    // free result count
-                    XcalarSetFree(resultSet.resultSetId);
                 })
                 .fail(deferred.reject);
             } else {
@@ -712,7 +685,6 @@ window.XIApi = (function(XIApi, $) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
-        var tableKey = null;
 
         if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // in case we have no meta of the table
@@ -720,12 +692,11 @@ window.XIApi = (function(XIApi, $) {
         } else {
             var table = gTables[tableId];
             tableCols = table.tableCols;
-            tableKey = table.getKeyName();
         }
 
-        checkTableKey(tableName, tableKey)
-        .then(function(checkedTableKey) {
-            return checkIfNeedIndex(colName, tableName, checkedTableKey, txId);
+        XIApi.checkOrder(tableName)
+        .then(function(order, keyName) {
+            return checkIfNeedIndex(colName, tableName, keyName, txId);
         })
         .then(function(shouldIndex, unsortedTable) {
             if (shouldIndex) {

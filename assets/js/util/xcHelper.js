@@ -470,6 +470,23 @@ window.xcHelper = (function($, xcHelper) {
         return ({"op": op, "args": args});
     };
 
+    xcHelper.getTableKeyFromMeta = function(tableMeta) {
+        var keyAttr = tableMeta.keyAttr;
+        var keyName = keyAttr.name;
+        var valueArrayIndex = keyAttr.valueArrayIndex;
+
+        var valueAttrs = tableMeta.valueAttrs || [];
+        var prefixOfKey = "";
+        if (valueArrayIndex >= 0 && valueAttrs[valueArrayIndex] != null &&
+            valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr)
+        {
+            prefixOfKey = valueAttrs[valueArrayIndex].name;
+        }
+
+        keyName = xcHelper.getPrefixColName(prefixOfKey, keyName);
+        return keyName;
+    };
+
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
         var string = JSON.stringify(obj);
