@@ -66,7 +66,15 @@ window.DF = (function($, DF) {
                     if (retinaName in ret) {
                         jQuery.extend(dataflows[retinaName], ret[retinaName]);
                         for (var nodeId in ret[retinaName].parameterizedNodes) {
-                            dataflows[retinaName].colorNodes(nodeId);
+                            var $tableNode =
+                                       dataflows[retinaName].colorNodes(nodeId);
+                            var type = ret[retinaName]
+                                           .parameterizedNodes[nodeId]
+                                           .paramType;
+                            if (type === XcalarApisT.XcalarApiFilter) {
+                                $tableNode.find(".parentsTitle")
+                                          .text("<Parameterized>");
+                            }
                         }
                     }
                 }

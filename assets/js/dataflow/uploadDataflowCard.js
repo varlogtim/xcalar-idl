@@ -48,6 +48,11 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
     function submitForm() {
         var retName = $dfName.val().trim();
+        var regex = new RegExp("^[a-zA-Z0-9_-]*$");
+        if (!regex.test(retName)) {
+            StatusBox.show(ErrTStr.DFNameIllegal, $dfName);
+            return;
+        }
         lockCard();
         XcalarListRetinas()
         .then(function(ret) {

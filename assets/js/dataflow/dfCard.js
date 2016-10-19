@@ -451,6 +451,13 @@ window.DFCard = (function($, DFCard) {
                 $menu.css('left', MainMenu.getOffset() + 5);
             }
             addMenuKeyboardNavigation($menu);
+
+            // If node is not export, hide showExportCols option
+            if (!$(this).hasClass("export")) {
+                $menu.find(".showExportCols").hide();
+            } else {
+                $menu.find(".showExportCols").show();
+            }
         });
 
         addMenuBehaviors($menu);
@@ -467,7 +474,7 @@ window.DFCard = (function($, DFCard) {
                 return;
             }
             showExportCols($currentIcon);
-        })
+        });
     }
 
     function showExportCols($dagTable) {

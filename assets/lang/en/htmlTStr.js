@@ -245,7 +245,7 @@ module.exports = {
         "SelectFile": "Select a .tar.gz file first",
         "IcvRestriction": "ICV only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
-        "DropConsts": "Drop Constants",
+        "DropConsts": "Drop Aggregates",
         "ChooseUdfModule": 'Please choose a module first' // used in jststr
     },
 
@@ -316,13 +316,13 @@ module.exports = {
         "InActiveList": "Hidden",
         "OrphanList": "Temporary",
         "TempAbbr": "Temp",
-        "ConstAbbr": "Const",
-        "ConstList": "Constants",
+        "ConstAbbr": "Aggr",
+        "ConstList": "Aggregates",
         "active": "Add To Worksheet",
         "archive": "Hide Tables",
         "filterOrphan": "Filter Temporary Tables",
     },
-    
+
     "queryGraph": {
         "numRows": "Num Rows",
         "type": "type",
