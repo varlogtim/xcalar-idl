@@ -2371,6 +2371,7 @@ function SearchBar($searchArea, options) {
     this.matchIndex = null;
     this.numMatches = 0;
     this.$matches = [];
+    this.$list = options.$list; // typically a ul element
 
     if (options.codeMirror) {
         this.$searchInput = options.$input;
@@ -2378,8 +2379,6 @@ function SearchBar($searchArea, options) {
     } else {
         this.$searchInput = $searchArea.find('input');
     }
-
-
 
     return this;
 }
@@ -2449,9 +2448,12 @@ SearchBar.prototype = {
                 }
                 $selectedMatch.addClass('selected');
                 searchBar.$position.html(searchBar.matchIndex + 1);
-                if (options.scrollMatchIntoView) {
-                    options.scrollMatchIntoView($selectedMatch);
-                }
+                // if (options.scrollMatchIntoView) {
+                //     options.scrollMatchIntoView($selectedMatch);
+                // } else {
+
+                // }
+                searchBar.scrollMatchIntoView($selectedMatch);
             }
         }
         // secondaryEvent is the event passed in by codemirror
@@ -2496,8 +2498,22 @@ SearchBar.prototype = {
         if (this.options.scrollMatchIntoView) {
             return (this.options.scrollMatchIntoView($match));
         } else {
-            return (undefined);
+            return (this._scrollMatchIntoView($match));
         }
+    },
+    _scrollMatchIntoView: function($match) {
+        var $list = this.$list;
+        if (!$list || $list.length === 0) {
+            return;
+        }
+        var listHeight = $list.height();
+        var scrollTop = $list.scrollTop();
+        var matchOffsetTop = $match.position().top;
+        if (matchOffsetTop > (listHeight - 25)) {
+            $list.scrollTop(matchOffsetTop + scrollTop - (listHeight / 2) + 30);
+        } else if (matchOffsetTop < -5) {
+            $list.scrollTop(scrollTop + matchOffsetTop - (listHeight / 2));
+        } 
     },
     updateResults: function($matches) {
         var searchBar = this;

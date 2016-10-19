@@ -735,7 +735,8 @@ window.JSONModal = (function($, JSONModal) {
         var $modalWindow = $match.closest('.prettyJson');
         var modalHeight = $modalWindow.height();
         var scrollTop = $modalWindow.scrollTop();
-        var matchOffsetTop = $match.position().top;
+        var matchOffsetTop = $match.position().top + 
+                            $match.closest('.mainKey').position().top;
         if (matchOffsetTop > (scrollTop + modalHeight - 35)) {
             $modalWindow.scrollTop(matchOffsetTop + 40 - (modalHeight / 2));
         } else if (matchOffsetTop < (scrollTop - 25)) {

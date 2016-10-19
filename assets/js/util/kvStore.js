@@ -76,6 +76,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.append = function(key, value, persist, scope) {
+
         var deferred = jQuery.Deferred();
 
         Support.commitCheck()
@@ -198,7 +199,6 @@ window.KVStore = (function($, KVStore) {
             .then(function(gInfosPart) {
                 var isEmpty = (gInfosPart == null);
                 gInfosPart = gInfosPart || {};
-                // console.log(gInfosPart);
 
                 for (var key in gInfosPart) {
                     gInfos[key] = gInfosPart[key];

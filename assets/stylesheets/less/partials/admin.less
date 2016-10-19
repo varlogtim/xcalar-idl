@@ -70,12 +70,33 @@
 //  main menu in monitor/setup panel
 #monitorMenu-setup {
 	.userList {
+		position: relative;
+		.flex-display !important;
+		.flex-direction(column);
+		.flex(1 1 auto);
+		margin-top: 10px;
+
+		.refreshUserList {
+			.position(absolute, @top: -2px, @right: 15px);
+			.size(25px, 25px);
+			text-align: center;
+			.icon {
+				line-height: 25px;
+			}
+		}
+
 		ul {
 			margin-top: 0px;
+			overflow: auto;
+			position: relative; // for scrolling to search match
 		}
-		li .text {
-			margin-left: 21px;
-		}
+
+		.highlightedText {
+            background-color: @color-font-bright-light-blue;
+            &.selected {
+                background-color: @color-macaroni-and-cheese;
+            }
+        }
 
 		.searchbarArea {
 			border-right: 1px solid @color-bg-dusk-blue;
@@ -97,8 +118,8 @@
 				}
 			}
 			.arrows {
-				display: none;
-				top: 2px;
+				display: none !important; // not showing arrows for now
+				top: 9px;
 				right: 20px;
 			}
 			.closeBox {
@@ -113,11 +134,11 @@
 	}
 
 	.xc-expand-list {
-		.searchbarArea {
+		.searchbarArea, .refreshUserList {
 			display: none;
 		}
 		&.active {
-			.searchbarArea {
+			.searchbarArea, .refreshUserList {
 				display: block;
 			}
 		}

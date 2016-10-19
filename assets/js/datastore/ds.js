@@ -1370,7 +1370,6 @@ window.DS = (function ($, DS) {
         var parentId = dsObj.getParentId();
         var name = dsObj.getName();
         var html;
-
         if (dsObj.beFolder()) {
             // when it's a folder
             html =

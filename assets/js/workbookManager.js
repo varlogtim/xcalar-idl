@@ -527,11 +527,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function setupKVStore(wkbkId) {
         // retrieve key from username and wkbkId
-        var gInfoKey    = generateKey(wkbkId, "gInfo");
-        var gEphInfoKey = generateKey("", "gEphInfo"); // Global key!!!
-        var gLogKey     = generateKey(wkbkId, "gLog");
-        var gErrKey     = generateKey(wkbkId, "gErr");
-        var gUserKey    = generateKey(username, 'gUser');
+        var gInfoKey     = generateKey(wkbkId, "gInfo");
+        var gEphInfoKey  = generateKey("", "gEphInfo"); // Global key!!!
+        var gLogKey      = generateKey(wkbkId, "gLog");
+        var gErrKey      = generateKey(wkbkId, "gErr");
+        var gUserKey     = generateKey(username, 'gUser');
         var gSettingsKey = generateKey("", 'gSettings'); // global key
 
         var keys = {

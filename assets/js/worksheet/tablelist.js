@@ -178,14 +178,12 @@ window.TableList = (function($, TableList) {
 
 
         searchHelper = new SearchBar($("#orphanedTableList-search"), {
+            "$list": $("#orphanedTableList").find('.tableLists'),
             "removeSelected": function() {
                 $("#orphanedTableList").find(".selected").removeClass('selected');
             },
             "highlightSelected": function($match) {
                 $match.addClass("selected");
-            },
-            "scrollMatchIntoView": function($match) {
-                scrollMatchIntoView($("#orphanedTableList"), $match);
             }
         });
 
@@ -784,7 +782,8 @@ window.TableList = (function($, TableList) {
                         break;
                     case 1:
                         d = dates[dateIndex];
-                        date = DaysTStr.Yesterday + " " + xcHelper.getDate("/", d);
+                        date = DaysTStr.Yesterday + " " +
+                                xcHelper.getDate("/", d);
                         break;
                     // Other days in the week
                     case 2:
@@ -869,7 +868,8 @@ window.TableList = (function($, TableList) {
                         '</span>' +
                         '<span>(</span>' +
                         '<span class="numCols" data-toggle="tooltip" ' +
-                        'data-container="body" title="' + CommonTxtTstr.NumCol + '">' +
+                        'data-container="body" ' +
+                        'title="' + CommonTxtTstr.NumCol + '">' +
                             (numCols - 1) + // skip DATA col
                         '</span>' +
                         '<span>)</span>' +
@@ -922,7 +922,8 @@ window.TableList = (function($, TableList) {
 
             html += '<li class="column">' +
                         '<div class="iconWrap">' +
-                            '<i class="icon center fa-16 ' + typeClass + '"></i>' +
+                            '<i class="icon center fa-16 ' + typeClass + '">' +
+                            '</i>' +
                         '</div>' +
                         '<span class="text">' +
                             no + ". " + progCol.getFrontColName(true) +
@@ -1191,7 +1192,7 @@ window.TableList = (function($, TableList) {
             $section.find('input').css("padding-right", counterWidth + 30);
 
             if (searchHelper.numMatches !== 0) {
-                scrollMatchIntoView($section, searchHelper.$matches.eq(0));
+                searchHelper.scrollMatchIntoView(searchHelper.$matches.eq(0));
                 searchHelper.$arrows.show();
             } else {
                 searchHelper.$arrows.hide();
@@ -1219,18 +1220,6 @@ window.TableList = (function($, TableList) {
         });
     }
 
-    function scrollMatchIntoView($section, $match) {
-        var $list = $section.find('.tableLists');
-        var listHeight = $list.height();
-        var scrollTop = $list.scrollTop();
-        var matchOffsetTop = $match.position().top;
-        if (matchOffsetTop > (listHeight - 25)) {
-            $list.scrollTop(matchOffsetTop + scrollTop - (listHeight / 2) + 30);
-        } else if (matchOffsetTop < -5) {
-            $list.scrollTop(scrollTop + matchOffsetTop - (listHeight / 2));
-        }
-    }
-
     function activeTableAlert(tableType) {
         var $tableList;
 
@@ -1238,7 +1227,8 @@ window.TableList = (function($, TableList) {
             $tableList = $('#archivedTableList');
         }
 
-        var $noSheetTables = $tableList.find(".addTableBtn.selected").closest(".tableInfo").filter(function() {
+        var $noSheetTables = $tableList.find(".addTableBtn.selected")
+                                    .closest(".tableInfo").filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");
         });
 
@@ -1269,7 +1259,8 @@ window.TableList = (function($, TableList) {
                     var wsId = WSManager.getWSIdByName(wsName);
 
                     if (wsId == null) {
-                        Alert.error(WSTStr.InvalidWSName, WSTStr.InvalidWSNameErr);
+                        Alert.error(WSTStr.InvalidWSName,
+                                    WSTStr.InvalidWSNameErr);
                     } else {
                         wsToSent = wsId;
                         $noSheetTables.each(function() {
@@ -1277,7 +1268,8 @@ window.TableList = (function($, TableList) {
                             noSheetTables.push(tableId);
                         });
 
-                        TableList.activeTables(tableType, noSheetTables, wsToSent);
+                        TableList.activeTables(tableType, noSheetTables,
+                                                wsToSent);
                     }
                 },
                 "onCancel": function() {

@@ -97,6 +97,7 @@ window.StartManager = (function(StartManager, $) {
         DataflowPanel.setup();
         setupModals();
         TutorialsSetup.setup();
+        Admin.initialize();
 
         XVM.checkVersionMatch()
         .then(setupSession)
@@ -143,6 +144,7 @@ window.StartManager = (function(StartManager, $) {
                 Workbook.forceShow();
                 var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
                 StatusMessage.updateLocation(true, text);
+                Admin.addNewUser();
             } else if (error === WKBKTStr.Hold) {
                 // when seesion is hold by others
                 Alert.show({
