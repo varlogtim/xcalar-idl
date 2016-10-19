@@ -17,12 +17,15 @@ window.ColManager = (function($, ColManager) {
         });
 
         var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-        if (prefix) {
-            var prefixW = getTextWidth(null, prefix, {
-                "defaultHeaderStyle": true
-            });
-            width = Math.max(width, prefixW);
+        var prefixText = prefix;
+        if (prefixText == "") {
+            prefixText = CommonTxtTstr.Immediates;
         }
+
+        var prefixW = getTextWidth(null, prefixText, {
+            "defaultHeaderStyle": true
+        });
+        width = Math.max(width, prefixW);
 
         return ColManager.newCol({
             "backName": backColName,
@@ -153,7 +156,7 @@ window.ColManager = (function($, ColManager) {
         var direction = options.direction;
 
         var table = gTables[tableId];
-        var newColName = xcHelper.getUniqColName(tableId, options.fullName);
+        var newColName = xcHelper.getUniqColName(tableId, options.fullName, true);
 
         var progCol = ColManager.newPullCol(newColName, backName);
         var usrStr = progCol.userStr;
@@ -962,13 +965,15 @@ window.ColManager = (function($, ColManager) {
             defaultHeaderStyle: true
         });
 
-        if (prefix) {
-            var prefixW = getTextWidth(null, prefix, {
-                defaultHeaderStyle: true
-            });
-
-            cellWidth = Math.max(cellWidth, prefixW);
+        var prefixText = prefix;
+        if (prefixText === "") {
+            prefixText = CommonTxtTstr.Immediates;
         }
+        var prefixW = getTextWidth(null, prefixText, {
+            defaultHeaderStyle: true
+        });
+
+        cellWidth = Math.max(cellWidth, prefixW);
 
         progCol.setWidth(cellWidth);
 

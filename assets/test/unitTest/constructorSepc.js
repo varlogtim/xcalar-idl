@@ -430,7 +430,37 @@ describe('Constructor Test', function() {
 
             expect(table.hasColWithBackName("prefix::backTestCol")).to.be.true;
             expect(table.hasColWithBackName("errorCol")).to.be.false;
+        });
 
+        it("Should check if has column", function() {
+            var progCol1 = new ProgCol({
+                "name"    : "testCol",
+                "backName": "prefix::backTestCol",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var progCol2 = new ProgCol({
+                "name"    : "testCol2",
+                "backName": "backTestCol2",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var dataCol = ColManager.newDATACol();
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [dataCol, progCol1, progCol2],
+                "isLocked" : false
+            });
+
+            // test without backMeta
             expect(table.hasCol("testCol", "")).to.be.false;
             expect(table.hasCol("testCol")).to.be.true;
             expect(table.hasCol("testCol", "prefix")).to.be.true;
@@ -438,6 +468,27 @@ describe('Constructor Test', function() {
             expect(table.hasCol("prefix::backTestCol")).to.be.true;
             expect(table.hasCol("prefix::backTestCol", "prefix")).to.be.true;
             expect(table.hasCol("errorCol")).to.be.false;
+
+            // test with backMeta
+            table.backTableMeta = {
+                valueAttrs: [{
+                    "type": DfFieldTypeT.DfFatptr,
+                    "name": "backTestCol"
+                },
+                {
+                    "type": DfFieldTypeT.DfString,
+                    "name": "backTestCol2"
+                },
+                {
+                    "type": DfFieldTypeT.DfString,
+                    "name": "backTestCol3"
+                }]
+            };
+
+            expect(table.hasCol("backTestCol2", "")).to.be.true;
+            expect(table.hasCol("backTestCol2", "", true)).to.be.true;
+            expect(table.hasCol("backTestCol3", "")).to.be.true;
+            expect(table.hasCol("backTestCol3", "", true)).to.be.false;
         });
 
         it("Should add and remove col", function() {

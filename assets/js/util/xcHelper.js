@@ -376,7 +376,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     // get unique column name
-    xcHelper.getUniqColName = function(tableId, colName) {
+    xcHelper.getUniqColName = function(tableId, colName, onlyCheckPulledCol) {
         if (colName == null) {
             return xcHelper.randName("NewCol");
         }
@@ -389,7 +389,7 @@ window.xcHelper = (function($, xcHelper) {
             return colName;
         }
 
-        if (!table.hasCol(colName, parseName.prefix)) {
+        if (!table.hasCol(colName, parseName.prefix, onlyCheckPulledCol)) {
             return colName;
         }
 

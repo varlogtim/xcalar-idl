@@ -771,9 +771,6 @@ window.TblManager = (function($, TblManager) {
         var columnClass = options.columnClass || "";
         var indexed = (progCol.getBackColName() === table.getKeyName());
         var sortIcon = '<i class="sortIcon"></i>'; // placeholder
-        var prefixAction = '<div class="dotWrap">' +
-                                '<div class="dot"></div>' +
-                            '</div>';
 
         if (progCol.hasHidden()) {
             width = 15;
@@ -820,9 +817,11 @@ window.TblManager = (function($, TblManager) {
 
         var prefix = progCol.getPrefix();
         var prefixColor = "";
+        var prefixClass = "prefix"
 
         if (prefix == "") {
-            prefixAction = "";
+            prefix = CommonTxtTstr.Immediates;
+            prefixClass += " immediate";
         } else {
             prefixColor = TPrefix.getColor(prefix);
         }
@@ -841,10 +840,12 @@ window.TblManager = (function($, TblManager) {
                     '<div class="colGrab"></div>' +
                     '<div class="topHeader" data-color="' + prefixColor + '">' +
                         sortIcon +
-                        '<div class="prefix">' +
+                        '<div class="' + prefixClass + '">' +
                             prefix +
                         '</div>' +
-                        prefixAction +
+                        '<div class="dotWrap">' +
+                            '<div class="dot"></div>' +
+                        '</div>' +
                     '</div>' +
                     '<div class="flexContainer flexRow">' +
                         '<div class="flexWrap flex-left">' +

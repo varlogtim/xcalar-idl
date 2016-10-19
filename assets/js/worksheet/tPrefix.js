@@ -39,6 +39,11 @@ window.TPrefix = (function(TPrefix, $) {
                                                         " .topHeader");
 
         var prefix = table.getCol(colNum).getPrefix();
+        if (prefix === "") {
+            // displayed text
+            prefix = CommonTxtTstr.Immediates;
+        }
+
         $topHeader.find(".prefix").text(prefix);
         var color = TPrefix.getColor(prefix);
         $topHeader.attr("data-color", color).data("color", color);

@@ -124,6 +124,7 @@ CommonTxtTstr = {
     'ArrayVal': 'Array Value',
     'Value': 'Value',
     'NEWCOLUMN': 'NEW COLUMN',
+    'Immediates': 'Derived Field',
 
     // with replace
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated' +

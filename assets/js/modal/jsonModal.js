@@ -934,9 +934,12 @@ window.JSONModal = (function($, JSONModal) {
 
                 if (!isArray && isDataCol) {
                     if (groups[i].prefix === gPrefixSign) {
-                        prefix = '<div class="prefix immediates">Immediates</div>'
+                        prefix = '<div class="prefix immediates">' +
+                                    CommonTxtTstr.Immediates +
+                                '</div>';
                     } else {
-                        prefix = '<div class="prefix">' + groups[i].prefix +
+                        prefix = '<div class="prefix">' +
+                                    groups[i].prefix +
                                  '</div>';
                     }
                     tempJson =  '<div class="prefixGroup">' +

@@ -1363,6 +1363,15 @@ html.edge {
                 opacity: 0.7;
                 line-height: @height-xcColPrefix;
                 .textOverflowOneLine;
+
+                &.immediate {
+                    font-style: italic;
+
+                    ~ .dotWrap {
+                        visibility: hidden;
+                        pointer-events: none;
+                    }
+                }
             }
 
             .dotWrap {

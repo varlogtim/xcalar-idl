@@ -465,13 +465,13 @@ TableMeta.prototype = {
         return false;
     },
 
-    hasCol: function(colName, prefix) {
+    hasCol: function(colName, prefix, onlyCheckPulledCol) {
         // check both fronName and backName
         var self = this;
         var tableCols = this.tableCols || [];
         var hasBackMeta = (self.backTableMeta != null &&
                           self.backTableMeta.valueAttrs != null);
-        if (prefix === "" && hasBackMeta) {
+        if (!onlyCheckPulledCol && prefix === "" && hasBackMeta) {
             // when it's immediates, when use backMeta to check
             var found = false;
             self.backTableMeta.valueAttrs.forEach(function(valueAttr) {
