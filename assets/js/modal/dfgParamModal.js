@@ -229,7 +229,7 @@ window.DFParamModal = (function($, DFParamModal){
         if (type === "filter") {
             var $list = $dfgParamModal.find('.tdWrapper.dropDownList');
 
-            var dropdownHelper = new MenuHelper($list, {
+            dropdownHelper = new MenuHelper($list, {
                 "onSelect": function($li) {
                     var func = $li.text();
                     var $input = $list.find("input.editableParamDiv");
@@ -246,10 +246,16 @@ window.DFParamModal = (function($, DFParamModal){
                                     .show();
                     $lis.prependTo($list.find('ul'));
                     $list.find('ul').width($list.width() - 1);
+
+                    //xx 10-19-2016 need to shake it or it doesn't show up
+                    $list.find('.scrollArea.bottom').css('bottom', 1);
+                    setTimeout(function() {
+                        $list.find('.scrollArea.bottom').css('bottom', 0);  
+                    });
                 },
                 "container"    : "#dfgParameterModal",
-                "bounds"       : "#dfgParameterModal",
-                "bottomPadding": 5,
+                "bounds"       : "#dfgParameterModal .modalTopMain",
+                "bottomPadding": 2,
                 "exclude"      : '.draggableDiv, .defaultParam'
             });
             dropdownHelper.setupListeners();
@@ -271,6 +277,8 @@ window.DFParamModal = (function($, DFParamModal){
             .fail(function(error) {
                 Alert.error(DFTStr.ParamModalFail, error);
             });
+        } else {
+            dropdownHelper = null;
         }
 
         modalHelper.setup();
@@ -427,8 +435,10 @@ window.DFParamModal = (function($, DFParamModal){
 
         $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
 
-        dropdownHelper.showOrHideScrollers();
-
+        if (dropdownHelper) {
+            dropdownHelper.showOrHideScrollers();
+        }
+        
         if (value === "") {
             return;
         }
