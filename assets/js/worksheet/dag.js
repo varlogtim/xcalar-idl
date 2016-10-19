@@ -3214,7 +3214,8 @@ window.Dag = (function($, Dag) {
         var numParents = 0;
         if (dagNode.api === XcalarApisT.XcalarApiJoin) {
             numParents = 2;
-        } else if (dagNode.api !== XcalarApisT.XcalarApiBulkLoad) {
+        } else if (dagNode.api !== XcalarApisT.XcalarApiBulkLoad &&
+                   dagNode.api !== XcalarApisT.XcalarApiExecuteRetina) {
             numParents = 1;
         }
         return (numParents);

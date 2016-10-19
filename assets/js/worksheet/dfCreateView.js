@@ -240,7 +240,6 @@ window.DFCreateView = (function($, DFCreateView) {
         }
     }
 
-    // XXX broken until next checkin
     function saveDataFlow(dataflowName, columns, tableName) {
         var dataflowParams = {
             "tableName": tableName,
@@ -319,6 +318,14 @@ window.DFCreateView = (function($, DFCreateView) {
                 "error": ErrTStr.DFConflict,
                 "check": function() {
                     return DF.hasDataflow(dfName);
+                }
+            },
+            {
+                "$ele" : $newNameInput,
+                "error": ErrTStr.DFNameIllegal,
+                "check": function() {
+                    var regex = new RegExp("^[a-zA-Z0-9_-]*$");
+                    return !regex.test(dfName);
                 }
             }
         ]);

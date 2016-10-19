@@ -159,6 +159,7 @@ ErrTStr = {
                         'please choose another name.',
     'DFConflict': 'A dataflow with the same name already exists, ' +
                             'please choose another name.',
+    'DFNameIllegal': 'Only names with a-z, A-Z, 0-9, - and _ are allowed.',
     'InvalidWSInList': 'Invalid worksheet name, please choose a ' +
                         'worksheet from the pop up list.',
     'OnlyNumber': 'Please input a number.',
@@ -177,7 +178,7 @@ ErrTStr = {
     'ParamInUse': 'Cannot delete, this parameter is in use.',
     'NoPreviewExcel': 'Excel files are not previewable, ' +
                       'please point to data directly without previewing.',
-    'MVFolderConflict': 'Cannot move, name conflicts with files in target ' + 
+    'MVFolderConflict': 'Cannot move, name conflicts with files in target ' +
                         'folder',
     'TimeExpire': 'Please choose a time that is in the future.',
     'LongFileName': 'File Name is too long, please use less than 255 chars.',

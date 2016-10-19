@@ -605,13 +605,13 @@ window.DagFunction = (function($, DagFunction) {
             // Join
             leftOrigin = node.struct.leftTable.tableId;
             rightOrigin = node.struct.rightTable.tableId;
-        } else if (node.api === XcalarApisT.XcalarApiBulkLoad) {
+        } else if (node.api === XcalarApisT.XcalarApiBulkLoad ||
+                   node.api === XcalarApisT.XcalarApiExecuteRetina) {
             // Load
             leftOrigin = null;
             rightOrigin = null;
             endPoints.push(treeNode);
-        } else if (node.api === XcalarApisT.XcalarApiIndex ||
-                   node.api === XcalarApisT.XcalarApiExecuteRetina) {
+        } else if (node.api === XcalarApisT.XcalarApiIndex) {
             // Index
             leftOrigin = node.struct.source.xid;
             rightOrigin = null;

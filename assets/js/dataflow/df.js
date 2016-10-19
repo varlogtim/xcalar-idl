@@ -38,7 +38,7 @@ window.DF = (function($, DF) {
                 for (j = 0; j<dataflows[retName].retinaNodes.length; i++) {
                     if (dataflows[retName].retinaNodes[j].api ===
                         XcalarApisT.XcalarApiExport) {
-                        var exportCols = dataflows[retName].retinaNodes[i].input
+                        var exportCols = dataflows[retName].retinaNodes[j].input
                                                       .exportInput.meta.columns;
                         for (var k = 0; k<exportCols.length; k++) {
                             var newCol = {};

@@ -2061,8 +2061,8 @@ Dataflow.prototype = {
             $tableNode.find(".tableTitle").text(paramInfo.paramValue)
                       .attr("title", paramInfo.paramValue)
                       .attr("data-original-title", paramInfo.paramValue);
-        } else if (paramInfo.paramType === XcalarApisT.XcalarApiBulkLoad) {
-            $tableNode.find(".tableTitle").text(paramInfo.paramValue);
+        } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter) {
+            $tableNode.find(".parentsTitle").text("<Parameterized>");
         }
         $tableNode.data('paramValue', encodeURI(paramInfo.paramValue));
     },
