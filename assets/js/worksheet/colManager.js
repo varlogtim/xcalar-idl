@@ -1303,7 +1303,7 @@ window.ColManager = (function($, ColManager) {
 
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
-                if (backColName === table.keyName) {
+                if (backColName === table.getKeyName()) {
                     indexedColNums.push(i);
                 }
             }

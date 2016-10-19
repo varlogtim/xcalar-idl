@@ -180,27 +180,39 @@ TableMeta.prototype = {
 
         XcalarGetTableMeta(self.tableName)
         .then(function(tableMeta) {
-            // Note that this !== self in this scope
-            if (tableMeta != null) {
-                self.backTableMeta = tableMeta;
-                self.ordering = tableMeta.ordering;
-
-                // update immediates
-                var valueAttrs = [];
-                if (tableMeta.valueAttrs != null) {
-                    valueAttrs = tableMeta.valueAttrs;
-                }
-                valueAttrs.forEach(function(valueAttr) {
-                    if (valueAttr.type === DfFieldTypeT.DfFatptr) {
-                        // fat pointer
-                        return;
-                    }
-                    var progCol = self.getColByBackName(valueAttr.name);
-                    if (progCol != null) {
-                        progCol.setImmediateType(valueAttr.type);
-                    }
-                });
+            if (tableMeta == null || tableMeta.valueAttrs == null) {
+                console.error("backend return error");
             }
+
+            self.backTableMeta = tableMeta;
+            self.ordering = tableMeta.ordering;
+
+            var keyAttr = tableMeta.keyAttr;
+            var keyName = keyAttr.name;
+            var valueArrayIndex = keyAttr.valueArrayIndex;
+
+            // update immediates
+            var valueAttrs = [];
+            if (tableMeta.valueAttrs != null) {
+                valueAttrs = tableMeta.valueAttrs;
+            }
+
+            var prefixOfKey = "";
+            if (valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr) {
+                prefixOfKey = valueAttrs[valueArrayIndex].name;
+            }
+            self.keyName = xcHelper.getPrefixColName(prefixOfKey, keyName);
+
+            valueAttrs.forEach(function(valueAttr) {
+                if (valueAttr.type === DfFieldTypeT.DfFatptr) {
+                    // fat pointer
+                    return;
+                }
+                var progCol = self.getColByBackName(valueAttr.name);
+                if (progCol != null) {
+                    progCol.setImmediateType(valueAttr.type);
+                }
+            });
 
             deferred.resolve();
         })
@@ -258,7 +270,6 @@ TableMeta.prototype = {
             self.resultSetCount = resultSet.numEntries;
             self.resultSetMax = resultSet.numEntries;
             self.numPages = Math.ceil(self.resultSetCount / gNumEntriesPerPage);
-            self.keyName = resultSet.keyAttrHeader.name;
 
             deferred.resolve();
         })
@@ -885,24 +896,24 @@ function UserInfoConstructor(UserInfoKeys, options) {
 function GenSettings(options) {
     options = options || {};
     var defaultSettings = {
-        hideDataCol: false,
-        memoryLimit: 70,
-        monitorGraphInterval: 3  
-    }; 
+        hideDataCol         : false,
+        memoryLimit         : 70,
+        monitorGraphInterval: 3
+    };
 
     var adminSettings = options.adminSettings || {};
     var xcSettings = options.xcSettings || {};
     this.adminSettings = adminSettings;
     this.xcSettings = xcSettings;
 
-    // adminSettings have higher priority than xcSettings, 
+    // adminSettings have higher priority than xcSettings,
     // xcSettings (xcalar admin) has higher priority than defaultSettings
 
     this.baseSettings = $.extend({}, defaultSettings, xcSettings,
                                  adminSettings);
 }
 
-GenSettings.prototype =  {
+GenSettings.prototype = {
     "getPref": function(pref) {
         return this.baseSettings[pref];
     },
@@ -920,7 +931,7 @@ GenSettings.prototype =  {
     "getAdminAndXcSettings": function() {
         return {
             adminSettings: this.adminSettings,
-            xcSettings: this.xcSettings
+            xcSettings   : this.xcSettings
         };
     },
 };
@@ -932,7 +943,7 @@ function UserPref(options) {
     this.keepJoinTables = options.keepJoinTables || false;
     this.activeMainTab = options.activeMainTab || "workspaceTab";
     this.general = options.general || {}; // holds general settings that can
-    // be set by user but if a setting is not set, will default to those in 
+    // be set by user but if a setting is not set, will default to those in
     // GenSettings
 
     return this;

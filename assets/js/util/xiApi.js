@@ -720,7 +720,7 @@ window.XIApi = (function(XIApi, $) {
         } else {
             var table = gTables[tableId];
             tableCols = table.tableCols;
-            tableKey = table.keyName;
+            tableKey = table.getKeyName();
         }
 
         checkTableKey(tableName, tableKey)

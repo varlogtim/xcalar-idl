@@ -3310,7 +3310,7 @@ window.Dag = (function($, Dag) {
                 var groupedOn;
                 var sampleStr = "";
                 if (parentTableId in gTables) {
-                    groupedOn = gTables[parentTableId].keyName;
+                    groupedOn = gTables[parentTableId].getKeyName();
                 } else {
                     // Created with backend. Tskie
                     groupedOn = "(See previous table index)";

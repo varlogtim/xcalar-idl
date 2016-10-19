@@ -1585,7 +1585,7 @@ window.TblManager = (function($, TblManager) {
 
 
         getFirstPage(table)
-        .then(function(jsonData, keyName) {
+        .then(function(jsonData) {
             if (tablesToRemove) {
                 for (var i = 0, len = tablesToRemove.length; i < len; i++) {
                     var tblId = tablesToRemove[i];
@@ -1594,7 +1594,7 @@ window.TblManager = (function($, TblManager) {
                 }
             }
             table.currentRowNumber = jsonData.length;
-            buildInitialTable(tableId, jsonData, keyName, options);
+            buildInitialTable(tableId, jsonData, options);
 
             var $table = $('#xcTable-' + tableId);
             var requiredNumRows = Math.min(gMaxEntriesPerPage,
@@ -1669,9 +1669,8 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         selectCol: number. column to be highlighted when table is ready
     */
-    function buildInitialTable(tableId, jsonData, keyName, options) {
+    function buildInitialTable(tableId, jsonData, options) {
         var table = gTables[tableId];
-        table.keyName = keyName;
 
         generateTableShell(table.tableCols, tableId);
         var numRows = jsonData.length;

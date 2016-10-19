@@ -296,7 +296,6 @@ function generateDataColumnJson(table, numRowsToFetch, retry) {
 
     XcalarGetNextPage(table.resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
-        var keyName = table.keyName;
         var kvPairs = tableOfEntries.kvPair;
         var numKvPairs = tableOfEntries.numKvPairs;
 
@@ -311,7 +310,7 @@ function generateDataColumnJson(table, numRowsToFetch, retry) {
             jsons.push(kvPairs[i].value);
         }
 
-        deferred.resolve(jsons, keyName);
+        deferred.resolve(jsons);
     })
     .fail(function(error) {
         if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
@@ -319,9 +318,7 @@ function generateDataColumnJson(table, numRowsToFetch, retry) {
             .then(function(result) {
                 table.resultSetId = result.resultSetId;
                 generateDataColumnJson(table, numRowsToFetch, true)
-                .then(function(data1, data2) {
-                    deferred.resolve(data1, data2);
-                })
+                .then(deferred.resolve)
                 .fail(function(error2) {
                     console.error("2nd attempt of generateDataColumnJson " +
                         "fails!", error2);
