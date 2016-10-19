@@ -21,7 +21,20 @@ window.UnitTest = (function(UnitTest) {
     };
 
     UnitTest.addTable = function(dsName) {
-        return TestSuite.__testOnly__.createTable(dsName);
+        var deferred = jQuery.Deferred();
+
+        // XXX this create table way doesn't make sure
+        // creating process is finishing
+        // need to refine
+        TestSuite.__testOnly__.createTable(dsName)
+        .then(function(tableName, prefix) {
+            setTimeout(function() {
+                deferred.resolve(tableName, prefix);
+            }, 500);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     // add both ds and table

@@ -1,7 +1,7 @@
 // A basic test
-mocha.timeout(5000);
+mocha.timeout(10000);
 describe('Mocha Setup Test', function() {
-    this.timeout(5000);
+    this.timeout(10000);
 
     it('Should pass Hello World Test', function() {
         expect('hello world').to.equal('hello world');

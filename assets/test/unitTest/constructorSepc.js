@@ -288,7 +288,7 @@ describe('Constructor Test', function() {
         });
     });
 
-    describe.skip('Table Constructor Test', function() {
+    describe('Table Constructor Test', function() {
         it('TableMeta Constructor should work', function() {
             var table = new TableMeta({
                 "tableName": "test#a1",

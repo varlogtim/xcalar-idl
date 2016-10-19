@@ -1,4 +1,4 @@
-describe.skip('Smarat Cast View Test', function() {
+describe('Smarat Cast View Test', function() {
     var $castView;
     var $table;
     var tableId;

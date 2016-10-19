@@ -446,7 +446,7 @@ describe('ColManager Test', function() {
             .not.to.equal(progCol.getBackColName());
         });
 
-        it.skip("Should Delete All Dups", function() {
+        it("Should Delete All Dups", function() {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);
             ColManager.dupCol(1, tableId);

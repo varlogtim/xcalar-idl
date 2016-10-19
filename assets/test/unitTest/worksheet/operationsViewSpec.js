@@ -2,13 +2,15 @@ describe('OperationsView', function() {
     // xx currently depends on table with the name "unitTestFakeYelp" to exist
     var testDs;
     var tableName;
+    var prefix;
+
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName) {
-            console.log(ds, tName);
+        .always(function(ds, tName, tPrefix) {
             testDs = ds;
             tableName = tName;
+            prefix = tPrefix;
             done();
         });
     });
@@ -199,7 +201,7 @@ describe('OperationsView', function() {
         });
 
         describe('test type checking', function() {
-            this.timeout(25000);
+            this.timeout(30000);
             // this will take a long time because we
             // test out a variety of arguments against each other and each test
             // loops through all the columns in a table each time to check if the
@@ -213,8 +215,8 @@ describe('OperationsView', function() {
                 for (var i = 0; i < someColumns.length; i++) {
                     for (var j = 0; j < someColumns.length; j++) {
                         args = [];
-                        args.push(gColPrefix + someColumns[i].name);
-                        args.push(gColPrefix + someColumns[j].name);
+                        args.push(gColPrefix + someColumns[i].getFrontColName(true));
+                        args.push(gColPrefix + someColumns[j].getFrontColName(true));
                         args.push('new_column_name');
                         testArgs.push(args);
                     }
@@ -234,8 +236,13 @@ describe('OperationsView', function() {
                 var testArgs2 = [];
                 var testArgs2Unprefixed = [];
                 for (var i = 0; i < someColumnNames.length; i++) {
-                    testArgs2.push(gColPrefix + someColumnNames[i]);
-                    testArgs2Unprefixed.push(someColumnNames[i]);
+                    colName = someColumnNames[i];
+                    if (colName !== "DATA") {
+                        colName = xcHelper.getPrefixColName(prefix, colName);
+                    }
+
+                    testArgs2.push(gColPrefix + colName);
+                    testArgs2Unprefixed.push(colName);
                 }
                 var arg1Types = [];
                 var arg2Types = [];
@@ -251,7 +258,9 @@ describe('OperationsView', function() {
                     arg1Types.push(arg1Type);
                 }
                 for (var i = 0; i < testArgs2.length; i++) {
-                    var progCol = gTables[tableId].getColByFrontName(testArgs2Unprefixed[i]);
+                    var colName = testArgs2Unprefixed[i];
+                    var progCol = gTables[tableId].getColByFrontName(colName);
+
                     if (testArgs2Unprefixed[i] === "DATA") {
                         args2Type = "object";
                     } else {
@@ -486,7 +495,9 @@ describe('OperationsView', function() {
                 var $header = $('#xcTable-' + tableId).find('th.col1 .header');
                 expect($header.find('input').val()).to.equal('yelping_since');
                 $header.click();
-                expect($argInputs.eq(0).val()).to.equal(gColPrefix + 'yelping_since');
+
+                var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+                expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
 
 
                 var $allEls = $header.find('*');
@@ -499,7 +510,7 @@ describe('OperationsView', function() {
                     $argInputs.eq(0).focus().trigger('focus').val("");
                     expect($argInputs.eq(0).val()).to.equal("");
                     $(this).click();
-                    expect($argInputs.eq(0).val()).to.equal(gColPrefix + 'yelping_since');
+                    expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                     count++;
                 });
                 expect(count).to.be.at.least(5);
@@ -615,7 +626,8 @@ describe('OperationsView', function() {
                     return ($(this).text() === "concat");
                 }).trigger(fakeEvent.click);
                 var $argInputs = $operationsView.find('.arg[type=text]:visible');
-                expect($argInputs.eq(0).val()).to.equal("$yelping_since");
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+                expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                 expect($argInputs.eq(1).val()).to.equal("");
                 expect($argInputs.eq(2).val()).to.startsWith("yelping_since_concat");
 
@@ -629,7 +641,7 @@ describe('OperationsView', function() {
                 }).trigger(fakeEvent.click);
 
                 var $argInputs = $operationsView.find('.arg[type=text]:visible');
-                expect($argInputs.eq(0).val()).to.equal("$yelping_since");
+                expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                 expect($argInputs.eq(1).val()).to.equal("");
                 expect($argInputs.eq(2).val()).to.equal("");
                 expect($argInputs.eq(3).val()).to.startsWith("yelping_since_udf");
@@ -665,6 +677,7 @@ describe('OperationsView', function() {
             });
 
             it ('string-concat should work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "string",
                     func: "concat",
@@ -672,8 +685,8 @@ describe('OperationsView', function() {
                         num: 1,
                         str: "zz"
                     }],
-                    expectedMapStr: 'concat(yelping_since, "zz")',
-                    expectedCliMapStr: 'concat(' + testDs + gPrefixSign + 'yelping_since, "zz")',
+                    expectedMapStr: 'concat(' + prefixCol + ', "zz")',
+                    expectedCliMapStr: 'concat(' + prefixCol + ', "zz")',
                     transform: function(colVal) {
                         return (colVal + this.args[0].str);
                     }
@@ -686,6 +699,7 @@ describe('OperationsView', function() {
             });
 
             it ('string-concat with empty param should not work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "string",
                     func: "concat",
@@ -693,8 +707,8 @@ describe('OperationsView', function() {
                         num: 1,
                         str: ""
                     }],
-                    expectedMapStr: 'concat(yelping_since, "")',
-                    expectedCliMapStr: 'concat(' + testDs + gPrefixSign + 'yelping_since, "")',
+                    expectedMapStr: 'concat(' + prefixCol + ', "")',
+                    expectedCliMapStr: 'concat(' + prefixCol + 'yelping_since, "")',
                     transform: null
                 };
 
@@ -722,12 +736,13 @@ describe('OperationsView', function() {
 
 
             it ('udf default:splitWithDelim should work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "user-defined",
                     func: "default:splitWithDelim",
                     args: [{num: 1,str: 1}, {num:2, str: "\"-\""}],
-                    expectedMapStr: 'default:splitWithDelim(yelping_since, 1, "-")',
-                    expectedCliMapStr: 'default:splitWithDelim(' + testDs + gPrefixSign + 'yelping_since, 1, "-")',
+                    expectedMapStr: 'default:splitWithDelim(' + prefixCol + ', 1, "-")',
+                    expectedCliMapStr: 'default:splitWithDelim(' + prefixCol + ', 1, "-")',
                     transform: function(colVal) {
                         var delim = "-";
                         var index = this.args[0].str;
@@ -742,12 +757,13 @@ describe('OperationsView', function() {
             });
 
             it ('add with string to int conversion should work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "arithmetic",
                     func: "add",
-                    args: [{num: 0,str: 'int(' + testDs + gPrefixSign + 'yelping_since, 10)'}, {num:1, str: 5}],
-                    expectedMapStr: 'add(int(' + testDs + gPrefixSign + 'yelping_since, 10), 5)',
-                    expectedCliMapStr: 'add(int(' + testDs + gPrefixSign + 'yelping_since, 10), 5)',
+                    args: [{num: 0,str: 'int(' + prefixCol + ', 10)'}, {num:1, str: 5}],
+                    expectedMapStr: 'add(int(' + prefixCol + ', 10), 5)',
+                    expectedCliMapStr: 'add(int(' + prefixCol + ', 10), 5)',
                     transform: function(colVal) {
                         return parseInt(colVal) + this.args[1].str + "";
                     }

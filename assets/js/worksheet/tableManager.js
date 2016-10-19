@@ -25,7 +25,6 @@ window.TblManager = (function($, TblManager) {
                                        worksheet, txId, options)
     {
         var deferred = jQuery.Deferred();
-
         options = options || {};
 
         if (txId != null && Transaction.checkAndSetCanceled(txId)) {
@@ -122,7 +121,6 @@ window.TblManager = (function($, TblManager) {
                         focusTable(tableId);
                     }
                 }
-
                 deferred.resolve();
             })
             .fail(function(error) {
