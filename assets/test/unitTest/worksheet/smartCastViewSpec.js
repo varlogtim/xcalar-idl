@@ -1,20 +1,32 @@
-describe('Smarat Cast View', function() {
+describe.skip('Smarat Cast View Test', function() {
     var $castView;
     var $table;
     var tableId;
+    var dsName, tableName, tableId;
 
-    before(function(){
+    before(function(done){
         $castView = $("#smartCastView");
         $resultSection = $("#multiCast-result");
         $table = $("#smartCast-table");
+
+        UnitTest.addAll(testDatasets.fakeYelp, "yelp_smartCast_test")
+        .then(function(resDS, resTable) {
+            dsName = resDS;
+            console.log(resTable)
+            tableName = resTable;
+            tableId = xcHelper.getTableId(tableName);
+            done();
+        })
+        .fail(function(error) {
+            throw error;
+        });
     });
 
     it("Should show the Cast View", function() {
-        tableId = findTestTableId();
+        console.log(tableId)
         SmartCastView.show(tableId);
 
         assert.isTrue($castView.is(":visible"));
-        // this table has now columns to suggest
         expect($table.find(".row").length).to.equal(0);
     });
 
@@ -48,5 +60,12 @@ describe('Smarat Cast View', function() {
     it("Should close the View", function() {
         SmartCastView.close();
         assert.isFalse($castView.is(":visible"));
+    });
+
+    after(function(done) {
+        UnitTest.deleteAll(tableName, dsName)
+        .always(function() {
+            done();
+        });
     });
 });

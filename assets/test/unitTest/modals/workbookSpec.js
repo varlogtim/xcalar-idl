@@ -118,7 +118,6 @@ describe('Workbook Test', function() {
             var selector = ".workbookBox:not(.loading)";
             var wkbkNum = $workbookPanel.find(selector).length;
             var $box = $workbookPanel.find(".workbookBox").eq(0);
-            var name = $box.find(".workbookName").val();
             $box.find(".duplicate").click();
 
             var checkFunc = function() {
@@ -140,8 +139,10 @@ describe('Workbook Test', function() {
 
             testChecker(checkFunc)
             .then(function() {
+                var name = $box.find(".workbookName").val();
                 var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
                 var dupName = $dupBox.find(".workbookName").val();
+
                 expect(dupName.startsWith(name)).to.be.true;
                 expect($dupBox.find(".numWorksheets").text()).to.equal("1");
                 expect($dupBox.find(".isActive").text()).to.equal("Inactive");

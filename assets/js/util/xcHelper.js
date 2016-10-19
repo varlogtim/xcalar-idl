@@ -105,7 +105,7 @@ window.xcHelper = (function($, xcHelper) {
 
     //define type of the column
     xcHelper.parseColType = function(val, oldType) {
-        var type = oldType;
+        var type = oldType || ColumnType.undefined;
 
         if (val != null && oldType !== ColumnType.mixed) {
             // note: "" is empty string
