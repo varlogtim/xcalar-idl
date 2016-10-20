@@ -20,7 +20,17 @@ require("jsdom").env("", function(err, window) {
 
 var tail = require('./tail');
 var config = require('./ldapConfig.json');
+
+var strictSecurity = false;
+var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
 var app = express();
+
+/**
+var privateKey = fs.readFileSync('cantor.int.xcalar.com.key', 'utf8');
+var certificate = fs.readFileSync('cantor.int.xcalar.com.crt', 'utf8');
+var credentials = {key: privateKey, cert:certificate};
+*/
+
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
@@ -173,22 +183,17 @@ app.post('/checkLicense', function(req, res) {
     // Call bash to check license with this
     var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
 
-    if (!out || !out.stdout) {
-        res.send({"status": Status.Error});
-        console.log("Error: Checking License");
-    } else {
-        out.stdout.on('data', function(data) {
-            if (data.indexOf("SUCCESS") > -1) {
-                res.send({"status": Status.Ok
-                          // "numNodes": blah
-                        });
-                console.log("Success: Checking License");
-            } else if (data.indexOf("FAILURE") > -1) {
-                res.send({"status": Status.Error});
-                console.log("Error: Checking License");
-            }
-        });
-    }
+    out.stdout.on('data', function(data) {
+        if (data.indexOf("SUCCESS") > -1) {
+            res.send({"status": Status.Ok
+                      // "numNodes": blah
+                    });
+            console.log("Success: Checking License");
+        } else if (data.indexOf("FAILURE") > -1) {
+            res.send({"status": Status.Error});
+            console.log("Error: Checking License");
+        }
+    });
 
 });
 
@@ -234,30 +239,22 @@ app.post("/runInstaller", function(req, res) {
 
     out = exec(execString);
 
-    var sts = Status.Ok;
+    out.stdout.on('data', stdOutCallback);
+    out.stderr.on('data', stdErrCallback);
 
-    if (!out || !out.stdout || !out.stderr) {
-        console.log("Error execing install script");
-        curStep.status = Status.Error;
-        sts = Status.Error;
-    } else {
-        out.stdout.on('data', stdOutCallback);
-        out.stderr.on('data', stdErrCallback);
+    out.on('close', function(code) {
+        // Exit code. When we fail, we return non 0
+        if (code) {
+            console.log("Oh noes!");
+            curStep.status = Status.Error;
+        } else {
+            curStep.status = Status.Done;
+        }
 
-        out.on('close', function(code) {
-            // Exit code. When we fail, we return non 0
-            if (code) {
-                console.log("Oh noes!");
-                curStep.status = Status.Error;
-            } else {
-                curStep.status = Status.Done;
-            }
-
-        });
-    }
+    });
 
     // Immediately ack after starting
-    res.send({"status": sts});
+    res.send({"status": Status.Ok});
     console.log("Immediately acking runInstaller");
 
 });
@@ -279,17 +276,29 @@ app.post("/cancelInstall", function(req, res) {
     res.send({"status": Status.Ok});
 });
 
+
+var file = "/var/log/Xcalar.log";
+
 app.post("/recentLogs", function(req, res) {
     console.log("Fetch Recent Logs");
     var credArray = req.body;
-    var file = "/var/log/Xcalar.log";
     var requireLineNum =  credArray["requireLineNum"];
-    if(!tail.isLogNumValid(requireLineNum)) {
-        res.send({"status": Status.Error,
-                  "message": "Please Enter a nonnegative integer not over 500"});
-        return;
-    }
     tail.tailByLargeBuffer(file, requireLineNum, res);
+});
+
+app.post("/monitorLogs", function(req, res) {
+    var credArray = req.body;
+    var userID =  credArray["userID"];
+    tail.createTailUser(userID);
+    tail.tailf(file, res, userID);
+});
+
+app.post("/stopMonitorLogs", function(req, res) {
+    console.log("Stop Monitoring Logs");
+    var credArray = req.body;
+    var userID =  credArray["userID"];
+    tail.removeTailUser(userID);
+    res.send({"status": Status.Ok});
 });
 
 app.post("/writeConfig", function(req, res) {
@@ -354,10 +363,6 @@ var useTLS = false;
 var searchFilter = "";
 var activeDir = false;
 var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
-
-var strictSecurity = false;
-
-var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
 
 var users = new Map();
 var loginId = 0;
