@@ -15,8 +15,10 @@ window.Admin = (function($, Admin) {
        	$userList = $menuPanel.find('.userList');
 
     	if (Admin.isAdmin()) {
-    		addListeners();
+    		addMonitorMenuPanelListeners();
     		refreshUserList();
+            updateAdminStatusBar();
+            addAdminStatusBarListeners();
     	}
     };
 
@@ -58,7 +60,13 @@ window.Admin = (function($, Admin) {
     	}
     }
 
-    function addListeners() {
+    Admin.switchUser = function(username) {
+        sessionStorage.setItem("xcalar-username", username);
+        sessionStorage.setItem("xcalar-fullUsername", username);
+        unloadHandler(false, true);
+    };
+
+    function addMonitorMenuPanelListeners() {
     	searchHelper = new SearchBar($("#adminUserSearch"), {
     		"$list": $userList.find('ul'),
             "removeSelected": function() {
@@ -90,6 +98,11 @@ window.Admin = (function($, Admin) {
             });
             xcHelper.showRefreshIcon($userList);
         	refreshUserList();
+        });
+
+        $userList.on('click', '.userLi', function() {
+            var username = $(this).text().trim();
+            Admin.switchUser(username);
         });
     }
 
@@ -214,6 +227,19 @@ window.Admin = (function($, Admin) {
         filterUserList(null);
     }
 
+    function addAdminStatusBarListeners() {
+        $('#adminStatusBar').on('click', '.xi-close', function() {
+            $('#adminStatusBar').addClass('xc-hidden');
+        });
+        $('#adminViewBtn').on('click', function() {
+            $('#adminStatusBar').removeClass('xc-hidden');
+        });
+    }
+
+    function updateAdminStatusBar() {
+        var username = Support.getUser();
+        $('#adminStatusBar').find('.username').text(username);
+    }
 
     return (Admin);
 }(jQuery, {}));
