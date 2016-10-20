@@ -1133,6 +1133,10 @@ function XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, data,
         tryCnt = 0;
     }
 
+    if (data == null) {
+        data = [];
+    }
+
     // row position start with 0
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function() {
@@ -2240,7 +2244,7 @@ function XcalarQueryWithCheck(queryName, queryString, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, queryString); 
+            Transaction.log(txId, queryString);
             deferred.resolve();
         }
     })

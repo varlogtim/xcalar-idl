@@ -409,7 +409,6 @@ window.Profile = (function($, Profile, d3) {
             XcalarGetTables(groupbyTable)
             .then(function(tableInfo) {
                 if (tableInfo == null || tableInfo.numNodes === 0) {
-                    // XXX use XcalarSetFree will crash backend...
                     statsCol.groupByInfo.isComplete = false;
                     statsCol.groupByInfo.buckets[bucketNum] = {};
 
@@ -715,7 +714,7 @@ window.Profile = (function($, Profile, d3) {
             var medianKey = statsKeyMap.median;
             var upperKey = statsKeyMap.upperQuartile;
             var fullKey = statsKeyMap.fullQuartile;
-            var resultId;
+            var tableResultsetId;
 
             if (tableOrder === XcalarOrderingT.XcalarOrderingUnordered ||
                 tableKey !== curStatsCol.colName) {
@@ -726,7 +725,7 @@ window.Profile = (function($, Profile, d3) {
 
             XcalarMakeResultSetFromTable(tableName)
             .then(function(res) {
-                resultId = res.resultSetId;
+                tableResultsetId = res.resultSetId;
                 var promises = [];
                 var numEntries = res.numEntries;
                 var lowerRowEnd;
@@ -742,20 +741,21 @@ window.Profile = (function($, Profile, d3) {
                     upperRowStart = lowerRowEnd + 1;
                 }
 
-                promises.push(getMedian.bind(this, resultId, 1, 1, zeroKey));
-                promises.push(getMedian.bind(this, resultId, 1, numEntries,
-                                             medianKey));
-                promises.push(getMedian.bind(this, resultId, 1, lowerRowEnd,
-                                             lowerKey));
-                promises.push(getMedian.bind(this, resultId, upperRowStart,
-                                             numEntries, upperKey));
-                promises.push(getMedian.bind(this, resultId, numEntries,
+                promises.push(getMedian.bind(this, tableResultsetId, 1, 1,
+                                            zeroKey));
+                promises.push(getMedian.bind(this, tableResultsetId, 1,
+                                            numEntries, medianKey));
+                promises.push(getMedian.bind(this, tableResultsetId, 1,
+                                            lowerRowEnd, lowerKey));
+                promises.push(getMedian.bind(this, tableResultsetId,
+                                        upperRowStart, numEntries, upperKey));
+                promises.push(getMedian.bind(this, tableResultsetId, numEntries,
                                              numEntries, fullKey));
 
                 return PromiseHelper.chain(promises);
             })
             .then(function() {
-                XcalarSetFree(resultId);
+                XcalarSetFree(tableResultsetId);
                 innerDeferred.resolve();
             })
             .fail(innerDeferred.reject);
@@ -763,7 +763,7 @@ window.Profile = (function($, Profile, d3) {
             return innerDeferred.promise();
         }
 
-        function getMedian(resultId, startRow, endRow, statsKey) {
+        function getMedian(tableResultsetId, startRow, endRow, statsKey) {
             var innerDeferred = jQuery.Deferred();
             var numRows = endRow - startRow + 1;
             var rowNum;
@@ -784,19 +784,15 @@ window.Profile = (function($, Profile, d3) {
             }
 
             // row position start with 0
-            XcalarSetAbsolute(resultId, rowNum - 1)
-            .then(function() {
-                return XcalarGetNextPage(resultId, rowsToFetch);
-            })
-            .then(function(tableOfEntries) {
-                var numKvPairs = tableOfEntries.numKvPairs;
-                var kvPairs = tableOfEntries.kvPair;
-
-                if (numKvPairs === rowsToFetch) {
+            var rowPosition = rowNum - 1;
+            XcalarFetchData(tableResultsetId, rowPosition, rowsToFetch, endRow)
+            .then(function(data) {
+                var numRows = data.length;
+                if (numRows === rowsToFetch) {
                     if (isNum) {
                         var sum = 0;
                         for (var i = 0; i < rowsToFetch; i++) {
-                            sum += Number(kvPairs[i].key);
+                            sum += Number(data[i].key);
                         }
 
                         var median = sum / rowsToFetch;
@@ -808,7 +804,7 @@ window.Profile = (function($, Profile, d3) {
                             curStatsCol.statsInfo[statsKey] = median;
                         }
                     } else {
-                        curStatsCol.statsInfo[statsKey] = kvPairs[0].key;
+                        curStatsCol.statsInfo[statsKey] = data[0].key;
                     }
                 } else {
                     // when the data not return correctly, don't recursive try.
@@ -967,52 +963,24 @@ window.Profile = (function($, Profile, d3) {
 
         var deferred = jQuery.Deferred();
 
-        XcalarSetAbsolute(resultSetId, rowPosition)
-        .then(function() {
-            return XcalarGetNextPage(resultSetId, rowsToFetch);
-        })
-        .then(function(tableOfEntries) {
-            var kvPairs = tableOfEntries.kvPair;
-            var numKvPairs = tableOfEntries.numKvPairs;
-            var numStillNeeds = 0;
-
-            if (numKvPairs < rowsToFetch) {
-                if (rowPosition + numKvPairs >= totalRows) {
-                    numStillNeeds = 0;
-                } else {
-                    numStillNeeds = rowsToFetch - numKvPairs;
-                }
-            }
-
-            var numRows = Math.min(rowsToFetch, numKvPairs);
-            var value;
+        XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [])
+        .then(function(data) {
+            var numRows = Math.min(rowsToFetch, data.length);
 
             for (var i = 0; i < numRows; i++) {
                 try {
-                    value = $.parseJSON(kvPairs[i].value);
+                    var value = $.parseJSON(data[i].value);
                     value.rowNum = rowPosition + 1 + i;
                     groupByData.push(value);
                 } catch (error) {
-                    console.error(error, kvPairs[i].value);
+                    console.error(error, data[i].value);
                     deferred.reject(error);
-                    return (null);
+                    return;
                 }
             }
 
-            if (numStillNeeds > 0) {
-                var newPosition;
-                if (numStillNeeds === rowsToFetch) {
-                    // fetch 0 this time
-                    newPosition = rowPosition + 1;
-                    console.warn("cannot fetch position", rowPosition);
-                } else {
-                    newPosition = rowPosition + numRows;
-                }
-
-                return fetchGroupbyData(newPosition, numStillNeeds);
-            }
+            deferred.resolve();
         })
-        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
