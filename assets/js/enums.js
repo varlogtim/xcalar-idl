@@ -91,6 +91,13 @@ var ColFormat = {
     "Percent": "percent"
 };
 
+var ColTextAlign = {
+    "Left"  : "Left",
+    "Right" : "Right",
+    "Center": "Center",
+    "Wrap"  : "Wrap"
+};
+
 var ColumnType = {
     "array": "array",
     "boolean": "boolean",

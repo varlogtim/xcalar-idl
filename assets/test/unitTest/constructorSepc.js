@@ -176,7 +176,29 @@ describe('Constructor Test', function() {
             expect(progCol.hasHidden()).to.be.true;
             progCol.unhide();
             expect(progCol.hasHidden()).to.be.false;
-        })
+        });
+
+        it("Should get and set text align", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimal" : 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Center);
+            // error case
+            progCol.setTextAlign(null);
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Center);
+            // valid case
+            progCol.setTextAlign(ColTextAlign.Left);
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Left);
+        });
 
         it("Should get and set back col name", function() {
             var progCol = new ProgCol({

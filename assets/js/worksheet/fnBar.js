@@ -648,10 +648,6 @@ window.FnBar = (function(FnBar, $) {
                 return;
             }
 
-            $colInput.closest('th').removeClass('unusedCell');
-            $table.find('td:nth-child(' + colNum + ')')
-                  .removeClass('unusedCell');
-
             var operation = getOperationFromFuncStr(newFuncStr);
             if (mainOperators.indexOf(operation) < 0) {
                 invalidOperationHandler(operation, fnBarVal);

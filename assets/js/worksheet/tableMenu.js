@@ -343,7 +343,7 @@ window.TblMenu = (function(TblMenu, $) {
                     return false;
                 }
 
-                if (ColManager.checkColDup($input, null, tableId, false, colNum))
+                if (ColManager.checkColName($input, tableId, colNum))
                 {
                     return false;
                 }

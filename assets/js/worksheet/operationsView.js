@@ -2241,15 +2241,14 @@ window.OperationsView = (function($, OperationsView) {
                     isPassing = true; // input name matches new column name
                     // which is ok
                 } else {
-                    isPassing = !ColManager.checkColDup($nameInput, null,
-                                                tableId, true);
+                    isPassing = !ColManager.checkColName($nameInput, tableId);
                 }
 
                 break;
             case ('group by'):
                 // check new col name
                 $nameInput = $activeOpSection.find('.arg:visible').eq(2);
-                isPassing = !ColManager.checkColDup($nameInput, null, tableId);
+                isPassing = !ColManager.checkColName($nameInput, tableId);
                 break;
             case ('aggregate'):
                 if (args[1].length > 1) {

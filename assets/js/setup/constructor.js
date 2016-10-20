@@ -550,7 +550,7 @@ function ProgCol(options) {
         isNewCol     : true,
         name         : "",
         sizedToHeader: true,
-        textAlign    : "Center",
+        textAlign    : ColTextAlign.Center,
         type         : ColumnType.undefined,
         userStr      : "",
         width        : gNewCellWidth
@@ -735,6 +735,18 @@ ProgCol.prototype = {
 
     hasHidden: function() {
         return this.isHidden;
+    },
+
+    getTextAlign: function() {
+        return this.textAlign;
+    },
+
+    setTextAlign: function(alignment) {
+        if (alignment == null) {
+            return;
+        }
+
+        this.textAlign = alignment;
     },
 
     isNumberCol: function() {

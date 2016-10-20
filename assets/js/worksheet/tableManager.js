@@ -2214,7 +2214,7 @@ window.TblManager = (function($, TblManager) {
                 var colNum = xcHelper.parseColNum($input);
 
                 if (colName === "" ||
-                    ColManager.checkColDup($input, null, tableId, false, colNum))
+                    ColManager.checkColName($input, tableId, colNum))
                 {
                     return false;
                 } else {

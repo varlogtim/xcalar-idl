@@ -420,6 +420,59 @@ describe('ColManager Test', function() {
             expect(table.getCol(1)).to.equal(progCol);
         });
 
+        it("Should check col name", function() {
+            var html = '<div class="unittest-checkCol">' +
+                            '<input type="text">' +
+                        '</div>';
+            var $target = $(html).appendTo($("body"));
+            var $input = $target.find("input");
+            var table = gTables[tableId];
+            var firstColName = table.getCol(1).getFrontColName();
+            var testCases = [{
+                // error case with invalid char
+                "val"    : "test^test",
+                "inValid": true
+            },
+            {
+                // error case with reserved name
+                "val"    : "DATA",
+                "inValid": true
+            },
+            {
+                // error case with reserved name
+                "val"    : "0test",
+                "inValid": true
+            },
+            {
+                // error case with duplicate name
+                "val"    : firstColName,
+                "inValid": true
+            },
+            {
+                // no error with case with duplicate name
+                "val"    : firstColName,
+                "inValid": false,
+                "colNum" : 1
+            },
+            {
+                // no error with valid name
+                "val"    : "test123",
+                "inValid": false
+            }];
+
+            testCases.forEach(function(testCase) {
+                console.log(testCase)
+                $input.val(testCase.val);
+                var colNum = testCase.colNum;
+                var res = ColManager.checkColName($input, tableId, colNum);
+                var inValid = testCase.inValid;
+                expect(res).to.equal(inValid);
+            });
+
+            $(".tooltip").hide();
+            $target.remove();
+        });
+
         it("Should Duplicate Column", function() {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);
@@ -457,30 +510,19 @@ describe('ColManager Test', function() {
             expect(getColLen(tableId) - colLen).to.equal(0);
         });
 
-        it("Should hide column", function(done) {
+        it("Should hide and unhide column", function(done) {
             var colNum = 1;
+            var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
+            var progCol = gTables[tableId].getCol(colNum);
 
             ColManager.hideCols([colNum], tableId)
             .then(function() {
-                var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
                 expect($th.outerWidth()).to.equal(gHiddenTableWidth);
-                var progCol = gTables[tableId].getCol(colNum);
                 expect(progCol.hasHidden()).to.be.true;
-                done();
+                
+                return ColManager.unhideCols([colNum], tableId);
             })
-            .fail(function(error) {
-                throw error;
-            });
-        });
-
-        it("Should unhide column", function(done) {
-            var colNum = 1;
-
-            ColManager.unhideCols([colNum], tableId)
             .then(function() {
-                var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
-                var progCol = gTables[tableId].getCol(colNum);
-
                 expect($th.outerWidth()).to.equal(progCol.getWidth());
                 expect(progCol.hasHidden()).to.be.false;
                 done();
@@ -488,6 +530,56 @@ describe('ColManager Test', function() {
             .fail(function(error) {
                 throw error;
             });
+        });
+
+        it("Should hide and unhide column with animation", function(done) {
+            var innerCahceMinMode = gMinModeOn;
+            gMinModeOn = false;
+            var colNum = 1;
+            var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
+            var progCol = gTables[tableId].getCol(colNum);
+
+            ColManager.hideCols([colNum], tableId)
+            .then(function() {
+                expect($th.outerWidth()).to.equal(gHiddenTableWidth);
+                expect(progCol.hasHidden()).to.be.true;
+                
+                return ColManager.unhideCols([colNum], tableId);
+            })
+            .then(function() {
+                expect($th.outerWidth()).to.equal(progCol.getWidth());
+                expect(progCol.hasHidden()).to.be.false;
+                gMinModeOn = innerCahceMinMode;
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should text align column", function() {
+            var colNum = 1;
+            var $td = $("#xcTable-" + tableId).find("td.col" + colNum).eq(0);
+            var progCol = gTables[tableId].getCol(colNum);
+            // case 1
+            ColManager.textAlign([colNum], tableId, "leftAlign");
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Left);
+            expect($td.hasClass("textAlignLeft")).to.be.true;
+
+            // case 2
+            ColManager.textAlign([colNum], tableId, "rightAlign");
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Right);
+            expect($td.hasClass("textAlignRight")).to.be.true;
+
+            // case 3
+            ColManager.textAlign([colNum], tableId, "wrapAlign");
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Wrap);
+            expect($td.hasClass("textAlignWrap")).to.be.true;
+
+            // case 4
+            ColManager.textAlign([colNum], tableId, "centerAlign");
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Center);
+            expect($td.hasClass("textAlignCenter")).to.be.true;
         });
 
         after(function(done) {

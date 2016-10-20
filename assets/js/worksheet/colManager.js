@@ -855,86 +855,55 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
-    // @$inputs: check $input against the names of $inputs
-    // @tableId: check $input against back column names.
-    // You do not need both $inputs and tableId
-    ColManager.checkColDup = function ($input, $inputs, tableId, parseCol,
-                                       colNum) {
-
-        var name = $input.val().trim();
-        var isDuplicate = false;
-        var title = ErrTStr.ColumnConflict;
-
-        if (parseCol) {
-            name = name.replace(/^\$/, '');
-        }
+    ColManager.checkColName = function($colInput, tableId, colNum) {
+        var columnName = $colInput.val().trim();
+        var isInvalid = false;
+        var error = ErrTStr.ColumnConflict;
+        var table = gTables[tableId];
+        var firstrChar = columnName.charAt(0);
 
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
-        if (xcHelper.hasInvalidCharInCol(name)) {
-            title = ColTStr.RenameSpecialChar;
-            isDuplicate = true;
-        } else if (name === 'DATA') {
-            title = ErrTStr.PreservedName;
-            isDuplicate = true;
+        if (xcHelper.hasInvalidCharInCol(columnName)) {
+            error = ColTStr.RenameSpecialChar;
+            isInvalid = true;
+        } else if (columnName === "DATA") {
+            error = ErrTStr.PreservedName;
+            isInvalid = true;
+        } else if (firstrChar >= "0" && firstrChar <= "9") {
+            error = ColTStr.RenameStartNum;
+            isInvalid = true;
+        } else if (table.getImmediateNames().includes(columnName)) {
+            error = ColTStr.ImmediateClash;
+            isInvalid = true;
         } else {
-            var c = name.charAt(0);
-            if (c >= '0' && c <= '9') {
-                title = ColTStr.RenameStartNum;
-                isDuplicate = true;
-            }
-        }
-
-        if (gTables[tableId].getImmediateNames().indexOf(name) !== -1) {
-            title = ColTStr.ImmediateClash;
-            isDuplicate = true;
-        }
-
-        if (!isDuplicate && $inputs) {
-            $inputs.each(function() {
-                var $checkedInput = $(this);
-                if (name === $checkedInput.val() &&
-                    $checkedInput[0] !== $input[0])
-                {
-                    isDuplicate = true;
-                    return (false);
-                }
-            });
-        }
-
-        if (!isDuplicate && tableId != null) {
-            var tableCols = gTables[tableId].tableCols;
-            var numCols = tableCols.length;
-            for (var i = 0; i < numCols; i++) {
-                if (colNum != null && colNum - 1 === i) {
+            var numCols = table.getNumCols();
+            for (var curColNum = 1; curColNum <= numCols; curColNum++) {
+                if (colNum != null && colNum === curColNum) {
                     continue;
                 }
 
+                var progCol = table.getCol(curColNum);
                 // check both backend name and front name
-                if (tableCols[i].name === name ||
-                    (!tableCols[i].isDATACol() &&
-                     tableCols[i].getBackColName() === name))
+                if (progCol.getFrontColName() === columnName ||
+                    (!progCol.isDATACol() &&
+                     progCol.getBackColName() === columnName))
                 {
-                    title = ErrTStr.ColumnConflict;
-                    isDuplicate = true;
+                    error = ErrTStr.ColumnConflict;
+                    isInvalid = true;
                     break;
                 }
             }
         }
 
-        if (isDuplicate) {
-            // var container = $input.closest('.mainPanel').attr('id');
-            // xx xi2.0 changing container to body because op view doesn't have
-            // a mainPanel parent. Not sure if this will cause tooltip placement
-            // bugs
-            var $toolTipTarget = $input.parent();
-
+        if (isInvalid) {
+            var $toolTipTarget = $colInput.parent();
             xcTooltip.transient($toolTipTarget, {
-                "title"   : title,
+                "title"   : error,
                 "template": xcTooltip.Template.Error
             });
 
-            $input.click(hideTooltip);
+            $colInput.click(hideTooltip);
 
             var timeout = setTimeout(function() {
                 hideTooltip();
@@ -943,11 +912,11 @@ window.ColManager = (function($, ColManager) {
 
         function hideTooltip() {
             $toolTipTarget.tooltip('destroy');
-            $input.off('click', hideTooltip);
+            $colInput.off('click', hideTooltip);
             clearTimeout(timeout);
         }
 
-        return (isDuplicate);
+        return isInvalid;
     };
 
     ColManager.dupCol = function(colNum, tableId) {
@@ -1230,36 +1199,37 @@ window.ColManager = (function($, ColManager) {
     ColManager.textAlign = function(colNums, tableId, alignment) {
         var cachedAlignment = alignment;
         if (alignment.indexOf("leftAlign") > -1) {
-            alignment = "Left";
+            alignment = ColTextAlign.Left;
         } else if (alignment.indexOf("rightAlign") > -1) {
-            alignment = "Right";
+            alignment = ColTextAlign.Right;
         } else if (alignment.indexOf("centerAlign") > -1) {
-            alignment = "Center";
+            alignment = ColTextAlign.Center;
         } else {
-            alignment = "Wrap";
+            alignment = ColTextAlign.Wrap;
         }
-        var table  = gTables[tableId];
-        var $table = $('#xcTable-' + tableId);
+        var table = gTables[tableId];
+        var $table = $("#xcTable-" + tableId);
         var colNames = [];
-        var numCols = colNums.length;
         var prevAlignments = [];
 
-        for (var i = 0; i < numCols; i++) {
-            var curCol = table.tableCols[colNums[i] - 1];
-            prevAlignments.push(curCol.textAlign);
-            $table.find('td.col' + colNums[i])
-                .removeClass('textAlignLeft')
-                .removeClass('textAlignRight')
-                .removeClass('textAlignCenter')
-                .removeClass('textAlignWrap')
-                .addClass('textAlign' + alignment);
-            curCol.textAlign = alignment;
-            colNames.push(curCol.name);
+        for (var i = 0, numCols = colNums.length; i < numCols; i++) {
+            var colNum = colNums[i];
+            var progCol = table.getCol(colNum);
+            prevAlignments.push(progCol.getTextAlign());
+            colNames.push(progCol.getFrontColName());
+            var $tds = $table.find("td.col" + colNum);
+
+            for (var key in ColTextAlign) {
+                $tds.removeClass("textAlign" + ColTextAlign[key]);
+            }
+
+            $tds.addClass("textAlign" + alignment);
+            progCol.setTextAlign(alignment);
         }
 
         SQL.add("Text Align", {
             "operation"      : SQLOps.TextAlign,
-            "tableName"      : table.tableName,
+            "tableName"      : table.getName(),
             "tableId"        : tableId,
             "colNames"       : colNames,
             "colNums"        : colNums,

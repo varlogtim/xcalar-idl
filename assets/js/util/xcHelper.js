@@ -559,9 +559,7 @@ window.xcHelper = (function($, xcHelper) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
         var sizedToHeader;
-        var widthOptions = {
-            defaultHeaderStyle: true
-        };
+        var widthOption = {"defaultHeaderStyle": true};
 
         if (colNum > 0) {
             var cellWidth;
@@ -571,13 +569,16 @@ window.xcHelper = (function($, xcHelper) {
                 //     cellWidth = options.width;
                 // } else
                 if (options.resize) {
-                    cellWidth = getTextWidth($(), colName, widthOptions);
+                    cellWidth = getTextWidth($(), colName, widthOption);
                 } else {
                     cellWidth = copiedCols[colNum - 1].width;
                 }
                 sizedToHeader = copiedCols[colNum - 1].sizedToHeader;
             } else {
-                cellWidth = getTextWidth(null, colName, widthOptions);
+                cellWidth = getTextWidth(null, colName, widthOption);
+                var prefixW = getTextWidth(null, CommonTxtTstr.Immediates,
+                                            widthOption);
+                cellWidth = Math.max(cellWidth, prefixW);
             }
 
             // backend will return an escaped name and then we'll have to use
