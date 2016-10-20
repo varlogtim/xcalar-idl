@@ -444,7 +444,7 @@ module.exports = {
         "Pattern": "Pattern",
         "Recursive": "Recursive",
         "Regex": "Regex",
-        "SizeLimit": "Dataset Size Limit",
+        "SizeLimit": "Dataset Size",
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
         "SkipRowsHint": "Skip the number of rows for each files in the data source",
@@ -454,7 +454,9 @@ module.exports = {
         "CreateRefHint": "Create a reference of the dataset",
         "CreateTableHint": "Create a reference of the dataset and create a table from the reference",
         "REDETECT": "REDETECT",
-        "Minimize": "Toggle minimization of form"
+        "Minimize": "Toggle minimization of form",
+        "EntireFileSize": "Entire file/folder",
+        "CustomizedSize": "Customiszed size"
     },
 
     "fileBrowser": {

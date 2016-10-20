@@ -30,8 +30,6 @@ window.FileBrowser = (function($, FileBrowser) {
     var sortRegEx;
     var reverseSort = false;
 
-    var advancedOption;
-
     FileBrowser.setup = function() {
         $fileBrowser = $("#fileBrowser");
         $container = $("#fileBrowserContainer");
@@ -44,10 +42,6 @@ window.FileBrowser = (function($, FileBrowser) {
             lowerFileLimit = 600;
             upperFileLimit = subUpperFileLimit;
         }
-
-        // advanced option
-        var $advanceOption = $fileBrowser.find(".advanceOption");
-        advancedOption = new DSFormAdvanceOption($advanceOption, "#fileBrowser");
 
         // click blank space to remove foucse on folder/dsds
         $container.on("click", function() {
@@ -255,7 +249,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     };
 
-    FileBrowser.show = function(protocol, path, advancedArgs) {
+    FileBrowser.show = function(protocol, path) {
         var deferred = jQuery.Deferred();
 
         $fileBrowser.removeClass("xc-hidden").siblings().addClass("xc-hidden");
@@ -274,7 +268,6 @@ window.FileBrowser = (function($, FileBrowser) {
         retrievePaths(path)
         .then(function() {
             measureDSIconHeight();
-            advancedOption.set(advancedArgs);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -481,7 +474,6 @@ window.FileBrowser = (function($, FileBrowser) {
             $container.removeClass("manyFiles");
             $fileBrowser.removeClass("unsortable");
             $("#fileBrowserSearch input").val("");
-            advancedOption.reset();
 
             $visibleFiles = $();
             curFiles = [];
@@ -709,20 +701,9 @@ window.FileBrowser = (function($, FileBrowser) {
             path = curDir;
         }
 
-        // advanced options
-        var advancedArgs = advancedOption.getArgs();
-        if (advancedArgs == null) {
-            // error case
-            return;
-        }
-
         var options = {
-            "path"       : path,
-            "format"     : format,
-            "previewSize": advancedArgs.previewSize,
-            "pattern"    : advancedArgs.pattern,
-            "isRecur"    : advancedArgs.isRecur,
-            "isRegex"    : advancedArgs.isRegex
+            "path"  : path,
+            "format": format,
         };
 
         DSPreview.show(options);

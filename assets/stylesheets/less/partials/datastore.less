@@ -291,7 +291,7 @@
         }
 
         .advanceSection {
-            .size(@width: 100%, @height: 50px);
+            .size(@width: 100%, @height: 85px);
 
             .advanceOption {
                 float: left;
@@ -708,24 +708,6 @@ table.datasetTable {
         }
     }
 
-    .advanceSection {
-        padding-top: 20px;
-        .size(@width: 80%);
-        margin: 0 auto;
-
-        .listInfo {
-            padding: 0;
-        }
-
-        .option {
-            padding: 0;
-        }
-
-        .label {
-            width: 150px !important;
-        }
-    }
-
     .cardBottom {
         margin: 0 10%;
         padding-right: 0;
@@ -737,7 +719,7 @@ table.datasetTable {
 
 /* File Browser */
 #fileBrowser {
-    .size(@min-width: 750px, @height: ~"calc(100% - 95px)");
+    .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
     text-transform: capitalize;
     overflow: visible;
 
@@ -764,10 +746,6 @@ table.datasetTable {
 
         .cardMain {
             .size(@height: ~"calc(100% - 360px)");
-        }
-
-        .advanceSection {
-            .size(@height: 140px);
         }
     }
 
@@ -912,7 +890,7 @@ table.datasetTable {
 
     .cardMain {
         .position(relative);
-        .size(@height: ~"calc(100% - 270px)");
+        .size(@height: ~"calc(100% - 220px)");
         padding-top: 0;
 
         .loadingSection {
@@ -1091,18 +1069,9 @@ table.datasetTable {
         }
     }
 
-    .advanceSection {
-        padding: 15px 45px;
-        .size(@height: 50px);
-
-        .option {
-            padding: 0 0 0 30px;
-        }
-    }
-
     .cardBottom {
-        .size(@height: 55px);
-        padding: 0 0 15px 0;
+        .size(@height: 70px);
+        padding: 17px 0;
 
         .btn {
             margin-right: 15px;
@@ -1125,17 +1094,20 @@ table.datasetTable {
 
             .text {
                 cursor: pointer;
+                font-weight: 600;
             }
         }
 
         .label {
-            .size(@width: 135px, @height: 30px);
+            .size(@height: 30px);
             line-height: 30px;
+            margin-right: 10px;
+            text-align: right;
         }
 
         .option {
             opacity: @opacity-hover;
-            margin-top: 10px;
+            margin-top: 15px;
             box-shadow: none;
 
             > div, > input {
@@ -1144,7 +1116,7 @@ table.datasetTable {
             }
 
             &.pattern {
-                .input-box(@w: ~"calc(100% - 350px)", @h: 30px);
+                .input-box(@w: ~"calc(100% - 385px)", @h: 30px);
 
                 input {
                     max-width: 420px;
@@ -1165,8 +1137,34 @@ table.datasetTable {
             }
 
             &.limit {
+                .size(@height: 60px);
+
+                .radioButtonGroup {
+                    .size(@height: 60px);
+                    float: left;
+
+                    .radioButton {
+                        .size(@height: 30px);
+
+                        .radioText, .radio {
+                            .size(@height: 100%);
+                            float: left;
+                        }
+
+                        .radioText {
+                            line-height: 30px;
+                        }
+
+                        .radio .icon {
+                            .vertical-align;
+                        }
+                    }
+                }
+
                 .inputWrap {
                     .input-box(@w: 80px, @h: 30px);
+                    margin-left: 10px;
+                    float: left;
                 }
 
                 .dropDownList {
@@ -1485,7 +1483,28 @@ table.datasetTable {
             }
 
             #dsForm-dsName {
-                .size(@width: 450px);
+                .size(@width: 420px);
+            }
+        }
+
+        &.advanceSection {
+            min-height: 30px;
+            height: auto;
+
+            .advanceOption {
+                .size(@width: 100%);
+
+                ul > li {
+                    padding-left: 0;
+
+                    .label {
+                        .size(@width: 170px);
+                    }
+                }
+
+                .radioButtonGroup {
+                    .size(@width: ~"calc(100% - 180px)");
+                }
             }
         }
     }

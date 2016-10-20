@@ -518,7 +518,7 @@ DSFormTStr = {
     'InvalidDelim': 'Invalid delimiter.',
     'InvalidQuote': 'Cannot have more than 1 quote character',
     'NoParseJSON': 'Cannot parse data as json',
-    'GoBack': 'Please click the \"BACK\" button to re-enter a valid path',
+    'GoBack': 'Please click the \"BACK\" button to re-enter a valid path or user a valid path pattern',
     'NoData': 'No data',
     'CreateWarn': 'Too Many Columns To Create',
     'CreateWarnMsg': 'Create table with too many columns from dataset ' +

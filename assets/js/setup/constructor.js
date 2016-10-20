@@ -991,23 +991,36 @@ function DSFormAdvanceOption($section, container) {
         "bounds"   : container
     }).setupListeners();
 
+    xcHelper.optionButtonEvent($limit, function(option) {
+        var $ele = $limit.find(".inputWrap, .dropDownList");
+        if (option === "default") {
+            $ele.addClass("xc-disabled");
+        } else {
+            $ele.removeClass("xc-disabled");
+        }
+    });
+
     var $pattern = $section.find(".option.pattern");
     $pattern.on("click", ".checkboxSection", function() {
         $(this).find(".checkbox").toggleClass("checked");
     });
 
+    this.reset();
+
     return this;
 }
 
 DSFormAdvanceOption.prototype = {
-    "reset": function() {
+    reset: function() {
         var $section = this.$section;
         $section.find("input").val("")
                 .end()
                 .find(".checked").removeClass("checked");
+
+        this.set();
     },
 
-    "set": function(options) {
+    set: function(options) {
         options = options || {};
 
         var $section = this.$section;
@@ -1032,9 +1045,16 @@ DSFormAdvanceOption.prototype = {
 
         if (options.previewSize != null && options.previewSize > 0) {
             hasSet = true;
+            $limit.find(".radioButton[data-option='custom']").click();
             $limit.find(".unit").val(options.unit);
             $limit.find(".size").val(options.sizeText);
+        } else {
+            $limit.find(".radioButton[data-option='default']").click();
 
+            // XXX use user setting's value for it
+            // instead of hard code
+            $limit.find(".unit").val("GB");
+            $limit.find(".size").val(10);
         }
 
         if (hasSet && !$section.hasClass("active")) {
@@ -1042,22 +1062,28 @@ DSFormAdvanceOption.prototype = {
         }
     },
 
-    "getArgs": function() {
+    getArgs: function() {
         var $section = this.$section;
         var $limit = $section.find(".option.limit");
-        var size = $limit.find(".size").val();
-        var $unit = $limit.find(".unit");
-        var unit = $unit.val();
-        // validate preview size
-        if (size !== "" && unit === "") {
-            if (!$section.hasClass("active")) {
-                $section.find(".listInfo .expand").click();
-            }
-            StatusBox.show(ErrTStr.NoEmptyList, $unit, false);
-            return null;
-        }
+        var $radioButton = $limit.find(".radioButton[data-option='custom']");
+        var previewSize = 0; // default size
+        var size = "";
+        var unit = "";
 
-        var previewSize = xcHelper.getPreviewSize(size, unit);
+        if ($radioButton.hasClass("active")) {
+            size = $limit.find(".size").val();
+            var $unit = $limit.find(".unit");
+            unit = $unit.val();
+            // validate preview size
+            if (size !== "" && unit === "") {
+                if (!$section.hasClass("active")) {
+                    $section.find(".listInfo .expand").click();
+                }
+                StatusBox.show(ErrTStr.NoEmptyList, $unit, false);
+                return null;
+            }
+            previewSize = xcHelper.getPreviewSize(size, unit);
+        }
 
         var $pattern = $section.find(".option.pattern");
         var pattern = $pattern.find(".input").val().trim();
@@ -1084,7 +1110,7 @@ function DSFormController() {
 }
 
 DSFormController.prototype = {
-    "set": function(options) {
+    set: function(options) {
         optoins = options || {};
 
         if (options.path != null) {
@@ -1094,25 +1120,9 @@ DSFormController.prototype = {
         if (options.format != null) {
             this.format = options.format;
         }
-
-        if (options.previewSize != null) {
-            this.previewSize = options.previewSize;
-        }
-
-        if (options.pattern != null) {
-            this.pattern = options.pattern;
-        }
-
-        if (options.isRecur != null) {
-            this.isRecur = options.isRecur;
-        }
-
-        if (options.isRegex != null) {
-            this.isRegex = options.isRegex;
-        }
     },
 
-    "reset": function() {
+    reset: function() {
         this.fieldDelim = "";
         this.lineDelim = "\n";
         this.hasHeader = false;
@@ -1120,45 +1130,25 @@ DSFormController.prototype = {
 
         delete this.path;
         delete this.format;
-        delete this.previewSize;
-        delete this.pattern;
-        delete this.isRecur;
-        delete this.isRegex;
     },
 
-    "getPath": function() {
+    getPath: function() {
         return this.path;
     },
 
-    "getPattern": function() {
-        return this.pattern;
-    },
-
-    "getPreviewSize": function() {
-        return this.previewSize;
-    },
-
-    "getFormat": function() {
+    getFormat: function() {
         return this.format;
     },
 
-    "setFormat": function(format) {
+    setFormat: function(format) {
         this.format = format;
     },
 
-    "useRegex": function() {
-        return this.isRegex;
-    },
-
-    "useRecur": function() {
-        return this.isRecur;
-    },
-
-    "useHeader": function() {
+    useHeader: function() {
         return this.hasHeader;
     },
 
-    "setHeader": function(hasHeader) {
+    setHeader: function(hasHeader) {
         if (hasHeader == null) {
             this.hasHeader = !this.hasHeader;
         } else {
@@ -1166,27 +1156,27 @@ DSFormController.prototype = {
         }
     },
 
-    "setFieldDelim": function(fieldDelim) {
+    setFieldDelim: function(fieldDelim) {
         this.fieldDelim = fieldDelim;
     },
 
-    "getFieldDelim": function() {
+    getFieldDelim: function() {
         return this.fieldDelim;
     },
 
-    "setLineDelim": function(lineDelim) {
+    setLineDelim: function(lineDelim) {
         this.lineDelim = lineDelim;
     },
 
-    "getLineDelim": function() {
+    getLineDelim: function() {
         return this.lineDelim;
     },
 
-    "setQuote": function(quote) {
+    setQuote: function(quote) {
         this.quote = quote;
     },
 
-    "getQuote": function() {
+    getQuote: function() {
         return this.quote;
     }
 };
@@ -2533,7 +2523,7 @@ SearchBar.prototype = {
             $list.scrollTop(matchOffsetTop + scrollTop - (listHeight / 2) + 30);
         } else if (matchOffsetTop < -5) {
             $list.scrollTop(scrollTop + matchOffsetTop - (listHeight / 2));
-        } 
+        }
     },
     updateResults: function($matches) {
         var searchBar = this;

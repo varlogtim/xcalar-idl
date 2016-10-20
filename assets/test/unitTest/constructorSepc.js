@@ -761,42 +761,49 @@ describe('Constructor Test', function() {
     });
 
      
-    describe("DSFormAdvanceOption Constructor, Test", function() {
+    describe("DSFormAdvanceOption Constructor Test", function() {
         var advanceOption;
         var $section;
         var $limit;
         var $pattern;
 
         before(function() {
-            var html = '<section>' +
-                            '<div class="listInfo no-selection">' +
-                                '<span class="expand"></span>' +
+            var html =
+            '<section>' +
+                '<div class="listInfo no-selection">' +
+                    '<span class="expand"></span>' +
+                '</div>' +
+                '<ul>' +
+                    '<li class="limit option">' +
+                        '<div class="radioButtonGroup">' +
+                            '<div class="radioButton" ' +
+                            'data-option="default"></div>' +
+                            '<div class="radioButton" data-option="custom">' +
+                                '<input class="size" type="number">' +
+                                '<div class="dropDownList">' +
+                                    '<input class="text unit">' +
+                                    '<div class="list">' +
+                                        '<ul>' +
+                                          '<li>B</li>' +
+                                        '</ul>' +
+                                    '</div>' +
+                                '</div>' +
                             '</div>' +
-                            '<ul>' +
-                                '<li class="limit option">' +
-                                    '<input class="size" type="number">' +
-                                    '<div class="dropDownList">' +
-                                        '<input class="text unit">' +
-                                        '<div class="list">' +
-                                            '<ul>' +
-                                              '<li>B</li>' +
-                                            '</ul>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</li>' +
-                                '<li class="pattern option">' +
-                                    '<input type="text" class="input">' +
-                                    '<div class="recursive checkboxSection">' +
-                                        '<div>Recursive</div>' +
-                                        '<div class="checkbox"></div>' +
-                                    '</div>' +
-                                    '<div class="regex checkboxSection">' +
-                                        '<div>Regex</div>' +
-                                        '<div class="checkbox"></div>' +
-                                    '</div>' +
-                                '</li>' +
-                            '</ul>' +
-                        '</section>';
+                        '</div>' +
+                    '</li>' +
+                    '<li class="pattern option">' +
+                        '<input type="text" class="input">' +
+                        '<div class="recursive checkboxSection">' +
+                            '<div>Recursive</div>' +
+                            '<div class="checkbox"></div>' +
+                        '</div>' +
+                        '<div class="regex checkboxSection">' +
+                            '<div>Regex</div>' +
+                            '<div class="checkbox"></div>' +
+                        '</div>' +
+                    '</li>' +
+                '</ul>' +
+            '</section>';
             $section = $(html);
             $limit = $section.find(".option.limit");
             $pattern = $section.find(".option.pattern");
@@ -824,13 +831,23 @@ describe('Constructor Test', function() {
             $pattern.find(".recursive.checkboxSection").click();
             expect($pattern.find(".recursive .checkbox").hasClass("checked"))
             .to.be.true;
+
+            // radio
+            var $radioButton = $limit.find(".radioButton[data-option='custom']");
+            $radioButton.click();
+            expect($radioButton.hasClass("active")).to.be.true;
         });
 
         it("Should reset options", function() {
             advanceOption.reset();
-            expect($limit.find(".unit").val()).to.equal("");
+            // XXX change test when use Usersetting to set default size
+            expect($limit.find(".size").val()).to.equal("10");
+            expect($limit.find(".unit").val()).to.equal("GB");
             expect($pattern.find(".recursive .checkbox").hasClass("checked"))
             .to.be.false;
+
+            $radioButton = $limit.find(".radioButton[data-option='default']");
+            expect($radioButton.hasClass("active")).to.be.true;
         });
 
         it("Should set options", function() {
@@ -853,6 +870,17 @@ describe('Constructor Test', function() {
         });
 
         it("Should get args", function() {
+            advanceOption.reset();
+
+            advanceOption.set({
+                "pattern"    : "testPattern",
+                "isRecur"    : true,
+                "isRegex"    : true,
+                "previewSize": 123,
+                "unit"       : "B",
+                "sizeText"   : "123"
+            });
+
             var res = advanceOption.getArgs();
             expect(res).to.be.an("object");
             expect(Object.keys(res).length).to.equal(6);
@@ -875,11 +903,14 @@ describe('Constructor Test', function() {
             expect(res).to.have.property("unit")
             .and.to.equal("B");
 
+            // case 2
+            var $radioButton = $limit.find(".radioButton[data-option='custom']");
             advanceOption.reset();
             res = advanceOption.getArgs();
             expect(res).to.have.property("pattern")
             .and.to.be.null;
 
+            $radioButton.click();
             $limit.find(".unit").val("");
             $limit.find(".size").val("123");
             res = advanceOption.getArgs();
@@ -896,20 +927,12 @@ describe('Constructor Test', function() {
         expect(Object.keys(controller).length).to.equal(0);
 
         controller.set({
-            "path"       : "testPath",
-            "format"     : "testFormat",
-            "previewSize": 123,
-            "pattern"    : "testPattern",
-            "isRecur"    : true,
-            "isRegex"    : false
+            "path"  : "testPath",
+            "format": "testFormat"
         });
 
         expect(controller.getPath()).to.equal("testPath");
-        expect(controller.getPattern()).to.equal("testPattern");
-        expect(controller.getPreviewSize()).to.equal(123);
         expect(controller.getFormat()).to.equal("testFormat");
-        expect(controller.useRegex()).to.be.false;
-        expect(controller.useRecur()).to.be.true;
 
         // set format
         controller.setFormat("testFormat2");

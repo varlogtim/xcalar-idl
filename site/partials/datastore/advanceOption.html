@@ -9,27 +9,45 @@
     <!-- preview limit -->
     <li class="limit option">
       <div class="label"><%= dicts.dsForm.SizeLimit %>:</div>
-      <div class="inputWrap">
-        <input class="size textOverflowOneLine" type="number">
-      </div>
-      <div class="dropDownList">
-        <input class="text unit" type="text" spellcheck="false" disabled>
-        <div class="iconWrapper">
-          <i class="icon xi-arrow-down"></i>
-        </div>
-        <div class="list">
-          <ul>
-            <li>B</li>
-            <li>KB</li>
-            <li>MB</li>
-            <li>GB</li>
-            <li>TB</li>
-          </ul>
-          <div class="scrollArea top">
-            <div class="arrow"></div>
+      <div class="radioButtonGroup">
+        <!-- button1 -->
+        <div class="radioButton" data-option="default">
+          <div class="radio">
+            <i class="icon xi-radio-selected"></i>
+            <i class="icon xi-radio-empty"></i>
           </div>
-          <div class="scrollArea bottom">
-            <div class="arrow"></div>
+          <div class="radioText"><%= dicts.dsForm.EntireFileSize %></div>
+        </div>
+        <!-- button2 -->
+        <div class="radioButton" data-option="custom">
+          <div class="radio">
+            <i class="icon xi-radio-selected"></i>
+            <i class="icon xi-radio-empty"></i>
+          </div>
+          <div class="radioText"><%= dicts.dsForm.CustomizedSize %></div>
+          <div class="inputWrap">
+            <input class="size textOverflowOneLine" type="number">
+          </div>
+          <div class="dropDownList">
+            <input class="text unit" type="text" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul>
+                <li>B</li>
+                <li>KB</li>
+                <li>MB</li>
+                <li>GB</li>
+                <li>TB</li>
+              </ul>
+              <div class="scrollArea top">
+                <div class="arrow"></div>
+              </div>
+              <div class="scrollArea bottom">
+                <div class="arrow"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

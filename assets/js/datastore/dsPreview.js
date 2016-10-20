@@ -26,6 +26,7 @@ window.DSPreview = (function($, DSPreview) {
     var highlighter = "";
 
     var loadArgs = new DSFormController();
+    var advanceOption;
     var detectArgs = {};
 
     // UI cache
@@ -68,6 +69,9 @@ window.DSPreview = (function($, DSPreview) {
         $udfFuncList = $("#udfArgs-funcList");
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
+
+        var $advanceOption = $form.find(".advanceOption");
+        advanceOption = new DSFormAdvanceOption($advanceOption, "#dsForm-preview");
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -145,6 +149,7 @@ window.DSPreview = (function($, DSPreview) {
 
         resetForm();
         loadArgs.set(options);
+        advanceOption.set(optoins);
 
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
@@ -485,6 +490,7 @@ window.DSPreview = (function($, DSPreview) {
         $form.find(".checkbox.checked").removeClass("checked");
         // keep the current protocol
         loadArgs.reset();
+        advanceOption.reset();
         detectArgs = {
             "fieldDelim": "",
             "lineDelim" : "\n",
@@ -523,10 +529,11 @@ window.DSPreview = (function($, DSPreview) {
         var header = loadArgs.useHeader();
 
         var loadURL = loadArgs.getPath();
-        var pattern = loadArgs.getPattern();
-        var isRecur = loadArgs.useRecur();
-        var isRegex = loadArgs.useRegex();
-        var previewSize = loadArgs.getPreviewSize();
+        var advanceArgs = advanceOption.getArgs();
+        var pattern = advanceArgs.pattern;
+        var isRecur = advanceArgs.isRecur;
+        var isRegex = advanceArgs.isRegex;
+        var previewSize = advanceArgs.previewSize;
 
         // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
         //     header, loadURL, quote, skipRows, isRecur, isRegex, previewSize);
@@ -605,16 +612,16 @@ window.DSPreview = (function($, DSPreview) {
                 }
             },
             {
-                "$ele"     : $dsName,
-                "formMode" : true,
-                "error"    : ErrTStr.DSNameConfilct,
-                "check"    : DS.has
+                "$ele"    : $dsName,
+                "formMode": true,
+                "error"   : ErrTStr.DSNameConfilct,
+                "check"   : DS.has
             },
             {
-                "$ele"     : $dsName,
-                "formMode" : true,
-                "error"    : ErrTStr.NoSpecialCharOrSpace,
-                "check"    : function() {
+                "$ele"    : $dsName,
+                "formMode": true,
+                "error"   : ErrTStr.NoSpecialCharOrSpace,
+                "check"   : function() {
                     return (!/^\w+$/.test(dsName));
                 }
             }
@@ -980,13 +987,16 @@ window.DSPreview = (function($, DSPreview) {
         var loadURL = loadArgs.getPath();
         var dsName = getNameFromPath(loadURL);
         $("#dsForm-dsName").val(dsName);
-        var pattern = loadArgs.getPattern();
+
+        var advanceArgs = advanceOption.getArgs();
+        var pattern = advanceArgs.pattern;
         if (pattern != null) {
             loadURL += pattern;
         }
 
-        var isRecur = loadArgs.useRecur();
-        var isRegex = loadArgs.useRegex();
+        var isRecur = advanceArgs.isRecur;
+        var isRegex = advanceArgs.isRegex;
+        var previewSize = advanceArgs.previewSize;
         var hasUDF = false;
 
         if (udfModule && udfFunc) {
@@ -1028,7 +1038,7 @@ window.DSPreview = (function($, DSPreview) {
         var promise;
         if (hasUDF) {
             promise = loadDataWithUDF(txId, loadURL, dsName,
-                                        udfModule, udfFunc, isRecur);
+                                    udfModule, udfFunc, isRecur, previewSize);
         } else {
             promise = loadData(loadURL, isRecur, isRegex);
         }
@@ -1156,14 +1166,12 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur) {
+    function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur, previewSize) {
         var deferred = jQuery.Deferred();
         var loadError = null;
 
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
-
-        var previewSize = loadArgs.getPreviewSize();
 
         XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
                     false, udfModule, udfFunc, isRecur,
