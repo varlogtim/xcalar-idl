@@ -23,6 +23,9 @@ window.UnitTest = (function(UnitTest) {
     UnitTest.addTable = function(dsName) {
         var deferred = jQuery.Deferred();
 
+        if (!$("#dataStoresTab").hasClass("active")) {
+            $("#dataStoresTab").click();
+        }
         // XXX this create table way doesn't make sure
         // creating process is finishing
         // need to refine

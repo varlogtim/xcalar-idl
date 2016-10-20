@@ -461,7 +461,6 @@ describe('ColManager Test', function() {
             }];
 
             testCases.forEach(function(testCase) {
-                console.log(testCase)
                 $input.val(testCase.val);
                 var colNum = testCase.colNum;
                 var res = ColManager.checkColName($input, tableId, colNum);
@@ -469,7 +468,7 @@ describe('ColManager Test', function() {
                 expect(res).to.equal(inValid);
             });
 
-            $(".tooltip").hide();
+            $(".tooltip.error").tooltip("destroy");
             $target.remove();
         });
 

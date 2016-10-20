@@ -1,4 +1,4 @@
-describe('Worksheet Interactivity', function() {
+describe('Worksheet Teset', function() {
     var $tabs;
     var minModeCache;
 
@@ -43,17 +43,23 @@ describe('Worksheet Interactivity', function() {
     });
 
     describe('Worksheet Scrolling', function() {
+        var dsName, table1, table2;
+
         before(function(done) {
             ensureWorksheetsExist(2);
-            ensureTableExists(1)
-            .then(function() {
+
+            UnitTest.addAll(testDatasets.schedule, "unitTestWorksheet1")
+            .then(function(resDS, resTable) {
+                dsName = resDS;
+                table1 = resTable;
                 // switch to second to last worksheet
                 var $tab = $('#worksheetTabs').find('.worksheetTab')
                                               .last().prev();
                 $tab.trigger(fakeEvent.mousedown);
-                return (ensureTableExists(1));
+                return UnitTest.addTable(resDS);
             })
-            .then(function() {
+            .then(function(resTable) {
+                table2 = resTable;
                 done();
             });
         });
@@ -95,30 +101,25 @@ describe('Worksheet Interactivity', function() {
 
             expect(scrolledToEnd || correctTable).to.equal(true);
         });
+
+        after(function(done) {
+            UnitTest.deleteTable(table2)
+            .then(function() {
+                return UnitTest.deleteAll(table1, dsName)
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
     });
 
     after(function() {
         gMinModeOn = minModeCache;
     });
 });
-
-function ensureTableExists(minNumTables) {
-    var deferred = jQuery.Deferred();
-    var reqNumTables = minNumTables || 1;
-    var numTables = $('.xcTableWrap:not(.inActive)').length;
-    var numTablesNeeded = Math.max(0, reqNumTables - numTables);
-    var promises = [];
-    if (numTablesNeeded > 0) {
-        for (var i = 0; i < numTablesNeeded; i++) {
-            promises.push(autoAddTable);
-        }
-        PromiseHelper.chain(promises).
-        then(deferred.resolve);
-    } else {
-        deferred.resolve();
-    }
-    return deferred.promise();
-}
 
 function ensureWorksheetsExist(minNumWS) {
     var reqNumWS = minNumWS || 1;
@@ -129,45 +130,5 @@ function ensureWorksheetsExist(minNumWS) {
             $('#addWorksheet').click();
         }
     }
-}
-
-function autoAddTable() {
-    var deferred = jQuery.Deferred();
-    var dsName;
-    var datasetExists = doesDatasetExist("testsuiteschedule");
-    var promise;
-
-    $('#dataStoresTab').click();
-    if (datasetExists) {
-        var dsIcon = '#dsListSection .gridItems ' +
-                 '.grid-unit:contains(testsuiteschedule):eq(0)';
-        var $dsIcon = $(dsIcon);
-        dsName = $dsIcon.text();
-        promise = PromiseHelper.resolve();
-    } else {
-        dsName = "testsuiteschedule" + Math.floor(Math.random() * 10000);
-
-        var url = "var/tmp/qa/indexJoin/schedule";
-        var check = "#previewTable td:eq(1):contains(1)";
-        promise = TestSuite.__testOnly__.loadDS(dsName, url, check);
-    }
-
-    promise
-    .then(function() {
-        return TestSuite.__testOnly__.createTable(dsName);
-    })
-    .then(function() {
-        $("#mainTab").click();
-        deferred.resolve();
-    })
-    .fail(deferred.reject);
-
-    return deferred.promise();
-}
-
-function doesDatasetExist(dsName) {
-    var numDS = $('#dsListSection .gridItems')
-                    .find('.grid-unit:contains(' + dsName + ')').length;
-    return (numDS > 0);
 }
 

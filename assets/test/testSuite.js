@@ -429,11 +429,20 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             $("#selectDSCols").click();
 
-            tableName = $("#dataCart .tableNameEdit").val();
-            header = ".tableTitle .tableName[value='" + tableName + "']";
+            var nestDeffered = jQuery.Deferred();
 
-            $("#dataCart-submit").click();
-            return checkExists(header);
+            setTimeout(function() {
+                tableName = $("#dataCart .tableNameEdit").val();
+                header = ".tableTitle .tableName[value='" + tableName + "']";
+
+                $("#dataCart-submit").click();
+
+                checkExists(header)
+                .then(nestDeffered.resolve)
+                .fail(nestDeffered.erject);
+            }, 300);
+
+            return nestDeffered.promise();
         })
         .then(function() {
             var $header = $(header);
