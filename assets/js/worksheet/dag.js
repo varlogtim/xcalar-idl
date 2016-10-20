@@ -1277,8 +1277,7 @@ window.Dag = (function($, Dag) {
             DagFunction.construct(dagObj, tableId);
             if (tablesToRemove) {
                 for (var i = 0, len = tablesToRemove.length; i < len; i++) {
-                    var tblId = tablesToRemove[i];
-                    $('#dagWrap-' + tblId).remove();
+                    $('#dagWrap-' + tablesToRemove[i]).remove();
                 }
             }
             var isWorkspacePanelVisible = $('#workspacePanel')
@@ -1289,14 +1288,6 @@ window.Dag = (function($, Dag) {
             }
             if (!isDagPanelVisible) {
                 $('#dagPanel').removeClass('invisible');
-            }
-
-            if (tablesToRemove) {
-                var tblId;
-                for (var i = 0, len = tablesToRemove.length; i < len; i++) {
-                    tblId = tablesToRemove[i];
-                    $('#dagWrap-' + tblId).remove();
-                }
             }
 
             var outerDag =
@@ -1826,38 +1817,24 @@ window.Dag = (function($, Dag) {
             var $name = $li.find('.name');
             $dagSchema.find('li.selected').removeClass('selected');
             $li.addClass('selected');
-            var tableId = $dagSchema.data('tableid');
+            var tableId   = $dagSchema.data('tableid');
             var $dagTable = $dagSchema.data('$dagTable');
-            var $dagWrap = $dagTable.closest('.dagWrap');
-            var cols = gTables[tableId].tableCols;
-            var name = $name.text();
-            var func;
-            var backName;
-            var colNum = $li.index();
-            var numCols = $dagSchema.find('.numCols').text().substr(1);
-            numCols = parseInt(numCols);
-
-            for (var i = colNum; i <= numCols; i++) {
-                if (cols[i].name === name) {
-                    func = cols[i].func;
-                    backName = cols[i].getBackColName();
-                    if (backName == null) {
-                        backName = name;
-                    }
-                    break;
-                }
+            var index     = parseInt($dagTable.data('index'));
+            var $dagWrap  = $dagTable.closest('.dagWrap');
+            var nodes     = $dagWrap.data('allDagInfo').nodes;
+            var name      = $name.text();
+            var progCol = gTables[tableId].getColByFrontName(name);
+            var backName  = $name.data('backname');
+            if (!backName) {
+                backName = name;
             }
 
-            var sourceColNames = getSourceColNames(func);
-
+            var sourceColNames = getSourceColNames(progCol.func);
             $('.columnOriginInfo').remove();
             $dagPanel.find('.highlighted').removeClass('highlighted');
-            var parents = $dagTable.data('parents').split(',');
-            addRenameColumnInfo(name, backName, $dagTable, $dagWrap);
-            highlightColumnSource(tableId, $dagWrap, name);
-            findColumnSource(name, sourceColNames, tableId, parents, $dagWrap,
-                             backName);
-            removeDuplicatedHighlightedDataStores($dagTable);
+            addRenameColumnInfo(progCol, index, $dagWrap);
+            highlightColumnSource($dagWrap, index);
+            findColumnSource(sourceColNames, $dagWrap, index, nodes, backName);
             $(document).mousedown(closeDagHighlight);
         });
 
@@ -1868,7 +1845,6 @@ window.Dag = (function($, Dag) {
     Dag.showSchema = function($dagTable) {
         var tableId = $dagTable.data('id');
         var table = gTables[tableId];
-        // var $dagWrap = $dagTable.closest('.dagWrap');
         var $schema = $('#dagSchema');
         var tableName;
         var numCols;
@@ -1896,12 +1872,16 @@ window.Dag = (function($, Dag) {
         var html = '';
 
         for (var i = 0; i < numCols; i++) {
+            if (numCols === 1) {
+                continue;
+            }
             var progCol = table.tableCols[i];
-            if (numCols === 1 || progCol.isDATACol()) {
+            if (progCol.isDATACol()) {
                 continue;
             }
             var type = progCol.getType();
             var name = progCol.getFrontColName(true);
+            var backName = progCol.getBackColName();
             html += '<li>' +
                         '<div>' +
                         '<span class="iconWrap">' +
@@ -1909,7 +1889,8 @@ window.Dag = (function($, Dag) {
                         '</span>' +
                         '<span class="text">' + type + '</span>' +
                         '</div>' +
-                        '<div title="' + name + '" class="name">' +
+                        '<div title="' + name + '" class="name" ' +
+                        'data-backname="' + backName + '">' +
                             name + '</div>' +
                         // '<div>' +
                         // // XX SAMPLE DATA GOES HERE
@@ -1918,7 +1899,6 @@ window.Dag = (function($, Dag) {
         }
         if (numCols === 1) {
             html += '<span class="noFields">No fields present</span>';
-
         }
 
         $schema.find('ul').html(html);
@@ -2083,7 +2063,6 @@ window.Dag = (function($, Dag) {
         var nodes = allDagInfo.nodes;
         var group = groupInfo.group;
         var $dagImage = $dagWrap.find('.dagImage');
-        var dagImageWidth = $dagImage.outerWidth();
         var prevScrollLeft = $dagImage.parent().scrollLeft();
         var numGroupNodes = group.length;
         var storedInfo = {
@@ -2613,7 +2592,6 @@ window.Dag = (function($, Dag) {
                 }
             }
         }
-
         return (names);
     }
 
@@ -2634,12 +2612,16 @@ window.Dag = (function($, Dag) {
         $(document).off('mousedown', closeDagHighlight);
     }
 
-    function addRenameColumnInfo(name, backName, $dagTable, $dagWrap) {
+    function addRenameColumnInfo(col, index, $dagWrap) {
+        var name = col.name;
+        var backName = col.getBackColName();
         if (name !== backName) {
             var msg = 'renamed ' + backName + ' to ' + name;
             $dagWrap.find(".columnOriginInfo[data-rename='" + msg + "']")
                     .remove();
 
+            var $dagTable = $dagWrap.find('.dagTable[data-index="' + index +
+                                            '"]');
             var rect = $dagTable[0].getBoundingClientRect();
             var top = rect.top - 35;
             var left = rect.left;
@@ -2653,132 +2635,93 @@ window.Dag = (function($, Dag) {
         }
     }
 
-    // currently we highlight all source tables even if they're not in the
-    // currect branch. This function unhiglights those that are in a diff branch
-    function removeDuplicatedHighlightedDataStores($dagTable) {
-        if ($('.dagTable.highlighted').length > 1) {
-            var id = parseInt($dagTable.data('index'));
-            $('.dagTable.highlighted').each(function() {
-                var children = $(this).data('children');
-                if (typeof children === "string") {
-                    children = children.split(",");
-                } else {
-                    children = [children];
-                }
-                for (var i = 0; i < children.length; i++) {
-                    children[i] = parseInt(children[i]);
-                }
-                if (children.indexOf(id) === -1) {
-                    $(this).removeClass('highlighted');
-                }
-            });
-        }
-    }
-
-    function findColumnSource(name, sourceColNames, child, parentTables,
-                              $dagWrap, prevName) {
-        var tableId;
-        var parentTable;
-        for (var i = 0; i < parentTables.length; i++) {
+    // sourceColNames is an array of the names we're searching for lineage
+    // index is the table's dataflow graph data-index
+    // nodes is an array of all the tables. nodes[index] gets the table info
+    //          with nodes[0] being the most recent table on the far right
+    function findColumnSource(sourceColNames, $dagWrap, index, nodes, curColName) {
+        var tables = nodes[index].parents;
+        var tableIndex;
+        var tableNode;
+        var tableName;
+        // look through the parent tables
+        for (var i = 0; i < tables.length; i++) {
+            tableIndex = tables[i];
+            tableNode = nodes[tableIndex];
+            tableName = tableNode.name;
             var table;
-            parentTable = parentTables[i];
-            var parentIsDataSet = false;
-            if (parentTable.indexOf(gDSPrefix) === 0) {
-                table = false;
-                parentIsDataSet = true;
-            } else {
-                tableId = xcHelper.getTableId(parentTable);
-                table = gTables[tableId];
+            if (tableNode.numParents > 0) {
+                table = gTables[xcHelper.getTableId(tableName)];
             }
 
-            var $dagTable;
-            var parents;
             if (table) {
                 var cols = table.tableCols;
-                var numCols = cols.length;
                 var numSourceCols = sourceColNames.length;
-                var colsFound = 0;
+                var numColsFound = 0;
 
-                for (var j = 0; j < numCols; j++) {
+                for (var j = 0; j < cols.length; j++) {
                     // skip DATA COL
                     if (cols[j].isDATACol()) {
                         continue;
                     }
+                    var backColName = cols[j].getBackColName();
+                    //XX backColName could be blank 
+                    var srcNames = getSourceColNames(cols[j].func);
 
-                    for (var k = 0; k < numSourceCols; k++) {
+                    for (var k = 0; k < sourceColNames.length; k++) {
                         var colName = sourceColNames[k];
-                        var backColName = cols[j].getBackColName();
-                        //XX backColName could be blank
+                        var found = false;
                         if (colName === backColName) {
-                            highlightColumnHelper(tableId, $dagWrap, cols[j],
-                                                  sourceColNames);
-                            colsFound++;
-                            break;
+                            highlightColumnHelper($dagWrap, cols[j], srcNames,
+                                                    tableIndex, nodes);
+                            found = true;
                         } else {
-                            var colArgs = getSourceColNames(cols[j].func);
-                            var found = false;
-                            for (var l = 0; l < colArgs.length; l++) {
-                                if (colName === colArgs[l]) {
-                                    highlightColumnHelper(tableId,
-                                                          $dagWrap,
-                                                          cols[j],
-                                                          sourceColNames);
-                                    colsFound++;
+                            for (var l = 0; l < srcNames.length; l++) {
+                                if (colName === srcNames[l]) {
+                                    highlightColumnHelper($dagWrap, cols[j],
+                                                          srcNames,
+                                                          tableIndex,
+                                                          nodes);
                                     found = true;
-                                    break;
-                                }
-                                if (found) {
                                     break;
                                 }
                             }
                         }
+                        if (found) {
+                            numColsFound++;
+                            break;
+                        }
                     }
-                    if (colsFound === numSourceCols) {
+                    if (numColsFound === numSourceCols) {
                         break;
                     }
                 }
-            } else if (!parentIsDataSet) {
+            } else if (tableNode.numParents) {
                 // gTable doesn't exist so we move on to its parent
-                $dagTable = $dagWrap
-                        .find('.dagTable[data-tablename="' + parentTable + '"]');
-                if ($dagTable.length !== 0 && $dagTable.hasClass('Dropped')) {
-                    parents = $dagTable.data('parents').split(',');
-                    findColumnSource(name, sourceColNames, tableId, parents,
-                                      $dagWrap);
+                var $dagTable = $dagWrap
+                        .find('.dagTable[data-index="' + tableIndex + '"]');
+                if ($dagTable.hasClass('Dropped')) {
+                    findColumnSource(sourceColNames, $dagWrap, tableIndex, 
+                        nodes);
                 } else {
                     // table has no data, could be orphaned
                 }
 
              // XX check if userstr === newcolS
-            } else if (parentIsDataSet) {
-                var datasetName = parentTable.substr(10);
-                highlightColumnSource(datasetName, $dagWrap, prevName, true);
+            } else {
+                highlightColumnSource($dagWrap, tableIndex);
             }
         }
     }
 
-    function highlightColumnHelper(tableId, $dagWrap, col) {
-        var currentName = col.name;
-        var $dagTable = $dagWrap.find('.dagTable[data-id="' + tableId + '"]');
-        var parents = $dagTable.data('parents').split(',');
-        var srcColNames = getSourceColNames(col.func);
-
-        highlightColumnSource(tableId, $dagWrap, currentName);
-        var previousName = col.getBackColName();
-        addRenameColumnInfo(currentName, previousName, $dagTable, $dagWrap);
-        findColumnSource(name, srcColNames, tableId, parents, $dagWrap,
-                         previousName);
+    function highlightColumnHelper($dagWrap, col, srcColNames, index, nodes) {
+        highlightColumnSource($dagWrap, index);
+        addRenameColumnInfo(col, index, $dagWrap);
+        findColumnSource(srcColNames, $dagWrap, index, nodes);
     }
 
-    function highlightColumnSource(sourceId, $dagWrap, name, isDataset) {
-        var $dagTable;
-        if (isDataset) {
-            $dagTable = $dagWrap.find('.dagTable[data-tablename="' +
-                                        sourceId + '"]');
-        } else {
-            $dagTable = $dagWrap.find('.dagTable[data-id="' +
-                                        sourceId + '"]');
-        }
+    function highlightColumnSource($dagWrap, index) {
+        var $dagTable = $dagWrap.find('.dagTable[data-index="' + index + '"]');
         $dagTable.addClass('highlighted');
 
         // XX showing column name on each table is disabled

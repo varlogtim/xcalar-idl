@@ -39,7 +39,7 @@
             }
         ],
         "no-redeclare": 1,
-        "no-console": 1, // use of console
+        "no-console": 0, // use of console
         "no-alert": 1,  // use of alert
         "no-extra-bind": 1,
         "no-unused-vars": [1, {"vars": "local", "args": "after-used"}],
