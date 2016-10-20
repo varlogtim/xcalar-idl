@@ -456,7 +456,7 @@ module.exports = {
         "REDETECT": "REDETECT",
         "Minimize": "Toggle minimization of form",
         "EntireFileSize": "Entire file/folder",
-        "CustomizedSize": "Customiszed size"
+        "CustomizedSize": "Custom size"
     },
 
     "fileBrowser": {
