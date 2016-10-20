@@ -147,14 +147,12 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.HideCols] = function(options) {
         focusTableHelper(options);
-        ColManager.hideCols(options.colNums, options.tableId);
-        return PromiseHelper.resolve(null);
+        return ColManager.hideCols(options.colNums, options.tableId);
     };
 
     redoFuncs[SQLOps.UnHideCols] = function(options) {
         focusTableHelper(options);
-        ColManager.unhideCols(options.colNums, options.tableId);
-        return PromiseHelper.resolve(null);
+        return ColManager.unhideCols(options.colNums, options.tableId);
     };
 
     redoFuncs[SQLOps.AddNewCol] = function(options) {

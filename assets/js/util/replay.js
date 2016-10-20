@@ -742,16 +742,12 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.HideCols] = function(options) {
         var args = getArgs(options);
-        ColManager.hideCols.apply(window, args);
-
-        return PromiseHelper.resolve(null);
+        return ColManager.hideCols.apply(window, args);
     };
 
     replayFuncs[SQLOps.UnHideCols] = function(options) {
         var args = getArgs(options);
-        ColManager.unhideCols.apply(window, args);
-
-        return PromiseHelper.resolve(null);
+        return ColManager.unhideCols.apply(window, args);
     };
 
     replayFuncs[SQLOps.DupCol] = function(options) {

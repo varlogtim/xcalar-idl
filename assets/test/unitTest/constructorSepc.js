@@ -125,7 +125,6 @@ describe('Constructor Test', function() {
             expect(progCol.isNumberCol()).to.be.true;
             expect(progCol.isEmptyCol()).to.be.false;
             expect(progCol.getWidth()).to.equal(100);
-            expect(progCol.hasHidden()).to.be.false;
 
             // case 2
             progCol = new ProgCol({
@@ -158,6 +157,26 @@ describe('Constructor Test', function() {
             progCol.isHidden = true;
             expect(progCol.getDisplayWidth()).to.equal(15);
         });
+
+        it("Should hide and unhide column", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimal" : 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+            expect(progCol.hasHidden()).to.be.false;
+
+            progCol.hide();
+            expect(progCol.hasHidden()).to.be.true;
+            progCol.unhide();
+            expect(progCol.hasHidden()).to.be.false;
+        })
 
         it("Should get and set back col name", function() {
             var progCol = new ProgCol({

@@ -54,6 +54,7 @@ var gAggVarPrefix = "^";
 var gColPrefix = '$';
 var gPrefixSign = '::';
 var gDSPrefix = '.XcalarDS.';
+var gHiddenTableWidth = 15;
 // ======== Support Parameters ======== //
 var gExportNoCheck = false;
 var gAlwaysDelete = false;

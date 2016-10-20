@@ -457,6 +457,39 @@ describe('ColManager Test', function() {
             expect(getColLen(tableId) - colLen).to.equal(0);
         });
 
+        it("Should hide column", function(done) {
+            var colNum = 1;
+
+            ColManager.hideCols([colNum], tableId)
+            .then(function() {
+                var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
+                expect($th.outerWidth()).to.equal(gHiddenTableWidth);
+                var progCol = gTables[tableId].getCol(colNum);
+                expect(progCol.hasHidden()).to.be.true;
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should unhide column", function(done) {
+            var colNum = 1;
+
+            ColManager.unhideCols([colNum], tableId)
+            .then(function() {
+                var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
+                var progCol = gTables[tableId].getCol(colNum);
+
+                expect($th.outerWidth()).to.equal(progCol.getWidth());
+                expect(progCol.hasHidden()).to.be.false;
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
         after(function(done) {
             UnitTest.deleteAll(tableName, dsName)
             .always(function() {

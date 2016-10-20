@@ -18,7 +18,7 @@ window.ColManager = (function($, ColManager) {
 
         var prefix = xcHelper.parsePrefixColName(backColName).prefix;
         var prefixText = prefix;
-        if (prefixText == "") {
+        if (prefixText === "") {
             prefixText = CommonTxtTstr.Immediates;
         }
 
@@ -1101,138 +1101,130 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.hideCols = function(colNums, tableId) {
         // for multiple columns
-        var $table   = $('#xcTable-' + tableId);
-        var numCols  = colNums.length;
-        var table    = gTables[tableId];
-        var tableCols = table.tableCols;
+        var deferred = jQuery.Deferred();
+        var $table = $("#xcTable-" + tableId);
+        var table = gTables[tableId];
         var colNames = [];
         var widthDiff = 0;
         var tableWidth = $table.width();
-        var tdSelectors = "";
-        var $ths = $();
-        var $th;
+        var promises = [];
+        var animOpt = {"width": gHiddenTableWidth};
 
-        for (var i = 0; i < numCols; i++) {
-            var colNum = colNums[i];
-            tdSelectors += "td.col" + colNum + ",";
-            var col = tableCols[colNum - 1];
-            $th = $table.find('th.col' + colNum);
-            $ths = $ths.add($th);
-            var $thWidth = $th.width() + 5;
-            var originalColWidth = $thWidth;
+        colNums.forEach(function(colNum) {
+            var progCol = table.getCol(colNum);
 
-            widthDiff += (originalColWidth - 15);
-            col.isHidden = true;
-            colNames.push(col.name);
-        }
+            var $th = $table.find("th.col" + colNum);
+            var originalColWidth = $th.outerWidth();
+            var columnName = progCol.getFrontColName();
 
-        tdSelectors = tdSelectors.slice(0, tdSelectors.length - 1);
-        var $tds = $table.find(tdSelectors);
+            widthDiff += (originalColWidth - gHiddenTableWidth);
+            progCol.hide();
+            colNames.push(columnName);
+            // change tooltip to show name
+            xcTooltip.changeText($th.find(".dropdownBox"), columnName);
+
+            var $cells = $table.find("th.col" + colNum + ",td.col" + colNum);
+            if (!gMinModeOn) {
+                var innerDeferred = jQuery.Deferred();
+
+                $cells.addClass("animating");
+                $th.animate(animOpt, 250, "linear", function() {
+                    $cells.removeClass("animating");
+                    $cells.addClass("userHidden");
+                    innerDeferred.resolve();
+                });
+
+                promises.push(innerDeferred.promise());
+            } else {
+                $th.outerWidth(gHiddenTableWidth);
+                $cells.addClass("userHidden");
+            }
+        });
 
         if (!gMinModeOn) {
-            $tds.addClass('animating');
-            $ths.animate({width: 15}, 250, "linear", function() {
-                $ths.addClass("userHidden");
-                $tds.addClass("userHidden");
-                $tds.removeClass('animating');
-                matchHeaderSizes($table); // needed to resize rowgrabs
-            });
-
             moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
-        } else {
-            $ths.width(10);
-            $ths.addClass("userHidden");
-            $tds.addClass("userHidden");
-            matchHeaderSizes($table);
         }
-
-        // change tooltip to show name
-        $ths.each(function(i) {
-            $th = $(this);
-            $th.find('.dropdownBox').attr({
-                "title"              : "",
-                "data-original-title": colNames[i]
-            });
-        });
 
         xcHelper.removeSelectionRange();
 
-        SQL.add("Hide Columns", {
-            "operation": SQLOps.HideCols,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colNames" : colNames,
-            "colNums"  : colNums
+        PromiseHelper.when.apply(window, promises)
+        .done(function() {
+            matchHeaderSizes($table);
+            SQL.add("Hide Columns", {
+                "operation": SQLOps.HideCols,
+                "tableName": table.getName(),
+                "tableId"  : tableId,
+                "colNames" : colNames,
+                "colNums"  : colNums
+            });
+
+            deferred.resolve();
         });
+
+        return deferred.promise();
     };
 
     ColManager.unhideCols = function(colNums, tableId, noAnim) {
-        var $table     = $('#xcTable-' + tableId);
+        var deferred = jQuery.Deferred();
+        var $table = $("#xcTable-" + tableId);
         var tableWidth = $table.width();
-        var table      = gTables[tableId];
-        var tableCols = table.tableCols;
-        var numCols    = colNums.length;
-        var colNames   = [];
+        var table = gTables[tableId];
         var widthDiff = 0;
-        var $ths = $();
+        var colNames = [];
         var promises = [];
-        var $th;
 
-        for (var i = 0; i < numCols; i++) {
-            var colNum = colNums[i];
-            $th = $table.find(".th.col" + colNum);
-            $ths = $ths.add($th);
+        colNums.forEach(function(colNum) {
+            var progCol = table.getCol(colNum);
+            var originalColWidth = progCol.getWidth();
 
-            var col = tableCols[colNum - 1];
-            var originalColWidth = col.width;
-            widthDiff += (originalColWidth - 15);
-            col.isHidden = false;
-            colNames.push(col.name);
+            widthDiff += (originalColWidth - gHiddenTableWidth);
+            progCol.unhide();
+            colNames.push(progCol.getFrontColName());
+
+            var $th = $table.find(".th.col" + colNum);
+            var $cell = $table.find("th.col" + colNum + ",td.col" + colNum);
 
             if (!gMinModeOn && !noAnim) {
-                $table.find('.col' + colNum).addClass('animating');
-                promises.push(jQuery.Deferred());
-                var count = 0;
+                var innerDeferred = jQuery.Deferred();
+                var animOpt = {"width": originalColWidth};
 
-                $th.animate({width: col.width}, 250, "linear", function() {
-                    var colNum = xcHelper.parseColNum($(this));
-                    $table.find('.col' + colNum).removeClass('animating');
-                    promises[count].resolve();
-                    count++;
+                $cell.addClass("animating");
+                $th.animate(animOpt, 250, "linear", function() {
+                    $cell.removeClass('animating');
+                    innerDeferred.resolve();
                 });
+
+                promises.push(innerDeferred.promise());
             } else {
-                $th.css("width", col.width);
+                $th.css("width", originalColWidth);
             }
 
-            $table.find("th.col" + colNum + ",td.col" + colNum)
-                  .removeClass("userHidden");
-        }
+            $cell.removeClass("userHidden");
+
+            // change tooltip to show column options
+            xcTooltip.changeText($th.find(".dropdownBox"),
+                                TooltipTStr.ViewColumnOptions);
+        });
 
         if (!gMinModeOn && !noAnim) {
-            jQuery.when.apply($, promises).done(function() {
-                matchHeaderSizes($table);
-            });
             moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
-        } else {
-            matchHeaderSizes($table);
         }
 
-
-        // change tooltip to show column options
-        $ths.each(function() {
-            $(this).find('.dropdownBox').attr({
-                "title"              : "",
-                "data-original-title": TooltipTStr.ViewColumnOptions
+        PromiseHelper.when.apply(window, promises)
+        .done(function() {
+            matchHeaderSizes($table);
+            SQL.add("Unhide Columns", {
+                "operation": SQLOps.UnHideCols,
+                "tableName": table.getName(),
+                "tableId"  : tableId,
+                "colNames" : colNames,
+                "colNums"  : colNums
             });
+
+            deferred.resolve();
         });
 
-        SQL.add("Unhide Columns", {
-            "operation": SQLOps.UnHideCols,
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colNames" : colNames,
-            "colNums"  : colNums
-        });
+        return deferred.promise();
     };
 
     ColManager.textAlign = function(colNums, tableId, alignment) {

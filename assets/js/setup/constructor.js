@@ -687,7 +687,7 @@ ProgCol.prototype = {
 
     getDisplayWidth: function() {
         if (this.isHidden) {
-            return 15;
+            return gHiddenTableWidth;
         } else {
             return this.width;
         }
@@ -723,6 +723,14 @@ ProgCol.prototype = {
 
     setDecimal: function(decimal) {
         this.decimal = decimal;
+    },
+
+    hide: function() {
+        this.isHidden = true;
+    },
+
+    unhide: function() {
+        this.isHidden = false;
     },
 
     hasHidden: function() {
