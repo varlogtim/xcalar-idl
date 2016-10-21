@@ -32,7 +32,7 @@ window.DFParamModal = (function($, DFParamModal){
     DFParamModal.setup = function() {
         // constant
         var minHeight = 425;
-        var minWidth  = 750;
+        var minWidth  = 800;
 
         $dfgParamModal = $("#dfgParameterModal");
         $paramLists = $("#dagModleParamList");
