@@ -1834,7 +1834,7 @@ window.Dag = (function($, Dag) {
             $dagPanel.find('.highlighted').removeClass('highlighted');
             addRenameColumnInfo(progCol, index, $dagWrap);
             highlightColumnSource($dagWrap, index);
-            findColumnSource(sourceColNames, $dagWrap, index, nodes, backName);
+            findColumnSource(sourceColNames, $dagWrap, index, nodes, backName, progCol.isEmptyCol());
             $(document).mousedown(closeDagHighlight);
         });
 
@@ -2639,7 +2639,8 @@ window.Dag = (function($, Dag) {
     // index is the table's dataflow graph data-index
     // nodes is an array of all the tables. nodes[index] gets the table info
     //          with nodes[0] being the most recent table on the far right
-    function findColumnSource(sourceColNames, $dagWrap, index, nodes, curColName) {
+    function findColumnSource(sourceColNames, $dagWrap, index, nodes, 
+                              curColName, isEmptyCol) {
         var tables = nodes[index].parents;
         var tableIndex;
         var tableNode;
@@ -2656,43 +2657,51 @@ window.Dag = (function($, Dag) {
 
             if (table) {
                 var cols = table.tableCols;
-                var numSourceCols = sourceColNames.length;
-                var numColsFound = 0;
-
+                var foundSameColName = false; // if found column with same
+                // backName as curColName
+                var colCreatedHere = false; // if this is the first place
+                // where descendent column has no value
                 for (var j = 0; j < cols.length; j++) {
                     // skip DATA COL
                     if (cols[j].isDATACol()) {
                         continue;
                     }
+                    var srcNames;
                     var backColName = cols[j].getBackColName();
+                    if (!backColName) {
+                        backColName = cols[j].getFrontColName();
+                    }
                     //XX backColName could be blank 
-                    var srcNames = getSourceColNames(cols[j].func);
 
-                    for (var k = 0; k < sourceColNames.length; k++) {
-                        var colName = sourceColNames[k];
-                        var found = false;
-                        if (colName === backColName) {
-                            highlightColumnHelper($dagWrap, cols[j], srcNames,
-                                                    tableIndex, nodes);
-                            found = true;
+                    if (!foundSameColName && backColName === curColName) {
+                        foundSameColName = true;
+                        var isEmpty = cols[j].isEmptyCol();
+                        srcNames = getSourceColNames(cols[j].func);
+                        highlightColumnHelper($dagWrap, cols[j], srcNames,
+                                                    tableIndex, nodes,
+                                                    backColName);
+                        colCreatedHere = isEmpty && !isEmptyCol;
+                        if (colCreatedHere) {
+                            // this table is where the column became non-empty,
+                             // continue and look through sourceColNames for
+                             // the origin column 
                         } else {
-                            for (var l = 0; l < srcNames.length; l++) {
-                                if (colName === srcNames[l]) {
-                                    highlightColumnHelper($dagWrap, cols[j],
-                                                          srcNames,
-                                                          tableIndex,
-                                                          nodes);
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (found) {
-                            numColsFound++;
                             break;
                         }
+                    } else {
+                        var colNameIndex = sourceColNames.indexOf(backColName);
+                        if (colNameIndex !== -1) {
+                            if (!srcNames) {
+                                srcNames = getSourceColNames(cols[j].func);
+                            }
+                            sourceColNames.splice(colNameIndex, 1);
+                            highlightColumnHelper($dagWrap, cols[j], srcNames,
+                                                        tableIndex, nodes,
+                                                        backColName);
+                        }
                     }
-                    if (numColsFound === numSourceCols) {
+
+                    if (sourceColNames.length === 0 && colCreatedHere) {
                         break;
                     }
                 }
@@ -2701,23 +2710,24 @@ window.Dag = (function($, Dag) {
                 var $dagTable = $dagWrap
                         .find('.dagTable[data-index="' + tableIndex + '"]');
                 if ($dagTable.hasClass('Dropped')) {
-                    findColumnSource(sourceColNames, $dagWrap, tableIndex, 
-                        nodes);
+                    findColumnSource(sourceColNames, $dagWrap, tableIndex,
+                                     nodes, curColName);
                 } else {
                     // table has no data, could be orphaned
                 }
-
-             // XX check if userstr === newcolS
-            } else {
+            } else if (!isEmptyCol) {
                 highlightColumnSource($dagWrap, tableIndex);
             }
         }
     }
 
-    function highlightColumnHelper($dagWrap, col, srcColNames, index, nodes) {
+    function highlightColumnHelper($dagWrap, col, srcColNames, index, nodes,
+                                    curColName) {
+        var isEmpty = col.isEmptyCol();
         highlightColumnSource($dagWrap, index);
         addRenameColumnInfo(col, index, $dagWrap);
-        findColumnSource(srcColNames, $dagWrap, index, nodes);
+        findColumnSource(srcColNames, $dagWrap, index, nodes, curColName,
+                        isEmpty);
     }
 
     function highlightColumnSource($dagWrap, index) {
