@@ -1962,7 +1962,13 @@ window.xcHelper = (function($, xcHelper) {
                                 .find('.editableHead.col' + colNum);
                 $header = $target.closest('.header');
             }
-            var colPrefix = $header.find(".topHeader .prefix").text();
+            var $prefixDiv = $header.find(".topHeader .prefix");
+            var colPrefix;
+            if ($prefixDiv.hasClass('immediate')) {
+                colPrefix = "";
+            } else {
+                colPrefix = $prefixDiv.text();
+            }
             value = xcHelper.getPrefixColName(colPrefix, $target.val());
             value = prefix + value;
         }
