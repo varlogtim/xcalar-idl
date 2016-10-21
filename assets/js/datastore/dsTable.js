@@ -35,7 +35,6 @@ window.DSTable = (function($, DSTable) {
         var $dsColsBtn = $("#dsColsBtn");
         var notLastDSError = "not last ds";
 
-        $dsTableContainer.removeClass("error");
         $("#dsTableView").removeClass("xc-hidden");
         $("#dataCartBtn").removeClass("xc-hidden");
         DSForm.hide();
@@ -45,9 +44,7 @@ window.DSTable = (function($, DSTable) {
         updateTableInfo(dsObj, partialUpdate, isLoading);
 
         if (isLoading) {
-            $dsTableContainer.addClass("loading");
-            $dsColsBtn.addClass("xc-hidden");
-            $tableWrap.html(""); // make html smaller
+            setupViewBeforeLoading();
             // hide carts
             DSCart.switchToCart(null);
             return PromiseHelper.resolve();
@@ -60,12 +57,10 @@ window.DSTable = (function($, DSTable) {
         if ($dsTable.length === 0 ||
             $dsTable.data("dsid") !== dsObj.getId()) {
             // when not the case of already focus on this ds and refresh again
-
             // only when the loading is slow, show load section
+
             timer = setTimeout(function() {
-                $dsTableContainer.addClass("loading");
-                $dsColsBtn.addClass("xc-hidden");
-                $tableWrap.html(""); // make html smaller
+                setupViewBeforeLoading();
             }, 300);
         }
         DSCart.switchToCart(dsId);
@@ -81,13 +76,9 @@ window.DSTable = (function($, DSTable) {
                 return PromiseHelper.reject(notLastDSError);
             }
 
-            // update info here
-            updateTableInfo(dsObj);
             clearTimeout(timer);
-
-            $dsTableContainer.removeClass("loading");
+            setupViewAfterLoading();
             getSampleTable(dsObj, jsonKeys, jsons);
-            $dsColsBtn.removeClass("xc-hidden");
 
             deferred.resolve();
         })
@@ -107,14 +98,15 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             dsObj.release();
 
-            if (errorMsg === notLastDSError || lastDSToSample !== datasetName) {
+            if (errorMsg === notLastDSError ||
+                lastDSToSample !== datasetName)
+            {
                 return;
             }
 
-            $dsColsBtn.addClass("xc-hidden");
-            $dsTableContainer.removeClass("loading").addClass("error");
-            var errorText = StatusMessageTStr.LoadFailed + ". " + errorMsg;
+            setupViewAfterError();
 
+            var errorText = StatusMessageTStr.LoadFailed + ". " + errorMsg;
             var loadError = dsObj.getError();
             if (loadError == null) {
                 if (errorMsg === DSTStr.NoRecords) {
@@ -138,6 +130,29 @@ window.DSTable = (function($, DSTable) {
         });
 
         return deferred.promise();
+
+        function setupViewBeforeLoading() {
+            $dsTableContainer.removeClass("error");
+            $dsTableContainer.addClass("loading");
+            $dsColsBtn.addClass("xc-hidden");
+            $tableWrap.html("");
+        }
+
+        function setupViewAfterLoading() {
+            // update info here
+            updateTableInfo(dsObj);
+
+            $dsTableContainer.removeClass("error");
+            $dsTableContainer.removeClass("loading");
+            $dsColsBtn.removeClass("xc-hidden");
+        }
+
+        function setupViewAfterError() {
+            $tableWrap.html("");
+            $dsColsBtn.addClass("xc-hidden");
+            $dsTableContainer.removeClass("loading");
+            $dsTableContainer.addClass("error");
+        }
     };
 
     DSTable.hide = function() {
