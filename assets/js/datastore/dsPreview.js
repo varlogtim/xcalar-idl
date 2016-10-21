@@ -1976,7 +1976,9 @@ window.DSPreview = (function($, DSPreview) {
 
         for (col = 1; col < colLen; col++) {
             text = headers[col];
-            var textLen = text.length;
+            var headerLength = text.length;
+            var allTextSameLength = null;
+            var firstTextLength = null;
 
             for (row = rowStart; row < rowLen; row++) {
                 var tdText = tds[row][col];
@@ -1995,13 +1997,29 @@ window.DSPreview = (function($, DSPreview) {
                     score += 10;
                 } else {
                     // the diff btw header and td is bigger, better
-                    var diff = Math.abs(textLen - tdText.length);
+                    var textLength = tdText.length;
+                    var diff = Math.abs(headerLength - textLength);
                     if (diff === 0 && text === tdText) {
                         score -= 20;
                     } else {
                         score += diff;
                     }
+
+                    if (firstTextLength == null) {
+                        firstTextLength = textLength;
+                    } else if (allTextSameLength !== false) {
+                        allTextSameLength = (firstTextLength === textLength);
+                    }
                 }
+            }
+
+            if (allTextSameLength &&
+                firstTextLength != null &&
+                headerLength !== firstTextLength)
+            {
+                // when all text has same length and header is different
+                // length, it's a high chance of header
+                score += 20 * rowLen;
             }
         }
 

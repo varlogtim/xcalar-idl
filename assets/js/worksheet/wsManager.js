@@ -148,6 +148,7 @@ window.WSManager = (function($, WSManager) {
         });
 
         // focus on new worksheet
+        wsScollBarPosMap[activeWorksheet] = $('#mainFrame').scrollLeft();
         WSManager.focusOnWorksheet(wsId);
         WorkbookManager.updateWorksheet(wsOrder.length);
         return wsId;
@@ -293,7 +294,7 @@ window.WSManager = (function($, WSManager) {
     // Get a table's position relative to all tables in every worksheet
     //ex. {ws1:[tableA, tableB], ws2:[tableC]} tableC's position is 2
     WSManager.getTablePosition = function(tableId) {
-        var wsId  = tableIdToWSIdMap[tableId];
+        var wsId = tableIdToWSIdMap[tableId];
         var tableIndex = wsLookUp[wsId].tables.indexOf(tableId);
 
         if (tableIndex < 0) {
@@ -326,14 +327,14 @@ window.WSManager = (function($, WSManager) {
         return (wsNameToIdMap[wsName]);
     };
 
-    // Get worksheet's name from its index
-    WSManager.getWSName = function(wsId) {
-        return (wsLookUp[wsId].name);
+    // Get worksheet's name from worksheet id
+    WSManager.getWSName = function(worksheetId) {
+        return wsLookUp[worksheetId].getName();
     };
 
     // Get current active worksheet
     WSManager.getActiveWS = function() {
-        return (activeWorksheet);
+        return activeWorksheet;
     };
 
     // Add table to worksheet
@@ -1255,7 +1256,6 @@ window.WSManager = (function($, WSManager) {
             newWorksheet();
         } else {
             for (var i = 0; i < len; i++) {
-                // true meanse no animation
                 makeWorksheet(wsOrder[i]);
             }
         }
@@ -1284,39 +1284,38 @@ window.WSManager = (function($, WSManager) {
     }
 
     // Create a new worksheet
-    function newWorksheet(wsId, wsName, wsIndex) {
-        if (wsId == null) {
-            wsId = generateWorksheetId();
+    function newWorksheet(worksheetId, worksheetName, worksheetIndex) {
+        if (worksheetId == null) {
+            worksheetId = generateWorksheetId();
         }
 
-        if (wsName == null) {
-            wsName = defaultName + (nameSuffix++);
-            while (wsNameToIdMap[wsName] != null) {
-                wsName = defaultName + (nameSuffix++);
+        if (worksheetName == null) {
+            worksheetName = defaultName + (nameSuffix++);
+            while (wsNameToIdMap[worksheetName] != null) {
+                worksheetName = defaultName + (nameSuffix++);
             }
         } else {
             var tryCnt = 1;
-            var temp = wsName;
-            while (wsNameToIdMap[wsName] != null && tryCnt < 50) {
-                wsName = temp + (tryCnt++);
+            var temp = worksheetName;
+            while (wsNameToIdMap[worksheetName] != null && tryCnt < 50) {
+                worksheetName = temp + (tryCnt++);
             }
 
             if (tryCnt >= 50) {
                 console.error("Too many tries");
-                wsName = xcHelper.randName(temp);
+                worksheetName = xcHelper.randName(temp);
             }
         }
 
-        wsScollBarPosMap[activeWorksheet] = $('#mainFrame').scrollLeft();
-        createWorkshetObj(wsId, wsName, wsIndex)
-        makeWorksheet(wsId);
+        createWorkshetObj(worksheetId, worksheetName, worksheetIndex);
+        makeWorksheet(worksheetId);
 
-        return (wsId);
+        return worksheetId;
     }
 
     // Make a worksheet
-    function makeWorksheet(wsId) {
-        var $tab = $(getWSTabHTML(wsId));
+    function makeWorksheet(worksheetId) {
+        var $tab = $(getWorksheetTabHtml(worksheetId));
         if (gMinModeOn) {
             $workSheetTabs.append($tab);
         } else {
@@ -1549,20 +1548,21 @@ window.WSManager = (function($, WSManager) {
     }
 
     // html of worksheet tab, helper function for makeWorksheet()
-    function getWSTabHTML(wsId) {
-        var name = wsLookUp[wsId].name;
-        var id = "worksheetTab-" + wsId;
+    function getWorksheetTabHtml(worksheetId) {
+        var worksheet = wsLookUp[worksheetId];
+        var worksheetName = worksheet.getName();
+        var id = "worksheetTab-" + worksheetId;
         // need clickable class for .wsMenu to not trigger $(".menu").hide()
         var html =
             '<li id="' + id + '"class="worksheetTab"' +
-            ' data-ws="' + wsId + '">' +
+            ' data-ws="' + worksheetId + '">' +
                 '<span class="draggableArea"></span>' +
                 '<i class="eye icon xi-show fa-15"></i>' +
-                '<input data-original-title="' + name +
+                '<input data-original-title="' + worksheetName +
                 '" data-container="body"' +
                 ' data-toggle="tooltip" data-placement="top"' +
                 ' type="text" class="text textOverflow tooltipOverflow"' +
-                ' spellcheck="false" value="' + name + '" disabled>' +
+                ' spellcheck="false" value="' + worksheetName + '" disabled>' +
                 '<i class="wsMenu clickable icon xi-ellipsis-h fa-15"></i>' +
             '</li>';
 
