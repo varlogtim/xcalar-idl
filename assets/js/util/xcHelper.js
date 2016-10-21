@@ -2110,11 +2110,11 @@ window.xcHelper = (function($, xcHelper) {
      * sortVals
      * @param  {string} a     [first value]
      * @param  {string} b     [sescond value]
-     * @param  {integer} order 1 for ascending, -1 for descending
+     * @param  {integer} order -1 for ascending, 1 for descending
      */
     xcHelper.sortVals = function(a, b, order) {
         if (order == null) {
-            order = -1;
+            order = SortOrder.ascending;
         }
         a = a.toLowerCase();
         b = b.toLowerCase();

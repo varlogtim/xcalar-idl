@@ -1069,7 +1069,8 @@ window.TableList = (function($, TableList) {
     }
 
     function sortConst(a, b) {
-        return xcHelper.sortVals(a.dagName, b.dagName, -1);
+        var order = ColumnSortOrder.ascending;
+        return xcHelper.sortVals(a.dagName, b.dagName, order);
     }
 
     function deleteConstants() {

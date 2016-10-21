@@ -573,6 +573,41 @@ describe('Constructor Test', function() {
             expect(col).to.equal(progCol);
         });
 
+        it("should sort columns", function() {
+            var progCol1 =  new ProgCol({
+                "name"    : "b",
+                "backName": "b",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var progCol2 =  new ProgCol({
+                "name"    : "a",
+                "backName": "a",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [progCol1, progCol2],
+                "isLocked" : false
+            });
+
+            // case 1
+            table.sortCols(ColumnSortOrder.ascending);
+            expect(table.getCol(1).getFrontColName()).to.equal("a");
+
+            // case 2
+            table.sortCols(ColumnSortOrder.descending);
+            expect(table.getCol(1).getFrontColName()).to.equal("b");
+        });
+
         it('table should free result set', function(done) {
             var table = new TableMeta({
                 "tableName": "test#a1",

@@ -147,7 +147,6 @@ window.ColManager = (function($, ColManager) {
 
     // specifically used for json modal
     ColManager.pullCol = function(colNum, tableId, options) {
-
         var deferred = jQuery.Deferred();
 
         options = options || {};

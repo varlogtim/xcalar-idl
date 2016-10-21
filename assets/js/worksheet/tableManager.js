@@ -936,70 +936,63 @@ window.TblManager = (function($, TblManager) {
 
     TblManager.sortColumns = function(tableId, direction) {
         var table = gTables[tableId];
-        var tableCols = table.tableCols;
-        var order;
-        var newIndex;
         var oldOrder = []; // to save the old column order
-        if (direction === "reverse") {
-            order = 1;
-        } else {
-            order = -1;
-        }
+        var order = (direction === "reverse") ? ColumnSortOrder.descending :
+                                                ColumnSortOrder.ascending;
+        var numCols = table.getNumCols();
+        var dataCol = null;
 
-        var numCols = tableCols.length;
-        var dataCol;
-        if (tableCols[numCols - 1].isDATACol()) {
-            dataCol = tableCols.splice(numCols - 1, 1)[0];
+        if (table.getCol(numCols).isDATACol()) {
+            dataCol = table.removeCol(numCols);
             numCols--;
         }
 
+        var colNumMap = {};
+        var thLists = [];
+        var $table = $("#xcTable-" + tableId);
         // record original position of each column
-        for (var i = 1; i <= numCols; i++) {
-            tableCols[i - 1].index = i;
+        for (var colNum = 1; colNum <= numCols; colNum++) {
+            var progCol = table.getCol(colNum);
+            colNumMap[progCol.getBackColName()] = colNum;
+            var $th = $table.find("th.col" + colNum);
+            thLists[colNum] = $th;
         }
 
-        tableCols.sort(sortFunc);
-        function sortFunc(a, b) {
-            return xcHelper.sortVals(a.name, b.name, order);
-        }
+        table.sortCols(order);
 
-        var $table = $('#xcTable-' + tableId);
         var $rows = $table.find('tbody tr');
         var numRows = $rows.length;
-        var oldColIndex;
-        var newColIndex;
         // loop through each column
         for (var i = 0; i < numCols; i++) {
-            oldColIndex = tableCols[i].index;
-            newColIndex = i + 1;
-            var $thToMove = $table.find('th.col' + oldColIndex);
-            $thToMove.find('.col' + oldColIndex).removeClass('col' + oldColIndex)
-                                                .addClass('col' + newColIndex);
+            var newColNum = i + 1;
+            var newProgCol = table.getCol(newColNum);
+            var oldColNum = colNumMap[newProgCol.getBackColName()];
+            var $thToMove = thLists[oldColNum];
+
+            $thToMove.removeClass("col" + oldColNum)
+                    .addClass("col" + newColNum)
+                .find(".col" + oldColNum)
+                .removeClass("col" + oldColNum)
+                .addClass("col" + newColNum);
+
+            // after move th, the position is different from the oldColNum
             var oldPos = $thToMove.index();
-            $table.find('th').eq(i).after($thToMove);
+            $table.find("th").eq(i).after($thToMove);
             // loop through each row and order each td
             for (var j = 0; j < numRows; j++) {
                 var $row = $rows.eq(j);
-                var $tdToMove = $row.find('td').eq(oldPos);
-                $tdToMove.removeClass('col' + oldColIndex)
-                         .addClass('col' + newColIndex);
-                $row.find('td').eq(i).after($tdToMove);
+                var $tdToMove = $row.find("td").eq(oldPos);
+                $tdToMove.removeClass("col" + oldColNum)
+                         .addClass("col" + newColNum);
+                $row.find("td").eq(i).after($tdToMove);
             }
+
+            oldOrder.push(oldColNum - 1);
         }
 
-        // correct gTable tableCols index and th col class number
-        var $ths = $table.find('th');
-        for (var i = 0; i < numCols; i++) {
-            oldColIndex = tableCols[i].index;
-            newIndex = i + 1;
-            $ths.eq(newIndex).removeClass('col' + oldColIndex)
-                             .addClass('col' + newIndex);
-            delete tableCols[i].index;
-            oldOrder.push(oldColIndex - 1);
-        }
-
-        if (dataCol) { // if data col was removed from sort, put it back
-            tableCols.push(dataCol);
+        if (dataCol != null) {
+            // if data col was removed from sort, put it back
+            table.addCol(numCols + 1, dataCol);
             oldOrder.push(numCols);
         }
 

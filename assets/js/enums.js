@@ -111,6 +111,11 @@ var ColumnType = {
     "unknown": "unknown"
 };
 
+var ColumnSortOrder = {
+    "ascending" : -1,
+    "descending": 1
+}
+
 var DSObjTerm = {
     "homeDir": ".",
     "homeDirId": ".",

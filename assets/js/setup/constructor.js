@@ -247,6 +247,14 @@ TableMeta.prototype = {
         return removed;
     },
 
+    sortCols: function(order) {
+        this.tableCols.sort(function(a, b) {
+            var aName = a.getFrontColName();
+            var bName = b.getFrontColName();
+            return xcHelper.sortVals(aName, bName, order);
+        });
+    },
+
     updateResultset: function() {
         var deferred = jQuery.Deferred();
         var self = this;

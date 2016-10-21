@@ -570,11 +570,11 @@ window.JSONModal = (function($, JSONModal) {
         if ($icon.hasClass('desc')) {
             $icon.removeClass('desc');
             tooltipText = JsonModalTStr.SortAsc;
-            order = 1;
+            order = ColumnSortOrder.descending;
         } else {
             $icon.addClass('desc');
             tooltipText = JsonModalTStr.SortDesc;
-            order = -1;
+            order = ColumnSortOrder.ascending;
         }
         xcTooltip.changeText($icon, tooltipText);
         xcTooltip.refresh($icon);
