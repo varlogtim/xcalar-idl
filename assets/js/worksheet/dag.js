@@ -1834,7 +1834,8 @@ window.Dag = (function($, Dag) {
             $dagPanel.find('.highlighted').removeClass('highlighted');
             addRenameColumnInfo(progCol, index, $dagWrap);
             highlightColumnSource($dagWrap, index);
-            findColumnSource(sourceColNames, $dagWrap, index, nodes, backName, progCol.isEmptyCol());
+            findColumnSource(sourceColNames, $dagWrap, index, nodes, backName,
+                            progCol.isEmptyCol());
             $(document).mousedown(closeDagHighlight);
         });
 
@@ -2604,6 +2605,8 @@ window.Dag = (function($, Dag) {
                 return;
             }
         } else if ($target.closest('#dagSchema').length) {
+            return;
+        } else if ($target.closest('#dagScrollBarWrap').length) {
             return;
         }
 

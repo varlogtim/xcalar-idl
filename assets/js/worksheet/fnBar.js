@@ -284,6 +284,13 @@ window.FnBar = (function(FnBar, $) {
         colNamesCache = {};
     };
 
+    // sets cursor to blink at the end of the input string
+    FnBar.focusCursor = function() {
+        var valLen = editor.getValue().length;
+        editor.focus();
+        editor.setCursor(0, valLen); 
+    }
+
     function clearSearch() {
         $functionArea.removeClass('searching');
         $functionArea.find('.position').hide();

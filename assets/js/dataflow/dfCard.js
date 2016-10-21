@@ -216,6 +216,13 @@ window.DFCard = (function($, DFCard) {
             $("#dataflowView .dagWrap").filter(function(idx, val) {
                 if ($(this).attr("data-dataflowName") === dataflowName) {
                     $(this).removeClass("xc-hidden");
+                    // to scroll to the right side of graph
+                    if ($(this).hasClass('untouched')) {
+                        $(this).removeClass('untouched');
+                        // can't use .width() if element is not visible
+                        var width = $(this).find('canvas').attr('width');
+                        $(this).find('.dagImageWrap').scrollLeft(width);
+                    }
                     DFCard.updateRetinaTab(dataflowName);
                 } else {
                     $(this).addClass("xc-hidden");
@@ -303,7 +310,7 @@ window.DFCard = (function($, DFCard) {
 
     function drawDags(dataflowName) {
 
-        html = '<div class="dagWrap xc-hidden clearfix" '+
+        html = '<div class="dagWrap xc-hidden clearfix untouched" '+
                     'data-dataflowName="' + dataflowName + '">' +
                     '<div class="header clearfix">' +
                         '<div class="btn btn-small infoIcon">' +

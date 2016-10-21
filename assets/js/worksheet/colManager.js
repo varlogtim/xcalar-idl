@@ -562,6 +562,7 @@ window.ColManager = (function($, ColManager) {
             $th.find('.editable').removeClass('editable');
             $editableHead.prop("disabled", true);
             FnBar.focusOnCol($editableHead, tableId, colNum, true);
+            FnBar.focusCursor();
         }
 
         $editableHead.val(newName).attr("value", newName);
