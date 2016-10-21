@@ -410,6 +410,7 @@ window.DFCreateView = (function($, DFCreateView) {
         focusedListNum = null;
         $curDagWrap = null;
         formHelper.clear();
+        exportHelper.clear();
     }
 
     return (DFCreateView);
