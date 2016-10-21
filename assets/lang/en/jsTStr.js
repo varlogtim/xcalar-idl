@@ -448,6 +448,7 @@ MonitorTStr = {
     "CurVal": "Current Value",
     "NewVal": "New Value",
     'ParamConfigFailed': 'Parameter Configuration Failed',
+    'SavingSettingsFailed': 'Saving Settings Failed',
 
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +

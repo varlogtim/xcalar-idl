@@ -1,0 +1,76 @@
+<div id="monitorGenSettingsCard" class="mainSection no-selection cardContainer">
+	<header class="cardHeader">
+	  <div class="title"><%= dicts.monitor.GeneralSettings %></div>
+	</header>
+	<div class="optionsContainer cardMain">
+	  <div class="optionSet">
+	    <div class="label"><%= dicts.monitor.showDataCol %></div>
+	    <div class="optionSelector">
+	      <div id="showDataColBox" class="checkbox">
+	        <i class="icon xi-ckbox-empty fa-13"></i>
+	        <i class="icon xi-ckbox-selected fa-13"></i>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="optionSet">
+	    <div class="label"><%= dicts.monitor.memThreshold %></div>
+	    <i title="<%= dicts.monitor.MemoryThresholdHint %>" class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"></i>
+	    <div id="memLimitSlider" class="optionSelector rangeSliderWrap">
+	      <div class="rangeSlider">
+	        <div class="leftArea">
+	          <div class="slider"></div>
+	        </div>
+	        <div class="rightArea"></div>
+	      </div>
+	      <input class="value" value="90" type="number" min="50" max="99">
+	      <span>%</span>
+	    </div>
+	  </div>
+	  <div class="optionSet">
+	    <div class="label"><%= dicts.monitor.graphInterval %></div>
+	    <div id="monitorIntervalSlider" class="optionSelector rangeSliderWrap">
+	      <div class="rangeSlider">
+	        <div class="leftArea">
+	          <div class="slider"></div>
+	        </div>
+	        <div class="rightArea"></div>
+	      </div>
+	      <input class="value" value="3" type="number" min="1" max="60">
+	      <span><%= dicts.common.seconds %></span>
+	    </div>
+	  </div>
+	  <div class="optionSet">
+	  	<div class="label"><%= dicts.dsForm.SizeLimit %>:</div>
+      <div id="monitorDsSampleInput" class="inputList optionSelector">
+	      <div class="inputWrap">
+	        <input class="size textOverflowOneLine" type="number">
+	      </div>
+	      <div class="dropDownList">
+	        <input class="text unit" type="text" spellcheck="false" disabled>
+	        <div class="iconWrapper">
+	          <i class="icon xi-arrow-down"></i>
+	        </div>
+
+	        <div class="list">
+	          <ul>
+	            <li>B</li>
+	            <li>KB</li>
+	            <li>MB</li>
+	            <li>GB</li>
+	            <li>TB</li>
+	          </ul>
+	          <div class="scrollArea top">
+	            <div class="arrow"></div>
+	          </div>
+	          <div class="scrollArea bottom">
+	            <div class="arrow"></div>
+	          </div>
+	        </div>
+	      </div>
+      </div>
+	  </div>
+	</div>
+	<div class="cardBottom">
+    <button class="btn" id="userSettingsSave"><%= dicts.common.CONFIRMSAVE %></button>
+  </div>
+</div>

@@ -9,6 +9,7 @@ window.UserSettings = (function($, UserSettings) {
 
     UserSettings.restore = function() {
         var deferred = jQuery.Deferred();
+        var userConfigParams;
         setup();
 
         KVStore.getAndParse(KVStore.gUserKey, gKVScope.USER)
@@ -26,11 +27,16 @@ window.UserSettings = (function($, UserSettings) {
 
             var atStartup = true;
             return (DS.restore(result, atStartup));
-        }).then(function() {
+        })
+        .then(function() {
+            return (XcalarGetConfigParams());
+        })
+        .then(function(res) {
+            userConfigParams = getUserConfigParams(res);
             return (KVStore.getAndParse(KVStore.gSettingsKey, gKVScope.GLOB));
         })
         .then(function(res) {
-            genSettings = new GenSettings(res);
+            genSettings = new GenSettings(userConfigParams, res);
             restoreSettingsPanel();
             deferred.resolve();
         })
@@ -42,7 +48,7 @@ window.UserSettings = (function($, UserSettings) {
         return deferred.promise();
     };
 
-    UserSettings.commit = function() {
+    UserSettings.commit = function(showSuccess) {
 
         var deferred = jQuery.Deferred();
         if (!userPrefs) {
@@ -84,6 +90,9 @@ window.UserSettings = (function($, UserSettings) {
             .then(function() {
                 hasDSChange = false;
                 saveLastPrefs();
+                if (showSuccess) {
+                    xcHelper.showSuccess();
+                }
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -92,6 +101,9 @@ window.UserSettings = (function($, UserSettings) {
             });
         } else {
             // when no need to commit
+            if (showSuccess) {
+                xcHelper.showSuccess();
+            }
             deferred.resolve();
         }
 
@@ -116,7 +128,7 @@ window.UserSettings = (function($, UserSettings) {
                 }
             }
         }
-        
+        // if not found in userPrefs, check general settings
         return genSettings.getPref(pref);
     };
 
@@ -142,6 +154,18 @@ window.UserSettings = (function($, UserSettings) {
         userPrefs = new UserPref();
         hasDSChange = false;
         addEventListeners();
+    }
+
+    function getUserConfigParams(params) {
+        var numParams = params.numParams;
+        params = params.parameter;
+        var paramsObj = {};
+        for (var i = 0; i < numParams; i++) {
+            if (params[i].paramName === "DsDefaultSampleSize") {
+                paramsObj[params[i].paramName] = parseInt(params[i].paramValue);
+            }
+        }
+        return paramsObj;
     }
 
     function saveLastPrefs() {
@@ -195,6 +219,23 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
+        var $dsSampleLimit = $('#monitorDsSampleInput');
+        new MenuHelper($dsSampleLimit.find(".dropDownList"), {
+            "onSelect": function($li) {
+                var $input = $li.closest(".dropDownList").find(".unit");
+                $input.val($li.text());
+                var size = getDsSampleLimitValue();
+                UserSettings.setPref("DsDefaultSampleSize", size, true);
+            },
+            "container": $("#monitorGenSettingsCard"),
+            "bounds"   : $("#monitor-settings")
+        }).setupListeners();
+
+        $dsSampleLimit.on('change', '.size', function() {
+            var size = getDsSampleLimitValue();
+            UserSettings.setPref("DsDefaultSampleSize", size, true);
+        });
+
         memLimitSlider = new RangeSlider($('#memLimitSlider'), 'memoryLimit', {
             minVal: 50,
             maxVal: 99
@@ -207,18 +248,48 @@ window.UserSettings = (function($, UserSettings) {
                 MonitorGraph.updateInterval(val * 1000);
             }
         });
+
+        $("#userSettingsSave").click(function() {
+            var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
+            XcalarSetConfigParams('DsDefaultSampleSize', dsSampleLimit)
+            .then(function() {
+                $("#autoSaveBtn").click();
+            })
+            .fail(function(err) {
+                Alert.error(MonitorTStr.SavingSettingsFailed, err);
+            });
+            
+        });
     }
 
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref('hideDataCol');
         var memoryLimit = UserSettings.getPref('memoryLimit');
         var graphInterval = UserSettings.getPref('monitorGraphInterval');
+        var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
         if (!hideDataCol) {
             $('#showDataColBox').addClass('checked');
         }
        
         memLimitSlider.setSliderValue(memoryLimit);
         monIntervalSlider.setSliderValue(graphInterval);
+        setDsSampleLimitValue(dsSampleLimit);
+    }
+
+    function getDsSampleLimitValue() {
+        var $dsSampleLimit = $('#monitorDsSampleInput');
+        var $sizeInput = $dsSampleLimit.find('.size');
+        var $unitInput = $dsSampleLimit.find('.dropDownList').find('.unit');
+        var sizeVal = $sizeInput.val() || 0;
+        var unitVal = $unitInput.val();
+
+        return xcHelper.getPreviewSize(sizeVal, unitVal);
+    }
+
+    function setDsSampleLimitValue(fullVal) {
+        var size = xcHelper.sizeTranslator(fullVal, true);
+        $('#monitorDsSampleInput').find(".size").val(size[0]);
+        $('#monitorDsSampleInput').find(".unit").val(size[1]);
     }
 
     function restoreMainTabs() {

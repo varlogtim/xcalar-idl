@@ -129,6 +129,7 @@ window.DSTable = (function($, DSTable) {
             if (errorMsg === DSTStr.NoRecords) {
                 // the way to detect if need reset limit might be buggy
                 $errorSection.find(".limit").removeClass("xc-hidden");
+                advanceOption.reset();
             } else {
                 $errorSection.find(".limit").addClass("xc-hidden");
             }

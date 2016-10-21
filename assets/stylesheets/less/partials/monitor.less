@@ -1267,16 +1267,20 @@
     .cardMain {
         padding-left: 60px;
         padding-top: 22px;
-        padding-bottom: 60px;
+        padding-bottom: 20px;
         font-size: 13px;
         min-width: 700px; 
         font-weight: 600;
     }
 
+    .cardBottom {
+        padding-right: 40px;
+        padding-bottom: 20px;
+    }
+
     .optionSet {
         height: 50px;
         line-height: 50px;
-        overflow: hidden;
         position: relative;
     }
 
@@ -1284,6 +1288,7 @@
         display: inline-block;
         padding-right: 24px;
         float: left;
+        text-transform: uppercase;
     }
 
     .qMark {
@@ -1329,4 +1334,34 @@
         }
     }
 
+
+    .inputList {
+        // .size(@height: 60px);
+        line-height: 30px;
+        padding-top: 10px;
+
+        .inputWrap {
+            .input-box(@w: 80px, @h: 30px);
+            margin-left: 10px;
+            float: left;
+        }
+
+        .dropDownList {
+            margin-left: -1px;
+            .styleDropDownList(80px, 30px);
+
+            ul {
+                margin: 0;
+            }
+
+            li {
+                .size(@height: 20px);
+                line-height: 20px;
+                text-align: center;
+                padding: 0;
+                box-shadow: none;
+                opacity: @opacity-hover;
+            }
+        }
+    }
 }

@@ -31,49 +31,7 @@
     <!-- End of Setup Section -->
     <!-- Settings Section -->
     <section id="monitor-settings" class="subPanel monitorSection">
-      <div class="mainSection no-selection cardContainer">
-        <header class="cardHeader">
-          <div class="title"><%= dicts.monitor.GeneralSettings %></div>
-        </header>
-        <div class="optionsContainer cardMain">
-          <div class="optionSet">
-            <div class="label"><%= dicts.monitor.showDataCol %></div>
-            <div class="optionSelector">
-              <div id="showDataColBox" class="checkbox">
-                <i class="icon xi-ckbox-empty fa-13"></i>
-                <i class="icon xi-ckbox-selected fa-13"></i>
-              </div>
-            </div>
-          </div>
-          <div class="optionSet">
-            <div class="label"><%= dicts.monitor.memThreshold %></div>
-            <i title="<%= dicts.monitor.MemoryThresholdHint %>" class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"></i>
-            <div id="memLimitSlider" class="optionSelector rangeSliderWrap">
-              <div class="rangeSlider">
-                <div class="leftArea">
-                  <div class="slider"></div>
-                </div>
-                <div class="rightArea"></div>
-              </div>
-              <input class="value" value="90" type="number" min="50" max="99">
-              <span>%</span>
-            </div>
-          </div>
-          <div class="optionSet">
-            <div class="label"><%= dicts.monitor.graphInterval %></div>
-            <div id="monitorIntervalSlider" class="optionSelector rangeSliderWrap">
-              <div class="rangeSlider">
-                <div class="leftArea">
-                  <div class="slider"></div>
-                </div>
-                <div class="rightArea"></div>
-              </div>
-              <input class="value" value="3" type="number" min="1" max="60">
-              <span><%= dicts.common.seconds %></span>
-            </div>
-          </div>
-        </div>
-      </div>
+      include "monitorSettings.html"
     </section>
 
     <section id="monitor-extension" class="subPanel monitorSection">

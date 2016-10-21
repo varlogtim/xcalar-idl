@@ -18,7 +18,10 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         .then(function(res) {
             var params = res.parameter;
             for (var i = 0; i < params.length; i++) {
-                paramsCache[params[i].paramName.toLowerCase()] = params[i];
+                // making default sample size a user setting
+                if (params[i].paramName !== "DsDefaultSampleSize") {
+                    paramsCache[params[i].paramName.toLowerCase()] = params[i];  
+                }
             }
 
             if (firstTouch) {

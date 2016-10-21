@@ -167,7 +167,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
 
-        return previewSize;
+        return Math.round(previewSize);
     };
 
     // not tested in xchelper unit test
@@ -780,13 +780,13 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.textToBytesTranslator = function(numText) {
-        // accepts parameters in the form of 23GB or 56.2 mb
+        // accepts parameters in the form of "23GB" or "56.2 mb"
         // and converts them to bytes
         var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var num = parseFloat(numText);
         var text = numText.match(/[a-zA-Z]+/)[0].toUpperCase();
         var index = units.indexOf(text);
-        var bytes = num * Math.pow(1024, index);
+        var bytes = Math.round(num * Math.pow(1024, index));
         return (bytes);
     };
 

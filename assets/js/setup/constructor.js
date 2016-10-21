@@ -904,13 +904,15 @@ function UserInfoConstructor(UserInfoKeys, options) {
     return this;
 }
 
-function GenSettings(options) {
+function GenSettings(userConfigParms, options) {
     options = options || {};
     var defaultSettings = {
         hideDataCol         : false,
         memoryLimit         : 70,
-        monitorGraphInterval: 3
+        monitorGraphInterval: 3,
+        DsDefaultSampleSize : null
     };
+    defaultSettings = $.extend({}, defaultSettings, userConfigParms);
 
     var adminSettings = options.adminSettings || {};
     var xcSettings = options.xcSettings || {};
@@ -1050,11 +1052,17 @@ DSFormAdvanceOption.prototype = {
             $limit.find(".size").val(options.sizeText);
         } else {
             $limit.find(".radioButton[data-option='default']").click();
-
+            var defaultVal = UserSettings.getPref('DsDefaultSampleSize');
+            var size = xcHelper.sizeTranslator(defaultVal, true);
             // XXX use user setting's value for it
             // instead of hard code
-            $limit.find(".unit").val("GB");
-            $limit.find(".size").val(10);
+            if (!size) {
+                $limit.find(".unit").val("GB");
+                $limit.find(".size").val(10);
+            } else {
+                $limit.find(".unit").val(size[1]);
+                $limit.find(".size").val(size[0]);
+            }
         }
 
         if (hasSet && !$section.hasClass("active")) {
