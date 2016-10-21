@@ -707,7 +707,7 @@ describe('Constructor Test', function() {
             expect(genSettings).to.have.property('baseSettings');
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings).length).to.equal(3);
+            expect(Object.keys(baseSettings).length).to.equal(4);
 
             expect(baseSettings).to.have.property('hideDataCol')
             .and.to.be.false;
@@ -715,6 +715,8 @@ describe('Constructor Test', function() {
             .and.to.equal(70);
             expect(baseSettings).to.have.property('monitorGraphInterval')
             .and.to.equal(3);
+            expect(baseSettings).to.have.property('DsDefaultSampleSize')
+            .and.to.equal(null);
         });
 
         it('GenSettings heirarchy should work', function() {
@@ -727,20 +729,24 @@ describe('Constructor Test', function() {
                     monitorGraphInterval: 9
                 }
             };
+            var userConfigParams = {
+                DsDefaultSampleSize: 2000  
+            };
             // base settings should be 
             // {memoryLimit: 0, monitorGraphInterval: 9, hideDataCol: false}
 
-            var genSettings = new GenSettings(testSettings);
+            var genSettings = new GenSettings(userConfigParams, testSettings);
 
             var adminAndXc = genSettings.getAdminAndXcSettings();
             expect(Object.keys(adminAndXc.adminSettings)).to.have.length(1);
             expect(Object.keys(adminAndXc.xcSettings)).to.have.length(2);
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings)).to.have.length(3);
+            expect(Object.keys(baseSettings)).to.have.length(4);
             expect(baseSettings['hideDataCol']).to.be.false;
             expect(baseSettings['memoryLimit']).to.equal(0);
             expect(baseSettings['monitorGraphInterval']).to.equal(9);
+            expect(baseSettings['DsDefaultSampleSize']).to.equal(2000);
         });
 
         it('UserPref should be a constructor', function() {
@@ -840,9 +846,14 @@ describe('Constructor Test', function() {
 
         it("Should reset options", function() {
             advanceOption.reset();
-            // XXX change test when use Usersetting to set default size
-            expect($limit.find(".size").val()).to.equal("10");
-            expect($limit.find(".unit").val()).to.equal("GB");
+
+            var defaultVal = UserSettings.getPref('DsDefaultSampleSize');
+            var size = xcHelper.sizeTranslator(defaultVal, true);
+            expect(size[0]).to.be.gt(0);
+            expect(size[1]).to.be.a('string').and.to.have.length(2);
+
+            expect($limit.find(".size").val()).to.equal(size[0] + "");
+            expect($limit.find(".unit").val()).to.equal(size[1]);
             expect($pattern.find(".recursive .checkbox").hasClass("checked"))
             .to.be.false;
 

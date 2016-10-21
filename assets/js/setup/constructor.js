@@ -905,6 +905,7 @@ function UserInfoConstructor(UserInfoKeys, options) {
 }
 
 function GenSettings(userConfigParms, options) {
+    userConfigParms = userConfigParms || {};
     options = options || {};
     var defaultSettings = {
         hideDataCol         : false,
