@@ -814,7 +814,7 @@ window.ExportView = (function($, ExportView) {
     }
 
     function refreshTableColList() {
-        var colHtml = ExportHelper.getTableCols(tableId);
+        var colHtml = ExportHelper.getTableCols(tableId, validTypes);
         $exportView.find('.cols').html(colHtml);
         $exportView.find('.selectAllWrap').find('.checkbox')
                                           .addClass('checked');

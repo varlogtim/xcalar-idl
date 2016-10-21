@@ -453,6 +453,7 @@ describe('Constructor Test', function() {
             });
 
             expect(table.getNumCols()).to.equal(2);
+            expect(table.getAllCols()).to.be.an("array");
             expect(table.getCol(0)).to.be.null;
             expect(table.getCol(1).getFrontColName()).to.be.equal("testCol");
             expect(table.getCol(3)).to.be.null;
@@ -1581,6 +1582,42 @@ describe('Constructor Test', function() {
 
             $view = $(fakeHtml).appendTo("body");
         });
+
+        it("Should have staic getTableCols method", function() {
+            var progCol =  new ProgCol({
+                "name"    : "test",
+                "backName": "test",
+                "isNewCol": false,
+                "type"    : "string",
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var tableId = "unitTest-exportHelper";
+            var table = new TableMeta({
+                "tableName": "test#" + tableId,
+                "tableId"  : tableId,
+                "tableCols": [progCol],
+                "isLocked" : false
+            });
+
+            gTables[tableId] = table;
+
+            // case 1
+            var validTypes = ["string"];
+            var html = ExportHelper.getTableCols(tableId, validTypes);
+            var $ele = $(html);
+            expect($ele.find(".text").text()).to.equal("test");
+
+            // case 2
+            validTypes = ["integer"];
+            html = ExportHelper.getTableCols(tableId, validTypes);
+            $ele = $(html);
+            expect($ele.find(".text").length).to.equal(0);
+
+            delete gTables[tableId];
+        })
 
         it("Should create exportHelper", function() {
             exportHelper = new ExportHelper($view);

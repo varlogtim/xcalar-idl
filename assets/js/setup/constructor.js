@@ -3222,7 +3222,7 @@ function ExportHelper($view) {
     return this;
 }
 
-ExportHelper.getTableCols = function(tableId) {
+ExportHelper.getTableCols = function(tableId, validTypes) {
     // each li has data-colnum that will link it to the corresponding
     // xcTable header
     var html = "";
@@ -3235,7 +3235,7 @@ ExportHelper.getTableCols = function(tableId) {
             var colNum = (index + 1);
             html +=
                 '<li class="checked" data-colnum="' + colNum + '">' +
-                    '<span class="text  tooltipOverflow" ' +
+                    '<span class="text tooltipOverflow" ' +
                     'data-original-title="' + colName + '" ' +
                     'data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body">' +

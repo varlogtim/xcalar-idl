@@ -71,7 +71,7 @@ window.DFCreateView = (function($, DFCreateView) {
     };
 
     function createColumnsList() {
-        var colHtml = ExportHelper.getTableCols(tableId)();
+        var colHtml = ExportHelper.getTableCols(tableId, validTypes);
         $colList.html(colHtml);
         if ($colList.find('li').length === 0) {
             $dfView.find('.exportColumnsSection').addClass('empty');
