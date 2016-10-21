@@ -16,7 +16,6 @@ window.DSCart = (function($, DSCart) {
     var intervalTime = 2000;
     var prefixLimit = 20;
 
-
     DSCart.setup = function() {
         $cartArea = $("#dataCart");
         $cartList = $("#dataCartWSList");
@@ -139,7 +138,7 @@ window.DSCart = (function($, DSCart) {
             return;
         }
 
-        DSCart.getCartById(dsId).removeClass("xc-hidden");
+        DSCart.getCartElement(dsId).removeClass("xc-hidden");
         refreshCart(dsId);
     };
 
@@ -168,7 +167,7 @@ window.DSCart = (function($, DSCart) {
         return innerCarts;
     };
 
-    DSCart.getCartById = function(dsId) {
+    DSCart.getCartElement = function(dsId) {
         if (dsId == null) {
             return null;
         }
@@ -382,7 +381,7 @@ window.DSCart = (function($, DSCart) {
             return;
         }
 
-        var $cart = DSCart.getCartById(dsId);
+        var $cart = DSCart.getCartElement(dsId);
         var $li = $cart.find("li[data-colnum=" + colNum + "]");
         removeCartItem(dsId, $li);
     };
@@ -393,15 +392,13 @@ window.DSCart = (function($, DSCart) {
             return;
         }
 
-        var $cart = DSCart.getCartById(dsId);
+        var $cart = DSCart.getCartElement(dsId);
         // remove cart
         delete innerCarts[dsId];
 
         $cart.remove();
         refreshCart(dsId);
         clearHighlightCol();
-        // $cartList.removeData("ws")
-        //         .find(".text").val("");
     };
 
     DSCart.clear = function() {
@@ -580,7 +577,7 @@ window.DSCart = (function($, DSCart) {
     }
 
     function appendCartItem(cart, items) {
-        var $cart = DSCart.getCartById(cart.dsId);
+        var $cart = DSCart.getCartElement(cart.dsId);
         var html = "";
         var len = items.length;
 
@@ -632,7 +629,7 @@ window.DSCart = (function($, DSCart) {
     }
 
     function emptyCart(cart) {
-        var $cart = DSCart.getCartById(cart.dsId);
+        var $cart = DSCart.getCartElement(cart.dsId);
         $cart.find("ul").empty()
             .end()
             .find(".cartEmptyHint").removeClass("xc-hidden");
@@ -680,7 +677,7 @@ window.DSCart = (function($, DSCart) {
             $container.removeClass("noCart");
             $cartBtn.removeClass("noCart");
             $(".dataCartNum").text(numCol);
-            DSCart.getCartById(dsId).removeClass("xc-hidden");
+            DSCart.getCartElement(dsId).removeClass("xc-hidden");
         }
 
         overflowShadow();
@@ -779,7 +776,7 @@ window.DSCart = (function($, DSCart) {
         }
 
         // check table name
-        var $cart = DSCart.getCartById(cart.getId());
+        var $cart = DSCart.getCartElement(cart.getId());
         var $tableName = $cart.find(".tableNameEdit");
         var tableName = cart.getTableName();
 

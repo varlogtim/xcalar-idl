@@ -178,7 +178,7 @@ window.TableList = (function($, TableList) {
 
 
         searchHelper = new SearchBar($("#orphanedTableList-search"), {
-            "$list": $("#orphanedTableList").find('.tableLists'),
+            "$list"         : $("#orphanedTableList").find('.tableLists'),
             "removeSelected": function() {
                 $("#orphanedTableList").find(".selected").removeClass('selected');
             },
@@ -1228,7 +1228,7 @@ window.TableList = (function($, TableList) {
         }
 
         var $noSheetTables = $tableList.find(".addTableBtn.selected")
-                                    .closest(".tableInfo").filter(function() {
+        .closest(".tableInfo").filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");
         });
 

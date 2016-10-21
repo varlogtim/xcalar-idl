@@ -817,9 +817,9 @@ window.TblManager = (function($, TblManager) {
 
         var prefix = progCol.getPrefix();
         var prefixColor = "";
-        var prefixClass = "prefix"
+        var prefixClass = "prefix";
 
-        if (prefix == "") {
+        if (prefix === "") {
             prefix = CommonTxtTstr.Immediates;
             prefixClass += " immediate";
         } else {
@@ -2552,7 +2552,7 @@ window.TblManager = (function($, TblManager) {
 
         var isValid = xcHelper.validate([
             {
-                "$ele" : $tableName
+                "$ele": $tableName
             },
             {
                 "$ele" : $tableName,

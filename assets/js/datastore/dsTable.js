@@ -464,7 +464,7 @@ window.DSTable = (function($, DSTable) {
     function restoreSelectedColumns() {
         var $table = $("#dsTable");
         var dsId = $table.data("dsid");
-        var $cart = DSCart.getCartById(dsId);
+        var $cart = DSCart.getCartElement(dsId);
 
         $cart.find("li").each(function() {
             var colNum = $(this).data("colnum");

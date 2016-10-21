@@ -3009,9 +3009,9 @@ window.OperationsView = (function($, OperationsView) {
         
         Alert.error(title, newMsg, {
             buttons: [{
-                name: btnText,
+                name     : btnText,
                 className: btnClass,
-                func: function() {
+                func     : function() {
                     OperationsView.show(null , null , null , true);
                 }
             }]

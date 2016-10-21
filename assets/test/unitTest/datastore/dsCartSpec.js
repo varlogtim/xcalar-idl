@@ -59,7 +59,7 @@ function dsCartModuleTest() {
     });
 
     it("Should get cart", function() {
-        var $cart = DSCart.getCartById(testCartId);
+        var $cart = DSCart.getCartElement(testCartId);
         assert.equal($cart.length, 1, 'have only 1 cart');
     });
 
@@ -78,7 +78,7 @@ function dsCartModuleTest() {
         expect(item).to.have.property('value').to.equal("testItem");
 
         // UI check
-        var $cart = DSCart.getCartById(testCartId);
+        var $cart = DSCart.getCartElement(testCartId);
         assert.equal($cart.length, 1, 'still have only 1 cart');
         assert.equal($cart.find("li").length, 1, 'should have only 1 item');
         assert.isFalse($cart.find(".cartEmptyHint").is(":visible"),
@@ -101,7 +101,7 @@ function dsCartModuleTest() {
 
 
         // UI check
-        var $cart = DSCart.getCartById(testCartId);
+        var $cart = DSCart.getCartElement(testCartId);
         var $li = $cart.find("li");
         assert.equal($li.length, 1, 'have only 1 item');
         assert.equal($li.text(), 'testItem2', 'have the right item');
@@ -114,7 +114,7 @@ function dsCartModuleTest() {
         expect(getCartsLen(carts)).to.equal(0);
 
         // UI check
-        var $cart = DSCart.getCartById(testCartId);
+        var $cart = DSCart.getCartElement(testCartId);
         assert.equal($cart.length, 0, 'should have no carts');
     });
 

@@ -484,9 +484,9 @@ window.TblMenu = (function(TblMenu, $) {
                     numColToGet = Number(num);
                     var isValid = xcHelper.validate([
                         {
-                            "$ele": $numInput,
+                            "$ele" : $numInput,
                             "error": ErrTStr.OnlyNumber,
-                            "check"    : function() {
+                            "check": function() {
                                 return (isNaN(numColToGet) ||
                                         !Number.isInteger(numColToGet));
                             }

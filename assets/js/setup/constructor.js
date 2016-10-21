@@ -1243,13 +1243,14 @@ Cart.prototype = {
     },
 
     removeItem: function(colNum) {
-        var items = this.items;
-        for (var i = 0, len = items.length; i < len; i++) {
-            if (items[i].colNum === colNum) {
-                items.splice(i, 1);
-                break;
+        this.items = this.items.filter(function(item) {
+            if (item.colNum === colNum) {
+                // filter out the item
+                return false;
+            } else {
+                return true;
             }
-        }
+        });
     },
 
     emptyItem: function() {
