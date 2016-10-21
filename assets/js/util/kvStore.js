@@ -4,7 +4,7 @@ window.KVStore = (function($, KVStore) {
     // apply to all places
     var METAKeys;
     var EMetaKeys; // Ephemeral meta data keys
-    // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey, 
+    // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
     // gSettingsKey
     KVStore.setup = function(keys) {
         METAKeys = getMETAKeys();

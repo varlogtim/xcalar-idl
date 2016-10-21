@@ -2,12 +2,10 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     var $configCard;
     var $placeholder;
     var paramsCache = {};
-    var $menuPanel;
 
     MonitorConfig.setup = function() {
         $configCard = $('#configCard');
         $placeholder = $configCard.find('.placeholder');
-        $menuPanel = $('#monitorMenu-setup');
         setupListeners();
     };
 
@@ -20,7 +18,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             for (var i = 0; i < params.length; i++) {
                 // making default sample size a user setting
                 if (params[i].paramName !== "DsDefaultSampleSize") {
-                    paramsCache[params[i].paramName.toLowerCase()] = params[i];  
+                    paramsCache[params[i].paramName.toLowerCase()] = params[i];
                 }
             }
 
@@ -33,7 +31,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         .fail(function(error) {
             deferred.reject(error);
         });
-        return deferred.promise();  
+        return deferred.promise();
     };
 
     function setupListeners() {
@@ -56,13 +54,13 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 return;
             }
             var $nameInput = $(this);
-            var val = $nameInput.val().trim(); 
+            var val = $nameInput.val().trim();
 
             if (!val.length) {
                 return;
             }
 
-            var valLower = val.toLowerCase();
+            // var valLower = val.toLowerCase();
             var $formRow = $nameInput.closest('.formRow');
             var $curValInput = $formRow.find('.curVal');
             var $newValInput = $formRow.find('.newVal');
@@ -116,7 +114,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         });
 
         $configCard.on('click', '.defaultParam', function() {
-            resetDefaultParam($(this).closest('.formRow')); 
+            resetDefaultParam($(this).closest('.formRow'));
         });
 
         $('#paramSettingsSave').on("click", submitForm);
@@ -159,9 +157,9 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
             if (!paramObj) {
                 errorFound = {
-                    input: $nameInput,
+                    input : $nameInput,
                     reason: "invalidName"
-                }
+                };
                 return false;
             }
 
@@ -169,7 +167,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
             if (!newVal.length) {
                 errorFound = {
-                    input: $newValInput,
+                    input : $newValInput,
                     reason: "empty"
                 };
                 return false;
@@ -204,7 +202,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
     function submitFailHandler(args, rows) {
         var errorMsg = "";
-        var partialFail = false;
+        // var partialFail = false;
         var $errorRow;
         for (var i = 0 ; i < args.length; i++) {
             if (args[i].error) {
@@ -212,17 +210,18 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     errorMsg = args[i].error;
                     $errorRow = rows[i];
                 }
-            } else {
-                partialFail = true;
             }
+            // else {
+            //     partialFail = true;
+            // }
         }
         // xx not sure how to show all the errored rows if multiple
         var paramName = $errorRow.find('.paramName').val();
         var currVal = $errorRow.find('.curVal').val();
         errorMsg += '<br/>' + xcHelper.replaceMsg(
-            MonitorTStr.ParamConfigFailMsg, {
-            name: paramName,
-            value: currVal 
+        MonitorTStr.ParamConfigFailMsg, {
+            name : paramName,
+            value: currVal
         });
         Alert.error(MonitorTStr.ParamConfigFailed, errorMsg, {
             msgTemplate: errorMsg
@@ -231,7 +230,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
     function showFormError(errorObj) {
         var msg = "";
-        switch(errorObj.reason) {
+        switch (errorObj.reason) {
             case ("empty"):
                 msg = ErrTStr.NoEmpty;
                 break;
@@ -266,7 +265,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     function updateParamInputs(rows) {
         var $row;
         var $nameInput;
-        var name;
         var paramObj;
         for (var i = 0; i < rows.length; i++) {
             $row = rows[i];
@@ -279,17 +277,17 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         }
     }
 
-    function appendWaitingIcon($formRow) {
-        var $curValInput = $formRow.find('.curVal');
-        var $curValArg = $curValInput.parent();
-        $curValArg.append('<div class="waitingIcon"></div>');
-        var $waitingIcon = $curValArg.find('.waitingIcon');
-        var offsetLeft = $curValInput.position().left;
-        var width = $curValInput.outerWidth();
-        $waitingIcon.fadeIn(200);
-        var left = offsetLeft + (width / 2) - ($waitingIcon.width() / 2) + 10;
-        $waitingIcon.css('left', left);
-    }
+    // function appendWaitingIcon($formRow) {
+    //     var $curValInput = $formRow.find('.curVal');
+    //     var $curValArg = $curValInput.parent();
+    //     $curValArg.append('<div class="waitingIcon"></div>');
+    //     var $waitingIcon = $curValArg.find('.waitingIcon');
+    //     var offsetLeft = $curValInput.position().left;
+    //     var width = $curValInput.outerWidth();
+    //     $waitingIcon.fadeIn(200);
+    //     var left = offsetLeft + (width / 2) - ($waitingIcon.width() / 2) + 10;
+    //     $waitingIcon.css('left', left);
+    // }
 
     function addInputRow() {
         var html = getInputRowHtml();
@@ -307,7 +305,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         var newVal = "";
         var rowClassNames = "";
         var paramNameDisabledProp = "";
-        var newValDisabledProp = "disabled";
         var uneditable = false;
         if (paramObj) {
             paramName = paramObj.paramName;
@@ -315,7 +312,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             rowClassNames += " nameIsSet";
             paramNameDisabledProp = "disabled";
             if (paramObj.changeable) {
-                newValDisabledProp = "";
                 newVal = curVal;
             } else {
                 rowClassNames += " uneditable";
@@ -360,14 +356,14 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
         html += '</label>';
         if (!uneditable) {
-            html += '<div class="defaultParam iconWrap xc-action" ' +
-                        'data-toggle="tooltip" data-container="body" ' +
-                        'data-original-title="' + CommonTxtTstr.DefaultVal + 
-                        '">' +
-                        '<i class="icon xi-restore center fa-15"></i>' +
-                    '</div>';
+            html +=
+                '<div class="defaultParam iconWrap xc-action" ' +
+                    'data-toggle="tooltip" data-container="body" ' +
+                    'data-original-title="' + CommonTxtTstr.DefaultVal + '">' +
+                    '<i class="icon xi-restore center fa-15"></i>' +
+                '</div>';
         }
-        html +=   '</div>' +
+        html += '</div>' +
                 '</div>';
         return (html);
     }

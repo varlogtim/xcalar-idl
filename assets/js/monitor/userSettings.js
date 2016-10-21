@@ -241,7 +241,7 @@ window.UserSettings = (function($, UserSettings) {
             maxVal: 99
         });
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
-            'monitorGraphInterval', {
+        'monitorGraphInterval', {
             minVal     : 1,
             maxVal     : 60,
             onChangeEnd: function(val) {

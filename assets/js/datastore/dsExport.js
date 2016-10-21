@@ -93,7 +93,7 @@ window.DSExport = (function($, DSExport) {
         });
 
         $('#exportTargetDelete').click(function() {
-            deleteTarget(); 
+            deleteTarget();
         });
     };
 
@@ -242,7 +242,7 @@ window.DSExport = (function($, DSExport) {
         }
 
         $exportTargetCard.addClass('xc-hidden');
-        $exportTargetEditCard.removeClass('xc-hidden')
+        $exportTargetEditCard.removeClass('xc-hidden');
         var $activeInputs = $exportTargetEditCard.find('input:enabled');
         $activeInputs.addClass('tempDisabled').prop('disabled', true);
 
@@ -354,7 +354,7 @@ window.DSExport = (function($, DSExport) {
     function deleteTarget() {
         var $activeIcon = $gridView.find('.target.selected');
         if ($activeIcon.length === 0) {
-            $activeIcon  = $gridView.find('.target.active');
+            $activeIcon = $gridView.find('.target.active');
         }
 
         var targetName = $activeIcon.data('name');
@@ -368,11 +368,11 @@ window.DSExport = (function($, DSExport) {
         }
 
         Alert.show({
-            "title"         : DSExportTStr.DeleteExportTarget,
-            "msgTemplate"   : xcHelper.replaceMsg(DSExportTStr.DeleteConfirmMsg,
+            "title"      : DSExportTStr.DeleteExportTarget,
+            "msgTemplate": xcHelper.replaceMsg(DSExportTStr.DeleteConfirmMsg,
                                 {'target': targetName}),
-            "onConfirm"    : function() {
-               XcalarRemoveExportTarget(targetName, targetType)
+            "onConfirm": function() {
+                XcalarRemoveExportTarget(targetName, targetType)
                 .then(function() {
                     if ($activeIcon.hasClass('active')) {
                         showExportTargetForm();
@@ -458,7 +458,7 @@ window.DSExport = (function($, DSExport) {
             promise = XcalarAddODBCExportTarget(name, formatSpecificArg);
         } else if (targetType === "UDF") {
             var udfName = options.module + ":" + options.fn;
-            promise = XcalarAddUDFExportTarget(name, formatSpecificArg, 
+            promise = XcalarAddUDFExportTarget(name, formatSpecificArg,
                                                 udfName);
         } else {
             var error = {error: DSExportTStr.InvalidTypeMsg};

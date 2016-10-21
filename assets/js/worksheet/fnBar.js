@@ -150,32 +150,25 @@ window.FnBar = (function(FnBar, $) {
     FnBar.updateOperationsMap = function(opMap, isOnlyUDF) {
         if (isOnlyUDF) {
             udfMap = {};
-            for (var i = 0; i < opMap.length; i++) {
-                udfMap[opMap[i].fnName.toLowerCase()] = opMap[i];
-                opMap[i].template = createFuncTemplate(opMap[i]);
-                var secondTemplate = createSecondaryTemplate(opMap[i]);
-                opMap[i].templateTwo = secondTemplate.template;
-                opMap[i].modArgDescs = secondTemplate.argDescs;
-            }
-
         } else {
             xdfMap = {};
             udfMap = {};
-            var op;
-            for (var i = 0; i < opMap.length; i++) {
-                op = opMap[i];
-                if (op.category === FunctionCategoryT.FunctionCategoryUdf) {
-                    udfMap[op.fnName.toLowerCase()] = op;
-                } else if (op.category !==
-                            FunctionCategoryT.FunctionCategoryAggregate) {
-                    xdfMap[op.fnName.toLowerCase()] = op;
-                }
+        }
 
-                op.template = createFuncTemplate(op);
-                var secondTemplate = createSecondaryTemplate(op);
-                op.templateTwo = secondTemplate.template;
-                op.modArgDescs = secondTemplate.argDescs;
+        for (var i = 0; i < opMap.length; i++) {
+            var op = opMap[i];
+            var fnName = op.fnName.toLowerCase();
+            if (op.category === FunctionCategoryT.FunctionCategoryUdf) {
+                udfMap[fnName] = op;
+            } else if (op.category !==
+                        FunctionCategoryT.FunctionCategoryAggregate) {
+                xdfMap[fnName] = op;
             }
+
+            op.template = createFuncTemplate(op);
+            var secondTemplate = createSecondaryTemplate(op);
+            op.templateTwo = secondTemplate.template;
+            op.modArgDescs = secondTemplate.argDescs;
         }
 
         // the text that shows up in the list
@@ -222,7 +215,6 @@ window.FnBar = (function(FnBar, $) {
             fnTemplate += ')';
             return {template: fnTemplate, argDescs: argDescs};
         }
-        
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
@@ -288,8 +280,8 @@ window.FnBar = (function(FnBar, $) {
     FnBar.focusCursor = function() {
         var valLen = editor.getValue().length;
         editor.focus();
-        editor.setCursor(0, valLen); 
-    }
+        editor.setCursor(0, valLen);
+    };
 
     function clearSearch() {
         $functionArea.removeClass('searching');
@@ -405,39 +397,13 @@ window.FnBar = (function(FnBar, $) {
 
                 if (getOperationFromFuncStr(fullVal) !== "pull") {
                     // search xdfMap
-                    for (var fnName in xdfMap) {
-                        if (fnName.lastIndexOf(curWord, 0) === 0 &&
-                            !seen.hasOwnProperty(fnName)) {
-                            seen[fnName] = true;
-                            list.push({
-                                text       : xdfMap[fnName].fnName + "()",
-                                displayText: fnName,
-                                template   : xdfMap[fnName].template,
-                                templateTwo: xdfMap[fnName].templateTwo,
-                                argDescs   : xdfMap[fnName].modArgDescs,
-                                hint       : autcompleteSelect,
-                                render     : renderOpLi,
-                                className  : "operator"
-                            });
-                        }
+                    for (var xdfFn in xdfMap) {
+                        seachMapFunction(xdfFn, xdfMap[xdfFn]);
                     }
 
                     // search udfMap
-                    for (var fnName in udfMap) {
-                        if (fnName.lastIndexOf(curWord, 0) === 0 &&
-                            !seen.hasOwnProperty(fnName)) {
-                            seen[fnName] = true;
-                            list.push({
-                                text       : udfMap[fnName].fnName + "()",
-                                displayText: fnName,
-                                template   : udfMap[fnName].template,
-                                templateTwo: udfMap[fnName].templateTwo,
-                                argDescs   : udfMap[fnName].modArgDescs,
-                                hint       : autcompleteSelect,
-                                render     : renderOpLi,
-                                className  : "operator"
-                            });
-                        }
+                    for (var udfFn in udfMap) {
+                        seachMapFunction(udfFn, udfMap[udfFn]);
                     }
                 }
             }
@@ -458,6 +424,23 @@ window.FnBar = (function(FnBar, $) {
                 from: CodeMirror.Pos(0, start),
                 to  : CodeMirror.Pos(0, end)
             });
+
+            function seachMapFunction(fnName, mapFunc) {
+                if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                    !seen.hasOwnProperty(fnName)) {
+                    seen[fnName] = true;
+                    list.push({
+                        text       : mapFunc.fnName + "()",
+                        displayText: fnName,
+                        template   : mapFunc.template,
+                        templateTwo: mapFunc.templateTwo,
+                        argDescs   : mapFunc.modArgDescs,
+                        hint       : autcompleteSelect,
+                        render     : renderOpLi,
+                        className  : "operator"
+                    });
+                }
+            }
         });
     
 

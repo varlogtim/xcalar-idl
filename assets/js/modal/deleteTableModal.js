@@ -45,16 +45,16 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             var msg = SideBarTStr.DelTablesMsg;
             $modal.addClass('lowZindex');
             Alert.show({
-                "title"         : TblTStr.Del,
-                "msg"           : msg,
-                "highZindex"    : true,
-                "onCancel"      : function() {
+                "title"     : TblTStr.Del,
+                "msg"       : msg,
+                "highZindex": true,
+                "onCancel"  : function() {
                     $modal.removeClass('lowZindex');
-                    $('#modalBackground').hide(); 
+                    $('#modalBackground').hide();
                     // by default background won't hide because modalHelper
                     // detects more than 1 modal open
                 },
-                "onConfirm"     : function() {
+                "onConfirm": function() {
                     $modal.removeClass('lowZindex');
                     $('#modalBackground').hide();
                     submitForm();
@@ -246,7 +246,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     }
 
     function hasCheckedTables() {
-        return $modal.find('.grid-unit .checkbox.checked').length > 0
+        return $modal.find('.grid-unit .checkbox.checked').length > 0;
     }
 
     function getTableSizeMap() {

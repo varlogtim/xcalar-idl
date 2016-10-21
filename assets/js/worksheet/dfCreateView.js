@@ -71,7 +71,7 @@ window.DFCreateView = (function($, DFCreateView) {
     };
 
     function createColumnsList() {
-        var colHtml = getTableColList();
+        var colHtml = ExportHelper.getTableCols(tableId)();
         $colList.html(colHtml);
         if ($colList.find('li').length === 0) {
             $dfView.find('.exportColumnsSection').addClass('empty');
@@ -81,35 +81,6 @@ window.DFCreateView = (function($, DFCreateView) {
         $dfView.find('.selectAllWrap').find('.checkbox')
                                           .addClass('checked');
 
-    }
-
-    function getTableColList() {
-        var html = "";
-        var numBlanks = 10; // to take up flexbox space
-        var allCols = gTables[tableId].tableCols;
-        for (var i = 0; i < allCols.length; i++) {
-            var progCol = allCols[i];
-
-            if (validTypes.indexOf(progCol.getType()) > -1) {
-                var name = allCols[i].getFrontColName(true);
-                html += '<li class="checked" data-colnum="' + (i + 1) + '">' +
-                            '<span class="text tooltipOverflow" ' +
-                            'data-original-title="' + name + '" ' +
-                            'data-toggle="tooltip" data-placement="top" ' +
-                            'data-container="body">' +
-                                name +
-                            '</span>' +
-                            '<div class="checkbox checked">' +
-                                '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                                '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                            '</div>' +
-                        '</li>';
-            }
-        }
-        for (var i = 0; i < numBlanks; i++) {
-            html += '<div class="flexSpace"></div>';
-        }
-        return (html);
     }
 
     function selectAll() {

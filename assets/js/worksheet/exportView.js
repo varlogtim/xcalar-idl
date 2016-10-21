@@ -814,43 +814,11 @@ window.ExportView = (function($, ExportView) {
     }
 
     function refreshTableColList() {
-        var colHtml = getTableColList();
+        var colHtml = ExportHelper.getTableCols(tableId);
         $exportView.find('.cols').html(colHtml);
         $exportView.find('.selectAllWrap').find('.checkbox')
                                           .addClass('checked');
     }
-
-    // each li has data-colnum that will link it to the corresponding
-    // xcTable header
-    function getTableColList() {
-        var html = "";
-        var numBlanks = 10; // to take up flexbox space
-        var allCols = gTables[tableId].tableCols;
-        for (var i = 0; i < allCols.length; i++) {
-            var progCol = allCols[i];
-            if (validTypes.indexOf(progCol.getType()) > -1) {
-                var colName = progCol.getFrontColName(true);
-                var colNum = (i + 1);
-                html += '<li class="checked" data-colnum="' + colNum + '">' +
-                            '<span class="text  tooltipOverflow" ' +
-                            'data-original-title="' + colName + '" ' +
-                            'data-toggle="tooltip" data-placement="top" ' +
-                            'data-container="body">' +
-                                colName +
-                            '</span>' +
-                            '<div class="checkbox checked">' +
-                                '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                                '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                            '</div>' +
-                        '</li>';
-            }
-        }
-        for (var i = 0; i < numBlanks; i++) {
-            html += '<div class="flexSpace"></div>';
-        }
-        return (html);
-    }
-
 
     // get selected options when submitting form
     function getAdvancedOptions() {

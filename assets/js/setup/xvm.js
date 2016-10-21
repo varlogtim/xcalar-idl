@@ -41,7 +41,7 @@ window.XVM = (function(XVM) {
                 backendVersion = result.version;
                 var utcSeconds = parseInt(licKey.expiration);
                 var d = new Date(0);
-                d.setUTCSeconds(utcSeconds)
+                d.setUTCSeconds(utcSeconds);
                 licenseKey = d.toDateString();
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                     console.log("Thrift version mismatch! Backend's thrift " +

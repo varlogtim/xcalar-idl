@@ -4,22 +4,22 @@ window.Admin = (function($, Admin) {
     var userList = [];
     var searchHelper;
     var $menuPanel; // $('#monitorMenu-setup');
- 	var $userList; // $menuPanel.find('.userList');
+    var $userList; // $menuPanel.find('.userList');
 
     Admin.initialize = function() {
-    	//xx temp hack  to determine admin
-    	if (localStorage.admin === "true") {
-    		gAdmin = true;
-    	}
-    	$menuPanel = $('#monitorMenu-setup');
-       	$userList = $menuPanel.find('.userList');
+        //xx temp hack  to determine admin
+        if (localStorage.admin === "true") {
+            gAdmin = true;
+        }
+        $menuPanel = $('#monitorMenu-setup');
+        $userList = $menuPanel.find('.userList');
 
-    	if (Admin.isAdmin()) {
-    		addMonitorMenuPanelListeners();
-    		refreshUserList();
+        if (Admin.isAdmin()) {
+            addMonitorMenuPanelListeners();
+            refreshUserList();
             updateAdminStatusBar();
             addAdminStatusBarListeners();
-    	}
+        }
     };
 
     Admin.isAdmin = function() {
@@ -28,37 +28,37 @@ window.Admin = (function($, Admin) {
 
     // will not add user if already exists in kvstore
     Admin.addNewUser = function() {
-    	if (Admin.isAdmin()) {
-    		// do not add admin to userList
-    		return PromiseHelper.resolve();
-    	}
-    	var username = Support.getUser();
+        if (Admin.isAdmin()) {
+            // do not add admin to userList
+            return PromiseHelper.resolve();
+        }
+        var username = Support.getUser();
 
-    	KVStore.get(userListKey, gKVScope.GLOB)
-    	.then(function(value) {
-    		if (value == null) {
-    			storeUsername(username);
-    		} else {
-    			parseStrIntoUserList(value);
-    			// usernames are case sensitive
-    			if (userList.indexOf(username) === -1) {
-    				storeUsername(username, true);
-    			}
-    		}
-    	})
-    	.fail(function(err) {
-    		//xx need to handle or alert?
-    		console.warn(err);
-    	});
+        KVStore.get(userListKey, gKVScope.GLOB)
+        .then(function(value) {
+            if (value == null) {
+                storeUsername(username);
+            } else {
+                parseStrIntoUserList(value);
+                // usernames are case sensitive
+                if (userList.indexOf(username) === -1) {
+                    storeUsername(username, true);
+                }
+            }
+        })
+        .fail(function(err) {
+            //xx need to handle or alert?
+            console.warn(err);
+        });
     };
 
     Admin.getUserList = function() {
-    	if (Admin.isAdmin()) {
-    		return userList;
-    	} else {
-    		return [];
-    	}
-    }
+        if (Admin.isAdmin()) {
+            return userList;
+        } else {
+            return [];
+        }
+    };
 
     Admin.switchUser = function(username) {
         sessionStorage.setItem("xcalar-username", username);
@@ -67,8 +67,8 @@ window.Admin = (function($, Admin) {
     };
 
     function addMonitorMenuPanelListeners() {
-    	searchHelper = new SearchBar($("#adminUserSearch"), {
-    		"$list": $userList.find('ul'),
+        searchHelper = new SearchBar($("#adminUserSearch"), {
+            "$list"         : $userList.find('ul'),
             "removeSelected": function() {
                 $userList.find(".selected").removeClass('selected');
             },
@@ -81,7 +81,7 @@ window.Admin = (function($, Admin) {
 
         $("#adminUserSearch").on('input', 'input', function() {
             var keyWord = $(this).val();
-            filterUserList(keyWord); 
+            filterUserList(keyWord);
         });
 
         $("#adminUserSearch").on("click", ".closeBox", function() {
@@ -89,15 +89,15 @@ window.Admin = (function($, Admin) {
                 clearUserListFilter();
                 searchHelper.$arrows.hide();
                 $("#adminUserSearch").find("input").focus()
-                                     .removeClass('hasArrows');
+                .removeClass('hasArrows');
             });
         });
         $menuPanel.find('.refreshUserList').click(function() {
-        	searchHelper.clearSearch(function() {
+            searchHelper.clearSearch(function() {
                 clearUserListFilter();
             });
             xcHelper.showRefreshIcon($userList);
-        	refreshUserList();
+            refreshUserList();
         });
 
         $userList.on('click', '.userLi', function() {
@@ -107,62 +107,62 @@ window.Admin = (function($, Admin) {
     }
 
     function parseStrIntoUserList(value) {
-    	var len = value.length;
-		if (value.charAt(len - 1) === ",") {
-			value = value.substring(0, len - 1);
-		}
-		var arrayStr = "[" + value + "]";
+        var len = value.length;
+        if (value.charAt(len - 1) === ",") {
+            value = value.substring(0, len - 1);
+        }
+        var arrayStr = "[" + value + "]";
 
-		try {
-			userList = JSON.parse(arrayStr);
-		} catch (err) {
-			userList = [];
-			console.error("restore error logs failed!", err);
-		}
+        try {
+            userList = JSON.parse(arrayStr);
+        } catch (err) {
+            userList = [];
+            console.error("restore error logs failed!", err);
+        }
     }
 
     // xcalar put by default, or append if append param is true
     function storeUsername(username, append) {
-    	var deferred = jQuery.Deferred();
-    	var entry = JSON.stringify(username) + ",";
-    	var promise;
-    	if (append) {
-    		promise = XcalarKeyAppend(userListKey, entry, true, gKVScope.GLOB);
-    	} else {
-    		promise = XcalarKeyPut(userListKey, entry, true, gKVScope.GLOB);
-    	}
+        var deferred = jQuery.Deferred();
+        var entry = JSON.stringify(username) + ",";
+        var promise;
+        if (append) {
+            promise = XcalarKeyAppend(userListKey, entry, true, gKVScope.GLOB);
+        } else {
+            promise = XcalarKeyPut(userListKey, entry, true, gKVScope.GLOB);
+        }
 
-    	promise.then(function() {
-    		userList.push(username);
-    		deferred.resolve();
-    	})
-    	.fail(deferred.reject);
+        promise.then(function() {
+            userList.push(username);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
 
-    	return deferred.promise();
+        return deferred.promise();
     }
 
     function setupUserListMenu() {
-    	var html = "";
-    	for (var i = 0; i < userList.length; i++) {
-    		html += '<li class="userLi">' +
-    					'<i class="icon xi-user fa-12"></i>' +
-		    			'<span class="text">' + userList[i] + '</span>' +
-		    		'</li>';
-    	}
+        var html = "";
+        for (var i = 0; i < userList.length; i++) {
+            html += '<li class="userLi">' +
+                        '<i class="icon xi-user fa-12"></i>' +
+                        '<span class="text">' + userList[i] + '</span>' +
+                    '</li>';
+        }
 
-    	$userList.find('ul').html(html);
+        $userList.find('ul').html(html);
     }
 
     function refreshUserList() {
-    	KVStore.get(userListKey, gKVScope.GLOB)
-		.then(function(value) {
-			if (value == null) {
-				userList = [];
-			} else {
-				parseStrIntoUserList(value);
-			}
-			setupUserListMenu();
-		});
+        KVStore.get(userListKey, gKVScope.GLOB)
+        .then(function(value) {
+            if (value == null) {
+                userList = [];
+            } else {
+                parseStrIntoUserList(value);
+            }
+            setupUserListMenu();
+        });
     }
 
     function filterUserList(keyWord) {
@@ -198,7 +198,7 @@ window.Admin = (function($, Admin) {
                     var text = $span.text();
                     text = text.replace(regex, function (match) {
                         return ('<span class="highlightedText">' + match +
-                                '</span>');
+                            '</span>');
                     });
 
                     $span.html(text);

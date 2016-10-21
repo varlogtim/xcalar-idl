@@ -250,7 +250,7 @@ window.DFParamModal = (function($, DFParamModal){
                     //xx 10-19-2016 need to shake it or it doesn't show up
                     $list.find('.scrollArea.bottom').css('bottom', 1);
                     setTimeout(function() {
-                        $list.find('.scrollArea.bottom').css('bottom', 0);  
+                        $list.find('.scrollArea.bottom').css('bottom', 0);
                     });
                 },
                 "container"    : "#dfgParameterModal",
@@ -718,28 +718,30 @@ window.DFParamModal = (function($, DFParamModal){
             var paramValue;
             var paramQuery;
             switch (type) {
-            case ("filter"):
-                paramType = XcalarApisT.XcalarApiFilter;
-                var filterText = $oldVals.eq(1).text().trim();
-                var str1 = $oldVals.eq(0).text().trim();
-                var str2 = $oldVals.eq(2).text().trim();
-                paramValue = filterText + "(" + str1 + "," + str2 + ")";
-                paramQuery = [str1, filterText, str2];
-                break;
-            case ("dataStore"):
-                paramType = XcalarApisT.XcalarApiBulkLoad;
-                paramValue = $oldVals.eq(0).text().trim();
-                paramQuery = [paramValue];
-                break;
-            case ("export"):
-                paramType = XcalarApisT.XcalarApiExport;
-                paramValue = $oldVals.eq(0).text().trim();
-                paramQuery = [paramValue];
-                break;
+                case ("filter"):
+                    paramType = XcalarApisT.XcalarApiFilter;
+                    var filterText = $oldVals.eq(1).text().trim();
+                    var str1 = $oldVals.eq(0).text().trim();
+                    var str2 = $oldVals.eq(2).text().trim();
+                    paramValue = filterText + "(" + str1 + "," + str2 + ")";
+                    paramQuery = [str1, filterText, str2];
+                    break;
+                case ("dataStore"):
+                    paramType = XcalarApisT.XcalarApiBulkLoad;
+                    paramValue = $oldVals.eq(0).text().trim();
+                    paramQuery = [paramValue];
+                    break;
+                case ("export"):
+                    paramType = XcalarApisT.XcalarApiExport;
+                    paramValue = $oldVals.eq(0).text().trim();
+                    paramQuery = [paramValue];
+                    break;
             }
-            return {"paramType": paramType,
-                    "paramValue": paramValue,
-                    "paramQuery": paramQuery};
+            return {
+                "paramType" : paramType,
+                "paramValue": paramValue,
+                "paramQuery": paramQuery
+            };
         }
 
         function updateRetina() {

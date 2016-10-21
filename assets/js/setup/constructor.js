@@ -212,6 +212,10 @@ TableMeta.prototype = {
         return deferred.promise();
     },
 
+    getAllCols: function() {
+        return this.tableCols;
+    },
+
     addCol: function(colNum, progCol) {
         var self = this;
         var index = colNum - 1;
@@ -3217,6 +3221,39 @@ function ExportHelper($view) {
 
     return this;
 }
+
+ExportHelper.getTableCols = function(tableId) {
+    // each li has data-colnum that will link it to the corresponding
+    // xcTable header
+    var html = "";
+    var numBlanks = 10; // to take up flexbox space
+    var allCols = gTables[tableId].getAllCols();
+
+    allCols.forEach(function(progCol, index) {
+        if (validTypes.indexOf(progCol.getType()) > -1) {
+            var colName = progCol.getFrontColName(true);
+            var colNum = (index + 1);
+            html +=
+                '<li class="checked" data-colnum="' + colNum + '">' +
+                    '<span class="text  tooltipOverflow" ' +
+                    'data-original-title="' + colName + '" ' +
+                    'data-toggle="tooltip" data-placement="top" ' +
+                    'data-container="body">' +
+                        colName +
+                    '</span>' +
+                    '<div class="checkbox checked">' +
+                        '<i class="icon xi-ckbox-empty fa-13"></i>' +
+                        '<i class="icon xi-ckbox-selected fa-13"></i>' +
+                    '</div>' +
+                '</li>';
+        }
+    });
+
+    for (var i = 0; i < numBlanks; i++) {
+        html += '<div class="flexSpace"></div>';
+    }
+    return (html);
+};
 
 ExportHelper.prototype = {
     setup: function() {

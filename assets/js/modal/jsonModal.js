@@ -364,7 +364,7 @@ window.JSONModal = (function($, JSONModal) {
             $prefixGroups.find('.prefix').removeClass('xc-hidden');
         } else {
             $prefixGroups.addClass('xc-hidden');
-             $prefixGroups.find('.prefix').addClass('xc-hidden');
+            $prefixGroups.find('.prefix').addClass('xc-hidden');
             if (isImmediate) {
                 $prefixGroups.find('.prefix.immediates').parent()
                                                     .removeClass('xc-hidden');
@@ -580,7 +580,6 @@ window.JSONModal = (function($, JSONModal) {
         xcTooltip.refresh($icon);
 
         var $jsonWrap = $icon.closest('.jsonWrap');
-        var $list = $jsonWrap.find('.primary').find('.mainKey');
         var $groups = $jsonWrap.find('.prefixGroup');
         $groups.sort(sortGroups).prependTo($jsonWrap.find('.groupWrap'));
 
@@ -596,7 +595,7 @@ window.JSONModal = (function($, JSONModal) {
         });
 
         function sortGroups(a, b) {
-            return xcHelper.sortVals($(a).children('.prefix').text(), 
+            return xcHelper.sortVals($(a).children('.prefix').text(),
                                      $(b).children('.prefix').text(), order);
         }
         function sortList(a, b) {
@@ -735,7 +734,7 @@ window.JSONModal = (function($, JSONModal) {
         var $modalWindow = $match.closest('.prettyJson');
         var modalHeight = $modalWindow.height();
         var scrollTop = $modalWindow.scrollTop();
-        var matchOffsetTop = $match.position().top + 
+        var matchOffsetTop = $match.position().top +
                             $match.closest('.mainKey').position().top;
         if (matchOffsetTop > (scrollTop + modalHeight - 35)) {
             $modalWindow.scrollTop(matchOffsetTop + 40 - (modalHeight / 2));
@@ -914,14 +913,12 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             var groups = splitJsonIntoGroups(jsonObj);
-            var count = 0;
-            var prefixHtml;
             if (isArray) {
                 prettyJson = "[";
             } else {
                 prettyJson = "{";
             }
-            prettyJson += '<div class="groupWrap">'
+            prettyJson += '<div class="groupWrap">';
             for (var i = 0; i < groups.length; i++) {
                 var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
                     "inarray"  : isArray,
@@ -943,8 +940,8 @@ window.JSONModal = (function($, JSONModal) {
                                     groups[i].prefix +
                                  '</div>';
                     }
-                    tempJson =  '<div class="prefixGroup">' +
-                                    prefix + 
+                    tempJson = '<div class="prefixGroup">' +
+                                    prefix +
                                     tempJson +
                                 '</div>';
                 }
@@ -977,9 +974,9 @@ window.JSONModal = (function($, JSONModal) {
             var splitName = xcHelper.parsePrefixColName(key);
             if (!splitName.prefix) {
                 if (!groups[gPrefixSign]) {
-                    groups[gPrefixSign] = {}; 
-                    // use :: for immediates since it's not allowed and 
-                    //          can't be taken 
+                    groups[gPrefixSign] = {};
+                    // use :: for immediates since it's not allowed and
+                    //          can't be taken
                 }
                 groups[gPrefixSign][splitName.name] = jsonObj[key];
             } else {
@@ -1021,7 +1018,7 @@ window.JSONModal = (function($, JSONModal) {
                 prefix = "Immediates";
                 classNames += " immediates";
             }
-            html += '<div class="tab' + classNames +  '" ' +
+            html += '<div class="tab' + classNames + '" ' +
                         'data-id="' + prefix + '">' +
                         '<span class="text">' + prefix +
                         '</span>' +

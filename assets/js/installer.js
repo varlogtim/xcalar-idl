@@ -159,7 +159,7 @@ window.Installer = (function(Installer, $) {
             case ("useTLS"):
                 break;
             case ("AD"):
-                switch(radioOption) {
+                switch (radioOption) {
                     case (true):
                         // AD
                         var inputs = $(".fieldWrap .inputWrap input");

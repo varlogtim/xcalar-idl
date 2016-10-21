@@ -2642,7 +2642,7 @@ window.Dag = (function($, Dag) {
     // index is the table's dataflow graph data-index
     // nodes is an array of all the tables. nodes[index] gets the table info
     //          with nodes[0] being the most recent table on the far right
-    function findColumnSource(sourceColNames, $dagWrap, index, nodes, 
+    function findColumnSource(sourceColNames, $dagWrap, index, nodes,
                               curColName, isEmptyCol) {
         var tables = nodes[index].parents;
         var tableIndex;
@@ -2674,7 +2674,7 @@ window.Dag = (function($, Dag) {
                     if (!backColName) {
                         backColName = cols[j].getFrontColName();
                     }
-                    //XX backColName could be blank 
+                    //XX backColName could be blank
 
                     if (!foundSameColName && backColName === curColName) {
                         foundSameColName = true;
@@ -2687,7 +2687,7 @@ window.Dag = (function($, Dag) {
                         if (colCreatedHere) {
                             // this table is where the column became non-empty,
                              // continue and look through sourceColNames for
-                             // the origin column 
+                             // the origin column
                         } else {
                             break;
                         }

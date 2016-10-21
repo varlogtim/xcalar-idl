@@ -397,8 +397,9 @@ window.DFCard = (function($, DFCard) {
     function enableDagTooltips() {
         var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
         xcTooltip.disable($tooltipTables);
-        xcTooltip.add($('#dfgViz').find('.dataStoreIcon, ' +
-                                 '.export .dagTableIcon, .actionType.filter'), {
+        var selector = '.dataStoreIcon, ' +
+                        '.export .dagTableIcon, .actionType.filter';
+        xcTooltip.add($('#dfgViz').find(selector), {
             "title": CommonTxtTstr.ClickToOpts
         });
     }
@@ -512,8 +513,8 @@ window.DFCard = (function($, DFCard) {
         $popup.show();
 
         var width = $popup.outerWidth();
-        var height = $popup.outerHeight();
-        var dagPanelLeft = $('#dagPanelContainer').offset().left;
+        // var height = $popup.outerHeight();
+        // var dagPanelLeft = $('#dagPanelContainer').offset().left;
 
         var top = $dagTable[0].getBoundingClientRect().bottom - 100;
         var left = $dagTable[0].getBoundingClientRect().left - width - 20;
