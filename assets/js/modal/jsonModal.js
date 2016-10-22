@@ -191,8 +191,13 @@ window.JSONModal = (function($, JSONModal) {
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
 
         $jsonArea.on('click', '.jsonCheckbox', function() {
-            var $key = $(this).siblings('.jKey');
-            selectJsonKey($key);
+            var $checkbox = $(this);
+            if ($checkbox.hasClass('prefixCheckbox')) {
+                togglePrefixProject($checkbox);
+            } else {
+                var $key = $checkbox.siblings('.jKey');
+                selectJsonKey($key);
+            }
         });
 
         $jsonArea.on("click", ".compareIcon", function() {
@@ -362,17 +367,23 @@ window.JSONModal = (function($, JSONModal) {
         if (isSeeAll) {
             $prefixGroups.removeClass('xc-hidden');
             $prefixGroups.find('.prefix').removeClass('xc-hidden');
+            $jsonWrap.removeClass('tabFiltered');
+            $jsonWrap.find('.groupType').removeClass('xc-hidden');
         } else {
+            $jsonWrap.addClass('tabFiltered');
             $prefixGroups.addClass('xc-hidden');
             $prefixGroups.find('.prefix').addClass('xc-hidden');
             if (isImmediate) {
-                $prefixGroups.find('.prefix.immediates').parent()
-                                                    .removeClass('xc-hidden');
+                $prefixGroups.filter('.immediatesGroup').removeClass('xc-hidden');
+                $jsonWrap.find('.prefixedType').addClass('xc-hidden');
+                $jsonWrap.find('.immediatesType').removeClass('xc-hidden');
             } else {
                 var prefix = $tab.data('id');
                 $prefixGroups.find('.prefix').filter(function() {
                     return $(this).text() === prefix;
                 }).parent().removeClass('xc-hidden');
+                $jsonWrap.find('.prefixedType').removeClass('xc-hidden');
+                $jsonWrap.find('.immediatesType').addClass('xc-hidden');
             }
         }
     }
@@ -448,6 +459,36 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.colsSelected').text('0/' + totalCols + ' selected');
     }
 
+    function togglePrefixProject($checkbox) {
+        var $jsonWrap = $checkbox.closest('.jsonWrap');
+        var $prefixedGroup = $checkbox.closest('.prefixedType');
+        var $allCheckboxes = $prefixedGroup.find('.jsonCheckbox');
+        if ($checkbox.hasClass('checked')) {
+            $checkbox.removeClass('checked');
+            $allCheckboxes.removeClass('checked');
+            $prefixedGroup.find('.projectSelected')
+                          .removeClass('projectSelected');
+            if ($jsonWrap.find('.projectSelected').length === 0) {
+                $jsonWrap.find('.submitProject').addClass('disabled');
+                $jsonWrap.find('.clearAll').addClass('disabled');
+            }
+        } else {
+            $checkbox.addClass('checked');
+            $allCheckboxes.addClass('checked');
+            $allCheckboxes.siblings('.jKey').addClass('projectSelected');
+            $jsonWrap.find('.submitProject').removeClass('disabled');
+            $jsonWrap.find('.clearAll').removeClass('disabled');
+        }
+        updateNumColsSelected($jsonWrap);
+    }
+
+    function updateNumColsSelected($jsonWrap) {
+        var numSelected = $jsonWrap.find('.projectSelected').length;
+        var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
+        $jsonWrap.find('.colsSelected').text(numSelected + '/' + totalCols +
+                                                 ' selected');
+    }
+
     function selectJsonKey($el) {
         var $jsonWrap = $el.closest('.jsonWrap');
 
@@ -468,10 +509,7 @@ window.JSONModal = (function($, JSONModal) {
                     $jsonWrap.find('.clearAll').removeClass('disabled');
                 }
             }
-            var numSelected = $jsonWrap.find('.projectSelected').length;
-            var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
-            $jsonWrap.find('.colsSelected').text(numSelected + '/' + totalCols +
-                                                 ' selected');
+            updateNumColsSelected($jsonWrap);
         } else {
             var tableId = $jsonWrap.data('tableid');
             var table = gTables[tableId];
@@ -580,9 +618,10 @@ window.JSONModal = (function($, JSONModal) {
         xcTooltip.refresh($icon);
 
         var $jsonWrap = $icon.closest('.jsonWrap');
-        var $groups = $jsonWrap.find('.prefixGroup');
-        $groups.sort(sortGroups).prependTo($jsonWrap.find('.groupWrap'));
+        var $groups = $jsonWrap.find('.prefixedType .prefixGroup');
+        $groups.sort(sortGroups).appendTo($jsonWrap.find('.prefixedType'));
 
+        $groups = $groups.add($jsonWrap.find('.immediatesGroup'));
         $groups.each(function() {
             var $group = $(this);
             $group.find('.mainKey').sort(sortList).prependTo(
@@ -872,7 +911,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function fillJsonArea(jsonObj, $jsonTd, isArray, type, tableMeta) {
+    function fillJsonArea(jsonObj, $jsonTd, isArray, type) {
         var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
         var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
         var tableName = gTables[tableId].tableName;
@@ -913,12 +952,25 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             var groups = splitJsonIntoGroups(jsonObj);
+
             if (isArray) {
                 prettyJson = "[";
             } else {
                 prettyJson = "{";
             }
             prettyJson += '<div class="groupWrap">';
+
+            var prefixFound;
+            var immediatesGroup = "";
+            var prefixedGroup =
+                '<div class="groupType prefixedType">' +
+                    '<h3 class="prefixGroupTitle">' +
+                       '<div class="checkbox jsonCheckbox prefixCheckbox">' +
+                        '<i class="icon xi-ckbox-empty fa-11"></i>' +
+                        '<i class="icon xi-ckbox-selected fa-11"></i>' +
+                      '</div>' +
+                      'Prefixed Fields' +
+                    '</h3>';
             for (var i = 0; i < groups.length; i++) {
                 var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
                     "inarray"  : isArray,
@@ -932,20 +984,30 @@ window.JSONModal = (function($, JSONModal) {
 
                 if (!isArray && isDataCol) {
                     if (groups[i].prefix === gPrefixSign) {
-                        prefix = '<div class="prefix immediates">' +
-                                    CommonTxtTstr.Immediates +
-                                '</div>';
+                        immediatesGroup =
+                            '<div class="groupType immediatesType">' +
+                                '<h3 class="prefixGroupTitle">' +
+                                    CommonTxtTstr.Immediates + 's' +
+                                '</h3>' +
+                                '<div class="prefixGroup immediatesGroup">' +
+                                    tempJson +
+                                '</div>' +
+                            '</div>';
                     } else {
-                        prefix = '<div class="prefix">' +
+                        prefixFound = true;
+                        prefixedGroup += '<div class="prefixGroup">' +
+                                    '<div class="prefix">' +
                                     groups[i].prefix +
+                                 '</div>' +
+                                 tempJson +
                                  '</div>';
                     }
-                    tempJson = '<div class="prefixGroup">' +
-                                    prefix +
-                                    tempJson +
-                                '</div>';
                 }
-                prettyJson += tempJson;
+            }
+            
+            prettyJson += immediatesGroup;
+            if (prefixFound) {
+                prettyJson += prefixedGroup + '</div>';
             }
             prettyJson += '</div>';
 
@@ -953,7 +1015,6 @@ window.JSONModal = (function($, JSONModal) {
                 prettyJson += "]";
             } else {
                 prettyJson += "}";
-               
             }
             
         }
@@ -971,7 +1032,7 @@ window.JSONModal = (function($, JSONModal) {
         var groups = {};
         var splitName;
         for (var key in jsonObj) {
-            var splitName = xcHelper.parsePrefixColName(key);
+            splitName = xcHelper.parsePrefixColName(key);
             if (!splitName.prefix) {
                 if (!groups[gPrefixSign]) {
                     groups[gPrefixSign] = {};
@@ -1577,7 +1638,7 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 var row = "";
                 var classNames = "";
-                var isImmediate;
+                // var isImmediate;
                 value = value.replace(/,$/, "");
                 
                 if (checkboxes) {

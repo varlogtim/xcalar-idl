@@ -316,11 +316,48 @@
             .prettyJson {
                 background-color: @color-json-project-bg;
             }
-            .jsonCheckbox {
-                display: block;
+           
+            .immediatesType { 
+                .jsonCheckbox {
+                    display: block;
+                }
+
+                .jArray  {
+                    > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+                        cursor: default;
+                        &:hover {
+                            background-color: transparent;
+                            box-shadow: none;
+                        }
+                    }
+                }
+                .jKey {
+                    pointer-events: none;
+                    cursor: default;
+                    &:hover {
+                        background-color: transparent;
+                        box-shadow: none;
+                    }
+                }
+
+                .jObject > .jArray > .jsonBlock > .jKey {
+                    cursor: pointer;
+                    pointer-events: auto;
+                    &:hover {
+                        background-color: #BCF0FD;
+                        box-shadow: 0px 0px 1px @color-table-borderBlue;
+                    }
+                }
             }
-            .jArray  {
-                > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+
+            .prefixedType {
+                .prefixGroupTitle {
+                    .checkbox  {
+                        display: block;
+                    }
+                }
+                .jKey, span {
+                    pointer-events: none;
                     cursor: default;
                     &:hover {
                         background-color: transparent;
@@ -328,23 +365,7 @@
                     }
                 }
             }
-            .jKey {
-                pointer-events: none;
-                cursor: default;
-                &:hover {
-                    background-color: transparent;
-                    box-shadow: none;
-                }
-            }
-
-            .jObject > .jArray > .jsonBlock > .jKey {
-                cursor: pointer;
-                pointer-events: auto;
-                &:hover {
-                    background-color: #BCF0FD;
-                    box-shadow: 0px 0px 1px @color-table-borderBlue;
-                }
-            }
+            
             .menu {
                 li.selectionOpt {
                     color: @color-font-darkGray;
@@ -371,6 +392,15 @@
             }
             .colsSelected {
                 display: inline-block;
+            }
+        }
+
+        &.tabFiltered {
+            .prefixGroupTitle {
+                display: none;
+            }
+            .jObject {
+                padding-left: 25px;
             }
         }
     }
@@ -675,6 +705,7 @@
         .position(relative);
         .size(@width: 100%, @height: auto);
         padding-left: 25px;
+        padding-left: 35px;
         padding-right: 5px;
         overflow:visible;
     }
@@ -740,6 +771,23 @@
     .groupWrap {
         margin-top: -20px;
     }
+    .groupType {
+        margin-top: 20px;
+        .prefixGroupTitle {
+            font-size: 15px;
+            margin-left: 15px;
+            display: block;
+            position: relative;
+            .checkbox {
+                position: absolute;
+            }
+        }
+        .prefixGroup {
+            &:first-of-type {
+                margin-top: 10px;
+            }
+        }
+    }
     .prefixGroup {
         margin-top: 20px; 
     }
@@ -748,6 +796,7 @@
         color: @color-prefix-gray;
         margin-bottom: 4px;
         margin-left: 11px;
+        margin-left: 23px;
     }
 
 
