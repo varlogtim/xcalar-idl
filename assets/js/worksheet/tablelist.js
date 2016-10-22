@@ -307,17 +307,6 @@ window.TableList = (function($, TableList) {
 
         TableList.tableBulkAction("add", tableType)
         .then(function(tableNames) {
-            if (!$("#workspaceTab").hasClass("active")) {
-                $("#workspaceTab").click();
-            }
-            tableIsInActiveWS = true;
-            if (tableNames) {
-                tableIsInActiveWS = checkIfTablesInActiveWS(tableNames);
-            }
-            if (tableIsInActiveWS) {
-                WSManager.focusOnLastTable();
-            }
-
             sql.tableNames = tableNames;
             SQL.add(TblTStr.Active, sql);
 
@@ -452,6 +441,9 @@ window.TableList = (function($, TableList) {
                 if (failures.length > 0) {
                     deferred.reject(failures.join("\n"));
                 } else {
+                    if (tableType !== TableType.WSHidden) {
+                        focusOnLastTable(tables);
+                    }
                     deferred.resolve(tables);
                 }
             });
@@ -1355,6 +1347,32 @@ window.TableList = (function($, TableList) {
 
         generateOrphanList(gOrphanTables);
         generateConstList();
+    }
+
+    function focusOnLastTable(tableNames) {
+        if (!$("#workspaceTab").hasClass("active")) {
+            $("#workspaceTab").click();
+        }
+
+        var tableIsInActiveWS = true;
+        if (tableNames) {
+            tableIsInActiveWS = checkIfTablesInActiveWS(tableNames);
+        }
+        if (tableIsInActiveWS) {
+            var $mainFrame = $('#mainFrame');
+            // XX temporary fix to find last table
+            var $lastTable = $('.xcTableWrap:not(.inActive)').last();
+
+            if ($lastTable.length > 0) {
+                var leftPos = $lastTable.position().left +
+                                $mainFrame.scrollLeft();
+                var tableId = xcHelper.parseTableId($lastTable);
+                $mainFrame.animate({scrollLeft: leftPos}, 500).promise()
+                .then(function(){
+                    focusTable(tableId);
+                });
+            }
+        }
     }
 
     function checkIfTablesInActiveWS(tableNames) {

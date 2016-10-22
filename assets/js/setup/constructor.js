@@ -1335,6 +1335,26 @@ WorksheetObj.prototype = {
     },
 };
 
+function WorksheetScrollTracker() {
+    this.positionMap = {};
+    return this;
+}
+
+WorksheetScrollTracker.prototype = {
+    cache: function(worksheetId) {
+        this.positionMap[worksheetId] = $("#mainFrame").scrollLeft();
+    },
+
+    restore: function(worksheetId) {
+        var leftPosition = this.positionMap[worksheetId];
+        if (leftPosition != null) {
+            $("#mainFrame").scrollLeft(leftPosition);
+        }
+
+        return leftPosition;
+    }
+};
+
 // workbook.js
 function WKBK(options) {
     options = options || {};

@@ -8,13 +8,14 @@ window.WSManager = (function($, WSManager) {
 
     var noSheetTables = [];
 
-    var wsScollBarPosMap = {}; // only a front cache of scroll bar position
+    // only a front cache of scroll bar position
+    var scrollTracker = new WorksheetScrollTracker();
 
     var tableIdToWSIdMap = {};  // find wsId by table id
     var wsNameToIdMap  = {};  // find wsId by wsName
 
     var activeWorksheet = null;
-    
+
     // constant
     var defaultName = "Sheet ";
     var nameSuffix = 1;
@@ -148,9 +149,10 @@ window.WSManager = (function($, WSManager) {
         });
 
         // focus on new worksheet
-        wsScollBarPosMap[activeWorksheet] = $('#mainFrame').scrollLeft();
+        scrollTracker.cache(activeWorksheet);
         WSManager.focusOnWorksheet(wsId);
         WorkbookManager.updateWorksheet(wsOrder.length);
+
         return wsId;
     };
 
@@ -541,7 +543,6 @@ window.WSManager = (function($, WSManager) {
             return TableList.tableBulkAction("add", tableType, wsToSend);
         })
         .then(function() {
-            WSManager.focusOnLastTable();
             // this sql is modified in findTableListHelper()
             SQL.add("Move Inactive Table To Worksheet", sql);
             deferred.resolve();
@@ -617,23 +618,20 @@ window.WSManager = (function($, WSManager) {
         hiddenWS.push(wsId);
 
         var $hiddenTab = $(getHiddenWSHTML(wsId));
-        var tableIds = [];
         var ws = wsLookUp[wsId];
         var tables = ws.tables;
         var tempHiddenTables = ws.tempHiddenTables;
 
-        for (var i = 0, len = tables.length; i < len; i++) {
-            tableIds[i] = tables[i];
-        }
+        // tables strcuture will change when archive, so copy the id first
+        var tableIds = tables.map(function(tableId) {
+            return tableId;
+        });
 
-        for (var i = 0, len = tableIds.length; i < len; i++) {
-            var tableId = tableIds[i];
-            // archiveTable(tableId, ArchiveTable.Keep, null, true);
-
+        tableIds.forEach(function(tableId) {
             toggleTableArchive(tableId, tables, tempHiddenTables);
             TblManager.hideWorksheetTable(tableId);
             gTables[tableId].freeResultset();
-        }
+        });
 
         TableList.tablesToHiddenWS([wsId]);
 
@@ -680,7 +678,6 @@ window.WSManager = (function($, WSManager) {
 
             var ws = wsLookUp[wsId];
             var tempHiddenTables = ws.tempHiddenTables;
-            var numHiddenTables = tempHiddenTables.length;
             var wsIndex = hiddenWS.indexOf(wsId);
             hiddenWSOrder.push(hiddenWSCopy.indexOf(wsId));
             var tables = ws.tables;
@@ -692,20 +689,15 @@ window.WSManager = (function($, WSManager) {
                 wsOrder.splice(prevWsIndex, 0, wsId);
             }
 
-
-            var tableIds = [];
-
             wsNames.push(ws.name);
 
-            for (var i = 0; i < numHiddenTables; i++) {
-                tableIds.push(tempHiddenTables[i]);
-            }
+            var tableIds = tempHiddenTables.map(function(tableId) {
+                return tableId;
+            });
 
-            for (var i = 0; i < numHiddenTables; i++) {
-                var tableId = tableIds[i];
-                // archiveTable(tableId, ArchiveTable.Keep, null, true);
+            tableIds.forEach(function(tableId) {
                 toggleTableArchive(tableId, tempHiddenTables, tables);
-            }
+            });
 
             var $tab = $hiddenWorksheetTabs.find('#worksheetTab-' + wsId);
             if (gMinModeOn) {
@@ -738,9 +730,7 @@ window.WSManager = (function($, WSManager) {
             });
             deferred.resolve();
         })
-        .fail(function() {
-            deferred.reject();
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
@@ -899,23 +889,6 @@ window.WSManager = (function($, WSManager) {
         StatusMessage.updateLocation();
     };
 
-    // Focus on the last table in the worksheet
-    WSManager.focusOnLastTable = function() {
-        var $mainFrame = $('#mainFrame');
-        // XX temporary fix to find last table
-        var $lastTable = $('.xcTableWrap:not(.inActive)').last();
-
-        if ($lastTable.length > 0) {
-            var leftPos = $lastTable.position().left + $mainFrame.scrollLeft();
-            var tableId = xcHelper.parseTableId($lastTable);
-            $mainFrame.animate({scrollLeft: leftPos}, 500)
-                        .promise()
-                        .then(function(){
-                            focusTable(tableId);
-                        });
-        }
-    };
-
     // Get html list of worksheets
     WSManager.getWSLists = function(isAll) {
         var html = "";
@@ -971,18 +944,12 @@ window.WSManager = (function($, WSManager) {
         });
     };
 
-    WSManager.switchWS = function(wsId) {
-        var curWS = activeWorksheet;
-        var $mainFrame = $("#mainFrame");
+    WSManager.switchWS = function(worksheetId) {
         // cache current scroll bar position
-        wsScollBarPosMap[curWS] = $mainFrame.scrollLeft();
-        WSManager.focusOnWorksheet(wsId);
-
+        scrollTracker.cache(activeWorksheet);
+        WSManager.focusOnWorksheet(worksheetId);
         // change to origin position
-        var leftPos = wsScollBarPosMap[wsId];
-        if (leftPos != null) {
-            $mainFrame.scrollLeft(leftPos);
-        }
+        scrollTracker.restore(worksheetId);
     };
 
     WSManager.dropUndoneTables = function() {
@@ -1383,11 +1350,7 @@ window.WSManager = (function($, WSManager) {
             }
 
             WSManager.focusOnWorksheet(wsToFocus);
-            // change to origin position
-            var leftPos = wsScollBarPosMap[wsToFocus];
-            if (leftPos != null) {
-                $('#mainFrame').scrollLeft(leftPos);
-            }
+            scrollTracker.restore(wsToFocus);
         }
     }
 

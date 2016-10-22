@@ -1165,6 +1165,23 @@ describe('Constructor Test', function() {
         });
     });
 
+    describe('WorksheetScrollTracker Constructor Test', function() {
+        it("WorksheetScrollTracker Should be a constuctor", function() {
+            var scrollTracker = new WorksheetScrollTracker();
+
+            expect(scrollTracker).to.be.an("object");
+            expect(Object.keys(scrollTracker).length).to.equal(1);
+
+            // cahce and restore
+            scrollTracker.cache("test");
+            var res = scrollTracker.restore("test");
+            expect(res == null).to.be.false;
+            // case 2
+            res = scrollTracker.restore("test2");
+            expect(res == null).to.be.true;
+        });
+    });
+
     describe('WKBK Constructor Test', function() {
         it('WKBK should be a constructor', function() {
             try {
