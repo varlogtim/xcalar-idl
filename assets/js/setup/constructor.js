@@ -923,7 +923,7 @@ function GenSettings(userConfigParms, options) {
         hideDataCol         : false,
         memoryLimit         : 70,
         monitorGraphInterval: 3,
-        DsDefaultSampleSize : null
+        DsDefaultSampleSize : 2 * GB
     };
     defaultSettings = $.extend({}, defaultSettings, userConfigParms);
 

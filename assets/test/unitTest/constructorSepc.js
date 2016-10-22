@@ -752,7 +752,7 @@ describe('Constructor Test', function() {
             expect(baseSettings).to.have.property('monitorGraphInterval')
             .and.to.equal(3);
             expect(baseSettings).to.have.property('DsDefaultSampleSize')
-            .and.to.equal(null);
+            .and.to.equal(2 * GB);
         });
 
         it('GenSettings heirarchy should work', function() {
