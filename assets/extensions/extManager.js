@@ -653,7 +653,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
     }
 
-    function updateTableList(modName, refresh) {      
+    function updateTableList(modName, refresh) {
         var $extArgs = $extOpsView.find(".extArgs");
         var tableList = xcHelper.getWSTableList();
         $extTriggerTableDropdown.find(".list ul").html(tableList);
