@@ -303,8 +303,6 @@ window.Shortcuts = (function($, Shortcuts) {
                 // }
             }
         });
-        // random format only in dev mode
-        $("#fileFormatMenu").find("ul").append('<li name="RANDOM">Random</li>');
     }
 
     function createMainMenu() {

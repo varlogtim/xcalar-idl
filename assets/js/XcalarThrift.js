@@ -504,8 +504,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             formatType = DfFormatTypeT.DfFormatJson;
             break;
         case ("rand"):
-            formatType = DfFormatTypeT.DfFormatRandom;
-            break;
+            console.error("No longer supported");
+            return PromiserHelper.reject("Rand format no longer supported");
         case ("raw"):
             recordDelim = "\n";
             // No field delim

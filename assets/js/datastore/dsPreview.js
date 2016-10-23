@@ -45,7 +45,6 @@ window.DSPreview = (function($, DSPreview) {
     var formatMap = {
         "JSON"  : "JSON",
         "CSV"   : "CSV",
-        "RANDOM": "rand",
         "TEXT"  : "raw",
         "EXCEL" : "Excel",
     };
@@ -923,7 +922,6 @@ window.DSPreview = (function($, DSPreview) {
 
             // json and random
             case "JSON":
-            case "RANDOM":
                 // json and random
                 // Note: random is setup in shortcuts.js,
                 // so prod build will not have it

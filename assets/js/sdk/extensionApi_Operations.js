@@ -35,6 +35,17 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName);
         },
 
+        "load": function(dsArgs, formatArgs, dsName) {
+            // dsArgs is as follows:
+            // url, isRecur, maxSampleSize, skipRows, isRegex
+            // formatArgs is as follows:
+            // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
+            // fieldDelim, recordDelim, hasHeader, quoteChar,
+            // moduleName, funcName
+            var txId = this.txId;
+            return XIApi.load(dsArgs, formatArgs, dsName, txId);
+        },
+
         "index": function(colToIndex, tableName) {
             var deferred = jQuery.Deferred();
             var self = this;
@@ -48,6 +59,17 @@ window.XcSDK.Extension.prototype = (function() {
             .fail(deferred.reject);
 
             return deferred.promise();
+        },
+
+        "indexFromDataset": function(datasetName, newTableName, prefix) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self.txId;
+
+            // No need to addMeta because this is the first table created
+            // so we don't have the meta information anyway
+            return XIApi.indexFromDataset(txId, datasetName, newTableName,
+                                          prefix);
         },
 
         "sort": function(order, colName, tableName, newTableName) {

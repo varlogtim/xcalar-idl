@@ -103,6 +103,67 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    XIApi.load = function(dsArgs, formatArgs, dsName, txId) {
+        // dsArgs is as follows:
+        // url, isRecur, maxSampleSize, skipRows, isRegex
+        // formatArgs is as follows:
+        // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
+        // fieldDelim, recordDelim, hasHeader, quoteChar,
+        // moduleName, funcName
+        if (txId == null || !dsArgs || !formatArgs || !dsArgs.url ||
+            !formatArgs.format) {
+            return PromiseHelper.reject("Invalid args in load");
+        }
+        var url = dsArgs.url;
+        var isRecur = dsArgs.isRecur || false;
+        var format = formatArgs.format;
+        var maxSampleSize = dsArgs.maxSampleSize || 0;
+        var skipRows = dsArgs.skipRows || 0;
+        var isRegex = dsArgs.isRegex || false;
+
+        var fieldDelim;
+        var recordDelim;
+        var hasHeader;
+        var quoteChar;
+        if (format === "CSV") {
+            fieldDelim = formatArgs.fieldDelim || "";
+            recordDelim = formatArgs.recordDelim || "\n";
+            hasHeader = formatArgs.hasHeader || false;
+            quoteChar = formatArgs.quoteChar || '"';
+        }
+
+        var moduleName = formatArgs.moduleName || "";
+        var funcName = formatArgs.funcName || "";
+
+        return XcalarLoad(url, format, dsName, fieldDelim, recordDelim,
+                          hasHeader, moduleName, funcName, isRecur,
+                          maxSampleSize, quoteChar, skipRows, isRegex, txId);
+    };
+
+    XIApi.indexFromDataset = function(txId, dsName, newTableName, prefix) {
+        var deferred = jQuery.Deferred();
+        if (txId == null || dsName == null) {
+            return PromiseHelper.reject("Invalid args in indexFromDataset");
+        }
+
+        if (!isValidTableName(newTableName)) {
+            newTableName = getNewTableName(tableName);
+        }
+
+        if (!isValidPrefix(prefix)) {
+            prefix = getNewPrefix(prefix);
+        }
+
+        XcalarIndexFromDataset(dsName, "recordNum", newTableName, prefix,
+                               txId)
+        .then(function() {
+            deferred.resolve(newTableName, prefix);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     XIApi.index = function(txId, colToIndex, tableName) {
         if (txId == null || colToIndex == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in index");
@@ -784,7 +845,6 @@ window.XIApi = (function(XIApi, $) {
         if (lTableId != null && gTables[lTableId] != null &&
             gTables[lTableId].tableCols != null)
         {
-            
             var table = gTables[lTableId];
             lCols = xcHelper.deepCopy(table.tableCols);
             if (pulledLColNames) {
@@ -1061,8 +1121,18 @@ window.XIApi = (function(XIApi, $) {
     }
 
     function isValidTableName(tableName) {
-        // XXX may need to check tableName contains id (using RegExp?)
-        var isValid = (tableName != null) && (tableName !== "");
+        var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
+        var regexp = new RegExp(regex);
+        var isValid = (tableName != null) && (tableName !== "") &&
+                      (regexp.test(tableName));
+        return isValid;
+    }
+
+    function isValidPrefix(prefix) {
+        var regex = "^[a-zA-Z0-9]{1,255}$";
+        var regexp = new RegExp(regex);
+        var isValid = (prefix != null) && (prefix !== "") &&
+                      (regexp.test(prefix));
         return isValid;
     }
 
@@ -1078,6 +1148,15 @@ window.XIApi = (function(XIApi, $) {
         }
 
         return (nameRoot + Authentication.getHashId());
+    }
+
+    function getNewPrefix(dsName) {
+        // Strip all random characters from dsName
+        var prefix = dsName.replace(/[^0-9a-z]/gi, '');
+        if (prefix.length > 255) {
+            prefix = prefix.substr(0, 255);
+        }
+        return prefix;
     }
 
     return (XIApi);

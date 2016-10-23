@@ -64,6 +64,10 @@ window.XcSDK.Extension.prototype = (function() {
     }
 
     var prototype = {
+        "getUsername": function() {
+            return userIdName;
+        },
+
         // user interface
         "beforeStart": function() {
             // interface for user to implement
