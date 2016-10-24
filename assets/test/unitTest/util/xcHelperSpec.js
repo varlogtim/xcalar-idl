@@ -123,7 +123,7 @@ describe('xcHelper Test', function() {
 
     it('xcHelper.getPreviewSize should work', function() {
         var func = xcHelper.getPreviewSize;
-        expect(func("")).to.be.null;
+        expect(func("")).to.be.equal(0);
         expect(func("1", "KB")).to.equal(1 * 1024);
         expect(func("2", "MB")).to.equal(2 * 1024 * 1024);
         expect(func("3", "GB")).to.equal(3 * 1024 * 1024 * 1024);

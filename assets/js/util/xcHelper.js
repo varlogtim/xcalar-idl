@@ -140,8 +140,8 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.getPreviewSize = function(previewSize, unit) {
-        if (previewSize === "") {
-            previewSize = null;
+        if (previewSize === "" || previewSize == null) {
+            previewSize = gMaxSampleSize;
         } else {
             previewSize = Number(previewSize);
             switch (unit) {

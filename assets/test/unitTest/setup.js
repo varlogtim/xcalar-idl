@@ -8,7 +8,7 @@ mocha.setup({
     // defulat:
     // "grep": /Mocha Setup Test|.*/
     // "grep": /Mocha Setup Test|.*/
-    "grep": /Mocha Setup Test|Constructor Test*/
+    "grep": /Mocha Setup Test|.*/
 });
 // global
 expect = chai.expect;
