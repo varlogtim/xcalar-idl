@@ -3,7 +3,9 @@ if (localStorage.shortcuts) {
         if (window.location.pathname.indexOf('login.html') > -1) {
             Shortcuts.login();
         } else {
-            Shortcuts.createWorkbook();
+            if (!localStorage.autoLogin || JSON.parse(localStorage.autoLogin)) {
+                Shortcuts.createWorkbook();
+            }
 
             var count = 0;
             var interval = setInterval(function() {
@@ -24,6 +26,7 @@ if (localStorage.shortcuts) {
 window.Shortcuts = (function($, Shortcuts) {
     var shortcutsOn = false;
     var autoLogin = true;
+
     Shortcuts.on = function(name, pass) {
         if (shortcutsOn) {
             return false;
@@ -166,29 +169,51 @@ window.Shortcuts = (function($, Shortcuts) {
     };
 
     Shortcuts.createWorkbook = function() {
-        if (!localStorage.autoLogin || JSON.parse(localStorage.autoLogin)) {
-            var count = 0;
-            var wbInterval = setInterval(function() {
-                if ($('#workbookPanel').is(':visible')) {
-                    var num = Math.ceil(Math.random() * 1000);
-                    var wbName = "WB" + num;
-                    $('.newWorkbookBox input').val(wbName);
-                    $('.newWorkbookBox button').click(); 
+        var deferred = jQuery.Deferred();
+        var count = 0;
+        var wbInterval = setInterval(function() {
+            if ($('#workbookPanel').is(':visible')) {
+                var num = Math.ceil(Math.random() * 1000);
+                var wbName = "WB" + num;
+                $('.newWorkbookBox input').val(wbName);
+                $('.newWorkbookBox button').click(); 
+                clearInterval(wbInterval);
+
+                activeWorkbook(wbName)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            } else {
+                count++;
+                if (count > 10) {
                     clearInterval(wbInterval);
-                    setTimeout(function() {
-                        $('.workbookBox[data-workbook-id*="' + wbName + '"]')
-                        .find('.activate').click();
-                    }, 400);
-                    
-                } else {
-                    count++;
-                    if (count > 10) {
-                        clearInterval(wbInterval);
-                    }
+                    deferred.reject();
                 }
-            }, 300);
-        }
+            }
+        }, 300);
+
+        return deferred.promise();
     };
+
+    function activeWorkbook(wbName) {
+        var deferred = jQuery.Deferred();
+        var count = 0;
+        var wbInterval = setInterval(function() {
+            var $wkbkBox = $('.workbookBox[data-workbook-id*="' + wbName + '"]');
+            if ($wkbkBox.length > 0) {
+                clearInterval(wbInterval);
+                $wkbkBox.find('.activate').click();
+                deferred.resolve(wbName);
+            } else {
+                count++;
+                if (count > 10) {
+                    clearInterval(wbInterval);
+                    deferred.reject();
+                }
+            }
+        }, 300);
+
+        return deferred.promise();
+    }
 
         // to add file names to the menu edit this object
     var filePathMap = {

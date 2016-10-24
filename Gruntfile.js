@@ -19,7 +19,8 @@ destMap = {
     "dologout.html": "assets/htmlFiles/dologout.html",
     "setup.html": "assets/htmlFiles/setup.html",
     "tableau.html": "assets/htmlFiles/tableau.html",
-    "install.html": "install.html"
+    "install.html": "install.html",
+    "testSuite.html": "testSuite.html"
 };
 
 htmlMinOptions = {};
