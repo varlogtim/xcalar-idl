@@ -1004,7 +1004,6 @@ window.ColManager = (function($, ColManager) {
         var table = gTables[tableId];
         var numCols = table.getNumCols();
         var $table = $('#xcTable-' + tableId);
-        var $tbody = $table.find('tbody');
         var removedCols = [];
         var removedColNums = [];
 
@@ -1033,30 +1032,7 @@ window.ColManager = (function($, ColManager) {
             $table.find('th.col' + colNum).remove();
         });
 
-        // will change colNum in the follwing, so should
-        // get datColNum here
-        var dataColNum = xcHelper.parseColNum($table.find('th.dataCol'));
-        $table.find('th').each(function(newColNum) {
-            var $th = $(this);
-            if (!$th.hasClass('rowNumHead')) {
-                var colNum = xcHelper.parseColNum($th);
-                $th.removeClass('col' + colNum).addClass('col' + newColNum);
-                $th.find('.col' + colNum).removeClass('col' + colNum)
-                                            .addClass('col' + newColNum);
-            }
-        });
-        var rowNum = xcHelper.parseRowNum($tbody.find('tr:eq(0)'));
-        var jsonData = [];
-        $tbody.find('.col' + dataColNum).each(function() {
-            jsonData.push($(this).find('.originalData').text());
-        });
-        $tbody.empty(); // remove tbody contents for pullrowsbulk
-
-        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
-        updateTableHeader(tableId);
-        TableList.updateTableInfo(tableId);
-        matchHeaderSizes($table);
-        moveFirstColumn();
+        pullRowsBulkHelper(tableId);
 
         SQL.add("Delete All Duplicate Columns", {
             "operation"  : SQLOps.DelAllDupCols,
@@ -1245,7 +1221,7 @@ window.ColManager = (function($, ColManager) {
     {
         var table = gTables[tableId];
         var tableCols = table.tableCols;
-        var numCols = tableCols.length;
+        var numCols = table.getNumCols();
         var indexedColNums = [];
         var nestedVals = [];
 
@@ -1344,139 +1320,61 @@ window.ColManager = (function($, ColManager) {
             $table.find('tbody').append($tBody);
         }
 
-        for (var i = 0; i < numCols; i++) {
-            styleColHeadHelper(i + 1, tableId);
+        for (var colNum = 1; colNum <= numCols; colNum++) {
+            styleColHeadHelper(colNum, tableId);
         }
 
         return $tBody;
     };
 
-    ColManager.unnest = function(tableId, colNum, rowNum, isArray, options) {
-        var $jsonTd = $('#xcTable-' + tableId).find('.row' + rowNum)
-                                              .find('td.col' + colNum);
-        var text = $jsonTd.find('.originalData').text();
-        var jsonTdObj;
-        options = options || {};
+    ColManager.unnest = function(tableId, colNum, rowNum) {
+        var $table = $('#xcTable-' + tableId);
+        var $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
+        var jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
 
-        try {
-            jsonTdObj = jQuery.parseJSON(text);
-        } catch (error) {
-            console.error(error, text);
+        if (jsonTdObj == null) {
             return;
         }
 
-        var jsonRowNum = rowNum;
-        var $table = $jsonTd.closest('table');
         var table = gTables[tableId];
-        var cols = table.tableCols;
-        var numCols = cols.length;
-        var colNames = [];
-        var escapedColNames = [];
-        var colName;
-        var escapedColName;
-        var openSymbol;
-        var closingSymbol;
+        var progCol = table.getCol(colNum);
+        var isDATACol = progCol.isDATACol();
         var colNums = [];
 
-        for (var arrayKey in jsonTdObj) {
-            if (options.isDataTd) {
-                colName = arrayKey;
-                // escapedColName = xcHelper.escapeColName(arrayKey);
-                escapedColName = arrayKey;
-            } else {
-                openSymbol = "";
-                closingSymbol = "";
-                if (!isArray) {
-                    openSymbol = ".";
-                } else {
-                    openSymbol = "[";
-                    closingSymbol = "]";
-                }
+        var pasedCols = parseUnnestTd(table, progCol, jsonTdObj);
+        var numKeys = pasedCols.length;
 
-                // colName = cols[colNum - 1].getBackColName().replace(/\\./g, ".") +
-                //           openSymbol + arrayKey + closingSymbol;
-                colName = cols[colNum - 1].getBackColName() +
-                          openSymbol + arrayKey + closingSymbol;
-                // escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
-                //                 xcHelper.escapeColName(arrayKey) + closingSymbol;
-                escapedColName = cols[colNum - 1].getBackColName() + openSymbol +
-                                arrayKey + closingSymbol;
-            }
-
-            if (!table.hasColWithBackName(escapedColName)) {
-                colNames.push(colName);
-                escapedColNames.push(escapedColName);
-            }
-        }
-
-        if (colNames.length === 0) {
+        if (numKeys === 0) {
             return;
         }
-        var numKeys = colNames.length;
-        var newColNum = colNum - 1;
+
         var ths = "";
+        pasedCols.forEach(function(parsedCol, index) {
+            var colName = xcHelper.parsePrefixColName(parsedCol.colName).name;
+            var backColName = parsedCol.escapedColName;
+            var newProgCol = ColManager.newPullCol(colName, backColName);
+            var newColNum = isDATACol ? colNum + index : colNum + index + 1;
 
-        for (var i = 0; i < numKeys; i++) {
-            var key = xcHelper.parsePrefixColName(colNames[i]).name;
-            var escapedKey = escapedColNames[i];
-            var newCol = ColManager.newPullCol(key, escapedKey);
-
-            if (options.isDataTd) {
-                cols.splice(newColNum, 0, newCol);
-            } else {
-                cols.splice(newColNum + 1, 0, newCol);
-            }
-
-            newColNum++;
-            var colHeadNum = newColNum;
-            if (!options.isDataTd) {
-                colHeadNum++;
-            }
-            colNums.push(colHeadNum);
-            ths += TblManager.getColHeadHTML(colHeadNum, tableId);
-        }
-
-        var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
-        var origDataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
-        var jsonData = [];
-        $table.find('tbody').find('.col' + origDataIndex).each(function() {
-            jsonData.push($(this).find('.originalData').text());
+            table.addCol(newColNum, newProgCol);
+            ths += TblManager.getColHeadHTML(newColNum, tableId);
+            colNums.push(newColNum);
         });
-        $table.find('tbody').empty(); // remove tbody contents for pullrowsbulk
-        var endIndex;
-        if (options.isDataTd) {
-            endIndex = colNum;
+
+        var $colToUnnest = $table.find('.th.col' + colNum);
+        if (isDATACol) {
+            $colToUnnest.before(ths);
         } else {
-            endIndex = colNum + 1;
+            $colToUnnest.after(ths);
         }
-
-        for (var i = numCols; i >= endIndex; i--) {
-            $table.find('.col' + i )
-                  .removeClass('col' + i)
-                  .addClass('col' + (numKeys + i));
-        }
-
-        if (options.isDataTd) {
-            $table.find('.th.col' + (newColNum + 1)).before(ths);
-        } else {
-            $table.find('.th.col' + colNum).after(ths);
-        }
-
-        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
-        updateTableHeader(tableId);
-        TableList.updateTableInfo(tableId);
-        matchHeaderSizes($table);
-        moveFirstColumn();
+        pullRowsBulkHelper(tableId);
 
         SQL.add("Pull All Columns", {
             "operation": SQLOps.PullAllCols,
-            "tableName": table.tableName,
+            "tableName": table.getName(),
             "tableId"  : tableId,
             "colNum"   : colNum,
             "colNums"  : colNums,
-            "rowNum"   : jsonRowNum,
-            "isArray"  : isArray,
-            "options"  : options
+            "rowNum"   : rowNum
         });
     };
 
@@ -1753,7 +1651,7 @@ window.ColManager = (function($, ColManager) {
         for (var i = startingIndex; i < endingIndex; i++) {
             var $jsonTd = $table.find('.row' + i + ' .col' + dataColNum);
             var jsonStr = $jsonTd.find('.originalData').text();
-            var tdValue = parseRowJSON(jsonStr);
+            var tdValue = parseRowJSON(jsonStr) || "";
             var res = parseTdHelper(tdValue, nested, progCol, {
                 "indexed"      : indexed,
                 "hasIndexStyle": hasIndexStyle
@@ -1963,24 +1861,86 @@ window.ColManager = (function($, ColManager) {
 
     // parse json string of a table row
     function parseRowJSON(jsonStr) {
+        if (!jsonStr) {
+            return null;
+        }
+
         var value;
 
-        if (jsonStr === "") {
-            // console.error("Error in pullCol, jsonStr is empty");
-            value = "";
-        } else {
-            try {
-                value = jQuery.parseJSON(jsonStr);
-            } catch (err) {
-                // XXX may need extra handlers to handle the error
-                console.error(err, jsonStr);
-                value = "";
+        try {
+            value = jQuery.parseJSON(jsonStr);
+        } catch (err) {
+            // XXX may need extra handlers to handle the error
+            console.error(err, jsonStr);
+            value = null;
+        }
+
+        return value;
+    }
+    // End Of Help Functon for pullAllCols and pullCOlHelper
+
+    function parseUnnestTd(table, progCol, jsonTd) {
+        var parsedCols = [];
+        var isArray = (progCol.getType() === ColumnType.array);
+
+        for (var tdKey in jsonTd) {
+            var colName = tdKey;
+            // var escapedColName = xcHelper.escapeColName(tdKey);
+            var escapedColName = tdKey;
+
+            if (!progCol.isDATACol()) {
+                var openSymbol = isArray ? "[" : ".";
+                var closingSymbol = isArray ? "]" : "";
+                var unnestColName = progCol.getBackColName();
+
+                // colName = unnestColName.replace(/\\./g, ".") +
+                //           openSymbol + tdKey + closingSymbol;
+                colName = unnestColName + openSymbol +
+                            colName + closingSymbol;
+                escapedColName = unnestColName + openSymbol +
+                                escapedColName + closingSymbol;
+            }
+
+            if (!table.hasColWithBackName(escapedColName)) {
+                parsedCols.push({
+                    "colName"       : colName,
+                    "escapedColName": escapedColName
+                });
             }
         }
 
-        return (value);
+        return parsedCols;
     }
-    // End Of Help Functon for pullAllCols and pullCOlHelper
+
+    function pullRowsBulkHelper(tableId) {
+        var $table = $("#xcTable-" + tableId);
+        // will change colNum in the follwing, so should
+        // get datColNum here
+        var dataColNum = xcHelper.parseColNum($table.find("th.dataCol"));
+        $table.find("th").each(function(newColNum) {
+            var $th = $(this);
+            if (!$th.hasClass("rowNumHead")) {
+                var colNum = xcHelper.parseColNum($th);
+                $th.removeClass("col" + colNum).addClass("col" + newColNum);
+                $th.find(".col" + colNum).removeClass("col" + colNum)
+                                            .addClass("col" + newColNum);
+            }
+        });
+
+        var $tbody = $table.find("tbody");
+        var rowNum = xcHelper.parseRowNum($tbody.find("tr:eq(0)"));
+        var jsonData = [];
+        $tbody.find(".col" + dataColNum).each(function() {
+            jsonData.push($(this).find(".originalData").text());
+        });
+        $tbody.empty(); // remove tbody contents for pullrowsbulk
+
+        TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
+        updateTableHeader(tableId);
+        TableList.updateTableInfo(tableId);
+        matchHeaderSizes($table);
+        moveFirstColumn();
+    }
 
     function delColHelper(colNum, tableId, multipleCols, colId, noAnim) {
         var deferred = jQuery.Deferred();

@@ -581,6 +581,21 @@ describe('ColManager Test', function() {
             expect($td.hasClass("textAlignCenter")).to.be.true;
         });
 
+        it("Should unnest a column", function() {
+            var table = gTables[tableId];
+            var backCol = xcHelper.getPrefixColName(prefix, "votes");
+            var colNum = table.getColNumByBackName(backCol);
+            var progCol = table.getCol(colNum);
+
+            expect(progCol).not.to.be.null;
+
+            var numCols = getColLen(tableId);
+            var rowNum = 1;
+            ColManager.unnest(tableId, colNum, rowNum);
+            // 3 new cols: votes.funny, votes.useful and votes.cool
+            expect(getColLen(tableId) - numCols).to.equal(3);
+        });
+
         after(function(done) {
             UnitTest.deleteAll(tableName, dsName)
             .always(function() {
@@ -595,6 +610,6 @@ describe('ColManager Test', function() {
 
     function getColLen(tableId) {
         var table = gTables[tableId];
-        return table.tableCols.length;
+        return table.getNumCols();
     }
 });

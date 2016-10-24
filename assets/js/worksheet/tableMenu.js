@@ -777,14 +777,12 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             var tableId = $cellMenu.data('tableId');
-            var rowNum  = $cellMenu.data('rowNum');
-            var colNum  = $cellMenu.data('colNum');
-            var $table  = $("#xcTable-" + tableId);
-            var isArray = $table.find("th.col" + colNum + " > div")
-                                .hasClass('type-array');
+            var rowNum = $cellMenu.data('rowNum');
+            var colNum = $cellMenu.data('colNum');
+
             $(".xcTable").find(".highlightBox").remove();
             setTimeout(function() {
-                ColManager.unnest(tableId, colNum, rowNum, isArray);
+                ColManager.unnest(tableId, colNum, rowNum);
             }, 0);
         });
 

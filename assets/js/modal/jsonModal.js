@@ -217,7 +217,7 @@ window.JSONModal = (function($, JSONModal) {
             var $jsonWrap = $(this).closest('.jsonWrap');
             var rowNum = $jsonWrap.data('rownum');
             var colNum = $jsonWrap.data('colnum');
-            var tableId =  $jsonWrap.data('tableid');
+            var tableId = $jsonWrap.data('tableid');
             var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
            
             if (!rowExists) {
@@ -229,7 +229,7 @@ window.JSONModal = (function($, JSONModal) {
             closeJSONModal();
             //set timeout to allow modal to close before unnesting many cols
             setTimeout(function() {
-                ColManager.unnest(tableId, colNum, rowNum, false, {isDataTd: true});
+                ColManager.unnest(tableId, colNum, rowNum);
             }, 0);
         });
 

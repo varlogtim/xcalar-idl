@@ -180,8 +180,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.PullAllCols] = function(options) {
         focusTableHelper(options);
-        ColManager.unnest(options.tableId, options.colNum, options.rowNum,
-                            options.isArray, options.options);
+        ColManager.unnest(options.tableId, options.colNum, options.rowNum);
         return PromiseHelper.resolve(null);
     };
 
