@@ -659,6 +659,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extTriggerTableDropdown.find(".list ul").html(tableList);
 
         if (!refresh) {
+            if (extMap[modName]._configParams.notTableDependent) {
+                $extArgs.find(".tableSection").addClass("xc-hidden");
+                return "";
+            } else {
+                $extArgs.find(".tableSection").removeClass("xc-hidden");
+            }
             var $input = $extTriggerTableDropdown.find(".text");
             if ($input.val() === "") {
                 var focusedTable = xcHelper.getFocusedTable();
@@ -671,14 +677,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     selectTriggerTableDropdown($li, true);
                 }
             }
-
-            if (extMap[modName]._configParams.notTableDependent) {
-                $extArgs.find(".tableSection").addClass("xc-hidden");
-            } else {
-                $extArgs.find(".tableSection").removeClass("xc-hidden");
-            }
         }
-        
+
         return tableList;
     }
 
