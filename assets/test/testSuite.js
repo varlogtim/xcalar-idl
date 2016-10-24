@@ -1368,11 +1368,11 @@ window.TestSuite = (function($, TestSuite) {
                     $jsonModal.find('.partial:eq(1) > div').length);
 
             // generate new column in table
+            $jsonModal.find(".matched:eq(2) > div .jKey").eq(0)
+                      .trigger(fakeEvent.click);
+            var $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
             // xx temp disabled, need to update
-            // $jsonModal.find(".matched:eq(2) > div .jKey")
-            //           .trigger(fakeEvent.click);
-            // var $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
-            // assert($newTh.find('.editableHead').val() === "time");
+            assert($newTh.find('.editableHead').val().indexOf("time") > -1);
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {

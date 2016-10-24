@@ -1735,13 +1735,12 @@ window.JSONModal = (function($, JSONModal) {
             escapedName = escapedName.substr(1);
         }
 
-        var $prefixGroup = $el.closest('.prefixGroup');
-        if ($prefixGroup.length) {
+        var $prefixType = $el.closest('.prefixedType');
+        if ($prefixType.length) {
+            var $prefixGroup = $el.closest('.prefixGroup');
             var $prefix = $prefixGroup.find('.prefix');
-            if (!$prefix.hasClass('immediates')) {
-                name = $prefix.text() + gPrefixSign + name;
-                escapedName = $prefix.text() + gPrefixSign + escapedName;
-            }
+            name = $prefix.text() + gPrefixSign + name;
+            escapedName = $prefix.text() + gPrefixSign + escapedName;
         }
 
         return {
