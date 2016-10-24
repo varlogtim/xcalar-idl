@@ -1590,8 +1590,12 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.isTableInScreen = function(tableId, winWidth) {
-        var windowWidth = winWidth || $(window).width();
         var $tableWrap = $("#xcTableWrap-" + tableId);
+        if ($tableWrap.length === 0) {
+            return false;
+        }
+
+        var windowWidth = winWidth || $(window).width();
         var tableLeft = $tableWrap.offset().left;
         var tableRight = tableLeft + $tableWrap.width();
         var mainFrameOffsetLeft = MainMenu.getOffset();
