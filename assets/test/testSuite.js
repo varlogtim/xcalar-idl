@@ -762,9 +762,12 @@ window.TestSuite = (function($, TestSuite) {
                         .trigger(fakeEvent.enterKeydown);
                 $section.find(".arg").eq(1).val(gColPrefix + "ArrDelay_integer");
                 $section.find(".colNameSection .arg").val("AvgDelay");
+                var newTableName = 'GB' + randInt();
+                $section.find('.newTableName').val(newTableName);
                 $("#operationsView .submit").click();
 
-                return checkExists(".xcTableWrap .tableName[value*='GB']");
+                return checkExists(".xcTableWrap .tableName[value*='" +
+                                    newTableName + "']");
             })
             .then(function() {
                 flightTestPart9();
@@ -916,11 +919,13 @@ window.TestSuite = (function($, TestSuite) {
             $section.find(".functionsList .functionsInput").val("count")
                         .trigger(fakeEvent.enterKeydown);
             $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay_integer");
+            var newTableName = 'GB' + randInt();
+            $section.find('.newTableName').val(newTableName);
             $("#operationsView .submit").click();
             // need to check in this worksheet because
             // there is another groupby table
             return checkExists(".xcTableWrap.worksheet-" + wsId +
-                               " .tableName[value*='GB']");
+                               " .tableName[value*='" + newTableName + "']");
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);

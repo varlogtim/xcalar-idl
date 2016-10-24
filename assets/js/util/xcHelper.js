@@ -1135,6 +1135,31 @@ window.xcHelper = (function($, xcHelper) {
         return true;
     };
 
+    xcHelper.tableNameInputChecker = function($input) {
+        var newTableName = $input.val().trim();
+        var options = {preventImmediateHide: true};
+        if (newTableName === "") {
+            StatusBox.show(ErrTStr.NoEmpty, $input, true, options);
+            return false;
+        }
+        if (/^ | $|[*#'"]/.test(newTableName) === true) {
+            StatusBox.show(ErrTStr.InvalidTableName, $input, true, options);
+            return false;
+        }
+        if (newTableName.length >=
+            XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
+            StatusBox.show(ErrTStr.TooLong, $input, true, options);
+            return false;
+        }
+
+        var validTableName = xcHelper.checkDupTableName(newTableName);
+        if (!validTableName) {
+            StatusBox.show(ErrTStr.TableConflict, $input, true, options);
+            return false;
+        }
+        return true;
+    }
+
     xcHelper.getTableName = function(wholeName) {
         // get out tableName from tableName + hashId
         var hashIndex = wholeName.lastIndexOf('#');

@@ -115,7 +115,8 @@
         <span class="text"><%= dicts.opsView.additional %></span>
       </div>
     </div>
-    <!-- end filter opSection -->
+    <!-- END FILTER OPSECTION -->
+    <!-- START GROUP BY OPSECTION -->
     <div class="groupby opSection xc-hidden">
       <p class="instructions"><%= dicts.opsView.groupbyInstr %></p>
       <div class="group groupbyGroup">
@@ -132,7 +133,9 @@
               <i class="icon xi-arrow-down"></i>
             </div>
             <div class="list">
-              <ul></ul>
+              <ul>
+                <!-- list of worksheet tables will be filled in here -->
+              </ul>
               <div class="scrollArea top">
                 <div class="arrow"></div>
               </div>
@@ -170,8 +173,7 @@
                 <span class="text"><%= dicts.opsView.AddAnotherColumn %></span>
              </button>
             </div>
-          </div>
-          
+          </div> 
         </div>
         <div class="catFuncHeadings clearfix subHeading">
           <div class="groupbyFnTitle"><%= dicts.opsView.funcToGroup %>:</div>
@@ -183,7 +185,9 @@
             <i class="icon xi-arrow-down"></i>
           </div>
           <div class="list genFunctionsMenu">
-            <ul data-fnmenunum="0"></ul>
+            <ul data-fnmenunum="0">
+              <!-- list of group by functions will be filled in here -->
+            </ul>
             <div class="scrollArea top">
               <div class="arrow"></div>
             </div>
@@ -193,7 +197,12 @@
           </div>
         </div>
         <div class="descriptionText"></div>
-        <div class="argsSection inactive"></div>
+        <div class="argsSection inactive">
+        </div>
+        <div class="row clearfix newTableNameRow inactive">
+          <div class="description">New table name:</div>
+          <input class="focusable newTableName" type="textbox" spellcheck="false" >
+        </div>
         <div class="gbCheckboxes inactive clearfix">
           <div class="keepTable checkboxSection clearfix">
             <div class="text"><%= dicts.opsView.joinBack %></div>
@@ -220,9 +229,10 @@
           </div>
         </div>
       </div> 
-      <!-- end filter group -->
+      <!-- END GROUPBYGROUP GROUP -->
     </div>
-    <!-- end group by op section -->
+    <!-- END GROUP BY OP SECTION -->
+    <!-- START AGGREGATE SECTION -->
     <div class="aggregate opSection xc-hidden">
       <p class="instructions"><%= dicts.opsView.aggInstr %></p>
       <div class="group aggregateGroup">

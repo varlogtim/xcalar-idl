@@ -195,9 +195,35 @@ describe('OperationsView', function() {
                 expect($operationsView.find('.arg[type=text]:visible')).to.have.lengthOf(3);
                 $argInputs = $operationsView.find('.arg[type=text]:visible');
             });
+
+            it('new table name should be visible', function() {
+                expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
+            });
+
             it('should have 3 visible checkboxes for inc sample', function() {
                 expect($operationsView.find('.checkbox:visible')).to.have.lengthOf(3);
             });
+
+            it('new table name should not be visible if join selected', function() {
+                var $keepCheckbox = $operationsView.find('.groupby .keepTable .checkbox');
+                $keepCheckbox.click();
+                expect($keepCheckbox.filter('.checked').length).to.equal(1);
+                expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(0);
+
+                $keepCheckbox.click();
+                expect($keepCheckbox.filter('.checked').length).to.equal(0);
+                expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
+
+                var $incSampleBox = $operationsView.find('.groupby .incSample .checkbox');
+                $incSampleBox.click();
+                expect($incSampleBox.filter('.checked').length).to.equal(1);
+                expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
+
+                $incSampleBox.click();
+                expect($incSampleBox.filter('.checked').length).to.equal(0);
+                expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
+            });
+
         });
 
         describe('test type checking', function() {

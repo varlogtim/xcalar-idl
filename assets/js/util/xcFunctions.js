@@ -523,6 +523,10 @@ window.xcFunction = (function($, xcFunction) {
         var icvMode = options.icvMode || false;
 
         var tableName = gTables[tableId].getName();
+        var dstTableName = options.dstTableName || null;
+        if (dstTableName != null) {
+            dstTableName += Authentication.getHashId();
+        }
         var finalTableName;
         var finalTableCols;
 
@@ -563,7 +567,7 @@ window.xcFunction = (function($, xcFunction) {
         var scrollPos = $('#mainFrame').scrollLeft();
 
         XIApi.groupBy(txId, operator, groupByCols, aggCol,
-                      isIncSample, tableName, newColName, null, icvMode)
+                      isIncSample, tableName, newColName, dstTableName, icvMode)
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
                 var dataColNum = gTables[tableId].getColNumByBackName("DATA");

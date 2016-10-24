@@ -464,7 +464,8 @@
 			float: left;
 			position: relative;
 			.transition(all 0.3s);
-			margin-top: 6px;
+			// padding-top: 6px;
+			margin-top: 0px;
 
 			&.hidden {
 				display: none;
@@ -476,7 +477,7 @@
 				float: left;
 				display: inline-block;
 				width: 40px;
-				height:40px;
+				height: 36px;
 				line-height: 26px;
 			}
 
@@ -505,7 +506,8 @@
 	        }
 
 	        &.showing {
-	            height: 40px;
+	            height: 36px;
+	            margin-top: 6px;
 	            div.text {
 	                padding-left: 12px;
 	            }
@@ -759,7 +761,23 @@
     			}
     		}
     	}
+    	.newTableNameRow {
+    		margin-top: 6px;
+
+    		.description {
+    			padding: 6px;
+			    padding-left: 10px;
+			    padding-bottom: 4px;
+			    line-height: 14px;
+			    font-weight: 700;
+    		}
+     		    
+    		&.inactive {
+    			display: none;
+    		}
+    	}
     	.gbCheckboxes {
+    		margin-top: 6px;
     		height: auto;
     		.checkboxSection {
     			height: @listHeight;

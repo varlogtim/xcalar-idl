@@ -836,28 +836,12 @@ window.JoinView = (function($, JoinView) {
     function submitJoin() {
         // check validation
         // if submit is enabled, that means first view is already valid
-
+        // 
+        var isValidTableName = xcHelper.tableNameInputChecker($joinTableName);
+        if (!isValidTableName) {
+            return;
+        }
         var newTableName = $joinTableName.val().trim();
-
-        if (newTableName === "") {
-            StatusBox.show(ErrTStr.NoEmpty, $joinTableName, true);
-            return;
-        }
-        if (/^ | $|[*#'"]/.test(newTableName) === true) {
-            StatusBox.show(ErrTStr.InvalidTableName, $joinTableName, true);
-            return;
-        }
-        if (newTableName.length >=
-            XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
-            StatusBox.show(ErrTStr.TooLong, $joinTableName, true);
-            return;
-        }
-
-        var validTableName = xcHelper.checkDupTableName(newTableName);
-        if (!validTableName) {
-            StatusBox.show(ErrTStr.TableConflict, $joinTableName, true);
-            return;
-        }
 
         formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();

@@ -503,9 +503,22 @@ window.OperationsView = (function($, OperationsView) {
 
              // incSample and keepInTable toggling
             if ($checkbox.closest('.gbCheckboxes').length) {
+               
                 if ($checkbox.hasClass('checked')) {
                     $checkbox.closest('.checkboxSection').siblings()
                             .find('.checkbox').removeClass('checked');
+                }
+
+                // show or hide new table name input if join back option is
+                // selected 
+                var $newTableNameRow = $checkbox.closest('.group')
+                                                .find('.newTableNameRow');
+                var $keepTableBox = $checkbox.closest('.gbCheckboxes')
+                                             .find('.keepTable .checkbox');
+                if ($keepTableBox.hasClass('checked')) {
+                    $newTableNameRow.addClass('inactive');
+                } else {
+                    $newTableNameRow.removeClass('inactive');
                 }
             }
 
@@ -1443,6 +1456,7 @@ window.OperationsView = (function($, OperationsView) {
 
         $argsGroup.find('.icvMode').removeClass('inactive');
         $argsGroup.find('.gbCheckboxes').removeClass('inactive');
+        $argsGroup.find('.newTableNameRow').removeClass('inactive');
 
 
         var defaultValue; // to autofill first arg
@@ -1643,8 +1657,7 @@ window.OperationsView = (function($, OperationsView) {
         $gbOnRow.find('.arg').focus();
 
         // new col name field
-        description = 'New Column Name for the groupBy' +
-                        ' resultant column';
+        description = OpFormTStr.NewColName + ":";
         autoGenColName = xcHelper.parsePrefixColName(colName).name;
         autoGenColName = getAutoGenColName(autoGenColName + "_" +
                                             operObj.fnName);
@@ -2229,70 +2242,23 @@ window.OperationsView = (function($, OperationsView) {
             formHelper.enableSubmit();
             return deferred.reject().promise();
         }
-
-        // name duplication check
-        var $nameInput;
-        var isPromise = false;
-        switch (operatorName) {
-            case ('map'):
-                $nameInput = $activeOpSection.find('.arg:visible').last();
-                if (isNewCol && colName !== "" &&
-                    ($nameInput.val().trim() === colName)) {
-                    isPassing = true; // input name matches new column name
-                    // which is ok
-                } else {
-                    isPassing = !ColManager.checkColName($nameInput, tableId);
-                }
-
-                break;
-            case ('group by'):
-                // check new col name
-                $nameInput = $activeOpSection.find('.arg:visible').eq(2);
-                isPassing = !ColManager.checkColName($nameInput, tableId);
-                break;
-            case ('aggregate'):
-                if (args[1].length > 1) {
-                    isPromise = true;
-                    checkAggregateNameValidity()
-                    .then(function(isPassing) {
-                        if (!isPassing) {
-                            formHelper.enableSubmit();
-                            deferred.reject();
-                        } else {
-                            submitFinalForm(args)
-                            .then(deferred.resolve)
-                            .fail(deferred.reject);
-                        }
-                    })
-                    .fail(function(error) {
-                        console.error(error);
-                        formHelper.enableSubmit();
-                        deferred.reject();
-                    });
-                } else {
-                    isPassing = true;
-                }
-
-                break;
-            default:
-                break;
-        }
-        if (!isPromise) {
-            if (!isPassing) {
-                formHelper.enableSubmit();
-                deferred.reject();
-            } else {
-                // if there are multiple sets of arguments such as filter
-                var hasMultipleSets = false;
-                if (multipleArgSets.length > 1){
-                    args = multipleArgSets;
-                    hasMultipleSets = true;
-                }
-                submitFinalForm(args, hasMultipleSets)
-                .then(deferred.resolve)
-                .fail(deferred.reject);
+        
+        // name duplication check 
+        duplicateNameCheck(args)
+        .then(function() {
+            var hasMultipleSets = false;
+            if (multipleArgSets.length > 1){
+                args = multipleArgSets;
+                hasMultipleSets = true;
             }
-        }
+            submitFinalForm(args, hasMultipleSets)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        })
+        .fail(function() {
+            formHelper.enableSubmit();
+            deferred.reject();
+        });
 
         return deferred.promise();
     }
@@ -2370,6 +2336,72 @@ window.OperationsView = (function($, OperationsView) {
         return deferred.promise();
     }
 
+    function duplicateNameCheck(args) {
+        var deferred = jQuery.Deferred();
+
+        var $nameInput;
+        var isPromise = false;
+        switch (operatorName) {
+            case ('map'):
+                $nameInput = $activeOpSection.find('.arg:visible').last();
+                if (isNewCol && colName !== "" &&
+                    ($nameInput.val().trim() === colName)) {
+                    isPassing = true; // input name matches new column name
+                    // which is ok
+                } else {
+                    isPassing = !ColManager.checkColName($nameInput, tableId);
+                }
+                if (isPassing) {
+                    deferred.resolve();
+                } else {
+                    deferred.reject();
+                }
+                break;
+            case ('group by'):
+                // check new col name
+                $nameInput = $activeOpSection.find('.arg:visible').eq(2);
+                isPassing = !ColManager.checkColName($nameInput, tableId);
+
+                // check new table name if join option is not checked
+                if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
+                                    .hasClass('checked')) {
+                    isPassing = xcHelper.tableNameInputChecker(
+                                    $activeOpSection.find('.newTableName'));
+                }
+                if (isPassing) {
+                    deferred.resolve();
+                } else {
+                    deferred.reject();
+                }
+                break;
+            case ('aggregate'):
+                if (args[1].length > 1) {
+                    checkAggregateNameValidity()
+                    .then(function(isPassing) {
+                        if (!isPassing) {
+                            formHelper.enableSubmit();
+                            deferred.reject();
+                        } else {
+                            deferred.resolve();
+                        }
+                    })
+                    .fail(function(error) {
+                        console.error(error);
+                        formHelper.enableSubmit();
+                        deferred.reject();
+                    });
+                } else {
+                    deferred.resolve();
+                }
+
+                break;
+            default:
+                deferred.resolve();
+                break;
+        }
+
+        return deferred.promise();
+    }
 
     // returns an array of objects that include the new type and argument number
     function getCastInfo(args, groupNum) {
@@ -2874,11 +2906,20 @@ window.OperationsView = (function($, OperationsView) {
                                     .hasClass('checked');
         var icvMode = $activeOpSection.find(".icvMode .checkbox")
                                     .hasClass("checked");
+
+        var dstTableName;
+        if (isJoin) {
+            dstTableName = null;
+        } else {
+            dstTableName = $activeOpSection.find('.newTableName').val().trim();
+        }
+        
         var options = {
             "isIncSample" : isIncSample,
             "isJoin"      : isJoin,
             "icvMode"     : icvMode,
-            "formOpenTime": formOpenTime
+            "formOpenTime": formOpenTime,
+            "dstTableName": dstTableName
         };
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');
@@ -3739,11 +3780,14 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.find('.argsSection:not(.groupOnSection)')
                        .addClass('inactive');
+        $operationsView.find('.newTableNameRow').addClass('inactive')
+                       .find('.newTableName').val("");
 
         // empty all checkboxes
         $operationsView.find('.checkbox').removeClass('checked');
         $operationsView.find('.icvMode').addClass('inactive');
         $operationsView.find('.gbCheckboxes').addClass('inactive');
+        
 
         $operationsView.find('.arg').val("");
 

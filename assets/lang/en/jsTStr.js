@@ -314,6 +314,10 @@ ScrollTStr = {
     'BookMark': 'Row <row>'
 };
 
+OpFormTStr = {
+    'NewColName': 'New column name for the group by resultant column'
+};
+
 AggTStr = {
     'NoSupport': 'Not Supported',
     'DivByZeroExplain': 'Only one distinct value',
