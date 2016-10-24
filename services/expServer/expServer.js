@@ -94,6 +94,7 @@ function genExecString(hostnameLocation, hasPrivHosts,
                        credentialLocation, isPassword,
                        username, port, nfsOptions) {
     var execString = " -h " + hostnameLocation;
+    execString+= " -l " + username;
     if (hasPrivHosts) {
         execString += " --priv-hosts-file " + privHostnameLocation;
     }
