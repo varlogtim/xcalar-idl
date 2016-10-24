@@ -685,12 +685,14 @@ JsonModalTStr = {
   'Compare': 'Click to select for comparison',
   'SelectOther': 'Select another data cell from a table to compare',
   'SeeAll': 'See All',
+  'ViewAll': 'View All',
   'Original': 'Original',
   'XcOriginated': 'Xcalar Originated',
-  'SeeAllTip': 'View all fields',
+  'ViewAllTip': 'View all fields',
   'OriginalTip': 'View the original data fields',
   'XcOriginatedTip': 'View Xcalar generated fields',
   'SortAsc': 'Sort ascending',
   'SortDesc': 'Sort descending',
-  'ToggleMode': 'Toggle mode'
+  'ToggleMode': 'Toggle mode',
+  'FieldsSelected': 'fields selected to project'
 };

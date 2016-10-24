@@ -335,6 +335,10 @@ window.JSONModal = (function($, JSONModal) {
             selectTab($(this));
         });
 
+        $jsonArea.on('mouseenter', '.tooltipOverflow', function() {
+            xcTooltip.auto(this, $(this).find('.text')[0]);
+        });
+
         $jsonArea.on("mousedown", ".jsonDragHandle", function() {
             var cursorStyle =
                 '<style id="moveCursor" type="text/css">*' +
@@ -450,13 +454,13 @@ window.JSONModal = (function($, JSONModal) {
 
     function clearAllProjectedCols($btn) {
         var $jsonWrap = $btn.closest('.jsonWrap');
-        $jsonWrap.find('.jObject').children().children().children('.jKey')
-                 .removeClass('projectSelected');
+        $jsonWrap.find('.projectSelected').removeClass('projectSelected');
         $jsonWrap.find('.jsonCheckbox').removeClass('checked');
         $jsonWrap.find('.submitProject').addClass('disabled');
         $jsonWrap.find('.clearAll').addClass('disabled');
         var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
-        $jsonWrap.find('.colsSelected').text('0/' + totalCols + ' selected');
+        $jsonWrap.find('.colsSelected').text('0/' + totalCols + ' '+ 
+                                            JsonModalTStr.FieldsSelected);
     }
 
     function togglePrefixProject($checkbox) {
@@ -486,7 +490,7 @@ window.JSONModal = (function($, JSONModal) {
         var numSelected = $jsonWrap.find('.projectSelected').length;
         var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
         $jsonWrap.find('.colsSelected').text(numSelected + '/' + totalCols +
-                                                 ' selected');
+                                            ' ' + JsonModalTStr.FieldsSelected);
     }
 
     function selectJsonKey($el) {
@@ -968,10 +972,10 @@ window.JSONModal = (function($, JSONModal) {
         
         $jsonArea.append(getJsonWrapHtml(prettyJson, tableName, rowNum));
         if (isDataCol) {
-            setPrefixTabs($jsonArea, groups);
+            setPrefixTabs(groups);
         }
 
-        addDataToJsonWrap($jsonArea, $jsonTd, isArray);
+        addDataToJsonWrap($jsonTd, isArray);
         
     }
 
@@ -1077,8 +1081,9 @@ window.JSONModal = (function($, JSONModal) {
         return groupsArray;
     }
 
-    function setPrefixTabs($jsonArea, groups) {
-        var $tabWrap = $jsonArea.find('.tabWrap .tabs');
+    function setPrefixTabs(groups) {
+        var $jsonWrap = $jsonArea.find('.jsonWrap').last();
+        var $tabWrap = $jsonWrap.find('.tabBar .tabs');
         var html = "";
         var prefix;
         var classNames;
@@ -1086,11 +1091,14 @@ window.JSONModal = (function($, JSONModal) {
             classNames = "";
             prefix = groups[i].prefix;
             if (prefix === gPrefixSign) {
-                prefix = "Immediates";
+                prefix = "Derived";
                 classNames += " immediates";
             }
-            html += '<div class="tab' + classNames + '" ' +
-                        'data-id="' + prefix + '">' +
+            html += '<div class="tab tooltipOverflow' + classNames + '" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-container="body" ' +
+                        'data-original-title="' + prefix + '" ' +
+                        'data-id="' + prefix + '" >' +
                         '<span class="text">' + prefix +
                         '</span>' +
                     '</div>';
@@ -1270,7 +1278,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function addDataToJsonWrap($jsonArea, $jsonTd, isArray) {
+    function addDataToJsonWrap($jsonTd, isArray) {
         var $jsonWrap = $jsonArea.find('.jsonWrap:last');
         var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr'));
         var colNum = xcHelper.parseColNum($jsonTd);
@@ -1293,7 +1301,8 @@ window.JSONModal = (function($, JSONModal) {
             
             var numFields = $jsonWrap.find('.primary').find('.mainKey').length;
             $jsonWrap.find('.colsSelected').data('totalcols', numFields)
-                                           .text('0/' + numFields + ' selected');
+                                           .text('0/' + numFields + ' ' +
+                                            JsonModalTStr.FieldsSelected);
         }
     }
 
@@ -1349,18 +1358,33 @@ window.JSONModal = (function($, JSONModal) {
                     'title="' + 'submit projection' + '">' +
                     '<i class="icon xi-back-to-worksheet"></i>' +
                 '</div>' +
-                '<div class="text colsSelected disabled" ' +
-                    'data-toggle="tooltip" data-container="body" ' +
-                    'title="' + 'Number of fields selected to project' + '">' +
+                '<div class="flexArea">' +
+                    '<div class="infoArea">' +
+                        '<div class="tableName">Table:&nbsp;&nbsp;' +
+                            '<span class="text" data-toggle="tooltip" ' +
+                                'data-container="body" data-placement="bottom" ' +
+                                'title="' + tableName + '">' + tableName + '</span>' +
+                        '</div>' +
+                        '<div class="rowNum">Row:&nbsp;&nbsp;' +
+                            '<span class="text">' + rowNum.toLocaleString("en") + '</span>' +
+                        '</div>' +
+                    '</div>' +
                 '</div>' +
-                '<div class="tabWrap">' +
+                '<div class="dropdownBox btn btn-small btn-secondary" ' +
+                ' data-toggle="tooltip" data-container="body" ' +
+                'data-original-title="' + JsonModalTStr.ToggleMode + '">' +
+                    '<i class="icon xi-down"></i>' +
+                '</div>' +
+            '</div>' +
+            '<div class="tabBar bar">' +
+                // '<div class="tabWrap">' +
                     '<div class="tabs">' +
                         '<div class="tab seeAll active" ' +
                         'data-toggle="tooltip" ' +
                         'data-container="body" ' +
-                        'title="' + JsonModalTStr.SeeAllTip + '">' +
-                            '<span class="icon"></span>' +
-                            '<span class="text">' + JsonModalTStr.SeeAll +
+                        'title="' + JsonModalTStr.ViewAllTip + '">' +
+                            '<i class="icon xi-show"></i>' +
+                            '<span class="text">' + JsonModalTStr.ViewAll +
                             '</span>' +
                         '</div>' +
                         // '<div class="tab original" data-toggle="tooltip" ' +
@@ -1378,39 +1402,10 @@ window.JSONModal = (function($, JSONModal) {
                         //     '</span>' +
                         // '</div>' +
                     '</div>' +
-                '</div>' +
-                // '<div class="projectWrap">' +
-                //      '<div class="checkbox">' +
-                //         '<span class="icon"></span>' +
-                //       '</div>' +
-                //       '<div class="text">Project</div>' +
-                //       '<div class="hint qMark" data-container="body" ' +
-                //       'data-toggle="tooltip" ' +
-                //       'title="Allow selection of columns to project"></div>' +
                 // '</div>' +
-                // '<div class="selectBtn selectAll hidden">' +
-                //     "Select All" +
-                // '</div>' +
-                // '<div class="selectBtn clearAll hidden">' +
-                //     "Clear All" +
-                // '</div>' +
-                // '<div class="submitProject hidden">' +
-                //     "Submit" +
-                // '</div>' +
-                '<div class="dropdownBox btn btn-small btn-secondary" ' +
-                ' data-toggle="tooltip" data-container="body" ' +
-                'data-original-title="' + JsonModalTStr.ToggleMode + '">' +
-                    '<i class="icon xi-down"></i>' +
-                '</div>' +
             '</div>' +
-            '<div class="infoBar bar">' +
-                '<div class="tableName">Table:&nbsp;&nbsp;' +
-                    '<span class="text" data-toggle="tooltip" ' +
-                        'data-container="body" data-placement="bottom" ' +
-                        'title="' + tableName + '">' + tableName + '</span>' +
-                '</div>' +
-                '<div class="rowNum">Row:&nbsp;&nbsp;' +
-                    '<span class="text">' + rowNum.toLocaleString("en") + '</span>' +
+            '<div class="projectModeBar bar">' +
+                '<div class="text colsSelected disabled">' +
                 '</div>' +
             '</div>' +
             '<div class="prettyJson primary">' +
@@ -1758,8 +1753,17 @@ window.JSONModal = (function($, JSONModal) {
     function submitProject(index) {
         var colNames = [];
         var $jsonWrap = $('.jsonWrap').eq(index);
+        var $el;
         $jsonWrap.find('.projectSelected').each(function() {
-            colNames.push($(this).text());
+            var $el = $(this);
+            var colName = $el.text();
+            var $prefixType = $el.closest('.prefixedType');
+            if ($prefixType.length) {
+                var $prefixGroup = $el.closest('.prefixGroup');
+                var $prefix = $prefixGroup.find('.prefix');
+                colName = $prefix.text() + gPrefixSign + colName;
+            }
+            colNames.push(colName);
         });
 
         if (colNames.length) {
@@ -1782,6 +1786,7 @@ window.JSONModal = (function($, JSONModal) {
             $jsonWrap = $menu.closest('.jsonWrap');
             if ($li.hasClass('projectionOpt')) {
                 $jsonWrap.addClass('projectMode');
+                selectTab($jsonWrap.find('.seeAll'));
                 if ($jsonWrap.find('.compareIcon.on').length) {
                     compareIconSelect($jsonWrap.find('.compareIcon'));
                 }
