@@ -201,7 +201,7 @@ function xcalarSetConfigParam(thriftHandle, paramName, paramValue) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarSetConfigParam(paramName = " + paramName +
-                    ", paramValue = " + paramValue);
+                    ", paramValue = " + paramValue + ")");
     }
     var workItem = xcalarSetConfigParamWorkItem(paramName, paramValue);
 
@@ -263,29 +263,111 @@ function xcalarAppSet(thriftHandle, name, hostType, execStr) {
     return (deferred.promise());
 }
 
-function xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested) {
+function xcalarAppRunWorkItem(name, isGlobal, inStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
+    workItem.api = XcalarApisT.XcalarApiAppRun;
 
-    workItem.api = XcalarApisT.XcalarApiPreview
-    workItem.input.previewInput = new XcalarApiPreviewInputT();
-    workItem.input.previewInput.url = url;
-    workItem.input.previewInput.fileNamePattern = fileNamePattern;
-    workItem.input.previewInput.recursive = recursive;
-    workItem.input.previewInput.numBytesRequested = numBytesRequested;
+    workItem.input.appRunInput = new XcalarApiAppRunInputT();
+    workItem.input.appRunInput.name = name;
+    workItem.input.appRunInput.isGlobal = isGlobal;
+    workItem.input.appRunInput.inStr = inStr;
+
     return (workItem);
 }
 
-function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRequested) {
+function xcalarAppRun(thriftHandle, name, isGlobal, inStr) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarAppRun(name = " + name + ", isGlobal = " + isGlobal
+                    + ", inStr = " + inStr + ")");
+    }
+    var workItem = xcalarAppRunWorkItem(name, isGlobal, inStr);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function (result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(result);
+    })
+    .fail(function(error) {
+        console.log("xcalarAppRun() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarAppReapWorkItem(appGroupId) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.api = XcalarApisT.XcalarApiAppReap;
+
+    workItem.input.appReapInput = new XcalarApiAppReapInputT();
+    workItem.input.appReapInput.appGroupId = appGroupId;
+
+    return (workItem);
+}
+
+function xcalarAppReap(thriftHandle, appGroupId) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarAppReap(appGroupId = " + appGroupId + ")");
+    }
+    var workItem = xcalarAppReapWorkItem(appGroupId);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function (result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(result);
+    })
+    .fail(function(error) {
+        console.log("xcalarAppReap() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested, offset) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    var inputObj = {"func" : "preview",
+                    "url" : url,
+                    "namePattern" : fileNamePattern,
+                    "recursive" : recursive,
+                    "offset" : offset,
+                    "bytesRequested" : numBytesRequested}
+
+    workItem.api = XcalarApisT.XcalarApiPreview
+    workItem.input.previewInput = new XcalarApiPreviewInputT();
+    workItem.input.previewInput.inputJson = JSON.stringify(inputObj);
+    return (workItem);
+}
+
+function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRequested, offset) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarPreview(url = " + url +
                     ", fileNamePattern = " + fileNamePattern +
                     ", recursive = " + recursive +
-                    ", numBytesRequested = " + numBytesRequested);
+                    ", numBytesRequested = " + numBytesRequested +
+                    ", offset =" + offset);
     }
 
-    var workItem = xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested);
+    var workItem = xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested, offset);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -298,8 +380,15 @@ function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRe
             deferred.reject(status);
         }
 
-        previewOutput.buffer = atob(previewOutput.buffer);
-
+        // previewOutput has a jsonOutput field which is a json formatted string
+        // which has several fields of interest:
+        // {"fileName" :
+        //  "relPath" :
+        //  "fullPath" :
+        //  "base64Data" :
+        //  "thisDataSize" :
+        //  "totalDataSize" :
+        //  }
         deferred.resolve(previewOutput);
     })
     .fail(function(error) {
@@ -1357,7 +1446,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     ", collisionCheck = " + collisionCheck +
                     ")");
     }
-    
+
     var workItem = xcalarJoinWorkItem(leftTableName, rightTableName,
                                       joinTableName, joinType,
                                       leftRenameMap, rightRenameMap,

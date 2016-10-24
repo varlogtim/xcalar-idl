@@ -10929,13 +10929,13 @@ ExAddTargetSFInputT.prototype.write = function(output) {
 
 ExAddTargetUDFInputT = function(args) {
   this.url = null;
-  this.udfName = null;
+  this.appName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
     }
-    if (args.udfName !== undefined) {
-      this.udfName = args.udfName;
+    if (args.appName !== undefined) {
+      this.appName = args.appName;
     }
   }
 };
@@ -10962,7 +10962,7 @@ ExAddTargetUDFInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.udfName = input.readString().value;
+        this.appName = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -10983,9 +10983,9 @@ ExAddTargetUDFInputT.prototype.write = function(output) {
     output.writeString(this.url);
     output.writeFieldEnd();
   }
-  if (this.udfName !== null && this.udfName !== undefined) {
-    output.writeFieldBegin('udfName', Thrift.Type.STRING, 2);
-    output.writeString(this.udfName);
+  if (this.appName !== null && this.appName !== undefined) {
+    output.writeFieldBegin('appName', Thrift.Type.STRING, 2);
+    output.writeString(this.appName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -14769,23 +14769,265 @@ XcalarApiAppSetInputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiPreviewInputT = function(args) {
-  this.url = null;
-  this.fileNamePattern = null;
-  this.recursive = null;
-  this.numBytesRequested = null;
+XcalarApiAppRunInputT = function(args) {
+  this.name = null;
+  this.isGlobal = null;
+  this.inStr = null;
   if (args) {
-    if (args.url !== undefined) {
-      this.url = args.url;
+    if (args.name !== undefined) {
+      this.name = args.name;
     }
-    if (args.fileNamePattern !== undefined) {
-      this.fileNamePattern = args.fileNamePattern;
+    if (args.isGlobal !== undefined) {
+      this.isGlobal = args.isGlobal;
     }
-    if (args.recursive !== undefined) {
-      this.recursive = args.recursive;
+    if (args.inStr !== undefined) {
+      this.inStr = args.inStr;
     }
-    if (args.numBytesRequested !== undefined) {
-      this.numBytesRequested = args.numBytesRequested;
+  }
+};
+XcalarApiAppRunInputT.prototype = {};
+XcalarApiAppRunInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.name = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isGlobal = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.inStr = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiAppRunInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiAppRunInputT');
+  if (this.name !== null && this.name !== undefined) {
+    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
+    output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  if (this.isGlobal !== null && this.isGlobal !== undefined) {
+    output.writeFieldBegin('isGlobal', Thrift.Type.BOOL, 2);
+    output.writeBool(this.isGlobal);
+    output.writeFieldEnd();
+  }
+  if (this.inStr !== null && this.inStr !== undefined) {
+    output.writeFieldBegin('inStr', Thrift.Type.STRING, 4);
+    output.writeString(this.inStr);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiAppRunOutputT = function(args) {
+  this.appGroupId = null;
+  if (args) {
+    if (args.appGroupId !== undefined) {
+      this.appGroupId = args.appGroupId;
+    }
+  }
+};
+XcalarApiAppRunOutputT.prototype = {};
+XcalarApiAppRunOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.appGroupId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiAppRunOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiAppRunOutputT');
+  if (this.appGroupId !== null && this.appGroupId !== undefined) {
+    output.writeFieldBegin('appGroupId', Thrift.Type.I64, 1);
+    output.writeI64(this.appGroupId);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiAppReapInputT = function(args) {
+  this.appGroupId = null;
+  if (args) {
+    if (args.appGroupId !== undefined) {
+      this.appGroupId = args.appGroupId;
+    }
+  }
+};
+XcalarApiAppReapInputT.prototype = {};
+XcalarApiAppReapInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.appGroupId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiAppReapInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiAppReapInputT');
+  if (this.appGroupId !== null && this.appGroupId !== undefined) {
+    output.writeFieldBegin('appGroupId', Thrift.Type.I64, 1);
+    output.writeI64(this.appGroupId);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiAppReapOutputT = function(args) {
+  this.outStr = null;
+  this.errStr = null;
+  if (args) {
+    if (args.outStr !== undefined) {
+      this.outStr = args.outStr;
+    }
+    if (args.errStr !== undefined) {
+      this.errStr = args.errStr;
+    }
+  }
+};
+XcalarApiAppReapOutputT.prototype = {};
+XcalarApiAppReapOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.outStr = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.errStr = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiAppReapOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiAppReapOutputT');
+  if (this.outStr !== null && this.outStr !== undefined) {
+    output.writeFieldBegin('outStr', Thrift.Type.STRING, 1);
+    output.writeString(this.outStr);
+    output.writeFieldEnd();
+  }
+  if (this.errStr !== null && this.errStr !== undefined) {
+    output.writeFieldBegin('errStr', Thrift.Type.STRING, 2);
+    output.writeString(this.errStr);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiPreviewInputT = function(args) {
+  this.inputJson = null;
+  if (args) {
+    if (args.inputJson !== undefined) {
+      this.inputJson = args.inputJson;
     }
   }
 };
@@ -14805,32 +15047,14 @@ XcalarApiPreviewInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
-        this.url = input.readString().value;
+        this.inputJson = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.fileNamePattern = input.readString().value;
-      } else {
+      case 0:
         input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.BOOL) {
-        this.recursive = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.I64) {
-        this.numBytesRequested = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
+        break;
       default:
         input.skip(ftype);
     }
@@ -14842,24 +15066,9 @@ XcalarApiPreviewInputT.prototype.read = function(input) {
 
 XcalarApiPreviewInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiPreviewInputT');
-  if (this.url !== null && this.url !== undefined) {
-    output.writeFieldBegin('url', Thrift.Type.STRING, 1);
-    output.writeString(this.url);
-    output.writeFieldEnd();
-  }
-  if (this.fileNamePattern !== null && this.fileNamePattern !== undefined) {
-    output.writeFieldBegin('fileNamePattern', Thrift.Type.STRING, 2);
-    output.writeString(this.fileNamePattern);
-    output.writeFieldEnd();
-  }
-  if (this.recursive !== null && this.recursive !== undefined) {
-    output.writeFieldBegin('recursive', Thrift.Type.BOOL, 3);
-    output.writeBool(this.recursive);
-    output.writeFieldEnd();
-  }
-  if (this.numBytesRequested !== null && this.numBytesRequested !== undefined) {
-    output.writeFieldBegin('numBytesRequested', Thrift.Type.I64, 4);
-    output.writeI64(this.numBytesRequested);
+  if (this.inputJson !== null && this.inputJson !== undefined) {
+    output.writeFieldBegin('inputJson', Thrift.Type.STRING, 1);
+    output.writeString(this.inputJson);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -14868,18 +15077,10 @@ XcalarApiPreviewInputT.prototype.write = function(output) {
 };
 
 XcalarApiPreviewOutputT = function(args) {
-  this.fileName = null;
-  this.bufferLen = null;
-  this.buffer = null;
+  this.outputJson = null;
   if (args) {
-    if (args.fileName !== undefined) {
-      this.fileName = args.fileName;
-    }
-    if (args.bufferLen !== undefined) {
-      this.bufferLen = args.bufferLen;
-    }
-    if (args.buffer !== undefined) {
-      this.buffer = args.buffer;
+    if (args.outputJson !== undefined) {
+      this.outputJson = args.outputJson;
     }
   }
 };
@@ -14899,25 +15100,14 @@ XcalarApiPreviewOutputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
-        this.fileName = input.readString().value;
+        this.outputJson = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.bufferLen = input.readI64().value;
-      } else {
+      case 0:
         input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.buffer = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
+        break;
       default:
         input.skip(ftype);
     }
@@ -14929,19 +15119,9 @@ XcalarApiPreviewOutputT.prototype.read = function(input) {
 
 XcalarApiPreviewOutputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiPreviewOutputT');
-  if (this.fileName !== null && this.fileName !== undefined) {
-    output.writeFieldBegin('fileName', Thrift.Type.STRING, 1);
-    output.writeString(this.fileName);
-    output.writeFieldEnd();
-  }
-  if (this.bufferLen !== null && this.bufferLen !== undefined) {
-    output.writeFieldBegin('bufferLen', Thrift.Type.I64, 2);
-    output.writeI64(this.bufferLen);
-    output.writeFieldEnd();
-  }
-  if (this.buffer !== null && this.buffer !== undefined) {
-    output.writeFieldBegin('buffer', Thrift.Type.STRING, 3);
-    output.writeString(this.buffer);
+  if (this.outputJson !== null && this.outputJson !== undefined) {
+    output.writeFieldBegin('outputJson', Thrift.Type.STRING, 1);
+    output.writeString(this.outputJson);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -18610,7 +18790,6 @@ XcalarApiGetTableMetaOutputT.prototype.write = function(output) {
 XcalarApiMakeResultSetOutputT = function(args) {
   this.resultSetId = null;
   this.numEntries = null;
-  this.keyAttrHeader = null;
   this.metaOutput = null;
   if (args) {
     if (args.resultSetId !== undefined) {
@@ -18618,9 +18797,6 @@ XcalarApiMakeResultSetOutputT = function(args) {
     }
     if (args.numEntries !== undefined) {
       this.numEntries = args.numEntries;
-    }
-    if (args.keyAttrHeader !== undefined) {
-      this.keyAttrHeader = args.keyAttrHeader;
     }
     if (args.metaOutput !== undefined) {
       this.metaOutput = args.metaOutput;
@@ -18657,14 +18833,6 @@ XcalarApiMakeResultSetOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.keyAttrHeader = new DfFieldAttrHeaderT();
-        this.keyAttrHeader.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.STRUCT) {
         this.metaOutput = new XcalarApiGetTableMetaOutputT();
         this.metaOutput.read(input);
       } else {
@@ -18692,13 +18860,8 @@ XcalarApiMakeResultSetOutputT.prototype.write = function(output) {
     output.writeI64(this.numEntries);
     output.writeFieldEnd();
   }
-  if (this.keyAttrHeader !== null && this.keyAttrHeader !== undefined) {
-    output.writeFieldBegin('keyAttrHeader', Thrift.Type.STRUCT, 3);
-    this.keyAttrHeader.write(output);
-    output.writeFieldEnd();
-  }
   if (this.metaOutput !== null && this.metaOutput !== undefined) {
-    output.writeFieldBegin('metaOutput', Thrift.Type.STRUCT, 4);
+    output.writeFieldBegin('metaOutput', Thrift.Type.STRUCT, 3);
     this.metaOutput.write(output);
     output.writeFieldEnd();
   }
@@ -22940,6 +23103,136 @@ XcalarApiOpStatsOutT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiErrorpointSetInputT = function(args) {
+  this.moduleName = null;
+  this.pointName = null;
+  this.exactNameMatch = null;
+  this.probability = null;
+  this.fireNTimes = null;
+  this.opaque = null;
+  if (args) {
+    if (args.moduleName !== undefined) {
+      this.moduleName = args.moduleName;
+    }
+    if (args.pointName !== undefined) {
+      this.pointName = args.pointName;
+    }
+    if (args.exactNameMatch !== undefined) {
+      this.exactNameMatch = args.exactNameMatch;
+    }
+    if (args.probability !== undefined) {
+      this.probability = args.probability;
+    }
+    if (args.fireNTimes !== undefined) {
+      this.fireNTimes = args.fireNTimes;
+    }
+    if (args.opaque !== undefined) {
+      this.opaque = args.opaque;
+    }
+  }
+};
+XcalarApiErrorpointSetInputT.prototype = {};
+XcalarApiErrorpointSetInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.moduleName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.pointName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.exactNameMatch = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.I64) {
+        this.probability = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.fireNTimes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
+      if (ftype == Thrift.Type.STRING) {
+        this.opaque = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiErrorpointSetInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiErrorpointSetInputT');
+  if (this.moduleName !== null && this.moduleName !== undefined) {
+    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
+    output.writeString(this.moduleName);
+    output.writeFieldEnd();
+  }
+  if (this.pointName !== null && this.pointName !== undefined) {
+    output.writeFieldBegin('pointName', Thrift.Type.STRING, 2);
+    output.writeString(this.pointName);
+    output.writeFieldEnd();
+  }
+  if (this.exactNameMatch !== null && this.exactNameMatch !== undefined) {
+    output.writeFieldBegin('exactNameMatch', Thrift.Type.BOOL, 3);
+    output.writeBool(this.exactNameMatch);
+    output.writeFieldEnd();
+  }
+  if (this.probability !== null && this.probability !== undefined) {
+    output.writeFieldBegin('probability', Thrift.Type.I64, 4);
+    output.writeI64(this.probability);
+    output.writeFieldEnd();
+  }
+  if (this.fireNTimes !== null && this.fireNTimes !== undefined) {
+    output.writeFieldBegin('fireNTimes', Thrift.Type.I64, 5);
+    output.writeI64(this.fireNTimes);
+    output.writeFieldEnd();
+  }
+  if (this.opaque !== null && this.opaque !== undefined) {
+    output.writeFieldBegin('opaque', Thrift.Type.STRING, 6);
+    output.writeString(this.opaque);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiImportRetinaInputT = function(args) {
   this.retinaName = null;
   this.overwriteExistingUdf = null;
@@ -23634,6 +23927,9 @@ XcalarApiInputT = function(args) {
   this.setConfigParamInput = null;
   this.removeTargetInput = null;
   this.appSetInput = null;
+  this.errorpointSetInput = null;
+  this.appRunInput = null;
+  this.appReapInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -23838,6 +24134,15 @@ XcalarApiInputT = function(args) {
     }
     if (args.appSetInput !== undefined) {
       this.appSetInput = args.appSetInput;
+    }
+    if (args.errorpointSetInput !== undefined) {
+      this.errorpointSetInput = args.errorpointSetInput;
+    }
+    if (args.appRunInput !== undefined) {
+      this.appRunInput = args.appRunInput;
+    }
+    if (args.appReapInput !== undefined) {
+      this.appReapInput = args.appReapInput;
     }
   }
 };
@@ -24391,6 +24696,30 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 69:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.errorpointSetInput = new XcalarApiErrorpointSetInputT();
+        this.errorpointSetInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 70:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.appRunInput = new XcalarApiAppRunInputT();
+        this.appRunInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 71:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.appReapInput = new XcalarApiAppReapInputT();
+        this.appReapInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -24740,6 +25069,21 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.appSetInput !== null && this.appSetInput !== undefined) {
     output.writeFieldBegin('appSetInput', Thrift.Type.STRUCT, 68);
     this.appSetInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.errorpointSetInput !== null && this.errorpointSetInput !== undefined) {
+    output.writeFieldBegin('errorpointSetInput', Thrift.Type.STRUCT, 69);
+    this.errorpointSetInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.appRunInput !== null && this.appRunInput !== undefined) {
+    output.writeFieldBegin('appRunInput', Thrift.Type.STRUCT, 70);
+    this.appRunInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.appReapInput !== null && this.appReapInput !== undefined) {
+    output.writeFieldBegin('appReapInput', Thrift.Type.STRUCT, 71);
+    this.appReapInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -25948,6 +26292,8 @@ XcalarApiOutputResultT = function(args) {
   this.deleteDatasetsOutput = null;
   this.getConfigParamsOutput = null;
   this.getLicenseOutput = null;
+  this.appRunOutput = null;
+  this.appReapOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -26098,6 +26444,12 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.getLicenseOutput !== undefined) {
       this.getLicenseOutput = args.getLicenseOutput;
+    }
+    if (args.appRunOutput !== undefined) {
+      this.appRunOutput = args.appRunOutput;
+    }
+    if (args.appReapOutput !== undefined) {
+      this.appReapOutput = args.appReapOutput;
     }
   }
 };
@@ -26514,6 +26866,22 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 51:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.appRunOutput = new XcalarApiAppRunOutputT();
+        this.appRunOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 52:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.appReapOutput = new XcalarApiAppReapOutputT();
+        this.appReapOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -26773,6 +27141,16 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.getLicenseOutput !== null && this.getLicenseOutput !== undefined) {
     output.writeFieldBegin('getLicenseOutput', Thrift.Type.STRUCT, 50);
     this.getLicenseOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.appRunOutput !== null && this.appRunOutput !== undefined) {
+    output.writeFieldBegin('appRunOutput', Thrift.Type.STRUCT, 51);
+    this.appRunOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.appReapOutput !== null && this.appReapOutput !== undefined) {
+    output.writeFieldBegin('appReapOutput', Thrift.Type.STRUCT, 52);
+    this.appReapOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -27130,7 +27508,8 @@ XcalarApisConstantsT = {
   'XcalarApiMaxFileNameLen' : 255,
   'XcalarApiMaxNumFuncTests' : 255,
   'XcalarApiMaxFieldNameLen' : 255,
-  'XcalarApiMaxAppNameLen' : 255
+  'XcalarApiMaxAppNameLen' : 255,
+  'XcalarApiMaxAppParamLen' : 255
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
@@ -27148,7 +27527,8 @@ XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 255 : 'XcalarApiMaxFileNameLen',
 255 : 'XcalarApiMaxNumFuncTests',
 255 : 'XcalarApiMaxFieldNameLen',
-255 : 'XcalarApiMaxAppNameLen'
+255 : 'XcalarApiMaxAppNameLen',
+255 : 'XcalarApiMaxAppParamLen'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -27246,7 +27626,9 @@ XcalarApisT = {
   'XcalarApiSetConfigParam' : 85,
   'XcalarApiAppSet' : 86,
   'XcalarApiGetLicense' : 87,
-  'XcalarApiFunctionInvalid' : 88
+  'XcalarApiAppRun' : 88,
+  'XcalarApiAppReap' : 89,
+  'XcalarApiFunctionInvalid' : 90
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -27336,7 +27718,9 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 85 : 'XcalarApiSetConfigParam',
 86 : 'XcalarApiAppSet',
 87 : 'XcalarApiGetLicense',
-88 : 'XcalarApiFunctionInvalid'
+88 : 'XcalarApiAppRun',
+89 : 'XcalarApiAppReap',
+90 : 'XcalarApiFunctionInvalid'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -27669,264 +28053,272 @@ StatusT = {
   'StatusXdfUnaryOperandExpected' : 246,
   'StatusXdfTypeUnsupported' : 247,
   'StatusXdfDivByZero' : 248,
-  'StatusXdfMixedTypeNotSupported' : 249,
-  'StatusXdfAggregateOverflow' : 250,
-  'StatusKvNotFound' : 251,
-  'StatusXdbSlotPrettyVacant' : 252,
-  'StatusNoDataInXdb' : 253,
-  'StatusXdbLoadInProgress' : 254,
-  'StatusXdbNotFound' : 255,
-  'StatusXdbUninitializedCursor' : 256,
-  'StatusQrTaskFailed' : 257,
-  'StatusQrIdNonExist' : 258,
-  'StatusQrJobNonExist' : 259,
-  'StatusQrJobRunning' : 260,
-  'StatusApiTaskFailed' : 261,
-  'StatusAlreadyIndexed' : 262,
-  'StatusEvalUnsubstitutedVariables' : 263,
-  'StatusKvDstFull' : 264,
-  'StatusModuleNotInit' : 265,
-  'StatusMaxJoinFieldsExceeded' : 266,
-  'StatusXdbKeyTypeAlreadySet' : 267,
-  'StatusJoinTypeMismatch' : 268,
-  'StatusJoinDhtMismatch' : 269,
-  'StatusFailed' : 270,
-  'StatusIllegalFileName' : 271,
-  'StatusEmptyFile' : 272,
-  'StatusEvalStringTooLong' : 273,
-  'StatusTableDeleted' : 274,
-  'StatusFailOpenFile' : 275,
-  'StatusQueryFailed' : 276,
-  'StatusQueryNeedsNewSession' : 277,
-  'StatusCreateDagNodeFailed' : 278,
-  'StatusDeleteDagNodeFailed' : 279,
-  'StatusRenameDagNodeFailed' : 280,
-  'StatusChangeDagNodeStateFailed' : 281,
-  'StatusAggregateNoSuchField' : 282,
-  'StatusAggregateLocalFnNeedArgument' : 283,
-  'StatusAggregateAccNotInited' : 284,
-  'StatusAggregateReturnValueNotScalar' : 285,
-  'StatusNsMaximumObjectsReached' : 286,
-  'StatusNsObjInUse' : 287,
-  'StatusNsInvalidObjName' : 288,
-  'StatusNsNotFound' : 289,
-  'StatusDagNodeNotFound' : 290,
-  'StatusUpdateDagNodeOperationNotSupported' : 291,
-  'StatusMsgMaxPayloadExceeded' : 292,
-  'StatusKvEntryNotFound' : 293,
-  'StatusKvEntryNotEqual' : 294,
-  'StatusStatsCouldNotGetMemUsedInfo' : 295,
-  'StatusStatusFieldNotInited' : 296,
-  'StatusAggNoSuchFunction' : 297,
-  'StatusWaitKeyTimeout' : 298,
-  'StatusVariableNameTooLong' : 299,
-  'StatusDgDagNotFound' : 300,
-  'StatusDgInvalidDagName' : 301,
-  'StatusDgDagNameTooLong' : 302,
-  'StatusDgDagAlreadyExists' : 303,
-  'StatusDgDagEmpty' : 304,
-  'StatusDgDagNotEmpty' : 305,
-  'StatusDgDagNoMore' : 306,
-  'StatusDgDagReserved' : 307,
-  'StatusDgNodeInUse' : 308,
-  'StatusDgDagNodeError' : 309,
-  'StatusDgOperationNotSupported' : 310,
-  'StatusDgDagNodeNotReady' : 311,
-  'StatusDgFailToDestroyHandle' : 312,
-  'StatusDsDatasetLoaded' : 313,
-  'StatusDsDatasetNotReady' : 314,
-  'StatusSessionNotFound' : 315,
-  'StatusSessionExists' : 316,
-  'StatusSessionNotInact' : 317,
-  'StatusSessionNameInvalid' : 318,
-  'StatusSessionError' : 319,
-  'StatusSessionActiveElsewhere' : 320,
-  'StatusDgDeleteOperationNotPermitted' : 321,
-  'StatusUdfModuleLoadFailed' : 322,
-  'StatusUdfModuleAlreadyExists' : 323,
-  'StatusUdfModuleNotFound' : 324,
-  'StatusUdfModuleEmpty' : 325,
-  'StatusUdfModuleInvalidName' : 326,
-  'StatusUdfModuleInvalidType' : 327,
-  'StatusUdfModuleInvalidSource' : 328,
-  'StatusUdfModuleSourceTooLarge' : 329,
-  'StatusUdfFunctionLoadFailed' : 330,
-  'StatusUdfFunctionNotFound' : 331,
-  'StatusUdfFunctionNameTooLong' : 332,
-  'StatusUdfFunctionTooManyParams' : 333,
-  'StatusUdfVarNameTooLong' : 334,
-  'StatusUdfUnsupportedType' : 335,
-  'StatusUdfPersistInvalid' : 336,
-  'StatusUdfPyConvert' : 337,
-  'StatusUdfExecuteFailed' : 338,
-  'StatusUdfInval' : 339,
-  'StatusUdfDeletePartial' : 340,
-  'StatusXcalarEvalTokenNameTooLong' : 341,
-  'StatusNoConfigFile' : 342,
-  'StatusCouldNotResolveSchema' : 343,
-  'StatusDhtEmptyDhtName' : 344,
-  'StatusDhtUpperBoundLessThanLowerBound' : 345,
-  'StatusLogChecksumFailed' : 346,
-  'StatusDhtDoesNotPreserveOrder' : 347,
-  'StatusLogMaximumEntrySizeExceeded' : 348,
-  'StatusLogCorruptHeader' : 349,
-  'StatusLogCorrupt' : 350,
-  'StatusLogVersionMismatch' : 351,
-  'StatusKvInvalidKeyChar' : 352,
-  'StatusDhtProtected' : 353,
-  'StatusKvStoreNotFound' : 354,
-  'StatusSSE42Unsupported' : 355,
-  'StatusPyBadUdfName' : 356,
-  'StatusLicInputInvalid' : 357,
-  'StatusLicFileOpen' : 358,
-  'StatusLicFileRead' : 359,
-  'StatusLicFileWrite' : 360,
-  'StatusLicPubKeyMissing' : 361,
-  'StatusLicPubKeyErr' : 362,
-  'StatusLicPubKeyIdx' : 363,
-  'StatusLicMissing' : 364,
-  'StatusLicErr' : 365,
-  'StatusLicSignatureInvalid' : 366,
-  'StatusLicBase32MapInvalid' : 367,
-  'StatusLicBase32ValInvalid' : 368,
-  'StatusLicMD5Invalid' : 369,
-  'StatusLicUnkError' : 370,
-  'StatusLicInvalid' : 371,
-  'StatusLicWrongSize' : 372,
-  'StatusLicExpired' : 373,
-  'StatusLogHandleClosed' : 374,
-  'StatusLogHandleInvalid' : 375,
-  'StatusShutdownInProgress' : 376,
-  'StatusOrderingNotSupported' : 377,
-  'StatusHdfsNoConnect' : 378,
-  'StatusHdfsNoDirectoryListing' : 379,
-  'StatusCliCanvasTooSmall' : 380,
-  'StatusDagParamInputTypeMismatch' : 381,
-  'StatusParameterTooLong' : 382,
-  'StatusExceedMaxScheduleTime' : 383,
-  'StatusExceedMaxSchedulePeriod' : 384,
-  'StatusXcalarApiNotParameterizable' : 385,
-  'StatusQrNotFound' : 386,
-  'StatusJoinOrderingMismatch' : 387,
-  'StatusInvalidUserCookie' : 388,
-  'StatusStTooManySchedTask' : 389,
-  'StatusRowUnfinished' : 390,
-  'StatusInputTooLarge' : 391,
-  'StatusConfigInvalid' : 392,
-  'StatusInvalNodeId' : 393,
-  'StatusNoLocalNodes' : 394,
-  'StatusDsFallocateNotSupported' : 395,
-  'StatusNoExtension' : 396,
-  'StatusExportTargetNotSupported' : 397,
-  'StatusExportInvalidCreateRule' : 398,
-  'StatusExportNoColumns' : 399,
-  'StatusExportTooManyColumns' : 400,
-  'StatusExportColumnNameTooLong' : 401,
-  'StatusExportEmptyResultSet' : 402,
-  'StatusExportUnresolvedSchema' : 403,
-  'StatusExportSFFileExists' : 404,
-  'StatusExportSFFileDoesntExist' : 405,
-  'StatusMonPortInvalid' : 406,
-  'StatusExportSFFileDirDuplicate' : 407,
-  'StatusExportSFFileCorrupted' : 408,
-  'StatusExportSFFileRuleNeedsNewFile' : 409,
-  'StatusExportSFFileRuleSizeTooSmall' : 410,
-  'StatusExportSFSingleSplitConflict' : 411,
-  'StatusExportSFAppendSepConflict' : 412,
-  'StatusExportSFAppendSingleHeader' : 413,
-  'StatusExportSFInvalidHeaderType' : 414,
-  'StatusExportSFInvalidSplitType' : 415,
-  'StatusExportSFMaxSizeZero' : 416,
-  'StatusVersionMismatch' : 417,
-  'StatusFileCorrupt' : 418,
-  'StatusApiFunctionInvalid' : 419,
-  'StatusLibArchiveError' : 420,
-  'StatusSendSocketFail' : 421,
-  'StatusNodeSkipped' : 422,
-  'StatusDfCastTruncationOccurred' : 423,
-  'StatusEvalCastError' : 424,
-  'StatusLogUnaligned' : 425,
-  'StatusStrEncodingNotSupported' : 426,
-  'StatusShmsgInterfaceClosed' : 427,
-  'StatusOperationHasFinished' : 428,
-  'StatusOpstatisticsNotAvail' : 429,
-  'StatusRetinaParseError' : 430,
-  'StatusRetinaTooManyColumns' : 431,
-  'StatusUdfModuleOverwrittenSuccessfully' : 432,
-  'StatusSupportFail' : 433,
-  'StatusShmsgPayloadTooLarge' : 434,
-  'StatusNoChild' : 435,
-  'StatusChildTerminated' : 436,
-  'StatusXdbMaxSgElemsExceeded' : 437,
-  'StatusAggregateResultNotFound' : 438,
-  'StatusMaxRowSizeExceeded' : 439,
-  'StatusMaxDirectoryDepthExceeded' : 440,
-  'StatusDirectorySubdirOpenFailed' : 441,
-  'StatusInvalidDatasetName' : 442,
-  'StatusMaxStatsGroupExceeded' : 443,
-  'StatusLrqDuplicateUserDefinedFields' : 444,
-  'StatusTypeConversionError' : 445,
-  'StatusNotSupportedInProdBuild' : 446,
-  'StatusOutOfFaultInjModuleSlots' : 447,
-  'StatusNoSuchErrorpointModule' : 448,
-  'StatusNoSuchErrorpoint' : 449,
-  'StatusAllFilesEmpty' : 450,
-  'StatusStatsGroupNameTooLong' : 451,
-  'StatusStatsNameTooLong' : 452,
-  'StatusMaxStatsExceeded' : 453,
-  'StatusStatsGroupIsFull' : 454,
-  'StatusNoMatchingFiles' : 455,
-  'StatusFieldNotFound' : 456,
-  'StatusImmediateNameCollision' : 457,
-  'StatusFatptrPrefixCollision' : 458,
-  'StatusListFilesNotSupported' : 459,
-  'StatusAlreadyLoadDone' : 460,
-  'StatusSkipRecordNeedsDelim' : 461,
-  'StatusNoParent' : 462,
-  'StatusRebuildDagFailed' : 463,
-  'StatusStackSizeTooSmall' : 464,
-  'StatusTargetDoesntExist' : 465,
-  'StatusExODBCRemoveNotSupported' : 466,
-  'StatusFunctionalTestDisabled' : 467,
-  'StatusFunctionalTestNumFuncTestExceeded' : 468,
-  'StatusTargetCorrupted' : 469,
-  'StatusUdfPyConvertFromFailed' : 470,
-  'StatusHdfsWRNotSupported' : 471,
-  'StatusFunctionalTestNoTablesLeft' : 472,
-  'StatusFunctionalTestTableEmpty' : 473,
-  'StatusRegexCompileFailed' : 474,
-  'StatusUdfNotFound' : 475,
-  'StatusApisWorkTooManyOutstanding' : 476,
-  'StatusInvalidUserNameLen' : 477,
-  'StatusUdfPyInjectFailed' : 478,
-  'StatusUsrNodeInited' : 479,
-  'StatusFileListParseError' : 480,
-  'StatusLoadArgsInvalid' : 481,
-  'StatusAllWorkDone' : 482,
-  'StatusUdfAlreadyExists' : 483,
-  'StatusUdfFunctionTooFewParams' : 484,
-  'StatusDgOperationInError' : 485,
-  'StatusAppNameInvalid' : 486,
-  'StatusAppHostTypeInvalid' : 487,
-  'StatusAppExecTooBig' : 488,
-  'StatusRccInitErr' : 489,
-  'StatusRccDefault' : 490,
-  'StatusRccNotFound' : 491,
-  'StatusRccElemNotFound' : 492,
-  'StatusRccIncompatibleState' : 493,
-  'StatusGvmInvalidAction' : 494,
-  'StatusGlobalVariableNotFound' : 495,
-  'StatusCorruptedOutputSize' : 496,
-  'StatusDatasetNameAlreadyExists' : 497,
-  'StatusDatasetAlreadyDeleted' : 498,
-  'StatusRetinaNotFound' : 499,
-  'StatusDhtNotFound' : 500,
-  'StatusTableNotFound' : 501,
-  'StatusRetinaTooManyParameters' : 502,
-  'StatusConfigParamImmutable' : 503,
-  'StatusOperationInError' : 504,
-  'StatusOperationCancelled' : 505,
-  'StatusQrQueryNotExist' : 506
+  'StatusXdfFloatNan' : 249,
+  'StatusXdfMixedTypeNotSupported' : 250,
+  'StatusXdfAggregateOverflow' : 251,
+  'StatusKvNotFound' : 252,
+  'StatusXdbSlotPrettyVacant' : 253,
+  'StatusNoDataInXdb' : 254,
+  'StatusXdbLoadInProgress' : 255,
+  'StatusXdbNotFound' : 256,
+  'StatusXdbUninitializedCursor' : 257,
+  'StatusQrTaskFailed' : 258,
+  'StatusQrIdNonExist' : 259,
+  'StatusQrJobNonExist' : 260,
+  'StatusQrJobRunning' : 261,
+  'StatusApiTaskFailed' : 262,
+  'StatusAlreadyIndexed' : 263,
+  'StatusEvalUnsubstitutedVariables' : 264,
+  'StatusKvDstFull' : 265,
+  'StatusModuleNotInit' : 266,
+  'StatusMaxJoinFieldsExceeded' : 267,
+  'StatusXdbKeyTypeAlreadySet' : 268,
+  'StatusJoinTypeMismatch' : 269,
+  'StatusJoinDhtMismatch' : 270,
+  'StatusFailed' : 271,
+  'StatusIllegalFileName' : 272,
+  'StatusEmptyFile' : 273,
+  'StatusEvalStringTooLong' : 274,
+  'StatusTableDeleted' : 275,
+  'StatusFailOpenFile' : 276,
+  'StatusQueryFailed' : 277,
+  'StatusQueryNeedsNewSession' : 278,
+  'StatusCreateDagNodeFailed' : 279,
+  'StatusDeleteDagNodeFailed' : 280,
+  'StatusRenameDagNodeFailed' : 281,
+  'StatusChangeDagNodeStateFailed' : 282,
+  'StatusAggregateNoSuchField' : 283,
+  'StatusAggregateLocalFnNeedArgument' : 284,
+  'StatusAggregateAccNotInited' : 285,
+  'StatusAggregateReturnValueNotScalar' : 286,
+  'StatusNsMaximumObjectsReached' : 287,
+  'StatusNsObjInUse' : 288,
+  'StatusNsInvalidObjName' : 289,
+  'StatusNsNotFound' : 290,
+  'StatusDagNodeNotFound' : 291,
+  'StatusUpdateDagNodeOperationNotSupported' : 292,
+  'StatusMsgMaxPayloadExceeded' : 293,
+  'StatusKvEntryNotFound' : 294,
+  'StatusKvEntryNotEqual' : 295,
+  'StatusStatsCouldNotGetMemUsedInfo' : 296,
+  'StatusStatusFieldNotInited' : 297,
+  'StatusAggNoSuchFunction' : 298,
+  'StatusWaitKeyTimeout' : 299,
+  'StatusVariableNameTooLong' : 300,
+  'StatusDgDagNotFound' : 301,
+  'StatusDgInvalidDagName' : 302,
+  'StatusDgDagNameTooLong' : 303,
+  'StatusDgDagAlreadyExists' : 304,
+  'StatusDgDagEmpty' : 305,
+  'StatusDgDagNotEmpty' : 306,
+  'StatusDgDagNoMore' : 307,
+  'StatusDgDagReserved' : 308,
+  'StatusDgNodeInUse' : 309,
+  'StatusDgDagNodeError' : 310,
+  'StatusDgOperationNotSupported' : 311,
+  'StatusDgDagNodeNotReady' : 312,
+  'StatusDgFailToDestroyHandle' : 313,
+  'StatusDsDatasetLoaded' : 314,
+  'StatusDsDatasetNotReady' : 315,
+  'StatusSessionNotFound' : 316,
+  'StatusSessionExists' : 317,
+  'StatusSessionNotInact' : 318,
+  'StatusSessionNameInvalid' : 319,
+  'StatusSessionError' : 320,
+  'StatusSessionActiveElsewhere' : 321,
+  'StatusDgDeleteOperationNotPermitted' : 322,
+  'StatusUdfModuleLoadFailed' : 323,
+  'StatusUdfModuleAlreadyExists' : 324,
+  'StatusUdfModuleNotFound' : 325,
+  'StatusUdfModuleEmpty' : 326,
+  'StatusUdfModuleInvalidName' : 327,
+  'StatusUdfModuleInvalidType' : 328,
+  'StatusUdfModuleInvalidSource' : 329,
+  'StatusUdfModuleSourceTooLarge' : 330,
+  'StatusUdfFunctionLoadFailed' : 331,
+  'StatusUdfFunctionNotFound' : 332,
+  'StatusUdfFunctionNameTooLong' : 333,
+  'StatusUdfFunctionTooManyParams' : 334,
+  'StatusUdfVarNameTooLong' : 335,
+  'StatusUdfUnsupportedType' : 336,
+  'StatusUdfPersistInvalid' : 337,
+  'StatusUdfPyConvert' : 338,
+  'StatusUdfExecuteFailed' : 339,
+  'StatusUdfInval' : 340,
+  'StatusUdfDeletePartial' : 341,
+  'StatusXcalarEvalTokenNameTooLong' : 342,
+  'StatusNoConfigFile' : 343,
+  'StatusCouldNotResolveSchema' : 344,
+  'StatusDhtEmptyDhtName' : 345,
+  'StatusDhtUpperBoundLessThanLowerBound' : 346,
+  'StatusLogChecksumFailed' : 347,
+  'StatusDhtDoesNotPreserveOrder' : 348,
+  'StatusLogMaximumEntrySizeExceeded' : 349,
+  'StatusLogCorruptHeader' : 350,
+  'StatusLogCorrupt' : 351,
+  'StatusLogVersionMismatch' : 352,
+  'StatusKvInvalidKeyChar' : 353,
+  'StatusDhtProtected' : 354,
+  'StatusKvStoreNotFound' : 355,
+  'StatusSSE42Unsupported' : 356,
+  'StatusPyBadUdfName' : 357,
+  'StatusLicInputInvalid' : 358,
+  'StatusLicFileOpen' : 359,
+  'StatusLicFileRead' : 360,
+  'StatusLicFileWrite' : 361,
+  'StatusLicPubKeyMissing' : 362,
+  'StatusLicPubKeyErr' : 363,
+  'StatusLicPubKeyIdx' : 364,
+  'StatusLicMissing' : 365,
+  'StatusLicErr' : 366,
+  'StatusLicSignatureInvalid' : 367,
+  'StatusLicBase32MapInvalid' : 368,
+  'StatusLicBase32ValInvalid' : 369,
+  'StatusLicMD5Invalid' : 370,
+  'StatusLicUnkError' : 371,
+  'StatusLicInvalid' : 372,
+  'StatusLicWrongSize' : 373,
+  'StatusLicExpired' : 374,
+  'StatusLogHandleClosed' : 375,
+  'StatusLogHandleInvalid' : 376,
+  'StatusShutdownInProgress' : 377,
+  'StatusOrderingNotSupported' : 378,
+  'StatusHdfsNoConnect' : 379,
+  'StatusHdfsNoDirectoryListing' : 380,
+  'StatusCliCanvasTooSmall' : 381,
+  'StatusDagParamInputTypeMismatch' : 382,
+  'StatusParameterTooLong' : 383,
+  'StatusExceedMaxScheduleTime' : 384,
+  'StatusExceedMaxSchedulePeriod' : 385,
+  'StatusXcalarApiNotParameterizable' : 386,
+  'StatusQrNotFound' : 387,
+  'StatusJoinOrderingMismatch' : 388,
+  'StatusInvalidUserCookie' : 389,
+  'StatusStTooManySchedTask' : 390,
+  'StatusRowUnfinished' : 391,
+  'StatusInputTooLarge' : 392,
+  'StatusConfigInvalid' : 393,
+  'StatusInvalNodeId' : 394,
+  'StatusNoLocalNodes' : 395,
+  'StatusDsFallocateNotSupported' : 396,
+  'StatusNoExtension' : 397,
+  'StatusExportTargetNotSupported' : 398,
+  'StatusExportInvalidCreateRule' : 399,
+  'StatusExportNoColumns' : 400,
+  'StatusExportTooManyColumns' : 401,
+  'StatusExportColumnNameTooLong' : 402,
+  'StatusExportEmptyResultSet' : 403,
+  'StatusExportUnresolvedSchema' : 404,
+  'StatusExportSFFileExists' : 405,
+  'StatusExportSFFileDoesntExist' : 406,
+  'StatusMonPortInvalid' : 407,
+  'StatusExportSFFileDirDuplicate' : 408,
+  'StatusExportSFFileCorrupted' : 409,
+  'StatusExportSFFileRuleNeedsNewFile' : 410,
+  'StatusExportSFFileRuleSizeTooSmall' : 411,
+  'StatusExportSFSingleSplitConflict' : 412,
+  'StatusExportSFAppendSepConflict' : 413,
+  'StatusExportSFAppendSingleHeader' : 414,
+  'StatusExportSFInvalidHeaderType' : 415,
+  'StatusExportSFInvalidSplitType' : 416,
+  'StatusExportSFMaxSizeZero' : 417,
+  'StatusVersionMismatch' : 418,
+  'StatusFileCorrupt' : 419,
+  'StatusApiFunctionInvalid' : 420,
+  'StatusLibArchiveError' : 421,
+  'StatusSendSocketFail' : 422,
+  'StatusNodeSkipped' : 423,
+  'StatusDfCastTruncationOccurred' : 424,
+  'StatusEvalCastError' : 425,
+  'StatusLogUnaligned' : 426,
+  'StatusStrEncodingNotSupported' : 427,
+  'StatusShmsgInterfaceClosed' : 428,
+  'StatusOperationHasFinished' : 429,
+  'StatusOpstatisticsNotAvail' : 430,
+  'StatusRetinaParseError' : 431,
+  'StatusRetinaTooManyColumns' : 432,
+  'StatusUdfModuleOverwrittenSuccessfully' : 433,
+  'StatusSupportFail' : 434,
+  'StatusShmsgPayloadTooLarge' : 435,
+  'StatusNoChild' : 436,
+  'StatusChildTerminated' : 437,
+  'StatusXdbMaxSgElemsExceeded' : 438,
+  'StatusAggregateResultNotFound' : 439,
+  'StatusMaxRowSizeExceeded' : 440,
+  'StatusMaxDirectoryDepthExceeded' : 441,
+  'StatusDirectorySubdirOpenFailed' : 442,
+  'StatusInvalidDatasetName' : 443,
+  'StatusMaxStatsGroupExceeded' : 444,
+  'StatusLrqDuplicateUserDefinedFields' : 445,
+  'StatusTypeConversionError' : 446,
+  'StatusNotSupportedInProdBuild' : 447,
+  'StatusOutOfFaultInjModuleSlots' : 448,
+  'StatusNoSuchErrorpointModule' : 449,
+  'StatusNoSuchErrorpoint' : 450,
+  'StatusAllFilesEmpty' : 451,
+  'StatusStatsGroupNameTooLong' : 452,
+  'StatusStatsNameTooLong' : 453,
+  'StatusMaxStatsExceeded' : 454,
+  'StatusStatsGroupIsFull' : 455,
+  'StatusNoMatchingFiles' : 456,
+  'StatusFieldNotFound' : 457,
+  'StatusImmediateNameCollision' : 458,
+  'StatusFatptrPrefixCollision' : 459,
+  'StatusListFilesNotSupported' : 460,
+  'StatusAlreadyLoadDone' : 461,
+  'StatusSkipRecordNeedsDelim' : 462,
+  'StatusNoParent' : 463,
+  'StatusRebuildDagFailed' : 464,
+  'StatusStackSizeTooSmall' : 465,
+  'StatusTargetDoesntExist' : 466,
+  'StatusExODBCRemoveNotSupported' : 467,
+  'StatusFunctionalTestDisabled' : 468,
+  'StatusFunctionalTestNumFuncTestExceeded' : 469,
+  'StatusTargetCorrupted' : 470,
+  'StatusUdfPyConvertFromFailed' : 471,
+  'StatusHdfsWRNotSupported' : 472,
+  'StatusFunctionalTestNoTablesLeft' : 473,
+  'StatusFunctionalTestTableEmpty' : 474,
+  'StatusRegexCompileFailed' : 475,
+  'StatusUdfNotFound' : 476,
+  'StatusApisWorkTooManyOutstanding' : 477,
+  'StatusInvalidUserNameLen' : 478,
+  'StatusUdfPyInjectFailed' : 479,
+  'StatusUsrNodeInited' : 480,
+  'StatusFileListParseError' : 481,
+  'StatusLoadArgsInvalid' : 482,
+  'StatusAllWorkDone' : 483,
+  'StatusUdfAlreadyExists' : 484,
+  'StatusUdfFunctionTooFewParams' : 485,
+  'StatusDgOperationInError' : 486,
+  'StatusAppNameInvalid' : 487,
+  'StatusAppHostTypeInvalid' : 488,
+  'StatusAppExecTooBig' : 489,
+  'StatusRccInitErr' : 490,
+  'StatusRccDefault' : 491,
+  'StatusRccNotFound' : 492,
+  'StatusRccElemNotFound' : 493,
+  'StatusRccIncompatibleState' : 494,
+  'StatusGvmInvalidAction' : 495,
+  'StatusGlobalVariableNotFound' : 496,
+  'StatusCorruptedOutputSize' : 497,
+  'StatusDatasetNameAlreadyExists' : 498,
+  'StatusDatasetAlreadyDeleted' : 499,
+  'StatusRetinaNotFound' : 500,
+  'StatusDhtNotFound' : 501,
+  'StatusTableNotFound' : 502,
+  'StatusRetinaTooManyParameters' : 503,
+  'StatusConfigParamImmutable' : 504,
+  'StatusOperationInError' : 505,
+  'StatusOperationCancelled' : 506,
+  'StatusQrQueryNotExist' : 507,
+  'StatusDgParentNodeNotExist' : 508,
+  'StatusLoadAppNotExist' : 509,
+  'StatusAppOutParseFail' : 510,
+  'StatusFaultInjection' : 511,
+  'StatusFaultInjection2PC' : 512,
+  'StatusExportAppNotExist' : 513,
+  'StatusSessionBadActiveNode' : 514
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -28177,264 +28569,272 @@ StatusTStr = {0 : 'Success',
 246 : 'Operation requires 1 operand',
 247 : 'Operation is not supported on input type',
 248 : 'Divide by zero error',
-249 : 'Mixed type is not supported in this xdf',
-250 : 'Aggregate output has insufficient size to store the result',
-251 : 'KV not found in table',
-252 : 'Listen to: Pretty Vacant by Sex Pistols',
-253 : 'Xdb is vacant',
-254 : 'Xdb is loading data',
-255 : 'Stale XdbHandle, Xdb not found',
-256 : 'Xdb cursor is uninitialized',
-257 : 'Task(s) failed',
-258 : 'The query ID does not exist',
-259 : 'There is no query job associate with this ID',
-260 : 'The query job is currently running',
-261 : 'API Task Failed',
-262 : 'The source table is already indexed by the specified key',
-263 : 'Some variables are undefined during evaluation',
-264 : 'The destination key/value buffer was full',
-265 : 'The module is not initialized yet',
-266 : 'Maximum number of joined values exceeded',
-267 : 'Xdb key type is already set',
-268 : 'Join keys must be of the same data type',
-269 : 'Joins may only be performed on tables with the same DHT',
-270 : 'Failed',
-271 : 'FileName entered is illegal',
-272 : 'File contents are empty',
-273 : 'Eval string entered is too long',
-274 : 'Table has been deleted',
-275 : 'Cant open the file',
-276 : 'Query failed',
-277 : 'Batch Query needs to run in new session',
-278 : 'Failed to create a DAG node',
-279 : 'Failed to delete a DAG node',
-280 : 'Failed to rename a DAG node',
-281 : 'Failed to change the state of DAG node',
-282 : 'No such field found while running aggregate',
-283 : 'Local function requires argument',
-284 : 'Accumulator is not inited',
-285 : 'Return value of aggregate is not a scalar',
-286 : 'Maximum number of tables and datasets reached',
-287 : 'Table or dataset is in use',
-288 : 'Bad table or dataset name',
-289 : 'Table or dataset not found',
-290 : 'Could not find dag node',
-291 : 'Update operation not supported',
-292 : 'Message response size would exceed maximum message payload size',
-293 : 'The requested key was not found',
-294 : 'The requested key\'s value doesn\'t equal the provided value',
-295 : 'Could not get amount of memory consumed',
-296 : 'No valid status received!',
-297 : 'No such aggregate operator!',
-298 : 'timed out waiting for table key type to resolve',
-299 : 'Variable name in evalString too long',
-300 : 'DAG handle not found',
-301 : 'DAG name is invalid',
-302 : 'DAG name is too long',
-303 : 'DAG name already exists',
-304 : 'DAG is empty',
-305 : 'DAG is not empty',
-306 : 'No more DAG nodes available',
-307 : 'DAG handle is not available',
-308 : 'DAG Node is currently in use',
-309 : 'DAG Node is in error state',
-310 : 'Operation not supported on the target',
-311 : 'DAG node is not ready',
-312 : 'Fail to destroy DAG handle',
-313 : 'Dataset has been loaded',
-314 : 'Dataset is not ready',
-315 : 'Session does not exist',
-316 : 'The session already exists',
-317 : 'The target session was not inactive',
-318 : 'The name or pattern supplied is not allowed',
-319 : 'The session has an unrecoverable error',
-320 : 'The session is active on another node',
-321 : 'The delete operation is not permitted',
-322 : 'Failed to load UDF module',
-323 : 'A module with the given name already exists',
-324 : 'The specified module was not found',
-325 : 'The given module contains no functions',
-326 : 'Module name is invalid',
-327 : 'Module type is invalid',
-328 : 'Module source is invalid',
-329 : 'Module source is too large',
-330 : 'Failed to load UDF function',
-331 : 'The specified function was not found in the given module',
-332 : 'UDF function name exceeds allowed length',
-333 : 'UDF function has too many parameters',
-334 : 'UDF variable or parameter name exceeds allowed length',
-335 : 'Variable type not supported by UDF',
-336 : 'Persisted UDF is invalid',
-337 : 'Failed to convert value to python data type',
-338 : 'Failed to execute UDF',
-339 : 'Invalid argument passed to UDF',
-340 : 'Failed to delete UDF on all nodes',
-341 : 'Token name in evalString is too long',
-342 : 'No configuration file specified',
-343 : 'Could not resolve result set schema',
-344 : 'DHT name is empty',
-345 : 'Upper bound is less than lower bound',
-346 : 'Checksum validation failed while reading log entry',
-347 : 'DHT chosen doesn\'t preserve sorted order!',
-348 : 'Maximum log entry size exceeded',
-349 : 'Log entry header is corrupt',
-350 : 'Log format not as expected',
-351 : 'Unrecognized log version',
-352 : 'Invalid KvStore key character',
-353 : 'System DHTs may not be modified',
-354 : 'The requested KvStore doesn\'t exist',
-355 : 'The CPU does not support Intel SSE 4.2 instructions',
-356 : 'Illegal character in UDF name',
-357 : 'License data is invalid',
-358 : 'Error opening the file',
-359 : 'Error reading the file',
-360 : 'Error writing the file',
-361 : 'The public key needed to validate the Xcalar license has not been properly provided',
-362 : 'The public key needed to validate the Xcalar license has an error.',
-363 : 'The id of the public key needed to validate the Xcalar license is out of range.',
-364 : 'The Xcalar license has not been properly provided',
-365 : 'The Xcalar license has an error.',
-366 : 'The signature of the Xcalar license is invalid',
-367 : 'The signature of the Xcalar license failed Base32 unmapping',
-368 : 'The data in the Xcalar license failed Base32 decoding',
-369 : 'The checksum of the Xcalar license is invalid',
-370 : 'An unknown error occurred during decoding of the Xcalar license key',
-371 : 'Xcalar license is invalid for this product',
-372 : 'Xcalar license file is too big, or too small',
-373 : 'Xcalar license has expired',
-374 : 'The log file was already closed',
-375 : 'The log handle is not valid',
-376 : 'The cluster is in the process of shutting down',
-377 : 'Chosen ordering is not supported',
-378 : 'Failed to connect to HDFS volume',
-379 : 'Failed to get HDFS directory listing',
-380 : 'Available area is too small to render graph',
-381 : 'Mismatch between parameter type and node type',
-382 : 'The Parameter is too long',
-383 : 'Scheduled time may not exceed one year',
-384 : 'Scheduled period may not exceed one year',
-385 : 'The selected API is not parameterizable',
-386 : 'Could not find query record associated with the query id',
-387 : 'Joins may only be performed on tables with the same ordering',
-388 : 'Invalid user cookie provided',
-389 : 'Too many scheduled tasks',
-390 : 'Row has not been completely demystified',
-391 : 'Input is too large',
-392 : 'Failed to parse Xcalar configuration file',
-393 : 'The node ID is invalid',
-394 : 'There are no local nodes in the confiruation file',
-395 : 'Data source type does not support fallocate',
-396 : 'No file extension',
-397 : 'Export target is not supported',
-398 : 'Invalid creation rule specified',
-399 : 'No columns specified for export',
-400 : 'Too many columns specified for export',
-401 : 'Specified column name too long',
-402 : 'Empty result set cannot be exported',
-403 : 'Export requires a known schema',
-404 : 'Export file already exists',
-405 : 'Export file doesn\'t exist',
-406 : 'Monitor port number is invalid',
-407 : 'Export file and directory both exist with the same base name',
-408 : 'Files were corrupted during export',
-409 : 'Export file requires a new file be created',
-410 : 'Specified max export file size too small',
-411 : 'Cannot export to a single file while specifying header should be separate',
-412 : 'Cannot export append with a separate header file',
-413 : 'Cannot export append to a single file while adding a header',
-414 : 'Invalid header type specified',
-415 : 'Invalid split type specified',
-416 : 'Specified max file size must be greater than 0',
-417 : 'File version is unsupported',
-418 : 'Detected a file corruption',
-419 : 'An invalid request was sent to Xcalar',
-420 : 'Error occurred when using libarchive',
-421 : 'Failed to initialize send socket',
-422 : 'Node was skipped due to a previous error',
-423 : 'Field value truncated during cast',
-424 : 'Cast operation failed',
-425 : 'Log buffer is not aligned',
-426 : 'String encoding not supported',
-427 : 'Messaging interface with other process has been closed',
-428 : 'Operation has finished',
-429 : 'Operation statistics are not avaiable',
-430 : 'Failed to parse retina file',
-431 : 'Too many columns specified for Retina',
-432 : 'Successfully overwrote UDF module',
-433 : 'Support bundle generation failed',
-434 : 'Message payload too large to fit within message',
-435 : 'No childnode is available to process the operation',
-436 : 'Child process terminated',
-437 : 'Number of pages in an Xdb slot exceeds max extent sg elements',
-438 : 'Could not find aggregate result',
-439 : 'Maximum row size was exceeded',
-440 : 'Maximum directory depth exceeded',
-441 : 'Failed to open subdirectory',
-442 : 'Invalid dataset name provided',
-443 : 'Max statistics group size was exceeded',
-444 : 'Duplicate user-defined field found',
-445 : 'Type conversion error',
-446 : 'Operation not supported in prod build',
-447 : 'Out of available fault injection module slots',
-448 : 'No such errorpoint module',
-449 : 'No such errorpoint',
-450 : 'All specified files empty',
-451 : 'Stats group name too long',
-452 : 'Stats name too long',
-453 : 'Max statistics number was exceeded',
-454 : 'Stats group is full',
-455 : 'No files matching name pattern',
-456 : 'Invalid fatptr prefix or field name',
-457 : 'Duplicated immediate name',
-458 : 'Duplicated fatptr prefix',
-459 : 'List files is not supported for this source type',
-460 : 'Load done already called on this xdb',
-461 : 'Skip records must be specified with a record delimiter',
-462 : 'Parent process has terminated',
-463 : 'Replay session failed',
-464 : 'stack size is less than 2MB',
-465 : 'Target does not exist',
-466 : 'ODBC based database connections must be removed outside Xcalar',
-467 : 'Functional test disabled in this build',
-468 : 'Too many functional tests requested',
-469 : 'Target log corrupted',
-470 : 'Failed to convert from Python object to Xcalar type',
-471 : 'HDFS does not support read/write files',
-472 : 'No tables left in sessionGraph',
-473 : 'The table is empty',
-474 : 'Input regular expression is invalid',
-475 : 'User defined function not found',
-476 : 'Too many outstanding APIs, try again later',
-477 : 'The supplied user name is not within the allowed size range',
-478 : 'Failed to inject Python UDF module',
-479 : 'Invalid initialization',
-480 : 'Failed to parse user defined file list',
-481 : 'Invalid load arguments',
-482 : 'All work has been done.',
-483 : 'This UDF already exists. Delete before adding',
-484 : 'Too few parameters were passed to a UDF',
-485 : 'The reference count of the operation is incorrect',
-486 : 'Application name is invalid',
-487 : 'Application host type is invalid',
-488 : 'Application is too large',
-489 : 'Transaction recovery context initialization error',
-490 : 'Transaction recovery context default status',
-491 : 'Transaction recovery context was not found',
-492 : 'Transaction recovery resource is not being tracked',
-493 : 'Transaction recovery context state does not allow the requested operation',
-494 : 'Invalid GVM action',
-495 : 'Global variable provided does not exists',
-496 : 'OutputSize was corrupted',
-497 : 'Dataset name already exists',
-498 : 'Dataset has already been deleted',
-499 : 'Retina does not exist',
-500 : 'Dht specified does not exist',
-501 : 'Table specified does not exist',
-502 : 'Too many parameters in retina',
-503 : 'This parameter cannot be changed online',
-504 : 'Error occurs during Operation',
-505 : 'Operation has been cancelled',
-506 : 'The query name does not exist'
+249 : 'Operation returned NaN',
+250 : 'Mixed type is not supported in this xdf',
+251 : 'Aggregate output has insufficient size to store the result',
+252 : 'KV not found in table',
+253 : 'Listen to: Pretty Vacant by Sex Pistols',
+254 : 'Xdb is vacant',
+255 : 'Xdb is loading data',
+256 : 'Stale XdbHandle, Xdb not found',
+257 : 'Xdb cursor is uninitialized',
+258 : 'Task(s) failed',
+259 : 'The query ID does not exist',
+260 : 'There is no query job associate with this ID',
+261 : 'The query job is currently running',
+262 : 'API Task Failed',
+263 : 'The source table is already indexed by the specified key',
+264 : 'Some variables are undefined during evaluation',
+265 : 'The destination key/value buffer was full',
+266 : 'The module is not initialized yet',
+267 : 'Maximum number of joined values exceeded',
+268 : 'Xdb key type is already set',
+269 : 'Join keys must be of the same data type',
+270 : 'Joins may only be performed on tables with the same DHT',
+271 : 'Failed',
+272 : 'FileName entered is illegal',
+273 : 'File contents are empty',
+274 : 'Eval string entered is too long',
+275 : 'Table has been deleted',
+276 : 'Cant open the file',
+277 : 'Query failed',
+278 : 'Batch Query needs to run in new session',
+279 : 'Failed to create a DAG node',
+280 : 'Failed to delete a DAG node',
+281 : 'Failed to rename a DAG node',
+282 : 'Failed to change the state of DAG node',
+283 : 'No such field found while running aggregate',
+284 : 'Local function requires argument',
+285 : 'Accumulator is not inited',
+286 : 'Return value of aggregate is not a scalar',
+287 : 'Maximum number of tables and datasets reached',
+288 : 'Table or dataset is in use',
+289 : 'Bad table or dataset name',
+290 : 'Table or dataset not found',
+291 : 'Could not find dag node',
+292 : 'Update operation not supported',
+293 : 'Message response size would exceed maximum message payload size',
+294 : 'The requested key was not found',
+295 : 'The requested key\'s value doesn\'t equal the provided value',
+296 : 'Could not get amount of memory consumed',
+297 : 'No valid status received!',
+298 : 'No such aggregate operator!',
+299 : 'timed out waiting for table key type to resolve',
+300 : 'Variable name in evalString too long',
+301 : 'DAG handle not found',
+302 : 'DAG name is invalid',
+303 : 'DAG name is too long',
+304 : 'DAG name already exists',
+305 : 'DAG is empty',
+306 : 'DAG is not empty',
+307 : 'No more DAG nodes available',
+308 : 'DAG handle is not available',
+309 : 'DAG Node is currently in use',
+310 : 'DAG Node is in error state',
+311 : 'Operation not supported on the target',
+312 : 'DAG node is not ready',
+313 : 'Fail to destroy DAG handle',
+314 : 'Dataset has been loaded',
+315 : 'Dataset is not ready',
+316 : 'Session does not exist',
+317 : 'The session already exists',
+318 : 'The target session was not inactive',
+319 : 'The name or pattern supplied is not allowed',
+320 : 'The session has an unrecoverable error',
+321 : 'The session is active on another node',
+322 : 'The delete operation is not permitted',
+323 : 'Failed to load UDF module',
+324 : 'A module with the given name already exists',
+325 : 'The specified module was not found',
+326 : 'The given module contains no functions',
+327 : 'Module name is invalid',
+328 : 'Module type is invalid',
+329 : 'Module source is invalid',
+330 : 'Module source is too large',
+331 : 'Failed to load UDF function',
+332 : 'The specified function was not found in the given module',
+333 : 'UDF function name exceeds allowed length',
+334 : 'UDF function has too many parameters',
+335 : 'UDF variable or parameter name exceeds allowed length',
+336 : 'Variable type not supported by UDF',
+337 : 'Persisted UDF is invalid',
+338 : 'Failed to convert value to python data type',
+339 : 'Failed to execute UDF',
+340 : 'Invalid argument passed to UDF',
+341 : 'Failed to delete UDF on all nodes',
+342 : 'Token name in evalString is too long',
+343 : 'No configuration file specified',
+344 : 'Could not resolve result set schema',
+345 : 'DHT name is empty',
+346 : 'Upper bound is less than lower bound',
+347 : 'Checksum validation failed while reading log entry',
+348 : 'DHT chosen doesn\'t preserve sorted order!',
+349 : 'Maximum log entry size exceeded',
+350 : 'Log entry header is corrupt',
+351 : 'Log format not as expected',
+352 : 'Unrecognized log version',
+353 : 'Invalid KvStore key character',
+354 : 'System DHTs may not be modified',
+355 : 'The requested KvStore doesn\'t exist',
+356 : 'The CPU does not support Intel SSE 4.2 instructions',
+357 : 'Illegal character in UDF name',
+358 : 'License data is invalid',
+359 : 'Error opening the file',
+360 : 'Error reading the file',
+361 : 'Error writing the file',
+362 : 'The public key needed to validate the Xcalar license has not been properly provided',
+363 : 'The public key needed to validate the Xcalar license has an error.',
+364 : 'The id of the public key needed to validate the Xcalar license is out of range.',
+365 : 'The Xcalar license has not been properly provided',
+366 : 'The Xcalar license has an error.',
+367 : 'The signature of the Xcalar license is invalid',
+368 : 'The signature of the Xcalar license failed Base32 unmapping',
+369 : 'The data in the Xcalar license failed Base32 decoding',
+370 : 'The checksum of the Xcalar license is invalid',
+371 : 'An unknown error occurred during decoding of the Xcalar license key',
+372 : 'Xcalar license is invalid for this product',
+373 : 'Xcalar license file is too big, or too small',
+374 : 'Xcalar license has expired',
+375 : 'The log file was already closed',
+376 : 'The log handle is not valid',
+377 : 'The cluster is in the process of shutting down',
+378 : 'Chosen ordering is not supported',
+379 : 'Failed to connect to HDFS volume',
+380 : 'Failed to get HDFS directory listing',
+381 : 'Available area is too small to render graph',
+382 : 'Mismatch between parameter type and node type',
+383 : 'The Parameter is too long',
+384 : 'Scheduled time may not exceed one year',
+385 : 'Scheduled period may not exceed one year',
+386 : 'The selected API is not parameterizable',
+387 : 'Could not find query record associated with the query id',
+388 : 'Joins may only be performed on tables with the same ordering',
+389 : 'Invalid user cookie provided',
+390 : 'Too many scheduled tasks',
+391 : 'Row has not been completely demystified',
+392 : 'Input is too large',
+393 : 'Failed to parse Xcalar configuration file',
+394 : 'The node ID is invalid',
+395 : 'There are no local nodes in the confiruation file',
+396 : 'Data source type does not support fallocate',
+397 : 'No file extension',
+398 : 'Export target is not supported',
+399 : 'Invalid creation rule specified',
+400 : 'No columns specified for export',
+401 : 'Too many columns specified for export',
+402 : 'Specified column name too long',
+403 : 'Empty result set cannot be exported',
+404 : 'Export requires a known schema',
+405 : 'Export file already exists',
+406 : 'Export file doesn\'t exist',
+407 : 'Monitor port number is invalid',
+408 : 'Export file and directory both exist with the same base name',
+409 : 'Files were corrupted during export',
+410 : 'Export file requires a new file be created',
+411 : 'Specified max export file size too small',
+412 : 'Cannot export to a single file while specifying header should be separate',
+413 : 'Cannot export append with a separate header file',
+414 : 'Cannot export append to a single file while adding a header',
+415 : 'Invalid header type specified',
+416 : 'Invalid split type specified',
+417 : 'Specified max file size must be greater than 0',
+418 : 'File version is unsupported',
+419 : 'Detected a file corruption',
+420 : 'An invalid request was sent to Xcalar',
+421 : 'Error occurred when using libarchive',
+422 : 'Failed to initialize send socket',
+423 : 'Node was skipped due to a previous error',
+424 : 'Field value truncated during cast',
+425 : 'Cast operation failed',
+426 : 'Log buffer is not aligned',
+427 : 'String encoding not supported',
+428 : 'Messaging interface with other process has been closed',
+429 : 'Operation has finished',
+430 : 'Operation statistics are not avaiable',
+431 : 'Failed to parse retina file',
+432 : 'Too many columns specified for Retina',
+433 : 'Successfully overwrote UDF module',
+434 : 'Support bundle generation failed',
+435 : 'Message payload too large to fit within message',
+436 : 'No childnode is available to process the operation',
+437 : 'Child process terminated',
+438 : 'Number of pages in an Xdb slot exceeds max extent sg elements',
+439 : 'Could not find aggregate result',
+440 : 'Maximum row size was exceeded',
+441 : 'Maximum directory depth exceeded',
+442 : 'Failed to open subdirectory',
+443 : 'Invalid dataset name provided',
+444 : 'Max statistics group size was exceeded',
+445 : 'Duplicate user-defined field found',
+446 : 'Type conversion error',
+447 : 'Operation not supported in prod build',
+448 : 'Out of available fault injection module slots',
+449 : 'No such errorpoint module',
+450 : 'No such errorpoint',
+451 : 'All specified files empty',
+452 : 'Stats group name too long',
+453 : 'Stats name too long',
+454 : 'Max statistics number was exceeded',
+455 : 'Stats group is full',
+456 : 'No files matching name pattern',
+457 : 'Invalid fatptr prefix or field name',
+458 : 'Duplicated immediate name',
+459 : 'Duplicated fatptr prefix',
+460 : 'List files is not supported for this source type',
+461 : 'Load done already called on this xdb',
+462 : 'Skip records must be specified with a record delimiter',
+463 : 'Parent process has terminated',
+464 : 'Replay session failed',
+465 : 'stack size is less than 2MB',
+466 : 'Target does not exist',
+467 : 'ODBC based database connections must be removed outside Xcalar',
+468 : 'Functional test disabled in this build',
+469 : 'Too many functional tests requested',
+470 : 'Target log corrupted',
+471 : 'Failed to convert from Python object to Xcalar type',
+472 : 'HDFS does not support read/write files',
+473 : 'No tables left in sessionGraph',
+474 : 'The table is empty',
+475 : 'Input regular expression is invalid',
+476 : 'User defined function not found',
+477 : 'Too many outstanding APIs, try again later',
+478 : 'The supplied user name is not within the allowed size range',
+479 : 'Failed to inject Python UDF module',
+480 : 'Invalid initialization',
+481 : 'Failed to parse user defined file list',
+482 : 'Invalid load arguments',
+483 : 'All work has been done.',
+484 : 'This UDF already exists. Delete before adding',
+485 : 'Too few parameters were passed to a UDF',
+486 : 'The reference count of the operation is incorrect',
+487 : 'Application name is invalid',
+488 : 'Application host type is invalid',
+489 : 'Application is too large',
+490 : 'Transaction recovery context initialization error',
+491 : 'Transaction recovery context default status',
+492 : 'Transaction recovery context was not found',
+493 : 'Transaction recovery resource is not being tracked',
+494 : 'Transaction recovery context state does not allow the requested operation',
+495 : 'Invalid GVM action',
+496 : 'Global variable provided does not exists',
+497 : 'OutputSize was corrupted',
+498 : 'Dataset name already exists',
+499 : 'Dataset has already been deleted',
+500 : 'Retina does not exist',
+501 : 'Dht specified does not exist',
+502 : 'Table specified does not exist',
+503 : 'Too many parameters in retina',
+504 : 'This parameter cannot be changed online',
+505 : 'Error occurs during Operation',
+506 : 'Operation has been cancelled',
+507 : 'The query name does not exist',
+508 : 'Parent node does not exist',
+509 : 'Load Application does not exist',
+510 : 'Failed to parse load application output',
+511 : 'Fault injection point triggered',
+512 : 'Fault injection set in 2 phase commit',
+513 : 'Export Application does not exist',
+514 : 'Cannot resume session on this node'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -28745,9 +29145,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 102482749
+  'XcalarApiVersionSignature' : 197264839
 };
-XcalarApiVersionTStr = {102482749 : '61bc33dc80ad5dd9e206c55fe17f15fa'
+XcalarApiVersionTStr = {197264839 : 'bc205c7a1664881b3f20920a67dd56f1'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -29002,14 +29402,14 @@ function xcalarSetConfigParam(thriftHandle, paramName, paramValue) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarSetConfigParam(paramName = " + paramName +
-                    ", paramValue = " + paramValue);
+                    ", paramValue = " + paramValue + ")");
     }
     var workItem = xcalarSetConfigParamWorkItem(paramName, paramValue);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
-        if (result.jobStats != StatusT.StatusOk) {
+        if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
@@ -29048,7 +29448,7 @@ function xcalarAppSet(thriftHandle, name, hostType, execStr) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
-        if (result.jobStats != StatusT.StatusOk) {
+        if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
@@ -29064,29 +29464,111 @@ function xcalarAppSet(thriftHandle, name, hostType, execStr) {
     return (deferred.promise());
 }
 
-function xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested) {
+function xcalarAppRunWorkItem(name, isGlobal, inStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
+    workItem.api = XcalarApisT.XcalarApiAppRun;
 
-    workItem.api = XcalarApisT.XcalarApiPreview
-    workItem.input.previewInput = new XcalarApiPreviewInputT();
-    workItem.input.previewInput.url = url;
-    workItem.input.previewInput.fileNamePattern = fileNamePattern;
-    workItem.input.previewInput.recursive = recursive;
-    workItem.input.previewInput.numBytesRequested = numBytesRequested;
+    workItem.input.appRunInput = new XcalarApiAppRunInputT();
+    workItem.input.appRunInput.name = name;
+    workItem.input.appRunInput.isGlobal = isGlobal;
+    workItem.input.appRunInput.inStr = inStr;
+
     return (workItem);
 }
 
-function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRequested) {
+function xcalarAppRun(thriftHandle, name, isGlobal, inStr) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarAppRun(name = " + name + ", isGlobal = " + isGlobal
+                    + ", inStr = " + inStr + ")");
+    }
+    var workItem = xcalarAppRunWorkItem(name, isGlobal, inStr);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function (result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(result);
+    })
+    .fail(function(error) {
+        console.log("xcalarAppRun() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarAppReapWorkItem(appGroupId) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.api = XcalarApisT.XcalarApiAppReap;
+
+    workItem.input.appReapInput = new XcalarApiAppReapInputT();
+    workItem.input.appReapInput.appGroupId = appGroupId;
+
+    return (workItem);
+}
+
+function xcalarAppReap(thriftHandle, appGroupId) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarAppReap(appGroupId = " + appGroupId + ")");
+    }
+    var workItem = xcalarAppReapWorkItem(appGroupId);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function (result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(result);
+    })
+    .fail(function(error) {
+        console.log("xcalarAppReap() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested, offset) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    var inputObj = {"func" : "preview",
+                    "url" : url,
+                    "namePattern" : fileNamePattern,
+                    "recursive" : recursive,
+                    "offset" : offset,
+                    "bytesRequested" : numBytesRequested}
+
+    workItem.api = XcalarApisT.XcalarApiPreview
+    workItem.input.previewInput = new XcalarApiPreviewInputT();
+    workItem.input.previewInput.inputJson = JSON.stringify(inputObj);
+    return (workItem);
+}
+
+function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRequested, offset) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarPreview(url = " + url +
                     ", fileNamePattern = " + fileNamePattern +
                     ", recursive = " + recursive +
-                    ", numBytesRequested = " + numBytesRequested);
+                    ", numBytesRequested = " + numBytesRequested +
+                    ", offset =" + offset);
     }
 
-    var workItem = xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested);
+    var workItem = xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested, offset);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -29099,8 +29581,15 @@ function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRe
             deferred.reject(status);
         }
 
-        previewOutput.buffer = atob(previewOutput.buffer);
-
+        // previewOutput has a jsonOutput field which is a json formatted string
+        // which has several fields of interest:
+        // {"fileName" :
+        //  "relPath" :
+        //  "fullPath" :
+        //  "base64Data" :
+        //  "thisDataSize" :
+        //  "totalDataSize" :
+        //  }
         deferred.resolve(previewOutput);
     })
     .fail(function(error) {
@@ -33042,19 +33531,27 @@ PromiseHelper = (function(PromiseHelper, $) {
         })
     }
 
-    function testAppSet(test) {
+    function testApps(test) {
         var name = "mgmtTestPythonApp";
         var hostType = "Python";
-        var execStr = "def main(inBlob): return 's'";
+        var execStr = "def main(inBlob): return 's' + inBlob";
 
         // Test either create or update.
         xcalarAppSet(thriftHandle, name, hostType, execStr)
         .then(function(result) {
-            // Test update.
-            return (xcalarAppSet(thriftHandle, name, hostType, execStr));
+            return xcalarAppRun(thriftHandle, name, false, "hello");
         })
         .then(function(result) {
-            test.pass();
+            var groupId = result.output.outputResult.appRunOutput.appGroupId;
+            return xcalarAppReap(thriftHandle, groupId);
+        })
+        .then(function(result) {
+            var outStr = result.output.outputResult.appReapOutput.outStr;
+            if (outStr == "shello") {
+                test.pass();
+            } else {
+                test.fail("Output: expected 'shello' got '" + outStr + "'");
+            }
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason]);
@@ -33064,18 +33561,20 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testPreview(test) {
         var url = "nfs://" + qaTestDir + "/yelp/user";
 
-        xcalarPreview(thriftHandle, url, "*", false, 11)
+        xcalarPreview(thriftHandle, url, "*", false, 11, 2)
         .then(function(result) {
             printResult(result);
             var previewOutput = result;
-            console.log("\t yelp/user preview : " + previewOutput.buffer);
-            var expectedStr = "[\n{\"yelping";
-            console.log("\t expected encoded: " + btoa(expectedStr));
-            console.log("\t expected len: " + btoa(expectedStr).length);
-            test.assert(previewOutput.buffer === expectedStr);
-            test.assert(previewOutput.bufferLen === btoa(expectedStr).length);
-            test.assert(previewOutput.fileName ===
+            var preview = JSON.parse(previewOutput.outputJson)
+            console.log("\t yelp/user preview : " + preview["base64Data"]);
+            var expectedStr = "[\n{\"yelping_s";
+            console.log("\t expected encoded: " + btoa(expectedStr.substring(2,13)));
+            console.log("\t expected len: " + expectedStr.length - 2);
+            test.assert(atob(preview.base64Data) === expectedStr.substring(2,13));
+            test.assert(preview.thisDataSize === expectedStr.length - 2);
+            test.assert(preview.fileName ===
                 "yelp_academic_dataset_user_fixed.json");
+            test.assert(preview.totalDataSize === 27053171);
             test.pass();
         })
         .fail(function(reason) {
@@ -36247,7 +36746,8 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     addTestCase(testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
+    // XXX (dwillis) enable when udf-on-load exists again
+    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoadRegex, "loadRegex", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testPreview, "preview", defaultTimeout, TestCaseEnabled, "");
@@ -36361,7 +36861,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 
-    addTestCase(testAppSet, "set App", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApps, "Apps test", defaultTimeout, TestCaseEnabled, "");
 
     // Witness to bug Xc-4963
     addTestCase(testListVarArgUdf, "listVarArgUdf test", defaultTimeout, TestCaseEnabled, "4963");

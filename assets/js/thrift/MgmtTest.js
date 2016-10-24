@@ -465,19 +465,27 @@ PromiseHelper = (function(PromiseHelper, $) {
         })
     }
 
-    function testAppSet(test) {
+    function testApps(test) {
         var name = "mgmtTestPythonApp";
         var hostType = "Python";
-        var execStr = "def main(inBlob): return 's'";
+        var execStr = "def main(inBlob): return 's' + inBlob";
 
         // Test either create or update.
         xcalarAppSet(thriftHandle, name, hostType, execStr)
         .then(function(result) {
-            // Test update.
-            return (xcalarAppSet(thriftHandle, name, hostType, execStr));
+            return xcalarAppRun(thriftHandle, name, false, "hello");
         })
         .then(function(result) {
-            test.pass();
+            var groupId = result.output.outputResult.appRunOutput.appGroupId;
+            return xcalarAppReap(thriftHandle, groupId);
+        })
+        .then(function(result) {
+            var outStr = result.output.outputResult.appReapOutput.outStr;
+            if (outStr == "shello") {
+                test.pass();
+            } else {
+                test.fail("Output: expected 'shello' got '" + outStr + "'");
+            }
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason]);
@@ -487,18 +495,20 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testPreview(test) {
         var url = "nfs://" + qaTestDir + "/yelp/user";
 
-        xcalarPreview(thriftHandle, url, "*", false, 11)
+        xcalarPreview(thriftHandle, url, "*", false, 11, 2)
         .then(function(result) {
             printResult(result);
             var previewOutput = result;
-            console.log("\t yelp/user preview : " + previewOutput.buffer);
-            var expectedStr = "[\n{\"yelping";
-            console.log("\t expected encoded: " + btoa(expectedStr));
-            console.log("\t expected len: " + btoa(expectedStr).length);
-            test.assert(previewOutput.buffer === expectedStr);
-            test.assert(previewOutput.bufferLen === btoa(expectedStr).length);
-            test.assert(previewOutput.fileName ===
+            var preview = JSON.parse(previewOutput.outputJson)
+            console.log("\t yelp/user preview : " + preview["base64Data"]);
+            var expectedStr = "[\n{\"yelping_s";
+            console.log("\t expected encoded: " + btoa(expectedStr.substring(2,13)));
+            console.log("\t expected len: " + expectedStr.length - 2);
+            test.assert(atob(preview.base64Data) === expectedStr.substring(2,13));
+            test.assert(preview.thisDataSize === expectedStr.length - 2);
+            test.assert(preview.fileName ===
                 "yelp_academic_dataset_user_fixed.json");
+            test.assert(preview.totalDataSize === 27053171);
             test.pass();
         })
         .fail(function(reason) {
@@ -3670,7 +3680,8 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     addTestCase(testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
+    // XXX (dwillis) enable when udf-on-load exists again
+    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoadRegex, "loadRegex", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testPreview, "preview", defaultTimeout, TestCaseEnabled, "");
@@ -3784,7 +3795,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 
-    addTestCase(testAppSet, "set App", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testApps, "Apps test", defaultTimeout, TestCaseEnabled, "");
 
     // Witness to bug Xc-4963
     addTestCase(testListVarArgUdf, "listVarArgUdf test", defaultTimeout, TestCaseEnabled, "4963");

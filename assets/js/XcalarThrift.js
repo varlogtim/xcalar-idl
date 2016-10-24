@@ -435,8 +435,29 @@ function XcalarPreview(url, isRecur, isRegex, numBytesRequested) {
     var fileNamePattern = fileNameArray[1];
     var urlPart = fileNameArray[0];
 
-    xcalarPreview(tHandle, urlPart, fileNamePattern, isRecur, numBytesRequested)
-    .then(deferred.resolve)
+    xcalarPreview(tHandle, urlPart, fileNamePattern, isRecur, numBytesRequested,
+                  0)
+    .then(function(ret) {
+        // previewOutput has a jsonOutput field which is a json formatted string
+        // which has several fields of interest:
+        // {"fileName" :
+        //  "relPath" :
+        //  "fullPath" :
+        //  "base64Data" :
+        //  "thisDataSize" :
+        //  "totalDataSize" :
+        //  }
+        var retStruct;
+        try {
+            retStruct = JSON.parse(ret.outputJson);
+            var decoded = atob(retStruct.base64Data);
+            retStruct.buffer = decoded;
+            deferred.resolve(retStruct);
+        } catch (error) {
+            var thriftError = thriftLog("XcalarPreview", error);
+            deferred.reject(thriftError);
+        }
+    })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarPreview", error);
         deferred.reject(thriftError);
