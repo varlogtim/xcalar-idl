@@ -3470,3 +3470,32 @@ function XcalarAppSet(name, hostType, execStr) {
     return (deferred.promise());
 }
 
+function XcalarAppRun(name, isGlobal, inStr) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+    xcalarAppRun(tHandle, name, isGlobal, inStr)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarAppRun", error);
+        SQL.errorLog("Support Generate", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+function XcalarAppReap(name, appGroupId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+    xcalarAppReap(tHandle, appGroupId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarAppReap", error);
+        SQL.errorLog("Support Generate", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
