@@ -943,74 +943,21 @@ window.JSONModal = (function($, JSONModal) {
             }
         } else {
             var checkboxes = true;
-            var tableMeta = gTables[tableId].backTableMeta;
-            var immds = [];
-            for (var i = 0; i < tableMeta.valueAttrs.length; i++) {
-                if (tableMeta.valueAttrs[i].type !== DfFieldTypeT.DfFatptr) {
-                    immds.push(tableMeta.valueAttrs[i].name);
-                }
-            }
-
-            var groups = splitJsonIntoGroups(jsonObj);
+            var groups;
 
             if (isArray) {
                 prettyJson = "[";
             } else {
                 prettyJson = "{";
             }
-            prettyJson += '<div class="groupWrap">';
 
-            var prefixFound;
-            var immediatesGroup = "";
-            var prefixedGroup =
-                '<div class="groupType prefixedType">' +
-                    '<h3 class="prefixGroupTitle">' +
-                       '<div class="checkbox jsonCheckbox prefixCheckbox">' +
-                        '<i class="icon xi-ckbox-empty fa-11"></i>' +
-                        '<i class="icon xi-ckbox-selected fa-11"></i>' +
-                      '</div>' +
-                      'Prefixed Fields' +
-                    '</h3>';
-            for (var i = 0; i < groups.length; i++) {
-                var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
-                    "inarray"  : isArray,
-                    "tableMeta": tableMeta,
-                    "immds"    : []
-                });
-                tempJson = '<div class="jObject">' +
-                            '<span class="jArray jInfo">' + tempJson +
-                            '</span>' +
-                         '</div>';
-
-                if (!isArray && isDataCol) {
-                    if (groups[i].prefix === gPrefixSign) {
-                        immediatesGroup =
-                            '<div class="groupType immediatesType">' +
-                                '<h3 class="prefixGroupTitle">' +
-                                    CommonTxtTstr.Immediates + 's' +
-                                '</h3>' +
-                                '<div class="prefixGroup immediatesGroup">' +
-                                    tempJson +
-                                '</div>' +
-                            '</div>';
-                    } else {
-                        prefixFound = true;
-                        prefixedGroup += '<div class="prefixGroup">' +
-                                    '<div class="prefix">' +
-                                    groups[i].prefix +
-                                 '</div>' +
-                                 tempJson +
-                                 '</div>';
-                    }
-                }
+            if (isDataCol) {
+                groups = splitJsonIntoGroups(jsonObj);
+                prettyJson += getJsonHtmlForDataCol(groups);
+            } else {
+                prettyJson += getJsonHtmlForNonDataCol(jsonObj, isArray);
             }
-            
-            prettyJson += immediatesGroup;
-            if (prefixFound) {
-                prettyJson += prefixedGroup + '</div>';
-            }
-            prettyJson += '</div>';
-
+           
             if (isArray) {
                 prettyJson += "]";
             } else {
@@ -1026,6 +973,69 @@ window.JSONModal = (function($, JSONModal) {
 
         addDataToJsonWrap($jsonArea, $jsonTd, isArray);
         
+    }
+
+    function getJsonHtmlForDataCol(groups) {
+        var checkboxes = true;
+        var isArray = false;
+        var prettyJson = '<div class="groupWrap">';
+
+        var prefixFound;
+        var immediatesGroup = "";
+        var prefixedGroup =
+            '<div class="groupType prefixedType">' +
+                '<h3 class="prefixGroupTitle">' +
+                   '<div class="checkbox jsonCheckbox prefixCheckbox">' +
+                    '<i class="icon xi-ckbox-empty fa-11"></i>' +
+                    '<i class="icon xi-ckbox-selected fa-11"></i>' +
+                  '</div>' +
+                  'Prefixed Fields' +
+                '</h3>';
+        for (var i = 0; i < groups.length; i++) {
+            var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
+                "inarray"  : isArray
+            });
+            tempJson = '<div class="jObject">' +
+                        '<span class="jArray jInfo">' + tempJson +
+                        '</span>' +
+                     '</div>';
+
+            if (groups[i].prefix === gPrefixSign) {
+                immediatesGroup =
+                    '<div class="groupType immediatesType">' +
+                        '<h3 class="prefixGroupTitle">' +
+                            CommonTxtTstr.Immediates + 's' +
+                        '</h3>' +
+                        '<div class="prefixGroup immediatesGroup">' +
+                            tempJson +
+                        '</div>' +
+                    '</div>';
+            } else {
+                prefixFound = true;
+                prefixedGroup += '<div class="prefixGroup">' +
+                            '<div class="prefix">' +
+                            groups[i].prefix +
+                         '</div>' +
+                         tempJson +
+                         '</div>';
+            }
+        }
+        
+        prettyJson += immediatesGroup;
+        if (prefixFound) {
+            prettyJson += prefixedGroup + '</div>';
+        }
+        prettyJson += '</div>';
+
+        return (prettyJson);
+    }
+
+    function getJsonHtmlForNonDataCol(jsonObj, isArray) {
+            var prettyJson = prettifyJson(jsonObj, null , true, {
+                inarray: isArray,
+            });
+            prettyJson = '<div class="jObject">' + '<span class="jArray jInfo">' + prettyJson + "</span>" + "</div>";
+            return prettyJson;
     }
 
     function splitJsonIntoGroups(jsonObj) {
@@ -1643,10 +1653,6 @@ window.JSONModal = (function($, JSONModal) {
                 
                 if (checkboxes) {
                     classNames = " mainKey";
-                    if (options.immds && options.immds.indexOf(dataKey) > -1) {
-                        classNames += " immediate";
-                        isImmediate = true;
-                    }
                 }
                 row += '<div class="jsonBlock jInfo' + classNames +
                       '" data-key="' + dataKey + '">';
