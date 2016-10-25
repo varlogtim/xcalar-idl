@@ -66,7 +66,7 @@ TailUserInformation.prototype = {
 
 function createTailUser(userID) {
     if(!(tailUsers.has(userID))) {
-        var currentUser = Object.create(TailUserInformation.prototype);
+        var currentUser = new TailUserInformation();
         currentUser.setUserID(userID);
         tailUsers.set(userID, currentUser);
     }

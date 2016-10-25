@@ -20,6 +20,7 @@ require("jsdom").env("", function(err, window) {
 
 var tail = require('./tail');
 var config = require('./ldapConfig.json');
+var support = require('./support');
 
 var strictSecurity = false;
 var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
@@ -302,6 +303,38 @@ app.post("/stopMonitorLogs", function(req, res) {
     res.send({"status": Status.Ok});
 });
 
+app.post("/xcalarStart", function(req, res) {
+    console.log("Start Xcalar Services");
+    support.xcalarStart(res);
+});
+
+app.post("/xcalarStop", function(req, res) {
+    console.log("Stop Xcalar Services");
+    support.xcalarStop(res);
+});
+
+app.post("/xcalarRestart", function(req, res) {
+    console.log("Restart Xcalar Services");
+    support.xcalarRestart(res);
+});
+
+app.post("/xcalarStatus", function(req, res) {
+    console.log("Show Xcalar Services status");
+    support.xcalarStatus(res);
+});
+
+app.post("/xcalarCondrestart", function(req, res) {
+    console.log("Condrestart Xcalar Services");
+    support.xcalarCondrestart(res);
+});
+
+app.post("/removeSessionFiles", function(req, res) {
+    console.log("Remove Session Files");
+    var credArray = req.body;
+    var filename =  credArray["filename"];
+    support.removeSessionFiles(filename, res);
+});
+
 app.post("/writeConfig", function(req, res) {
     console.log("Writing Ldap configurations");
     var credArray = req.body;
@@ -367,13 +400,54 @@ var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
 
 var users = new Map();
 var loginId = 0;
-var UserInformation = {
-    loginId: 0,
-    entry_count: 0,
-    mail: "",
-    firstName: "",
-    employeeType: ""
+function UserInformation() {
+    this.loginId = 0;
+    this.entry_count = 0;
+    this.mail = "";
+    this.firstName = "";
+    this.employeeType = "";
+    return this;
 }
+UserInformation.prototype = {
+    getLoginId: function() {
+        return this.loginId;
+    },
+    getEntryCount: function() {
+        return this.entry_count;
+    },
+    getMail: function() {
+        return this.mail;
+    },
+    getFirstName: function() {
+        return this.firstName;
+    },
+    getEmployeeType: function() {
+        return this.employeeType;
+    },
+
+    setLoginId: function(loginId) {
+        this.loginId = loginId;
+    },
+    setEntryCount: function(entry_count) {
+        this.entry_count = entry_count;
+    },
+    setMail: function(mail) {
+        this.mail = mail;
+    },
+    setFirstName: function(firstName) {
+        this.firstName = firstName;
+    },
+    setEmployeeType: function(employeeType) {
+        this.employeeType = employeeType;
+    },
+
+    isSupporter: function() {
+        return this.employeeType == "supporter";
+    },
+    isAdmin: function() {
+        return this.employeeType == "administrator";
+    }
+};
 
 app.post('/login', function(req, res) {
     console.log("Login process");
@@ -387,8 +461,8 @@ app.post('/login', function(req, res) {
         if (("xiusername" in credArray) && ("xipassword" in credArray)) {
 
             // Save the information of current user into a HashTable
-            var currentUser = Object.create(UserInformation);
-            currentUser.loginId = loginId;
+            var currentUser = new UserInformation();
+            currentUser.setLoginId(loginId);
             users.set(loginId, currentUser);
 
             // Configuration Parameter to Connect to LDAP
@@ -489,27 +563,33 @@ function writeEntry(entry, loginId) {
     if(entry.object){
         var entryObject = JSON.parse(JSON.stringify(entry.object));
         var user = users.get(loginId);
-        user.entry_count++;
-        user.mail = entryObject.mail;
-        user.firstName = entryObject.cn;
-        user.employeeType = entryObject.employeeType;
+        user.setEntryCount(user.getEntryCount() + 1);
+        user.setMail(entryObject.mail);
+        user.setFirstName(entryObject.cn);
+        user.setEmployeeType(entryObject.employeeType);
     }
 }
 
 function responseResult(loginId, res) {
+    console.log("here!");
     var user = users.get(loginId);
-    if (user.entry_count >= 1) {
-        if (user.entry_count > 1) {
+    console.log("user", user);
+    if (user.getEntryCount() >= 1) {
+        if (user.getEntryCount() > 1) {
             console.log("More than one matched user was found");
         }
         // The employeeType is defined when adding new user
         // "administrator" for administrators, "normal user"
         // for normal users.
-        var isAdmin = (user.employeeType == "administrator");
+        var isAdmin = user.isAdmin();
+        var isSupporter = user.isSupporter();
+        console.log("isAdmin", isAdmin);
+        console.log("isSupporter", isSupporter);
         res.send({"status": Status.Ok,
                   "firstName ": user.firstName,
                   "mail": user.mail,
-                  "isAdmin": isAdmin});
+                  "isAdmin": isAdmin,
+                  "isSupporter": isSupporter});
     } else {
         console.log("No matched user");
         responseError(res);

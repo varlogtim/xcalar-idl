@@ -1,15 +1,15 @@
-window.XTail = (function(XTail) {
+window.XFTSupportTools = (function(XFTSupportTools) {
     var monitorIntervalId;
     var lastReturnSucc = true;
 
-    XTail.getRecentLogs = function(requireLineNum) {
+    XFTSupportTools.getRecentLogs = function(requireLineNum) {
         var action = "recentLogs";
         var str = {"requireLineNum" : requireLineNum};
         postRequest(action, str);
     }
 
 
-    XTail.monitorLogs = function() {
+    XFTSupportTools.monitorLogs = function() {
         clearInterval(monitorIntervalId);
         monitorIntervalId = setInterval(function() {
             if(lastReturnSucc) {
@@ -29,7 +29,7 @@ window.XTail = (function(XTail) {
         }, 1000);
     }
 
-    XTail.stopMonitorLogs = function() {
+    XFTSupportTools.stopMonitorLogs = function() {
         clearInterval(monitorIntervalId);
         $.ajax({
             type: 'POST',
@@ -51,6 +51,39 @@ window.XTail = (function(XTail) {
             }
         });
     }
+
+    XFTSupportTools.startXcalarServices = function() {
+        var action = "xcalarStart";
+        postRequest(action);
+    }
+
+    XFTSupportTools.stopXcalarServices = function() {
+        var action = "xcalarStop";
+        postRequest(action);
+    }
+
+    XFTSupportTools.restartXcalarServices = function() {
+        var action = "xcalarRestart";
+        postRequest(action);
+    }
+
+    XFTSupportTools.statusXcalarServices = function() {
+        var action = "xcalarStatus";
+        postRequest(action);
+    }
+
+    XFTSupportTools.condrestartXcalarServices = function() {
+        var action = "xcalarCondrestart";
+        var str = undefined;
+        postRequest(action, str);
+    }
+
+    XFTSupportTools.removeSessionFiles = function(filename) {
+        var action = "removeSessionFiles";
+        var str = {"filename" : filename};
+        postRequest(action, str);
+    }
+
 
     function postRequest(action, str) {
         var deferred = jQuery.Deferred();
@@ -81,5 +114,5 @@ window.XTail = (function(XTail) {
         });
         return deferred.promise();
     }
-    return (XTail);
+    return (XFTSupportTools);
 }({}));
