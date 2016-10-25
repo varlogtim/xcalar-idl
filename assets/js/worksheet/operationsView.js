@@ -2359,7 +2359,8 @@ window.OperationsView = (function($, OperationsView) {
                 break;
             case ('group by'):
                 // check new col name
-                $nameInput = $activeOpSection.find('.arg:visible').eq(2);
+                var numArgs = $activeOpSection.find('.arg:visible').length;
+                $nameInput = $activeOpSection.find('.arg:visible').eq(numArgs - 1);
                 isPassing = !ColManager.checkColName($nameInput, tableId);
 
                 // check new table name if join option is not checked
