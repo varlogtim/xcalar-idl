@@ -5,6 +5,8 @@
  *      delay:  dealy time before running test suite
  *      animation: if testsuite should run with animation
  *      clean if teststuite should clean table after finishing
+ * example: 
+ *  http://localhost:8888/testSuite.html?test=true&delay=2000&user=test&clean=true
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
     var testSuiteKey = "autoTestsuite";

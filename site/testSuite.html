@@ -3,13 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Xcalar</title>
-    <link href='3rd/fonts/sourcecodepro/sourcecodepro.css' rel='stylesheet' type='text/css'>
-    <link href='3rd/fonts/opensans/opensans.css' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="3rd/bower_components/CodeMirror/lib/codemirror.css">
-    <link rel="stylesheet" href="3rd/bower_components/CodeMirror/theme/rubyblue.css">
-    <link href="assets/stylesheets/css/style.css" rel="stylesheet" type="text/css">
-    <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="assets/js/setup/paths.js" type="text/javascript"></script>
+    include "partials/link.html"
     <script src="assets/dev/shortcuts.js" type="text/javascript"></script>
     <script src="assets/test/testSuiteSetup.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -17,21 +11,7 @@
     </script>
   </head>
   <body>
-    <div id="initialLoadScreen">
-      <div class="dialog">
-        <div class="animatedEllipsisWrapper">
-          <div class="text"><%= dicts.common.PleaseWait %></div>
-          <div class="animatedEllipsis">
-            <div>.</div>
-            <div>.</div>
-            <div>.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- CONTAINER -->
     include "partials/container.html"
-    <!-- END CONTAINER -->
     include "partials/script.html"
     <script>
       $(document).ready(TestSuiteSetup.initialize);

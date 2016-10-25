@@ -1,3 +1,17 @@
+<!-- initial background -->
+<div id="initialLoadScreen">
+  <div class="dialog">
+    <div class="animatedEllipsisWrapper">
+      <div class="text"><%= dicts.common.PleaseWait %></div>
+      <div class="animatedEllipsis">
+        <div>.</div>
+        <div>.</div>
+        <div>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- CONTAINER -->
 <div id="container" class="mainContainer" style="display:none;">
   <script type="text/javascript">
     if (!window.redirectToLogin) {
@@ -78,3 +92,4 @@
   include "modal/extModal.html"
   include "modal/aboutModal.html"
 </div>
+<!-- END CONTAINER -->
