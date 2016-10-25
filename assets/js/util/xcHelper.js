@@ -575,10 +575,7 @@ window.xcHelper = (function($, xcHelper) {
                 }
                 sizedToHeader = copiedCols[colNum - 1].sizedToHeader;
             } else {
-                cellWidth = getTextWidth(null, colName, widthOption);
-                var prefixW = getTextWidth(null, CommonTxtTstr.Immediates,
-                                            widthOption);
-                cellWidth = Math.max(cellWidth, prefixW);
+                cellWidth = xcHelper.getDefaultColWidth(colName);
             }
 
             // backend will return an escaped name and then we'll have to use
@@ -612,6 +609,19 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return (copiedCols);
+    };
+
+    xcHelper.getDefaultColWidth = function(colName, prefix) {
+        var widthOption = {"defaultHeaderStyle": true};
+        var prefixText = prefix;
+        if (prefixText === "" || prefixText == null) {
+            prefixText = CommonTxtTstr.Immediates;
+        }
+
+        var width = getTextWidth(null, colName, widthOption);
+        var prefixW = getTextWidth(null, prefixText, widthOption);
+
+        return Math.max(width, prefixW);
     };
 
     xcHelper.randName = function(name, digits) {

@@ -353,6 +353,41 @@ describe('xcHelper Test', function() {
         // expect(resCols[0].width).to.equal(100);
     });
 
+    it("xcHelper.getDefaultColWidth should work", function() {
+        // case 1
+        var testCases = [{
+            "colName": "a",
+            "prefix" : "b",
+            "width"  : 56
+        },
+        {
+            "colName": "a",
+            "prefix" : "bc",
+            "width"  : 63
+        },
+        {
+            "colName": "bc",
+            "prefix" : "a",
+            "width"  : 63
+        },
+        {
+            "colName": "a",
+            "width"  : 130
+        },
+        {
+            "colName": "a",
+            "prefix" : "",
+            "width"  : 130
+        }]
+
+        testCases.forEach(function(testCase) {
+            var colName = testCase.colName;
+            var prefix = testCase.prefix;
+            var res = xcHelper.getDefaultColWidth(colName, prefix);
+            expect(res).to.equal(testCase.width);
+        });
+    });
+
     it("xcHelper.randName should work", function() {
         // case 1
         var res = xcHelper.randName("test", 2);

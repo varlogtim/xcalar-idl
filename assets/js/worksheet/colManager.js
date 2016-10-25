@@ -10,27 +10,13 @@ window.ColManager = (function($, ColManager) {
             backColName = colName;
         }
 
-        type = type || null;
-
-        var width = getTextWidth(null, colName, {
-            "defaultHeaderStyle": true
-        });
-
         var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-        var prefixText = prefix;
-        if (prefixText === "") {
-            prefixText = CommonTxtTstr.Immediates;
-        }
-
-        var prefixW = getTextWidth(null, prefixText, {
-            "defaultHeaderStyle": true
-        });
-        width = Math.max(width, prefixW);
+        var width = xcHelper.getDefaultColWidth(colName, prefix);
 
         return ColManager.newCol({
             "backName": backColName,
             "name"    : colName,
-            "type"    : type,
+            "type"    : type || null,
             "width"   : width,
             "isNewCol": false,
             "userStr" : '"' + colName + '" = pull(' + backColName + ')',
@@ -595,7 +581,6 @@ window.ColManager = (function($, ColManager) {
         var table = gTables[tableId];
         var oldFormats = [];
         var colNames = [];
-        var $tableWrap = $('#xcTableWrap-' + tableId);
         var filteredColNums = [];
         var filteredFormats = [];
 
@@ -610,19 +595,10 @@ window.ColManager = (function($, ColManager) {
             filteredColNums.push(colNum);
             filteredFormats.push(format);
             oldFormats.push(colFormat);
-            var decimal = progCol.getDecimal();
-
-            $tableWrap.find('td.col' + colNum).each(function() {
-                var $td = $(this);
-                var oldVal = $td.find(".originalData").text();
-                if (oldVal != null) {
-                    // not knf
-                    var newVal = formatColumnCell(oldVal, format, decimal);
-                    $td.children(".displayedData").text(newVal);
-                }
-            });
-            progCol.setFormat(format);
             colNames.push(progCol.getFrontColName(true));
+
+            progCol.setFormat(format);
+            updateFormatAndDecimal(tableId, colNum);
         });
 
         if (!filteredColNums.length) {
@@ -644,28 +620,17 @@ window.ColManager = (function($, ColManager) {
     ColManager.roundToFixed = function(colNums, tableId, decimals) {
         var table = gTables[tableId];
         var prevDecimals = [];
-        var $tableWrap = $('#xcTableWrap-' + tableId);
         var colNames = [];
 
         colNums.forEach(function(colNum, i) {
             var progCol = table.getCol(colNum);
-            var format = progCol.getFormat();
             var newDecimal = decimals[i];
 
             prevDecimals.push(progCol.getDecimal());
             colNames.push(progCol.getFrontColName(true));
-
-            $tableWrap.find('td.col' + colNum).each(function() {
-                var $td = $(this);
-                var oldVal = $td.find(".originalData").text();
-                if (oldVal != null) {
-                    // not knf
-                    var newVal = formatColumnCell(oldVal, format, newDecimal);
-                    $td.children(".displayedData").text(newVal);
-                }
-            });
-
             progCol.setDecimal(newDecimal);
+
+            updateFormatAndDecimal(tableId, colNums);
         });
 
         SQL.add("Round To Fixed", {
@@ -929,21 +894,9 @@ window.ColManager = (function($, ColManager) {
         var newName = xcHelper.getUniqColName(tableId, oldName);
 
         var progCol = ColManager.newCol(oldCol);
+        var cellWidth = xcHelper.getDefaultColWidth(newName, prefix);
+
         progCol.setFrontColName(newName);
-        var cellWidth = getTextWidth(null, newName, {
-            defaultHeaderStyle: true
-        });
-
-        var prefixText = prefix;
-        if (prefixText === "") {
-            prefixText = CommonTxtTstr.Immediates;
-        }
-        var prefixW = getTextWidth(null, prefixText, {
-            defaultHeaderStyle: true
-        });
-
-        cellWidth = Math.max(cellWidth, prefixW);
-
         progCol.setWidth(cellWidth);
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
@@ -2113,6 +2066,23 @@ window.ColManager = (function($, ColManager) {
             searchBar.scrollMatchIntoView($matches.eq(0));
             searchBar.highlightSelected($matches.eq(0));
         }
+    }
+
+    function updateFormatAndDecimal(tableId, colNum) {
+        var $table = $("#xcTable-" + tableId);
+        var progCol = gTables[tableId].getCol(colNum);
+        var format = progCol.getFormat();
+        var decimal = progCol.getDecimal();
+
+        $table.find("td.col" + colNum).each(function() {
+            var $td = $(this);
+            var oldVal = $td.find(".originalData").text();
+            if (oldVal != null) {
+                // not knf
+                var newVal = formatColumnCell(oldVal, format, decimal);
+                $td.children(".displayedData").text(newVal);
+            }
+        });
     }
 
     /*
