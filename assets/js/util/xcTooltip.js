@@ -63,7 +63,6 @@ window.xcTooltip = (function(xcTooltip, $) {
         };
 
         options = $.extend(defaultOptions, options);
-
         $element.tooltip(options).tooltip("show");
 
         var timer = null;

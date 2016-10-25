@@ -25,8 +25,10 @@ window.JoinView = (function($, JoinView) {
     var formHelper;
     var multiClauseTemplate =
         '<div class="joinClause">' +
-            '<input class="clause leftClause arg" type="text" ' +
-            'spellcheck="false" />' +
+            '<input class="clause leftClause inActive arg" type="text" ' +
+                'data-original-title="' + JoinTStr.NoLeftTable + '"' +
+                ' data-toggle="tooltip" data-container="body"' +
+            'spellcheck="false" disabled />' +
               '<div class="middleIcon">' +
                 '<div class="iconWrapper">' +
                   '<i class="icon xi-equal-circle fa-14"></i>' +
@@ -35,7 +37,7 @@ window.JoinView = (function($, JoinView) {
               '<input class="clause rightClause inActive arg" type="text"' +
                 ' data-original-title="' + JoinTStr.NoRightTable + '"' +
                 ' data-toggle="tooltip" data-container="body"' +
-                ' spellcheck="false" disabled/>' +
+                ' spellcheck="false" disabled />' +
         '</div>';
 
     JoinView.setup = function () {
@@ -51,9 +53,34 @@ window.JoinView = (function($, JoinView) {
         var columnPicker = {
             "state"      : "joinState",
             "colCallback": function($target) {
-                xcHelper.fillInputFromCell($target, $lastInputFocused);
+                if (!$lastInputFocused.closest('.joinTableList').length) {
+                    xcHelper.fillInputFromCell($target, $lastInputFocused);
+                }
+            },
+            "headCallback": function($target) {
+                var $joinTableList = $lastInputFocused
+                                            .closest('.joinTableList');
+                if ($joinTableList.length) {
+                    var originalText = $lastInputFocused.val();
+                    xcHelper.fillInputFromCell($target, $lastInputFocused, null,
+                        {type: "table"});
+                    var index = $joinView.find('.joinTableList')
+                                         .index($joinTableList);
+                    var newTableName = $lastInputFocused.val();
+                    if (originalText !== newTableName) {
+                        $joinView.find('.joinClause').each(function() {
+                            $(this).find('.clause').eq(index).val("");
+                        });
+                        $joinView.find('.clause').eq(index).focus();
+                        checkNextBtn();
+                        updatePreviewText();
+                        focusTable(getTableIds(index));
+                        activateClauseSection(index);
+                    }
+                }
             }
         };
+
         formHelper = new FormHelper($joinView, {
             "columnPicker": columnPicker
         });
@@ -100,17 +127,18 @@ window.JoinView = (function($, JoinView) {
             "onSelect": function($li) {
                 var tableName = $li.text();
                 var $textBox = $leftTableDropdown.find(".text");
-                var originalText = $textBox.text();
+                var originalText = $textBox.val();
+                activateClauseSection(0);
 
                 if (originalText !== tableName) {
-                    // $tableNameText.text(tableName).data('id', tableId);
-                    $textBox.text(tableName);
+                    $textBox.val(tableName);
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
                     $joinView.find('.leftClause').val("").eq(0).focus();
                     checkNextBtn();
                     updatePreviewText();
-                    focusTable(getTableIds(0));
+                    var tableId = getTableIds(0);
+                    focusTable(tableId);
                 } else {
                     return;
                 }
@@ -125,24 +153,19 @@ window.JoinView = (function($, JoinView) {
             "onSelect": function($li) {
                 var tableName = $li.text();
                 var $textBox = $rightTableDropdown.find(".text");
-                var originalText = $textBox.text();
-                $(".rightClause").removeClass("inActive")
-                                 .attr("disabled", false);
-                var $subHeading = $rightTableDropdown.siblings('.subHeading');
-                xcTooltip.remove($(".rightClause"));
-                xcTooltip.remove($subHeading.find('.tooltipWrap'));
+                var originalText = $textBox.val();
+                activateClauseSection(1);
 
                 if (originalText !== tableName) {
                     // $tableNameText.text(tableName).data('id', tableId);
-                    $textBox.text(tableName);
-                    $subHeading.find('.iconWrap').removeClass('inactive');
-
+                    $textBox.val(tableName);
                     $li.siblings().removeClass('selected');
                     $li.addClass('selected');
                     $joinView.find('.rightClause').val("").eq(0).focus();
                     checkNextBtn();
                     updatePreviewText();
-                    focusTable(getTableIds(1));
+                    var tableId = getTableIds(1);
+                    focusTable(tableId);
                 } else {
                     return;
                 }
@@ -191,6 +214,29 @@ window.JoinView = (function($, JoinView) {
                         isNextNew = true;
                     }
                 });
+            }
+        });
+
+        $joinView.on('focus', '.tableListSection .arg', function() {
+            $lastInputFocused = $(this);
+        });
+        $joinView.on('change', '.tableListSection .arg', function() {
+            var index = $joinView.find('.tableListSection .arg').index($(this));
+            $joinView.find('.joinClause').each(function() {
+                $(this).find('.clause').eq(index).val("");
+            });
+
+            checkNextBtn();
+            updatePreviewText();
+
+            var tableId = getTableIds(index);
+            if (gTables[tableId]) {
+                $joinView.find('.clause').eq(index).focus();
+                
+                focusTable(tableId);
+                activateClauseSection(index);
+            } else {
+                deactivateClauseSection(index);
             }
         });
 
@@ -329,14 +375,14 @@ window.JoinView = (function($, JoinView) {
                     var tableName;
                     var otherTableName;
                     if (isLeftTableVal) {
-                        tableName = $leftTableDropdown.find('.text').text();
+                        tableName = $leftTableDropdown.find('.text').val();
                         otherTableName = $rightTableDropdown.find('.text')
-                                                            .text();
+                                                            .val();
                     } else {
                         tableName = $rightTableDropdown.find('.text')
-                                                       .text();
+                                                       .val();
                         otherTableName = $leftTableDropdown.find('.text')
-                                                           .text();
+                                                           .val();
                     }
                     var tableId = xcHelper.getTableId(tableName);
                     var suggTableId = xcHelper.getTableId(otherTableName);
@@ -444,6 +490,46 @@ window.JoinView = (function($, JoinView) {
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
     };
+
+    function activateClauseSection(index) {
+        $joinView.find('.joinClause').each(function() {
+            $(this).find('.clause').eq(index).removeClass('inActive')
+                                              .attr('disabled', false);
+        });
+        if (index === 0) {
+            xcTooltip.remove($(".leftClause"));
+        } else {
+            xcTooltip.remove($(".rightClause"));
+        }
+        var $subHeading = $joinView.find('.tableListSection').eq(index)
+                                   .find('.subHeading');
+        xcTooltip.remove($subHeading.find('.tooltipWrap'));
+        $subHeading.find('.iconWrap').removeClass('inactive');
+    }
+
+    function deactivateClauseSection(index) {
+        var $subHeading = $joinView.find('.tableListSection').eq(index)
+                                   .find('.subHeading');
+        $subHeading.find('.iconWrap').addClass('inactive');
+        var tooltipTitle;
+        if (index === 0) {
+            tooltipTitle = JoinTStr.NoLeftTable;
+        } else {
+            tooltipTitle = JoinTStr.NoRightTable;
+        }
+        xcTooltip.add($subHeading.find('.tooltipWrap'), {
+            "title": tooltipTitle
+        });
+        $joinView.find('.joinClause').each(function() {
+            var $input = $(this).find('.arg').eq(index);
+            if ($input.length) {
+                xcTooltip.add($input, {
+                    "title": tooltipTitle
+                });
+                $input.addClass('inActive').attr('disabled', true);
+            }
+        });
+    }
 
     function toggleNextView() {
         if ($joinView.hasClass('nextStep')) {
@@ -705,14 +791,14 @@ window.JoinView = (function($, JoinView) {
         if (index != null) {
             var tableName;
             if (index === 0) {
-                tableName = $leftTableDropdown.find('.text').text();
+                tableName = $leftTableDropdown.find('.text').val();
             } else {
-                tableName = $rightTableDropdown.find('.text').text();
+                tableName = $rightTableDropdown.find('.text').val();
             }
             return xcHelper.getTableId(tableName);
         } else {
-            var lTableName = $leftTableDropdown.find('.text').text();
-            var rTableName = $rightTableDropdown.find('.text').text();
+            var lTableName = $leftTableDropdown.find('.text').val();
+            var rTableName = $rightTableDropdown.find('.text').val();
             var lTableId = xcHelper.getTableId(lTableName);
             var rTableId = xcHelper.getTableId(rTableName);
             return ([lTableId, rTableId]);
@@ -836,7 +922,7 @@ window.JoinView = (function($, JoinView) {
     function submitJoin() {
         // check validation
         // if submit is enabled, that means first view is already valid
-        // 
+        
         var isValidTableName = xcHelper.tableNameInputChecker($joinTableName);
         if (!isValidTableName) {
             return;
@@ -1261,17 +1347,24 @@ window.JoinView = (function($, JoinView) {
 
     function addClause($placeholder, noAnimation, tableId, colNum) {
         var $newClause = $(multiClauseTemplate);
-        if ($("#joinRightTableList .text").text().trim().length > 0) {
+        var tableIds = getTableIds();
+        if (gTables[tableIds[0]]) {
+            var $leftClause = $newClause.find(".leftClause");
+            xcTooltip.remove($leftClause);
+            $leftClause.attr("disabled", false).removeClass("inActive");
+        }
+        if (gTables[tableIds[1]]) {
             var $rightClause = $newClause.find(".rightClause");
             xcTooltip.remove($rightClause);
             $rightClause.attr("disabled", false).removeClass("inActive");
         }
+
         var $div = $newClause.insertBefore($placeholder);
         if (tableId) {
             var progCol = gTables[tableId].getCol(colNum);
             var colName = progCol.getFrontColName(true);
             $div.find('.arg').eq(0).val(colName);
-        } else {
+        } else if (gTables[tableIds[0]]) {
             $div.find('.arg').eq(0).focus();
         }
 
@@ -1285,12 +1378,9 @@ window.JoinView = (function($, JoinView) {
         $clauseContainer.find(".joinClause:not(.placeholder)").remove();
         $clauseContainer.find('.clause').val("");
         $joinView.find('.next').addClass('btn-disabled');
-        $rightTableDropdown.find('.text').empty();
-        var $subHeading = $rightTableDropdown.siblings('.subHeading');
-        $subHeading.find('.iconWrap').addClass('inactive');
-        xcTooltip.add($subHeading.find('.tooltipWrap'), {
-            "title": JoinTStr.NoRightTable
-        });
+        $rightTableDropdown.find('.text').val("");
+        activateClauseSection(0);
+        deactivateClauseSection(1);
         isNextNew = true;
 
         updatePreviewText();
@@ -1312,19 +1402,19 @@ window.JoinView = (function($, JoinView) {
         var tableName;
 
         if (refresh) {
-            var leftTableName = $leftTableDropdown.find('.text').text();
+            var leftTableName = $leftTableDropdown.find('.text').val();
             $leftTableDropdown.find('li').filter(function() {
                 return ($(this).text() === leftTableName);
             }).addClass('selected');
 
-            var rightTableName = $rightTableDropdown.find('.text').text();
+            var rightTableName = $rightTableDropdown.find('.text').val();
             $rightTableDropdown.find('li').filter(function() {
                 return ($(this).text() === rightTableName);
             }).addClass('selected');
         } else {
             // select li and fill left table name dropdown
             var tableName = gTables[origTableId].getName();
-            $leftTableDropdown.find('.text').text(tableName);
+            $leftTableDropdown.find('.text').val(tableName);
             $leftTableDropdown.find('li').filter(function() {
                 return ($(this).text() === tableName);
             }).addClass('selected');
@@ -1636,8 +1726,8 @@ window.JoinView = (function($, JoinView) {
 
     function updatePreviewText() {
         var joinType = $joinTypeSelect.find(".text").text();
-        var lTableName = $leftTableDropdown.find(".text").text();
-        var rTableName = $rightTableDropdown.find(".text").text();
+        var lTableName = $leftTableDropdown.find(".text").val();
+        var rTableName = $rightTableDropdown.find(".text").val();
         var previewText = '<span class="joinType keyword">' + joinType +
                           '</span> <span class="highlighted">' + lTableName +
                           '</span>, <span class="highlighted">' + rTableName +

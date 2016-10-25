@@ -732,12 +732,11 @@ window.TestSuite = (function($, TestSuite) {
                 // fisrt step of join
                 $("#joinRightTableList").find("li:contains('airport')")
                                         .trigger(fakeEvent.click);
-                var rTableName = $("#joinRightTableList").find(".text").text();
+                var rTableName = $("#joinRightTableList").find(".text").val();
                 var rTableId = xcHelper.getTableId(rTableName);
                 var rightClause = getColNameWithPrefix(rTableId, "iata");
                 $("#mainJoin .rightClause").val(rightClause).change();
-                var lTableName = $("#joinLeftTableList").find(".text").text();
-                var rTableName = $("#joinRightTableList").find(".text").text();
+                var lTableName = $("#joinLeftTableList").find(".text").val();
                 var newName = xcHelper.getTableName(lTableName) + '-' +
                               xcHelper.getTableName(rTableName);
                 $("#joinView .btn.next").click();
@@ -1022,8 +1021,8 @@ window.TestSuite = (function($, TestSuite) {
             $("#mainJoin .leftClause").eq(1).val(lCol2).change();
             $("#mainJoin .rightClause").eq(1).val("DayOfWeek_integer").change();
 
-            var lTableName = $("#joinLeftTableList").find(".text").text();
-            var rTableName = $("#joinRightTableList").find(".text").text();
+            var lTableName = $("#joinLeftTableList").find(".text").val();
+            var rTableName = $("#joinRightTableList").find(".text").val();
             var newName = xcHelper.getTableName(lTableName) + '-' +
                             xcHelper.getTableName(rTableName);
 

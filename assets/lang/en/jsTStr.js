@@ -348,6 +348,7 @@ IndexTStr = {
 };
 
 JoinTStr = {
+    'NoLeftTable': 'Select left table first',
     'NoRightTable': 'Select right table first',
     'NoKeyLeft': 'Left table has no selected key',
     'NoKeyRight': 'Right table has no selected key',

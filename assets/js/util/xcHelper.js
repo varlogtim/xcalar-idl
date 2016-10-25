@@ -1965,7 +1965,7 @@ window.xcHelper = (function($, xcHelper) {
      */
     xcHelper.fillInputFromCell = function ($target, $input, prefix, options) {
         if ($target == null || $input == null) {
-            console.error("error case");
+            // if user tries to select column without focusing on input
             return;
         }
         // $input needs class "argument"
