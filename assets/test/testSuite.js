@@ -104,6 +104,7 @@ window.TestSuite = (function($, TestSuite) {
     };
 
     TestSuite.run = function(hasAnimation, toClean) {
+        var finalDeferred = jQuery.Deferred();
         var initialDeferred = jQuery.Deferred();
         var deferred = initialDeferred;
         var minModeCache = gMinModeOn;
@@ -202,10 +203,16 @@ window.TestSuite = (function($, TestSuite) {
             console.log(alertMsg); // if pop ups are disabled
             alert(alertMsg);
             gMinModeOn = minModeCache;
+            finalDeferred.resolve({
+                "pass": passes,
+                "fail": fails,
+                "skip": skips
+            });
         }
 
         // This starts the entire PromiseHelper.chain
         initialDeferred.resolve();
+        return finalDeferred.promise();
     };
 
     function assert(statement) {

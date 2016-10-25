@@ -7,6 +7,8 @@
  *      clean if teststuite should clean table after finishing
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
+    var testSuiteKey = "autoTestsuite";
+
     TestSuiteSetup.setup = function() {
         var params = getSearchParameters();
         autoLogin(params["user"]);
@@ -26,8 +28,10 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 return;
             }
 
-            var activeWorksheet = WSManager.getActiveWS();
-            if (activeWorksheet != null) {
+            var toTest = sessionStorage.getItem(testSuiteKey);
+            if (toTest != null) {
+                // next time not auto run it
+                sessionStorage.removeItem(testSuiteKey);
                 return autoRunTestSuite();
             } else {
                 return autoCreateWorkbook();
@@ -51,19 +55,14 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function autoCreateWorkbook() {
-        var deferred = jQuery.Deferred();
         var activeWorksheet = WSManager.getActiveWS();
         if (activeWorksheet != null) {
-            console.warn("This user is used to  test before");
+            console.warn("This user is used to test before");
             Workbook.show(true);
         }
 
-        Shortcuts.createWorkbook()
-        .then(autoActiveWorkbook)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        sessionStorage.setItem(testSuiteKey, "true");
+        return Shortcuts.createWorkbook();
     }
 
     function autoRunTestSuite() {
@@ -79,7 +78,10 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
-            TestSuite.run(animation, clean);
+            TestSuite.run(animation, clean)
+            .then(function(res) {
+                console.info(res);
+            });
         }, delay);
     }
 
