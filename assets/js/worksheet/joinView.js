@@ -194,27 +194,23 @@ window.JoinView = (function($, JoinView) {
         });
 
         // add multi clause
-        $clauseContainer.on("click", ".placeholder", function() {
-            addClause($(this));
+        $clauseContainer.on("click", ".addClause", function() {
+            addClause();
         });
 
         // delete multi clause
         $clauseContainer.on("click", ".joinClause .middleIcon", function() {
             var $joinClause = $(this).closest(".joinClause");
-            if ($joinClause.hasClass("placeholder")) {
-                return;
-            } else {
-                $joinClause.slideUp(100, function() {
-                    $joinClause.remove();
-                    updatePreviewText();
-                    checkNextBtn();
-                    // reset estimator if removing a filled input
-                    if ($joinClause.find('.leftClause').val().trim() !== "" ||
-                        $joinClause.find('.leftClause').val().trim() !== "") {
-                        isNextNew = true;
-                    }
-                });
-            }
+            $joinClause.slideUp(100, function() {
+                $joinClause.remove();
+                updatePreviewText();
+                checkNextBtn();
+                // reset estimator if removing a filled input
+                if ($joinClause.find('.leftClause').val().trim() !== "" ||
+                    $joinClause.find('.leftClause').val().trim() !== "") {
+                    isNextNew = true;
+                }
+            });
         });
 
         $joinView.on('focus', '.tableListSection .arg', function() {
@@ -230,11 +226,10 @@ window.JoinView = (function($, JoinView) {
             updatePreviewText();
 
             var tableId = getTableIds(index);
-            if (gTables[tableId]) {
-                $joinView.find('.clause').eq(index).focus();
-                
+            if (gTables[tableId]) { 
                 focusTable(tableId);
-                activateClauseSection(index);
+                activateClauseSection(index); 
+                $joinView.find('.clause').eq(index).focus();
             } else {
                 deactivateClauseSection(index);
             }
@@ -354,7 +349,7 @@ window.JoinView = (function($, JoinView) {
             var $suggErrorArea = $(this).siblings(".suggError");
             // var $suggErrorArea = $(this);
             if (hasValidTableNames()) {
-                $joinView.find('.joinClause:not(.placeholder)').each(function() {
+                $joinView.find('.joinClause').each(function() {
                     var $row = $(this);
 
                     if ($row.find('.arg').eq(0).val().trim() !== "" &&
@@ -429,6 +424,7 @@ window.JoinView = (function($, JoinView) {
         });
     };
 
+    // restore user saved preferences
     JoinView.restore = function() {
         var keepJoinTables = UserSettings.getPref('keepJoinTables');
         if (keepJoinTables) {
@@ -451,7 +447,7 @@ window.JoinView = (function($, JoinView) {
             resetJoinView();
             fillTableLists(tableId);
             updatePreviewText();
-            addClause($joinView.find('.placeholder'), true, tableId, colNum);
+            addClause(true, tableId, colNum);
         }
         formHelper.setup();
 
@@ -558,7 +554,7 @@ window.JoinView = (function($, JoinView) {
                 }
 
                 // clear any empty column rows
-                $clauseContainer.find(".joinClause:not(.placeholder)")
+                $clauseContainer.find(".joinClause")
                 .each(function() {
                     var $joinClause = $(this);
                     var lClause = $joinClause.find(".leftClause").val().trim();
@@ -586,7 +582,7 @@ window.JoinView = (function($, JoinView) {
         var $invalidClause = null;
 
         // check validation
-        $clauseContainer.find(".joinClause:not(.placeholder)").each(function() {
+        $clauseContainer.find(".joinClause").each(function() {
             var $joinClause = $(this);
             var lClause = $joinClause.find(".leftClause").val().trim();
             var rClause = $joinClause.find(".rightClause").val().trim();
@@ -677,7 +673,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     // assumes lCols and rCols exist, returns obj with sucess property
-    // will return obj with success:false if has definitivly mistmatching types
+    // will return obj with success:false if has definitivly mismatching types
     function checkMatchingColTypes(lCols, rCols, tableIds) {
         var lTable = gTables[tableIds[0]];
         var rTable = gTables[tableIds[1]];
@@ -686,7 +682,6 @@ window.JoinView = (function($, JoinView) {
         var lType;
         var rType;
         var problemTypes = ["integer", "float", "number"];
-
         for (var i = 0; i < lCols.length; i++) {
             lProgCol = lTable.getColByFrontName(lCols[i]);
             rProgCol = rTable.getColByFrontName(rCols[i]);
@@ -722,6 +717,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function estimateJoinSize() {
+        var deferred = jQuery.Deferred();
         var tableIds = getTableIds();
         var cols = getClauseCols();
         var rTableName = gTables[tableIds[1]].getName();
@@ -754,11 +750,13 @@ window.JoinView = (function($, JoinView) {
             $estimatorWrap.find('.min .value').text(ret.minSum);
             $estimatorWrap.find('.med .value').text(ret.expSum);
             $estimatorWrap.find('.max .value').text(ret.maxSum);
+            deferred.resolve();
         })
         .fail(function() {
             $joinView.find('.estimatorWrap .title')
                      .text(JoinTStr.EstimatedJoin + ':');
             $estimatorWrap.find('.value').text('N/A');
+            deferred.reject();
         });
     }
 
@@ -812,7 +810,7 @@ window.JoinView = (function($, JoinView) {
             var lClause;
             var rClause;
 
-            $joinView.find(".joinClause:not(.placeholder)").each(function() {
+            $joinView.find(".joinClause").each(function() {
                 var $joinClause = $(this);
                 lClause = $joinClause.find(".leftClause").val().trim();
                 rClause = $joinClause.find(".rightClause").val().trim();
@@ -849,7 +847,7 @@ window.JoinView = (function($, JoinView) {
         var lCols = [];
         var rCols = [];
 
-        $clauseContainer.find(".joinClause:not(.placeholder)").each(function() {
+        $clauseContainer.find(".joinClause").each(function() {
             var $joinClause = $(this);
             var lClause = $joinClause.find(".leftClause").val().trim();
             var rClause = $joinClause.find(".rightClause").val().trim();
@@ -945,7 +943,7 @@ window.JoinView = (function($, JoinView) {
         var $invalidClause = null;
 
         // check validation
-        $clauseContainer.find(".joinClause:not(.placeholder)").each(function() {
+        $clauseContainer.find(".joinClause").each(function() {
             var $joinClause = $(this);
             var lClause = $joinClause.find(".leftClause").val().trim();
             var rClause = $joinClause.find(".rightClause").val().trim();
@@ -1345,7 +1343,7 @@ window.JoinView = (function($, JoinView) {
         }
     }
 
-    function addClause($placeholder, noAnimation, tableId, colNum) {
+    function addClause(noAnimation, tableId, colNum) {
         var $newClause = $(multiClauseTemplate);
         var tableIds = getTableIds();
         if (gTables[tableIds[0]]) {
@@ -1359,7 +1357,7 @@ window.JoinView = (function($, JoinView) {
             $rightClause.attr("disabled", false).removeClass("inActive");
         }
 
-        var $div = $newClause.insertBefore($placeholder);
+        var $div = $newClause.insertBefore($joinView.find('.addClause'));
         if (tableId) {
             var progCol = gTables[tableId].getCol(colNum);
             var colName = progCol.getFrontColName(true);
@@ -1375,7 +1373,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function resetJoinView() {
-        $clauseContainer.find(".joinClause:not(.placeholder)").remove();
+        $clauseContainer.find(".joinClause").remove();
         $clauseContainer.find('.clause').val("");
         $joinView.find('.next').addClass('btn-disabled');
         $rightTableDropdown.find('.text').val("");
@@ -1737,7 +1735,7 @@ window.JoinView = (function($, JoinView) {
         var lClause;
         var rClause;
 
-        $joinView.find(".joinClause:not(.placeholder)").each(function() {
+        $joinView.find(".joinClause").each(function() {
 
             var $joinClause = $(this);
             lClause = $joinClause.find(".leftClause").val().trim();
@@ -1774,6 +1772,14 @@ window.JoinView = (function($, JoinView) {
         previewText += ";";
         $joinView.find('.joinPreview').html(previewText);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        JoinView.__testOnly__ = {};
+        JoinView.__testOnly__.addClause = addClause;
+        JoinView.__testOnly__.checkMatchingColTypes = checkMatchingColTypes;
+    }
+    /* End Of Unit Test Only */
 
     return (JoinView);
 }(jQuery, {}));

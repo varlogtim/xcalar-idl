@@ -1370,6 +1370,10 @@ window.xcHelper = (function($, xcHelper) {
         xcHelper.assert((tableId != null), "Invalid Parameters!");
 
         var table = gTables[tableId];
+        if (!table) {
+            // case if table was deleted before unlock is called;
+            return;
+        }
         table.unlock();
         if (table.isActive()) {
             var $tableWrap = $("#xcTableWrap-" + tableId);

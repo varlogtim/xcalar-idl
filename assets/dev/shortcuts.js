@@ -511,10 +511,9 @@ window.Shortcuts = (function($, Shortcuts) {
             $formatDropdown.find('li[name="JSON"]').click();
             $('#dsForm-dsName').val(dsName);
 
-            $('#dsForm-preview').find('.confirm').click();
+            $('#dsForm-preview').find('.confirm').last().click();
             dsIcon = ".ds.grid-unit[data-dsname='" + dsName + "']:not(.inactive)";
         }
-
         checkExists(dsIcon)
         .then(function() {
             $(dsIcon).click();

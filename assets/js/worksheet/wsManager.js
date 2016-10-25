@@ -790,8 +790,14 @@ window.WSManager = (function($, WSManager) {
         }
 
         if (tableIndex < 0) {
-            console.error("Not find the table!");
-            return (null);
+            if (ws.lockedTables.indexOf(tableId) > -1) {
+                WSManager.unlockTable(tableId);
+                delete tableIdToWSIdMap[tableId];
+                return (wsId);
+            } else {
+                console.error("Not find the table!");
+                return (null);
+            }
         }
 
         tables.splice(tableIndex, 1);
