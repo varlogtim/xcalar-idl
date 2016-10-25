@@ -901,10 +901,8 @@ window.xcFunction = (function($, xcFunction) {
             // does renames for gTables, tabelist, dag
             table.tableName = newTableName;
 
-            TableList.renameTable(tableId, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
-
-            updateTableHeader(tableId);
+            TblManager.updateHeaderAndListInfo(tableId);
 
             Transaction.done(txId);
             deferred.resolve(newTableName);

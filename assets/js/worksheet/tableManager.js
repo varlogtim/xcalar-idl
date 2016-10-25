@@ -1220,6 +1220,13 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
+    TblManager.updateHeaderAndListInfo = function(tableId) {
+        updateTableHeader(tableId);
+        TableList.updateTableInfo(tableId);
+        var $table = $('#xcTable-' + tableId);
+        matchHeaderSizes($table);
+    };
+
     // returns {
     //    hasSuccess:boolean,
     //    fails: [{tables: "tableName", error: "error"}]
@@ -1782,20 +1789,19 @@ window.TblManager = (function($, TblManager) {
 
         $xcTheadWrap.on({
             "focus": function() {
-                var val = $(this).val();
-                var width = getTextWidth($(this), val);
-                $(this).width(width + 1);
-                $(this)[0].setSelectionRange(val.length, val.length);
+                var $tableName = $(this);
+                updateTableNameWidth($tableName);
                 moveTableTitles();
             },
             "blur": function() {
-                updateTableHeader(null, $(this).parent());
+                var tableId = $xcTheadWrap.data("id");
+                updateTableHeader(tableId);
                 moveTableTitles();
             },
             "input": function() {
-                var width = getTextWidth($(this), $(this).val());
-                $(this).width(width + 1);
-                moveTableTitles($(this).closest('.xcTableWrap'));
+                var $tableName = $(this);
+                updateTableNameWidth($tableName);
+                moveTableTitles($tableName.closest('.xcTableWrap'));
             }
         }, ".tableTitle .tableName");
 
@@ -1867,6 +1873,40 @@ window.TblManager = (function($, TblManager) {
         var $table = $('#xcTable-' + tableId);
         $table.width(0);
         matchHeaderSizes($table);
+    }
+
+    function updateTableHeader(tableId) {
+        var table = gTables[tableId];
+        var fullTableName = table.getName();
+        var numCols = table.getNumCols() - 1; // skip DATA col
+        var $tHead = $("#xcTheadWrap-" + tableId).find(".tableTitle .text");
+
+        $tHead.data("cols", numCols)
+              .data("title", fullTableName);
+
+        var tableName = xcHelper.getTableName(fullTableName);
+        var nameHtml =
+            '<input type="text" class="tableName" value="' + tableName + '" ' +
+            ' autocorrect="off" spellcheck="false">' +
+            '<span class="hashName">#' +
+                tableId +
+            '</span>';
+
+        var numColHtml = '<span class="colNumBracket" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'title="' + CommonTxtTstr.NumCol + '">' +
+                        ' [' + numCols + ']</span>';
+
+        $tHead.html(nameHtml + numColHtml);
+        var $tableName = $tHead.find('.tableName');
+        updateTableNameWidth($tableName);
+    }
+
+    function updateTableNameWidth($tableName) {
+        var width = getTextWidth($tableName, $tableName.val());
+        $tableName.width(width + 1);
     }
 
     function addTableListeners(tableId) {

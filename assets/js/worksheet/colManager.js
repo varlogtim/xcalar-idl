@@ -45,7 +45,10 @@ window.ColManager = (function($, ColManager) {
     };
 
     ColManager.addNewCol = function(colNum, tableId, direction, options) {
-        var defaultOptions = {"isNewCol": true};
+        var defaultOptions = {
+            "isNewCol": true,
+            "width"   : xcHelper.getDefaultColWidth("")
+        };
         var colOptions = $.extend(defaultOptions, options);
 
         var table = gTables[tableId];
@@ -102,9 +105,7 @@ window.ColManager = (function($, ColManager) {
 
         jQuery.when.apply($, promises)
         .done(function() {
-            var numAllCols = table.tableCols.length;
-            updateTableHeader(tableId);
-            TableList.updateTableInfo(tableId);
+            var numAllCols = table.getNumCols();
             for (var j = colNums[0]; j <= numAllCols; j++) {
                 var oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
                 $table.find(".col" + oldColNum)
@@ -112,7 +113,7 @@ window.ColManager = (function($, ColManager) {
                       .addClass('col' + j);
             }
 
-            matchHeaderSizes($table);
+            TblManager.updateHeaderAndListInfo(tableId);
             xcHelper.removeSelectionRange();
 
              // add SQL
@@ -165,8 +166,7 @@ window.ColManager = (function($, ColManager) {
 
         ColManager.execCol("pull", usrStr, tableId, newColNum, {noLog: true})
         .then(function() {
-            updateTableHeader(tableId);
-            TableList.updateTableInfo(tableId);
+            TblManager.updateHeaderAndListInfo(tableId);
             // add sql
             SQL.add("Pull Column", sqlOptions);
             deferred.resolve(newColNum);
@@ -902,7 +902,10 @@ window.ColManager = (function($, ColManager) {
         var newColNum = addColHelper(colNum, tableId, progCol, {
             "direction": ColDir.Right
         });
-        // add sql
+
+        pullColHelper(newColNum, tableId);
+        TblManager.updateHeaderAndListInfo(tableId);
+
         SQL.add("Duplicate Column", {
             "operation" : SQLOps.DupCol,
             "tableName" : table.getName(),
@@ -911,11 +914,6 @@ window.ColManager = (function($, ColManager) {
             "newColName": newName,
             "colNum"    : colNum
         });
-
-        pullColHelper(newColNum, tableId);
-
-        updateTableHeader(tableId);
-        TableList.updateTableInfo(tableId);
     };
 
     ColManager.delDupCols = function(colNum, tableId) {
@@ -923,27 +921,24 @@ window.ColManager = (function($, ColManager) {
         var table = gTables[tableId];
         var $tableWrap = $('#xcTableWrap-' + tableId);
         var tableWidth = $tableWrap.width();
-        var colName = table.tableCols[colNum - 1].name;
+        var colName = table.getCol(colNum).getFrontColName(true);
         var colInfo = delDupColHelper(colNum, tableId);
         var colWidths = colInfo.colWidths;
         var colNums = colInfo.colNums;
         var progCols = colInfo.progCols;
 
         if (gMinModeOn) {
-            matchHeaderSizes($tableWrap.find('.xcTable'));
+            TblManager.updateHeaderAndListInfo(tableId);
         } else {
             moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
             setTimeout(function() {
-                matchHeaderSizes($tableWrap.find('.xcTable'));
+                TblManager.updateHeaderAndListInfo(tableId);
             }, 200);
         }
 
-        updateTableHeader(tableId);
-        TableList.updateTableInfo(tableId);
-
         SQL.add("Delete Duplicate Columns", {
             "operation"  : SQLOps.DelDupCol,
-            "tableName"  : table.tableName,
+            "tableName"  : table.getName(),
             "tableId"    : tableId,
             "colNum"     : colNum,
             "colName"    : colName,
@@ -1665,27 +1660,20 @@ window.ColManager = (function($, ColManager) {
         $tableWrap.find('.th.col' + (newColNum - 1)).after($th);
 
         if (gMinModeOn || noAnimate) {
-            updateTableHeader(tableId);
-            TableList.updateTableInfo(tableId);
-            $tableWrap.find('.rowGrab').width($table.width());
-            matchHeaderSizes($table);
+            TblManager.updateHeaderAndListInfo(tableId);
             moveFirstColumn();
         } else {
             $th.width(10);
             if (!isHidden) {
                 columnClass += " animating";
                 $th.animate({width: width}, 300, function() {
-                    updateTableHeader(tableId);
-                    TableList.updateTableInfo(tableId);
-                    matchHeaderSizes($table);
+                    TblManager.updateHeaderAndListInfo(tableId);
                     $table.find('.col' + newColNum).removeClass('animating');
                 });
                 moveTableTitlesAnimated(tableId, $tableWrap.width(),
                                     10 - width, 300);
             } else {
-                updateTableHeader(tableId);
-                TableList.updateTableInfo(tableId);
-                matchHeaderSizes($table);
+                TblManager.updateHeaderAndListInfo(tableId);
             }
         }
 
@@ -1889,9 +1877,7 @@ window.ColManager = (function($, ColManager) {
         $tbody.empty(); // remove tbody contents for pullrowsbulk
 
         TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
-        updateTableHeader(tableId);
-        TableList.updateTableInfo(tableId);
-        matchHeaderSizes($table);
+        TblManager.updateHeaderAndListInfo(tableId);
         moveFirstColumn();
     }
 

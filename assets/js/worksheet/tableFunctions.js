@@ -165,53 +165,6 @@ function getWidestTdWidth(el, options) {
     return (largestWidth);
 }
 
-function updateTableHeader(tableId, $tHead) {
-    var fullTableName = "";
-    var cols = 0;
-
-    // for blur and focus on table header
-    if (tableId == null) {
-        cols = $tHead.data("cols");
-        fullTableName = $tHead.data("title");
-    } else {
-        // for update table header
-        $tHead = $("#xcTheadWrap-" + tableId).find(".tableTitle .text");
-        var table = gTables[tableId];
-
-        if (table != null) {
-            fullTableName = table.tableName;
-            cols = table.tableCols.length - 1; // skip DATA col
-        }
-        $tHead.data("cols", cols);
-        $tHead.data("title", fullTableName);
-    }
-
-    fullTableName = fullTableName.split("#");
-
-    var tableName = fullTableName[0];
-
-    if (fullTableName.length === 2) {
-        tableName =
-            '<input type="text" class="tableName" value="' + tableName + '" ' +
-            ' autocorrect="off" spellcheck="false">' +
-            '<span class="hashName">#' +
-                fullTableName[1] +
-            '</span>';
-    }
-
-    var colsHTML = '<span class="colNumBracket" ' +
-                    'data-toggle="tooltip" ' +
-                    'data-placement="top" ' +
-                    'data-container="body" ' +
-                    'title="' + CommonTxtTstr.NumCol + '">' +
-                    ' [' + cols + ']</span>';
-
-    $tHead.html(tableName + colsHTML);
-    var $tableName = $tHead.find('.tableName');
-    var width = getTextWidth($tableName, $tableName.val());
-    $tableName.width(width + 1);
-}
-
 function matchHeaderSizes($table) {
     // concurrent build table may make some $table be []
     if ($table.length === 0) {

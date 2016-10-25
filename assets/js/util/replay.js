@@ -375,10 +375,8 @@ window.Replay = (function($, Replay) {
         .then(function() {
             table.tableName = newTableName;
 
-            TableList.renameTable(tableId, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
-
-            updateTableHeader(tableId);
+            TblManager.updateHeaderAndListInfo
 
             // XXX not finish yet
             table.tableId = newId;

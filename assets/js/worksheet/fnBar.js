@@ -674,8 +674,7 @@ window.FnBar = (function(FnBar, $) {
                     ColManager.execCol(operation, newFuncStr, tableId, colNum)
                     .then(function(ret) {
                         if (ret === "update") {
-                            updateTableHeader(tableId);
-                            TableList.updateTableInfo(tableId);
+                            TblManager.updateHeaderAndListInfo(tableId);
                             KVStore.commit();
                         }
                     });

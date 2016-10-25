@@ -253,13 +253,6 @@ window.TableList = (function($, TableList) {
         focusedListNum = null;
     };
 
-    TableList.renameTable = function(tableId, newTableName) {
-        var $tableList = $('#activeTablesList .tableInfo[data-id="' +
-                            tableId + '"]');
-        $tableList.find(".tableName").text(newTableName)
-                                    .attr('data-original-title', newTableName);
-    };
-
     TableList.updateColName = function(tableId, colNum, newColName) {
         $('#activeTablesList').find(".tableInfo[data-id=" + tableId + "]")
                               .find(".column").eq(colNum - 1)

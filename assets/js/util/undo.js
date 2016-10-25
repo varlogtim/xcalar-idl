@@ -798,9 +798,7 @@ window.Undo = (function($, Undo) {
         $table.html(tableHtml);
 
         TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
-        TblManager.addColListeners($table, tableId);
-        updateTableHeader(tableId);
-        TableList.updateTableInfo(tableId);
+        TblManager.updateHeaderAndListInfo(tableId);
         moveFirstColumn();
     }
 
