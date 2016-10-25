@@ -1320,7 +1320,7 @@ window.DS = (function ($, DS) {
                     ' ondragover="DS.allowDrop(event)"' +
                     ' ondrop="DS.onDrop(event)">' +
                 '</div>' +
-                '<div class="gridIcon"></div>' +
+                '<i class="gridIcon icon xi-folder"></i>' +
                 '<div class="dsCount">0</div>' +
                 '<div title="' + name + '" class="label"' +
                     ' data-dsname="' + name + '">' +
@@ -1352,7 +1352,7 @@ window.DS = (function ($, DS) {
                     ' ondragover="DS.allowDrop(event)"' +
                     ' ondrop="DS.onDrop(event)">' +
                 '</div>' +
-                '<div class="gridIcon"></div>' +
+                '<i class="gridIcon icon xi_data"></i>' +
                 '<div title="' + name + '" class="label"' +
                     ' data-dsname="' + name + '">' +
                     name +
@@ -1376,7 +1376,7 @@ window.DS = (function ($, DS) {
             '<div class="folder grid-unit uneditable"' +
                 ' data-dsId="' + id + '"' +
                 ' data-dsParentId=' + parentId + '>' +
-                '<div class="gridIcon"></div>' +
+                '<i class="gridIcon icon xi-folder"></i>' +
                 '<div class="dsCount">0</div>' +
                 '<div title="' + name + '" class="label"' +
                     ' data-dsname="' + name + '">' +
@@ -1391,7 +1391,7 @@ window.DS = (function ($, DS) {
                 ' data-dsname="' + name + '"' +
                 ' data-dsId="' + id + '"' +
                 ' data-dsParentId="' + parentId + '"">' +
-                '<div class="gridIcon"></div>' +
+                '<i class="gridIcon icon xi_data"></i>' +
                 '<div title="' + name + '" class="label"' +
                     ' data-dsname="' + name + '">' +
                     name +

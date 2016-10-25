@@ -985,14 +985,6 @@
             .size(@width: 35px, @height: @width-grid - 25px);
         }
 
-        &.ds > .gridIcon {
-            .image("../../images/datastore/db-lg.png", 50%, 75%);
-        }
-
-        &.folder > .gridIcon {
-            .image("../../images/datastore/folder-lg.png", 50%, 75%);
-        }
-
         > .label {
             .position(relative, @top: -2px);
             .size(@width: @width-grid, @height: 20px);
@@ -1033,16 +1025,6 @@
                 display: inline-block;
                 .center-align;
             }
-        }
-
-        &.ds > .gridIcon {
-            .image("../../images/datastore/db-lg.png", 50%, 50%);
-            background-size: 15px 15px;
-        }
-
-        &.folder > .gridIcon {
-            .image("../../images/datastore/folder-lg.png", 50%, 50%);
-            background-size: 15px 15px;
         }
     }
 }
@@ -1121,91 +1103,6 @@
             pointer-events: none;
             opacity: @opacity-disabled;
         }
-    }
-}
-
-// grid-unit
-.gridViewForGrid() {
-    .size(@width: @width-grid, @height: @width-grid);
-    .position(relative);
-    text-align: center;
-    float: left;
-    display: inline-block;
-
-    > .gridIcon {
-        display: inline-block;
-        .size(@width: 35px, @height: @width-grid - 25px);
-    }
-
-    &.ds > .gridIcon {
-        .image("../../images/datastore/db-lg.png", 50%, 50%);
-    }
-
-    &.folder > .gridIcon {
-        .image("../../images/datastore/folder-lg.png", 50%, 50%);
-    }
-
-    > .label {
-        .position(relative, @top: -2px);
-        .size(@width: @width-grid, @height: 20px);
-        .font(@size: 9px, @weight: 600);
-        line-height: 10px;
-        white-space: normal;
-        word-break: break-word;
-        overflow: hidden;
-        padding: 0 4px;
-    }
-
-    &.inactive {
-        .icon, .label {
-            opacity: 0.5;
-        }
-    }
-}
-
-.listViewForGrid() {
-    .position(relative);
-    display: block;
-    clear: both;
-    float: none;
-    .size(@width: 100%);
-    text-align: left;
-
-    > .label {
-        .font(@size: 11px);
-        padding: 0 10px;
-    }
-
-    > .gridIcon {
-        display: inline-block;
-        .size(@width: 25px, @height: 100%);
-        .font(@size: 17px);
-        float: left;
-
-        &:before {
-            display: inline-block;
-            .center-align;
-        }
-    }
-
-    &.ds > .gridIcon {
-        .image("../../images/datastore/db-lg.png", 50%, 50%);
-        background-size: 15px 15px;
-    }
-
-    &.folder > .gridIcon {
-        .image("../../images/datastore/folder-lg.png", 50%, 50%);
-        background-size: 15px 15px;
-    }
-
-    &.target > .gridIcon {
-        .image("../../images/datastore/target-sm.png", 50%, 50%);
-    }
-
-    > .waitingIcon {
-        left: 98px;
-        top: -1px;
-        background-size: 24px 25px;
     }
 }
 
