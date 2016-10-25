@@ -1369,9 +1369,8 @@ window.Dag = (function($, Dag) {
             }
 
             dagAdded = true;
-            var activeWS = WSManager.getActiveWS();
-            var tableWS = WSManager.getWSFromTable(tableId);
-            if (activeWS !== tableWS) {
+
+            if (!WSManager.isTableInActiveWS(tableId)) {
                 $dagWrap.addClass('inActive');
             }
             if (!isWorkspacePanelVisible) {

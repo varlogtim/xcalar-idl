@@ -339,6 +339,11 @@ window.WSManager = (function($, WSManager) {
         return activeWorksheet;
     };
 
+    WSManager.isTableInActiveWS = function(tableId) {
+        var tableWorksheet = WSManager.getWSFromTable(tableId);
+        return (activeWorksheet === tableWorksheet);
+    };
+
     // Add table to worksheet
     WSManager.addTable = function(tableId, worksheetId) {
         // it only add to orphanedTables first, since later we

@@ -516,7 +516,7 @@ describe('ColManager Test', function() {
 
             ColManager.hideCols([colNum], tableId)
             .then(function() {
-                expect($th.outerWidth()).to.equal(gHiddenTableWidth);
+                expect($th.outerWidth()).to.equal(gHiddenColumnWidth);
                 expect(progCol.hasHidden()).to.be.true;
                 
                 return ColManager.unhideCols([colNum], tableId);
@@ -540,7 +540,7 @@ describe('ColManager Test', function() {
 
             ColManager.hideCols([colNum], tableId)
             .then(function() {
-                expect($th.outerWidth()).to.equal(gHiddenTableWidth);
+                expect($th.outerWidth()).to.equal(gHiddenColumnWidth);
                 expect(progCol.hasHidden()).to.be.true;
                 
                 return ColManager.unhideCols([colNum], tableId);

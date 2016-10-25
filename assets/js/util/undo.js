@@ -791,13 +791,13 @@ window.Undo = (function($, Undo) {
             jsonData.push($(this).find('.originalData').text());
         });
 
-        var tHeadBodyInfo = TblManager.generateTheadTbody(currProgCols, tableId);
+        var tableHtml = TblManager.generateTheadTbody(tableId);
         var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
 
-        var tableHtml = tHeadBodyInfo.html;
         $table.html(tableHtml);
 
         TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
+        TblManager.addColListeners($table, tableId);
         TblManager.updateHeaderAndListInfo(tableId);
         moveFirstColumn();
     }

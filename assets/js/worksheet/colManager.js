@@ -1001,7 +1001,7 @@ window.ColManager = (function($, ColManager) {
         var widthDiff = 0;
         var tableWidth = $table.width();
         var promises = [];
-        var animOpt = {"width": gHiddenTableWidth};
+        var animOpt = {"width": gHiddenColumnWidth};
 
         colNums.forEach(function(colNum) {
             var progCol = table.getCol(colNum);
@@ -1010,7 +1010,7 @@ window.ColManager = (function($, ColManager) {
             var originalColWidth = $th.outerWidth();
             var columnName = progCol.getFrontColName();
 
-            widthDiff += (originalColWidth - gHiddenTableWidth);
+            widthDiff += (originalColWidth - gHiddenColumnWidth);
             progCol.hide();
             colNames.push(columnName);
             // change tooltip to show name
@@ -1029,7 +1029,7 @@ window.ColManager = (function($, ColManager) {
 
                 promises.push(innerDeferred.promise());
             } else {
-                $th.outerWidth(gHiddenTableWidth);
+                $th.outerWidth(gHiddenColumnWidth);
                 $cells.addClass("userHidden");
             }
         });
@@ -1070,7 +1070,7 @@ window.ColManager = (function($, ColManager) {
             var progCol = table.getCol(colNum);
             var originalColWidth = progCol.getWidth();
 
-            widthDiff += (originalColWidth - gHiddenTableWidth);
+            widthDiff += (originalColWidth - gHiddenColumnWidth);
             progCol.unhide();
             colNames.push(progCol.getFrontColName());
 

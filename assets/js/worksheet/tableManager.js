@@ -1671,9 +1671,7 @@ window.TblManager = (function($, TblManager) {
         selectCol: number. column to be highlighted when table is ready
     */
     function buildInitialTable(tableId, jsonData, options) {
-        var table = gTables[tableId];
-
-        generateTableShell(table.tableCols, tableId);
+        generateTableShell(tableId);
         var numRows = jsonData.length;
         var startIndex = 0;
         var $table = $('#xcTable-' + tableId);
@@ -1936,6 +1934,13 @@ window.TblManager = (function($, TblManager) {
         }).scroll(function() {
             $(this).scrollLeft(0); // prevent scrolling when colmenu is open
             $(this).scrollTop(0); // prevent scrolling when colmenu is open
+        });
+
+        var $rowGrab = $('#xcTbodyWrap-' + tableId).find('.rowGrab.last');
+        $rowGrab.mousedown(function(event) {
+            if (event.which === 1) {
+                TblAnim.startRowResize($(this), event);
+            }
         });
     }
 
@@ -2450,15 +2455,10 @@ window.TblManager = (function($, TblManager) {
     };
 
     // creates thead and cells but not the body of the table
-    function generateTableShell(columns, tableId) {
-        // var table = gTables[tableId];
-        var activeWS = WSManager.getActiveWS();
-        var tableWS = WSManager.getWSFromTable(tableId);
-        var tableClasses = "";
-        if (activeWS !== tableWS) {
-            tableClasses = 'inActive';
-        }
-        var wrapper =
+    function generateTableShell(tableId) {
+        var isTableInActiveWS = WSManager.isTableInActiveWS(tableId);
+        var tableClasses = isTableInActiveWS ? "" : "inActive";
+        var xcTableWrap =
             '<div id="xcTableWrap-' + tableId + '"' +
                 ' class="xcTableWrap tableWrap ' + tableClasses + '" ' +
                 'data-id="' + tableId + '">' +
@@ -2469,40 +2469,32 @@ window.TblManager = (function($, TblManager) {
         var position = WSManager.getTablePosition(tableId);
 
         if (position === 0) {
-            $('#mainFrame').prepend(wrapper);
+            $('#mainFrame').prepend(xcTableWrap);
         } else {
             var $prevTable = $('.xcTableWrap:not(.tableToRemove)').eq(position - 1);
             if ($prevTable.length !== 0) {
-                $prevTable.after(wrapper);
+                $prevTable.after(xcTableWrap);
             } else {
-                $('#mainFrame').append(wrapper);
+                $('#mainFrame').append(xcTableWrap);
             }
             // we exclude any tables pending removal because otherwise we wouldn't
             // be placing the new table is the proper position
         }
 
-        var tHeadTbodyInfo = TblManager.generateTheadTbody(columns, tableId);
-        var newTable =
+        var tableShell = TblManager.generateTheadTbody(tableId);
+        var tableHtml =
             '<table id="xcTable-' + tableId + '" class="xcTable dataTable" ' +
             'style="width:0px;" data-id="' + tableId + '">' +
-                tHeadTbodyInfo.html +
+                tableShell +
             '</table>' +
             '<div class="rowGrab last"></div>';
 
-        $('#xcTbodyWrap-' + tableId).append(newTable);
-        $('#xcTbodyWrap-' + tableId).find('.rowGrab.last')
-        .mousedown(function(event) {
-            if (event.which === 1) {
-                TblAnim.startRowResize($(this), event);
-            }
-        });
-
-        return (tHeadTbodyInfo.dataIndex);
+        $('#xcTbodyWrap-' + tableId).append(tableHtml);
     }
 
-    // returns {html: html, dataIndex: dataIndex};
-    TblManager.generateTheadTbody = function(columns, tableId) {
-        var newTable =
+    TblManager.generateTheadTbody = function(tableId) {
+        var table = gTables[tableId];
+        var newTableHtml =
             '<thead>' +
               '<tr>' +
                 '<th style="width: 50px;" class="col0 th rowNumHead">' +
@@ -2513,33 +2505,31 @@ window.TblManager = (function($, TblManager) {
                     ' data-placement="top" data-container="body">' +
                   '</div>' +
                 '</th>';
-        var numCols = columns.length;
-        var dataIndex = null;
 
-        for (var i = 0; i < numCols; i++) {
-            var newColid = i + 1;
-            if (columns[i].isDATACol()) {
-                dataIndex = i;
+        var numCols = table.getNumCols();
+        for (var colNum = 1; colNum <= numCols; colNum++) {
+            var progCol = table.getCol(colNum);
+            if (progCol.isDATACol()) {
                 var width;
                 var thClass = "";
-                if (columns[i].isHidden) {
-                    width = 15;
+                if (progCol.hasHidden()) {
+                    width = gHiddenColumnWidth;
                     thClass = " userHidden";
                 } else {
-                    width = columns[i].width;
+                    width = progCol.getWidth();
                 }
-                if (!columns[i].isHidden && width === 'auto') {
+                if (!progCol.hasHidden() && width === 'auto') {
                     width = 400;
                 }
-                newTable += generateDataHeadHTML(newColid, thClass, width);
+                newTableHtml += generateDataHeadHTML(colNum, thClass, width);
             } else {
-                newTable += TblManager.getColHeadHTML(newColid, tableId);
+                newTableHtml += TblManager.getColHeadHTML(colNum, tableId);
             }
         }
 
-        newTable += '</tr></thead><tbody></tbody>';
+        newTableHtml += '</tr></thead><tbody></tbody>';
 
-        return ({"html": newTable, "dataIndex": dataIndex});
+        return newTableHtml;
     };
 
     function generateDataHeadHTML(newColid, thClass, width) {

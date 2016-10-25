@@ -699,7 +699,7 @@ ProgCol.prototype = {
 
     getDisplayWidth: function() {
         if (this.isHidden) {
-            return gHiddenTableWidth;
+            return gHiddenColumnWidth;
         } else {
             return this.width;
         }
