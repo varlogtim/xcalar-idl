@@ -448,23 +448,7 @@ module.exports = {
         "instr": "选择一个类别（如算术功能）。然后选择一个特定的功能，例如加。最后，输入如适用任何参数。列名应该由$符号，如前面$ COLUMN1。"
     },
     "paths": {
-        "dTable": "assets/images/dagIcons/dtable.png",
-        "dagBackground": "assets/images/dagIcons/dag-background.png",
-        "datastoreDemo1": "assets/htmlFiles/walk/datastoreDemo1.html",
-        "datastoreDemo2": "assets/htmlFiles/walk/datastoreDemo2.html",
-        "dbDiamond": "assets/images/dagIcons/dbDiamond.png",
-        "dologout": "assets/htmlFiles/dologout.html",
-        "hourglass": "assets/images/hourglass-white.png",
-        "index": "index.html",
-        "indexAbsolute": "/index.html",
-        "installer": "setup.html",
-        "login": "assets/htmlFiles/login.html",
-        "monitor": "assets/htmlFiles/monitor.html",
-        "roundedRect": "assets/images/dagIcons/rounded-rect.png",
-        "tableau": "assets/htmlFiles/tableau.html",
-        "testAbsolute": "/unitTest.html",
-        "waitIcon": "assets/images/waiting-1.gif",
-        "workbookDemo": "assets/htmlFiles/walk/workbookDemo.html"
+        "tableau": "assets/htmlFiles/tableau.html"
     },
     "profile": {
         "AggSummary": "总结汇总",
