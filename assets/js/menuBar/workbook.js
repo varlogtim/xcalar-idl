@@ -474,8 +474,17 @@ window.Workbook = (function($, Workbook) {
             $newWorkbookInput.val('');
             $lastFocusedInput = '';
         })
-        .fail(function(error) {
-            StatusBox.show(error.error, $newWorkbookInput);
+        .fail(function() {
+            // multiple errors may be returned
+            var error = WKBKTStr.CreateErr;
+            for (var i = 0; i < arguments.length; i++) {
+                if (typeof arguments[i] === "object" &&
+                    typeof arguments[i].error === "string") {
+                    error = arguments[i].error;
+                    break;
+                }
+            }
+            StatusBox.show(error, $newWorkbookInput);
 
             $lastFocusedInput = $newWorkbookInput;
             $newWorkbookInput.focus();
