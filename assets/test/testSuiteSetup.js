@@ -52,7 +52,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             user = "testSuite" + suffixNum;
         }
         // XXX this may need to be replace after we have authentiaction
-        sessionStorage.getItem("xcalar-fullUsername", user);
+        sessionStorage.setItem("xcalar-fullUsername", user);
         sessionStorage.setItem("xcalar-username", user);
     }
 
