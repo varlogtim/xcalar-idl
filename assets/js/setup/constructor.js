@@ -923,7 +923,7 @@ function GenSettings(userConfigParms, options) {
         hideDataCol         : false,
         memoryLimit         : 70,
         monitorGraphInterval: 3,
-        DsDefaultSampleSize : 2 * GB
+        DsDefaultSampleSize : 10 * GB
     };
     defaultSettings = $.extend({}, defaultSettings, userConfigParms);
 
@@ -1080,6 +1080,17 @@ DSFormAdvanceOption.prototype = {
 
         if (hasSet && !$section.hasClass("active")) {
             $section.find(".listInfo .expand").click();
+        }
+    },
+
+    modify: function(options) {
+        options = options || {};
+        var $section = this.$section;
+        
+        if (options.previewSize !== null && options.previewSize > 0) {
+            var $limit = $section.find(".option.limit");
+            $limit.find(".unit").val(options.unit);
+            $limit.find(".size").val(options.sizeText);
         }
     },
 

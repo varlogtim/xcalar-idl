@@ -191,6 +191,10 @@ window.DSPreview = (function($, DSPreview) {
         }
     };
 
+    DSPreview.getAdvanceOption = function() {
+        return advanceOption;
+    }
+
     function setupForm() {
         // setup udf
         $("#dsForm-refresh").click(function() {

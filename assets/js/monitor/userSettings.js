@@ -29,14 +29,10 @@ window.UserSettings = (function($, UserSettings) {
             return (DS.restore(result, atStartup));
         })
         .then(function() {
-            return (XcalarGetConfigParams());
-        })
-        .then(function(res) {
-            userConfigParams = getUserConfigParams(res);
             return (KVStore.getAndParse(KVStore.gSettingsKey, gKVScope.GLOB));
         })
         .then(function(res) {
-            genSettings = new GenSettings(userConfigParams, res);
+            genSettings = new GenSettings({}, res);
             restoreSettingsPanel();
             deferred.resolve();
         })
@@ -156,6 +152,7 @@ window.UserSettings = (function($, UserSettings) {
         addEventListeners();
     }
 
+    // not used but may be in the future
     function getUserConfigParams(params) {
         var numParams = params.numParams;
         params = params.parameter;
@@ -226,6 +223,7 @@ window.UserSettings = (function($, UserSettings) {
                 $input.val($li.text());
                 var size = getDsSampleLimitValue();
                 UserSettings.setPref("DsDefaultSampleSize", size, true);
+                updateDsPreviewLimitInput(size);
             },
             "container": $("#monitorGenSettingsCard"),
             "bounds"   : $("#monitor-settings")
@@ -234,6 +232,7 @@ window.UserSettings = (function($, UserSettings) {
         $dsSampleLimit.on('change', '.size', function() {
             var size = getDsSampleLimitValue();
             UserSettings.setPref("DsDefaultSampleSize", size, true);
+            updateDsPreviewLimitInput(size);
         });
 
         memLimitSlider = new RangeSlider($('#memLimitSlider'), 'memoryLimit', {
@@ -250,18 +249,20 @@ window.UserSettings = (function($, UserSettings) {
         });
 
         $("#userSettingsSave").click(function() {
-            var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
-            XcalarSetConfigParams('DsDefaultSampleSize', dsSampleLimit)
-            .then(function() {
-                $("#autoSaveBtn").click();
-            })
-            .fail(function(err) {
-                Alert.error(MonitorTStr.SavingSettingsFailed, err);
-            });
-            
+            $("#autoSaveBtn").click();      
         });
     }
 
+    function updateDsPreviewLimitInput(size) {
+        var advanceOption = DSPreview.getAdvanceOption();
+        var sizeArr = xcHelper.sizeTranslator(size, true); 
+        advanceOption.modify({
+            previewSize: size, 
+            sizeText: sizeArr[0],
+            unit: sizeArr[1]
+        });
+    }
+           
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref('hideDataCol');
         var memoryLimit = UserSettings.getPref('memoryLimit');

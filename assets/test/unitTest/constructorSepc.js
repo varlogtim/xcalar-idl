@@ -752,7 +752,7 @@ describe('Constructor Test', function() {
             expect(baseSettings).to.have.property('monitorGraphInterval')
             .and.to.equal(3);
             expect(baseSettings).to.have.property('DsDefaultSampleSize')
-            .and.to.equal(2 * GB);
+            .and.to.equal(10 * GB);
         });
 
         it('GenSettings heirarchy should work', function() {
@@ -768,7 +768,7 @@ describe('Constructor Test', function() {
             var userConfigParams = {
                 DsDefaultSampleSize: 2000  
             };
-            // base settings should be 
+            // modified base settings should be 
             // {memoryLimit: 0, monitorGraphInterval: 9, hideDataCol: false}
 
             var genSettings = new GenSettings(userConfigParams, testSettings);
