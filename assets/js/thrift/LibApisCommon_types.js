@@ -2442,6 +2442,7 @@ XcalarApiExportInputT.prototype.write = function(output) {
 XcalarApiAppSetInputT = function(args) {
   this.name = null;
   this.hostType = null;
+  this.duty = null;
   this.execStr = null;
   if (args) {
     if (args.name !== undefined) {
@@ -2449,6 +2450,9 @@ XcalarApiAppSetInputT = function(args) {
     }
     if (args.hostType !== undefined) {
       this.hostType = args.hostType;
+    }
+    if (args.duty !== undefined) {
+      this.duty = args.duty;
     }
     if (args.execStr !== undefined) {
       this.execStr = args.execStr;
@@ -2485,6 +2489,13 @@ XcalarApiAppSetInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRING) {
+        this.duty = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
         this.execStr = input.readString().value;
       } else {
         input.skip(ftype);
@@ -2511,8 +2522,13 @@ XcalarApiAppSetInputT.prototype.write = function(output) {
     output.writeString(this.hostType);
     output.writeFieldEnd();
   }
+  if (this.duty !== null && this.duty !== undefined) {
+    output.writeFieldBegin('duty', Thrift.Type.STRING, 3);
+    output.writeString(this.duty);
+    output.writeFieldEnd();
+  }
   if (this.execStr !== null && this.execStr !== undefined) {
-    output.writeFieldBegin('execStr', Thrift.Type.STRING, 3);
+    output.writeFieldBegin('execStr', Thrift.Type.STRING, 4);
     output.writeString(this.execStr);
     output.writeFieldEnd();
   }

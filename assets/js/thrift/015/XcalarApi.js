@@ -2169,7 +2169,7 @@ function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
     return (deferred.promise());
 }
 
-function xcalarListFilesWorkItem(url, recursive, fileNamePattern, fileListUdfName) {
+function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listFilesInput = new XcalarApiListFilesInputT();
@@ -2178,17 +2178,16 @@ function xcalarListFilesWorkItem(url, recursive, fileNamePattern, fileListUdfNam
     workItem.input.listFilesInput.url = url;
     workItem.input.listFilesInput.recursive = recursive;
     workItem.input.listFilesInput.fileNamePattern = fileNamePattern;
-    workItem.input.listFilesInput.fileListUdfName = fileListUdfName;
     return (workItem);
 }
 
-function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern, fileListUdfName) {
+function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListFiles(url = " + url + ")");
     }
 
-    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern, fileListUdfName);
+    var workItem = xcalarListFilesWorkItem(url, recursive, fileNamePattern);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

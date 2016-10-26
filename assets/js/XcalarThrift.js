@@ -3455,12 +3455,12 @@ function XcalarSupportGenerate() {
     return (deferred.promise());
 }
 
-function XcalarAppSet(name, hostType, execStr) {
+function XcalarAppSet(name, hostType, duty, execStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
-    xcalarAppSet(tHandle, name, hostType, execStr)
+    xcalarAppSet(tHandle, name, hostType, duty, execStr)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAppSet", error);

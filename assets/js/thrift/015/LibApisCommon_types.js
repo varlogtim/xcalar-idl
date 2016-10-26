@@ -534,7 +534,6 @@ XcalarApiListFilesInputT = function(args) {
   this.url = null;
   this.recursive = null;
   this.fileNamePattern = null;
-  this.fileListUdfName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -544,9 +543,6 @@ XcalarApiListFilesInputT = function(args) {
     }
     if (args.fileNamePattern !== undefined) {
       this.fileNamePattern = args.fileNamePattern;
-    }
-    if (args.fileListUdfName !== undefined) {
-      this.fileListUdfName = args.fileListUdfName;
     }
   }
 };
@@ -585,13 +581,6 @@ XcalarApiListFilesInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 4:
-      if (ftype == Thrift.Type.STRING) {
-        this.fileListUdfName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -616,11 +605,6 @@ XcalarApiListFilesInputT.prototype.write = function(output) {
   if (this.fileNamePattern !== null && this.fileNamePattern !== undefined) {
     output.writeFieldBegin('fileNamePattern', Thrift.Type.STRING, 3);
     output.writeString(this.fileNamePattern);
-    output.writeFieldEnd();
-  }
-  if (this.fileListUdfName !== null && this.fileListUdfName !== undefined) {
-    output.writeFieldBegin('fileListUdfName', Thrift.Type.STRING, 4);
-    output.writeString(this.fileListUdfName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -2105,9 +2089,6 @@ XcalarApiDfLoadArgsT = function(args) {
   this.udfLoadArgs = null;
   this.recursive = null;
   this.fileNamePattern = null;
-  this.fileListUdfName = null;
-  this.udfRead = null;
-  this.udfListGlobal = null;
   this.maxSize = null;
   if (args) {
     if (args.csv !== undefined) {
@@ -2121,15 +2102,6 @@ XcalarApiDfLoadArgsT = function(args) {
     }
     if (args.fileNamePattern !== undefined) {
       this.fileNamePattern = args.fileNamePattern;
-    }
-    if (args.fileListUdfName !== undefined) {
-      this.fileListUdfName = args.fileListUdfName;
-    }
-    if (args.udfRead !== undefined) {
-      this.udfRead = args.udfRead;
-    }
-    if (args.udfListGlobal !== undefined) {
-      this.udfListGlobal = args.udfListGlobal;
     }
     if (args.maxSize !== undefined) {
       this.maxSize = args.maxSize;
@@ -2181,27 +2153,6 @@ XcalarApiDfLoadArgsT.prototype.read = function(input) {
       }
       break;
       case 5:
-      if (ftype == Thrift.Type.STRING) {
-        this.fileListUdfName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 6:
-      if (ftype == Thrift.Type.BOOL) {
-        this.udfRead = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 7:
-      if (ftype == Thrift.Type.BOOL) {
-        this.udfListGlobal = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 8:
       if (ftype == Thrift.Type.I64) {
         this.maxSize = input.readI64().value;
       } else {
@@ -2239,23 +2190,8 @@ XcalarApiDfLoadArgsT.prototype.write = function(output) {
     output.writeString(this.fileNamePattern);
     output.writeFieldEnd();
   }
-  if (this.fileListUdfName !== null && this.fileListUdfName !== undefined) {
-    output.writeFieldBegin('fileListUdfName', Thrift.Type.STRING, 5);
-    output.writeString(this.fileListUdfName);
-    output.writeFieldEnd();
-  }
-  if (this.udfRead !== null && this.udfRead !== undefined) {
-    output.writeFieldBegin('udfRead', Thrift.Type.BOOL, 6);
-    output.writeBool(this.udfRead);
-    output.writeFieldEnd();
-  }
-  if (this.udfListGlobal !== null && this.udfListGlobal !== undefined) {
-    output.writeFieldBegin('udfListGlobal', Thrift.Type.BOOL, 7);
-    output.writeBool(this.udfListGlobal);
-    output.writeFieldEnd();
-  }
   if (this.maxSize !== null && this.maxSize !== undefined) {
-    output.writeFieldBegin('maxSize', Thrift.Type.I64, 8);
+    output.writeFieldBegin('maxSize', Thrift.Type.I64, 5);
     output.writeI64(this.maxSize);
     output.writeFieldEnd();
   }

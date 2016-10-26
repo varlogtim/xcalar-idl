@@ -520,7 +520,8 @@ StatusT = {
   'StatusFaultInjection' : 511,
   'StatusFaultInjection2PC' : 512,
   'StatusExportAppNotExist' : 513,
-  'StatusSessionBadActiveNode' : 514
+  'StatusSessionBadActiveNode' : 514,
+  'StatusNoXdbPageBcMem' : 515
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1036,5 +1037,6 @@ StatusTStr = {0 : 'Success',
 511 : 'Fault injection point triggered',
 512 : 'Fault injection set in 2 phase commit',
 513 : 'Export Application does not exist',
-514 : 'Cannot resume session on this node'
+514 : 'Cannot resume session on this node',
+515 : 'Out of resources (XdbPages)'
 };

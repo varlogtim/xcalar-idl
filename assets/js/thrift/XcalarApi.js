@@ -224,7 +224,7 @@ function xcalarSetConfigParam(thriftHandle, paramName, paramValue) {
     return (deferred.promise());
 }
 
-function xcalarAppSetWorkItem(name, hostType, execStr) {
+function xcalarAppSetWorkItem(name, hostType, duty, execStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.api = XcalarApisT.XcalarApiAppSet;
@@ -232,17 +232,19 @@ function xcalarAppSetWorkItem(name, hostType, execStr) {
     workItem.input.appSetInput = new XcalarApiAppSetInputT();
     workItem.input.appSetInput.name = name;
     workItem.input.appSetInput.hostType = hostType;
+    workItem.input.appSetInput.duty = duty;
     workItem.input.appSetInput.execStr = execStr;
     return (workItem);
 }
 
-function xcalarAppSet(thriftHandle, name, hostType, execStr) {
+function xcalarAppSet(thriftHandle, name, hostType, duty, execStr) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAppSet(name = " + name +
-                    ", hostType = " + hostType);
+                    ", hostType = " + hostType + ", duty = " +
+                   duty + ")");
     }
-    var workItem = xcalarAppSetWorkItem(name, hostType, execStr);
+    var workItem = xcalarAppSetWorkItem(name, hostType, duty, execStr);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
