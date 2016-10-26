@@ -626,7 +626,7 @@ module.exports = {
         "map": "Map",
         "category": "Category",
         "function": "Function",
-        "erroneousRows": "View only erroneous rows",
+        "erroneousRows": "Include only ICV rows",
         "filterFunc": "Filter Function",
         "noFunc": "No Function Chosen",
         "additional": "Additional Conditions",
@@ -634,7 +634,7 @@ module.exports = {
         "AddAnotherColumn": "ADD ANOTHER COLUMN",
         "funcToGroup": "Function to apply to group",
         "joinBack": "Join table back to original",
-        "includeSample": "Include a sample of the rest of the fields",
+        "includeSample": "Keep all columns",
         "aggFunc": "Aggregate Function",
         "mapFilter": "Search map functions"
     },

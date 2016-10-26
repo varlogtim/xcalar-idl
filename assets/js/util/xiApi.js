@@ -774,7 +774,13 @@ window.XIApi = (function(XIApi, $) {
                     }
                     deferred.resolve(newTableName, shouldIndex);
                 })
-                .fail(deferred.reject);
+                .fail(function(error) {
+                    if (error.code === StatusT.StatusAlreadyIndexed) {
+                        deferred.resolve(unsortedTable, false);
+                    } else {
+                        deferred.reject(error);
+                    }
+                });
             } else {
                 console.log(tableName, "indexed correctly!");
                 deferred.resolve(unsortedTable, shouldIndex);
