@@ -104,6 +104,7 @@ window.ExportView = (function($, ExportView) {
                     $li.addClass('selected');
                     tableId = $li.data('id');
                     $table = $('#xcTable-' + tableId);
+                    checkSortedTable();
                     clearAllCols();
                     refreshTableColList();
                     selectAllCols();
@@ -131,14 +132,7 @@ window.ExportView = (function($, ExportView) {
                 var type = $li.data('type');
                 $exportPath.data('type', type);
 
-                // only show export in sorted order if file stystem
-                if (parseInt(type) === ExTargetTypeT.ExTargetSFType) {
-                    $exportView.find('.exportRowOrderSection')
-                                .removeClass('xc-hidden');
-                } else {
-                    $exportView.find('.exportRowOrderSection')
-                                .addClass('xc-hidden');
-                }
+                checkSortedTable();
             }
         });
         expList.setupListeners();
@@ -204,6 +198,7 @@ window.ExportView = (function($, ExportView) {
 
         var tableName = gTables[tableId].tableName;
         exportTableName = tableName;
+        // remove underscores
         $exportName.val(tableName.split('#')[0].replace(/[\W_]+/g, "")).focus();
         $exportName[0].select();
         restoreAdvanced();
@@ -279,9 +274,9 @@ window.ExportView = (function($, ExportView) {
         var deferred = jQuery.Deferred();
 
         var keepOrder = false;
-        if (parseInt($exportPath.data('type')) === ExTargetTypeT.ExTargetSFType
-            && $exportView.find('.keepOrderedCBWrap')
-                          .find('.checkbox.checked').length) {
+        if (checkSortedTable() && 
+            $exportView.find('.keepOrderedCBWrap')
+                        .find('.checkbox.checked').length) {
             keepOrder = true;
         }
 
@@ -493,13 +488,7 @@ window.ExportView = (function($, ExportView) {
         $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());
         var type = $defaultLi.data('type');
         $exportPath.data('type', type);
-        if (parseInt(type) === ExTargetTypeT.ExTargetSFType) {
-            $exportView.find('.exportRowOrderSection')
-                        .removeClass('xc-hidden');
-        } else {
-            $exportView.find('.exportRowOrderSection')
-                        .addClass('xc-hidden');
-        }
+        checkSortedTable();
     }
 
     function addColumnSelectListeners() {
@@ -604,6 +593,33 @@ window.ExportView = (function($, ExportView) {
         }
     }
 
+    // we only allow option to preserve sorted order if the current table
+    // is already sorted and the export target is SFType
+    function checkSortedTable() {
+        var exportType = $exportPath.data('type');
+
+        var isTableOrdered = false;
+        var backTableMeta = gTables[tableId].backTableMeta;
+        if (backTableMeta) {
+            var order = backTableMeta.ordering;
+            if (order === XcalarOrderingT.XcalarOrderingAscending ||
+                order === XcalarOrderingT.XcalarOrderingDescending) {
+                isTableOrdered = true;
+            }
+        }
+
+        if (isTableOrdered &&
+            parseInt(exportType) === ExTargetTypeT.ExTargetSFType) {
+            $exportView.find('.exportRowOrderSection')
+                        .removeClass('xc-hidden');
+            return true;
+        } else {
+            $exportView.find('.exportRowOrderSection')
+                        .addClass('xc-hidden');
+            return false;
+        }
+    }
+
     function fillTableList(refresh) {
         var tableLis = xcHelper.getWSTableList();
         var $tableListSection = $exportView.find('.tableListSection');
@@ -615,6 +631,7 @@ window.ExportView = (function($, ExportView) {
         } else {
             tableName = gTables[tableId].getName();
             $tableListSection.find('.dropDownList .text').text(tableName);
+            checkSortedTable();
         }
 
         $tableListSection.find('li').filter(function() {
