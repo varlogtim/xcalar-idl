@@ -560,7 +560,7 @@ module.exports = {
         "location": "Export Location",
         "exportFilename": "Export Filename",
         "colsToExport": "Columns to export",
-        "exportInOrder": "Export Rows in Sorted Order (slow)",
+        "exportInOrder": "Preserve order (slow)",
         "restoreDefaults": "RESTORE DEFAULTS",
         "CurrentColName": "Current Name",
         "NewColName": "New Name"
