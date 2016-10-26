@@ -65,10 +65,7 @@ window.TblManager = (function($, TblManager) {
                                                {"isActive": true});
             }
         } else {
-            var setOptions = {
-                "isActive"       : true,
-                "tableProperties": options.tableProperties
-            };
+            var setOptions = {"isActive": true};
             promise = TblManager.setgTable(newTableName, tableCols, setOptions);
         }
 
@@ -246,26 +243,22 @@ window.TblManager = (function($, TblManager) {
 
     /*
         Sets gTable meta data
-        Possible Options:
-        tableProperties: an object containing bookmarks and rowheights;
-
     */
     TblManager.setgTable = function(tableName, tableCols, options) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         options = options || {};
-        var tableProperties = options.tableProperties;
+
+        if (tableCols == null) {
+            // at last have data col
+            tableCols = [ColManager.newDATACol()];
+        }
 
         var table = new TableMeta({
             "tableId"  : tableId,
             "tableName": tableName,
             "tableCols": tableCols
         });
-
-        if (tableProperties) {
-            table.bookmarks = tableProperties.bookmarks || [];
-            table.rowHeights = tableProperties.rowHeights || {};
-        }
 
         if (options.isActive) {
             // the table is in active worksheet, should have meta from backend
@@ -288,14 +281,11 @@ window.TblManager = (function($, TblManager) {
 
     /*
         Sets gTable meta data, specially for orphan table
-        Possible Options:
-        tableProperties: an object containing bookmarks and rowheights;
     */
-    TblManager.setOrphanTableMeta = function(tableName, tableCols, options) {
-        options = options || {};
+    TblManager.setOrphanTableMeta = function(tableName, tableCols) {
         if (tableCols == null) {
             // at last have data col
-            tableCols = ColManager.newDATACol();
+            tableCols = [ColManager.newDATACol()];
         }
 
         var tableId = xcHelper.getTableId(tableName);
@@ -305,12 +295,6 @@ window.TblManager = (function($, TblManager) {
             "tableCols": tableCols,
             "status"   : TableType.Orphan
         });
-
-        var tableProperties = options.tableProperties;
-        if (tableProperties) {
-            table.bookmarks = tableProperties.bookmarks || [];
-            table.rowHeights = tableProperties.rowHeights || {};
-        }
 
         gTables[tableId] = table;
 
