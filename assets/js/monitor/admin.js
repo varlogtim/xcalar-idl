@@ -10,6 +10,7 @@ window.Admin = (function($, Admin) {
         //xx temp hack  to determine admin
         if (localStorage.admin === "true") {
             gAdmin = true;
+            $('#container').addClass('admin');
         }
         $menuPanel = $('#monitorMenu-setup');
         $userList = $menuPanel.find('.userList');
