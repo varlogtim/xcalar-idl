@@ -74,8 +74,9 @@ window.DSTable = (function($, DSTable) {
                 // when network is slow and user trigger another
                 // get sample table code will goes here
                 return PromiseHelper.reject(notLastDSError);
+            } else if (dsObj.getError() != null) {
+                return PromiseHelper.reject(DSTStr.PointErr);
             }
-
             clearTimeout(timer);
             setupViewAfterLoading();
             getSampleTable(dsObj, jsonKeys, jsons);
@@ -113,6 +114,10 @@ window.DSTable = (function($, DSTable) {
                     errorText += "\n" + DSTStr.NoRecrodsHint;
                 }
             } else {
+                if (typeof loadError === "object") {
+                    loadError = loadError.error;
+                }
+
                 errorText += "\n" + loadError;
             }
 
@@ -120,10 +125,10 @@ window.DSTable = (function($, DSTable) {
             $errorSection.find(".error").html(errorText);
             if (errorMsg === DSTStr.NoRecords) {
                 // the way to detect if need reset limit might be buggy
-                $errorSection.find(".limit").removeClass("xc-hidden");
+                $errorSection.find(".limit, .or").removeClass("xc-hidden");
                 advanceOption.reset();
             } else {
-                $errorSection.find(".limit").addClass("xc-hidden");
+                $errorSection.find(".limit, .or").addClass("xc-hidden");
             }
 
             deferred.reject(error);

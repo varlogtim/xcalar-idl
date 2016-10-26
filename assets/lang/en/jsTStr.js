@@ -518,7 +518,8 @@ DSTStr = {
     'TableName': 'Table Name',
     'ColPrefix': 'Column Prefix',
     'ShowAdvOpt': 'Show Advanced Option',
-    'HideAdvOpt': 'Hide Advanced Option'
+    'HideAdvOpt': 'Hide Advanced Option',
+    'PointErr': 'Cannot Point to the dataset'
 };
 
 DSFormTStr = {

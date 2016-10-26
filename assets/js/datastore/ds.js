@@ -535,9 +535,7 @@ window.DS = (function ($, DS) {
             deferred.resolve(dsObj);
         })
         .fail(function(error) {
-            if (dsObj.getError() != null) {
-                dsObj.setError(error);
-            }
+            dsObj.setError(error);
             finishPoint();
             DS.focusOn($grid);
 
@@ -567,7 +565,7 @@ window.DS = (function ($, DS) {
 
             dsObj.release()
             .then(function() {
-                return XcalarDestroyDataset(dsObj.getFullName(), txId);
+                return destroyDataset(dsObj.getFullName(), txId);
             })
             .then(innerDeferred.resolve)
             .fail(innerDeferred.reject);
@@ -617,7 +615,7 @@ window.DS = (function ($, DS) {
 
         dsObj.release()
         .then(function() {
-            return XcalarDestroyDataset(dsName, txId);
+            return destroyDataset(dsName, txId);
         })
         .then(function() {
             //clear data cart
@@ -655,6 +653,27 @@ window.DS = (function ($, DS) {
                 "noAlert": noAlert
             });
             deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+     function destroyDataset(dsName, txId) {
+        var deferred = jQuery.Deferred();
+
+        XcalarDestroyDataset(dsName, txId)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            if (error.status === StatusT.StatusNsNotFound ||
+                error.status === StatusT.StatusDsNotFound)
+            {
+                // this error means the ds is not created,
+                // it's nomral when point to ds fail but gui still has
+                // the grid icon
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
         });
 
         return deferred.promise();
@@ -796,7 +815,7 @@ window.DS = (function ($, DS) {
                     "sql"      : sql
                 });
 
-                XcalarDestroyDataset(dsName, txId)
+                destroyDataset(dsName, txId)
                 .then(function() {
                     Transaction.done(txId, {
                         "noCommit": true,
@@ -1184,7 +1203,26 @@ window.DS = (function ($, DS) {
     function refreshHelper() {
         xcHelper.showRefreshIcon($gridView);
         restoreDS(DS.getHomeDir())
-        .then(KVStore.commit);
+        .then(function() {
+            cleanFocusedDSIfNecessary();
+            KVStore.commit();
+        });
+
+        function cleanFocusedDSIfNecessary() {
+            var dsId = DSTable.getId();
+            if (dsId == null) {
+                return;
+            }
+
+            var dsObj = DS.getDSObj(dsId);
+            if (dsObj == null) {
+                // when this ds is not there after refresh
+                 DSCart.removeCart(dsId);
+                // clear data table
+                $("#dsTableWrap").empty();
+                focusOnFirstDS();
+            }
+        }
     }
 
     function renameHelper($label, dsId) {
