@@ -2340,7 +2340,7 @@ function XcalarQueryDelete(qName) {
 
 /**
  * XcalarCancelOp
- * @param {Array} statusesToIgnore array of status numbers to ignore
+ * @param {Array} statusesToIgnore - array of status numbers to ignore
  *      (when attempting to cancel a query, we cancel all future subqueries
  *      even when the dstTableName doesn't exist yet -- this produces errors)
  */

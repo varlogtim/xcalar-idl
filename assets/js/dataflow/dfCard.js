@@ -6,6 +6,7 @@ window.DFCard = (function($, DFCard) {
     var $header;        // $dfCard.find('.cardHeader h2');
     var $retTabSection; // $dfCard.find('.retTabSection');
     var $retLists;      // $("#retLists");
+    var canceledRuns = {};
 
     var retinaTrLen = 7;
     var retinaTr = '<div class="row unfilled">' +
@@ -281,14 +282,25 @@ window.DFCard = (function($, DFCard) {
 
         $dfCard.on("click", ".runNowBtn", function() {
             var $btn = $(this);
-            var retName = $("#dfgMenu .listSection").find(".selected .groupName")
-                                                    .text();
-            $btn.addClass("running");
+            var retName = $("#dfgMenu .listSection")
+                                .find(".selected .groupName").text();
+            if ($btn.hasClass('canceling') || canceledRuns[retName]) {
+                return;
+            }
+            if ($btn.hasClass('running')) {
+                cancelDF(retName, $btn);
+            } else {
+                $btn.addClass("running");
+                xcTooltip.changeText($btn, DFTStr.Cancel);
+                xcTooltip.refresh($btn);
 
-            runDF(retName)
-            .always(function() {
-                $btn.removeClass("running");
-            });
+                runDF(retName)
+                .always(function() {
+                    delete canceledRuns[retName];
+                    $btn.removeClass("running canceling");
+                    xcTooltip.changeText($btn, DFTStr.Run);
+                }); 
+            }
         });
     }
 
@@ -327,6 +339,7 @@ window.DFCard = (function($, DFCard) {
                         'data-placement="top" data-original-title="' +
                         DFTStr.Run + '">' +
                             '<i class="icon xi-arrow-right"></i>' +
+                            '<i class="icon xi-close"></i>' +
                             '<div class="spin"></div>' +
                         '</button>' +
                     '</div>' +
@@ -624,7 +637,7 @@ window.DFCard = (function($, DFCard) {
 
         XcalarExecuteRetina(retName, paramsArray)
         .then(function() {
-            /// XXX TODO: add sql
+             /// XXX TODO: add sql
             Alert.show({
                 "title"  : DFTStr.RunDone,
                 "msg"    : DFTStr.RunDoneMsg,
@@ -633,11 +646,48 @@ window.DFCard = (function($, DFCard) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(DFTStr.RunFail, error);
+            // do not show alert if op was canceled and has cancel error msg
+            if (typeof error === "object" &&
+                error.status === StatusT.StatusCanceled &&
+                canceledRuns[retName]) {
+                Alert.show({
+                   "title":  StatusMessageTStr.CancelSuccess,
+                   "msg" : DFTStr.CancelSuccessMsg,
+                   "isAlert": true
+                });
+            } else {
+                Alert.error(DFTStr.RunFail, error);
+            }
+            
             deferred.reject(error);
         });
 
         return (deferred.promise());
+    }
+
+    function cancelDF(retName, $btn) {
+        var deferred = jQuery.Deferred();
+
+        $btn.addClass('canceling');
+        xcTooltip.changeText($btn, StatusMessageTStr.Canceling);
+        xcTooltip.refresh($btn);
+        canceledRuns[retName] = true;
+
+        XcalarQueryCancel(retName)
+        .then(function() {
+            deferred.resolve(arguments);
+        })
+        .fail(function(error) {
+            delete canceledRuns[retName];
+            if ($btn.hasClass('running')) {
+                xcTooltip.changeText($btn, DFTStr.Cancel);
+            }
+            $btn.removeClass('canceling');
+            Alert.error(StatusMessageTStr.CancelFail, error);
+            deferred.reject(arguments);
+        });
+
+        return deferred.promise();
     }
 
     return (DFCard);

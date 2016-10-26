@@ -196,8 +196,7 @@
             top: -5px;
 
             &.running {
-                pointer-events: none;
-                .icon {
+                .xi-arrow-right {
                     visibility: hidden;
                     opacity: 0;
                 }
@@ -206,11 +205,34 @@
                     visibility: visible;
                     opacity: 1;
                 }
+
+                &:not(.canceling):hover {
+                    background-color: @color-bg-lockedIcon-cancel-light;
+                    .spin {
+                        opacity: 0;
+                        .transition(opacity 0s);
+                    }
+                    .xi-close {
+                        visibility: visible;
+                        opacity: 1;
+                    }
+                }
+            }
+
+            &.canceling {
+                background-color: @color-bg-lockedIcon-cancel-light;
             }
 
             .icon {
                 font-size: 14px;
                 .transition(opacity 1s);
+            }
+
+            .xi-close {
+                visibility: hidden;
+                opacity: 0;
+                .transition(opacity 0s);
+                .position(absolute, 0px, 0px);
             }
 
             .spin {
