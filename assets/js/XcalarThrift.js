@@ -425,9 +425,13 @@ function XcalarGetLicense() {
 }
 
 // Call this exactly with the url and isRecur that you
-function XcalarPreview(url, isRecur, isRegex, numBytesRequested) {
+function XcalarPreview(url, isRecur, isRegex, numBytesRequested, offset) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
+    }
+
+    if (offset == null) {
+        offset = 0;
     }
 
     var deferred = jQuery.Deferred();
@@ -438,8 +442,8 @@ function XcalarPreview(url, isRecur, isRegex, numBytesRequested) {
     var fileNamePattern = fileNameArray[1];
     var urlPart = fileNameArray[0];
 
-    xcalarPreview(tHandle, urlPart, fileNamePattern, isRecur, numBytesRequested,
-                  0)
+    xcalarPreview(tHandle, urlPart, fileNamePattern, isRecur,
+                    numBytesRequested, offset)
     .then(function(ret) {
         // previewOutput has a jsonOutput field which is a json formatted string
         // which has several fields of interest:

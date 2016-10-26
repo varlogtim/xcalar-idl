@@ -148,7 +148,7 @@ window.DSPreview = (function($, DSPreview) {
 
         resetForm();
         loadArgs.set(options);
-        advanceOption.set(optoins);
+        advanceOption.set(options);
 
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");

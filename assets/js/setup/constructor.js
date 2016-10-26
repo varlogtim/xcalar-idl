@@ -1291,6 +1291,19 @@ function CartItem(options) {
     return this;
 }
 
+// fileBrowser.js
+function FilePreviewer(url) {
+    this.url = url;
+    return this;
+}
+
+FilePreviewer.prototype = {
+    view: function(offset, numBytesRequested) {
+        var url = this.url;
+        return XcalarPreview(url, false, false, numBytesRequested, offset);
+    }
+};
+
 // worksheet.js
 function WSMETA(options) {
     options = options || {};

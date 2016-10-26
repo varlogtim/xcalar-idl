@@ -9,6 +9,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var $visibleFiles;   // will hold nonhidden files
 
     var fileBrowserId;
+    var filePreviewer;
 
     /* Contants */
     var defaultSortKey  = "type"; // default is sort by type;
@@ -38,6 +39,9 @@ window.FileBrowser = (function($, FileBrowser) {
         $pathSection = $("#fileBrowserPath");
         $pathLists = $("#fileBrowserPathMenu");
         $visibleFiles = $();
+
+        FilePreviewer.setup();
+
         if (!window.isBrowseChrome) {
             lowerFileLimit = 600;
             upperFileLimit = subUpperFileLimit;
@@ -57,11 +61,14 @@ window.FileBrowser = (function($, FileBrowser) {
                 clear();
 
                 $grid.addClass("active");
+                if (isDS($grid)) {
+                    previewDS($grid);
+                }
             },
             "dblclick": function() {
                 var $grid = $(this);
 
-                if ($grid.hasClass("ds")) {
+                if (isDS($grid)) {
                     // dblclick a dataset to import
                     sumbitForm($grid);
                 } else {
@@ -1284,6 +1291,19 @@ window.FileBrowser = (function($, FileBrowser) {
                            parseInt($grid.css('margin-top')) +
                            parseInt($grid.css('margin-bottom'));
         }
+    }
+
+    function isDS($grid) {
+        return $grid.hasClass("ds");
+    }
+
+    function previewDS($grid) {
+        return;
+        // XXX temporary disable it
+        var currentPath = getCurrentPath();
+        var gridName = getGridUnitName($grid);
+        var url = currentPath + gridName;
+        FilePreviewer.show(url);
     }
 
     /* Unit Test Only */
