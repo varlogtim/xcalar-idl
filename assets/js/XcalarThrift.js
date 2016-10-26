@@ -416,7 +416,10 @@ function XcalarGetLicense() {
 
     xcalarGetLicense(tHandle)
     .then(deferred.resolve)
-    .fail(deferred.reject);
+    .fail(function(ret) {
+        console.error("Your license has not been properly set up!");
+        deferred.resolve(ret);
+    });
 
     return (deferred.promise());
 }
