@@ -60,13 +60,13 @@ ExAddTargetSFInputT.prototype.write = function(output) {
 
 ExAddTargetUDFInputT = function(args) {
   this.url = null;
-  this.udfName = null;
+  this.appName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
     }
-    if (args.udfName !== undefined) {
-      this.udfName = args.udfName;
+    if (args.appName !== undefined) {
+      this.appName = args.appName;
     }
   }
 };
@@ -93,7 +93,7 @@ ExAddTargetUDFInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.udfName = input.readString().value;
+        this.appName = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -114,9 +114,9 @@ ExAddTargetUDFInputT.prototype.write = function(output) {
     output.writeString(this.url);
     output.writeFieldEnd();
   }
-  if (this.udfName !== null && this.udfName !== undefined) {
-    output.writeFieldBegin('udfName', Thrift.Type.STRING, 2);
-    output.writeString(this.udfName);
+  if (this.appName !== null && this.appName !== undefined) {
+    output.writeFieldBegin('appName', Thrift.Type.STRING, 2);
+    output.writeString(this.appName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

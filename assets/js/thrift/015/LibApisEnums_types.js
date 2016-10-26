@@ -94,7 +94,9 @@ XcalarApisT = {
   'XcalarApiSetConfigParam' : 85,
   'XcalarApiAppSet' : 86,
   'XcalarApiGetLicense' : 87,
-  'XcalarApiFunctionInvalid' : 88
+  'XcalarApiAppRun' : 88,
+  'XcalarApiAppReap' : 89,
+  'XcalarApiFunctionInvalid' : 90
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -184,5 +186,7 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 85 : 'XcalarApiSetConfigParam',
 86 : 'XcalarApiAppSet',
 87 : 'XcalarApiGetLicense',
-88 : 'XcalarApiFunctionInvalid'
+88 : 'XcalarApiAppRun',
+89 : 'XcalarApiAppReap',
+90 : 'XcalarApiFunctionInvalid'
 };

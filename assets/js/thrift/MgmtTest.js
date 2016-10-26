@@ -2583,7 +2583,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testListFiles(test) {
-        xcalarListFiles(thriftHandle, "nfs:///", false)
+        xcalarListFiles(thriftHandle, "nfs:///", false, "")
         .done(function(listFilesOutput) {
             printResult(listFilesOutput);
 
