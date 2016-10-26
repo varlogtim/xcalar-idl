@@ -104,6 +104,8 @@ window.TestSuite = (function($, TestSuite) {
     };
 
     TestSuite.run = function(hasAnimation, toClean) {
+        console.info("If you are on VPN / slow internet, please set " +
+                    "gLongTestSuite = 2");
         var finalDeferred = jQuery.Deferred();
         var initialDeferred = jQuery.Deferred();
         var deferred = initialDeferred;
@@ -436,7 +438,7 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             $("#selectDSCols").click();
 
-            var nestDeffered = jQuery.Deferred();
+            var nestDefered = jQuery.Deferred();
 
             setTimeout(function() {
                 tableName = $("#dataCart .tableNameEdit").val();
@@ -445,11 +447,11 @@ window.TestSuite = (function($, TestSuite) {
                 $("#dataCart-submit").click();
 
                 checkExists(header)
-                .then(nestDeffered.resolve)
-                .fail(nestDeffered.erject);
-            }, 300);
+                .then(nestDefered.resolve)
+                .fail(nestDefered.erject);
+            }, 300*slowInternetFactor);
 
-            return nestDeffered.promise();
+            return nestDefered.promise();
         })
         .then(function() {
             var $header = $(header);
@@ -463,7 +465,7 @@ window.TestSuite = (function($, TestSuite) {
                     prefix = text;
                     return false; // stop loop
                 }
-            })
+            });
 
             innerDeferred.resolve(tableName + hasName, prefix);
         })
@@ -484,7 +486,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#dsForm-dsName").val(dsName);
             // auto detect should fill in the form
             $("#importDataForm .buttonSection .confirm:not(.createTable)").click();
-            
+
             var dsIcon = getDSIcon(dsName);
             return checkExists(dsIcon);
         })
@@ -1017,7 +1019,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#mainJoin .leftClause").eq(0).val(lCol1).change();
             $("#mainJoin .rightClause").eq(0).val("DayofMonth_integer").change();
             // add another clause
-            $("#mainJoin .joinClause.placeholder .btn").click();
+            $("#mainJoin .placeholder .btn").click();
             $("#mainJoin .leftClause").eq(1).val(lCol2).change();
             $("#mainJoin .rightClause").eq(1).val("DayOfWeek_integer").change();
 
@@ -1025,7 +1027,6 @@ window.TestSuite = (function($, TestSuite) {
             var rTableName = $("#joinRightTableList").find(".text").val();
             var newName = xcHelper.getTableName(lTableName) + '-' +
                             xcHelper.getTableName(rTableName);
-
             $("#joinView .btn.next").click();
             $("#joinTableNameInput").val(newName);
             $("#joinTables").click();
@@ -1245,7 +1246,7 @@ window.TestSuite = (function($, TestSuite) {
         // on dfgModal
         dfgName = "testDfg" + randInt(); // globals in the module
         $("#newDFNameInput").val(dfgName);
-        
+
         var $section = $("#dfCreateView");
         $section.find(".selectAllWrap").click();
         // $section.find("li .text:contains('newclassid_string')")
@@ -1382,8 +1383,18 @@ window.TestSuite = (function($, TestSuite) {
             $jsonModal.find(".matched:eq(2) > div .jKey").eq(0)
                       .trigger(fakeEvent.click);
             var $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
-            // xx temp disabled, need to update
-            assert($newTh.find('.editableHead').val().indexOf("time") > -1);
+            // XXX Jerene sees different values everytime. Since this is a json
+            // technically any of the keys are okay, so long as it comes from
+            // the schedule prefix since all of them are matched
+            assert($newTh.find('.editableHead').val().indexOf("days") > -1 ||
+                   $newTh.find('.editableHead').val().indexOf("time") > -1 ||
+                   $newTh.find('.editableHead').val().indexOf("student_ids") >
+                   -1 ||
+                   $newTh.find('.editableHead').val().indexOf("duration") >
+                   -1 ||
+                   $newTh.find('.editableHead').val().indexOf("teacher_id") >
+                   -1 ||
+                   $newTh.find('.editableHead').val().indexOf("class_id") > -1);
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
