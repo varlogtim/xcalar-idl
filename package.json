@@ -1,7 +1,7 @@
 {
-  "name": "xcalar-gui",
-  "version": "1.0.0",
-  "description": "Please see systems' README, which includes instructions for both",
+  "name": "XcalarInsight",
+  "version": "0.9.14.14",
+  "description": "Installs the packages that are required to build Xcalar Insight",
   "main": "Gruntfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,8 +10,9 @@
     "type": "git",
     "url": "git@git:/gitrepos/xcalar-gui.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Xcalar Apps Team",
+  "license": "UNLICENSED",
+  "private": true,
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-cli": "^1.1.0",

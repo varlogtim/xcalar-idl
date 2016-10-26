@@ -1591,7 +1591,7 @@ window.OperationsView = (function($, OperationsView) {
             if (types.indexOf('string') === -1) {
                 $rows.eq(i).find('.emptyStrWrap').remove();
             }
- 
+
             // add "addArg" button if *arg is found in the description
             if (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1) {
