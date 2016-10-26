@@ -1,0 +1,340 @@
+ /* ========== Constants ========== */
+
+ /* Standard */
+@color-white: #FFFFFF;
+@color-black: #000000;
+
+/* Shadow */
+@color-shadow-darkGray: #A6ABAF;
+@color-black-invisible: rgba(0, 0, 0, 0);
+
+/* Tabs */
+@color-tab-border: #4A5D6A;
+@color-tab-borderBlue: #27717C;
+@color-tab-divider: #838383;
+
+/* Backgrounds */
+@color-background-darkdarkGray: #666666;
+@color-background-colIcon-gray: #A0A0A0;
+@color-background-joinGray: #A8A8A8;
+@color-background-udfError: #FFFFAA;
+@color-background-error: #E45B52;
+
+/* Dag */
+@color-dag-textBlue: #4499C5;
+@color-dag-TopGray: #EAEAEA;
+@color-dag-header-border: #A5A5A5;
+@color-dag-highlighted: #0AC9F8;
+@color-dag-schema-selected: rgba(99, 178, 225, 0.25);
+
+/* Dropdown menu colors */
+@color-selectedCell-dark: #D1DEE6;
+@color-selectedCell-light: #DDEAF2;
+@color-menu-shadow: rgba(0,0,0,0.1);
+
+/* Text */
+@color-text-black: #0F0F0F;
+@color-text-blue: #398EB6;
+@color-text-lightGray: #B6B6B6;
+@color-text-midGray: #6E6E6E;
+@color-text-midlightGray: #787878;
+@color-text-cyan: #CDF1F6;
+@color-text-error: #E45B52;
+@color-text-fnBar-blue: #242C31;
+@color-text-placeholder: #E1E1E1;
+@color-text-graySoft: #AFAFAF;
+@color-text-darkdarkGray: #666666;
+@color-text-softGray: #838383;
+@color-text-udfError: #C62C22;
+@color-text-macaroniAndCheese: #F5C22E;
+
+/* Table Color Scheme */
+@color-table-red: #F46D73;
+@color-table-lightGray: #F5F5F5;
+@color-table-midGray: #EDEDED;
+@color-table-col-darkGray: #DBDBDB;
+@color-table-col-lightGreen: #EAF5EA;
+@color-table-col-green: #E3EDE2;
+@color-table-indexed-lightBlue: #E9EFF4;
+@color-table-indexed-blue: #E1E7EC;
+@color-table-borderBlue: #266481;
+@colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
+@colorOpaque-blue: rgba(150,180,205, 0.2);
+@color-table-cover: rgba(0,0,0,0.3);
+@color-table-preview-highlight: rgba(91, 178, 233, 0.5);
+@color-fauxCol-shadow: rgba(100,100,100,.05);
+@color-fauxTable-outline: rgba(0,0,0,.1);
+@color-table-after-gray: #B8B8B8;
+@color-table-border-darkened: #BBBBBB;
+@color-table-border-gray: #9E9E9E;
+
+/* JSON Modal */
+@color-json-default: #FFA633;
+@color-json-active-bar: #C5E1F1;
+@color-json-options-bar: #DEDEDE;
+@color-json-button: #BCBCBC;
+@color-json-key: #002D41;
+@color-json-string: #2B594F;
+@color-json-num: #E74A5F;
+@color-json-array: #9B8920;
+@color-json-partial: #F3DBDC;
+@color-json-partial-shadow: #E56158;
+@color-json-tab: #C0C0C0;
+@color-json-tab-border: #818184;
+@color-json-project-selected: #A0ECFF;
+@color-json-project-bg: #ECFAFF;
+
+/* Profile Modal */
+@color-profile-bar-extra: #DDDDDD;
+@color-profile-bar-extra-highlight: #F1F1F1;
+@color-profile-bar-highlight: #B7E2F3;
+@color-profile-bar-border-highlight: #25B0DE;
+@color-profile-tick-highlight: #5CB2E8;
+@color-profile-bar-selected-border: #2D7694;;
+@color-profile-bar-null-hover: #CA443B;
+@color-profile-selected-bar-extra:  #A4BBC3;
+@color-profile-bar: #5CB2E8;
+@color-profile-bar-hover: #3A9AC2;
+@color-profile-selected-bar: #339ECA;
+@color-profile-bar-null: #E04C42;
+@color-profile-selected-bar-null: #9E2F28;
+
+/* Random Colors */
+@color-mercury: #E9E9E9;
+@color-defaultGray: #888888;
+@color-lightSilverChalice: #B1B1B1;
+@color-iron: #CBD1D6;
+@color-heather: #BFCCD4;
+@color-tasman: #CCD7CC;
+@color-silver: #BDBDBD;
+@color-nightShadz: #AF2F4D;
+@color-turbo: #FFE400;
+@color-chileanHeath: #FFFDE4;
+
+/* Sizes */
+@height-tableTitle: 35px;
+@height-colHeader: 26px;
+@height-colInput: @height-colHeader - 8;
+@height-tableCell: 25px;
+@width-tableCellPadding: 5px;
+@height-colHeaderOuter: @height-colHeader + (@width-tableCellPadding * 2);
+// @height-xcColPrefix: 21px;
+// XXX a temporary hide of prefix part
+@height-xcColPrefix: 0px;
+@height-xcColHeader: @height-xcColPrefix + @height-colHeader;
+@height-xcColHeaderOuter: @height-colHeaderOuter + @height-xcColPrefix;
+
+/**
+ * ---------------------- NEW 2.0 COLORS ----------------------------------
+ * ---------------------- NEW 2.0 COLORS ----------------------------------
+ * ---------------------- NEW 2.0 COLORS ----------------------------------
+ * ---------------------- NEW 2.0 COLORS ----------------------------------
+ * ---------------------- NEW 2.0 COLORS ----------------------------------
+ * ---------------------- NEW 2.0 COLORS ----------------------------------
+ */
+/* Backgrounds */
+// whites and grays
+@color-bg-white-two: #D8D8D8;
+@color-bg-white-three: #F2F2F2;
+@color-bg-white-five: #E6E6E6;
+@color-bg-white-seven: #F8F8F8;
+@color-bg-white-eight: #EAEAEA;
+@color-bg-white-nine: #DDDDDD;
+@color-bg-body-gray: #D6DCDF;
+@color-bg-pinkish-grey: #BEBEBE;
+@color-bg-pinkish-grey2: #CCCCCC;
+@color-bg-topBarGray: #EAEAEA;
+@color-bg-unselect-gray: #9F9F9F;
+@color-bg-99-grey: #999999;
+
+// green
+@color-bg-apple-green: #64B053;
+@color-bg-fern-green: #4F963E;
+@color-bg-java-green: #259286;
+
+// yellow
+@color-bg-gold: #FECF33;
+@color-bg-tahiti-gold: #E7762D;
+@color-bg-newWB-orange: #FFC22E;
+@color-macaroni-and-cheese: #F5C22E;
+
+// red
+@color-error-border: #C71F36;
+@color-error-border-light: #D76272;
+@color-bg-red-hover: #8E1022;
+
+// blues
+@color-bg-marine: #0A3549;
+@color-bg-dark-marine: #062330;
+@color-bg-marine-transparent: #335667;
+@color-bg-wkbk-blue: #008EB4;
+@color-bg-select-blue: #378CB3;
+@color-bg-dusk-blue: #1E6688; // active main tab & mainmenu background
+@color-bg-dusk-blue-up: #236E90;
+@color-bg-light-navy: #154f69; // inactive sub tab
+@color-bg-tiber-blue: #062330; // table list tab
+@color-bg-boston-blue: #3C8DB1;
+@color-bg-btn-hover-blue: #046EA1;
+@color-bg-softBlue: #5CB2E8;
+@color-bg-bright-light-blue: #38CBFF; // bookmark tick, help headings
+@color-bg-activeWB-blue: #0090B5;
+@color-bg-limedSpruce: #36444D;
+@color-bg-light-blue-grey: #DDEAF2;
+@color-bg-graph-one: #B4DCD5;
+@color-bg-graph-two: #5DB9C4;
+@color-bg-graph-three: #5A9FC8;
+@color-bg-graph-gray: #EEEEEE;
+@color-bg-charcoal-grey: #2E3A42; // tooltip uses .9 opacity of this color
+@color-tooltip-border:  #36444d; 
+@color-bg-info-blue: #73AEC9;
+@color-bg-lockedIcon-light: rgba(4, 110, 161, 0.7);
+@color-bg-lockedIcon-dark: #26617D;
+@color-bg-lockedIcon-cancel-light: rgba(161, 4, 4, 0.7);
+@color-bg-lockedIcon-cancel-dark: #7D2626;
+
+/* Borders */
+@color-border-softBlue: #5CB2E8;
+@color-border-select-blue: #378CB3;
+@color-border-activeBlue: #0A3549;
+@color-border-mainTab-active: #0b2f40;
+@color-border-subTab-active: #02161f;
+@color-border-tiber-blue: #062330; // table list tab
+@color-border-white-two: #D8D8D8;
+@color-border-warmGray: #979797;
+@color-border-tableGray: #F8F8F8;
+@color-border-pinkish-grey: #BEBEBE;
+@color-border-pinkish-grey2: #CCCCCC; // fnbar border, // card border
+@color-border-light-navy: #154f69;
+@color-border-white-five: #E6E6E6;
+@color-border-white-five-darker: darken(#E6E6E6, 3%);
+@color-border-warm-grey-two: #9F9F9F;
+@color-border-monitor-label: #D4D4D4;
+@color-border-logoBlue: #1E536B;
+@color-border-darkGray: #4D4D4D;
+
+/* Shadow */
+@color-inset-shadow: rgba(0, 0, 0, 0.2);
+
+/* Table Color */
+@color-table-header-gray: #F8F8F8;
+@color-table-header-darkGray: #DDDDDD;
+@color-table-oddRowMarker-gray: #DDDDDD;
+@color-table-evenRowMarker-gray: #EAEAEA;
+// @color-table-oddRow-gray: #F2F2F2;
+@color-table-oddRow-gray: #EDEDED;
+// @color-table-evenRow-gray: #F8F8F8;
+@color-table-evenRow-gray: #FAFAFA;
+@color-table-oddRow-green: #E3EDE2;
+@color-table-evenRow-green: #EAF5EA;
+@color-table-oddSelectedCell-blue: #D1DEE6;
+@color-table-evenSelectedCell-blue: #DDEAF2;
+@color-table-hoverBg-gray: #DEDEDE;
+// @color-table-hoverBorder-gray: #E5E5E5;
+@color-table-hoverBorder-gray: #F5F5F5;
+
+/* SQL Color Scheme */
+@color-sql-bg-blue: #0A3549;
+@color-sql-hover: rgba(0, 0, 0, 0.3);
+@color-sql-blue: #378CB3;
+@color-sql-brown: #B58900;
+@color-sql-lightGreen: #259286;
+@color-sql-darkGreen: #536870;
+@color-sql-orange: #CB4A05;
+@color-sql-lightGray: #9F9F9F;
+@color-sql-pink: #A647b4;
+@color-sql-lightPink: #FD51D9;
+@color-sql-purple: #6E5EFF;
+@color-sql-select: rgba(91, 178, 233, 0.3);
+
+
+/* Fonts Color */
+// grayish
+@color-font-softGrayBlue: #ABC1CC;
+@color-font-pinkish-grey: #BEBEBE;
+@color-font-pinkish-grey2: #CCCCCC;
+@color-font-greyish-brown: #4A4A4A;
+@color-font-navy: #36454E;
+@color-font-gray36: #5C5C5C;
+@color-font-warm-grey-two: #9F9F9F;
+@color-font-darkGray: #4D4D4D;
+
+// blues
+@color-font-softBlue: #5CB2E8;
+@color-font-select-blue: #378CB3;
+@color-font-bright-light-blue: #38CBFF;
+@color-font-dusk-blue: #1E6688;
+@color-font-wkbkInfo-blue: #7098A5;
+
+
+/* Fonts */
+@font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
+@font-code: "Source Code Pro", courier, sans-serif;
+// XX gotham not currently in font folder
+@font-gotham: "Gotham", "Open Sans", "Trebuchet MS", Arial, sans-serif;
+
+
+@width-menuBar: 50px;
+@width-userBox: 90px;
+@width-topBar: 100%;
+@width-sideMenuMinimized: 10px;
+@width-homeBtn: @width-sideMenuMinimized + @width-menuBar;
+@width-mainPanel: ~"calc(100% - @{width-homeBtn})";
+@width-topMenu: 295px;
+@width-bottomMenu: 295px;
+@width-fullMenu: 345px;
+@width-grid: 65px;
+
+@height-homeBtn: 50px;
+@height-topBar: @height-homeBtn;
+@height-mainTab: @width-menuBar;
+@height-subTab: 34px;
+@height-bottomBar: @height-subTab;
+@height-mainPanel: ~"calc(100% - @{height-bottomBar})"; 
+@height-grid-list: 35px;
+@height-card-header: 36px;
+@height-card-instr: 56px;
+
+@z-index-topBar: 1;
+@z-index-tableHeaderGrab: 2;
+@z-index-tableHeaderInput: 2;
+@z-index-firstColumn: 3;
+@z-index-firstHeader: 4;
+@z-index-dfgPanel: 5;
+@z-index-statusBar: 10;
+@z-index-topMenu: 20;
+@z-index-bottomMenu: 20;
+@z-index-menuBar: 30;
+@z-index-homeBtn: @z-index-menuBar + 1;
+@z-index-modalBackground: 35;
+@z-index-modal: 40;
+@z-index-useMenu: 99;
+
+@opacity-unhover: 0.8;
+@opacity-disabled: 0.3;
+@opacity-hint: 0.5;
+@opacity-hover: 1;
+
+@padding-mainContent: 5px;
+
+
+
+
+/* z-indexes 
+
+- table header input needs to go on top of table header grab so that you can
+  click on the input
+- firstHeader needs to be higher than the header input when it's sticky positioned
+  and also needs to be higher than the cell of the first column when you scroll down
+- rowGrab needs to be equal or higher than first column cells or else it wont
+  be grabbable on the first column
+- rowGrab needs to be less than the header grab used to drag and drop columns
+- header grab needs to be less than table header input ... infinite cycle??
+
+- dfgPanel needs to be higher than all table headers
+- status bar needs to be higher than dfg panel to cover the bottom of it
+- top and bottom menu needs to be higher than the status bar so it covers it
+- menubar needs to be higher than top and bottom menu so they can hide behind it
+- home btn needs to be higher than menubar so it casts a shadow on it
+- modalbackground needs to be higher than all elements except for modals
+
+*/

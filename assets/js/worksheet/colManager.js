@@ -32,7 +32,7 @@ window.ColManager = (function($, ColManager) {
         return ColManager.newCol({
             "backName": "DATA",
             "name"    : "DATA",
-            "type"    : "object",
+            "type"    : ColumnType.object,
             "width"   : "auto",// to be determined when building table
             "userStr" : "DATA = raw()",
             "func"    : {
@@ -44,15 +44,13 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.addNewCol = function(colNum, tableId, direction, options) {
+    ColManager.addNewCol = function(colNum, tableId, direction, colOptions) {
         var defaultOptions = {
             "isNewCol": true,
             "width"   : xcHelper.getDefaultColWidth("")
         };
-        var colOptions = $.extend(defaultOptions, options);
-
-        var table = gTables[tableId];
-        var progCol = ColManager.newCol(colOptions);
+        var actulColOptoins = $.extend(defaultOptions, colOptions);
+        var progCol = ColManager.newCol(actulColOptoins);
 
         addColHelper(colNum, tableId, progCol, {
             "direction": direction
@@ -60,11 +58,11 @@ window.ColManager = (function($, ColManager) {
 
         SQL.add("Add New Column", {
             "operation": SQLOps.AddNewCol,
-            "tableName": table.getName(),
+            "tableName": gTables[tableId].getName(),
             "tableId"  : tableId,
             "colNum"   : colNum,
             "direction": direction,
-            "options"  : options
+            "options"  : colOptions
         });
     };
 
@@ -83,7 +81,7 @@ window.ColManager = (function($, ColManager) {
         var progCols = [];
         var noAnimate = options.noAnimate || false;
 
-        for (var i = 0, numCols = colNums.length; i < numCols; i++) {
+        for (var i = 0, len = colNums.length; i < len; i++) {
             var colNum = colNums[i];
             var colIndex = colNum - i;
             var progCol = table.getCol(colIndex);
@@ -105,8 +103,8 @@ window.ColManager = (function($, ColManager) {
 
         jQuery.when.apply($, promises)
         .done(function() {
-            var numAllCols = table.getNumCols();
-            for (var j = colNums[0]; j <= numAllCols; j++) {
+            var numCols = table.getNumCols();
+            for (var j = colNums[0]; j <= numCols; j++) {
                 var oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
                 $table.find(".col" + oldColNum)
                       .removeClass('col' + oldColNum)
@@ -1550,20 +1548,12 @@ window.ColManager = (function($, ColManager) {
         adjustedColType = xcHelper.capitalize(adjustedColType);
         $header.find(".iconHelper").attr("title", adjustedColType);
 
-        // XXX May not need it any more
-        // if (progCol.getBackColName() === "recordNum") {
-        //     $header.addClass("recordNum");
-        // }
-
         if (progCol.hasHidden()) {
             $table.find("td.col" + colNum).addClass("userHidden");
         }
         if (progCol.isChildOfArray()) {
             $header.addClass("childOfArray");
         }
-        // if (options.notNewCol) {
-        //     $th.removeClass("newColumn");
-        // }
         if ($th.hasClass("selectedCell") ||
             $th.hasClass("modalHighlighted")) {
             highlightColumn($th, true);
@@ -1790,15 +1780,6 @@ window.ColManager = (function($, ColManager) {
         // }
         return nested;
     }
-
-    // function parseBracket(key) {
-    //     for (var i = 0; i < key.length; i++) {
-    //         if (key[i] === "[") {
-    //             key[i] = ".";
-    //         }
-    //     }
-    //     return (key);
-    // }
 
     // parse json string of a table row
     function parseRowJSON(jsonStr) {

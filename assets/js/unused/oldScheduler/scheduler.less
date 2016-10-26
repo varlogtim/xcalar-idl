@@ -1,0 +1,832 @@
+#schedulerPanel {
+    position: relative;
+
+    .topBar {
+        .buttonArea {
+            .size(@width: 157px, @height: 100%);
+
+            &:last-child {
+               .text {
+                margin-left: 10px;
+               }
+            }
+        }
+    }
+
+    .mainContent {
+        overflow: auto;
+    }
+
+    #schedulesView, #dataflowView {
+        height: 100%;
+    }
+
+    .input-box(@w:100%, @h: 30px);
+}
+
+#dfgViz {
+    .image("../../images/dagIcons/dag-background.png", right, top, repeat);
+
+    .cardHeader {
+        color: @color-white;
+        .leftSection {
+            float: left;
+            height: 48px;
+            .textOverflowOneLine;
+            width: ~"calc(100% - 160px)";
+            h2 {
+                max-width: ~"calc(100% - 200px)";
+            }
+        }
+
+        .retTabSection {
+            .position(relative, @top: 3px);
+            display: inline-block;
+            float: right;
+
+            &.hidden {
+                display: none;
+            }
+
+            input:focus {
+                outline: none;
+            }
+
+            .retTab {
+                .position(relative);
+                .size(@width: 135px, @height: 30px);
+                display: inline-block;
+                float: right;
+                margin-right: 8px;
+
+                .tabWrap {
+                    .position(relative);
+                    .size(@width: 100%, @height: 30px);
+                    line-height: 30px;
+                    cursor: pointer;
+
+                    .retTitle {
+                        .size(@width: ~"calc(100% - 20px)");
+                        display: inline-block;
+                        .font(@weight: bold, @size: 14px);
+                        float: left;
+                        background: transparent;
+                        text-align: left;
+                        padding-left: 10px;
+                        color: @color-white;
+                        cursor: pointer;
+                    }
+
+                    .caret {
+                        display: inline-block;
+                        .size(@width: 20px, @height: 30px);
+                        cursor: pointer;
+                        .icon {
+                            color: @color-white;
+                            opacity: @opacity-unhover;
+                        }
+                    }
+                }
+
+                &.active {
+                    .tabWrap {
+                        .caret .icon {
+                            opacity: @opacity-hover;
+                        }
+                    }
+                    .retPopUp {
+                        display: block;
+                        z-index: 10;
+                    }
+                }
+
+                .retPopUp {
+                    .position(absolute, @top: 33px, @left: -332px);
+                    .size(@width: 468px, @height: 301px);
+                    display: none;
+                    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+                    padding: 10px 8px;
+                    text-transform: none;
+
+                    .inputSection {
+                        .size(@width: 100%, @height: 30px);
+                        margin-bottom: 6px;
+
+                        .input-box(@w: 223px, @h: 30px);
+
+                        > input, > button {
+                            display: inline-block;
+                            float: left;
+                        }
+
+                        .addParam {
+                            .size(@width: 223px, @height: 30px);
+                            margin-left: 6px;
+                            padding-right: 5px;
+                            .font(@size: 14px, @line-height: 30px);
+
+                            .icon {
+                               .position(relative, @top: -1px);
+                            }
+                        }
+                    }
+
+                    .cell {
+                        &.paramNameWrap {
+                            .size(@width: 179px);
+                        }
+
+                        &.paramValWrap {
+                            .size(@width: 179px);
+                        }
+
+                        &.paramActionWrap {
+                            text-align: center;
+                            .size(@width: 80px);
+                        }
+                    }
+
+                    .tableContainer {
+                        .tableWrapper {
+                            .size(@width: 452px);
+
+                            .unfilled .paramDelete {
+                                display: none;
+                            }
+
+                            .paramActionWrap {
+                                .paramDelete {
+                                    .position(absolute, @top: 50%, @left: 50%);
+                                    color: @color-black;
+                                    transform: translate(-50%, -50%);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .title {
+            padding-right: 2px;
+        }
+
+        .schedulesList {
+            display: inline-block;
+            margin-right: 40px;
+            text-transform: none;
+            vertical-align: top;
+            font-size: 18px;
+            cursor: default; 
+        }
+    }
+
+    .cardMain {
+        padding-top: 5px;
+        padding-bottom: 0px;
+        min-height: 160px;
+
+        .runNowBtn {
+            .size(@width: 25px, @height: 25px);
+            float: right;
+            padding: 0px;
+            text-align: center;
+            margin-bottom: 0px;
+            position: relative;
+            top: -5px;
+
+            &.running {
+                pointer-events: none;
+                .icon {
+                    visibility: hidden;
+                    opacity: 0;
+                }
+
+                .spin {
+                    visibility: visible;
+                    opacity: 1;
+                }
+            }
+
+            .icon {
+                font-size: 14px;
+                .transition(opacity 1s);
+            }
+
+            .spin {
+                @spin-size: 17px;
+                @spin-margin: -@spin-size / 2;
+                @spin-border: @spin-size / 10;
+                @spin-color: @color-white;
+
+                visibility: hidden;
+                opacity: 0;
+                .transition(opacity 1s);
+
+                .keyframe(spinClock, {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                });
+
+                .size(@spin-size, @spin-size);
+                .rounded(50%);
+                .center-align;
+                position: absolute;
+                border: @spin-border solid @spin-color;
+
+                &:before, &:after {
+                    content: "";
+                    position: absolute;
+                    display: block;
+                    width: @spin-border;
+                    background-color: @spin-color;
+                    border-radius: @spin-border / 2;
+                    transform-origin: 50% 0;
+                }
+
+                &:before {
+                    height: @spin-size / 2 - @spin-border * 2;
+                    left: @spin-size / 2 - @spin-border / 2;
+                    top: 50%;
+                    .keyframeAnim(spinClock 2s infinite linear);
+                }
+            }
+        }
+
+        .dagImage {
+            margin-bottom: 4px; // otherwise theres weird vertical scrolling
+            margin-left: 65px;
+        }
+
+        .dagTable {
+            cursor: auto;
+            .tableTitle {
+                width: 180px;
+            }
+            &:hover {
+                .dagTableIcon {
+                    background-color: @color-bg-select-blue;
+                }
+                &.dataStore, &.export {
+                    .dagTableIcon, .dataStoreIcon {
+                        background-color: @color-bg-btn-hover-blue;
+                    }
+                }
+            }
+            &.dataStore, &.export {
+                cursor: pointer;
+            }
+            &.dataStore .tableTitle {
+                width: 130px;
+            }
+            &.export .tableTitle {
+                width: 120px;
+            }
+            &.hasParam {
+                .dataStoreIcon, .dagTableIcon {
+                    background-color: @color-bg-fern-green !important;
+                }
+            }
+        }
+
+        .actionType {
+            &.filter {
+                cursor: pointer;
+            }
+            &.hasParam {
+
+                .actionTypeWrap {
+                    border: 1px solid #699669;
+
+                }
+                .dagIcon {
+                    background-color: @color-bg-fern-green;
+                }
+            }
+        }
+
+        canvas {
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hint {
+            .size(@width: 320px, @height: 60px);
+            .horizontal-align;
+            top: 40px;
+            .rounded;
+            border: 1px solid @color-white;
+            padding: 10px 0;
+            background-color: rgba(255, 255, 255, 0.7);
+
+            > div, > i {
+                display: inline-block;
+                float: left;
+            }
+
+            .icon {
+                .size(@width: 60px, @height: 100%);
+                color: @color-font-greyish-brown;
+                font-size: 33px;
+
+                &:before {
+                    display: block;
+                    .position(relative, @left: 10px);
+                }
+            }
+
+            .text {
+                .size(@width: ~"calc(100% - 60px)", @height: 100%);
+                .font(@size: 13px);
+            }
+        }
+    }
+    
+}
+
+#uploadDataflowCard {
+    display: none;
+
+    .cardMain {
+        margin: 0 auto;
+        padding: 40px;
+        padding-bottom: 0px;
+
+        padding-left: 20px;
+        padding-right: 20px;
+        > div {
+            margin-bottom: 10px;
+        }
+        .text {
+            .size(@width: 110px);
+            display: inline-block;
+        }
+        .retinaUploader {
+            .input-box(@w: ~"calc(100% - 297px)", @h: 30px);
+            input {
+                margin-right: 10px;
+            }
+        }
+
+        .retinaName {
+            .input-box(@w: 275px, @h: 30px);
+        }
+
+        .overwriteUdf {
+            margin-left: 115px;
+            > * {
+                float: left;
+            }
+            .checkbox {
+                margin-top: 10px;
+                margin-right: 10px;
+            }
+            span {
+                max-width: ~"calc(100% - 47px)";
+                cursor: pointer;
+            }
+        }
+
+        .btn {
+            width: 150px;
+        }
+    }
+
+    .cardBottom {
+        padding-right: 40px;
+        padding-bottom: 20px;
+        .buttonTooltipWrap {
+            // Keep same as the button that it wraps
+            margin-left: 10px;
+            width: 150px;
+            height: 36px;
+            float: right;
+        }
+        .btn {
+            &.unavailable {
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+#schedulesView {
+    display: none;
+
+    .scheduleForm {
+
+        .cardInstruction {
+            height: auto;
+        }
+
+        .cardMain {
+            padding: 40px;
+            padding-bottom: 0px;
+            .flex-display;
+
+            .formWrap {
+                > div {
+                    margin-bottom: 12px;
+                    .clearfix;
+                }
+            }
+            
+            // hack to create left margin that doesn't go negative when too small
+            &:before {
+                content: '';
+                display: inline-block;
+                width: ~"calc(50% - 335px)";
+            }
+        }
+
+        @label-width: 130px;
+
+        .label {
+            .size(@width: @label-width);
+            .font(@weight: 600, @size: 14px, @line-height: 30px);
+            float: left;
+        }
+
+        .nameSection input {
+            width: ~"calc(100% - @{label-width})";
+        }
+
+        input {
+            width: 208px;
+        }
+
+        .nameSection, .timeSection, .recurSection {
+            > div {
+                float: left;
+            }
+        }
+
+        .timeWrapper {
+            width: ~"calc(100% - @{label-width})";
+        }
+
+        .timeSection {
+            .position(relative);
+            margin-bottom: 0px !important;
+
+            .timeWrapper > div {
+                float: left;
+                margin-bottom: 12px;
+
+                &.datePickerPart {
+                    position: relative;
+                    margin-right: 20px;
+
+                    &.inActive {
+                        pointer-events: none;
+                        opacity: @opacity-unhover;
+                    }
+                }
+
+                &.timePickerPart {
+                    position: relative;
+                }
+            }
+
+            .timePicker {
+                display: none;
+                .size(@width: 208px, @height: 120px);
+                .position(absolute, @top: 30px, @left: 1px);
+                background-color: @color-white;
+                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+                z-index: 41;
+                .rounded(0 0 3px 3px);
+                padding: 5px 11px;
+
+                > div {
+                    margin: 4px 0;
+                    .size(@width: 100%, @height: 20px);
+
+                    span, button, input {
+                        .size(@width: 60px, @height: 20px);
+                        margin: 0 1px;
+                        display: inline-block;
+                        float: left;
+                        text-align: center;
+                        line-height: 20px;
+                    }
+                }
+
+                .textSection {
+                    .font(@size: 10px);
+                }
+
+                .inputSection {
+                    .font(@size: 12px);
+
+                    input {
+                        background-color: @color-bg-white-three;
+                        padding-top: 2px;
+                    }
+                }
+
+                .buttonSection {
+                    .btn {
+                        position: relative;
+                    }
+
+                    .bar {
+                        .size(@width: 14px, @height: 3px);
+                        .position(absolute, @left: 50%);
+                        .transform(translate(-50%, -30%));
+                        background-color: @color-white;
+                        opacity: 0.9;
+                        box-shadow: 0 1px 1px 1px rgba(0, 0, 0, .1);
+                        .rounded(1px);
+
+                        &.vertical {
+                            .transform(translate(-50%, -30%) rotate(90deg));
+                        }
+                    }
+                }
+            }
+        }
+
+        .frequencySection {
+
+            // for radio part
+            .radioButtonGroup {
+                .size(@width: ~"calc(100% - @{label-width})", @height: auto);
+                display: block;
+                .radioButton {
+                    display: inline-block;
+                    height: 30px;
+                    float: left;
+                    &:last-child {
+                        .label {
+                            margin-right: 0px;
+                        }
+                    }
+                }
+                .radio {
+                    line-height: 30px;
+                }
+                .label {
+                    width: auto;
+                    margin-right: 30px;
+                }
+            }
+
+            // for dropdown list
+            .dropDownList {
+                .styleDropDownList(150px, 30px);
+                box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
+                font-weight: 600;
+
+                &.day {
+                    margin-left: 10px;
+                }
+            }
+
+            // for input section in .freq2 and .freq3
+            .textSection {
+                margin: 0 10px;
+            }
+
+            // .freq1, .freq2 {
+            .freq1 {
+                .size(@width: 100%);
+                line-height: 30px;
+
+                > div {
+                    float: left;
+                }
+            }
+            /**
+            .freq2 {
+                padding-left: 120px;
+                margin-top: 20px;
+
+                &.inActive {
+                    .textSection, .dropDownList {
+                        pointer-events: none;
+                        opacity: 0.7;
+                    }
+                }
+            }
+            */
+        }
+
+        #ui-datepicker-div.schedulerDatePicker {
+            margin-top: 2px;
+            top: 28px !important;
+            left: 0 !important;
+            z-index: 3 !important;
+        }
+    }
+
+
+    #scheduleInfos {
+        .flex-display;
+        padding-top: 0px;
+        border-bottom: 1px solid @color-border-pinkish-grey2;
+
+        .tabArea {
+            @tabSize: 40px;
+            width: @tabSize;
+            min-height: 160px;
+            background-color: @color-bg-white-three;
+            border-right: 1px solid @color-border-pinkish-grey2;
+            .tab {
+                width: 100%;
+                height: @tabSize;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
+                text-align: center;
+                float: left;
+
+                .iconWrap {
+                    background-color: @color-bg-pinkish-grey;
+                }
+
+                &.active {
+                    background-color: @color-white;
+                    border-right-width: 0px;
+                    width: @tabSize + 1px;
+                    border-bottom-width: 0px;
+
+                    .iconWrap {
+                        background-color: @color-bg-select-blue;
+                    }
+                    + .tab {
+                         border-top: 1px solid @color-border-pinkish-grey2;
+                    }
+                    .xi-info-rectangle {
+                        color: @color-bg-select-blue;
+                    }
+                }
+
+                &.default {
+                    .iconWrap {
+                        background-color: @color-white;
+                    }
+                }
+
+                &:not(.default) {
+                    .icon {
+                        font-size: 14px;
+                    }
+                }
+
+                &:last-child {
+                    position: relative;
+                    top: 1px;
+                }
+
+                &.xc-disabled {
+                    opacity: 1 !important;
+                    border-bottom-width: 0px;
+                }
+            }
+
+            .iconWrap {
+                .size(20px, 20px);
+                margin-top: 10px;
+                margin-left: 10px;
+            }
+
+            .xi-info-rectangle {
+                color: @color-bg-pinkish-grey;
+            }
+
+            // .icon {
+            //     line-height: @tabSize;
+            // }
+        }
+
+        .mainArea {
+            padding: 20px 16px 0px 40px;
+            overflow: hidden;
+            .flex(1 0 200px);
+
+            h2 {
+                display: block;
+                height: 25px;
+                .font(@size: 19px, @line-height: 25px, @weight: bold, @color: @color-text-blue);
+                margin-bottom: 12px;
+                .textOverflowOneLine;
+                width: ~"calc(100% - 70px)";
+            }
+
+            .xi-edit {
+                font-size: 18px;
+            }
+
+            .defaultSection {
+                position: relative;
+                #modScheduleForm-edit {
+                    position: absolute;
+                    right: 24px;
+                    top: -41px;
+                }
+            }
+
+            .infoSection {
+                margin-top: 10px;
+                
+                .group {
+                    max-width: 600px; 
+                    margin-right: 24px;
+                    margin-bottom: 20px;
+                    border: 0 solid @color-border-white-two;
+                    border-width: 0 0 0px 1px;
+                    .flex-display;
+                    flex-wrap: wrap;
+                    float: left;
+                }
+                
+                .column {
+                    max-width: 340px;
+                    float: left;
+                    flex: 2 1 340px;
+                    border-bottom: 1px solid @color-border-white-two;
+
+                    &:last-child {
+                        flex: 1 1 230px;
+                    }
+                    .row {
+                        .size(@width: 100%, @height: 40px);
+                        .font(@size: 14px, @line-height: 40px, @weight: 600, @color: @color-font-greyish-brown);
+                        float: left;
+                        border: 0 solid @color-border-white-two;
+                        border-width: 1px 1px 0 0;
+                        background-color: @color-bg-white-seven;
+                        overflow: hidden;
+                    }
+
+                    .name, .text {
+                        padding: 0 8px;
+                    }
+                    .name {
+                        display: inline-block;
+                        width: 116px;
+                        border-right: 1px solid @color-border-white-two;
+                        background-color: @color-white;
+                    }
+
+                    .text {
+                        text-transform: capitalize;
+                        color: @color-font-select-blue;
+
+                    }
+
+                    &.runInfo {
+                        border: 0 solid @color-border-white-two;
+                        border-width: 0 0 1px 1px;
+                        overflow: hidden;
+                        margin-bottom: 20px;
+                        margin-right: 24px;
+                    }
+                }
+            }
+        }
+    }
+
+    #modifyScheduleForm {
+        padding-top: 0px;
+        &.inActive {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
+        .nameSection {
+            pointer-events: none;
+            opacity: @opacity-unhover;
+        }
+    }
+
+    #scheduleTable {
+        margin-right: 24px;
+        
+        @rowHeight: 30px;
+        .titleWrapper {
+            border: 1px solid @color-border-white-two;
+            background-color: @color-bg-white-seven;
+        }
+        .mainSection {
+            margin-bottom: 40px;
+        }
+
+        .title, .grid-unit > div {
+            width: 33%;
+            border-left: 1px solid @color-border-white-two;
+            display: inline-block;
+            float: left;
+            height: @rowHeight;
+            line-height: @rowHeight;
+            text-align: center;
+            .textOverflowOneLine;
+
+            &:first-child {
+                border-left: none;
+            }        
+        }
+        .grid-unit {
+            border: 1px solid @color-border-white-two;
+            border-top: none;
+        }
+    }
+}
