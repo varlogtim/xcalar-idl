@@ -451,7 +451,7 @@ window.ExportView = (function($, ExportView) {
         if (filePath === "") {
             deferred.resolve(false);
         } else {
-            XcalarListFiles(filePath, false)
+            XcalarListFiles(FileProtocol.nfs + filePath, false)
             .then(function(result) {
                 // var dupFound = false;
                 for (var i = 0; i < result.numFiles; i++) {
@@ -482,7 +482,7 @@ window.ExportView = (function($, ExportView) {
         }
         $exportList.html(lis);
         var $defaultLi = $exportList.find('li').filter(function() {
-            return ($(this).text().indexOf('Default') === 0);
+            return ($(this).text().trim() === 'Default');
         });
 
         $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());

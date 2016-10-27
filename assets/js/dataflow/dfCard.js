@@ -627,7 +627,8 @@ window.DFCard = (function($, DFCard) {
         var deferred = jQuery.Deferred();
 
         var paramsArray = [];
-        var parameters = DF.getDataflow(retName).paramMap;
+        var dfObj = DF.getDataflow(retName);
+        var parameters = dfObj.paramMap;
         for (var param in parameters) {
             var p = new XcalarApiParameterT();
             p.parameterName = param;
@@ -635,32 +636,46 @@ window.DFCard = (function($, DFCard) {
             paramsArray.push(p);
         }
 
-        XcalarExecuteRetina(retName, paramsArray)
-        .then(function() {
-             /// XXX TODO: add sql
-            Alert.show({
-                "title"  : DFTStr.RunDone,
-                "msg"    : DFTStr.RunDoneMsg,
-                "isAlert": true
-            });
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            // do not show alert if op was canceled and has cancel error msg
-            if (typeof error === "object" &&
-                error.status === StatusT.StatusCanceled &&
-                canceledRuns[retName]) {
-                Alert.show({
-                   "title":  StatusMessageTStr.CancelSuccess,
-                   "msg" : DFTStr.CancelSuccessMsg,
-                   "isAlert": true
+        var dagNode = dfObj.retinaNodes[0];
+        var exportInfo = dagNode.input.exportInput;
+        var targetName = exportInfo.meta.target.name;
+        var fileName = parseFileName(exportInfo, paramsArray);
+
+        checkExistingFileName(fileName, targetName)
+        .then(function(alreadyExists) {
+            if (!alreadyExists) {
+                XcalarExecuteRetina(retName, paramsArray)
+                .then(function() {
+                     /// XXX TODO: add sql
+                    Alert.show({
+                        "title"  : DFTStr.RunDone,
+                        "msg"    : DFTStr.RunDoneMsg,
+                        "isAlert": true
+                    });
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    // do not show alert if op was canceled and
+                    // has cancel error msg
+                    if (typeof error === "object" &&
+                        error.status === StatusT.StatusCanceled &&
+                        canceledRuns[retName]) {
+                        Alert.show({
+                           "title":  StatusMessageTStr.CancelSuccess,
+                           "msg" : DFTStr.CancelSuccessMsg,
+                           "isAlert": true
+                        });
+                    } else {
+                        Alert.error(DFTStr.RunFail, error);
+                    }
+                    
+                    deferred.reject(error);
                 });
             } else {
-                Alert.error(DFTStr.RunFail, error);
+                Alert.error(DFTStr.RunFail, DFTStr.ExportFileExists);
+                deferred.reject();
             }
-            
-            deferred.reject(error);
-        });
+        })
 
         return (deferred.promise());
     }
@@ -685,6 +700,58 @@ window.DFCard = (function($, DFCard) {
             $btn.removeClass('canceling');
             Alert.error(StatusMessageTStr.CancelFail, error);
             deferred.reject(arguments);
+        });
+
+        return deferred.promise();
+    }
+
+    function parseFileName(exportInfo, paramArray) {
+        var fileName = exportInfo.meta.specificInput.sfInput.fileName;
+        var ch;
+        var paramName;
+        if (paramArray.length === 0 || fileName.indexOf("<") === -1) {
+            return fileName;
+        }
+
+        for (var i = 0; i < paramArray.length; i++) {
+            var re = new RegExp( "<" + paramArray[i].parameterName + ">", "g");
+            fileName = fileName.replace(re, paramArray[i].parameterValue);
+        }
+
+        return fileName;
+    }
+
+    // returns promise with boolean True if duplicate found
+    function checkExistingFileName(fileName, targetName) {
+        var deferred = jQuery.Deferred();
+        var extensionDotIndex = fileName.lastIndexOf(".");
+        if (extensionDotIndex > 0) {
+            fileName = fileName.slice(0, extensionDotIndex);
+        }
+
+        XcalarListExportTargets(ExTargetTypeTStr[1], targetName)
+        .then(function(ret) {
+            if (ret.numTargets === 1) {
+                var url = ret.targets[0].specificInput.sfInput.url;
+                XcalarListFiles(FileProtocol.nfs + url, false)
+                .then(function(result) {
+                    for (var i = 0; i < result.numFiles; i++) {
+                        if (result.files[i].name === fileName) {
+                            return deferred.resolve(true);
+                        }
+                    }
+                    deferred.resolve(false);
+                })
+                .fail(function() {
+                    deferred.resolve(false);
+                });
+            } else {
+                deferred.resolve(false);
+            }
+        })
+        .fail(function(error) {
+            console.warn(error);
+            deferred.resolve(false);
         });
 
         return deferred.promise();

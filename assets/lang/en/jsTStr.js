@@ -467,6 +467,7 @@ MonitorTStr = {
 DFTStr = {
     'AddParamHint': 'Please create parameters in Dataflow Panel first.',
     'DFCreateFail': 'Dataflow Creation Failed',
+    'ExportFileExists': 'Export file already exists.',
     'ParamModalFail': 'Parameter Creation Failed',
     'UpdateParamFail': 'Update Parameters Failed',
     'NoDF1': 'No dataflows added',

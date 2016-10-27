@@ -765,6 +765,7 @@ function XcalarRemoveExportTarget(targetName, targetType) {
     return (deferred.promise());
 }
 
+// typePattern: "*", "file", "udf"
 function XcalarListExportTargets(typePattern, namePattern) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
