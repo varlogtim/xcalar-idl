@@ -527,7 +527,8 @@ DSTStr = {
     'ColPrefix': 'Column Prefix',
     'ShowAdvOpt': 'Show Advanced Option',
     'HideAdvOpt': 'Hide Advanced Option',
-    'PointErr': 'Cannot Point to the dataset'
+    'PointErr': 'Cannot Point to the dataset',
+    'OffsetErr': 'Offset is bigger than the dataset size'
 };
 
 DSFormTStr = {

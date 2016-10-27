@@ -449,7 +449,9 @@ module.exports = {
         "Up": "Go back",
         "filePathHint": "Click to see history",
         "SearchHint": "Regex Search",
-        "toggleHex": "Toggle between normal view and hex dump view"
+        "toggleHex": "Toggle between normal view and hex dump view",
+        "Offset": "Offset",
+        "SkipToOffset": "Skip To Offset"
     },
 
     "dsFormat": {

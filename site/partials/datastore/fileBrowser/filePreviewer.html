@@ -1,0 +1,34 @@
+<section class="loadingSection">
+  <div class="waitingIcon"></div>
+</section>
+<section class="mainSection leftPart">
+  <!-- only a placeholder -->
+  <div class="topSection"></div>
+  <div class="contentSection">
+    <div class="preview hexDump"></div>
+  </div>
+  <!-- only a placeholder -->
+  <div class="bottomSection"></div>
+</section>
+<div class="divider"></div>
+<section class="mainSection rightPart">
+  <div class="topSection">
+    <i class="xc-action icon close xi-close fa-15"></i>
+    <button class="toggleHex xc-action btn btn-small" data-toggle="tooltip" data-container="body" data-title="<%= dicts.fileBrowser.toggleHex %>">0X</button>
+  </div>
+  <div class="contentSection">
+    <div class="errorSection"></div>
+    <div class="preview normal"></div>
+    <div class="preview hexDump"></div>
+  </div>
+  <div class="bottomSection">
+    <div>
+      <span class="text"><%= dicts.fileBrowser.Offset %>:</span>
+      <span class="offsetNum"></span>
+    </div>
+    <div>
+      <span class="text"><%= dicts.fileBrowser.SkipToOffset %>:</span>
+      <input class="skipToOffset" type="number">
+    </div>
+  </div>
+</section>

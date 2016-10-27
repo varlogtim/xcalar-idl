@@ -1089,18 +1089,19 @@ table.datasetTable {
         .flex-display;
 
         &.loading {
-            .mainSection, .errorSection {
+            .mainSection, .errorSection, .divider {
                 display: none;
             }
 
             .loadingSection {
                 display: block;
+                border-left: 1px solid @color-border-pinkish-grey2;
             }
         }
 
         &.error {
-            .mainSection, .loadingSection {
-                display: none;
+            .preview, .bottomSection, .loadingSection {
+                display: none !important;
             }
 
             .errorSection {
@@ -1126,11 +1127,11 @@ table.datasetTable {
 
         .loadingSection, .errorSection {
             display: none;
+            padding: 10px;
         }
 
         .errorSection {
             color: @color-table-red;
-            padding: 10px;
         }
 
         .divider {
@@ -1139,10 +1140,14 @@ table.datasetTable {
         }
 
         .mainSection {
+            @top-h: 30px;
+            @bottom-h: 40px;
+            @topAndBottom-h: @top-h + @bottom-h;
+
             .size(@height: 100%);
             padding: 20px 15px;
 
-            @top-h: 50px;
+            
 
             &.leftPart {
                 display: none;
@@ -1174,7 +1179,7 @@ table.datasetTable {
             }
 
             .contentSection {
-                .size(@width: 100%, @height: ~"calc(100% - @{top-h})");
+                .size(@width: 100%, @height: ~"calc(100% - @{topAndBottom-h})");
 
                 .preview {
                     .size(@width: 100%, @height: 100%);
@@ -1187,13 +1192,43 @@ table.datasetTable {
                         text-align: center;
 
                         .cell {
+                            .size(@height: 20px);
+                            .vertical-align;
                             display: inline-block;
-                            white-space: pre;   
+                            white-space: pre;
+                            line-height: 20px;
+
+                            &.active {
+                                outline: 1px solid @color-border-softBlue;
+                            }
                         }
                     }
 
                     &.hexDump {
                         display: none;
+                    }
+                }
+            }
+
+            .bottomSection {
+                .size(@width: 100%, @height: @bottom-h);
+                padding: 5px 15px;
+                .flex-display;
+                .justify-content(space-between);
+
+                > div {
+                    .size(@height: 30px);
+                    .flex-display(1 1 50%);
+                    .input-box(@w: 60px, @h: 30px);
+                    .font(@line-height: 30px);
+
+                    &:first-child {
+                        margin-right: 10px;
+                    }
+
+                    input {
+                        margin-left: 3px;
+                        padding: 0 3px;
                     }
                 }
             }

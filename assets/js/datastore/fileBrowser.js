@@ -1077,6 +1077,10 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
             var $target = $(event.target);
+            if ($target.closest("#fileBrowserPreview").length > 0) {
+                return;
+            }
+
             var code = event.which;
             var $lastTarget = gMouseEvents.getLastMouseDownTarget();
 
