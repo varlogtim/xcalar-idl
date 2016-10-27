@@ -43,12 +43,11 @@ window.DSPreview = (function($, DSPreview) {
     var excelFunc = "openExcel";
 
     var formatMap = {
-        "JSON"  : "JSON",
-        "CSV"   : "CSV",
-        "TEXT"  : "raw",
-        "EXCEL" : "Excel",
+        "JSON" : "JSON",
+        "CSV"  : "CSV",
+        "TEXT" : "raw",
+        "EXCEL": "Excel",
     };
-
 
     DSPreview.setup = function() {
         $previewCard = $("#dsForm-preview");
@@ -125,20 +124,13 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     DSPreview.show = function(options, fromFormCard, dsId) {
-        var $dsFormView = $("#dsFormView");
-        if (!$dsFormView.is(":visible"))
-        {
-            $dsFormView.removeClass("xc-hidden");
-            DSTable.hide();
-        }
+        DSForm.switchView(DSForm.View.Preview);
 
         if (dsId != null) {
             $previewCard.data("dsid", dsId);
         } else {
             $previewCard.removeData("dsid", dsId);
         }
-
-        $previewCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
 
         if (fromFormCard) {
             backToFormCard = true;
@@ -193,7 +185,7 @@ window.DSPreview = (function($, DSPreview) {
 
     DSPreview.getAdvanceOption = function() {
         return advanceOption;
-    }
+    };
 
     function setupForm() {
         // setup udf

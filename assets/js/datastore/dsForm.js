@@ -3,7 +3,13 @@
  */
 window.DSForm = (function($, DSForm) {
     var $pathCard; // $("#dsForm-path");
-    var $filePath;  // $("#filePath")
+    var $filePath;  // $("#filePath");
+
+    DSForm.View = {
+        "Path"   : "DSForm",
+        "Browser": "FileBrowser",
+        "Preview": "DSPreview"
+    };
 
     DSForm.setup = function() {
         $pathCard = $("#dsForm-path");
@@ -27,20 +33,40 @@ window.DSForm = (function($, DSForm) {
 
     DSForm.show = function(options) {
         options = options || {};
-        var $dsFormView = $("#dsFormView");
-        if (!$dsFormView.is(":visible"))
-        {
-            if (!options.noReset) {
-                resetForm();
-            }
 
+        if (!options.noReset) {
+            resetForm();
+        }
+
+        DSForm.switchView(DSForm.View.Path);
+        $filePath.focus();
+    };
+
+    DSForm.switchView = function(view) {
+        var $cardToSwitch = null;
+        switch (view) {
+            case DSForm.View.Path:
+                $cardToSwitch = $pathCard;
+                break;
+            case DSForm.View.Browser:
+                $cardToSwitch = $("#fileBrowser");
+                break;
+            case DSForm.View.Preview:
+                $cardToSwitch = $("#dsForm-preview");
+                break;
+            default:
+                console.error("invalid view");
+                return;
+        }
+
+        $cardToSwitch.removeClass("xc-hidden")
+        .siblings().addClass("xc-hidden");
+
+        var $dsFormView = $("#dsFormView");
+        if (!$dsFormView.is(":visible")) {
             $dsFormView.removeClass("xc-hidden");
             DSTable.hide();
         }
-
-        FileBrowser.close();
-        $pathCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
-        $filePath.focus();
     };
 
     DSForm.hide = function() {

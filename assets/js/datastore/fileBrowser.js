@@ -52,7 +52,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // click blank space to remove foucse on folder/dsds
         $container.on("click", function() {
-            clear();
+            cleanContainer();
         });
 
         $container.on({
@@ -61,7 +61,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 var $grid = $(this);
 
                 event.stopPropagation();
-                clear();
+                cleanContainer();
 
                 $grid.addClass("active");
             },
@@ -261,7 +261,9 @@ window.FileBrowser = (function($, FileBrowser) {
     FileBrowser.show = function(protocol, path) {
         var deferred = jQuery.Deferred();
 
-        $fileBrowser.removeClass("xc-hidden").siblings().addClass("xc-hidden");
+        clearAll();
+        DSForm.switchView(DSForm.View.Browser);
+
         addKeyBoardEvent();
         fileBrowserId = xcHelper.randName("browser");
 
@@ -305,15 +307,6 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         return deferred.promise();
-    };
-
-    FileBrowser.close = function() {
-        // set to deault value
-        $fileBrowser.addClass("xc-hidden");
-        clear(true);
-        $(document).off(".fileBrowser");
-        $fileBrowser.removeClass("loadMode");
-        fileBrowserId = null;
     };
 
     function fileBrowserScrolling() {
@@ -484,29 +477,34 @@ window.FileBrowser = (function($, FileBrowser) {
         $pathLists.prepend('<li>' + path + '</li>');
     }
 
-    function clear(isALL) {
-        if (isALL) {
-            $("#fileBrowserUp").addClass("disabled");
-            setPath("");
-            $pathLists.empty();
-            // performance when there's 1000+ files, is the remove slow?
-            $container.removeClass("manyFiles");
-            $fileBrowser.removeClass("unsortable");
-            $("#fileBrowserSearch input").val("");
+    function clearAll() {
+        $("#fileBrowserUp").addClass("disabled");
+        setPath("");
+        $pathLists.empty();
+        // performance when there's 1000+ files, is the remove slow?
+        $container.removeClass("manyFiles");
+        $fileBrowser.removeClass("unsortable");
+        $("#fileBrowserSearch input").val("");
 
-            $visibleFiles = $();
-            curFiles = [];
-            sortRegEx = undefined;
+        $visibleFiles = $();
+        curFiles = [];
+        sortRegEx = undefined;
 
-            document.getElementById("innerFileBrowserContainer").innerHTML = "";
-            FilePreviewer.close();
-        } else {
-            $container.find(".active").removeClass("active");
-        }
+        document.getElementById("innerFileBrowserContainer").innerHTML = "";
+
+        $(document).off(".fileBrowser");
+        $fileBrowser.removeClass("loadMode");
+        fileBrowserId = null;
+
+        FilePreviewer.close();
+    }
+
+    function cleanContainer() {
+        $container.find(".active").removeClass("active");
     }
 
     function backToForm() {
-        // the DSForm.show() will call FileBrowser.close
+        clearAll();
         DSForm.show();
     }
 
@@ -599,7 +597,7 @@ window.FileBrowser = (function($, FileBrowser) {
         XcalarListFiles(path, false)
         .then(function(listFilesOutput) {
             if (curBrowserId === fileBrowserId) {
-                clear();
+                cleanContainer();
                 allFiles = listFilesOutput.files;
                 sortFilesBy(sortKey, sortRegEx);
                 deferred.resolve();
@@ -713,7 +711,7 @@ window.FileBrowser = (function($, FileBrowser) {
             "format": format,
         };
 
-        FileBrowser.close();
+        clearAll();
         DSPreview.show(options);
     }
 
