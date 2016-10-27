@@ -27,6 +27,8 @@ window.DSForm = (function($, DSForm) {
     };
 
     DSForm.initialize = function() {
+        // reset anything browser may have autofilled
+        setProtocol(FileProtocol.nfs);
         resetForm();
         DSPreview.update();
     };
