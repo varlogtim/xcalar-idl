@@ -9,7 +9,6 @@ window.FileBrowser = (function($, FileBrowser) {
     var $visibleFiles;   // will hold nonhidden files
 
     var fileBrowserId;
-    var filePreviewer;
 
     /* Contants */
     var defaultSortKey  = "type"; // default is sort by type;
@@ -47,6 +46,10 @@ window.FileBrowser = (function($, FileBrowser) {
             upperFileLimit = subUpperFileLimit;
         }
 
+        $fileBrowser.on("click", "input", function() {
+            hideBrowserMenu();
+        });
+
         // click blank space to remove foucse on folder/dsds
         $container.on("click", function() {
             clear();
@@ -61,9 +64,6 @@ window.FileBrowser = (function($, FileBrowser) {
                 clear();
 
                 $grid.addClass("active");
-                if (isDS($grid)) {
-                    previewDS($grid);
-                }
             },
             "dblclick": function() {
                 var $grid = $(this);
@@ -91,7 +91,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // confirm to open a ds
         $fileBrowser.on("click", ".confirm", function() {
-            var $grid = $container.find(".grid-unit.active");
+            var $grid = getFocusedGridEle();
             sumbitForm($grid);
             return false;
         });
@@ -245,6 +245,8 @@ window.FileBrowser = (function($, FileBrowser) {
             return false;
         });
 
+        addBrowserMenuListener();
+
         fileBrowserScrolling();
     };
 
@@ -308,6 +310,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function fileBrowserScrolling() {
         var scrollTimer;
         $container.scroll(function() {
+            hideBrowserMenu();
             if ($(this).hasClass('noScrolling') ||
                 (curFiles.length <= lowerFileLimit ||
                 curFiles.length > upperFileLimit)) {
@@ -504,6 +507,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).off(".fileBrowser");
         $fileBrowser.removeClass("loadMode");
         fileBrowserId = null;
+        FilePreviewer.close();
     }
 
     function backToForm() {
@@ -627,7 +631,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function goIntoFolder() {
-        var $grid = $container.find(".grid-unit.active");
+        var $grid = getFocusedGridEle();
         if ($grid.hasClass("folder")) {
             $grid.trigger("dblclick");
         }
@@ -647,6 +651,7 @@ window.FileBrowser = (function($, FileBrowser) {
             deferred.resolve();
             return deferred.promise();
         }
+
         var oldPath = getCurrentPath();
         var path = $newPath.text();
 
@@ -941,7 +946,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getFocusGrid() {
-        var $grid = $container.find('.grid-unit.active');
+        var $grid = getFocusedGridEle();
         var grid;
 
         if ($grid.length > 0) {
@@ -952,6 +957,10 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         return (grid);
+    }
+
+    function getFocusedGridEle() {
+        return $container.find(".grid-unit.active");
     }
 
     function retrievePaths(path, noPathUpdate) {
@@ -1077,6 +1086,8 @@ window.FileBrowser = (function($, FileBrowser) {
             var $target = $(event.target);
             var code = event.which;
             var $lastTarget = gMouseEvents.getLastMouseDownTarget();
+
+            hideBrowserMenu();
             if ($target.is("input") ||
                 ($lastTarget != null &&
                 $lastTarget.closest("#fileBrowser").length === 0))
@@ -1091,7 +1102,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
 
             if (code === keyCode.Enter) {
-                var $grid = $container.find(".grid-unit.active");
+                var $grid = getFocusedGridEle();
                 $grid.trigger("dblclick");
                 return false;
             }
@@ -1298,12 +1309,53 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function previewDS($grid) {
-        return;
-        // XXX temporary disable it
+        if ($grid.length === 0) {
+            return;
+        }
+
         var currentPath = getCurrentPath();
         var gridName = getGridUnitName($grid);
         var url = currentPath + gridName;
         FilePreviewer.show(url);
+    }
+
+    function addBrowserMenuListener() {
+        var $fileBrowserMenu = $("#fileBrowserMenu");
+        addMenuBehaviors($fileBrowserMenu);
+
+        $fileBrowserMain[0].oncontextmenu = function(event) {
+            var $target = $(event.target);
+            var $grid = $target.closest(".grid-unit");
+
+            if ($grid.length ===0) {
+                return;
+            }
+            // focuse on grid
+            $grid.click();
+            
+            var classes = "";
+            if (isDS($grid)) {
+                classes = "dsOpts";
+            } else {
+                classes = "folderOpts";
+            }
+
+            xcHelper.dropdownOpen($target, $fileBrowserMenu, {
+                "classes" : classes,
+                "floating": true
+            });
+            return false;
+        };
+
+        $fileBrowserMenu.on("mouseup", ".preview", function() {
+            var $grid = getFocusedGridEle();
+            previewDS($grid);
+        });
+    }
+
+    function hideBrowserMenu() {
+        $("#fileBrowserMenu").hide();
+        $("#fileBrowserSortMenu").hide();
     }
 
     /* Unit Test Only */

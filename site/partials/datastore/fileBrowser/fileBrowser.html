@@ -97,16 +97,27 @@
           <div id="innerFileBrowserContainer" class="clearfix"></div>
         </section>
     </div>
-    <div id="fileBrowserPreview" class="rightMain">
-      <section class="mainSection">
-        <div class="loadingSection">
-          <div class="waitingIcon"></div>
-        </div>
-        <div class="errorSection"></div>
+    <div id="fileBrowserPreview" class="rightMain xc-hidden">
+      <section class="loadingSection">
+        <div class="waitingIcon"></div>
+      </section>
+      <section class="errorSection"></section>
+      <section class="mainSection leftPart">
+        <!-- only a placeholder -->
+        <div class="topSection"></div>
         <div class="contentSection">
-          <div class="previewer"></div>
-          <!-- later to implement -->
-          <!-- <div class="scroller"></div> -->
+          <div class="preview hexDump"></div>
+        </div>
+      </section>
+      <div class="divider"></div>
+      <section class="mainSection rightPart">
+        <div class="topSection">
+          <i class="xc-action icon close xi-close fa-15"></i>
+          <button class="toggleHex xc-action btn btn-small" data-toggle="tooltip" data-container="body" data-title="<%= dicts.fileBrowser.toggleHex %>">0X</button>
+        </div>
+        <div class="contentSection">
+          <div class="preview normal"></div>
+          <div class="preview hexDump"></div>
         </div>
       </section>
     </div>
@@ -117,5 +128,6 @@
     <button type="button" class="btn confirm"><%= dicts.common.NEXT %></button>
     <button type="button" class="btn btn-cancel cancel"><%= dicts.common.BACK %></button>
   </section>
+  include "fileBrowserMenu.html"
 </div>
 <!-- End File Browser -->

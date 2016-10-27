@@ -461,6 +461,7 @@ function XcalarPreview(url, isRecur, isRegex, numBytesRequested, offset) {
             retStruct.buffer = decoded;
             deferred.resolve(retStruct);
         } catch (error) {
+            console.error(error.stack);
             var thriftError = thriftLog("XcalarPreview", error);
             deferred.reject(thriftError);
         }

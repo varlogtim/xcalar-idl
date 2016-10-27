@@ -731,6 +731,13 @@ table.datasetTable {
         }
     }
 
+    &.previewMode {
+        .cardTopMain, .cardBottom {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+    }
+
     &.unsortable {
         #fileBrowserSort {
             cursor: not-allowed;
@@ -892,17 +899,14 @@ table.datasetTable {
         .position(relative);
         .size(@height: ~"calc(100% - 220px)");
         padding-top: 0;
+        .flex-display;
 
         .leftMain {
-            float: left;
-            // .size(@width: 78%);
-            .size(@width: 100%);
+            .flex(1 1 80%);
         }
 
         .rightMain {
-            float: left;
-            // .size(@width: 22%);
-            display: none;
+            .flex(1 1 20%);
         }
 
         .loadingSection {
@@ -1081,11 +1085,12 @@ table.datasetTable {
 
     #fileBrowserPreview {
         .size(@height: 100%);
-        padding: 20px 15px;
-
+        .position(relative);
+        padding: 20px 0;
+        .flex-display;
 
         &.loading {
-            .contentSection, .errorSection {
+            .mainSection, .errorSection {
                 display: none;
             }
 
@@ -1095,7 +1100,7 @@ table.datasetTable {
         }
 
         &.error {
-            .contentSection, .loadingSection {
+            .mainSection, .loadingSection {
                 display: none;
             }
 
@@ -1104,33 +1109,99 @@ table.datasetTable {
             }
         }
 
+        &.hexMode {
+            .divider {
+                display: block;
+            }
+
+            .mainSection {
+                &.leftPart {
+                    display: block;
+                }
+
+                .hexDump {
+                    display: block !important;
+                }
+
+                .normal {
+                    display: none;
+                }
+            }
+        }
+
         .loadingSection, .errorSection {
             display: none;
         }
 
+        .errorSection {
+            color: @color-table-red;
+            padding: 10px;
+        }
+
+        .divider {
+            display: none;
+            .size(@width: 1px, @height: 100%);
+            background-color: @color-bg-pinkish-grey2;
+        }
+
         .mainSection {
-            .size(@width: 100%, @height: 100%);
-            .position(relative);
-            border: 1px solid @color-border-pinkish-grey2;
+            .size(@height: 100%);
+            padding: 0 15px;
+
+            @top-h: 50px;
+
+            &.leftPart {
+                display: none;
+                .flex(1 1 80%);
+            }
+
+            &.rightPart {
+                .flex(1 1 20%);
+            }
+
+            .topSection {
+                .size(@width: 100%, @height: @top-h);
+
+                .icon, .btn {
+                    float: right;
+                }
+
+                .icon {
+                    color: @color-font-pinkish-grey;
+                    .size(@height: 30px);
+                    .position(relative);
+                    margin-left: 10px;
+
+                    &:before {
+                        display: block;
+                        .vertical-align;
+                    }
+                }
+            }
 
             .contentSection {
-                .size(@width: 100%, @height: 100%);
+                .size(@width: 100%, @height: ~"calc(100% - @{top-h})");
 
-                .previewer {
-                    .size(@width: ~"calc(100% - 20px)", @height: 100%);
+                .preview {
+                    .size(@width: 100%, @height: 100%);
                     overflow: hidden;
                     padding: 0 5px;
 
                     .line {
                         font-family: monospace;
                         font-size: 11px;
+                        text-align: center;
+
+                        .cell {
+                            display: inline-block;
+                            white-space: pre;   
+                        }
+                    }
+
+                    &.hexDump {
+                        display: none;
                     }
                 }
-            }
-
-            .errorSection {
-                color: @color-table-red;
-                padding: 10px;
             }
         }
     }
@@ -1141,6 +1212,15 @@ table.datasetTable {
 
         .btn {
             margin-right: 15px;
+        }
+    }
+}
+
+#fileBrowserMenu {
+    &.folderOpts {
+        .preview {
+            pointer-events: none;
+            opacity: @opacity-disabled;
         }
     }
 }

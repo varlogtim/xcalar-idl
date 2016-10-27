@@ -448,7 +448,8 @@ module.exports = {
         "instr": "Select the data source that you want to point to and then click the \"NEXT\" button.",
         "Up": "Go back",
         "filePathHint": "Click to see history",
-        "SearchHint": "Regex Search"
+        "SearchHint": "Regex Search",
+        "toggleHex": "Toggle between normal view and hex dump view"
     },
 
     "dsFormat": {
