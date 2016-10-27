@@ -233,7 +233,7 @@ window.TestSuite = (function($, TestSuite) {
      *                                can use :contains for
      * @param  {integer} timeLimit    length of time to search for before giving
      *                                up
-     * @param  {object} options       notExists - boolean, if true, we want to
+     * @param  {object} options       notExist - boolean, if true, we want to
      *                                check that this element doesn't exist
      *
      *                                optional - boolean, if true, existence of
@@ -436,22 +436,25 @@ window.TestSuite = (function($, TestSuite) {
         $grid.find(".gridIcon").click();
         checkExists('#dsTable[data-dsid="' + dsId + '"]')
         .then(function() {
+            var dsName = $("#dsInfo-title").text();
             $("#selectDSCols").click();
+            if (dsName.indexOf("flight") > -1) {
+                return checkExists(".selectedTable li:eq(33)");
+            } else if (dsName.indexOf("airport") > -1) {
+                return checkExists(".selectedTable li:eq(7)");
+            } else if (dsName.indexOf("schedule") > -1) {
+                return checkExists(".selectedTable li:eq(5)");
+            } else {
+                // TODO for each new table, should add a test case here
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(function() {
+            tableName = $("#dataCart .tableNameEdit").val();
+            header = ".tableTitle .tableName[value='" + tableName + "']";
 
-            var nestDefered = jQuery.Deferred();
-
-            setTimeout(function() {
-                tableName = $("#dataCart .tableNameEdit").val();
-                header = ".tableTitle .tableName[value='" + tableName + "']";
-
-                $("#dataCart-submit").click();
-
-                checkExists(header)
-                .then(nestDefered.resolve)
-                .fail(nestDefered.erject);
-            }, 300*slowInternetFactor);
-
-            return nestDefered.promise();
+            $("#dataCart-submit").click();
+            return checkExists(header);
         })
         .then(function() {
             var $header = $(header);
@@ -828,7 +831,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function newWorksheetTest(deferred, testName, currentTestNumber) {
-        console.log("start newWorksheetTest");
         // Tests add worksheet and rename new worksheet
         console.log("newWorksheetTest: add new worksheet");
         var $menu = $("#workspaceMenu");
@@ -898,8 +900,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
-        console.log("start multiGroupByTest",
-                    "group by Dest and AirTime onn count of ArrDelay_integer");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
 
@@ -971,7 +971,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiJoinTest(deferred, testName, currentTestNumber) {
-        console.log("start multiJoinTest");
         // point to schedule dataset
         console.log("point to schedule dataset");
         $("#dataStoresTab").click();
@@ -1048,8 +1047,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function columnRenameTest(deferred, testName, currentTestNumber) {
-        console.log("start columnRenameTest");
-
         $("#mainFrame").scrollLeft("0");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
@@ -1088,7 +1085,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function tableRenameTest(deferred, testName, currentTestNumber) {
-        console.log("start tableRenameTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTableWrap-" + tableId + " .tableName").val("NewTableName")
@@ -1115,7 +1111,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function profileTest(deferred, testName, currentTestNumber) {
-        console.log("start profileTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         var $header = $("#xcTable-" + tableId +
@@ -1163,7 +1158,6 @@ window.TestSuite = (function($, TestSuite) {
 
     // untested
     function corrTest(deferred, testName, currentTestNumber) {
-        console.log("start corrTest");
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
@@ -1180,7 +1174,6 @@ window.TestSuite = (function($, TestSuite) {
     // Disabled due to new aggregate and correlation. Needs to be triggered
     // via toggle of tabs
     function aggTest(deferred, testName, currentTestNumber) {
-        console.log("start aggTest");
         $("#aggTab").click();
         checkExists(".spinny", null, {notExist: true})
         .then(function() {
@@ -1195,7 +1188,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function schedTest(deferred, testName, currentTestNumber) {
-        console.log("start schedTest");
         // Create a schedule
         $("#dataflowTab").click();
         var $subTab = $("#schedulesButton");
@@ -1234,7 +1226,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function dfgTest(deferred, testName, currentTestNumber) {
-        console.log("start dfgTest");
         // Create a dfg
         $("#workspaceTab").click();
         var $worksheetTab = $(".worksheetTab.active");
@@ -1249,9 +1240,6 @@ window.TestSuite = (function($, TestSuite) {
 
         var $section = $("#dfCreateView");
         $section.find(".selectAllWrap").click();
-        // $section.find("li .text:contains('newclassid_string')")
-        //         .siblings(".checkbox").click();
-        // columnrenam test is temporary disabled
         $section.find("li .text:contains('class_id')")
                 .siblings(".checkbox").click();
 
@@ -1261,7 +1249,6 @@ window.TestSuite = (function($, TestSuite) {
 
         // got to scheduler panel
         $("#dataflowTab").click();
-        $("#dataflowButton").click();
 
         var selector = "#dfgMenu .dataFlowGroup .listBox " +
                         ".groupName:contains('" + dfgName + "')";
@@ -1277,9 +1264,8 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function retinaTest(deferred, testName, currentTestNumber) {
-        console.log("start retinaTest");
         // Create Parameter
-        var $dfgViz = $("#dfgViz");
+        var $dfgViz = $('#dfgViz');
         // add param to retina
         var $retTab = $dfgViz.find(".retTab");
         var $retPopup = $dfgViz.find(".retPopUp");
@@ -1291,7 +1277,9 @@ window.TestSuite = (function($, TestSuite) {
         $retTab.trigger(fakeEvent.mousedown);
 
         // Add parameter to export
-        $dfgViz.find(".dagTable.export").click();
+        var $dfg = $('#dfgViz .dagWrap[data-dataflowname="' + dfgName +
+                     '"]');
+        $dfg.find(".dagTable.export").click();
         $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
 
         var $dfgParamModal = $("#dfgParameterModal");
@@ -1302,13 +1290,14 @@ window.TestSuite = (function($, TestSuite) {
         );
         $dfgParamModal.find("input.editableParamDiv").trigger('input');
 
-        // var $row = $("#dagModleParamList").find(".unfilled:first");
         fileName = "file" + randInt();
 
-        checkExists("#dagModleParamList tr:first .paramName:contains('" +
+        console.log(dfgName);
+
+        checkExists("#dagModleParamList .row:first .paramName:contains('" +
                     paramName + "')")
         .then(function() {
-            $('#dagModleParamList').find('tr:first .paramVal').val(fileName);
+            $('#dagModleParamList').find('.row:first .paramVal').val(fileName);
             $dfgParamModal.find(".modalBottom .confirm").click();
 
             checkExists(".dagTable.export.hasParam")
@@ -1324,8 +1313,109 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
+    function runRetinaTest(deferred, testName, currentTestNumber) {
+        $('.dagWrap[data-dataflowname="' + dfgName + '"] .runNowBtn').click();
+        checkExists("#alertHeader .text:contains('Run')")
+        .then(function() {
+            // If text is "Successfully ran dataflow" or
+            // "Export file already exists", then all's well
+            if ($("#alertContent .text").text()
+                  .indexOf("Successfully ran dataflow") > -1) {
+                $("#alertActions .cancel").click();
+                TestSuite.pass(deferred, testName, currentTestNumber);
+            } else if ($("#alertContent .text").text()
+                                  .indexOf("Export file already exists") > -1) {
+                console.info("Export file already exists, retina test skipped");
+                $("#alertActions .confirm").click();
+                TestSuite.pass(deferred, testName, currentTestNumber);
+
+            } else {
+                TestSuite.fail(deferred, testName, currentTestNumber);
+            }
+        });
+    }
+
+    function cancelRetinaTest(deferred, testName, currentTestNumber) {
+        // First parameterize the node so that there is no way to duplicate
+        var $dfgViz = $("#dfgViz");
+        var $dfg = $('#dfgViz .dagWrap[data-dataflowname="' + dfgName +
+                     '"]');
+        $dfg.find(".dagTable.export").click();
+        $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
+
+        var $dfgParamModal = $("#dfgParameterModal");
+        var cancelFileName = fileName + fileName;
+        $('#dagModleParamList').find('.row:first .paramVal')
+                               .val(cancelFileName);
+        $dfgParamModal.find(".modalBottom .confirm").click();
+        $dfg.find(".runNowBtn").click();
+        setTimeout(function() {
+            $dfg.find(".runNowBtn").click(); // Cancel
+            checkExists("#alertModal:visible")
+            .then(function() {
+                if ($("#alertHeader .text").text()
+                      .indexOf("Cancellation Successful") > -1) {
+                    return PromiseHelper.resolve();
+                } else if ($("#alertContent .text").text()
+                                          .indexOf("Operation Canceled") > -1) {
+                    return PromiseHelper.resolve();
+                } else if ($("#alertContent .text").text()
+                                   .indexOf("Successfully ran dataflow") > -1) {
+                    console.info("Cancelled too late");
+                    return PromiseHelper.resolve();
+                } else if ($("#alertContent .text").text()
+                            .indexOf("Operation has finished") > -1) {
+                    return PromiseHelper.resolve();
+                } else if ($("#alertContent .text").text()
+                            .indexOf("Error occurs during Operation") > -1) {
+                    // Failed to cancel. Must wait for dfg to finish running
+                    // else deleteRetinaTest will fail
+                    console.info("Cancel failed");
+                    return PromiseHelper.reject();
+                } else {
+                    TestSuite.fail(deferred, testName, currentTestNumber);
+                }
+            })
+            .then(function() {
+                // Noop here
+                return PromiseHelper.resolve();
+            }, function() {
+                $("#alertActions .confirm").click();
+                return checkExists("#alertModal:visible");
+            })
+            .then(function() {
+                $("#alertActions .confirm").click();
+                TestSuite.pass(deferred, testName, currentTestNumber);
+            });
+        }, 100);
+    }
+
+    function deleteRetinaTest(deferred, testName, currentTestNumber) {
+        if ($("#alertActions").is(":visible")) {
+            $("#alertActions button:visible").click();
+        }
+        checkExists("#alertModal:hidden")
+        .then(function() {
+            $("#dfgMenu .dataFlowGroup .listBox .groupName:contains('" +
+              dfgName + "')").next(".deleteDataflow").click();
+            return checkExists("#alertModal:visible");
+        })
+        .then(function() {
+            $("#alertActions .confirm").click();
+            return checkExists("#dfgMenu .dataFlowGroup .listBox " +
+                               ".groupName:contains('" + dfgName + "')",
+                               undefined, {"notExist": true});
+        })
+        .then(function() {
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function() {
+            TestSuite.fail(deferred, testName, currentTestNumber);
+        });
+
+    }
+
     function addDFToSchedTest(deferred, testName, currentTestNumber) {
-        console.log("start addDFToSchedTest");
         // Attach schedule to dfg
         var $listBox = $("#dfgMenu .dataFlowGroup .listBox").filter(function() {
             return $(this).find(".groupName").text() === dfgName;
@@ -1352,7 +1442,6 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function jsonModalTest(deferred, testName, currentTestNumber) {
-        console.log("start jsonModalTest");
         var $jsonModal = $('#jsonModal');
         $('#workspaceTab').click();
         $('.worksheetTab').eq(1).trigger(fakeEvent.mousedown);
@@ -1424,9 +1513,15 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(schedTest, "ScheduleTest",
                   defaultTimeout, TestCaseDisabled);
     TestSuite.add(dfgTest, "DFTest",
-                  defaultTimeout, TestCaseDisabled);
+                  defaultTimeout, TestCaseEnabled);
     TestSuite.add(retinaTest, "RetinaTest",
-                  defaultTimeout, TestCaseDisabled);
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(runRetinaTest, "RunRetinaTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(cancelRetinaTest, "CancelRetinaTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(deleteRetinaTest, "DeleteRetinaTest",
+                  defaultTimeout, TestCaseEnabled);
     TestSuite.add(addDFToSchedTest, "AddDFToScheduleTest",
                   defaultTimeout, TestCaseDisabled);
     TestSuite.add(jsonModalTest, "JsonModalTest",
