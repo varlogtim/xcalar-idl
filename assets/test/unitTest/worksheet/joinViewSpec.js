@@ -1,5 +1,4 @@
 describe('JoinView', function() {
-    // xx currently depends on table with the name "unitTestFakeYelp" to exist
     var testDs;
     var tableName;
     var prefix;

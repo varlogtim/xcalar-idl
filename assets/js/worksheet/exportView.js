@@ -188,6 +188,7 @@ window.ExportView = (function($, ExportView) {
     };
 
     ExportView.show = function(tablId) {
+        var deferred = jQuery.Deferred();
         isOpen = true;
         formHelper.showView();
 
@@ -224,10 +225,15 @@ window.ExportView = (function($, ExportView) {
         .then(function(targs) {
             exportTargInfo = targs;
             restoreExportPaths(targs);
+            deferred.resolve();
         })
         .fail(function(error) {
+            Alert.error(ExportTStr.ListTargFail, error);
             console.error(error);
+            deferred.reject();
         });
+
+        return deferred.promise();
     };
 
     ExportView.close = function() {
@@ -396,6 +402,7 @@ window.ExportView = (function($, ExportView) {
                         return true;
                     }
                 }]);
+                deferred.reject();
             } else {
                 var closeModal = true;
                 var modalClosed = false;
@@ -839,7 +846,6 @@ window.ExportView = (function($, ExportView) {
 
     // get selected options when submitting form
     function getAdvancedOptions() {
-
         var options = {};
         options.format = DfFormatTypeT[$advancedSection.find('.typeRow')
                                                 .find('.radioButton.active')
@@ -885,6 +891,19 @@ window.ExportView = (function($, ExportView) {
         }
         return (options);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        ExportView.__testOnly__ = {};
+        ExportView.__testOnly__.getAdvancedOptions = getAdvancedOptions;
+        ExportView.__testOnly__.submitForm = submitForm;
+        ExportView.__testOnly__.checkDuplicateExportName = checkDuplicateExportName;
+        ExportView.__testOnly__.checkSortedTable = checkSortedTable;
+        ExportView.__testOnly__.restoreAdvanced = restoreAdvanced;
+        
+    }
+    /* End Of Unit Test Only */
+
 
     return (ExportView);
 }(jQuery, {}));

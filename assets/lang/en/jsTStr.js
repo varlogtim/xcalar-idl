@@ -382,7 +382,8 @@ ExportTStr = {
     'SuccessMsg': 'File Name: <file>\n File Location: <location>',
     'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location>' +
                     ' under the name: <file>',
-    'ExportOfCol': 'Export columns of <table>'
+    'ExportOfCol': 'Export columns of <table>',
+    'ListTargFail': 'List Targets Failed'
 
 };
 
