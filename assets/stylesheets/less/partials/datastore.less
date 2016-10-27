@@ -1086,7 +1086,6 @@ table.datasetTable {
     #fileBrowserPreview {
         .size(@height: 100%);
         .position(relative);
-        padding: 20px 0;
         .flex-display;
 
         &.loading {
@@ -1110,10 +1109,6 @@ table.datasetTable {
         }
 
         &.hexMode {
-            .divider {
-                display: block;
-            }
-
             .mainSection {
                 &.leftPart {
                     display: block;
@@ -1139,14 +1134,13 @@ table.datasetTable {
         }
 
         .divider {
-            display: none;
             .size(@width: 1px, @height: 100%);
             background-color: @color-bg-pinkish-grey2;
         }
 
         .mainSection {
             .size(@height: 100%);
-            padding: 0 15px;
+            padding: 20px 15px;
 
             @top-h: 50px;
 

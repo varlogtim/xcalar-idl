@@ -100,9 +100,9 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         for (var i = 0; i < len; i+= blockSize) {
             var endIndex = Math.min(len, i + blockSize);
             var block = buffer.slice(i, endIndex);
-            // tab and line split has a display issue, so use space to replace
-            // as in gui you cannot tell
-            block = block.replace(/[\n\t]/g, " ");
+            // use space to replace special chars
+            block = block.replace(/[\x00-\x1F\x20]/g, ' ');
+            block += " ".repeat(blockSize - block.length);
             html += getLineHtml(block);
         }
 
