@@ -38,6 +38,7 @@ window.DSForm = (function($, DSForm) {
             DSTable.hide();
         }
 
+        FileBrowser.close();
         $pathCard.removeClass("xc-hidden").siblings().addClass("xc-hidden");
         $filePath.focus();
     };

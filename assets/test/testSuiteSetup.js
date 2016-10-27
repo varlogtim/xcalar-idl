@@ -10,23 +10,31 @@
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
     var testSuiteKey = "autoTestsuite";
+    var hasUser = true;
 
     TestSuiteSetup.setup = function() {
         var params = getSearchParameters();
-        autoLogin(params["user"]);
+        var user = params["user"];
+        if (user == null) {
+            hasUser = false;
+        } else {
+           autoLogin(user);
+        }
     };
 
     TestSuiteSetup.initialize = function() {
-        // in case another trigger of Shortcuts.createWorkbook
+        // in case of the auto login trigger of short cuts
         localStorage.autoLogin = false;
-        Shortcuts.setup();
 
         var params = getSearchParameters();
-        var runTest = parseBooleanParam(params["test"]);
+        var runTest = hasUser && parseBooleanParam(params["test"]);
 
         StartManager.setup()
         .then(function() {
             if (!runTest) {
+                if (!hasUser) {
+                    document.write("Please Specify a user name");
+                }
                 return;
             }
 
@@ -47,10 +55,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     };
 
     function autoLogin(user) {
-        if (user == null) {
-            var suffixNum = Math.ceil(Math.random() * 1000);
-            user = "testSuite" + suffixNum;
-        }
         // XXX this may need to be replace after we have authentiaction
         sessionStorage.setItem("xcalar-fullUsername", user);
         sessionStorage.setItem("xcalar-username", user);
@@ -64,7 +68,54 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         }
 
         sessionStorage.setItem(testSuiteKey, "true");
-        return Shortcuts.createWorkbook();
+        return creatWorkbook();
+    }
+
+    function creatWorkbook() {
+        var deferred = jQuery.Deferred();
+        var count = 0;
+        var wbInterval = setInterval(function() {
+            if ($('#workbookPanel').is(':visible')) {
+                var num = Math.ceil(Math.random() * 1000);
+                var wbName = "WB" + num;
+                $('.newWorkbookBox input').val(wbName);
+                $('.newWorkbookBox button').click(); 
+                clearInterval(wbInterval);
+
+                activeWorkbook(wbName)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            } else {
+                count++;
+                if (count > 10) {
+                    clearInterval(wbInterval);
+                    deferred.reject();
+                }
+            }
+        }, 300);
+
+        return deferred.promise();
+    }
+
+    function activeWorkbook(wbName) {
+        var deferred = jQuery.Deferred();
+        var count = 0;
+        var wbInterval = setInterval(function() {
+            var $wkbkBox = $('.workbookBox[data-workbook-id*="' + wbName + '"]');
+            if ($wkbkBox.length > 0) {
+                clearInterval(wbInterval);
+                $wkbkBox.find('.activate').click();
+                deferred.resolve(wbName);
+            } else {
+                count++;
+                if (count > 10) {
+                    clearInterval(wbInterval);
+                    deferred.reject();
+                }
+            }
+        }, 300);
+
+        return deferred.promise();
     }
 
     function autoRunTestSuite() {

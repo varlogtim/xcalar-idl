@@ -307,6 +307,15 @@ window.FileBrowser = (function($, FileBrowser) {
         return deferred.promise();
     };
 
+    FileBrowser.close = function() {
+        // set to deault value
+        $fileBrowser.addClass("xc-hidden");
+        clear(true);
+        $(document).off(".fileBrowser");
+        $fileBrowser.removeClass("loadMode");
+        fileBrowserId = null;
+    };
+
     function fileBrowserScrolling() {
         var scrollTimer;
         $container.scroll(function() {
@@ -490,28 +499,14 @@ window.FileBrowser = (function($, FileBrowser) {
             sortRegEx = undefined;
 
             document.getElementById("innerFileBrowserContainer").innerHTML = "";
-
-            // keep sort order, so comment out
-            // $fileBrowser.find(".select").removeClass("select");
-            // sortKey = defaultSortKey;
-            // sortRegEx = undefined;
-            // reverseSort = false;
+            FilePreviewer.close();
         } else {
             $container.find(".active").removeClass("active");
         }
     }
 
-    function closeAll() {
-        // set to deault value
-        clear(true);
-        $(document).off(".fileBrowser");
-        $fileBrowser.removeClass("loadMode");
-        fileBrowserId = null;
-        FilePreviewer.close();
-    }
-
     function backToForm() {
-        closeAll();
+        // the DSForm.show() will call FileBrowser.close
         DSForm.show();
     }
 
@@ -718,8 +713,8 @@ window.FileBrowser = (function($, FileBrowser) {
             "format": format,
         };
 
+        FileBrowser.close();
         DSPreview.show(options);
-        closeAll();
     }
 
     function searchFiles(searchKey) {
