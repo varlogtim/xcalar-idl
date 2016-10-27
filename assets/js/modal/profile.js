@@ -338,15 +338,17 @@ window.Profile = (function($, Profile, d3) {
         });
 
         showProfile();
-
+        $modal.attr("data-state", "pending");
         generateProfile(table, txId)
         .then(function() {
+            $modal.attr("data-state", "finished");
             Transaction.done(txId, {
                 "noNotification": true
             });
             deferred.resolve();
         })
         .fail(function(error) {
+            $modal.attr("data-state", "failed");
             console.error("Profile failed", error);
             deferred.resolve();
         });
@@ -488,6 +490,7 @@ window.Profile = (function($, Profile, d3) {
 
     function refreshGroupbyInfo(resetRefresh) {
         var deferred = jQuery.Deferred();
+        // This function never deferred.reject
 
         $modal.addClass("loading");
 
@@ -549,7 +552,9 @@ window.Profile = (function($, Profile, d3) {
             })
             .fail(function(error) {
                 failureHandler(statsCol, error);
-                deferred.reject(error);
+                // Since we have already cleaned up here, we no longer need our
+                // caller to clean up for us. So we can resolve here
+                deferred.resolve();
             });
         } else {
             // the data is loading, show loadingSection and hide groupby section
@@ -911,11 +916,10 @@ window.Profile = (function($, Profile, d3) {
         .then(function() {
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                refreshGroupbyInfo();
+                return refreshGroupbyInfo();
             }
-
-            deferred.resolve();
         })
+        .then(deferred.resolve)
         .fail(function(error) {
             failureHandler(curStatsCol, error, txId);
             deferred.reject(error);
@@ -1676,6 +1680,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         curStatsCol.groupByInfo.isComplete = "running";
+        $modal.attr("data-state", "pending");
 
         var refreshTimer = setTimeout(function() {
             // refresh if not complete
@@ -1703,12 +1708,15 @@ window.Profile = (function($, Profile, d3) {
             clearTimeout(refreshTimer);
             order = newOrder;
             curStatsCol.groupByInfo.isComplete = true;
-            refreshGroupbyInfo(true);
-
             Transaction.done(txId);
+            return refreshGroupbyInfo(true);
+        })
+        .then(function() {
+            $modal.attr("data-state", "finished");
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
+            $modal.attr("data-state", "failed");
             curStatsCol.groupByInfo.isComplete = true;
             failureHandler(curStatsCol, error, txId);
         });

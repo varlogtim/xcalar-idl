@@ -130,7 +130,7 @@ window.TestSuite = (function($, TestSuite) {
                         if (testCase.testCaseEnabled) {
                             console.log("====================Test ",
                             currentTestNumber, " Begin====================");
-                            console.log("Testing: ", testCase.testName, "                     ");
+                            console.log("Testing: ", testCase.testName);
                             setTimeout(function() {
                                 if (localDeferred.state() === "pending") {
                                     var reason = "Timed out after " +
@@ -241,6 +241,9 @@ window.TestSuite = (function($, TestSuite) {
      *                                deferred.resolve regardless
                                       (example: a confirm box that appears
                                       in some cases)
+
+                                      asserts - array, for each value in the
+                                      array, it asserts that the element exists
      *
      */
     function checkExists(elemSelectors, timeLimit, options) {
@@ -283,6 +286,12 @@ window.TestSuite = (function($, TestSuite) {
                 }
             }
             if (allElemsPresent) {
+                if (options.asserts) {
+                    i = 0;
+                    for (; i<options.asserts.length; i++) {
+                        assert($(options.asserts[i]).length > 0);
+                    }
+                }
                 clearInterval(interval);
                 deferred.resolve(true);
             } else if (timeElapsed >= timeLimit) {
@@ -664,19 +673,22 @@ window.TestSuite = (function($, TestSuite) {
             console.log("start flightTestPart5", "upload python");
             $("#udfTab").click();
             $("#udfSection .tab[data-tab='udf-fnSection']").click();
-            var editor = UDF.getEditor();
-            editor.setValue('def ymd(year, month, day):\n' +
-                            '    if int(month) < 10:\n' +
-                            '        month = "0" + month\n' +
-                            '    if int(day) < 10:\n' +
-                            '        day = "0" + day\n' +
-                            '    return year + month + day');
-            $("#udf-fnName").val("ymd");
-            $("#udf-fnUpload").click();
+            checkExists(".editArea:visible")
+            .then(function() {
+                var editor = UDF.getEditor();
+                editor.setValue('def ymd(year, month, day):\n' +
+                                '    if int(month) < 10:\n' +
+                                '        month = "0" + month\n' +
+                                '    if int(day) < 10:\n' +
+                                '        day = "0" + day\n' +
+                                '    return year + month + day');
+                $("#udf-fnName").val("ymd");
+                $("#udf-fnUpload").click();
 
-            checkExists("#alertHeader:visible " +
-                        ".text:contains('Duplicate Module')",
-                        3000, {optional: true})
+                return checkExists("#alertHeader:visible " +
+                                   ".text:contains('Duplicate Module')",
+                                   3000, {optional: true});
+            })
             .then(function(found) {
                 if (found) {
                     $("#alertActions .confirm").click();
@@ -1118,7 +1130,8 @@ window.TestSuite = (function($, TestSuite) {
         $header.parent().parent().find(".flex-right .innerBox").click();
         $("#colMenu .profile").trigger(fakeEvent.mouseup);
         checkExists([".modalHeader .text:contains('Profile')",
-                     ".barArea .xlabel:contains('205')"], 30000)
+                     "#profileModal[data-state='finished']"], 30000,
+                     {"asserts": [".barArea .xlabel:contains('205')"]})
         .then(function() {
             assert($(".barChart .barArea").length === 8);
             assert($(".barArea .xlabel:contains('205')").length > 0);
@@ -1142,8 +1155,9 @@ window.TestSuite = (function($, TestSuite) {
                     Number(12).toLocaleString());
 
             $("#profileModal .sortSection .asc").click();
-            return checkExists(".barArea:first-child .xlabel:contains('134')",
-                                30000);
+            return checkExists("#profileModal[data-state='finished']", 30000,
+                               {"asserts": [
+                              ".barArea:first-child .xlabel:contains('134')"]});
         })
         .then(function() {
             assert($(".barArea .xlabel").eq(0).text() === "134");
@@ -1156,13 +1170,13 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
-    // untested
     function corrTest(deferred, testName, currentTestNumber) {
         var wsId = WSManager.getOrders()[1];
         var tableId = WSManager.getWSById(wsId).tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
         $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
-        checkExists(".aggTableField:contains('-0.4')", 20000)
+        checkExists("#aggModal-corr[data-state='finished']",
+                    20000, {"asserts": [".aggTableField:contains('-0.4')"]})
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
         })

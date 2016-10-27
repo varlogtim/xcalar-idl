@@ -94,13 +94,13 @@ window.AggModal = (function($, AggModal) {
             var colNum = $aggModal.data('colnum');
             $aggModal.removeData('tableid');
             $aggModal.removeData('colnum');
-            
+
             var tmp = gMinModeOn;
             gMinModeOn = true;
             closeAggModal();
             Profile.show(tableId, colNum);
             gMinModeOn = tmp;
-            
+
         });
 
         function scrollHelper($container, $mainAgg) {
@@ -133,12 +133,15 @@ window.AggModal = (function($, AggModal) {
             "sql"      : sql
         });
 
+        $quickAgg.attr("data-state", "pending");
         calcAgg(tableName, tableId, txId)
         .then(function() {
+            $quickAgg.attr("data-state", "finished");
             Transaction.done(txId);
             deferred.resolve();
         })
         .fail(function(error) {
+            $quickAgg.attr("data-state", "failed");
             console.error("Quick Aggregate Fails", error);
             Transaction.fail(txId, {
                 "noAlert": true,
@@ -181,12 +184,15 @@ window.AggModal = (function($, AggModal) {
             "sql"      : sql
         });
 
+        $corr.attr("data-state", "pending");
         calcCorr(tableName, tableId, txId)
         .then(function() {
+            $corr.attr("data-state", "finished");
             Transaction.done(txId);
             deferred.resolve();
         })
         .fail(function(error) {
+            $corr.attr("data-state", "failed");
             console.error("Quick Aggregate Fails", error);
             Transaction.fail(txId, {
                 "noAlert": true,
