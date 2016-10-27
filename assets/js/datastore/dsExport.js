@@ -132,7 +132,7 @@ window.DSExport = (function($, DSExport) {
                 } else if (type === "udf") {
                     type = "UDF";
                     formatArg = targets[i].specificInput.udfInput.url;
-                    var udfName = targets[i].specificInput.udfInput.udfName;
+                    var udfName = targets[i].specificInput.udfInput.appName;
                     udfName = udfName.split(":");
                     if (udfName.length === 2) {
                         options.module = udfName[0];

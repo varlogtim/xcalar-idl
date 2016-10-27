@@ -725,7 +725,7 @@ function XcalarAddUDFExportTarget(targetName, path, udfName, txId) {
     target.specificInput = new ExAddTargetSpecificInputT();
     target.specificInput.udfInput = new ExAddTargetUDFInputT();
     target.specificInput.udfInput.url = path;
-    target.specificInput.udfInput.udfName = udfName;
+    target.specificInput.udfInput.appName = udfName;
 
     var def1 = xcalarAddExportTarget(tHandle, target);
     // var def2 = XcalarGetQuery(workItem);
