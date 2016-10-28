@@ -140,8 +140,6 @@ function filePreviewerTest() {
             .then(function() {
                 expect($fileBrowserPreview.find(".preview").text())
                 .not.equal("");
-                expect($("#fileBrowser").hasClass("previewMode"))
-                .to.be.true;
                 done();
             })
             .fail(function(error) {
@@ -191,8 +189,8 @@ function filePreviewerTest() {
 
         it("Should close previewer", function() {
             FilePreviewer.close();
-            expect($("#fileBrowser").hasClass("previewMode"))
-            .to.be.false;
+            expect($fileBrowserPreview.hasClass("xc-hidden"))
+            .to.be.true;
         });
 
         after(function() {

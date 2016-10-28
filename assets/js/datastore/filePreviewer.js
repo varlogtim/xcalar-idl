@@ -19,13 +19,11 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         cleanPreviewer();
         setPreviewerId();
         $fileBrowserPreview.removeClass("xc-hidden");
-        $("#fileBrowser").addClass("previewMode");
         return initialPreview(url);
     };
 
     FilePreviewer.close = function() {
         $fileBrowserPreview.addClass("xc-hidden");
-        $("#fileBrowser").removeClass("previewMode");
         cleanPreviewer();
     };
 

@@ -397,6 +397,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function toggleView(toListView, noRefreshTooltip) {
         var $btn = $("#fileBrowserGridView");
+        FilePreviewer.close();
         if (toListView == null) {
             // if current is gridView, change to listView;
             toListView = $fileBrowserMain.hasClass("gridView");
@@ -645,6 +646,8 @@ window.FileBrowser = (function($, FileBrowser) {
             return deferred.promise();
         }
 
+        FilePreviewer.close();
+
         var oldPath = getCurrentPath();
         var path = $newPath.text();
 
@@ -718,6 +721,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function searchFiles(searchKey) {
         var grid = getFocusGrid();
         var regEx = (searchKey == null) ? null : new RegExp(searchKey);
+        FilePreviewer.close();
         sortFilesBy(sortKey, regEx);
         focusOn(grid);
     }
@@ -725,6 +729,8 @@ window.FileBrowser = (function($, FileBrowser) {
     function sortAction($option, isFromSortOption) {
         var grid = getFocusGrid();
         var key = $option.data("sortkey");
+
+        FilePreviewer.close();
 
         $option.siblings(".select").removeClass("select");
         $option.addClass("select");
