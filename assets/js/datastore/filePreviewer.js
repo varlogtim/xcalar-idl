@@ -20,7 +20,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         setPreviewerId();
         $fileBrowserPreview.removeClass("xc-hidden");
         $("#fileBrowser").addClass("previewMode");
-        initialPreview(url);
+        return initialPreview(url);
     };
 
     FilePreviewer.close = function() {
@@ -35,6 +35,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         totalSize = 0;
         $fileBrowserPreview.find(".preview").empty();
         $fileBrowserPreview.removeData("id");
+        $fileBrowserPreview.find(".errorSection").text("");
         $fileBrowserPreview.find(".offsetNum").text(0);
         $fileBrowserPreview.find(".skipToOffset")
         .removeClass("xc-disabled").val("");
@@ -45,7 +46,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     function initialPreview(url) {
         urlToPreview = url;
         var offset = 0;
-        previewFile(offset);
+        return previewFile(offset);
     }
 
     function previewFile(offset) {
@@ -97,6 +98,11 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         return deferred.promise();
     }
 
+    function handleError(error) {
+        inErrorMode();
+        $fileBrowserPreview.find(".errorSection").text(error.error);
+    }
+
     function isValidId(previewerId) {
         var currentId = getPreviewerId();
         return (previewerId === currentId);
@@ -111,9 +117,44 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         idCount++;
     }
 
-    function handleError(error) {
-        inErrorMode();
-        $fileBrowserPreview.find(".errorSection").text(error.error);
+    function inPreviewMode() {
+        previewOrHexMode();
+        $("#fileBrowserMain").removeClass("xc-hidden");
+        $fileBrowserPreview.removeClass("hexMode");
+    }
+
+    function isInHexMode() {
+        return $fileBrowserPreview.hasClass("hexMode");
+    }
+
+    function inHexMode() {
+        previewOrHexMode();
+        $("#fileBrowserMain").addClass("xc-hidden");
+        $fileBrowserPreview.addClass("hexMode");
+    }
+
+    function previewOrHexMode() {
+        $fileBrowserPreview.find(".toggleHex").removeClass("xc-disabled");
+        $fileBrowserPreview.removeClass("loading")
+                            .removeClass("error");
+    }
+
+    function inLoadMode() {
+        $fileBrowserPreview.find(".toggleHex").addClass("xc-disabled");
+
+        var dealyTime = 1000;
+        var timer = setTimeout(function() {
+            $fileBrowserPreview.removeClass("error")
+                        .addClass("loading");
+        }, dealyTime);
+
+        return timer;
+    }
+
+    function inErrorMode() {
+        $fileBrowserPreview.find(".toggleHex").addClass("xc-disabled");
+        $fileBrowserPreview.removeClass("loading hexMode")
+                        .addClass("error");
     }
 
     function showPreview(base64Data, blockSize) {
@@ -194,46 +235,6 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         return style;
     }
 
-    function inPreviewMode() {
-        previewOrHexMode();
-        $("#fileBrowserMain").removeClass("xc-hidden");
-        $fileBrowserPreview.removeClass("hexMode");
-    }
-
-    function inHexMode() {
-        previewOrHexMode();
-        $("#fileBrowserMain").addClass("xc-hidden");
-        $fileBrowserPreview.addClass("hexMode");
-    }
-
-    function previewOrHexMode() {
-        $fileBrowserPreview.find(".toggleHex").removeClass("xc-disabled");
-        $fileBrowserPreview.removeClass("loading")
-                            .removeClass("error");
-    }
-
-    function isInHexMode() {
-        return $fileBrowserPreview.hasClass("hexMode");
-    }
-
-    function inLoadMode() {
-        $fileBrowserPreview.find(".toggleHex").addClass("xc-disabled");
-
-        var dealyTime = 1000;
-        var timer = setTimeout(function() {
-            $fileBrowserPreview.removeClass("error")
-                        .addClass("loading");
-        }, dealyTime);
-
-        return timer;
-    }
-
-    function inErrorMode() {
-        $fileBrowserPreview.find(".toggleHex").addClass("xc-disabled");
-        $fileBrowserPreview.removeClass("loading hexMode")
-                        .addClass("error");
-    }
-
     function calculateCharsPerLine() {
         var $section = $fileBrowserPreview.find(".rightPart .preview:visible");
         var sectionWidth = $section.width();
@@ -310,19 +311,24 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             StatusBox.show(DSTStr.OffsetErr, $skipToOffset, false, {
                 "side": "left"
             });
-            return;
+            return PromiseHelper.resolve();
         }
 
+        var deferred = jQuery.Deferred();
         var normalizedOffset = normalizeOffset(offset);
         $skipToOffset.addClass("xc-disabled");
 
         previewFile(normalizedOffset)
         .then(function() {
             updateOffset(offset, false);
+            deferred.resolve();
         })
+        .fail(deferred.reject)
         .always(function() {
             $skipToOffset.removeClass("xc-disabled");
         });
+
+        return deferred.promise();
     }
 
     function normalizeOffset(offset) {
@@ -337,6 +343,19 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         FilePreviewer.__testOnly__.isValidId = isValidId;
         FilePreviewer.__testOnly__.getPreviewerId = getPreviewerId;
         FilePreviewer.__testOnly__.setPreviewerId = setPreviewerId;
+        FilePreviewer.__testOnly__.inPreviewMode = inPreviewMode;
+        FilePreviewer.__testOnly__.isInHexMode = isInHexMode;
+        FilePreviewer.__testOnly__.inHexMode = inHexMode;
+        FilePreviewer.__testOnly__.inLoadMode = inLoadMode;
+        FilePreviewer.__testOnly__.inErrorMode = inErrorMode;
+        FilePreviewer.__testOnly__.cleanPreviewer = cleanPreviewer;
+        FilePreviewer.__testOnly__.handleError = handleError;
+        FilePreviewer.__testOnly__.getCharHtml = getCharHtml;
+        FilePreviewer.__testOnly__.getCodeHtml = getCodeHtml;
+        FilePreviewer.__testOnly__.getCell = getCell;
+        FilePreviewer.__testOnly__.getCellStyle = getCellStyle;
+        FilePreviewer.__testOnly__.updateOffset = updateOffset;
+        FilePreviewer.__testOnly__.fetchNewPreview = fetchNewPreview;
     }
     /* End Of Unit Test Only */
 

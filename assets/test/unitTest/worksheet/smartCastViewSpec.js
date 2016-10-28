@@ -1,4 +1,4 @@
-describe('Smarat Cast View Test', function() {
+describe('Smart Cast View Test', function() {
     var $castView;
     var $table;
     var tableId;
