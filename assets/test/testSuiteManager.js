@@ -1,16 +1,3 @@
-/* visit testSuite.html
- *  params:
- *      user: userName to use, default will be testSuite + random suffix
- *      test: only set to true then can we trigger teststuite
- *      delay:  dealy time before running test suite
- *      animation: if testsuite should run with animation
- *      clean: if teststuite should clean table after finishing
- *      close: true or force. if true, window closes after successful run. if
- *        force, window closes after all runs regardless of success or failure
- *      id: id of current run. For reporting back to testSuiteManager
- * example:
- *  http://localhost:8888/testSuite.html?test=true&delay=2000&user=test&clean=true&close=true
- */
 window.TestSuiteManager = (function(TestSuiteManager) {
 
     var windowRefs = [];

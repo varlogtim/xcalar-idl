@@ -121,57 +121,64 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         // Start PromiseHelper.chaining the callbacks
-        for (var ii = 0; ii < testCases.length; ii++) {
-            deferred = deferred.then(
-                // Need to trap the value of testCase and ii
-                (function trapFn(testCase, currentTestNumber) {
-                    return (function() {
-                        var localDeferred = jQuery.Deferred();
-                        if (testCase.testCaseEnabled) {
-                            console.log("====================Test ",
-                            currentTestNumber, " Begin====================");
-                            console.log("Testing: ", testCase.testName);
-                            setTimeout(function() {
-                                if (localDeferred.state() === "pending") {
-                                    var reason = "Timed out after " +
-                                         (testCase.timeout / 1000) + " seconds";
-                                    TestSuite.fail(localDeferred,
-                                                   testCase.testName,
-                                                   currentTestNumber,
-                                                   reason);
-                                }
-                            }, testCase.timeout);
+        try {
+            for (var ii = 0; ii < testCases.length; ii++) {
+                deferred = deferred.then(
+                    // Need to trap the value of testCase and ii
+                    (function trapFn(testCase, currentTestNumber) {
+                        return (function() {
+                            var localDeferred = jQuery.Deferred();
+                            if (testCase.testCaseEnabled) {
+                                console.log("====================Test ",
+                                currentTestNumber, " Begin====================");
+                                console.log("Testing: ", testCase.testName);
+                                setTimeout(function() {
+                                    if (localDeferred.state() === "pending") {
+                                        var reason = "Timed out after " +
+                                             (testCase.timeout / 1000) + " seconds";
+                                        TestSuite.fail(localDeferred,
+                                                       testCase.testName,
+                                                       currentTestNumber,
+                                                       reason);
+                                    }
+                                }, testCase.timeout);
 
-                            startTime = new Date().getTime();
-                            curDeferred = localDeferred;
-                            curTestName = testCase.testName;
-                            curTestNumber = currentTestNumber;
+                                startTime = new Date().getTime();
+                                curDeferred = localDeferred;
+                                curTestName = testCase.testName;
+                                curTestNumber = currentTestNumber;
 
-                            testCase.testFn(localDeferred, testCase.testName,
-                                            currentTestNumber);
-                        } else {
-                            TestSuite.skip(localDeferred, testCase.testName,
-                                           currentTestNumber);
-                        }
+                                testCase.testFn(localDeferred, testCase.testName,
+                                                currentTestNumber);
+                            } else {
+                                TestSuite.skip(localDeferred, testCase.testName,
+                                               currentTestNumber);
+                            }
 
-                        return localDeferred.promise();
-                    });
-                })(testCases[ii], ii + 1) // Invoking trapFn
-            );
+                            return localDeferred.promise();
+                        });
+                    })(testCases[ii], ii + 1) // Invoking trapFn
+                );
+            }
+        } catch(err) {
+            if (err === "testSuite bug") {
+                endRun();
+            }
         }
-
         deferred.fail(function() {
             returnValue = 1;
         });
 
-        deferred.always(function() {
+        deferred.always(endRun);
+
+        function endRun() {
             if (toClean) {
                 cleanup()
                 .always(finish);
             } else {
                 finish();
             }
-        });
+        }
 
         function finish() {
             console.log("# pass", passes);
@@ -867,7 +874,7 @@ window.TestSuite = (function($, TestSuite) {
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 try {
                     return $(this).data("id").endsWith(idCount + 5);
-                } catch () {
+                } catch (err) {
                     throw "testSuite bug";
                 }
             });
@@ -1465,6 +1472,9 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function jsonModalTest(deferred, testName, currentTestNumber) {
+        if ($("#alertActions").is(":visible")) {
+            $("#alertActions button:visible").click();
+        }
         var $jsonModal = $('#jsonModal');
         $('#workspaceTab').click();
         $('.worksheetTab').eq(1).trigger(fakeEvent.mousedown);
@@ -1544,7 +1554,7 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(cancelRetinaTest, "CancelRetinaTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(deleteRetinaTest, "DeleteRetinaTest",
-                  defaultTimeout, TestCaseEnabled);
+                  defaultTimeout, TestCaseDisabled);
     TestSuite.add(addDFToSchedTest, "AddDFToScheduleTest",
                   defaultTimeout, TestCaseDisabled);
     TestSuite.add(jsonModalTest, "JsonModalTest",
