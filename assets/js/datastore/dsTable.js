@@ -84,6 +84,17 @@ window.DSTable = (function($, DSTable) {
             deferred.resolve();
         })
         .fail(function(error) {
+            clearTimeout(timer);
+            dsObj.release();
+
+            if (error === notLastDSError ||
+                lastDSToSample !== datasetName)
+            {
+                return;
+            }
+
+            error = dsObj.getError() || error;
+
             var errorMsg;
             if (typeof error === "object" && error.error != null) {
                 errorMsg = error.error;
@@ -96,40 +107,11 @@ window.DSTable = (function($, DSTable) {
                 errorMsg = ErrTStr.Unknown;
             }
 
-            clearTimeout(timer);
-            dsObj.release();
-
-            if (errorMsg === notLastDSError ||
-                lastDSToSample !== datasetName)
-            {
-                return;
-            }
-
-            setupViewAfterError();
-
-            var errorText = StatusMessageTStr.LoadFailed + ". " + errorMsg;
-            var loadError = dsObj.getError();
-            if (loadError == null) {
-                if (errorMsg === DSTStr.NoRecords) {
-                    errorText += "\n" + DSTStr.NoRecrodsHint;
-                }
-            } else {
-                if (typeof loadError === "object") {
-                    loadError = loadError.error;
-                }
-
-                errorText += "\n" + loadError;
-            }
+            errorMsg = StatusMessageTStr.LoadFailed + ". " + errorMsg;
+            setupViewAfterError(errorMsg);
 
             var $errorSection = $dsTableContainer.find(".errorSection");
-            $errorSection.find(".error").html(errorText);
-            if (errorMsg === DSTStr.NoRecords) {
-                // the way to detect if need reset limit might be buggy
-                $errorSection.find(".limit, .or").removeClass("xc-hidden");
-                advanceOption.reset();
-            } else {
-                $errorSection.find(".limit, .or").addClass("xc-hidden");
-            }
+            $errorSection.find(".error").html(errorMsg);
 
             deferred.reject(error);
         });
@@ -152,11 +134,18 @@ window.DSTable = (function($, DSTable) {
             $dsColsBtn.removeClass("xc-hidden");
         }
 
-        function setupViewAfterError() {
+        function setupViewAfterError(error) {
             $tableWrap.html("");
             $dsColsBtn.addClass("xc-hidden");
             $dsTableContainer.removeClass("loading");
             $dsTableContainer.addClass("error");
+
+            var $errorSection = $dsTableContainer.find(".errorSection");
+            $errorSection.find(".error").html(error);
+            // XXX this part is confusing as we cannot tell
+            // if the error is because of size limit or other reason
+            // so hide it for now
+            $errorSection.find(".limit, .or").addClass("xc-hidden");
         }
     };
 

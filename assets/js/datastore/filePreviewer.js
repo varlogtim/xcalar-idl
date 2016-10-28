@@ -38,6 +38,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         $fileBrowserPreview.find(".offsetNum").text(0);
         $fileBrowserPreview.find(".skipToOffset")
         .removeClass("xc-disabled").val("");
+
         inPreviewMode();
     }
 
@@ -94,6 +95,20 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         });
 
         return deferred.promise();
+    }
+
+    function isValidId(previewerId) {
+        var currentId = getPreviewerId();
+        return (previewerId === currentId);
+    }
+
+    function getPreviewerId() {
+        return $fileBrowserPreview.data("id");
+    }
+
+    function setPreviewerId() {
+        $fileBrowserPreview.data("id", idCount);
+        idCount++;
     }
 
     function handleError(error) {
@@ -219,21 +234,6 @@ window.FilePreviewer = (function(FilePreviewer, $) {
                         .addClass("error");
     }
 
-    function isValidId(previewerId) {
-        var currentId = getPreviewerId();
-        return (previewerId === currentId);
-    }
-
-    function getPreviewerId() {
-        return $fileBrowserPreview.data("id");
-    }
-
-    function setPreviewerId() {
-        $fileBrowserPreview.data("id", idCount);
-        idCount++;
-    }
-
-
     function calculateCharsPerLine() {
         var $section = $fileBrowserPreview.find(".rightPart .preview:visible");
         var sectionWidth = $section.width();
@@ -330,6 +330,15 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         offset = Math.floor(offset / charsInOneLine) * charsInOneLine;
         return offset;
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        FilePreviewer.__testOnly__ = {};
+        FilePreviewer.__testOnly__.isValidId = isValidId;
+        FilePreviewer.__testOnly__.getPreviewerId = getPreviewerId;
+        FilePreviewer.__testOnly__.setPreviewerId = setPreviewerId;
+    }
+    /* End Of Unit Test Only */
 
     return (FilePreviewer);
 }({}, jQuery));

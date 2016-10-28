@@ -397,7 +397,7 @@ module.exports = {
         "Format": "Format",
         "Protocol": "Data Source Protocol",
         "Retry": "Retry",
-        "RetryPoint": "Please try to point to data with different parameters",
+        "RetryPoint": "Please try to point to data with different parameters(for example, a larger dataset size)",
         "RetryLimit": "Please set the dataset size limit and try again.",
         "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modified the table name and then click \"SEND TO WORKSHEET\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
     },
