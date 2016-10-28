@@ -1,12 +1,16 @@
 /* visit testSuite.html
  *  params:
  *      user: userName to use, default will be testSuite + random suffix
- *      test: only set to true then can we trigger teststuite
+ *      test: only set to y then can we trigger teststuite
  *      delay:  dealy time before running test suite
  *      animation: if testsuite should run with animation
- *      clean if teststuite should clean table after finishing
- * example: 
- *  http://localhost:8888/testSuite.html?test=true&delay=2000&user=test&clean=true
+ *      clean: if teststuite should clean table after finishing
+ *      close: y or force. if y, window closes after successful run. if
+ *        force, window closes after all runs regardless of success or failure
+ *      id: id of current run. For reporting back to testSuiteManager
+ *      noPopup: y to suppress alert with final results
+ * example:
+ *  http://localhost:8888/testSuite.html?test=true&delay=2000&user=test&clean=true&close=true
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
     var testSuiteKey = "autoTestsuite";
@@ -125,21 +129,38 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         if (isNaN(delay)) {
             delay = 0;
         }
+        var close = params["close"];
 
         var clean = parseBooleanParam(params["clean"]);
         var animation = parseBooleanParam(params["animation"]);
+        var noPopup = parseBooleanParam(params["noPopup"]);
+
+        var id = Number(params["id"]);
+        if (isNaN(id)) {
+            id = 0;
+        }
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
-            TestSuite.run(animation, clean)
+            TestSuite.run(animation, clean, noPopup)
             .then(function(res) {
                 console.info(res);
+                window.opener.reportResults(id, res);
+                if (close) {
+                    if (close === "force") {
+                        window.close();
+                    } else {
+                        if (res.fail === 0) {
+                            window.close();
+                        }
+                    }
+                }
             });
         }, delay);
     }
 
     function parseBooleanParam(param) {
-        if (param === "true") {
+        if (param === "y") {
             return true;
         } else {
             return false;
