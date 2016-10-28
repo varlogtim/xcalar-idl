@@ -135,11 +135,9 @@ describe('ExportView', function() {
     after(function(done) {
         ExportView.close();
 
-        setTimeout(function() { // allow join estimator to finish
-            UnitTest.deleteAll(tableName, testDs)
-            .always(function() {
-               done();
-            });
-        }, 2000);
+        UnitTest.deleteAll(tableName, testDs)
+        .always(function() {
+           done();
+        });
     });
 });

@@ -390,6 +390,9 @@ window.JSONModal = (function($, JSONModal) {
                 $jsonWrap.find('.immediatesType').addClass('xc-hidden');
             }
         }
+        searchHelper.clearSearch(function() {
+            clearSearch();
+        });
     }
 
     function compareIconSelect($compareIcon) {
@@ -526,6 +529,7 @@ window.JSONModal = (function($, JSONModal) {
 
             if (isDataCol) {
                 backColName = nameInfo.escapedName;
+                colNum = $("#xcTable-" + tableId).find('th.dataCol').index();
             } else {
                 var symbol = isArray ? "" : ".";
                 var colName = table.getCol(colNum).getBackColName();
@@ -742,7 +746,8 @@ window.JSONModal = (function($, JSONModal) {
             return;
         }
         var $targets = $jsonText.find('.text').filter(function() {
-            return ($(this).text().toLowerCase().indexOf(text) !== -1);
+            return ($(this).is(':visible') && 
+                $(this).text().toLowerCase().indexOf(text) !== -1);
         });
 
         text = xcHelper.escapeRegExp(text);
@@ -1360,12 +1365,12 @@ window.JSONModal = (function($, JSONModal) {
                 '</div>' +
                 '<div class="flexArea">' +
                     '<div class="infoArea">' +
-                        '<div class="tableName">Table:&nbsp;&nbsp;' +
+                        '<div class="tableName">Table:' +
                             '<span class="text" data-toggle="tooltip" ' +
                                 'data-container="body" data-placement="bottom" ' +
                                 'title="' + tableName + '">' + tableName + '</span>' +
                         '</div>' +
-                        '<div class="rowNum">Row:&nbsp;&nbsp;' +
+                        '<div class="rowNum">Row:' +
                             '<span class="text">' + rowNum.toLocaleString("en") + '</span>' +
                         '</div>' +
                     '</div>' +
@@ -1796,6 +1801,14 @@ window.JSONModal = (function($, JSONModal) {
             $menu.hide();
         });
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        JSONModal.__testOnly__ = {};
+        JSONModal.__testOnly__.closeJSONModal = closeJSONModal;
+        
+    }
+    /* End Of Unit Test Only */
 
     return (JSONModal);
 }(jQuery, {}));
