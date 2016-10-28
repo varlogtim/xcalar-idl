@@ -1383,7 +1383,6 @@ window.JSONModal = (function($, JSONModal) {
                         'data-toggle="tooltip" ' +
                         'data-container="body" ' +
                         'title="' + JsonModalTStr.ViewAllTip + '">' +
-                            '<i class="icon xi-show"></i>' +
                             '<span class="text">' + JsonModalTStr.ViewAll +
                             '</span>' +
                         '</div>' +
