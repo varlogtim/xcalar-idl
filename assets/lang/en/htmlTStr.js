@@ -451,7 +451,7 @@ module.exports = {
         "SearchHint": "Regex Search",
         "toggleHex": "Toggle between file browser window and hex dump view",
         "Offset": "Offset",
-        "SkipToOffset": "Skip To Offset"
+        "SkipToOffset": "Skip to"
     },
 
     "dsFormat": {

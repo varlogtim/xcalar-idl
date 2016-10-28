@@ -306,7 +306,6 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
     function fetchNewPreview(offset) {
         var $skipToOffset = $fileBrowserPreview.find(".skipToOffset");
-        offset = normalizeOffset(offset);
         if (offset >= totalSize) {
             StatusBox.show(DSTStr.OffsetErr, $skipToOffset, false, {
                 "side": "left"
@@ -314,9 +313,10 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             return;
         }
 
+        var normalizedOffset = normalizeOffset(offset);
         $skipToOffset.addClass("xc-disabled");
 
-        previewFile(offset)
+        previewFile(normalizedOffset)
         .then(function() {
             updateOffset(offset, false);
         })
@@ -327,7 +327,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
     function normalizeOffset(offset) {
         var charsInOneLine = calculateCharsPerLine();
-        offset = Math.ceil(offset / charsInOneLine) * charsInOneLine;
+        offset = Math.floor(offset / charsInOneLine) * charsInOneLine;
         return offset;
     }
 

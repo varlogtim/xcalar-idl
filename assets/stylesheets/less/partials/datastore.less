@@ -719,7 +719,7 @@ table.datasetTable {
 
 /* File Browser */
 #fileBrowser {
-    .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
+    .size(@min-width: 650px, @height: ~"calc(100% - 5px)");
     text-transform: capitalize;
     overflow: visible;
 
@@ -1086,7 +1086,6 @@ table.datasetTable {
     #fileBrowserPreview {
         .size(@height: 100%);
         .position(relative);
-        .flex-display;
 
         &.loading {
             .mainSection, .errorSection, .divider {
@@ -1113,6 +1112,11 @@ table.datasetTable {
             .mainSection {
                 &.leftPart {
                     display: block;
+                    .size(@width: 80%);
+                }
+
+                &.rightPart {
+                    .size(@width: 20%);
                 }
 
                 .hexDump {
@@ -1135,27 +1139,29 @@ table.datasetTable {
         }
 
         .divider {
-            .size(@width: 1px, @height: 100%);
-            background-color: @color-bg-pinkish-grey2;
+            display: none;
         }
 
         .mainSection {
             @top-h: 30px;
-            @bottom-h: 40px;
+            @bottom-h: 70px;
             @topAndBottom-h: @top-h + @bottom-h;
 
             .size(@height: 100%);
-            padding: 20px 15px;
-
+            padding: 15px;
+            overflow-x: auto;
             
 
             &.leftPart {
                 display: none;
-                .flex(1 1 80%);
+                .size(@width: 0);
+                float: left;
             }
 
             &.rightPart {
-                .flex(1 1 20%);
+                .size(@width: 100%);
+                float: left;
+                border-left: 1px solid @color-border-pinkish-grey2;
             }
 
             .topSection {
@@ -1212,20 +1218,27 @@ table.datasetTable {
 
             .bottomSection {
                 .size(@width: 100%, @height: @bottom-h);
-                padding: 5px 15px;
-                .flex-display;
-                .justify-content(space-between);
+                padding: 5px 0;
 
                 > div {
                     .size(@height: 30px);
-                    .flex-display(1 1 50%);
                     .input-box(@w: 60px, @h: 30px);
                     .font(@line-height: 30px);
+                    float: right;
+                    clear: right;
+                    text-transform: none;
 
-                    &:first-child {
-                        margin-right: 10px;
-                        max-width: 150px;
-                        .textOverflowOneLine;
+                    span {
+                        display: inline-block;
+                        float: left;
+                    }
+
+                    .text {
+                        margin-right: 3px;
+                    }
+
+                    .offsetNum {
+                        .size(@width: 60px, @max-width: ~"calc(100% - 50px)");
                     }
 
                     input {
