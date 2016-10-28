@@ -903,11 +903,11 @@ table.datasetTable {
         .flex-display;
 
         .leftMain {
-            .flex(1 1 80%);
+            .flex(1 1 77%);
         }
 
         .rightMain {
-            .flex(1 1 20%);
+            .flex(1 1 23%);
         }
 
         .loadingSection {
@@ -1113,19 +1113,15 @@ table.datasetTable {
             .mainSection {
                 &.leftPart {
                     display: block;
-                    .size(@width: 80%);
+                    .size(@width: 77%);
                 }
 
                 &.rightPart {
-                    .size(@width: 20%);
+                    .size(@width: 23%);
                 }
 
                 .hexDump {
                     display: block !important;
-                }
-
-                .normal {
-                    display: none;
                 }
             }
         }
@@ -1213,6 +1209,10 @@ table.datasetTable {
 
                     &.hexDump {
                         display: none;
+
+                        .cell {
+                            margin: 0 1px;
+                        }
                     }
                 }
             }
@@ -1231,11 +1231,11 @@ table.datasetTable {
 
                     span {
                         display: inline-block;
-                        float: left;
                     }
 
                     .text {
                         margin-right: 3px;
+                        .size(@width: 50px);
                     }
 
                     .offsetNum {

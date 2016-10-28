@@ -160,24 +160,21 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     function showPreview(base64Data, blockSize) {
         var buffer = atob(base64Data);
         var codeHtml = "";
-        var normCharHtml = "";
-        var dotCharHtml = "";
+        var charHtml = "";
 
         for (var i = 0, len = buffer.length; i < len; i += blockSize) {
             var endIndex = Math.min(i + blockSize, buffer.length);
             var block = buffer.slice(i, endIndex);
-            // use space to replace special chars
-            var normalChars = block.replace(/[\x00-\x1F\x20]/g, ' ');
-            var dotChars = block.replace(/[\x00-\x1F\x20]/g, '.');
+            // use dot to replace special chars
+            var chars = block.replace(/[\x00-\x1F\x20]/g, '.');
 
-            normCharHtml += getCharHtml(normalChars, blockSize, i);
-            dotCharHtml += getCharHtml(dotChars, blockSize, i);
+            charHtml += getCharHtml(chars, blockSize, i);
             codeHtml += getCodeHtml(block, blockSize, i);
         }
 
-        $fileBrowserPreview.find(".preview.normal").html(normCharHtml);
-        $fileBrowserPreview.find(".leftPart .hexDump").html(codeHtml);
-        $fileBrowserPreview.find(".rightPart .hexDump").html(dotCharHtml);
+        $fileBrowserPreview.find(".preview.normal").html(charHtml);
+        $fileBrowserPreview.find(".preview.hexDump").html(codeHtml);
+        hoverEvent();
     }
 
     function getCharHtml(block, blockSize, startOffest) {
@@ -236,7 +233,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     }
 
     function calculateCharsPerLine() {
-        var $section = $fileBrowserPreview.find(".rightPart .preview:visible");
+        var $section = $fileBrowserPreview.find(".preview.normal");
         var sectionWidth = $section.width();
         var $fakeElement = $(getCharHtml("a"));
         var charWidth;
@@ -253,7 +250,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     }
 
     function calculateBtyesToPreview(charsPerLine) {
-        var $section = $fileBrowserPreview.find(".rightPart .preview:visible");
+        var $section = $fileBrowserPreview.find(".preview.normal");
         var height = $section.height();
         var numLine = Math.floor(height / lineHeight);
         var numBytes = numLine * charsPerLine;
@@ -273,11 +270,6 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             FilePreviewer.close();
         });
 
-        $fileBrowserPreview.on("click", ".cell", function() {
-            var offset = $(this).data("offset");
-            updateOffset(offset);
-        });
-
         var $skipToOffset = $fileBrowserPreview.find(".skipToOffset");
         $skipToOffset.on("keyup", function(event) {
             if (event.which === keyCode.Enter) {
@@ -286,6 +278,13 @@ window.FilePreviewer = (function(FilePreviewer, $) {
                     updateOffset(Number(offset));
                 }
             }
+        });
+    }
+
+    function hoverEvent() {
+        $fileBrowserPreview.find(".cell").hover(function() {
+            var offset = $(this).data("offset");
+            updateOffset(offset);
         });
     }
 
