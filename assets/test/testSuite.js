@@ -33,6 +33,14 @@ window.TestSuite = (function($, TestSuite) {
     var paramName;
     var fileName;
 
+    //var mode = "hundred/"; // "ten/" or "hundred" or "" (normal)
+    var mode = "ten/";
+    if (mode === "ten/") {
+        gLongTestSuite = 10 * 10;
+    } else if (mode === "hundred/") {
+        gLongTestSuite = 100 * 100;
+    }
+
     TestSuite.printResult = function(result) {
         if (result) {
             console.log(JSON.stringify(result));
@@ -228,6 +236,9 @@ window.TestSuite = (function($, TestSuite) {
     };
 
     function assert(statement) {
+        if (mode) {
+            return;
+        }
         if (!statement) {
             console.log("Assert failed!");
             TestSuite.fail(curDeferred, curTestName, curTestNumber);
@@ -252,13 +263,22 @@ window.TestSuite = (function($, TestSuite) {
                                       (example: a confirm box that appears
                                       in some cases)
 
+                                      noDilute - boolean, if true, does not
+                                      dilute the time according to the
+                                      gLongTestSuite factor
+
                                       asserts - array, for each value in the
                                       array, it asserts that the element exists
      *
      */
     function checkExists(elemSelectors, timeLimit, options) {
         var deferred = jQuery.Deferred();
-        timeLimit = timeLimit * slowInternetFactor || defaultCheckTimeout;
+        var noDilute = options && options.noDilute;
+        if (noDilute) {
+            timeLimit = timeLimit || defaultCheckTimeout;
+        } else {
+            timeLimit = timeLimit * slowInternetFactor || defaultCheckTimeout;
+        }
         options = options || {};
 
         var intervalTime = 100;
@@ -269,6 +289,7 @@ window.TestSuite = (function($, TestSuite) {
         // optional and we return deferred.resolve regardless
         // (example: a confirm box that appears in some cases)
         // var text = options.text;
+
 
         if (typeof elemSelectors === "string") {
             elemSelectors = [elemSelectors];
@@ -565,14 +586,14 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart1Load1(dsName1) {
             console.log("point to airline dataset");
             var check = "#previewTable td:eq(1):contains(19403)";
-            var url = testDataLoc + "flight/airlines_2007.csv";
+            var url = testDataLoc + "flight/" + mode + "airlines";
             return loadDS(dsName1, url, check);
         }
 
         function flightTestPart1Load2(dsName2) {
             console.log("point to airport dataset");
             var check = "#previewTable td:eq(1):contains(00M)";
-            var url = testDataLoc + "flight/airports.csv";
+            var url = testDataLoc + "flight/" + mode + "airports.csv";
             return loadDS(dsName2, url, check);
         }
 
@@ -697,7 +718,8 @@ window.TestSuite = (function($, TestSuite) {
 
                 return checkExists("#alertHeader:visible " +
                                    ".text:contains('Duplicate Module')",
-                                   3000, {optional: true});
+                                   3000, {optional: true,
+                                          noDilute: true});
             })
             .then(function(found) {
                 if (found) {
@@ -1055,12 +1077,8 @@ window.TestSuite = (function($, TestSuite) {
                                 newName + "']", 30000);
         })
         .then(function() {
-            if ($("#numPages").text().indexOf("1,953") > -1) {
-                TestSuite.pass(deferred, testName, currentTestNumber);
-            } else {
-                TestSuite.fail(deferred, testName, currentTestNumber,
-                                'Num pages is not 1,953');
-            }
+            assert($("#numPages").text().indexOf("1,953") > -1);
+            TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
             TestSuite.fail(deferred, testName, currentTestNumber, error);

@@ -1561,11 +1561,11 @@ window.JSONModal = (function($, JSONModal) {
 
         for (var key in obj) {
             var value = obj[key];
-            key = xcHelper.escapeHTMlSepcialChar(key);
+            key = xcHelper.escapeHTMLSepcialChar(key);
             var dataKey = key.replace(/\"/g, "&quot;"); // replace " with &quot;
             switch (typeof value) {
                 case ('string'):
-                    value = xcHelper.escapeHTMlSepcialChar(value);
+                    value = xcHelper.escapeHTMLSepcialChar(value);
                     value = '"<span class="jString text">' + value + '</span>"';
 
                     if (options.inarray) {

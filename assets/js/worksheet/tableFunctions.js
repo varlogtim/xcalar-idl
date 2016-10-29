@@ -28,7 +28,7 @@ function getTextWidth($el, val, options) {
     }
 
     // XXX why this part need escape?
-    text = xcHelper.escapeHTMlSepcialChar(text);
+    text = xcHelper.escapeHTMLSepcialChar(text);
 
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({

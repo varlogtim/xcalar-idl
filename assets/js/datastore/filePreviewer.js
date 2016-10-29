@@ -176,11 +176,11 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         hoverEvent();
     }
 
-    function getCharHtml(block, blockSize, startOffest) {
-        startOffest = startOffest || 0;
+    function getCharHtml(block, blockSize, startOffset) {
+        startOffset = startOffset || 0;
 
         var chars = block.split("").map(function(ch, index) {
-            var offset = startOffest + index;
+            var offset = startOffset + index;
             return getCell(ch, offset);
         }).join("");
 
@@ -197,10 +197,10 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         return html;
     }
 
-    function getCodeHtml(block, blockSize, startOffest) {
+    function getCodeHtml(block, blockSize, startOffset) {
         var hex = "0123456789ABCDEF";
         var codes = block.split("").map(function(ch, index) {
-            var offset = startOffest + index;
+            var offset = startOffset + index;
             var code = ch.charCodeAt(0);
             var hexCode = hex[(0xF0 & code) >> 4] + hex[0x0F & code];
             var cell = getCell(hexCode, offset);
@@ -220,7 +220,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     function getCell(ch, offset) {
         offset = initialOffset + offset;
         var cell = '<span class="cell" data-offset="' + offset + '">' +
-                            xcHelper.escapeHTMlSepcialChar(ch) +
+                            xcHelper.escapeHTMLSepcialChar(ch) +
                     '</span>';
         return cell;
     }

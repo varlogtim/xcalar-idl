@@ -368,7 +368,6 @@ window.DSPreview = (function($, DSPreview) {
             updateUDFList(listXdfsObj);
             deferred.resolve();
         }
-        
 
         return deferred.promise();
     }
@@ -815,7 +814,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function applyLineDelim(strToDelimit) {
         strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
-    
+
         if (strToDelimit === "") {
             $lineText.val("Null").addClass("nullVal");
         } else {

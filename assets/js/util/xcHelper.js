@@ -97,7 +97,7 @@ window.xcHelper = (function($, xcHelper) {
             }
             // escape < & > so external html doesn't get injected
             if (typeof value === "string") {
-                value = xcHelper.escapeHTMlSepcialChar(value);
+                value = xcHelper.escapeHTMLSepcialChar(value);
             }
         }
         return (value);
@@ -1666,7 +1666,7 @@ window.xcHelper = (function($, xcHelper) {
         return /^ | $|[\^,\(\)\[\]'"\.\\]|:/.test(str);
     };
 
-    xcHelper.escapeHTMlSepcialChar = function(str) {
+    xcHelper.escapeHTMLSepcialChar = function(str) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
         return str.replace(/\&/g, "&amp;")

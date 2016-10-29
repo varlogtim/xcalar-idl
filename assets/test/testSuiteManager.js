@@ -160,6 +160,8 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         }
         if (allDone) {
             TestSuiteManager.clearInterval();
+            $(".input").attr("disabled", false);
+            $(".run").removeClass("inactive");
         }
     }
 
