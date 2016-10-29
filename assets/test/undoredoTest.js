@@ -179,6 +179,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         $.each(wsMeta.wsInfos, function(key, ws){
             ws.orphanedTables.sort();
         });
+        delete wsMeta.activeWS; // some undos changes active WS but that's ok
 
         var tableListText =
                         $('#activeTablesList').find('.tableListBox').text() +
@@ -259,8 +260,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
             for (var key in currentReplayLog) {
 
-                if (key !== 'nonStringified' && key !== "tableListText" &&
-                    key !== "dagText") {
+                if (key !== 'nonStringified'  && key !== "dagText") {
                     var matching = xcHelper.deepCompare(info[key],
                                                         currentReplayLog[key]);
                     if (!matching) {
@@ -312,6 +312,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             $.each(wsMeta.wsInfos, function(key, ws){
                 ws.orphanedTables.sort();
             });
+            delete wsMeta.activeWS; // some undos changes active WS but that's ok
 
             var tableListText =
                         $('#activeTablesList').find('.tableListBox').text() +
@@ -319,7 +320,6 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         $('#inactiveTablesList').find('.tableListBox').text() +
                         $('#inactiveTablesList').find('.columnList').text();
             tableListText = tableListText.split("").sort().join(""); // sort;
-
             var info = {
                 tables: activeTables,
                 wsMeta: wsMeta,
@@ -377,14 +377,29 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     var tableOps = ["index ds", "Sort", "Filter", "Map", "split column",
                     "change data type", "GroupBy", "Join", "RenameTable"];
 
-    var frontEndOps = ["Add New Column", "Delete Column", "Hide Columns",
-                        "Unhide Columns", "Text Align", "Duplicate Column",
-                        "Delete Duplicate Columns", "Change Column Order",
-                        "Rename Column", "Delete Column", "Pull Column",
-                        "Change Format", "Round To Fixed", "Resize Column",
-                        "Resize Columns", "Sort Table Columns", "Delete Column",
-                        "Pull All Columns", "Resize Row", "Bookmark Row",
-                        "Remove Bookmark", "Minimize Table", "Maximize Table"];
+    var frontEndOps = ["Add New Column", 
+                        "Rename Column", 
+                        "Delete Column", 
+                        "Hide Columns",
+                        "Unhide Columns", 
+                        "Text Align", 
+                        "Duplicate Column",
+                        "Delete Duplicate Columns", 
+                        "Change Column Order", 
+                        "Delete Column", 
+                        "Pull Column",
+                        "Change Format", 
+                        "Round To Fixed", 
+                        "Resize Column",
+                        "Resize Columns", 
+                        "Sort Table Columns", 
+                        "Delete Column",
+                        "Pull All Columns", 
+                        "Resize Row", 
+                        "Bookmark Row",
+                        "Remove Bookmark", 
+                        "Minimize Table", 
+                        "Maximize Table"];
 
     // create 3 tables
     var worksheetOps = ["Change Table Order",

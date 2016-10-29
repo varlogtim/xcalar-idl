@@ -51,7 +51,6 @@ window.ColManager = (function($, ColManager) {
         };
         var actulColOptoins = $.extend(defaultOptions, colOptions);
         var progCol = ColManager.newCol(actulColOptoins);
-
         addColHelper(colNum, tableId, progCol, {
             "direction": direction
         });
@@ -531,6 +530,7 @@ window.ColManager = (function($, ColManager) {
         var curCol  = table.getCol(colNum);
         var oldName = curCol.getFrontColName();
         var keepEditable = options.keepEditable || false;
+        var prevWidth = curCol.width;
 
         curCol.name = newName;
         var wasEditable = $th.find('.flexWrap.editable').length;
@@ -540,8 +540,14 @@ window.ColManager = (function($, ColManager) {
             $th.find('.flexWrap.flex-mid').addClass('editable');
             $th.find('.header').addClass('editable');
             $editableHead.prop("disabled", false);
-            $th.width(gNewCellWidth);
-            curCol.setWidth(gNewCellWidth);
+            var newWidth;
+            if (options.prevWidth == null) {
+                newWidth = gNewCellWidth;
+            } else {
+                newWidth = options.prevWidth;
+            }
+            $th.width(newWidth);
+            curCol.setWidth(newWidth);
         } else {
             $th.find('.editable').removeClass('editable');
             $editableHead.prop("disabled", true);
@@ -569,7 +575,8 @@ window.ColManager = (function($, ColManager) {
             "colNum"     : colNum,
             "newName"    : newName,
             "wasNew"     : wasEditable,
-            "htmlExclude": ["wasNew"]
+            "prevWidth"  : prevWidth,
+            "htmlExclude": ["wasNew", "prevWidth"]
         });
 
         KVStore.commit();

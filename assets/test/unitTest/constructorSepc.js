@@ -329,7 +329,7 @@ describe('Constructor Test', function() {
             expect(progCol.getFormat()).to.equal(ColFormat.Percent);
 
             progCol.setFormat(ColFormat.Default);
-            expect(progCol.format).to.be.undefined;
+            expect(progCol.format).to.be.null;
             expect(progCol.getFormat()).to.equal(ColFormat.Default);
         });
 

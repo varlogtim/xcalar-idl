@@ -179,7 +179,6 @@ window.Replay = (function($, Replay) {
         execSql(operation, options)
         .then(function() {
             console.log("Replay", operation, "finished!");
-
             var activeTables = xcHelper.deepCopy(getActiveTables());
             for (var i = 0; i < activeTables.length; i++) {
                 delete activeTables[i].timeStamp;
@@ -190,7 +189,7 @@ window.Replay = (function($, Replay) {
             $.each(wsMeta.wsInfos, function(key, ws){
                 ws.orphanedTables.sort();
             });
-
+            delete wsMeta.activeWS; // some undos changes active WS but that's ok
             var tableListText = $('#activeTablesList').find('.tableListBox').text() +
                                $('#activeTablesList').find('.columnList').text() +
                                $('#inactiveTablesList').find('.tableListBox').text() +
@@ -1093,9 +1092,11 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.UnHideWS] = function(options) {
         var wsOrders = options.worksheetOrders;
         var wsIds = [];
-        var hiddenWorksheeets = WSManager.getHiddenWSList();
-        wsOrders.forEach(function(wsId) {
-            wsIds.push(wsId);
+        var hiddenWorksheets = WSManager.getHiddenWSList();
+        hiddenWorksheets.forEach(function(wsId, index) {
+            if (wsOrders.indexOf(index) > -1) {
+                wsIds.push(wsId);
+            }
         });
         return WSManager.unhideWS(wsIds);
     };

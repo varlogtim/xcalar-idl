@@ -770,7 +770,7 @@ ProgCol.prototype = {
 
     setFormat: function(format) {
         if (format === ColFormat.Default) {
-            delete this.format;
+            this.format = null;
         } else {
             this.format = format;
         }

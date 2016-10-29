@@ -428,7 +428,8 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.RenameCol] = function(options) {
         focusTableHelper(options);
         ColManager.renameCol(options.colNum, options.tableId, options.colName,
-                             {keepEditable: options.wasNew});
+                             {keepEditable: options.wasNew,
+                              prevWidth: options.prevWidth});
         return PromiseHelper.resolve(null);
     };
 

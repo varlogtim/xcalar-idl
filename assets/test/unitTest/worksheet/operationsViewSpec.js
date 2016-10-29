@@ -226,7 +226,7 @@ describe('OperationsView', function() {
 
         });
 
-        describe('test type checking', function() {
+        describe.skip('test type checking', function() {
             this.timeout(30000);
             // this will take a long time because we
             // test out a variety of arguments against each other and each test
@@ -943,7 +943,7 @@ describe('OperationsView', function() {
             // allow time for operations view to close
             setTimeout(function() {
                done(); 
-            }, 300);
+            }, 500);
         });
     });
 

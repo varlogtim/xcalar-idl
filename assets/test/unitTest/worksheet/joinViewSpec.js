@@ -8,7 +8,7 @@ describe('JoinView', function() {
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix) {
+        .then(function(ds, tName, tPrefix) {
             testDs = ds;
             tableName = tName;
             prefix = tPrefix;
