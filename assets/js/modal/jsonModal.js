@@ -1365,13 +1365,14 @@ window.JSONModal = (function($, JSONModal) {
                 '</div>' +
                 '<div class="flexArea">' +
                     '<div class="infoArea">' +
-                        '<div class="tableName">Table:' +
-                            '<span class="text" data-toggle="tooltip" ' +
-                                'data-container="body" data-placement="bottom" ' +
-                                'title="' + tableName + '">' + tableName + '</span>' +
+                        '<div class="tableName" data-toggle="tooltip" ' +
+                            'data-container="body" data-placement="top"' +
+                            'title="' + tableName + '">Table:' +
+                            '<span class="text">' + tableName + '</span>' +
                         '</div>' +
                         '<div class="rowNum">Row:' +
-                            '<span class="text">' + rowNum.toLocaleString("en") + '</span>' +
+                            '<span class="text">' +
+                                rowNum.toLocaleString("en") + '</span>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
