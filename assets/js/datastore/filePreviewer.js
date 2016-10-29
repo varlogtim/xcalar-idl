@@ -172,6 +172,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
         $fileBrowserPreview.find(".preview.normal").html(charHtml);
         $fileBrowserPreview.find(".preview.hexDump").html(codeHtml);
+        updateCSS();
         hoverEvent();
     }
 
@@ -230,16 +231,28 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         return style;
     }
 
-    function calculateCharsPerLine() {
+    function updateCSS() {
+        var charWidth = calculateCharWidth();
+        $fileBrowserPreview.find(".preview.normal .cell")
+        .css("width", charWidth + "px");
+    }
+
+    function calculateCharWidth() {
         var $section = $fileBrowserPreview.find(".preview.normal");
-        var sectionWidth = $section.width();
         var $fakeElement = $(getCharHtml("a"));
-        var charWidth;
 
         $fakeElement.css("font-family", "monospace");
         $section.append($fakeElement);
-        charWidth = getTextWidth($fakeElement);
-        $fakeElement.remove();
+        var charWidth = getTextWidth($fakeElement);
+
+        return charWidth;
+    }
+
+    function calculateCharsPerLine() {
+        var $section = $fileBrowserPreview.find(".preview.normal");
+        var sectionWidth = $section.width();
+
+        var charWidth = calculateCharWidth();
 
         var oneBlockChars = 8;
         var numOfBlock = Math.floor(sectionWidth / charWidth / oneBlockChars);
