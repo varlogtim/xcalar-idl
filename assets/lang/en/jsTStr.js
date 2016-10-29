@@ -383,7 +383,8 @@ ExportTStr = {
     'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location>' +
                     ' under the name: <file>',
     'ExportOfCol': 'Export columns of <table>',
-    'ListTargFail': 'List Targets Failed'
+    'ListTargFail': 'List Targets Failed',
+    'LocalFS': 'Local File System'
 
 };
 
@@ -571,6 +572,7 @@ WSTStr = {
 };
 
 UDFTStr = {
+    "UDF": "UDF",
     "Edit": "Edit UDF",
     "Del": "Delete UDF",
     "Download": "Download UDF",

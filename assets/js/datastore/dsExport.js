@@ -123,14 +123,14 @@ window.DSExport = (function($, DSExport) {
                 var type = ExTargetTypeTStr[targets[i].hdr.type];
                 var options = {};
                 if (type === "file") {
-                    type = "Local Filesystem";
+                    type = ExportTStr.LocalFS;
                     formatArg = targets[i].specificInput.sfInput.url;
                 } else if (type === "odbc") {
                     type = "ODBC";
                     formatArg = targets[i].specificInput.odbcInput
                                                         .connectionString;
                 } else if (type === "udf") {
-                    type = "UDF";
+                    type = UDFTStr.UDF;
                     formatArg = targets[i].specificInput.udfInput.url;
                     var udfName = targets[i].specificInput.udfInput.appName;
                     udfName = udfName.split(":");
@@ -361,9 +361,9 @@ window.DSExport = (function($, DSExport) {
         var targetTypeText = $activeIcon.closest('.targetSection').data('type');
 
         var targetType;
-        if (targetTypeText === "UDF") {
+        if (targetTypeText === UDFTStr.UDF) {
             targetType = ExTargetTypeT.ExTargetUDFType;
-        } else if (targetTypeText === "Local Filesystem") {
+        } else if (targetTypeText === ExportTStr.LocalFS) {
             targetType = ExTargetTypeT.ExTargetSFType;
         }
 
@@ -553,6 +553,10 @@ window.DSExport = (function($, DSExport) {
         };
  
         var $grid = $(getGridHtml(target));
+        if (targetType === "LocalFilesystem") {
+            targetType = ExportTStr.LocalFS;
+        }
+      
         var targetTypeId = targetType.replace(/\s/g, '');
         // $grid.append('<div class="waitingIcon"></div>');
         if ($('#gridTarget-' + targetTypeId).length === 0) {
