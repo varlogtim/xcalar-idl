@@ -136,7 +136,7 @@ html.edge {
                 background-color: #EDEDED;
 
                 &.indexedColumn:not(.noIndexStyle) {
-                    background-color: @color-table-indexed-blue;
+                    background-color: @color-table-indexed-blue !important;
                 }
                 &.selectedCell, &.selectedCol, &.colSelected {
                     background-color: @color-table-oddSelectedCell-blue;
@@ -155,7 +155,7 @@ html.edge {
                 background-color: @color-table-evenRow-gray;
 
                 &.indexedColumn:not(.noIndexStyle) {
-                    background-color: @color-table-indexed-lightBlue;
+                    background-color: @color-table-indexed-lightBlue !important;
                 }
                 &.selectedCell, &.selectedCol, &.colSelected {
                     background-color: @color-table-evenSelectedCell-blue;
@@ -402,10 +402,6 @@ html.edge {
         cursor: pointer;
         text-align: center;
         white-space: pre;
-    }
-
-    .indexedColumn:not(.noIndexStyle) {
-       background-color: @colorOpaque-blue !important;
     }
 
     span.undefined, span.null {
