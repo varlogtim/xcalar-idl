@@ -63,6 +63,10 @@ window.Alert = (function($, Alert){
             $modalBg.addClass('locked');
             // alert modal is already opened and locked due to connection error
             return;
+        } else if ($('#container').hasClass('supportOnly') &&
+            options.lockScreen) {
+            // do not show any more modals that lock the screen
+            return;
         }
 
 
@@ -74,7 +78,7 @@ window.Alert = (function($, Alert){
         if (options.lockScreen) {
             extraOptions = {"noEsc": true};
             $modalBg.addClass('locked');
-            $modal.draggable("destroy");
+            // $modal.draggable("disable");
             $("#container").addClass('locked');
             // should not show initial screen
             $("#initialLoadScreen").hide();
@@ -117,6 +121,12 @@ window.Alert = (function($, Alert){
         Alert.show(alertOptions);
     };
 
+    Alert.forceClose = function() {
+        closeAlertModal();
+        $modal.removeClass('locked');
+        $modalBg.removeClass('locked');
+    };
+
     Alert.getOptionVal = function() {
         var val = $("#alertOptionInput").val().trim();
         return val;
@@ -151,6 +161,7 @@ window.Alert = (function($, Alert){
 
     function clean() {
         $btnSection.find(".funcBtn").remove();
+        $btnSection.find(".copySql, .logout, .genSub, .adminSupport").remove();
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
@@ -277,6 +288,8 @@ window.Alert = (function($, Alert){
 
             var $copySqlBtn = xcHelper.supportButton("sql");
             var $logoutBtn = xcHelper.supportButton();
+            // xx support btn not ready yet
+            // var $adminSupportBtn = xcHelper.supportButton("adminSupport");
 
             var supportDone = function(path, bid) {
                 var text = ThriftTStr.CCNBE + "\n" +
@@ -291,8 +304,14 @@ window.Alert = (function($, Alert){
             var $supportBtn = xcHelper.supportButton("support", supportDone, supportFail);
 
             if (options.logout) {
+                // support btn not ready
+                // $btnSection.prepend($logoutBtn, $copySqlBtn, $supportBtn,
+                //                     $adminSupportBtn);
                 $btnSection.prepend($logoutBtn, $copySqlBtn, $supportBtn);
             } else {
+                // support btn not ready
+                // $btnSection.prepend($copySqlBtn, $logoutBtn, $supportBtn,
+                //                      $adminSupportBtn);
                 $btnSection.prepend($copySqlBtn, $logoutBtn, $supportBtn);
             }
         }
@@ -302,8 +321,6 @@ window.Alert = (function($, Alert){
                 $modal.find('.' + options.hideButtons[i]).hide();
             }
         }
-
-        // $('.logout, .cancel, .copySql').show();
     }
 
     return (Alert);

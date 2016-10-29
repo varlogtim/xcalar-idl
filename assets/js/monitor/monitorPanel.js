@@ -200,6 +200,11 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $menu.find(".menuSection.settings").removeClass("xc-hidden");
                     title += MonitorTStr.Settings;
                     break;
+                case ("supportToolsButton"):
+                    $("#monitorSupportTools").addClass("active");
+                    // $menu.find(".menuSection.settings").removeClass("xc-hidden");
+                    title += MonitorTStr.SupportTools;
+                    break;
                 case ("extensionSettingButton"):
                     $("#monitor-extension").addClass("active");
                     $extSearch.removeClass("xc-hidden");

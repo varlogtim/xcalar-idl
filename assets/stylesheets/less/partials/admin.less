@@ -6,14 +6,43 @@
 		width: ~"calc(100% - 70px)";
 	}
 	#setupButton {
-		display: none;
+		display: none; // or else will show when other main tab is active
 	}
 	#monitorTab.active {
 		#setupButton {
 			display: block;
 		}
 	}
+	#alertModal.locked {
+		.modalBottom {
+			height: 100px;
+			.btn {
+				.transform(translateY(0%));
+				top: 0%;
+			}
+		}
+		.adminSupport {
+			margin-top: 10px;
+		}
+	}
+	&.locked {
+		#menuBar, #mainMenu, #homeBtn {
+			pointer-events: none;
+		}
+		#homeBtn .logo, #topMenuBarTabs, #bottomMenuBarTabs {
+			opacity: @opacity-disabled;
+		}
+		#userBox, #dfgPanelSwitch {
+			.xc-disabled;
+		}
+	}
 }
+#container.posingAsUser {
+	#adminStatusBar {
+		display: block;
+	}
+}
+
 #worksheetInfo {
 	width: ~"calc(100% - 70px)";
 }
@@ -27,7 +56,6 @@
 #adminStatusBar {
 	@barHeight: 42px;
 	.position(absolute, @bottom: @height-bottomBar, @right: 0px);
-	padding-left: 20px;
 	padding-right: 40px;
 	.size(@max-width: 700px, @height: @barHeight);
 	.textOverflowOneLine;
@@ -38,9 +66,36 @@
 	box-shadow: 0px 0px 1px rgba(0,0,0,0.2);
 	cursor: default;
 	.no-selection;
+	.transition(0.2s all);
+	position: absolute;
+	bottom: @height-bottomBar;
+	// left: ~"calc(100% - 20px)";
+	// right: auto;
+
+	&.active {
+		.position(absolute, @right: 0px);
+
+	}
+
+	.pulloutTab {
+		float: left;
+		padding-left: 6px;
+		height: 100%;
+		width:20px;
+		cursor: pointer;
+		.border {
+			.size(2px, 28px);
+			background-color: @color-bg-pinkish-grey2;
+			margin-top: 7px;
+			margin-right: 2px;
+			display: inline-block;
+			float: left;
+		}
+	}
 
 	.username {
 		color: @color-font-select-blue;
+		margin-left: 4px;
 	}
 
 	.xi-close {

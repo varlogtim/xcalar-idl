@@ -367,13 +367,15 @@ module.exports = {
         "Syst": "System",
         "TotalTime": "Total Time",
         "Uninstall": "Uninstall",
+        "UpdateLicense": "Update License",
         "Upgrade": "Upgrade",
         "UseAs": "Use Xcalar As",
         "Users": "Users",
         "UserSettings": "User Settings",
         "UTotal": "User Total",
         "VIEWOUTPUT": "VIEW OUTPUT",
-        "VirtualNode": "Virtual Node"
+        "VirtualNode": "Virtual Node",
+        "SupportTools": "Support Tools"
     },
 
     "query": {

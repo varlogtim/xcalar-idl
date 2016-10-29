@@ -5,12 +5,19 @@ window.Admin = (function($, Admin) {
     var searchHelper;
     var $menuPanel; // $('#monitorMenu-setup');
     var $userList; // $menuPanel.find('.userList');
+    var posingAsUser = false; // if admin is using as a different user
 
     Admin.initialize = function() {
         //xx temp hack  to determine admin
         if (localStorage.admin === "true") {
             gAdmin = true;
-            $('#container').addClass('admin');
+            
+            if (sessionStorage.usingAs === "true") {
+                posingAsUser = true;
+                $('#container').addClass('posingAsUser');
+            } else {
+                $('#container').addClass('admin');
+            }
         }
         $menuPanel = $('#monitorMenu-setup');
         $userList = $menuPanel.find('.userList');
@@ -18,8 +25,9 @@ window.Admin = (function($, Admin) {
         if (Admin.isAdmin()) {
             addMonitorMenuPanelListeners();
             refreshUserList();
-            updateAdminStatusBar();
+            setupAdminStatusBar();
             addAdminStatusBarListeners();
+            SupportTools.setup();
         }
     };
 
@@ -64,6 +72,21 @@ window.Admin = (function($, Admin) {
     Admin.switchUser = function(username) {
         sessionStorage.setItem("xcalar-username", username);
         sessionStorage.setItem("xcalar-fullUsername", username);
+        if (sessionStorage.getItem('usingAs') !== "true") {
+            sessionStorage.setItem("usingAs", true);
+            sessionStorage.setItem("adminName", Support.getUser());
+        }
+
+        unloadHandler(false, true);
+    };
+
+    Admin.userToAdmin = function() {
+        // $adminBar.addClass('xc-hidden');
+        sessionStorage.setItem("usingAs", false);
+        var adminName = sessionStorage.getItem("adminName");
+        sessionStorage.setItem("xcalar-username", adminName);
+        sessionStorage.setItem("xcalar-fullUsername", adminName);
+
         unloadHandler(false, true);
     };
 
@@ -120,6 +143,7 @@ window.Admin = (function($, Admin) {
             userList = [];
             console.error("restore error logs failed!", err);
         }
+        userList.sort(xcHelper.sortVals);
     }
 
     // xcalar put by default, or append if append param is true
@@ -229,17 +253,41 @@ window.Admin = (function($, Admin) {
     }
 
     function addAdminStatusBarListeners() {
-        $('#adminStatusBar').on('click', '.xi-close', function() {
-            $('#adminStatusBar').addClass('xc-hidden');
-        });
-        $('#adminViewBtn').on('click', function() {
-            $('#adminStatusBar').removeClass('xc-hidden');
-        });
+        // $('#adminStatusBar').on('click', '.xi-close', function() {
+        //     $('#adminStatusBar').addClass('xc-hidden');
+        // });
+        // $('#adminViewBtn').on('click', function() {
+        //     $('#adminStatusBar').removeClass('xc-hidden');
+        // });
     }
 
-    function updateAdminStatusBar() {
-        var username = Support.getUser();
-        $('#adminStatusBar').find('.username').text(username);
+    function setupAdminStatusBar() {
+        var $adminBar = $('#adminStatusBar');
+       
+        if (posingAsUser) {
+            $adminBar.find('.username').text(Support.getUser());
+            var width = $adminBar.outerWidth() + 1;
+            $adminBar.outerWidth(width);
+            // giving adminBar a width so we can use position right with the 
+            // proper width
+            $adminBar.on('click', '.pulloutTab', function() {
+                $adminBar.toggleClass('active');
+                if ($adminBar.hasClass('active')) {
+                    $adminBar.css('right', 0);
+                } else {
+                    $adminBar.css('right', -width + 20);
+                }
+            });
+
+            $adminBar.on('click', '.xi-close', function() {
+                Admin.userToAdmin();
+            });
+            $('#adminViewBtn').on('click', function() {
+                $adminBar.removeClass('xc-hidden');
+            });
+        } else {
+            $("#adminStatusBar").hide();
+        }
     }
 
     return (Admin);

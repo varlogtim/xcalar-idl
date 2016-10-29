@@ -12,29 +12,21 @@
       <span class="text"><%= dicts.monitor.Config %></span>
     </div>
     <ul class="no-selection">
-      <li>
-        <i class="icon xi-download fa-12"></i>
-        <span class="text"><%= dicts.monitor.Install %></span>
-      </li>
-      <li>
-        <i class="icon xi-trash fa-12"></i>
-        <span class="text"><%= dicts.monitor.Uninstall %></span>
-      </li>
-      <li>
-        <i class="icon xi-upgrade fa-12"></i>
-        <span class="text"><%= dicts.monitor.Upgrade %></span>
-      </li>
-      <li>
+      <li id="configStartNode">
         <i class="icon xi-start-nodes fa-12"></i>
         <span class="text"><%= dicts.monitor.StartNode %></span>
       </li>
-      <li>
+      <li id="configStopNode">
         <i class="icon xi-stop-nodes fa-12"></i>
         <span class="text"><%= dicts.monitor.StopNode %></span>
       </li>
-      <li>
+      <li id="configRestartNode">
         <i class="icon xi-restart-nodes fa-12"></i>
         <span class="text"><%= dicts.monitor.RestartNode %></span>
+      </li>
+      <li id="configLicense">
+        <i class="icon xi-upgrade fa-12"></i>
+        <span class="text"><%= dicts.monitor.UpdateLicense %></span>
       </li>
     </ul>
   </div>

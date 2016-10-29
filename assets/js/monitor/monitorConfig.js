@@ -37,12 +37,21 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     function setupListeners() {
         $("#configStartNode").click(function() {
             $(this).blur();
-            startNode();
+            // startNode();
         });
 
         $("#configStopNode").click(function() {
             $(this).blur();
-            stopNode();
+            // stopNode();
+        });
+
+        $("#configRestartNode").click(function() {
+            $(this).blur();
+            // restartNode();
+        });
+
+        $('#configLicense').click(function() {
+            
         });
 
         $placeholder.click(function() {
@@ -371,6 +380,8 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     
     function startNode() {
         console.log('start node!');
+        XFTSupportTools.startXcalarServices();
+
         // not works now!!
         // KVStore.commit()
         // .then(function() {
@@ -388,6 +399,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     }
 
     function stopNode() {
+        XFTSupportTools.stopXcalarServices
         console.log("Shut down!");
 
         // not works now!!!
@@ -395,6 +407,12 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         // .then(function() {
         //     return XcalarShutDown();
         // });
+    }
+
+    function restartNode() {
+        // restart unreliable so we stop and start
+        XFTSupportTools.stopXcalarServices();
+        XFTSupportTools.startXcalarServices();
     }
 
     return (MonitorConfig);

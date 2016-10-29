@@ -79,7 +79,10 @@ window.Shortcuts = (function($, Shortcuts) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.adminOff').show();
             $('#shortcutSubMenu').find('.adminOn').hide();
-            $('#container').addClass('admin');
+            if (sessionStorage.usingAs !== "true") {
+                $('#container').addClass('admin');
+            }
+            
             $('#shortcutMenuIcon').css('margin-right', 20);
             localStorage.admin = true;
             gAdmin = true;

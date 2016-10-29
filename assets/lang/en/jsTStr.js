@@ -454,6 +454,7 @@ MonitorTStr = {
     'Queries': 'Queries',
     'Setup': 'Setup',
     'Settings': 'Settings',
+    'SupportTools': 'Support Tools',
     'Ext': 'Extension',
     "ConfigParamName": "Config Parameter Name",
     "CurVal": "Current Value",

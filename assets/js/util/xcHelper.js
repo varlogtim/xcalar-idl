@@ -1024,6 +1024,17 @@ window.xcHelper = (function($, xcHelper) {
                 });
 
                 break;
+            case "adminSupport":
+                html = '<button type="button" class="btn adminOnly adminSupport" ' +
+                        'data-toggle="tooltip" title="' + "placeholder" + '">' +
+                            "placeholder" +
+                        '</button>';
+                $btn = $(html);
+
+                $btn.click(function() {
+                    SupportTools.show();
+                });
+                break;
             default:
                 // log out button
                 html = '<button type="button" class="btn logout">' +
@@ -2126,7 +2137,6 @@ window.xcHelper = (function($, xcHelper) {
         if (order == null) {
             order = ColumnSortOrder.ascending;
         }
-        console.log(order)
         a = a.toLowerCase();
         b = b.toLowerCase();
 

@@ -5,9 +5,8 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     XFTSupportTools.getRecentLogs = function(requireLineNum) {
         var action = "recentLogs";
         var str = {"requireLineNum" : requireLineNum};
-        postRequest(action, str);
+        return (postRequest(action, str));
     }
-
 
     XFTSupportTools.monitorLogs = function() {
         clearInterval(monitorIntervalId);
@@ -37,7 +36,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             contentType: 'application/json',
             url: "https://authentication.xcalar.net/app/stopMonitorLogs",
             success: function(data) {
-                ret = data;
+                var ret = data;
                 if (ret.status === Status.Ok) {
                     console.log('Stop successfully');
                 } else if (ret.status === Status.Error) {
@@ -50,40 +49,39 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 console.log(error);
             }
         });
-    }
+    };
 
     XFTSupportTools.startXcalarServices = function() {
         var action = "xcalarStart";
-        postRequest(action);
-    }
+        return (postRequest(action));
+    };
 
     XFTSupportTools.stopXcalarServices = function() {
         var action = "xcalarStop";
-        postRequest(action);
-    }
+        return (postRequest(action));
+    };
 
     XFTSupportTools.restartXcalarServices = function() {
         var action = "xcalarRestart";
-        postRequest(action);
-    }
+        return (postRequest(action));
+    };
 
     XFTSupportTools.statusXcalarServices = function() {
         var action = "xcalarStatus";
-        postRequest(action);
-    }
+        return (postRequest(action));
+    };
 
     XFTSupportTools.condrestartXcalarServices = function() {
         var action = "xcalarCondrestart";
         var str = undefined;
-        postRequest(action, str);
-    }
+        return (postRequest(action, str));
+    };
 
     XFTSupportTools.removeSessionFiles = function(filename) {
         var action = "removeSessionFiles";
         var str = {"filename" : filename};
-        postRequest(action, str);
-    }
-
+        return (postRequest(action, str));
+    };
 
     function postRequest(action, str) {
         var deferred = jQuery.Deferred();
@@ -91,25 +89,30 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             type: 'POST',
             data: JSON.stringify(str),
             contentType: 'application/json',
-            url: "https://authentication.xcalar.net/app/" + action,
+            // url: "http://authentication.xcalar.net/app/" + action,
+            url: "http://dijkstra:12124/" + action,
             success: function(data) {
-                ret = data;
+                var ret = data;
                 if (ret.status === Status.Ok) {
+                    var retMsg;
                     if(ret.logs) {
+                        retMsg = atob(ret.logs);
                         console.log(atob(ret.logs));
+                    } else {
+                        retMsg = "Successful but no logs";
                     }
-                    deferred.resolve();
+                    deferred.resolve(retMsg);
                 } else if (ret.status === Status.Error) {
                     console.log('return error',ret.message);
-                    deferred.reject();
+                    deferred.reject(ret.message);
                 } else {
                     console.log('shouldnt be here');
-                    deferred.reject();
+                    deferred.reject(ret);
                 }
             },
             error: function(error) {
                 clearInterval(monitorIntervalId);
-                deferred.reject();
+                deferred.reject(error);
             }
         });
         return deferred.promise();

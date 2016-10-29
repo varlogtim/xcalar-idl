@@ -38,6 +38,7 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
+// called if a XcalarThrift.js function returns an error
 function thriftLog() {
     var errorLists = [];
     var title = arguments[0] || "thrift call";
@@ -91,7 +92,7 @@ function thriftLog() {
                 console.warn('Checked XcalarGetVersion and did not return ' +
                               'a successful response');
                 alertError = {"error": ThriftTStr.CCNBE};
-                Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                 Alert.error(ThriftTStr.CCNBEErr, alertError, {
                     "lockScreen": true
                 });
                 SQL.backup();
