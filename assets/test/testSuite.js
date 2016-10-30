@@ -482,6 +482,11 @@ window.TestSuite = (function($, TestSuite) {
                             dsName + '"]:not(.inactive)';
     }
 
+    function getFinishDSIcon(dsName) {
+        return '#dsListSection .grid-unit[data-dsname="' +
+                            dsName + '"]:not(.inactive.fetching)';
+    }
+
     function createTable(dsName) {
         var $grid = $(getDSIcon(dsName));
         var dsId = $grid.data("dsid");
@@ -489,8 +494,11 @@ window.TestSuite = (function($, TestSuite) {
         var tableName;
         var header;
 
-        $grid.find(".gridIcon").click();
-        checkExists('#dsTable[data-dsid="' + dsId + '"]')
+        checkExists(getFinishDSIcon(dsName))
+        .then(function() {
+            $grid.find(".gridIcon").click();
+            return checkExists('#dsTable[data-dsid="' + dsId + '"]');
+        })
         .then(function() {
             var dsName = $("#dsInfo-title").text();
             $("#selectDSCols").click();
@@ -504,6 +512,10 @@ window.TestSuite = (function($, TestSuite) {
                 // TODO for each new table, should add a test case here
                 return PromiseHelper.resolve();
             }
+        })
+        .then(function() {
+            var validCart = '.selectedTable[data-dsid="' + dsId + '"]:not(.updateName)';
+            return checkExists(validCart);
         })
         .then(function() {
             tableName = $("#dataCart .tableNameEdit").val();

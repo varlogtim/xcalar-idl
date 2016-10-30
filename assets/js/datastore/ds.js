@@ -157,6 +157,10 @@ window.DS = (function ($, DS) {
 
     DS.focusOn = function($grid) {
         xcHelper.assert($grid != null && $grid.length !== 0, "error case");
+        if ($grid.hasClass("active") && $grid.hasClass("fetching")) {
+            console.info("ds is fetching")
+            return PromiseHelper.resolve();
+        }
 
         var deferred = jQuery.Deferred();
         var dsId = $grid.data("dsid");
@@ -176,6 +180,7 @@ window.DS = (function ($, DS) {
             isLoading = false;
         }
 
+        $grid.addClass("fetching");
         // when switch to a ds, should clear others' ref count first!!
         DSTable.show(dsId, isLoading)
         .then(function() {
@@ -187,6 +192,9 @@ window.DS = (function ($, DS) {
         .fail(function(error) {
             console.error("Focus on ds fails!", error);
             deferred.reject(error);
+        })
+        .always(function() {
+            $grid.removeClass("fetching");
         });
 
         return deferred.promise();

@@ -1,4 +1,4 @@
-describe('Worksheet Teset', function() {
+describe('Worksheet Test', function() {
     var $tabs;
     var minModeCache;
 
@@ -63,7 +63,6 @@ describe('Worksheet Teset', function() {
                 done();
             });
         });
-
 
         it('should center on table when moving worksheet', function() {
             var $lastTab = $('#worksheetTabs').find('.worksheetTab')

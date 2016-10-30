@@ -339,6 +339,8 @@ window.DSCart = (function($, DSCart) {
 
         if (!isInBg) {
             var $tableNameEdit = $cart.find('.tableNameEdit').focus();
+            // this flag is used to mark if the name is update or not
+            $cart.addClass("updateName");
 
             xcHelper.getUnusedTableName(tableName)
             .then(function(newTableName) {
@@ -347,6 +349,9 @@ window.DSCart = (function($, DSCart) {
             })
             .fail(function() {
                 // keep the current name
+            })
+            .always(function() {
+                $cart.removeClass("updateName");
             });
         }
 

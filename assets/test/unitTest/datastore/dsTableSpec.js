@@ -110,35 +110,4 @@ function dsTableTest() {
             expect($("#dsTable th.selectedCol").length).to.equal(0);
         });
     });
-
-    describe("Prepare table for other tests", function() {
-        it("Should create a table", function(done) {
-            // this is for the preparation of table and worksheet test
-
-            // clear first in case we have otehr data cart
-            $("#dataCart-clear").click();
-            $("#selectDSCols").click();
-            var worksheet = WSManager.getActiveWS();
-            var dsId = $("#dsTable").data("dsid");
-            var cart = DSCart.getCarts()[dsId];
-
-            DSCart.createTable(cart, worksheet)
-            .then(function(wholeTableName) {
-                // because we generate a unique ds name, so
-                // this table's name should equal to testDS
-                var tableName = xcHelper.getTableName(wholeTableName);
-                expect(tableName).to.equal(testDS);
-
-                var $table = $(".xcTableWrap").filter(function() {
-                    return $(this).find(".tableName").val() === testDS;
-                });
-
-                expect($table.length).to.equal(1);
-                done();
-            })
-            .fail(function() {
-                throw "Error Case!";
-            });
-        });
-    });
 }

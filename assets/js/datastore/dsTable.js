@@ -90,6 +90,7 @@ window.DSTable = (function($, DSTable) {
             if (error === notLastDSError ||
                 lastDSToSample !== datasetName)
             {
+                deferred.reject(error);
                 return;
             }
 
