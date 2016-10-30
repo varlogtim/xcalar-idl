@@ -28,13 +28,13 @@ window.JoinView = (function($, JoinView) {
             '<input class="clause leftClause inActive arg" type="text" ' +
                 'data-original-title="' + JoinTStr.NoLeftTable + '"' +
                 ' data-toggle="tooltip" data-container="body"' +
-            'spellcheck="false" disabled />' +
-              '<div class="middleIcon">' +
+                'spellcheck="false" disabled />' +
+            '<div class="middleIcon">' +
                 '<div class="iconWrapper">' +
                   '<i class="icon xi-equal-circle fa-14"></i>' +
                 '</div>' +
-              '</div>' +
-              '<input class="clause rightClause inActive arg" type="text"' +
+            '</div>' +
+            '<input class="clause rightClause inActive arg" type="text"' +
                 ' data-original-title="' + JoinTStr.NoRightTable + '"' +
                 ' data-toggle="tooltip" data-container="body"' +
                 ' spellcheck="false" disabled />' +
@@ -53,11 +53,15 @@ window.JoinView = (function($, JoinView) {
         var columnPicker = {
             "state"      : "joinState",
             "colCallback": function($target) {
-                if (!$lastInputFocused.closest('.joinTableList').length) {
+                if ($lastInputFocused &&
+                    !$lastInputFocused.closest('.joinTableList').length) {
                     xcHelper.fillInputFromCell($target, $lastInputFocused);
                 }
             },
             "headCallback": function($target) {
+                if (!$lastInputFocused) {
+                    return;
+                }
                 var $joinTableList = $lastInputFocused
                                             .closest('.joinTableList');
                 if ($joinTableList.length) {
@@ -125,23 +129,7 @@ window.JoinView = (function($, JoinView) {
                 fillTableLists(null, true);
             },
             "onSelect": function($li) {
-                var tableName = $li.text();
-                var $textBox = $leftTableDropdown.find(".text");
-                var originalText = $textBox.val();
-                activateClauseSection(0);
-
-                if (originalText !== tableName) {
-                    $textBox.val(tableName);
-                    $li.siblings().removeClass('selected');
-                    $li.addClass('selected');
-                    $joinView.find('.leftClause').val("").eq(0).focus();
-                    checkNextBtn();
-                    updatePreviewText();
-                    var tableId = getTableIds(0);
-                    focusTable(tableId);
-                } else {
-                    return;
-                }
+                tableListSelect($li, 0);
             }
         });
         leftTableList.setupListeners();
@@ -151,27 +139,38 @@ window.JoinView = (function($, JoinView) {
                 fillTableLists(null, true);
             },
             "onSelect": function($li) {
-                var tableName = $li.text();
-                var $textBox = $rightTableDropdown.find(".text");
-                var originalText = $textBox.val();
-                activateClauseSection(1);
-
-                if (originalText !== tableName) {
-                    // $tableNameText.text(tableName).data('id', tableId);
-                    $textBox.val(tableName);
-                    $li.siblings().removeClass('selected');
-                    $li.addClass('selected');
-                    $joinView.find('.rightClause').val("").eq(0).focus();
-                    checkNextBtn();
-                    updatePreviewText();
-                    var tableId = getTableIds(1);
-                    focusTable(tableId);
-                } else {
-                    return;
-                }
+                tableListSelect($li, 1);
             }
         });
         rightTableList.setupListeners();
+
+        // index: 0 for left, 1 for right table list
+        function tableListSelect($li, index) {
+            var tableName = $li.text();
+            var $dropdown = $li.closest('.dropDownList');
+            var $textBox = $dropdown.find(".text");
+            var originalText = $textBox.val();
+            activateClauseSection(index);
+
+            if (originalText !== tableName) {
+                $textBox.val(tableName);
+                $li.siblings().removeClass('selected');
+                $li.addClass('selected');
+                var $clauses;
+                if (index === 0) {
+                    $clauses = $joinView.find('.leftClause');
+                } else {
+                    $clauses = $joinView.find('.rightClause');
+                }
+                $clauses.val("").eq(0).focus();
+                checkNextBtn();
+                updatePreviewText();
+                var tableId = getTableIds(index);
+                focusTable(tableId);
+            } else {
+                return;
+            }
+        }
 
         $joinView.find('.tableListSections .focusTable').click(function() {
             var tableIds = getTableIds();

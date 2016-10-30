@@ -27,7 +27,7 @@ describe('JoinView', function() {
         });
     });
     
-    // to be continued
+
     describe('check join initial state', function() {
         it('join type should be selected', function() {
             expect($("#joinType .text:visible")).to.have.lengthOf(1);
@@ -60,7 +60,10 @@ describe('JoinView', function() {
             expect($joinForm.find('.next:visible').length).to.equal(1);
             expect($joinForm.find('.next').css('pointer-events')).to.equal("none");
         });
+    });
 
+    // to be continued
+    describe('check menu and input actions', function() {
         it('add another clause should work', function() {
             var addClause = JoinView.__testOnly__.addClause;
             addClause();
@@ -170,11 +173,9 @@ describe('JoinView', function() {
     after(function(done) {
         JoinView.close();
 
-        setTimeout(function() { // allow join estimator to finish
-            UnitTest.deleteAll(tableName, testDs)
-            .always(function() {
-               done();
-            });
-        }, 2000);
+        UnitTest.deleteAll(tableName, testDs)
+        .always(function() {
+           done();
+        });
     });
 });
