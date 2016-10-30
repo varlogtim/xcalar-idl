@@ -158,7 +158,7 @@ window.DS = (function ($, DS) {
     DS.focusOn = function($grid) {
         xcHelper.assert($grid != null && $grid.length !== 0, "error case");
         if ($grid.hasClass("active") && $grid.hasClass("fetching")) {
-            console.info("ds is fetching")
+            console.info("ds is fetching");
             return PromiseHelper.resolve();
         }
 
@@ -597,7 +597,9 @@ window.DS = (function ($, DS) {
     function delDSHelper($grid, dsObj, options) {
         options = options || {};
         var forceRemove = options.forceRemove || false;
-        var noDeFocus = options.noDeFocus || false;
+        var noDeFocus = (options.noDeFocus ||
+                        !$grid.hasClass("active") ||
+                        false);
         var failToShow = options.failToShow || false;
 
         var deferred = jQuery.Deferred();
@@ -629,7 +631,9 @@ window.DS = (function ($, DS) {
             //clear data cart
             DSCart.removeCart(dsId);
             // clear data table
-            $("#dsTableWrap").empty();
+            if (DSTable.getId() === dsId) {
+                DSTable.clear();
+            }
             // remove ds obj
             removeDS($grid);
             DataStore.update();
@@ -666,7 +670,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-     function destroyDataset(dsName, txId) {
+    function destroyDataset(dsName, txId) {
         var deferred = jQuery.Deferred();
 
         XcalarDestroyDataset(dsName, txId)
@@ -1225,7 +1229,7 @@ window.DS = (function ($, DS) {
             var dsObj = DS.getDSObj(dsId);
             if (dsObj == null) {
                 // when this ds is not there after refresh
-                 DSCart.removeCart(dsId);
+                DSCart.removeCart(dsId);
                 // clear data table
                 $("#dsTableWrap").empty();
                 focusOnFirstDS();
