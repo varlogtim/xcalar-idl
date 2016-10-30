@@ -1037,13 +1037,13 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         promise
-        .then(function(result) {
+        .then(function(result, isLoadFormatJSON) {
             $waitSection.addClass("hidden");
             rawData = result;
 
             $loadHiddenSection.removeClass("hidden");
 
-            getPreviewTable();
+            getPreviewTable(isLoadFormatJSON);
 
             if (!noDetect) {
                 var currentLoadArgStr = JSON.stringify(loadArgs);
@@ -1162,11 +1162,17 @@ window.DSPreview = (function($, DSPreview) {
     function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur, previewSize) {
         var deferred = jQuery.Deferred();
         var loadError = null;
+        var isLoadFormatJSON = false;
+        var format = "raw";
 
+        if (loadArgs.getFormat() === "JSON") {
+            isLoadFormatJSON = true;
+            format = "JSON";
+        }
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        XcalarLoad(loadURL, "raw", tempDSName, "", "\n",
+        XcalarLoad(loadURL, format, tempDSName, "", "\n",
                     false, udfModule, udfFunc, isRecur,
                     previewSize, gDefaultQDelim, 0, false, txId)
         .then(function(ret, error) {
@@ -1195,33 +1201,46 @@ window.DSPreview = (function($, DSPreview) {
                 console.warn(loadError);
             }
 
-            var buffer = [];
-
-            var value;
-            var json;
-
             try {
-                for (var i = 0, len = result.length; i < len; i++) {
-                    value = result[i].value;
-                    json = $.parseJSON(value);
-                    // get unique keys
-                    for (var key in json) {
-                        if (key === "recordNum") {
-                            continue;
-                        }
-                        buffer.push(json[key]);
-                    }
+                var rows = parseRows(result);
+                var buffer;
+                if (isLoadFormatJSON) {
+                    buffer = rows;
+                } else {
+                    buffer = parseRawString(rows);
                 }
-
-                var bufferStr = buffer.join("\n");
-                // deferred.resolve(res, bufferStr);
-                deferred.resolve(bufferStr);
+                deferred.resolve(buffer, isLoadFormatJSON);
             } catch (err) {
-                console.error(err, value);
+                console.error(err.stack);
                 deferred.reject({"error": DSTStr.NoParse});
             }
         })
         .fail(deferred.reject);
+
+        function parseRows(data) {
+            var rows = [];
+
+            for (var i = 0, len = data.length; i < len; i++) {
+                var value = data[i].value;
+                var row = $.parseJSON(value);
+                delete row.recordNum;
+                rows.push(row);
+            }
+
+            return rows;
+        }
+
+        function parseRawString(rows) {
+            var buffer = [];
+            for (var i = 0, len = rows.length; i < len; i++) {
+                var row = rows[i];
+                for (var key in row) {
+                    buffer.push(row[key]);
+                }
+            }
+
+            return buffer.join("\n");
+        }
 
         return deferred.promise();
     }
@@ -1258,7 +1277,7 @@ window.DSPreview = (function($, DSPreview) {
         .fail(errorHandler);
     }
 
-    function getPreviewTable() {
+    function getPreviewTable(isLoadFormatJSON) {
         if (rawData == null) {
             // error case
             errorHandler(DSFormTStr.NoData);
@@ -1271,7 +1290,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var format = loadArgs.getFormat();
         if (format === formatMap.JSON) {
-            getJSONTable(rawData);
+            getJSONTable(rawData, isLoadFormatJSON);
             return;
         }
 
@@ -1448,11 +1467,29 @@ window.DSPreview = (function($, DSPreview) {
         return name;
     }
 
-    function getJSONTable(datas) {
+    function getJSONTable(datas, isLoadFormatJSON) {
+        var json;
+        if (!isLoadFormatJSON) {
+            json = parseJSONData(datas);
+            if (json == null) {
+                // error case
+                return;
+            }
+        } else {
+            // already a good parsed json
+            json = datas;
+        }
+
+        $previewTable.html(getJSONTableHTML(json))
+        .addClass("has-delimiter");
+    }
+
+    function parseJSONData(datas) {
         var startIndex = datas.indexOf("{");
         var endIndex = datas.lastIndexOf("}");
         if (startIndex === -1 || endIndex === -1) {
             errorHandler(DSFormTStr.NoParseJSON);
+            return null;
         }
 
         var record = [];
@@ -1488,6 +1525,7 @@ window.DSPreview = (function($, DSPreview) {
                     } else if (bracketCnt < 0) {
                         // error cse
                         errorHandler(DSFormTStr.NoParseJSON);
+                        return null;
                     }
                 }
             }
@@ -1498,14 +1536,16 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var string = "[" + record.join(",") + "]";
+        var json;
 
         try {
-            var json = $.parseJSON(string);
-            $previewTable.html(getJSONTableHTML(json))
-                        .addClass("has-delimiter");
+            json = $.parseJSON(string);
         } catch (error) {
             errorHandler(DSFormTStr.NoParseJSON + ": " + error);
+            return null;
         }
+
+        return json;
     }
 
     function getJSONTableHTML(json) {
