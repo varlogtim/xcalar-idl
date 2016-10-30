@@ -462,16 +462,10 @@ window.TblMenu = (function(TblMenu, $) {
                 var $delimInput = $li.find(".delimiter");
                 var delim = $delimInput.val();
 
-                if (delim.trim() === "") {
-                    if (delim.length === 0) {
-                        // when this field is empty
-                        StatusBox.show(ErrTStr.NoEmpty, $delimInput, null,
-                                        {"closeable": true});
-                        return;
-                    }
-                    // cast of space/tab
-                    // XXX FIXME: this part maybe buggy
-                    delim = delim.charAt(0);
+                if (delim === "") {
+                    StatusBox.show(ErrTStr.NoEmpty, $delimInput, null, {
+                        "closeable": true
+                    });
                 }
 
                 var $numInput = $li.find(".num");
