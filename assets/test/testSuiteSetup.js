@@ -9,6 +9,7 @@
  *        force, window closes after all runs regardless of success or failure
  *      id: id of current run. For reporting back to testSuiteManager
  *      noPopup: y to suppress alert with final results
+ *      mode: nothing, ten or hundred - ds size
  * example:
  *  http://localhost:8888/testSuite.html?test=true&delay=2000&user=test&clean=true&close=true
  */
@@ -134,6 +135,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         var clean = parseBooleanParam(params["clean"]);
         var animation = parseBooleanParam(params["animation"]);
         var noPopup = parseBooleanParam(params["noPopup"]);
+        var mode = params["mode"];
 
         var id = Number(params["id"]);
         if (isNaN(id)) {
@@ -142,7 +144,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
-            TestSuite.run(animation, clean, noPopup)
+            TestSuite.run(animation, clean, noPopup, mode)
             .then(function(res) {
                 console.info(res);
                 window.opener.reportResults(id, res);

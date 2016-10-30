@@ -34,7 +34,7 @@ window.TestSuite = (function($, TestSuite) {
     var fileName;
 
     //var mode = "hundred/"; // "ten/" or "hundred" or "" (normal)
-    var mode = "ten/";
+    var mode = "";
     if (mode === "ten/") {
         gLongTestSuite = 10 * 10;
     } else if (mode === "hundred/") {
@@ -111,7 +111,7 @@ window.TestSuite = (function($, TestSuite) {
         });
     };
 
-    TestSuite.run = function(hasAnimation, toClean, noPopup) {
+    TestSuite.run = function(hasAnimation, toClean, noPopup, mode) {
         console.info("If you are on VPN / slow internet, please set " +
                     "gLongTestSuite = 2");
         var finalDeferred = jQuery.Deferred();
@@ -127,6 +127,22 @@ window.TestSuite = (function($, TestSuite) {
         } else {
             gMinModeOn = true;
         }
+
+        if (mode) {
+            if (mode === "ten") {
+                mode = "ten/";
+                console.log("Running 10X dataset");
+            } else if (mode === "hundred") {
+                mode = "hundred/";
+                console.log("Running 100X dataset");
+            } else {
+                mode = "";
+                console.log('Running regular dataset');
+            }
+        } else {
+            console.log('Running regular dataset');
+        }
+
 
         // Start PromiseHelper.chaining the callbacks
         try {

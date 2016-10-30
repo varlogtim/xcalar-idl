@@ -77,6 +77,12 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             $inputs.eq(5).val(hostname);
         }
 
+        var mode = $inputs.eq(6).val();
+        if (mode !== "ten" && mode !== "hundred") {
+            mode = "";
+            $inputs.eq(6).val(mode);
+        }
+
         // Disable the start button
         $(".run").addClass("inactive");
         $(".input").attr("disabled", true);
@@ -100,6 +106,9 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             }
             if (close !== "n") {
                 urlString += "&close=" + close;
+            }
+            if (mode !== "") {
+                urlString += "&mode=" + mode;
             }
             // Generate a random username
             var username = "ts-" + Math.ceil(Math.random() * 1000000);
