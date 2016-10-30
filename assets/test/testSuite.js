@@ -375,6 +375,12 @@ window.TestSuite = (function($, TestSuite) {
         return xcHelper.getPrefixColName(prefix, colName);
     }
 
+    function getFirstTableInWS(worksheetIndex) {
+        var wsId = WSManager.getActiveWSByIndex(worksheetIndex);
+        var tableId = WSManager.getWSById(wsId).tables[0];
+        return tableId;
+    }
+
     TestSuite.cleanup = cleanup;
 
     function cleanup() {
@@ -679,8 +685,7 @@ window.TestSuite = (function($, TestSuite) {
         // Add genUnique (map to get uniqueNum)
         function flightTestPart3_2() {
             console.log("start flightTestPart3_2", "map to get uniqueNum");
-            var wsId = WSManager.getOrders()[0];
-            var tableId = WSManager.getWSById(wsId).tables[0];
+            var tableId = getFirstTableInWS(0);
             trigOpModal(tableId, "ArrDelay_integer", "map")
             .then(function() {
                 var $section = $("#operationsView .opSection.map");
@@ -705,8 +710,7 @@ window.TestSuite = (function($, TestSuite) {
         // Filter flight table
         function flightTestPart4() {
             console.log("start flightTestPart4", "filter flight table");
-            var wsId = WSManager.getOrders()[0];
-            var tableId = WSManager.getWSById(wsId).tables[0];
+            var tableId = getFirstTableInWS(0);
             trigOpModal(tableId, "ArrDelay_integer", "filter")
             .then(function() {
                 var $section = $("#operationsView .opSection.filter");
@@ -767,9 +771,8 @@ window.TestSuite = (function($, TestSuite) {
         // Map on flight table
         function flightTestPart6() {
             console.log("start flightTestPart6", "map on flight table with udf");
-            var wsId = WSManager.getOrders()[0];
-            var tableId = WSManager.getWSById(wsId).tables[0];
 
+            var tableId = getFirstTableInWS(0);
             trigOpModal(tableId, "Year", "map")
             .then(function() {
                 var $section = $("#operationsView .opSection.map");
@@ -801,9 +804,7 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart7() {
             console.log("start flightTestPart7", "join flight and airport table");
 
-            var wsId = WSManager.getOrders()[0];
-            var tableId = WSManager.getWSById(wsId).tables[0];
-
+            var tableId = getFirstTableInWS(0);
             trigOpModal(tableId, "Dest", "joinList", "join")
             .then(function() {
                 // fisrt step of join
@@ -834,8 +835,8 @@ window.TestSuite = (function($, TestSuite) {
         // Group by
         function flightTestPart8() {
             console.log("start flightTestPart8", "groupby joined table");
-            var wsId = WSManager.getOrders()[0];
-            var tableId = WSManager.getWSById(wsId).tables[0];
+
+            var tableId = getFirstTableInWS(0);
             trigOpModal(tableId, "UniqueCarrier", "groupby")
             .then(function() {
                 // group on UniqueCarrier having avg ArrDely_integer
@@ -865,9 +866,8 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart9() {
             console.log("start flightTestPart9",
                         "aggregate the joined table on avg of ArrDelay_integer");
-            var wsId = WSManager.getOrders()[0];
-            var tableId = WSManager.getWSById(wsId).tables[0];
 
+            var tableId = getFirstTableInWS(0);
             trigOpModal(tableId, "ArrDelay_integer", "aggregate")
             .then(function() {
                 var $section = $("#operationsView .opSection.aggregate");
@@ -907,7 +907,7 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         $("#addWorksheet").click();
-        var wsId = WSManager.getOrders()[1];
+        var wsId = WSManager.getActiveWSByIndex(1);
         checkExists("#worksheetTab-" + wsId)
         .then(function() {
             if ($menu.find(".tables").hasClass("xc-hidden")) {
@@ -971,9 +971,8 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
-        var wsId = WSManager.getOrders()[1];
-        var tableId = WSManager.getWSById(wsId).tables[0];
-
+        var wsId = WSManager.getActiveWSByIndex(1);
+        var tableId = getFirstTableInWS(1);
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
             var $section = $("#operationsView .opSection.groupby");
@@ -1048,7 +1047,7 @@ window.TestSuite = (function($, TestSuite) {
         var dsName = "schedule" + Math.floor(Math.random() * 1000);
         var url = testDataLoc + "indexJoin/schedule/schedule.json";
         var check = "#previewTable td:eq(1):contains(1)";
-        var wsId = WSManager.getOrders()[1];
+        var wsId = WSManager.getActiveWSByIndex(1);
         var ws = WSManager.getWSById(wsId);
         var lPrefix;
 
@@ -1115,8 +1114,7 @@ window.TestSuite = (function($, TestSuite) {
 
     function columnRenameTest(deferred, testName, currentTestNumber) {
         $("#mainFrame").scrollLeft("0");
-        var wsId = WSManager.getOrders()[1];
-        var tableId = WSManager.getWSById(wsId).tables[0];
+        var tableId = getFirstTableInWS(1);
 
         var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='class_id']");
@@ -1152,8 +1150,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function tableRenameTest(deferred, testName, currentTestNumber) {
-        var wsId = WSManager.getOrders()[1];
-        var tableId = WSManager.getWSById(wsId).tables[0];
+        var tableId = getFirstTableInWS(1);
         $("#xcTableWrap-" + tableId + " .tableName").val("NewTableName")
                                                     .trigger(fakeEvent.enter);
         checkExists(".xcTableWrap .tableName[value*='New']")
@@ -1178,8 +1175,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function profileTest(deferred, testName, currentTestNumber) {
-        var wsId = WSManager.getOrders()[1];
-        var tableId = WSManager.getWSById(wsId).tables[0];
+        var tableId = getFirstTableInWS(1);
         var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='Month_integer']");
         $header.parent().parent().find(".flex-right .innerBox").click();
@@ -1226,8 +1222,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function corrTest(deferred, testName, currentTestNumber) {
-        var wsId = WSManager.getOrders()[1];
-        var tableId = WSManager.getWSById(wsId).tables[0];
+        var tableId = getFirstTableInWS(1);
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
         $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
         checkExists("#aggModal-corr[data-state='finished']",

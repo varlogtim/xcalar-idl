@@ -1,4 +1,22 @@
 describe('Constructor Test', function() {
+    describe("XcMap Test", function() {
+        it("Should be a map", function() {
+            var map = new XcMap();
+            expect(map.entries()).to.be.an("object");
+            expect(map.has("a")).to.be.false;
+            map.set("a", "item1");
+            expect(map.has("a")).to.be.true;
+            map.delete("a");
+            expect(map.has("a")).to.be.false;
+
+            map.set("b", "item2");
+            expect(map.has("b")).to.be.true;
+
+            map.clear();
+            expect(map.has("b")).to.be.false;
+        });
+    });
+
     it('XcVersion should be a constructor', function() {
         var versionInfo = new XcVersion({
             'version': 'test',
@@ -1133,6 +1151,9 @@ describe('Constructor Test', function() {
 
             expect(worksheet.getId()).to.equal("testId2");
             expect(worksheet.getName()).to.equal("testName2");
+        
+            worksheet.setName("testName3");
+            expect(worksheet.getName()).to.equal("testName3");
         });
 
         it("Should add table to worksheet", function() {

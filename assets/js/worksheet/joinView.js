@@ -1393,7 +1393,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function fillTableLists(origTableId, refresh) {
-        var tableLis = xcHelper.getWSTableList();
+        var tableLis = WSManager.getTableList();
 
         $leftTableDropdown.find('ul').html(tableLis);
         $rightTableDropdown.find('ul').html(tableLis);

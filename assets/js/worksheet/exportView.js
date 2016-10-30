@@ -628,7 +628,7 @@ window.ExportView = (function($, ExportView) {
     }
 
     function fillTableList(refresh) {
-        var tableLis = xcHelper.getWSTableList();
+        var tableLis = WSManager.getTableList();
         var $tableListSection = $exportView.find('.tableListSection');
         $tableListSection.find('ul').html(tableLis);
         var tableName;

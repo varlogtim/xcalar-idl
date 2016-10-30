@@ -632,7 +632,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 "onOpen": function($curList) {
                     if ($curList.find('.argument.type-table').length) {
                         $curList.find('.list ul')
-                                 .html(xcHelper.getWSTableList());
+                        .html(WSManager.getTableList());
                     }
                 },
                 "onSelect": function($li) {
@@ -655,7 +655,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function updateTableList(modName, refresh) {
         var $extArgs = $extOpsView.find(".extArgs");
-        var tableList = xcHelper.getWSTableList();
+        var tableList = WSManager.getTableList();
         $extTriggerTableDropdown.find(".list ul").html(tableList);
 
         if (!refresh) {

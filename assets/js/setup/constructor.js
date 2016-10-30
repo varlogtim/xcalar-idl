@@ -1,3 +1,35 @@
+// some general class
+function XcMap() {
+    this.map = {};
+    return this;
+}
+
+XcMap.prototype = {
+    entries: function() {
+        return this.map;
+    },
+
+    set: function(id, item) {
+        this.map[id] = item;
+    },
+
+    get: function(id) {
+        return this.map[id];
+    },
+
+    has: function(id) {
+        return this.map.hasOwnProperty(id);
+    },
+
+    delete: function(id) {
+        delete this.map[id];
+    },
+
+    clear: function() {
+        this.map = {};
+    }
+};
+
 // version.js
 function XcVersion(options) {
     options = options || {};
@@ -1337,6 +1369,10 @@ WorksheetObj.prototype = {
 
     getName: function() {
         return this.name;
+    },
+
+    setName: function(name) {
+        this.name = name;
     },
 
     addTable: function(tableId, tableType) {

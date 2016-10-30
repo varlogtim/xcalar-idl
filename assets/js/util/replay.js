@@ -884,7 +884,7 @@ window.Replay = (function($, Replay) {
         var oldTableId = getTableId(options.oldTableId);
         var oldTableName = gTables[oldTableId].tableName;
         var wsIndex = options.worksheetIndex;
-        var wsId = WSManager.getOrders()[wsIndex];
+        var wsId = WSManager.getActiveWSByIndex(wsIndex);
 
         TblManager.refreshTable([newTableName], null, [oldTableName],
                                 wsId, null, {isUndo: true})
@@ -989,7 +989,7 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.RenameWS] = function(options) {
         var wsIndex = options.worksheetIndex;
         var newName = options.newName;
-        var wsId = WSManager.getOrders()[wsIndex];
+        var wsId = WSManager.getActiveWSByIndex(wsIndex);
         $("#worksheetTab-" + wsId + " .text").val(newName)
                                             .trigger(fakeEvent.enter);
         return PromiseHelper.resolve(null);
@@ -998,8 +998,8 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.SwitchWS] = function(options) {
         // UI simulation
         var deferred = jQuery.Deferred();
-        var wsIndex  = options.newWorksheetIndex;
-        var wsId = WSManager.getOrders()[wsIndex];
+        var wsIndex = options.newWorksheetIndex;
+        var wsId = WSManager.getActiveWSByIndex(wsIndex);
 
         $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
 
@@ -1033,11 +1033,11 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.DelWS] = function(options) {
         // UI simulation
-        var deferred    = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
         var originWSLen = WSManager.getWSLen();
-        var wsIndex     = options.worksheetIndex;
-        var delType     = options.delType;
-        var wsId        = WSManager.getOrders()[wsIndex];
+        var wsIndex = options.worksheetIndex;
+        var delType = options.delType;
+        var wsId = WSManager.getActiveWSByIndex(wsIndex);
 
         if (originWSLen === 1) {
             // invalid deletion
@@ -1084,7 +1084,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.HideWS] = function(options) {
         var wsIndex = options.worksheetIndex;
-        var wsId = WSManager.getOrders()[wsIndex];
+        var wsId = WSManager.getActiveWSByIndex(wsIndex);
         WSManager.hideWS(wsId);
 
         return PromiseHelper.resolve(null);
@@ -1102,7 +1102,7 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.MoveTableToWS] = function(options) {
         var tableId = getTableId(options.tableId);
         var wsIndex = options.newWorksheetIndex;
-        var wsId = WSManager.getOrders()[wsIndex];
+        var wsId = WSManager.getActiveWSByIndex(wsIndex);
 
         WSManager.moveTable(tableId, wsId);
         return PromiseHelper.resolve(null);
@@ -1155,24 +1155,11 @@ window.Replay = (function($, Replay) {
         return deferred.promise();
     };
 
-    // addNoSheetTables: function(options) {
-    //     var tableIds = options.tableIds;
-    //     for (var i = 0, len = tableIds.length; i < len; i++) {
-    //         tableIds[i] = getTableId(tableIds[i]);
-    //     }
-
-    //     var wsIndex = options.worksheetIndex;
-    //     var wsId    = WSManager.getOrders()[wsIndex];
-
-    //     WSManager.addNoSheetTables(tableIds, wsId);
-    //     return PromiseHelper.resolve(null);
-    // },
-
     // when adding inactive/orphaned table from dag
     replayFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
         var tableId = getTableId(options.tableId);
         var wsIndex = options.newWorksheetIndex;
-        var wsId = WSManager.getOrders()[wsIndex];
+        var wsId = WSManager.getActiveWSByIndex(wsIndex);
         return WSManager.moveInactiveTable(tableId, wsId,
                                             options.tableType);
     };

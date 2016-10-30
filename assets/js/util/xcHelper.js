@@ -170,39 +170,6 @@ window.xcHelper = (function($, xcHelper) {
         return Math.round(previewSize);
     };
 
-    // not tested in xchelper unit test
-    xcHelper.getWSTableList = function() {
-        var wsOrders = WSManager.getOrders();
-        var tableLis = "";
-        // group table tab by worksheet (only show active table)
-        for (var i = 0, len = wsOrders.length; i < len; i++) {
-            var wsId = wsOrders[i];
-            var ws = WSManager.getWSById(wsId);
-            var wsTables = ws.tables;
-
-            for (var j = 0; j < wsTables.length; j++) {
-                var tableId = wsTables[j];
-                var table = gTables[tableId];
-                if (j === 0 && wsOrders.length > 1) {
-                    tableLis += '<div class="sectionLabel">' +
-                                    ws.name +
-                                '</div>';
-                }
-
-                var tableName = table.getName();
-                tableLis += '<li data-original-title="' + tableName + '" ' +
-                            'class="tooltipOverflow" ' +
-                            'data-toggle="tooltip" data-container="body" ' +
-                            'data-ws="' + wsId + '" data-id="' +
-                            tableId + '">' +
-                                tableName +
-                            '</li>';
-            }
-        }
-
-        return tableLis;
-    };
-
     xcHelper.getJoinRenameMap = function(oldName, newName) {
         return {
             "orig": oldName,

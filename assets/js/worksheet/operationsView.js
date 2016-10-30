@@ -1402,7 +1402,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function fillTableList(refresh) {
-        var tableLis = xcHelper.getWSTableList();
+        var tableLis = WSManager.getTableList();
         var $tableListSection = $activeOpSection.find('.tableListSection');
         $tableListSection.find('ul').html(tableLis);
         var tableName;

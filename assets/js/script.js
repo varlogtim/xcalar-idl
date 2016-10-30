@@ -407,11 +407,11 @@ window.StartManager = (function(StartManager, $) {
             var ws;
             var wsId;
             var worksheets = WSManager.getWorksheets();
-            var wsOrder = WSManager.getOrders();
-            var numWorksheets = wsOrder.length; // counts only active worksheets
+            var activeWorksheetList = WSManager.getActiveWSList();
+            var numWorksheets = activeWorksheetList.length; // counts only active worksheets
 
             for (var i = 0; i < numWorksheets; i++) {
-                wsId = wsOrder[i];
+                wsId = activeWorksheetList[i];
                 ws = worksheets[wsId];
 
                 // deep copy because checkIfTableHasMeta may remove table from

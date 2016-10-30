@@ -7,8 +7,44 @@ describe('Worksheet Test', function() {
         gMinModeOn = true;
     });
 
-    describe('Worksheet existence', function() {
+    describe("Worksheet API Test", function() {
+        it("Should get all meta", function() {
+            var meta = WSManager.getAllMeta();
+            expect(meta).to.be.an("object");
+            expect(Object.keys(meta).length).to.equal(5);
+            expect(meta).have.property("wsInfos");
+            expect(meta).have.property("wsOrder");
+            expect(meta).have.property("hiddenWS");
+            expect(meta).have.property("noSheetTables");
+            expect(meta).have.property("activeWS");
+        });
 
+        it("Should get worksheets", function() {
+            var worksheets = WSManager.getWorksheets();
+            expect(worksheets).to.be.an("object");
+            // have at least one worksheet
+            var numWorksheets = Object.keys(worksheets).length;
+            expect(numWorksheets).be.at.least(1);
+        });
+
+        it("Should get worksheet by id", function() {
+            var worksheets = WSManager.getWorksheets();
+            var worksheetId = Object.keys(worksheets)[0];
+            var worksheet = WSManager.getWSById(worksheetId);
+            expect(worksheet).not.to.be.null;
+            expect(worksheet).to.equal(worksheets[worksheetId]);
+        });
+
+        it("Should get active worksheets list", function() {
+            var activeWorksheets = WSManager.getActiveWSList();
+            expect(activeWorksheets).to.be.an("array");
+            expect(activeWorksheets.length).to.be.at.least(1);
+            expect(WSManager.getActiveWSByIndex(0))
+            .to.equal(activeWorksheets[0]);
+        });
+    });
+
+    describe.skip('Worksheet existence', function() {
         it('should have at least one worksheet', function() {
             $tabs = $('#worksheetTabs').find('.worksheetTab');
             expect($tabs).to.have.length.above(0);
@@ -27,7 +63,7 @@ describe('Worksheet Test', function() {
         });
     });
 
-    describe('Worksheet deletion', function() {
+    describe.skip('Worksheet deletion', function() {
         it ('should remove worksheet', function() {
             var minModeCache = gMinModeOn;
             gMinModeOn = true;
@@ -42,7 +78,7 @@ describe('Worksheet Test', function() {
         });
     });
 
-    describe('Worksheet Scrolling', function() {
+    describe.skip('Worksheet Scrolling', function() {
         var dsName, table1, table2;
 
         before(function(done) {
