@@ -541,6 +541,16 @@ input:-webkit-autofill:focus {
             display: none;
         }
         &.ldapSection {
+            #ldapDep {
+                display: inline;
+                .ldapDepOption {
+                    width: 100%;
+                    margin-top: 20px;
+                }
+            }
+            .customerLdapOptions, .xcalarLdapOptions {
+                margin-left: 20px;
+            }
             .fieldWrap {
                 margin-bottom: 40px;
             }
@@ -548,8 +558,9 @@ input:-webkit-autofill:focus {
                 position: relative;
             }
             input {
-                margin-left: 128px;
+                margin-left: 160px;
                 font-size: 14px;
+                width: 400px;
             }
             .bar {
                 width: 85%;

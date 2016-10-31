@@ -28,7 +28,7 @@
         <div id="formArea">
 
           <!-- Step 1: Enter in license key -->
-          <form id="licenseForm">
+          <form id="licenseForm" class="hidden">
             <div class="title">
               <div class="step">
                 <span>STEP 1 </span>
@@ -192,7 +192,7 @@
             </div>
           </form>
           <!-- Step 4: LDAP -->
-          <form id="ldapForm" autocomplete="off" class="hidden">
+          <form id="ldapForm" autocomplete="off">
             <div class="title">
               <div class="step">
                 <span>STEP 4</span>
@@ -207,60 +207,95 @@
               <h2> Installation Complete - Click on the button to launch Xcalar Insight </h2>
             </div>
             <div class="section ldapSection">
-              <div class="hint">
-                <span>LDAP</span>
-              </div>
-              <div class="radioButtonGroup" id="AD">
-                <div class="radioButton AD active" data-option="true">
+              <div class="radioButtonGroup" id="ldapDep">
+                <div class="radioButton ldapDepOption active" data-option="xcalarLdap">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
-                  <div class="label">Active Directory (AD)</div>
+                  <div class="label">Xcalar Deployed</div>
                 </div>
-                <div class="radioButton AD" data-option="false">
+                <div class="ldapParams xcalarLdapOptions">
+                  <div class="fieldWrap">
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="text" autocomplete="off" placeholder="[xcalar.com]">
+                      <div class="bar">DOMAIN NAME</div>
+                    </div>
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="password" autocomplete="off" placeholder="[root password]">
+                      <div class="bar">NEW PASSWORD</div>
+                    </div>
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="password" autocomplete="off" placeholder="[repeat password]">
+                      <div class="bar">CONFIRM PASSWORD</div>
+                    </div>
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="text" autocomplete="off" placeholder="[Xcalar, Inc]">
+                      <div class="bar">COMPANY NAME</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="radioButton ldapDepOption" data-option="customerLdap">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
-                  <div class="label">Open LDAP</div>
+                  <div class="label">Existing LDAP</div>
                 </div>
-              </div>
-              <div class="fieldWrap">
-                <div class="inputWrap">
-                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[ldap://ldapServer.int.xcalar.com:389]">
-                  <div class="bar">LDAP URI</div>
-                </div>
-                <div class="inputWrap">
-                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[cn=users,dc=int,dc=xcalar,dc=net]">
-                  <div class="bar">User DN</div>
-                </div>
-                <div class="inputWrap">
-                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[(&(objectclass=user)(userPrincipalName=%username%))]">
-                  <div class="bar">Search Filter</div>
-                </div>
-                <div class="inputWrap">
-                  <input class="input" name="useless" type="text" autocomplete="off" placeholder="[/etc/ssl/certs/ca-certificates.crt]">
-                  <div class="bar">Server Key File</div>
-                </div>
-              </div>
-              <div class="hint">
-                <span>Transportation Layer Security (TLS)</span>
-              </div>
-              <div class="radioButtonGroup" id="useTLS">
-                <div class="radioButton useTLS active" data-option="true">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
+                <div class="ldapParams customerLdapOptions hidden">
+                  <div class="radioButtonGroup" id="AD">
+                    <div class="radioButton AD active" data-option="true">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label">Active Directory (AD)</div>
+                    </div>
+                    <div class="radioButton AD" data-option="false">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label">Open LDAP</div>
+                    </div>
                   </div>
-                  <div class="label">Use TLS</div>
-                </div>
-                <div class="radioButton useTLS" data-option="false">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
+                  <div class="fieldWrap">
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="text" autocomplete="off" placeholder="[ldap://ldapServer.int.xcalar.com:389]">
+                      <div class="bar">LDAP URI</div>
+                    </div>
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="text" autocomplete="off" placeholder="[cn=users,dc=int,dc=xcalar,dc=net]">
+                      <div class="bar">User DN</div>
+                    </div>
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="text" autocomplete="off" placeholder="[(&(objectclass=user)(userPrincipalName=%username%))]">
+                      <div class="bar">Search Filter</div>
+                    </div>
+                    <div class="inputWrap">
+                      <input class="input" name="useless" type="text" autocomplete="off" placeholder="[/etc/ssl/certs/ca-certificates.crt]">
+                      <div class="bar">Server Key File</div>
+                    </div>
                   </div>
-                  <div class="label">Do not use TLS</div>
+                  <div class="hint">
+                    <span>Transportation Layer Security (TLS)</span>
+                  </div>
+                  <div class="radioButtonGroup" id="useTLS">
+                    <div class="radioButton useTLS active" data-option="true">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label">Use TLS</div>
+                    </div>
+                    <div class="radioButton useTLS" data-option="false">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label">Do not use TLS</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

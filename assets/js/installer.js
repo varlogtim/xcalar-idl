@@ -156,6 +156,21 @@ window.Installer = (function(Installer, $) {
                         break;
                 }
                 break;
+            case ("ldapDep"):
+                switch (radioOption) {
+                    case ("customerLdap"):
+                        $(".customerLdapOptions").removeClass("hidden");
+                        $(".xcalarLdapOptions").addClass("hidden");
+                        break;
+                    case ("xcalarLdap"):
+                        $(".xcalarLdapOptions").removeClass("hidden");
+                        $(".customerLdapOptions").addClass("hidden");
+                        break;
+                    default:
+                        console.error("Unexpected option!");
+                        break;
+                }
+                break;
             case ("useTLS"):
                 break;
             case ("AD"):
@@ -489,7 +504,41 @@ window.Installer = (function(Installer, $) {
 
     function validateLdap() {
         var deferred = jQuery.Deferred();
-        // JJJ Fill in
+
+        var $params = $(".ldapParams:not(.hidden)");
+        // Check that all fields are populated
+        var allPopulated = true;
+        $params.find("input").each(function(idx, val) {
+            if ($.trim($(val).val()).length === 0) {
+                allPopulated = false;
+            }
+        });
+
+        if (!allPopulated) {
+            return deferred.reject("Blank arguments",
+                                   "Please populate all fields").promise();
+        }
+
+        if ($params.hasClass("xcalarLdapOptions")) {
+            // Xcalar LDAP
+            // Check that passwords are the same
+            if ($params.find("input").eq(1).val() !==
+                $params.find("input").eq(2).val()) {
+                return deferred.reject("Passwords different",
+                                       "Passwords must be the same").promise();
+            }
+        } else {
+            // Customer LDAP
+            // Check that all the radio buttons are selected
+            if (!$("#AD .active").length) {
+                return deferred.reject("AD or LDAP",
+                                       "Please select AD or LDAP").promise();
+            }
+            if (!$("#useTLS .active").length) {
+                return deferred.reject("TLS",
+                                  "Please select whether to use TLS").promise();
+            }
+        }
         console.log("verified");
         deferred.resolve();
 
@@ -522,6 +571,9 @@ window.Installer = (function(Installer, $) {
             if (!args[i]) {
                 args[i] = "Unknown Error";
             }
+        }
+        if (!args[1]) {
+            args[1] = "Error";
         }
         $error = $(".error").eq(curStepId);
         $error.find("span").eq(0).html(args[0]+"<br>");
@@ -657,36 +709,67 @@ window.Installer = (function(Installer, $) {
 
         // Lock the form
         $("#ldapForm").addClass("disabled");
-        // Collect all the values
-        var values = $(".ldapSection input").map(function(a, b) {
+
+        // Collect values based on the selection
+        var values = $(".ldapParams:not(.hidden)").find("input")
+                                                  .map(function(a, b) {
             return $(b).val();
         });
-        var adOption = $(".AD.radioButton.active").data("option");
-        var tlsOption = $(".useTLS.radioButton.active").data("option");
 
-        var struct = {
-            "ldap_uri"     : values[0],
-            "userDN"       : values[1],
-            "searchFilter" : values[2],
-            "serverKeyFile": values[3],
-            "activeDir"    : adOption,
-            "useTLS"       : tlsOption
-        };
+        if ($(".ldapParams:not(.hidden)").hasClass("xcalarLdapOptions")) {
+            var struct = {
+                "domainName": values[0],
+                "password": values[1],
+                "companyName": values[3]
+            };
 
-        sendViaHttps("writeConfig", struct, function(ret) {
-            if (ret.status === Status.Ok) {
-                deferred.resolve(Status.Ok);
-            } else {
-                deferred.reject(Status.Error);
-            }
-            $("#ldapForm").removeClass("disabled");
-        }, function(ret, textStatus, xhr) {
-            console.error(arguments);
-            $("#ldapForm").removeClass("disabled");
-            deferred.reject();
-        });
+            console.log(struct);
+            sendViaHttps("installLdap", struct, function(ret) {
+                if (ret.status === Status.Ok) {
+                    deferred.resolve(Status.Ok);
+                } else {
+                    var errMsg = "";
+                    if (ret && ret.reason) {
+                        errMsg = ret.reason;
+                    } else {
+                        errMsg = Status.Error;
+                    }
+                    deferred.reject("Return Status Error", errMsg);
+                }
+                $("#ldapForm").removeClass("disabled");
+            }, function(ret, textStatus, xhr) {
+                console.error(arguments);
+                $("#ldapForm").removeClass("disabled");
+                deferred.reject("Ajax Error", xhr);
+            });
 
-        deferred.resolve();
+        } else {
+            var adOption = $(".AD.radioButton.active").data("option");
+            var tlsOption = $(".useTLS.radioButton.active").data("option");
+
+            var struct = {
+                "ldap_uri"     : values[0],
+                "userDN"       : values[1],
+                "searchFilter" : values[2],
+                "serverKeyFile": values[3],
+                "activeDir"    : adOption,
+                "useTLS"       : tlsOption
+            };
+
+            console.log(struct);
+            sendViaHttps("writeConfig", struct, function(ret) {
+                if (ret.status === Status.Ok) {
+                    deferred.resolve(Status.Ok);
+                } else {
+                    deferred.reject("Return Status Error", Status.Error);
+                }
+                $("#ldapForm").removeClass("disabled");
+            }, function(ret, textStatus, xhr) {
+                $("#ldapForm").removeClass("disabled");
+                deferred.reject("Ajax Error", xhr);
+            });
+        }
+
         return deferred.promise();
     }
 

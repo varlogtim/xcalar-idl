@@ -121,6 +121,11 @@ function genExecString(hostnameLocation, hasPrivHosts,
     return execString;
 }
 
+function genLdapExecString(domainName, password, companyName) {
+    var execString = ""; // XXX fill in
+    return execString;
+}
+
 function sendStatusArray(finalStruct, res) {
     var ackArray = [];
     // Check global array that has been populated by prev step
@@ -344,8 +349,55 @@ app.post("/writeConfig", function(req, res) {
         res.send({"status": Status.Ok});
     } catch (err) {
         console.log(err);
-        res.send({"status": Status.Error});
+        res.send({"status": Status.Error,
+                  "reason": JSON.stringify(err)});
     }
+});
+
+app.post("/installLdap", function(req, res) {
+    console.log("Installing Ldap");
+    var credArray = req.body;
+    /**
+    var credArray = {
+                "domainName": values[0],
+                "password": values[1],
+                "companyName": values[3]
+            };
+    */
+    var execString = scriptDir + ""; // XXX populate with ted's stuff
+    execString += cliArguments; // Add all the previous stuff
+
+    execString += genLdapExecString(credArray);
+
+    out = exec(execString);
+
+    var installSuccess = "SUCCESS"; // XXX CHANGEME
+    var replied = false;
+    out.stdout.on('data', function(data) {
+        var lines = data.split("\n");
+        var i = 0;
+        for (i = 0; i<lines.length; i++) {
+            if (lines[i].indexOf(installSuccess) > -1) {
+                replied = true;
+                res.send({"status": Status.Ok});
+            }
+        }
+    });
+    var errorMessage = "ERROR: ";
+    out.stderr.on('data', function(data) {
+        errorMessage += data;
+    });
+
+    out.on('close', function(code) {
+        // Exit code. When we fail, we return non 0
+        if (code) {
+            console.log("Oh noes!");
+            if (!replied) {
+                res.send({"status": Status.Error,
+                          "reason": errorMessage});
+            }
+        }
+    });
 });
 
 app.post("/completeInstallation", function(req, res) {

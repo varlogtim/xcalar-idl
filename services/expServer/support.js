@@ -18,16 +18,16 @@ var Status = {
 
 function removeSessionFiles(filename, res) {
     var file = "";
-    if(filename == "" || filename == "undefined" ||filename == undefined) {
+    if (filename === "" || filename == "undefined" || filename === undefined) {
         file = '*';
     } else {
         var fileNameIndex = filename.lastIndexOf('/');
-        if(fileNameIndex != -1) {
+        if (fileNameIndex !== -1) {
             file = filename.substring(fileNameIndex + 1);
         } else {
             file = filename;
         }
-        if(file == "") {
+        if (file === "") {
             file = '*';
         }
     }
@@ -67,8 +67,8 @@ function xcalarCondrestart(res) {
 
 function executeCommand(command, res) {
     var deferred = jQuery.Deferred();
-    cp.exec(command, function(err,stdout,stderr){
-        if(err){
+    cp.exec(command, function(err, stdout, stderr) {
+        if (err) {
             console.log(err.message);
             res.send({"status": Status.Error});
                 deferred.reject();
