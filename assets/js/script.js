@@ -377,6 +377,9 @@ window.StartManager = (function(StartManager, $) {
 
     function initializeTable() {
         var deferred = jQuery.Deferred();
+        var failures = [];
+        var hasTable = false;
+        var noMetaTables = [];
 
         StatusMessage.updateLocation(true, StatusMessageTStr.LoadingTables);
         // since we are not storing any redo states on start up, we should
@@ -384,155 +387,118 @@ window.StartManager = (function(StartManager, $) {
         // to reach them
         WSManager.dropUndoneTables()
         .then(function() {
-            return (xcHelper.getBackTableSet());
+            return xcHelper.getBackTableSet();
         })
         .then(function(backTableSet) {
-            var tableId;
-            var tableName;
-
-            // check if some table has front meta but not backend info
-            // if yes, delete front meta
-            for (tableId in gTables) {
-                tableName = gTables[tableId].tableName;
-                if (!backTableSet.hasOwnProperty(tableName)) {
-                    console.warn(tableName, "is not in backend");
-                    delete gTables[tableId];
-                }
-            }
-
-            var hasTable = false;
-            var promises = [];
-            var failures = [];
-
-            var ws;
-            var wsId;
-            var worksheets = WSManager.getWorksheets();
-            var activeWorksheetList = WSManager.getActiveWSList();
-            var numWorksheets = activeWorksheetList.length; // counts only active worksheets
-
-            for (var i = 0; i < numWorksheets; i++) {
-                wsId = activeWorksheetList[i];
-                ws = worksheets[wsId];
-
-                // deep copy because checkIfTableHasMeta may remove table from
-                // array and mess up the position of the for loop
-                var wsTables = xcHelper.deepCopy(ws.tables);
-                var numWsTables = wsTables.length;
-
-                if (!hasTable && numWsTables > 0) {
-                    hasTable = true;
-                }
-
-                // create active table
-                for (var j = 0; j < numWsTables; j++) {
-                    tableId = wsTables[j];
-
-                    if (!checkIfTableHasMeta(tableId, backTableSet)) {
-                        continue;
-                    }
-
-                    promises.push(restoreActiveTable.bind(this, tableId, failures));
-                }
-
-                // create archived tables
-                var wsArchivedTables = xcHelper.deepCopy(ws.archivedTables);
-                var numArchivedWsTables = wsArchivedTables.length;
-                for (var j = 0; j < numArchivedWsTables; j++) {
-                    tableId = wsArchivedTables[j];
-
-                    if (!checkIfTableHasMeta(tableId, backTableSet)) {
-                        continue;
-                    }
-
-                    gTables[tableId].beArchived();
-                }
-            }
-
-            // create no worksheet tables
-            var noSheetTables = xcHelper.deepCopy(WSManager.getNoSheetTables());
-            var numNoSheetTables = noSheetTables.length;
-
-            for (var i = 0; i < numNoSheetTables; i++) {
-                tableId = noSheetTables[i];
-
-                if (!checkIfTableHasMeta(tableId, backTableSet, true)) {
-                    continue;
-                }
-
-                gTables[tableId].beArchived();
-            }
-
-            // set up tables in hidden worksheets
-            var hiddenWorksheets = WSManager.getHiddenWS();
-            var numHiddenWsTables = hiddenWorksheets.length;
-            var numTables;
-            var numArchivedTables;
-
-            for (var i = 0; i < numHiddenWsTables; i++) {
-                wsId = hiddenWorksheets[i];
-                ws = xcHelper.deepCopy(worksheets[wsId]);
-                numTables = ws.tempHiddenTables.length;
-
-                for (var j = 0; j < numTables; j++) {
-                    tableId = ws.tempHiddenTables[j];
-                    checkIfTableHasMeta(tableId, backTableSet);
-                }
-
-                numArchivedTables = ws.archivedTables.length;
-
-                for (var j = 0; j < numArchivedTables; j++) {
-                    tableId = ws.archivedTables[j];
-                    checkIfTableHasMeta(tableId, backTableSet);
-                }
-            }
-
+            syncTableMetaWithBackTable(backTableSet);
+            var promises = syncTableMetaWithWorksheet(backTableSet);
+            cleanNoMetaTables();
             // setup leftover tables
             setupOrphanedList(backTableSet);
 
-            PromiseHelper.chain(promises)
-            .then(function() {
-                if (hasTable) {
-                    RowScroller.resize();
-                } else {
-                    $('#mainFrame').addClass('empty');
-                }
-                StatusMessage.updateLocation();
+            return PromiseHelper.chain(promises);
+        })
+        .then(function() {
+            if (hasTable) {
+                RowScroller.resize();
+            } else {
+                $("#mainFrame").addClass("empty");
+            }
+            StatusMessage.updateLocation();
 
-                if (failures.length > 0) {
-                    for (var c = 0; c < failures.length; c++) {
-                        console.error(failures[c]);
-                    }
-                }
+            failures.forEach(function(fail) {
+                console.error(fail);
+            });
 
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
+            deferred.resolve();
         })
         .fail(function(error) {
             console.error("InitializeTable fails!", error);
             deferred.reject(error);
         });
 
-        function checkIfTableHasMeta(tableId, backTableSet, isNoSheetTable) {
-            var curTable = gTables[tableId];
+        return deferred.promise();
 
-            if (curTable == null) {
-                if (isNoSheetTable) {
-                    // this case is fine since some are in agg table list
-                    console.info("not find table", tableId);
-                } else {
-                    WSManager.removeTable(tableId);
-                    console.error("not find table", tableId);
+        function syncTableMetaWithBackTable(backTableSet) {
+            // check if some table has front meta but not backend info
+            // if yes, delete front meta
+            for (var tableId in gTables) {
+                var tableName = gTables[tableId].getName();
+                if (!backTableSet.hasOwnProperty(tableName)) {
+                    console.warn(tableName, "is not in backend");
+                    delete gTables[tableId];
+                }
+            }
+        }
+
+        function syncTableMetaWithWorksheet(backTableSet) {
+            var promises = [];
+            var activeWorksheetList = WSManager.getActiveWSList();
+
+            activeWorksheetList.forEach(function(worksheetId) {
+                var worksheet = WSManager.getWSById(worksheetId);
+                if (!hasTable && worksheet.tables.length > 0) {
+                    hasTable = true;
                 }
 
+                worksheet.tables.forEach(function(tableId) {
+                    if (checkIfHasTableMeta(tableId, backTableSet)) {
+                        promises.push(restoreActiveTable.bind(window, tableId,
+                                                                failures));
+                    }
+                });
+
+                // check archived tables
+                worksheet.archivedTables.forEach(function(tableId) {
+                    if (checkIfHasTableMeta(tableId, backTableSet)) {
+                        gTables[tableId].beArchived();
+                    }
+                });
+            });
+
+            // check no worksheet tables
+            var noSheetTables = WSManager.getNoSheetTables();
+            noSheetTables.forEach(function(tableId) {
+                if (checkIfHasTableMeta(tableId, backTableSet)) {
+                    gTables[tableId].beArchived();
+                }
+            });
+
+            // set up tables in hidden worksheets
+            var hiddenWorksheets = WSManager.getHiddenWS();
+            hiddenWorksheets.forEach(function(worksheetId) {
+                var worksheet = WSManager.getWSById(worksheetId);
+
+                worksheet.tempHiddenTables.forEach(function(tableId) {
+                    checkIfHasTableMeta(tableId, backTableSet);
+                });
+
+                worksheet.archivedTables.forEach(function(tableId) {
+                    checkIfHasTableMeta(tableId, backTableSet);
+                });
+            });
+
+            return promises;
+        }
+
+        function checkIfHasTableMeta(tableId, backTableSet) {
+            var table = gTables[tableId];
+            if (table == null) {
+                noMetaTables.push(tableId);
                 return false;
             } else {
-                delete backTableSet[curTable.getName()];
+                var tableName = table.getName();
+                delete backTableSet[tableName];
                 return true;
             }
         }
 
-        return deferred.promise();
+        function cleanNoMetaTables() {
+            noMetaTables.forEach(function(tableId) {
+                console.info("not find table", tableId);
+                WSManager.removeTable(tableId);
+            });
+        }
     }
 
     function documentReadyGeneralFunction() {

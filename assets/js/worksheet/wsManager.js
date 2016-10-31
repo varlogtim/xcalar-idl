@@ -791,6 +791,10 @@ window.WSManager = (function($, WSManager) {
             tableIndex = tables.indexOf(tableId);
         }
         if (tableIndex < 0) {
+            tables = ws.tempHiddenTables;
+            tableIndex = tables.indexOf(tableId);
+        }
+        if (tableIndex < 0) {
             tables = ws.undoneTables;
             tableIndex = tables.indexOf(tableId);
         }
