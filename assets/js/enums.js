@@ -303,3 +303,10 @@ var Status = {
     "Running": 2,
     "Error"  : -1,
 };
+
+var SupportStatus = {
+    "OKLog": 0,
+    "OKNoLog": 1,
+    "OKUnknown": 2,
+    "Error": -1
+}

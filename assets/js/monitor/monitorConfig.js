@@ -35,25 +35,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     };
 
     function setupListeners() {
-        $("#configStartNode").click(function() {
-            $(this).blur();
-            // startNode();
-        });
-
-        $("#configStopNode").click(function() {
-            $(this).blur();
-            // stopNode();
-        });
-
-        $("#configRestartNode").click(function() {
-            $(this).blur();
-            // restartNode();
-        });
-
-        $('#configLicense').click(function() {
-            
-        });
-
         $placeholder.click(function() {
             addInputRow();
         });
@@ -375,44 +356,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         html += '</div>' +
                 '</div>';
         return (html);
-    }
-
-    
-    function startNode() {
-        console.log('start node!');
-        XFTSupportTools.startXcalarServices();
-
-        // not works now!!
-        // KVStore.commit()
-        // .then(function() {
-        //     return XcalarStartNodes(2);
-        // }, function(error) {
-        //     console.error("Failed to write! Commencing shutdown",
-        //                    error);
-        //     return XcalarStartNodes(2);
-        // })
-        // .then(function() {
-        //     console.info("Restart Successfully!");
-        //     // refresh page
-        //     location.reload();
-        // });
-    }
-
-    function stopNode() {
-        XFTSupportTools.stopXcalarServices
-        console.log("Shut down!");
-
-        // not works now!!!
-        // KVStore.commit()
-        // .then(function() {
-        //     return XcalarShutDown();
-        // });
-    }
-
-    function restartNode() {
-        // restart unreliable so we stop and start
-        XFTSupportTools.stopXcalarServices();
-        XFTSupportTools.startXcalarServices();
     }
 
     return (MonitorConfig);

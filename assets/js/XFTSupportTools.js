@@ -8,47 +8,63 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         return (postRequest(action, str));
     }
 
-    XFTSupportTools.monitorLogs = function() {
+    // pass in callbacks to get triggered upon each post return
+    XFTSupportTools.monitorLogs = function(errCallback, successCallback) {
         clearInterval(monitorIntervalId);
         monitorIntervalId = setInterval(function() {
-            if(lastReturnSucc) {
+            if (lastReturnSucc) {
                 lastReturnSucc = false;
                 var action = "monitorLogs";
                 // support multiple user
                 var data = {"userID" : Support.getUser()};
                 var promise = postRequest(action, data);
                 promise
-                .then(function() {
+                .then(function(ret) {
+                    console.info(ret);
                     lastReturnSucc = true;
+                    if (typeof successCallback === "function") {
+                        successCallback(ret);
+                    }
                 })
-                .fail(function() {
+                .fail(function(err) {
+                    console.warn(err);
                     lastReturnSucc = false;
+                    if (typeof errCallback === "function") {
+                        errCallback(ret);
+                    }
                 });
             }
         }, 1000);
     }
 
     XFTSupportTools.stopMonitorLogs = function() {
+        var deferred = jQuery.Deferred();
         clearInterval(monitorIntervalId);
         $.ajax({
             type: 'POST',
             data: JSON.stringify({"userID" : Support.getUser()}),
             contentType: 'application/json',
             url: "https://authentication.xcalar.net/app/stopMonitorLogs",
+            // url: "http://dijkstra:12124/stopMonitorLogs",
             success: function(data) {
                 var ret = data;
                 if (ret.status === Status.Ok) {
                     console.log('Stop successfully');
+                    deferred.resolve(ret);
                 } else if (ret.status === Status.Error) {
                     console.log('Stop fails');
+                    deferred.reject(ret);
                 } else {
                     console.log('shouldnt be here');
+                    deferred.reject(ret);
                 }
             },
             error: function(error) {
                 console.log(error);
+                deferred.reject(error);
             }
         });
+        return (deferred.promise());
     };
 
     XFTSupportTools.startXcalarServices = function() {
@@ -89,30 +105,48 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             type: 'POST',
             data: JSON.stringify(str),
             contentType: 'application/json',
-            // url: "http://authentication.xcalar.net/app/" + action,
-            url: "http://dijkstra:12124/" + action,
+            url: "http://authentication.xcalar.net/app/" + action,
+            // url: "http://dijkstra:12124/" + action,
             success: function(data) {
                 var ret = data;
+                var retMsg;
                 if (ret.status === Status.Ok) {
                     var retMsg;
+                    var status;
+                    var logs;
                     if(ret.logs) {
-                        retMsg = atob(ret.logs);
-                        console.log(atob(ret.logs));
+                        logs = atob(ret.logs);
+                        status = SupportStatus.OKLog;
                     } else {
-                        retMsg = "Successful but no logs";
+                        logs = "";
+                        status = SupportStatus.OKNoLog;
                     }
+                    retMsg = {
+                        status: status,
+                        logs: logs
+                    };
                     deferred.resolve(retMsg);
                 } else if (ret.status === Status.Error) {
-                    console.log('return error',ret.message);
-                    deferred.reject(ret.message);
+                    retMsg = {
+                        status: SupportStatus.Error,
+                        error: ret
+                    };
+                    deferred.reject(retMsg);
                 } else {
-                    console.log('shouldnt be here');
-                    deferred.reject(ret);
+                    retMsg = {
+                        status: OKUnknown,
+                        error: ret
+                    };
+                    deferred.reject(retMsg);
                 }
             },
             error: function(error) {
                 clearInterval(monitorIntervalId);
-                deferred.reject(error);
+                retMsg = {
+                    status: SupportStatus.Error,
+                    error: ret
+                };
+                deferred.reject(retMsg);
             }
         });
         return deferred.promise();

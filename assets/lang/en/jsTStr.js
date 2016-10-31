@@ -461,6 +461,10 @@ MonitorTStr = {
     "NewVal": "New Value",
     'ParamConfigFailed': 'Parameter Configuration Failed',
     'SavingSettingsFailed': 'Saving Settings Failed',
+    'StartNodeFailed': 'Start node failed',
+    'StopNodeFailed': 'Stop node failed',
+    'RestartFailed': 'Restart node failed',
+    'NotAuth': 'Not authorized to perform this command.',
 
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +

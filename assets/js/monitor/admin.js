@@ -23,10 +23,10 @@ window.Admin = (function($, Admin) {
         $userList = $menuPanel.find('.userList');
 
         if (Admin.isAdmin()) {
-            addMonitorMenuPanelListeners();
+            addMonitorMenuUserListListeners();
+            addMonitorMenuSupportListeners();
             refreshUserList();
             setupAdminStatusBar();
-            addAdminStatusBarListeners();
             SupportTools.setup();
         }
     };
@@ -90,7 +90,7 @@ window.Admin = (function($, Admin) {
         unloadHandler(false, true);
     };
 
-    function addMonitorMenuPanelListeners() {
+    function addMonitorMenuUserListListeners() {
         searchHelper = new SearchBar($("#adminUserSearch"), {
             "$list"         : $userList.find('ul'),
             "removeSelected": function() {
@@ -127,6 +127,27 @@ window.Admin = (function($, Admin) {
         $userList.on('click', '.userLi', function() {
             var username = $(this).text().trim();
             Admin.switchUser(username);
+        });
+    }
+
+    function addMonitorMenuSupportListeners() {
+        $("#configStartNode").click(function() {
+            $(this).blur();
+            startNode();
+        });
+
+        $("#configStopNode").click(function() {
+            $(this).blur();
+            stopNode();
+        });
+
+        $("#configRestartNode").click(function() {
+            $(this).blur();
+            restartNode();
+        });
+
+        $('#configLicense').click(function() {
+            
         });
     }
 
@@ -252,15 +273,6 @@ window.Admin = (function($, Admin) {
         filterUserList(null);
     }
 
-    function addAdminStatusBarListeners() {
-        // $('#adminStatusBar').on('click', '.xi-close', function() {
-        //     $('#adminStatusBar').addClass('xc-hidden');
-        // });
-        // $('#adminViewBtn').on('click', function() {
-        //     $('#adminStatusBar').removeClass('xc-hidden');
-        // });
-    }
-
     function setupAdminStatusBar() {
         var $adminBar = $('#adminStatusBar');
        
@@ -288,6 +300,101 @@ window.Admin = (function($, Admin) {
         } else {
             $("#adminStatusBar").hide();
         }
+    }
+
+
+    function startNode() {
+        supportPrep()
+        .then(XFTSupportTools.startXcalarServices)
+        .then(function(ret) {
+            // refresh page
+            console.log('success start', ret);
+            if (ret.status === SupportStatus.OKLog &&
+                ret.logs.indexOf("already running") > -1) {
+                Alert.show({msg: ret.logs, isAlert: true});
+            } else {
+                location.reload();
+            }
+        })
+        .fail(function(err) {
+            var msg;
+            if (err.logs) {
+                msg = err.logs;
+            } else {
+                msg = MonitorTStr.StartNodeFailed + ".";
+            }
+            Alert.error(MonitorTStr.StartNodeFailed, msg);
+        })
+        .always(function() {
+            $("#initialLoadScreen").hide();
+        });
+    }
+
+    function stopNode() {
+        supportPrep()
+        .then(XFTSupportTools.stopXcalarServices)
+        .then(function(ret) {
+            console.log('success stop', ret);
+            var alertError = {"error": ThriftTStr.CCNBE};
+            Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                "lockScreen": true
+            });
+        })
+        .fail(function(err) {
+            console.log('fail', err);
+            if (err.logs) {
+                msg = err.logs;
+            } else {
+                msg = MonitorTStr.StopNodeFailed + ".";
+            }
+            Alert.error(MonitorTStr.StopNodeFailed, msg);
+        })
+        .always(function() {
+            $("#initialLoadScreen").hide();
+        });
+        console.log("Shut down!");
+    }
+
+    function restartNode() {
+        // restart is unreliable so we stop and start instead
+        supportPrep()
+        .then(XFTSupportTools.stopXcalarServices)
+        .then(function() {
+            return (XFTSupportTools.startXcalarServices());
+        })
+        .then(function() {
+            location.reload();
+        })
+        .fail(function(err) {
+            console.log("fail", err);
+            if (err.logs) {
+                msg = err.logs;
+            } else {
+                msg = MonitorTStr.StopNodeFailed + ".";
+            }
+            Alert.error(MonitorTStr.StopNodeFailed, msg);
+        });
+    }
+
+    // setup func called before startNode, stopNode, etc.
+    function supportPrep() {
+        var deferred = jQuery.Deferred(); 
+       
+        if (!Admin.isAdmin()) {
+            deferred.reject({logs: MonitorTStr.NotAuth});
+            return deferred.promise();
+        }
+
+        $("#initialLoadScreen").show();
+        KVStore.commit()
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function(err) {
+            $("#initialLoadScreen").hide();
+            deferred.reject(err);
+        });
+        return deferred.promise();
     }
 
     return (Admin);
