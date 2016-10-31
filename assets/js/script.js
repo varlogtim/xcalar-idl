@@ -301,6 +301,7 @@ window.StartManager = (function(StartManager, $) {
         SmartCastView.setup();
         DeleteTableModal.setup();
         ExtModal.setup();
+        LicenseModal.setup();
         AboutModal.setup();
     }
 

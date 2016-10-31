@@ -19,6 +19,13 @@ window.Admin = (function($, Admin) {
                 $('#container').addClass('admin');
             }
         }
+        if (localStorage.xcSupport === "true" &&
+            sessionStorage.usingAs !== "true") {
+            gXcSupport = true;
+            $('#container').addClass('admin xcSupport');
+        }
+
+
         $menuPanel = $('#monitorMenu-setup');
         $userList = $menuPanel.find('.userList');
 
@@ -33,6 +40,10 @@ window.Admin = (function($, Admin) {
 
     Admin.isAdmin = function() {
         return gAdmin;
+    };
+
+    Admin.isXcSupport = function() {
+        return gXcSupport;
     };
 
     // will not add user if already exists in kvstore
@@ -70,6 +81,9 @@ window.Admin = (function($, Admin) {
     };
 
     Admin.switchUser = function(username) {
+        if (!Admin.isAdmin()) {
+            return;
+        }
         sessionStorage.setItem("xcalar-username", username);
         sessionStorage.setItem("xcalar-fullUsername", username);
         if (sessionStorage.getItem('usingAs') !== "true") {
@@ -81,7 +95,9 @@ window.Admin = (function($, Admin) {
     };
 
     Admin.userToAdmin = function() {
-        // $adminBar.addClass('xc-hidden');
+        if (!Admin.isAdmin()) {
+            return;
+        }
         sessionStorage.setItem("usingAs", false);
         var adminName = sessionStorage.getItem("adminName");
         sessionStorage.setItem("xcalar-username", adminName);
@@ -126,29 +142,28 @@ window.Admin = (function($, Admin) {
 
         $userList.on('click', '.userLi', function() {
             var username = $(this).text().trim();
-            Admin.switchUser(username);
+            var title = MonitorTStr.UseXcalarAs;
+            var msg = xcHelper.replaceMsg(MonitorTStr.SwitchUserMsg, {
+                username: username
+            });
+            Alert.show({
+                "title"    : title,
+                "msg"      : msg,
+                "onConfirm": function() {
+                    Admin.switchUser(username);
+                }
+            });
         });
     }
 
     function addMonitorMenuSupportListeners() {
-        $("#configStartNode").click(function() {
-            $(this).blur();
-            startNode();
-        });
+        $("#configStartNode").click(startNode);
 
-        $("#configStopNode").click(function() {
-            $(this).blur();
-            stopNode();
-        });
+        $("#configStopNode").click(stopNode);
 
-        $("#configRestartNode").click(function() {
-            $(this).blur();
-            restartNode();
-        });
+        $("#configRestartNode").click(restartNode);
 
-        $('#configLicense').click(function() {
-            
-        });
+        $('#configLicense').click(LicenseModal.show);
     }
 
     function parseStrIntoUserList(value) {
@@ -304,7 +319,7 @@ window.Admin = (function($, Admin) {
 
 
     function startNode() {
-        supportPrep()
+        supportPrep('startNode')
         .then(XFTSupportTools.startXcalarServices)
         .then(function(ret) {
             // refresh page
@@ -317,13 +332,7 @@ window.Admin = (function($, Admin) {
             }
         })
         .fail(function(err) {
-            var msg;
-            if (err.logs) {
-                msg = err.logs;
-            } else {
-                msg = MonitorTStr.StartNodeFailed + ".";
-            }
-            Alert.error(MonitorTStr.StartNodeFailed, msg);
+            nodeCmdFailHandler('startNode', err);
         })
         .always(function() {
             $("#initialLoadScreen").hide();
@@ -331,7 +340,7 @@ window.Admin = (function($, Admin) {
     }
 
     function stopNode() {
-        supportPrep()
+        supportPrep('stopNode')
         .then(XFTSupportTools.stopXcalarServices)
         .then(function(ret) {
             console.log('success stop', ret);
@@ -341,13 +350,7 @@ window.Admin = (function($, Admin) {
             });
         })
         .fail(function(err) {
-            console.log('fail', err);
-            if (err.logs) {
-                msg = err.logs;
-            } else {
-                msg = MonitorTStr.StopNodeFailed + ".";
-            }
-            Alert.error(MonitorTStr.StopNodeFailed, msg);
+            nodeCmdFailHandler('stopNode', err);
         })
         .always(function() {
             $("#initialLoadScreen").hide();
@@ -357,7 +360,7 @@ window.Admin = (function($, Admin) {
 
     function restartNode() {
         // restart is unreliable so we stop and start instead
-        supportPrep()
+        supportPrep('restartNode')
         .then(XFTSupportTools.stopXcalarServices)
         .then(function() {
             return (XFTSupportTools.startXcalarServices());
@@ -366,18 +369,15 @@ window.Admin = (function($, Admin) {
             location.reload();
         })
         .fail(function(err) {
-            console.log("fail", err);
-            if (err.logs) {
-                msg = err.logs;
-            } else {
-                msg = MonitorTStr.StopNodeFailed + ".";
-            }
-            Alert.error(MonitorTStr.StopNodeFailed, msg);
+            nodeCmdFailHandler('restartNode', err);
+        })
+        .always(function() {
+            $("#initialLoadScreen").hide();
         });
     }
 
     // setup func called before startNode, stopNode, etc.
-    function supportPrep() {
+    function supportPrep(command) {
         var deferred = jQuery.Deferred(); 
        
         if (!Admin.isAdmin()) {
@@ -385,16 +385,76 @@ window.Admin = (function($, Admin) {
             return deferred.promise();
         }
 
-        $("#initialLoadScreen").show();
-        KVStore.commit()
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function(err) {
-            $("#initialLoadScreen").hide();
-            deferred.reject(err);
+        var title;
+        var msg;
+        switch (command) {
+            case ('startNode'):
+                title = MonitorTStr.StartNodes;
+                break;
+            case ('stopNode'):
+                title = MonitorTStr.StopNodes;
+                break;
+            case ('restartNode'):
+                title = MonitorTStr.RestartNodes;
+                break;
+            default:
+                title = AlertTStr.CONFIRMATION;
+                break;
+        }
+        var msg = xcHelper.replaceMsg(MonitorTStr.NodeConfirmMsg, {
+            type: title.toLowerCase()
         });
+
+        Alert.show({
+            "title"    : title,
+            "msg"      : msg,
+            "onConfirm": function() {
+                $("#initialLoadScreen").show();
+                KVStore.commit()
+                .then(function() {
+                    deferred.resolve();
+                })
+                .fail(function(err) {
+                    $("#initialLoadScreen").hide();
+                    deferred.reject(err);
+                });
+            },
+            "onCancel": function() {
+                deferred.reject('canceled');
+            }
+        });
+
         return deferred.promise();
+    }
+
+    function nodeCmdFailHandler(command, err) {
+        if (err === "canceled") {
+            return;
+        }
+        console.log("fail", err);
+        var title;
+        switch (command) {
+            case ('startNode'):
+                title = MonitorTStr.StartNodeFailed;
+                break;
+            case ('stopNode'):
+                title = MonitorTStr.StopNodeFailed;
+                break;
+            case ('restartNode'):
+                title = MonitorTStr.RestartFailed;
+                break;
+            default:
+                title = AlertTStr.Error;
+                break;
+        }
+
+        if (err.logs) {
+            msg = err.logs;
+        } else {
+            msg = title + ".";
+        }
+
+        Alert.error(title, msg);
     }
 
     return (Admin);

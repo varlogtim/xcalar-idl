@@ -461,14 +461,19 @@ MonitorTStr = {
     "NewVal": "New Value",
     'ParamConfigFailed': 'Parameter Configuration Failed',
     'SavingSettingsFailed': 'Saving Settings Failed',
-    'StartNodeFailed': 'Start node failed',
-    'StopNodeFailed': 'Stop node failed',
-    'RestartFailed': 'Restart node failed',
+    'StartNodeFailed': 'Start nodes failed',
+    'StopNodeFailed': 'Stop nodes failed',
+    'RestartFailed': 'Restart nodes failed',
     'NotAuth': 'Not authorized to perform this command.',
-
+    'StartNodes': 'Start Nodes',
+    'StopNodes': 'Stop Nodes',
+    'RestartNodes': 'Restart Nodes',
+    'UseXcalarAs': 'Use Xcalar As',
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
-                          '<b><value></b>.'
+                          '<b><value></b>.',
+    'NodeConfirmMsg': 'Are you sure you want to <type>?',
+    'SwitchUserMsg': 'Are you sure you want to use Xcalar as <username>?'
 };
 
 DFTStr = {

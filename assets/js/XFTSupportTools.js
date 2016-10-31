@@ -144,7 +144,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 clearInterval(monitorIntervalId);
                 retMsg = {
                     status: SupportStatus.Error,
-                    error: ret
+                    error: error
                 };
                 deferred.reject(retMsg);
             }

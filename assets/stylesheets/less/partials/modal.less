@@ -2539,6 +2539,40 @@ html.microsoft {
     }
 }
 
+#licenseModal {
+    .size(@width: 400px, @height: 220px);
+    .modalInstruction {
+        .text {
+            height: 20px;
+            margin-top: 7px;
+        }
+    }
+    .modalMain {
+        padding: 10px;
+    }
+    .formRow {
+        .flex-wrap(wrap);
+        position: relative;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        label {
+            .flex-display;
+            .text {
+                .flex(1 0 auto);
+                margin-right: 10px;
+                line-height: 30px;
+            }
+        }
+
+    }
+    .modalBottom {
+        padding: 10px;
+    }
+}
+
 #aboutModal {
     .size(@width: 400px, @height: auto);
     bottom: auto;
