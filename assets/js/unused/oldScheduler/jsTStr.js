@@ -330,7 +330,7 @@ JoinTStr = {
     'InvalidClause': 'Invalid Clause to join',
     'TypeMistch': 'Left selected column and right selected column has type ' +
                   'mismatch, cannot join',
-    'EstimatedJoin': 'Estimated join size',
+    'EstimatedJoin': 'Estimate join size',
     'EstimatingJoin': 'Estimating join size...',
 
     //with replace

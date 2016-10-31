@@ -193,6 +193,14 @@ window.JoinView = (function($, JoinView) {
             $(this).find(".checkbox").toggleClass("checked");
         });
 
+        $joinView.find('.estimateCheckbox').click(function() {
+            if ($(this).hasClass('checked')) {
+                return;
+            }
+            $(this).addClass('checked');
+            estimateJoinSize();
+        });
+
         // add multi clause
         $clauseContainer.on("click", ".addClause", function() {
             addClause();
@@ -226,9 +234,9 @@ window.JoinView = (function($, JoinView) {
             updatePreviewText();
 
             var tableId = getTableIds(index);
-            if (gTables[tableId]) { 
+            if (gTables[tableId]) {
                 focusTable(tableId);
-                activateClauseSection(index); 
+                activateClauseSection(index);
                 $joinView.find('.clause').eq(index).focus();
             } else {
                 deactivateClauseSection(index);
@@ -527,6 +535,12 @@ window.JoinView = (function($, JoinView) {
         });
     }
 
+    function resetJoinEstimator() {
+        $('.estimateCheckbox').removeClass('checked');
+        $('.estimatorWrap .stats').hide();
+        $('.estimatorWrap .title').text(JoinTStr.EstimateJoin);
+    }
+
     function toggleNextView() {
         if ($joinView.hasClass('nextStep')) {
             // go to step 1
@@ -538,14 +552,14 @@ window.JoinView = (function($, JoinView) {
             // go to step 2
             if (checkFirstView()) {
                 if (isNextNew) {
-                    estimateJoinSize();
+                    resetJoinEstimator();
                     displayAllColumns();
                     isNextNew = false;
                     resetRenames();
                 } else if ($joinTypeSelect.find(".text").text() !==
                            joinEstimatorType) {
                     // Rerun estimator since type is now different
-                    estimateJoinSize();
+                    resetJoinEstimator();
                 }
 
                 $joinView.addClass('nextStep');
@@ -733,6 +747,10 @@ window.JoinView = (function($, JoinView) {
         };
 
         var $estimatorWrap = $joinView.find('.estimatorWrap');
+        $(".estimatorWrap .stats").show();
+        $estimatorWrap.find('.min .value').text(JoinTStr.Estimating);
+        $estimatorWrap.find('.med .value').text(JoinTStr.Estimating);
+        $estimatorWrap.find('.max .value').text(JoinTStr.Estimating);
         $estimatorWrap.find('.title').text(JoinTStr.EstimatingJoin);
         $estimatorWrap.find('.value').empty();
 
@@ -920,7 +938,7 @@ window.JoinView = (function($, JoinView) {
     function submitJoin() {
         // check validation
         // if submit is enabled, that means first view is already valid
-        
+
         var isValidTableName = xcHelper.tableNameInputChecker($joinTableName);
         if (!isValidTableName) {
             return;

@@ -127,7 +127,7 @@
           </div>
           <p><%= dicts.joinView.colKeepInstr %></p>
           <div class="subHeading">
-            <div class="leftColHeading"><%= dicts.joinView.LeftCols %> 
+            <div class="leftColHeading"><%= dicts.joinView.LeftCols %>
               <div class="checkbox checked selectAll">
                 <i class="icon xi-ckbox-empty fa-13"></i>
                 <i class="icon xi-ckbox-selected fa-13"></i>
@@ -156,8 +156,13 @@
           <i class="hint qMark icon xi-unknown" data-container="body" data-toggle="tooltip" title="<%= dicts.joinView.keepTablesHint %>"></i>
         </div>
         <div class="estimatorWrap">
-          <div class="subHeading clearfix">
-            <div class="title"><%= dicts.joinView.Estimate %>...</div>
+          <div class="subHeading clearfix" data-container="body" data-toggle="tooltip" title="<%= dicts.joinView.EstimateTooltip %>">
+            <div class="title"><%= dicts.joinView.Estimate %>
+            </div>
+            <div class="checkbox estimateCheckbox">
+              <i class="icon xi-ckbox-empty fa-13"></i>
+              <i class="icon xi-ckbox-selected fa-13"></i>
+            </div>
           </div>
           <div class="stats">
             <div class="min"><%= dicts.statistics.Min %>: <div class="value"></div></div>
