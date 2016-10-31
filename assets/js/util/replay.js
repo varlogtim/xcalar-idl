@@ -960,13 +960,13 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.AddWS] = function() {
         // UI simulation
-        var deferred    = jQuery.Deferred();
-        var originWSLen = WSManager.getWSLen();
+        var deferred = jQuery.Deferred();
+        var originWSLen = WSManager.getNumOfActiveWS();
 
         $("#addWorksheet").click();
 
         var checkFunc = function() {
-            var wsLenDiff = WSManager.getWSLen() - originWSLen;
+            var wsLenDiff = WSManager.getNumOfActiveWS() - originWSLen;
             if (wsLenDiff === 1) {
                 // when worksheet is added, pass check
                 return true;
@@ -1034,7 +1034,7 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.DelWS] = function(options) {
         // UI simulation
         var deferred = jQuery.Deferred();
-        var originWSLen = WSManager.getWSLen();
+        var originWSLen = WSManager.getNumOfActiveWS();
         var wsIndex = options.worksheetIndex;
         var delType = options.delType;
         var wsId = WSManager.getActiveWSByIndex(wsIndex);
@@ -1061,7 +1061,7 @@ window.Replay = (function($, Replay) {
         delayAction(callback, "Wait", 1000)
         .then(function() {
             var checkFunc = function() {
-                var wsLenDiff = WSManager.getWSLen() - originWSLen;
+                var wsLenDiff = WSManager.getNumOfActiveWS() - originWSLen;
                 if (wsLenDiff === -1) {
                     // when worksheet is deleted, pass check
                     return true;
@@ -1093,9 +1093,10 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.UnHideWS] = function(options) {
         var wsOrders = options.worksheetOrders;
         var wsIds = [];
-        for (var i = 0; i < wsOrders.length; i++) {
-            wsIds.push(WSManager.getHiddenWS()[wsOrders[i]]);
-        }
+        var hiddenWorksheeets = WSManager.getHiddenWSList();
+        wsOrders.forEach(function(wsId) {
+            wsIds.push(wsId);
+        });
         return WSManager.unhideWS(wsIds);
     };
 

@@ -181,7 +181,7 @@ window.DagFunction = (function($, DagFunction) {
                 "tableId"       : newTableId,
                 "tableType"     : tableType,
                 "worksheet"     : worksheet,
-                "worksheetIndex": WSManager.getWSOrder(worksheet),
+                "worksheetIndex": WSManager.getActiveWSIndexById(worksheet),
                 "htmlExclude"   : ["tableType", "oldTableName", "worksheet",
                                    "worksheetIndex"]
             });

@@ -465,7 +465,7 @@ window.StartManager = (function(StartManager, $) {
             });
 
             // set up tables in hidden worksheets
-            var hiddenWorksheets = WSManager.getHiddenWS();
+            var hiddenWorksheets = WSManager.getHiddenWSList();
             hiddenWorksheets.forEach(function(worksheetId) {
                 var worksheet = WSManager.getWSById(worksheetId);
 

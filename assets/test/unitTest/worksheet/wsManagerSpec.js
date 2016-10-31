@@ -42,6 +42,28 @@ describe('Worksheet Test', function() {
             expect(WSManager.getActiveWSByIndex(0))
             .to.equal(activeWorksheets[0]);
         });
+
+        it("Should get hidden worksheets list", function() {
+            var hiddenWorksheets = WSManager.getHiddenWSList();
+            expect(hiddenWorksheets).to.be.an("array");
+        });
+
+        it("Should get no sheet tables", function() {
+            var noSheetTables = WSManager.getNoSheetTables();
+            expect(noSheetTables).to.be.an("array");
+        });
+
+        it("Should get active worksheet index by id", function() {
+            var worksheetId = WSManager.getActiveWSByIndex(0);
+            var index = WSManager.getActiveWSIndexById(worksheetId);
+            expect(index).to.equal(0);
+        });
+
+        it("Should get num of active worksheet", function() {
+            var numWorksheets = WSManager.getNumOfActiveWS();
+            var activeWorksheets = WSManager.getActiveWSList();
+            expect(numWorksheets).to.equal(activeWorksheets.length);
+        });
     });
 
     describe.skip('Worksheet existence', function() {

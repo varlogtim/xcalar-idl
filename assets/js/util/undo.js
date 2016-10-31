@@ -516,7 +516,7 @@ window.Undo = (function($, Undo) {
                     type = WSTableType.Orphan;
                 }
                 WSManager.moveTable(options.tableId, options.worksheet, type);
-                var hiddenWS = WSManager.getHiddenWS();
+                var hiddenWS = WSManager.getHiddenWSList();
                 TableList.tablesToHiddenWS(hiddenWS);
             }
             deferred.resolve();

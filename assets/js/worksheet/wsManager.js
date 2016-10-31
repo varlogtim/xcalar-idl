@@ -104,7 +104,7 @@ window.WSManager = (function($, WSManager) {
     };
 
     WSManager.getActiveWSList = function() {
-        return (wsOrder);
+        return wsOrder;
     };
 
     WSManager.getActiveWSByIndex = function(index) {
@@ -112,22 +112,21 @@ window.WSManager = (function($, WSManager) {
     };
 
     // returns an array of worksheet Ids
-    WSManager.getHiddenWS = function() {
-        return (hiddenWS);
+    WSManager.getHiddenWSList = function() {
+        return hiddenWS;
     };
 
     // Get tables that are not in any worksheets
     WSManager.getNoSheetTables = function() {
-        return (noSheetTables);
+        return noSheetTables;
     };
 
-    WSManager.getWSOrder = function(wsId) {
+    WSManager.getActiveWSIndexById = function(wsId) {
         return wsOrder.indexOf(wsId);
     };
 
-    // Get number of worksheets that is not null
-    WSManager.getWSLen = function() {
-        return (wsOrder.length);
+    WSManager.getNumOfActiveWS = function() {
+        return wsOrder.length;
     };
 
     // add worksheet
@@ -163,7 +162,7 @@ window.WSManager = (function($, WSManager) {
     // delete worksheet
     WSManager.delWS = function(wsId, delType) {
         var ws = worksheetGroup.get(wsId);
-        var wsIndex = WSManager.getWSOrder(wsId);
+        var wsIndex = WSManager.getActiveWSIndexById(wsId);
         var sqlOptions = {
             "operation"     : SQLOps.DelWS,
             "worksheetId"   : wsId,
@@ -229,7 +228,7 @@ window.WSManager = (function($, WSManager) {
         SQL.add("Rename Worksheet", {
             "operation"     : SQLOps.RenameWS,
             "worksheetId"   : worksheetId,
-            "worksheetIndex": WSManager.getWSOrder(worksheetId),
+            "worksheetIndex": WSManager.getActiveWSIndexById(worksheetId),
             "oldName"       : oldName,
             "newName"       : name
         });
@@ -479,11 +478,11 @@ window.WSManager = (function($, WSManager) {
             "tableName"        : gTables[tableId].tableName,
             "tableId"          : tableId,
             "oldWorksheetId"   : oldWSId,
-            "oldWorksheetIndex": WSManager.getWSOrder(oldWSId),
+            "oldWorksheetIndex": WSManager.getActiveWSIndexById(oldWSId),
             "oldWorksheetName" : worksheetGroup.get(oldWSId).name,
             "oldTablePos"      : oldTablePos,
             "newWorksheetId"   : newWSId,
-            "newWorksheetIndex": WSManager.getWSOrder(newWSId),
+            "newWorksheetIndex": WSManager.getActiveWSIndexById(newWSId),
             "worksheetName"    : wsName
         });
     };
@@ -541,7 +540,7 @@ window.WSManager = (function($, WSManager) {
             "tableId"          : tableId,
             "tableType"        : tableType,
             "newWorksheetId"   : newWSId,
-            "newWorksheetIndex": WSManager.getWSOrder(newWSId),
+            "newWorksheetIndex": WSManager.getActiveWSIndexById(newWSId),
             "newWorksheetName" : newWS.name
         };
 
@@ -1372,7 +1371,7 @@ window.WSManager = (function($, WSManager) {
         delete wsNameToIdMap[ws.name];
         worksheetGroup.delete(wsId);
 
-        var index = WSManager.getWSOrder(wsId);
+        var index = WSManager.getActiveWSIndexById(wsId);
         wsOrder.splice(index, 1);
 
         var $tab = $("#worksheetTab-" + wsId);

@@ -892,7 +892,7 @@ window.TableList = (function($, TableList) {
         }
 
         // set hiddenWS class to tables belonging to hidden worksheets
-        var hiddenWS = WSManager.getHiddenWS();
+        var hiddenWS = WSManager.getHiddenWSList();
         TableList.tablesToHiddenWS(hiddenWS);
     }
 
