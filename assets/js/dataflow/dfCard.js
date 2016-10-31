@@ -1,5 +1,7 @@
 window.DFCard = (function($, DFCard) {
     var $dfView;       // $('#dataflowView');
+    var $createScheduleView; // $('#newScheduleForm');
+    var $scheduleDetailView; // $('#scheduleDetail');
     var $dfCard;       // $('#dfgViz');
     var $dfMenu;       // $('#dfgMenu').find('.dfgList');
     var $listSection;   // $dfMenu.find('.listSection');
@@ -26,6 +28,8 @@ window.DFCard = (function($, DFCard) {
 
     DFCard.setup = function() {
         $dfView = $('#dataflowView');
+        $createScheduleView = $('#newScheduleForm');
+        $scheduleDetailView = $('#scheduleDetail');
         $dfCard = $('#dfgViz');
         $dfMenu = $('#dfgMenu').find('.dfgList');
         $listSection = $dfMenu.find('.listSection');
@@ -36,6 +40,8 @@ window.DFCard = (function($, DFCard) {
         addListeners();
         setupDagDropdown();
         setupRetinaTab();
+        $createScheduleView.hide();
+        $scheduleDetailView.hide();
     };
 
     DFCard.updateDF = function() {
@@ -241,6 +247,9 @@ window.DFCard = (function($, DFCard) {
                 $listSection.find('.subList').slideUp(200);
                 $dfg.find('.subList').slideDown(200);
             }
+
+            Scheduler.hideNewScheduleFormView();
+            Scheduler.hideScheduleDetailView();
         });
 
         $listSection.on('click', '.downloadDataflow', function() {
@@ -258,6 +267,20 @@ window.DFCard = (function($, DFCard) {
                     deleteDataflow(retName);
                 }
             });
+        });
+
+        $listSection.on('click', '.addScheduleToDataflow', function() {
+            var groupName = $(this).siblings('.groupName').text();
+            Scheduler.setDataFlowName(groupName);
+            if(DF.hasSchedule(groupName)) {
+                Scheduler.showScheduleDetailView();
+                Scheduler.hideNewScheduleFormView();
+            } else {
+                Scheduler.hideScheduleDetailView();
+                Scheduler.showNewScheduleFormView();
+            }
+            $createScheduleView.show();
+            $scheduleDetailView.show();
         });
 
         function deleteDataflow(retName) {
@@ -591,6 +614,11 @@ window.DFCard = (function($, DFCard) {
                         '</i>' +
                         '<i class="icon xi-download downloadDataflow" ' +
                             'title="Download dataflow" ' +
+                            'data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body">' +
+                        '</i>' +
+                        '<i class="icon xi-menu-scheduler addScheduleToDataflow" ' +
+                            'title="Add Schedule to dataflow" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
                         '</i>' +

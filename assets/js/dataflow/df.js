@@ -157,6 +157,50 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
+    // For addining. modifying and removing the schedule
+     DF.getSchedule = function(dataflowName) {
+        var dataflow = dataflows[dataflowName];
+        if(dataflow) {
+            return dataflow.schedule;
+        }
+    };
+
+    DF.addScheduleToDataflow = function(dataflowName, options) {
+        var dataflow = dataflows[dataflowName];
+        if(dataflow) {
+            if(!dataflow.schedule) {
+                dataflow.schedule = new SchedObj(options);
+            } else {
+                dataflow.schedule.update(options);
+            }
+            console.log("Add it successfully!")
+        } else {
+            console.log("No such dataflow exist!");
+        }
+        KVStore.commit();
+    };
+
+    DF.removeScheduleFromDataflow = function(dataflowName) {
+        var dataflow = dataflows[dataflowName];
+        if(dataflow) {
+            dataflow.schedule = null;
+            console.log("Remove it successfully!")
+        } else {
+            console.log("No such dataflow exist!");
+        }
+        KVStore.commit();
+    };
+
+    DF.hasSchedule = function(dataflowName) {
+        var dataflow = dataflows[dataflowName];
+        if(dataflow) {
+            return dataflow.hasSchedule();
+        } else {
+            console.log("No such dataflow exist!");
+            return false;
+        }
+    };
+
     DF.hasDataflow = function(dataflowName) {
         return dataflows.hasOwnProperty(dataflowName);
     };

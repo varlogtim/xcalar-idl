@@ -55,6 +55,7 @@ module.exports = {
         "Prefs": "Preferences",
         "Refresh": "Refresh",
         "Rename": "Rename",
+        "REVERT": "REVERT",
         "SAVE": "SAVE",
         "SAVEEXIT": "SAVE & EXIT",
         "SaveWKBK": "Save",
@@ -551,7 +552,64 @@ module.exports = {
         "upload": "UPLOAD",
         "uploadHeader": "Upload Dataflow",
         "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
-        "overwriteUdf": "Overwrite Udfs of the same module name with those inside this dataflow",
+        "overwriteUdf": "Overwrite Udfs of the same module name with those inside this dataflow"
+    },
+
+    "sched": {
+        // create new schedule
+        "CreateNew": "Create a new schedule",
+        "schedInstr": "First, choose a name for your schedule. Then select a start time, frequency, and number of times to run the schedule.",
+        "schedName": "Schedule Name",
+        "startTime": "Start Time",
+        "freq": "Frequency",
+        "perMin": "Every Minute",
+        "hourly": "Hourly",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "biweekly": "Biweekly",
+        "numRun": "Number of Runs",
+
+        // schedule detail
+        "schedDetail": "Schedule Detail",
+        "created": "Created",
+        "modified": "Last modified",
+        "recur": "Repeat Time",
+        "lastRun": "Last Run",
+        "nextRun": "Next Run",
+
+        // add a schedule
+        "AddInstr": "Select a schedule to add to the dataflow. Or you can also create a new schedule.",
+        "AttachedSched": "Attached schedules",
+        "SelectSched": "Select a schedule",
+        "CreateNewBtn": "create new schedule",
+
+        // tab
+        "sched": "Schedule",
+
+
+        "SchedTitle": "SCHEDULER/DATAFLOWS",
+        "DFG": "DATAFLOW GRP",
+        "SCHEDS": "SCHEDULES",
+        "DETAIL": "DETAIL",
+        "dfgs": "Dataflows",
+        "params": "Parameters",
+        "inputNewParam": "Input New Parameter",
+        "newParam": "CREATE NEW PARAMETER",
+        "param": "Parameter",
+        "val": "Value",
+        "action": "Action",
+        "scheds": "Schedules",
+        "newSched": "Create New Schedule",
+        "status": "Status",
+        "modifySched": "MODIFY SCHEDULE",
+        "hour": "Hour",
+        "min": "Minute",
+        "numRunHint": "How many times to run this",
+        "Add": "Add Schedule",
+        "dfgName": "Dataflow Name",
+        "initialRun": "Initial Run Time",
+        "last": "Time taken",
+        "outputLocation" : "Output Location"
     },
 
     "exportView": {

@@ -367,7 +367,7 @@
         }
     }
 
-    .dataFlowGroup {
+    .dataFlowGroup, .scheduleLists {
         width: 100%;
         &:hover {
             .listBox, .subList li {
@@ -378,7 +378,7 @@
 
     @listHeight: 35px;
 
-    .dfgList {
+    .dfgList, .schedulesMenu {
         .listSection {
             height: ~"calc(100% - 75px)";
             overflow-x: hidden;
@@ -396,7 +396,7 @@
             padding: 0 15px;
 
             &:hover {
-                .deleteDataflow, .downloadDataflow {
+                .deleteDataflow, .downloadDataflow, .deleteSchedule {
                     opacity: @opacity-hover;
                 }
             }
@@ -437,7 +437,7 @@
                 .textOverflowOneLine;
             }
 
-            .downloadDataflow, .deleteDataflow {
+            .downloadDataflow, .deleteDataflow, .addScheduleToDataflow {
                 float: right;
                 font-size: 14px;
                 margin-left: 10px;

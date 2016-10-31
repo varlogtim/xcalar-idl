@@ -2169,11 +2169,13 @@ function Dataflow(name, options) {
 
     this.retinaNodes = {};
 
+    this.schedule = options.schedule; // Make schedule as one property of dataflow
+
 
     if (options.parameterizedNodes != null) {
         for (var nodeId in options.parameterizedNodes) {
             var parameterizedNodes = options.parameterizedNodes[nodeId];
-            this.parameterizedNodes[nodeId] =new RetinaNode(parameterizedNodes);
+            this.parameterizedNodes[nodeId]=new RetinaNode(parameterizedNodes);
         }
     }
 
@@ -2287,7 +2289,57 @@ Dataflow.prototype = {
         this.parameters.splice(index, 1);
         delete this.paramMap[name];
     },
+
+    // Function for modify schedule in the object
+    "getSchedule": function() {
+        return this.schedule;
+    },
+
+    "setSchedule": function(schedule) {
+        this.schedule = schedule;
+    },
+
+    "removeSchedule": function() {
+        this.schedule = null;
+    },
+
+    "hasSchedule": function() {
+        return this.schedule != null;
+    },
 };
+
+/* End of SchedObj */
+
+/* Start of Schedule */
+/* schedule.js */
+function SchedObj(options) {
+    options = options || {};
+    this.name = options.name;
+    this.startTime = options.startTime;
+    this.dateText = options.dateText;
+    this.timeText = options.timeText;
+    this.repeat = options.repeat;
+    this.freq = options.freq;
+    this.modified = options.modified;
+    this.created = options.modified;
+    this.recur = options.recur;
+    return this;
+}
+
+SchedObj.prototype = {
+    "update": function(options) {
+        options = options || {};
+        this.startTime = options.startTime || this.startTime;
+        this.dateText = options.dateText || this.dateText;
+        this.timeText = options.timeText || this.timeText;
+        this.repeat = options.repeat || this.repeat;
+        this.freq = options.freq || this.freq;
+        this.modified = options.modified || this.modified;
+        this.recur = options.recur || this.recur;
+    },
+};
+/* End of SchedObj */
+
 
 /* Corrector */
 function Corrector(words) {

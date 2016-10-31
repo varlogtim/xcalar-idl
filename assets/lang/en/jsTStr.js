@@ -476,6 +476,35 @@ MonitorTStr = {
     'SwitchUserMsg': 'Are you sure you want to use Xcalar as <username>?'
 };
 
+SchedTStr = {
+    'SelectSched': 'Select a schedule',
+    'NoScheds': 'No available schedules',
+    'AddSchedFail': 'Add schedule failed',
+    'UpdateFail': 'Update Schedule Failed',
+    'NotScheduled': 'not scheduled',
+    'Scheduled': 'scheduled',
+    "SchedTitle": "SCHEDULER/SCHEDULES"
+};
+
+DFGTStr = {
+    'AddParamHint': 'Please create parameters in Dataflow Panel first.',
+    'DFCreateFail': 'Dataflow Creation Failed',
+    'ParamModalFail': 'Parameter Creation Failed',
+    'UpdateParamFail': 'Update Parameters Failed',
+    'NoDFG1': 'No dataflows added',
+    'NoDFG2': 'Add a dataflow in Query Graph',
+    'RunDone': 'Run Complete',
+    'RunDoneMsg': 'Successfully ran DFG!',
+    'RunFail': 'Run DFG Failed',
+    "DFGTitle": "SCHEDULER/DATAFLOW",
+    "PointTo": "File Path",
+    "ExportTo": "Export As",
+    "DelDFG": "Permanently Delete Dataflow",
+    "DelDFGMsg": "Are you sure you want to permanently delete " +
+                 "this dataflow? This action cannot be undone.",
+    "DownloadErr": "Download Failed"
+};
+
 DFTStr = {
     'AddParamHint': 'Please create parameters in Dataflow Panel first.',
     'DFCreateFail': 'Dataflow Creation Failed',
