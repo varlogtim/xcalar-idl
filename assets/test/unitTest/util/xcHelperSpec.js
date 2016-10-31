@@ -1069,25 +1069,28 @@ describe('xcHelper Test', function() {
 
     it('xcHelper.sortVals should work', function() {
         var func = xcHelper.sortVals;
+        var asc = ColumnSortOrder.ascending;
+        var desc = ColumnSortOrder.descending;
         // to.equal(1) if order is 1 and arg1 < arg2
         // to.equal(-1) if order is 1 and arg1 > arg2
-        expect(func("a", "b", 1)).to.equal(1);
-        expect(func("b", "a", 1)).to.equal(-1);
-        expect(func("a", "b", -1)).to.equal(-1);
-        expect(func("b", "a", -1)).to.equal(1);
+        expect(func("a", "b")).to.equal(-1);
+        expect(func("a", "b", desc)).to.equal(1);
+        expect(func("b", "a", desc)).to.equal(-1);
+        expect(func("a", "b", asc)).to.equal(-1);
+        expect(func("b", "a", asc)).to.equal(1);
 
-        expect(func("a6", "a50", 1)).to.equal(1);
-        expect(func("a60", "a50", 1)).to.equal(-1);
+        expect(func("a6", "a50", desc)).to.equal(1);
+        expect(func("a60", "a50", desc)).to.equal(-1);
 
-        expect(func("a6z", "a50z", 1)).to.equal(-1);
-        expect(func("a6z5", "a50z3", 1)).to.equal(-1);
+        expect(func("a6z", "a50z", desc)).to.equal(-1);
+        expect(func("a6z5", "a50z3", desc)).to.equal(-1);
 
-        expect(func("a6z5", "a6z3", 1)).to.equal(-1);
-        expect(func("a6z3", "a6z5", 1)).to.equal(1);
+        expect(func("a6z5", "a6z3", desc)).to.equal(-1);
+        expect(func("a6z3", "a6z5", desc)).to.equal(1);
 
 
-        expect(func("a6z3", "a6z5", 1)).to.equal(1);
-        expect(func("a7z3", "a6z5", 1)).to.equal(-1);
+        expect(func("a6z3", "a6z5", desc)).to.equal(1);
+        expect(func("a7z3", "a6z5", desc)).to.equal(-1);
     });
 
     it('xcHelper.parseQuery should work', function() {

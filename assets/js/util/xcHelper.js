@@ -2124,8 +2124,9 @@ window.xcHelper = (function($, xcHelper) {
      */
     xcHelper.sortVals = function(a, b, order) {
         if (order == null) {
-            order = SortOrder.ascending;
+            order = ColumnSortOrder.ascending;
         }
+        console.log(order)
         a = a.toLowerCase();
         b = b.toLowerCase();
 
