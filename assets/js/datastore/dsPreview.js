@@ -41,6 +41,7 @@ window.DSPreview = (function($, DSPreview) {
     var maxBytesRequest = 500000;
     var excelModule = "default";
     var excelFunc = "openExcel";
+    var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
 
     var formatMap = {
         "JSON" : "JSON",
@@ -1336,6 +1337,7 @@ window.DSPreview = (function($, DSPreview) {
         for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
             ths += '<th>' +
                         '<div class="header">' +
+                            colGrabTemplate +
                             '<div class="text"></div>' +
                         '</div>' +
                     '</th>';
@@ -1559,7 +1561,6 @@ window.DSPreview = (function($, DSPreview) {
 
         var headers = Object.keys(keys);
         var colLen = headers.length;
-        var colGrab = '<div class="colGrab" data-sizedtoheader="false"></div>';
         var html = '<thead><tr>' +
                     '<th class="rowNumHead">' +
                         '<div class="header"></div>' +
@@ -1568,7 +1569,7 @@ window.DSPreview = (function($, DSPreview) {
         for (var i = 0; i < colLen; i++) {
             html += '<th>' +
                         '<div class="header">' +
-                            colGrab +
+                            colGrabTemplate +
                             '<div class="text">' +
                                 headers[i] +
                             '</div>' +
@@ -1603,8 +1604,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function getTheadHTML(datas, delimiter, tdLen) {
         var thead = "<thead><tr>";
-        var colGrab = (delimiter === "") ? "" : '<div class="colGrab" ' +
-                                            'data-sizedtoheader="false"></div>';
+        var colGrab = (delimiter === "") ? "" : colGrabTemplate;
 
         // when has header
         if (loadArgs.useHeader()) {
@@ -1720,8 +1720,7 @@ window.DSPreview = (function($, DSPreview) {
         var quote = loadArgs.getQuote();
 
         var hasDelimiter = (delLen !== 0);
-        var colGrab = hasDelimiter ? '<div class="colGrab" ' +
-                                     'data-sizedtoheader="false"></div>' : "";
+        var colGrab = hasDelimiter ? colGrabTemplate : "";
         var html = isTh ? '<th><div class="header">' + colGrab +
                             '<div class="text cell">'
                             : '<td class="cell">';
