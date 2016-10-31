@@ -2,6 +2,7 @@ window.KVStore = (function($, KVStore) {
     // the key should be as short as possible
     // and when change the store key, change it here, it will
     // apply to all places
+    var isUnCommit = false;
     var METAKeys;
     var EMetaKeys; // Ephemeral meta data keys
     // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
@@ -106,6 +107,9 @@ window.KVStore = (function($, KVStore) {
         var deferred = jQuery.Deferred();
         var meta = new METAConstructor(METAKeys);
         var ephMeta = new EMetaConstructor(EMetaKeys);
+
+        Support.stopHeartbeatCheck();
+
         KVStore.put(KVStore.gStorageKey, JSON.stringify(meta), true,
                     gKVScope.META)
         .then(function() {
@@ -133,21 +137,24 @@ window.KVStore = (function($, KVStore) {
         .fail(function(error) {
             console.error("commit fails!", error);
             deferred.reject(error);
+        })
+        .always(function() {
+            Support.heartbeatCheck();
         });
 
         return deferred.promise();
     };
 
     KVStore.hasUnCommitChange = function() {
-        return $("#autoSaveBtn").hasClass("unsave");
+        return isUnCommit;
     };
 
     KVStore.logChange = function() {
-        $("#autoSaveBtn").addClass("unsave");
+        isUnCommit = true;
     };
 
     KVStore.logSave = function(updateInfo) {
-        $("#autoSaveBtn").removeClass("unsave");
+        isUnCommit = false;
 
         if (!updateInfo) {
             return;

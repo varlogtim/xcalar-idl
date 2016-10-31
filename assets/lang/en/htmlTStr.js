@@ -56,7 +56,7 @@ module.exports = {
         "Rename": "Rename",
         "SAVE": "SAVE",
         "SAVEEXIT": "SAVE & EXIT",
-        "SaveWKBK": "Save Progress",
+        "SaveWKBK": "Save",
         "SearchKeyWord": "Search keyword",
         "seconds": "seconds",
         "SelectAll": "Select All",

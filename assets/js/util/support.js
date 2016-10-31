@@ -134,10 +134,7 @@ window.Support = (function(Support, $) {
     };
 
     Support.heartbeatCheck = function() {
-        if (commitCheckTimer != null) {
-            clearInterval(commitCheckTimer);
-        }
-
+        clearInterval(commitCheckTimer);
         commitCheckTimer = setInterval(function() {
             if (KVStore.commitKey == null) {
                 // when workbook is not set up yet or no workbook yet
@@ -147,6 +144,9 @@ window.Support = (function(Support, $) {
             Support.commitCheck()
             .then(function() {
                 return Support.memoryCheck();
+            })
+            .then(function() {
+                return autoSave();
             })
             .fail(function(error) {
                 console.error(error);
@@ -348,6 +348,15 @@ window.Support = (function(Support, $) {
                 location.reload();
             });
         }, connectionCheckInterval);
+    }
+
+    function autoSave() {
+        if (SQL.hasUnCommitChange() ||
+            KVStore.hasUnCommitChange()) {
+            return KVStore.commit();
+        } else {
+            return PromiseHelper.resolve();
+        }
     }
 
     function commitMismatchHandler() {

@@ -55,11 +55,6 @@ body {
 
 #container {
     &.noWorkbook {
-
-        #autoSaveBtn {
-            display: none;
-        }
-
         #menuBar {
             display: none;
         }
@@ -389,30 +384,6 @@ body {
 
 #userName {
     cursor: default;
-}
-
-#autoSaveBtn {
-    &.unsave {
-        .dot {
-            display: block;
-        }
-    }
-
-    .rounded;
-    background-color: @color-bg-gold;
-    overflow: visible;
-
-    .icon {
-        .position(relative, @top: -1px);
-    }
-
-    .dot {
-        display: none;
-        .size(8px, 8px);
-        .position(absolute, @top: -2px, @left: -1px);
-        .rounded(100%);
-        background-color: @color-bg-select-blue;
-    }
 }
 /* =========== END TOP RIGHT CORNER =========== */
 

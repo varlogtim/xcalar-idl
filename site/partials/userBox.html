@@ -4,17 +4,6 @@
 	<button id="userNameArea" class="btn-icon clickable" <%= userNameAttr %>>
     <i class="icon xi-user"></i>
 	</button>
-  <% if (dicts.tutor.name == "workbookDemo") { %>
-  <button id="autoSaveBtn" class="saveArea btn btn-small" data-introstep="w1-save">
-    <i class="icon xi-save fa-16"></i>
-    <div class="dot"></div>
-  </button>
-  <% } else { %>
-  <button id="autoSaveBtn" class="saveArea btn btn-small" title="<%= dicts.common.SaveWKBK %>" data-toggle="tooltip" data-container="body" data-placement="left">
-    <i class="icon xi-save fa-16"></i>
-    <div class="dot"></div>
-  </button>
-  <% } %>
 </div>
 <div id="userMenu" class="menu">
   <ul>

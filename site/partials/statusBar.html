@@ -18,6 +18,15 @@
       <span id="autoSavedInfo">
         <%= dicts.isTutor ? dicts.tutor.wkbkSaveDate : "" %>
       </span>
+      <% if (dicts.tutor.name == "workbookDemo") { %>
+      <span id="autoSaveBtn" data-introstep="w1-save">
+        <%= dicts.common.SaveWKBK %>
+      </span>
+      <% } else { %>
+      <span id="autoSaveBtn">
+        <%= dicts.common.SaveWKBK %>
+      </span>
+      <% } %>
     </div>
     <div class="workspaceArea">
       <span id="pageStatusText">
