@@ -783,50 +783,10 @@ window.DSCart = (function($, DSCart) {
         // check table name
         var $cart = DSCart.getCartElement(cart.getId());
         var $tableName = $cart.find(".tableNameEdit");
-        var tableName = cart.getTableName();
 
-        isValid = xcHelper.validate([
-            {
-                "$ele": $tableName,
-                "side": "left"
-            },
-            {
-                "$ele" : $tableName,
-                "error": ErrTStr.TooLong,
-                "side" : "left",
-                "check": function() {
-                    return (tableName.length >=
-                            XcalarApisConstantsT.XcalarApiMaxTableNameLen);
-                }
-            },
-            {
-                "$ele" : $tableName,
-                "error": ErrTStr.InvalidTableName,
-                "side" : "left",
-                "check": function() {
-                    return (/^ | $|[*#'":]/.test(tableName));
-                }
-            },
-            {
-                "$ele" : $tableName,
-                "error": ErrTStr.TableConflict,
-                "side" : "left",
-                "check": function() {
-                    for (var tableId in gTables) {
-                        var table = gTables[tableId];
-                        var tableType = table.getType();
-                        if (tableType === TableType.Active ||
-                            tableType === TableType.Archived) {
-                            var name = xcHelper.getTableName(table.getName());
-                            if (tableName === name) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
-            }
-        ]);
+        isValid = xcHelper.tableNameInputChecker($tableName, {
+            "side": "left"
+        });
 
         if (!isValid) {
             scrollToInput($tableName);

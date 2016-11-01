@@ -1123,30 +1123,34 @@ window.xcHelper = (function($, xcHelper) {
         return true;
     };
 
-    xcHelper.tableNameInputChecker = function($input) {
+    xcHelper.tableNameInputChecker = function($input, options) {
         var newTableName = $input.val().trim();
-        var options = {preventImmediateHide: true};
+        var defaultOpts = {
+            "preventImmediateHide": true,
+            "formMode"            : true
+        };
+        options = $.extend(defaultOpts, options);
+
+        var formMode = options.formMode || false;
         if (newTableName === "") {
-            StatusBox.show(ErrTStr.NoEmpty, $input, true, options);
+            StatusBox.show(ErrTStr.NoEmpty, $input, formMode, options);
             return false;
-        }
-        if (/^ | $|[*#'"]/.test(newTableName) === true) {
-            StatusBox.show(ErrTStr.InvalidTableName, $input, true, options);
+        } else if (/^ | $|[*#'"]/.test(newTableName) === true) {
+            StatusBox.show(ErrTStr.InvalidTableName, $input, formMode, options);
             return false;
-        }
-        if (newTableName.length >=
+        } else if (newTableName.length >=
             XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
-            StatusBox.show(ErrTStr.TooLong, $input, true, options);
+            StatusBox.show(ErrTStr.TooLong, $input, formMode, options);
             return false;
         }
 
         var validTableName = xcHelper.checkDupTableName(newTableName);
         if (!validTableName) {
-            StatusBox.show(ErrTStr.TableConflict, $input, true, options);
+            StatusBox.show(ErrTStr.TableConflict, $input, formMode, options);
             return false;
         }
         return true;
-    }
+    };
 
     xcHelper.getTableName = function(wholeName) {
         // get out tableName from tableName + hashId
@@ -1212,18 +1216,18 @@ window.xcHelper = (function($, xcHelper) {
         // we will only check against active and archived list
         // there's a chance of conflict if a backend table has same tablename
         // with hashtagId but that occurence is rare and is handled by the backend
-        var table;
         for (var tableId in gTables) {
-            table = gTables[tableId];
-            if (table.status === TableType.Active ||
-                table.status === TableType.Archived) {
-                if (xcHelper.getTableName(table.tableName) === tableName) {
-                    return (false);
+            var table = gTables[tableId];
+            var tableType = table.getType();
+            if (tableType === TableType.Active ||
+                tableType === TableType.Archived) {
+                if (xcHelper.getTableName(table.getName()) === tableName) {
+                    return false;
                 }
             }
         }
 
-        return (true);
+        return true;
     };
 
     xcHelper.suggestType = function(datas, currentType, confidentRate) {
