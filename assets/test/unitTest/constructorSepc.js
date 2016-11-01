@@ -265,7 +265,7 @@ describe('Constructor Test', function() {
             var testCases = [{
                 "typeId" : DfFieldTypeT.DfString,
                 "boolean": true,
-                "type"   : "string"
+                "type"   : "string",
             },{
                 "typeId" : DfFieldTypeT.DfUnknown,
                 "boolean": true,
@@ -293,7 +293,7 @@ describe('Constructor Test', function() {
             },{
                 "typeId" : DfFieldTypeT.DfScalarPtr,
                 "boolean": true,
-                "type"   : "unknown"
+                "type"   : ""
             }];
 
             testCases.forEach(function(testCase) {
@@ -302,6 +302,10 @@ describe('Constructor Test', function() {
                 progCol.setImmediateType(testCase.typeId);
                 expect(progCol.isImmediate()).to.equal(testCase.boolean);
                 expect(progCol.getType()).to.equal(testCase.type);
+
+                var isKnownType = (testCase.boolean && testCase.type) ? true :
+                                                                        false;
+                expect(progCol.isKnownType()).to.equal(isKnownType);
             });
         });
 

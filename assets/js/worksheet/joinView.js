@@ -704,7 +704,7 @@ window.JoinView = (function($, JoinView) {
             if (lType !== rType) {
                 if (problemTypes.indexOf(lType) !== -1 &&
                     problemTypes.indexOf(rType) !== -1) {
-                    if (lProgCol.isImmediate() && rProgCol.isImmediate()) {
+                    if (lProgCol.isKnownType() && rProgCol.isKnownType()) {
                         return {
                             success: false,
                             types  : [lType, rType],

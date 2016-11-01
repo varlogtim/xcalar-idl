@@ -3158,7 +3158,7 @@ window.OperationsView = (function($, OperationsView) {
 
             var backName = progCol.getBackColName();
             var colType = progCol.getType();
-            if (colType === ColumnType.integer && !progCol.isImmediate()) {
+            if (colType === ColumnType.integer && !progCol.isKnownType()) {
                 // for fat potiner, we cannot tell float or integer
                 // so for integer, we mark it
                 colType = ColumnType.number;

@@ -1548,7 +1548,7 @@ window.ColManager = (function($, ColManager) {
         // for integer or float, if we cannot distinct (if no info from backend)
         // then we say it's a number
         var adjustedColType = colType;
-        if (!progCol.isImmediate() && progCol.isNumberCol()) {
+        if (!progCol.isKnownType() && progCol.isNumberCol()) {
             adjustedColType = "number";
         }
         adjustedColType = xcHelper.capitalize(adjustedColType);

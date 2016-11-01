@@ -590,6 +590,7 @@ function ProgCol(options) {
         decimal      : -1,
         format       : null,
         immediate    : false,
+        knownType    : false,
         isHidden     : false,
         isNewCol     : true,
         name         : "",
@@ -642,6 +643,14 @@ ProgCol.prototype = {
         }
     },
 
+    isKnownType: function() {
+        if (!this.immediate) {
+            return false;
+        } else {
+            return this.knownType;
+        }
+    },
+
     getFrontColName: function(includePrefix) {
         var name = this.name || "";
         if (includePrefix) {
@@ -678,6 +687,7 @@ ProgCol.prototype = {
 
         var self = this;
         self.immediate = true;
+        self.knownType = true;
 
         switch (typeId) {
             case DfFieldTypeT.DfUnknown:
@@ -705,10 +715,11 @@ ProgCol.prototype = {
             case DfFieldTypeT.DfFatptr:
                 console.error("Should not set fat pointer's type");
                 self.immediate = false;
+                self.knownType = false;
                 break;
             default:
-                console.warn("Unsupported type");
-                self.type = ColumnType.unknown;
+                // console.warn("Unsupported type");
+                self.knownType = false;
                 break;
         }
     },
@@ -723,8 +734,12 @@ ProgCol.prototype = {
 
     updateType: function(val) {
         var self = this;
-        if (!self.immediate && !self.isEmptyCol()) {
-            // don't check for immediate
+        if (self.isEmptyCol()) {
+            return;
+        } else if (self.isKnownType()) {
+            // don't check for knownType
+            return;
+        } else {
             self.type = xcHelper.parseColType(val, self.type);
         }
     },
