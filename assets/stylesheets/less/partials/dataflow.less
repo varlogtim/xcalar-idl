@@ -186,6 +186,44 @@
         padding-bottom: 0px;
         min-height: 160px;
 
+        .advancedOpts {
+            .size(@width: 170px, @height: 25px);
+            .position(relative);
+            float: right;
+            margin-right: 3px;
+
+            &.active {
+                .optionBox {
+                    display: block;
+                }
+            }
+
+            > .text {
+                cursor: pointer;
+                .font(@size: 12px);
+            }
+
+            > .icon {
+                cursor: pointer;
+                margin-left: 5px;
+                .font(@color: @color-font-greyish-brown);
+            }
+
+            .optionBox {
+                display: none;
+                .position(absolute, @top: 23px, @right: 5px);
+                .size(@width: 250px, @height: 90px);
+                .flex-direction(column);
+                background-color: @color-bg-white-five;
+                padding: 10px;
+
+                input {
+                    margin-top: 3px;
+                    font-size: 12px;
+                }
+            }
+        }
+
         .runNowBtn {
             .size(@width: 25px, @height: 25px);
             float: right;

@@ -2579,7 +2579,7 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
 // For example, if my paramValue was "filter(<opera>(<colName>, <val>))"
 // then, params = [{"parameterName":"opera", "parameterValue":"lt"},
 // {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
-function XcalarExecuteRetina(retName, params, txId) {
+function XcalarExecuteRetina(retName, params, options, txId) {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -2590,10 +2590,13 @@ function XcalarExecuteRetina(retName, params, txId) {
         return (deferred.reject().promise());
     }
 
-    var activeSession = false;
-    var newTableName = ""; // If activeSession is true, it exports to the
-                           // current active session and creates a table
-                           // with newTableName
+    options = options || {};
+    // If activeSession is true, it exports to the
+    // current active session and creates a table
+    // with newTableName
+
+    var activeSession = options.activeSession || false;
+    var newTableName = options.newTableName || "";
 
     // var workItem = xcalarExecuteRetinaWorkItem(retName, params);
     var def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,

@@ -116,10 +116,14 @@ window.DFCard = (function($, DFCard) {
 
     function setupRetinaTab() {
         $dfView.on("mousedown", function(event) {
-            if ($(event.target).closest('#statusBox').length) {
+            var $target = $(event.target);
+            if ($target.closest('#statusBox').length) {
                 return;
             }
             $retTabSection.find(".retTab").removeClass("active");
+            if ($target.closest(".advancedOpts").length === 0) {
+                $dfCard.find(".advancedOpts.active").removeClass("active");
+            }
         });
         // Remove focus when click other places other than retinaArea
         // add new retina
@@ -220,7 +224,7 @@ window.DFCard = (function($, DFCard) {
             var dataflowName = $dataflowLi.find('.groupName').text();
             currentDataflow = dataflowName;
             $header.text(dataflowName);
-            $("#dataflowView .dagWrap").filter(function(idx, val) {
+            $("#dataflowView .dagWrap").filter(function() {
                 if ($(this).attr("data-dataflowName") === dataflowName) {
                     $(this).removeClass("xc-hidden");
                     // to scroll to the right side of graph
@@ -272,7 +276,7 @@ window.DFCard = (function($, DFCard) {
         $listSection.on('click', '.addScheduleToDataflow', function() {
             var groupName = $(this).siblings('.groupName').text();
             Scheduler.setDataFlowName(groupName);
-            if(DF.hasSchedule(groupName)) {
+            if (DF.hasSchedule(groupName)) {
                 Scheduler.showScheduleDetailView();
                 Scheduler.hideNewScheduleFormView();
             } else {
@@ -322,8 +326,13 @@ window.DFCard = (function($, DFCard) {
                     delete canceledRuns[retName];
                     $btn.removeClass("running canceling");
                     xcTooltip.changeText($btn, DFTStr.Run);
-                }); 
+                });
             }
+        });
+
+        var optsSelector = ".advancedOpts > .text, .advancedOpts > .icon";
+        $dfCard.on("click", optsSelector, function() {
+            $(this).closest(".advancedOpts").toggleClass("active");
         });
     }
 
@@ -344,39 +353,67 @@ window.DFCard = (function($, DFCard) {
     }
 
     function drawDags(dataflowName) {
-
-        html = '<div class="dagWrap xc-hidden clearfix untouched" '+
-                    'data-dataflowName="' + dataflowName + '">' +
-                    '<div class="header clearfix">' +
-                        '<div class="btn btn-small infoIcon">' +
-                            '<i class="icon xi-info-rectangle"></i>' +
+        var html =
+        '<div class="dagWrap xc-hidden clearfix untouched" '+
+            'data-dataflowName="' + dataflowName + '">' +
+            '<div class="header clearfix">' +
+                '<div class="btn btn-small infoIcon">' +
+                    '<i class="icon xi-info-rectangle"></i>' +
+                '</div>' +
+                '<div class="tableTitleArea">' +
+                    '<span>Dataflow: </span>' +
+                    '<span class="tableName">' +
+                        dataflowName +
+                    '</span>' +
+                '</div>' +
+                '<button class="runNowBtn btn btn-small iconBtn" ' +
+                'data-toggle="tooltip" data-container="body" ' +
+                'data-placement="top" data-original-title="' +
+                DFTStr.Run + '">' +
+                    '<i class="icon xi-arrow-right"></i>' +
+                    '<i class="icon xi-close"></i>' +
+                    '<div class="spin"></div>' +
+                '</button>' +
+                '<div class="advancedOpts">' +
+                    '<span class="text">' + DFTStr.AdvancedOpts + '</span>' +
+                    '<i class="icon fa-10 xi-arrow-down xc-action"></i>' +
+                    '<div class="optionBox radioButtonGroup">' +
+                        '<div class="radioButton active"' +
+                        ' data-option="default">' +
+                            '<div class="radio">' +
+                                '<i class="icon xi-radio-selected"></i>' +
+                                '<i class="icon xi-radio-empty"></i>' +
+                            '</div>' +
+                            '<div class="label">' +
+                                DFTStr.Default +
+                            '</div>' +
                         '</div>' +
-                        '<div class="tableTitleArea">' +
-                            '<span>Dataflow: </span>' +
-                            '<span class="tableName">' +
-                                dataflowName +
-                            '</span>' +
+                        '<div class="radioButton" data-option="import">' +
+                            '<div class="radio">' +
+                                '<i class="icon xi-radio-selected"></i>' +
+                                '<i class="icon xi-radio-empty"></i>' +
+                            '</div>' +
+                            '<div class="label">' +
+                                DFTStr.Import +
+                            '</div>' +
+                            '<input type="text" spellcheck="false"' +
+                            ' placeholder="' + DSTStr.TableName + '">' +
                         '</div>' +
-                        '<button class="runNowBtn btn btn-small iconBtn" ' +
-                        'data-toggle="tooltip" data-container="body" ' +
-                        'data-placement="top" data-original-title="' +
-                        DFTStr.Run + '">' +
-                            '<i class="icon xi-arrow-right"></i>' +
-                            '<i class="icon xi-close"></i>' +
-                            '<div class="spin"></div>' +
-                        '</button>' +
                     '</div>' +
-                '</div>';
+                '</div>' +
+            '</div>' +
+        '</div>';
+
         $dfCard.find('.cardMain').children('.hint').remove();
         $dfCard.find('.cardMain').append(html);
 
         var nodes = DF.getDataflow(dataflowName).retinaNodes;
-        var $dagWrap = $("#dataflowPanel").find(".dagWrap[data-dataflowName=" +
-                                                dataflowName+"]");
+        var $dagWrap = getDagWrap(dataflowName);
         Dag.createDagImage(nodes, $dagWrap);
 
         applyDeltaTagsToDag(dataflowName, $dagWrap);
         Dag.addDagEventListeners($dagWrap);
+        xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"));
     }
 
     function applyDeltaTagsToDag(dataflowName, $wrap) {
@@ -668,44 +705,65 @@ window.DFCard = (function($, DFCard) {
         var exportInfo = dagNode.input.exportInput;
         var targetName = exportInfo.meta.target.name;
         var fileName = parseFileName(exportInfo, paramsArray);
+        var advancedOpts = getAdvancetExportOption(retName);
+        if (advancedOpts == null) {
+            // error case
+            return PromiseHelper.reject();
+        }
 
-        checkExistingFileName(fileName, targetName)
-        .then(function(alreadyExists) {
-            if (!alreadyExists) {
-                XcalarExecuteRetina(retName, paramsArray)
-                .then(function() {
-                     /// XXX TODO: add sql
-                    Alert.show({
-                        "title"  : DFTStr.RunDone,
-                        "msg"    : DFTStr.RunDoneMsg,
-                        "isAlert": true
-                    });
-                    deferred.resolve();
-                })
-                .fail(function(error) {
-                    // do not show alert if op was canceled and
-                    // has cancel error msg
-                    if (typeof error === "object" &&
-                        error.status === StatusT.StatusCanceled &&
-                        canceledRuns[retName]) {
-                        Alert.show({
-                           "title":  StatusMessageTStr.CancelSuccess,
-                           "msg" : DFTStr.CancelSuccessMsg,
-                           "isAlert": true
-                        });
-                    } else {
-                        Alert.error(DFTStr.RunFail, error);
-                    }
-                    
-                    deferred.reject(error);
-                });
-            } else {
-                Alert.error(DFTStr.RunFail, DFTStr.ExportFileExists);
-                deferred.reject();
+        checkBeforeRunDFG(advancedOpts.activeSession)
+        .then(function() {
+            return XcalarExecuteRetina(retName, paramsArray, advancedOpts);
+        })
+        .then(function() {
+            if (advancedOpts.activeSession) {
+                return projectAfterRunDFG(advancedOpts.newTableName, exportInfo);
             }
         })
+        .then(function(finalTable) {
+            var msg = DFTStr.RunDoneMsg;
+            if (advancedOpts.activeSession) {
+                msg += "\n" + xcHelper.replaceMsg(DFTStr.FindTable, {
+                    "table": finalTable
+                });
+            }
 
-        return (deferred.promise());
+            /// XXX TODO: add sql
+            Alert.show({
+                "title"  : DFTStr.RunDone,
+                "msg"    : msg,
+                "isAlert": true
+            });
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            // do not show alert if op was canceled and
+            // has cancel error msg
+            if (typeof error === "object" &&
+                error.status === StatusT.StatusCanceled &&
+                canceledRuns[retName]) {
+                Alert.show({
+                    "title"  : StatusMessageTStr.CancelSuccess,
+                    "msg"    : DFTStr.CancelSuccessMsg,
+                    "isAlert": true
+                });
+            } else {
+                Alert.error(DFTStr.RunFail, error);
+            }
+
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+
+        function checkBeforeRunDFG(noExportCheck) {
+            if (noExportCheck) {
+                // already verified
+                return PromiseHelper.resolve();
+            } else {
+                return checkExistingFileName(fileName, targetName);
+            }
+        }
     }
 
     function cancelDF(retName, $btn) {
@@ -733,10 +791,13 @@ window.DFCard = (function($, DFCard) {
         return deferred.promise();
     }
 
+    function getDagWrap(dataflowName) {
+        return $("#dataflowPanel").find(".dagWrap[data-dataflowName=" +
+                                        dataflowName + "]");
+    }
+
     function parseFileName(exportInfo, paramArray) {
         var fileName = exportInfo.meta.specificInput.sfInput.fileName;
-        var ch;
-        var paramName;
         if (paramArray.length === 0 || fileName.indexOf("<") === -1) {
             return fileName;
         }
@@ -747,6 +808,112 @@ window.DFCard = (function($, DFCard) {
         }
 
         return fileName;
+    }
+
+    function getAdvancetExportOption(dataflowName) {
+        var activeSession = false;
+        var newTableName = "";
+
+        var $dagWrap = getDagWrap(dataflowName);
+        var $advancedOpts = $dagWrap.find(".advancedOpts");
+        var $radioButton = $advancedOpts.find(".radioButton.active");
+
+        if ($radioButton.data("option") === "import") {
+            var $input = $radioButton.find("input");
+            activeSession = true;
+            newTableName = $input.val().trim();
+
+            var isValid = checkExistingTableName($input);
+            if (!isValid) {
+                return null;
+            }
+        }
+
+        if (newTableName) {
+            newTableName += Authentication.getHashId();
+        }
+
+        return {
+            "activeSession": activeSession,
+            "newTableName" : newTableName
+        };
+    }
+
+    function projectAfterRunDFG(tableName, exportInfo) {
+        var deferred = jQuery.Deferred();
+        var txId = Transaction.start({
+            "operation": "Run DF",
+        });
+        var worksheet = WSManager.getActiveWS();
+        var metaCols = [];
+        if (exportInfo.meta && exportInfo.meta.columns) {
+            metaCols = exportInfo.meta.columns;
+        }
+        var colNames = metaCols.map(function(colInfo) {
+            var colName = colInfo.name;
+            var parsedInfo = xcHelper.parsePrefixColName(colName);
+            var prefix = parsedInfo.prefix;
+            if (prefix) {
+                colName = prefix + "--" + parsedInfo.colName;
+            }
+            return colName;
+        });
+
+        var dstTableName = xcHelper.getTableName(tableName) +
+                        Authentication.getHashId();
+
+        XcalarProject(colNames, tableName, dstTableName, txId)
+        .then(function() {
+            var tableCols = getProgCols(colNames);
+            return TblManager.refreshTable([dstTableName], tableCols,
+                                           [], worksheet, txId);
+        })
+        .then(function() {
+            return deleteHelper();
+        })
+        .then(function() {
+            Transaction.done(txId, {
+                "noSql": true
+            });
+            deferred.resolve(dstTableName);
+        })
+        .fail(function(error) {
+            Transaction.fail(txId, {
+                "error"  : error,
+                "noAlert": true
+            });
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+
+        function deleteHelper() {
+            var innerDeferred = jQuery.Deferred();
+            XcalarDeleteTable(tableName, txId)
+            .always(function() {
+                innerDeferred.resolve();
+            });
+
+            return innerDeferred.promise();
+        }
+    }
+
+    function getProgCols(colNames) {
+        var progCols = colNames.map(function(colName) {
+            return ColManager.newPullCol(colName);
+        });
+
+        progCols.push(ColManager.newDATACol());
+        return progCols;
+    }
+
+    function checkExistingTableName($input) {
+        var isValid = xcHelper.tableNameInputChecker($input, {
+            "onErr": function() {
+                $input.closest(".advancedOpts").addClass("active");
+            }
+        });
+        return isValid;
     }
 
     // returns promise with boolean True if duplicate found
@@ -765,22 +932,20 @@ window.DFCard = (function($, DFCard) {
                 .then(function(result) {
                     for (var i = 0; i < result.numFiles; i++) {
                         if (result.files[i].name === fileName) {
-                            return deferred.resolve(true);
+                            deferred.reject(DFTStr.ExportFileExists);
+                            return;
                         }
                     }
-                    deferred.resolve(false);
+                    deferred.resolve();
                 })
                 .fail(function() {
-                    deferred.resolve(false);
+                    deferred.resolve();
                 });
             } else {
-                deferred.resolve(false);
+                deferred.resolve();
             }
         })
-        .fail(function(error) {
-            console.warn(error);
-            deferred.resolve(false);
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

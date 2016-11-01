@@ -526,7 +526,11 @@ DFTStr = {
     "DelDF": "Permanently Delete Dataflow",
     "DelDFMsg": "Are you sure you want to permanently delete " +
                  "this dataflow? This action cannot be undone.",
-    "DownloadErr": "Download Failed"
+    "DownloadErr": "Download Failed",
+    "AdvancedOpts": "Advanced Export Options",
+    "Default": "Export to file system",
+    "Import": "Export as a Xcalar table",
+    "FindTable": "The final table <table> is in the worksheet"
 };
 
 DSTStr = {

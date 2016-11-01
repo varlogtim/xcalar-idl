@@ -951,7 +951,9 @@ window.xcHelper = (function($, xcHelper) {
             $radioButton.addClass("active");
 
             var option = $radioButton.data("option");
-            callback(option, $radioButton);
+            if (callback != null && callback instanceof Function) {
+                callback(option, $radioButton);
+            }
         });
     };
 
@@ -1132,24 +1134,32 @@ window.xcHelper = (function($, xcHelper) {
         options = $.extend(defaultOpts, options);
 
         var formMode = options.formMode || false;
+        var error = null;
+
         if (newTableName === "") {
-            StatusBox.show(ErrTStr.NoEmpty, $input, formMode, options);
-            return false;
+            error = ErrTStr.NoEmpty;
         } else if (/^ | $|[*#'"]/.test(newTableName) === true) {
-            StatusBox.show(ErrTStr.InvalidTableName, $input, formMode, options);
-            return false;
+            error = ErrTStr.InvalidTableName;
         } else if (newTableName.length >=
             XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
-            StatusBox.show(ErrTStr.TooLong, $input, formMode, options);
-            return false;
+            error = ErrTStr.TooLong;
+        } else {
+            var validTableName = xcHelper.checkDupTableName(newTableName);
+            if (!validTableName) {
+                error = ErrTStr.TableConflict;
+            }
         }
 
-        var validTableName = xcHelper.checkDupTableName(newTableName);
-        if (!validTableName) {
-            StatusBox.show(ErrTStr.TableConflict, $input, formMode, options);
+        if (error != null) {
+            if (options.onErr && options.onErr instanceof Function) {
+                options.onErr();
+            }
+
+            StatusBox.show(ErrTStr.NoEmpty, $input, formMode, options);
             return false;
+        } else {
+            return true;
         }
-        return true;
     };
 
     xcHelper.getTableName = function(wholeName) {
