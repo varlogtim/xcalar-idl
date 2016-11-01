@@ -244,7 +244,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         $fakeElement.css("font-family", "monospace");
         $section.append($fakeElement);
         var charWidth = getTextWidth($fakeElement);
-
+        $fakeElement.remove();
         return charWidth;
     }
 
