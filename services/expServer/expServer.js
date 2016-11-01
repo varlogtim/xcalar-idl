@@ -122,7 +122,10 @@ function genExecString(hostnameLocation, hasPrivHosts,
 }
 
 function genLdapExecString(domainName, password, companyName) {
-    var execString = ""; // XXX fill in
+    var execString = "";
+    execString += " --ldap-domain " + domainName;
+    execString += " --ldap-password " + password;
+    execString += " --ldap-org " + companyName;
     return execString;
 }
 
@@ -357,17 +360,13 @@ app.post("/writeConfig", function(req, res) {
 app.post("/installLdap", function(req, res) {
     console.log("Installing Ldap");
     var credArray = req.body;
-    /**
-    var credArray = {
-                "domainName": values[0],
-                "password": values[1],
-                "companyName": values[3]
-            };
-    */
-    var execString = scriptDir + ""; // XXX populate with ted's stuff
+
+    var execString = scriptDir + "/07-ldap-install.sh ";
     execString += cliArguments; // Add all the previous stuff
 
-    execString += genLdapExecString(credArray);
+    execString += genLdapExecString(credArray.domainName,
+                                    credArray.password,
+                                    credArray.companyName);
 
     out = exec(execString);
 
