@@ -329,6 +329,7 @@ module.exports = {
         "GeneralSettings": "General Settings",
         "GenSub": "Generate Support Bundle",
         "graphInterval": "MONITOR GRAPH INTERVAL",
+        "commitInterval": "AUTOSAVE INTERVAL",
         "GTotal": "Global Total",
         "Install": "Install",
         "ip": "in progress",

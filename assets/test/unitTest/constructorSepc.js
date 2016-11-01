@@ -761,7 +761,7 @@ describe('Constructor Test', function() {
             expect(genSettings).to.have.property('baseSettings');
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings).length).to.equal(4);
+            expect(Object.keys(baseSettings).length).to.equal(5);
 
             expect(baseSettings).to.have.property('hideDataCol')
             .and.to.be.false;
@@ -769,6 +769,8 @@ describe('Constructor Test', function() {
             .and.to.equal(70);
             expect(baseSettings).to.have.property('monitorGraphInterval')
             .and.to.equal(3);
+            expect(baseSettings).to.have.property('commitInterval')
+            .and.to.equal(120);
             expect(baseSettings).to.have.property('DsDefaultSampleSize')
             .and.to.equal(10 * GB);
         });
@@ -784,7 +786,8 @@ describe('Constructor Test', function() {
                 }
             };
             var userConfigParams = {
-                DsDefaultSampleSize: 2000  
+                DsDefaultSampleSize: 2000, 
+                commitInterval: 600  
             };
             // modified base settings should be 
             // {memoryLimit: 0, monitorGraphInterval: 9, hideDataCol: false}
@@ -796,10 +799,11 @@ describe('Constructor Test', function() {
             expect(Object.keys(adminAndXc.xcSettings)).to.have.length(2);
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings)).to.have.length(4);
+            expect(Object.keys(baseSettings)).to.have.length(5);
             expect(baseSettings['hideDataCol']).to.be.false;
             expect(baseSettings['memoryLimit']).to.equal(0);
             expect(baseSettings['monitorGraphInterval']).to.equal(9);
+            expect(baseSettings['commitInterval']).to.equal(600);
             expect(baseSettings['DsDefaultSampleSize']).to.equal(2000);
         });
 

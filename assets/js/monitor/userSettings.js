@@ -5,6 +5,7 @@ window.UserSettings = (function($, UserSettings) {
     var cachedPrefs = {};
     var memLimitSlider;
     var monIntervalSlider;
+    var commitIntervalSlider;
     var genSettings;
 
     UserSettings.restore = function() {
@@ -248,6 +249,15 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
+        commitIntervalSlider = new RangeSlider($('#commitIntervalSlider'),
+        'commitInterval', {
+            minVal     : 10,
+            maxVal     : 600,
+            onChangeEnd: function(val) {
+                Support.heartbeatCheck();
+            }
+        });
+
         $("#userSettingsSave").click(function() {
             $("#autoSaveBtn").click();      
         });
@@ -267,13 +277,16 @@ window.UserSettings = (function($, UserSettings) {
         var hideDataCol = UserSettings.getPref('hideDataCol');
         var memoryLimit = UserSettings.getPref('memoryLimit');
         var graphInterval = UserSettings.getPref('monitorGraphInterval');
+        var commitInterval = UserSettings.getPref('commitInterval');
         var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
+        
         if (!hideDataCol) {
             $('#showDataColBox').addClass('checked');
         }
        
         memLimitSlider.setSliderValue(memoryLimit);
         monIntervalSlider.setSliderValue(graphInterval);
+        commitIntervalSlider.setSliderValue(commitInterval);
         setDsSampleLimitValue(dsSampleLimit);
     }
 
