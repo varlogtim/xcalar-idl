@@ -37,6 +37,7 @@ module.exports = {
         "Loading": "Loading",
         "Location": "Location",
         "Maximize": "Maximize",
+        "Minimize": "Minimize",
         "Name": "Name",
         "NEW": "NEW",
         "NEXT": "NEXT",
@@ -378,6 +379,15 @@ module.exports = {
         "VIEWOUTPUT": "VIEW OUTPUT",
         "VirtualNode": "Virtual Node",
         "SupportTools": "Support Tools"
+    },
+
+    "supportTicket": {
+        "GenSupTicket": "Generate Support Ticket",
+        "GenSupInstr": "Please fill out the form below.",
+        "TypeIssue": "Type of issue",
+        "Comments": "Comments",
+        "GenTicketBtn": "GENERATE TICKET",
+        "GenBundleTip": "This will be slow and requires internet access"
     },
 
     "query": {

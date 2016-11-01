@@ -302,6 +302,7 @@ window.StartManager = (function(StartManager, $) {
         DeleteTableModal.setup();
         ExtModal.setup();
         LicenseModal.setup();
+        SupTicketModal.setup();
         AboutModal.setup();
     }
 

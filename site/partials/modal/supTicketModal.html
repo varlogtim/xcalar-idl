@@ -1,0 +1,61 @@
+<!-- Support Ticket Modal -->
+<div id="supTicketModal" class="modalContainer">
+  <!-- Header -->
+  <header class="modalHeader">
+    <span class="text"><%= dicts.supportTicket.GenSupTicket %></span>
+    <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
+      <i class="icon xi-exit-fullscreen"></i>
+    </div>
+    <div class="headerBtn fullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>">
+      <i class="icon xi-fullscreen"></i>
+    </div>
+    <div class="close">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- Instruction -->
+  <section class="modalInstruction">
+    <i class="icon xi-info-circle"></i>
+    <div class="text"><%= dicts.supportTicket.GenSupInstr %></div>
+  </section>
+  <!-- Main Section -->
+  <section class="modalMain">
+    <div class="formRow">
+      <span class="label"><%= dicts.supportTicket.TypeIssue %>:</span>
+      <div class="dropDownList yesclickable issueList">
+        <input class="text" type="text" spellcheck="false" disabled="disabled">
+        <div class="iconWrapper">
+          <i class="icon xi-arrow-down"></i>
+        </div>
+        <div class="list">
+          <ul>
+            <li>Crash</li>
+            <li>Performance Issue</li>
+            <li>Other</li>
+          </ul>
+            <div class="scrollArea top"><div class="arrow"></div></div>
+            <div class="scrollArea bottom"><div class="arrow"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="formRow genBundleRow xc-hidden">
+      <div class="checkboxSection" data-toggle="tooltip" data-container="body" data-placement="right auto" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
+        <div class="text"><%= dicts.monitor.GenSub %>?</div>
+        <div class="checkbox">
+          <i class="icon xi-ckbox-empty"></i>
+          <i class="icon xi-ckbox-selected"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="modalSubMain">
+    <div class="text"><%= dicts.supportTicket.Comments %>:</div>
+    <textarea class="xc-textArea"></textarea>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <button type="button" class="btn confirm"><%= dicts.supportTicket.GenTicketBtn %></button>
+    <button type="button" class="btn cancel"><%= dicts.common.CANCEL %></button>
+  </section>
+</div>
+<!-- End of Support Ticket Modal -->

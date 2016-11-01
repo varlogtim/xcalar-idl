@@ -517,17 +517,20 @@
     }
 
     .list {
-        .position(absolute, @left: 0);
+        .position(absolute, @left: 0, @top: 30px);
         background-color: @color-white;
         cursor: default;
         box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
         z-index: 10;
         display: none;
+        width: ~"calc(100% - 30px)";
 
         li {
             padding-left: 10px;
             z-index: 10;
             .textOverflowOneLine;
+            height: 30px;
+            line-height: 30px;
 
             &:hover {
                 background-color: @color-selectedCell-light;
@@ -755,6 +758,17 @@
 
     &.error {
         border-color: @color-error-border;
+    }
+}
+
+.xc-textArea {
+    resize: none;
+    padding: 8px;
+    border: 1px solid @color-border-white-five-darker;
+    &:focus {
+        outline: none;
+        border-color: @color-border-softBlue;
+        background-color: @color-white;
     }
 }
 

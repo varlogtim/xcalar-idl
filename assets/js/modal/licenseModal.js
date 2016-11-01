@@ -51,6 +51,7 @@ window.LicenseModal = (function($, LicenseModal) {
 
     function closeModal() {
         modalHelper.clear();
+        $modal.find(".newLicenseKey").val("");
     }
 
     return (LicenseModal);

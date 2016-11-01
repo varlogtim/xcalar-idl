@@ -2909,11 +2909,45 @@ function ModalHelper($modal, options) {
     this.$modal = $modal;
     this.options = options || {};
     this.id = $modal.attr("id");
-
+    this.__init();
     return this;
 }
 
 ModalHelper.prototype = {
+    __init: function() {
+        var self = this;
+        var $modal = self.$modal;
+        var options = self.options;
+
+        // full screen and exit full screen buttons
+        var $fullScreenBtn = $modal.find('.fullScreen');
+        var $exitFullScreenBtn = $modal.find('.exitFullScreen');
+        if ($fullScreenBtn.length) {
+            $fullScreenBtn.click(function() {
+                var winWidth = $(window).width();
+                var winHeight = $(window).height();
+                $modal.width(winWidth - 14);
+                $modal.height(winHeight - 9);
+                $modal.css({
+                    "top": 0,
+                    "left" : 4
+                });
+            });
+        }
+        if ($exitFullScreenBtn.length) {
+            // debugger;
+            $exitFullScreenBtn.click(function() {
+                var winWidth = $(window).width();
+                var winHeight = $(window).height();
+                var minWidth  = options.minWidth || 0;
+                var minHeight = options.minHeight || 0;
+                $modal.width(minWidth);
+                $modal.height(minWidth);
+                self.center();
+            });
+        }
+    },
+
     setup: function(extraOptions) {
         var deferred = jQuery.Deferred();
         var $modal = this.$modal;

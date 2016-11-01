@@ -43,14 +43,28 @@
                 
             }
         }
-        .close {
-            .position(absolute, @top: 7px, @right: 7px);
+        .close, .headerBtn {
             opacity: @opacity-unhover;
             .icon {
                font-size: 16px;
             }
             &:hover {
                 opacity: @opacity-hover;
+            }
+        }
+        .close {
+            .position(absolute, @top: 7px, @right: 7px);
+        }
+        .fullScreen {
+            .position(absolute, @top: 7px, @right: 34px);
+            .icon {
+               font-size: 18px; 
+            }
+        }
+        .exitFullScreen {
+            .position(absolute, @top: 7px, @right: 61px);
+            .icon {
+               // font-size: 18px; 
             }
         }
     }
@@ -2570,6 +2584,92 @@ html.microsoft {
     }
     .modalBottom {
         padding: 10px;
+    }
+}
+
+#supTicketModal {
+    @sidePadding: 23px;
+    @fontSize: 13px;
+
+    &.flex-container {
+        .flex-display;
+    }
+    .flex-direction(column);
+    .size(500px, 400px);
+
+    .modalHeader {
+        text-align: left;
+        .text {
+            padding-left: @sidePadding;
+        }
+    }
+    .modalInstruction {
+        padding-left: @sidePadding;
+        .text {
+            font-size: @fontSize;
+            margin-top: 7px;
+        }
+    }
+    .modalMain {
+        border-bottom: 1px solid @color-bg-pinkish-grey2;
+    }
+    .formRow {
+        .flex(1 1 auto);
+        .flex-display;
+        // height: 30px;
+        padding-bottom: 20px;
+        padding-top: 20px;
+        padding-left: @sidePadding;
+        padding-right: @sidePadding;
+        font-size: @fontSize;
+        // font-weight: 700;
+          
+        .label {
+            line-height: 30px;
+            width: 110px;
+            // font-weight: 700;
+        }
+        .dropDownList {
+            max-width: 300px;
+            width: ~"calc(100% - 110px)";
+            float: right;
+            
+
+            .text {
+                width: ~"calc(100% - 30px)";
+                font-size: @fontSize;
+            }
+            .iconWrapper {
+                .size(30px, 30px);
+            }
+        }
+
+        .checkbox {
+            margin-top: 1px;
+            margin-left: 10px;
+        }
+
+        &.genBundleRow {
+            border-top: 1px solid @color-bg-pinkish-grey2;
+        }
+    }
+    .modalSubMain {
+        padding-left: @sidePadding;
+        padding-right: @sidePadding;
+        .flex(1 1 auto);
+        .flex-display;
+        .flex-direction(column);
+        font-size: @fontSize;
+        padding-top: 10px;
+    }
+    .xc-textArea {
+        .flex(1 1 0px);
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: @fontSize;
+    }
+    .modalBottom {
+        height: 70px;
     }
 }
 
