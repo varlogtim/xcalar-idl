@@ -39,7 +39,11 @@ window.DFParamModal = (function($, DFParamModal){
         $editableRow = $dfgParamModal.find(".editableRow");
         modalHelper = new ModalHelper($dfgParamModal, {
             "minHeight": minHeight,
-            "minWidth" : minWidth
+            "minWidth" : minWidth,
+            resizeCallback: function() {
+                var tableW = $paramLists.closest(".tableContainer").width();
+                $paramLists.width(tableW);
+            }
         });
 
         $dfgParamModal.draggable({

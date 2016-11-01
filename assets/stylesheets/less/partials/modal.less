@@ -63,9 +63,6 @@
         }
         .exitFullScreen {
             .position(absolute, @top: 7px, @right: 61px);
-            .icon {
-               // font-size: 18px; 
-            }
         }
     }
 
@@ -793,6 +790,26 @@
         }
     }
 
+    .fullScreen, .exitFullScreen {
+        cursor: pointer;
+        opacity: @opacity-unhover;
+        &:hover {
+            opacity: @opacity-hover;
+        }
+    }
+    .fullScreen {
+        .position(absolute, @top: 6px, @right: 36px);
+        .icon {
+           font-size: 16px; 
+        }
+    }
+    .exitFullScreen {
+        .position(absolute, @top: 5px, @right: 63px);
+        .icon {
+           font-size: 14px; 
+        }
+    }
+
     .jObject {
         .position(relative);
         .size(@width: 100%, @height: auto);
@@ -993,13 +1010,6 @@
 /* Quick Aggregate Modal */
 #aggModal {
     .size(@width: 920px, @height: 650px, @min-height: ~"650px !important");
-
-    .modalHeader {
-        .icon {
-            float: right;
-            padding-top: 2px;
-        }
-    }
 
     .modalInstruction {
         .icon {
@@ -2661,6 +2671,7 @@ html.microsoft {
         .flex-direction(column);
         font-size: @fontSize;
         padding-top: 10px;
+        border-bottom: 1px solid @color-bg-pinkish-grey2;
     }
     .xc-textArea {
         .flex(1 1 0px);

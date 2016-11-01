@@ -71,7 +71,8 @@ window.Profile = (function($, Profile, d3) {
 
         modalHelper = new ModalHelper($modal, {
             "minHeight": minHeight,
-            "minWidth" : minWidth
+            "minWidth" : minWidth,
+            "resizeCallback": resizeChart
         });
 
         $modal.resizable({

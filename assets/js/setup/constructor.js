@@ -2983,9 +2983,13 @@ ModalHelper.prototype = {
                 $modal.height(winHeight - 9);
                 $modal.css({
                     "top": 0,
-                    "left" : 4
+                    "left" : Math.round((winWidth - $modal.width()) / 2)
                 });
+                if (options.resizeCallback) {
+                    options.resizeCallback();
+                }
             });
+
         }
         if ($exitFullScreenBtn.length) {
             // debugger;
@@ -2995,8 +2999,11 @@ ModalHelper.prototype = {
                 var minWidth  = options.minWidth || 0;
                 var minHeight = options.minHeight || 0;
                 $modal.width(minWidth);
-                $modal.height(minWidth);
+                $modal.height(minHeight);
                 self.center();
+                if (options.resizeCallback) {
+                    options.resizeCallback();
+                }
             });
         }
     },
