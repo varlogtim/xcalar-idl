@@ -1432,6 +1432,8 @@ window.ColManager = (function($, ColManager) {
             tdClass += " jsonElement";
         } else if (progCol.isEmptyCol()) {
             tdValue = "";
+        } else if (tdValue === null) {
+            knf = true;
         } else {
             if (!nested) {
                 console.error('Error this value should not be empty');
@@ -1784,7 +1786,7 @@ window.ColManager = (function($, ColManager) {
     // parse json string of a table row
     function parseRowJSON(jsonStr) {
         if (!jsonStr) {
-            return null;
+            return "";
         }
 
         var value;
