@@ -352,7 +352,7 @@ window.DFCard = (function($, DFCard) {
                             '<i class="icon xi-info-rectangle"></i>' +
                         '</div>' +
                         '<div class="tableTitleArea">' +
-                            '<span>Table: </span>' +
+                            '<span>Dataflow: </span>' +
                             '<span class="tableName">' +
                                 dataflowName +
                             '</span>' +
