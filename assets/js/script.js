@@ -435,9 +435,9 @@ window.StartManager = (function(StartManager, $) {
 
         function syncTableMetaWithWorksheet(backTableSet) {
             var promises = [];
-            var activeWorksheetList = WSManager.getActiveWSList();
+            var worksheetList = WSManager.getWSList();
 
-            activeWorksheetList.forEach(function(worksheetId) {
+            worksheetList.forEach(function(worksheetId) {
                 var worksheet = WSManager.getWSById(worksheetId);
                 if (!hasTable && worksheet.tables.length > 0) {
                     hasTable = true;

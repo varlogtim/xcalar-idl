@@ -7,7 +7,7 @@ describe('Worksheet Test', function() {
         gMinModeOn = true;
     });
 
-    describe("Worksheet API Test", function() {
+    describe("Basic Worksheet API Test", function() {
         it("Should get all meta", function() {
             var meta = WSManager.getAllMeta();
             expect(meta).to.be.an("object");
@@ -36,11 +36,11 @@ describe('Worksheet Test', function() {
         });
 
         it("Should get active worksheets list", function() {
-            var activeWorksheets = WSManager.getActiveWSList();
-            expect(activeWorksheets).to.be.an("array");
-            expect(activeWorksheets.length).to.be.at.least(1);
-            expect(WSManager.getActiveWSByIndex(0))
-            .to.equal(activeWorksheets[0]);
+            var worksheets = WSManager.getWSList();
+            expect(worksheets).to.be.an("array");
+            expect(worksheets.length).to.be.at.least(1);
+            expect(WSManager.getWSByIndex(0))
+            .to.equal(worksheets[0]);
         });
 
         it("Should get hidden worksheets list", function() {
@@ -54,15 +54,48 @@ describe('Worksheet Test', function() {
         });
 
         it("Should get active worksheet index by id", function() {
-            var worksheetId = WSManager.getActiveWSByIndex(0);
-            var index = WSManager.getActiveWSIndexById(worksheetId);
+            var worksheetId = WSManager.getWSByIndex(0);
+            var index = WSManager.indexOfWS(worksheetId);
             expect(index).to.equal(0);
         });
 
         it("Should get num of active worksheet", function() {
-            var numWorksheets = WSManager.getNumOfActiveWS();
-            var activeWorksheets = WSManager.getActiveWSList();
-            expect(numWorksheets).to.equal(activeWorksheets.length);
+            var numWorksheets = WSManager.getNumOfWS();
+            var worksheets = WSManager.getWSList();
+            expect(numWorksheets).to.equal(worksheets.length);
+        });
+    });
+
+    describe("Worksheet Behavior Test", function() {
+        var worksheetId = null;
+        var worksheetName = null;
+
+        it("Should add worksheet", function() {
+            var numWorksheets = WSManager.getNumOfWS();
+            worksheetName = xcHelper.randName("testWorksheet");
+            worksheetId = WSManager.addWS(null, worksheetName);
+
+            var curNumWorksheet = WSManager.getNumOfWS();
+            expect(curNumWorksheet - numWorksheets).to.equal(1);
+            var worksheet = WSManager.getWSById(worksheetId);
+            expect(worksheet.getName()).to.equal(worksheetName);
+        });
+
+        it("Should rename worksheet", function() {
+            var worksheet = WSManager.getWSById(worksheetId);
+            // invalid case 1
+            WSManager.renameWS(worksheetId);
+            expect(worksheet.getName()).to.equal(worksheetName);
+            // invalid case 2
+            WSManager.renameWS(worksheetId, "");
+            expect(worksheet.getName()).to.equal(worksheetName);
+            // invalid case 3
+            WSManager.renameWS(worksheetId, worksheetName);
+            expect(worksheet.getName()).to.equal(worksheetName);
+            // valid case 3
+            worksheetName = xcHelper.randName("renamedWorsheet");
+            WSManager.renameWS(worksheetId, worksheetName);
+            expect(worksheet.getName()).to.equal(worksheetName);
         });
     });
 

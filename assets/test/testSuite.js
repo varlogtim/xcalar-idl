@@ -376,7 +376,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function getFirstTableInWS(worksheetIndex) {
-        var wsId = WSManager.getActiveWSByIndex(worksheetIndex);
+        var wsId = WSManager.getWSByIndex(worksheetIndex);
         var tableId = WSManager.getWSById(wsId).tables[0];
         return tableId;
     }
@@ -907,7 +907,7 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         $("#addWorksheet").click();
-        var wsId = WSManager.getActiveWSByIndex(1);
+        var wsId = WSManager.getWSByIndex(1);
         checkExists("#worksheetTab-" + wsId)
         .then(function() {
             if ($menu.find(".tables").hasClass("xc-hidden")) {
@@ -971,7 +971,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
-        var wsId = WSManager.getActiveWSByIndex(1);
+        var wsId = WSManager.getWSByIndex(1);
         var tableId = getFirstTableInWS(1);
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
@@ -1047,7 +1047,7 @@ window.TestSuite = (function($, TestSuite) {
         var dsName = "schedule" + Math.floor(Math.random() * 1000);
         var url = testDataLoc + "indexJoin/schedule/schedule.json";
         var check = "#previewTable td:eq(1):contains(1)";
-        var wsId = WSManager.getActiveWSByIndex(1);
+        var wsId = WSManager.getWSByIndex(1);
         var ws = WSManager.getWSById(wsId);
         var lPrefix;
 

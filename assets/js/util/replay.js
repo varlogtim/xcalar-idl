@@ -884,7 +884,7 @@ window.Replay = (function($, Replay) {
         var oldTableId = getTableId(options.oldTableId);
         var oldTableName = gTables[oldTableId].tableName;
         var wsIndex = options.worksheetIndex;
-        var wsId = WSManager.getActiveWSByIndex(wsIndex);
+        var wsId = WSManager.getWSByIndex(wsIndex);
 
         TblManager.refreshTable([newTableName], null, [oldTableName],
                                 wsId, null, {isUndo: true})
@@ -961,12 +961,12 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.AddWS] = function() {
         // UI simulation
         var deferred = jQuery.Deferred();
-        var originWSLen = WSManager.getNumOfActiveWS();
+        var originWSLen = WSManager.getNumOfWS();
 
         $("#addWorksheet").click();
 
         var checkFunc = function() {
-            var wsLenDiff = WSManager.getNumOfActiveWS() - originWSLen;
+            var wsLenDiff = WSManager.getNumOfWS() - originWSLen;
             if (wsLenDiff === 1) {
                 // when worksheet is added, pass check
                 return true;
@@ -989,7 +989,7 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.RenameWS] = function(options) {
         var wsIndex = options.worksheetIndex;
         var newName = options.newName;
-        var wsId = WSManager.getActiveWSByIndex(wsIndex);
+        var wsId = WSManager.getWSByIndex(wsIndex);
         $("#worksheetTab-" + wsId + " .text").val(newName)
                                             .trigger(fakeEvent.enter);
         return PromiseHelper.resolve(null);
@@ -999,7 +999,7 @@ window.Replay = (function($, Replay) {
         // UI simulation
         var deferred = jQuery.Deferred();
         var wsIndex = options.newWorksheetIndex;
-        var wsId = WSManager.getActiveWSByIndex(wsIndex);
+        var wsId = WSManager.getWSByIndex(wsIndex);
 
         $("#worksheetTab-" + wsId).trigger(fakeEvent.mousedown);
 
@@ -1034,10 +1034,10 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.DelWS] = function(options) {
         // UI simulation
         var deferred = jQuery.Deferred();
-        var originWSLen = WSManager.getNumOfActiveWS();
+        var originWSLen = WSManager.getNumOfWS();
         var wsIndex = options.worksheetIndex;
         var delType = options.delType;
-        var wsId = WSManager.getActiveWSByIndex(wsIndex);
+        var wsId = WSManager.getWSByIndex(wsIndex);
 
         if (originWSLen === 1) {
             // invalid deletion
@@ -1061,7 +1061,7 @@ window.Replay = (function($, Replay) {
         delayAction(callback, "Wait", 1000)
         .then(function() {
             var checkFunc = function() {
-                var wsLenDiff = WSManager.getNumOfActiveWS() - originWSLen;
+                var wsLenDiff = WSManager.getNumOfWS() - originWSLen;
                 if (wsLenDiff === -1) {
                     // when worksheet is deleted, pass check
                     return true;
@@ -1084,7 +1084,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.HideWS] = function(options) {
         var wsIndex = options.worksheetIndex;
-        var wsId = WSManager.getActiveWSByIndex(wsIndex);
+        var wsId = WSManager.getWSByIndex(wsIndex);
         WSManager.hideWS(wsId);
 
         return PromiseHelper.resolve(null);
@@ -1103,7 +1103,7 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.MoveTableToWS] = function(options) {
         var tableId = getTableId(options.tableId);
         var wsIndex = options.newWorksheetIndex;
-        var wsId = WSManager.getActiveWSByIndex(wsIndex);
+        var wsId = WSManager.getWSByIndex(wsIndex);
 
         WSManager.moveTable(tableId, wsId);
         return PromiseHelper.resolve(null);
@@ -1160,7 +1160,7 @@ window.Replay = (function($, Replay) {
     replayFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
         var tableId = getTableId(options.tableId);
         var wsIndex = options.newWorksheetIndex;
-        var wsId = WSManager.getActiveWSByIndex(wsIndex);
+        var wsId = WSManager.getWSByIndex(wsIndex);
         return WSManager.moveInactiveTable(tableId, wsId,
                                             options.tableType);
     };

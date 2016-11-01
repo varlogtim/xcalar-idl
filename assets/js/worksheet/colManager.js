@@ -1197,7 +1197,6 @@ window.ColManager = (function($, ColManager) {
                 }
             }
         }
-
         // loop through table tr and start building html
         for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
             var tdValue = parseRowJSON(jsonData[row]);

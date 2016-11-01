@@ -2913,7 +2913,7 @@ window.xcHelper = (function($, xcHelper) {
             $menu.find('li').removeClass('unavailable');
         }
         var $subMenu = $('#' + $menu.data('submenu'));
-        if (WSManager.getNumOfActiveWS() <= 1) {
+        if (WSManager.getNumOfWS() <= 1) {
             $subMenu.find(".moveToWorksheet").addClass("unavailable");
         } else {
             $subMenu.find(".moveToWorksheet").removeClass("unavailable");

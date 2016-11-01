@@ -103,12 +103,21 @@ window.WSManager = (function($, WSManager) {
         return worksheetGroup.get(worksheetId);
     };
 
-    WSManager.getActiveWSList = function() {
+    // not including the hidden worksheets
+    WSManager.getWSList = function() {
         return wsOrder;
     };
 
-    WSManager.getActiveWSByIndex = function(index) {
+    WSManager.getWSByIndex = function(index) {
         return wsOrder[index];
+    };
+
+    WSManager.indexOfWS = function(wsId) {
+        return wsOrder.indexOf(wsId);
+    };
+
+    WSManager.getNumOfWS = function() {
+        return wsOrder.length;
     };
 
     // returns an array of worksheet Ids
@@ -119,14 +128,6 @@ window.WSManager = (function($, WSManager) {
     // Get tables that are not in any worksheets
     WSManager.getNoSheetTables = function() {
         return noSheetTables;
-    };
-
-    WSManager.getActiveWSIndexById = function(wsId) {
-        return wsOrder.indexOf(wsId);
-    };
-
-    WSManager.getNumOfActiveWS = function() {
-        return wsOrder.length;
     };
 
     // add worksheet
@@ -162,12 +163,12 @@ window.WSManager = (function($, WSManager) {
     // delete worksheet
     WSManager.delWS = function(wsId, delType) {
         var ws = worksheetGroup.get(wsId);
-        var wsIndex = WSManager.getActiveWSIndexById(wsId);
+        var wsIndex = WSManager.indexOfWS(wsId);
         var sqlOptions = {
             "operation"     : SQLOps.DelWS,
             "worksheetId"   : wsId,
             "worksheetIndex": wsIndex,
-            "worksheetName" : ws.name,
+            "worksheetName" : ws.getName(),
             "tables"        : xcHelper.deepCopy(ws.tables),
             "archivedTables": xcHelper.deepCopy(ws.archivedTables),
             "delType"       : delType
@@ -175,8 +176,7 @@ window.WSManager = (function($, WSManager) {
 
         if (delType === DelWSType.Empty) {
             // this may be redundant, but it's safe to check again
-            if (ws.tables.length === 0 && ws.archivedTables.length === 0 &&
-                ws.tempHiddenTables.length === 0) {
+            if (isEmptyWorksheet(ws)) {
                 rmWorksheet(wsId);
 
                 // for empty worksheet, no need for this two attr
@@ -188,7 +188,7 @@ window.WSManager = (function($, WSManager) {
                 return;
             }
         } else if (delType === DelWSType.Del) {
-            delTableHelper(wsId);
+            deleteTableHelper(wsId);
             rmWorksheet(wsId);
             SQL.add("Delete Worksheet", sqlOptions);
         } else if (delType === DelWSType.Archive) {
@@ -207,7 +207,7 @@ window.WSManager = (function($, WSManager) {
         var worksheet = worksheetGroup.get(worksheetId);
         var oldName = worksheet.getName();
 
-        if (name === "" || wsNameToIdMap.hasOwnProperty(name)) {
+        if (name == null || name === "" || wsNameToIdMap.hasOwnProperty(name)) {
             $text.val(oldName);
             return;
         }
@@ -228,7 +228,7 @@ window.WSManager = (function($, WSManager) {
         SQL.add("Rename Worksheet", {
             "operation"     : SQLOps.RenameWS,
             "worksheetId"   : worksheetId,
-            "worksheetIndex": WSManager.getActiveWSIndexById(worksheetId),
+            "worksheetIndex": WSManager.indexOfWS(worksheetId),
             "oldName"       : oldName,
             "newName"       : name
         });
@@ -478,11 +478,11 @@ window.WSManager = (function($, WSManager) {
             "tableName"        : gTables[tableId].tableName,
             "tableId"          : tableId,
             "oldWorksheetId"   : oldWSId,
-            "oldWorksheetIndex": WSManager.getActiveWSIndexById(oldWSId),
+            "oldWorksheetIndex": WSManager.indexOfWS(oldWSId),
             "oldWorksheetName" : worksheetGroup.get(oldWSId).name,
             "oldTablePos"      : oldTablePos,
             "newWorksheetId"   : newWSId,
-            "newWorksheetIndex": WSManager.getActiveWSIndexById(newWSId),
+            "newWorksheetIndex": WSManager.indexOfWS(newWSId),
             "worksheetName"    : wsName
         });
     };
@@ -540,7 +540,7 @@ window.WSManager = (function($, WSManager) {
             "tableId"          : tableId,
             "tableType"        : tableType,
             "newWorksheetId"   : newWSId,
-            "newWorksheetIndex": WSManager.getActiveWSIndexById(newWSId),
+            "newWorksheetIndex": WSManager.indexOfWS(newWSId),
             "newWorksheetName" : newWS.name
         };
 
@@ -1371,7 +1371,7 @@ window.WSManager = (function($, WSManager) {
         delete wsNameToIdMap[ws.name];
         worksheetGroup.delete(wsId);
 
-        var index = WSManager.getActiveWSIndexById(wsId);
+        var index = WSManager.indexOfWS(wsId);
         wsOrder.splice(index, 1);
 
         var $tab = $("#worksheetTab-" + wsId);
@@ -1447,11 +1447,8 @@ window.WSManager = (function($, WSManager) {
     }
 
     function delWSCheck(wsId) {
-        var ws = worksheetGroup.get(wsId);
-
-        if (ws.tables.length === 0 && ws.archivedTables.length === 0 &&
-            ws.tempHiddenTables.length === 0) {
-            // delete empty worksheet
+        var worksheet = worksheetGroup.get(wsId);
+        if (isEmptyWorksheet(worksheet)) {
             WSManager.delWS(wsId, DelWSType.Empty);
         } else {
             // delete worksheet with tables
@@ -1478,8 +1475,14 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
+    function isEmptyWorksheet(worksheet) {
+        return (worksheet.tables.length === 0 &&
+                worksheet.archivedTables.length === 0 &&
+                worksheet.tempHiddenTables.length === 0);
+    }
+
     // Helper function to delete tables in a worksheet
-    function delTableHelper(wsId) {
+    function deleteTableHelper(wsId) {
         var deferred = jQuery.Deferred();
         var $tableLists = $("#inactiveTablesList");
 
@@ -1488,7 +1491,6 @@ window.WSManager = (function($, WSManager) {
         $tableLists.find(".worksheet-" + wsId)
                     .closest(".tableInfo")
                     .find(".addTableBtn").click();
-
 
         // for active table, use this to delete
         var activeTables = worksheetGroup.get(wsId).tables;
@@ -1511,7 +1513,7 @@ window.WSManager = (function($, WSManager) {
     // Helper function to archive tables in a worksheet
     function archiveTableHelper(wsId) {
         // archive all active tables (save it in a temp array because
-        // archiveTable will change the structure of worksheets[].tables)
+        // archiveTable will change the structure of worksheet.tables)
         var ws = worksheetGroup.get(wsId);
 
         // put archivedTables first, becaues archive will change the meta
@@ -1528,8 +1530,6 @@ window.WSManager = (function($, WSManager) {
             noSheetTables.push(tableId);
             tableIds.push(tableId);
         });
-
-
 
         // use tableIds as a cache because TblManager.archiveTable
         // will change the structure of ws.tables
