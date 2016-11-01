@@ -145,7 +145,7 @@ window.DF = (function($, DF) {
         XcalarDeleteRetina(dataflowName)
         .then(function() {
             delete dataflows[dataflowName];
-            DFCard.updateDF();
+            DFCard.deleteDF(dataflowName);
             return (KVStore.commit());
         })
         .then(function() {

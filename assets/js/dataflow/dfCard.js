@@ -48,6 +48,11 @@ window.DFCard = (function($, DFCard) {
         updateList();
     };
 
+    DFCard.deleteDF = function(dfName) {
+        $dfCard.find('.dagWrap[data-dataflowName="' + dfName + '"]').remove();
+        updateList();
+    };
+
     DFCard.drawDags = function() {
         drawAllDags();
         updateList();
