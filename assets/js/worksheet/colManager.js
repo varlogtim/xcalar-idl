@@ -1162,6 +1162,8 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
+    // jsonData is an array of stringified json with each array item 
+    // representing a row
     ColManager.pullAllCols = function(startIndex, jsonData, tableId,
                                         direction, rowToPrependTo)
     {
@@ -1170,6 +1172,9 @@ window.ColManager = (function($, ColManager) {
         var numCols = table.getNumCols();
         var indexedColNums = [];
         var nestedVals = [];
+        if (typeof jsonData !== "object" || !(jsonData instanceof Array)) {
+            jsonData = [""];
+        }
 
         var $table = $('#xcTable-' + tableId);
         var tBodyHTML = "";
