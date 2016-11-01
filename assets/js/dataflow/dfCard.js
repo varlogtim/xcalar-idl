@@ -854,7 +854,7 @@ window.DFCard = (function($, DFCard) {
             var parsedInfo = xcHelper.parsePrefixColName(colName);
             var prefix = parsedInfo.prefix;
             if (prefix) {
-                colName = prefix + "--" + parsedInfo.colName;
+                colName = prefix + "--" + parsedInfo.name;
             }
             return colName;
         });
@@ -893,7 +893,6 @@ window.DFCard = (function($, DFCard) {
             .always(function() {
                 innerDeferred.resolve();
             });
-
             return innerDeferred.promise();
         }
     }
