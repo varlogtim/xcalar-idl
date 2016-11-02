@@ -49,6 +49,7 @@ html.edge {
     margin-right: 5px;
     table-layout: fixed;
     cursor: default;
+    white-space: pre;
 
     thead {
         background-color: @color-table-header-gray;
@@ -117,7 +118,7 @@ html.edge {
         overflow: hidden;
         padding: 2px;
         vertical-align: middle;
-        text-align: center;
+        text-align: left;
 
         &:last-child {
             border-right: 5px solid @color-white !important;
@@ -359,11 +360,11 @@ html.edge {
 
     .textAlignWrap {
         .textAlignLeft;
-        white-space: normal !important;
+        white-space: pre-wrap !important;
         overflow-wrap: break-word !important;
         .dataColText  {
             .textAlignLeft;
-            white-space: normal !important;
+            white-space: pre-wrap !important;
             overflow-wrap: break-word !important;
         }
         &.animating {
@@ -400,7 +401,7 @@ html.edge {
 
     .dataColText {
         cursor: pointer;
-        text-align: center;
+        text-align: left;
         white-space: pre;
     }
 
@@ -1262,10 +1263,10 @@ html.edge {
         }
 
         &.changedHeight {
-            white-space: normal;
+            white-space: pre-wrap;
             overflow-wrap: break-word;
             .dataColText {
-                white-space: normal;
+                white-space: pre-wrap;
             }
         }
     }

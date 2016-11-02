@@ -595,7 +595,7 @@ function ProgCol(options) {
         isNewCol     : true,
         name         : "",
         sizedToHeader: true,
-        textAlign    : ColTextAlign.Center,
+        textAlign    : ColTextAlign.Left,
         type         : ColumnType.undefined,
         userStr      : "",
         width        : gNewCellWidth

@@ -1575,13 +1575,13 @@ table.datasetTable {
         }
 
         &.lineMarker {
-            text-align: center;
+            text-align: center !important;
         }
     }
 
     &.has-delimiter {
         .size(@width: 0);
-        white-space: nowrap;
+        white-space: pre;
 
         th:not(:first-child) {
             .size(@width: 130px);
@@ -1591,7 +1591,7 @@ table.datasetTable {
         }
 
         td {
-            text-align: center;
+            text-align: left;
         }
     }
 }

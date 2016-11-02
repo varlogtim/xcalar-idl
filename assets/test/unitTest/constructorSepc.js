@@ -209,13 +209,13 @@ describe('Constructor Test', function() {
                 }
             });
 
-            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Center);
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Left);
             // error case
             progCol.setTextAlign(null);
-            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Center);
-            // valid case
-            progCol.setTextAlign(ColTextAlign.Left);
             expect(progCol.getTextAlign()).to.equal(ColTextAlign.Left);
+            // valid case
+            progCol.setTextAlign(ColTextAlign.Center);
+            expect(progCol.getTextAlign()).to.equal(ColTextAlign.Center);
         });
 
         it("Should get and set back col name", function() {

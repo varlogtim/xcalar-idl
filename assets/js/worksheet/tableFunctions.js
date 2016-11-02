@@ -37,7 +37,7 @@ function getTextWidth($el, val, options) {
         'font-weight': defaultStyle.fontWeight || $el.css('font-weight'),
         'position'   : 'absolute',
         'display'    : 'inline-block',
-        'white-space': 'nowrap'
+        'white-space': 'pre'
     }).appendTo($('body'));
 
     width = tempDiv.width() + defaultStyle.padding;
