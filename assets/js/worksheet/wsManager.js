@@ -19,7 +19,6 @@ window.WSManager = (function($, WSManager) {
     // constant
     var defaultName = "Sheet ";
     var nameSuffix = 1;
-    var maxWSLen = 260; // 26 letters * 10 nums
     var slideTime = 180;
 
     // Setup function for WSManager Module
@@ -267,6 +266,129 @@ window.WSManager = (function($, WSManager) {
         }
 
         reorderWSHelper(oldWSIndex, newWSIndex);
+    };
+
+    WSManager.hideWS = function(wsId) {
+        var index = wsOrder.indexOf(wsId);
+        wsOrder.splice(index, 1);
+        hiddenWS.push(wsId);
+
+        var $hiddenTab = $(getHiddenWSHTML(wsId));
+        var ws = worksheetGroup.get(wsId);
+        var tables = ws.tables;
+        var tempHiddenTables = ws.tempHiddenTables;
+
+        // tables strcuture will change when archive, so copy the id first
+        var tableIds = tables.map(function(tableId) {
+            return tableId;
+        });
+
+        tableIds.forEach(function(tableId) {
+            toggleTableArchive(tableId, tables, tempHiddenTables);
+            TblManager.hideWorksheetTable(tableId);
+            gTables[tableId].freeResultset();
+        });
+
+        TableList.tablesToHiddenWS([wsId]);
+
+        $hiddenWorksheetTabs.removeClass("hint");
+
+        var $tab = $workSheetTabs.find("#worksheetTab-" + wsId);
+        if (gMinModeOn) {
+            $hiddenWorksheetTabs.append($hiddenTab);
+            $tab.remove();
+            rmHandler(wsId, index);
+        } else {
+            $hiddenTab.appendTo($hiddenWorksheetTabs)
+                    .hide().slideDown(slideTime);
+
+            $tab.slideUp(slideTime, function() {
+                $tab.remove();
+                rmHandler(wsId, index);
+            });
+        }
+
+        SQL.add("Hide Worksheet", {
+            "operation"     : SQLOps.HideWS,
+            "worksheetId"   : wsId,
+            "worksheetName" : ws.name,
+            "worksheetIndex": index,
+            "htmlExclude"   : ['worksheetIndex']
+        });
+    };
+
+    WSManager.unhideWS = function(wsIds, prevWsIndex) {
+        var deferred = jQuery.Deferred();
+        if (!(wsIds instanceof Array)) {
+            wsIds = [wsIds];
+        }
+
+        $(".tooltip").hide();
+        var wsNames = [];
+        var curWSId;
+        var hiddenWSOrder = [];
+        var hiddenWSCopy = xcHelper.deepCopy(hiddenWS);
+        var promises = [];
+        wsIds.forEach(function(wsId) {
+            curWSId = wsId;
+
+            var ws = worksheetGroup.get(wsId);
+            var tempHiddenTables = ws.tempHiddenTables;
+            var wsIndex = hiddenWS.indexOf(wsId);
+            hiddenWSOrder.push(hiddenWSCopy.indexOf(wsId));
+            var tables = ws.tables;
+
+            hiddenWS.splice(wsIndex, 1);
+            if (prevWsIndex == null) {
+                wsOrder.push(wsId);
+            } else {
+                wsOrder.splice(prevWsIndex, 0, wsId);
+            }
+
+            wsNames.push(ws.name);
+
+            var tableIds = tempHiddenTables.map(function(tableId) {
+                return tableId;
+            });
+
+            tableIds.forEach(function(tableId) {
+                toggleTableArchive(tableId, tempHiddenTables, tables);
+            });
+
+            var $tab = $hiddenWorksheetTabs.find('#worksheetTab-' + wsId);
+            if (gMinModeOn) {
+                $tab.remove();
+            } else {
+                $tab.slideUp(slideTime, function() {
+                    $tab.remove();
+                });
+            }
+
+            makeWorksheet(wsId);
+            promises.push(TableList.tableBulkAction.bind(this,
+                                         "add", TableType.WSHidden, wsId));
+        });
+
+        if (hiddenWS.length === 0) {
+            $hiddenWorksheetTabs.addClass("hint");
+        }
+
+        PromiseHelper.chain(promises)
+        .then(function() {
+            // focus on last that unhide
+            WSManager.focusOnWorksheet(curWSId);
+            SQL.add("Unhide Worksheet", {
+                "operation"      : SQLOps.UnHideWS,
+                "worksheetIds"   : wsIds,
+                "worksheetNames" : wsNames,
+                "worksheetOrders": hiddenWSOrder,
+                "htmlExclude"    : ["worksheetOrders"]
+            });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     // Get worksheet index from table id
@@ -622,129 +744,6 @@ window.WSManager = (function($, WSManager) {
         }
     };
 
-    WSManager.hideWS = function(wsId) {
-        var index = wsOrder.indexOf(wsId);
-        wsOrder.splice(index, 1);
-        hiddenWS.push(wsId);
-
-        var $hiddenTab = $(getHiddenWSHTML(wsId));
-        var ws = worksheetGroup.get(wsId);
-        var tables = ws.tables;
-        var tempHiddenTables = ws.tempHiddenTables;
-
-        // tables strcuture will change when archive, so copy the id first
-        var tableIds = tables.map(function(tableId) {
-            return tableId;
-        });
-
-        tableIds.forEach(function(tableId) {
-            toggleTableArchive(tableId, tables, tempHiddenTables);
-            TblManager.hideWorksheetTable(tableId);
-            gTables[tableId].freeResultset();
-        });
-
-        TableList.tablesToHiddenWS([wsId]);
-
-        $hiddenWorksheetTabs.removeClass("hint");
-
-        var $tab = $workSheetTabs.find("#worksheetTab-" + wsId);
-        if (gMinModeOn) {
-            $hiddenWorksheetTabs.append($hiddenTab);
-            $tab.remove();
-            rmHandler(wsId, index);
-        } else {
-            $hiddenTab.appendTo($hiddenWorksheetTabs)
-                    .hide().slideDown(slideTime);
-
-            $tab.slideUp(slideTime, function() {
-                $tab.remove();
-                rmHandler(wsId, index);
-            });
-        }
-
-        SQL.add("Hide Worksheet", {
-            "operation"     : SQLOps.HideWS,
-            "worksheetId"   : wsId,
-            "worksheetName" : ws.name,
-            "worksheetIndex": index,
-            "htmlExclude"   : ['worksheetIndex']
-        });
-    };
-
-    WSManager.unhideWS = function(wsIds, prevWsIndex) {
-        var deferred = jQuery.Deferred();
-        if (!(wsIds instanceof Array)) {
-            wsIds = [wsIds];
-        }
-
-        $(".tooltip").hide();
-        var wsNames = [];
-        var curWSId;
-        var hiddenWSOrder = [];
-        var hiddenWSCopy = xcHelper.deepCopy(hiddenWS);
-        var promises = [];
-        wsIds.forEach(function(wsId) {
-            curWSId = wsId;
-
-            var ws = worksheetGroup.get(wsId);
-            var tempHiddenTables = ws.tempHiddenTables;
-            var wsIndex = hiddenWS.indexOf(wsId);
-            hiddenWSOrder.push(hiddenWSCopy.indexOf(wsId));
-            var tables = ws.tables;
-
-            hiddenWS.splice(wsIndex, 1);
-            if (prevWsIndex == null) {
-                wsOrder.push(wsId);
-            } else {
-                wsOrder.splice(prevWsIndex, 0, wsId);
-            }
-
-            wsNames.push(ws.name);
-
-            var tableIds = tempHiddenTables.map(function(tableId) {
-                return tableId;
-            });
-
-            tableIds.forEach(function(tableId) {
-                toggleTableArchive(tableId, tempHiddenTables, tables);
-            });
-
-            var $tab = $hiddenWorksheetTabs.find('#worksheetTab-' + wsId);
-            if (gMinModeOn) {
-                $tab.remove();
-            } else {
-                $tab.slideUp(slideTime, function() {
-                    $tab.remove();
-                });
-            }
-
-            makeWorksheet(wsId);
-            promises.push(TableList.tableBulkAction.bind(this,
-                                         "add", TableType.WSHidden, wsId));
-        });
-
-        if (hiddenWS.length === 0) {
-            $hiddenWorksheetTabs.addClass("hint");
-        }
-
-        PromiseHelper.chain(promises)
-        .then(function() {
-            // focus on last that unhide
-            WSManager.focusOnWorksheet(curWSId);
-            SQL.add("Unhide Worksheet", {
-                "operation"      : SQLOps.UnHideWS,
-                "worksheetIds"   : wsIds,
-                "worksheetNames" : wsNames,
-                "worksheetOrders": hiddenWSOrder,
-                "htmlExclude"    : ["worksheetOrders"]
-            });
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    };
-
     // Remove table that are not in any worksheet
     WSManager.rmNoSheetTable = function(tableId) {
         var index = noSheetTables.indexOf(tableId);
@@ -1047,11 +1046,6 @@ window.WSManager = (function($, WSManager) {
 
         // click to add new worksheet
         $("#addWorksheet").click(function() {
-            if (wsOrder.length >= maxWSLen) {
-                Alert.error(WSTStr.AddWSFail, WSTStr.AddWSFailMsg);
-                return;
-            }
-
             WSManager.addWS();
         });
 
@@ -1242,25 +1236,30 @@ window.WSManager = (function($, WSManager) {
     }
 
     function generateWorksheetId() {
-        var rand1 = Math.floor(Math.random() * 26) + 97; // [97, 123)
-        var rand2 = Math.floor(Math.random() * 10); // [0, 10)
-
-        var id = String.fromCharCode(rand1) + rand2; //[a-z][0-9]
+        var id = getIdCode();
         var tryCnt = 0;
+        var maxTry = 260; // 26 letters * 10 nums
 
-        while (worksheetGroup.has(id) && tryCnt < maxWSLen) {
-            rand1 = Math.floor(Math.random() * 26) + 97;
-            rand2 = Math.floor(Math.random() * 10);
-            id = String.fromCharCode(rand1) + rand2;
+        while (worksheetGroup.has(id) && tryCnt < maxTry) {
+            id = getIdCode();
             tryCnt++;
         }
 
-        if (tryCnt >= maxWSLen) {
-            // code should never enter here!
+        if (tryCnt >= maxTry) {
             console.error("Worksheet id overflow!");
-            id += Math.floor(Math.random() * 100); // temp fix when error
+            // this is how we generate id if there is overflow
+            id = new Date().getTime();
         }
+
         return id;
+
+        function getIdCode() {
+            // totally has 260 combination
+            var rand1 = Math.floor(Math.random() * 26) + 97; // [97, 123)
+            var rand2 = Math.floor(Math.random() * 10); // [0, 10)
+            //[a-z][0-9]
+            return String.fromCharCode(rand1) + rand2;
+        }
     }
 
     function initializeWorksheet(clearing) {

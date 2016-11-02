@@ -87,12 +87,10 @@ describe('Worksheet Test', function() {
         });
     });
 
-    describe("Worksheet Behavior Test", function() {
+    describe("Worksheet Basic Behavior Test", function() {
         var worksheetId1 = null;
         var worksheetName1 = null;
         var worksheetId2 = null;
-        var worksheetName2 = null;
-        var tableId = null;
 
         it("Should add worksheet", function() {
             var numWorksheets = WSManager.getNumOfWS();
@@ -104,8 +102,7 @@ describe('Worksheet Test', function() {
             var worksheet = WSManager.getWSById(worksheetId1);
             expect(worksheet.getName()).to.equal(worksheetName1);
 
-            worksheetName2 = xcHelper.randName("sheet2-");
-            worksheetId2 = WSManager.addWS(null, worksheetName2);
+            worksheetId2 = WSManager.addWS();
             curNumWorksheet = WSManager.getNumOfWS();
             expect(curNumWorksheet - numWorksheets).to.equal(2);
         });
@@ -143,6 +140,41 @@ describe('Worksheet Test', function() {
             expect(WSManager.indexOfWS(worksheetId1)).to.equal(index1);
         });
 
+        it("Should hide worksheet", function() {
+            WSManager.hideWS(worksheetId1);
+            expect(WSManager.indexOfWS(worksheetId1)).to.equal(-1);
+            var hiddenList = WSManager.getHiddenWSList();
+            expect(hiddenList.includes(worksheetId1)).to.be.true;
+        });
+
+        it("Should unhide worksheet", function() {
+            WSManager.unhideWS(worksheetId1);
+            expect(WSManager.indexOfWS(worksheetId1)).not.to.equal(-1);
+            var hiddenList = WSManager.getHiddenWSList();
+            expect(hiddenList.includes(worksheetId1)).to.be.false;
+        });
+
+        it("Should unhide with previous index", function() {
+            WSManager.hideWS(worksheetId1);
+            WSManager.unhideWS(worksheetId1, 0);
+            expect(WSManager.indexOfWS(worksheetId1)).to.equal(0);
+        });
+
+        it("Should delete empty worksheet", function() {
+            WSManager.delWS(worksheetId1, DelWSType.Empty);
+            expect(WSManager.indexOfWS(worksheetId1)).to.equal(-1);
+        });
+
+        it("Should delete empty worksheet by click", function() {
+            var $tab = $("#worksheetTab-" + worksheetId2);
+            $tab.find(".wsMenu").click();
+            $("#worksheetTabMenu .delete").click();
+            expect(WSManager.indexOfWS(worksheetId1)).to.equal(-1);
+            $("#worksheetTabMenu").hide();
+        });
+    });
+
+    describe.skip("Worksheet Table Behavior Test", function() {
         it("Should add table to worksheet", function() {
             tableId = xcHelper.randName("testTable");
 

@@ -609,8 +609,6 @@ WSTStr = {
     'InvalidWSName': 'Invalid worksheet name',
     'InvalidWSNameErr': 'please input a valid name!',
     'AddOrphanFail': 'Add Temporary Table Failed',
-    'AddWSFail': 'Cannot Create Worksheet',
-    'AddWSFailMsg': 'There are too many worksheets in the panel',
     'NewWS': 'New Worksheet',
     'DelWS': 'Delete Worksheet',
     'DelWSMsg': 'There are active tables in this worksheet. ' +
