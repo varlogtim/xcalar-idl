@@ -339,6 +339,12 @@ window.DFCard = (function($, DFCard) {
         $dfCard.on("click", optsSelector, function() {
             $(this).closest(".advancedOpts").toggleClass("active");
         });
+
+        $dfCard.on("keydown", ".advancedOpts input", function(event) {
+            if (event.which === keyCode.Enter) {
+                $(this).closest(".advancedOpts").removeClass("active");
+            }
+        });
     }
 
     function drawAllDags() {

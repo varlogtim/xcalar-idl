@@ -146,6 +146,12 @@ window.DSForm = (function($, DSForm) {
         });
 
         $pathCard.on("click", ".cancel", resetForm);
+
+        $filePath.on("keydown", function(event) {
+            if (event.which === keyCode.Enter) {
+                goToBrowse();
+            }
+        });
     }
 
     function resetForm() {
