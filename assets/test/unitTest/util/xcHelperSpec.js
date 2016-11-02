@@ -804,6 +804,12 @@ describe('xcHelper Test', function() {
         // case 3
         res = xcHelper.hasSpecialChar("abc 1", true);
         expect(res).to.be.false;
+        // case 4
+        res = xcHelper.hasSpecialChar("abc-1");
+        expect(res).to.be.true;
+        // case 5
+        res = xcHelper.hasSpecialChar("abc-1", null, true);
+        expect(res).to.be.false;
     });
 
     it('xcHelper.hasInvalidCharInCol should work', function() {

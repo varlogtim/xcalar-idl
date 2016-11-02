@@ -1646,9 +1646,11 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.hasSpecialChar = function(str, allowSpace) {
+    xcHelper.hasSpecialChar = function(str, allowSpace, allowUndDash) {
         if (allowSpace) {
             return /[^a-zA-Z\d\s:]/.test(str);
+        } else if (allowUndDash) {
+            return /[^a-zA-Z\d\_\-]/.test(str);
         } else {
             return /[^a-zA-Z\d]/.test(str);
         }

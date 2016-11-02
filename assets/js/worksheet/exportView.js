@@ -199,8 +199,9 @@ window.ExportView = (function($, ExportView) {
 
         var tableName = gTables[tableId].tableName;
         exportTableName = tableName;
-        // remove underscores
-        $exportName.val(tableName.split('#')[0].replace(/[\W_]+/g, "")).focus();
+        // remove anything that is not alphanumeric or _-
+        $exportName.val(tableName.split('#')[0]
+                   .replace(/[^a-zA-Z\d\_\-]+/g, "")).focus();
         $exportName[0].select();
         restoreAdvanced();
         fillTableList();
@@ -297,7 +298,7 @@ window.ExportView = (function($, ExportView) {
                 "$ele" : $exportName,
                 "error": ErrTStr.NoSpecialChar,
                 "check": function() {
-                    return xcHelper.hasSpecialChar(exportName);
+                    return xcHelper.hasSpecialChar(exportName, null, true);
                 }
             },
             {
