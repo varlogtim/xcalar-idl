@@ -15,16 +15,19 @@
 		}
 	}
 	#alertModal.locked {
+		width: 600px;
 		.modalBottom {
-			// xx height for extra support btn
-			// height: 100px;
+			
 			.btn {
 				.transform(translateY(0%));
 				top: 0%;
 			}
 		}
-		.adminSupport {
-			margin-top: 10px;
+	}
+	#userNameArea {
+		.icon {
+			font-size: 24px;
+			margin-top:  4px;
 		}
 	}
 	&.locked {
@@ -37,11 +40,37 @@
 		#userBox, #dfgPanelSwitch {
 			.xc-disabled;
 		}
+		#monitorMenu-setup {
+			.preference {
+				pointer-events: initial;
+			}
+			#configLicense, .userList {
+				.xc-disabled;
+			}
+		}
+		#monitorMenu {
+			.titleSection {
+				.xi-close {
+					.xc-disabled;
+				}
+			}
+		}
+		
 	}
 }
 
-#container.xcSupport {
-	
+// #container.xcSupport {
+#container.admin { // xx temporarily available to not just xcSupport
+	#monitorLogCard {
+		display: block;
+		.flex-display;
+		.flex-direction(column);
+	}
+	&.supportOnly {
+		#monitorLogCard {
+			max-height: ~"calc(100% - 5px)";
+		}
+	}
 }
 
 #container.posingAsUser {

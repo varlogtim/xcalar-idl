@@ -121,10 +121,12 @@ window.Alert = (function($, Alert){
         Alert.show(alertOptions);
     };
 
-    Alert.forceClose = function() {
+    Alert.forceClose = function(keepBg) {
         closeAlertModal();
         $modal.removeClass('locked');
-        $modalBg.removeClass('locked');
+        if (!keepBg) {
+            $modalBg.removeClass('locked');
+        }
     };
 
     Alert.getOptionVal = function() {
@@ -288,8 +290,7 @@ window.Alert = (function($, Alert){
 
             var $copySqlBtn = xcHelper.supportButton("sql");
             var $logoutBtn = xcHelper.supportButton();
-            // xx support btn not ready yet
-            // var $adminSupportBtn = xcHelper.supportButton("adminSupport");
+            var $adminSupportBtn = xcHelper.supportButton("adminSupport");
 
             var supportDone = function(path, bid) {
                 var text = ThriftTStr.CCNBE + "\n" +
@@ -304,15 +305,11 @@ window.Alert = (function($, Alert){
             var $supportBtn = xcHelper.supportButton("support", supportDone, supportFail);
 
             if (options.logout) {
-                // support btn not ready
-                // $btnSection.prepend($logoutBtn, $copySqlBtn, $supportBtn,
-                //                     $adminSupportBtn);
-                $btnSection.prepend($logoutBtn, $copySqlBtn, $supportBtn);
+                $btnSection.prepend($adminSupportBtn, $logoutBtn, $copySqlBtn, 
+                                    $supportBtn);
             } else {
-                // support btn not ready
-                // $btnSection.prepend($copySqlBtn, $logoutBtn, $supportBtn,
-                //                      $adminSupportBtn);
-                $btnSection.prepend($copySqlBtn, $logoutBtn, $supportBtn);
+                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $logoutBtn, 
+                                    $supportBtn);
             }
         }
 

@@ -11,7 +11,10 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     // pass in callbacks to get triggered upon each post return
     XFTSupportTools.monitorLogs = function(errCallback, successCallback) {
         clearInterval(monitorIntervalId);
-        monitorIntervalId = setInterval(function() {
+        monitorIntervalId = setInterval(getLog, 2000);
+        getLog();
+
+        function getLog() {
             if (lastReturnSucc) {
                 lastReturnSucc = false;
                 var action = "monitorLogs";
@@ -30,11 +33,11 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                     console.warn(err);
                     lastReturnSucc = false;
                     if (typeof errCallback === "function") {
-                        errCallback(ret);
+                        errCallback(err);
                     }
                 });
             }
-        }, 1000);
+        }
     }
 
     XFTSupportTools.stopMonitorLogs = function() {

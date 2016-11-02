@@ -1,0 +1,60 @@
+<div id="monitorLogCard" class="cardContainer">
+  <!-- Header -->
+  <header class="cardHeader">
+    <span class="title">Logs</span>
+  </header>
+  <!-- Main Section -->
+  <section class="cardMain">
+    <div class="formRow">
+      <div class="formGroup recentLogsGroup">
+        <label>
+          <span class="text">Get recent logs:</span>
+          <div class="inputWrap">
+            <input class="xc-input" type="number" min="1" max="500" spellcheck="false" placeholder="1 to 500" data-toggle="tooltip" data-container="body" data-original-title="Number of rows to fetch">
+            <div class="btn btn-small inputAction xc-action getRecentLogs">
+              <i class="icon xi-tick fa-11"></i>
+            </div>
+          </div>
+            
+        </label>
+        
+      </div>
+      <div class="formGroup removeSessGroup">
+        <label>
+          <span class="text">Remove Session Files:</span>
+          <div class="inputWrap">
+            <input class="xc-input" type="text" spellcheck="false" placeholder="pattern">
+            <div class="btn btn-small inputAction xc-action removeSessionFiles">
+              <i class="icon xi-tick fa-11"></i>
+            </div>
+          </div>
+        </label>
+        
+      </div>
+      <div class="formGroup streamBtns">
+        <button type="button" class="btn startStream">Start Monitor Stream</button>
+        <button type="button" class="btn stopStream">Stop Stream</button>
+      </div>
+      <div class="dropDownList yesclickable">
+    </div>
+    <div class="formRow genBundleRow xc-hidden">
+      <div class="checkboxSection" data-toggle="tooltip" data-container="body" data-placement="right auto" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
+        <div class="text"><%= dicts.monitor.GenSub %>?</div>
+        <div class="checkbox">
+          <i class="icon xi-ckbox-empty"></i>
+          <i class="icon xi-ckbox-selected"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="cardSubMain">
+    <div class="content">
+      <!-- rows of logs will go here -->
+    </div>
+  </section>
+  <!-- Button Section -->
+  <section class="cardBottom">
+    <button type="button" class="btn clear"><%= dicts.common.CLEAR %> LOGS</button>
+  </section>
+</div>
+<!-- End of Support Ticket Modal -->

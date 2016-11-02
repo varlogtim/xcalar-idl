@@ -9,16 +9,17 @@ window.SupportTools = (function(SupportTools, $) {
 
     SupportTools.show = function() {
         Alert.forceClose();
-        $('#container').addClass('supportOnly');
+        
 
-        MainMenu.close(true);
-        $('.mainPanel').removeClass('active');
-        $("#monitorPanel").addClass('active').find(".monitorSection")
-                                             .removeClass("active");
-        $("#monitorSupportTools").addClass("active");
-        $(".topMenuBarTab").removeClass('active');
-        $("#monitorTab").addClass('active');
+        MainMenu.openPanel('monitorPanel');
+        $('#setupButton').click();
+        MainMenu.open(true);
+        MonitorGraph.stop();
+        $('#container').addClass('supportOnly');
+        $('#configCard').addClass('xc-hidden');
         StatusMessage.updateLocation();
+        // $('#supportToolsCard').removeClass('xc-hidden');
+  
     };
 
     function addListeners() {

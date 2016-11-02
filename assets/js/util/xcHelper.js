@@ -1002,6 +1002,12 @@ window.xcHelper = (function($, xcHelper) {
                 $btn = $(html);
 
                 $btn.click(function() {
+                    // if (Admin.isAdmin()) {
+                    //     SupTicketModal.show();
+                    //     Alert.forceClose(true);
+                    //     return;
+                    // }
+                    
                     var $supportBtn = $(this).blur();
                     xcHelper.toggleBtnInProgress($supportBtn);
                     // Tis flow is a little from xcHelper.genSub
@@ -1028,8 +1034,8 @@ window.xcHelper = (function($, xcHelper) {
                 break;
             case "adminSupport":
                 html = '<button type="button" class="btn adminOnly adminSupport" ' +
-                        'data-toggle="tooltip" title="' + "placeholder" + '">' +
-                            "placeholder" +
+                        'data-toggle="tooltip" title="' + "Support Tools" + '">' +
+                            "Support Tools" +
                         '</button>';
                 $btn = $(html);
 

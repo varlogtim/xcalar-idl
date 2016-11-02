@@ -1025,16 +1025,75 @@
     li {
         > .icon {
             line-height: 15px;
-            width: 12px;
+            width: 14px;
         }
         > .text {
             margin-left: 10px;
         }
     }
+
     .listWrap {
         margin-bottom: 0px;
     }
 
+    .spinnerWrap {
+        display: none;
+        position: absolute;
+        right: 0px;
+        .spinner > div {
+            background-color: rgba(255,255,255,0.8);
+        }
+    }
+    .unavailable {
+        pointer-events: none;
+        .spinnerWrap {
+            display: block;
+        }
+    }
+}
+
+.subPanel {
+    // display: none !important;
+}
+#monitorSupportTools {
+    // display: block !important;
+    
+}
+#configCard {
+    // display: none !important;
+}
+
+
+#supportToolsCard {
+    .hint {
+        .size(@width: 320px, @height: 60px);
+        margin: 0 auto;
+        .rounded;
+        border: 1px solid @color-white;
+        padding: 10px 0;
+        background-color: rgba(255, 255, 255, 0.7);
+
+        > div, > i {
+            display: inline-block;
+            float: left;
+        }
+
+        .icon {
+            .size(@width: 60px, @height: 100%);
+            color: @color-font-greyish-brown;
+            font-size: 33px;
+
+            &:before {
+                display: block;
+                .position(relative, @left: 10px);
+            }
+        }
+
+        .text {
+            .size(@width: ~"calc(100% - 60px)", @height: 100%);
+            .font(@size: 13px);
+        }
+    }
 }
 
 #monitor-setup {
@@ -1109,12 +1168,148 @@
     }
 }
 
+#monitorLogCard {
+    min-width: 520px;
+    max-height: ~"calc(100% - 46px)";
+    // display: block !important;
+    .cardMain {
+        padding: 20px;
+    }
+    .formRow {
+        .flex-display;
+        // .flex-wrap(wrap);
+        .formGroup {
+            .flex(1 1 auto);
+            .flex-display;
+            // height: 30px;
+            margin-bottom: 5px;
+            margin-top: 5px;
+            // padding-left: 15px;
+            padding-right: 20px;
+            font-size: 13px;
+            // font-weight: 700;
+            
+            .inputWrap {
+                .flex-display;
+            }
+            .text {
+                // line-height: 30px;
+                padding-top: 6px;
+                font-weight: 700;
+                margin-right: 10px;
+            }
+            .xc-input {
+                width: 120px;
+                .flex(1 1 70px);
+                font-size: 13px;
+                // font-weight: 700;
+                &[type="number"] {
+                    width:  80px;
+                }
+            }
+        }
+        label {
+            .flex-display;
+            .flex-wrap(wrap);
+            .text {
+                margin-bottom: 3px;
+            }
+            .inputWrap {
+                // margin-top: 6px;
+            }
+        }
+        .streamBtns {
+            // height: 80px;
+            .flex-display;
+            .align-items(center);
+            .btn {
+                width: 180px;
+                &.stopStream {
+                    display: none;
+                    background-color: @color-error-border-light;
+                    &:hover {
+                        background-color: @color-bg-red-hover;
+                    }
+                }
+            }
+            &.streaming {
+                .btn {
+                    &.startStream {
+                        display: none;
+                    }
+                    &.stopStream {
+                        display: block;
+                    }
+                }
+            }
+        }
+
+    }
+
+    .cardSubMain {
+        .flex-display;
+        .flex-direction(column);
+        overflow: hidden;
+        border-top: 1px solid @color-bg-pinkish-grey2;
+        padding: 20px;
+        .content {
+            .size(@width: 100%, @height: ~"calc(100% - 32px)", @min-height: 80px);
+            .flex(1 1 auto);
+            border: 1px solid @color-border-white-five-darker;
+            overflow: auto;
+            background-color: @color-bg-white-three;
+            padding-bottom: 20px;
+        }
+        .msgRow {
+            background-color: @color-white;
+            border-bottom: 1px solid @color-bg-white-five;
+            padding: 2px 4px;
+            min-height: 22px;
+            line-height: 18px;
+            white-space: pre-wrap;
+            &:hover {
+                background-color: @color-bg-white-three;
+            }
+        }
+    }
+
+    .cardBottom {
+        padding: 0px 20px;
+        &:after {
+            content: "";
+        }
+    }
+}
+
 #setupCard {
     display: none;
 }
 
 #configCard {
     // display: none;
+    min-width: 520px;
+    .toggleSize {
+        float: right;
+        .headerBtn {
+            margin-top: 3px;
+            margin-right: 8px;
+            box-shadow: none !important;
+            &.maximize {
+                display: none;
+            }
+        }
+        &.minimized {
+            .headerBtn {
+                &.maximize {
+                    display: block;
+                }
+                &.minimize {
+                    display: none;
+                }
+            }
+        }
+    }
+
     .cardMain {
         padding: 30px 2.5% 20px 2.5%;
     }

@@ -465,19 +465,25 @@ MonitorTStr = {
     "NewVal": "New Value",
     'ParamConfigFailed': 'Parameter Configuration Failed',
     'SavingSettingsFailed': 'Saving Settings Failed',
-    'StartNodeFailed': 'Start nodes failed',
-    'StopNodeFailed': 'Stop nodes failed',
-    'RestartFailed': 'Restart nodes failed',
+    'StartNodeFailed': 'Start cluster failed',
+    'StopNodeFailed': 'Stop cluster failed',
+    'RestartFailed': 'Restart cluster failed',
+    'GetStatusFail': 'Could not get status',
+    'GetLogsFail': 'Could not get logs',
+    'RemoveSessionFail': 'Could not remove sessions',
+    'StopStreamFail': 'Error',
+    'StartStreamFail': 'Could not start stream',
     'NotAuth': 'Not authorized to perform this command.',
-    'StartNodes': 'Start Nodes',
-    'StopNodes': 'Stop Nodes',
-    'RestartNodes': 'Restart Nodes',
+    'StartNodes': 'Start Cluster',
+    'StopNodes': 'Stop Cluster',
+    'RestartNodes': 'Restart Cluster',
     'UseXcalarAs': 'Use Xcalar As',
     'ReleaseMem': 'RELEASE MEMORY',
+    'ClusterStatus': 'Cluster Status',
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',
-    'NodeConfirmMsg': 'Are you sure you want to <type>?',
+    'NodeConfirmMsg': 'Are you sure you want to <type> the cluster?',
     'SwitchUserMsg': 'Are you sure you want to use Xcalar as <username>?'
 };
 

@@ -17,6 +17,7 @@ window.Admin = (function($, Admin) {
                 $('#container').addClass('posingAsUser');
             } else {
                 $('#container').addClass('admin');
+                $("#userNameArea").html('<i class="icon xi-user-setting"></i>');
             }
         }
         if (localStorage.xcSupport === "true" &&
@@ -35,6 +36,7 @@ window.Admin = (function($, Admin) {
             refreshUserList();
             setupAdminStatusBar();
             SupportTools.setup();
+            MonitorLog.setup();
         }
     };
 
@@ -162,6 +164,8 @@ window.Admin = (function($, Admin) {
         $("#configStopNode").click(stopNode);
 
         $("#configRestartNode").click(restartNode);
+
+        $("#configSupportStatus").click(getStatus);
 
         $('#configLicense').click(LicenseModal.show);
     }
@@ -344,10 +348,15 @@ window.Admin = (function($, Admin) {
         .then(XFTSupportTools.stopXcalarServices)
         .then(function(ret) {
             console.log('success stop', ret);
-            var alertError = {"error": ThriftTStr.CCNBE};
-            Alert.error(ThriftTStr.CCNBEErr, alertError, {
-                "lockScreen": true
-            });
+            if ($('#container').hasClass('supportOnly')) {
+                xcHelper.showSuccess();
+            } else {
+                var alertError = {"error": ThriftTStr.CCNBE};
+                Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                    "lockScreen": true
+                });
+            }
+            
         })
         .fail(function(err) {
             nodeCmdFailHandler('stopNode', err);
@@ -373,6 +382,40 @@ window.Admin = (function($, Admin) {
         })
         .always(function() {
             $("#initialLoadScreen").hide();
+        });
+    }
+
+    function getStatus() {
+        $('#configSupportStatus').addClass('unavailable');
+        XFTSupportTools.statusXcalarServices()
+        .then(function(ret) {
+            var logs = ret.logs;
+            if (!logs) {
+                logs = "No logs available.";
+            }
+            Alert.show({
+                "title"  : MonitorTStr.ClusterStatus,
+                "msg"    : logs,
+                "isAlert": true
+            });
+        })
+        .fail(function(err) {
+            var msg;
+            if (err.error.statusText === "error") {
+                msg = ErrTStr.Unknown;
+            } else {
+                msg = err.error.statusText;
+            }
+            if (!msg) {
+                msg = ErrTStr.Unknown; 
+            }
+            Alert.error({
+                "title"  : MonitorTStr.GetStatusFail,
+                "msg"    : msg
+            });
+        })
+        .always(function() {
+            $('#configSupportStatus').removeClass('unavailable');
         });
     }
 
@@ -402,7 +445,7 @@ window.Admin = (function($, Admin) {
                 break;
         }
         var msg = xcHelper.replaceMsg(MonitorTStr.NodeConfirmMsg, {
-            type: title.toLowerCase()
+            type: title.toLowerCase().split(" ")[0] // first word (start, restart)
         });
 
         Alert.show({

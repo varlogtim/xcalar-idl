@@ -39,6 +39,16 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             addInputRow();
         });
 
+        $configCard.find('.toggleSize').on('click', '.headerBtn', function() {
+            if ($(this).hasClass('minimize')) {
+                $configCard.addClass('minimized');
+                $(this).parent().addClass('minimized');
+            } else {
+                $configCard.removeClass('minimized');
+                $(this).parent().removeClass('minimized');
+            }
+        });
+
         $configCard.on('keypress', '.paramName', function(e) {
             if (e.which !== keyCode.Enter) {
                 return;

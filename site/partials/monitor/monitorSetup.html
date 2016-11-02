@@ -1,6 +1,14 @@
 <div id="configCard" class="cardContainer">
   <header class="cardHeader">
     <span class="title"><%= dicts.monitor.ConfigParam %></span>
+    <div class="toggleSize">
+      <div class="headerBtn minimize" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
+        <i class="icon xi-exit-fullscreen"></i>
+      </div>
+      <div class="headerBtn maximize" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>">
+        <i class="icon xi-fullscreen"></i>
+      </div>
+    </div>
   </header>
   <div class="cardMain">
     <div class="formRow clearfix placeholder" title="Add Config Parameter" data-toggle="tooltip">
