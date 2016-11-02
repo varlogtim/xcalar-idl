@@ -1245,11 +1245,11 @@ window.JoinView = (function($, JoinView) {
             JoinView.close();
 
             var startTime = Date.now();
-
+            var origFormOpenTime = formOpenTime;
             xcFunction.join(lColNums, lTableId, rColNums, rTableId, joinType,
                             newTableName, leftRenames, rightRenames, options)
             .fail(function(error) {
-                submissionFailHandler(startTime, error);
+                submissionFailHandler(origFormOpenTime, error);
             });
         }
 
@@ -1259,37 +1259,60 @@ window.JoinView = (function($, JoinView) {
     }
 
     //show alert to go back to op view
-    function submissionFailHandler(startTime) {
-        var endTime = Date.now();
-        var elapsedTime = endTime - startTime;
-        var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
-        if (timeSinceLastClick < elapsedTime) {
-            return;
+    function submissionFailHandler(origFormOpenTime, error) {
+        var showModifyBtn;
+        var showDeleteTableBtn;
+        if (formOpenTime !== origFormOpenTime) {
+            // if they're not equal, the form has been opened before
+            // and we can't show the modify join button
+            showModifyBtn = false;
+        } else {
+            showModifyBtn = false;
         }
+
         var origMsg = $("#alertContent .text").text().trim();
         if (origMsg.length && origMsg[origMsg.length - 1] !== ".") {
             origMsg += ".";
         }
-        var newMsg = origMsg;
-        if (origMsg.length) {
-            newMsg += "\n";
+        if (origMsg.toLowerCase().indexOf('out of') > -1) {
+            showDeleteTableBtn = true;
+        } else {
+            showDeleteTableBtn = false;
         }
-        newMsg += JoinTStr.ModifyDesc;
-        var btnText = xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
-            name: JoinTStr.JOIN
-        });
+        if (!showDeleteTableBtn && !showModifyBtn) {
+            return;
+        }
+        var btns = [];
+        var newMsg = origMsg;
 
-        var btnClass = "";
-        var title = StatusMessageTStr.JoinFailedAlt;
+        if (showModifyBtn) {
+            if (origMsg.length) {
+                newMsg += "\n";
+            }
+            newMsg += JoinTStr.ModifyDesc;  
 
-        Alert.error(title, newMsg, {
-            buttons: [{
-                name     : btnText,
-                className: btnClass,
+            btns.push({
+                name     : xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
+                               name: JoinTStr.JOIN
+                           }),
+                className: "",
                 func     : function() {
                     JoinView.show(null , null , true);
                 }
-            }]
+            });
+        }
+        if (showDeleteTableBtn) {
+            btns.push({
+                name     : MonitorTStr.ReleaseMem,
+                className: "larger",
+                func     : DeleteTableModal.show
+            });
+        }
+      
+        var title = StatusMessageTStr.JoinFailedAlt;
+
+        Alert.error(title, newMsg, {
+            buttons: btns
         });
     }
 

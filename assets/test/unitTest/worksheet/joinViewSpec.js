@@ -170,6 +170,20 @@ describe('JoinView', function() {
         });
     });
 
+    describe('check constants', function() {
+
+        // submission fail handler relies on this
+        it('status_types should have out of (memory) property', function() {
+            var oomMsgs = [];
+            for (var i in StatusTStr) {
+                if (StatusTStr[i].toLowerCase().indexOf("out of resource") > -1) {
+                    oomMsgs.push(StatusTStr[i]);
+                }
+            }
+            expect(oomMsgs.length).to.be.gt(1);
+        }) ;
+    });
+
     after(function(done) {
         JoinView.close();
 

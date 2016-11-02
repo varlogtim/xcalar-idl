@@ -469,6 +469,7 @@ MonitorTStr = {
     'StopNodes': 'Stop Nodes',
     'RestartNodes': 'Restart Nodes',
     'UseXcalarAs': 'Use Xcalar As',
+    'ReleaseMem': 'RELEASE MEMORY',
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',

@@ -1448,7 +1448,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     ", collisionCheck = " + collisionCheck +
                     ")");
     }
-
+    
     var workItem = xcalarJoinWorkItem(leftTableName, rightTableName,
                                       joinTableName, joinType,
                                       leftRenameMap, rightRenameMap,

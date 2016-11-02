@@ -3011,7 +3011,7 @@ window.OperationsView = (function($, OperationsView) {
         return deferred.promise();
     }
     //show alert to go back to op view
-    function submissionFailHandler(startTime) {
+    function submissionFailHandler(startTime, error) {
         var endTime = Date.now();
         var elapsedTime = endTime - startTime;
         var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();
