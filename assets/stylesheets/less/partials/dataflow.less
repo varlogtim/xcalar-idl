@@ -96,7 +96,7 @@
                     }
                     .retPopUp {
                         display: block;
-                        z-index: 10;
+                        z-index: @z-index-ret;
                     }
                 }
 
@@ -191,6 +191,7 @@
             .position(relative);
             float: right;
             margin-right: 3px;
+            z-index: @z-index-dfAdvancedOpts;
 
             &.active {
                 .optionBox {

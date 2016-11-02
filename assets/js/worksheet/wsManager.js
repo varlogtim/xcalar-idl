@@ -103,6 +103,11 @@ window.WSManager = (function($, WSManager) {
         return worksheetGroup.get(worksheetId);
     };
 
+    // Get current active worksheet
+    WSManager.getActiveWS = function() {
+        return activeWorksheet;
+    };
+
     // not including the hidden worksheets
     WSManager.getWSList = function() {
         return wsOrder;
@@ -128,6 +133,16 @@ window.WSManager = (function($, WSManager) {
     // Get tables that are not in any worksheets
     WSManager.getNoSheetTables = function() {
         return noSheetTables;
+    };
+
+    // Get worksheet id by worksheet name
+    WSManager.getWSIdByName = function(wsName) {
+        return wsNameToIdMap[wsName];
+    };
+
+    // Get worksheet's name from worksheet id
+    WSManager.getWSName = function(worksheetId) {
+        return worksheetGroup.get(worksheetId).getName();
     };
 
     // add worksheet
@@ -237,16 +252,6 @@ window.WSManager = (function($, WSManager) {
         StatusMessage.updateLocation();
     };
 
-    // For reorder table use
-    WSManager.reorderTable = function(tableId, srcIndex, desIndex) {
-        var wsId = tableIdToWSIdMap[tableId];
-        var tables = worksheetGroup.get(wsId).tables;
-
-        var t = tables[srcIndex];
-        tables.splice(srcIndex, 1);
-        tables.splice(desIndex, 0, t);
-    };
-
     // For reorder worksheet (undo/redo and replay use)
     WSManager.reorderWS = function(oldWSIndex, newWSIndex) {
         var $tabs = $("#worksheetTabs .worksheetTab");
@@ -262,6 +267,42 @@ window.WSManager = (function($, WSManager) {
         }
 
         reorderWSHelper(oldWSIndex, newWSIndex);
+    };
+
+    // Get worksheet index from table id
+    WSManager.getWSFromTable = function(tableId) {
+        return (tableIdToWSIdMap[tableId]);
+    };
+
+    WSManager.isTableInActiveWS = function(tableId) {
+        var tableWorksheet = WSManager.getWSFromTable(tableId);
+        return (activeWorksheet === tableWorksheet);
+    };
+
+    // Add table to worksheet
+    WSManager.addTable = function(tableId, worksheetId) {
+        // it only add to orphanedTables first, since later we
+        // need to call WSManager.replaceTable()
+        if (tableId in tableIdToWSIdMap) {
+            return tableIdToWSIdMap[tableId];
+        } else {
+            if (worksheetId == null) {
+                worksheetId = activeWorksheet;
+            }
+
+            addTableToWorksheet(worksheetId, tableId, "orphanedTables");
+            return worksheetId;
+        }
+    };
+
+    // For reorder table use
+    WSManager.reorderTable = function(tableId, srcIndex, desIndex) {
+        var wsId = tableIdToWSIdMap[tableId];
+        var tables = worksheetGroup.get(wsId).tables;
+
+        var t = tables[srcIndex];
+        tables.splice(srcIndex, 1);
+        tables.splice(desIndex, 0, t);
     };
 
     // For archive table use
@@ -322,47 +363,6 @@ window.WSManager = (function($, WSManager) {
         position += tableIndex;
 
         return (position);
-    };
-
-    // Get worksheet index from table id
-    WSManager.getWSFromTable = function(tableId) {
-        return (tableIdToWSIdMap[tableId]);
-    };
-
-    // Get worksheet id by worksheet name
-    WSManager.getWSIdByName = function(wsName) {
-        return (wsNameToIdMap[wsName]);
-    };
-
-    // Get worksheet's name from worksheet id
-    WSManager.getWSName = function(worksheetId) {
-        return worksheetGroup.get(worksheetId).getName();
-    };
-
-    // Get current active worksheet
-    WSManager.getActiveWS = function() {
-        return activeWorksheet;
-    };
-
-    WSManager.isTableInActiveWS = function(tableId) {
-        var tableWorksheet = WSManager.getWSFromTable(tableId);
-        return (activeWorksheet === tableWorksheet);
-    };
-
-    // Add table to worksheet
-    WSManager.addTable = function(tableId, worksheetId) {
-        // it only add to orphanedTables first, since later we
-        // need to call WSManager.replaceTable()
-        if (tableId in tableIdToWSIdMap) {
-            return tableIdToWSIdMap[tableId];
-        } else {
-            if (worksheetId == null) {
-                worksheetId = activeWorksheet;
-            }
-
-            addTableToWorksheet(worksheetId, tableId, "orphanedTables");
-            return worksheetId;
-        }
     };
 
     // replace a table by putting tableId into active list

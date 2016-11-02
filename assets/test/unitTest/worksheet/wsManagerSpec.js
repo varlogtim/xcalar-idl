@@ -35,6 +35,12 @@ describe('Worksheet Test', function() {
             expect(worksheet).to.equal(worksheets[worksheetId]);
         });
 
+        it("Should get active worksheeet", function() {
+            var activeWorksheet = WSManager.getActiveWS();
+            var $worksheetTab = $("#worksheetTabs .worksheetTab.active");
+            expect(activeWorksheet).to.equal($worksheetTab.data("ws"));
+        })
+
         it("Should get active worksheets list", function() {
             var worksheets = WSManager.getWSList();
             expect(worksheets).to.be.an("array");
@@ -64,38 +70,101 @@ describe('Worksheet Test', function() {
             var worksheets = WSManager.getWSList();
             expect(numWorksheets).to.equal(worksheets.length);
         });
+
+        it("Should get worksheet id by name", function() {
+            var worksheetId = WSManager.getWSByIndex(0);
+            var worksheet = WSManager.getWSById(worksheetId);
+            var wsName = worksheet.getName();
+            var testId = WSManager.getWSIdByName(wsName);
+            expect(testId).to.equal(worksheetId);
+        });
+
+        it("Should get worksheet name by id", function() {
+            var worksheetId = WSManager.getWSByIndex(0);
+            var worksheet = WSManager.getWSById(worksheetId);
+            var wsName = WSManager.getWSName(worksheetId);
+            expect(wsName).to.equal(worksheet.getName());
+        });
     });
 
     describe("Worksheet Behavior Test", function() {
-        var worksheetId = null;
-        var worksheetName = null;
+        var worksheetId1 = null;
+        var worksheetName1 = null;
+        var worksheetId2 = null;
+        var worksheetName2 = null;
+        var tableId = null;
 
         it("Should add worksheet", function() {
             var numWorksheets = WSManager.getNumOfWS();
-            worksheetName = xcHelper.randName("testWorksheet");
-            worksheetId = WSManager.addWS(null, worksheetName);
+            worksheetName1 = xcHelper.randName("testWorksheet");
+            worksheetId1 = WSManager.addWS(null, worksheetName1);
 
             var curNumWorksheet = WSManager.getNumOfWS();
             expect(curNumWorksheet - numWorksheets).to.equal(1);
-            var worksheet = WSManager.getWSById(worksheetId);
-            expect(worksheet.getName()).to.equal(worksheetName);
+            var worksheet = WSManager.getWSById(worksheetId1);
+            expect(worksheet.getName()).to.equal(worksheetName1);
+
+            worksheetName2 = xcHelper.randName("sheet2-");
+            worksheetId2 = WSManager.addWS(null, worksheetName2);
+            curNumWorksheet = WSManager.getNumOfWS();
+            expect(curNumWorksheet - numWorksheets).to.equal(2);
         });
 
         it("Should rename worksheet", function() {
-            var worksheet = WSManager.getWSById(worksheetId);
+            var worksheet = WSManager.getWSById(worksheetId1);
             // invalid case 1
-            WSManager.renameWS(worksheetId);
-            expect(worksheet.getName()).to.equal(worksheetName);
+            WSManager.renameWS(worksheetId1);
+            expect(worksheet.getName()).to.equal(worksheetName1);
             // invalid case 2
-            WSManager.renameWS(worksheetId, "");
-            expect(worksheet.getName()).to.equal(worksheetName);
+            WSManager.renameWS(worksheetId1, "");
+            expect(worksheet.getName()).to.equal(worksheetName1);
             // invalid case 3
-            WSManager.renameWS(worksheetId, worksheetName);
-            expect(worksheet.getName()).to.equal(worksheetName);
+            WSManager.renameWS(worksheetId1, worksheetName1);
+            expect(worksheet.getName()).to.equal(worksheetName1);
             // valid case 3
-            worksheetName = xcHelper.randName("renamedWorsheet");
-            WSManager.renameWS(worksheetId, worksheetName);
-            expect(worksheet.getName()).to.equal(worksheetName);
+            worksheetName1 = xcHelper.randName("renamedWorsheet");
+            WSManager.renameWS(worksheetId1, worksheetName1);
+            expect(worksheet.getName()).to.equal(worksheetName1);
+        });
+
+        it("Should reorder worksheet", function() {
+            var index1 = WSManager.indexOfWS(worksheetId1);
+            var index2 = WSManager.indexOfWS(worksheetId2);
+
+            WSManager.reorderWS(index1, index2);
+            expect(WSManager.indexOfWS(worksheetId1)).to.equal(index2);
+
+            // reorder back
+            WSManager.reorderWS(index2, index1);
+            expect(WSManager.indexOfWS(worksheetId1)).to.equal(index1);
+
+            // no change case
+            WSManager.reorderWS(index1, index1);
+            expect(WSManager.indexOfWS(worksheetId1)).to.equal(index1);
+        });
+
+        it("Should add table to worksheet", function() {
+            tableId = xcHelper.randName("testTable");
+
+            var worksheet = WSManager.getWSById(worksheetId1);
+            expect(worksheet.orphanedTables.length).to.equal(0);
+
+            WSManager.addTable(tableId, worksheetId1);
+            expect(worksheet.orphanedTables.length).to.equal(1);
+            expect(worksheet.orphanedTables[0]).to.equal(tableId);
+
+            // invalid add test
+            var resId = WSManager.addTable(tableId, worksheetId1);
+            expect(resId).to.equal(worksheetId1);
+            expect(worksheet.orphanedTables.length).to.equal(1);
+        });
+
+        it("Should remove table from worksheet", function() {
+            var worksheet = WSManager.getWSById(worksheetId1);
+            expect(worksheet.orphanedTables.length).to.equal(1);
+
+            WSManager.removeTable(tableId);
+            expect(worksheet.orphanedTables.length).to.equal(0);
         });
     });
 
