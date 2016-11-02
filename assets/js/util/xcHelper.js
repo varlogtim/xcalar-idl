@@ -1138,7 +1138,7 @@ window.xcHelper = (function($, xcHelper) {
 
         if (newTableName === "") {
             error = ErrTStr.NoEmpty;
-        } else if (/^ | $|[*#'"]/.test(newTableName) === true) {
+        } else if (/^ | $|[*#'":]/.test(newTableName) === true) {
             error = ErrTStr.InvalidTableName;
         } else if (newTableName.length >=
             XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
@@ -1155,7 +1155,7 @@ window.xcHelper = (function($, xcHelper) {
                 options.onErr();
             }
 
-            StatusBox.show(ErrTStr.NoEmpty, $input, formMode, options);
+            StatusBox.show(error, $input, formMode, options);
             return false;
         } else {
             return true;

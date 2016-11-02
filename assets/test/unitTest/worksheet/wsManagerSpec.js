@@ -174,29 +174,40 @@ describe('Worksheet Test', function() {
         });
     });
 
-    describe.skip("Worksheet Table Behavior Test", function() {
+    describe("Worksheet Table Behavior Test", function() {
+        var worksheetId;
+        var tableId;
+
+        before(function() {
+            worksheetId = WSManager.addWS();
+        });
+
         it("Should add table to worksheet", function() {
             tableId = xcHelper.randName("testTable");
 
-            var worksheet = WSManager.getWSById(worksheetId1);
+            var worksheet = WSManager.getWSById(worksheetId);
             expect(worksheet.orphanedTables.length).to.equal(0);
 
-            WSManager.addTable(tableId, worksheetId1);
+            WSManager.addTable(tableId, worksheetId);
             expect(worksheet.orphanedTables.length).to.equal(1);
             expect(worksheet.orphanedTables[0]).to.equal(tableId);
 
             // invalid add test
-            var resId = WSManager.addTable(tableId, worksheetId1);
-            expect(resId).to.equal(worksheetId1);
+            var resId = WSManager.addTable(tableId, worksheetId);
+            expect(resId).to.equal(worksheetId);
             expect(worksheet.orphanedTables.length).to.equal(1);
         });
 
         it("Should remove table from worksheet", function() {
-            var worksheet = WSManager.getWSById(worksheetId1);
+            var worksheet = WSManager.getWSById(worksheetId);
             expect(worksheet.orphanedTables.length).to.equal(1);
 
             WSManager.removeTable(tableId);
             expect(worksheet.orphanedTables.length).to.equal(0);
+        });
+
+        after(function() {
+            WSManager.delWS(worksheetId, DelWSType.Empty);
         });
     });
 
