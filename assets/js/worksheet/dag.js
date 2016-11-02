@@ -526,7 +526,8 @@ window.DagPanel = (function($, DagPanel) {
                 var $dagWrap = $(this).closest('.dagWrap');
                 var tableId = $dagWrap.data('id');
                 DagFunction.focusTable(tableId);
-                if (!gTables[tableId].isLocked) {
+                if (!gTables[tableId].isLocked && 
+                    !$dagWrap.hasClass('fromRetina')) {
                     DFCreateView.show($dagWrap);
                 }
             }
@@ -641,7 +642,9 @@ window.DagPanel = (function($, DagPanel) {
                     deleteTable(dagId, tableName);
                     break;
                 case ('dataflow'):
-                    DFCreateView.show($dagWrap);
+                    if (!$dagWrap.hasClass('fromRetina')) {
+                        DFCreateView.show($dagWrap); 
+                    }
                     break;
                 case ('none'):
                     // do nothing;
@@ -755,6 +758,14 @@ window.DagPanel = (function($, DagPanel) {
             $menu.find('.archiveTable, .deleteTable, .dataflow').hide();
         } else {
             $menu.find('.archiveTable, .deleteTable, .dataflow').show();
+        }
+        if ($dagWrap.hasClass('fromRetina')) {
+            $menu.find('.dataflow').addClass('unavailable');
+            xcTooltip.changeText($menu.find('.dataflow'), 
+                                    DFGTStr.CannotCreateMsg);
+        } else {
+            $menu.find('.dataflow').removeClass('unavailable');
+            xcTooltip.changeText($menu.find('.dataflow'), "");
         }
 
         $menu.removeClass('leftColMenu');
@@ -1289,6 +1300,13 @@ window.Dag = (function($, Dag) {
             if (!isDagPanelVisible) {
                 $('#dagPanel').removeClass('invisible');
             }
+            var isFromRetina = checkNodeArrayForRetina(dagObj.node);
+            var addDFTooltip;
+            if (isFromRetina) {
+                addDFTooltip = DFGTStr.CannotCreateMsg;
+            } else {
+                addDFTooltip = TooltipTStr.AddDataflow;
+            }
 
             var outerDag =
                 '<div class="dagWrap clearfix" id="dagWrap-' +
@@ -1306,8 +1324,8 @@ window.Dag = (function($, Dag) {
                     '<div class="retinaArea" data-tableid="' +
                         tableId + '">' +
                         '<div data-toggle="tooltip" data-container="body" ' +
-                        'data-placement="top" title="' +
-                            TooltipTStr.AddDataflow + '" ' +
+                        'data-placement="top" data-original-title="' +
+                            addDFTooltip + '" ' +
                         'class="btn btn-small addDataFlow">' +
                             '<i class="icon xi-add-dataflow"></i>' +
                         '</div>' +
@@ -1341,6 +1359,9 @@ window.Dag = (function($, Dag) {
             }
 
             var $dagWrap = $('#dagWrap-' + tableId);
+            if (isFromRetina) {
+                $dagWrap.addClass('fromRetina');
+            }
             Dag.createDagImage(dagObj.node, $dagWrap, {savable: true});
 
             Dag.focusDagForActiveTable(tableId);
@@ -1359,7 +1380,7 @@ window.Dag = (function($, Dag) {
             if ($('#xcTableWrap-' + tableId).find('.tblTitleSelected').length) {
                 $('.dagWrap.selected').removeClass('selected')
                                       .addClass('notSelected');
-                $('#dagWrap-' + tableId).removeClass('notSelected')
+                $dagWrap.removeClass('notSelected')
                                         .addClass('selected');
             }
 
@@ -1419,6 +1440,7 @@ window.Dag = (function($, Dag) {
         var dagOptions = {condensed: condensed};
         var isPrevHidden = false; // is parent node in a collapsed state
         var group = [];
+        
 
         var dagImageHtml = drawDagNode(node, storedInfo, nodeArray, index,
                                        dagInfo, children, depth,
@@ -1841,7 +1863,6 @@ window.Dag = (function($, Dag) {
         dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
     };
 
-
     Dag.showSchema = function($dagTable) {
         var tableId = $dagTable.data('id');
         var table = gTables[tableId];
@@ -1956,6 +1977,16 @@ window.Dag = (function($, Dag) {
     function hideSchema() {
         $('#dagSchema').hide();
         $(document).off('.hideDagSchema');
+    }
+
+    function checkNodeArrayForRetina(nodeArray) {
+        var len = nodeArray.length;
+        for (var i = 0; i < len; i++) {
+            if (nodeArray[i].api === XcalarApisT.XcalarApiExecuteRetina) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function loadImage(img) {
@@ -2886,11 +2917,22 @@ window.Dag = (function($, Dag) {
             var url = dagInfo.url;
             var id = dagInfo.id;
             var originalTableName = tableName;
+            var dsText;
+            var outerClassNames = "";
+            var icon;
             if (tableName.indexOf(gDSPrefix) === 0) {
                 tableName = tableName.substr(gDSPrefix.length);
             }
+            if (dagNode.api === XcalarApisT.XcalarApiExecuteRetina) {
+                dsText = "";
+                outerClassNames = " retina";
+                icon = '<i class="icon xi_table"></i>';
+            } else {
+                dsText = "Dataset ";
+                icon = '<i class="icon xi_data"></i>';
+            }
 
-            html += '<div class="dagTable dataStore" ' +
+            html += '<div class="dagTable dataStore' + outerClassNames + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-table="' + originalTableName + '" ' +
                         'data-index="' + index + '" ' +
@@ -2899,14 +2941,13 @@ window.Dag = (function($, Dag) {
                         'data-id="' + id + '" ' +
                         'data-url="' + encodeURI(url) + '">' +
                             '<div class="dataStoreIcon"></div>' +
-                            '<i class="icon xi_data"></i>' +
+                            icon +
                             '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
                             'data-original-title="' + tableName + '">' +
-                            'Dataset ' +
-                                tableName +
+                            dsText + tableName +
                             '</span>';
         } else {
 

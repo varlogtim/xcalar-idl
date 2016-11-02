@@ -2942,6 +2942,16 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             $subMenu.find('.moveRight').removeClass('unavailable');
         }
+        var $dagWrap = $('#dagWrap-' + tableId);
+        if ($dagWrap.hasClass('fromRetina')) {
+            $menu.find('.createDf').addClass('unavailable');
+            xcTooltip.add($menu.find('.createDf'), {
+               title: DFGTStr.CannotCreateMsg
+            });
+        } else {
+            $menu.find('.createDf').removeClass('unavailable');
+            xcTooltip.remove($menu.find('.createDf'));
+        }
     }
 
     return (xcHelper);

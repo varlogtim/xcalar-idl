@@ -153,9 +153,11 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
-            DFCreateView.show($('#dagWrap-' + tableId));
+            var $dagWrap = $('#dagWrap-' + tableId);
+            if (!$dagWrap.hasClass('fromRetina')) {
+                DFCreateView.show($dagWrap);
+            }
         });
-
 
         // SUBMENU CODE
 

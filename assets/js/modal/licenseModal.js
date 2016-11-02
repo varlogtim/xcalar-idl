@@ -4,7 +4,7 @@ window.LicenseModal = (function($, LicenseModal) {
 
     LicenseModal.setup = function() {
         $modal = $("#licenseModal");
-        var minWidth = 340;
+        var minWidth = 350;
         var minHeight = 220;
 
         modalHelper = new ModalHelper($modal, {

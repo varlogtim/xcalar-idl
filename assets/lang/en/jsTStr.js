@@ -502,7 +502,10 @@ DFGTStr = {
     "DelDFG": "Permanently Delete Dataflow",
     "DelDFGMsg": "Are you sure you want to permanently delete " +
                  "this dataflow? This action cannot be undone.",
-    "DownloadErr": "Download Failed"
+    "DownloadErr": "Download Failed",
+    "CannotCreate": "Cannot Create Batch Dataflow",
+    "CannotCreateMsg": "Cannot create a batch dataflow from a table " +
+                        "originating from a dataflow."
 };
 
 DFTStr = {

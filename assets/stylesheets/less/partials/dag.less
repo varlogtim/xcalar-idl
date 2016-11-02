@@ -147,7 +147,7 @@ html.firefox, html.microsoft {
     }
 
     .dagTable.dataStore {
-        cursor: initial;
+        cursor: default;
     }
 
     // menu
@@ -322,6 +322,12 @@ html.firefox, html.microsoft {
     &.locked {
         .addDataFlow {
             .btn-disabled;
+        }
+    }
+    &.fromRetina {
+        .addDataFlow {
+            opacity: @opacity-disabled;
+            cursor: default;
         }
     }
 
@@ -558,7 +564,7 @@ html.firefox, html.microsoft {
         &.Cleaned, &.Dropped {
             .dagTableIcon {
                 background-color: @color-bg-white-five;
-                cursor: initial;
+                cursor: default;
             }
         }
 
@@ -578,6 +584,13 @@ html.firefox, html.microsoft {
             }
             .dataStoreIcon {
                 .position(absolute, @top: 6px, @left: 2px);
+            }
+
+            &.retina {
+                .icon {
+                    font-size: 15px;
+
+                }
             }
         }
 
