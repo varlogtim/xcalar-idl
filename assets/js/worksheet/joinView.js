@@ -1391,7 +1391,7 @@ window.JoinView = (function($, JoinView) {
             // and we can't show the modify join button
             showModifyBtn = false;
         } else {
-            showModifyBtn = false;
+            showModifyBtn = true;
         }
 
         var origMsg = $("#alertContent .text").text().trim();
