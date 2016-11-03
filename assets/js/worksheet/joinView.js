@@ -963,6 +963,36 @@ window.JoinView = (function($, JoinView) {
 
     }
 
+    function executeChecks($renames, $origNames, $newNames, origArray,
+                           renameArray, isFatptr) {
+        // Check that none are empty
+        for (i = 0; i < $newNames.length; i++) {
+            if ($($newNames[i]).val().trim().length === 0) {
+                StatusBox.show(ErrTStr.NoEmpty, $renames.eq(i), true);
+                return false;
+            }
+        }
+
+        for (i = 0; i < $origNames.length; i++) {
+            var origName = $($origNames[i]).val();
+            var newName = $($newNames[i]).val();
+            if (isFatptr) {
+                type = DfFieldTypeT.DfFatptr;
+            } else {
+                type = DfFieldTypeT.DfUnknown;
+            }
+            renameArray.push({"orig": origName, "new": newName,
+                              "type": type});
+        }
+
+        for (i = 0; i < $origNames.length; i++) {
+            var index = origArray.indexOf(renameArray[i].orig);
+            origArray[index] = renameArray[i].new;
+        }
+
+        return true;
+    }
+
     function joinSubmitHelper(joinType, newTableName) {
         var lCols = [];
         var rCols = [];
@@ -1039,104 +1069,78 @@ window.JoinView = (function($, JoinView) {
             var $leftRenames = $("#leftTableRenames .rename");
             var $leftOrigNames = $leftRenames.find(".origName");
             var $leftNewNames = $leftRenames.find(".newName");
+            var lImmediates = xcHelper.deepCopy(lImmediatesCache);
+            var leftRenameArray = [];
+
             var $rightRenames = $("#rightTableRenames .rename");
             var $rightOrigNames = $rightRenames.find(".origName");
             var $rightNewNames = $rightRenames.find(".newName");
-            var lImmediates = xcHelper.deepCopy(lImmediatesCache);
             var rImmediates = xcHelper.deepCopy(rImmediatesCache);
+            var rightRenameArray = [];
 
             // For fatPtrs
             var $leftFatRenames = $("#lFatPtrRenames .rename");
             var $leftFatOrigNames = $leftFatRenames.find(".origName");
             var $leftFatNewNames = $leftFatRenames.find(".newName");
+            var lFatPtr = xcHelper.deepCopy(lFatPtrCache);
+            var leftFatRenameArray = [];
+
             var $rightFatRenames = $("#rFatPtrRenames .rename");
             var $rightFatOrigNames = $rightFatRenames.find(".origName");
             var $rightFatNewNames = $rightFatRenames.find(".newName");
-            var lFatPtr = xcHelper.deepCopy(lFatPtrCache);
             var rFatPtr = xcHelper.deepCopy(rFatPtrCache);
+            var rightFatRenameArray = [];
+
             var i = -1;
 
-            // Check that none are empty
-            for (i = 0; i < $leftNewNames.length; i++) {
-                if ($($leftNewNames[i]).val().trim().length === 0) {
-                    StatusBox.show(ErrTStr.NoEmpty, $leftRenames.eq(i), true);
-                    return false;
-                }
+            if (!executeChecks($leftFatRenames, $leftFatOrigNames,
+                               $leftFatNewNames, lFatPtr, leftFatRenameArray,
+                               true) ||
+                !executeChecks($rightFatRenames, $rightFatOrigNames,
+                               $rightFatNewNames, rFatPtr,
+                               rightFatRenameArray, true) ||
+                !executeChecks($leftRenames, $leftOrigNames, $leftNewNames,
+                               lImmediates, leftRenameArray, false) ||
+                !executeChecks($rightRenames, $rightOrigNames, $rightNewNames,
+                               rImmediates, rightRenameArray, false)) {
+                return false;
+
             }
 
-            for (i = 0; i < $rightNewNames.length; i++) {
-                if ($($rightNewNames[i]).val().trim().length === 0) {
-                    StatusBox.show(ErrTStr.NoEmpty, $rightRenames.eq(i), true);
+            for (i = 0; i < $leftFatRenames.length; i++) {
+                if (rFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
+                                                    .val()) > -1) {
+                    StatusBox.show(ErrTStr.PrefixConflict,$leftFatRenames.eq(i),
+                                   true);
                     return false;
                 }
-            }
-
-            for (i = 0; i < $leftFatNewNames.length; i++) {
-                if ($($leftFatNewNames[i]).val().trim().length === 0) {
-                    StatusBox.show(ErrTStr.NoEmpty, $leftFatRenames.eq(i),
+                var firstIdx = lFatPtr.indexOf($leftFatRenames.eq(i)
+                                                       .find(".newName").val());
+                if (lFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
+                                                   .val(), firstIdx + 1) > -1) {
+                    StatusBox.show(ErrTStr.PrefixConflict,$leftFatRenames.eq(i),
                                    true);
                     return false;
                 }
             }
 
-            for (i = 0; i < $rightFatNewNames.length; i++) {
-                if ($($rightFatNewNames[i]).val().trim().length === 0) {
-                    StatusBox.show(ErrTStr.NoEmpty, $rightFatRenames.eq(i),
+            for (i = 0; i < $rightFatRenames.length; i++) {
+                if (lFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
+                                                     .val()) > -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict,
+                                   $rightFatRenames.eq(i),
                                    true);
                     return false;
                 }
-            }
-
-            // Convert to array of old and newNames
-            var leftRenameArray = [];
-            var rightRenameArray = [];
-            var leftFatRenameArray = [];
-            var rightFatRenameArray = [];
-            for (i = 0; i < $leftOrigNames.length; i++) {
-                var origName = $($leftOrigNames[i]).val();
-                var newName = $($leftNewNames[i]).val();
-                leftRenameArray.push({"orig": origName, "new": newName,
-                                      "type": DfFieldTypeT.DfUnknown});
-            }
-
-            for (i = 0; i < $rightOrigNames.length; i++) {
-                var origName = $($rightOrigNames[i]).val();
-                var newName = $($rightNewNames[i]).val();
-                rightRenameArray.push({"orig": origName, "new": newName,
-                                       "type": DfFieldTypeT.DfUnknown});
-            }
-
-            for (i = 0; i < $leftFatOrigNames.length; i++) {
-                var origName = $($leftFatOrigNames[i]).val();
-                var newName = $($leftFatNewNames[i]).val();
-                leftFatRenameArray.push({"orig": origName, "new": newName,
-                                         "type": DfFieldTypeT.DfFatptr});
-            }
-
-            for (i = 0; i < $rightFatOrigNames.length; i++) {
-                var origName = $($rightFatOrigNames[i]).val();
-                var newName = $($rightFatNewNames[i]).val();
-                rightFatRenameArray.push({"orig": origName, "new": newName,
-                                          "type": DfFieldTypeT.DfFatptr});
-            }
-
-            // Get array of all new immediates by updating the old with the new
-            for (i = 0; i < $leftOrigNames.length; i++) {
-                var index = lImmediates.indexOf(leftRenameArray[i].orig);
-                lImmediates[index] = leftRenameArray[i].new;
-            }
-            for (i = 0; i<$rightOrigNames.length; i++) {
-                var index = rImmediates.indexOf(rightRenameArray[i].orig);
-                rImmediates[index] = rightRenameArray[i].new;
-            }
-
-            for (i = 0; i < $leftFatOrigNames.length; i++) {
-                var index = lFatPtr.indexOf(leftFatRenameArray[i].orig);
-                lFatPtr[index] = leftFatRenameArray[i].new;
-            }
-            for (i = 0; i<$rightFatOrigNames.length; i++) {
-                var index = rFatPtr.indexOf(rightFatRenameArray[i].orig);
-                rFatPtr[index] = rightFatRenameArray[i].new;
+                var firstIdx = rFatPtr.indexOf($rightFatRenames.eq(i)
+                                                       .find(".newName").val());
+                if (rFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
+                                                   .val(), firstIdx + 1) > -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict,
+                                   $rightFatRenames.eq(i),
+                                   true);
+                    return false;
+                }
             }
 
             // Find out whether any of the immediate names still clash
@@ -1169,43 +1173,6 @@ window.JoinView = (function($, JoinView) {
                 if (rImmediates.indexOf($rightRenames.eq(i).find(".newName")
                                                    .val(), firstIdx + 1) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
-                                   true);
-                    return false;
-                }
-            }
-
-            // JJJ Wrong conflict message
-            for (i = 0; i < $leftFatRenames.length; i++) {
-                if (rFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
-                                                    .val()) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict,$leftFatRenames.eq(i),
-                                   true);
-                    return false;
-                }
-                var firstIdx = lFatPtr.indexOf($leftFatRenames.eq(i)
-                                                       .find(".newName").val());
-                if (lFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
-                                                   .val(), firstIdx + 1) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict,$leftFatRenames.eq(i),
-                                   true);
-                    return false;
-                }
-            }
-
-            for (i = 0; i < $rightFatRenames.length; i++) {
-                if (lFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
-                                                     .val()) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict,
-                                   $rightFatRenames.eq(i),
-                                   true);
-                    return false;
-                }
-                var firstIdx = rFatPtr.indexOf($rightFatRenames.eq(i)
-                                                       .find(".newName").val());
-                if (rFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
-                                                   .val(), firstIdx + 1) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict,
-                                   $rightFatRenames.eq(i),
                                    true);
                     return false;
                 }
@@ -1347,11 +1314,20 @@ window.JoinView = (function($, JoinView) {
                           rImmediatesToRename);
         }
 
+        if (lImmediatesToRename.length || rImmediatesToRename.length) {
+            $("#derivedHeader").show();
+        } else {
+            $("#derivedHeader").hide();
+        }
+
         if (lFatPtrToRename.length > 0) {
+            $("#prefixHeader").show();
             $("#lFatPtrRenames").show();
             $("#rFatPtrRenames").show();
             addRenameRows($("#lFatPtrPlaceholder"), lFatPtrToRename);
             addRenameRows($("#rFatPtrPlaceholder"), rFatPtrToRename);
+        } else {
+            $("#prefixHeader").hide();
         }
         formHelper.refreshTabbing();
         return false;

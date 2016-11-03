@@ -175,19 +175,29 @@
             <div><%= dicts.common.ColRenames %></div>
           </div>
           <p><%= dicts.common.ColRenameInstr %></p>
+          <div id = "prefixHeader" class="subHeading clearfix">
+            <div class="subSubHeading light">
+              <%= dicts.joinView.PrefixHeader %>
+            </div>
+          </div>
           <div id="lFatPtrRenames" class="tableRenames">
             <div class="subSubHeading clearfix">
-              <div>Left Table Prefixes</div>
+              <div><%= dicts.joinView.LeftTablePrefix %></div>
               <div><%= dicts.joinView.NewName %></div>
             </div>
             <div id="lFatPtrPlaceholder"></div>
           </div>
           <div id="rFatPtrRenames" class="tableRenames">
             <div class="subSubHeading clearfix">
-              <div>Right Table Prefixes</div>
+              <div><%= dicts.joinView.RightTablePrefix %></div>
               <div><%= dicts.joinView.NewName %></div>
             </div>
             <div id="rFatPtrPlaceholder"></div>
+          </div>
+          <div id="derivedHeader" class="subHeading clearfix">
+            <div class="subSubHeading light">
+              <%= dicts.joinView.DerivedHeader %>
+            </div>
           </div>
           <div id="leftTableRenames" class="tableRenames">
             <div class="subSubHeading clearfix">

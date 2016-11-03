@@ -163,6 +163,8 @@ ErrTStr = {
     'ExportConflict': 'This file name is taken, please choose another name.',
     'ColumnConflict': 'A column with the same name already exists, ' +
                         'please choose another name.',
+    'PrefixConflict': 'A prefix with the same name already exists, ' +
+                      'please choose another name.',
     'DFConflict': 'A dataflow with the same name already exists, ' +
                             'please choose another name.',
     'DFNameIllegal': 'Only names with a-z, A-Z, 0-9, - and _ are allowed.',
