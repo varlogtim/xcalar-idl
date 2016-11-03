@@ -137,6 +137,7 @@ CommonTxtTstr = {
 ErrTStr = {
     'Unknown': 'Unknown Error',
     'NoEmpty': 'Please fill out this field.',
+    'PositiveInteger' : 'Please Enter a positive Integer as number of Runs',
     'InvalidField': 'Invalid Field.',
     'InvalidFilePath': 'Invalid file path.',
     'InvalidFile': 'Please select a file or a folder',
@@ -484,7 +485,10 @@ SchedTStr = {
     'UpdateFail': 'Update Schedule Failed',
     'NotScheduled': 'not scheduled',
     'Scheduled': 'scheduled',
-    "SchedTitle": "SCHEDULER/SCHEDULES"
+    "SchedTitle": "SCHEDULER/SCHEDULES",
+    'DelSched': "Permanently Delete Schedule",
+    'DelSchedMsg': "Are you sure you want to permanently delete " +
+                 "this schedule? This action cannot be undone.",
 };
 
 DFGTStr = {

@@ -14,7 +14,6 @@
     }
 
     .mainContent {
-        overflow: auto;
     }
 
     #schedulesView, #dataflowView {
@@ -510,7 +509,6 @@
 #dataflowView {
 
     .scheduleForm {
-
         .cardInstruction {
             height: auto;
         }
@@ -718,6 +716,7 @@
 
 
     #scheduleInfos {
+
         .flex-display;
         padding-top: 0px;
         border-bottom: 1px solid @color-border-pinkish-grey2;
@@ -735,8 +734,15 @@
                 text-align: center;
                 float: left;
 
+                .icon {
+                    cursor: pointer;
+                }
+
                 .iconWrap {
-                    background-color: @color-bg-pinkish-grey;
+                    // background-color: @color-bg-pinkish-grey;
+                    background-color: @color-bg-select-blue;
+                    border-radius: 2px;
+                    opacity: 0.3;
                 }
 
                 &.active {
@@ -747,18 +753,29 @@
 
                     .iconWrap {
                         background-color: @color-bg-select-blue;
+                        opacity: 1.0;
                     }
                     + .tab {
                          border-top: 1px solid @color-border-pinkish-grey2;
                     }
                     .xi-info-rectangle {
                         color: @color-bg-select-blue;
+                        background-color: @color-white;
+                        opacity: 1.0;
+                    }
+                }
+
+                &.hover {
+                    .iconWrap {
+                        background-color: @color-bg-select-blue;
+                        opacity: 0.8;
                     }
                 }
 
                 &.default {
                     .iconWrap {
-                        background-color: @color-white;
+                        // background-color: @color-white;
+                        background-color: @color-bg-select-blue;
                     }
                 }
 
@@ -786,7 +803,9 @@
             }
 
             .xi-info-rectangle {
-                color: @color-bg-pinkish-grey;
+                // color: @color-bg-pinkish-grey;
+                background-color: @color-bg-pinkish-grey;
+                color: @color-bg-select-blue;
             }
 
             // .icon {
@@ -796,7 +815,6 @@
 
         .mainArea {
             padding: 20px 16px 0px 40px;
-            overflow: hidden;
             .flex(1 0 200px);
 
             h2 {
@@ -896,32 +914,34 @@
     #scheduleTable {
         margin-right: 24px;
         @rowHeight: 30px;
-        .titleWrapper {
+        .titleWrapper, .mainSection {
             border: 1px solid @color-border-white-two;
             background-color: @color-bg-white-seven;
         }
         .mainSection {
+            border-top: none;
             margin-bottom: 40px;
         }
 
-        .title, .grid-unit > div {
+        .content, .title, .grid-unit > div {
             width: 25%;
             border-left: 1px solid @color-border-white-two;
             display: inline-block;
             float: left;
             height: @rowHeight;
-            line-height: @rowHeight;
+            line-5: @rowHeight;
             text-align: center;
+            vertical-align: bottom;
+            line-height: 30px;
             .textOverflowOneLine;
 
             &:first-child {
                 border-left: none;
             }
         }
-        .grid-unit {
-            border: 1px solid @color-border-white-two;
-            border-top: none;
-        }
     }
 }
 
+#scheduleDetail {
+     overflow: auto;
+}

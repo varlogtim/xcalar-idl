@@ -257,8 +257,17 @@ window.DFCard = (function($, DFCard) {
                 $dfg.find('.subList').slideDown(200);
             }
 
-            Scheduler.hideNewScheduleFormView();
-            Scheduler.hideScheduleDetailView();
+            // If it already has a schedule, show schedule
+            Scheduler.setDataFlowName(dataflowName);
+            if (DF.hasSchedule(dataflowName)) {
+                Scheduler.showScheduleDetailView();
+                Scheduler.hideNewScheduleFormView();
+            } else {
+                Scheduler.hideScheduleDetailView();
+                Scheduler.hideNewScheduleFormView();
+            }
+            $createScheduleView.show();
+            $scheduleDetailView.show();
         });
 
         $listSection.on('click', '.downloadDataflow', function() {
@@ -279,6 +288,7 @@ window.DFCard = (function($, DFCard) {
         });
 
         $listSection.on('click', '.addScheduleToDataflow', function() {
+            // doesn't have schedule, show schedule
             var groupName = $(this).siblings('.groupName').text();
             Scheduler.setDataFlowName(groupName);
             if (DF.hasSchedule(groupName)) {
@@ -650,6 +660,12 @@ window.DFCard = (function($, DFCard) {
         var numGroups = 0;
         for (var dataflow in dataflows) {
             numGroups++;
+            var icon = "";
+            if(DF.hasSchedule(dataflow)) {
+                icon = "xi-menu-scheduler";
+            } else {
+                icon = "xi-menu-add-scheduler";
+            }
             html += '<div class="dataFlowGroup listWrap">' +
                       '<div class="listBox listInfo">' +
                         '<div class="iconWrap">' +
@@ -665,7 +681,7 @@ window.DFCard = (function($, DFCard) {
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +
                         '</i>' +
-                        '<i class="icon xi-menu-scheduler addScheduleToDataflow" ' +
+                        '<i class="icon ' + icon + ' addScheduleToDataflow" ' +
                             'title="Add Schedule to dataflow" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body">' +

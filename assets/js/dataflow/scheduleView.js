@@ -167,21 +167,31 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#modScheduleForm-delete").on("click", function() {
             $(this).blur();
-            DF.removeScheduleFromDataflow(currentDataFlowName);
-            Scheduler.hideScheduleDetailView();
+            Alert.show({
+                'title'    : SchedTStr.DelSched,
+                'msg'      : SchedTStr.DelSchedMsg,
+                'onConfirm': function() {
+                    DF.removeScheduleFromDataflow(currentDataFlowName);
+                    Scheduler.hideScheduleDetailView();
+                    newScheduleIcon(currentDataFlowName);
+                },
+
+            });
         });
 
         $("#newScheduleForm-save").click(function() {
             $(this).blur();
-            saveScheduleForm($newScheduleForm, currentDataFlowName);
-            Scheduler.hideNewScheduleFormView();
-            Scheduler.showScheduleDetailView();
+            if(saveScheduleForm($newScheduleForm, currentDataFlowName)) {
+                Scheduler.hideNewScheduleFormView();
+                Scheduler.showScheduleDetailView();
+            }
         });
 
         $("#modScheduleForm-save").click(function() {
             $(this).blur();
-            saveScheduleForm($modScheduleForm, currentDataFlowName);
-            Scheduler.showScheduleDetailView();
+            if(saveScheduleForm($modScheduleForm, currentDataFlowName)) {
+                Scheduler.showScheduleDetailView();
+            }
         });
 
         $("#newScheduleForm-cancel").click(function() {
@@ -222,6 +232,20 @@ window.Scheduler = (function(Scheduler, $) {
 
     Scheduler.hideNewScheduleFormView = function () {
         $newScheduleForm.addClass("xc-hidden");
+    }
+
+    function newScheduleIcon (dataflowName) {
+        $span = $("span").filter(function() { return ($(this).text() === dataflowName) });
+        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
+        $addScheduleIcon.removeClass('xi-menu-scheduler');
+        $addScheduleIcon.addClass('xi-menu-add-scheduler');
+    }
+
+    function existScheduleIcon (dataflowName) {
+        $span = $("span").filter(function() { return ($(this).text() === dataflowName) });
+        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
+        $addScheduleIcon.addClass('xi-menu-scheduler');
+        $addScheduleIcon.removeClass('xi-menu-add-scheduler');
     }
 
     function resetCreateNewScheduleForm () {
@@ -299,10 +323,32 @@ window.Scheduler = (function(Scheduler, $) {
             },
             {
                 "$ele": $scheduleTime
-            },
-            {
-                "$ele": $scheduleRecur
             }
+        ]);
+
+        if (!isValid) {
+            return false;
+        }
+
+        isValid = xcHelper.validate([
+            {
+                "$ele": $scheduleRecur,
+                "text" : ErrTStr.PositiveInteger,
+                "check": function() {
+                    console.log("Reach here");
+
+                    var num = $scheduleRecur.val();
+                    if(isNaN(num)) {
+                        return true;
+                    } else {
+                        if(Number.isInteger(Number(num)) && Number(num) > 0) {
+                            return false;
+                        }
+                        console.log("return false")
+                        return true;
+                    }
+                }
+            },
         ]);
 
         if (!isValid) {
@@ -362,8 +408,11 @@ window.Scheduler = (function(Scheduler, $) {
 
         DF.addScheduleToDataflow(dataflowName, options);
         xcHelper.showSuccess();
+
+        existScheduleIcon(dataflowName);
         return true;
     }
+
 
     function fillInScheduleDetail (schedule) {
 
@@ -415,7 +464,9 @@ window.Scheduler = (function(Scheduler, $) {
                                                 .removeClass('xc-hidden');
             if (index === 0) {
                 $modScheduleForm.removeClass('xc-hidden');
+                $scheduleInfos.height("160px");
             } else {
+                $scheduleInfos.height($scheduleDetail.height());
                 $modScheduleForm.addClass('xc-hidden');
             }
         });

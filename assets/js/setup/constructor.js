@@ -2352,7 +2352,7 @@ SchedObj.prototype = {
         this.freq = options.freq || this.freq;
         this.modified = options.modified || this.modified;
         this.recur = options.recur || this.recur;
-    },
+    }
 };
 /* End of SchedObj */
 

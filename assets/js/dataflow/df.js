@@ -169,9 +169,12 @@ window.DF = (function($, DF) {
         var dataflow = dataflows[dataflowName];
         if(dataflow) {
             if(!dataflow.schedule) {
+                console.log("do add")
                 dataflow.schedule = new SchedObj(options);
             } else {
-                dataflow.schedule.update(options);
+                console.log("do update")
+                var schedule = dataflow.schedule;
+                schedule.update(options);
             }
             console.log("Add it successfully!")
         } else {

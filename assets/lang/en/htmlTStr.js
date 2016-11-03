@@ -13,6 +13,7 @@ module.exports = {
         "ClickToOpts": "Click to see options",
         "Close": "Close",
         "CLOSE": "CLOSE",
+        "CLEAR": "CLEAR",
         "ColRenames": "Column Renames",
         "ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
         "ComeSoon": "Coming Soon",
@@ -608,9 +609,10 @@ module.exports = {
         "numRunHint": "How many times to run this",
         "Add": "Add Schedule",
         "dfgName": "Dataflow Name",
-        "initialRun": "Initial Run Time",
+        "runtime": "Run Time",
         "last": "Time taken",
-        "outputLocation" : "Output Location"
+        "outputLocation" : "Output Location",
+        "noRun": "Not run yet",
     },
 
     "exportView": {

@@ -207,11 +207,11 @@
           <!-- <input type="number" spellcheck="false" placeholder="<%= dicts.sched.numRunHint %>"> -->
           <input type="number" spellcheck="false">
         </div>
-      </div> 
+      </div>
     </section>
     <section class="cardBottom">
       <button id="newScheduleForm-save" type="button" class="btn confirm"><%= dicts.common.SAVE %></button>
-      <button id="newScheduleForm-cancel" type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+      <button id="newScheduleForm-cancel" type="button" class="btn btn-cancel cancel"><%= dicts.common.CLEAR %></button>
     </section>
   </div>
   <div id="scheduleDetail" class="xc-hidden cardContainer">
@@ -223,17 +223,17 @@
       <div class="tabArea">
         <div class="tab default active">
           <div class="iconWrap">
-            <i class="icon xi-info-rectangle"></i>
+            <i class="icon xi-info-rectangle" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="Schedule information"></i>
           </div>
         </div>
         <div class="tab dfg">
           <div class="iconWrap">
-            <i class="icon xi-dataflowgroup"></i>
+            <i class="icon xi-dataflowgroup" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="Run information"></i>
           </div>
         </div>
         <!-- using last tab as placeholder -->
         <div class="tab xc-disabled">
-         
+
         </div>
    <!--      <div class="tab xc-disabled">
           <div class="iconWrap">
@@ -286,14 +286,19 @@
         <div id="scheduleTable" class="scheduleInfoSection xc-hidden">
             <section class="titleSection">
               <div class="titleWrapper clearfix">
-                <div class="title time"><%= dicts.sched.initialRun %></div>
+                <div class="title time"><%= dicts.sched.runtime %></div>
                 <div class="title last"><%= dicts.sched.last %></div>
                 <div class="title status"><%= dicts.sched.status %></div>
                 <div class="title outputLocation"><%= dicts.sched.outputLocation %></div>
               </div>
             </section>
-            <section class="mainSection clearfix"></section>
-  
+            <section class="mainSection clearfix">
+                <div class="content timeContent"><%= dicts.sched.noRun %></div>
+                <div class="content lastContent"><%= dicts.sched.noRun %></div>
+                <div class="content statusContent"><%= dicts.sched.noRun %></div>
+                <div class="content outputLocationContent"><%= dicts.sched.noRun %></div>
+            </section>
+
         </div>
       </div>
     </div>
