@@ -2185,7 +2185,7 @@ function Dataflow(name, options) {
 
     this.retinaNodes = {};
 
-    this.schedule = options.schedule; // Make schedule as one property of dataflow
+    this.schedule = null; // Make schedule as one property of dataflow
 
 
     if (options.parameterizedNodes != null) {

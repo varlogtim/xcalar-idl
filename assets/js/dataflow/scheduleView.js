@@ -335,8 +335,6 @@ window.Scheduler = (function(Scheduler, $) {
                 "$ele": $scheduleRecur,
                 "text" : ErrTStr.PositiveInteger,
                 "check": function() {
-                    console.log("Reach here");
-
                     var num = $scheduleRecur.val();
                     if(isNaN(num)) {
                         return true;
@@ -344,7 +342,6 @@ window.Scheduler = (function(Scheduler, $) {
                         if(Number.isInteger(Number(num)) && Number(num) > 0) {
                             return false;
                         }
-                        console.log("return false")
                         return true;
                     }
                 }
