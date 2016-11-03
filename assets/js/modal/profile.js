@@ -129,7 +129,6 @@ window.Profile = (function($, Profile, d3) {
             }
             percentageLabel = !percentageLabel;
             buildGroupGraphs();
-            highlightBar();
         });
 
         $groupbySection.on("mousedown", ".arrow", function(event) {
@@ -205,7 +204,10 @@ window.Profile = (function($, Profile, d3) {
                     skipInputTimer = setTimeout(function() {
                         num = Math.min(num, totalRows);
                         num = Math.max(num, 1);
-                        positionScrollBar(null, num);
+                        positionScrollBar(null, num)
+                        .then(function(finalRowNum) {
+                            highlightBar(finalRowNum);
+                        });
                     }, 100);
                 } else {
                     // when input is invalid
@@ -547,7 +549,6 @@ window.Profile = (function($, Profile, d3) {
 
                 groupByData = addNullValue(groupByData);
                 buildGroupGraphs(true);
-                highlightBar(1);
                 setArrows(1);
                 deferred.resolve();
             })
@@ -1290,10 +1291,10 @@ window.Profile = (function($, Profile, d3) {
 
             if (noBucket || d.type === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
-                title = statsCol.frontColName + ": " +
+                title =  "Value: " +
                         formatNumber(d[xName]) + "<br>";
             } else {
-                title = statsCol.frontColName + ": [" + formatNumber(d[xName]) +
+                title = "Value: [" + formatNumber(d[xName]) +
                         ", " + formatNumber(d[xName] + tableInfo.bucketSize) +
                         ")<br>";
             }
@@ -1463,6 +1464,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function positionScrollBar(rowPercent, rowNum, forceUpdate) {
+        var deferred = jQuery.Deferred();
         var left;
         var isFromInput = false;
         var $section = $modal.find(".scrollSection");
@@ -1548,15 +1550,18 @@ window.Profile = (function($, Profile, d3) {
             buildGroupGraphs(forceUpdate);
             $modal.removeClass("loading");
             clearTimeout(loadTimer);
-            highlightBar(tempRowNum);
             setArrows(tempRowNum);
+            deferred.resolve(tempRowNum);
         })
         .fail(function(error) {
             failureHandler(statsCol, error);
+            deferred.reject(error);
         })
         .always(function() {
             $section.removeClass("disabled");
         });
+
+        return deferred.promise();
     }
 
     function setArrows(rowNum, fetchingData) {
@@ -2100,11 +2105,13 @@ window.Profile = (function($, Profile, d3) {
                     var barTop = barBound.top - bound.top;
                     var barLeft = barBound.left - bound.left;
                     var barRight = barBound.right - bound.left;
+                    var bar = d3.select(this);
+                    bar.classed("highlight", false);
 
                     if (bottom < barTop || right < barLeft || left > barRight) {
-                        d3.select(this).classed("selecting", false);
+                        bar.classed("selecting", false);
                     } else {
-                        d3.select(this).classed("selecting", true);
+                        bar.classed("selecting", true);
                     }
                 });
             },
