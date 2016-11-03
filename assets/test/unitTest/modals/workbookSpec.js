@@ -13,7 +13,7 @@ describe('Workbook Test', function() {
                 return $("#container").hasClass("workbookMode");
             };
 
-            testChecker(checkFunc)
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(1);
@@ -30,7 +30,7 @@ describe('Workbook Test', function() {
                 return !$("#container").hasClass("workbookMode");
             };
 
-            testChecker(checkFunc)
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(0);
@@ -49,7 +49,7 @@ describe('Workbook Test', function() {
                 return $("#container").hasClass("workbookMode");
             };
 
-            testChecker(checkFunc)
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(1);
@@ -91,7 +91,7 @@ describe('Workbook Test', function() {
                 return (diff === 1);
             };
 
-            testChecker(checkFunc)
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 var $box = $workbookPanel.find(".workbookBox").eq(0);
                 expect($box.find(".workbookName").val()).to.equal(name);
@@ -137,7 +137,7 @@ describe('Workbook Test', function() {
                 return false;
             };
 
-            testChecker(checkFunc)
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 var name = $box.find(".workbookName").val();
                 var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
@@ -168,7 +168,7 @@ describe('Workbook Test', function() {
                 return (diff === -2);
             };
 
-            testChecker(checkFunc)
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(1);
@@ -188,7 +188,7 @@ describe('Workbook Test', function() {
                 return !$("#container").hasClass("workbookMode");
             };
 
-            testChecker(checkFunc)
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(0);

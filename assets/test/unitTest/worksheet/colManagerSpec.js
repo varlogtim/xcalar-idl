@@ -185,7 +185,7 @@ describe('ColManager Test', function() {
         });
     });
 
-    describe.skip("Helper Function Test", function() {
+    describe("Helper Function Test", function() {
         it('parsePullColArgs(progCol) should work', function() {
             var fn = ColManager.__testOnly__.parsePullColArgs;
             var progCol = {func: {}};
@@ -421,7 +421,7 @@ describe('ColManager Test', function() {
         });
     });
 
-    describe.skip('Column Modification Test', function() {
+    describe('Column Modification Test', function() {
         var dsName, tableName, tableId, prefix;
 
         before(function(done) {
