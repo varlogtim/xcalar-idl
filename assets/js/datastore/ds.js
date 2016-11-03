@@ -963,7 +963,10 @@ window.DS = (function ($, DS) {
             DS.focusOn($grid);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            DS.focusOn($grid);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }

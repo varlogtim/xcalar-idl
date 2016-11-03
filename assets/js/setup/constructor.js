@@ -1904,6 +1904,8 @@ DSObj.prototype = {
         .then(deferred.resolve)
         .fail(deferred.reject);
 
+        return deferred.promise();
+
         function makeResultSetHelper() {
             if (self.resultSetId != null) {
                 return PromiseHelper.resolve();
@@ -1985,8 +1987,6 @@ DSObj.prototype = {
 
             return innerDeferred.promise();
         }
-
-        return deferred.promise();
     },
 
     release: function() {
