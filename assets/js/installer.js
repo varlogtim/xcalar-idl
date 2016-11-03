@@ -531,8 +531,8 @@ window.Installer = (function(Installer, $) {
             // Customer LDAP
             // Check that all the radio buttons are selected
             if (!$("#AD .active").length) {
-                return deferred.reject("AD or LDAP",
-                                       "Please select AD or LDAP").promise();
+                return deferred.reject("AD or OpenLDAP",
+                                      "Please select AD or OpenLDAP").promise();
             }
             if (!$("#useTLS .active").length) {
                 return deferred.reject("TLS",

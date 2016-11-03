@@ -1,6 +1,6 @@
 {
-  "name": "docker_web_app",
-  "version": "1.0.0",
+  "name": "xcalarnodeservice",
+  "version": "0.9.14",
   "description": "Node.js on Docker",
   "author": "First Last <first.last@example.com>",
   "main": "expServer.js",
@@ -13,8 +13,10 @@
     "body-parser": "^1.15.0",
     "ldapjs": "^1.0.0",
     "jquery": "^1.5.1",
-    "jsdom" : "^1.2.1",
-    "atob"  : "^2.0.3",
-    "btoa"  : "^1.1.2"
-  }
+    "jsdom": "^1.2.1",
+    "atob": "^2.0.3",
+    "btoa": "^1.1.2",
+    "crypto": "^0.0.3"
+  },
+  "license": "UNLICENSED"
 }

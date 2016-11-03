@@ -26,12 +26,6 @@ var strictSecurity = false;
 var trustedCerts = [fs.readFileSync(config.serverKeyFile)];
 var app = express();
 
-/**
-var privateKey = fs.readFileSync('cantor.int.xcalar.com.key', 'utf8');
-var certificate = fs.readFileSync('cantor.int.xcalar.com.crt', 'utf8');
-var credentials = {key: privateKey, cert:certificate};
-*/
-
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
@@ -112,8 +106,12 @@ function genExecString(hostnameLocation, hasPrivHosts,
     if (nfsOptions && "nfsServer" in nfsOptions) {
         execString += " --nfs-host " + nfsOptions.nfsServer;
         execString += " --nfs-folder " + nfsOptions.nfsMountPoint;
-        if ("nfsUsername" in nfsOptions) {
+
+        if (nfsOptions.nfsUsername) {
             execString += " --nfs-uid " + nfsOptions.nfsUsername;
+        }
+
+        if (nfsOptions.nfsGroup) {
             execString += " --nfs-gid " + nfsOptions.nfsGroup;
         }
     }
@@ -124,8 +122,22 @@ function genExecString(hostnameLocation, hasPrivHosts,
 function genLdapExecString(domainName, password, companyName) {
     var execString = "";
     execString += " --ldap-domain " + domainName;
-    execString += " --ldap-password " + password;
-    execString += " --ldap-org " + companyName;
+    execString += " --ldap-org " + '"' + companyName + '"';
+
+    var crypto = require('crypto');
+    var shasum = crypto.createHash('sha1');
+
+    salt = crypto.randomBytes(4);
+
+    shasum.update(password);
+    shasum.update(salt);
+
+    var bufSalt = new Buffer(salt);
+    var hexSSHA = new Buffer(shasum.digest('hex') + bufSalt.toString('hex'),
+                             'hex');
+
+    password = '{SSHA}' + hexSSHA.toString('base64');
+    execString += " --ldap-password " + '"' + password + '"';
     return execString;
 }
 
@@ -187,17 +199,14 @@ app.post('/checkLicense', function(req, res) {
     var hasError = false;
     var errors = [];
 
-    // XXX change to write to config
     var fileLocation = licenseLocation;
     fs.writeFile(fileLocation, credArray.licenseKey);
-    // Call bash to check license with this
+
     var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
 
     out.stdout.on('data', function(data) {
         if (data.indexOf("SUCCESS") > -1) {
-            res.send({"status": Status.Ok
-                      // "numNodes": blah
-                    });
+            res.send({"status": Status.Ok});
             console.log("Success: Checking License");
         } else if (data.indexOf("FAILURE") > -1) {
             res.send({"status": Status.Error});
@@ -208,7 +217,7 @@ app.post('/checkLicense', function(req, res) {
 });
 
 app.post("/runInstaller", function(req, res) {
-    console.log("Executing Precheck");
+    console.log("Executing Installer");
     var credArray = req.body;
     var hasError = false;
     var errors = [];
