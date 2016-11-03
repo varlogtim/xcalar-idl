@@ -143,6 +143,9 @@ window.DSPreview = (function($, DSPreview) {
         loadArgs.set(options);
         advanceOption.set(options);
 
+        var loadURL = loadArgs.getPath();
+        setDefaultDSName(loadURL);
+
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
             return previewData(excelModule, excelFunc);
@@ -979,13 +982,15 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = jQuery.Deferred();
 
         var loadURL = loadArgs.getPath();
-        var dsName = getNameFromPath(loadURL);
-        $("#dsForm-dsName").val(dsName);
-
         var advanceArgs = advanceOption.getArgs();
         var pattern = advanceArgs.pattern;
         if (pattern != null) {
             loadURL += pattern;
+        }
+
+        var dsName = $("#dsForm-dsName").val();
+        if (!dsName) {
+            dsName = setDefaultDSName(loadURL);
         }
 
         var isRecur = advanceArgs.isRecur;
@@ -1073,6 +1078,12 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         return deferred.promise();
+    }
+
+    function setDefaultDSName(loadURL) {
+        var dsName = getNameFromPath(loadURL);
+        $("#dsForm-dsName").val(dsName);
+        return dsName;
     }
 
     function sampleData(datasetName, rowsToFetch) {
