@@ -1962,8 +1962,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
                 var map = new XcalarApiRenameMapT();
                 map.oldName = leftRename[i].orig;
                 map.newName = leftRename[i].new;
-                map.type = DfFieldTypeT.DfUnknown; // Bohan says this works for
-                                                   // all immediates
+                map.type = leftRename[i].type;
                 leftRenameMap.push(map);
             }
         }
@@ -1973,8 +1972,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
                 var map = new XcalarApiRenameMapT();
                 map.oldName = rightRename[i].orig;
                 map.newName = rightRename[i].new;
-                map.type = DfFieldTypeT.DfUnknown; // Bohan says this works for
-                                                   // all immediates
+                map.type = rightRename[i].type;
                 rightRenameMap.push(map);
             }
         }

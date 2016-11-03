@@ -14,6 +14,8 @@ window.JoinView = (function($, JoinView) {
     var isOpen = false;
     var lImmediatesCache;
     var rImmediatesCache;
+    var lFatPtrCache;
+    var rFatPtrCache;
     var allClashingImmediatesCache;
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
@@ -788,8 +790,15 @@ window.JoinView = (function($, JoinView) {
     }
 
     function resetRenames() {
+        lImmediatesCache = undefined;
+        rImmediatesCache = undefined;
+        lFatPtrCache = undefined;
+        rFatPtrCache = undefined;
+        allClashingImmediatesCache = undefined;
         $("#leftTableRenames").find(".rename").remove();
         $("#rightTableRenames").find(".rename").remove();
+        $("#lFatPtrRenames").find(".rename").remove();
+        $("#rFatPtrRenames").find(".rename").remove();
         $renameSection.find(".tableRenames").hide();
         $renameSection.hide();
         formHelper.refreshTabbing();
@@ -1035,6 +1044,16 @@ window.JoinView = (function($, JoinView) {
             var $rightNewNames = $rightRenames.find(".newName");
             var lImmediates = xcHelper.deepCopy(lImmediatesCache);
             var rImmediates = xcHelper.deepCopy(rImmediatesCache);
+
+            // For fatPtrs
+            var $leftFatRenames = $("#lFatPtrRenames .rename");
+            var $leftFatOrigNames = $leftFatRenames.find(".origName");
+            var $leftFatNewNames = $leftFatRenames.find(".newName");
+            var $rightFatRenames = $("#rFatPtrRenames .rename");
+            var $rightFatOrigNames = $rightFatRenames.find(".origName");
+            var $rightFatNewNames = $rightFatRenames.find(".newName");
+            var lFatPtr = xcHelper.deepCopy(lFatPtrCache);
+            var rFatPtr = xcHelper.deepCopy(rFatPtrCache);
             var i = -1;
 
             // Check that none are empty
@@ -1052,19 +1071,53 @@ window.JoinView = (function($, JoinView) {
                 }
             }
 
+            for (i = 0; i < $leftFatNewNames.length; i++) {
+                if ($($leftFatNewNames[i]).val().trim().length === 0) {
+                    StatusBox.show(ErrTStr.NoEmpty, $leftFatRenames.eq(i),
+                                   true);
+                    return false;
+                }
+            }
+
+            for (i = 0; i < $rightFatNewNames.length; i++) {
+                if ($($rightFatNewNames[i]).val().trim().length === 0) {
+                    StatusBox.show(ErrTStr.NoEmpty, $rightFatRenames.eq(i),
+                                   true);
+                    return false;
+                }
+            }
+
             // Convert to array of old and newNames
             var leftRenameArray = [];
             var rightRenameArray = [];
+            var leftFatRenameArray = [];
+            var rightFatRenameArray = [];
             for (i = 0; i < $leftOrigNames.length; i++) {
                 var origName = $($leftOrigNames[i]).val();
                 var newName = $($leftNewNames[i]).val();
-                leftRenameArray.push({"orig": origName, "new": newName});
+                leftRenameArray.push({"orig": origName, "new": newName,
+                                      "type": DfFieldTypeT.DfUnknown});
             }
 
             for (i = 0; i < $rightOrigNames.length; i++) {
                 var origName = $($rightOrigNames[i]).val();
                 var newName = $($rightNewNames[i]).val();
-                rightRenameArray.push({"orig": origName, "new": newName});
+                rightRenameArray.push({"orig": origName, "new": newName,
+                                       "type": DfFieldTypeT.DfUnknown});
+            }
+
+            for (i = 0; i < $leftFatOrigNames.length; i++) {
+                var origName = $($leftFatOrigNames[i]).val();
+                var newName = $($leftFatNewNames[i]).val();
+                leftFatRenameArray.push({"orig": origName, "new": newName,
+                                         "type": DfFieldTypeT.DfFatptr});
+            }
+
+            for (i = 0; i < $rightFatOrigNames.length; i++) {
+                var origName = $($rightFatOrigNames[i]).val();
+                var newName = $($rightFatNewNames[i]).val();
+                rightFatRenameArray.push({"orig": origName, "new": newName,
+                                          "type": DfFieldTypeT.DfFatptr});
             }
 
             // Get array of all new immediates by updating the old with the new
@@ -1075,6 +1128,15 @@ window.JoinView = (function($, JoinView) {
             for (i = 0; i<$rightOrigNames.length; i++) {
                 var index = rImmediates.indexOf(rightRenameArray[i].orig);
                 rImmediates[index] = rightRenameArray[i].new;
+            }
+
+            for (i = 0; i < $leftFatOrigNames.length; i++) {
+                var index = lFatPtr.indexOf(leftFatRenameArray[i].orig);
+                lFatPtr[index] = leftFatRenameArray[i].new;
+            }
+            for (i = 0; i<$rightFatOrigNames.length; i++) {
+                var index = rFatPtr.indexOf(rightFatRenameArray[i].orig);
+                rFatPtr[index] = rightFatRenameArray[i].new;
             }
 
             // Find out whether any of the immediate names still clash
@@ -1112,9 +1174,48 @@ window.JoinView = (function($, JoinView) {
                 }
             }
 
+            // JJJ Wrong conflict message
+            for (i = 0; i < $leftFatRenames.length; i++) {
+                if (rFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
+                                                    .val()) > -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict,$leftFatRenames.eq(i),
+                                   true);
+                    return false;
+                }
+                var firstIdx = lFatPtr.indexOf($leftFatRenames.eq(i)
+                                                       .find(".newName").val());
+                if (lFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
+                                                   .val(), firstIdx + 1) > -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict,$leftFatRenames.eq(i),
+                                   true);
+                    return false;
+                }
+            }
+
+            for (i = 0; i < $rightFatRenames.length; i++) {
+                if (lFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
+                                                     .val()) > -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict,
+                                   $rightFatRenames.eq(i),
+                                   true);
+                    return false;
+                }
+                var firstIdx = rFatPtr.indexOf($rightFatRenames.eq(i)
+                                                       .find(".newName").val());
+                if (rFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
+                                                   .val(), firstIdx + 1) > -1) {
+                    StatusBox.show(ErrTStr.ColumnConflict,
+                                   $rightFatRenames.eq(i),
+                                   true);
+                    return false;
+                }
+            }
+
             // Dedup left and right rename arrays since checks are all passed
             leftRenameArray = leftRenameArray.filter(removeNoChanges);
             rightRenameArray = rightRenameArray.filter(removeNoChanges);
+            leftFatRenameArray = leftFatRenameArray.filter(removeNoChanges);
+            rightFatRenameArray = rightFatRenameArray.filter(removeNoChanges);
 
             // Remove user's renames from autoRename array and auto rename the
             // rest
@@ -1122,115 +1223,138 @@ window.JoinView = (function($, JoinView) {
                                             lColsToKeep, rColsToKeep,
                                             leftRenameArray, rightRenameArray);
 
+            leftRenameArray = leftRenameArray.concat(leftFatRenameArray);
+            rightRenameArray = rightRenameArray.concat(rightFatRenameArray);
             proceedWithJoin(leftRenameArray, rightRenameArray);
             return true;
         }
 
-        // XXX We should consider caching tableMeta as part of gTables
-        var lTableName = xcHelper.getTableNameFromId(lTableId);
-        var rTableName = xcHelper.getTableNameFromId(rTableId);
-        PromiseHelper.when(XcalarGetTableMeta(lTableName),
-                           XcalarGetTableMeta(rTableName))
-        .then(function(lTableMeta, rTableMeta) {
-            // function getFatPtr(valueAttr) {
-            //     if (valueAttr.type === DfFieldTypeT.DfFatptr) {
-            //         return true;
-            //     } else {
-            //         return false;
-            //     }
-            // }
+        var lTableMeta = gTables[lTableId].backTableMeta;
+        var rTableMeta = gTables[lTableId].backTableMeta;
 
-            function getImmediates(valueAttr) {
-                if (valueAttr.type === DfFieldTypeT.DfFatptr) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            function userChosenColCollision(colName) {
-                if (lColsToKeep.indexOf(colName) > -1 &&
-                    rColsToKeep.indexOf(colName) > -1) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-            function keepOnlyNames(valueAttr) {
-                return (valueAttr.name);
-            }
-
-            // Split valueAttrs into fatPtrs and immediates
-            // var lFatptr = lTableMeta.valueAttrs.filter(getFatPtr);
-            // var rFatptr = rTableMeta.valueAttrs.filter(getFatPtr);
-            var lImmediate = lTableMeta.valueAttrs.filter(getImmediates);
-            var rImmediate = rTableMeta.valueAttrs.filter(getImmediates);
-
-            // Today we are only handing immediate collisions. Later we will
-            // handle fatptr collisions and prefix renaming for those
-
-            // Only keep column names since we are not doing anything with types
-            lImmediate = lImmediate.map(keepOnlyNames);
-            rImmediate = rImmediate.map(keepOnlyNames);
-
-            lImmediatesCache = lImmediate;
-            rImmediatesCache = rImmediate;
-
-            var lImmediatesToRename = [];
-            var rImmediatesToRename = [];
-
-            for (var i = 0; i < lImmediate.length; i++) {
-                if (rImmediate.indexOf(lImmediate[i]) > -1) {
-                    lImmediatesToRename.push(lImmediate[i]);
-                    rImmediatesToRename.push(lImmediate[i]);
-                }
-            }
-
-            // If none of the columns collide are part of the user's selection
-            // then we resolve it underneath the covers and let the user go
-            allClashingImmediatesCache = xcHelper.deepCopy(lImmediatesToRename);
-            lImmediatesToRename =
-                      allClashingImmediatesCache.filter(userChosenColCollision);
-            rImmediatesToRename = xcHelper.deepCopy(lImmediatesToRename);
-
-            // Now that we have all the columns that we want to rename, we
-            // display the columns and ask the user to rename them
-            // XXX Remove when backend fixes their stuff
-            if (!turnOnPrefix) {
-                proceedWithJoin();
+        function getFatPtr(valueAttr) {
+            if (valueAttr.type === DfFieldTypeT.DfFatptr) {
                 return true;
-            }
-
-            if (lImmediatesToRename.length > 0) {
-                $renameSection.show();
             } else {
-                var leftAutoRenames = [];
-                var rightAutoRenames = [];
-                autoResolveImmediatesCollisions(allClashingImmediatesCache,
-                                                lColsToKeep, rColsToKeep,
-                                                leftAutoRenames,
-                                                rightAutoRenames);
-                proceedWithJoin(leftAutoRenames, rightAutoRenames);
+                return false;
+            }
+        }
+
+        function getImmediates(valueAttr) {
+            if (valueAttr.type === DfFieldTypeT.DfFatptr) {
+                return false;
+            } else {
                 return true;
             }
+        }
 
-            if (lImmediatesToRename.length > 0) {
-                $("#leftTableRenames").show();
-                addRenameRows($("#leftRenamePlaceholder"), lImmediatesToRename);
+        function userChosenColCollision(colName) {
+            if (lColsToKeep.indexOf(colName) > -1 &&
+                rColsToKeep.indexOf(colName) > -1) {
+                return true;
+            } else {
+                return false;
             }
+        }
 
-            if (rImmediatesToRename.length > 0) {
-                $("#rightTableRenames").show();
-                addRenameRows($("#rightRenamePlaceholder"),
-                              rImmediatesToRename);
+        function keepOnlyNames(valueAttr) {
+            return (valueAttr.name);
+        }
+
+        // Split valueAttrs into fatPtrs and immediates
+        var lFatPtr = lTableMeta.valueAttrs.filter(getFatPtr);
+        var rFatPtr = rTableMeta.valueAttrs.filter(getFatPtr);
+        var lImmediate = lTableMeta.valueAttrs.filter(getImmediates);
+        var rImmediate = rTableMeta.valueAttrs.filter(getImmediates);
+
+        // Today we are only handing immediate collisions. Later we will
+        // handle fatptr collisions and prefix renaming for those
+
+        // Only keep column names since we are not doing anything with types
+        lFatPtr = lFatPtr.map(keepOnlyNames);
+        rFatPtr = rFatPtr.map(keepOnlyNames);
+        lImmediate = lImmediate.map(keepOnlyNames);
+        rImmediate = rImmediate.map(keepOnlyNames);
+
+
+        lFatPtrCache = lFatPtr;
+        rFatPtrCache = rFatPtr;
+        lImmediatesCache = lImmediate;
+        rImmediatesCache = rImmediate;
+
+        var lImmediatesToRename = [];
+        var rImmediatesToRename = [];
+        var lFatPtrToRename = [];
+        var rFatPtrToRename = [];
+
+        for (var i = 0; i < lImmediate.length; i++) {
+            if (rImmediate.indexOf(lImmediate[i]) > -1) {
+                lImmediatesToRename.push(lImmediate[i]);
+                rImmediatesToRename.push(lImmediate[i]);
             }
-            formHelper.refreshTabbing();
-            return false;
-        });
+        }
 
-        // Should not reach here
-        return true;
+        for (i = 0; i < lFatPtr.length; i++) {
+            if (rFatPtr.indexOf(lFatPtr[i]) > -1) {
+                lFatPtrToRename.push(lFatPtr[i]);
+                rFatPtrToRename.push(lFatPtr[i]);
+            }
+        }
+
+        // All fat ptrs are kept and will be renamed if they clash even if they
+        // are not selected
+
+        // If none of the columns collide are part of the user's selection
+        // then we resolve it underneath the covers and let the user go
+        allClashingImmediatesCache = xcHelper.deepCopy(lImmediatesToRename);
+        lImmediatesToRename =
+                  allClashingImmediatesCache.filter(userChosenColCollision);
+        rImmediatesToRename = xcHelper.deepCopy(lImmediatesToRename);
+
+        // Now that we have all the columns that we want to rename, we
+        // display the columns and ask the user to rename them
+        // XXX Remove when backend fixes their stuff
+        if (!turnOnPrefix) {
+            proceedWithJoin();
+            return true;
+        }
+
+        if (lImmediatesToRename.length > 0 || lFatPtrToRename.length > 0) {
+            if (lImmediatesToRename.length === 0) {
+                lImmediatesCache = [];
+                rImmediatesCache = [];
+            }
+            $renameSection.show();
+        } else {
+            var leftAutoRenames = [];
+            var rightAutoRenames = [];
+            autoResolveImmediatesCollisions(allClashingImmediatesCache,
+                                            lColsToKeep, rColsToKeep,
+                                            leftAutoRenames,
+                                            rightAutoRenames);
+            proceedWithJoin(leftAutoRenames, rightAutoRenames);
+            return true;
+        }
+
+        if (lImmediatesToRename.length > 0) {
+            $("#leftTableRenames").show();
+            addRenameRows($("#leftRenamePlaceholder"), lImmediatesToRename);
+        }
+
+        if (rImmediatesToRename.length > 0) {
+            $("#rightTableRenames").show();
+            addRenameRows($("#rightRenamePlaceholder"),
+                          rImmediatesToRename);
+        }
+
+        if (lFatPtrToRename.length > 0) {
+            $("#lFatPtrRenames").show();
+            $("#rFatPtrRenames").show();
+            addRenameRows($("#lFatPtrPlaceholder"), lFatPtrToRename);
+            addRenameRows($("#rFatPtrPlaceholder"), rFatPtrToRename);
+        }
+        formHelper.refreshTabbing();
+        return false;
 
         function proceedWithJoin(leftRenames, rightRenames) {
             var keepTable = $joinView.find('.keepTablesCBWrap')
@@ -1308,7 +1432,7 @@ window.JoinView = (function($, JoinView) {
                 func     : DeleteTableModal.show
             });
         }
-      
+
         var title = StatusMessageTStr.JoinFailedAlt;
 
         Alert.error(title, newMsg, {

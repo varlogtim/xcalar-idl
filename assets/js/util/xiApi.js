@@ -836,6 +836,28 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
+    function replacePrefix(col, rename) {
+        // for each fat ptr rename, find whether a column has this fat ptr as
+        // a prefix. If so, fix up all fields in colStruct that pertains to the
+        // prefix
+        var i = 0;
+        var j = 0;
+        for (i = 0; i<rename.length; i++) {
+            if (rename[i].type === DfFieldTypeT.DfFatptr) {
+                if (!col.immediate && col.prefix === rename[i].orig) {
+                    col.backName = col.backName.replace(rename[i].orig,
+                                                        rename[i].new);
+                    col.func.args[0] = col.func.args[0].replace(rename[i].orig,
+                                                                rename[i].new);
+                    col.prefix = col.prefix.replace(rename[i].orig,
+                                                    rename[i].new);
+                    col.userStr = '"' + col.name + '" = pull(' + rename[i].new +
+                                  '::' + col.name + ')';
+                }
+            }
+        }
+    }
+
     // For xiApi.join, deepy copy of right table and left table columns
     function createJoinedColumns(lTableId, rTableId, pulledLColNames,
                                 pulledRColNames, lRename, rRename) {
@@ -874,6 +896,7 @@ window.XIApi = (function(XIApi, $) {
                                 }
                             }
                         }
+                        replacePrefix(lCols[colNum], lRename);
                     }
                     tempCols.push(lCols[colNum]);
                 }
@@ -908,6 +931,7 @@ window.XIApi = (function(XIApi, $) {
                                 }
                             }
                         }
+                        replacePrefix(rCols[colNum], rRename);
                     }
                     tempCols.push(rCols[colNum]);
                 }
