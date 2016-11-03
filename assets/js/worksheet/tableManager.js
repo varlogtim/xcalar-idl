@@ -626,6 +626,10 @@ window.TblManager = (function($, TblManager) {
             tables = [tables];
         }
 
+        tables = tables.filter(function(tableIdOrName) {
+            return vefiryTableType(tableIdOrName, tableType);
+        });
+
         var txId;
         if (!noLog) {
             var sql = {
@@ -708,6 +712,32 @@ window.TblManager = (function($, TblManager) {
 
         return (deferred.promise());
     };
+
+    function vefiryTableType(tableIdOrName, expectTableType) {
+        var currentTableType = null;
+        var tableId = null;
+
+        if (expectTableType === TableType.Orphan) {
+            tableId = xcHelper.getTableId(tableIdOrName);
+        } else {
+            tableId = tableIdOrName;
+        }
+
+        if (tableId != null && gTables.hasOwnProperty(tableId)) {
+            currentTableType = gTables[tableId].getType();
+        } else {
+            currentTableType = TableType.Orphan;
+        }
+
+        if (currentTableType === expectTableType) {
+            return true;
+        } else {
+            console.warn("Table", tableIdOrName, "'s' type mismatch",
+                        "type is", currentTableType,
+                        "expected type is", expectTableType);
+            return false;
+        }
+    }
 
     TblManager.restoreTableMeta = function(oldgTables) {
         oldgTables = oldgTables || {};
