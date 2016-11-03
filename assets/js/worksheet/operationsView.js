@@ -510,7 +510,7 @@ window.OperationsView = (function($, OperationsView) {
                 }
 
                 // show or hide new table name input if join back option is
-                // selected 
+                // selected
                 var $newTableNameRow = $checkbox.closest('.group')
                                                 .find('.newTableNameRow');
                 var $keepTableBox = $checkbox.closest('.gbCheckboxes')
@@ -2243,7 +2243,7 @@ window.OperationsView = (function($, OperationsView) {
             return deferred.reject().promise();
         }
         
-        // name duplication check 
+        // name duplication check
         duplicateNameCheck(args)
         .then(function() {
             var hasMultipleSets = false;

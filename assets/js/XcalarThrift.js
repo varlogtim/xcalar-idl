@@ -92,7 +92,7 @@ function thriftLog() {
                 console.warn('Checked XcalarGetVersion and did not return ' +
                               'a successful response');
                 alertError = {"error": ThriftTStr.CCNBE};
-                 Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                Alert.error(ThriftTStr.CCNBEErr, alertError, {
                     "lockScreen": true
                 });
                 SQL.backup();

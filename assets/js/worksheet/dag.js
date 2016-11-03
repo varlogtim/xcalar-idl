@@ -526,7 +526,7 @@ window.DagPanel = (function($, DagPanel) {
                 var $dagWrap = $(this).closest('.dagWrap');
                 var tableId = $dagWrap.data('id');
                 DagFunction.focusTable(tableId);
-                if (!gTables[tableId].isLocked && 
+                if (!gTables[tableId].isLocked &&
                     !$dagWrap.hasClass('fromRetina')) {
                     DFCreateView.show($dagWrap);
                 }
@@ -643,7 +643,7 @@ window.DagPanel = (function($, DagPanel) {
                     break;
                 case ('dataflow'):
                     if (!$dagWrap.hasClass('fromRetina')) {
-                        DFCreateView.show($dagWrap); 
+                        DFCreateView.show($dagWrap);
                     }
                     break;
                 case ('none'):
@@ -761,8 +761,8 @@ window.DagPanel = (function($, DagPanel) {
         }
         if ($dagWrap.hasClass('fromRetina')) {
             $menu.find('.dataflow').addClass('unavailable');
-            xcTooltip.changeText($menu.find('.dataflow'), 
-                                    DFGTStr.CannotCreateMsg);
+            xcTooltip.changeText($menu.find('.dataflow'),
+                                DFGTStr.CannotCreateMsg);
         } else {
             $menu.find('.dataflow').removeClass('unavailable');
             xcTooltip.changeText($menu.find('.dataflow'), "");

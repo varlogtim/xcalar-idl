@@ -70,8 +70,8 @@ window.Profile = (function($, Profile, d3) {
         var minWidth  = 750;
 
         modalHelper = new ModalHelper($modal, {
-            "minHeight": minHeight,
-            "minWidth" : minWidth,
+            "minHeight"     : minHeight,
+            "minWidth"      : minWidth,
             "resizeCallback": resizeChart
         });
 
@@ -1291,7 +1291,7 @@ window.Profile = (function($, Profile, d3) {
 
             if (noBucket || d.type === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
-                title =  "Value: " +
+                title = "Value: " +
                         formatNumber(d[xName]) + "<br>";
             } else {
                 title = "Value: [" + formatNumber(d[xName]) +

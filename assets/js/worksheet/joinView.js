@@ -1289,12 +1289,12 @@ window.JoinView = (function($, JoinView) {
             if (origMsg.length) {
                 newMsg += "\n";
             }
-            newMsg += JoinTStr.ModifyDesc;  
+            newMsg += JoinTStr.ModifyDesc;
 
             btns.push({
-                name     : xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
-                               name: JoinTStr.JOIN
-                           }),
+                name: xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
+                    name: JoinTStr.JOIN
+                }),
                 className: "",
                 func     : function() {
                     JoinView.show(null , null , true);

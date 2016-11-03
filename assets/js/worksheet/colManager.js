@@ -1162,7 +1162,7 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    // jsonData is an array of stringified json with each array item 
+    // jsonData is an array of stringified json with each array item
     // representing a row
     ColManager.pullAllCols = function(startIndex, jsonData, tableId,
                                         direction, rowToPrependTo)

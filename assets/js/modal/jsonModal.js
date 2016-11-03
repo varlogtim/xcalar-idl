@@ -462,7 +462,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.submitProject').addClass('disabled');
         $jsonWrap.find('.clearAll').addClass('disabled');
         var totalCols = $jsonWrap.find('.colsSelected').data('totalcols');
-        $jsonWrap.find('.colsSelected').text('0/' + totalCols + ' '+ 
+        $jsonWrap.find('.colsSelected').text('0/' + totalCols + ' ' +
                                             JsonModalTStr.FieldsSelected);
     }
 
@@ -746,8 +746,8 @@ window.JSONModal = (function($, JSONModal) {
             return;
         }
         var $targets = $jsonText.find('.text').filter(function() {
-            return ($(this).is(':visible') && 
-                $(this).text().toLowerCase().indexOf(text) !== -1);
+            return ($(this).is(':visible') &&
+                    $(this).text().toLowerCase().indexOf(text) !== -1);
         });
 
         text = xcHelper.escapeRegExp(text);
@@ -951,7 +951,7 @@ window.JSONModal = (function($, JSONModal) {
                 prettyJson = '"' + prettyJson + '"';
             }
         } else {
-            var checkboxes = true;
+            // var checkboxes = true;
             var groups;
 
             if (isArray) {
@@ -1002,7 +1002,7 @@ window.JSONModal = (function($, JSONModal) {
                 '</h3>';
         for (var i = 0; i < groups.length; i++) {
             var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
-                "inarray"  : isArray
+                "inarray": isArray
             });
             tempJson = '<div class="jObject">' +
                         '<span class="jArray jInfo">' + tempJson +
@@ -1040,11 +1040,11 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function getJsonHtmlForNonDataCol(jsonObj, isArray) {
-            var prettyJson = prettifyJson(jsonObj, null , true, {
-                inarray: isArray,
-            });
-            prettyJson = '<div class="jObject">' + '<span class="jArray jInfo">' + prettyJson + "</span>" + "</div>";
-            return prettyJson;
+        var prettyJson = prettifyJson(jsonObj, null , true, {
+            inarray: isArray
+        });
+        prettyJson = '<div class="jObject">' + '<span class="jArray jInfo">' + prettyJson + "</span>" + "</div>";
+        return prettyJson;
     }
 
     function splitJsonIntoGroups(jsonObj) {

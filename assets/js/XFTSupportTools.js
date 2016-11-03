@@ -114,7 +114,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                     var retMsg;
                     var status;
                     var logs;
-                    if(ret.logs) {
+                    if (ret.logs) {
                         logs = atob(ret.logs);
                         status = SupportStatus.OKLog;
                     } else {

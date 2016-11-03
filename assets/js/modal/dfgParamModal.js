@@ -38,8 +38,8 @@ window.DFParamModal = (function($, DFParamModal){
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfgParamModal.find(".editableRow");
         modalHelper = new ModalHelper($dfgParamModal, {
-            "minHeight": minHeight,
-            "minWidth" : minWidth,
+            "minHeight"   : minHeight,
+            "minWidth"    : minWidth,
             resizeCallback: function() {
                 var tableW = $paramLists.closest(".tableContainer").width();
                 $paramLists.width(tableW);

@@ -40,7 +40,7 @@ window.XVM = (function(XVM) {
                 var versionNum = result.apiVersionSignatureShort;
                 backendVersion = result.version;
 
-                if (typeof(licKey) == "string") {
+                if (typeof(licKey) === "string") {
                     // This is an error. Otherwise it will be an object
                     licenseKey = "Unlicensed";
                 } else {

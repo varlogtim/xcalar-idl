@@ -88,7 +88,6 @@ window.AggModal = (function($, AggModal) {
         });
 
         $backToProfile.on("click", function() {
-            console.log("clicked");
             $(this).hide();
             var tableId = $aggModal.data('tableid');
             var colNum = $aggModal.data('colnum');

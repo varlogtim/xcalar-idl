@@ -38,9 +38,9 @@ window.SupportTools = (function(SupportTools, $) {
                 .fail(function() {
 
                 });
-            break;
+                break;
             default:
-            break;
+                break;
         }
     }
 

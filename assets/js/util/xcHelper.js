@@ -2948,7 +2948,7 @@ window.xcHelper = (function($, xcHelper) {
         if ($dagWrap.hasClass('fromRetina')) {
             $menu.find('.createDf').addClass('unavailable');
             xcTooltip.add($menu.find('.createDf'), {
-               title: DFGTStr.CannotCreateMsg
+                title: DFGTStr.CannotCreateMsg
             });
         } else {
             $menu.find('.createDf').removeClass('unavailable');

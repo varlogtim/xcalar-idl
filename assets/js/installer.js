@@ -712,14 +712,14 @@ window.Installer = (function(Installer, $) {
 
         // Collect values based on the selection
         var values = $(".ldapParams:not(.hidden)").find("input")
-                                                  .map(function(a, b) {
+        .map(function(a, b) {
             return $(b).val();
         });
 
         if ($(".ldapParams:not(.hidden)").hasClass("xcalarLdapOptions")) {
             var struct = {
-                "domainName": values[0],
-                "password": values[1],
+                "domainName" : values[0],
+                "password"   : values[1],
                 "companyName": values[3]
             };
 

@@ -2997,8 +2997,8 @@ ModalHelper.prototype = {
                 $modal.width(winWidth - 14);
                 $modal.height(winHeight - 9);
                 $modal.css({
-                    "top": 0,
-                    "left" : Math.round((winWidth - $modal.width()) / 2)
+                    "top" : 0,
+                    "left": Math.round((winWidth - $modal.width()) / 2)
                 });
                 if (options.resizeCallback) {
                     options.resizeCallback();
@@ -3009,8 +3009,8 @@ ModalHelper.prototype = {
         if ($exitFullScreenBtn.length) {
             // debugger;
             $exitFullScreenBtn.click(function() {
-                var winWidth = $(window).width();
-                var winHeight = $(window).height();
+                // var winWidth = $(window).width();
+                // var winHeight = $(window).height();
                 var minWidth  = options.minWidth || 0;
                 var minHeight = options.minHeight || 0;
                 $modal.width(minWidth);

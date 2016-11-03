@@ -281,7 +281,7 @@ window.ExportView = (function($, ExportView) {
         var deferred = jQuery.Deferred();
 
         var keepOrder = false;
-        if (checkSortedTable() && 
+        if (checkSortedTable() &&
             $exportView.find('.keepOrderedCBWrap')
                         .find('.checkbox.checked').length) {
             keepOrder = true;

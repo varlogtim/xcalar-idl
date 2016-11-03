@@ -295,7 +295,7 @@ window.Admin = (function($, Admin) {
             $adminBar.find('.username').text(Support.getUser());
             var width = $adminBar.outerWidth() + 1;
             $adminBar.outerWidth(width);
-            // giving adminBar a width so we can use position right with the 
+            // giving adminBar a width so we can use position right with the
             // proper width
             $adminBar.on('click', '.pulloutTab', function() {
                 $adminBar.toggleClass('active');
@@ -378,7 +378,7 @@ window.Admin = (function($, Admin) {
 
     // setup func called before startNode, stopNode, etc.
     function supportPrep(command) {
-        var deferred = jQuery.Deferred(); 
+        var deferred = jQuery.Deferred();
        
         if (!Admin.isAdmin()) {
             deferred.reject({logs: MonitorTStr.NotAuth});
