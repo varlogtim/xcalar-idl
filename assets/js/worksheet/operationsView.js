@@ -1587,6 +1587,12 @@ window.OperationsView = (function($, OperationsView) {
             }
             $input.data("typeid", typeId);
             $rows.eq(i).find('.description').text(description + ':');
+
+            // automatically show empty checkbox if optional detected
+            if (description.indexOf('optional') > -1) {
+                showEmptyOptions($input);
+            }
+
             types = parseType(typeId);
             if (types.indexOf('string') === -1) {
                 $rows.eq(i).find('.emptyStrWrap').remove();
