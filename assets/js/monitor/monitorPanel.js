@@ -24,16 +24,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
-        $("#monitor-asup").click(function() {
-            var $target = $(this);
-
-            if ($target.hasClass("on")) {
-                $target.removeClass("on");
-            } else {
-                $target.addClass("on");
-            }
-        });
-
         $("#monitor-genSub").click(function() {
             genSubHelper();
         });
