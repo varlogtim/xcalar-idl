@@ -51,7 +51,6 @@ window.WSManager = (function($, WSManager) {
         for (var worksheetId in oldWorksheetLookup) {
             var worksheet = new WorksheetObj(oldWorksheetLookup[worksheetId]);
             cacheWorksheetInfo(worksheet);
-
             for (var key in WSTableType) {
                 var tableType = WSTableType[key];
                 worksheet[tableType].forEach(function(tableId) {

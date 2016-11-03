@@ -48,6 +48,11 @@ function unloadHandler(isAsync, doNotLogout) {
     }
 }
 
+function logoutRedirect() {
+    sessionStorage.setItem("xcalar-username", "");
+    window.location = paths.dologout;
+}
+
 function removeUnloadPrompt() {
     window.onbeforeunload = function() {}; // Do not enable prompt
     window.onunload = function() {}; // do not call unload again
@@ -151,6 +156,13 @@ window.StartManager = (function(StartManager, $) {
                     "title"  : WKBKTStr.Hold,
                     "msg"    : WKBKTStr.HoldMsg,
                     "buttons": [
+                        {
+                            "name"     : CommonTxtTstr.Back,
+                            "className": "cancel",
+                            "func"     : function() {
+                                logoutRedirect();
+                            }
+                        },
                         {
                             "name"     : WKBKTStr.Release,
                             "className": "cancel",

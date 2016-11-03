@@ -1372,6 +1372,7 @@ function WorksheetObj(options) {
         self[tableType] = options[tableType] || [];
     }
 
+    self[WSTableType.Lock] = []; // should clear it when initialize
     self.id = options.id;
     self.name = options.name;
     self.date = options.date || xcHelper.getDate();

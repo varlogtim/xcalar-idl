@@ -96,6 +96,7 @@ TooltipTStr = {
 
 CommonTxtTstr = {
     'ArrayVal': 'Array Value',
+    'Back': 'Back',
     'BackToOrig': 'Back to original',
     'ClickToOpts': 'Click to see options',
     'Continue': 'Continue',
