@@ -88,13 +88,19 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             $section.find(".title.active").removeClass("active");
             $title.addClass("active");
 
+            var tableType = null;
+
             if ($section.hasClass("orphan")) {
-                sortTableList(tableList[TableType.Orphan], TableType.Orphan, sortKey);
+                tableType = TableType.Orphan;
             } else if ($section.hasClass("inactive")) {
-                sortTableList(tableList[TableType.Archived], TableType.Archived, sortKey);
+                tableType = TableType.Archived;
             } else {
-                sortTableList(tableList[TableType.Active], TableType.Active, sortKey);
+                tableType = TableType.Active;
             }
+
+            var cachedTables = cacheCheckedTables(tableType);
+            sortTableList(tableList[tableType], tableType, sortKey);
+            restoreCheckedTables(cachedTables, tableType);
         });
 
         // click don't show
@@ -213,31 +219,23 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     }
 
     function deleteTableHelper(type) {
-        var $container;
+        var $container = getListSection(type);
         var isOrphan = (type === TableType.Orphan);
         var tablesToDel = [];
 
-        if (isOrphan) {
-            $container = $("#deleteTableModal-orphan");
-        } else if (type === TableType.Archived) {
-            $container = $("#deleteTableModal-archived");
-        } else {
-            $container = $("#deleteTableModal-active");
-        }
-
-        $container.find(".grid-unit").each(function() {
+        var list = tableList[type];
+        $container.find(".grid-unit").each(function(index) {
             var $grid = $(this);
             if ($grid.find(".checkbox").hasClass("checked")) {
                 if (isOrphan) {
-                    var tableName = $grid.find(".name").text();
+                    var tableName = list[index].getName();
                     tablesToDel.push(tableName);
                 } else {
-                    var tableId = $grid.data("id");
+                    var tableId = list[index].getId();
                     tablesToDel.push(tableId);
                 }
             }
         });
-
         if (tablesToDel.length === 0) {
             return PromiseHelper.resolve();
         }
@@ -395,23 +393,48 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         getTableList(tableList, type);
     }
 
-    function getTableList(tables, type) {
-        var $container;
-        var html = "";
+    function cacheCheckedTables(tableType) {
+        var list = tableList[tableType];
+        var $container = getListSection(tableType);
+        var tables = [];
 
-        if (type === TableType.Orphan) {
-            $container = $("#deleteTableModal-orphan");
-        } else if (type === TableType.Archived) {
-            $container = $("#deleteTableModal-archived");
-        } else {
-            $container = $("#deleteTableModal-active");
-        }
+        $container.find(".grid-unit").each(function(index) {
+            var $grid = $(this);
+            if ($grid.find(".checkbox").hasClass("checked")) {
+                var tableName = list[index].getName();
+                tables.push(tableName);
+            }
+        });
+
+        return tables;
+    }
+
+    function restoreCheckedTables(tables, tableType) {
+        var list = tableList[tableType];
+        var $container = getListSection(tableType);
+        var nameMap = {};
+
+        tables.forEach(function(tableName) {
+            nameMap[tableName] = true;
+        });
+
+        $container.find(".grid-unit").each(function(index) {
+            var $grid = $(this);
+            var tableName = list[index].getName();
+            if (nameMap.hasOwnProperty(tableName)) {
+                $grid.find(".checkbox").addClass("checked");
+            }
+        });
+    }
+
+    function getTableList(tables, type) {
+        var $container = getListSection(type);
+        var html = "";
 
         for (var i = 0, len = tables.length; i < len; i++) {
             var table = tables[i];
             var date = table.getTimeStamp();
             var tableName = table.getName();
-            var tableId = table.getId() || "";
             if (date !== unknown) {
                 date = xcHelper.getTime(null, date) + " " +
                         xcHelper.getDate(null, null, date);
@@ -421,7 +444,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 size = xcHelper.sizeTranslator(tableSizeMap[tableName]);
             }
 
-            html += '<div class="grid-unit" data-id="' + tableId + '">' +
+            html += '<div class="grid-unit">' +
                         '<div class="checkboxSection">' +
                             '<div class="checkbox">' +
                                 '<i class="icon xi-ckbox-empty"></i>' +
@@ -435,6 +458,18 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         }
 
         $container.find(".listSection").html(html);
+    }
+
+    function getListSection(type) {
+        var $container;
+        if (type === TableType.Orphan) {
+            $container = $("#deleteTableModal-orphan");
+        } else if (type === TableType.Archived) {
+            $container = $("#deleteTableModal-archived");
+        } else {
+            $container = $("#deleteTableModal-active");
+        }
+        return $container;
     }
 
     function failHandler(args) {
