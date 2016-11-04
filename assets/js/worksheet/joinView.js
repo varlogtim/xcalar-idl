@@ -1197,7 +1197,7 @@ window.JoinView = (function($, JoinView) {
         }
 
         var lTableMeta = gTables[lTableId].backTableMeta;
-        var rTableMeta = gTables[lTableId].backTableMeta;
+        var rTableMeta = gTables[rTableId].backTableMeta;
 
         function getFatPtr(valueAttr) {
             if (valueAttr.type === DfFieldTypeT.DfFatptr) {
