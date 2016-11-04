@@ -1488,7 +1488,7 @@ window.Profile = (function($, Profile, d3) {
             $scroller.css("left", left);
 
             if (!forceUpdate) {
-                return;
+                return PromiseHelper.resolve(rowNum);
             }
         }
 
