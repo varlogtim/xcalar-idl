@@ -637,7 +637,6 @@ app.post('/login', function(req, res) {
 
 });
 
-
 function writeEntry(entry, loginId) {
     if(entry.object){
         var entryObject = JSON.parse(JSON.stringify(entry.object));
@@ -686,6 +685,6 @@ httpServer.listen(port, function() {
     if (!hostname) {
         hostname = "localhost";
     }
-    console.log("To start the installation process, please open a browser to\n" +
-                hostname + ":8443");
+    console.log("To start the installation process, please open a browser " +
+                "to\n https://" + hostname + ":8443");
 });
