@@ -757,14 +757,14 @@ window.TestSuite = (function($, TestSuite) {
                 if (found) {
                     $("#alertActions .confirm").click();
                 }
-                checkExists("#successMessageWrap:visible")
-                .then(function() {
-                    flightTestPart6();
-                })
-                .fail(function(error) {
-                    console.error(error, "flightTestPart5");
-                    TestSuite.fail(deferred, testName, currentTestNumber, error);
-                });
+                return checkExists("#udf-manager .udf .text:contains(ymd)");
+            })
+            .then(function() {
+                flightTestPart6();
+            })
+            .fail(function(error) {
+                console.error(error, "flightTestPart5");
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }
 
