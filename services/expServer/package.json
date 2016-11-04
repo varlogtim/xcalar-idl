@@ -7,6 +7,10 @@
   "scripts": {
     "start": "node expServer.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@git:/gitrepos/xcalar-gui.git"
+  },
   "dependencies": {
     "express": "^4.13.4",
     "shelljs": "^0.6.0",
