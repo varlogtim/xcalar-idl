@@ -352,13 +352,37 @@ app.post("/removeSessionFiles", function(req, res) {
     support.removeSessionFiles(filename, res);
 });
 
+function copyFiles(res) {
+    var execString = scriptDir + "/deploy-shared-config.sh ";
+    execString += cliArguments;
+    console.log(execString);
+    out = exec(execString);
+    out.stdout.on('data', function(data) {
+        console.log(data);
+    });
+    var errorMessage = "ERROR: ";
+    out.stderr.on('data', function(data) {
+        errorMessage += data;
+        console.log("ERROR: " + data);
+    });
+    out.on('close', function(code) {
+        if (code) {
+            console.log("Copy failed");
+            res.send({"status": Status.Error,
+                      "reason": errorMessage});
+        } else {
+            res.send({"status": Status.Ok});
+        }
+    });
+}
+
 app.post("/writeConfig", function(req, res) {
     console.log("Writing Ldap configurations");
     var credArray = req.body;
     var file = "/config/ldapConfig.json";
     try {
         fs.writeFileSync(file, JSON.stringify(credArray, null, 4));
-        res.send({"status": Status.Ok});
+        copyFiles(res);
     } catch (err) {
         console.log(err);
         res.send({"status": Status.Error,
@@ -376,24 +400,17 @@ app.post("/installLdap", function(req, res) {
     execString += genLdapExecString(credArray.domainName,
                                     credArray.password,
                                     credArray.companyName);
-
+    console.log(execString);
     out = exec(execString);
 
-    var installSuccess = "SUCCESS"; // XXX CHANGEME
     var replied = false;
     out.stdout.on('data', function(data) {
-        var lines = data.split("\n");
-        var i = 0;
-        for (i = 0; i<lines.length; i++) {
-            if (lines[i].indexOf(installSuccess) > -1) {
-                replied = true;
-                res.send({"status": Status.Ok});
-            }
-        }
+        console.log(data);
     });
     var errorMessage = "ERROR: ";
     out.stderr.on('data', function(data) {
         errorMessage += data;
+        console.log("ERROR: " + data);
     });
 
     out.on('close', function(code) {
@@ -404,6 +421,8 @@ app.post("/installLdap", function(req, res) {
                 res.send({"status": Status.Error,
                           "reason": errorMessage});
             }
+        } else {
+            copyFiles(res);
         }
     });
 });
