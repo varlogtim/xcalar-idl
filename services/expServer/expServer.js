@@ -370,7 +370,7 @@ app.post("/installLdap", function(req, res) {
     console.log("Installing Ldap");
     var credArray = req.body;
 
-    var execString = scriptDir + "/07-ldap-install.sh ";
+    var execString = scriptDir + "/ldap-install.sh ";
     execString += cliArguments; // Add all the previous stuff
 
     execString += genLdapExecString(credArray.domainName,
