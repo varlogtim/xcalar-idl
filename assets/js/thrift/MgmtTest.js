@@ -482,10 +482,11 @@ PromiseHelper = (function(PromiseHelper, $) {
         })
         .then(function(result) {
             var outStr = result.output.outputResult.appReapOutput.outStr;
-            if (outStr == "shello") {
+            var expectedStr = "[[\"shello\"]]";
+            if (outStr == expectedStr) {
                 test.pass();
             } else {
-                test.fail("Output: expected 'shello' got '" + outStr + "'");
+                test.fail("Output: expected '" + expectedStr + "' got '" + outStr + "'");
             }
         })
         .fail(function(reason) {
@@ -531,6 +532,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         .then(function(result) {
             printResult(result);
             loadOutput = result;
+            test.assert(result.numBytes == 27053171);
+            test.assert(result.numFiles == 1);
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;
             return getDatasetCount("yelp");
@@ -672,20 +675,20 @@ PromiseHelper = (function(PromiseHelper, $) {
         loadArgs.csv.isCRLF = false;
 
         xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/edgeCases/bad.json", "bad", DfFormatTypeT.DfFormatJson, 0, loadArgs)
-        .done(function(result) {
+        .then(function(result) {
+            test.fail("load succeeded when it should have failed")
+        })
+        .fail(function(status, result) {
             printResult(result);
             loadOutput = result;
-            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'(Failed to parse data format value)";
-            var errFile = "nfs://" + qaTestDir + "/edgeCases/bad.json";
+            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'";
+            var errFile = qaTestDir + "/edgeCases/bad.json";
             if (loadOutput.errorString == errStr &&
                 loadOutput.errorFile == errFile) {
                 test.pass();
             } else {
                 test.fail("errorString: \"" + loadOutput.errorString + "\" should be: \"" + errStr + "\" errorFile: \"" + loadOutput.errorFile + "\" should be: \"" + errFile);
             }
-        })
-        .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
         });
     }
 
@@ -3681,8 +3684,7 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     addTestCase(testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
-    // XXX (dwillis) enable when udf-on-load exists again
-    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoadRegex, "loadRegex", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testPreview, "preview", defaultTimeout, TestCaseEnabled, "");

@@ -7476,11 +7476,19 @@ XcalarApiQueryOutputT.prototype.write = function(output) {
 
 XcalarApiBulkLoadOutputT = function(args) {
   this.dataset = null;
+  this.numFiles = null;
+  this.numBytes = null;
   this.errorString = null;
   this.errorFile = null;
   if (args) {
     if (args.dataset !== undefined) {
       this.dataset = args.dataset;
+    }
+    if (args.numFiles !== undefined) {
+      this.numFiles = args.numFiles;
+    }
+    if (args.numBytes !== undefined) {
+      this.numBytes = args.numBytes;
     }
     if (args.errorString !== undefined) {
       this.errorString = args.errorString;
@@ -7513,13 +7521,27 @@ XcalarApiBulkLoadOutputT.prototype.read = function(input) {
       }
       break;
       case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.numFiles = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.I64) {
+        this.numBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
       if (ftype == Thrift.Type.STRING) {
         this.errorString = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 3:
+      case 5:
       if (ftype == Thrift.Type.STRING) {
         this.errorFile = input.readString().value;
       } else {
@@ -7542,13 +7564,23 @@ XcalarApiBulkLoadOutputT.prototype.write = function(output) {
     this.dataset.write(output);
     output.writeFieldEnd();
   }
+  if (this.numFiles !== null && this.numFiles !== undefined) {
+    output.writeFieldBegin('numFiles', Thrift.Type.I64, 2);
+    output.writeI64(this.numFiles);
+    output.writeFieldEnd();
+  }
+  if (this.numBytes !== null && this.numBytes !== undefined) {
+    output.writeFieldBegin('numBytes', Thrift.Type.I64, 3);
+    output.writeI64(this.numBytes);
+    output.writeFieldEnd();
+  }
   if (this.errorString !== null && this.errorString !== undefined) {
-    output.writeFieldBegin('errorString', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('errorString', Thrift.Type.STRING, 4);
     output.writeString(this.errorString);
     output.writeFieldEnd();
   }
   if (this.errorFile !== null && this.errorFile !== undefined) {
-    output.writeFieldBegin('errorFile', Thrift.Type.STRING, 3);
+    output.writeFieldBegin('errorFile', Thrift.Type.STRING, 5);
     output.writeString(this.errorFile);
     output.writeFieldEnd();
   }

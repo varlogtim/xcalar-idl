@@ -441,13 +441,13 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
-        var loadOutput = result.output.outputResult.loadOutput;
         var status = result.output.hdr.status;
+        var loadOutput = result.output.outputResult.loadOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(status, loadOutput);
         }
         deferred.resolve(loadOutput);
     })
@@ -1448,7 +1448,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     ", collisionCheck = " + collisionCheck +
                     ")");
     }
-    
+
     var workItem = xcalarJoinWorkItem(leftTableName, rightTableName,
                                       joinTableName, joinType,
                                       leftRenameMap, rightRenameMap,

@@ -521,7 +521,13 @@ StatusT = {
   'StatusFaultInjection2PC' : 512,
   'StatusExportAppNotExist' : 513,
   'StatusSessionBadActiveNode' : 514,
-  'StatusNoXdbPageBcMem' : 515
+  'StatusNoXdbPageBcMem' : 515,
+  'StatusAppFlagsInvalid' : 516,
+  'StatusQueryJobProcessing' : 517,
+  'StatusTwoPcBarMsgInvalid' : 518,
+  'StatusTwoPcBarTimeout' : 519,
+  'StatusTooManyChildren' : 520,
+  'StatusMaxFileLimitReached' : 521
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1038,5 +1044,11 @@ StatusTStr = {0 : 'Success',
 512 : 'Fault injection set in 2 phase commit',
 513 : 'Export Application does not exist',
 514 : 'Cannot resume session on this node',
-515 : 'Out of resources (XdbPages)'
+515 : 'Out of resources (XdbPages)',
+516 : 'App flags invalid',
+517 : 'Query job is already running',
+518 : 'Unknown Message for two PC barrier',
+519 : 'Timed out during cluster startup / shutdown synchronization',
+520 : 'Configured limit on child processes has been reached',
+521 : 'Limit on files loaded has been reached'
 };

@@ -468,10 +468,11 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testApps(test) {
         var name = "mgmtTestPythonApp";
         var hostType = "Python";
+        var duty = "Export";
         var execStr = "def main(inBlob): return 's' + inBlob";
 
         // Test either create or update.
-        xcalarAppSet(thriftHandle, name, hostType, execStr)
+        xcalarAppSet(thriftHandle, name, hostType, duty, execStr)
         .then(function(result) {
             return xcalarAppRun(thriftHandle, name, false, "hello");
         })
@@ -481,10 +482,11 @@ PromiseHelper = (function(PromiseHelper, $) {
         })
         .then(function(result) {
             var outStr = result.output.outputResult.appReapOutput.outStr;
-            if (outStr == "shello") {
+            var expectedStr = "[[\"shello\"]]";
+            if (outStr == expectedStr) {
                 test.pass();
             } else {
-                test.fail("Output: expected 'shello' got '" + outStr + "'");
+                test.fail("Output: expected '" + expectedStr + "' got '" + outStr + "'");
             }
         })
         .fail(function(reason) {
