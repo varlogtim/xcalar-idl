@@ -378,7 +378,10 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $('#container').append(menu);
         $('#container').append(subMenu);
-        $('#dfgPanelSwitch').before('<div id="shortcutMenuIcon"></div>');
+        var html = '<div id="shortcutMenuIcon">' +
+                        '<i class="icon fa-15 xi-down center"></i>' +
+                    '</div>'
+        $('#dfgPanelSwitch').before(html);
 
         addMenuBehaviors($('#shortcutMenu'));
         addMenuActions();

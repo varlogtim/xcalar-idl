@@ -16,7 +16,6 @@ var paths = {
     dTableGray    : 'assets/images/dfgIcons/dTableGray.png',
     expandIcon    : 'assets/images/dfgIcons/expand.png',
     roundedRect   : 'assets/images/dfgIcons/rounded-rect.png',
-    hourglass     : 'assets/images/hourglass-white.png',
     waitIcon      : 'assets/images/waiting-1.gif',
     installer     : 'setup.html',
     XCExt         : 'assets/images/extension/logo-xc.png',
