@@ -1809,11 +1809,6 @@ DSObj.prototype = {
         if (self.fileSize != null) {
             return PromiseHelper.resolve(self.fileSize);
         }
-        // else if (self.isRecur) {
-        //     self.fileSize = "N/A";
-        //     return PromiseHelper.resolve(self.fileSize);
-        // }
-
         var deferred = jQuery.Deferred();
         var dsName = self.fullName;
 

@@ -2110,7 +2110,7 @@ table.datasetTable {
     }
 
     &.uneditable {
-        .moveUp, .rename, .delete {
+        .moveUp, .rename, &.folderOpts .delete {
             opacity: @opacity-disabled;
             pointer-events: none;
         }

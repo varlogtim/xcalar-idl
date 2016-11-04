@@ -301,10 +301,11 @@ window.DS = (function ($, DS) {
         var dsObj = DS.getDSObj(dsId);
         var dsName = dsObj.getName();
         var msg;
+        var isFolder = dsObj.beFolder();
 
-        if (!dsObj.isEditable()) {
+        if (!dsObj.isEditable() && isFolder) {
             msg = xcHelper.replaceMsg(DSTStr.DelUneditable, {
-                "ds": (dsObj.beFolder() ? "folder" : "dataset")
+                "ds": "folder"
             });
             // add alert
             Alert.show({
@@ -315,7 +316,7 @@ window.DS = (function ($, DS) {
             });
 
             return;
-        } else if ($grid.hasClass("ds")) {
+        } else if (!isFolder) {
             var txId = $grid.data("txid");
             var title;
             var callback;
@@ -1449,6 +1450,7 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
+                '<i class="icon xi-trash delete fa-15"></i>' +
             '</div>';
         }
 
