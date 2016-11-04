@@ -249,15 +249,10 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function resetCreateNewScheduleForm () {
-
-        var $nameInput = $newScheduleForm.find(".nameSection input");
         var $timeSection = $newScheduleForm.find(".timeSection");
         var $freqSection = $newScheduleForm.find(".frequencySection");
         var $checkBox = $newScheduleForm.find(".radioButton").eq(0);
         var $recurInput = $newScheduleForm.find(".recurSection input");
-
-        $nameInput.val("");
-        $nameInput.focus();
 
         $timeSection.find(".datePickerPart").removeClass("inActive")
                     .find(".date").val("");
@@ -269,15 +264,11 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function resetModifiedScheduleForm (schedule) {
-        var $nameInput = $modScheduleForm.find(".nameSection input");
         var $timeSection = $modScheduleForm.find(".timeSection");
         var $freqSection = $modScheduleForm.find(".frequencySection");
         var $checkBox = $freqSection.find('.radioButton[data-option="' +
                                             schedule.repeat + '"]');
         var $recurInput = $modScheduleForm.find(".recurSection input");
-
-        $nameInput.val(schedule.name);
-        $nameInput.focus();
 
         $timeSection.find(".datePickerPart").removeClass("inActive")
                     .find(".date").val(schedule.dateText);
@@ -295,18 +286,13 @@ window.Scheduler = (function(Scheduler, $) {
     function saveScheduleForm($form, dataflowName) {
         var isNewSchedule = $form.attr("id") === "newScheduleForm";
 
-        var $scheduleName  = $form.find(".nameSection input");
+        // var $scheduleName  = $form.find(".nameSection input");
         var $scheduleDate  = $form.find(".timeSection .date");
         var $scheduleTime  = $form.find(".timeSection .time");
         var $scheduleRecur = $form.find(".recurSection input");
         var name;
         // validation
         var isValid;
-        if (isNewSchedule) {
-            name = $scheduleName.val().trim();
-        } else {
-            name = $form.data("schedule");
-        }
 
         isValid = xcHelper.validate([
             {
@@ -393,7 +379,7 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var options = {
-            "name"     : name,
+            // "name"     : name,
             "startTime": startTime,
             "dateText" : date,
             "timeText" : time,
@@ -417,10 +403,6 @@ window.Scheduler = (function(Scheduler, $) {
         var text;
 
         // Update the schedule detail card
-
-        // Title
-        text = schedule.name || "New Schedule";
-        $scheduleInfos.find(".heading").text(text);
         // Created
         text = getTime(schedule.created) || "N/A";
         $scheduleInfos.find(".created .text").text(text);

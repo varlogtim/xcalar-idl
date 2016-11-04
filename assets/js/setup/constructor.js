@@ -2331,7 +2331,6 @@ Dataflow.prototype = {
 /* schedule.js */
 function SchedObj(options) {
     options = options || {};
-    this.name = options.name;
     this.startTime = options.startTime;
     this.dateText = options.dateText;
     this.timeText = options.timeText;
