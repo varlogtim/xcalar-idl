@@ -7,6 +7,37 @@ describe('Worksheet Test', function() {
         gMinModeOn = true;
     });
 
+    describe("Clean and Restore Test", function() {
+        var meta;
+        var numWorksheets;
+
+        before(function() {
+            meta = WSManager.getAllMeta();
+            numWorksheets = WSManager.getNumOfWS();
+        });
+
+        it("Should clear worksheet", function() {
+            WSManager.clear();
+            expect(WSManager.getNumOfWS()).to.equal(1);       
+        });
+
+        it("Should restore worksheet", function() {
+            WSManager.restore(meta);
+            expect(WSManager.getNumOfWS()).to.equal(numWorksheets);
+        });
+
+        it("Should be an error when initalize is wrong", function() {
+            var oldFunc = TableList.initialize;
+            TableList.initialize = function() { throw "test error" };
+            WSManager.initialize();
+            assert.isTrue($("#alertModal").is(":visible"));
+            $("#alertModal .close").click();
+            assert.isFalse($("#alertModal").is(":visible"));
+
+            TableList.initialize = oldFunc;
+        });
+    });
+
     describe("Basic Worksheet API Test", function() {
         it("Should get all meta", function() {
             var meta = WSManager.getAllMeta();
@@ -107,6 +138,28 @@ describe('Worksheet Test', function() {
             expect(curNumWorksheet - numWorksheets).to.equal(2);
         });
 
+        it("Should add worksheet in undo/redo", function() {
+            var numWorksheets = WSManager.getNumOfWS();
+            var oldIsUndo = SQL.isUndo;
+            SQL.isUndo = function() { return true; };
+            // invalid case
+            var wsId = WSManager.addWS();
+            var curNumWorksheet = WSManager.getNumOfWS();
+            expect(wsId).to.be.null;
+            expect(curNumWorksheet - numWorksheets).to.equal(0);
+            // valid case
+            var randId = xcHelper.randName("testWorksheetUndoId");
+            var randName = xcHelper.randName("testWorksheetUndoName");
+            wsId = WSManager.addWS(randId, randName);
+            expect(wsId).to.equal(randId);
+
+            curNumWorksheet = WSManager.getNumOfWS();
+            expect(curNumWorksheet - numWorksheets).to.equal(1);
+
+            SQL.isUndo = oldIsUndo;
+            WSManager.delWS(wsId, DelWSType.Empty);
+        });
+
         it("Should rename worksheet", function() {
             var worksheet = WSManager.getWSById(worksheetId1);
             // invalid case 1
@@ -177,18 +230,24 @@ describe('Worksheet Test', function() {
     describe("Worksheet Table Behavior Test", function() {
         var worksheetId;
         var tableId;
+        var worksheet;
 
         before(function() {
             worksheetId = WSManager.addWS();
+            worksheet = WSManager.getWSById(worksheetId);
+            tableId = xcHelper.randName("testTable");
+        });
+
+
+        it("Should focus on worksheet", function() {
+            WSManager.focusOnWorksheet();
+            expect(WSManager.getActiveWS()).to.equal(worksheetId);
         });
 
         it("Should add table to worksheet", function() {
-            tableId = xcHelper.randName("testTable");
-
-            var worksheet = WSManager.getWSById(worksheetId);
             expect(worksheet.orphanedTables.length).to.equal(0);
 
-            WSManager.addTable(tableId, worksheetId);
+            WSManager.addTable(tableId);
             expect(worksheet.orphanedTables.length).to.equal(1);
             expect(worksheet.orphanedTables[0]).to.equal(tableId);
 
@@ -198,12 +257,141 @@ describe('Worksheet Test', function() {
             expect(worksheet.orphanedTables.length).to.equal(1);
         });
 
-        it("Should remove table from worksheet", function() {
-            var worksheet = WSManager.getWSById(worksheetId);
+        it("Should replace table from orphan to workseet table", function() {
+            expect(worksheet.orphanedTables.length).to.equal(1);
+            expect(worksheet.tables.length).to.equal(0);
+            WSManager.replaceTable(tableId);
+
+            expect(worksheet.orphanedTables.length).to.equal(0);
+            expect(worksheet.tables.length).to.equal(1);
+        });
+
+        it("should archive table", function() {
+            expect(worksheet.archivedTables.length).to.equal(0);
+            WSManager.archiveTable(tableId);
+
+            expect(worksheet.archivedTables.length).to.equal(1);
+
+        });
+
+        it("Should active table", function() {
+            expect(worksheet.tables.length).to.equal(0);
+            WSManager.activeTable(tableId);
+
+            expect(worksheet.tables.length).to.equal(1);
+        });
+
+        it("Should archive table to temp hidden", function() {
+            expect(worksheet.tempHiddenTables.length).to.equal(0);
+            WSManager.archiveTable(tableId, true);
+
+            expect(worksheet.tempHiddenTables.length).to.equal(1);
+            expect(worksheet.tables.length).to.equal(0);
+
+            // replace back
+            WSManager.replaceTable(tableId);
+            expect(worksheet.tempHiddenTables.length).to.equal(0);
+            expect(worksheet.tables.length).to.equal(1);
+        });
+
+        it("Should change table status", function() {
+            // invalid case
+            WSManager.changeTableStatus("errorId");
+            expect(worksheet.tables.length).to.equal(1);
+
+            // archive case
+            WSManager.changeTableStatus(tableId, TableType.Archived);
+            expect(worksheet.tables.length).to.equal(0);
+            expect(worksheet.archivedTables.length).to.equal(1);
+
+            // orphan case
+            WSManager.changeTableStatus(tableId, TableType.Orphan);
+            expect(worksheet.archivedTables.length).to.equal(0);
             expect(worksheet.orphanedTables.length).to.equal(1);
 
-            WSManager.removeTable(tableId);
+            // Undo case
+            WSManager.changeTableStatus(tableId, TableType.Undone);
             expect(worksheet.orphanedTables.length).to.equal(0);
+            expect(worksheet.undoneTables.length).to.equal(1);
+
+            worksheet.undoneTables.splice(0, 1);
+            worksheet.tempHiddenTables.push(tableId);
+
+            // active case
+            WSManager.changeTableStatus(tableId, TableType.Active);
+            expect(worksheet.tempHiddenTables.length).to.equal(0);
+            expect(worksheet.tables.length).to.equal(1);
+
+            worksheet.tables.splice(0, 1);
+            worksheet.tempHiddenTables.push(tableId);
+
+            // error case
+            WSManager.changeTableStatus(tableId);
+            expect(worksheet.tempHiddenTables.length).to.equal(0);
+            expect(worksheet.tables.length).to.equal(1);
+        });
+
+        it("Should get table relative position", function() {
+            // invalid case
+            var tableIndex = WSManager.getTableRelativePosition("errorId");
+            expect(tableIndex).to.equal(-1);
+
+            tableIndex = WSManager.getTableRelativePosition(tableId);
+            expect(tableIndex).to.equal(0);
+        });
+
+        it("Should get table position", function() {
+            // invalid case
+            var tableIndex = WSManager.getTablePosition("errorId");
+            expect(tableIndex).to.equal(-1);
+
+            tableIndex = WSManager.getTablePosition(tableId);
+            expect(tableIndex).to.be.at.least(0);
+        });
+
+        it("Should remove no sheet table", function() {
+            var noSheetTables = WSManager.getNoSheetTables();
+            var noSheetTableId = xcHelper.randName("noSheetTable");
+            noSheetTables.push(noSheetTableId);
+
+            var len = noSheetTables.length;
+            // invalid case
+            WSManager.rmNoSheetTable();
+            expect(noSheetTables.length).to.equal(len);
+
+            // valid case
+            WSManager.rmNoSheetTable(noSheetTableId);
+            expect(noSheetTables.length - len).to.equal(-1);
+        });
+
+        it("Should add no sheet tables", function() {
+            var noSheetTables = WSManager.getNoSheetTables();
+            var noSheetTableId = xcHelper.randName("noSheetTable");
+            noSheetTables.push(noSheetTableId);
+            var len = noSheetTables.length;
+
+            WSManager.addNoSheetTables([noSheetTableId], worksheetId);
+            expect(noSheetTables.length - len).to.equal(-1);
+            expect(worksheet.orphanedTables.length).to.equal(1);
+
+            WSManager.removeTable(noSheetTableId);
+            expect(worksheet.orphanedTables.length).to.equal(0);
+        });
+
+        it("Should change table order", function() {
+            var anotherTableId = xcHelper.randName("anotherTable");
+            worksheet.tables.push(anotherTableId);
+            WSManager.reorderTable(tableId, 0, 1);
+            expect(WSManager.getTableRelativePosition(tableId)).to.equal(1);
+            // remove the anotherTableId
+            worksheet.tables.splice(0, 1);
+        });
+
+        it("Should remove table from worksheet", function() {
+            expect(worksheet.tables.length).to.equal(1);
+
+            WSManager.removeTable(tableId);
+            expect(worksheet.tables.length).to.equal(0);
         });
 
         after(function() {

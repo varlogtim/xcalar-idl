@@ -150,7 +150,7 @@ window.WSManager = (function($, WSManager) {
         if (SQL.isRedo() || SQL.isUndo()) {
             if (wsId == null) {
                 console.error("Undo Add worksheet must have wsId!");
-                return;
+                return null;
             }
             wsId = newWorksheet(wsId, wsName, wsIndex);
         } else {
@@ -456,6 +456,10 @@ window.WSManager = (function($, WSManager) {
     // relative to only tables in it's worksheet, not other worksheets
     WSManager.getTableRelativePosition = function(tableId) {
         var wsId = tableIdToWSIdMap[tableId];
+        if (wsId == null) {
+            return -1;
+        }
+
         var tableIndex = worksheetGroup.get(wsId).tables.indexOf(tableId);
         return tableIndex;
     };
@@ -464,11 +468,15 @@ window.WSManager = (function($, WSManager) {
     //ex. {ws1:[tableA, tableB], ws2:[tableC]} tableC's position is 2
     WSManager.getTablePosition = function(tableId) {
         var wsId = tableIdToWSIdMap[tableId];
+        if (wsId == null) {
+            return -1;
+        }
+
         var tableIndex = worksheetGroup.get(wsId).tables.indexOf(tableId);
 
         if (tableIndex < 0) {
             console.error("Table is not in active tables array!");
-            return (-1);
+            return -1;
         }
 
         var position = 0;
@@ -483,7 +491,7 @@ window.WSManager = (function($, WSManager) {
 
         position += tableIndex;
 
-        return (position);
+        return position;
     };
 
     // replace a table by putting tableId into active list
@@ -608,6 +616,10 @@ window.WSManager = (function($, WSManager) {
         });
     };
 
+    // XXX Cheng: I think WSManager.activeTable, WSManager,archiveTable
+    // and WSManager.replaceTable can be generalized into this function
+    // will refactor in 1.1
+    //
     // changes table status and moves it to the proper worksheet category
     // newStatus: string, TableType.Active, TableType.Archived, TableType.Orphan
     WSManager.changeTableStatus = function(tableId, newStatus) {
