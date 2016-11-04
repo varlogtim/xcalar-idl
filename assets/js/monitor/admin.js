@@ -409,10 +409,7 @@ window.Admin = (function($, Admin) {
             if (!msg) {
                 msg = ErrTStr.Unknown; 
             }
-            Alert.error({
-                "title"  : MonitorTStr.GetStatusFail,
-                "msg"    : msg
-            });
+            Alert.error(MonitorTStr.GetStatusFail, msg);
         })
         .always(function() {
             $('#configSupportStatus').removeClass('unavailable');

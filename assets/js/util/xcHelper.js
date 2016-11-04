@@ -1002,39 +1002,18 @@ window.xcHelper = (function($, xcHelper) {
                 $btn = $(html);
 
                 $btn.click(function() {
-                    // if (Admin.isAdmin()) {
-                    //     SupTicketModal.show();
-                    //     Alert.forceClose(true);
-                    //     return;
-                    // }
-                    
+                    SupTicketModal.show();
                     var $supportBtn = $(this).blur();
-                    xcHelper.toggleBtnInProgress($supportBtn);
-                    // Tis flow is a little from xcHelper.genSub
-                    XcalarSupportGenerate()
-                    .then(function(path, bid) {
-                        if (doneCallback instanceof Function) {
-                            doneCallback(path, bid);
-                        }
-                        xcHelper.showSuccess();
-                        $supportBtn.text(CommonTxtTstr.GenBundleDone)
-                            .addClass("btn-disabled");
-                    })
-                    .fail(function(error) {
-                        console.error(error);
-                        // XXX TODOs: use xcHelper.showFail() instead
-                        // (function not implement yet!)
-                        xcHelper.toggleBtnInProgress($supportBtn);
-                        if (failCallback instanceof Function) {
-                            failCallback(error);
-                        }
-                    });
+                    Alert.tempHide();
+                    MonitorGraph.stop();
                 });
 
                 break;
             case "adminSupport":
-                html = '<button type="button" class="btn adminOnly adminSupport" ' +
-                        'data-toggle="tooltip" title="' + "Support Tools" + '">' +
+                html = '<button type="button" ' +
+                        'class="btn adminOnly adminSupport" ' +
+                        'data-toggle="tooltip" ' +
+                        'title="' + "Support Tools" + '">' +
                             "Support Tools" +
                         '</button>';
                 $btn = $(html);

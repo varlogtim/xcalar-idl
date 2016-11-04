@@ -1314,6 +1314,7 @@ html.microsoft {
     .size(@width: 500px, @height: auto);
     bottom: auto;
     z-index: 100;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
 
     .modalHeader {
         text-transform: uppercase;
@@ -1329,7 +1330,6 @@ html.microsoft {
 
     &.locked {
         z-index: @z-index-locked + 2;
-        box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
         #alertHeader {
             cursor: default;
         }
@@ -2562,9 +2562,55 @@ html.microsoft {
     @sidePadding: 23px;
     @fontSize: 13px;
 
+    &.locked {
+        z-index: @z-index-locked + 2;
+    }
+
     &.flex-container {
         .flex-display;
     }
+
+    &.downloadSuccess {
+        .modalInstruction, .modalMain, .btn.confirm, .btn.cancel, .commentArea {
+            display: none;
+        }
+        .downloadMsg {
+            display: block;
+            .flex-display;
+            text-align: center;
+            .align-items(center);
+            .align-self(center);
+            .flex(1 1 auto);
+        }
+        .btn.close {
+            display: block;
+        }
+    }
+
+    &.downloadMode {
+        .btn {
+            &.confirm {
+                display: none;
+            }
+            &.download {
+                display: block;
+            }
+        }
+    }
+
+    &.bundleError {
+        .defaultIcon, .defaultText {
+            display: none !important;
+        }
+        .altIcon, .errorText {
+            display: block;
+            color: @color-error-border-light;
+        }
+        .errorText {
+            .flex-display !important;
+        }
+    }
+
     .flex-direction(column);
     .size(500px, 400px);
 
@@ -2578,7 +2624,8 @@ html.microsoft {
         padding-left: @sidePadding;
         .text {
             font-size: @fontSize;
-            margin-top: 7px;
+            .flex-display;
+            .align-self(center);
         }
     }
     .modalMain {
@@ -2634,6 +2681,14 @@ html.microsoft {
         padding-top: 10px;
         border-bottom: 1px solid @color-bg-pinkish-grey2;
     }
+    .commentArea {
+        .flex-display;
+        .flex-direction(column);
+        .flex(1 1 auto);
+    }
+    .bundleArea, .downloadMsg {
+        display: none;
+    }
     .xc-textArea {
         .flex(1 1 0px);
         margin-top: 10px;
@@ -2643,6 +2698,12 @@ html.microsoft {
     .modalBottom {
         height: 70px;
         padding-right: @sidePadding - 10px;
+    }
+    .btn.close, .btn.download, .altIcon, .errorText {
+        display: none;
+    }
+    .errorText {
+        display: none !important;
     }
 }
 

@@ -15,8 +15,10 @@
   </header>
   <!-- Instruction -->
   <section class="modalInstruction">
-    <i class="icon xi-info-circle"></i>
-    <div class="text"><%= dicts.supportTicket.GenSupInstr %></div>
+    <i class="icon xi-info-circle defaultIcon"></i>
+    <i class="icon xi-info-circle altIcon"></i>
+    <div class="text defaultText"><%= dicts.supportTicket.GenSupInstr %></div>
+    <span class="text errorText"></span>
   </section>
   <!-- Main Section -->
   <section class="modalMain">
@@ -39,7 +41,7 @@
       </div>
     </div>
     <div class="formRow genBundleRow xc-hidden">
-      <div class="checkboxSection" data-toggle="tooltip" data-container="body" data-placement="right auto" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
+      <div class="checkboxSection" data-toggle="tooltip" data-container="#supTicketModal" data-placement="right" data-original-title="<%= dicts.supportTicket.GenBundleTip %>">
         <div class="text"><%= dicts.monitor.GenSub %>?</div>
         <div class="checkbox">
           <i class="icon xi-ckbox-empty"></i>
@@ -49,13 +51,26 @@
     </div>
   </section>
   <section class="modalSubMain">
-    <div class="text"><%= dicts.supportTicket.Comments %>:</div>
-    <textarea class="xc-textArea"></textarea>
+    <div class="commentArea">
+      <div class="text"><%= dicts.supportTicket.Comments %>:</div>
+      <textarea class="xc-textArea"></textarea>
+    </div>
+    <div class="bundleArea">
+      <div class="bundleText">
+        Generating bundle...
+      </div>
+    </div>
+    <div class="downloadMsg">
+      Ticket download completed.<br/>
+      Please upload your ticket to Zendesk.
+    </div>
   </section>
   <!-- Button Section -->
   <section class="modalBottom">
     <button type="button" class="btn confirm"><%= dicts.supportTicket.GenTicketBtn %></button>
+    <button type="button" class="btn download">DOWNLOAD</button>
     <button type="button" class="btn cancel"><%= dicts.common.CANCEL %></button>
+    <button type="button" class="btn close"><%= dicts.common.CLOSE %></button>
   </section>
 </div>
 <!-- End of Support Ticket Modal -->

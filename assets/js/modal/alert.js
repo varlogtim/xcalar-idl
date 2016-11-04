@@ -129,6 +129,15 @@ window.Alert = (function($, Alert){
         }
     };
 
+    // hides the alert modal but doesn't close/reset  it
+    Alert.tempHide = function() {
+        $modal.addClass('xc-hidden');
+    };
+
+    Alert.unhide = function() {
+        $modal.removeClass('xc-hidden');
+    }
+
     Alert.getOptionVal = function() {
         var val = $("#alertOptionInput").val().trim();
         return val;

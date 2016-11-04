@@ -406,27 +406,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
         if (isGenSub) {
             // it's generating
             return;
-        }
-        var $card = $("#monitor-genSubCard");
-        $card.removeClass("done").removeClass("fail").removeClass("xc-hidden");
-
-        isGenSub = true;
-        XcalarSupportGenerate()
-        .then(function(filePath, bid) {
-            var msg = xcHelper.replaceMsg(CommonTxtTstr.SupportBundleMsg, {
-                "id"  : bid,
-                "path": filePath
-            });
-            $card.addClass("done")
-                .find(".infoSection").text(msg);
-        })
-        .fail(function(error) {
-            $card.addClass("fail")
-                .find("errorSection").text(error);
-        })
-        .always(function () {
-            isGenSub = false;
-        });
+        } 
+        SupTicketModal.show();
+        isGenSub = false;
     }
 
     return (MonitorPanel);

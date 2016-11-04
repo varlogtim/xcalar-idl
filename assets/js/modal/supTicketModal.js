@@ -36,10 +36,25 @@ window.SupTicketModal = (function($, SupTicketModal) {
     SupTicketModal.show = function() {
         $modal.addClass('flex-container');
         modalHelper.setup();
+        // Alert.tempHide();
+        if ($("#modalBackground").hasClass('locked')) {
+            $modal.addClass('locked');
+            Alert.tempHide();
+        }
+        if (!$issueList.find('.text').val()) {
+            $issueList.find('.text').val('Other');
+        }
     };
 
     function setupListeners() {
-        $modal.find('.confirm').click(submitForm);
+        $modal.find('.confirm').click(function() {
+            submitForm();
+        });
+
+        $modal.find('.download').click(function() {
+            var download = true;
+            submitForm(download);
+        });
 
         new MenuHelper($issueList, {
             "onSelect": function($li) {
@@ -73,24 +88,119 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $modal.find('.genBundleRow').addClass('xc-hidden');
     }
 
-    function submitForm() {
+    function submitForm(download) {
         var genBundle = false;
         var perfOrCrash;
+        var issueType = getIssueType();
+        if (issueType.toLowerCase().indexOf('perf') > -1 ||
+            issueType.toLowerCase().indexOf('crash') > -1) {
+            perfOrCrash = true;
+        } else {
+            perfOrCrash = false;
+        }
         if (perfOrCrash &&
             $modal.find('.genBundleRow .checkbox').hasClass('checked')) {
             genBundle = true;
         }
+        var comment = $modal.find('.xc-textArea').val().trim();
+        var ticketObj = {
+            type: issueType,
+            comment: comment
+        };
 
-        closeModal();
-        xcHelper.showSuccess();
+
+        if (download) {
+            downloadTicket(ticketObj);
+            $modal.addClass('downloadSuccess');
+            $modal.removeClass('downloadMode');
+            // closeModal();
+            xcHelper.showSuccess();
+        } else {
+            modalHelper.disableSubmit();
+            modalHelper.addWaitingBG();
+            if (genBundle) {
+                submitBundle();
+            }
+
+            submitTicket(ticketObj)
+            .then(function() {
+                xcHelper.showSuccess();
+                closeModal(); 
+            })
+            .fail(function() {
+                $modal.addClass('downloadMode');
+                var msg = "Ticket failed, try downloading and uploading to " +
+                          "ZenDesk.";
+                if ($modal.is(":visible")) {
+                    StatusBox.show(msg, $modal.find('.download'), false, {
+                        highZindex: $modal.hasClass('locked')
+                    });
+                } else {
+                    Alert.error('Submit Ticket Failed', msg);
+                }
+            })
+            .always(function() {
+                modalHelper.enableSubmit();
+                modalHelper.removeWaitingBG();
+            });
+        }
     }
+
+    function getIssueType() {
+        return $modal.find('.issueList .text').val();
+    }
+
+    function submitBundle() {
+        var deferred = jQuery.Deferred();
+
+        $("#monitor-genSub").addClass('xc-disabled');
+
+        XcalarSupportGenerate()
+        .then(function(ret) {
+            deferred.resolve();
+            // do not show anything if succeeds
+        })
+        .fail(function(err) {
+            deferred.reject(err);
+            if ($modal.is(":visible")) {
+                modalHelper.removeWaitingBG();
+                $modal.addClass('bundleError');
+                $modal.find('.errorText').text('Submit bundle failed. ' + err);
+            } else {
+                Alert.error('Submit Bundle Failed', err);
+            }
+        })
+        .always(function() {
+            $("#monitor-genSub").removeClass('xc-disabled');
+        });
+
+        return (deferred.promise());
+    }
+
+    function submitTicket(ticketObj) {
+        return fakePromise();
+    }
+
+    function downloadTicket(ticketObj) {
+        ticketObj.time = new Date();
+        xcHelper.downloadAsFile('xcalarTicket.txt', JSON.stringify(ticketObj));
+    }
+
+    function fakePromise() {
+        var deferred = jQuery.Deferred();
+        setTimeout(function() {
+            deferred.resolve();
+        }, 3000);
+        return deferred.promise();
+    };
 
     function closeModal() {
         modalHelper.clear();
-        hideSupBundle();
-        $issueList.find('.text').val("");
         $modal.find('.genBundleRow .checkbox').removeClass('checked');
         $modal.find('.xc-textArea').val("");
+        $modal.removeClass('downloadMode downloadSuccess bundleError');
+        Alert.unhide();
+        StatusBox.forceHide();
     }
 
     return (SupTicketModal);

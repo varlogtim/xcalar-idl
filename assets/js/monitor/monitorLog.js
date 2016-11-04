@@ -179,12 +179,13 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function appendLog(msg) {
-    	var html = '<div class="msgRow">' + msg + '</div>';
+        var row = '<div class="msgRow"></div>';
     	var $content = $logCard.find('.content');
     	var scrollHeight = $content[0].scrollHeight;
     	var curScrollTop = $content.scrollTop();
     	var contentHeight = $content.height();
-    	$logCard.find('.content').append(html);
+    	$logCard.find('.content').append(row);
+        $logCard.find('.content').find('.msgRow').last().text(msg);
 
     	if (curScrollTop + contentHeight + 30 > scrollHeight) {
     		$content.scrollTop($content[0].scrollHeight);
