@@ -200,26 +200,13 @@ window.DSTable = (function($, DSTable) {
     function updateTableInfo(dsObj, partial, isLoading) {
         var dsName = dsObj.getName();
         var format = dsObj.getFormat();
-        var path = dsObj.getPathWithPattern() || 'N/A';
-        var numEntries = dsObj.getNumEntries() || 'N/A';
+        var path = dsObj.getPathWithPattern() || "N/A";
+        var numEntries = dsObj.getNumEntries() || "N/A";
+        var size = dsObj.getSize() || "N/A";
 
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
-
-        // file size is special size it needs to be calculated
-        if (isLoading) {
-            $("#dsInfo-size").text("N/A");
-        } else {
-            dsObj.getFileSize()
-            .then(function(fileSize) {
-                $("#dsInfo-size").text(fileSize);
-            });
-        }
-
-        dsObj.getModifyDate()
-        .then(function(mDate) {
-            $("#dsInfo-modifyDate").text(mDate);
-        });
+        $("#dsInfo-size").text(size);
 
         if (typeof numEntries === "number") {
             numEntries = Number(numEntries).toLocaleString('en');

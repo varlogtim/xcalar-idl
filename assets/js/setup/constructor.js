@@ -1673,7 +1673,7 @@ function DSObj(options) {
         this.totalChildren = 1;
         this.format = options.format;
         this.path = options.path;
-        this.fileSize = options.fileSize || null;
+        this.size = options.size || null;
         this.numEntries = options.numEntries || null;
         this.resultSetId = options.resultSetId;
 
@@ -1758,57 +1758,18 @@ DSObj.prototype = {
         return this.numEntries;
     },
 
-    getModifyDate: function() {
-        // Get modify date, if not exist, fetch from backend and update it
-        var deferred = jQuery.Deferred();
-        var self = this;
-
-        if (self.mDate != null) {
-            deferred.resolve(self.mDate);
-            return (deferred.promise());
-        }
-
-        var loadURL = self.path;
-        var slashIndex = loadURL.lastIndexOf('/');
-        // var curFileName = null;
-
-        if (slashIndex === loadURL.length - 1) {
-            // when last char is '/', then the url is a folder
-            // should remove the last '/' first
-            loadURL = loadURL.substr(0, slashIndex);
-            slashIndex = loadURL.lastIndexOf('/');
-        }
-
-        XcalarListFiles(loadURL, self.isRecur)
-        .then(function(res) {
-            if (res.numFiles >= 1) { // More than one just take the first
-                self.mDate = xcHelper.timeStampTranslater(
-                                                       res.files[0].attr.mtime);
-                if (self.mDate == null) {
-                    self.mDate = "N/A";
-                }
-
-                deferred.resolve(self.mDate);
-                return;
-            } else {
-                console.error("Cannot find the file!");
-                deferred.resolve("N/A");
-            }
-        })
-        .fail(function(error) {
-            console.error("Cannot find file or list file failed", error);
-            deferred.resolve("N/A");
-        });
-
-        return deferred.promise();
+    getSize: function() {
+        return this.size;
     },
 
-    getFileSize: function() {
-        // Get file size, if not exist, fetch from backend and update it
+    setSize: function(size) {
+        this.size = xcHelper.sizeTranslator(size);
+    },
+
+    // this calculte how much size the dataset actually taken
+    // should be bigger than the size return from load
+    getMemoryTakenSize: function() {
         var self = this;
-        if (self.fileSize != null) {
-            return PromiseHelper.resolve(self.fileSize);
-        }
         var deferred = jQuery.Deferred();
         var dsName = self.fullName;
 
@@ -1825,19 +1786,10 @@ DSObj.prototype = {
                 size = xcHelper.sizeTranslator(size);
             }
 
-            if (size == null) {
-                size = "N/A";
-            } else {
-                self.fileSize = size;
-            }
 
             deferred.resolve(size);
         })
-        .fail(function(error) {
-            console.error("List file fails", error);
-            self.fileSize = null;
-            deferred.resolve("N/A");
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     },

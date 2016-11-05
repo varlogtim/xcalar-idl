@@ -14,23 +14,21 @@
     </div>
     <div class="infoSection">
       <div class="contentSection">
-        <span>Created by:</span>
+        <span><%= dicts.dsTable.CreatedBy %>:</span>
         <span id="dsInfo-author">John Smith</span>
         <span class="divider">|</span>
-        <span>Modified Date:</span>
-        <span id="dsInfo-modifyDate">11:04:33 AM 6-20-2016</span>
         <span class="divider">|</span>
-        <span>Records:</span>
+        <span><%= dicts.dsTable.Records %>:</span>
         <span id="dsInfo-records">70,817</span>
         <span class="divider">|</span>
-        <span>Size:</span>
+        <span><%= dicts.common.Size %>:</span>
         <span id="dsInfo-size">26MB</span>
       </div>
       <div class="contentSection">
-        <span>Format:</span>
+        <span><%= dicts.ds.Format %>:</span>
         <span id="schema-format">JSON</span>
         <span class="divider">|</span>
-        <span>Path:</span>
+        <span><%= dicts.dsTable.Path %>:</span>
         <span id="dsInfo-path">nfs:///netstore/datasets/yelp/user/</span>
       </div>
     </div>
@@ -75,9 +73,6 @@
         <span class="divider">|</span>
         <span><%= dicts.common.Size %>:</span>
         <span id="dsInfo-size">N/A</span>
-        <span class="divider">|</span>
-        <span><%= dicts.dsTable.ModifiedDate %>:</span>
-        <span id="dsInfo-modifyDate"></span>
       </div>
       <div class="contentSection">
         <span><%= dicts.ds.Format %>:</span>

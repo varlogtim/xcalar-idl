@@ -969,7 +969,9 @@ window.DSPreview = (function($, DSPreview) {
                     "error"  : error,
                     "noAlert": true
                 });
-                deferred.reject(error);
+                // fail but still resolve it because
+                // it has no effect to other operations
+                deferred.resolve();
             });
         } else {
             deferred.resolve();
@@ -1173,7 +1175,6 @@ window.DSPreview = (function($, DSPreview) {
 
     function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur, previewSize) {
         var deferred = jQuery.Deferred();
-        var loadError = null;
         var isLoadFormatJSON = false;
         var format = "raw";
 
@@ -1187,30 +1188,14 @@ window.DSPreview = (function($, DSPreview) {
         XcalarLoad(loadURL, format, tempDSName, "", "\n",
                     false, udfModule, udfFunc, isRecur,
                     previewSize, gDefaultQDelim, 0, false, txId)
-        .then(function(ret, error) {
-            loadError = error;
-        })
         .then(function() {
             return sampleData(tempDSName, rowsToFetch);
         })
         .then(function(result) {
             if (!result) {
-                var error = DSTStr.NoRecords;
-                if (loadError) {
-                    error += '\n' + loadError;
-                } else {
-                    // XXX temporary code, after change to XcalarPreview,
-                    // remove it
-                    error += '\n' + DSTStr.NoRecrodsHint;
-                }
-
+                var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 deferred.reject({"error": error});
                 return PromiseHelper.resolve(null);
-            }
-
-            if (loadError) {
-                // XXX find a better way to handle it
-                console.warn(loadError);
             }
 
             try {
@@ -1227,7 +1212,10 @@ window.DSPreview = (function($, DSPreview) {
                 deferred.reject({"error": DSTStr.NoParse});
             }
         })
-        .fail(deferred.reject);
+        .fail(function(error, loadError) {
+            var displayError = loadError || error;
+            deferred.reject(displayError);
+        });
 
         function parseRows(data) {
             var rows = [];

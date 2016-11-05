@@ -603,16 +603,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            var loadError = null;
-            if (ret1.errorString || ret1.errorFile) {
-                loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
-                    "error": ret1.errorString,
-                    "file" : ret1.errorFile
-                });
-            }
-
             Transaction.log(txId, ret2, parseDS(datasetName));
-            deferred.resolve(ret1, loadError);
+            deferred.resolve(ret1);
         }
     })
     .fail(function(error1, error2) {
@@ -633,13 +625,20 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             }
         } else {
             Transaction.checkAndSetCanceled(txId);
+            var loadError = null;
             if (error1 && typeof(error1) === "object" &&
                 error1.length == 2) {
                 // This has a valid error struct that we can use
                 var errorStruct = error1[1];
+                if (errorStruct.errorString || errorStruct.errorFile) {
+                    loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
+                        "error": errorStruct.errorString,
+                        "file" : errorStruct.errorFile
+                    });
+                }
             }
             var thriftError = thriftLog("XcalarLoad", error1[0], error2);
-            deferred.reject(thriftError);
+            deferred.reject(thriftError, loadError);
         }
     });
 

@@ -511,14 +511,11 @@ window.DS = (function ($, DS) {
             args.push(txId);
             return XcalarLoad.apply(this, args);
         })
-        .then(function(ret, error) {
-            if (error != null) {
-                dsObj.setError(error);
-            }
-
+        .then(function(ret) {
+            dsObj.setSize(ret.numBytes);
             finishPoint();
 
-            if (error == null && createTabe) {
+            if (createTabe) {
                 createTableHelper($grid, dsObj);
             } else if ($grid.hasClass("active")) {
                 // re-focus to trigger DSTable.show()
@@ -543,8 +540,10 @@ window.DS = (function ($, DS) {
             });
             deferred.resolve(dsObj);
         })
-        .fail(function(error) {
-            dsObj.setError(error);
+        .fail(function(error, loadError) {
+            // show loadError if has, otherwise show error message
+            var disaplyError = loadError || error;
+            dsObj.setError(disaplyError);
             finishPoint();
             DS.focusOn($grid);
 
