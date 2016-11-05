@@ -939,11 +939,25 @@ window.Profile = (function($, Profile, d3) {
         XcalarIndexFromTable(srcTable, sortCol, finalTable,
                             XcalarOrderingT.XcalarOrderingAscending, txId)
         .then(function() {
-            var def1 = getAggResult(statsColName, finalTable, aggMap.max, txId);
-            var def2 = getAggResult(statsColName, finalTable, aggMap.sum, txId);
-            return PromiseHelper.when(def1, def2);
+            return aggInGroupby(statsColName, finalTable, txId);
         })
         .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function aggInGroupby(colName, tableName, txId) {
+        var deferred = jQuery.Deferred();
+        var def1 = getAggResult(colName, tableName, aggMap.max, txId);
+        var def2 = getAggResult(colName, tableName, aggMap.sum, txId);
+        
+        PromiseHelper.when(def1, def2)
+        .then(function(ret1, ret2) {
+            var maxVal = ret1[0];
+            var sumVal = ret2[0];
+            deferred.resolve(maxVal, sumVal);
+        })
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -1933,9 +1947,7 @@ window.Profile = (function($, Profile, d3) {
                                         txId);
         })
         .then(function() {
-            var def1 = getAggResult(bucketColName, finalTable, aggMap.max, txId);
-            var def2 = getAggResult(bucketColName, finalTable, aggMap.sum, txId);
-            return PromiseHelper.when(def1, def2);
+            return aggInGroupby(bucketColName, finalTable, txId);
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(newBucketNum, {
