@@ -59,12 +59,18 @@ window.PromiseHelper = (function(PromiseHelper, $) {
         }
 
         function whenCall(i) {
-            argument[i].then(function(ret) {
+            argument[i].then(function() {
                 if (!gMutePromises) {
                     console.log("Promise", i, "done!");
                 }
                 numDone++;
-                returns[i] = ret;
+                if (arguments.length === 0) {
+                    returns[i] = undefined;
+                } else if (arguments.length === 1) {
+                    returns[i] = arguments[0];
+                } else {
+                    returns[i] = arguments;
+                }
 
                 if (numDone === numProm) {
                     if (!gMutePromises) {
@@ -76,10 +82,16 @@ window.PromiseHelper = (function(PromiseHelper, $) {
                         mainDeferred.resolve.apply($, returns);
                     }
                 }
-            }, function(ret) {
+            }, function() {
                 console.warn("Promise", i, "failed!");
                 numDone++;
-                returns[i] = ret;
+                if (arguments.length === 0) {
+                    returns[i] = undefined;
+                } else if (arguments.length === 1) {
+                    returns[i] = arguments[0];
+                } else {
+                    returns[i] = arguments;
+                }
                 hasFailures = true;
                 if (numDone === numProm) {
                     console.log("All done!");

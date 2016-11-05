@@ -616,7 +616,9 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         }
     })
     .fail(function(error1, error2) {
-        if (error1 && error1.status === 502) {
+        if (error1 && typeof(error1) === "object" &&
+            (("status" in error1 && error1.status === 502) ||
+            (error1.length > 0 && error1[0].status === 502))) {
             // Thrift time out
             // Just pretend like nothing happened and quietly listDatasets
             // in intervals until the load is complete. Then do the ack/fail
@@ -631,7 +633,12 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             }
         } else {
             Transaction.checkAndSetCanceled(txId);
-            var thriftError = thriftLog("XcalarLoad", error1, error2);
+            if (error1 && typeof(error1) === "object" &&
+                error1.length == 2) {
+                // This has a valid error struct that we can use
+                var errorStruct = error1[1];
+            }
+            var thriftError = thriftLog("XcalarLoad", error1[0], error2);
             deferred.reject(thriftError);
         }
     });
