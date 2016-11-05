@@ -285,6 +285,12 @@ window.XIApi = (function(XIApi, $) {
             return PromiseHelper.when(deferred1, deferred2);
         })
         .then(function(lInexedTable, rIndexedTable) {
+            if (typeof lInexedTable === "object") {
+                lInexedTable = lInexedTable[0];
+            }
+            if (typeof rIndexedTable === "object") {
+                rIndexedTable = rIndexedTable[0];
+            }
             lTable_index = lInexedTable;
             rTable_index = rIndexedTable;
             if (!isValidTableName(newTableName)) {
