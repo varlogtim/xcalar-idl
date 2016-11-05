@@ -279,7 +279,8 @@ module.exports = {
         "save": "Last Saved On",
         "create": "Created On",
         "EC": "Establishing Connection",
-        "adminText": "This is what Xcalar Insight looks like to"
+        "adminText": "This is what Xcalar Insight looks like to",
+        "adminClose": "Return to administrator account",
     },
 
     "admin": {

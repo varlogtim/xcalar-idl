@@ -11,8 +11,8 @@ window.Admin = (function($, Admin) {
         //xx temp hack  to determine admin
         if (localStorage.admin === "true") {
             gAdmin = true;
-            
-            if (sessionStorage.usingAs === "true") {
+            if (sessionStorage.usingAs === "true" &&
+                sessionStorage.adminName !== Support.getUser()) {
                 posingAsUser = true;
                 $('#container').addClass('posingAsUser');
             } else {

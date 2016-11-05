@@ -10,7 +10,6 @@ window.SupportTools = (function(SupportTools, $) {
     SupportTools.show = function() {
         Alert.forceClose();
         
-
         MainMenu.openPanel('monitorPanel');
         $('#setupButton').click();
         MainMenu.open(true);

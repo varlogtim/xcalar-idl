@@ -350,11 +350,19 @@ window.StartManager = (function(StartManager, $) {
             AboutModal.show();
         });
 
+        $menu.on('click', ".setup", function() {
+            // visible to admin only
+            MainMenu.openPanel('monitorPanel');
+            $('#setupButton').click();
+            MainMenu.open(true);
+        });
+
         $("#userName").text(username);
 
         $("#signout").click(function() {
             unloadHandler();
         });
+
     }
 
     function setupWorkspaceBar() {
