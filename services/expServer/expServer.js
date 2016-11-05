@@ -63,6 +63,13 @@ var Status = {
     "Error": -1,
 };
 
+var SupportStatus = {
+    "OKLog": 0,
+    "OKNoLog": 1,
+    "OKUnknown": 2,
+    "Error": -1
+};
+
 var curStep = {};
 
 var getNodeRegex = /\[([0-9]+)\]/;
@@ -298,51 +305,30 @@ app.post("/cancelInstall", function(req, res) {
 
 var file = "/var/log/Xcalar.log";
 
-app.post("/recentLogs", function(req, res) {
-    console.log("Fetch Recent Logs");
-    var credArray = req.body;
-    var requireLineNum =  credArray["requireLineNum"];
-    tail.tailByLargeBuffer(file, requireLineNum, res);
+// Master request
+app.post("/service/start", function(req, res) {
+    console.log("Start Xcalar Services as Master");
+    support.masterExecuteAction("/service/start", res);
 });
 
-app.post("/monitorLogs", function(req, res) {
-    var credArray = req.body;
-    var userID =  credArray["userID"];
-    tail.createTailUser(userID);
-    tail.tailf(file, res, userID);
+app.post("/service/stop", function(req, res) {
+    console.log("Stop Xcalar Service as Master");
+    support.masterExecuteAction("/service/stop", res);
 });
 
-app.post("/stopMonitorLogs", function(req, res) {
-    console.log("Stop Monitoring Logs");
-    var credArray = req.body;
-    var userID =  credArray["userID"];
-    tail.removeTailUser(userID);
-    res.send({"status": Status.Ok});
+app.post("/service/restart", function(req, res) {
+    console.log("Restart Xcalar Services as Master");
+    support.masterExecuteAction("/service/restart", res);
 });
 
-app.post("/xcalarStart", function(req, res) {
-    console.log("Start Xcalar Services");
-    support.xcalarStart(res);
+app.post("/service/status", function(req, res) {
+    console.log("Show Xcalar Services status as Master");
+    support.masterExecuteAction("/service/status", res);
 });
 
-app.post("/xcalarStop", function(req, res) {
-    console.log("Stop Xcalar Services");
-    support.xcalarStop(res);
-});
-
-app.post("/xcalarRestart", function(req, res) {
-    console.log("Restart Xcalar Services");
-    support.xcalarRestart(res);
-});
-
-app.post("/xcalarStatus", function(req, res) {
-    console.log("Show Xcalar Services status");
-    support.xcalarStatus(res);
-});
-
-app.post("/xcalarCondrestart", function(req, res) {
-    console.log("Condrestart Xcalar Services");
-    support.xcalarCondrestart(res);
+app.post("/service/condrestart", function(req, res) {
+    console.log("Condrestart Xcalar Services as Master");
+    support.masterExecuteAction("/service/condrestart", res);
 });
 
 app.post("/removeSessionFiles", function(req, res) {
@@ -350,6 +336,81 @@ app.post("/removeSessionFiles", function(req, res) {
     var credArray = req.body;
     var filename =  credArray["filename"];
     support.removeSessionFiles(filename, res);
+});
+
+app.post("/recentLogs", function(req, res) {
+    console.log("Fetch Recent Logs as Master");
+    var credArray = req.body;
+    var requireLineNum =  credArray["requireLineNum"];
+    var str = {"requireLineNum" : requireLineNum, "filename": file};
+    support.masterExecuteAction("/recentLogs", res, str);
+});
+
+app.post("/monitorLogs", function(req, res) {
+    console.log("Monitor Recent Logs as Master");
+    var credArray = req.body;
+    var userID =  credArray["userID"];
+    var str = {"filename": file, "userID": userID};
+    console.log("userID", userID);
+    support.masterExecuteAction("/monitorLogs", res, str);
+});
+
+app.post("/stopMonitorLogs", function(req, res) {
+    console.log("Stop Monitoring Logs as Master");
+    var credArray = req.body;
+    var userID =  credArray["userID"];
+    var str = {"userID": userID};
+    support.masterExecuteAction("/stopMonitorLogs", res, str);
+});
+
+// Slave request
+app.post("/service/start/slave", function(req, res) {
+    console.log("Start Xcalar Services as Slave");
+    support.slaveExecuteAction("/service/start/slave", res);
+});
+
+app.post("/service/stop/slave", function(req, res) {
+    console.log("Stop Xcalar Services as Slave");
+    support.slaveExecuteAction("/service/stop/slave", res);
+});
+
+app.post("/service/restart/slave", function(req, res) {
+    console.log("Restart Xcalar Services as Slave");
+    support.slaveExecuteAction("/service/restart/slave", res);
+});
+
+app.post("/service/status/slave", function(req, res) {
+    console.log("Show Xcalar Services statu as Slave");
+    support.slaveExecuteAction("/service/status/slave", res);
+});
+
+app.post("/service/condrestart/slave", function(req, res) {
+    console.log("Condrestart Xcalar Services as Slave");
+    support.slaveExecuteAction("/service/condrestart/slave", res);
+});
+
+app.post("/recentLogs/slave", function(req, res) {
+    console.log("Fetch Recent Logs as Slave");
+    var credArray = req.body;
+    var requireLineNum =  credArray["requireLineNum"];
+    var str = {"requireLineNum" : requireLineNum, "filename": file};
+    support.slaveExecuteAction("/recentLogs/slave", res, str);
+});
+
+app.post("/monitorLogs/slave", function(req, res) {
+    console.log("Monitor Recent Logs as Slave");
+    var credArray = req.body;
+    var userID =  credArray["userID"];
+    var str = {"filename": file, "userID": userID};
+    support.slaveExecuteAction("/monitorLogs/slave", res, str);
+});
+
+app.post("/stopMonitorLogs/slave", function(req, res) {
+    console.log("Stop Monitoring Logs as Slave");
+    var credArray = req.body;
+    var userID =  credArray["userID"];
+    var str = {"filename": file, "userID": userID};
+    support.slaveExecuteAction("/stopMonitorLogs/slave", res, str);
 });
 
 function copyFiles(res) {

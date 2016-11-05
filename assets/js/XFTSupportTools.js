@@ -3,9 +3,9 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     var lastReturnSucc = true;
 
     XFTSupportTools.getRecentLogs = function(requireLineNum) {
-        var action = "recentLogs";
+        var action = "/recentLogs";
         var str = {"requireLineNum" : requireLineNum};
-        return (postRequest(action, str));
+        return requestService(action, str);
     }
 
     // pass in callbacks to get triggered upon each post return
@@ -17,11 +17,10 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         function getLog() {
             if (lastReturnSucc) {
                 lastReturnSucc = false;
-                var action = "monitorLogs";
+                var action = "/monitorLogs";
                 // support multiple user
                 var data = {"userID" : Support.getUser()};
-                var promise = postRequest(action, data);
-                promise
+                postRequest(action, data)
                 .then(function(ret) {
                     console.info(ret);
                     lastReturnSucc = true;
@@ -47,15 +46,14 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             type: 'POST',
             data: JSON.stringify({"userID" : Support.getUser()}),
             contentType: 'application/json',
-            url: "https://authentication.xcalar.net/app/stopMonitorLogs",
-            // url: "http://dijkstra:12124/stopMonitorLogs",
+            url: "https://" + hostname + ":12124/app/stopMonitorLogs",
             success: function(data) {
                 var ret = data;
                 if (ret.status === Status.Ok) {
                     console.log('Stop successfully');
                     deferred.resolve(ret);
                 } else if (ret.status === Status.Error) {
-                    console.log('Stop fails');
+                    console.error('Stop fails');
                     deferred.reject(ret);
                 } else {
                     console.log('shouldnt be here');
@@ -63,7 +61,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 }
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 deferred.reject(error);
             }
         });
@@ -71,36 +69,52 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     };
 
     XFTSupportTools.startXcalarServices = function() {
-        var action = "xcalarStart";
-        return (postRequest(action));
+        var action = "/service/start";
+        return requestService(action);
     };
 
     XFTSupportTools.stopXcalarServices = function() {
-        var action = "xcalarStop";
-        return (postRequest(action));
+        var action = "/service/stop";
+        return requestService(action);
     };
 
     XFTSupportTools.restartXcalarServices = function() {
-        var action = "xcalarRestart";
-        return (postRequest(action));
+        var action = "/service/restart";
+        return requestService(action);
     };
 
     XFTSupportTools.statusXcalarServices = function() {
-        var action = "xcalarStatus";
-        return (postRequest(action));
+        var action = "/service/status";
+        return requestService(action);
     };
 
     XFTSupportTools.condrestartXcalarServices = function() {
-        var action = "xcalarCondrestart";
-        var str = undefined;
-        return (postRequest(action, str));
+        var action = "/service/condrestart";
+        return requestService(action);
     };
 
     XFTSupportTools.removeSessionFiles = function(filename) {
-        var action = "removeSessionFiles";
+        var action = "/removeSessionFiles";
         var str = {"filename" : filename};
-        return (postRequest(action, str));
+        return requestService(action, str);
     };
+
+    function requestService(action, str) {
+        var promise = postRequest(action, str);
+        var deferred = jQuery.Deferred();
+        promise
+        .then(function(result) {
+            console.log("Every Node execute successfully");
+            console.log(result.logs);
+            deferred.resolve(result);
+        })
+        .fail(function(result) {
+            console.log("With Node fail to execute");
+            console.log(result.logs);
+            deferred.reject(result);
+        });
+        return deferred.promise();
+    }
 
     function postRequest(action, str) {
         var deferred = jQuery.Deferred();
@@ -108,8 +122,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             type: 'POST',
             data: JSON.stringify(str),
             contentType: 'application/json',
-            url: "http://authentication.xcalar.net/app/" + action,
-            // url: "http://dijkstra:12124/" + action,
+            url: "https://" + hostname + ":12124/app/" + action,
             success: function(data) {
                 var ret = data;
                 var retMsg;
@@ -137,7 +150,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                     deferred.reject(retMsg);
                 } else {
                     retMsg = {
-                        status: OKUnknown,
+                        status: SupportStatus.OKUnknown,
                         error: ret
                     };
                     deferred.reject(retMsg);

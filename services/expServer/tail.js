@@ -13,12 +13,8 @@ require("jsdom").env("", function(err, window) {
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
-var Status = {
-    "Ok": 0,
-    "Done": 1,
-    "Running": 2,
-    "Error": -1,
-};
+var ssf = require('./supportStatusFile');
+var SupportStatus = ssf.SupportStatus;
 
 var tailUsers = new Map();
 
@@ -84,12 +80,12 @@ function tailByChildProcess(filename, requireLineNum, res) {
     cp.exec(command, function(err,stdout,stderr){
         if(err){
             console.log(err.message);
-            res.send({"status": Status.Error});
+            res.send({"status": SupportStatus.Error});
             deferred.reject();
         } else {
             var lines = String(stdout);
             lines = btoa(lines);
-            res.send({"status": Status.Ok,
+            res.send({"status": SupportStatus.OKLog,
                       "logs" : lines});
             deferred.resolve(lines);
         }
@@ -98,10 +94,13 @@ function tailByChildProcess(filename, requireLineNum, res) {
 }
 
 function tailByLargeBuffer(filename, requireLineNum, res) {
+    console.log("Enter tail by large buffer")
     if(!isLogNumValid(requireLineNum)) {
-        res.send({"status": Status.Error,
-                  "message": "Please Enter a nonnegative integer" +
-                             "not over 500"});
+        if(res) {
+            res.send({"status": SupportStatus.Error,
+                      "error": new Error("Please Enter a nonnegative integer" +
+                                         "not over 500")});
+        }
         return;
     }
     var deferred = jQuery.Deferred();
@@ -116,6 +115,15 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
     });
     deferred.promise()
     .then(function(stat) {
+        console.log("stat", stat)
+        if(!stat || stat.size == 0) {
+            if(res) {
+                console.log("Empty file");
+                res.send({"status": SupportStatus.OKLog,
+                          "logs": "The file is empty!"});
+            }
+            deferred.reject();
+        }
         var deferred2 = jQuery.Deferred();
         fs.open(filename, 'r', function(err, fd) {
             if(err) {
@@ -128,6 +136,8 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
         return deferred2.promise();
     })
     .then(function(fd, stat) {
+        console.log("fd", fd)
+        console.log("stat", stat)
         var deferred3 = jQuery.Deferred();
         //  How many line end have been meet
         var lineEndNum = 0;
@@ -174,15 +184,17 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
         return readFromEnd(new Buffer(bufferSize));
     })
     .then(function(fd, stat, lines) {
-        console.log(lines.substring(0, lines.length - 1));
-        lines = btoa(lines);
-        res.send({"status": Status.Ok,
-              "logs" : lines});
+        if(lines) {
+            console.log(lines.substring(0, lines.length - 1));
+            res.send({"status": SupportStatus.OKLog, "logs" : lines});
+        } else {
+            res.send({"status": SupportStatus.OKNoLog});
+        }
         deferredOut.resolve(fd, stat, lines);
     })
     .fail(function() {
         console.log("something fails!");
-        res.send({"status": Status.Error});
+        res.send({"status": SupportStatus.Error});
         deferredOut.reject();
     });
     return deferredOut.promise();
@@ -251,13 +263,14 @@ function sendRecentLogs(res, userID) {
     .then(function(lines){
         if(lines) {
             console.log(lines.substring(0, lines.length - 1));
+            res.send({"status": SupportStatus.OKLog, "logs" : lines});
+        } else {
+            res.send({"status": SupportStatus.OKNoLog});
         }
-        lines = btoa(lines);
-        res.send({"status": Status.Ok, "logs" : lines});
     })
     .fail(function() {
         console.log("Tail Process fails!");
-        res.send({"status": Status.Error});
+        res.send({"status": SupportStatus.Error});
     });
 }
 
