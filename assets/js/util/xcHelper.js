@@ -170,10 +170,14 @@ window.xcHelper = (function($, xcHelper) {
         return Math.round(previewSize);
     };
 
-    xcHelper.getJoinRenameMap = function(oldName, newName) {
+    xcHelper.getJoinRenameMap = function(oldName, newName, type) {
+        if (!type) {
+            type = DfFieldTypeT.DfUnknown;
+        }
         return {
             "orig": oldName,
-            "new" : newName
+            "new" : newName,
+            "type": type
         };
     };
 

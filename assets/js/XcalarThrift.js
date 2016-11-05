@@ -645,42 +645,6 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     return (deferred.promise());
 }
 
-// XXX Not tested!! CURRENTLY NO SUPPORT FOR ODBC
-function XcalarAddODBCExportTarget(targetName, connStr, txId) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    var deferred = jQuery.Deferred();
-    if (Transaction.checkAndSetCanceled(txId)) {
-        return (deferred.reject().promise());
-    }
-
-    var target = new ExExportTargetT();
-    target.hdr = new ExExportTargetHdrT();
-    target.hdr.name = targetName;
-    target.hdr.type = ExTargetTypeT.ExTargetODBCType;
-    target.specificInput = new ExAddTargetSpecificInputT();
-    target.specificInput.odbcInput = new ExAddTargetODBCInputT();
-    target.specificInput.odbcInput.connectionString = connStr;
-
-    var def1 = xcalarAddExportTarget(tHandle, target);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // XXX Add sql for this thing
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarAddODBCExportTarget", error);
-        deferred.reject(thriftError);
-    });
-
-    return (deferred.promise());
-}
-
 function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -837,10 +801,6 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
             return;
         }
         switch (target.type) {
-            case (ExTargetTypeT.ExTargetODBCType):
-                specInput.odbcInput = new ExInitExportODBCInputT();
-                specInput.odbcInput.tableName = exportName;
-                break;
             case (ExTargetTypeT.ExTargetSFType):
                 // XX this is not a good check, fix later
                 if (options.splitType == null || options.headerType == null ||
@@ -1985,9 +1945,9 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
 
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
                                           joinType, leftRenameMap,
-                                          rightRenameMap, false);
+                                          rightRenameMap, true);
         var def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
-                              joinType, leftRenameMap, rightRenameMap, false);
+                              joinType, leftRenameMap, rightRenameMap, true);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'join', dst, query);

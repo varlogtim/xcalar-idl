@@ -17,6 +17,7 @@ window.JoinView = (function($, JoinView) {
     var lFatPtrCache;
     var rFatPtrCache;
     var allClashingImmediatesCache;
+    var allClashingFatPtrsCache;
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
     var formOpenTime; // stores the last time the form was opened
@@ -1107,6 +1108,8 @@ window.JoinView = (function($, JoinView) {
 
             }
 
+            // Cross check between left and right fat ptrs on whether they
+            // still clash
             for (i = 0; i < $leftFatRenames.length; i++) {
                 if (rFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
                                                     .val()) > -1) {
@@ -1143,7 +1146,8 @@ window.JoinView = (function($, JoinView) {
                 }
             }
 
-            // Find out whether any of the immediate names still clash
+            // Cross check between left and right immediates on whether they
+            // still clash
             for (i = 0; i < $leftRenames.length; i++) {
                 if (rImmediates.indexOf($leftRenames.eq(i).find(".newName")
                                                     .val()) > -1) {
@@ -1186,9 +1190,16 @@ window.JoinView = (function($, JoinView) {
 
             // Remove user's renames from autoRename array and auto rename the
             // rest
-            autoResolveImmediatesCollisions(allClashingImmediatesCache,
-                                            lColsToKeep, rColsToKeep,
-                                            leftRenameArray, rightRenameArray);
+            var suff = Math.floor(Math.random() * 1000);
+            autoResolveCollisions(allClashingImmediatesCache, suff,
+                                  DfFieldTypeT.DfUnknown, lColsToKeep,
+                                  rColsToKeep, leftRenameArray,
+                                  rightRenameArray);
+            autoResolveCollisions(allClashingFatPtrsCache, suff,
+                                  DfFieldTypeT.DfFatptr,
+                                  getPrefixes(lColsToKeep),
+                                  getPrefixes(rColsToKeep), leftFatRenameArray,
+                                  rightFatRenameArray);
 
             leftRenameArray = leftRenameArray.concat(leftFatRenameArray);
             rightRenameArray = rightRenameArray.concat(rightFatRenameArray);
@@ -1215,6 +1226,20 @@ window.JoinView = (function($, JoinView) {
             }
         }
 
+        function getUserChosenFatPtrCollision() {
+            // Get all prefixes in lColsToKeep
+            var i = 0;
+            var leftPrefixes = getPrefixes(lColsToKeep);
+            var rightPrefixes = getPrefixes(rColsToKeep);
+            var clashingUserChosenPrefixes = [];
+            for (i = 0; i < leftPrefixes.length; i++) {
+                if (rightPrefixes.indexOf(leftPrefixes[i]) > -1) {
+                    clashingUserChosenPrefixes.push(leftPrefixes[i]);
+                }
+            }
+            return clashingUserChosenPrefixes;
+        }
+
         function userChosenColCollision(colName) {
             if (lColsToKeep.indexOf(colName) > -1 &&
                 rColsToKeep.indexOf(colName) > -1) {
@@ -1222,6 +1247,22 @@ window.JoinView = (function($, JoinView) {
             } else {
                 return false;
             }
+        }
+
+        function getPrefixes(array) {
+            // Given an array of column names, extract all unique prefixes
+            var prefixes = [];
+            var i = 0;
+            for (i = 0; i < array.length; i++) {
+                colNameParts = array[i].split("::");
+                if (colNameParts.length < 2) {
+                    continue;
+                }
+                if (prefixes.indexOf(colNameParts[0]) == -1) {
+                    prefixes.push(colNameParts[0]);
+                }
+            }
+            return prefixes;
         }
 
         function keepOnlyNames(valueAttr) {
@@ -1273,6 +1314,10 @@ window.JoinView = (function($, JoinView) {
 
         // If none of the columns collide are part of the user's selection
         // then we resolve it underneath the covers and let the user go
+        allClashingFatPtrsCache = lFatPtrToRename;
+        lFatPtrToRename = getUserChosenFatPtrCollision();
+        rFatPtrToRename = xcHelper.deepCopy(lFatPtrToRename);
+
         allClashingImmediatesCache = xcHelper.deepCopy(lImmediatesToRename);
         lImmediatesToRename =
                   allClashingImmediatesCache.filter(userChosenColCollision);
@@ -1295,10 +1340,16 @@ window.JoinView = (function($, JoinView) {
         } else {
             var leftAutoRenames = [];
             var rightAutoRenames = [];
-            autoResolveImmediatesCollisions(allClashingImmediatesCache,
-                                            lColsToKeep, rColsToKeep,
-                                            leftAutoRenames,
-                                            rightAutoRenames);
+            var suff = Math.floor(Math.random() * 1000);
+            autoResolveCollisions(allClashingImmediatesCache, suff,
+                                  DfFieldTypeT.DfUnknown, lColsToKeep,
+                                  rColsToKeep, leftAutoRenames,
+                                  rightAutoRenames);
+            autoResolveCollisions(allClashingFatPtrsCache, suff,
+                                  DfFieldTypeT.DfFatptr,
+                                  getPrefixes(lColsToKeep),
+                                  getPrefixes(rColsToKeep), leftAutoRenames,
+                                  rightAutoRenames);
             proceedWithJoin(leftAutoRenames, rightAutoRenames);
             return true;
         }
@@ -1416,11 +1467,9 @@ window.JoinView = (function($, JoinView) {
         });
     }
 
-
-    function autoResolveImmediatesCollisions(clashes,
-                                             leftColsToKeep, rightColsToKeep,
-                                             leftRenameOut, rightRenameOut) {
-        var suff = Math.floor(Math.random() * 1000);
+    function autoResolveCollisions(clashes, suff, type,
+                                   leftColsToKeep, rightColsToKeep,
+                                   leftRenameOut, rightRenameOut) {
         var i;
         // Remove all leftColsToKeep from clashes
         var leftClashArray = xcHelper.deepCopy(clashes);
@@ -1459,7 +1508,8 @@ window.JoinView = (function($, JoinView) {
                     // Push right clash into rename
                     oldName = rightClashArray[i];
                     newName = rightClashArray[i] + "_" + suff;
-                    renameMap = xcHelper.getJoinRenameMap(oldName, newName);
+                    renameMap = xcHelper.getJoinRenameMap(oldName, newName,
+                                                          type);
                     rightRenameOut.push(renameMap);
                 }
             } else {
@@ -1467,13 +1517,13 @@ window.JoinView = (function($, JoinView) {
                 // we rename the left
                 oldName = leftClashArray[i];
                 newName = leftClashArray[i] + "_" + suff;
-                renameMap = xcHelper.getJoinRenameMap(oldName, newName);
+                renameMap = xcHelper.getJoinRenameMap(oldName, newName,
+                                                      type);
                 leftRenameOut.push(renameMap);
             }
         }
         return;
     }
-
 
     function addRenameRows($placeholder, renames) {
         for (var i = 0; i < renames.length; i++) {
