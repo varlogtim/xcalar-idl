@@ -265,11 +265,8 @@ window.UserSettings = (function($, UserSettings) {
 
     function updateDsPreviewLimitInput(size) {
         var advanceOption = DSPreview.getAdvanceOption();
-        var sizeArr = xcHelper.sizeTranslator(size, true);
         advanceOption.modify({
-            previewSize: size,
-            sizeText   : sizeArr[0],
-            unit       : sizeArr[1]
+            previewSize: size
         });
     }
            

@@ -827,7 +827,6 @@ describe('Constructor Test', function() {
         });
 
     });
-
      
     describe("DSFormAdvanceOption Constructor Test", function() {
         var advanceOption;
@@ -928,9 +927,7 @@ describe('Constructor Test', function() {
                 "pattern"    : "testPattern",
                 "isRecur"    : true,
                 "isRegex"    : true,
-                "previewSize": 123,
-                "unit"       : "B",
-                "sizeText"   : "123"
+                "previewSize": 123
             });
 
             expect($pattern.find("input").val()).to.equal("testPattern");
@@ -949,14 +946,12 @@ describe('Constructor Test', function() {
                 "pattern"    : "testPattern",
                 "isRecur"    : true,
                 "isRegex"    : true,
-                "previewSize": 123,
-                "unit"       : "B",
-                "sizeText"   : "123"
+                "previewSize": 123
             });
 
             var res = advanceOption.getArgs();
             expect(res).to.be.an("object");
-            expect(Object.keys(res).length).to.equal(6);
+            expect(Object.keys(res).length).to.equal(4);
 
             expect(res).to.have.property("pattern")
             .and.to.equal("testPattern");
@@ -969,12 +964,6 @@ describe('Constructor Test', function() {
 
             expect(res).to.have.property("previewSize")
             .and.to.equal(123);
-
-            expect(res).to.have.property("sizeText")
-            .and.to.equal("123");
-
-            expect(res).to.have.property("unit")
-            .and.to.equal("B");
 
             // case 2
             var $radioButton = $limit.find(".radioButton[data-option='custom']");

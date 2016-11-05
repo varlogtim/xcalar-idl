@@ -1106,25 +1106,16 @@ DSFormAdvanceOption.prototype = {
             $pattern.find(".regex .checkbox").addClass("checked");
         }
 
-        if (options.previewSize != null && options.previewSize > 0) {
+        var previewSize = options.previewSize;
+        if (previewSize != null && previewSize > 0) {
             hasSet = true;
             $limit.find(".radioButton[data-option='custom']").click();
-            $limit.find(".unit").val(options.unit);
-            $limit.find(".size").val(options.sizeText);
         } else {
             $limit.find(".radioButton[data-option='default']").click();
-            var defaultVal = UserSettings.getPref('DsDefaultSampleSize');
-            var size = xcHelper.sizeTranslator(defaultVal, true);
-            // XXX use user setting's value for it
-            // instead of hard code
-            if (!size) {
-                $limit.find(".unit").val("GB");
-                $limit.find(".size").val(10);
-            } else {
-                $limit.find(".unit").val(size[1]);
-                $limit.find(".size").val(size[0]);
-            }
+            previewSize = UserSettings.getPref('DsDefaultSampleSize');
         }
+
+        this._changePreivewSize(previewSize);
 
         if (hasSet && !$section.hasClass("active")) {
             $section.find(".listInfo .expand").click();
@@ -1133,12 +1124,23 @@ DSFormAdvanceOption.prototype = {
 
     modify: function(options) {
         options = options || {};
-        var $section = this.$section;
+        var previewSize = options.previewSize;
         
-        if (options.previewSize !== null && options.previewSize > 0) {
-            var $limit = $section.find(".option.limit");
-            $limit.find(".unit").val(options.unit);
-            $limit.find(".size").val(options.sizeText);
+        if (previewSize !== null && previewSize > 0) {
+            this._changePreivewSize(previewSize);
+        }
+    },
+
+    _changePreivewSize: function(previewSize) {
+        var $limit = this.$section.find(".option.limit");
+        var sizeArr = xcHelper.sizeTranslator(previewSize, true);
+
+        if (!sizeArr) {
+            $limit.find(".unit").val("GB");
+            $limit.find(".size").val(10);
+        } else {
+            $limit.find(".unit").val(sizeArr[1]);
+            $limit.find(".size").val(sizeArr[0]);
         }
     },
 
@@ -1177,9 +1179,7 @@ DSFormAdvanceOption.prototype = {
             "pattern"    : pattern,
             "isRecur"    : isRecur,
             "isRegex"    : isRegex,
-            "previewSize": previewSize,
-            "sizeText"   : size,
-            "unit"       : unit
+            "previewSize": previewSize
         };
     }
 };
