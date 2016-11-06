@@ -611,6 +611,14 @@ window.DSPreview = (function($, DSPreview) {
             },
             {
                 "$ele"    : $dsName,
+                "error"   : ErrTStr.DSStartsWithNum,
+                "formMode": true,
+                "check"   : function() {
+                    return xcHelper.isStartsWithNumber(dsName);
+                }
+            },
+            {
+                "$ele"    : $dsName,
                 "formMode": true,
                 "error"   : ErrTStr.DSNameConfilct,
                 "check"   : DS.has

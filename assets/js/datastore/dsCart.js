@@ -802,6 +802,15 @@ window.DSCart = (function($, DSCart) {
         isValid = xcHelper.validate([
             {
                 "$ele" : $prefix,
+                "error": ErrTStr.PrefixStartsWithNum,
+                "side" : "left",
+                "onErr": onPrefixErr,
+                "check": function() {
+                    return xcHelper.isStartsWithNumber(prefix);
+                }
+            },
+            {
+                "$ele" : $prefix,
                 "error": ErrTStr.TooLong,
                 "side" : "left",
                 "onErr": onPrefixErr,

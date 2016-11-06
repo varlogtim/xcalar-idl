@@ -944,6 +944,18 @@ describe('xcHelper Test', function() {
         expect(res).to.be.false;
     });
 
+    it('xcHelper.isStartsWithNumber should work', function() {
+        // case 1
+        var res = xcHelper.isStartsWithNumber("12a");
+        expect(res).to.be.true;
+        // case 2
+        res = xcHelper.isStartsWithNumber("abc");
+        expect(res).to.be.false;
+        // case 3
+        res = xcHelper.isStartsWithNumber(null);
+        expect(res).to.be.false;
+    });
+
     it('xcHelper.deepCompare should work', function() {
         // case 1
         var a = {"a": {"b": 1}};

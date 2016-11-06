@@ -1795,6 +1795,10 @@ window.xcHelper = (function($, xcHelper) {
         return (backSlashCount % 2 === 1);
     };
 
+    xcHelper.isStartsWithNumber = function(str) {
+        return !isNaN(parseInt(str));
+    };
+
     // returns true if comparison is equal
     // returns false if diff found
     xcHelper.deepCompare = function() {

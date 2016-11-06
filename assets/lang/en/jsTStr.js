@@ -158,6 +158,8 @@ ErrTStr = {
     'NameInUse': 'Name is in use, please choose another name.',
     'DSNameConfilct': 'Dataset reference with the same name already exits. ' +
                         'please choose another name.',
+    'DSStartsWithNum': 'Dataset reference name cannot start with number.',
+    'PrefixStartsWithNum': 'Prefix cannot start with number.',
     'TableConflict': 'A table with the same name already exists, ' +
                         'please choose another name.',
     'ExportConflict': 'This file name is taken, please choose another name.',
