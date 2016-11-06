@@ -122,7 +122,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             type: 'POST',
             data: JSON.stringify(str),
             contentType: 'application/json',
-            url: "https://" + hostname + ":12124/app/" + action,
+            url: "https://" + hostname + ":12124/app" + action,
             success: function(data) {
                 var ret = data;
                 var retMsg;
