@@ -305,6 +305,25 @@ app.post("/cancelInstall", function(req, res) {
 
 var file = "/var/log/Xcalar.log";
 
+// Single node commands
+app.post("/removeSessionFiles", function(req, res) {
+    console.log("Remove Session Files");
+    var credArray = req.body;
+    var filename =  credArray["filename"];
+    support.removeSessionFiles(filename, res);
+});
+
+app.post("/getLicense", function(req, res) {
+    console.log("Get License");
+    support.getLicense(res);
+});
+
+app.post("/fileTicket", function(req, res) {
+    console.log("File Ticket");
+    var contents = credArray.contents;
+    support.submitTicket(contents, res);
+});
+
 // Master request
 app.post("/service/start", function(req, res) {
     console.log("Start Xcalar Services as Master");
@@ -329,13 +348,6 @@ app.post("/service/status", function(req, res) {
 app.post("/service/condrestart", function(req, res) {
     console.log("Condrestart Xcalar Services as Master");
     support.masterExecuteAction("/service/condrestart", res);
-});
-
-app.post("/removeSessionFiles", function(req, res) {
-    console.log("Remove Session Files");
-    var credArray = req.body;
-    var filename =  credArray["filename"];
-    support.removeSessionFiles(filename, res);
 });
 
 app.post("/recentLogs", function(req, res) {

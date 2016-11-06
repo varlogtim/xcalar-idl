@@ -105,7 +105,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var comment = $modal.find('.xc-textArea').val().trim();
         var ticketObj = {
             type: issueType,
-            comment: comment
+            comment: comment,
         };
 
 
@@ -178,7 +178,26 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     function submitTicket(ticketObj) {
-        return fakePromise();
+        function promiseHandler(topRet, licRet) {
+            // Even if it fails and returns undef, we continue with the values
+            ticketObj.topInfo = topRet;
+            ticketObj.license = licRet;
+            ticketObj.xiLog = SQL.getAllLogs();
+            return XFTSupportTools.fileTicket(JSON.stringify(ticketObj));
+        }
+
+        var deferred = jQuery.Deferred();
+        var topProm = XcalarApiTop(1000);
+        var licProm = XFTSupportTools.getLicense();
+        PromiseHelper.when(topProm, licProm)
+        .then(promiseHandler, promiseHandler)
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        return deferred.promise();
     }
 
     function downloadTicket(ticketObj) {
@@ -192,7 +211,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             deferred.resolve();
         }, 3000);
         return deferred.promise();
-    };
+    }
 
     function closeModal() {
         modalHelper.clear();

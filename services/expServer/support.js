@@ -7,7 +7,7 @@ var os = require('os');
 var path = require('path');
 
 var ssf = require('./supportStatusFile');
-var tail = require('./tail')
+var tail = require('./tail');
 var SupportStatus = ssf.SupportStatus;
 
 var jQuery;
@@ -19,8 +19,7 @@ require("jsdom").env("", function(err, window) {
     jQuery = require("jquery")(window);
 });
 
-var sessionPath = '/var/opt/xcalar/sessions/';
-var hostFile = '/var/opt/xcalar/config/privHosts.txt';
+var hostFile = '/config/privHosts.txt';
 
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
@@ -49,7 +48,7 @@ function readHostsFromFile(hostFile) {
 
 function masterExecuteAction (action, res, str) {
     var slaveAction = action + "/slave";
-    var promise = readHostsFromFile(hostFile);
+    var promise = readHostsFromFile(getXlrRoot() + hostFile);
     promise
     .then(function(hosts) {
         var promiseSlaves = sendCommandToSlaves(slaveAction, str, hosts);
@@ -106,6 +105,8 @@ function slaveExecuteAction (action, res, str) {
                 res.send(retMsg);
                 return;
             }
+        default:
+            console.log("Should not be here!");
     }
 }
 
@@ -217,8 +218,9 @@ function xcalarCondrestart(res) {
 
 // Remove session files
 function removeSessionFiles(filePath, res) {
-    var completePath = getCompletePath(filePath);
     // '/var/opt/xcalar/sessions' without the final slash is also legal
+    var sessionPath = getXlrRoot() + "/sessions/";
+    var completePath = getCompletePath(sessionPath, filePath);
     var isLegalPath = isUnderBasePath(sessionPath, completePath);
     var deferred = jQuery.Deferred();
     if(!isLegalPath) {
@@ -240,12 +242,11 @@ function removeSessionFiles(filePath, res) {
     console.log("Remove file at: ", completePath);
     var command = 'rm -rf ' + completePath;
     var promise = executeCommand(command);
-    var deferred = jQuery.Deferred();
     promise
     .then(function(result) {
         var file = filePath;
-        if(!filePath) {
-            file = "all files under session folder"
+        if (!filePath) {
+            file = "all files under session folder";
         }
         var retMsg = {"status": SupportStatus.OKLog,
                       "logs" : btoa("Remove " + file + " successfully!")};
@@ -260,12 +261,12 @@ function removeSessionFiles(filePath, res) {
     return deferred.promise();
 }
 
-function getCompletePath(filePath) {
+function getCompletePath(sessionPath, filePath) {
     var normalizedPath;
-    if(filePath == undefined) {
+    if (filePath === undefined) {
         filePath = "";
     }
-    if(path.isAbsolute(filePath)) {
+    if (path.isAbsolute(filePath)) {
         normalizedPath = path.normalize(filePath);
     } else {
         normalizedPath = path.normalize(sessionPath + filePath);
@@ -274,14 +275,14 @@ function getCompletePath(filePath) {
 }
 
 function isUnderBasePath(basePath, completePath) {
-    return completePath.indexOf(basePath) == 0 ||
-           completePath == basePath.substring(0, basePath.length - 1);
+    return completePath.indexOf(basePath) === 0 ||
+           completePath === basePath.substring(0, basePath.length - 1);
 }
 
 function executeCommand(command, res) {
     var deferred = jQuery.Deferred();
     cp.exec(command, function(err,stdout,stderr) {
-        if(err){
+        if (err) {
             console.log(err.message);
             var result = {"status": SupportStatus.Error,
                           "error": err};
@@ -293,14 +294,14 @@ function executeCommand(command, res) {
             var lines = String(stdout);
             console.log(lines);
             var result;
-            if(lines) {
+            if (lines) {
                 result = {"status": SupportStatus.OKLog,
                           "logs" : lines};
             } else {
                 result = {"status": SupportStatus.OKNoLog,
                           "logs" : lines};
             }
-            if(res) {
+            if (res) {
                 res.send(result);
             }
             deferred.resolve();
@@ -309,6 +310,66 @@ function executeCommand(command, res) {
     return deferred.promise();
 }
 
+// Other commands
+function getXlrRoot() {
+    var cfgLocation = "/etc/xcalar/default.cfg";
+    var cfg = fs.readFileSync(cfgLocation);
+    var lines = cfg.split("\n");
+    var i = 0;
+    for (; i<lines.length; i++) {
+        if (lines[i].indexOf("Constants.XcalarRootCompletePath") > -1) {
+            return jQuery.trim(lines[i].split("=")[1]);
+        }
+    }
+    return "/mnt/xcalar";
+}
+
+function getLicense(res) {
+    var licenseLocation = getXlrRoot() + "/config/license.txt";
+    try {
+        var license = fs.readFileSync(licenseLocation);
+        res.send({"status": SupportStatus.OKLog,
+                  "log": license});
+    } catch (err) {
+        res.send({"status": SupportStatus.Error,
+                  "error": err});
+    }
+
+}
+
+function submitTicket(contents, res) {
+
+    contents = encodeURIComponent(contents);
+    var out = exec('curl https://myxcalar.zendesk.com/api/v2/tickets.json ' +
+               '-d \'{"ticket": {"requester": {"name": "The Customer", ' +
+               '"email": "thecustomer@domain.com"}, "submitter_id": 410989, ' +
+               '"subject": "My printer is on fire!", "comment": { "body": "' +
+               contents + '" }}}\' -H "Content-Type: application/json" -v ' +
+               '-u dshetty@xcalar.com:i0turb1ne! -X POST');
+    var acked = false;
+    out.stdout.on('data', function(data) {
+        var lines = data.split("\n");
+        var i = 0;
+        for (; i<lines.length; i++) {
+            var line = lines[i];
+            if (line.indexOf("X-Zendesk-Request-Id") > -1) {
+                acked = true;
+                res.send({"status": SupportStatus.OKLog,
+                          "logs"  : atob(lines)});
+            }
+        }
+        console.log(data);
+    });
+    out.on('close', function() {
+        if (!acked) {
+            res.send({"status": SupportStatus.Error,
+                      "error": "Failed to submit ticket"});
+            acked = true;
+        }
+    });
+}
+
+exports.getLicense = getLicense;
 exports.removeSessionFiles = removeSessionFiles;
 exports.slaveExecuteAction =  slaveExecuteAction;
 exports.masterExecuteAction = masterExecuteAction;

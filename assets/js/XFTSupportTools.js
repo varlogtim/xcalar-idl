@@ -99,6 +99,17 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         return requestService(action, str);
     };
 
+    XFTSupportTools.getLicense = function() {
+        var action = "/getLicense";
+        return requestService(action);
+    };
+
+    XFTSupportTools.fileTicket = function(jsonStr) {
+        var action = "/fileTicket";
+        var str = {"contents": jsonStr};
+        return requestService(action, str);
+    };
+
     function requestService(action, str) {
         var promise = postRequest(action, str);
         var deferred = jQuery.Deferred();
