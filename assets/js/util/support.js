@@ -5,7 +5,6 @@ window.Support = (function(Support, $) {
     var commitCheckInterval = 120000; // 2 mins each check
     var commitCheckInterval = 30000; // 0.5 mins each check
     var commitCheckError = "commit key not match";
-    var memoryCheck = true;
 
     var connectionCheckTimer;
     var connectionCheckInterval = 10000; // 10s/check
@@ -14,7 +13,6 @@ window.Support = (function(Support, $) {
     var statsMap = null;
     // constant
     var defaultCommitFlag = "commit-default";
-    var defaultMemoryLimit = 70;
 
     var statsCache = {}; // Store temporary version of the Stats
 
@@ -31,12 +29,6 @@ window.Support = (function(Support, $) {
 
     Support.getUser = function() {
         return username;
-    };
-
-    Support.config = function(options) {
-        if (options.memoryCheck != null) {
-            memoryCheck = options.memoryCheck;
-        }
     };
 
     Support.holdSession = function() {
@@ -108,30 +100,54 @@ window.Support = (function(Support, $) {
         return (deferred.promise());
     };
 
-    Support.memoryCheck = function() {
-        if (!memoryCheck) {
-            return PromiseHelper.resolve();
-        }
-
+    Support.memoryCheck = function(shoulAlert) {
         var deferred = jQuery.Deferred();
 
-        defaultMemoryLimit = UserSettings.getPref('memoryLimit')
-                                     || defaultMemoryLimit;
+        var yellowThrehold = 70;
+        var redThrehold = 90;
+
+        var isYellow = false;
+        var isRed = false;
 
         XcalarApiTop()
         .then(function(result) {
-            var tops = result.topOutputPerNode;
-            for (var i = 0, len = tops.length; i < len; i++) {
-                if (tops[i].memUsageInPercent > defaultMemoryLimit) {
-                    DeleteTableModal.show(true);
-                    return;
-                }
-            }
+            detectMemoryUsage(result.topOutputPerNode);
+            handleMemoryUsage(shoulAlert);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
+
+        function detectMemoryUsage(tops) {
+            for (var i = 0, len = tops.length; i < len; i++) {
+                var memoryUsage = tops[i].memUsageInPercent;
+                if (memoryUsage > redThrehold) {
+                    // when it's red, can stop loop immediately
+                    isRed = true;
+                    break;
+                } else if (memoryUsage > yellowThrehold) {
+                    // when it's yellow, should continue loop
+                    // to see if it has any red case
+                    isYellow = true;
+                }
+            }
+        }
+
+        function handleMemoryUsage() {
+            var $memoryAlert = $("#memoryAlert");
+            if (isRed) {
+                $memoryAlert.addClass("red").removeClass("yellow");
+            } else if (isYellow) {
+                $memoryAlert.addClass("yellow").removeClass("red");
+            } else {
+                $memoryAlert.removeClass("red").removeClass("yellow");
+            }
+
+            if (shoulAlert) {
+                xcTooltip.refresh($memoryAlert);
+            }
+        }
     };
 
     Support.heartbeatCheck = function() {
@@ -146,7 +162,7 @@ window.Support = (function(Support, $) {
 
             Support.commitCheck()
             .then(function() {
-                return Support.memoryCheck();
+                return Support.memoryCheck(true);
             })
             .then(function() {
                 return autoSave();

@@ -385,6 +385,28 @@ body {
 #userName {
     cursor: default;
 }
+
+#memoryAlert {
+    .rounded;
+    visibility: hidden;
+    outline: none;
+
+    &.yellow {
+        visibility: visible;
+        background-color: @color-bg-gold;
+    }
+
+    &.red {
+        visibility: visible;
+        background-color: @color-error-border;
+    }
+}
+
+.memoryAlert-release {
+    cursor: pointer;
+    text-decoration: underline;
+    color: @color-font-select-blue;
+}
 /* =========== END TOP RIGHT CORNER =========== */
 
 /* Bottom Section */

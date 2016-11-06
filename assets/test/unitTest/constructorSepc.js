@@ -769,8 +769,6 @@ describe('Constructor Test', function() {
 
             expect(baseSettings).to.have.property('hideDataCol')
             .and.to.be.false;
-            expect(baseSettings).to.have.property('memoryLimit')
-            .and.to.equal(70);
             expect(baseSettings).to.have.property('monitorGraphInterval')
             .and.to.equal(3);
             expect(baseSettings).to.have.property('commitInterval')
@@ -782,10 +780,8 @@ describe('Constructor Test', function() {
         it('GenSettings heirarchy should work', function() {
             var testSettings = {
                 adminSettings: {
-                    memoryLimit: 0, 
                 },
                 xcSettings: {
-                    memoryLimit: 99,
                     monitorGraphInterval: 9
                 }
             };
@@ -794,7 +790,7 @@ describe('Constructor Test', function() {
                 commitInterval: 600  
             };
             // modified base settings should be 
-            // {memoryLimit: 0, monitorGraphInterval: 9, hideDataCol: false}
+            // {monitorGraphInterval: 9, hideDataCol: false}
 
             var genSettings = new GenSettings(userConfigParams, testSettings);
 
@@ -805,7 +801,6 @@ describe('Constructor Test', function() {
             var baseSettings = genSettings.getBaseSettings();
             expect(Object.keys(baseSettings)).to.have.length(5);
             expect(baseSettings['hideDataCol']).to.be.false;
-            expect(baseSettings['memoryLimit']).to.equal(0);
             expect(baseSettings['monitorGraphInterval']).to.equal(9);
             expect(baseSettings['commitInterval']).to.equal(600);
             expect(baseSettings['DsDefaultSampleSize']).to.equal(2000);

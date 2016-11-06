@@ -1454,7 +1454,7 @@ window.JoinView = (function($, JoinView) {
         }
         if (showDeleteTableBtn) {
             btns.push({
-                name     : MonitorTStr.ReleaseMem,
+                name     : MonitorTStr.RELEASEMEM,
                 className: "larger",
                 func     : DeleteTableModal.show
             });

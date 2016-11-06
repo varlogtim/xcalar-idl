@@ -3,7 +3,6 @@ window.UserSettings = (function($, UserSettings) {
     var UserInfoKeys;
     var hasDSChange; // becomes true if ds.js detected settings change
     var cachedPrefs = {};
-    var memLimitSlider;
     var monIntervalSlider;
     var commitIntervalSlider;
     var genSettings;
@@ -236,10 +235,6 @@ window.UserSettings = (function($, UserSettings) {
             updateDsPreviewLimitInput(size);
         });
 
-        memLimitSlider = new RangeSlider($('#memLimitSlider'), 'memoryLimit', {
-            minVal: 50,
-            maxVal: 99
-        });
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
             minVal     : 1,
@@ -272,7 +267,6 @@ window.UserSettings = (function($, UserSettings) {
            
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref('hideDataCol');
-        var memoryLimit = UserSettings.getPref('memoryLimit');
         var graphInterval = UserSettings.getPref('monitorGraphInterval');
         var commitInterval = UserSettings.getPref('commitInterval');
         var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
@@ -280,8 +274,7 @@ window.UserSettings = (function($, UserSettings) {
         if (!hideDataCol) {
             $('#showDataColBox').addClass('checked');
         }
-       
-        memLimitSlider.setSliderValue(memoryLimit);
+
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
         setDsSampleLimitValue(dsSampleLimit);

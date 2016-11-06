@@ -15,10 +15,8 @@
   </header>
   <!-- Instruction -->
   <section class="modalInstruction">
-    <i class="icon xi-warning auto"></i>
-    <i class="icon xi-info-circle manual"></i>
-    <div class="text manual"><%= dicts.deleteTable.instr %></div>
-    <div class="text auto"><%= dicts.deleteTable.autoInstr %></div>
+    <i class="icon xi-info-circle"></i>
+    <div class="text"><%= dicts.deleteTable.instr %></div>
   </section>
   <!-- Main Section -->
   <section class="modalMain">
@@ -129,13 +127,6 @@
   <section class="modalBottom">
     <button type="button" class="btn cancel"><%= dicts.common.CLOSE %></button>
     <button type="button" class="btn confirm"><%= dicts.deleteTable.CONFIRM %></button>
-    <div id="deleteTableModal-dontShow" class="checkboxSection bottomItem">
-      <div class="checkbox">
-        <i class="icon xi-ckbox-empty"></i>
-          <i class="icon xi-ckbox-selected"></i>
-      </div>
-      <div class="text"><%= dicts.common.DontShow %></div>
-    </div>
   </section>
 </div>
 <!-- End of Delete Table Modal -->

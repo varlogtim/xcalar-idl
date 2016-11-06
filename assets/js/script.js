@@ -83,7 +83,7 @@ window.StartManager = (function(StartManager, $) {
         gMinModeOn = true; // startup use min mode;
         $("body").addClass("xc-setup");
 
-        setupUserBox();
+        setupUserArea();
         Compatible.check();
         setupThrift();
         // Support.setup() get username, so need to be at very eary time
@@ -318,6 +318,11 @@ window.StartManager = (function(StartManager, $) {
         AboutModal.setup();
     }
 
+    function setupUserArea() {
+        setupUserBox();
+        setupMemoryAlert();
+    }
+
     function setupUserBox() {
         var $menu = $("#userMenu");
         addMenuBehaviors($menu);
@@ -362,7 +367,34 @@ window.StartManager = (function(StartManager, $) {
         $("#signout").click(function() {
             unloadHandler();
         });
+    }
 
+    function setupMemoryAlert() {
+        var $memoryAlert = $("#memoryAlert");
+        var tooltipOptions = {
+            "trigger"  : "auto",
+            "animation": false,
+            "placement": "bottom",
+            "container": "body",
+            "html"     : true
+        };
+
+        var title = TooltipTStr.LowMemory +
+                    '<br/>' +
+                    ' <a class="memoryAlert-release">' +
+                        MonitorTStr.ReleaseMem +
+                    '</a>';
+        var options = $.extend({}, tooltipOptions, {
+            "title": title
+        });
+        $memoryAlert.tooltip(options);
+        $memoryAlert.click(function() {
+            $memoryAlert.tooltip("show");
+        });
+
+        $("body").on("mousedown", ".memoryAlert-release", function() {
+            DeleteTableModal.show();
+        });
     }
 
     function setupWorkspaceBar() {

@@ -782,7 +782,6 @@ module.exports = {
 
     "deleteTable": {
         "header": "Drop Tables",
-        "autoInstr": "You are running low on space. To free space on this application please drop old or unnecessary tables",
         "instr": "To free space on this application please drop old or unnecessary tables",
         "CONFIRM": "DROP TABLES",
         "Orphan": "Temporary Tables",

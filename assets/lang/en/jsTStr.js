@@ -82,6 +82,7 @@ TooltipTStr = {
     'CancelQuery': 'Cancel query',
     'AlreadyIcv': 'This table is already an ICV table',
     'ParamValNoChange': 'This parameter value cannot be changed',
+    'LowMemory': 'Warning! You are running low on space.',
     // Sync with htmlTStr
     "IcvRestriction": 'ICV only available for Map and Group By',
 
@@ -480,7 +481,8 @@ MonitorTStr = {
     'StopNodes': 'Stop Cluster',
     'RestartNodes': 'Restart Cluster',
     'UseXcalarAs': 'Use Xcalar As',
-    'ReleaseMem': 'RELEASE MEMORY',
+    'RELEASEMEM': 'RELEASE MEMORY',
+    'ReleaseMem': 'Release Memory',
     'ClusterStatus': 'Cluster Status',
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +

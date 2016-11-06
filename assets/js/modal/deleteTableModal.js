@@ -102,14 +102,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             sortTableList(tableList[tableType], tableType, sortKey);
             restoreCheckedTables(cachedTables, tableType);
         });
-
-        // click don't show
-        $("#deleteTableModal-dontShow").click(function() {
-            $(this).find(".checkbox").toggleClass("checked");
-        });
     };
 
-    DeleteTableModal.show = function(autoTrigger) {
+    DeleteTableModal.show = function() {
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open
@@ -122,11 +117,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 // so it can overlap upon other modals
                 // and close without any problem
                 $modalBg.addClass("locked");
-                if (autoTrigger) {
-                    $modal.addClass("autoTrigger");
-                } else {
-                    $modal.removeClass("autoTrigger");
-                }
 
                 if (gMinModeOn) {
                     $modal.show();
@@ -151,7 +141,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     };
 
     function closeModal() {
-        var memCheck = !$("#deleteTableModal-dontShow .checkbox").hasClass("checked");
         modalHelper.clear({
             "close": function() {
                 $modalBg.removeClass("locked");
@@ -163,9 +152,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             }
         });
         reset();
-        Support.config({
-            "memoryCheck": memCheck
-        });
     }
 
     function reset() {
@@ -215,6 +201,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 failHandler(arguments);
             }
             modalHelper.enableSubmit();
+            // should re-dected memory usage
+            Support.memoryCheck();
         });
     }
 

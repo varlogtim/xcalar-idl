@@ -968,7 +968,6 @@ function GenSettings(userConfigParms, options) {
     options = options || {};
     var defaultSettings = {
         hideDataCol         : false,
-        memoryLimit         : 70, // in percent
         monitorGraphInterval: 3, // in seconds
         commitInterval      : 120, // in seconds
         DsDefaultSampleSize : 10 * GB
