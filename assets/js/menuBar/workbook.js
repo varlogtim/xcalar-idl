@@ -134,7 +134,9 @@ window.Workbook = (function($, Workbook) {
     }
 
     function getNewWorkbookName() {
-        var defaultName = "untitled-" + Support.getUser();
+        var regex = new RegExp(/[a-zA-Z0-9-_]*/);
+        var un = regex.exec(Support.getUser())[0];
+        var defaultName = "untitled-" + un;
         var names = {};
         $workbookPanel.find(".workbookBox .workbookName").each(function() {
             var name = $(this).val();
@@ -222,7 +224,7 @@ window.Workbook = (function($, Workbook) {
                 clearActives();
             }
         });
-    
+
         // Events for the actual workbooks
         // Play button
         $workbookSection.on("click", ".activate", function() {
