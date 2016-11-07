@@ -160,9 +160,17 @@ describe('xcHelper Test', function() {
     it('xcHelper.getJoinRenameMap should work', function() {
         var res = xcHelper.getJoinRenameMap("oldName", "newName");
         expect(res).to.be.an("object");
-        expect(Object.keys(res).length).to.equal(2);
+        expect(Object.keys(res).length).to.equal(3);
         expect(res).to.have.property("orig").and.to.equal("oldName");
         expect(res).to.have.property("new").and.to.equal("newName");
+        expect(res).to.have.property("type").and
+        .to.equal(DfFieldTypeT.DfUnknown);
+
+        // case 2
+        res = xcHelper.getJoinRenameMap("oldName2", "newName2", DfFieldTypeT.DfString);
+        expect(res.orig).to.equal("oldName2");
+        expect(res.new).to.equal("newName2");
+        expect(res.type).to.equal(DfFieldTypeT.DfString);
     });
 
     it('xcHelper.getFilterOptions should work', function() {

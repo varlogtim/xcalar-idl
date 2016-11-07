@@ -139,7 +139,7 @@ function dsObjTest() {
                 expect(testDS).to.have.property("name").to.equal(name);
                 expect(testDS).to.have.property("format").to.equal(dataset.format);
                 expect(testDS).to.have.property("path").to.equal(dataset.path);
-                expect(testDS).to.have.property("fileSize");
+                expect(testDS).to.have.property("size");
                 expect(testDS).to.have.property("numEntries");
                 expect(testDS).to.have.property("parentId");
                 expect(testDS).not.to.have.property("eles");

@@ -765,7 +765,7 @@ describe('Constructor Test', function() {
             expect(genSettings).to.have.property('baseSettings');
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings).length).to.equal(5);
+            expect(Object.keys(baseSettings).length).to.equal(4);
 
             expect(baseSettings).to.have.property('hideDataCol')
             .and.to.be.false;
@@ -795,11 +795,11 @@ describe('Constructor Test', function() {
             var genSettings = new GenSettings(userConfigParams, testSettings);
 
             var adminAndXc = genSettings.getAdminAndXcSettings();
-            expect(Object.keys(adminAndXc.adminSettings)).to.have.length(1);
-            expect(Object.keys(adminAndXc.xcSettings)).to.have.length(2);
+            expect(Object.keys(adminAndXc.adminSettings)).to.have.length(0);
+            expect(Object.keys(adminAndXc.xcSettings)).to.have.length(1);
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings)).to.have.length(5);
+            expect(Object.keys(baseSettings)).to.have.length(4);
             expect(baseSettings['hideDataCol']).to.be.false;
             expect(baseSettings['monitorGraphInterval']).to.equal(9);
             expect(baseSettings['commitInterval']).to.equal(600);
