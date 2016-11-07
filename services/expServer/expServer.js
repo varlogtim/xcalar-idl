@@ -308,8 +308,7 @@ var file = "/var/log/Xcalar.log";
 // Single node commands
 app.post("/removeSessionFiles", function(req, res) {
     console.log("Remove Session Files");
-    var credArray = req.body;
-    var filename =  credArray["filename"];
+    var filename =  req.body.filename;
     support.removeSessionFiles(filename, res);
 });
 
@@ -320,7 +319,7 @@ app.post("/getLicense", function(req, res) {
 
 app.post("/fileTicket", function(req, res) {
     console.log("File Ticket");
-    var contents = credArray.contents;
+    var contents = req.body.contents;
     support.submitTicket(contents, res);
 });
 

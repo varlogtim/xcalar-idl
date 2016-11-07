@@ -125,7 +125,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             submitTicket(ticketObj)
             .then(function() {
                 xcHelper.showSuccess();
-                closeModal(); 
+                closeModal();
             })
             .fail(function() {
                 $modal.addClass('downloadMode');
@@ -183,6 +183,14 @@ window.SupTicketModal = (function($, SupTicketModal) {
             ticketObj.topInfo = topRet;
             ticketObj.license = licRet;
             ticketObj.xiLog = SQL.getAllLogs();
+            ticketObj.userIdName = userIdName;
+            ticketObj.userIdUnique = userIdUnique;
+            ticketObj.sessionName = WorkbookManager.getActiveWKBK();
+            ticketObj.version = {
+                backendVersion: XVM.getBackendVersion(),
+                frontendVersion: gGitVersion,
+                thriftVersion: XVM.getSHA(),
+            };
             return XFTSupportTools.fileTicket(JSON.stringify(ticketObj));
         }
 

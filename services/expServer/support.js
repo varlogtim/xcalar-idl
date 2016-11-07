@@ -313,41 +313,71 @@ function executeCommand(command, res) {
 // Other commands
 function getXlrRoot() {
     var cfgLocation = "/etc/xcalar/default.cfg";
-    var cfg = fs.readFileSync(cfgLocation);
-    var lines = cfg.split("\n");
-    var i = 0;
-    for (; i<lines.length; i++) {
-        if (lines[i].indexOf("Constants.XcalarRootCompletePath") > -1) {
-            return jQuery.trim(lines[i].split("=")[1]);
+    var deferred = jQuery.Deferred();
+    var defaultLoc = "/mnt/xcalar";
+    var cfg = fs.readFile(cfgLocation, 'utf8', (err, data) => {
+        try {
+            if (err) throw err;
+            var lines = data.split("\n");
+            var i = 0;
+            for (; i<lines.length; i++) {
+                if (lines[i].indexOf("Constants.XcalarRootCompletePath") > -1) {
+                    defaultLoc = jQuery.trim(lines[i].split("=")[1]);
+                    break;
+                }
+            }
+            deferred.resolve(defaultLoc);
+        } catch (error) {
+            console.log("Error: " + error);
+            deferred.resolve("/mnt/xcalar");
         }
-    }
-    return "/mnt/xcalar";
+    });
+
+    return deferred.promise();
 }
 
 function getLicense(res) {
-    var licenseLocation = getXlrRoot() + "/config/license.txt";
-    try {
-        var license = fs.readFileSync(licenseLocation);
-        res.send({"status": SupportStatus.OKLog,
-                  "log": license});
-    } catch (err) {
-        res.send({"status": SupportStatus.Error,
-                  "error": err});
-    }
+    getXlrRoot()
+    .then(function(location) {
+        var licenseLocation = location + "/config/license.txt";
+        fs.readFile(licenseLocation, 'utf8', (err, data) => {
+            try {
+                if (err) throw err;
+                var license = data;
+                res.send({"status": SupportStatus.OKLog,
+                          "logs": btoa(license)});
+            } catch (error) {
+                console.log("Error: " + error);
+                res.send({"status": SupportStatus.Error,
+                          "error": err});
+            }
+        });
+    });
 
 }
 
-function submitTicket(contents, res) {
+// Following function is from https://gist.github.com/tmazur/3965625
+function isValidEmail(emailAddress) {
+    var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+    return pattern.test(emailAddress);
+}
 
+function submitTicket(contents, res) {
+    var customerName = JSON.parse(contents).userIdName;
+    var subject = "Ticket from " + encodeURIComponent(customerName);
     contents = encodeURIComponent(contents);
-    var out = exec('curl https://myxcalar.zendesk.com/api/v2/tickets.json ' +
-               '-d \'{"ticket": {"requester": {"name": "The Customer", ' +
-               '"email": "thecustomer@domain.com"}, "submitter_id": 410989, ' +
-               '"subject": "My printer is on fire!", "comment": { "body": "' +
+    email = "xi@xcalar.com";
+    if (isValidEmail(customerName)) {
+        email = customerName;
+    }
+    var out = cp.exec('curl https://myxcalar.zendesk.com/api/v2/tickets.json ' +
+               '-d \'{"ticket": {"requester": {"name": "' + customerName +
+               '", "email": "' + email + '"}, "submitter_id": 410989, ' +
+               '"subject": "' + subject + '", "comment": { "body": "' +
                contents + '" }}}\' -H "Content-Type: application/json" -v ' +
                '-u dshetty@xcalar.com:i0turb1ne! -X POST');
     var acked = false;
-    out.stdout.on('data', function(data) {
+    out.stderr.on('data', function(data) {
         var lines = data.split("\n");
         var i = 0;
         for (; i<lines.length; i++) {
@@ -355,21 +385,23 @@ function submitTicket(contents, res) {
             if (line.indexOf("X-Zendesk-Request-Id") > -1) {
                 acked = true;
                 res.send({"status": SupportStatus.OKLog,
-                          "logs"  : atob(lines)});
+                          "logs"  : btoa(lines)});
+                console.log("Acked");
             }
         }
-        console.log(data);
     });
     out.on('close', function() {
         if (!acked) {
             res.send({"status": SupportStatus.Error,
                       "error": "Failed to submit ticket"});
             acked = true;
+            console.log("Failed to submit ticket");
         }
     });
 }
 
 exports.getLicense = getLicense;
+exports.submitTicket = submitTicket;
 exports.removeSessionFiles = removeSessionFiles;
 exports.slaveExecuteAction =  slaveExecuteAction;
 exports.masterExecuteAction = masterExecuteAction;

@@ -1,4 +1,4 @@
-scp ~/gui/services/expServer/expServer.js jyang@cantor:~/xcalar-gui/services/expServer
+scp ~/gui/services/expServer/* jyang@cantor:~/xcalar-gui/services/expServer
 
 ssh jyang@cantor '
 set +e
