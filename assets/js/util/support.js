@@ -111,7 +111,7 @@ window.Support = (function(Support, $) {
         XcalarApiTop()
         .then(function(result) {
             detectMemoryUsage(result.topOutputPerNode);
-            handleMemoryUsage(shoulAlert);
+            handleMemoryUsage();
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -135,15 +135,18 @@ window.Support = (function(Support, $) {
 
         function handleMemoryUsage() {
             var $memoryAlert = $("#memoryAlert");
+            var needAlert = true;
+
             if (isRed) {
                 $memoryAlert.addClass("red").removeClass("yellow");
             } else if (isYellow) {
                 $memoryAlert.addClass("yellow").removeClass("red");
             } else {
                 $memoryAlert.removeClass("red").removeClass("yellow");
+                needAlert = false;
             }
 
-            if (shoulAlert) {
+            if (needAlert && shoulAlert) {
                 xcTooltip.refresh($memoryAlert);
             }
         }
