@@ -3,7 +3,6 @@ window.Support = (function(Support, $) {
     var commitFlag;
     var commitCheckTimer;
     var commitCheckInterval = 120000; // 2 mins each check
-    var commitCheckInterval = 30000; // 0.5 mins each check
     var commitCheckError = "commit key not match";
 
     var connectionCheckTimer;
