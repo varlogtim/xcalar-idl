@@ -1449,7 +1449,7 @@
 }
 
 #monitor-settings {
-    @topSectionHeight: 54px;
+    @rowHeight: 50px;
 
 
     .mainSection {
@@ -1474,8 +1474,8 @@
     }
 
     .optionSet {
-        height: 50px;
-        line-height: 50px;
+        height: @rowHeight;
+        line-height: @rowHeight;
         position: relative;
     }
 
@@ -1496,6 +1496,7 @@
     .optionSelector {
         display: inline-block;
         float: left;
+        height: @rowHeight; // for ie
     }
 
     .checkbox {

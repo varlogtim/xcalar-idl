@@ -53,6 +53,7 @@
         .subTabs {
             max-height: @height-subTab * 3;
             overflow: auto;
+            overflow-x: hidden; // prevents horz scrollbar in IE11
         }
         .topMenuBarTab {
             ::-webkit-scrollbar-track {
