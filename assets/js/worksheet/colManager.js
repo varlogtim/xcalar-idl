@@ -393,7 +393,8 @@ window.ColManager = (function($, ColManager) {
                 "msgTable": newTableId,
                 "sql"     : sql
             });
-            deferred.resolve();
+            // resolve will be used in testing
+            deferred.resolve(newTableId);
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
@@ -424,7 +425,7 @@ window.ColManager = (function($, ColManager) {
 
         });
 
-        return (deferred.promise());
+        return deferred.promise();
 
         function splitColHelper(index) {
             var innerDeferred = jQuery.Deferred();

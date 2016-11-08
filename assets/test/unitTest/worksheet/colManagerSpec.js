@@ -743,6 +743,65 @@ describe('ColManager Test', function() {
             expect(getColLen(tableId) - numCols).to.equal(3);
         });
 
+        it("Should split column", function(done) {
+            var table = gTables[tableId];
+            var backCol = xcHelper.getPrefixColName(prefix, "one");
+            var colNum = table.getColNumByBackName(backCol);
+            var numCols = table.getNumCols();
+            expect(colNum).not.to.equal(-1);
+            // when too much splits, will have alert
+            ColManager.splitCol(colNum, tableId, ".", 16, true);
+            assert.isTrue($("#alertModal").is(":visible"));
+            $("#alertModal .cancel").click();
+            assert.isFalse($("#alertModal").is(":visible"));
+
+            ColManager.splitCol(colNum, tableId, ".")
+            .then(function(newTableId) {
+                // split will generate two columns
+                var newTable = gTables[newTableId];
+                expect(newTable.getNumCols() - numCols).to.equal(2);
+                var splitColNum = newTable.getColNumByBackName("one-split-1");
+                expect(splitColNum).not.to.equal(-1);
+
+                return SQL.undo();
+            })
+            .then(function() {
+                xcTooltip.hideAll();
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should change type of column", function(done) {
+            var table = gTables[tableId];
+            var backCol = xcHelper.getPrefixColName(prefix, "votes.funny");
+            var colNum = table.getColNumByBackName(backCol);
+            var numCols = table.getNumCols();
+            expect(colNum).not.to.equal(-1);
+
+            var colTypeInfos = [{"colNum": colNum, "type": "string"}];
+            ColManager.changeType(colTypeInfos, tableId)
+            .then(function(newTableId) {
+                var newTable = gTables[newTableId];
+                expect(newTable.getNumCols()).to.equal(numCols);
+                var newCol = newTable.getCol(colNum);
+                expect(newCol).not.to.be.null;
+                expect(newCol.getType()).to.equal(ColumnType.string);
+                expect(newCol.getFrontColName()).to.equal("votes_funny_string");
+
+                return SQL.undo();
+            })
+            .then(function() {
+                xcTooltip.hideAll();
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
         after(function(done) {
             UnitTest.deleteAll(tableName, dsName)
             .always(function() {
