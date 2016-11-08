@@ -14,7 +14,7 @@ describe('Datastore Test', function() {
     });
 
     describe('Datastore Module Test', datastoreModuleTest);
-    describe('Dsobj Test', dsObjTest);
+    describe('DSObj Test', dsObjTest);
     describe('Dataset Form Module Test', dsFormModuleTest);
     describe('File Browser Module Test', fileBrowserModuleTest);
     describe('File Previewer Test', filePreviewerTest);
@@ -45,6 +45,11 @@ function datastoreModuleTest() {
     });
 
     it("Should go to export view", function() {
+        $("#outButton").click();
+        assert.isTrue($("#datastore-out-view").is(":visible"));
+        assert.isFalse($("#datastore-in-view").is(":visible"));
+
+        // click again should have no effect
         $("#outButton").click();
         assert.isTrue($("#datastore-out-view").is(":visible"));
         assert.isFalse($("#datastore-in-view").is(":visible"));

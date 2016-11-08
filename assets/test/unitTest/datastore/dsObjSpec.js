@@ -12,19 +12,7 @@ function dsObjTest() {
         user = Support.getUser();
     });
 
-    describe("Grid View Test", function() {
-        it("Should toggle listView/gridView", function() {
-            var isListView = true;
-            DS.__testOnly__.toggleDSView(isListView);
-            assert.isTrue($gridView.hasClass("listView"), "In list view");
-
-            isListView = false;
-            DS.__testOnly__.toggleDSView(isListView);
-            assert.isTrue($gridView.hasClass("gridView"), "In grid view");
-        });
-    });
-
-    describe("Home Folder Test", function() {
+    describe("Basic Function Test", function() {
         it("Should get home folder", function() {
             var homeFolder = DS.getHomeDir();
             expect(homeFolder).to.be.an("object");
@@ -43,13 +31,153 @@ function dsObjTest() {
 
         it("Should get dsObj", function() {
             expect(DS.getDSObj(".")).to.equal(DS.getHomeDir());
-            expect(DS.getGrid(".")).not.to.be.empty;
+        });
+
+        it("DS.getGrid should work", function() {
+            // edge case
+            var res = DS.getGrid();
+            expect(res).to.be.null;
+
+            // home folder case
+            res = DS.getGrid(".");
+            expect(res).not.to.be.empty;
         });
 
         it("DS.has should work", function() {
             var testName = xcHelper.uniqueRandName("testSuites-dsObj", DS.has, 10);
             expect(DS.has(testName)).to.be.false;
             expect(DS.has(null)).to.be.false;
+        });
+
+        it("Should add current user's ds", function() {
+            var user = Support.getUser();
+            var dsName = xcHelper.uniqueRandName("dsobj", DS.has, 10);
+            var testName = user + "." + dsName;
+            var ds = DS.addCurrentUserDS(testName, "CSV", "testPath");
+
+            expect(ds).not.to.be.null;
+            expect(ds.getName()).to.equal(dsName);
+            expect(ds.getFormat()).to.equal("CSV");
+            expect(ds.getPath()).to.equal("testPath");
+            expect(ds.isEditable()).to.be.true;
+            var dsId = ds.getId();
+            DS.__testOnly__.removeDS(DS.getGrid(dsId));
+            expect(DS.getDSObj(dsId)).to.be.null;
+        });
+
+        it("Should add other user's ds", function(done) {
+            var homeFolder = DS.getHomeDir();
+            var user = xcHelper.randName(Support.getUser());
+            var dsName = xcHelper.uniqueRandName("dsobj", DS.has, 10);
+            var testName = user + "." + dsName;
+
+            var ds = DS.addOtherUserDS(testName, "CSV", "testPath");
+            expect(ds).not.to.be.null;
+            expect(ds.getName()).to.equal(dsName);
+            expect(ds.getFormat()).to.equal("CSV");
+            expect(ds.getPath()).to.equal("testPath");
+            expect(ds.isEditable()).to.be.false;
+
+            DS.restore(homeFolder, false)
+            .then(function() {
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+    });
+
+    describe("Grid View Event Test", function() {
+        var $folder;
+
+        before(function() {
+            // test is on home folder
+            DS.goToDir(DSObjTerm.homeDirId);
+        });
+
+        it("Should click toggle view button to toggle the view", function() {
+            var isListView = $gridView.hasClass("listView");
+            $("#dataViewBtn").click();
+            expect($gridView.hasClass("listView")).to.equal(!isListView);
+
+            // switch back to old view
+            $("#exportViewBtn").click();
+            expect($gridView.hasClass("listView")).to.equal(isListView);
+        });
+
+        it("Should add folder by clicking addFolderBtn", function() {
+            var homeFolder = DS.getHomeDir();
+            var numEles = homeFolder.eles.length;
+            $("#addFolderBtn").click();
+
+            $folder = $gridView.find(".grid-unit.folder.active");
+            expect($folder.length).to.equal(1);
+            var newNumEles = homeFolder.eles.length;
+            expect(newNumEles - numEles).to.equal(1);
+        });
+
+        it("Should click on folder to focus on it", function() {
+            $folder.click();
+            expect($folder.hasClass("active")).to.be.true;
+        });
+
+        it("Should click other place to de-focus the folder", function() {
+            $("#dsListSection .gridViewWrapper").click();
+            expect($folder.hasClass("active")).to.be.false;
+        });
+
+        it("Should dbclick a folder to enter", function() {
+            var e = jQuery.Event("dblclick");
+            $folder.trigger(e);
+            expect($folder.hasClass("xc-hidden")).to.be.true;
+        });
+
+        it("Should click backFolderBtn to go back", function() {
+            $("#backFolderBtn").click();
+            expect($folder.hasClass("xc-hidden")).to.be.false;
+        });
+
+        it("Should click forwardFolderBtn to go forward", function() {
+            $("#forwardFolderBtn").click();
+            expect($folder.hasClass("xc-hidden")).to.be.true;
+        });
+
+        it("Should go to home via path section", function() {
+            var $path = $('#dsListSection .path[data-dir="' +
+                            DSObjTerm.homeDirId + '"]');
+            expect($path.length).to.equal(1);
+            $path.click();
+            expect($folder.hasClass("xc-hidden")).to.be.false;
+        });
+
+        it("Should edit the folder's name", function() {
+            $folder.find(".edit").click();
+            var $label = $folder.find("> .label");
+            expect($label.hasClass("focused")).to.be.true;
+            var $textarea = $label.find("textarea");
+            expect($textarea.length).to.equal(1);
+
+            // should click on textarea
+            $textarea.click();
+            expect($label.hasClass("focused")).to.be.true;
+
+            var newName = xcHelper.randName("folder");
+            $textarea.text(newName);
+            $textarea.trigger(fakeEvent.enter);
+            expect($label.hasClass("focused")).to.be.false;
+            expect($label.data("dsname")).to.equal(newName);
+        });
+
+        it("Should delete folder", function() {
+            var homeFolder = DS.getHomeDir();
+            var numEles = homeFolder.eles.length;
+            var id = $folder.data("dsid");
+
+            $folder.find(".delete").click();
+            var newNumEles = homeFolder.eles.length;
+            expect(newNumEles - numEles).to.equal(-1);
+            expect(DS.getGrid(id).length).to.equal(0);
         });
     });
 
@@ -72,6 +200,27 @@ function dsObjTest() {
             $grid.find(".label textarea").blur();
         });
 
+        it("Should not create folder in uneditable folder", function() {
+            var id = xcHelper.randName("folderId");
+            var name = xcHelper.randName("folderName");
+            var parentFolder = DS.__testOnly__.createDS({
+                "id"        : id,
+                "name"      : name,
+                "parentId"  : DSObjTerm.homeDirI,
+                "isFolder"  : true,
+                "uneditable": true
+            });
+            DS.goToDir(id);
+            var res = DS.newFolder();
+            expect(res).to.be.null;
+            assert.isTrue($("#alertModal").is(":visible"));
+            $("#alertModal .cancel").click();
+            assert.isFalse($("#alertModal").is(":visible"));
+
+            DS.goToDir(DSObjTerm.homeDirId);
+            DS.__testOnly__.removeDS(DS.getGrid(id));
+        });
+
         it("Should get testFolder from id", function() {
             var dsId = testFolder.getId();
             expect(DS.getDSObj(dsId)).to.equal(testFolder);
@@ -84,6 +233,13 @@ function dsObjTest() {
             var isRenamed = DS.rename(testFolder.getId(), newName);
             expect(isRenamed).to.be.true;
             expect(testFolder.getName()).to.equal(newName);
+        });
+
+        it("Should not renmae to old name", function() {
+            var oldName = testFolder.getName();
+            var isRenamed = DS.rename(testFolder.getId(), oldName);
+            expect(isRenamed).to.be.false;
+            expect(testFolder.getName()).to.equal(oldName);
         });
 
         it("Should not rename folder to invalid name", function() {
@@ -101,6 +257,10 @@ function dsObjTest() {
         it("Should go to and out of folder", function() {
             var dsId = testFolder.getId();
             var $grid = DS.getGrid(dsId);
+            assert.isFalse($grid.hasClass("xc-hidden"), "see folder");
+
+            // error case
+            DS.goToDir(null);
             assert.isFalse($grid.hasClass("xc-hidden"), "see folder");
 
             DS.goToDir(dsId);
@@ -178,6 +338,27 @@ function dsObjTest() {
                 throw "Fail Case!";
             });
         });
+
+        it("Should not multi focs on fetching grid", function(done) {
+            var $grid = DS.getGrid(testDS.getId());
+            expect($grid.hasClass("active")).to.be.true;
+            expect($grid.hasClass("fetching")).to.be.false;
+
+            $grid.addClass("fetching");
+            DS.focusOn($grid)
+            .then(function() {
+                // if code trigger DSTable.show, should remove the fetching
+                // class later
+                expect($grid.hasClass("fetching")).to.be.true;
+                done();
+            })
+            .fail(function() {
+                throw "Fail Case!";
+            })
+            .always(function() {
+                $grid.removeClass("fetching");
+            });
+        });
     });
 
     describe("Drag and Drop test", function() {
@@ -227,6 +408,75 @@ function dsObjTest() {
 
             DS.dropToParent($ds);
             expect($ds.data("dsParentId")).not.to.equal($folder.data("dsid"));
+        });
+
+        it("DS.onDragStart should work", function() {
+            // fake event
+            var target = $ds.get(0);
+            var e = jQuery.Event("dragstart", {"target": target});
+            e.dataTransfer = {
+                "effectAllowed": "",
+                "setData": function() {}
+            };
+            DS.onDragStart(e);
+            expect(DS.__testOnly__.getDragDS().get(0)).to.equal(target);
+            expect($ds.find("> .dragWrap").hasClass("xc-hidden")).to.be.true;
+            expect($gridView.hasClass("drag")).to.be.true;
+        });
+
+        it("should remove active class when dragenter on grid view", function() {
+            $folder.addClass("active");
+            var e = jQuery.Event("dragenter");
+            $gridView.trigger(e);
+            expect($folder.hasClass("active")).to.be.false;
+        });
+
+        it("Should allow drop", function() {
+            var e = jQuery.Event("dragenter");
+            expect(e.isDefaultPrevented()).to.be.false;
+            DS.allowDrop(e);
+            expect(e.isDefaultPrevented()).to.be.true;
+        });
+
+        it("Should drag enter a folder", function() {
+            var $dragWrap = $folder.find(".leftTopDragWrap");
+            var target = $dragWrap.get(0);
+            var e = jQuery.Event("dragenter", {"target": target});
+            DS.onDragEnter(e);
+            expect(e.isDefaultPrevented()).to.be.true;
+            expect($dragWrap.hasClass("active")).to.be.true;
+            expect(DS.__testOnly__.getDropTarget().get(0)).to.equal(target);
+        });
+
+        it("Should drag enter middle wrap of folder", function() {
+            var $dragWrap = $folder.find(".midDragWrap");
+            var target = $dragWrap.get(0);
+            var e = jQuery.Event("dragenter", {"target": target});
+
+            DS.onDragEnter(e);
+            expect($folder.find(".leftTopDragWrap").hasClass("active"))
+            .to.be.false;
+            expect($folder.hasClass("active")).to.be.true;
+            expect(DS.__testOnly__.getDropTarget().get(0)).to.equal(target);
+        });
+
+        it("Should on drop to the folder", function() {
+            var e = jQuery.Event("drop");
+            DS.onDrop(e);
+            expect($ds.data("dsParentId")).to.equal($folder.data("dsid"));
+
+            DS.dropToParent($ds);
+            expect($ds.data("dsParentId")).not.to.equal($folder.data("dsid"));
+        });
+
+        it("should end the drop event", function() {
+            // fake event
+            var target = $ds.get(0);
+            var e = jQuery.Event("dragstart", {"target": target});
+            DS.onDragEnd(e);
+            expect(DS.__testOnly__.getDragDS()).not.to.exist;
+            expect($ds.find("> .dragWrap").hasClass("xc-hidden")).to.be.false;
+            expect($gridView.hasClass("drag")).to.be.false;
         });
     });
 

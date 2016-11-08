@@ -56,7 +56,7 @@ window.DS = (function ($, DS) {
         if (dsId == null) {
             return null;
         }
-        return dsLookUpTable[dsId];
+        return dsLookUpTable[dsId] || null;
     };
 
     // Get grid element(folder/datasets) by dsId
@@ -96,7 +96,7 @@ window.DS = (function ($, DS) {
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
 
-        createDS({
+        return createDS({
             "id"        : fullDSName, // user the fulldsname as a unique id
             "name"      : dsName,
             "user"      : user,
@@ -113,10 +113,14 @@ window.DS = (function ($, DS) {
         var parsedRes = xcHelper.parseDSName(fullDSName);
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
-        var mainFolderObj = DS.getDSObj(DSObjTerm.OtherUserFolderId);
+        var otherUserFolder = DS.getDSObj(DSObjTerm.OtherUserFolderId);
         var userFolderObj = null;
 
-        mainFolderObj.eles.some(function(dsObj) {
+        if (otherUserFolder == null) {
+            otherUserFolder = createOtherUserFolder();
+        }
+
+        otherUserFolder.eles.some(function(dsObj) {
             if (dsObj.getName() === user) {
                 userFolderObj = dsObj;
                 return true;
@@ -135,7 +139,7 @@ window.DS = (function ($, DS) {
             });
         }
 
-        createDS({
+        return createDS({
             "id"        : fullDSName, // user the fulldsname as a unique id
             "name"      : dsName,
             "user"      : user,
@@ -479,6 +483,21 @@ window.DS = (function ($, DS) {
         dsLookUpTable[dsObj.getId()] = dsObj;
 
         return dsObj;
+    }
+
+    function createOtherUserFolder() {
+        var folder = createDS({
+            "id"        : DSObjTerm.OtherUserFolderId,
+            "name"      : DSObjTerm.OtherUserFolder,
+            "parentId"  : homeDirId,
+            "isFolder"  : true,
+            "uneditable": true
+        });
+
+        var $grid = DS.getGrid(DSObjTerm.OtherUserFolderId);
+        // grid should be the first on in grid view
+        $grid.prependTo($gridView);
+        return folder;
     }
 
     function pointToHelper(dsObj, createTabe, sql, isRetry) {
@@ -855,15 +874,6 @@ window.DS = (function ($, DS) {
             cache = oldHomeFolder.eles;
         }
 
-        // always create the other user's folder first
-        var otherUserFolder = createDS({
-            "id"        : DSObjTerm.OtherUserFolderId,
-            "name"      : DSObjTerm.OtherUserFolder,
-            "parentId"  : homeDirId,
-            "isFolder"  : true,
-            "uneditable": true
-        });
-
         // restore the ds and folder
         var ds;
         var format;
@@ -925,13 +935,6 @@ window.DS = (function ($, DS) {
                     DS.addOtherUserDS(ds.name, format, ds.url);
                 }
             }
-        }
-
-        if (!otherUserFolder.beFolderWithDS()) {
-            // when the other user folder has no children
-            // remove this folder
-            var otherUserFolderId = otherUserFolder.getId();
-            removeDS(DS.getGrid(otherUserFolderId));
         }
 
         // UI update
@@ -1684,7 +1687,6 @@ window.DS = (function ($, DS) {
     if (window.unitTestMode) {
         DS.__testOnly__ = {};
         DS.__testOnly__.delDSHelper = delDSHelper;
-        DS.__testOnly__.toggleDSView = toggleDSView;
         DS.__testOnly__.canCreateFolder = canCreateFolder;
         DS.__testOnly__.createDS = createDS;
         DS.__testOnly__.removeDS = removeDS;
