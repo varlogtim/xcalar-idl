@@ -297,10 +297,8 @@ describe('Worksheet Test', function() {
             var $tab = $("#worksheetTab-" + worksheetId);
             $tab.find(".wsMenu").click();
             $wsMenu.find(".rename").trigger(fakeEvent.click);
-            expect($tab.find(".text").prop("disabled")).to.be.false;
             var newName = xcHelper.randName("renamedWorsheet");
             $tab.find(".text").val(newName).trigger(fakeEvent.enter);
-            expect($tab.find(".text").prop("disabled")).to.be.true;
         });
 
         it("Should click tab to switch worksheet", function() {

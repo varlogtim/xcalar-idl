@@ -763,9 +763,18 @@ describe('ColManager Test', function() {
                 var splitColNum = newTable.getColNumByBackName("one-split-1");
                 expect(splitColNum).not.to.equal(-1);
 
-                return SQL.undo();
+                done();
             })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should undo the split", function(done) {
+            SQL.undo()
             .then(function() {
+                var table = gTables[tableId];
+                expect(table.getType()).to.equal(TableType.Active);
                 xcTooltip.hideAll();
                 done();
             })
@@ -791,9 +800,18 @@ describe('ColManager Test', function() {
                 expect(newCol.getType()).to.equal(ColumnType.string);
                 expect(newCol.getFrontColName()).to.equal("votes_funny_string");
 
-                return SQL.undo();
+                done();
             })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should undo change type of column", function(done) {
+            SQL.undo()
             .then(function() {
+                var table = gTables[tableId];
+                expect(table.getType()).to.equal(TableType.Active);
                 xcTooltip.hideAll();
                 done();
             })
