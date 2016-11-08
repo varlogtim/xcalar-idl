@@ -38,6 +38,7 @@
     delay: 0,
     html: false,
     container: false,
+
     viewport: {
       selector: 'body',
       padding: 0
@@ -92,7 +93,12 @@
         hide: hideDelay
       };
     }
+
+    if (this.$element.data('tipclasses') != null) {
+      options.tipclasses = this.$element.data('tipclasses');
+    }
     // end xcalar custom code
+
     if (options.delay && typeof options.delay == 'number') {
       options.delay = {
         show: options.delay,
@@ -195,6 +201,12 @@
       var pos          = this.getPosition()
       var actualWidth  = $tip[0].offsetWidth
       var actualHeight = $tip[0].offsetHeight
+
+      //xcalar custom code
+      if (this.options.tipclasses != null) {
+        $tip.addClass(this.options.tipclasses);
+      }
+      //end xcalar custom code
 
       if (autoPlace) {
         var orgPlacement = placement
