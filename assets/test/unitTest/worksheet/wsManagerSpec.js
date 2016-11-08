@@ -213,7 +213,24 @@ describe('Worksheet Test', function() {
             expect(WSManager.indexOfWS(worksheetId1)).to.equal(0);
         });
 
+        it("Should get worksheet list", function() {
+            // focus on worksheet 1 first
+            WSManager.focusOnWorksheet(worksheetId1);
+            var numWS = WSManager.getNumOfWS();
+            var html = WSManager.getWSLists();
+            var $list = $('<div>' + html + '</div>');
+            expect($list.find("li").length).to.equal(numWS - 1);
+
+            html = WSManager.getWSLists(true);
+            $list = $('<div>' + html + '</div>');
+            expect($list.find("li").length).to.equal(numWS);
+        });
+
         it("Should delete empty worksheet", function() {
+            // error case
+            WSManager.delWS(worksheetId1);
+            expect(WSManager.indexOfWS(worksheetId1)).not.to.equal(-1);
+
             WSManager.delWS(worksheetId1, DelWSType.Empty);
             expect(WSManager.indexOfWS(worksheetId1)).to.equal(-1);
         });
@@ -224,6 +241,122 @@ describe('Worksheet Test', function() {
             $("#worksheetTabMenu .delete").click();
             expect(WSManager.indexOfWS(worksheetId1)).to.equal(-1);
             $("#worksheetTabMenu").hide();
+        });
+    });
+
+    describe("Worksheet Event Test", function() {
+        var worksheetId;
+        var $wsMenu;
+
+        before(function() {
+            $wsMenu = $("#worksheetTabMenu");
+            if (!$("#workspaceMenu").hasClass("active")) {
+                $("#workspaceTab .mainTab").click();
+            }
+        });
+
+        it("Should switch to table list", function() {
+            $("#tableListTab").click();
+            var $menu = $("#workspaceMenu");
+            expect($menu.find(".worksheets").hasClass("xc-hidden"))
+            .to.be.true;
+            expect($menu.find(".tables").hasClass("xc-hidden"))
+            .to.be.false;
+        });
+
+        it("Should switch to worksheet list", function() {
+            $("#worksheetListTab").click();
+            var $menu = $("#workspaceMenu");
+            expect($menu.find(".worksheets").hasClass("xc-hidden"))
+            .to.be.false;
+            expect($menu.find(".tables").hasClass("xc-hidden"))
+            .to.be.true;
+        });
+
+        it("Should expand/collapse worksheet list", function() {
+            var $listWrap = $("#worksheetListSection .listWrap").eq(0);
+            var isActive = $listWrap.hasClass("active");
+            $listWrap.find(".listInfo").click();
+            expect($listWrap.hasClass("active")).to.equal(!isActive);
+            $listWrap.find(".listInfo").click();
+            expect($listWrap.hasClass("active")).to.equal(isActive);
+        });
+
+        it("Should add worksheet by click add worksheet button", function() {
+            var $tabSection = $("#worksheetTabs");
+            var len = $tabSection.find(".worksheetTab").length;
+            $("#addWorksheet").click();
+            var $tabs = $tabSection.find(".worksheetTab");
+            expect($tabs.length - len).to.equal(1);
+            worksheetId = $tabs.last().data("ws");
+            expect(worksheetId).not.to.be.null;
+            expect(worksheetId).not.to.be.undefined;
+        });
+
+        it("Should rename worksheet by some event", function() {
+            var $tab = $("#worksheetTab-" + worksheetId);
+            $tab.find(".wsMenu").click();
+            $wsMenu.find(".rename").trigger(fakeEvent.click);
+            expect($tab.find(".text").prop("disabled")).to.be.false;
+            var newName = xcHelper.randName("renamedWorsheet");
+            $tab.find(".text").val(newName).trigger(fakeEvent.enter);
+            expect($tab.find(".text").prop("disabled")).to.be.true;
+        });
+
+        it("Should click tab to switch worksheet", function() {
+            var $tab = $("#worksheetTab-" + worksheetId);
+            var $sibTab = $tab.siblings().eq(0);
+            // invalid case
+            $sibTab.click();
+            expect(WSManager.getActiveWS()).to.equal(worksheetId);
+            // switch case
+            $sibTab.trigger(fakeEvent.mousedown);
+            expect(WSManager.getActiveWS()).not.to.equal(worksheetId);
+            // switch back case
+            $tab.trigger(fakeEvent.mousedown);
+            expect(WSManager.getActiveWS()).to.equal(worksheetId);
+        });
+
+        it("Should hide and unhide via worksheet menu", function() {
+            var $tab = $("#worksheetTab-" + worksheetId);
+            var numOfActiveWS = WSManager.getNumOfWS();
+            // hide worksheet
+            $tab.find(".wsMenu").click();
+            $wsMenu.find(".hide").trigger(fakeEvent.click);
+            expect(WSManager.getNumOfWS() - numOfActiveWS).to.equal(-1);
+            $tab = $("#worksheetTab-" + worksheetId);
+            expect($tab.closest("ul").attr("id")).to.equal("hiddenWorksheetTabs");
+            // unhide worksheet
+            $tab.find(".unhide").click();
+            expect(WSManager.getNumOfWS() - numOfActiveWS).to.equal(0);
+        });
+
+        it("Should move up and down worksheet via menu", function() {
+            var oldIndex = WSManager.indexOfWS(worksheetId);
+            var $tab = $("#worksheetTab-" + worksheetId);
+            // move up
+            $tab.find(".wsMenu").click();
+            $wsMenu.find(".moveUp").trigger(fakeEvent.click);
+            var newIndex = WSManager.indexOfWS(worksheetId);
+            expect(newIndex - oldIndex).to.equal(-1);
+            // move down
+            $tab.find(".wsMenu").click();
+            $wsMenu.find(".moveDown").trigger(fakeEvent.click);
+            newIndex = WSManager.indexOfWS(worksheetId);
+            expect(newIndex - oldIndex).to.equal(0);
+        });
+
+        it("Should delete worksheet via menu", function() {
+            var $tab = $("#worksheetTab-" + worksheetId);
+            $tab.find(".wsMenu").click();
+            $wsMenu.find(".delete").trigger(fakeEvent.click);
+            var index = WSManager.indexOfWS(worksheetId);
+            expect(index).to.equal(-1);
+        });
+
+        after(function() {
+            // close tab
+            $("#workspaceTab .mainTab").click();
         });
     });
 
@@ -269,7 +402,6 @@ describe('Worksheet Test', function() {
         it("should archive table", function() {
             expect(worksheet.archivedTables.length).to.equal(0);
             WSManager.archiveTable(tableId);
-
             expect(worksheet.archivedTables.length).to.equal(1);
 
         });
@@ -277,7 +409,6 @@ describe('Worksheet Test', function() {
         it("Should active table", function() {
             expect(worksheet.tables.length).to.equal(0);
             WSManager.activeTable(tableId);
-
             expect(worksheet.tables.length).to.equal(1);
         });
 
@@ -345,8 +476,31 @@ describe('Worksheet Test', function() {
             var tableIndex = WSManager.getTablePosition("errorId");
             expect(tableIndex).to.equal(-1);
 
+            // error case, manually remove table
+            worksheet.tables.splice(0, 1);
+            tableIndex = WSManager.getTablePosition(tableId);
+            expect(tableIndex).to.be.at.least(-1);
+
+            // normal case
+            worksheet.tables.push(tableId);
             tableIndex = WSManager.getTablePosition(tableId);
             expect(tableIndex).to.be.at.least(0);
+        });
+
+        it("Should lock table", function() {
+            WSManager.lockTable(tableId);
+
+            expect(worksheet.lockedTables.length).to.equal(1);
+            var $tab = $("#worksheetTab-" + worksheetId);
+            expect($tab.hasClass("locked")).to.be.true;
+        });
+
+        it("Should unlock table", function() {
+            WSManager.unlockTable(tableId);
+
+            expect(worksheet.lockedTables.length).to.equal(0);
+            var $tab = $("#worksheetTab-" + worksheetId);
+            expect($tab.hasClass("locked")).to.be.false;
         });
 
         it("Should remove no sheet table", function() {
@@ -387,6 +541,7 @@ describe('Worksheet Test', function() {
             worksheet.tables.splice(0, 1);
         });
 
+        // remove worksheet test
         it("Should remove table from worksheet", function() {
             expect(worksheet.tables.length).to.equal(1);
 
@@ -394,110 +549,179 @@ describe('Worksheet Test', function() {
             expect(worksheet.tables.length).to.equal(0);
         });
 
+        it("Should remove table from no sheet list", function() {
+            var noSheetTables = WSManager.getNoSheetTables();
+            var noSheetTableId = xcHelper.randName("noSheetTable");
+            var errorTableId = xcHelper.randName("errorTable");
+            // may already have no sheet tables in from old cache,
+            // so need check the change of length
+            noSheetTables.push(noSheetTableId);
+            var len = noSheetTables.length;
+
+            // invalid case
+            var wsId = WSManager.removeTable(errorTableId);
+            expect(wsId).to.be.null;
+            expect(noSheetTables.length - len).to.equal(0);
+            // valid case
+            wsId = WSManager.removeTable(noSheetTableId);
+            expect(wsId).to.be.null;
+            expect(noSheetTables.length - len).to.equal(-1);
+        });
+
+        it("Should remove from tempHidden, undone and lock tables", function() {
+            var lists = ["tempHiddenTables",  "undoneTables", "lockedTables"];
+
+            lists.forEach(function(tableType) {
+                var testTableId = xcHelper.randName("removeTable");
+                WSManager.addTable(testTableId, worksheetId);
+                // remove table from orphan list
+                worksheet.orphanedTables.splice(0, 1);
+                worksheet[tableType].push(testTableId);
+
+                var wsId = WSManager.removeTable(testTableId);
+                expect(wsId).not.to.be.null;
+                expect(worksheet.tempHiddenTables.length).to.equal(0);
+                expect(worksheet[tableType].length).to.equal(0);
+            });
+        });
+
+        it("Should handle error case of remove table", function() {
+            var testTableId = xcHelper.randName("removeTable");
+            WSManager.addTable(testTableId, worksheetId);
+            // manually remove to create error case
+            worksheet.orphanedTables.splice(0, 1);
+            var wsId = WSManager.removeTable(testTableId);
+            expect(wsId).to.be.null;
+
+            // restore back
+            worksheet.orphanedTables.push(testTableId);
+            wsId = WSManager.removeTable(testTableId);
+            expect(wsId).not.to.be.null;
+            expect(worksheet.orphanedTables.length).to.equal(0);
+        });
+
         after(function() {
             WSManager.delWS(worksheetId, DelWSType.Empty);
         });
     });
 
-    describe.skip('Worksheet existence', function() {
-        it('should have at least one worksheet', function() {
-            $tabs = $('#worksheetTabs').find('.worksheetTab');
-            expect($tabs).to.have.length.above(0);
-        });
-
-        it('addworksheet should create worksheet', function() {
-            var numTabsBefore = $tabs.length;
-            $('#addWorksheet').click();
-            $tabs = $('#worksheetTabs').find('.worksheetTab');
-            expect($tabs).to.have.length(numTabsBefore + 1);
-        });
-
-        it('new worksheet should be active', function() {
-            var $lastTab = $('#worksheetTabs').find('.worksheetTab').last();
-            expect($lastTab.hasClass('active')).to.equal(true);
-        });
-    });
-
-    describe.skip('Worksheet deletion', function() {
-        it ('should remove worksheet', function() {
-            var minModeCache = gMinModeOn;
-            gMinModeOn = true;
-            var numTabsBefore = $tabs.length;
-            var wsId = $tabs.last().data('ws');
-            WSManager.delWS(wsId, DelWSType.Empty);
-            $tabs = $('#worksheetTabs').find('.worksheetTab');
-            expect($tabs).to.have.length(numTabsBefore - 1);
-            expect($('#worksheetTabs').find('[data-ws=' + wsId +']'))
-                    .to.have.length(0);
-            gMinModeOn = minModeCache;
-        });
-    });
-
-    describe.skip('Worksheet Scrolling', function() {
-        var dsName, table1, table2;
+    describe("Worksheet with real table behavior test", function() {
+        var worksheet1, worksheetId1;
+        var worksheet2, worksheetId2;
+        var dsName;
+        var table1, tableId1;
+        var table2, tableId2;
 
         before(function(done) {
-            ensureWorksheetsExist(2);
+            var worksheetName1 = xcHelper.randName("testWS1-");
+            worksheetId1 = WSManager.addWS(null, worksheetName1);
+            worksheet1 = WSManager.getWSById(worksheetId1);
+
+            var worksheetName2 = xcHelper.randName("testWS2-");
+            worksheetId2 = WSManager.addWS(null, worksheetName2);
+            worksheet2 = WSManager.getWSById(worksheetId2);
+
+            WSManager.focusOnWorksheet(worksheetId1);
 
             UnitTest.addAll(testDatasets.schedule, "unitTestWorksheet1")
             .then(function(resDS, resTable) {
                 dsName = resDS;
                 table1 = resTable;
-                // switch to second to last worksheet
-                var $tab = $('#worksheetTabs').find('.worksheetTab')
-                                              .last().prev();
-                $tab.trigger(fakeEvent.mousedown);
+                tableId1 = xcHelper.getTableId(table1);
+                // switch to workshet 2
+                WSManager.focusOnWorksheet(worksheetId2);
                 return UnitTest.addTable(resDS);
             })
             .then(function(resTable) {
                 table2 = resTable;
+                tableId2 = xcHelper.getTableId(table2);
                 done();
+            })
+            .fail(function(error) {
+                throw error;
             });
         });
 
-        it('should center on table when moving worksheet', function() {
-            var $lastTab = $('#worksheetTabs').find('.worksheetTab')
-                                              .last();
-            $lastTab.trigger(fakeEvent.mousedown);
-            var wsId = $lastTab.data('ws');
-            $('#mainFrame').scrollLeft(0); // set to 0;
-            var $prevTab = $('#worksheetTabs').find('.worksheetTab')
-                                              .last().prev();
+        it("Should get table list", function() {
+            var html = WSManager.getTableList();
+            var $list = $("<div>" + html + "</div>");
+            var $li = $list.find('li[data-ws="' + worksheetId1 + '"]');
+            expect($li.length).to.equal(1);
+            expect($li.data("id")).to.equal(tableId1);
+        });
 
-            $prevTab.trigger(fakeEvent.mousedown);
-            var tableId = $('.xcTableWrap:visible').eq(0).data('id');
-            WSManager.moveTable(tableId, wsId);
-            var $tableWrap = $('#xcTableWrap-' + tableId + '.worksheet-' +
-                                wsId);
-            expect($lastTab.is('.active')).to.equal(true);
-            expect($('#worksheetTabs').find('.worksheetTab.active'))
-                                      .to.have.length.of(1);
-            expect($tableWrap).to.have.length.of(1);
-            expect($tableWrap.find('.tblTitleSelected')).to.have.length.of(1);
+        it("Should Hide and unHide worksheet with table", function(done) {
+            WSManager.hideWS(worksheetId1);
+            expect(worksheet1.tempHiddenTables.length).to.equal(1);
+            // hide worksheet has some async call, wait for it
+            setTimeout(function() {
+                WSManager.unhideWS(worksheetId1)
+                .then(function() {
+                    expect(worksheet1.tempHiddenTables.length).to.equal(0);
+                    done();
+                })
+                .fail(function(error) {
+                    throw error;
+                });
+            }, 1000);
+        });
 
-            var winTop = $(window).scrollTop();
-            var mainFrameTop = $('#mainFrame').offset().top;
-            $(window).scrollTop(mainFrameTop);
+        it("Should Move Table to another worksheet", function() {
+            WSManager.moveTable(tableId1, worksheetId2);
+            expect(worksheet1.tables.length).to.equal(0);
+            expect(worksheet2.tables.length).to.equal(2);
+            // should focus on worksheetId2
+            expect(WSManager.getActiveWS()).to.equal(worksheetId2);
+        });
 
-            var windowCenter = $(window).width() / 2;
-            var yCoor = mainFrameTop - $(window).scrollTop() + 15;
-            var el = document.elementFromPoint(windowCenter, yCoor);
-            $(window).scrollTop(winTop);
-            var correctTable = $(el).closest('#xcTableWrap-' + tableId).length >
-                                0;
-            var scrolledToEnd = ($('#mainFrame').width() +
-                                 $('#mainFrame').scrollLeft()) ===
-                                 $('#mainFrame')[0].scrollWidth;
+        it("Should move inactive table to another worksheet", function(done) {
+            TblManager.archiveTables(tableId1);
 
-            expect(scrolledToEnd || correctTable).to.equal(true);
+            WSManager.moveInactiveTable(tableId1, worksheetId1, TableType.Archived)
+            .then(function() {
+                expect(worksheet1.tables.length).to.equal(1);
+                expect(worksheet2.tables.length).to.equal(1);
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should not delete worksheet as empty type when has table", function() {
+            WSManager.delWS(worksheetId1, DelWSType.Empty);
+            expect(WSManager.getWSById(worksheetId1) == null).to.be.false;
+        });
+
+        it("Should delete worksheet with hide table", function(done) {
+            var noSheetTables = WSManager.getNoSheetTables();
+            var len = noSheetTables.length;
+            WSManager.delWS(worksheetId1, DelWSType.Archive);
+            expect(WSManager.getWSById(worksheetId1) == null).to.be.true;
+            // undo it
+            SQL.undo()
+            .then(function() {
+                worksheet1 = WSManager.getWSById(worksheetId1);
+                expect(worksheet1 == null).to.be.false;
+                expect(worksheet1.tables.length).to.equal(1);
+                xcTooltip.hideAll();
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+        it("Should delete worksheet with delete table", function() {
+            WSManager.delWS(worksheetId2, DelWSType.Del);
+            expect(WSManager.getWSById(worksheetId2) == null).to.be.true;
         });
 
         after(function(done) {
-            UnitTest.deleteTable(table2)
+            // table2 and worksheet2 are already deleted
+            UnitTest.deleteAll(table1, dsName)
             .then(function() {
-                return UnitTest.deleteAll(table1, dsName)
-            })
-            .then(function() {
+                WSManager.delWS(worksheetId1, DelWSType.Empty);
                 done();
             })
             .fail(function(error) {

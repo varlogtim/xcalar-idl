@@ -522,6 +522,10 @@ window.StartManager = (function(StartManager, $) {
             var hiddenWorksheets = WSManager.getHiddenWSList();
             hiddenWorksheets.forEach(function(worksheetId) {
                 var worksheet = WSManager.getWSById(worksheetId);
+                if (worksheet == null) {
+                    // this is error case
+                    return;
+                }
 
                 worksheet.tempHiddenTables.forEach(function(tableId) {
                     checkIfHasTableMeta(tableId, backTableSet);

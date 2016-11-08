@@ -578,7 +578,7 @@ window.WSManager = (function($, WSManager) {
             }
         });
 
-        if (tableType !== "tables") {
+        if (tableType !== WSTableType.Active) {
             return;
             // no need to move html tables when not an active table
         }
@@ -1592,7 +1592,11 @@ window.WSManager = (function($, WSManager) {
     }
 
     function getHiddenWSHTML(wsId) {
-        var name = worksheetGroup.get(wsId).name;
+        var worksheet = worksheetGroup.get(wsId);
+        if (!worksheet) {
+            return "";
+        }
+        var name = worksheet.getName();
         var id = "worksheetTab-" + wsId;
         var html =
             '<li id="' + id + '"class="worksheetTab hiddenTab"' +
