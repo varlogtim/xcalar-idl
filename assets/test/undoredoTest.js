@@ -5,6 +5,8 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     // kick off the replay and then the undo, then redo, then undo, then redo
     // operationTypes can be tableOps, frontEnd, or worksheet
     UndoRedoTest.run = function(operationType) {
+        var deferred = jQuery.Deferred();
+
         if (operationType == null) {
             operationType = "tableOps";
             // operationType = "frontEnd";
@@ -14,7 +16,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         var logs;
         stepInfo = [];
         var noAlert = true;
-        var mindModeCache = gMinModeOn;
+        var minModeCache = gMinModeOn;
 
         gMinModeOn = true;
 
@@ -39,11 +41,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         })
         .then(function() {
             gMinModeOn = true;
-            var deferred = jQuery.Deferred();
+            var innerDeferred = jQuery.Deferred();
             setTimeout(function() {
-                deferred.resolve();
+                innerDeferred.resolve();
             }, 500);
-            return deferred.promise();
+            return innerDeferred.promise();
         })
         .then(function() {
             // start undoing everything
@@ -53,7 +55,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             return (undoAll());
         })
         .then(function() {
-            var deferred = jQuery.Deferred();
+            var innerDeferred = jQuery.Deferred();
             setTimeout(function() {
                 var numUndoneTables = 0;
                 for (var id in gTables) {
@@ -64,13 +66,13 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                 console.info(numUndoneTables + ' undone tables');
                 redoAll()
                 .then(function() {
-                    deferred.resolve();
+                    innerDeferred.resolve();
                 })
                 .fail(function() {
-                    deferred.reject();
+                    innerDeferred.reject();
                 });
             }, 500);
-            return deferred.promise();
+            return innerDeferred.promise();
         })
         .then(function() {
             var numUndoneTables = 0;
@@ -83,30 +85,35 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             return (undoAll(true));
         })
         .then(function() {
-            var deferred = jQuery.Deferred();
+            var innerDeferred = jQuery.Deferred();
             setTimeout(function() {
                redoAll()
                .then(function() {
-                    deferred.resolve();
+                    innerDeferred.resolve();
 
                })
                .fail(function() {
-                    deferred.reject();
+                    innerDeferred.reject();
                });
             }, 500);
-            return deferred.promise();
+            return innerDeferred.promise();
         })
-        .then(function(){
+        .then(deleteAllTables)
+        .then(deleteDS)
+        .then(function() {
             console.info('UNDO-REDO TEST PASSED');
             alert('UNDO-REDO TEST PASSED');
         })
         .fail(function() {
             console.error('UNDO-REDO TEST FAILED');
             alert('UNDO-REDO TEST FAILED');
+            deferred.reject();
         })
         .always(function() {
-            gMinModeOn = mindModeCache;
+            gMinModeOn = minModeCache;
         });
+
+        return deferred.promise();
     };
 
     UndoRedoTest.getStepInfo = function() {
@@ -117,7 +124,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         var deferred = jQuery.Deferred();
         $.getJSON("/assets/test/json/testLogs.json")
         .done(function(data) {
-            // replace "userTestUser" in log files with actual user's name
+            // replace "undoTestUser" in log files with actual user's name
             var strData = JSON.stringify(data);
             strData = strData.replace(/undoTestUser/g, userIdName);
             data = JSON.parse(strData);
@@ -367,6 +374,46 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             
         });
         return (deferred.promise());
+    }
+
+    function deleteAllTables() {
+        var deferred = jQuery.Deferred();
+
+        DeleteTableModal.show(true)
+        .then(function() {
+            $('#deleteTableModal').find('.listSection .checkbox')
+                                  .addClass('checked');
+            return DeleteTableModal.__testOnly__.submitForm();
+        })
+        .then(function() {
+            return DeleteTableModal.__testOnly__.closeModal();
+        })
+        .then(deferred.resolve);
+        
+        return deferred.promise();
+    }
+
+    function deleteDS() {
+        var deferred = jQuery.Deferred();
+        var dsName;
+        if (opType === "worksheet") {
+            dsName = "schedule1555";
+        } else {
+            dsName = "testyelp";
+        }
+        
+        var $grid = DS.getGridByName(dsName);
+        var dsId = $grid.data("dsid");
+        var dsObj = DS.getDSObj(dsId);
+
+        DS.__testOnly__.delDSHelper($grid, dsObj, {"failToShow": true})
+        .always(function() {
+            // now seems we have issue to delete ds because of ref count,
+            // this should be reolsved with now backend way to hanld ds
+            deferred.resolve();
+        });
+
+        return deferred.promise();
     }
 
     // tableOps, frontEndOps, and worksheetOps are lists of operations

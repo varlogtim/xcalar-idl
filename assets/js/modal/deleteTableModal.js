@@ -105,10 +105,13 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     };
 
     DeleteTableModal.show = function() {
+        var deferred = jQuery.Deferred();
+
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open
-            return;
+            deferred.resolve();
+            return deferred.promise();
         }
 
         modalHelper.setup({
@@ -137,21 +140,30 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         .always(function() {
             $modal.removeClass("load");
             populateTableLists();
+            deferred.resolve();
         });
+
+        return deferred.promise();
     };
 
     function closeModal() {
+        var deferred = jQuery.Deferred();
         modalHelper.clear({
             "close": function() {
                 $modalBg.removeClass("locked");
                 if (gMinModeOn) {
                     $modal.hide();
+                    deferred.resolve();
                 } else {
-                    $modal.fadeOut(180);
+                    $modal.fadeOut(180, function() {
+                        deferred.resolve();
+                    });
                 }
             }
         });
         reset();
+
+        return deferred.promise();
     }
 
     function reset() {
@@ -171,6 +183,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     }
 
     function submitForm() {
+        var deferred = jQuery.Deferred();
+
         var orphanDef = deleteTableHelper(TableType.Orphan);
         var archivedDef = deleteTableHelper(TableType.Archived);
         var activeDef = deleteTableHelper(TableType.Active);
@@ -203,7 +217,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             modalHelper.enableSubmit();
             // should re-dected memory usage
             Support.memoryCheck();
+            deferred.resolve();
         });
+
+        return deferred.promise();
     }
 
     function deleteTableHelper(type) {
@@ -507,6 +524,14 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             "highZindex": true
         });
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DeleteTableModal.__testOnly__ = {};
+        DeleteTableModal.__testOnly__.submitForm = submitForm;
+        DeleteTableModal.__testOnly__.closeModal = closeModal;
+    }
+    /* End Of Unit Test Only */
 
     return DeleteTableModal;
 }({}, jQuery));

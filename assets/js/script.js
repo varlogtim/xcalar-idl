@@ -475,11 +475,12 @@ window.StartManager = (function(StartManager, $) {
 
         function syncTableMetaWithBackTable(backTableSet) {
             // check if some table has front meta but not backend info
-            // if yes, delete front meta
+            // if yes, delete front meta (gTables and wsManager)
             for (var tableId in gTables) {
                 var tableName = gTables[tableId].getName();
                 if (!backTableSet.hasOwnProperty(tableName)) {
                     console.warn(tableName, "is not in backend");
+                    WSManager.removeTable(tableId);
                     delete gTables[tableId];
                 }
             }
