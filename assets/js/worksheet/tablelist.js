@@ -968,6 +968,7 @@ window.TableList = (function($, TableList) {
                 if (!frontConsts[aggConst.name]) {
                     aggConst.backColName = null;
                     aggConst.dagName = aggConst.name;
+                    aggConst.aggName = aggConst.name;
                     aggConst.op = null;
                     aggConst.tableId = null;
                     aggConst.value = null;
@@ -995,7 +996,8 @@ window.TableList = (function($, TableList) {
             var html = "";
             for (var i = 0; i < numConsts; i++) {
                 aggConst = allConsts[i];
-                var name = aggConst.dagName;
+                var name = aggConst.aggName;
+                var dagName = aggConst.dagName;
                 var tableName;
                 var op;
                 var value;
@@ -1016,7 +1018,7 @@ window.TableList = (function($, TableList) {
                 }
                 html +=
                 '<li class="clearfix tableInfo" ' +
-                    'data-id="' + name + '">' +
+                    'data-id="' + dagName + '">' +
                     '<div class="constInfoWrap" data-toggle="tooltip" ' +
                     'data-container="body" title="' + op + '</br>' +
                         tableName + '">' +

@@ -778,7 +778,7 @@ window.OperationsView = (function($, OperationsView) {
         var aggs = Aggregates.getNamedAggs();
         aggNames = [];
         for (var i in aggs) {
-            aggNames.push(aggs[i].dagName);
+            aggNames.push(aggs[i].aggName);
         }
 
         if (!restore) {
@@ -2249,8 +2249,8 @@ window.OperationsView = (function($, OperationsView) {
             return deferred.reject().promise();
         }
         
-        // name duplication check
-        duplicateNameCheck(args)
+        // new column name duplication & validity check
+        newColNameCheck(args)
         .then(function() {
             var hasMultipleSets = false;
             if (multipleArgSets.length > 1){
@@ -2342,7 +2342,7 @@ window.OperationsView = (function($, OperationsView) {
         return deferred.promise();
     }
 
-    function duplicateNameCheck(args) {
+    function newColNameCheck(args) {
         var deferred = jQuery.Deferred();
 
         var $nameInput;
@@ -3264,7 +3264,7 @@ window.OperationsView = (function($, OperationsView) {
                 "aggPrefix": gAggVarPrefix
             });
             invalid = false;
-        } else if (xcHelper.hasInvalidCharInCol(val.substring(1))) {
+        } else if (!xcHelper.isValidAggName(val.substring(1))) {
             // test the value after gAggVarPrefix
             errorTitle = ColTStr.RenameSpecialCharAgg;
             invalid = true;
@@ -3280,8 +3280,7 @@ window.OperationsView = (function($, OperationsView) {
             deferred.resolve(false);
         } else {
             // check duplicates
-            // XXX temp fix for backend not wanting gAggVarPrefix
-            val = val.slice(1);
+            val = val.slice(1); // remove prefix
             XcalarGetConstants(val)
             .then(function(ret) {
                 if (ret.length) {

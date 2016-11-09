@@ -20,6 +20,7 @@ window.XIApi = (function(XIApi, $) {
     };
 
     // dstAggName is optional and can be left blank (will autogenerate)
+    // and new agg table will be deleted
     XIApi.aggregate = function(txId, aggOp, colName, tableName, dstAggName) {
         if (colName == null || tableName == null ||
             aggOp == null || txId == null)
@@ -31,6 +32,7 @@ window.XIApi = (function(XIApi, $) {
     };
 
     // dstAggName is optional and can be left blank (will autogenerate)
+    // and new agg table will be deleted
     XIApi.aggregateWithEvalStr = function(txId, evalStr, tableName, dstAggName) {
         if (evalStr == null || tableName == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
@@ -39,7 +41,7 @@ window.XIApi = (function(XIApi, $) {
         var deferred = jQuery.Deferred();
         var toDelete = false;
 
-        if (!isValidTableName(dstAggName)) {
+        if (!isValidAggName(dstAggName)) {
             var nameRoot = xcHelper.getTableName(tableName);
             dstAggName = xcHelper.randName(nameRoot + "-agg");
             toDelete = true;
@@ -1161,6 +1163,14 @@ window.XIApi = (function(XIApi, $) {
         var regexp = new RegExp(regex);
         var isValid = (tableName != null) && (tableName !== "") &&
                       (regexp.test(tableName));
+        return isValid;
+    }
+
+    // should match xcHelper.isValidAggName
+    function isValidAggName(aggName) {
+        // no blanks, must start with alpha, cannot have any special chars
+        // other than _ and - and #
+        var isValid = xcHelper.isValidAggName(aggName);
         return isValid;
     }
 

@@ -820,6 +820,47 @@ describe('xcHelper Test', function() {
         expect(res).to.be.false;
     });
 
+    it('xcHelper.isValidAggName should work', function() {
+        var res = xcHelper.isValidAggName('a'); 
+        expect(res).to.be.true;
+
+        var res = xcHelper.isValidAggName('ab'); 
+        expect(res).to.be.true;
+
+        var res = xcHelper.isValidAggName('abc1'); 
+        expect(res).to.be.true;
+
+        var res = xcHelper.isValidAggName('ab1c'); 
+        expect(res).to.be.true;
+
+        var res = xcHelper.isValidAggName('ab#c1');
+        expect(res).to.be.true;
+
+        var res = xcHelper.isValidAggName('a_b#c1');
+        expect(res).to.be.true;
+
+        var res = xcHelper.isValidAggName('a-b#c1');
+        expect(res).to.be.true;
+
+        var res = xcHelper.isValidAggName('1a');
+        expect(res).to.be.false;
+
+        var res = xcHelper.isValidAggName('_a');
+        expect(res).to.be.false;
+
+        var res = xcHelper.isValidAggName('^abc');
+        expect(res).to.be.false;
+
+        var res = xcHelper.isValidAggName('ab^c');
+        expect(res).to.be.false;
+
+        var res = xcHelper.isValidAggName('ab$c');
+        expect(res).to.be.false;
+
+        var res = xcHelper.isValidAggName('ab*c');
+        expect(res).to.be.false;
+    });
+
     it('xcHelper.hasInvalidCharInCol should work', function() {
         var testCases = [
             {

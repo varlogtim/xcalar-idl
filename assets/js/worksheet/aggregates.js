@@ -19,7 +19,7 @@ window.Aggregates = (function(Aggregates, $) {
     Aggregates.getNamedAggs = function() {
         var namedAggs = {};
         for (var key in aggs) {
-            if (key.startsWith(gAggVarPrefix)) {
+            if (aggs[key].aggName.startsWith(gAggVarPrefix)) {
                 namedAggs[key] = aggs[key];
             }
         }

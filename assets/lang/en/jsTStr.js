@@ -204,7 +204,7 @@ ErrTStr = {
     'PrefixTooLong': 'Please fewer than 20 characters.',
     'NoTable': 'Table doesn\'t exists',
     'TablesNotDeleted': 'The following tables were not deleted:',
-    'ConstsNotDeleted': 'The following aggregatess were not deleted:',
+    'ConstsNotDeleted': 'The following aggregates were not deleted:',
     'NoTablesDeleted': 'No tables were deleted.',
     'NoConstsDeleted': 'No aggregates were deleted.',
     'LargeImgSave': 'Unable To Save Image',

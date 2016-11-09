@@ -138,22 +138,24 @@ window.xcFunction = (function($, xcFunction) {
 
         xcHelper.lockTable(tableId, txId);
 
-        // XXX temp hack because backend doesn't but should take gAggVarPrefix
-        // as first char for aggName
+        // backend doesn't take gAggVarPrefix so we will add it back alter
         var hasPrefix = false;
-        // if (aggName && aggName[0] === gAggVarPrefix) {
-        //     aggName = aggName.slice(1);
-        //     hasPrefix = true;
-        // }
+        if (aggName && aggName[0] === gAggVarPrefix) {
+            aggName = aggName.slice(1);
+            hasPrefix = true;
+        }
 
         XIApi.aggregate(txId, aggrOp, aggStr, tableName, aggName)
         .then(function(value, dstDagName, toDelete) {
+            var origAggName = aggName;
+            // add back prefix for front end
             if (hasPrefix) {
-                dstDagName = gAggVarPrefix + dstDagName;
+                origAggName = gAggVarPrefix + aggName;
             }
             var aggRes = {
                 "value"      : value,
                 "dagName"    : dstDagName,
+                "aggName"    : origAggName,
                 "tableId"    : tableId,
                 "backColName": backColName,
                 "op"         : aggrOp
