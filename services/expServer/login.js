@@ -1,3 +1,4 @@
+var jQuery;
 require("jsdom").env("", function(err, window) {
     if (err) {
         console.error(err);
@@ -15,7 +16,6 @@ var SupportStatus = ssf.SupportStatus;
 var setup;
 var config;
 var trustedCerts;
-var jQuery;
 
 var users = new Map();
 var loginId = 0;
@@ -172,7 +172,7 @@ function loginAuthentication(credArray, res) {
         } else {
             responseError(res);
         }
-    })
+    });
 }
 
 function writeEntry(entry, loginId) {

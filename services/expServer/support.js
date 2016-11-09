@@ -126,7 +126,7 @@ function sendCommandToSlaves(action, str, hosts) {
             type: 'POST',
             data: JSON.stringify(str),
             contentType: 'application/json',
-            url: "http://" + hostName + ":12124" + action,
+            url: hostName + "/app" + action,
             success: function(data) {
                 var ret = data;
                 var retMsg;
