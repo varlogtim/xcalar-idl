@@ -234,7 +234,8 @@ module.exports = {
         "IcvRestriction": "ICV only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Aggregates",
-        "ChooseUdfModule": 'Please choose a module first' // used in jststr
+        "ChooseUdfModule": "Please choose a module first", // used in jststr
+        "LowMemory": "You are running low on space, click to relase memory.",
     },
 
     "workspaceBar": {

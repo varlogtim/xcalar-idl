@@ -99,7 +99,7 @@ window.Support = (function(Support, $) {
         return (deferred.promise());
     };
 
-    Support.memoryCheck = function(shoulAlert) {
+    Support.memoryCheck = function() {
         var deferred = jQuery.Deferred();
 
         var yellowThrehold = 70;
@@ -135,19 +135,12 @@ window.Support = (function(Support, $) {
 
         function handleMemoryUsage() {
             var $memoryAlert = $("#memoryAlert");
-            var needAlert = true;
-
             if (isRed) {
                 $memoryAlert.addClass("red").removeClass("yellow");
             } else if (isYellow) {
                 $memoryAlert.addClass("yellow").removeClass("red");
             } else {
                 $memoryAlert.removeClass("red").removeClass("yellow");
-                needAlert = false;
-            }
-
-            if (needAlert && shoulAlert) {
-                xcTooltip.refresh($memoryAlert);
             }
         }
     };
@@ -164,7 +157,7 @@ window.Support = (function(Support, $) {
 
             Support.commitCheck()
             .then(function() {
-                return Support.memoryCheck(true);
+                return Support.memoryCheck();
             })
             .then(function() {
                 return autoSave();

@@ -370,29 +370,7 @@ window.StartManager = (function(StartManager, $) {
     }
 
     function setupMemoryAlert() {
-        var $memoryAlert = $("#memoryAlert");
-        var tooltipOptions = {
-            "trigger"  : "auto",
-            "animation": false,
-            "placement": "bottom",
-            "container": "body",
-            "html"     : true
-        };
-
-        var title = TooltipTStr.LowMemory +
-                    '<br/>' +
-                    ' <a class="memoryAlert-release">' +
-                        MonitorTStr.ReleaseMem +
-                    '</a>';
-        var options = $.extend({}, tooltipOptions, {
-            "title": title
-        });
-        $memoryAlert.tooltip(options);
-        $memoryAlert.click(function() {
-            $memoryAlert.tooltip("show");
-        });
-
-        $("body").on("mousedown", ".memoryAlert-release", function() {
+        $("#memoryAlert").click(function() {
             DeleteTableModal.show();
         });
     }

@@ -82,7 +82,6 @@ TooltipTStr = {
     'CancelQuery': 'Cancel query',
     'AlreadyIcv': 'This table is already an ICV table',
     'ParamValNoChange': 'This parameter value cannot be changed',
-    'LowMemory': 'Warning! You are running low on space.',
     // Sync with htmlTStr
     "IcvRestriction": 'ICV only available for Map and Group By',
 
