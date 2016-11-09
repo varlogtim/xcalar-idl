@@ -383,15 +383,6 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.rfind = function(string, character) {
-        for (var i = string.length-1; i>=0; i--) {
-            if (string[i] === character) {
-                return i;
-            }
-        }
-        return -1;
-    };
-
     // extract op and arguments from a string delimited by delimiter
     xcHelper.extractOpAndArgs = function(string, delim) {
         // For example, eq("agwe", 3)
@@ -399,9 +390,10 @@ window.xcHelper = (function($, xcHelper) {
         // And the function will return {"op": "eq", "args": ["agwe", 3]}
         // This handles edge conditions like eq("eqt,et", ",")
         var leftParenLocation = string.indexOf('(');
+        var rightParenLocation = string.lastIndexOf(')');
         var op = jQuery.trim(string.slice(0, leftParenLocation));
         var argString = jQuery.trim(string.slice(leftParenLocation + 1,
-                                                xcHelper.rfind(string, ')')));
+                                                rightParenLocation));
 
         var args = [];
         var i = 0;
@@ -438,7 +430,10 @@ window.xcHelper = (function($, xcHelper) {
             args[i] = jQuery.trim(args[i]);
         }
 
-        return ({"op": op, "args": args});
+        return {
+            "op"  : op,
+            "args": args
+        };
     };
 
     xcHelper.getTableKeyFromMeta = function(tableMeta) {
@@ -806,7 +801,8 @@ window.xcHelper = (function($, xcHelper) {
             }, 1800);
         }
     };
-
+    // XXX Cheng: combine common code with xcHelper.showSuccess
+    // in 1.1
     xcHelper.showFail = function() {
         var $successMessage = $('#successMessageWrap');
         $successMessage.addClass("failed");
@@ -1176,18 +1172,6 @@ window.xcHelper = (function($, xcHelper) {
             console.warn('Table name does not contain hashId');
             return null;
         }
-    };
-
-    xcHelper.getTableNameFromId = function(tableId) {
-
-        if (!gTables) {
-            return "";
-        }
-
-        if (!(tableId in gTables)) {
-            return "";
-        }
-        return (gTables[tableId].tableName);
     };
 
     xcHelper.getBackTableSet = function() {
@@ -2083,7 +2067,7 @@ window.xcHelper = (function($, xcHelper) {
                              }).trim());
     };
 
-    //xx not tested
+    //xx not fully tested
     // turns 'map(concat  ("a   ", "b"))' into 'map(concat("a   ","b"))'
     xcHelper.removeNonQuotedSpaces = function(str) {
         var tempString = "";

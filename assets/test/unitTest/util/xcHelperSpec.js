@@ -122,13 +122,20 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.getPreviewSize should work', function() {
-        var func = xcHelper.getPreviewSize;
-        expect(func("")).to.be.equal(0);
-        expect(func("1", "KB")).to.equal(1 * 1024);
-        expect(func("2", "MB")).to.equal(2 * 1024 * 1024);
-        expect(func("3", "GB")).to.equal(3 * 1024 * 1024 * 1024);
-        expect(func("4", "TB")).to.equal(4 * 1024 * 1024 * 1024 * 1024);
-        expect(func("5", "garbage")).to.equal(5);
+        expect(xcHelper.getPreviewSize("")).to.be.equal(gMaxSampleSize);
+        expect(xcHelper.getPreviewSize(null)).to.equal(gMaxSampleSize);
+        expect(xcHelper.getPreviewSize("abc")).to.equal(gMaxSampleSize);
+
+        expect(xcHelper.getPreviewSize("1", "KB"))
+        .to.equal(1 * 1024);
+        expect(xcHelper.getPreviewSize("2", "MB"))
+        .to.equal(2 * 1024 * 1024);
+        expect(xcHelper.getPreviewSize("3", "GB"))
+        .to.equal(3 * 1024 * 1024 * 1024);
+        expect(xcHelper.getPreviewSize("4", "TB"))
+        .to.equal(4 * 1024 * 1024 * 1024 * 1024);
+        expect(xcHelper.getPreviewSize("5", "garbage"))
+        .to.equal(5);
     });
 
     it('xcHelper.getMultiJoinMapString should work', function() {
@@ -249,6 +256,30 @@ describe('xcHelper Test', function() {
         });
     });
 
+    it('xcHelper.getUnusedTableName should work in dup case', function(done) {
+        var dsName = xcHelper.randName("testName");
+        var oldFunc = XcalarGetTables;
+
+        XcalarGetTables = function() {
+            return PromiseHelper.resolve({
+                "nodeInfo": [{"name": dsName}],
+                "numNodes": 1
+            });
+        };
+
+        xcHelper.getUnusedTableName(dsName)
+        .then(function(realName) {
+            expect(realName).not.to.equal(dsName);
+            done();
+        })
+        .fail(function() {
+            throw "Fail case!";
+        })
+        .always(function() {
+            XcalarGetTables = oldFunc;
+        });
+    });
+
     it('xcHelper.getUniqColName should work', function() {
         // case 1
         var res = xcHelper.getUniqColName(null, null);
@@ -280,6 +311,29 @@ describe('xcHelper Test', function() {
         res = xcHelper.getUniqColName("xc-Test", "test");
         expect(res).to.be.equal("test_1");
         delete gTables["xc-Test"];
+    });
+
+    it('xcHelper.extractOpAndArgs should work', function() {
+        var res = xcHelper.extractOpAndArgs('eq(a, 3)', ',');
+        expect(res).to.be.an("object");
+        expect(res).have.property("op").and.to.equal("eq");
+        expect(res).have.property("args");
+        var args = res.args;
+        expect(args.length).to.equal(2);
+        expect(args[0]).to.equal("a");
+        expect(args[1]).to.equal("3");
+        // case 2
+        res = xcHelper.extractOpAndArgs('eq("a,b", 3)', ',');
+        args = res.args;
+        expect(args.length).to.equal(2);
+        expect(args[0]).to.equal("\"a,b\"");
+        expect(args[1]).to.equal("3");
+        // case 3
+        res = xcHelper.extractOpAndArgs('eq(a\\"b, 3)', ',');
+        args = res.args;
+        expect(args.length).to.equal(2);
+        expect(args[0]).to.equal('a\\"b');
+        expect(args[1]).to.equal("3");
     });
 
     it('xcHelper.getTableKeyFromMeta should work', function() {
@@ -462,12 +516,75 @@ describe('xcHelper Test', function() {
         var res = xcHelper.getTime(d);
         var res2 = xcHelper.getTime(null, d.getTime());
         expect(res).to.equal(res2);
+        // no second case
+        var res3 = xcHelper.getTime(d, null, true);
+        expect(res3.split(":").length).to.equal(2);
     });
 
     it('xcHelper.getCurrentTimeStamp should work', function() {
         var res = xcHelper.getCurrentTimeStamp();
         var d = new Date().getTime();
         expect((res - d) < 100).to.be.true;
+    });
+
+    it('xcHelper.downloadAsFile should work', function(done) {
+        var fileName = "fileName";
+        var fileContent = "test";
+        var deferrd = jQuery.Deferred();
+        function clickEvent (event) {
+            event.preventDefault();
+            var $a = $(event.target);
+            var testName = $a.attr("download");
+            var testContent = $a.attr("href");
+            
+            
+            deferrd.resolve(testName, testContent);
+        };
+        $(document).on("click", "a", clickEvent);
+        xcHelper.downloadAsFile(fileName, fileContent);
+
+        deferrd.promise()
+        .then(function(testName, testContent) {
+            expect(testName).to.equal(fileName);
+            expect(testContent).to.contain(fileContent);
+            done();
+        })
+        .fail(function(error) {
+            throw error;
+        })
+        .always(function() {
+            $(document).off("click", clickEvent);
+        });
+    });
+
+    it('xcHelper.downloadAsFile with raw data should work', function(done) {
+        var fileName = "fileName";
+        var fileContent = "test";
+        var deferrd = jQuery.Deferred();
+        function clickEvent (event) {
+            event.preventDefault();
+            var $a = $(event.target);
+            var testName = $a.attr("download");
+            var testContent = $a.attr("href");
+            
+            
+            deferrd.resolve(testName, testContent);
+        };
+        $(document).on("click", "a", clickEvent);
+        xcHelper.downloadAsFile(fileName, fileContent, true);
+
+        deferrd.promise()
+        .then(function(testName, testContent) {
+            expect(testName).to.equal(fileName);
+            expect(testContent).not.to.contain(fileContent);
+            done();
+        })
+        .fail(function(error) {
+            throw error;
+        })
+        .always(function() {
+            $(document).off("click", clickEvent);
+        });
     });
 
     it('xcHelper.timeStampTranslater should work', function() {
@@ -514,6 +631,15 @@ describe('xcHelper Test', function() {
 
     it('xcHelper.showSuccess should work', function(done) {
         xcHelper.showSuccess();
+        assert.isTrue($('#successMessageWrap').is(":visible"));
+        setTimeout(function() {
+            assert.isFalse($('#successMessageWrap').is(":visible"));
+            done();
+        }, 3000);
+    });
+
+    it('xcHelper.showFail should work', function(done) {
+        xcHelper.showFail();
         assert.isTrue($('#successMessageWrap').is(":visible"));
         setTimeout(function() {
             assert.isFalse($('#successMessageWrap').is(":visible"));
@@ -694,6 +820,72 @@ describe('xcHelper Test', function() {
         gMinModeOn = cacheMinMode;
     });
 
+    it('xcHelper.tableNameInputChecker should work', function() {
+        var $statusBox = $("#statusBox");
+        var $input = $('<input type="text">');
+        $("body").append($input);
+
+        var onErrTrigger = false;
+        var oldFunc = xcHelper.checkDupTableName;
+        xcHelper.checkDupTableName = function(name) {
+            return name !== "testDupName";
+        };
+
+        var testCases = [{
+            "val"  : "testTable",
+            "valid": true 
+        },
+        {
+            "val"  : "",
+            "valid": false,
+            "error": ErrTStr.NoEmpty
+        },
+        {
+            "val"  : "ab:c",
+            "valid": false,
+            "error": ErrTStr.InvalidTableName
+        },
+        {
+            "val"  : "ab#c",
+            "valid": false,
+            "error": ErrTStr.InvalidTableName
+        },
+        {
+            "val"  : new Array(300).join("a"),
+            "valid": false,
+            "error": ErrTStr.TooLong
+        },
+        {
+            "val"    : "testDupName",
+            "valid"  : false,
+            "error"  : ErrTStr.TableConflict,
+            "options":  {
+                onErr: function() { onErrTrigger = true; }
+            }
+        }];
+
+        testCases.forEach(function(testCase) {
+            $input.val(testCase.val);
+            var res = xcHelper.tableNameInputChecker($input, testCase.options);
+            expect(res).to.equal(testCase.valid);
+
+            if (!testCase.valid) {
+                assert.isTrue($statusBox.is(":visible"));
+                expect($statusBox.find(".message").text())
+                .to.equal(testCase.error);
+                
+                if (testCase.options && testCase.options.onErr) {
+                    expect(onErrTrigger).to.be.true;
+                }
+
+                StatusBox.forceHide();
+            }
+        });
+
+        $input.remove();
+        xcHelper.checkDupTableName = oldFunc;
+    });
+
     it("xcHelper.getTableName should work", function() {
         // case 1
         var res = xcHelper.getTableName("test#hd1");
@@ -709,6 +901,9 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("hd1");
         // case 2
         res = xcHelper.getTableId("test");
+        expect(res).to.be.null;
+        // case
+        res = xcHelper.getTableId();
         expect(res).to.be.null;
     });
 
@@ -802,6 +997,14 @@ describe('xcHelper Test', function() {
         expect($input.val()).to.be.equal("b");
     });
 
+    it('xcHelper.createNextName should work', function() {
+        var res = xcHelper.createNextName("abc", "-");
+        expect(res).to.equal("abc-1");
+        // case 2
+        res = xcHelper.createNextName("abc-1", "-");
+        expect(res).to.equal("abc-2");
+    });
+
     it('xcHelper.hasSpecialChar should work', function() {
         // case 1
         var res = xcHelper.hasSpecialChar("abc$ 1");
@@ -821,43 +1024,49 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.isValidAggName should work', function() {
-        var res = xcHelper.isValidAggName('a'); 
-        expect(res).to.be.true;
-
-        var res = xcHelper.isValidAggName('ab'); 
-        expect(res).to.be.true;
-
-        var res = xcHelper.isValidAggName('abc1'); 
-        expect(res).to.be.true;
-
-        var res = xcHelper.isValidAggName('ab1c'); 
-        expect(res).to.be.true;
-
-        var res = xcHelper.isValidAggName('ab#c1');
-        expect(res).to.be.true;
-
-        var res = xcHelper.isValidAggName('a_b#c1');
-        expect(res).to.be.true;
-
-        var res = xcHelper.isValidAggName('a-b#c1');
-        expect(res).to.be.true;
-
-        var res = xcHelper.isValidAggName('1a');
+        var res = xcHelper.isValidAggName(''); 
         expect(res).to.be.false;
 
-        var res = xcHelper.isValidAggName('_a');
+        res = xcHelper.isValidAggName(null); 
         expect(res).to.be.false;
 
-        var res = xcHelper.isValidAggName('^abc');
+        res = xcHelper.isValidAggName('a'); 
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidAggName('ab'); 
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidAggName('abc1'); 
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidAggName('ab1c'); 
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidAggName('ab#c1');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidAggName('a_b#c1');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidAggName('a-b#c1');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidAggName('1a');
         expect(res).to.be.false;
 
-        var res = xcHelper.isValidAggName('ab^c');
+        res = xcHelper.isValidAggName('_a');
         expect(res).to.be.false;
 
-        var res = xcHelper.isValidAggName('ab$c');
+        res = xcHelper.isValidAggName('^abc');
         expect(res).to.be.false;
 
-        var res = xcHelper.isValidAggName('ab*c');
+        res = xcHelper.isValidAggName('ab^c');
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidAggName('ab$c');
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidAggName('ab*c');
         expect(res).to.be.false;
     });
 
@@ -958,6 +1167,20 @@ describe('xcHelper Test', function() {
         // case 3
         res = xcHelper.unescapeColName('a\\[b\\]');
         expect(res).to.equal('a[b]');
+    });
+
+    it('xcHelper.stripeColName should work', function() {
+        var res = xcHelper.stripeColName("votes.funny");
+        expect(res).to.equal("votes_funny");
+
+        res = xcHelper.stripeColName("a[b]");
+        expect(res).to.equal("a_b");
+
+        res = xcHelper.stripeColName("[b]");
+        expect(res).to.equal("b");
+
+        res = xcHelper.stripeColName("a\\.b");
+        expect(res).to.equal("a_b");
     });
 
     it('xcHelper.disableTextSelection and xcHelper.reenableTextSelection should work', function() {
@@ -1121,11 +1344,16 @@ describe('xcHelper Test', function() {
         expect(func('AB')).to.equal('A B');
         expect(func('Ab')).to.equal('Ab');
         expect(func('AaBbC')).to.equal('Aa Bb C');
+    });
 
+    it('xcHelper.removeNonQuotedSpaces should work', function() {
+        var res = xcHelper.removeNonQuotedSpaces('map(concat  ("a   ", "b"))');
+        expect(res).to.equal('map(concat("a   ","b"))');
     });
 
     it('xcHelper.getFormat should work', function() {
         var getFormat = xcHelper.getFormat;
+        expect(getFormat("a")).to.be.null;
         expect(getFormat("a.json")).to.equal("JSON");
         expect(getFormat("b.csv")).to.equal("CSV");
         expect(getFormat("c.tsv")).to.equal("CSV");
@@ -1140,6 +1368,7 @@ describe('xcHelper Test', function() {
         var desc = ColumnSortOrder.descending;
         // to.equal(1) if order is 1 and arg1 < arg2
         // to.equal(-1) if order is 1 and arg1 > arg2
+        expect(func("a", "a")).to.equal(0);
         expect(func("a", "b")).to.equal(-1);
         expect(func("a", "b", desc)).to.equal(1);
         expect(func("b", "a", desc)).to.equal(-1);
@@ -1303,5 +1532,8 @@ describe('xcHelper Test', function() {
         expect(res.name).to.equal("test");
     });
 
+    after(function() {
+        StatusBox.forceHide();
+    });
 });
 

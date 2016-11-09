@@ -7,7 +7,7 @@ mocha.setup({
     // e.g. /Mocha Setup Test|Workbook Test/
     // defulat:
     // "grep": /Mocha Setup Test|.*/
-    "grep": /Mocha Setup Test|.*/
+    "grep": /Mocha Setup Test|xcHelper Test.*/
 });
 // global
 expect = chai.expect;
@@ -46,6 +46,8 @@ var testDatasets = {
 };
 
 window.UnitTest = (function(UnitTest, $) {
+    var minModeCache;
+
     UnitTest.setup = function() {
         $(document).ready(function() {
             mocha.run();
@@ -208,6 +210,16 @@ window.UnitTest = (function(UnitTest, $) {
         });
 
         return deferred.promise();
+    };
+
+    UnitTest.onMinMode = function() {
+        minModeCache = gMinModeOn;
+        gMinModeOn = true;
+    };
+
+    UnitTest.offMinMode = function() {
+        gMinModeOn = minModeCache;
+        minModeCache = null;
     };
 
     return (UnitTest);
