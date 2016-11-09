@@ -94,7 +94,8 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var i = 0;
         var curDelay = 0;
         for (i = 0; i<numUsers; i++) {
-            var urlString = hostname + "/testSuite.html?test=y&noPopup=y";
+            var urlString = hostname + "/testSuite.html?type=testSuite&" +
+                                        "test=y&noPopup=y";
             if (delay > 0) {
                 urlString += "&delay=" + curDelay;
             }

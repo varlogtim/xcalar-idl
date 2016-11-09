@@ -2,11 +2,12 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     var stepInfo = [];
     var replayLogs;
     var opType;
+    var schedName;
+    var yelpName;
     // kick off the replay and then the undo, then redo, then undo, then redo
     // operationTypes can be tableOps, frontEnd, or worksheet
     UndoRedoTest.run = function(operationType) {
         var deferred = jQuery.Deferred();
-
         if (operationType == null) {
             operationType = "tableOps";
             // operationType = "frontEnd";
@@ -20,7 +21,20 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
         gMinModeOn = true;
 
-        fetchLogs()
+        // need to check there are no tables because we are going to reset
+        // auth ID to 0 in order to make sure replay works
+        XcalarGetTables()
+        .then(function(ret) {
+            if (ret.numNodes !== 0) {
+                alert("All tables must be dropped before starting " +
+                    "undoredo test. " + ret.numNodes + " tables present.");
+                return PromiseHelper.reject();
+            } else {
+                var authInfo = Authentication.getInfo();
+                authInfo.idCount = 0;
+                return fetchLogs();
+            } 
+        })
         .then(function(testLogs) {
             switch (operationType) {
                 case ("tableOps"):
@@ -127,6 +141,25 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             // replace "undoTestUser" in log files with actual user's name
             var strData = JSON.stringify(data);
             strData = strData.replace(/undoTestUser/g, userIdName);
+
+            // replace schedule dataset name
+            schedName = "schedule" + Math.ceil(Math.random() * 10000);
+            var re = new RegExp(userIdName + ".schedule1555", "g");
+            strData = strData.replace(re, userIdName + "." + schedName);
+
+            re = new RegExp('"pointArgs":{"name":"schedule1555"', "g");
+            strData = strData.replace(re, '"pointArgs":{"name":"' + schedName +
+                                        '"');
+
+            // replace testyelp dataset name
+            yelpName = "testyelp" + Math.ceil(Math.random() * 10000);
+            re = new RegExp(userIdName + ".testyelp", "g");
+            strData = strData.replace(re, userIdName + "." + yelpName);
+
+            re = new RegExp('"pointArgs":{"name":"testyelp"', "g");
+            strData = strData.replace(re, '"pointArgs":{"name":"' + yelpName +
+                                        '"');
+
             data = JSON.parse(strData);
             deferred.resolve(data);
         })
@@ -379,6 +412,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     function deleteAllTables() {
         var deferred = jQuery.Deferred();
 
+        if (!DeleteTableModal.__testOnly__) {
+            deferred.resolve();
+            return deferred.promise();
+        }
+
         DeleteTableModal.show(true)
         .then(function() {
             $('#deleteTableModal').find('.listSection .checkbox')
@@ -389,17 +427,21 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             return DeleteTableModal.__testOnly__.closeModal();
         })
         .then(deferred.resolve);
-        
         return deferred.promise();
     }
 
     function deleteDS() {
         var deferred = jQuery.Deferred();
+        if (!DeleteTableModal.__testOnly__) {
+            deferred.resolve();
+            return deferred.promise();
+        }
+
         var dsName;
         if (opType === "worksheet") {
-            dsName = "schedule1555";
+            dsName = schedName;
         } else {
-            dsName = "testyelp";
+            dsName = yelpName;
         }
         
         var $grid = DS.getGridByName(dsName);

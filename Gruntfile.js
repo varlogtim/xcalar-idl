@@ -20,7 +20,8 @@ destMap = {
     "setup.html": "assets/htmlFiles/setup.html",
     "tableau.html": "assets/htmlFiles/tableau.html",
     "install.html": "install.html",
-    "testSuite.html": "testSuite.html"
+    "testSuite.html": "testSuite.html",
+    "undoredoTest.html": "undoredoTest.html"
 };
 
 htmlMinOptions = {};

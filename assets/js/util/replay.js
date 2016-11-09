@@ -1057,7 +1057,7 @@ window.Replay = (function($, Replay) {
             }
         };
 
-        delayAction(callback, "Wait", 1000)
+        delayAction(callback, "Wait", 2000)
         .then(function() {
             var checkFunc = function() {
                 var wsLenDiff = WSManager.getNumOfWS() - originWSLen;

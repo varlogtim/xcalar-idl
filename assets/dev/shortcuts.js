@@ -1,5 +1,4 @@
 if (localStorage.shortcuts) {
-    window.unitTestMode = true;
     $(document).ready(function() {
         if (window.location.pathname.indexOf('login.html') > -1) {
             Shortcuts.login();

@@ -10,8 +10,11 @@
  *      id: id of current run. For reporting back to testSuiteManager
  *      noPopup: y to suppress alert with final results
  *      mode: nothing, ten or hundred - ds size
+ *      type: string, type of test "undoredo", "testsuite"
+ *      subType: string, subtype of undoredo test
  * example:
  *  http://localhost:8888/testSuite.html?test=true&delay=2000&user=test&clean=true&close=true
+ *  http://localhost:8080/undoredoTest.html?test=y&user=someone&type=undoredo&subType=frontEnd
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
     var testSuiteKey = "autoTestsuite";
@@ -25,6 +28,10 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         } else {
            autoLogin(user);
         }
+        var testType = params["type"];
+        if (testType === "undoredo") {
+            window.unitTestMode = true;
+        }
     };
 
     TestSuiteSetup.initialize = function() {
@@ -33,6 +40,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
         var params = getSearchParameters();
         var runTest = hasUser && parseBooleanParam(params["test"]);
+        var testType = params["type"];
 
         StartManager.setup()
         .then(function() {
@@ -47,7 +55,11 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             if (toTest != null) {
                 // next time not auto run it
                 sessionStorage.removeItem(testSuiteKey);
-                return autoRunTestSuite();
+                if (testType === "undoredo") {
+                    return autoRunUndoTest();
+                } else {
+                    return autoRunTestSuite();
+                }
             } else {
                 return autoCreateWorkbook();
             }
@@ -157,6 +169,24 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                         }
                     }
                 }
+            });
+        }, delay);
+    }
+
+    function autoRunUndoTest() {
+        // sample param ?user=someone&test=y&type=undoredo&subType=frontEnd
+        var params = getSearchParameters();
+        var delay = Number(params["timeout"]);
+        var operationType = params['subType'];
+
+        if (isNaN(delay)) {
+            delay = 0;
+        }
+     
+        setTimeout(function() {
+            UndoRedoTest.run(operationType)
+            .always(function() {
+               // undotest should be handling end cases 
             });
         }, delay);
     }
