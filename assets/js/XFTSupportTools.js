@@ -18,8 +18,8 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             if (lastReturnSucc) {
                 lastReturnSucc = false;
                 var action = "/monitorLogs";
-                // support multiple user
-                var data = {"userID" : Support.getUser()};
+                // support multiple user)
+                var data = {"userID" : userIdUnique};
                 postRequest(action, data)
                 .then(function(ret) {
                     console.info(ret);

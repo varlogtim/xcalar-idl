@@ -48,34 +48,35 @@ function readHostsFromFile(hostFile) {
 
 function masterExecuteAction (action, res, str) {
     var slaveAction = action + "/slave";
-    var promise = readHostsFromFile(getXlrRoot() + hostFile);
-    promise
-    .then(function(hosts) {
-        var promiseSlaves = sendCommandToSlaves(slaveAction, str, hosts);
-        promiseSlaves
-        .then(function(results) {
-            var logs = generateLogs(action, results);
-            if(logs) {
-                res.send({"status": SupportStatus.OKLog,
-                          "logs": btoa(logs)});
-            } else {
-                res.send({"status": SupportStatus.OKNoLog});
-            }
+    var xlrRootPromise = getXlrRoot();
+    xlrRootPromise.always(function(xlrRoot) {
+        readHostsFromFile(xlrRoot + hostFile)
+        .then(function(hosts) {
+            sendCommandToSlaves(slaveAction, str, hosts)
+            .then(function(results) {
+                var logs = generateLogs(action, results);
+                if(logs) {
+                    res.send({"status": SupportStatus.OKLog,
+                              "logs": btoa(logs)});
+                } else {
+                    res.send({"status": SupportStatus.OKNoLog});
+                }
+            })
+            .fail(function(results) {
+                var logs = generateLogs(action, results);
+                if(logs) {
+                    res.send({"status": SupportStatus.Error,
+                              "logs": btoa(logs)});
+                } else {
+                    res.send({"status": SupportStatus.Error});
+                }
+            });
         })
-        .fail(function(results) {
-            var logs = generateLogs(action, results);
-            if(logs) {
-                res.send({"status": SupportStatus.Error,
-                          "logs": btoa(logs)});
-            } else {
-                res.send({"status": SupportStatus.Error});
-            }
+        .fail(function(err) {
+            res.send({"status": SupportStatus.Error,
+                      "error": err});
         });
     })
-    .fail(function(err) {
-        res.send({"status": SupportStatus.Error,
-                  "error": err});
-    });
 }
 
 function slaveExecuteAction (action, res, str) {
@@ -282,30 +283,20 @@ function isUnderBasePath(basePath, completePath) {
 function executeCommand(command, res) {
     var deferred = jQuery.Deferred();
     cp.exec(command, function(err,stdout,stderr) {
-        if (err) {
-            console.log(err.message);
-            var result = {"status": SupportStatus.Error,
-                          "error": err};
-            if(res) {
-                res.send(result);
-            }
-            deferred.reject();
+        var lines = String(stdout);
+        console.log(lines);
+        var result;
+        if (lines) {
+            result = {"status": SupportStatus.OKLog,
+                      "logs" : lines};
         } else {
-            var lines = String(stdout);
-            console.log(lines);
-            var result;
-            if (lines) {
-                result = {"status": SupportStatus.OKLog,
-                          "logs" : lines};
-            } else {
-                result = {"status": SupportStatus.OKNoLog,
-                          "logs" : lines};
-            }
-            if (res) {
-                res.send(result);
-            }
-            deferred.resolve();
+            result = {"status": SupportStatus.OKNoLog,
+                      "logs" : lines};
         }
+        if (res) {
+            res.send(result);
+        }
+        deferred.resolve();
     });
     return deferred.promise();
 }
@@ -400,6 +391,7 @@ function submitTicket(contents, res) {
     });
 }
 
+exports.getXlrRoot = getXlrRoot;
 exports.getLicense = getLicense;
 exports.submitTicket = submitTicket;
 exports.removeSessionFiles = removeSessionFiles;

@@ -30,13 +30,13 @@ $(document).ready(function() {
                 type: 'POST',
                 data: JSON.stringify(str),
                 contentType: 'application/json',
-                url: "https://authentication.xcalar.net/app/login",
+                url: hostname + "/app/login",
                 success: function(data) {
                     ret = data;
-                    if (ret.status === Status.Ok) {
+                    if (ret.status === SupportStatus.OKNoLog) {
                         console.log('success');
                         submit();
-                    } else if (ret.status === Status.Error) {
+                    } else if (ret.status === SupportStatus.Error) {
                         alert('Incorrect Password. Please try again.');
                         console.log('return error', data, ret);
                     } else {
