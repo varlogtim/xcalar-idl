@@ -152,17 +152,9 @@ window.Scheduler = (function(Scheduler, $) {
 
         // frequent section event
         var $freqSection = $dfgView.find(".frequencySection");
-        var $freq2 = $freqSection.find(".freq2");
         xcHelper.optionButtonEvent($freqSection, function(option) {
             var $datepickerPart = $newTimeSection.find(".datePickerPart");
-
-            if (option === scheduleFreq.dayPerMonth) {
-                $freq2.removeClass("inActive");
-                $datepickerPart.addClass("inActive");
-            } else {
-                $freq2.addClass("inActive");
-                $datepickerPart.removeClass("inActive");
-            }
+            $datepickerPart.removeClass("inActive");
         });
 
         $("#modScheduleForm-delete").on("click", function() {
@@ -181,7 +173,7 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#newScheduleForm-save").click(function() {
             $(this).blur();
-            if(saveScheduleForm($newScheduleForm, currentDataFlowName)) {
+            if (saveScheduleForm($newScheduleForm, currentDataFlowName)) {
                 Scheduler.hideNewScheduleFormView();
                 Scheduler.showScheduleDetailView();
             }
@@ -189,7 +181,7 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#modScheduleForm-save").click(function() {
             $(this).blur();
-            if(saveScheduleForm($modScheduleForm, currentDataFlowName)) {
+            if (saveScheduleForm($modScheduleForm, currentDataFlowName)) {
                 Scheduler.showScheduleDetailView();
             }
         });
@@ -211,12 +203,12 @@ window.Scheduler = (function(Scheduler, $) {
 
     Scheduler.setDataFlowName = function(groupName) {
         currentDataFlowName = groupName;
-    }
+    };
 
     Scheduler.showNewScheduleFormView = function () {
         resetCreateNewScheduleForm();
         $newScheduleForm.removeClass("xc-hidden");
-    }
+    };
 
     Scheduler.showScheduleDetailView = function () {
         var schedule = DF.getSchedule(currentDataFlowName);
@@ -224,25 +216,25 @@ window.Scheduler = (function(Scheduler, $) {
         resetModifiedScheduleForm(schedule);
         $scheduleDetail.removeClass("xc-hidden");
         $modScheduleForm.removeClass("xc-hidden");
-    }
+    };
 
     Scheduler.hideScheduleDetailView = function () {
         $scheduleDetail.addClass("xc-hidden");
-    }
+    };
 
     Scheduler.hideNewScheduleFormView = function () {
         $newScheduleForm.addClass("xc-hidden");
-    }
+    };
 
     function newScheduleIcon (dataflowName) {
-        $span = $("span").filter(function() { return ($(this).text() === dataflowName) });
+        $span = $("span").filter(function() { return ($(this).text() === dataflowName);});
         $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
         $addScheduleIcon.removeClass('xi-menu-scheduler');
         $addScheduleIcon.addClass('xi-menu-add-scheduler');
     }
 
     function existScheduleIcon (dataflowName) {
-        $span = $("span").filter(function() { return ($(this).text() === dataflowName) });
+        $span = $("span").filter(function() { return ($(this).text() === dataflowName);});
         $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
         $addScheduleIcon.addClass('xi-menu-scheduler');
         $addScheduleIcon.removeClass('xi-menu-add-scheduler');
@@ -284,21 +276,17 @@ window.Scheduler = (function(Scheduler, $) {
 
 
     function saveScheduleForm($form, dataflowName) {
-        var isNewSchedule = $form.attr("id") === "newScheduleForm";
-
-        // var $scheduleName  = $form.find(".nameSection input");
         var $scheduleDate  = $form.find(".timeSection .date");
         var $scheduleTime  = $form.find(".timeSection .time");
         var $scheduleRecur = $form.find(".recurSection input");
-        var name;
         // validation
         var isValid;
 
         isValid = xcHelper.validate([
             {
-                "$ele": $scheduleDate,
+                "$ele" : $scheduleDate,
                 "text" : ErrTStr.NoEmpty,
-                "check"    : function() {
+                "check": function() {
                     var $div = $scheduleDate.closest(".datePickerPart");
                     if ($div.hasClass("inActive")) {
                         return false;
@@ -318,14 +306,14 @@ window.Scheduler = (function(Scheduler, $) {
 
         isValid = xcHelper.validate([
             {
-                "$ele": $scheduleRecur,
+                "$ele" : $scheduleRecur,
                 "text" : ErrTStr.PositiveInteger,
                 "check": function() {
                     var num = $scheduleRecur.val();
-                    if(isNaN(num)) {
+                    if (isNaN(num)) {
                         return true;
                     } else {
-                        if(Number.isInteger(Number(num)) && Number(num) > 0) {
+                        if (Number.isInteger(Number(num)) && Number(num) > 0) {
                             return false;
                         }
                         return true;
@@ -360,24 +348,6 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var freq = null;
-        if (isDayPerMonth) {
-            var $inputs   = $form.find(".freq2 .dropDownList .text");
-            var radixText = $inputs.eq(0).val();
-            var dayText   = $inputs.eq(1).val();
-
-            var radix     = radixMap[radixText];
-            var day       = dayMap[dayText];
-            var startDate = getDayPerMonthHelper(radix, day, d);
-
-            startTime = startDate.getTime();
-            date = xcHelper.getDate("/", startDate);
-
-            freq = {
-                "radix": radixText,
-                "day"  : dayText
-            };
-        }
-
         var options = {
             // "name"     : name,
             "startTime": startTime,
@@ -411,10 +381,6 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleInfos.find(".modified .text").text(text);
         // Frequency
         text = schedule.repeat || "N/A";
-        if (schedule.repeat === scheduleFreq.dayPerMonth) {
-            text = schedule.freq.radix + " " + schedule.freq.day + " " +
-                    " of every month";
-        }
         $scheduleInfos.find(".frequency .text").text(text);
         // Repeat Time
         text = schedule.recur || "N/A";
@@ -449,26 +415,6 @@ window.Scheduler = (function(Scheduler, $) {
                 $modScheduleForm.addClass('xc-hidden');
             }
         });
-    }
-
-    function getScheduleArgs(schedule, dfg) {
-        getNextRunTime(schedule);
-
-        var backSchedName = schedule.name + "-" + dfg.name;
-        var schedInSec = (schedule.startTime - new Date().getTime()) / 1000;
-        schedInSec = Math.max(Math.round(schedInSec, 0));
-
-        var period = getRepeatPeriod(schedule);
-        var recurCount = schedule.recur;
-        var parameters = dfg.getAllParameters();
-        var type = SchedTaskTypeT.StQuery;
-        var arg = new XcalarApiSchedArgTypeT();
-        arg.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
-        arg.executeRetinaInput.retinaName = dfg.name;
-        arg.executeRetinaInput.numParameters = parameters.length;
-        arg.executeRetinaInput.parameters = parameters;
-
-        return [backSchedName, schedInSec, period, recurCount, type, arg];
     }
 
     function getTime(time) {
@@ -628,8 +574,6 @@ window.Scheduler = (function(Scheduler, $) {
         var oneHour = 3600; // 1 hour = 3600s
 
         switch (schedule.repeat) {
-            case scheduleFreq.dayPerMonth:
-                throw "repeat certain day per moth not support";
             case scheduleFreq.minute:
                 return 60; // 60s
             case scheduleFreq.hourly:
@@ -657,92 +601,49 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var repeat = schedule.repeat;
-
-        if (repeat === scheduleFreq.dayPerMonth) {
-            var freq  = schedule.freq;
-            var radix = radixMap[freq.radix];
-            var day   = dayMap[freq.day];
-
-            time = getDayPerMonthHelper(radix, day, d.getTime());
-            schedule.startTime = time.getTime();
-            schedules.dateText = xcHelper.getDate("/", time);
-        } else {
-            while (time < d) {
-                switch (repeat) {
-                    case scheduleFreq.minute:
-                        time.setMinutes(time.getMinutes() + 1);
-                        break;
-                    case scheduleFreq.hourly:
-                        time.setHours(time.getHours() + 1);
-                        break;
-                    case scheduleFreq.daily:
-                        time.setDate(time.getDate() + 1);
-                        break;
-                    case scheduleFreq.weekly:
-                        time.setDate(time.getDate() + 7);
-                        break;
-                    case scheduleFreq.biweekly:
-                        time.setDate(time.getDate() + 14);
-                        break;
-                    case scheduleFreq.monthly:
-                        time.setMonth(time.getMonth() + 1);
-                        break;
-                    default:
-                        console.error("Invalid option!");
-                        return;
-                }
+        while (time < d) {
+            switch (repeat) {
+                case scheduleFreq.minute:
+                    time.setMinutes(time.getMinutes() + 1);
+                    break;
+                case scheduleFreq.hourly:
+                    time.setHours(time.getHours() + 1);
+                    break;
+                case scheduleFreq.daily:
+                    time.setDate(time.getDate() + 1);
+                    break;
+                case scheduleFreq.weekly:
+                    time.setDate(time.getDate() + 7);
+                    break;
+                case scheduleFreq.biweekly:
+                    time.setDate(time.getDate() + 14);
+                    break;
+                case scheduleFreq.monthly:
+                    time.setMonth(time.getMonth() + 1);
+                    break;
+                default:
+                    console.error("Invalid option!");
+                    return;
             }
-
-            schedule.startTime = time.getTime();
         }
+        schedule.startTime = time.getTime();
     }
 
-    function getDayPerMonthHelper(radix, day, srcTime) {
-        var startTime = new Date(srcTime);
-
-        // Example: next last Sunday of a Month
-        if (radix === -1) {
-            // go to the last day of this month
-            startTime.setMonth(startTime.getMonth() + 1);
-            startTime.setDate(0); // this go to the last day of previous month
-
-            for (var i = 0; i < 7; i++) {
-                if (startTime.getDay() === day) {
-                    break;
-                } else {
-                    startTime.setDate(startTime.getDate() - 1);
-                }
-            }
-        } else {
-            // Example: next Second Sunday of a Month;
-
-            // go to the first day of the month;
-            startTime.setDate(1);
-
-            // get the first (day) of the Month
-            for (var i = 0; i < 7; i++) {
-                if (startTime.getDay() === day) {
-                    break;
-                } else {
-                    startTime.setDate(startTime.getDate() + 1);
-                }
-            }
-
-            // get the (radix)th (day) of the month
-            for (var j = 1; j < radix; j++) {
-                startTime.setDate(startTime.getDate() + 7);
-            }
-        }
-
-        // check if the start time is valid
-        // in not, check next month
-        if (startTime <= new Date().getTime()) {
-            startTime.setMonth(startTime.getMonth() + 1);
-            return getDayPerMonthHelper(radix, day, startTime);
-        } else {
-            return (startTime);
-        }
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        Scheduler.__testOnly__ = {};
+        Scheduler.__testOnly__.getNextRunTime = getNextRunTime;
+        Scheduler.__testOnly__.getRepeatPeriod = getRepeatPeriod;
+        Scheduler.__testOnly__.showTimeHelper = showTimeHelper;
+        Scheduler.__testOnly__.inputTime = inputTime;
+        Scheduler.__testOnly__.changeTime = changeTime;
+        Scheduler.__testOnly__.resetCreateNewScheduleForm = resetCreateNewScheduleForm;
+        Scheduler.__testOnly__.resetModifiedScheduleForm = resetModifiedScheduleForm;
+        Scheduler.__testOnly__.saveScheduleForm = saveScheduleForm;
+        Scheduler.__testOnly__.fillInScheduleDetail = fillInScheduleDetail;
+        Scheduler.__testOnly__.schedDetailTabs = schedDetailTabs;
     }
+    /* End Of Unit Test Only */
 
     return (Scheduler);
 }({}, jQuery));

@@ -1469,6 +1469,77 @@ describe('Constructor Test', function() {
         });
     });
 
+    describe('DF Schedule Constructor Test', function() {
+        it('DF should have schedule', function() {
+            var dfg = new Dataflow('testDF');
+            expect(dfg).to.have.property('schedule').and.to.be.null;
+            var createTime = new Date().getTime();
+            var startTime = new Date().getTime();
+            var modifiedTime = new Date().getTime();
+            var options = {
+                "startTime": startTime,
+                "dateText": "11/08/2016",
+                "timeText": "09 : 25 AM",
+                "repeat": "hourly",
+                "freq": 5,
+                "modified": modifiedTime,
+                "recur": 10,
+                "created": createTime
+            }
+
+            var createTime2 = new Date().getTime();
+            var startTime2 = new Date().getTime();
+            var modifiedTime2 = new Date().getTime();
+            var options2 = {
+                "startTime": startTime2,
+                "dateText": "12/09/2016",
+                "timeText": "10 : 35 AM",
+                "repeat": "weekly",
+                "freq": 6,
+                "modified": modifiedTime2,
+                "recur": 7,
+                "created": createTime2
+            }
+
+            var sched = new SchedObj(options);
+            // Test setSchedule function
+            dfg.setSchedule(sched);
+            expect(dfg).to.have.property('schedule')
+            .and.to.an('Object');
+            expect(dfg.schedule.startTime).to.equal(startTime);
+            expect(dfg.schedule.dateText).to.equal("11/08/2016");
+            expect(dfg.schedule.timeText).to.equal("09 : 25 AM");
+            expect(dfg.schedule.repeat).to.equal("hourly");
+            expect(dfg.schedule.freq).to.equal(5);
+            expect(dfg.schedule.modified).to.equal(modifiedTime);
+            expect(dfg.schedule.recur).to.equal(10);
+            expect(dfg.schedule.created).to.equal(createTime);
+
+            // Test getSchedule function
+            expect(dfg.getSchedule()).to.equal(sched);
+
+            // Test hasSchedule function, removeSchedule function
+            expect(dfg.hasSchedule()).to.be.true;
+            dfg.removeSchedule();
+            expect(dfg.hasSchedule()).to.be.false;
+
+            // Test update function, setSchedule function
+            sched.update(options2);
+            expect(dfg).to.have.property('schedule').and.to.be.null;
+            dfg.setSchedule(sched);
+            expect(dfg).to.have.property('schedule')
+            .and.to.an('Object');
+            expect(dfg.schedule.startTime).to.equal(startTime2);
+            expect(dfg.schedule.dateText).to.equal("12/09/2016");
+            expect(dfg.schedule.timeText).to.equal("10 : 35 AM");
+            expect(dfg.schedule.repeat).to.equal("weekly");
+            expect(dfg.schedule.freq).to.equal(6);
+            expect(dfg.schedule.modified).to.equal(modifiedTime2);
+            expect(dfg.schedule.recur).to.equal(7);
+            expect(dfg.schedule.created).to.equal(createTime);
+        });
+    });
+
     describe('Profile Constructor Test', function() {
         var bucketInfo;
         var groupbyInfo;
