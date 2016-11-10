@@ -400,10 +400,12 @@ window.DSCart = (function($, DSCart) {
         var $cart = DSCart.getCartElement(dsId);
         // remove cart
         delete innerCarts[dsId];
-
         $cart.remove();
-        refreshCart(dsId);
-        clearHighlightCol();
+
+        if (DSTable.getId() === dsId) {
+            refreshCart(dsId);
+            clearHighlightCol();
+        }
     };
 
     DSCart.clear = function() {
