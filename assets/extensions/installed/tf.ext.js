@@ -55,8 +55,8 @@ window.UExtTF  = (function(UExtTF) {
         "buttonText"    : "Test",
         "fnName"        : "test",
         "arrayOfFields"    : [{
-            "type"        : "string",
-            "name"        : "Model location",
+            "type"        : "column",
+            "name"        : "Column Name",
             "fieldClass"  : "modelLoc"
         }]
     }];
@@ -142,23 +142,23 @@ window.UExtTF  = (function(UExtTF) {
         var dsName = ext.getUsername() + ".testDS-" +
                      Math.ceil(Math.random() * 10000);
 
-        var loadArgs = {"url": "nfs:///netstore/datasets/sp500.csv"};
+        var loadArgs = {"url": "nfs:///datasets/board/imgRec/houseOrNot-preproc/testHouses/splitSpec/split0"};
         var formatArgs = {"format": "CSV",
-                          "fieldDelim": ",",
+                          "fieldDelim": "|",
                           "hasHeader": true,
                           "moduleName": "tf",
-                          "funcName": "tftest"};
+                          "funcName": "testUDF"};
         ext.load(loadArgs, formatArgs, dsName)
         .then(function() {
-            newTableName = ext.createTableName("testTable");
-            return ext.indexFromDataset(dsName, newTableName, "test");
+            newTableName = ext.createTableName("tfTable");
+            return ext.indexFromDataset(dsName, newTableName, "tf");
         })
         .then(function() {
             var newTable = ext.createNewTable(newTableName);
-            newTable.addCol(new XcSDK.Column("test::Predicted Label",
+            newTable.addCol(new XcSDK.Column("tf::predicted_label",
                                              "string"));
-            newTable.addCol(new XcSDK.Column("test::Actual Label", "string"));
-
+            // newTable.addCol(new XcSDK.Column("tf::actual_label", "string"));
+            newTable.addCol(new XcSDK.Column("tf::file_name", "string"));
             return newTable.addToWorksheet();
         })
         .then(function() {
