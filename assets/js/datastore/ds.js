@@ -329,8 +329,7 @@ window.DS = (function ($, DS) {
                 title = DSTStr.CancalPoint;
                 msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {"ds": dsName});
                 callback = function() {
-                    cancelDSHelper(txId, $grid, dsObj);
-                    focsueOnTracker();
+                    DS.cancel($grid);
                 };
             } else {
                 // when remove ds
@@ -351,6 +350,12 @@ window.DS = (function ($, DS) {
         } else if (removeDS($grid) === true) {
             UserSettings.logDSChange();
         }
+    };
+
+    DS.cancel = function($grid) {
+        xcHelper.assert(($grid != null && $grid.length !== 0));
+        cancelDSHelper($grid.data("txid"), $grid);
+        focsueOnTracker();
     };
 
     // Change dir to parent folder
@@ -514,8 +519,7 @@ window.DS = (function ($, DS) {
             "msg"       : StatusMessageTStr.LoadingDataset + ": " + dsName,
             "operation" : SQLOps.DSPoint,
             "sql"       : sql,
-            "steps"     : 1,
-            "cancelable": false
+            "steps"     : 1
         });
 
         $grid.data("txid", txId);
@@ -563,8 +567,18 @@ window.DS = (function ($, DS) {
             // show loadError if has, otherwise show error message
             var disaplyError = loadError || error;
             dsObj.setError(disaplyError);
-            finishPoint();
-            DS.focusOn($grid);
+            
+            if (error === StatusTStr[StatusT.StatusCanceled] ||
+                error.status === StatusT.StatusCanceled) {
+                removeDS($grid);
+                DataStore.update();
+                if ($grid.hasClass("active")) {
+                    focusOnFirstDS();
+                }
+            } else {
+                finishPoint();
+                DS.focusOn($grid);
+            }
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.LoadFailed,
@@ -601,14 +615,16 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function cancelDSHelper(txId, $grid, dsObj) {
+    function cancelDSHelper(txId, $grid) {
+        if ($grid.hasClass('active')) {
+            focusOnFirstDS();
+        }
         $grid.removeClass("active").addClass("inactive deleting");
         // if cancel success, it will trigger fail in DS.point, so it's fine
         QueryManager.cancelQuery(txId)
         .fail(function(error) {
             console.error(error);
-            // if cancel fails, might be a succesful load, try delete then
-            delDSHelper($grid, dsObj);
+            // if cancel fails, transaction fail handler will delete the ds
         });
     }
 

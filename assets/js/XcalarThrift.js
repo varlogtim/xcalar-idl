@@ -916,7 +916,8 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     return (deferred.promise());
 }
 
-function XcalarDestroyDataset(dsName, txId) {
+// ignoreNotFound: boolean, if true, will not console.error
+function XcalarDestroyDataset(dsName, txId, ignoreNotFound) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -945,7 +946,11 @@ function XcalarDestroyDataset(dsName, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, query);
+            // txId may be null if performing a
+            // deletion not triggered by the user (i.e. clean up)
+            if (txId != null) {
+                Transaction.log(txId, query);
+            }
             deferred.resolve(delDagNodesRes);
         }
     })
@@ -954,7 +959,13 @@ function XcalarDestroyDataset(dsName, txId) {
             error2 = "";
         }
         Transaction.checkAndSetCanceled(txId);
-        var thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
+        var thriftError;
+        if (ignoreNotFound && error1 === StatusT.StatusDagNodeNotFound) {
+            thriftError = {status: error1, 
+                           error: "Error:" + StatusTStr[error1]};
+        } else {
+            thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
+        }
         deferred.reject(thriftError);
     });
 

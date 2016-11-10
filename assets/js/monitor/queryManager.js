@@ -5,7 +5,6 @@ window.QueryManager = (function(QueryManager, $) {
     var queryCheckLists = {}; // setInterval timers
     var canceledQueries = {}; // for canceled queries that have been deleted
                               // but the operation has not returned yet
-    // var notCancelableList = ['load']; // list of nonCancelable operations
 
     // constant
     var checkInterval = 2000; // check query every 2s
@@ -270,7 +269,7 @@ window.QueryManager = (function(QueryManager, $) {
 
         var statusesToIgnore = [StatusT.StatusOperationHasFinished];
 
-        // this is a xcalar query so we must cancel all future subqueries
+        // this is a xcalar query
         if (mainQuery.subQueries[currStep].queryName) {
             // Query Cancel returns success even if the operation is
             // complete, unlike cancelOp. Xc4921
@@ -297,6 +296,20 @@ window.QueryManager = (function(QueryManager, $) {
             });
         }
         return deferred.promise();
+    };
+
+    QueryManager.cancelDS = function(id) {
+        var mainQuery = queryLists[id];
+        var subQuery = mainQuery.subQueries[0];
+        if (!subQuery) {
+            // Load hasn't been triggered yet so no DS to cancel (rare)
+            return;
+        }
+        var dstTable = subQuery.dstTable.split(".").pop();
+        var $grid = DS.getGridByName(dstTable);
+        DS.cancel($grid); 
+        // DS.cancel preps the DsObj and icon and 
+        // eventually calls QueryManager.cancelQuery
     };
 
     // this gets called after cancel is successful. It cleans up and updates
@@ -613,6 +626,7 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
 
+
         var queryId = parseInt($target.data("id"));
         $target.siblings(".active").removeClass("active");
         $target.addClass("active");
@@ -899,6 +913,11 @@ window.QueryManager = (function(QueryManager, $) {
         if ($query.hasClass("active")) {
             $extraProgressBar = $queryDetail.find(".progressBar");
             $extraStepText = $queryDetail.find(".querySteps");
+            if (mainQuery.cancelable) {
+                $queryDetail.find('.cancelIcon').removeClass('xc-disabled');
+            } else {
+                $queryDetail.find('.cancelIcon').addClass('xc-disabled');
+            }
         }
 
         var newClass = null;
@@ -909,6 +928,7 @@ window.QueryManager = (function(QueryManager, $) {
             progress = "100%";
             newClass = "done";
             $query.find('.cancelIcon').addClass('disabled');
+
         } else if (isError) {
             progress = progress + "%";
             newClass = QueryStatus.Error;
@@ -1068,7 +1088,13 @@ window.QueryManager = (function(QueryManager, $) {
             if ($clickTarget.hasClass('deleteIcon')) {
                 QueryManager.removeQuery(id, true);
             } else if ($clickTarget.hasClass('cancelIcon')) {
-                QueryManager.cancelQuery(id);
+                var mainQuery = queryLists[id];
+                // special handling for canceling pointToDS
+                if (mainQuery && mainQuery.name === SQLOps.DSPoint) {
+                    QueryManager.cancelDS(id);
+                } else {
+                    QueryManager.cancelQuery(id);
+                }
             } else {
                 focusOnQuery($(this));
             }
@@ -1351,10 +1377,12 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // drops all the tables generated, even the intermediate tables
+    // or drops dataset if pointToDS operation
     function dropCanceledTables(mainQuery, onlyFinishedTables) {
         var queryStr = mainQuery.getQuery();
         var queries = xcHelper.parseQuery(queryStr);
         var dstTables = [];
+        var dstDatasets = [];
         var numQueries;
         if (onlyFinishedTables) {
             numQueries = mainQuery.currStep;
@@ -1363,9 +1391,12 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         for (var i = 0; i < numQueries; i++) {
-            if (queries[i].dstTable &&
-                queries[i].dstTable.indexOf(gDSPrefix) === -1) {
-                dstTables.push(queries[i].dstTable);
+            if (queries[i].dstTable) {
+                if (queries[i].dstTable.indexOf(gDSPrefix) > -1) {
+                    dstDatasets.push(queries[i].dstTable);
+                } else {
+                    dstTables.push(queries[i].dstTable);
+                }
             }
         }
         var tableId;
@@ -1393,6 +1424,10 @@ window.QueryManager = (function(QueryManager, $) {
             var tableName = backendTables[i];
             deleteTableHelper(tableName);
         }
+
+        for (var i = 0; i < dstDatasets.length; i++) {
+            deleteDatasetHelper(dstDatasets[i]);
+        }
     }
 
     function deleteTableHelper(tableName) {
@@ -1401,6 +1436,12 @@ window.QueryManager = (function(QueryManager, $) {
             // in case any tables are in the orphaned list
             TableList.removeTable(tableName, TableType.Orphan);
         });
+    }
+
+    function deleteDatasetHelper(dsName) {
+        dsName = dsName.slice(gDSPrefix.length);
+        var ignoreNotFound = true;
+        XcalarDestroyDataset(dsName, null, ignoreNotFound);
     }
 
      /* Unit Test Only */
