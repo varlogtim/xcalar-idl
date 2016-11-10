@@ -616,8 +616,11 @@ window.DS = (function ($, DS) {
     function delDSHelper($grid, dsObj, options) {
         options = options || {};
         var forceRemove = options.forceRemove || false;
+        var dsName = dsObj.getFullName();
+        var dsId = dsObj.getId();
+        var isShowDSTable = (DSTable.getId() === dsId);
         var noDeFocus = (options.noDeFocus ||
-                        !$grid.hasClass("active") ||
+                        !isShowDSTable ||
                         false);
         var failToShow = options.failToShow || false;
 
@@ -628,9 +631,6 @@ window.DS = (function ($, DS) {
              .append('<div class="waitingIcon"></div>');
 
         $grid.find(".waitingIcon").fadeIn(200);
-
-        var dsName = dsObj.getFullName();
-        var dsId = dsObj.getId();
 
         var sql = {
             "operation": SQLOps.DestroyDS,
@@ -650,7 +650,7 @@ window.DS = (function ($, DS) {
             //clear data cart
             DSCart.removeCart(dsId);
             // clear data table
-            if (DSTable.getId() === dsId) {
+            if (isShowDSTable) {
                 DSTable.clear();
             }
             // remove ds obj
