@@ -107,7 +107,7 @@ window.JoinView = (function($, JoinView) {
 
         $joinTableName.blur(function() {
             var tableName = $joinTableName.val().trim();
-            if (tableName && /^ | $|[*#'"]/.test(tableName) === true) {
+            if (tableName && !xcHelper.isValidTableName(tableName)) {
                 // status box would get closed on blur event if no timeout
                 setTimeout(function() {
                     StatusBox.show(ErrTStr.InvalidTableName, $joinTableName);

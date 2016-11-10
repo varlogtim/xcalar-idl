@@ -142,8 +142,7 @@ ErrTStr = {
     'InvalidField': 'Invalid Field.',
     'InvalidFilePath': 'Invalid file path.',
     'InvalidFile': 'Please select a file or a folder',
-    'InvalidTableName': 'Table name cannot contain any of the ' +
-                        'following characters: *#\'\": or starting or ending spaces',
+    'InvalidTableName': 'Table name should start with letter and contain only letter, digit, hyphen(-) or underscore(_)',
     'NoHashTag': 'Please input a valid name with no # symbols.',
     'NoSpecialChar': 'Please input a valid name with no special characters.',
     'NoSpecialCharOrSpace': 'Please input a valid name with no special' +
@@ -158,8 +157,8 @@ ErrTStr = {
     'NameInUse': 'Name is in use, please choose another name.',
     'DSNameConfilct': 'Dataset reference with the same name already exits. ' +
                         'please choose another name.',
-    'DSStartsWithNum': 'Dataset reference name cannot start with number.',
-    'PrefixStartsWithNum': 'Prefix cannot start with number.',
+    'DSStartsWithLetter': 'Dataset reference name should start with letter.',
+    'PrefixStartsWithLetter': 'Prefix should start with letter.',
     'TableConflict': 'A table with the same name already exists, ' +
                         'please choose another name.',
     'ExportConflict': 'This file name is taken, please choose another name.',

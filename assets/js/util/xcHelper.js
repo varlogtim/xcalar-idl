@@ -1123,7 +1123,7 @@ window.xcHelper = (function($, xcHelper) {
 
         if (newTableName === "") {
             error = ErrTStr.NoEmpty;
-        } else if (/^ | $|[*#'":]/.test(newTableName) === true) {
+        } else if (!xcHelper.isValidTableName(newTableName)) {
             error = ErrTStr.InvalidTableName;
         } else if (newTableName.length >=
             XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
@@ -1636,13 +1636,28 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         // has to start with alpha character
-        if (!/^[a-zA-Z]/.test(str)) {
+        if (!xcHelper.isStartWithLetter(str)) {
             return false;
         }
 
         // cannot have any characters other than alphanumeric
         // or _ - #
         return !/[^a-zA-Z\d\_\-\#]/.test(str);
+    };
+
+    xcHelper.isValidTableName = function(str) {
+        if (str == null || str === "") {
+            return false;
+        }
+
+        // has to start with alpha character
+        if (!xcHelper.isStartWithLetter(str)) {
+            return false;
+        }
+
+        // cannot have any characters other than alphanumeric
+        // or _ -
+        return !/[^a-zA-Z\d\_\-]/.test(str);
     };
 
     xcHelper.hasInvalidCharInCol = function(str) {
@@ -1795,8 +1810,11 @@ window.xcHelper = (function($, xcHelper) {
         return (backSlashCount % 2 === 1);
     };
 
-    xcHelper.isStartsWithNumber = function(str) {
-        return !isNaN(parseInt(str));
+    xcHelper.isStartWithLetter = function(str) {
+        if (str == null) {
+            return false;
+        }
+        return /^[a-zA-Z]/.test(str);
     };
 
     // returns true if comparison is equal

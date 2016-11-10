@@ -2587,34 +2587,8 @@ window.TblManager = (function($, TblManager) {
             return;
         }
 
-        var isValid = xcHelper.validate([
-            {
-                "$ele": $tableName
-            },
-            {
-                "$ele" : $tableName,
-                "error": ErrTStr.NoSpecialChar,
-                "check": function() {
-                    return xcHelper.hasSpecialChar(newName);
-                }
-            },
-            {
-                "$ele" : $tableName,
-                "error": ErrTStr.TooLong,
-                "check": function() {
-                    return (newName.length >=
-                            XcalarApisConstantsT.XcalarApiMaxTableNameLen);
-                }
-            }
-        ]);
-
-        if (!isValid) {
-            return;
-        }
-
-        // XXX Shall we really check if the name part has conflict?
-        var validName = xcHelper.checkDupTableName(newName);
-        if (validName) {
+        var isValid = xcHelper.tableNameInputChecker($tableName);
+        if (isValid) {
             xcFunction.rename(tableId, newTableName)
             .then(function() {
                 $div.blur();
@@ -2622,11 +2596,6 @@ window.TblManager = (function($, TblManager) {
             .fail(function(error) {
                 StatusBox.show(error, $div, false);
             });
-        } else {
-            var text = xcHelper.replaceMsg(ErrWRepTStr.TableConflict, {
-                "name": newName
-            });
-            StatusBox.show(text, $div, false);
         }
     }
 

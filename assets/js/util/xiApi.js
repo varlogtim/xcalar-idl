@@ -1163,10 +1163,16 @@ window.XIApi = (function(XIApi, $) {
         var regexp = new RegExp(regex);
         var isValid = (tableName != null) && (tableName !== "") &&
                       (regexp.test(tableName));
+
+        if (!isValid) {
+            return false;
+        }
+
+        var namePart = xcHelper.getTableName(tableName)
+        isValid = xcHelper.isValidTableName(namePart);
         return isValid;
     }
 
-    // should match xcHelper.isValidAggName
     function isValidAggName(aggName) {
         // no blanks, must start with alpha, cannot have any special chars
         // other than _ and - and #

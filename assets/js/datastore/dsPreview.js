@@ -611,10 +611,10 @@ window.DSPreview = (function($, DSPreview) {
             },
             {
                 "$ele"    : $dsName,
-                "error"   : ErrTStr.DSStartsWithNum,
+                "error"   : ErrTStr.DSStartsWithLetter,
                 "formMode": true,
                 "check"   : function() {
-                    return xcHelper.isStartsWithNumber(dsName);
+                    return !xcHelper.isValidTableName(dsName);
                 }
             },
             {

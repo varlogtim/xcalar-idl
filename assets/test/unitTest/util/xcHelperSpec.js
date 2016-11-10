@@ -1070,6 +1070,44 @@ describe('xcHelper Test', function() {
         expect(res).to.be.false;
     });
 
+    it('xcHelper.isValidTableName should work', function() {
+        var res = xcHelper.isValidTableName('');
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidTableName(null);
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidTableName('a');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidTableName('ab');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidTableName('abc1');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidTableName('ab1c');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidTableName('ab#c1');
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidTableName('a_b');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidTableName('a-b');
+        expect(res).to.be.true;
+
+        res = xcHelper.isValidTableName('1a');
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidTableName('_a');
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidTableName('-abc');
+        expect(res).to.be.false;
+    });
+
     it('xcHelper.hasInvalidCharInCol should work', function() {
         var testCases = [
             {
@@ -1216,15 +1254,18 @@ describe('xcHelper Test', function() {
         expect(res).to.be.false;
     });
 
-    it('xcHelper.isStartsWithNumber should work', function() {
+    it('xcHelper.isStartWithLetter should work', function() {
         // case 1
-        var res = xcHelper.isStartsWithNumber("12a");
-        expect(res).to.be.true;
-        // case 2
-        res = xcHelper.isStartsWithNumber("abc");
+        var res = xcHelper.isStartWithLetter("12a");
         expect(res).to.be.false;
+        // case 2
+        res = xcHelper.isStartWithLetter("abc");
+        expect(res).to.be.true;
         // case 3
-        res = xcHelper.isStartsWithNumber(null);
+        res = xcHelper.isStartWithLetter(null);
+        expect(res).to.be.false;
+        // case 4
+        res = xcHelper.isStartWithLetter("");
         expect(res).to.be.false;
     });
 

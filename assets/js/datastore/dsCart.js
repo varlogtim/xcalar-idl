@@ -804,11 +804,11 @@ window.DSCart = (function($, DSCart) {
         isValid = xcHelper.validate([
             {
                 "$ele" : $prefix,
-                "error": ErrTStr.PrefixStartsWithNum,
+                "error": ErrTStr.PrefixStartsWithLetter,
                 "side" : "left",
                 "onErr": onPrefixErr,
                 "check": function() {
-                    return xcHelper.isStartsWithNumber(prefix);
+                    return !xcHelper.isStartWithLetter(prefix);
                 }
             },
             {
