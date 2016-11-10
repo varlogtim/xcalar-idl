@@ -102,8 +102,8 @@ window.Support = (function(Support, $) {
     Support.memoryCheck = function() {
         var deferred = jQuery.Deferred();
 
-        var yellowThrehold = 70;
-        var redThrehold = 90;
+        var yellowThreshold = 80;
+        var redThreshold = 90;
 
         var isYellow = false;
         var isRed = false;
@@ -121,11 +121,11 @@ window.Support = (function(Support, $) {
         function detectMemoryUsage(tops) {
             for (var i = 0, len = tops.length; i < len; i++) {
                 var memoryUsage = tops[i].memUsageInPercent;
-                if (memoryUsage > redThrehold) {
+                if (memoryUsage > redThreshold) {
                     // when it's red, can stop loop immediately
                     isRed = true;
                     break;
-                } else if (memoryUsage > yellowThrehold) {
+                } else if (memoryUsage > yellowThreshold) {
                     // when it's yellow, should continue loop
                     // to see if it has any red case
                     isYellow = true;

@@ -219,9 +219,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // and will active it)
             KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK)
             .then(function() {
-                // The action below is a no-op if it's already active.
+                // The action below is a no-op to backend if already active.
                 $("#initialLoadScreen").show();
-                return XcalarSwitchToWorkbook(wkbkSet.get(wkbkId).name, null);
+                return switchWorkBookHelper(wkbkSet.get(wkbkId).name, null);
             })
             .then(function() {
                 switchWorkbookAnimation();
@@ -229,11 +229,15 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 deferred.resolve();
             })
             .fail(function(ret) {
-                if (ret.status === StatusT.StatusSessionNotInact) {
+                if (ret && ret.status === StatusT.StatusSessionNotInact) {
                     switchWorkbookAnimation();
                     location.reload();
                     deferred.resolve();
                 } else {
+                    if (!ret) {
+                        ret = {error:
+                                    "Error occurred while switching workbooks"};
+                    }
                     deferred.reject(ret);
                 }
             });
@@ -264,7 +268,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return KVStore.commit();
         })
         .then(function() {
-            return switchWorkBookHelper();
+            return switchWorkBookHelper(toWkbkName, fromWkbkName);
         })
         .then(function() {
             return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
@@ -286,26 +290,28 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         return deferred.promise();
 
-        function switchWorkBookHelper() {
+        function switchWorkBookHelper(toName, fromName) {
             var innerDeferred = jQuery.Deferred();
 
-            XcalarSwitchToWorkbook(toWkbkName, fromWkbkName)
+            XcalarSwitchToWorkbook(toName, fromName)
             .then(function() {
-                deferred.resolve();
+                innerDeferred.resolve();
             })
             .fail(function(error) {
-                XcalarListWorkbooks(toWkbkName)
+                XcalarListWorkbooks(toName)
                 .then(function(ret) {
                     var sessionInfo = ret.sessions[0];
                     if (sessionInfo.state === "Active") {
                         // when error but backend still active the session
                         showAlert();
                     } else {
+                        console.log(error);
                         innerDeferred.reject(error);
                     }
                 })
-                .fail(function() {
-                    // reject the outsite level of error
+                .fail(function(error) {
+                    // reject the outside level of error
+                    console.log(error);
                     innerDeferred.reject(error);
                 });
             });
@@ -316,7 +322,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 Alert.show({
                     "title"   : WKBKTStr.SwitchErr,
                     "msg"     : WKBKTStr.SwitchErrMsg,
-                    "onCancel": function() { innerDeferred.reject(error); },
+                    "onCancel": function() { innerDeferred.reject(); },
                     "buttons" : [{
                         "name"     : CommonTxtTstr.Continue,
                         "className": "continue",
