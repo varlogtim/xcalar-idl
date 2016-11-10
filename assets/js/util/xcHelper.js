@@ -2757,7 +2757,7 @@ window.xcHelper = (function($, xcHelper) {
             left += options.offsetX;
         }
         if (options.offsetY) {
-            left += options.offsetY;
+            top += options.offsetY;
         }
 
         menuHeight = winHeight - top - bottomMargin;

@@ -333,9 +333,9 @@ window.StartManager = (function(StartManager, $) {
                 return;
             }
 
-            var $target = $(event.target);
+            var $target = $(this);
             xcHelper.dropdownOpen($target, $menu, {
-                "mouseCoors": {"x": 1803, "y": 37}
+                "offsetY": -3
             });
         });
 
