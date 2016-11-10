@@ -2615,6 +2615,35 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.menuAnimAligner = function(close) {
+        var options;
+        var openOffset = 350; // when the menu is open;
+        var menuOffset = 285;
+        var delay = 200; // length of time menu animates
+        var extraDelay = 280; // in case of lag
+        if (close) {
+            options = {marginRight: openOffset};
+            menuOffset *= -1;
+        }
+        hideOffScreenTables(options);
+        $('#mainFrame').addClass('scrollLocked');
+        $('#dagScrollBarWrap').addClass('xc-hidden');
+        moveTableTitles(null, {
+            "offset"       : menuOffset,
+            "menuAnimating": true,
+            "animSpeed"    : delay
+        });
+        setTimeout(function() {
+            unhideOffScreenTables();
+            moveTableTitles();
+            moveTableDropdownBoxes();
+            moveFirstColumn();
+            $('#mainFrame').removeClass('scrollLocked');
+            $('#dagScrollBarWrap').removeClass('xc-hidden');
+            DagPanel.adjustScrollBarPositionAndSize();
+        }, extraDelay);
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

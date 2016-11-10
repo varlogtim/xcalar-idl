@@ -1,5 +1,5 @@
 window.MainMenu = (function($, MainMenu) {
-    var delay = 200;
+    var extraDelay = 280; // +80 to anim time in case of lag
     var $menuBar; // $('#menuBar');
     var $mainMenu; // $('#mainMenu');
     var slideTimeout; // setTimeout for setting closed state after animation finishes
@@ -339,20 +339,7 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
-            $('#mainFrame').addClass('scrollLocked');
-            hideOffScreenTables();
-            moveTableTitles(null, {
-                "offset"       : 285,
-                "menuAnimating": true,
-                "animSpeed"    : delay
-            });
-            setTimeout(function() {
-                unhideOffScreenTables();
-                moveTableTitles();
-                moveTableDropdownBoxes();
-                moveFirstColumn();
-                $('#mainFrame').removeClass('scrollLocked');
-            }, delay + 50);
+            xcHelper.menuAnimAligner();
         }
     }
 
@@ -375,20 +362,7 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $('#workspacePanel').hasClass('active')) {
-            hideOffScreenTables({marginRight: openOffset});
-            $('#mainFrame').addClass('scrollLocked');
-            moveTableTitles(null, {
-                "offset"       : -285,
-                "menuAnimating": true,
-                "animSpeed"    : delay
-            });
-            setTimeout(function() {
-                unhideOffScreenTables();
-                moveTableTitles();
-                moveTableDropdownBoxes();
-                moveFirstColumn();
-                $('#mainFrame').removeClass('scrollLocked');
-            }, delay + 50);
+            xcHelper.menuAnimAligner(true);
         }
     }
 
@@ -402,7 +376,7 @@ window.MainMenu = (function($, MainMenu) {
             setTimeout(function() {
                 $mainMenu.removeClass('noAnim');
                 $('#container').removeClass('noMenuAnim');
-            }, delay + 50);
+            }, extraDelay);
         }
     }
 
@@ -420,7 +394,7 @@ window.MainMenu = (function($, MainMenu) {
         } else {
             slideTimeout = setTimeout(function() {
                 $mainMenu.addClass('closed');
-            }, delay);
+            }, extraDelay);
         }
     }
 

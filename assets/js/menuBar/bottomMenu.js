@@ -1,5 +1,5 @@
 window.BottomMenu = (function($, BottomMenu) {
-    var delay = 200;
+    var extraDelay = 280; // +80 to anim time in case of lag
     var clickable = true;
     var $menuPanel; //$("#bottomMenu");
     // var slideTimeout;
@@ -204,11 +204,7 @@ window.BottomMenu = (function($, BottomMenu) {
         } else if ($('#workspacePanel').hasClass('active') && !isPoppedOut) {
             // do not need to adjust tables if closing menu when it's popped out
             // because mainFrame is already in it's expanded state
-            moveTableTitles(null, {
-                "offset"       : -285,
-                "menuAnimating": true,
-                "animSpeed"    : delay
-            });
+            xcHelper.menuAnimAligner(true);
         }
         popInModal(null, topMenuOpening);
         ExtensionManager.closeView();
@@ -237,7 +233,7 @@ window.BottomMenu = (function($, BottomMenu) {
         clickable = false;
         setTimeout(function() {
             clickable = true;
-        }, delay);
+        }, extraDelay);
     }
 
     function openMenu(sectionIndex) {
@@ -269,17 +265,13 @@ window.BottomMenu = (function($, BottomMenu) {
         // main menu was not open && bottom menu was not open
         if (!isBottomMenuOpening && !wasOpen) {
             if ($('#workspacePanel').hasClass('active')) {
-                moveTableTitles(null, {
-                    "offset"       : 285,
-                    "menuAnimating": true,
-                    "animSpeed"    : delay
-                });
+                xcHelper.menuAnimAligner();
             }
         } else {
             $('#container').addClass('noMenuAnim');
             setTimeout(function() {
                 $('#container').removeClass('noMenuAnim');
-            }, delay);
+            }, extraDelay);
         }
 
         var sectionId = $section.attr("id");
@@ -319,7 +311,7 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuPanel.addClass('noAnim');
         setTimeout(function() {
             $menuPanel.removeClass('noAnim');
-        }, delay);
+        }, extraDelay);
     }
 
     function popOutModal() {
@@ -337,11 +329,7 @@ window.BottomMenu = (function($, BottomMenu) {
         });
         $('#container').addClass('bottomMenuOut');
         if ($('#workspacePanel').hasClass('active')) {
-            moveTableTitles(null, {
-                "offset"       : -285,
-                "menuAnimating": true,
-                "animSpeed"    : delay
-            });
+            xcHelper.menuAnimAligner(true);
         }
     }
 
@@ -361,11 +349,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
         // will move table titles if menu was popped out
         if (adjustTables && $('#workspacePanel').hasClass('active')) {
-            moveTableTitles(null, {
-                "offset"       : 285,
-                "menuAnimating": true,
-                "animSpeed"    : delay
-            });
+            xcHelper.menuAnimAligner();
         }
     }
 
