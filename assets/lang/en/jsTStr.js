@@ -451,7 +451,10 @@ WKBKTStr = {
     'Modified': 'Last modified',
     'WS': 'Worksheets',
     'Status': 'Status',
-    'Creating': 'Creating Workbook'
+    'Creating': 'Creating Workbook',
+    'SwitchErr': 'Switch Workbook Error',
+    'SwitchErrMsg': 'Error occurred while switching workbooks. Proceeding with the switch may cause problems to the workbook. Do you still want to continue?'
+
 };
 
 MonitorTStr = {

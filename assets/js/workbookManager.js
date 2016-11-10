@@ -257,8 +257,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         Support.stopHeartbeatCheck();
 
         // to switch workbook, should release all ref count first
-
-        switchWorkbookAnimation();
         $("#initialLoadScreen").show();
 
         freeAllResultSetsSync()
@@ -266,15 +264,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return KVStore.commit();
         })
         .then(function() {
-            return Support.releaseSession();
-        })
-        .then(function() {
-            return XcalarSwitchToWorkbook(toWkbkName, fromWkbkName);
+            return switchWorkBookHelper();
         })
         .then(function() {
             return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
         })
         .then(function() {
+            switchWorkbookAnimation();
             removeUnloadPrompt();
 
             location.reload();
@@ -289,6 +285,51 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
 
         return deferred.promise();
+
+        function switchWorkBookHelper() {
+            var innerDeferred = jQuery.Deferred();
+
+            XcalarSwitchToWorkbook(toWkbkName, fromWkbkName)
+            .then(function() {
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                XcalarListWorkbooks(toWkbkName)
+                .then(function(ret) {
+                    var sessionInfo = ret.sessions[0];
+                    if (sessionInfo.state === "Active") {
+                        // when error but backend still active the session
+                        showAlert();
+                    } else {
+                        innerDeferred.reject(error);
+                    }
+                })
+                .fail(function() {
+                    // reject the outsite level of error
+                    innerDeferred.reject(error);
+                });
+            });
+
+            function showAlert() {
+                $("#initialLoadScreen").hide();
+
+                Alert.show({
+                    "title"   : WKBKTStr.SwitchErr,
+                    "msg"     : WKBKTStr.SwitchErrMsg,
+                    "onCancel": function() { innerDeferred.reject(error); },
+                    "buttons" : [{
+                        "name"     : CommonTxtTstr.Continue,
+                        "className": "continue",
+                        "func"     : function() {
+                            $("#initialLoadScreen").show();
+                            innerDeferred.resolve();
+                        }
+                    }]
+                });
+            }
+
+            return innerDeferred.promise();
+        }
     };
 
     // copy workbook
