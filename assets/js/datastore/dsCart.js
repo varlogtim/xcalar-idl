@@ -808,7 +808,8 @@ window.DSCart = (function($, DSCart) {
                 "side" : "left",
                 "onErr": onPrefixErr,
                 "check": function() {
-                    return !xcHelper.isStartWithLetter(prefix);
+                    return (prefix != null &&
+                           !xcHelper.isStartWithLetter(prefix));
                 }
             },
             {
