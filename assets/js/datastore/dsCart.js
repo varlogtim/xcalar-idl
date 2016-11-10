@@ -81,7 +81,6 @@ window.DSCart = (function($, DSCart) {
             }
         }, ".tableNameEdit");
 
-
         $cartArea.on({
             "keypress": function(event) {
                 if (event.which === keyCode.Enter) {
@@ -361,7 +360,7 @@ window.DSCart = (function($, DSCart) {
     // add column to cart
     DSCart.addItem = function(dsId, items) {
         if (dsId == null) {
-            return null;
+            return;
         }
         var cart = filterCarts(dsId);
         if (cart == null) {
@@ -854,6 +853,7 @@ window.DSCart = (function($, DSCart) {
     if (window.unitTestMode) {
         DSCart.__testOnly__ = {};
         DSCart.__testOnly__.filterCarts = filterCarts;
+        DSCart.__testOnly__.checkCartArgs = checkCartArgs;
     }
     /* End Of Unit Test Only */
 
