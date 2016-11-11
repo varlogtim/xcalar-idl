@@ -3018,6 +3018,13 @@ window.OperationsView = (function($, OperationsView) {
     }
     //show alert to go back to op view
     function submissionFailHandler(startTime, error) {
+        if (error) {
+            if (error === StatusTStr[StatusT.StatusCanceled] ||
+                error.status === StatusT.StatusCanceled) {
+                // no error message if failed because of cancel
+                return;
+            }
+        }
         var endTime = Date.now();
         var elapsedTime = endTime - startTime;
         var timeSinceLastClick = endTime - gMouseEvents.getLastMouseDownTime();

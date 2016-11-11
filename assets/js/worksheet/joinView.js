@@ -1411,6 +1411,13 @@ window.JoinView = (function($, JoinView) {
 
     //show alert to go back to op view
     function submissionFailHandler(origFormOpenTime, error) {
+        if (error) {
+            if (error === StatusTStr[StatusT.StatusCanceled] ||
+                error.status === StatusT.StatusCanceled) {
+                // no error message if failed because of cancel
+                return;
+            }
+        }
         var showModifyBtn;
         var showDeleteTableBtn;
         if (formOpenTime !== origFormOpenTime) {
