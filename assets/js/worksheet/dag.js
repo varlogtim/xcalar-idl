@@ -1261,7 +1261,8 @@ window.Dag = (function($, Dag) {
     var dagPanelLeft;
 
     // constants
-    var dagTableHeight = 65;
+    var dagTableHeight = 40;
+    var dagTableOuterHeight = dagTableHeight + 25;
     var dagTableWidth = 214; // includes the blue table and gray operation icon
     var dataStoreWidth = 64;
     var groupOutlineOffset = 20;
@@ -1447,7 +1448,7 @@ window.Dag = (function($, Dag) {
                                        condensedDepth, isPrevHidden, group,
                                        dagOptions).html;
 
-        var height = storedInfo.height * dagTableHeight + 30;
+        var height = storedInfo.height * dagTableOuterHeight + 30;
         var width = storedInfo.condensedWidth * dagTableWidth - 150;
 
         dagImageHtml = '<div class="dagImageWrap"><div class="dagImage" ' +
@@ -1584,7 +1585,7 @@ window.Dag = (function($, Dag) {
             if (!map[i]) {
                 map[i] = {};
                 map[i].child = -1;
-                map[i].joined = false;
+                map[i].multiParent = false;
             }
             map[i].parents = [];
 
@@ -1598,10 +1599,10 @@ window.Dag = (function($, Dag) {
                 }
                 map[parentIndex].child = i;
 
-                if (numParents === 2) {
-                    map[parentIndex].joined = true;
+                if (numParents > 1) {
+                    map[parentIndex].multiParent = true;
                 } else {
-                    map[parentIndex].joined = false;
+                    map[parentIndex].multiParent = false;
                 }
             }
 
@@ -2801,7 +2802,7 @@ window.Dag = (function($, Dag) {
         var isHidden = false;
         var newCondensedDepth = condensedDepth;
         // condense if not a join, not a leaf, and not the root
-        if (options.condensed && !nodeInfo.joined &&
+        if (options.condensed && !nodeInfo.multiParent &&
             nodeInfo.numParents === 1 && nodeInfo.child !== -1) {
             isHidden = true;
             nodeInfo.isHidden = true;
@@ -2876,7 +2877,7 @@ window.Dag = (function($, Dag) {
         var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
                                          index);
 
-        var top = Math.round(coor.y * dagTableHeight);
+        var top = Math.round(coor.y * dagTableOuterHeight);
         var right = Math.round(coor.x * dagTableWidth);
         var condensedRight = Math.round(coor.condensedX * dagTableWidth);
         var tableWrapRight = right;
@@ -3038,8 +3039,10 @@ window.Dag = (function($, Dag) {
             var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
             var additionalInfo = "";
             var firstParent = parents[0];
-            if (numParents === 2) {
-                additionalInfo += " & " + parents[1];
+            if (numParents > 1) {
+                for (var i = 1; i < numParents; i++) {
+                    additionalInfo += ", " + parents[i];
+                }
             }
             var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
             var operation = key.substring(0, key.length - 5);
@@ -3075,7 +3078,7 @@ window.Dag = (function($, Dag) {
             if (firstParent.indexOf(gDSPrefix) === 0) {
                 firstParent = info.column;
             }
-            if (operation !== 'join') {
+            if (numParents < 2) {
                 firstParent = info.column;
             }
             operation = operation[0].toUpperCase() + operation.slice(1);
@@ -3207,14 +3210,7 @@ window.Dag = (function($, Dag) {
     }
 
     function getDagnumParents(dagNode) {
-        var numParents = 0;
-        if (dagNode.api === XcalarApisT.XcalarApiJoin) {
-            numParents = 2;
-        } else if (dagNode.api !== XcalarApisT.XcalarApiBulkLoad &&
-                   dagNode.api !== XcalarApisT.XcalarApiExecuteRetina) {
-            numParents = 1;
-        }
-        return (numParents);
+        return (dagNode.numParent);
     }
 
     function getDagName(dagNode) {
@@ -3235,6 +3231,14 @@ window.Dag = (function($, Dag) {
         info.state = DgDagStateTStr[dagNode.state];
 
         switch (key) {
+            case('aggregateInput'):
+                evalStr = value.evalStr;
+                info.type = "aggregate" + evalStr.slice(0, evalStr.indexOf('('));
+                info.text = evalStr;
+                info.tooltip = "Aggregate: " + evalStr;
+                info.column = evalStr.slice(evalStr.indexOf('(') + 1,
+                                            evalStr.lastIndexOf(')'));
+                break;
             case ('loadInput'):
                 info.url = value.dataset.url;
                 break;
@@ -3477,9 +3481,8 @@ window.Dag = (function($, Dag) {
         }
     }
 
-
     // this function draws all the lines going into a blue table icon and its
-    // corresponding gray origin rectangle
+    // corresponding gray operation rectangle
     function drawDagLines($dagImage, ctx, parentChildMap, index, canvasWidth) {
         var nodeInfo = parentChildMap[index];
         var parents = nodeInfo.parents;
@@ -3490,26 +3493,33 @@ window.Dag = (function($, Dag) {
         }
         var numParents = parents.length;
 
-        if (numParents !== 2) { // exclude joins
+        if (numParents < 2) { // exclude joins
             if (numParents) { //exclude datasets
                 drawStraightDagConnectionLine(ctx, nodeInfo, canvasWidth);
             }
         } else { // draw lines for joins
+            var tableX = canvasWidth - nodeInfo.x;
+            var tableY = nodeInfo.y + dagTableHeight / 2;
 
-            var origin = parentChildMap[parents[0]];
+            var parent = parentChildMap[parents[0]]; // top-most parent
+            var parentX = canvasWidth - parent.x + 26;
+            var parentY = Math.round(parent.y) + dagTableHeight / 2;
+            
+            drawLine(ctx, tableX, tableY); // line entering table
 
-            var tableX = canvasWidth - (nodeInfo.x + dagTableWidth) + 200;
-            var tableY = nodeInfo.y + 20;
-
-            drawLine(ctx, tableX + 15, tableY, null); // line entering table
-
-            curvedLineCoor = {
-                x1: canvasWidth - (origin.x + dagTableWidth) + 240,
-                y1: Math.round(origin.y) + 20,
-                x2: tableX - 118,
-                y2: Math.round(nodeInfo.y) + 3
+            var curvedLineCoor = {
+                x1: parentX,
+                y1: parentY,
+                x2: tableX - 82, // shift left
+                y2: tableY
             };
             drawCurve(ctx, curvedLineCoor);
+
+            // draw any additional curves if more than 2 parents
+            if (parents.length > 2) {
+                drawExtraCurves(parents, parentChildMap, tableX - 109, tableY,
+                                ctx);
+            }
         }
     }
 
@@ -3528,36 +3538,58 @@ window.Dag = (function($, Dag) {
     function drawStraightDagConnectionLine(ctx, nodeInfo, canvasWidth) {
         var farLeftX = canvasWidth - (nodeInfo.x + dagTableWidth) + 40;
         var tableX = farLeftX + 180;
-        var tableCenterY = nodeInfo.y + 20;
+        var tableCenterY = nodeInfo.y + dagTableHeight / 2;
         var length = tableX - farLeftX + 20;
         drawLine(ctx, tableX, tableCenterY, length);
     }
 
     function drawCurve(ctx, coor) {
-
-        var x1 = coor.x1;
-        var y1 = coor.y1;
-        var x2 = coor.x2;
-        var y2 = coor.y2;
-        var vertDist = y2 - y1;
+        var x1 = coor.x1; // upper table x
+        var y1 = coor.y1; // upper table y
+        var x2 = coor.x2; // child table x
+        var y2 = coor.y2; // child table y
+        var y3 = y1 + (y2 - y1) * 2; // lower table y
+        var vertDist = (y2 - y1) * 2; // distance from upper parent table to
+        // lower parent table
 
         var xoffset = 0;
-        if (vertDist < 60) {
-            xoffset = 1000 / vertDist;
+        if (vertDist < 160) {
+            xoffset = 4000 / vertDist; // makes small curves rounder
         }
 
         // Drawing the two curved lines
         ctx.moveTo(x1 + xoffset, y1);
-        ctx.bezierCurveTo( x2 + 50, y1,
-                            x2 + 50, y1 + (vertDist + 17) * 2,
-                            x1 + xoffset, y1 + (vertDist + 17) * 2);
+        ctx.bezierCurveTo(x2, y1,
+                          x2, y3,
+                          x1 + xoffset, y3);
+
         // Draw upper horizontal line
         ctx.moveTo(x1 - 10, y1);
         ctx.lineTo(x1 + xoffset, y1);
 
         // Draw lower horizontal line
-        ctx.moveTo(x1 - 10, y1 + (vertDist + 17) * 2);
-        ctx.lineTo(x1 + xoffset, y1 + (vertDist + 17) * 2);
+        ctx.moveTo(x1 - 10, y3);
+        ctx.lineTo(x1 + xoffset, y3);
+    }
+
+    // draws any additional curves if more than 2 parents
+    function drawExtraCurves(parents, parentChildMap, tableX, tableY, ctx) {
+        var parentNode;
+        var xOffset = tableX - 77;
+        var yOffset;
+        var origX;
+        for (var i = 1; i < parents.length - 1; i++) {
+            parentNode = parentChildMap[parents[i]];
+            yOffset = parentNode.y + dagTableHeight / 2;
+            origX = tableX;
+            if (Math.abs(tableY - yOffset) < 40) {
+                origX += 6; // rounder curve if y diff is small
+            }
+            ctx.moveTo(origX, tableY); // start at node coors
+            ctx.bezierCurveTo(origX, tableY, 
+                              origX, yOffset,
+                              xOffset, yOffset);
+        }
     }
 
     function drawLine(ctx, x, y, length) {
@@ -3573,11 +3605,12 @@ window.Dag = (function($, Dag) {
     }
 
     // used for testing
-    // function drawDot(x, y) {
-    //     var html = '<div style="font-size: 8px; width:3px;height:3px;' +
+    // function drawDot($dagImage, x, y, text) {
+    //     text = text || "";
+    //     var html = '<div style="font-size: 10px; width:4px;height:4px;' +
     //                'background-color:green;position:absolute; left:' + x +
-    //                'px;top:' + y + 'px;">' + x + ',' + y + '</div>';
-    //     $('.dagImage').append(html);
+    //                'px;top:' + y + 'px;">' + text + x + ',' + y + '</div>';
+    //     $dagImage.append(html);
     // }
 
     return (Dag);
