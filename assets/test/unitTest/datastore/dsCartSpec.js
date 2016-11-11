@@ -138,19 +138,23 @@ function dsCartModuleTest() {
             var testCases = [{
                 "input": $tableName,
                 "val"  : "",
-                "valid": false
+                "valid": false,
+                "error": ErrTStr.NoEmpty
             },{
                 "input": $tableName,
                 "val"  : "1abc",
-                "valid": false
+                "valid": false,
+                "error": ErrTStr.InvalidTableName
             },{
                 "input": $tableName,
                 "val"  : "ab*c",
-                "valid": false
+                "valid": false,
+                "error": ErrTStr.InvalidTableName
             },{
                 "input": $tableName,
                 "val"  : new Array(256).join("a"),
-                "valid": false
+                "valid": false,
+                "error": ErrTStr.TooLong
             },{
                 "input": $tableName,
                 "val"  : "abc",
@@ -159,17 +163,20 @@ function dsCartModuleTest() {
                 "input" : $prefix,
                 "val"   : "9abc",
                 "valid" : false,
-                "prefix": true
+                "prefix": true,
+                "error" : ErrTStr.PrefixStartsWithLetter
             },{
                 "input" : $prefix,
                 "val"   : new Array(256).join("a"),
                 "valid" : false,
-                "prefix": true
+                "prefix": true,
+                "error" : ErrTStr.TooLong
             },{
                 "input" : $prefix,
                 "val"   : "a:b",
                 "valid" : false,
-                "prefix": true
+                "prefix": true,
+                "error" : ColTStr.RenameSpecialChar
             },{
                 "input" : $prefix,
                 "val"   : "ab",
@@ -189,6 +196,8 @@ function dsCartModuleTest() {
 
                 if (!isValid) {
                     assert.isTrue($statusBox.is(":visible"));
+                    expect($statusBox.find(".message").text())
+                    .to.equal(testCase.error);
                     StatusBox.forceHide();
                 }
             });
