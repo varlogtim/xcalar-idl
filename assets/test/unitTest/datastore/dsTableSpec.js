@@ -37,7 +37,6 @@ function dsTableTest() {
             DSTable.show(testDSId, isLoading)
             .then(function() {
                 // XX loading icon during sample load breaks this test
-
                 assert.isTrue($dsTableContainer.is(":visible"));
                 assert.isTrue($dsTableContainer.hasClass("loading"));
 

@@ -398,6 +398,8 @@ function dsCartModuleTest() {
             .then(function() {
                 UnitTest.deleteDS(dsName)
                 .always(function() {
+                    // back to datastore tab
+                    $("#dataStoresTab").click();
                     done();
                 });
             })

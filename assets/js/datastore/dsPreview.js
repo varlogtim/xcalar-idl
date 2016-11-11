@@ -614,7 +614,7 @@ window.DSPreview = (function($, DSPreview) {
                 "error"   : ErrTStr.DSStartsWithLetter,
                 "formMode": true,
                 "check"   : function() {
-                    return !xcHelper.isValidTableName(dsName);
+                    return !xcHelper.isStartWithLetter(dsName);
                 }
             },
             {
