@@ -211,7 +211,7 @@ function highlightCell($td, tableId, rowNum, colNum, isShift, options) {
         // to select multi rows
         divClass += " noShiftKey";
     }
-
+    
     var $highlightBox = $('<div class="' + divClass + '" ' +
                             'style="' + styling + '" data-count="1">' +
                         '</div>');

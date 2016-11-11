@@ -351,6 +351,11 @@
     &::-webkit-scrollbar {
         display: none;
     }
+
+    .tdTextWrap {
+        height: @height-innerTableCell;
+        overflow: hidden;
+    }
 }
 
 table.datasetTable {
@@ -1572,6 +1577,10 @@ table.datasetTable {
 
         &.cell {
             cursor: text;
+        }
+        .innerCell {
+            height: @height-innerTableCell;
+            overflow: hidden;
         }
 
         &.lineMarker {

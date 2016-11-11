@@ -1408,7 +1408,8 @@ window.DSPreview = (function($, DSPreview) {
 
             for (var i = 1, len = $headers.length; i < len; i++) {
                 var $text = $headers.eq(i).find(".text");
-                html += '<td class="cell">' + $text.html() + '</td>';
+                html += '<td class="cell"><div class="innerCell">' + 
+                            $text.html() + '</div></td>';
                 $text.html("column" + (i - 1));
             }
 
@@ -1598,7 +1599,8 @@ window.DSPreview = (function($, DSPreview) {
                     val = JSON.stringify(val);
                 }
 
-                html += '<td class="cell">' + val + '</td>';
+                html += '<td class="cell"><div class="innerCell">' + val +
+                        '</div></td>';
             }
 
             html += '</tr>';
@@ -1730,7 +1732,7 @@ window.DSPreview = (function($, DSPreview) {
         var colGrab = hasDelimiter ? colGrabTemplate : "";
         var html = isTh ? '<th><div class="header">' + colGrab +
                             '<div class="text cell">'
-                            : '<td class="cell">';
+                            : '<td class="cell"><div class="innerCell">';
 
         var dataLen = data.length;
         var rawStrLimit = 1000; // max number of characters in undelimited column
@@ -1773,7 +1775,8 @@ window.DSPreview = (function($, DSPreview) {
                                         colGrab +
                                         '<div class="text cell">';
                     } else {
-                        html += '</td><td class="cell">';
+                        html += '</div></td><td class="cell">' +
+                                    '<div class="innerCell">';
                     }
 
                     i = i + delLen;
@@ -1832,7 +1835,7 @@ window.DSPreview = (function($, DSPreview) {
         if (isTh) {
             html += '</div></div></th>';
         } else {
-            html += '</td>';
+            html += '</div></td>';
         }
         return (html);
     }

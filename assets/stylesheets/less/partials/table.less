@@ -114,7 +114,7 @@ html.edge {
 
     td {
         .size(@height: @height-tableCell);
-        .font(@size: 11px, @line-height: 15px, @family: @font-code);
+        .font(@size: 11px, @line-height: @height-innerTableCell, @family: @font-code);
         overflow: hidden;
         padding: 2px;
         vertical-align: middle;
@@ -362,6 +362,9 @@ html.edge {
         .textAlignLeft;
         white-space: pre-wrap !important;
         overflow-wrap: break-word !important;
+        .displayedData {
+            height: auto;
+        }
         .dataColText  {
             .textAlignLeft;
             white-space: pre-wrap !important;
@@ -397,6 +400,8 @@ html.edge {
 
     .displayedData {
         display: block;
+        height: @height-innerTableCell;
+        overflow: hidden;
     }
 
     .dataColText {
@@ -1265,6 +1270,9 @@ html.edge {
         &.changedHeight {
             white-space: pre-wrap;
             overflow-wrap: break-word;
+            .displayedData {
+                height: auto;
+            }
             .dataColText {
                 white-space: pre-wrap;
             }
