@@ -53,26 +53,40 @@ function dsPreviewModuleTest() {
                 "delimiter": ",",
                 "isTh"     : false,
                 "data"     : ["h", ",", "i"],
-                "expectRes": '<td class="cell">h</td>' +
-                             '<td class="cell">i</td>'
+                "expectRes": '<td class="cell">' +
+                                '<div class="innerCell">' +
+                                    'h' +
+                                '</div>' +
+                            '</td>' +
+                            '<td class="cell">' +
+                                '<div class="innerCell">' +
+                                    'i' +
+                                '</div>' +
+                            '</td>'
             },{
                 // test2: when not th, no delimiter
                 "delimiter": "",
                 "isTh"     : false,
                 "data"     : ["h", ",", "i"],
                 "expectRes": '<td class="cell">' +
-                                '<span class="td">h</span>' +
-                                '<span class="td has-margin has-comma">' +
-                                    ',' +
-                                '</span>' +
-                                '<span class="td">i</span>' +
+                                '<div class="innerCell">' +
+                                    '<span class="td">h</span>' +
+                                    '<span class="td has-margin has-comma">' +
+                                        ',' +
+                                    '</span>' +
+                                    '<span class="td">i</span>' +
+                                '</div>' +
                              '</td>'
             },{
                 // test3: when not th, other delimiter
                 "delimiter": "\t",
                 "isTh"     : false,
                 "data"     : ["h", ",", "i"],
-                "expectRes": '<td class="cell">h,i</td>'
+                "expectRes": '<td class="cell">' +
+                                '<div class="innerCell">' +
+                                    'h,i' +
+                                '</div>' +
+                            '</td>'
             },{
                 // test4: when is th, has delimiter
                 "delimiter": ",",
@@ -97,7 +111,11 @@ function dsPreviewModuleTest() {
                 "delimiter": "\t",
                 "isTh"     : false,
                 "data"     : ["h", "\\", ",", "i"],
-                "expectRes": '<td class="cell">h\\,i</td>'
+                "expectRes": '<td class="cell">' +
+                                '<div class="innerCell">' +
+                                    'h\\,i' +
+                                '</div>' +
+                            '</td>'
             }];
 
             testCases.forEach(function(testCase) {
@@ -121,10 +139,12 @@ function dsPreviewModuleTest() {
                                         '1' +
                                     '</td>' +
                                     '<td class="cell">' +
-                                        '<span class="td">t</span>' +
-                                        '<span class="td">e</span>' +
-                                        '<span class="td">s</span>' +
-                                        '<span class="td">t</span>' +
+                                        '<div class="innerCell">' +
+                                            '<span class="td">t</span>' +
+                                            '<span class="td">e</span>' +
+                                            '<span class="td">s</span>' +
+                                            '<span class="td">t</span>' +
+                                        '</div>' +
                                     '</td>' +
                                 '</tr>' +
                             '</tbody>'
@@ -137,8 +157,10 @@ function dsPreviewModuleTest() {
                                 '<tr>' +
                                     '<td class="lineMarker">1</td>' +
                                     '<td class="cell">' +
-                                        '<span class="td">h</span>' +
-                                        '<span class="td">i</span>' +
+                                        '<div class="innerCell">' +
+                                            '<span class="td">h</span>' +
+                                            '<span class="td">i</span>' +
+                                        '</div>' +
                                     '</td>' +
                                 '</tr>' +
                             '</tbody>'
@@ -879,5 +901,9 @@ function dsPreviewModuleTest() {
                 throw "Fail Case!";
             });
         });
+    });
+
+    after(function() {
+        StatusBox.forceHide();
     });
 }

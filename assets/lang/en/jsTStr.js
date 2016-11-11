@@ -142,6 +142,7 @@ ErrTStr = {
     'InvalidField': 'Invalid Field.',
     'InvalidFilePath': 'Invalid file path.',
     'InvalidFile': 'Please select a file or a folder',
+    'InvalidAggName': 'Aggregate name should start with letter and contain only letter, digit, hyphen(-) or underscore(_)',
     'InvalidTableName': 'Table name should start with letter and contain only letter, digit, hyphen(-) or underscore(_)',
     'NoHashTag': 'Please input a valid name with no # symbols.',
     'NoSpecialChar': 'Please input a valid name with no special characters.',

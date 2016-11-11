@@ -18,7 +18,7 @@ describe('Datastore Test', function() {
     describe('Dataset Form Module Test', dsFormModuleTest);
     describe('File Browser Module Test', fileBrowserModuleTest);
     describe('File Previewer Test', filePreviewerTest);
-    describe('Dataset Preview Module Test', dsPreviewModuleTest);
+    describe('DSPreview Test', dsPreviewModuleTest);
     describe('DSCart Test', dsCartModuleTest);
     describe('Dataset Sample Table Test', dsTableTest);
 

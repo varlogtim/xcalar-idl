@@ -1023,53 +1023,6 @@ describe('xcHelper Test', function() {
         expect(res).to.be.false;
     });
 
-    it('xcHelper.isValidAggName should work', function() {
-        var res = xcHelper.isValidAggName(''); 
-        expect(res).to.be.false;
-
-        res = xcHelper.isValidAggName(null); 
-        expect(res).to.be.false;
-
-        res = xcHelper.isValidAggName('a'); 
-        expect(res).to.be.true;
-
-        res = xcHelper.isValidAggName('ab'); 
-        expect(res).to.be.true;
-
-        res = xcHelper.isValidAggName('abc1'); 
-        expect(res).to.be.true;
-
-        res = xcHelper.isValidAggName('ab1c'); 
-        expect(res).to.be.true;
-
-        res = xcHelper.isValidAggName('ab#c1');
-        expect(res).to.be.true;
-
-        res = xcHelper.isValidAggName('a_b#c1');
-        expect(res).to.be.true;
-
-        res = xcHelper.isValidAggName('a-b#c1');
-        expect(res).to.be.true;
-
-        res = xcHelper.isValidAggName('1a');
-        expect(res).to.be.false;
-
-        res = xcHelper.isValidAggName('_a');
-        expect(res).to.be.false;
-
-        res = xcHelper.isValidAggName('^abc');
-        expect(res).to.be.false;
-
-        res = xcHelper.isValidAggName('ab^c');
-        expect(res).to.be.false;
-
-        res = xcHelper.isValidAggName('ab$c');
-        expect(res).to.be.false;
-
-        res = xcHelper.isValidAggName('ab*c');
-        expect(res).to.be.false;
-    });
-
     it('xcHelper.isValidTableName should work', function() {
         var res = xcHelper.isValidTableName('');
         expect(res).to.be.false;
@@ -1105,6 +1058,9 @@ describe('xcHelper Test', function() {
         expect(res).to.be.false;
 
         res = xcHelper.isValidTableName('-abc');
+        expect(res).to.be.false;
+
+        res = xcHelper.isValidTableName('.abc');
         expect(res).to.be.false;
     });
 

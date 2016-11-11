@@ -1629,27 +1629,12 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    //xx in the future, should be modified and used to check table names as well
-    xcHelper.isValidAggName = function(str) {
-        if (str == null || str === "") {
-            return false;
-        }
-
-        // has to start with alpha character
-        if (!xcHelper.isStartWithLetter(str)) {
-            return false;
-        }
-
-        // cannot have any characters other than alphanumeric
-        // or _ - #
-        return !/[^a-zA-Z\d\_\-\#]/.test(str);
-    };
-
     xcHelper.isValidTableName = function(str) {
         if (str == null || str === "") {
             return false;
         }
 
+        var isValid = xcHelper.isStartWithLetter(str);
         // has to start with alpha character
         if (!xcHelper.isStartWithLetter(str)) {
             return false;

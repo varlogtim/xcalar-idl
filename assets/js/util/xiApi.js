@@ -1174,25 +1174,43 @@ window.XIApi = (function(XIApi, $) {
     }
 
     function isValidTableName(tableName) {
-        var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
-        var regexp = new RegExp(regex);
-        var isValid = (tableName != null) && (tableName !== "") &&
-                      (regexp.test(tableName));
+        var isValid = isCorrectTableNameFormat(tableName);
 
         if (!isValid) {
             return false;
         }
 
-        var namePart = xcHelper.getTableName(tableName)
+        var namePart = xcHelper.getTableName(tableName);
+        // allow table name to start with dot
         isValid = xcHelper.isValidTableName(namePart);
+        if (!isValid) {
+            // we allow name that has dot internally
+            namePart = namePart.replace(/\./g, "");
+            isValid = xcHelper.isValidTableName(namePart);
+        }
+
         return isValid;
     }
 
     function isValidAggName(aggName) {
-        // no blanks, must start with alpha, cannot have any special chars
-        // other than _ and - and #
-        var isValid = xcHelper.isValidAggName(aggName);
-        return isValid;
+        if (isCorrectTableNameFormat(aggName)) {
+            // allow aggName to have the table name format
+            return isValidTableName(aggName);
+        } else {
+            // no blanks, must start with alpha, cannot have any special chars
+            // other than _ and - and #
+            return xcHelper.isValidTableName(aggName);
+        }
+    }
+
+    function isCorrectTableNameFormat(tableName) {
+        if (tableName == null || tableName === "") {
+            return false;
+        }
+
+        var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
+        var regexp = new RegExp(regex);
+        return regexp.test(tableName);
     }
 
     function isValidPrefix(prefix) {
