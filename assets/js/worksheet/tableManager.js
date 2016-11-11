@@ -2212,6 +2212,8 @@ window.TblManager = (function($, TblManager) {
 
             if (isRightClick) {
                 options.mouseCoors = {"x": event.pageX, "y": $el.offset().top + 34};
+            } else {
+                options.offsetX = 5;
             }
 
             xcHelper.dropdownOpen($el, $("#colMenu"), options);
@@ -2315,7 +2317,7 @@ window.TblManager = (function($, TblManager) {
                 $('.highlightBox').remove();
                 return;
             }
-            var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
+
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
             var isUnSelect = false;
@@ -2384,7 +2386,7 @@ window.TblManager = (function($, TblManager) {
                 "colNum"    : colNum,
                 "rowNum"    : rowNum,
                 "classes"   : "tdMenu", // specify classes to update colmenu's class attr
-                "mouseCoors": {"x": event.pageX, "y": yCoor},
+                "mouseCoors": {"x": event.pageX, "y": event.pageY},
                 "shiftKey"  : event.shiftKey,
                 "isMutiCol" : isMultiColumn(),
                 "isUnSelect": isUnSelect,
@@ -2436,8 +2438,7 @@ window.TblManager = (function($, TblManager) {
                 // not focus when in modal
                 return false;
             }
-            var yCoor = Math.max(event.pageY, $div.offset().top +
-                                 $div.height() - 10);
+
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 
@@ -2454,7 +2455,7 @@ window.TblManager = (function($, TblManager) {
                 "colNum"    : colNum,
                 "rowNum"    : rowNum,
                 "classes"   : "tdMenu", // specify classes to update colmenu's class attr
-                "mouseCoors": {"x": event.pageX, "y": yCoor},
+                "mouseCoors": {"x": event.pageX, "y": event.pageY},
                 "isMutiCol" : isMultiColumn(),
                 "isDataTd"  : isDataTd,
                 "floating"  : true

@@ -2765,7 +2765,7 @@ window.xcHelper = (function($, xcHelper) {
         var menuHeight;
         if (menuId === "cellMenu") {
             topMargin = 15;
-        } else if (menuId === "colMenu" || menuId === "tableMenu") {
+        } else if (menuId === "colMenu") {
             topMargin = -4;
         } else {
             topMargin = 0;
@@ -2775,7 +2775,7 @@ window.xcHelper = (function($, xcHelper) {
         var left;
         var top;
         if (options.mouseCoors) {
-            left = options.mouseCoors.x - 5;
+            left = options.mouseCoors.x;
             top = options.mouseCoors.y + topMargin;
         } else {
             left = $dropdownIcon[0].getBoundingClientRect().left + leftMargin;
