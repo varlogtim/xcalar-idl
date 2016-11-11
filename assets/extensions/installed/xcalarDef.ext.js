@@ -227,31 +227,37 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 var tableNames = self.getAttribute("tableNames");
                 var genUniqColNames = self.getAttribute("genUniqColNames");
                 var joinType = XcSDK.Enums.JoinType.InnerJoin;
-                var lTable = tableNames.cur;
-                var lCol = genUniqColNames.cur;
-                var rTable;
-                var rCol;
+                // XXX not test yet
+                var lTableInfo = {
+                    "tableName": tableNames.cur,
+                    "columns"  : genUniqColNames.cur
+                };
+                var rTableInfo;
                 var newTableName;
                 var i;
 
                 for (i = 0; i < lag; i++) {
                     newTableName = self.createTableName(null, "_window");
-                    rTable = tableNames.lag[i];
-                    rCol = genUniqColNames.lag[i];
+                    rTableInfo = {
+                        "tableName": tableNames.lag[i],
+                        "columns"  : genUniqColNames.lag[i]
+                    };
                     finalTableName = newTableName;
-                    defChain.push(self.join.bind(self, joinType, lCol, lTable,
-                                                 rCol, rTable, newTableName));
-                    lTable = newTableName;
+                    defChain.push(self.join.bind(self, joinType, lTableInfo,
+                                                 rTableInfo, newTableName));
+                    lTableInfo.tableName = newTableName;
                 }
 
                 for (i = 0; i < lead; i++) {
                     newTableName = self.createTableName(null, "_window");
-                    rTable = tableNames.lead[i];
-                    rCol = genUniqColNames.lead[i];
+                    rTableInfo = {
+                        "tableName": tableNames.lead[i],
+                        "columns"  : genUniqColNames.lead[i]
+                    };
                     finalTableName = newTableName;
-                    defChain.push(self.join.bind(self, joinType, lCol, lTable,
-                                                rCol, rTable, newTableName));
-                    lTable = newTableName;
+                    defChain.push(self.join.bind(self, joinType, lTableInfo,
+                                                rTableInfo, newTableName));
+                    lTableInfo.tableName = newTableName;
                 }
 
                 return XcSDK.Promise.chain(defChain);

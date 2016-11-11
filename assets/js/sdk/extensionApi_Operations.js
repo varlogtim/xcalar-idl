@@ -132,14 +132,12 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "join": function(joinType, lColNames, lTableName, rColNames, rTableName,
-                         newTableName) {
+        "join": function(joinType, lTableInfo, rTableInfo, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
 
-            XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
-                       newTableName)
+            XIApi.join(txId, joinType, lTableInfo, rTableInfo, newTableName)
             .then(function(dstTable, dstCols) {
                 self._addMeta(null, dstTable, dstCols);
                 deferred.resolve(dstTable);

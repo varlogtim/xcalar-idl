@@ -240,9 +240,23 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
-    XIApi.join = function(txId, joinType, lColNames, lTableName, rColNames,
-                          rTableName, newTableName, pulledLColNames,
-                          pulledRColNames, lRename, rRename) {
+    XIApi.join = function(txId, joinType, lTableInfo, rTableInfo, newTableName) {
+        if (!(lTableInfo instanceof Object) ||
+            !(rTableInfo instanceof Object))
+        {
+            return PromiseHelper.reject("Invalid args in join");
+        }
+
+        var lTableName = lTableInfo.tableName;
+        var lColNames = lTableInfo.columns;
+        var pulledLColNames = lTableInfo.pulledColumns;
+        var lRename = lTableInfo.rename || [];
+
+        var rTableName = rTableInfo.tableName;
+        var rColNames = rTableInfo.columns;
+        var pulledRColNames = rTableInfo.pulledColumns;
+        var rRename = rTableInfo.rename || [];
+
         if (lColNames == null || lTableName == null ||
             rColNames == null || rTableName == null ||
             joinType == null || txId == null ||
@@ -296,8 +310,9 @@ window.XIApi = (function(XIApi, $) {
             lTable_index = lInexedTable;
             rTable_index = rIndexedTable;
             if (!isValidTableName(newTableName)) {
-                newTableName = getNewTableName(lTableName.substring(0, 5) + "-"+
-                                               rTableName.substring(0, 5));
+                newTableName = getNewTableName(lTableName.substring(0, 5) +
+                                                "-" +
+                                                rTableName.substring(0, 5));
             }
             // Step 3: join left table and right table
             return XcalarJoin(lInexedTable, rIndexedTable, newTableName,

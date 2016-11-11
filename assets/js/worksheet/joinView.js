@@ -1034,12 +1034,12 @@ window.JoinView = (function($, JoinView) {
         // set up "joining on" columns
         for (var i = 0; i < lCols.length; i++) {
             var col = lTable.getColByFrontName(lCols[i]);
-            lColNums[i] = lTable.getColNumByBackName(col.backName) - 1;
+            lColNums[i] = lTable.getColNumByBackName(col.backName);
         }
 
         for (var i = 0; i < rCols.length; i++) {
             var col = rTable.getColByFrontName(rCols[i]);
-            rColNums[i] = rTable.getColNumByBackName(col.backName) - 1;
+            rColNums[i] = rTable.getColNumByBackName(col.backName);
         }
 
         // set up "keeping" columns
@@ -1386,9 +1386,21 @@ window.JoinView = (function($, JoinView) {
         function proceedWithJoin(leftRenames, rightRenames) {
             var keepTable = $joinView.find('.keepTablesCBWrap')
                                     .find('.checkbox').hasClass('checked');
+
+            var lJoinInfo = {
+                "tableId"      : lTableId,
+                "colNums"      : lColNums,
+                "pulledColumns": lColsToKeep,
+                "rename"       : leftRenames
+            };
+            var rJoinInfo = {
+                "tableId"      : rTableId,
+                "colNums"      : rColNums,
+                "pulledColumns": rColsToKeep,
+                "rename"       : rightRenames
+            };
+
             var options = {
-                keepLeftCols : lColsToKeep,
-                keepRightCols: rColsToKeep,
                 keepTables   : keepTable,
                 formOpenTime : formOpenTime
             };
@@ -1397,8 +1409,9 @@ window.JoinView = (function($, JoinView) {
 
             var startTime = Date.now();
             var origFormOpenTime = formOpenTime;
-            xcFunction.join(lColNums, lTableId, rColNums, rTableId, joinType,
-                            newTableName, leftRenames, rightRenames, options)
+
+            xcFunction.join(joinType, lJoinInfo, rJoinInfo,
+                            newTableName, options)
             .fail(function(error) {
                 submissionFailHandler(origFormOpenTime, error);
             });

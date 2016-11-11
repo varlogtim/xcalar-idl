@@ -167,9 +167,15 @@ window.UExtIntel = (function(UExtIntel) {
             rTable = tableAfterGroupby;
 
             var joinType = XcSDK.Enums.JoinType.InnerJoin;
-            var lCols = ["ROW_ID", "SumByPdt"];
-            var rCols = ["ROW_ID", "MaxForRow"];
-            return ext.join(joinType, lCols, lTable, rCols, rTable, newTable);
+            var lTableInfo = {
+                "tableName": lTable,
+                "columns"  : ["ROW_ID", "SumByPdt"]
+            };
+            var rTableInfo = {
+                "tableName": rTable,
+                "columns"  : ["ROW_ID", "MaxForRow"]
+            };
+            return ext.join(joinType, lTableInfo, rTableInfo, newTable);
         })
         .then(function(tableAfterJoin) {
             var newTable = ext.createTableName();

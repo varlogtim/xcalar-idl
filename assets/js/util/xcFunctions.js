@@ -338,60 +338,54 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // join two tables
-    xcFunction.join = function(lColNums, lTableId, rColNums, rTableId,
-                                joinStr, newTableName, lRename, rRename,
-                                options)
+    xcFunction.join = function(joinStr, lJoinInfo, rJoinInfo,
+                                newTableName, options)
     {
         var deferred = jQuery.Deferred();
         var joinType = joinLookUp[joinStr];
+
+        lJoinInfo = lJoinInfo || {};
+        rJoinInfo = rJoinInfo || {};
         options = options || {};
 
-        if (joinType == null) {
-            deferred.reject("Incorrect join type!");
-            return (deferred.promise());
-        }
+        var lTableId = lJoinInfo.tableId;
+        var lColNums = lJoinInfo.colNums;
+        var lTable = gTables[lTableId];
+        var lTableName = lTable.getName();
+        lJoinInfo.tablePos = WSManager.getTableRelativePosition(lTableId);
 
-        var lTable     = gTables[lTableId];
-        var lTableName = lTable.tableName;
-        var rTable     = gTables[rTableId];
-        var rTableName = rTable.tableName;
-        var newTableId = xcHelper.getTableId(newTableName);
-        var lTablePos  = WSManager.getTableRelativePosition(lTableId);
-        var rTablePos  = WSManager.getTableRelativePosition(rTableId);
+        var rTableId = rJoinInfo.tableId;
+        var rColNums = rJoinInfo.colNums;
+        var rTable = gTables[rTableId];
+        var rTableName = rTable.getName();
+        rJoinInfo.tablePos = WSManager.getTableRelativePosition(rTableId);
 
-        var lColNames = [];
-        var rColNames = [];
-
-        lColNums.forEach(function(colNum) {
-            lColNames.push(lTable.tableCols[colNum].getBackColName());
+        var lColNames = lColNums.map(function(colNum) {
+            return lTable.getCol(colNum).getBackColName();
         });
 
-        rColNums.forEach(function(colNum) {
-            rColNames.push(rTable.tableCols[colNum].getBackColName());
+        var rColNames = rColNums.map(function(colNum) {
+            return rTable.getCol(colNum).getBackColName();
         });
 
         // joined table will in the current active worksheet.
         var worksheet = WSManager.getActiveWS();
+        var newTableId = xcHelper.getTableId(newTableName);
 
         var sql = {
             "operation"   : SQLOps.Join,
             "lTableName"  : lTableName,
-            "lTableId"    : lTableId,
-            "lTablePos"   : lTablePos,
             "lColNums"    : lColNums,
+            "lJoinInfo"   : lJoinInfo,
             "rTableName"  : rTableName,
-            "rTableId"    : rTableId,
-            "rTablePos"   : rTablePos,
             "rColNums"    : rColNums,
-            "lRename"     : lRename,
-            "rRename"     : rRename,
+            "rJoinInfo"   : rJoinInfo,
             "newTableName": newTableName,
             "joinStr"     : joinStr,
             "worksheet"   : worksheet,
-            "keepTables"  : options.keepTables,
-            "formOpenTime": options.formOpenTime,
-            "htmlExclude" : ["lTablePos", "rTablePos", "worksheet",
-                             "keepTables", "formOpenTime"]
+            "options"     : options,
+            "htmlExclude" : ["lJoinInfo", "rJoinInfo", "worksheet",
+                             "options"]
         };
 
         // regular join on unsorted cols = 3, 1 if sorted (through groupby)
@@ -420,9 +414,21 @@ window.xcFunction = (function($, xcFunction) {
         var focusOnTable = false;
         var startScrollPosition = $('#mainFrame').scrollLeft();
 
-        XIApi.join(txId, joinType, lColNames, lTableName, rColNames, rTableName,
-                    newTableName, options.keepLeftCols, options.keepRightCols,
-                    lRename, rRename)
+        var lTableInfo = {
+            "tableName"    : lTableName,
+            "columns"      : lColNames,
+            "pulledColumns": lJoinInfo.pulledColumns,
+            "rename"       : lJoinInfo.rename
+        };
+
+        var rTableInfo = {
+            "tableName"    : rTableName,
+            "columns"      : rColNames,
+            "pulledColumns": rJoinInfo.pulledColumns,
+            "rename"       : rJoinInfo.rename
+        };
+
+        XIApi.join(txId, joinType, lTableInfo, rTableInfo, newTableName)
         .then(function(finalTableName, finalTableCols) {
             var tablesToReplace = [];
             var refreshOptions = {};
@@ -661,8 +667,18 @@ window.xcFunction = (function($, xcFunction) {
 
             TblManager.setOrphanTableMeta(nTable, nCols);
 
-            XIApi.join(txId, joinType, lCols, lTName, rCols, rTName, jonTable,
-                        null, null, [], rRenam)
+            var lTableInfo = {
+                "tableName": lTName,
+                "columns"  : lCols
+            };
+
+            var rTableInfo = {
+                "tableName": rTName,
+                "columns"  : rCols,
+                "rename"   : rRenam
+            };
+
+            XIApi.join(txId, joinType, lTableInfo, rTableInfo, jonTable)
             .then(function(jonTable, joinTableCols) {
                 // remove the duplicated columns that were joined
                 joinTableCols.splice(joinTableCols.length -

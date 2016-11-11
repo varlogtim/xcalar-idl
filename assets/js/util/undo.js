@@ -106,8 +106,8 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.Join] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
-
-        if (options.keepTables) {
+        var joinOptions = options.options || {};
+        if (joinOptions.keepTables) {
             var tableId = xcHelper.getTableId(options.newTableName);
             return (TblManager.sendTableToOrphaned(tableId, {'remove': true}));
         }
@@ -115,20 +115,23 @@ window.Undo = (function($, Undo) {
         var currTableId = xcHelper.getTableId(options.newTableName);
         var currTableWorksheet = WSManager.getWSFromTable(currTableId);
 
-        var lTableWorksheet = WSManager.getWSFromTable(options.lTableId);
-        var rTableWorksheet = WSManager.getWSFromTable(options.rTableId);
+        var lJoinInfo = options.lJoinInfo;
+        var rJoinInfo = options.rJoinInfo;
+
+        var lTableWorksheet = WSManager.getWSFromTable(lJoinInfo.tableId);
+        var rTableWorksheet = WSManager.getWSFromTable(rJoinInfo.tableId);
 
         var leftTable = {
             name     : options.lTableName,
-            id       : options.lTableId,
-            position : options.lTablePos,
+            id       : lJoinInfo.tableId,
+            position : lJoinInfo.tablePos,
             worksheet: lTableWorksheet
         };
 
         var rightTable = {
             name     : options.rTableName,
-            id       : options.rTableId,
-            position : options.rTablePos,
+            id       : rJoinInfo.tableId,
+            position : rJoinInfo.tablePos,
             worksheet: rTableWorksheet
         };
 
@@ -173,8 +176,8 @@ window.Undo = (function($, Undo) {
                                 firstTable.worksheet, null, refreshOptions)
         .then(function() {
             if (isSelfJoin) {
-                if (isMostRecent && options.formOpenTime) {
-                    JoinView.show(null, null, true, options.formOpenTime);
+                if (isMostRecent && joinOptions.formOpenTime) {
+                    JoinView.show(null, null, true, joinOptions.formOpenTime);
                 }
                 deferred.resolve();
             } else {
@@ -187,8 +190,8 @@ window.Undo = (function($, Undo) {
                                         secondTable.worksheet, null,
                                         secondRefreshOptions)
                 .then(function() {
-                    if (isMostRecent && options.formOpenTime) {
-                        JoinView.show(null, null, true, options.formOpenTime);
+                    if (isMostRecent && joinOptions.formOpenTime) {
+                        JoinView.show(null, null, true, joinOptions.formOpenTime);
                     }
                     deferred.resolve();
                 })
