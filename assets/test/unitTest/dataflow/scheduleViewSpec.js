@@ -1,4 +1,10 @@
-describe('Time related function Test', function() {
+describe('Schedule related Test', function() {
+    describe('Time related function Test', timeRelatedFunctionTest);
+    describe('View related function Test', viewRelatedFunctionTest);
+})
+
+
+function timeRelatedFunctionTest() {
         $dfgView = $("#dataflowView");
         $scheduleDetail = $("#scheduleDetail");
         $newScheduleForm = $("#newScheduleForm");
@@ -336,9 +342,9 @@ describe('Time related function Test', function() {
             expect($newScheduleTime.val()).to.equal("11 : 11 PM");
         });
 
-});
+};
 
-describe('View related function Test', function() {
+function viewRelatedFunctionTest() {
     $dfgView = $("#dataflowView");
     $scheduleDetail = $("#scheduleDetail");
     $newScheduleForm = $("#newScheduleForm");
@@ -591,4 +597,4 @@ describe('View related function Test', function() {
     });
 
 
-});
+};

@@ -212,6 +212,9 @@ window.Scheduler = (function(Scheduler, $) {
 
     Scheduler.showScheduleDetailView = function () {
         var schedule = DF.getSchedule(currentDataFlowName);
+        if (!schedule) {
+            return;
+        }
         fillInScheduleDetail(schedule);
         resetModifiedScheduleForm(schedule);
         $scheduleDetail.removeClass("xc-hidden");
