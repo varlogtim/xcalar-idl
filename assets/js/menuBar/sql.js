@@ -646,6 +646,7 @@ window.SQL = (function($, SQL) {
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
             case SQLOps.Aggr:
+            case SQLOps.DeleteAgg:
                 return UndoType.Skip;
             default:
                 return UndoType.Valid;
@@ -970,6 +971,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.PreviewDS):
             case (SQLOps.DestroyPreviewDS):
             case (SQLOps.DeleteTable):
+            case (SQLOps.DeleteAgg):
             case (SQLOps.ExportTable):
             case (SQLOps.DSPoint):
             case (SQLOps.Filter):

@@ -1183,44 +1183,55 @@ window.DagPanel = (function($, DagPanel) {
                 });
             }
         } else {
-            var orphanFound = false;
-            $('#orphanedTablesList').find('.tableInfo').each(function() {
-                var $li = $(this);
-                if ($li.data('tablename') === tableName) {
-                    $li.find('.addTableBtn').click();
-                    $('#orphanedTableList .submit.delete').click();
-                    orphanFound = true;
-                    return (false);
-                }
-            });
-            if (orphanFound) {
-                return;
-            }
-            // this is the case when user pull out a backend table A, then
-            // delete another table in the dag node of A but that table is
-            // not in orphaned list
-            var sql = {
-                "operation": SQLOps.DeleteTable,
-                "tableName": tableName,
-                "tableType": TableType.Unknown
-            };
-            var txId = Transaction.start({
-                "operation": SQLOps.DeleteTable,
-                "sql"      : sql
-            });
-
-            XcalarDeleteTable(tableName, txId)
-            .then(function() {
-                Dag.makeInactive(tableName, true);
-                // delete table will change meta, so should commit
-                Transaction.done(txId);
-            })
-            .fail(function(error) {
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.DeleteTableFailed,
-                    "error"  : error
+            // check if aggregate
+            if (Aggregates.getAggs()[tableName]) {
+                Aggregates.deleteAggs([tableName])
+                .then(function() {
+                    TableList.removeTable(tableName, TableType.Aggregate);
+                })
+                .fail(function(successTables) {
+                    // being handled in Aggregates.deleteAggs transaction
                 });
-            });
+            } else {
+                var orphanFound = false;
+                $('#orphanedTablesList').find('.tableInfo').each(function() {
+                    var $li = $(this);
+                    if ($li.data('tablename') === tableName) {
+                        $li.find('.addTableBtn').click();
+                        $('#orphanedTableList .submit.delete').click();
+                        orphanFound = true;
+                        return (false);
+                    }
+                });
+                if (orphanFound) {
+                    return;
+                }
+                // this is the case when user pull out a backend table A, then
+                // delete another table in the dag node of A but that table is
+                // not in orphaned list
+                var sql = {
+                    "operation": SQLOps.DeleteTable,
+                    "tableName": tableName,
+                    "tableType": TableType.Unknown
+                };
+                var txId = Transaction.start({
+                    "operation": SQLOps.DeleteTable,
+                    "sql"      : sql
+                });
+
+                XcalarDeleteTable(tableName, txId)
+                .then(function() {
+                    Dag.makeInactive(tableName, true);
+                    // delete table will change meta, so should commit
+                    Transaction.done(txId);
+                })
+                .fail(function(error) {
+                    Transaction.fail(txId, {
+                        "failMsg": StatusMessageTStr.DeleteTableFailed,
+                        "error"  : error
+                    });
+                });
+            }
         }
     }
 

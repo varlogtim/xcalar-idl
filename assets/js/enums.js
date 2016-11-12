@@ -78,7 +78,8 @@ var TableType = {
     "WSHidden": "hidden",
     "Unknown" : "unknown source",
     "Trash"   : "trashed",
-    "Undone"  : "undone"
+    "Undone"  : "undone",
+    "Aggregate": "aggregate"
 };
 
 var ColDir = {
@@ -237,6 +238,7 @@ var SQLOps = {
     RenameTable: "renameTable",
     RenameOrphanTable: "renameTemporaryTable",
     DeleteTable: "deleteTable",
+    DeleteAgg: "deleteAggregate",
     PreviewDS: "previewDataSet",
     DestroyPreviewDS: "destroyPreviewDataSet",
     DestroyDS: "destroyDataSet",

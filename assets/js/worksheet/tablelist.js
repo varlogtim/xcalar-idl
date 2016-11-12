@@ -208,7 +208,7 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.clear = function() {
-        $("tableListSections").find(".submit").addClass("xc-hidden")
+        $(".tableListSections").find(".submit").addClass("xc-hidden")
                             .end()
                             .find(".tableLists").empty();
     };
@@ -551,6 +551,7 @@ window.TableList = (function($, TableList) {
         return (deferred.promise());
     };
 
+    // removes from list, no backend call
     TableList.removeTable = function(tableIdOrName, type) {
         var tableType;
         var $li = $();
@@ -574,6 +575,9 @@ window.TableList = (function($, TableList) {
             $listWrap = $('#orphanedTableList');
             $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableIdOrName + '"]');
+        } else if (tableType === TableType.Aggregate) {
+            $listWrap = $('#constantsListSection');
+            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         } else {
             $listWrap = $('#archivedTableList');
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
@@ -595,6 +599,7 @@ window.TableList = (function($, TableList) {
         }
 
         $tableList.find('.addTableBtn').removeClass('selected');
+        $tableList.find('.submit').addClass('xc-hidden');
         focusedListNum = null;
     };
 
@@ -1065,71 +1070,38 @@ window.TableList = (function($, TableList) {
         var constNames = [];
         var promises = [];
         var constName;
-        $('#constantList').find('.addTableBtn.selected').each(function() {
+        var $constSection = $('#constantsListSection');
+        $constSection.find('.addTableBtn.selected').each(function() {
             constName = $(this).closest('.tableInfo').data('id');
             constNames.push(constName);
-            promises.push(XcalarDeleteTable(constName));
         });
 
-        PromiseHelper.when.apply(window, promises)
+        Aggregates.deleteAggs(constNames)
         .then(function() {
             for (var i = 0; i < constNames.length; i++) {
-                $('#constantList').find('.tableInfo[data-id="' +
+                $constSection.find('.tableInfo[data-id="' +
                                         constNames[i] + '"]').remove();
-                Aggregates.removeAgg(constNames[i]);
             }
-            $("#constantsListSection").find(".clearAll").click();
             deferred.resolve();
         })
-        .fail(function() {
-            constDeleteFailHandler(arguments, constNames);
+        .fail(function(successConsts) {
+            for (var i = 0; i < successConsts.length; i++) {
+                $constSection.find('.tableInfo[data-id="' +
+                                        successConsts[i] + '"]').remove();
+            }
             deferred.reject();
+        })
+        .always(function() {
+            var $submitBtns = $constSection.find(".submit");
+
+            if ($constSection.find(".addTableBtn.selected").length === 0) {
+                $submitBtns.addClass("xc-hidden");
+            } else {
+                $submitBtns.removeClass("xc-hidden");
+            }
         });
 
         return deferred.promise();
-    }
-
-    function constDeleteFailHandler(results, constNames) {
-        var hasSuccess = false;
-        var fails = [];
-        var errorMsg = "";
-        var tablesMsg = "";
-        var failedTables = "";
-        for (var i = 0, len = results.length; i < len; i++) {
-            if (results[i] != null && results[i].error != null) {
-                fails.push({tables: constNames[i], error: results[i].error});
-                failedTables += constNames[i] + ", ";
-            } else {
-                hasSuccess = true;
-                var constName = results[i].statuses[0].nodeInfo.name;
-                $('#constantList').find('.tableInfo[data-id="' + constName +
-                                         '"]').remove();
-                Aggregates.removeAgg(constName);
-            }
-        }
-
-        var numFails = fails.length;
-        if (numFails) {
-            failedTables = failedTables.substr(0, failedTables.length - 2);
-            if (numFails > 1) {
-                tablesMsg = ErrTStr.ConstsNotDeleted + " " + failedTables;
-            } else {
-                tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.ConstNotDeleted, {
-                    "name": failedTables
-                });
-            }
-        }
-
-        if (hasSuccess) {
-            if (numFails) {
-                errorMsg = fails[0].error + ". " + tablesMsg;
-                Alert.error(StatusMessageTStr.PartialDeleteConstFail, errorMsg);
-            }
-        } else {
-            errorMsg = fails[0].error + ". " + ErrTStr.NoConstsDeleted;
-            Alert.error(StatusMessageTStr.DeleteConstFailed, errorMsg);
-        }
-        return (hasSuccess);
     }
 
     function filterTableList($section, keyWord) {

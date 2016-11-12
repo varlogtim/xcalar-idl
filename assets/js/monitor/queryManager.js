@@ -127,8 +127,10 @@ window.QueryManager = (function(QueryManager, $) {
 
         var mainQuery = queryLists[id];
         mainQuery.state = QueryStatus.Done;
-        if (mainQuery.name === "exportTable") {
+        if (mainQuery.name === SQLOps.ExportTable) {
             mainQuery.outputTableState = "exported";
+        } else if (mainQuery.name === SQLOps.Aggr) {
+            mainQuery.outputTableState = "unavailable";
         } else {
             mainQuery.outputTableState = "active";
         }
@@ -436,7 +438,6 @@ window.QueryManager = (function(QueryManager, $) {
                 cli = queries[i].queryStr;
             }
             fullName = name;
-
             query = new XcQuery({
                 "name"            : name,
                 "fullName"        : fullName,
@@ -1155,6 +1156,7 @@ window.QueryManager = (function(QueryManager, $) {
             var tableType;
 
             if (!tableId) {
+                focusOutputErrorHandler('output', mainQuery);
                 return;
             }
 
@@ -1222,9 +1224,14 @@ window.QueryManager = (function(QueryManager, $) {
             var title = xcHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
                 "name": typeUpper
             });
-            var desc = xcHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
-                "name": typeUpper
-            });
+            var desc;
+            if (type === "output") {
+                desc =ErrTStr.OutputNotFoundMsg;
+            } else {
+                desc = xcHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
+                    "name": typeUpper
+                });
+            }
 
             Alert.error(title, desc);
             if (status) {
@@ -1248,7 +1255,6 @@ window.QueryManager = (function(QueryManager, $) {
             queryObj = queryLists[id];
             if (queryObj.state === QueryStatus.Done ||
                 queryObj.state === QueryStatus.Cancel) {
-
                 abbrQueryObj = {
                     "sqlNum"          : queryObj.sqlNum,
                     "time"            : queryObj.time,

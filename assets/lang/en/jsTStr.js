@@ -226,6 +226,7 @@ ErrTStr = {
     'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload retina',
     'ConfigParamNotFound': 'Parameter not found.',
+    'OutputNotFoundMsg': 'Output is not available.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
