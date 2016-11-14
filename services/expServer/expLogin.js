@@ -12,6 +12,7 @@ var ldap = require('ldapjs');
 var ssf = require('./supportStatusFile');
 var support = require('./support.js');
 var SupportStatus = ssf.SupportStatus;
+var strictSecurity = false;
 
 var setup;
 var config;

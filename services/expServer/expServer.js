@@ -20,7 +20,7 @@ require("jsdom").env("", function(err, window) {
 
 var tail = require('./tail');
 var support = require('./support');
-var login = require('./login');
+var login = require('./expLogin');
 
 var strictSecurity = false;
 

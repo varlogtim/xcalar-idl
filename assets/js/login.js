@@ -3,6 +3,9 @@ $(document).ready(function() {
     // $("#loginContainer").fadeIn(2000);
     // $("#loginNameBox").focus();
     // $("#insightVersion").fadeIn(2000);
+    var hostname = "";
+    setupHostName();
+
     setTimeout(function() {
         $('#loginForm').fadeIn(1000);
     }, 800);
@@ -110,6 +113,28 @@ $(document).ready(function() {
     function loadBarAnimation() {
         var loadBarHtml = '<div class="innerBar immediateAnimation"></div>';
         $('#loadingBar').empty().append(loadBarHtml);
+    }
+
+    function setupHostName() {
+        if (window.hostname == null || window.hostname === "") {
+            hostname = window.location.href;
+            // remove path
+            var path = "/index.html";
+            if (hostname.endsWith(path)) {
+                var index = hostname.lastIndexOf(path);
+                hostname = hostname.substring(0, index);
+            }
+        } else {
+            hostname = window.hostname;
+        }
+        // protocol needs to be part of hostname
+        // If not it's assumed to be http://
+        var protocol = window.location.protocol;
+
+        // If you have special ports, it needs to be part of the hostname
+        if (!hostname.startsWith(protocol)) {
+            hostname = "http://" + hostname;
+        }
     }
 
     $("#insightVersion").html("Version SHA: " +
