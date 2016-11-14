@@ -216,8 +216,8 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on("click", ".pullAll", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
             var rowNum = $jsonWrap.data('rownum');
-            var colNum = $jsonWrap.data('colnum');
-            var tableId = $jsonWrap.data('tableid');
+            var tableId = $jsonWrap.data('tableid');  
+            var colNum = $("#xcTable-" + tableId).find('th.dataCol').index();
             var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
            
             if (!rowExists) {
@@ -290,24 +290,6 @@ window.JSONModal = (function($, JSONModal) {
             decreaseModalSize();
             updateSearchResults();
             searchText();
-        });
-
-        $jsonArea.on("click", ".projectWrap", function() {
-            var $projectWrap = $(this);
-            var $checkbox = $projectWrap.find('.checkbox');
-            var $jsonWrap = $projectWrap.closest('.jsonWrap');
-            var $selectBtns = $jsonWrap.find('.selectBtn');
-            if ($checkbox.hasClass('checked')) {
-                $checkbox.removeClass('checked');
-                $jsonWrap.removeClass('projectMode');
-                $selectBtns.addClass('hidden');
-                $jsonModal.find('.submitProject').addClass('hidden');
-            } else {
-                $checkbox.addClass('checked');
-                $jsonWrap.addClass('projectMode');
-                $selectBtns.removeClass('hidden');
-                $jsonModal.find('.submitProject').removeClass('hidden');
-            }
         });
 
         $jsonArea.on("click", ".clearAll", function() {
@@ -403,22 +385,15 @@ window.JSONModal = (function($, JSONModal) {
         var newComparisonNum;
 
         if ($compareIcon.hasClass('on')) {// uncheck this jsonwrap
-
-            $compareIcon.removeClass('on first');
-            $compareIcon.closest('.jsonWrap')
-                      .removeClass('active comparison');
-
-            //designate any other active compareIcon as the anchor
-            $jsonArea.find('.compareIcon.on').eq(0).addClass('first');
-
+            $compareIcon.removeClass('on');
             $jsonArea.find('.comparison').find('.prettyJson.secondary')
                                          .empty();
+            $compareIcon.closest('.jsonWrap').removeClass('active comparison');
             $jsonArea.find('.comparison').removeClass('comparison');
             comparisonObjs = {}; // empty any saved comparisons
 
         } else { // check this jsonWrap
             if (numComparisons === 0) {
-                $compareIcon.addClass('first');
                 isSearchUpdateNeeded = false;
             } else if (numComparisons > 1) {
                 multipleComparison = true;
@@ -430,7 +405,7 @@ window.JSONModal = (function($, JSONModal) {
 
         $compareIcons = $jsonArea.find('.compareIcon.on');
 
-        // only run comparison if more than 2 compareIcons are on
+        // only run comparison if more than 2 compareIcons are selected
         if ($compareIcons.length > 1) {
             var indices = [];
             var objs = [];
@@ -573,7 +548,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.after($jsonClone);
         $jsonClone.removeClass('active comparison');
         $jsonClone.find('.selected').removeClass('selected');
-        $jsonClone.find('.compareIcon').removeClass('on first');
+        $jsonClone.find('.compareIcon').removeClass('on');
         $jsonClone.find('.prettyJson.secondary').empty();
 
         if (!$jsonWrap.hasClass('comparison')) {
@@ -1047,6 +1022,7 @@ window.JSONModal = (function($, JSONModal) {
         return prettyJson;
     }
 
+    // splits json into array, grouped by prefix 
     function splitJsonIntoGroups(jsonObj) {
         var groups = {};
         var splitName;
@@ -1083,7 +1059,7 @@ window.JSONModal = (function($, JSONModal) {
             groupsArray.unshift(groupObj);
         }
 
-        return groupsArray;
+        return (groupsArray);
     }
 
     function setPrefixTabs(groups) {
@@ -1410,7 +1386,7 @@ window.JSONModal = (function($, JSONModal) {
                 // '</div>' +
             '</div>' +
             '<div class="projectModeBar bar">' +
-                '<div class="text colsSelected disabled">' +
+                '<div class="text colsSelected">' +
                 '</div>' +
             '</div>' +
             '<div class="prettyJson primary">' +
@@ -1807,7 +1783,9 @@ window.JSONModal = (function($, JSONModal) {
     if (window.unitTestMode) {
         JSONModal.__testOnly__ = {};
         JSONModal.__testOnly__.closeJSONModal = closeJSONModal;
-        
+        JSONModal.__testOnly__.compareIconSelect = compareIconSelect;
+        JSONModal.__testOnly__.duplicateView = duplicateView;
+        JSONModal.__testOnly__.selectTab = selectTab;
     }
     /* End Of Unit Test Only */
 
