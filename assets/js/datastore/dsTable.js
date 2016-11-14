@@ -651,5 +651,12 @@ window.DSTable = (function($, DSTable) {
         return (tr);
     }
 
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DSTable.__testOnly__ = {};
+        DSTable.__testOnly__.scrollSampleAndParse = scrollSampleAndParse;
+    }
+    /* End Of Unit Test Only */
+
     return (DSTable);
 }(jQuery, {}));
