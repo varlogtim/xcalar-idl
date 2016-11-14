@@ -22,5 +22,6 @@
     "btoa": "^1.1.2",
     "crypto": "^0.0.3"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {}
 }

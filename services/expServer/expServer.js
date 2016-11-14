@@ -564,6 +564,5 @@ httpServer.listen(port, function() {
     if (!hostname) {
         hostname = "localhost";
     }
-    console.log("To start the installation process, please open a browser " +
-                "to\n https://" + hostname + ":8443");
+    console.log("All ready");
 });

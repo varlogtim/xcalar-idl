@@ -238,6 +238,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                         ret = {error:
                                     "Error occurred while switching workbooks"};
                     }
+                    $("#initialLoadScreen").hide();
                     deferred.reject(ret);
                 }
             });
