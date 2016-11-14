@@ -68,27 +68,27 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         return (deferred.promise());
     };
 
-    XFTSupportTools.startXcalarServices = function() {
+    XFTSupportTools.clusterStart = function() {
         var action = "/service/start";
         return requestService(action);
     };
 
-    XFTSupportTools.stopXcalarServices = function() {
+    XFTSupportTools.clusterStop = function() {
         var action = "/service/stop";
         return requestService(action);
     };
 
-    XFTSupportTools.restartXcalarServices = function() {
+    XFTSupportTools.clusterRestart = function() {
         var action = "/service/restart";
         return requestService(action);
     };
 
-    XFTSupportTools.statusXcalarServices = function() {
+    XFTSupportTools.clusterStatus = function() {
         var action = "/service/status";
         return requestService(action);
     };
 
-    XFTSupportTools.condrestartXcalarServices = function() {
+    XFTSupportTools.clusterCondrestart = function() {
         var action = "/service/condrestart";
         return requestService(action);
     };
@@ -143,10 +143,10 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                     var logs;
                     if (ret.logs) {
                         logs = atob(ret.logs);
-                        status = SupportStatus.OKLog;
+                        status = Status.Ok;
                     } else {
                         logs = "";
-                        status = SupportStatus.OKNoLog;
+                        status = Status.Ok;
                     }
                     retMsg = {
                         status: status,
@@ -155,13 +155,13 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                     deferred.resolve(retMsg);
                 } else if (ret.status === Status.Error) {
                     retMsg = {
-                        status: SupportStatus.Error,
+                        status: Status.Error,
                         error: ret
                     };
                     deferred.reject(retMsg);
                 } else {
                     retMsg = {
-                        status: SupportStatus.OKUnknown,
+                        status: Status.Unknown,
                         error: ret
                     };
                     deferred.reject(retMsg);
@@ -170,7 +170,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             error: function(error) {
                 clearInterval(monitorIntervalId);
                 retMsg = {
-                    status: SupportStatus.Error,
+                    status: Status.Error,
                     error: error
                 };
                 deferred.reject(retMsg);

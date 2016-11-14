@@ -1,6 +1,6 @@
 var cp = require('child_process');
 var fs = require('fs');
-var btoa = require('btoa');
+
 var jQuery;
 require("jsdom").env("", function(err, window) {
     if (err) {
@@ -14,7 +14,7 @@ var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
 var ssf = require('./supportStatusFile');
-var SupportStatus = ssf.SupportStatus;
+var Status = ssf.Status;
 
 var tailUsers = new Map();
 
@@ -80,12 +80,12 @@ function tailByChildProcess(filename, requireLineNum, res) {
     cp.exec(command, function(err,stdout,stderr){
         if(err){
             console.log(err.message);
-            res.send({"status": SupportStatus.Error});
+            res.send({"status": Status.Error});
             deferred.reject();
         } else {
             var lines = String(stdout);
-            lines = btoa(lines);
-            res.send({"status": SupportStatus.OKLog,
+            lines = new Buffer(lines).toString('base64');
+            res.send({"status": Status.Ok,
                       "logs" : lines});
             deferred.resolve(lines);
         }
@@ -97,7 +97,7 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
     console.log("Enter tail by large buffer")
     if(!isLogNumValid(requireLineNum)) {
         if(res) {
-            res.send({"status": SupportStatus.Error,
+            res.send({"status": Status.Error,
                       "error": new Error("Please Enter a nonnegative integer" +
                                          "not over 500")});
         }
@@ -119,7 +119,7 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
         if(!stat || stat.size == 0) {
             if(res) {
                 console.log("Empty file");
-                res.send({"status": SupportStatus.OKLog,
+                res.send({"status": Status.Ok,
                           "logs": "The file is empty!"});
             }
             deferred.reject();
@@ -186,15 +186,15 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
     .then(function(fd, stat, lines) {
         if(lines) {
             console.log(lines.substring(0, lines.length - 1));
-            res.send({"status": SupportStatus.OKLog, "logs" : lines});
+            res.send({"status": Status.Ok, "logs" : lines});
         } else {
-            res.send({"status": SupportStatus.OKNoLog});
+            res.send({"status": Status.Ok});
         }
         deferredOut.resolve(fd, stat, lines);
     })
     .fail(function() {
         console.log("something fails!");
-        res.send({"status": SupportStatus.Error});
+        res.send({"status": Status.Error});
         deferredOut.reject();
     });
     return deferredOut.promise();
@@ -263,14 +263,14 @@ function sendRecentLogs(res, userID) {
     .then(function(lines){
         if(lines) {
             console.log(lines.substring(0, lines.length - 1));
-            res.send({"status": SupportStatus.OKLog, "logs" : lines});
+            res.send({"status": Status.Ok, "logs" : lines});
         } else {
-            res.send({"status": SupportStatus.OKNoLog});
+            res.send({"status": Status.Ok});
         }
     })
     .fail(function() {
         console.log("Tail Process fails!");
-        res.send({"status": SupportStatus.Error});
+        res.send({"status": Status.Error});
     });
 }
 

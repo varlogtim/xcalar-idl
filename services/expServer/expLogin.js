@@ -11,7 +11,7 @@ var ldap = require('ldapjs');
 
 var ssf = require('./supportStatusFile');
 var support = require('./support.js');
-var SupportStatus = ssf.SupportStatus;
+var Status = ssf.Status;
 var strictSecurity = false;
 
 var setup;
@@ -198,7 +198,7 @@ function responseResult(loginId, res) {
         // for normal users.
         var isAdmin = user.isAdmin();
         var isSupporter = user.isSupporter();
-        res.send({"status": SupportStatus.OKNoLog,
+        res.send({"status": Status.Ok,
                   "firstName ": user.firstName,
                   "mail": user.mail,
                   "isAdmin": isAdmin,
@@ -228,7 +228,7 @@ function setUpLdapConfigs() {
 }
 
 function responseError(res) {
-    res.send({"status":SupportStatus.Error});
+    res.send({"status":Status.Error});
 }
 
 exports.loginAuthentication = loginAuthentication;

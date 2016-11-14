@@ -300,15 +300,9 @@ var SQLOps = {
 };
 
 var Status = {
-    "Ok"     : 0,
-    "Done"   : 1,
-    "Running": 2,
-    "Error"  : -1,
-};
-
-var SupportStatus = {
-    "OKLog": 0,
-    "OKNoLog": 1,
-    "OKUnknown": 2,
-    "Error": -1
+    "Error": -1,
+    "Unknown": 0,
+    "OK": 1,
+    "Done"   : 2,
+    "Running": 3
 }

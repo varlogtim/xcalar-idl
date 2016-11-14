@@ -1,6 +1,4 @@
 var cp = require('child_process');
-var atob = require('atob');
-var btoa = require('btoa');
 var lineReader = require('readline');
 var fs = require('fs');
 var os = require('os');
@@ -8,7 +6,7 @@ var path = require('path');
 
 var ssf = require('./supportStatusFile');
 var tail = require('./tail');
-var SupportStatus = ssf.SupportStatus;
+var Status = ssf.Status;
 
 var jQuery;
 require("jsdom").env("", function(err, window) {
@@ -56,24 +54,24 @@ function masterExecuteAction (action, res, str) {
             .then(function(results) {
                 var logs = generateLogs(action, results);
                 if(logs) {
-                    res.send({"status": SupportStatus.OKLog,
-                              "logs": btoa(logs)});
+                    res.send({"status": Status.Ok,
+                              "logs": new Buffer(logs).toString('base64')});
                 } else {
-                    res.send({"status": SupportStatus.OKNoLog});
+                    res.send({"status": Status.Ok});
                 }
             })
             .fail(function(results) {
                 var logs = generateLogs(action, results);
                 if(logs) {
-                    res.send({"status": SupportStatus.Error,
-                              "logs": btoa(logs)});
+                    res.send({"status": Status.Error,
+                              "logs": new Buffer(logs).toString('base64')});
                 } else {
-                    res.send({"status": SupportStatus.Error});
+                    res.send({"status": Status.Error});
                 }
             });
         })
         .fail(function(err) {
-            res.send({"status": SupportStatus.Error,
+            res.send({"status": Status.Error,
                       "error": err});
         });
     })
@@ -101,7 +99,7 @@ function slaveExecuteAction (action, res, str) {
         case "/stopMonitorLogs/slave":
             {
                 tail.removeTailUser(str["userID"]);
-                var retMsg = {"status": SupportStatus.OKLog,
+                var retMsg = {"status": Status.Ok,
                               "logs" : "Stop monitoring successfully!"};
                 res.send(retMsg);
                 return;
@@ -130,14 +128,14 @@ function sendCommandToSlaves(action, str, hosts) {
             success: function(data) {
                 var ret = data;
                 var retMsg;
-                if (ret.status === SupportStatus.OKLog || ret.status === SupportStatus.OKNoLog) {
+                if (ret.status === Status.Ok) {
                     retMsg = ret;
-                } else if (ret.status === SupportStatus.Error) {
+                } else if (ret.status === Status.Error) {
                     retMsg = ret;
                     hasFailure = true;
                 } else {
                     retMsg = {
-                        status: SupportStatus.OKUnknown,
+                        status: Status.Unknown,
                         error: ret
                     };
                     hasFailure = true;
@@ -154,7 +152,7 @@ function sendCommandToSlaves(action, str, hosts) {
             },
             error: function(error) {
                 retMsg = {
-                    status: SupportStatus.Error,
+                    status: Status.Error,
                     error: error
                 };
                 returns[hostName] = retMsg;
@@ -226,7 +224,7 @@ function removeSessionFiles(filePath, res) {
     var deferred = jQuery.Deferred();
     if(!isLegalPath) {
         console.log("The filename" + completePath + "is illegal");
-        var retMsg = {"status": SupportStatus.Error,
+        var retMsg = {"status": Status.Error,
                       "error" : new Error("Please Send a legal Session file/folder name.")};
         res.send(retMsg);
         return;
@@ -249,8 +247,8 @@ function removeSessionFiles(filePath, res) {
         if (!filePath) {
             file = "all files under session folder";
         }
-        var retMsg = {"status": SupportStatus.OKLog,
-                      "logs" : btoa("Remove " + file + " successfully!")};
+        var retMsg = {"status": Status.Ok,
+                      "logs" : new Buffer("Remove " + file + " successfully!").toString('base64')};
         res.send(retMsg);
         deferred.resolve();
     })
@@ -286,13 +284,8 @@ function executeCommand(command, res) {
         var lines = String(stdout);
         console.log(lines);
         var result;
-        if (lines) {
-            result = {"status": SupportStatus.OKLog,
-                      "logs" : lines};
-        } else {
-            result = {"status": SupportStatus.OKNoLog,
-                      "logs" : lines};
-        }
+        result = {"status": Status.Ok,
+                  "logs" : lines};
         if (res) {
             res.send(result);
         }
@@ -335,11 +328,11 @@ function getLicense(res) {
             try {
                 if (err) throw err;
                 var license = data;
-                res.send({"status": SupportStatus.OKLog,
-                          "logs": btoa(license)});
+                res.send({"status": Status.Ok,
+                          "logs": new Buffer(license).toString('base64')});
             } catch (error) {
                 console.log("Error: " + error);
-                res.send({"status": SupportStatus.Error,
+                res.send({"status": Status.Error,
                           "error": err});
             }
         });
@@ -375,15 +368,15 @@ function submitTicket(contents, res) {
             var line = lines[i];
             if (line.indexOf("X-Zendesk-Request-Id") > -1) {
                 acked = true;
-                res.send({"status": SupportStatus.OKLog,
-                          "logs"  : btoa(lines)});
+                res.send({"status": Status.Ok,
+                          "logs": new Buffer(lines).toString('base64')});
                 console.log("Acked");
             }
         }
     });
     out.on('close', function() {
         if (!acked) {
-            res.send({"status": SupportStatus.Error,
+            res.send({"status": Status.Error,
                       "error": "Failed to submit ticket"});
             acked = true;
             console.log("Failed to submit ticket");
@@ -397,3 +390,4 @@ exports.submitTicket = submitTicket;
 exports.removeSessionFiles = removeSessionFiles;
 exports.slaveExecuteAction =  slaveExecuteAction;
 exports.masterExecuteAction = masterExecuteAction;
+exports.readHostsFromFile = readHostsFromFile;

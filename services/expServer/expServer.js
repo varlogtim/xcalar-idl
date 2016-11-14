@@ -21,8 +21,7 @@ require("jsdom").env("", function(err, window) {
 var tail = require('./tail');
 var support = require('./support');
 var login = require('./expLogin');
-
-var strictSecurity = false;
+var Status = require('./supportStatusFile').Status;
 
 var app = express();
 
@@ -44,30 +43,16 @@ app.get('/*', function(req, res) {
 
 // Start of installer calls
 var finalStruct = {
-    "nfsOption": undefined, // Either empty struct (use ours) or
+    "nfsOption"    : undefined, // Either empty struct (use ours) or
             // { "nfsServer": "netstore.int.xcalar.com",
             //   "nfsMountPoint": "/public/netstore",
             //   "nfsUsername": "jyang",
             //   "nfsGroup": "xcalarEmployee" }
-    "hostnames": [],
+    "hostnames"    : [],
     "privHostNames": [],
-    "username": "",
-    "port": 22,
-    "credentials": {} // Either password or sshKey
-};
-
-var Status = {
-    "Ok": 0,
-    "Done": 1,
-    "Running": 2,
-    "Error": -1,
-};
-
-var SupportStatus = {
-    "OKLog": 0,
-    "OKNoLog": 1,
-    "OKUnknown": 2,
-    "Error": -1
+    "username"     : "",
+    "port"         : 22,
+    "credentials"  : {} // Either password or sshKey
 };
 
 var curStep = {};
@@ -86,9 +71,9 @@ var credentialLocation = "/tmp/key.txt";
 
 function initStepArray() {
     curStep = {
-        "stepString": "Step [0] Starting...",
+        "stepString"           : "Step [0] Starting...",
         "nodesCompletedCurrent": [],
-        "status": Status.Running,
+        "status"               : Status.Running,
     };
 }
 
@@ -163,8 +148,8 @@ function sendStatusArray(finalStruct, res) {
 
     if (curStep.status !== Status.Ok) {
         res.send({"status": curStep.status,
-                  "retVal": ackArray,
-                  "errorLog": errorLog});
+            "retVal"  : ackArray,
+            "errorLog": errorLog});
     } else {
         res.send({"status": curStep.status,
                   "retVal": ackArray});
@@ -441,7 +426,7 @@ function copyFiles(res) {
         if (code) {
             console.log("Copy failed");
             res.send({"status": Status.Error,
-                      "reason": errorMessage});
+                "reason": errorMessage});
         } else {
             res.send({"status": Status.Ok});
         }
@@ -458,7 +443,7 @@ app.post("/writeConfig", function(req, res) {
     } catch (err) {
         console.log(err);
         res.send({"status": Status.Error,
-                  "reason": JSON.stringify(err)});
+            "reason": JSON.stringify(err)});
     }
 });
 
@@ -491,7 +476,7 @@ app.post("/installLdap", function(req, res) {
             console.log("Oh noes!");
             if (!replied) {
                 res.send({"status": Status.Error,
-                          "reason": errorMessage});
+                    "reason": errorMessage});
             }
         } else {
             copyFiles(res);
@@ -523,7 +508,7 @@ app.post("/listPackages", function(req, res) {
     var credArray = req.body;
     var hasError = false;
     var errors = [];
-    var f = fs.readFile("marketplace.json", (err, data) => {
+    var f = fs.readFile("marketplace.json", function(err, data) {
         if (err) throw err;
         res.send(data);
     });

@@ -1,14 +1,15 @@
-var SupportStatus = {
+var Status = {
     "Error": -1,
-    "OKLog": 0,
-    "OKNoLog": 1,
-    "OKUnknown": 2,
-};
+    "Unknown": 0,
+    "OK": 1,
+    "Done"   : 2,
+    "Running": 3
+}
 
 function getStatus(num) {
-    var key = Object.keys(SupportStatus)[num + 1];
+    var key = Object.keys(Status)[num + 1];
     return key;
 }
 
-exports.SupportStatus = SupportStatus;
+exports.Status = Status;
 exports.getStatus = getStatus;

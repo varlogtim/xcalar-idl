@@ -328,7 +328,7 @@ window.Admin = (function($, Admin) {
         .then(function(ret) {
             // refresh page
             console.log('success start', ret);
-            if (ret.status === SupportStatus.OKLog &&
+            if (ret.status === Status.Ok &&
                 ret.logs.indexOf("already running") > -1) {
                 Alert.show({msg: ret.logs, isAlert: true});
             } else {

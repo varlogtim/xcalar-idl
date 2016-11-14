@@ -36,10 +36,10 @@ $(document).ready(function() {
                 url: hostname + "/app/login",
                 success: function(data) {
                     ret = data;
-                    if (ret.status === SupportStatus.OKNoLog) {
+                    if (ret.status === Status.Ok) {
                         console.log('success');
                         submit();
-                    } else if (ret.status === SupportStatus.Error) {
+                    } else if (ret.status === Status.Error) {
                         alert('Incorrect Password. Please try again.');
                         console.log('return error', data, ret);
                     } else {
