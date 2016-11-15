@@ -4,6 +4,8 @@ describe('ExportView', function() {
     var prefix;
     var $exportForm;
     var tableId;
+    var tableName2;
+    var prefix2;
 
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
@@ -19,12 +21,17 @@ describe('ExportView', function() {
                     return false;
                 }
             });
-
-
-            ExportView.show(tableId)
-            .then(function() {
-                done();
+            // add a second table for table list testing
+            UnitTest.addTable(testDs)
+            .always(function(tName, tPrefix) {
+                tableName2 = tName;
+                prefix2 = tPrefix;
+                ExportView.show(tableId)
+                .then(function() {
+                    done();
+                });
             });
+            
         });
     });
     
@@ -35,6 +42,7 @@ describe('ExportView', function() {
             expect($exportForm.find('#exportName:visible')).to.have.lengthOf(1);
             expect($exportForm.find('#exportName').val()).to.equal(tableName.split('#')[0]);
             expect($exportForm.find("#exportPath").val()).to.equal("Default");
+            expect($exportForm.find("#exportLists li").length).to.be.gt(1);
             expect($exportForm.find('.columnsToExport li')).to.have.lengthOf(6);
             expect($exportForm.find('.advancedSection .formRow').length).to.be.gt(4);
             expect($exportForm.find('.advancedSection .formRow:visible')).to.have.lengthOf(0);
@@ -60,6 +68,7 @@ describe('ExportView', function() {
         before(function(done) {
             var submitForm = ExportView.__testOnly__.submitForm;
             $exportForm.find("#exportName").val(exportName);
+
             submitForm()
             .always(function() {
                 if ($("#alertModal:visible").length) {
@@ -69,6 +78,7 @@ describe('ExportView', function() {
                         done();
                     });
                 } else {
+                    StatusBox.forceHide();
                     done();
                 }
             });
@@ -101,6 +111,153 @@ describe('ExportView', function() {
         });
 
     });
+
+    describe('check user actions', function() {
+        var $advancedSection;
+        before(function() {
+            $advancedSection = $exportForm.find('.advancedSection');
+        })
+
+        it('tableList menu should select table', function() {
+            var $tableList = $exportForm.find('.tableList');
+            var $ul = $tableList.find('ul');
+            var $text = $tableList.find('.text');
+            expect($ul.length).to.equal(1);
+            expect($ul.is(":visible")).to.be.false;
+            expect($text.text()).to.equal(tableName);
+
+            $tableList.click();
+            expect($ul.is(":visible")).to.be.true;
+            expect($ul.find('li').length).to.be.gt(1);
+            var $selectedLi = $ul.find('li').filter(function() {
+               return $(this).text() === tableName; 
+            });
+            expect($selectedLi.length).to.equal(1);
+            expect($ul.find('li.selected').is($selectedLi)).to.be.true;
+
+            var $nextLi = $selectedLi.next();
+            expect($nextLi.length).to.equal(1);
+            var nextLiName = $nextLi.text();
+            expect(nextLiName).to.not.equal(tableName);
+            $nextLi.click();
+            expect($text.text()).to.equal(nextLiName);
+        });
+
+        it('tablelist menu select should update columns', function() {
+            var $tableList = $exportForm.find('.tableList');
+            var numCols = $exportForm.find('.cols li').length;
+            expect(numCols).to.be.gt(4);
+            expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
+            $exportForm.find('.cols li').eq(0).click();
+            expect($exportForm.find('.cols li.checked').length).to.equal(numCols - 1);
+
+            // select new new table
+            $tableList.click();
+            $tableList.find('li').filter(function() {
+                return $(this).text() === tableName; 
+            }).click();
+
+            expect($tableList.find('.text').text()).to.equal(tableName);
+            expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
+        });
+
+        it('column picker should work', function() {
+            var $tableList = $exportForm.find('.tableList');
+            var numCols = $exportForm.find('.cols li').length;
+            expect(numCols).to.be.gt(4);
+            expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
+
+            $exportForm.find('.cols li').eq(0).click();
+            expect($exportForm.find('.cols li.checked').length).to.equal(numCols - 1);
+
+            $exportForm.find('.cols li').eq(0).click();
+            expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
+
+            var $th = $("#xcTable-" + tableId).find('th.col1');
+            expect($th.hasClass('exportable')).to.be.true;
+            expect($th.hasClass('modalHighlighted')).to.be.true;
+
+            $th.click(); // deselect
+
+            expect($th.hasClass('exportable')).to.be.true;
+            expect($th.hasClass('modalHighlighted')).to.be.false;
+            expect($exportForm.find('.cols li').eq(0).hasClass('checked')).to.be.false;
+
+            $th.click(); // select
+
+            expect($th.hasClass('exportable')).to.be.true;
+            expect($th.hasClass('modalHighlighted')).to.be.true;
+            expect($exportForm.find('.cols li').eq(0).hasClass('checked')).to.be.true;
+        });
+
+        it('advancedSection should toggle', function() {
+            expect($advancedSection.hasClass('collapsed')).to.be.true;
+            expect($advancedSection.hasClass('expanded')).to.be.false;
+            expect($advancedSection.find('.createRule').length).to.equal(1);
+            expect($advancedSection.find('.createRule:visible').length).to.equal(0);
+            expect($advancedSection.find('.advancedTitle:visible').length).to.equal(1);
+            expect($advancedSection.find('.advancedTitle').height()).to.be.gt(10);
+
+            $advancedSection.find('.advancedTitle').click(); // show
+
+            expect($advancedSection.hasClass('collapsed')).to.be.false;
+            expect($advancedSection.hasClass('expanded')).to.be.true;
+            expect($advancedSection.find('.createRule:visible').length).to.equal(1);
+
+            $advancedSection.find('.advancedTitle').click(); // hide
+
+            expect($advancedSection.hasClass('collapsed')).to.be.true;
+            expect($advancedSection.hasClass('expanded')).to.be.false;
+            expect($advancedSection.find('.createRule:visible').length).to.equal(0);
+        });
+
+        it('csv to sql toggling should work', function() {
+            var $typeRow = $advancedSection.find('.typeRow');
+            $advancedSection.find('.advancedTitle').click(); // show
+            expect($advancedSection.hasClass('collapsed')).to.be.false;
+            expect($advancedSection.hasClass('expanded')).to.be.true;
+            expect($typeRow.is(":visible")).to.be.true;
+
+            // first button is CSV and is active
+            expect($typeRow.find('.radioButton').eq(0).hasClass('active')).to.be.true;
+            expect($typeRow.find('.radioButton').eq(1).hasClass('active')).to.be.false;
+            expect($advancedSection.find('.csvRow:visible').length).to.equal(2);
+
+            // select SQL
+            $typeRow.find('.radioButton').eq(1).click();
+
+            expect($typeRow.find('.radioButton').eq(0).hasClass('active')).to.be.false;
+            expect($typeRow.find('.radioButton').eq(1).hasClass('active')).to.be.true;
+            expect($advancedSection.find('.csvRow:visible').length).to.equal(0);
+
+            // select CSV
+            $typeRow.find('.radioButton').eq(0).click();
+
+            expect($typeRow.find('.radioButton').eq(0).hasClass('active')).to.be.true;
+            expect($typeRow.find('.radioButton').eq(1).hasClass('active')).to.be.false;
+            expect($advancedSection.find('.csvRow:visible').length).to.equal(2);
+        });
+
+        it('csv delimiters should work', function() {
+            // field delims
+            expect($advancedSection.find('.fieldDelim').val()).to.equal("\\t");
+            $advancedSection.find('.fieldDelim').click();
+            $advancedSection.find('.fieldDelim').siblings('.list').find('li').eq(1).click();
+            expect($advancedSection.find('.fieldDelim').val()).to.equal(",");
+
+            $advancedSection.find('.fieldDelim').click();
+            $advancedSection.find('.fieldDelim').siblings('.list').find('li').eq(0).click();
+            expect($advancedSection.find('.fieldDelim').val()).to.equal("\\t");
+
+            expect($advancedSection.find('.recordDelim').val()).to.equal("\\n");
+            expect($advancedSection.find('.recordDelim').siblings('.list').find('li').length).to.equal(1);
+            $advancedSection.find('.recordDelim').click();
+            $advancedSection.find('.recordDelim').siblings('.list').find('li').eq(0).click();
+            expect($advancedSection.find('.recordDelim').val()).to.equal("\\n");
+        });
+
+    });
+
 
     describe('advancedOptions', function() {
 
@@ -136,12 +293,35 @@ describe('ExportView', function() {
         });
     });
 
+    describe('test submit errors', function() {
+        it('splitType-single and header-separate file should return error', function(done) {
+            $exportForm.find('.splitType .radioButton:eq(0 )').click();
+            $exportForm.find('.headerType .radioButton:eq(1)').click();
+            $exportForm.find("#exportName").val("shouldNotBeExported");
+
+            ExportView.__testOnly__.submitForm()
+            .then(function() {
+                expect('passed').to.equal('should not pass');
+            })
+            .fail(function() {
+                expect($('#alertModal:visible').length).to.equal(1);
+                expect($('#alertContent').text().indexOf('Cannot export to a single file')).to.be.gt(-1);
+                Alert.forceClose();
+            })
+            .always(function() {
+                done();
+            });
+        });
+    });
+
     after(function(done) {
         ExportView.close();
-
-        UnitTest.deleteAll(tableName, testDs)
+        UnitTest.deleteTable(tableName2)
         .always(function() {
-           done();
+            UnitTest.deleteAll(tableName, testDs)
+            .always(function() {
+                done();
+            })
         });
     });
 });
