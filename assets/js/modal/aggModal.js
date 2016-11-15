@@ -363,12 +363,12 @@ window.AggModal = (function($, AggModal) {
         }
 
         html += '</div>';
-        return (html);
+        return html;
     }
 
     function getColLabelHTML(labels) {
         var html = '<div class="padding"></div>' +
-                    '<div class="aggTableField colLabel blankSpace"></div>';
+                   '<div class="aggTableField colLabel blankSpace"></div>';
 
         for (var i = 0, len = labels.length; i < len; i++) {
             html += '<div class="aggTableField colLabel">' +
@@ -380,9 +380,7 @@ window.AggModal = (function($, AggModal) {
                         '</span>' +
                     '</div>';
         }
-
-        html += '</div>';
-        return (html);
+        return html;
     }
 
     function calcCorr(tableName, tableId, txId) {
@@ -731,6 +729,26 @@ window.AggModal = (function($, AggModal) {
         $backToProfile.hide();
         $aggModal.width(920).height(670);
     }
+
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        AggModal.__testOnly__ = {};
+        AggModal.__testOnly__.getAggCols = function() {
+            return aggCols;
+        };
+        AggModal.__testOnly__.aggColsInitialize = aggColsInitialize;
+        AggModal.__testOnly__.getRowLabelHTML = getRowLabelHTML;
+        AggModal.__testOnly__.getColLabelHTML = getColLabelHTML;
+        AggModal.__testOnly__.aggTableInitialize = aggTableInitialize;
+        AggModal.__testOnly__.corrTableInitialize = corrTableInitialize;
+        AggModal.__testOnly__.getCorrCell = getCorrCell;
+        AggModal.__testOnly__.highlightLabel = highlightLabel;
+        AggModal.__testOnly__.deHighlightLabel = deHighlightLabel;
+        AggModal.__testOnly__.checkDupCols = checkDupCols;
+        AggModal.__testOnly__.applyCorrResult = applyCorrResult;
+    }
+    /* End Of Unit Test Only */
 
     return (AggModal);
 }(jQuery, {}));
