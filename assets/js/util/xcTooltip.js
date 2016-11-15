@@ -64,11 +64,15 @@ window.xcTooltip = (function(xcTooltip, $) {
 
         options = $.extend(defaultOptions, options);
         $element.tooltip(options).tooltip("show");
-
+        var $tooltip = $element.data('bs.tooltip').$tip;
         var timer = null;
         if (delay != null) {
             timer = setTimeout(function() {
-                $element.tooltip("destroy");
+                if (document.contains($element[0])) {
+                    $element.tooltip("destroy");
+                } else {
+                    $tooltip.remove();
+                }
             }, delay);
         }
 

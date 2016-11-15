@@ -3313,18 +3313,13 @@ window.OperationsView = (function($, OperationsView) {
             "title"    : errorTitle,
             "placement": "right",
             "template" : xcTooltip.Template.Error
-        });
+        }, 4000);
 
         $input.click(hideTooltip);
-
-        var timeout = setTimeout(function() {
-            hideTooltip();
-        }, 4000);
 
         function hideTooltip() {
             $toolTipTarget.tooltip('destroy');
             $input.off('click', hideTooltip);
-            clearTimeout(timeout);
         }
     }
 
