@@ -1,10 +1,12 @@
 describe('Smart Cast View Test', function() {
     var $castView;
     var $castTable;
+    var $table;
 
     var dsName, tableName, tableId;
 
     before(function(done){
+        xcTooltip.hideAll();
         $castView = $("#smartCastView");
         $resultSection = $("#multiCast-result");
         $castTable = $("#smartCast-table");
@@ -12,9 +14,9 @@ describe('Smart Cast View Test', function() {
         UnitTest.addAll(testDatasets.fakeYelp, "yelp_smartCast_test")
         .then(function(resDS, resTable) {
             dsName = resDS;
-            console.log(resTable)
             tableName = resTable;
             tableId = xcHelper.getTableId(tableName);
+            $table = $("#xcTable-" + tableId);
             done();
         })
         .fail(function(error) {
@@ -38,11 +40,12 @@ describe('Smart Cast View Test', function() {
         });
 
         it("Should scroll to column", function() {
+            var $th = $table.find("th.col1");
             xcTooltip.hideAll();
             SmartCastView.__testOnly__.scrollToColumn(null);
-            expect($(".tooltip").length).to.equal(0);
+            expect($th.attr("aria-describedby")).not.to.exist;
             SmartCastView.__testOnly__.scrollToColumn(1);
-            expect($(".tooltip").length).to.equal(1);
+            expect($th.attr("aria-describedby")).to.exist;
             xcTooltip.hideAll();
         });
 
@@ -95,12 +98,10 @@ describe('Smart Cast View Test', function() {
     });
 
     describe("UI Behavior Test", function() {
-        var $table;
         var $header;
 
         before(function() {
             SmartCastView.show(tableId);
-            $table = $("#xcTable-" + tableId);
             $header = $table.find("th.col1 .header");
         });
 
@@ -139,7 +140,7 @@ describe('Smart Cast View Test', function() {
             expect($castTable.find(".colName").length).to.equal(1);
             // focus on column name
             $castTable.find(".colName").click();
-            expect($(".tooltip").length).to.equal(1);
+            expect($header.closest("th").attr("aria-describedby")).to.exist;
             xcTooltip.hideAll();
         });
 
