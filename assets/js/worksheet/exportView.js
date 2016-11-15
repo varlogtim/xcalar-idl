@@ -137,7 +137,8 @@ window.ExportView = (function($, ExportView) {
         });
         expList.setupListeners();
 
-        xcHelper.optionButtonEvent($exportView.find(".formRow"), function(option, $radio) {
+        xcHelper.optionButtonEvent($exportView.find(".formRow"),
+            function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
                 if (option !== "DfFormatCsv") {
                     $advancedSection.find('.csvRow').removeClass('csvSelected')
@@ -145,6 +146,13 @@ window.ExportView = (function($, ExportView) {
                 } else {
                     $advancedSection.find('.csvRow').addClass('csvSelected')
                                                      .removeClass('csvHidden');
+                }
+            } else if ($radio.closest('.createRule').length) {
+                var appendCode = ExExportCreateRuleT[option];
+                if (appendCode === ExExportCreateRuleT.ExExportAppendOnly) {
+                    toggleHeaderOptions(true);
+                } else {
+                    toggleHeaderOptions(false);
                 }
             }
         });
@@ -588,7 +596,19 @@ window.ExportView = (function($, ExportView) {
             focusedThNum = colNum;
             focusedListNum = null;
         });
+    }
 
+    // enables or disables radio depending on overwrite options
+    // if appending, then we only allow header=none
+    function toggleHeaderOptions(disable) {
+        var $row =  $advancedSection.find('.headerType');
+        if (disable) {
+            $row.children().addClass('xc-disabled');
+            xcTooltip.changeText($row, ExportTStr.DisableHeader);
+        } else {
+            $row.children().removeClass('xc-disabled');
+            xcTooltip.changeText($row, "");
+        }
     }
 
     function isInvalidTableCol($target) {
@@ -836,6 +856,7 @@ window.ExportView = (function($, ExportView) {
             }
         });
         resetDelimiter();
+        toggleHeaderOptions(false);
     }
 
     function refreshTableColList() {
@@ -863,6 +884,11 @@ window.ExportView = (function($, ExportView) {
                                                 .find('.createRule')
                                                 .find('.radioButton.active')
                                                 .data('option')];
+
+        // if appending, then we only allow header=none
+        if (options.createRule === ExExportCreateRuleT.ExExportAppendOnly) {
+            options.headerType = ExSFHeaderTypeT.ExSFHeaderNone;
+        }
 
         if (options.format === DfFormatTypeT.DfFormatCsv) {
             options.csvArgs = {};

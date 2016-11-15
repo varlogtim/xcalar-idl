@@ -384,6 +384,7 @@ JoinTStr = {
 ExportTStr = {
     'Success': 'Export Successful',
     'InvalidType': 'Invalid type selected',
+    'DisableHeader': 'Not available when appending to existing',
 
     // With replace
     'SuccessMsg': 'File Name: <file>\n File Location: <location>',

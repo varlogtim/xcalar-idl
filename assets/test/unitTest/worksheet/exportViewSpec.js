@@ -49,6 +49,7 @@ describe('ExportView', function() {
             expect(options.splitType).to.equal(ExSFFileSplitTypeT.ExSFFileSplitForceSingle);
             expect(options.csvArgs.fieldDelim).to.equal("\t");
             expect(options.csvArgs.recordDelim).to.equal("\n");
+            expect($exportForm.find('.headerType .subHeading').hasClass('xc-disabled')).to.be.false;
         });
     });
 
@@ -103,7 +104,7 @@ describe('ExportView', function() {
 
     describe('advancedOptions', function() {
 
-        it('function restoretAdvanced should work', function() {
+        it('function restoreAdvanced should work', function() {
             var getAdvancedOptions = ExportView.__testOnly__.getAdvancedOptions;
             var options = getAdvancedOptions();
             expect(options.createRule).to.equal(ExExportCreateRuleT.ExExportCreateOnly);
@@ -112,14 +113,16 @@ describe('ExportView', function() {
             expect(options.splitType).to.equal(ExSFFileSplitTypeT.ExSFFileSplitForceSingle);
             expect(options.csvArgs.fieldDelim).to.equal("\t");
             expect(options.csvArgs.recordDelim).to.equal("\n");
+            expect($exportForm.find('.headerType .subHeading').hasClass('xc-disabled')).to.be.false;
 
             $exportForm.find('.splitType .radioButton:eq(1)').click();
             $exportForm.find('.headerType .radioButton:eq(1)').click();
-            $exportForm.find('.createRule .radioButton:eq(1)').click();
+            $exportForm.find('.createRule .radioButton:eq(2)').click();
             var options = getAdvancedOptions();
-            expect(options.createRule).to.equal(ExExportCreateRuleT.ExExportDeleteAndReplace);
-            expect(options.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderSeparateFile);
+            expect(options.createRule).to.equal(ExExportCreateRuleT.ExExportAppendOnly);
+            expect(options.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderNone);
             expect(options.splitType).to.equal(ExSFFileSplitTypeT.ExSFFileSplitNone);
+            expect($exportForm.find('.headerType .subHeading').hasClass('xc-disabled')).to.be.true;
 
             ExportView.__testOnly__.restoreAdvanced();
             var options = getAdvancedOptions();
@@ -129,6 +132,7 @@ describe('ExportView', function() {
             expect(options.splitType).to.equal(ExSFFileSplitTypeT.ExSFFileSplitForceSingle);
             expect(options.csvArgs.fieldDelim).to.equal("\t");
             expect(options.csvArgs.recordDelim).to.equal("\n");
+            expect($exportForm.find('.headerType .subHeading').hasClass('xc-disabled')).to.be.false;
         });
     });
 
