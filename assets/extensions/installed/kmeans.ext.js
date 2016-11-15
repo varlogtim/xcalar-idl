@@ -235,7 +235,11 @@ window.UExtKMeans = (function(UExtKMeans) {
             // Step 10: Display the final cluster assignment table
             var finalTable = ext.createNewTable(clusterTableName);
             // original elements in stringified vector form
-            finalTable.addCol(new XcSDK.Column(vectorColName, "string"));
+            //finalTable.addCol(new XcSDK.Column(vectorColName, "string"));
+            for (var i = 0; i<args.cols.length; i++) {
+                finalTable.addCol(new XcSDK.Column(args.cols[i].getName(),
+                                                   args.cols[i].getType()));
+            }
             // clusterId column
             finalTable.addCol(new XcSDK.Column(clusterColName, "integer"));
 
@@ -245,7 +249,11 @@ window.UExtKMeans = (function(UExtKMeans) {
             // Step 11: Display the final centroid table
             var finalTable = ext.createNewTable(centroidTableName);
             // centroids in stringified vector form
-            finalTable.addCol(new XcSDK.Column(centroidColName, "string"));
+            // finalTable.addCol(new XcSDK.Column(centroidColName, "string"));
+            for (var i = 0; i<args.cols.length; i++) {
+                finalTable.addCol(new XcSDK.Column("avg_" + i, "float"));
+            }
+
             // clusterId column
             finalTable.addCol(new XcSDK.Column(clusterColName, "integer"));
 
