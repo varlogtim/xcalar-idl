@@ -111,7 +111,7 @@ window.xcFunction = (function($, xcFunction) {
                 "isAlert": true
             });
 
-            deferred.resolve();
+            deferred.resolve(value, aggInfo.dagName);
 
             return deferred.promise();
         }
@@ -184,7 +184,7 @@ window.xcFunction = (function($, xcFunction) {
             });
 
 
-            deferred.resolve();
+            deferred.resolve(value, dstDagName);
         })
         .fail(function(error) {
             Transaction.fail(txId, {

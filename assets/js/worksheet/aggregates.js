@@ -10,7 +10,7 @@ window.Aggregates = (function(Aggregates, $) {
         aggs = {};
     };
 
-    // Get all aggreagte information
+    // Get all aggregate information
     Aggregates.getAggs = function() {
         return (aggs);
     };
@@ -64,8 +64,8 @@ window.Aggregates = (function(Aggregates, $) {
     };
 
     // remove one entry of aggregate information
-    Aggregates.removeAgg = function(key) {
-        delete aggs[key];
+    Aggregates.removeAgg = function(dagName) {
+        delete aggs[dagName];
     };
 
     // deletes from backend
@@ -119,12 +119,15 @@ window.Aggregates = (function(Aggregates, $) {
             if (results[i] != null && results[i].error != null) {
                 fails.push({tables: aggNames[i], error: results[i].error});
                 failedTables += aggNames[i] + ", ";
-            } else {
+            } else if (results[i] != null && results[i].statuses) {
                 hasSuccess = true;
                 var aggName = results[i].statuses[0].nodeInfo.name;
                 Aggregates.removeAgg(aggName);
                 Dag.makeInactive(aggName, true);
                 successTables.push(aggName);
+            } else {
+                // invalid info from the backend
+                console.warn('invalid results', results);
             }
         }
 

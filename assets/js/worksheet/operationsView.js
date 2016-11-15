@@ -4108,6 +4108,7 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.parseType = parseType;
         OperationsView.__testOnly__.formulateMapFilterString = formulateMapFilterString;
         OperationsView.__testOnly__.isNumberInQuotes = isNumberInQuotes;
+        OperationsView.__testOnly__.checkAggregateNameValidity = checkAggregateNameValidity;
         OperationsView.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */

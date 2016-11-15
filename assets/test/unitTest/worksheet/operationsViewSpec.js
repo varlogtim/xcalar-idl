@@ -1,5 +1,4 @@
 describe('OperationsView', function() {
-    // xx currently depends on table with the name "unitTestFakeYelp" to exist
     var testDs;
     var tableName;
     var prefix;
@@ -908,7 +907,7 @@ describe('OperationsView', function() {
             OperationsView.show(tableId, 1, 'aggregate')
             .then(function() {
                 $aggForm = $operationsView.find('.aggregate:visible');
-                $functionsInput = $aggForm.find('.functionsInput:visible')
+                $functionsInput = $aggForm.find('.functionsInput:visible');
                 done();
             });
         }); 
@@ -926,20 +925,241 @@ describe('OperationsView', function() {
             it('functions menu should be filled', function() {
                 var $menu = $aggForm.find('.genFunctionsMenu:hidden');
                 expect($menu).to.have.length(1);
-                // expect($menu.text())
+                expect($menu.find('li').length).to.be.gt(8);
+                expect($menu.find('li').eq(0).text()).to.equal('avg');
+                expect($menu.find('li').last().text()).to.equal('sumInteger');
+                expect($functionsInput.val()).to.equal("");
+                expect($aggForm.find('.argsSection').hasClass('inactive')).to.be.true;
             });
+        });
+
+        describe('agg function', function() {
+            it('agg function input should work', function() {
+                expect($aggForm.find('.argsSection').hasClass('inactive')).to.be.true;
+                $functionsInput.val('avg').trigger('change');
+                expect($aggForm.find('.argsSection').hasClass('inactive')).to.be.false;
+
+                $functionsInput.val('avgWrong').trigger('change');
+                expect($aggForm.find('.argsSection').hasClass('inactive')).to.be.true;
+
+                $functionsInput.val('count').trigger('change');
+                expect($aggForm.find('.argsSection').hasClass('inactive')).to.be.false;
+                expect($aggForm.find('.descriptionText').text()).to.equal("Description: Counts the occurrences of a field");
+
+                $functionsInput.val('avg').trigger('change');
+                expect($aggForm.find('.argsSection').hasClass('inactive')).to.be.false;
+                expect($aggForm.find('.descriptionText').text()).to.equal("Description: Computes average value in a set.");
+                expect($aggForm.find('.description').eq(0).text()).to.equal("Field name to compute average value of:");
+                expect($aggForm.find('.colNameSection .arg').val()).to.equal("");
+            });
+        });
+
+        describe('field name input', function() {
+            it('field name input should be autofilled when function selected', function() {
+                var $fieldInput = $aggForm.find('.arg').eq(0);
+                $functionsInput.val('avg').trigger('change');
+                expect($fieldInput.val()).to.equal(gColPrefix + prefix + gPrefixSign + "yelping_since");
+            });
+        });
+
+        describe('resultant name input', function() {
+            it('resultant name input should work', function() {
+                var $resultInput = $aggForm.find('.colNameSection .arg');
+                 // xx focus testing only works if you're actually focused on this window
+                if (document.hasFocus()) {
+                     expect($resultInput.val()).to.equal("");
+                    $resultInput.focus();
+                    expect($resultInput.val()).to.equal(gAggVarPrefix);
+                    $resultInput.blur();
+                    expect($resultInput.val()).to.equal("");
+                }
+               
+
+                $resultInput.val('something').trigger('input');
+                expect($resultInput.val()).to.equal(gAggVarPrefix + 'something');
+            });
+        });
+
+        describe('checkAggregateNameValidity() check', function() {
+            it('checkAggregateNameValidity() fail should work', function(done) {
+                var aggCheck = OperationsView.__testOnly__.checkAggregateNameValidity;
+                var $resultInput = $aggForm.find('.colNameSection .arg');
+                $resultInput.val('fa#il').trigger('input');
+                var valid = false;
+
+                aggCheck()
+                .then(function(ret) {
+                    expect(ret).to.equal(valid);
+                })
+                .fail(function() {
+                    expect(valid).to.be.false;
+                })
+                .always(function() {
+                    done();
+                });
+            });
+
+            it('checkAggregateNameValidity() success should work', function(done) {
+                var aggCheck = OperationsView.__testOnly__.checkAggregateNameValidity;
+                var $resultInput = $aggForm.find('.colNameSection .arg');
+                $resultInput.val('pa1ss').trigger('input');
+                var valid = true;
+
+                aggCheck()
+                .then(function(ret) {
+                    expect(ret).to.equal(valid);
+                })
+                .fail(function() {
+                    expect(valid).to.be.false;
+                })
+                .always(function() {
+                    done();
+                });
+            });
+        });
+
+        describe('aggregate submit test', function() {
+            this.timeout(15000);
+            var submitForm;
+            before(function() {
+                submitForm = OperationsView.__testOnly__.submitForm;
+            });
+
+            it ('arg1-count, arg2-blank should work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+                var options = {
+                    func: "count",
+                    args: [{
+                        num: 0,
+                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
+                    }],
+                    output: 1000
+                };
+
+                runAgg(options)
+                .always(function() {
+                    done();
+                });
+            });
+
+            it ('arg1-count, arg2-test should work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+                var options = {
+                    func: "count",
+                    args: [{
+                        num: 0,
+                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
+                    },
+                    {
+                        num: 1,
+                        str: gAggVarPrefix + "yelping_since"
+                    },
+                    ],
+                    output: 1000
+                };
+
+                runAgg(options)
+                .always(function() {
+                    done();
+                });
+            });
+
+            it ('arg1-invalid, arg2-blank should not work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+                var options = {
+                    func: "invalid",
+                    args: [{
+                        num: 0,
+                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
+                    }],
+                    output: null
+                };
+
+                runAgg(options)
+                .always(function() {
+                    done();
+                });
+            });
+
+            it ('arg1-avg, arg2-blank on str should not work', function(done) {
+                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+                var options = {
+                    func: "avg",
+                    args: [{
+                        num: 0,
+                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
+                    }],
+                    output: null
+                };
+
+                runAgg(options)
+                .always(function() {
+                    Alert.forceClose();
+                    done();
+                });
+            });
+
+            function runAgg(options) {
+                var deferred = jQuery.Deferred();
+                var func = options.func;
+                var args = options.args;
+
+                $functionsInput.val(func).trigger('change');
+                $functionsInput.blur();
+
+                var $argInputs = $operationsView.find('.arg[type=text]:visible');
+                for (var i = 0; i < args.length; i++) {
+                    var argNum = args[i].num;
+                    $argInputs.eq(argNum).val(args[i].str).trigger(fakeEvent.input);
+                }
+             
+                submitForm()
+                .then(function() {
+                    expect(options.output).to.not.be.null;
+                    var alertText = $('#alertContent').text().trim();
+                    expect(alertText).to.equal('{"Value":' + options.output +'}');
+
+                    if (args[1]) {
+                        console.log('deleting', args[1].str.slice(1));
+                        Aggregates.deleteAggs([args[1].str.slice(1)])
+                        .then(function() {
+                            deferred.resolve();
+                               console.log('resolve')
+                        })
+                        .fail(function() {
+                            expect(false).to.be.true;
+                            deferred.reject();
+                               console.log('reject')
+                        })
+                        .always(function() {
+                            OperationsView.show(tableId, 1, 'aggregate')
+                            .then(function() {
+                                console.log('opening');
+                                deferred.resolve();
+                            }); 
+                        });
+                    } else {
+                        console.log('here');
+                        OperationsView.show(tableId, 1, 'aggregate')
+                        .then(function() {
+                            deferred.resolve();
+                        }); 
+                    }
+                })
+                .fail(function() {
+                    console.log('reject')
+                    expect(options.output).to.be.null;
+                    
+                    deferred.reject();
+                });
+
+                return deferred.promise();
+            }
+
         });
         
         after(function(done) {
             OperationsView.close();
-            var tableId;
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
-
             // allow time for operations view to close
             setTimeout(function() {
                done(); 
@@ -949,7 +1169,6 @@ describe('OperationsView', function() {
 
     after(function(done) {
         UnitTest.deleteAll(tableName, testDs)
-        // UnitTest.deleteTable(tableName)
         .always(function() {
            done();
         });

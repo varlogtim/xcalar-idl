@@ -628,6 +628,7 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.refreshConstantList = function(waitIcon) {
+        var deferred = jQuery.Deferred();
         var $waitingIcon;
         if (waitIcon) {
             $waitingIcon = xcHelper.showRefreshIcon($('#constantsListSection'));
@@ -636,6 +637,8 @@ window.TableList = (function($, TableList) {
         $('#constantsListSection').find(".clearAll").click();
         var startTime = Date.now();
         generateConstList()
+        .then(deferred.resolve)
+        .fail(deferred.reject)
         .always(function() {
             if (waitIcon && Date.now() - startTime > 2000) {
                 $waitingIcon.fadeOut(100, function() {
@@ -643,6 +646,8 @@ window.TableList = (function($, TableList) {
                 });
             }
         });
+
+        return deferred.promise();
     };
 
 
