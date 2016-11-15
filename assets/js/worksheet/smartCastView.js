@@ -360,6 +360,8 @@ window.SmartCastView = (function($, SmartCastView) {
         SmartCastView.__testOnly__.selectCol = selectCol;
         SmartCastView.__testOnly__.deSelectCol = deSelectCol;
         SmartCastView.__testOnly__.changeColType = changeColType;
+        SmartCastView.__testOnly__.scrollToColumn = scrollToColumn;
+        SmartCastView.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */
 
