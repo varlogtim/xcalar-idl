@@ -445,30 +445,39 @@
         "options": {
             "operation": "join",
             "lTableName": "testyelp-GB#0S8",
-            "lTableId": "0S8",
-            "lTablePos": 1,
             "lColNums": [
-                1
+                2
             ],
+            "lJoinInfo": {
+                "colNums": [2],
+                "pulledColumns": [],
+                "rename": [],
+                "tableId": "0S8",
+                "tablePos": 1
+            },
+            "rJoinInfo": {
+                "colNums": [11],
+                "pulledColumns": [],
+                "rename": [],
+                "tableId": "0S7",
+                "tablePos": 0
+            },
             "rTableName": "testyelp#0S7",
-            "rTableId": "0S7",
-            "rTablePos": 0,
             "rColNums": [
-                10
+                11
             ],
-            "lRename": [],
-            "rRename": [],
             "newTableName": "joined#0S10",
             "joinStr": "Inner Join",
             "worksheet": "n8",
-            "keepTables": false,
-            "formOpenTime": 1478561388521,
-            "htmlExclude": [
-                "lTablePos",
-                "rTablePos",
+            "options": {
+                "keepTables": false,
+                "formOpenTime": 1478561388521
+            },
+            "htmlExclude": [                
+                "lJoinInfo",
+                "rJoinInfo",
                 "worksheet",
-                "keepTables",
-                "formOpenTime"
+                "options"
             ]
         },
         "cli": "index --key \"testyelp::review_count\" --srctable \"testyelp#0S7\" --dsttable \"testyelp.index#0S11\" --prefix ;join --leftTable \"testyelp-GB#0S8\" --rightTable \"testyelp.index#0S11\" --joinType innerJoin  --joinTable \"joined#0S10\" --collisionCheck;",

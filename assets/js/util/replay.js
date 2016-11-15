@@ -606,8 +606,8 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.Join] = function(options) {
         // change tableId
-        options.lTableId = getTableId(options.lTableId);
-        options.rTableId = getTableId(options.rTableId);
+        options.lJoinInfo.tableId = getTableId(options.lJoinInfo.tableId);
+        options.rJoinInfo.tableId = getTableId(options.rJoinInfo.tableId);
         // HACK: this is tricky that if we do not call Authentication.getHashId(),
         // the id cursor cannot sync with the original one.
         // Better way is to append hashId to newTableName in xcFunction.join()
