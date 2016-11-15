@@ -516,10 +516,10 @@ window.DS = (function ($, DS) {
         DataStore.update();
 
         var txId = Transaction.start({
-            "msg"       : StatusMessageTStr.LoadingDataset + ": " + dsName,
-            "operation" : SQLOps.DSPoint,
-            "sql"       : sql,
-            "steps"     : 1
+            "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
+            "operation": SQLOps.DSPoint,
+            "sql"      : sql,
+            "steps"    : 1
         });
 
         $grid.data("txid", txId);
@@ -573,7 +573,7 @@ window.DS = (function ($, DS) {
                 removeDS($grid);
                 DataStore.update();
                 if ($grid.hasClass("active")) {
-                    focusOnFirstDS();
+                    focusOnForm();
                 }
             } else {
                 finishPoint();
@@ -617,7 +617,7 @@ window.DS = (function ($, DS) {
 
     function cancelDSHelper(txId, $grid) {
         if ($grid.hasClass('active')) {
-            focusOnFirstDS();
+            focusOnForm();
         }
         $grid.removeClass("active").addClass("inactive deleting");
         // if cancel success, it will trigger fail in DS.point, so it's fine
@@ -673,7 +673,7 @@ window.DS = (function ($, DS) {
             removeDS($grid);
             DataStore.update();
             if (!noDeFocus) {
-                focusOnFirstDS();
+                focusOnForm();
             }
             UserSettings.logDSChange();
 
@@ -794,16 +794,8 @@ window.DS = (function ($, DS) {
         $("#dsListSection .pathSection").html(path);
     }
 
-    // Focus on the first dataset in the folder
-    function focusOnFirstDS() {
-        var $curFolder = DS.getGrid(curDirId);
-        var $datasets = $curFolder.find("> .grid-unit.ds").not(".xc-hidden");
-
-        if ($datasets.length > 0) {
-            DS.focusOn($datasets.eq(0));
-        } else {
-            DSForm.show();
-        }
+    function focusOnForm() {
+        DSForm.show();
     }
 
     function canCreateFolder(dirId) {
@@ -1254,7 +1246,7 @@ window.DS = (function ($, DS) {
                 DSCart.removeCart(dsId);
                 // clear data table
                 $("#dsTableWrap").empty();
-                focusOnFirstDS();
+                focusOnForm();
             }
         }
     }
