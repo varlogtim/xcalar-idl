@@ -645,4 +645,8 @@ function viewRelatedFunctionTest() {
         assert.isFalse($modScheduleForm.is(":visible"));
         assert.isFalse($scheduleDetail.is(":visible"));
     });
+
+    after(function() {
+        DF.removeDataflow("df1");
+    });
 };
