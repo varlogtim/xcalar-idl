@@ -284,11 +284,10 @@ window.FileBrowser = (function($, FileBrowser) {
         .fail(function(error) {
             if (error.error === oldBrowserError) {
                 // when it's an old deferred
-                return;
-            } else if (error.status === StatusT.StatusIO) {
-                loadFailHandler(error, path);
                 deferred.reject(error);
-            } else if (path === defaultPath) {
+                return;
+            } else if (error.status === StatusT.StatusIO ||
+                        path === defaultPath) {
                 loadFailHandler(error, path);
                 deferred.reject(error);
             } else {
@@ -510,6 +509,8 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function redirectHandler(path) {
+        var deferred = jQuery.Deferred();
+
         setTimeout(function() {
             // do this because fadeIn has 300 dealy,
             // if statusBox show before the fadeIn finish, it will fail
@@ -517,7 +518,10 @@ window.FileBrowser = (function($, FileBrowser) {
                 "path": path
             });
             StatusBox.show(error, $pathSection, false, {side: 'top'});
+            deferred.resolve();
         }, 300);
+
+        return deferred.promise();
     }
 
     function loadFailHandler(error, path) {
@@ -1370,11 +1374,14 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.appendPath = appendPath;
         FileBrowser.__testOnly__.filterFiles = filterFiles;
         FileBrowser.__testOnly__.sortFiles = sortFiles;
+        FileBrowser.__testOnly__.getPathWithProtocol = getPathWithProtocol;
         FileBrowser.__testOnly__.changeProtocol = changeProtocol;
         FileBrowser.__testOnly__.goToPath = goToPath;
-        FileBrowser.__testOnly__.toggleView = toggleView;
         FileBrowser.__testOnly__.focusOn = focusOn;
-        FileBrowser.__testOnly__.getFocusGrid = getFocusGrid;
+        FileBrowser.__testOnly__.isDS = isDS;
+        FileBrowser.__testOnly__.previewDS = previewDS;
+        FileBrowser.__testOnly__.redirectHandler = redirectHandler;
+        FileBrowser.__testOnly__.sumbitForm = sumbitForm;
     }
     /* End Of Unit Test Only */
 

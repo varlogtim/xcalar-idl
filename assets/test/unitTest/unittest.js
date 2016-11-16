@@ -222,5 +222,12 @@ window.UnitTest = (function(UnitTest, $) {
         minModeCache = null;
     };
 
+    UnitTest.hasStatusBoxWithError = function(error) {
+        var $statusBox = $("#statusBox");
+        assert.isTrue($statusBox.is(":visible"));
+        expect($statusBox.find(".message").text()).to.equal(error);
+        StatusBox.forceHide();
+    };
+
     return (UnitTest);
 }({}, jQuery));
