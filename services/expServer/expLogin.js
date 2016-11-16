@@ -108,6 +108,7 @@ function loginAuthentication(credArray, res) {
                     username = userDN;
                 }
 
+                var deferredTLS = jQuery.Deferred();
                 // Use TLS Protocol
                 if (useTLS) {
                     var tlsOpts = {
@@ -118,29 +119,34 @@ function loginAuthentication(credArray, res) {
                     client.starttls(tlsOpts, [], function(err) {
                         if (err) {
                             console.log("TLS startup error: " + err.message);
-                            responseError(res);
-                            return;
+                            deferredTLS.reject();
                         }
+                        deferredTLS.resolve();
                     });
+                } else {
+                    deferredTLS.resolve();
                 }
 
-                // LDAP Authentication
-                var deferred = jQuery.Deferred();
-                client.bind(username, password, function(error) {
-                    if (error) {
-                        console.log("Bind Error! " + error.message)
-                        loginId++;
-                        deferred.reject();
-                    } else {
-                        console.log('Bind Successful!');
-                        client.search(userDN, searchOpts,
-                                      function(error, search) {
-                            deferred.resolve(error, search, loginId);
+                deferredTLS.promise()
+                .then(function() {
+                    // LDAP Authentication
+                    var deferred = jQuery.Deferred();
+                    client.bind(username, password, function(error) {
+                        if (error) {
+                            console.log("Bind Error! " + error.message)
                             loginId++;
-                        });
-                   }
-                });
-                deferred
+                            deferred.reject();
+                        } else {
+                            console.log('Bind Successful!');
+                            client.search(userDN, searchOpts,
+                                          function(error, search) {
+                                deferred.resolve(error, search, loginId);
+                                loginId++;
+                            });
+                       }
+                    });
+                    return deferred.promise();
+                })
                 .then(function(error, search, currLogin) {
                     var deferred2 = jQuery.Deferred();
                     search.on('searchEntry', function(entry) {
