@@ -736,13 +736,13 @@ window.DSPreview = (function($, DSPreview) {
 
         // speical case: special json:
         if (detectArgs.isSpecialJSON === true) {
-            if (udfModule !== "" || udfFunc !== "") {
-                // should never happen
-                throw "error case!";
+            // if user specified udf, then use the udf.
+            // otherwise, treat it as special json
+            if (udfModule === "" || udfFunc === "") {
+                udfModule = "default";
+                udfFunc = "convertNewLineJsonToArrayJson";
+                format = formatMap.JSON;
             }
-            udfModule = "default";
-            udfFunc = "convertNewLineJsonToArrayJson";
-            format = formatMap.JSON;
         }
 
         return {
