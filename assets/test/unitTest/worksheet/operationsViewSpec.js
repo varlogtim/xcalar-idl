@@ -695,7 +695,6 @@ describe('OperationsView', function() {
         });
 
         describe('run map functions', function() {
-            this.timeout(15000);
             var submitForm;
             before(function() {
                 submitForm = OperationsView.__testOnly__.submitForm;
@@ -1019,7 +1018,6 @@ describe('OperationsView', function() {
         });
 
         describe('aggregate submit test', function() {
-            this.timeout(15000);
             var submitForm;
             before(function() {
                 submitForm = OperationsView.__testOnly__.submitForm;

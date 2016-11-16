@@ -54,12 +54,16 @@ window.UnitTest = (function(UnitTest, $) {
             console.log("Setup coder coverage!!!");
         });
 
-        $("#hideXC").click(function() {
-            $("#xc").hide();
+        $("#toggleXC").click(function() {
+            $("#xc").toggle();
         });
 
-        $("#showXC").click(function() {
-            $("#xc").show();
+        $("#toggleTest").click(function() {
+            $("#unitTestBody").toggleClass("hideTest");
+        });
+
+        $("#toggleCoverage").click(function() {
+            $("#unitTestBody").toggleClass("hideCoverage");
         });
 
         $('#backXC').click(function() {

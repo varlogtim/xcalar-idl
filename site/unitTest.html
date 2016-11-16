@@ -43,13 +43,14 @@
                 overflow: scroll;
             }
 
-            #toggleXC {
+            #unitTestTopBar {
                 position: fixed;
                 top: 5px;
                 left: 100px;
+                z-index: 40;
             }
 
-            #toggleXC button {
+            #unitTestTopBar button {
                 margin-right: 10px;
                 background-color: beige;
             }
@@ -57,12 +58,21 @@
             #mocha-stats {
                 right: 100px;
             }
+
+            .hideTest #mocha-report .test.pass {
+                display: none;
+            }
+
+            .hideCoverage #blanket-main {
+                display: none;
+            }
         </style>
     </head>
-    <body id="unitTestBody">
-        <div id="toggleXC">
-            <button id="hideXC">Hide XC</button>
-            <button id="showXC">Show XC</button>
+    <body id="unitTestBody" class="hideTest hideCoverage">
+        <div id="unitTestTopBar">
+            <button id="toggleTest">Show/Hide Test Detail</button>
+            <button id="toggleCoverage">Show/Hide Code Coverage</button>
+            <button id="toggleXC">Show/Hide XC</button>
             <button id="toggleTestSize">Toggle Test Size</button>
             <button id="toggleXCSize">Toggle XC Size</button>
             <button id="backXC">Back To Xcalar Insight</button>
