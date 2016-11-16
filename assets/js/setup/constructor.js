@@ -4073,6 +4073,7 @@ function MenuHelper($dropDownList, options) {
     this.bottomPadding = options.bottomPadding || 0;
     this.exclude = options.exclude ? options.exclude : false;
     this.isMouseInScroller = false;
+    this.id = MenuHelper.counter;
 
     this.timer = {
         "fadeIn"           : null,
@@ -4084,7 +4085,10 @@ function MenuHelper($dropDownList, options) {
     };
 
     this.setupListScroller();
+    MenuHelper.counter++;
 }
+
+MenuHelper.counter = 0; // used to give each menu a unique id
 
 MenuHelper.prototype = {
     setupListeners: function() {
@@ -4155,10 +4159,11 @@ MenuHelper.prototype = {
         return this;
     },
     hideDropdowns: function() {
-        var $sections = this.$container.find(".dropDownList");
+        var self = this;
+        var $sections = self.$container.find(".dropDownList");
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
-        $(document).off('click.closeDropDown');
+        $(document).off('click.closeDropDown' + self.id);
     },
     toggleList: function($curlDropDownList) {
         var self = this;
@@ -4191,7 +4196,7 @@ MenuHelper.prototype = {
             }
             $curlDropDownList.addClass("open");
             $lists.show().addClass("openList");
-            $(document).on('click.closeDropDown', function() {
+            $(document).on('click.closeDropDown' + self.id, function() {
                 self.hideDropdowns();
             });
             if (typeof self.options.onOpen === "function") {
