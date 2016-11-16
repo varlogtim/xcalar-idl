@@ -1,19 +1,29 @@
 describe('Schedule related Test', function() {
     describe('Time related function Test', timeRelatedFunctionTest);
     describe('View related function Test', viewRelatedFunctionTest);
-})
+});
 
 
 function timeRelatedFunctionTest() {
-        $dfgView = $("#dataflowView");
-        $scheduleDetail = $("#scheduleDetail");
-        $newScheduleForm = $("#newScheduleForm");
-        $modScheduleForm = $('#modifyScheduleForm');
-        $newTimePicker = $("#newScheduler-timePicker");
-        $modTimePicker = $("#modScheduler-timePicker");
+        var $dfgView;
+        var $scheduleDetail;
+        var $newScheduleForm;
+        var $modScheduleForm;
+        var $newTimePicker;
+        var $modTimePicker;
+        var $newStartdate;
+        var $newStartTime;
 
-        $newStartdate = $newScheduleForm.find('.date');
-        $newStartTime = $newScheduleForm.find('.time');
+        before(function() {
+            $dfgView = $("#dataflowView");
+            $scheduleDetail = $("#scheduleDetail");
+            $newScheduleForm = $("#newScheduleForm");
+            $modScheduleForm = $('#modifyScheduleForm');
+            $newTimePicker = $("#newScheduler-timePicker");
+            $modTimePicker = $("#modScheduler-timePicker");
+            $newStartdate = $newScheduleForm.find('.date');
+            $newStartTime = $newScheduleForm.find('.time');
+        });
 
         it('Should get next Run time', function() {
             var futureTime = new Date();
@@ -345,12 +355,53 @@ function timeRelatedFunctionTest() {
 };
 
 function viewRelatedFunctionTest() {
-    $dfgView = $("#dataflowView");
-    $scheduleDetail = $("#scheduleDetail");
-    $newScheduleForm = $("#newScheduleForm");
-    $modScheduleForm = $('#modifyScheduleForm');
-    $tab = $('#dataflowTab');
+    var $dfgView;
+    var $scheduleDetail;
+    var $newScheduleForm;
+    var $modScheduleForm;
+    var $scheduleInfos;
+    var $tab;
+    var date;
+    var dateText;
+    var timeText;
+    var options;
 
+    before(function() {
+        Scheduler.hideScheduleDetailView();
+        Scheduler.hideNewScheduleFormView();
+    });
+
+    beforeEach(function() {
+        $dfgView = $("#dataflowView");
+        $scheduleDetail = $("#scheduleDetail");
+        $newScheduleForm = $("#newScheduleForm");
+        $modScheduleForm = $('#modifyScheduleForm');
+        $scheduleInfos = $('#scheduleInfos');
+        $tab = $('#dataflowTab');
+
+        DF.addDataflow("df1", new Dataflow("df1"),
+        {"isUpload": true,
+         "noClick" : true});
+        Scheduler.setDataFlowName("df1");
+
+        date = new Date();
+        date.setDate(date.getDate() + 1);
+        date.setHours(23);
+        date.setMinutes(13);
+        dateText = (date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear();
+        timeText = "11 : 13 PM";
+        options = {
+            "startTime": date.getTime(), // The time to start the next run
+            "dateText": dateText,
+            "timeText": timeText,
+            "repeat": "hourly",
+            "recur": 10,
+            "modified": date.getTime(),
+            "created": date.getTime()
+        }
+        DF.addScheduleToDataflow("df1", options);
+
+    });
 
     it('Should show new schedule form correctly', function() {
         $tab.click();
@@ -359,33 +410,28 @@ function viewRelatedFunctionTest() {
         assert.isTrue($newScheduleForm.is(":visible"));
     });
 
+    it('Should hide New Schedule Form', function() {
+        assert.isTrue($newScheduleForm.is(":visible"));
+        Scheduler.hideNewScheduleFormView();
+        assert.isFalse($newScheduleForm.is(":visible"));
+    });
+
     it('Should show schedule detail view correctly', function() {
         $newScheduleTime = $newScheduleForm.find(".timeSection .time");
         $inputSection = $newScheduleForm.find(".timePicker .inputSection");
-        var date = new Date("11/11/2016");
-        date.setHours(23);
-        date.setMinutes(13);
-        var options = {
-            "startTime": date.getTime(), // The time to start the next run
-            "dateText": "11/11/2016",
-            "timeText": "11 : 13 PM",
-            "repeat": "hourly",
-            "recur": 10,
-            "modified": date.getTime(),
-            "created": date.getTime()
-        }
-        DF.addDataflow("df1", new Dataflow("df1"),
-                       {"isUpload": true,
-                        "noClick" : true});
-        DF.addScheduleToDataflow("df1", options);
-        Scheduler.setDataFlowName("df1");
+
+        $scheduleDetail.show();
+        assert.isFalse($scheduleDetail.is(":visible"));
+        assert.isFalse($scheduleInfos.is(":visible"));
+        assert.isFalse($modScheduleForm.is(":visible"));
         Scheduler.showScheduleDetailView();
         assert.isTrue($scheduleDetail.is(":visible"));
+        assert.isTrue($scheduleInfos.is(":visible"));
         assert.isTrue($modScheduleForm.is(":visible"));
 
-        var $scheduleInfos = $("#scheduleInfos");
-        assert.equal($scheduleInfos.find(".created .text").text(), "11/11/2016 11:13 PM");
-        assert.equal($scheduleInfos.find(".modified .text").text(), "11/11/2016 11:13 PM");
+        // var $scheduleInfos = $("#scheduleInfos");
+        assert.equal($scheduleInfos.find(".created .text").text(), dateText + " 11:13 PM");
+        assert.equal($scheduleInfos.find(".modified .text").text(), dateText + " 11:13 PM");
         assert.equal($scheduleInfos.find(".frequency .text").text(), "hourly");
         assert.equal($scheduleInfos.find(".recur .text").text(), "10");
         assert.equal($scheduleInfos.find(".lastRunInfo .text").text(), "N/A");
@@ -393,13 +439,14 @@ function viewRelatedFunctionTest() {
     });
 
     it('Should hide Schedule Detail View correctly', function() {
+        Scheduler.showScheduleDetailView();
+        assert.isTrue($scheduleDetail.is(":visible"));
+        assert.isTrue($scheduleInfos.is(":visible"));
+        assert.isTrue($modScheduleForm.is(":visible"));
         Scheduler.hideScheduleDetailView();
         assert.isFalse($scheduleDetail.is(":visible"));
-    });
-
-    it('Should hide New Schedule Form', function() {
-        Scheduler.hideNewScheduleFormView();
-        assert.isFalse($newScheduleForm.is(":visible"));
+        assert.isFalse($scheduleInfos.is(":visible"));
+        assert.isFalse($modScheduleForm.is(":visible"));
     });
 
     it('Should reset create New Schedule Form', function() {
@@ -418,49 +465,35 @@ function viewRelatedFunctionTest() {
     it('Should reset Modified Schedule Form', function() {
         $modScheduleTime = $modScheduleForm.find(".timeSection .time");
         $inputSection = $modScheduleForm.find(".timePicker .inputSection");
-        var date = new Date("11/11/2016");
-        date.setHours(23);
-        date.setMinutes(13);
-        var options = {
-            "startTime": date.getTime(), // The time to start the next run
-            "dateText": "11/11/2016",
-            "timeText": "11 : 13 PM",
+
+        var date2 = new Date();
+        date2.setDate(date2.getDate() + 2);
+        date2.setHours(14);
+        date2.setMinutes(22);
+        var dateText2 = (date2.getMonth() + 1) + '/' + date2.getDate() + '/' +  date2.getFullYear();
+        var timeText2 = "02 : 22 PM";
+        options2 = {
+            "startTime": date2.getTime(), // The time to start the next run
+            "dateText": dateText2,
+            "timeText": timeText2,
             "repeat": "hourly",
-            "recur": 10,
-            "modified": date.getTime(),
-            "created": date.getTime()
+            "recur": 4,
+            "modified": date2.getTime(),
+            "created": date2.getTime()
         }
-        DF.addDataflow("df1", new Dataflow("df1"),
-                       {"isUpload": true,
-                        "noClick" : true});
-        DF.addScheduleToDataflow("df1", options);
-        Scheduler.setDataFlowName("df1");
 
         var $timeSection = $modScheduleForm.find(".timeSection");
         var $freqSection = $modScheduleForm.find(".frequencySection");
         var $recurInput = $modScheduleForm.find(".recurSection input");
 
-        assert.equal($timeSection.find(".date").val(),"11/11/2016");
-        assert.equal($timeSection.find(".time").val(),"11 : 13 PM");
+        assert.equal($timeSection.find(".date").val(), dateText);
+        assert.equal($timeSection.find(".time").val(), timeText);
         assert.equal($recurInput.val(), 10);
-
-        date = new Date("14/11/2016");
-        date.setHours(2);
-        date.setMinutes(22);
-        var options2 = {
-            "startTime": date.getTime(), // The time to start the next run
-            "dateText": "11/14/2016",
-            "timeText": "02 : 22 PM",
-            "repeat": "hourly",
-            "recur": 4,
-            "modified": date.getTime(),
-            "created": date.getTime()
-        }
         var schedule = new SchedObj(options2);
         Scheduler.__testOnly__.resetModifiedScheduleForm(schedule);
 
-        assert.equal($timeSection.find(".date").val(),"11/14/2016");
-        assert.equal($timeSection.find(".time").val(),"02 : 22 PM");
+        assert.equal($timeSection.find(".date").val(), dateText2);
+        assert.equal($timeSection.find(".time").val(), timeText2);
         assert.equal($recurInput.val(), 4);
     });
 
@@ -470,38 +503,46 @@ function viewRelatedFunctionTest() {
         var $freqSection = $newScheduleForm.find(".frequencySection");
         var $scheduleRecur = $newScheduleForm.find(".recurSection input");
 
-        var date = new Date("12/12/2016");
-        date.setHours(12);
-        date.setMinutes(12);
-        $scheduleRecur.val(13);
-        $scheduleDate.val("12/12/2016");
-        $scheduleTime.val("12 : 12 PM");
-        $scheduleTime.data("date", date);
+        var date2 = new Date();
+        date2.setDate(date2.getDate() + 2);
+        date2.setHours(14);
+        date2.setMinutes(22);
+        var dateText2 = (date2.getMonth() + 1) + '/' + date2.getDate() + '/' +  date2.getFullYear();
+        var timeText2 = "02 : 22 PM";
+
+        $scheduleRecur.val(4);
+        $scheduleDate.val(dateText2);
+        $scheduleTime.val("02 : 22 PM");
+        $scheduleTime.data("date", date2);
         $freqSection.find('.radioButton[data-option=biweekly]').click();
-        DF.addDataflow("df2", new Dataflow("df2"),
-                       {"isUpload": true,
-                        "noClick" : true});
-        Scheduler.__testOnly__.saveScheduleForm($newScheduleForm, "df2");
-        var dataflow = DF.getDataflow("df2");
-        expect(dataflow.schedule.startTime).to.equal(date.getTime());
-        expect(dataflow.schedule.dateText).to.equal("12/12/2016");
-        expect(dataflow.schedule.timeText).to.equal("12 : 12 PM");
+
+        var dataflow = DF.getDataflow("df1");
+        expect(dataflow.schedule.dateText).to.equal(dateText);
+        expect(dataflow.schedule.timeText).to.equal(timeText);
+        expect(dataflow.schedule.repeat).to.equal("hourly");
+        expect(dataflow.schedule.recur).to.equal(10);
+
+        DF.removeScheduleFromDataflow("df1");
+        Scheduler.__testOnly__.saveScheduleForm($newScheduleForm, "df1");
+
+        expect(dataflow.schedule.dateText).to.equal(dateText2);
+        expect(dataflow.schedule.timeText).to.equal(timeText2);
         expect(dataflow.schedule.repeat).to.equal("biweekly");
-        expect(dataflow.schedule.recur).to.equal(13);
+        expect(dataflow.schedule.recur).to.equal(4);
     });
 
     it('Should fill in schedule detail', function() {
-        var date = new Date("1/23/2017");
-        date.setHours(20);
-        date.setMinutes(30);
+        var date2 = new Date("1/23/2017");
+        date2.setHours(20);
+        date2.setMinutes(30);
         var options = {
-            "startTime": date.getTime(), // The time to start the next run
+            "startTime": date2.getTime(), // The time to start the next run
             "dateText": "1/23/2017",
             "timeText": "08 : 30 PM",
             "repeat": "monthly",
             "recur": 7,
-            "modified": date.getTime(),
-            "created": date.getTime()
+            "modified": date2.getTime(),
+            "created": date2.getTime()
         }
         var schedule = new SchedObj(options);
         Scheduler.__testOnly__.fillInScheduleDetail(schedule);
@@ -517,6 +558,7 @@ function viewRelatedFunctionTest() {
         var $scheduleInfos = $('#scheduleInfos');
         var $defaultTab = $scheduleInfos.find('.default');
         var $dfgTab = $scheduleInfos.find('.dfg');
+
         Scheduler.showScheduleDetailView();
         Scheduler.__testOnly__.schedDetailTabs();
         $defaultTab.click();
@@ -549,35 +591,51 @@ function viewRelatedFunctionTest() {
         var $freqSection = $newScheduleForm.find(".frequencySection");
         var $scheduleRecur = $newScheduleForm.find(".recurSection input");
 
-        var date = new Date("12/25/2016");
-        date.setHours(4);
-        date.setMinutes(5);
-        $scheduleRecur.val(6);
-        $scheduleDate.val("12/25/2016");
-        $scheduleTime.val("04 : 05 AM");
-        $scheduleTime.data("date", date);
+        var date2 = new Date();
+        date2.setDate(date2.getDate() + 2);
+        date2.setHours(14);
+        date2.setMinutes(22);
+        var dateText2 = (date2.getMonth() + 1) + '/' + date2.getDate() + '/' +  date2.getFullYear();
+        var timeText2 = "02 : 22 PM";
+
+        $scheduleRecur.val(4);
+        $scheduleDate.val(dateText2);
+        $scheduleTime.val("02 : 22 PM");
+        $scheduleTime.data("date", date2);
         $freqSection.find('.radioButton[data-option=biweekly]').click();
-        DF.addDataflow("df3", new Dataflow("df3"),
-                       {"isUpload": true,
-                        "noClick" : true});
-        Scheduler.setDataFlowName("df3");
+
+        var dataflow = DF.getDataflow("df1");
+        expect(dataflow.schedule.dateText).to.equal(dateText);
+        expect(dataflow.schedule.timeText).to.equal(timeText);
+        expect(dataflow.schedule.repeat).to.equal("hourly");
+        expect(dataflow.schedule.recur).to.equal(10);
+
+        DF.removeScheduleFromDataflow("df1");
+
         $("#newScheduleForm-save").click();
         assert.isFalse($newScheduleForm.is(":visible"));
+        assert.isTrue($scheduleInfos.is(":visible"));
         assert.isTrue($modScheduleForm.is(":visible"));
         assert.isTrue($scheduleDetail.is(":visible"));
-        var dataflow = DF.getDataflow("df3");
-        expect(dataflow.schedule.startTime).to.equal(date.getTime());
-        expect(dataflow.schedule.dateText).to.equal("12/25/2016");
-        expect(dataflow.schedule.timeText).to.equal("04 : 05 AM");
+
+        expect(dataflow.schedule.dateText).to.equal(dateText2);
+        expect(dataflow.schedule.timeText).to.equal(timeText2);
         expect(dataflow.schedule.repeat).to.equal("biweekly");
-        expect(dataflow.schedule.recur).to.equal(6);
+        expect(dataflow.schedule.recur).to.equal(4);
     });
 
     it('Should save mod schedule form by button', function() {
-        Scheduler.setDataFlowName("df3");
-        $modScheduleForm.find(".frequencySection").find('.radioButton[data-option=hourly]').click();
-        $("#modScheduleForm-save").click();
-        var dataflow = DF.getDataflow("df3");
+        Scheduler.showScheduleDetailView();
+        $modScheduleForm.find(".frequencySection").find('.radioButton[data-option=daily]').click();
+        $("#modScheduleForm-save").click();;
+        var dataflow = DF.getDataflow("df1");
+        expect(dataflow.schedule.repeat).to.equal("daily");
+    });
+
+    it('Should cancel mod schedule form by button', function() {
+        $modScheduleForm.find(".frequencySection").find('.radioButton[data-option=daily]').click();
+        $("#modScheduleForm-cancel").click();
+        var dataflow = DF.getDataflow("df1");
         expect(dataflow.schedule.repeat).to.equal("hourly");
     });
 
@@ -587,14 +645,4 @@ function viewRelatedFunctionTest() {
         assert.isFalse($modScheduleForm.is(":visible"));
         assert.isFalse($scheduleDetail.is(":visible"));
     });
-
-    it('Should cancel mod schedule form by button', function() {
-        Scheduler.setDataFlowName("df3");
-        $modScheduleForm.find(".frequencySection").find('.radioButton[data-option=minute]').click();
-        $("#modScheduleForm-cancel").click();
-        var dataflow = DF.getDataflow("df3");
-        expect(dataflow.schedule.repeat).to.equal("hourly");
-    });
-
-
 };
