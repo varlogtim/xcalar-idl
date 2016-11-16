@@ -43,7 +43,6 @@ window.DFCreateView = (function($, DFCreateView) {
             return;
         }
 
-
         isOpen = true;
         $curDagWrap = $dagWrap;
 
@@ -281,11 +280,7 @@ window.DFCreateView = (function($, DFCreateView) {
         });
     }
 
-    function submitForm() {
-        var isValid;
-
-        var dfName = $newNameInput.val().trim();
-
+    function validateDFName(dfName) {
         isValid = xcHelper.validate([
             {
                 "$ele": $newNameInput
@@ -306,10 +301,20 @@ window.DFCreateView = (function($, DFCreateView) {
                 }
             }
         ]);
+        return isValid;
+    }
 
+    function submitForm() {
+        var deferred = jQuery.Deferred();
+        var isValid;
+
+        var dfName = $newNameInput.val().trim();
+
+        isValid = validateDFName(dfName);
 
         if (!isValid) {
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
 
         var table = gTables[tableId];
@@ -329,12 +334,14 @@ window.DFCreateView = (function($, DFCreateView) {
                 "template": xcTooltip.Template.Error
             }, 1500);
 
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
 
         frontColNames = exportHelper.checkColumnNames(frontColNames);
         if (frontColNames == null) {
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
 
         var columns = [];
@@ -355,10 +362,11 @@ window.DFCreateView = (function($, DFCreateView) {
         .then(function() {
             xcHelper.showSuccess();
             // refresh dataflow lists in modal and scheduler panel
+            deferred.resolve();
         })
         .fail(function(error) {
             Alert.error(DFTStr.DFCreateFail, error);
-
+            deferred.reject();
         })
         .always(function() {
             formHelper.enableSubmit();
@@ -366,6 +374,8 @@ window.DFCreateView = (function($, DFCreateView) {
         });
 
         closeDFView();
+
+        return deferred.promise();
     }
 
 
@@ -389,6 +399,17 @@ window.DFCreateView = (function($, DFCreateView) {
         formHelper.clear();
         exportHelper.clear();
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DFCreateView.__testOnly__ = {};
+        DFCreateView.__testOnly__.submitForm = submitForm;
+        DFCreateView.__testOnly__.resetDFView = resetDFView;
+        DFCreateView.__testOnly__.validateDFName = validateDFName;
+        DFCreateView.__testOnly__.selectAll = selectAll;
+        DFCreateView.__testOnly__.deselectAll = deselectAll;
+    }
+    /* End Of Unit Test Only */
 
     return (DFCreateView);
 

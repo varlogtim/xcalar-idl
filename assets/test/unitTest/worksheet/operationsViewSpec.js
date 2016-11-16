@@ -1092,7 +1092,6 @@ describe('OperationsView', function() {
 
                 runAgg(options)
                 .always(function() {
-                    Alert.forceClose();
                     done();
                 });
             });
@@ -1118,26 +1117,22 @@ describe('OperationsView', function() {
                     expect(alertText).to.equal('{"Value":' + options.output +'}');
 
                     if (args[1]) {
-                        console.log('deleting', args[1].str.slice(1));
                         Aggregates.deleteAggs([args[1].str.slice(1)])
                         .then(function() {
                             deferred.resolve();
-                               console.log('resolve')
                         })
                         .fail(function() {
                             expect(false).to.be.true;
                             deferred.reject();
-                               console.log('reject')
                         })
                         .always(function() {
+                            Alert.forceClose();
                             OperationsView.show(tableId, 1, 'aggregate')
                             .then(function() {
-                                console.log('opening');
                                 deferred.resolve();
                             }); 
                         });
                     } else {
-                        console.log('here');
                         OperationsView.show(tableId, 1, 'aggregate')
                         .then(function() {
                             deferred.resolve();
@@ -1145,7 +1140,7 @@ describe('OperationsView', function() {
                     }
                 })
                 .fail(function() {
-                    console.log('reject')
+                    Alert.forceClose();
                     expect(options.output).to.be.null;
                     
                     deferred.reject();

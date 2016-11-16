@@ -302,22 +302,6 @@ window.DFCard = (function($, DFCard) {
             $scheduleDetailView.show();
         });
 
-        function deleteDataflow(retName) {
-            DF.removeDataflow(retName)
-            .then(function() {
-                // Click on top most retina
-                if ($(".listBox").eq(0)) {
-                    $(".listBox").eq(0).click();
-                } else {
-
-                }
-                xcHelper.showSuccess();
-            })
-            .fail(function() {
-                xcHelper.showFail();
-            });
-        }
-
         $('#uploadDataflowButton').click(function() {
             UploadDataflowCard.show();
         });
@@ -355,6 +339,27 @@ window.DFCard = (function($, DFCard) {
                 $(this).closest(".advancedOpts").removeClass("active");
             }
         });
+    }
+
+    function deleteDataflow(retName) {
+        var deferred = jQuery.Deferred();
+        DF.removeDataflow(retName)
+        .then(function() {
+            // Click on top most retina
+            if ($dfMenu.find(".listBox").eq(0)) {
+                $dfMenu.find(".listBox").eq(0).click();
+            } else {
+
+            }
+            xcHelper.showSuccess();
+            deferred.resolve();
+        })
+        .fail(function() {
+            xcHelper.showFail();
+            deferred.reject();
+        });
+
+        return deferred.promise();
     }
 
     function drawAllDags() {
@@ -975,6 +980,13 @@ window.DFCard = (function($, DFCard) {
 
         return deferred.promise();
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DFCard.__testOnly__ = {};
+        DFCard.__testOnly__.deleteDataflow = deleteDataflow;
+    }
+    /* End Of Unit Test Only */
 
     return (DFCard);
 
