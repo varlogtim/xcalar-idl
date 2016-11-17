@@ -2535,7 +2535,6 @@ window.xcHelper = (function($, xcHelper) {
         };
     }
 
-    // xx not in unittest
     // returns {moduleLis: htmlStr, fnLis: htmlStr}
     xcHelper.getUDFList = function(listXdfsObj) {
         var i;
@@ -2572,6 +2571,8 @@ window.xcHelper = (function($, xcHelper) {
         };
     };
 
+    // modalSpecs: {$modal: $modal, top: int, left: int}
+    // windowSpecs: {winWidth: int, winHeight: int}
     xcHelper.repositionModalOnWinResize = function(modalSpecs, windowSpecs) {
         var $modal = modalSpecs.$modal;
         var modalWidth = $modal.width();

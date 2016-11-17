@@ -987,14 +987,51 @@ describe('xcHelper Test', function() {
         expect($input.val()).to.be.equal("");
 
         // case 2
+        var $input = $('<input type="number">');
+        xcHelper.insertText($input, 5);
+        expect($input.val()).to.be.equal("");
+
+        // case 3
         $input = $('<input type="text">');
         xcHelper.insertText($input, "test");
         expect($input.val()).to.be.equal("test");
 
-        // case 3
+        // case 4
         $input = $('<input type="text" value="a">');
         xcHelper.insertText($input, "b");
         expect($input.val()).to.be.equal("b");
+
+        // rest of test cases will use "append" option
+        
+        // case 5
+        $input = $('<input type="text" value="a">');
+        xcHelper.insertText($input, "b", {append: true});
+        expect($input.val()).to.be.equal("b, a");
+
+        // case 6
+        $input = $('<input type="text" value=", a">');
+        xcHelper.insertText($input, "b", {append: true});
+        expect($input.val()).to.be.equal("b, a");
+
+        // case 7
+        $input = $('<input type="text">');
+        xcHelper.insertText($input, "a", {append: true});
+        expect($input.val()).to.be.equal("a");
+
+        // case 8
+        $input = $('<input type="text" value="a">');
+        // set cursor to end
+        $input.focus().val("a");
+        xcHelper.insertText($input, "b", {append: true});
+        expect($input.val()).to.be.equal("a, b");
+
+        // case 9
+        $input = $('<input type="text" value="ab">');
+        // set cursor to between a & b
+        $input.focus().caret(1);
+        xcHelper.insertText($input, "c", {append: true});
+        expect($input.val()).to.be.equal("ac, b");
+
     });
 
     it('xcHelper.createNextName should work', function() {
@@ -1346,6 +1383,12 @@ describe('xcHelper Test', function() {
     it('xcHelper.removeNonQuotedSpaces should work', function() {
         var res = xcHelper.removeNonQuotedSpaces('map(concat  ("a   ", "b"))');
         expect(res).to.equal('map(concat("a   ","b"))');
+
+        res = xcHelper.removeNonQuotedSpaces('map(concat  ("a \\"  ", "b"))');
+        expect(res).to.equal('map(concat("a \\"  ","b"))');
+
+        res = xcHelper.removeNonQuotedSpaces('map(concat  (\'a  \', "b"))');
+        expect(res).to.equal('map(concat(\'a  \',"b"))');
     });
 
     it('xcHelper.getFormat should work', function() {
@@ -1436,8 +1479,197 @@ describe('xcHelper Test', function() {
         expect(parsedQuery[0].dstTable).to.equal("B#dl5");
         expect(parsedQuery[0].exportFileName).to.equal("C.csv");
         expect(parsedQuery[0].query).to.equal(sixthPart);
-
     });
+
+    it('xcHelper.convertFrontColNamesToBack should work', function() {
+
+        // undefined type
+        var progCol1 = ColManager.newCol({
+            "backName": "test",
+            "name"    : "undfCol",
+            "isNewCol": false,
+            "userStr" : '"test" = pull(test)',
+            "func"    : {
+                "name": "pull",
+                "args": ["test"]
+            }
+        });
+        // string type
+        var progCol2 = ColManager.newCol({
+            "backName": "test2",
+            "name"    : "stringCol",
+            "isNewCol": false,
+            "userStr" : '"test2" = pull(test2)',
+            "func"    : {
+                "name": "pull",
+                "args": ["test2"]
+            },
+            type: "string"
+        });
+        // number type
+        var progCol3 = ColManager.newCol({
+            "backName": "test3",
+            "name"    : "numCol",
+            "isNewCol": false,
+            "userStr" : '"test3" = pull(test3)',
+            "func"    : {
+                "name": "pull",
+                "args": ["test3"]
+            },
+            type: "number"
+        });
+        
+        gTables["xc-Test"] = new TableMeta({
+            "tableId"  : "xc-Test",
+            "tableName": "test",
+            "tableCols": [progCol1, progCol2, progCol3]
+        });
+
+        // case 1 - pass
+        var res = xcHelper.convertFrontColNamesToBack(
+                                ['stringCol', 'numCol'],
+                                'xc-Test',
+                                ['string', 'number']);
+        expect(res).to.be.an('array');
+        expect(res).to.deep.equal(['test2', 'test3']);
+
+        // case 2 - pass
+        res = xcHelper.convertFrontColNamesToBack(
+                                ['numCol', 'stringCol'],
+                                'xc-Test',
+                                ['string', 'number']);
+        expect(res).to.be.an('array');
+        expect(res).to.deep.equal(['test3', 'test2']);
+
+        // case 3 - pass
+        res = xcHelper.convertFrontColNamesToBack(
+                                ['undfCol', 'stringCol'],
+                                'xc-Test',
+                                ['string', 'undefined']);
+        expect(res).to.be.an('array');
+        expect(res).to.deep.equal(['test', 'test2']);
+
+        // case 4 - pass
+        res = xcHelper.convertFrontColNamesToBack(
+                                ['undfCol', 'stringCol', 'undfCol', 'undfCol'],
+                                'xc-Test',
+                                ['string', 'undefined']);
+        expect(res).to.be.an('array');
+        expect(res).to.deep.equal(['test', 'test2', 'test', 'test']);
+
+        // case 5 - column doesn't exist
+        res = xcHelper.convertFrontColNamesToBack(
+                                ['fakeCol', 'stringCol'],
+                                'xc-Test',
+                                ['string', 'undefined']);
+        expect(res).to.be.an('object');
+        expect(res).to.deep.equal({
+            invalid: true,
+            reason: 'notFound',
+            name: 'fakeCol',
+            type: 'notFound'
+        });
+
+        // case 6 - invalid column type
+        res = xcHelper.convertFrontColNamesToBack(
+                                ['undfCol', 'stringCol'],
+                                'xc-Test',
+                                ['string']);
+        expect(res).to.be.an('object');
+        expect(res).to.deep.equal({
+            invalid: true,
+            reason: 'type',
+            name: 'undfCol',
+            type: 'undefined'
+        });
+
+        // case 7 - invalid table
+        res = xcHelper.convertFrontColNamesToBack(
+                                ['undfCol', 'stringCol'],
+                                'noTable',
+                                ['string']);
+        expect(res).to.be.an('object');
+        expect(res).to.deep.equal({
+            invalid: true,
+            reason: 'tableNotFound',
+            name: 'undfCol',
+            type: 'tableNotFound'
+        });
+
+        delete gTables['xc-Test'];
+    });
+
+    it('xcHelper.getUDFList should work', function(done) {
+        XcalarListXdfs("*", "User*")
+        .then(function(ret) {
+            expect(ret).to.be.an('object');
+            expect(ret).to.have.all.keys('numXdfs', 'fnDescs');
+
+            var udfObj = xcHelper.getUDFList(ret);
+
+            expect(udfObj).to.be.an('object');
+            expect(udfObj).to.have.all.keys('moduleLis', 'fnLis');
+
+            var $moduleLis = $(udfObj.moduleLis);
+            var $fnLis = $(udfObj.fnLis);
+
+            expect($moduleLis.length).to.be.gt(1);
+            expect($fnLis.length).to.be.gt(5);
+            expect($fnLis.length).to.be.gte($moduleLis.length);
+            $fnLis.each(function() {
+                var $li = $(this);
+                var module = $li.data('module');
+                var $moduleLi = $moduleLis.filter(function() {
+                    return $(this).text() === module;
+                });
+                expect($moduleLi.length).to.equal(1); 
+            });
+            done();
+        });
+    });
+
+    // difficult to test this without rewriting the entire function in here...
+    it('xcHelper.repositionModalOnWinResize should work', function () {
+        var $modal = $('<div id="unitTestModal" style="' +
+                        'width:50px;height:50px;position:absolute;"></div>');
+        $('#container').prepend($modal);
+        var left = 50;
+        var top = 50;
+        $modal.css({'top': top, 'left': left});
+        var modalSpecs = {$modal: $modal, top: top, left: left};
+        var windowSpecs = {winWidth: 200, winHeight: 200};
+        // assuming prev win dimensions were 200 x 200, the modal would be 25%
+        // from the top and 25% from the left
+
+        var curWinHeight = $(window).height();
+        var curWinWidth = $(window).width();
+
+        xcHelper.repositionModalOnWinResize(modalSpecs, windowSpecs);
+
+        if (curWinWidth > windowSpecs.winWidth) {
+            expect($modal.css('left')).to.be.gt(curWinWidth * .25);
+            expect($modal.css('left')).to.be.lt(curWinWidth * .50);
+        } else if (curWinWidth < windowSpecs.winWidth) {
+            expect($modal.css('left')).to.be.lt(curWinWidth * .25);
+        }
+        if (curWinHeight > windowSpecs.winHeight) {
+            expect($modal.css('top')).to.be.gt(curWinHeight * .25);
+            expect($modal.css('top')).to.be.lt(curWinHeight * .50);
+        } else if (curWinHeight < windowSpecs.winHeight) {
+            expect($modal.css('top')).to.be.lt(curWinHeight * .25);
+        }
+
+        $modal.height(10000);
+        $modal.width(10000);
+        $modal.css({'top': top, 'left': left});
+
+        xcHelper.repositionModalOnWinResize(modalSpecs, windowSpecs);
+        expect($modal.css('top')).to.equal("0px");
+        expect($modal.css('left')).to.equal(curWinWidth - 10000 + "px");
+
+        $modal.remove();
+    });
+
 
     it('xcHelper.fillInputFromCell should work', function() {
         // case 1
