@@ -120,7 +120,7 @@ function filePreviewerTest() {
     describe("Show Preview Test", function() {
         before(function() {
             // need open filebrowser for the UI simulate
-            FileBrowser.show();
+            FileBrowser.show(FileProtocol.nfs);
         });
 
         it("Should not show preview with invalid url", function(done) {

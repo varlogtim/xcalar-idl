@@ -1,10 +1,12 @@
 function fileBrowserModuleTest() {
     var $fileBrowser;
     var $pathLists;
+    var defaultPath;
 
     before(function(){
         $fileBrowser = $("#fileBrowser");
         $pathLists = $("#fileBrowserPathMenu");
+        defaultPath = FileProtocol.hdfs;
     });
 
     describe('Basic function test', function() {
@@ -52,7 +54,7 @@ function fileBrowserModuleTest() {
         });
 
         it('Should get short path', function() {
-            var testPath = "nfs:///abc.test";
+            var testPath = defaultPath + "abc.test";
             var res = FileBrowser.__testOnly__.getShortPath(testPath);
             expect(res).to.equal("abc.test");
         });
@@ -73,7 +75,7 @@ function fileBrowserModuleTest() {
         });
 
         it('Should append path', function() {
-            var testPath = "nfs:///test";
+            var testPath =  defaultPath + "test";
             FileBrowser.__testOnly__.appendPath(testPath);
             var $li = $pathLists.find("li:first-of-type");
             var $pathText = $("#fileBrowserPath .text");
@@ -290,7 +292,7 @@ function fileBrowserModuleTest() {
                 return PromiseHelper.reject({error: oldBrowserErr});
             };
 
-            FileBrowser.show()
+            FileBrowser.show(FileProtocol.nfs)
             .then(function() {
                 throw "error case";
             })
@@ -308,7 +310,7 @@ function fileBrowserModuleTest() {
                 return PromiseHelper.reject({"error": errorMsg});
             };
 
-            FileBrowser.show()
+            FileBrowser.show(FileProtocol.nfs)
             .then(function() {
                 throw "error case";
             })
@@ -349,7 +351,7 @@ function fileBrowserModuleTest() {
 
     describe("Public API and basic behavior test", function() {
         it('Should show the filebrowser', function(done) {
-            FileBrowser.show()
+            FileBrowser.show(FileProtocol.nfs)
             .then(function() {
                 var $li = $pathLists.find("li:first-of-type");
                 expect($li.text()).to.equal("nfs:///");
@@ -502,7 +504,7 @@ function fileBrowserModuleTest() {
         });
 
         it("Should click confirm to sumbitForm", function(done) {
-            FileBrowser.show()
+            FileBrowser.show(FileProtocol.nfs)
             .then(function() {
                 var $grid = findGrid("netstore");
                 $grid.click(); // focus on it
@@ -607,10 +609,8 @@ function fileBrowserModuleTest() {
             var $curGrid = findGrid("netstore");
             expect($curGrid.hasClass("active")).to.be.true;
             var index = $curGrid.index();
-            console.log($("#innerFileBrowserContainer").text());
             // reverse
             $nameLabel.click();
-              console.info($("#innerFileBrowserContainer").text());
             expect($nameTitle.hasClass("select")).to.be.true;
             $curGrid = findGrid("netstore");
             expect($curGrid.hasClass("active")).to.be.true;
