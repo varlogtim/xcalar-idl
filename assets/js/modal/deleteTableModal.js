@@ -5,7 +5,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     var tableList = {};
     var tableSizeMap = {};
     var sortKeyList = {};
-    var reverseList = {};
+    var reverseSort = true;
     // constant
     var unknown = "--";
 
@@ -105,14 +105,13 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     };
 
     DeleteTableModal.show = function() {
-        var deferred = jQuery.Deferred();
-
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open
-            deferred.resolve();
-            return deferred.promise();
+            return PromiseHelper.resolve();
         }
+
+        var deferred = jQuery.Deferred();
 
         modalHelper.setup({
             "open": function() {
@@ -134,9 +133,11 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         $modal.find(".loadingSection .text").text(StatusMessageTStr.Loading);
 
         getTableSizeMap()
-        .then(function() {
+        .then(function(sizeMap) {
+            tableSizeMap = sizeMap;
             return TableList.refreshOrphanList(false);
         })
+        .fail(deferred.reject)
         .always(function() {
             $modal.removeClass("load");
             populateTableLists();
@@ -175,10 +176,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         sortKeyList[TableType.Archived] = null;
         sortKeyList[TableType.Active] = null;
 
-        reverseList[TableType.Orphan] = false;
-        reverseList[TableType.Archived] = false;
-        reverseList[TableType.Active] = false;
+        reverseSort = false;
 
+        tableSizeMap = {};
         $modal.find('.grid-unit.failed').removeClass('failed');
     }
 
@@ -256,14 +256,14 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         var deferred = jQuery.Deferred();
         XcalarGetTables("*")
         .then(function(result) {
-            tableSizeMap = {};
+            var sizeMap = {};
             var numNodes = result.numNodes;
             var nodeInfo = result.nodeInfo;
             for (var i = 0; i < numNodes; i++) {
                 var node = nodeInfo[i];
-                tableSizeMap[node.name] = node.size;
+                sizeMap[node.name] = node.size;
             }
-            deferred.resolve();
+            deferred.resolve(sizeMap);
         })
         .fail(deferred.reject);
 
@@ -318,20 +318,23 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
     function sortTableList(tableList, type, sortKey) {
         if (sortKey == null) {
+            // default sort by name
             sortKey = sortKeyList[type];
-            if (sortKey == null) {
-                // when no key to sort
-                getTableList(tableList, type);
-                return;
-            }
         } else if (sortKey === "size" && $.isEmptyObject(tableSizeMap)) {
             console.warn("not ready to sort on size");
             return;
         }
 
-        if (sortKeyList[type] === sortKey) {
+        if (sortKey == null) {
+            // first time to sort, default sort by name
+            sortKey = "name";
+            reverseSort = false;
+        } else if (sortKeyList[type] === sortKey) {
             // when it's reverse sort
-            reverseList[type] = !reverseList[type];
+            reverseSort = !reverseSort;
+        } else {
+            // when change sort key, default is asc sort
+            reverseSort = false;
         }
 
         // cache the new sortKey
@@ -391,7 +394,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             });
         }
 
-        if (reverseList[type]) {
+        if (reverseSort) {
             tableList.reverse();
         }
 
@@ -434,6 +437,11 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
     function getTableList(tables, type) {
         var $container = getListSection(type);
+        var html = getTableListHTML(tables);
+        $container.find(".listSection").html(html);
+    }
+
+    function getTableListHTML(tables) {
         var html = "";
 
         for (var i = 0, len = tables.length; i < len; i++) {
@@ -462,7 +470,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                     '</div>';
         }
 
-        $container.find(".listSection").html(html);
+        return html;
     }
 
     function getListSection(type) {
@@ -530,6 +538,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         DeleteTableModal.__testOnly__ = {};
         DeleteTableModal.__testOnly__.submitForm = submitForm;
         DeleteTableModal.__testOnly__.closeModal = closeModal;
+        DeleteTableModal.__testOnly__.getListSection = getListSection;
+        DeleteTableModal.__testOnly__.getTableListHTML = getTableListHTML;
+        DeleteTableModal.__testOnly__.getTableSizeMap = getTableSizeMap;
+        DeleteTableModal.__testOnly__.hasCheckedTables = hasCheckedTables;
     }
     /* End Of Unit Test Only */
 

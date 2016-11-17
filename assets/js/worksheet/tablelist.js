@@ -514,13 +514,10 @@ window.TableList = (function($, TableList) {
     TableList.refreshOrphanList = function(prettyPrint) {
         var deferred = jQuery.Deferred();
         focusedListNum = null;
-        XcalarGetTables()
-        .then(function(backEndTables) {
-            var backTables = backEndTables.nodeInfo;
-            var tableMap = {};
-            for (var i = 0, len = backEndTables.numNodes; i < len; i++) {
-                tableMap[backTables[i].name] = true;
-            }
+
+        xcHelper.getBackTableSet()
+        .then(function(backTableSet) {
+            var tableMap = backTableSet;
 
             for (var tableId in gTables) {
                 var table = gTables[tableId];

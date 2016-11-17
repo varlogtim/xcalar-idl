@@ -413,8 +413,8 @@ describe("SQL Test", function() {
 
         it("Should copy log", function(done) {
             var oldFunc = xcHelper.assert;
-            // it will fail the test 
-            xcHelper.assert = function() { return true };
+            // it will fail the test
+            xcHelper.assert = function() { return true; };
 
             $sqlButtons.find(".copyLog").click();
             var $successMessageWrap = $("#successMessageWrap");
