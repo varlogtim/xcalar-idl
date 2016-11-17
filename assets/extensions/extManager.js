@@ -578,14 +578,18 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var fnName = $extArgs.data("fn");
         var $input = $extTriggerTableDropdown.find(".text");
         var tableName = $input.val();
+        var notTableDependent = extMap[modName]._configParams.notTableDependent;
 
-        if (tableName === "" &&
-            !extMap[modName]._configParams.notTableDependent) {
+        if (tableName === "" && !notTableDependent) {
             StatusBox.show(ErrTStr.NoEmptyList, $input);
             return;
         }
 
         var tableId = xcHelper.getTableId(tableName);
+        if (!gTables.hasOwnProperty(tableId) && !notTableDependent) {
+            StatusBox.show(ErrTStr.TableNotExists, $input);
+            return;
+        }
 
         var args = getArgs(modName, fnName, tableId);
         if (args == null) {

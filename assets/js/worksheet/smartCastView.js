@@ -147,6 +147,11 @@ window.SmartCastView = (function($, SmartCastView) {
     function submitForm() {
         var len = newColTypes.length;
         var colTypeInfos = [];
+        // may be deleted
+        if (!gTables.hasOwnProperty(curTableId)) {
+            StatusBox.show(ErrTStr.TableNotExists, $castTable);
+            return;
+        }
 
         for (var colNum = 1; colNum < len; colNum++) {
             var newType = newColTypes[colNum];

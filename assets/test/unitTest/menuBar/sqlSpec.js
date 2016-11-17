@@ -171,7 +171,9 @@ describe("SQL Test", function() {
         it("SQL.viewLastAction should work", function() {
             var res = SQL.viewLastAction();
             var res2 = SQL.viewLastAction(true);
-            expect(res).not.to.equal(res2);
+            if (res !=== "none") {
+                expect(res).not.to.equal(res2);
+            }
         });
     });
 
