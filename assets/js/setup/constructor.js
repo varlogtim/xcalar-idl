@@ -3399,9 +3399,14 @@ ExportHelper.prototype = {
         });
     },
 
+    showHelper: function() {
+        $('.xcTableWrap').addClass('exportMode');
+    },
+
     clear: function() {
         this.$view.find(".renameSection").addClass("xc-hidden")
                     .find(".renamePart").empty();
+        $('.xcTableWrap').removeClass('exportMode');
     },
 
     getExportColumns: function() {

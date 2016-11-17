@@ -203,7 +203,7 @@ window.ExportView = (function($, ExportView) {
         tableId = tablId;
         $table = $('#xcTable-' + tableId);
 
-        $('.xcTableWrap').addClass('exportViewOpen');
+        exportHelper.showHelper();
 
         var tableName = gTables[tableId].tableName;
         exportTableName = tableName;
@@ -253,7 +253,6 @@ window.ExportView = (function($, ExportView) {
         var $tableWraps = $('.xcTableWrap');
         formHelper.hideView();
 
-        $tableWraps.removeClass('exportViewOpen');
         $('.xcTableWrap').not('#xcTableWrap-' + tableId)
                              .removeClass('tableOpSection');
 

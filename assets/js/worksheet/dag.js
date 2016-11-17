@@ -50,8 +50,13 @@ window.DagPanel = (function($, DagPanel) {
         var id = $scrollBarWrap.data('id');
         if (id && id !== "none") {
             var $dagWrap = $('#dagWrap-' + id);
+            if (!$dagWrap.length) {
+                $scrollBarWrap.data('id', 'none');
+                $scrollBarWrap.hide();
+                return;
+            }
+
             var $dagImageWrap = $dagWrap.find('.dagImageWrap');
-            // var $dagImage = $dagImageWrap.find('.dagImage');
             var dagImageWidth = $dagImageWrap.outerWidth();
             var scrollWidth = $dagImageWrap[0].scrollWidth;
             if (scrollWidth > dagImageWidth) {

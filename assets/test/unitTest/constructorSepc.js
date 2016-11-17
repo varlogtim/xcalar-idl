@@ -1816,11 +1816,22 @@ describe('Constructor Test', function() {
             expect(exportColumns[2]).to.equal("test");
         });
 
+        it("Show Helper should work", function() {
+            $('#container').prepend('<div class="xcTableWrap" ' +
+                                    'id="unitTestTable"></div>');
+            expect($('.xcTableWrap.exportMode').length).to.equal(0);
+            exportHelper.showHelper();
+            expect($('.xcTableWrap.exportMode').length).to.be.gte(1);
+        });
+
         it("Should clear the helper", function() {
+            expect($('.xcTableWrap.exportMode').length).to.be.gte(1);
             exportHelper.clear();
             var $renameSection = $view.find(".renameSection");
             expect($renameSection.hasClass("xc-hidden")).to.be.true;
             expect($renameSection.find(".rename").length).to.equal(0);
+            expect($('.xcTableWrap.exportMode').length).to.equal(0);
+            $("#unitTestTable").remove();
         });
 
         after(function() {

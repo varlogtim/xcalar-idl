@@ -67,6 +67,7 @@ window.DFCreateView = (function($, DFCreateView) {
         setupTableColListeners();
         // $newNameInput.focus();
         formHelper.setup();
+        exportHelper.showHelper();
     };
 
     DFCreateView.close = function() {

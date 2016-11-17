@@ -48,6 +48,14 @@ describe('ExportView', function() {
             expect($exportForm.find('.advancedSection .formRow:visible')).to.have.lengthOf(0);
         });
 
+        it('exit option on table menu should be available', function() {
+            expect($('.xcTableWrap.exportMode').length).to.be.gte(1);
+            expect($('#xcTheadWrap-' + tableId).find('.dropdownBox').is(":visible")).to.be.true;
+            $('#xcTheadWrap-' + tableId).find('.dropdownBox').click();
+            expect($("#tableMenu").find('.exitExport').is(":visible")).to.be.true;
+            $('.menu').hide();
+        });
+
         it('advancedOptions defaults should be set', function() {
             var getAdvancedOptions = ExportView.__testOnly__.getAdvancedOptions;
             var options = getAdvancedOptions();

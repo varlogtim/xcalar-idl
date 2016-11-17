@@ -36,6 +36,14 @@ describe('DFCreateView', function() {
             expect($dfView.find('.columnsToExport li').length).to.equal(6);
             expect($dfView.find('.columnsToExport li.checked').length).to.equal(6);
         });
+
+        it('exit option on table menu should be available', function() {
+            expect($('.xcTableWrap.exportMode').length).to.be.gte(1);
+            expect($('#xcTheadWrap-' + tableId).find('.dropdownBox').is(":visible")).to.be.true;
+            $('#xcTheadWrap-' + tableId).find('.dropdownBox').click();
+            expect($("#tableMenu").find('.exitDataflow').is(":visible")).to.be.true;
+            $('.menu').hide();
+        });
     });
 
     describe('check user actions', function() {
