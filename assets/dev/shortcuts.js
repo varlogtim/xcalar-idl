@@ -55,7 +55,7 @@ window.Shortcuts = (function($, Shortcuts) {
             localStorage.autoLogin = true;
             autoLogin = true;
         } else {
-            localStorage.autoLogin = false; 
+            localStorage.autoLogin = false;
             autoLogin = false;
         }
         toggleAutoLoginMenu(turnOn);
@@ -73,7 +73,7 @@ window.Shortcuts = (function($, Shortcuts) {
             localStorage.verbose = false;
             verbose = false;
         }
-    }
+    };
 
     Shortcuts.toggleAdmin = function(turnOn) {
         if (turnOn) {
@@ -82,7 +82,7 @@ window.Shortcuts = (function($, Shortcuts) {
             if (sessionStorage.usingAs !== "true") {
                 $('#container').addClass('admin');
             }
-            
+
             $('#shortcutMenuIcon').css('margin-right', 20);
             localStorage.admin = true;
             gAdmin = true;
@@ -95,7 +95,7 @@ window.Shortcuts = (function($, Shortcuts) {
             gAdmin = false;
 
         }
-    }
+    };
 
     Shortcuts.toggleJoinKey = function(turnOn) {
         if (turnOn) {
@@ -109,8 +109,7 @@ window.Shortcuts = (function($, Shortcuts) {
             localStorage.gEnableJoinKeyCheck = false;
             gEnableJoinKeyCheck = false;
         }
-    }
-
+    };
 
     Shortcuts.setup = function() {
         shortcutsOn = true;
@@ -142,7 +141,7 @@ window.Shortcuts = (function($, Shortcuts) {
             gEnableJoinKeyCheck = false;
             localStorage.gEnableJoinKeyCheck = false;
         }
-        
+
         dsForm();
         createMainMenu();
         Shortcuts.toggleVerbose(verbose);
@@ -511,7 +510,7 @@ window.Shortcuts = (function($, Shortcuts) {
             dsName = name.replace(/\s+/g, "") + Math.floor(Math.random() * 10000);
             var $formatDropdown = $("#fileFormatMenu");
             var filePath = filePathMap[name];
-
+            $("#fileProtocol input").val(FileProtocol.nfs);
             $("#filePath").val(filePath);
             $("#dsForm-path").find('.confirm').click(); // go to next step
             $formatDropdown.find('li[name="JSON"]').click();
@@ -529,8 +528,8 @@ window.Shortcuts = (function($, Shortcuts) {
                 } else {
                     $("#selectDSCols").click();
                 }
-                
-                setTimeout(function() { // there's some delay in populating 
+
+                setTimeout(function() { // there's some delay in populating
                     // the datacart list
                     var $activeTab = $('#topMenuBarTabs')
                                         .find('.topMenuBarTab.active');
@@ -539,8 +538,7 @@ window.Shortcuts = (function($, Shortcuts) {
                         // switch to datastores panel
                         $('#dataStoresTab').click();
                         isDiffTab = true;
-                    }   
-                   
+                    }
                     if  (!$('#inButton').hasClass('active')) {
                         $('#inButton').click();
                     }
@@ -629,8 +627,6 @@ window.Shortcuts = (function($, Shortcuts) {
         return (deferred.promise());
     }
 
-
-    
 // var orderint = setInterval(function() {
 //     for (var table in gTables) {
 //         if (gTables[table].ordering === 11) {
@@ -645,11 +641,3 @@ window.Shortcuts = (function($, Shortcuts) {
 return (Shortcuts);
 
 }(jQuery, {}));
-
-
-
-
-
-
-
-

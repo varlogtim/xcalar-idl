@@ -22,7 +22,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var oldBrowserError = "Deferred From Old Browser";
     /* End Of Contants */
 
-    var defaultPath = FileProtocol.nfs;
+    var defaultPath = FileProtocol.hdfs;
     var historyPath;
     var curFiles = [];
     var allFiles = [];

@@ -4,7 +4,7 @@ var Status = {
     "Ok": 1,
     "Done"   : 2,
     "Running": 3
-}
+};
 
 function getStatus(num) {
     var key = Object.keys(Status)[num + 1];
