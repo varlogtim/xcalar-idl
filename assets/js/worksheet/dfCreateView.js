@@ -281,7 +281,7 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function validateDFName(dfName) {
-        isValid = xcHelper.validate([
+        var isValid = xcHelper.validate([
             {
                 "$ele": $newNameInput
             },
@@ -304,20 +304,38 @@ window.DFCreateView = (function($, DFCreateView) {
         return isValid;
     }
 
+    function validateCurTable() {
+        var isValid = xcHelper.validate([
+            {
+                "$ele" : $dfView.find('.confirm'),
+                "error": ErrTStr.TableNotExists,
+                "check": function() {
+                    return !gTables[tableId];
+                }
+            }
+        ]);
+        return isValid;
+    }
+
     function submitForm() {
         var deferred = jQuery.Deferred();
         var isValid;
 
         var dfName = $newNameInput.val().trim();
 
-        isValid = validateDFName(dfName);
+        if (!validateDFName(dfName)) {
+            deferred.reject();
+            return deferred.promise();
+        }
 
-        if (!isValid) {
+        if (!validateCurTable()) {
             deferred.reject();
             return deferred.promise();
         }
 
         var table = gTables[tableId];
+
+
         var frontColNames = [];
         var backColNames = [];
 

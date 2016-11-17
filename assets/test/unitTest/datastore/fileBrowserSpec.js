@@ -607,8 +607,10 @@ function fileBrowserModuleTest() {
             var $curGrid = findGrid("netstore");
             expect($curGrid.hasClass("active")).to.be.true;
             var index = $curGrid.index();
+            console.log($("#innerFileBrowserContainer").text());
             // reverse
             $nameLabel.click();
+              console.info($("#innerFileBrowserContainer").text());
             expect($nameTitle.hasClass("select")).to.be.true;
             $curGrid = findGrid("netstore");
             expect($curGrid.hasClass("active")).to.be.true;

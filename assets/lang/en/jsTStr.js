@@ -227,6 +227,8 @@ ErrTStr = {
     'RetinaFailed': 'Failed to upload retina',
     'ConfigParamNotFound': 'Parameter not found.',
     'OutputNotFoundMsg': 'Output is not available.',
+    'SourceTableNotExists': 'Source table does not exist.',
+    'TableNotExists': 'Table does not exist.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

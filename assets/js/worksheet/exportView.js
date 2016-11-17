@@ -287,6 +287,19 @@ window.ExportView = (function($, ExportView) {
 
     function submitForm() {
         var deferred = jQuery.Deferred();
+        var isValid = xcHelper.validate([
+            {
+                "$ele" : $exportView.find('.tableList').find(".text"),
+                "error": ErrTStr.TableNotExists,
+                "check": function() {
+                    return !gTables[tableId];
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return PromiseHelper.reject({"error": "tableNotFound"});
+        }
 
         var keepOrder = false;
         if (checkSortedTable() &&
@@ -298,7 +311,7 @@ window.ExportView = (function($, ExportView) {
         var exportName = $exportName.val().trim();
 
         // check export name
-        var isValid = xcHelper.validate([
+        isValid = xcHelper.validate([
             {
                 "$ele": $exportName // checks if it's empty
             },
@@ -362,6 +375,8 @@ window.ExportView = (function($, ExportView) {
                 errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                     "name": backColumnNames.name
                 });
+            } else if (colRes.reason = "tableNotFound") {
+                errorText = ErrTStr.SourceTableNotExists;
             } else if (backColumnNames.reason === 'type') {
                 errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
                     "name": backColumnNames.name,
@@ -627,6 +642,9 @@ window.ExportView = (function($, ExportView) {
         var exportType = $exportPath.data('type');
 
         var isTableOrdered = false;
+        if (!gTables[tableId]) {
+            return false;
+        }
         var backTableMeta = gTables[tableId].backTableMeta;
         if (backTableMeta) {
             var order = backTableMeta.ordering;
@@ -668,6 +686,9 @@ window.ExportView = (function($, ExportView) {
     }
 
     function selectCol(colNum) {
+        if (!gTables[tableId]) {
+            return;
+        }
         var colType = gTables[tableId].getCol(colNum).getType();
         if (!validTypes.includes(colType)) {
             return;

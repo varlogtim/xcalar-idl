@@ -2410,7 +2410,17 @@ window.xcHelper = (function($, xcHelper) {
                                                     validTypes) {
         // XXx Cheng: this function may need to refactor
         var backCols = [];
-        var tableCols = gTables[tblId].tableCols;
+        var table = gTables[tblId];
+        if (!table) {
+            return {
+                invalid: true,
+                reason : 'tableNotFound',
+                name   : frontColNames[0],
+                type   : 'tableNotFound'
+            };
+        }
+
+        var tableCols = table.tableCols;
         var foundColsArray = [];
         var numColsFound = 0;
         var numFrontColNames = frontColNames.length;
