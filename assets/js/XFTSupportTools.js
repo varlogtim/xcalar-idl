@@ -30,7 +30,11 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 })
                 .fail(function(err) {
                     console.warn(err);
-                    lastReturnSucc = false;
+                    lastReturnSucc = true;
+                    // If not all nodes return successfully, getLog() will
+                    // enter here, then we should still keep watching the
+                    // successfully return logs.
+                    // lastReturnSucc = false;
                     if (typeof errCallback === "function") {
                         errCallback(err);
                     }
@@ -134,6 +138,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             data: JSON.stringify(str),
             contentType: 'application/json',
             url: hostname + "/app" + action,
+            timeout: 50000,
             success: function(data) {
                 var ret = data;
                 var retMsg;
@@ -154,20 +159,27 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                     };
                     deferred.resolve(retMsg);
                 } else if (ret.status === Status.Error) {
-                    retMsg = {
-                        status: Status.Error,
-                        error: ret
-                    };
-                    deferred.reject(retMsg);
+                    var logs;
+                    if (ret.logs) {
+                        logs = atob(ret.logs);
+                        ret.logs = logs;
+                    }
+                    deferred.reject(ret);
                 } else {
                     retMsg = {
                         status: Status.Unknown,
-                        error: ret
+                        error: ret.error,
                     };
+                    var logs;
+                    if (ret.logs) {
+                        logs = atob(retMsg.logs);
+                        retMsg.logs = logs;
+                    }
                     deferred.reject(retMsg);
                 }
             },
             error: function(error) {
+                console.error(error);
                 clearInterval(monitorIntervalId);
                 retMsg = {
                     status: Status.Error,

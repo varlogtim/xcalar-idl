@@ -53,7 +53,7 @@ function masterExecuteAction (action, res, str) {
             sendCommandToSlaves(slaveAction, str, hosts)
             .then(function(results) {
                 var logs = generateLogs(action, results);
-                if(logs) {
+                if (logs) {
                     res.send({"status": Status.Ok,
                               "logs": new Buffer(logs).toString('base64')});
                 } else {
@@ -62,7 +62,7 @@ function masterExecuteAction (action, res, str) {
             })
             .fail(function(results) {
                 var logs = generateLogs(action, results);
-                if(logs) {
+                if (logs) {
                     res.send({"status": Status.Error,
                               "logs": new Buffer(logs).toString('base64')});
                 } else {
@@ -125,6 +125,9 @@ function sendCommandToSlaves(action, str, hosts) {
             data: JSON.stringify(str),
             contentType: 'application/json',
             url: "http://" + hostName + "/app" + action,
+            // If one node fails for monitoring logs, we may still want to read
+            // the logs from other logs, should not wait too long
+            timeout: action == "/monitorLogs/slave" ? 1000 : 30000,
             success: function(data) {
                 var ret = data;
                 var retMsg;
@@ -143,22 +146,28 @@ function sendCommandToSlaves(action, str, hosts) {
                 returns[hostName] = retMsg;
                 numDone++;
                 if (numDone === hosts.length) {
-                    if(hasFailure) {
+                    if (hasFailure) {
                         mainDeferred.reject(returns);
                     } else {
                         mainDeferred.resolve(returns);
                     }
                 }
             },
-            error: function(error) {
+            error: function(error, textStatus) {
                 retMsg = {
                     status: Status.Error,
-                    error: error
+                    error: error,
+                    logs: textStatus
                 };
                 returns[hostName] = retMsg;
+                hasFailure = true;
                 numDone++;
-                if (numDone === hosts.length - 1) {
-                    mainDeferred.reject(returns);
+                if (numDone === hosts.length) {
+                    if (hasFailure) {
+                        mainDeferred.reject(returns);
+                    } else {
+                        mainDeferred.resolve(returns);
+                    }
                 }
             }
         });
@@ -168,15 +177,14 @@ function sendCommandToSlaves(action, str, hosts) {
 
 function generateLogs(action, results) {
     var str = "Execute " + action + " for all Nodes:\n\n";
-    if(results) {
+    if (results) {
         for (var key in results) {
             var resSlave = results[key];
             str = str + "Host: " +  key + "\n"
                       + "Return Status: " + ssf.getStatus(resSlave["status"]) + "\n";
-            if(resSlave["logs"]) {
-                str = str + "Logs: " + resSlave["logs"] + "\n";
-            }
-            if(resSlave["error"]) {
+            if (resSlave["logs"]) {
+                str = str + "Logs: " + resSlave["logs"] + "\n\n";
+            } else if (resSlave["error"]) {
                 str = str + "Error: " + resSlave["error"].message + "\n\n";
             }
         }
@@ -222,7 +230,7 @@ function removeSessionFiles(filePath, res) {
     var completePath = getCompletePath(sessionPath, filePath);
     var isLegalPath = isUnderBasePath(sessionPath, completePath);
     var deferred = jQuery.Deferred();
-    if(!isLegalPath) {
+    if (!isLegalPath) {
         console.log("The filename" + completePath + "is illegal");
         var retMsg = {"status": Status.Error,
                       "error" : new Error("Please Send a legal Session file/folder name.")};
@@ -230,12 +238,12 @@ function removeSessionFiles(filePath, res) {
         return;
     }
     // Handle'/var/opt/xcalar/sessions', change to'/var/opt/xcalar/sessions/'
-    if(completePath == sessionPath.substring(0, sessionPath.length - 1)) {
+    if (completePath == sessionPath.substring(0, sessionPath.length - 1)) {
         completePath = completePath + '/';
     }
     // Handle '/var/opt/xcalar/sessions/', avoid delete the whole session
     // folder, just delete everything under this folder.
-    if(completePath == sessionPath) {
+    if (completePath == sessionPath) {
         completePath = completePath + '*';
     }
     console.log("Remove file at: ", completePath);

@@ -136,8 +136,6 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
         return deferred2.promise();
     })
     .then(function(fd, stat) {
-        console.log("fd", fd)
-        console.log("stat", stat)
         var deferred3 = jQuery.Deferred();
         //  How many line end have been meet
         var lineEndNum = 0;
