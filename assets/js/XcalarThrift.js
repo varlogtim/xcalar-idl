@@ -1920,6 +1920,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
+    var coll = false;
 
     var deferred = jQuery.Deferred();
     if (Transaction.checkAndSetCanceled(txId)) {
@@ -1956,9 +1957,9 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
 
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
                                           joinType, leftRenameMap,
-                                          rightRenameMap, true);
+                                          rightRenameMap, coll);
         var def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
-                              joinType, leftRenameMap, rightRenameMap, true);
+                              joinType, leftRenameMap, rightRenameMap, coll);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'join', dst, query);
