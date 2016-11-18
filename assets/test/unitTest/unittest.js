@@ -233,5 +233,19 @@ window.UnitTest = (function(UnitTest, $) {
         StatusBox.forceHide();
     };
 
+    UnitTest.hasAlertWithTitle = function(title, options) {
+        options = options || {};
+        var $alertModal = $("#alertModal");
+        assert.isTrue($alertModal.is(":visible"));
+        expect($("#alertHeader .text").text()).to.equal(title);
+        if (options.confirm)  {
+            $alertModal.find(".confirm").click();
+        } else {
+            $alertModal.find(".cancel").click();
+        }
+
+        assert.isFalse($alertModal.is(":visible"));
+    };
+
     return (UnitTest);
 }({}, jQuery));

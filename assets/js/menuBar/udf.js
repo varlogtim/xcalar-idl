@@ -21,11 +21,16 @@ window.UDF = (function($, UDF) {
     };
 
     UDF.initialize = function() {
+        var deferred = jQuery.Deferred();
+
         initializeUDFList()
         .then(function(listXdfsObj) {
             DSExport.refreshUDF(listXdfsObj);
-            // defaultUDFUpload();
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     UDF.clear = function() {
@@ -42,11 +47,11 @@ window.UDF = (function($, UDF) {
     };
 
     UDF.getEditor = function() {
-        return (editor);
+        return editor;
     };
 
     UDF.getUDFs = function() {
-        return (storedUDF);
+        return storedUDF;
     };
 
     // used in extManager.js
@@ -217,7 +222,7 @@ window.UDF = (function($, UDF) {
                 StatusBox.show(ErrTStr.NoEmpty, $fnName, true, options);
                 return;
             } else if (fileName.length >
-                XcalarApisConstantsT.XcalarApiMaxPyModuleNameLen) {
+                XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen) {
                 StatusBox.show(ErrTStr.LongFileName, $fnName, true, options);
                 return;
             }
@@ -231,7 +236,7 @@ window.UDF = (function($, UDF) {
                                 options);
                 return;
             } else if (entireString.trim().length >
-                       XcalarApisConstantsT.XcalarApiMaxPyModuleSrcLen) {
+                       XcalarApisConstantsT.XcalarApiMaxUdfSourceLen) {
                 StatusBox.show(ErrTStr.LargeFile,
                                 $("#udf-fnSection .CodeMirror"), false,
                                 options);
@@ -396,12 +401,12 @@ window.UDF = (function($, UDF) {
     }
 
     function getEntireUDF(moduleName) {
-        var deferred = jQuery.Deferred();
-
         if (!storedUDF.hasOwnProperty(moduleName)) {
             var error = "UDF: " + moduleName + " not exists";
-            throw error;
+            return PromiseHelper.reject(error);
         }
+
+        var deferred = jQuery.Deferred();
 
         var entireString = storedUDF[moduleName];
         if (entireString == null) {
@@ -437,17 +442,22 @@ window.UDF = (function($, UDF) {
     }
 
     function downloadUDF(moduleName) {
+        var deferred = jQuery.Deferred();
         getEntireUDF(moduleName)
         .then(function(entireString) {
             if (entireString == null) {
                 Alert.error(SideBarTStr.DownloadError, SideBarTStr.DownoladMsg);
-                return;
+            } else {
+                xcHelper.downloadAsFile(moduleName, entireString);
             }
-            xcHelper.downloadAsFile(moduleName, entireString);
+            deferred.resolve();
         })
         .fail(function(error) {
             Alert.error(SideBarTStr.DownloadError, error);
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     }
 
     function deleteUDF(moduleName) {
@@ -516,18 +526,14 @@ window.UDF = (function($, UDF) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                if (error.status === StatusT.StatusPyExecFailedToCompile) {
-                    // XXX might not actually be a syntax error
-                    var syntaxErr = parseSytanxError(error);
-                    if (syntaxErr != null) {
-                        var errMsg = xcHelper.replaceMsg(SideBarTStr.UDFError, syntaxErr);
-                        Alert.error(SideBarTStr.SyntaxError, errMsg);
-                        updateHints(syntaxErr);
-                    } else {
-                        // when cannot parse the error
-                        Alert.error(SideBarTStr.SyntaxError, error);
-                    }
+                // XXX might not actually be a syntax error
+                var syntaxErr = parseSytanxError(error);
+                if (syntaxErr != null) {
+                    var errMsg = xcHelper.replaceMsg(SideBarTStr.UDFError, syntaxErr);
+                    Alert.error(SideBarTStr.SyntaxError, errMsg);
+                    updateHints(syntaxErr);
                 } else {
+                    // when cannot parse the error
                     Alert.error(SideBarTStr.UploadError, error);
                 }
 
@@ -607,119 +613,16 @@ window.UDF = (function($, UDF) {
         }
     }
 
-    // XXX it's old code, backend generate it now
-    // function defaultUDFUpload() {
-    //     var moduleName = defaultModule;
-    //     var entireString =
-    //     udfDefault +
-    //     'import sys\n' +
-    //     '# For 2.7\n' +
-    //     'sys.path.append("/usr/local/lib/python2.7/dist-packages/apache_log_parser-1.6.1.dev-py2.7.egg")\n' +
-    //     'sys.path.append("/usr/local/lib/python2.7/dist-packages/user_agents-0.3.2-py2.7.egg")\n' +
-    //     'sys.path.append("/usr/local/lib/python2.7/dist-packages/ua_parser-0.3.6-py2.7.egg")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/plat-x86_64-linux-gnu")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/lib-tk")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/lib-old")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/lib-dynload")\n' +
-    //     'sys.path.append("/usr/local/lib/python2.7/dist-packages")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/dist-packages")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/dist-packages/PILcompat")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/dist-packages/gtk-2.0")\n' +
-    //     'sys.path.append("/usr/lib/python2.7/dist-packages/ubuntu-sso-client")\n' +
-    //     '\n' +
-    //     'import xlrd\n' +
-    //     'import datetime\n' +
-    //     'import time\n' +
-    //     'import pytz\n' +
-    //     'import re\n' +
-    //     'import dateutil.parser\n' +
-    //     '\n' +
-    //     "# %a    Locale's abbreviated weekday name.\n" +
-    //     "# %A    Locale's full weekday name.\n" +
-    //     "# %b    Locale's abbreviated month name.\n" +
-    //     "# %B    Locale's full month name.\n" +
-    //     "# %c    Locale's appropriate date and time representation.\n" +
-    //     "# %d    Day of the month as a decimal number [01,31].\n" +
-    //     "# %H    Hour (24-hour clock) as a decimal number [00,23].\n" +
-    //     "# %I    Hour (12-hour clock) as a decimal number [01,12].\n" +
-    //     "# %j    Day of the year as a decimal number [001,366].\n" +
-    //     "# %m    Month as a decimal number [01,12].\n" +
-    //     "# %M    Minute as a decimal number [00,59].\n" +
-    //     "# %p    Locale's equivalent of either AM or PM. (1)\n" +
-    //     "# %S    Second as a decimal number [00,61]. (2)\n" +
-    //     "# %U    Week number of the year (Sunday as the first day of the week) as a decimal number [00,53]. All days in a new year preceding the first Sunday are considered to be in week 0.    (3)\n" +
-    //     "# %w    Weekday as a decimal number [0(Sunday),6].\n" +
-    //     "# %W    Week number of the year (Monday as the first day of the week) as a decimal number [00,53]. All days in a new year preceding the first Monday are considered to be in week 0.    (3)\n" +
-    //     "# %x    Locale's appropriate date representation.\n" +
-    //     "# %X    Locale's appropriate time representation.\n" +
-    //     "# %y    Year without century as a decimal number [00,99].\n" +
-    //     "# %Y    Year with century as a decimal number.\n" +
-    //     "# %Z    Time zone name (no characters if no time zone exists).\n" +
-    //     "# %%    A literal '%' character.\n" +
-    //     '\n' +
-    //     'def convertFormats(colName, outputFormat, inputFormat="auto"):\n' +
-    //         '\tif inputFormat == "auto":\n' +
-    //             '\t\ttimeStruct = dateutil.parser.parse(colName).timetuple()\n' +
-    //         '\telse:\n' +
-    //             '\t\ttimeStruct = time.strptime(colName, inputFormat)\n' +
-    //         '\toutString = time.strftime(outputFormat, timeStruct)\n' +
-    //         '\treturn outString\n' +
-    //     '\n' +
-    //     'def convertFromUnixTS(colName, outputFormat):\n' +
-    //         '\treturn datetime.datetime.fromtimestamp(float(colName)).strftime(outputFormat)\n' +
-    //     '\n' +
-    //     'def convertToUnixTS(colName, inputFormat="auto"):\n' +
-    //         '\tif inputFormat == "auto":\n' +
-    //             '\t\treturn str(float(time.mktime(dateutil.parser.parse(colName).timetuple())))\n' +
-    //         '\treturn str(time.mktime(datetime.datetime.strptime(colName, inputFormat).timetuple()))\n' +
-    //     '\n' +
-    //     'def openExcel(stream, fullPath):\n' +
-    //         '\tfileString = ""\n' +
-    //         '\txl_workbook = xlrd.open_workbook(file_contents=stream)\n' +
-    //         '\txl_sheet = xl_workbook.sheet_by_index(0)\n' +
-    //         '\tnum_cols = xl_sheet.ncols   # Number of columns\n' +
-    //         '\tfor row_idx in range(0, xl_sheet.nrows):    # Iterate through rows\n' +
-    //             '\t\tcurRow = [str(x) for x in xl_sheet.row_values(row_idx)]\n' +
-    //             '\t\tfileString += "\\t".join(curRow)\n' +
-    //             '\t\tfileString += "\\n"\n' +
-    //         '\treturn str(fileString.encode("ascii", "ignore"))\n' +
-    //     '\n' +
-    //     'def convertExcelTime(colName, outputFormat):\n' +
-    //         '\t(val, datemode) = colName.split(",")\n' +
-    //         '\tif (not val or not datemode):\n' +
-    //             '\t\treturn "Your input must be val,datemode"\n' +
-    //         '\t(y, mon, d, h, m, s) = xlrd.xldate_as_tuple(float(val), int(datemode))\n' +
-    //         '\treturn str(datetime.datetime(y, mon, d, h, m, s).strftime(outputFormat))\n' +
-    //     '\n' +
-    //     '# get the substring of txt after the (index)th delimiter\n' +
-    //     '# for example, splitWithDelim("a-b-c", "-", 1) gives "b-c"\n' +
-    //     '# and splitWithDelim("a-b-c", "-", 3) gives ""\n' +
-    //     'def splitWithDelim(txt, index, delim):\n' +
-    //         '\treturn delim.join(txt.split(delim)[index:])\n' +
-    //     '\n' +
-    //     '# get the current time\n' +
-    //     'def now():\n' +
-    //         '\treturn str(int(time.time()))\n' +
-    //     '\n' +
-    //     '# used for multijoin and multiGroupby\n' +
-    //     'def multiJoin(*arg):\n' +
-    //         '\tstri = ""\n' +
-    //         '\tfor a in arg:\n' +
-    //             '\t\tstri = stri + str(a) + ".Xc."\n' +
-    //         '\treturn stri\n' +
-    //     'def convertNewLineJsonToArrayJson(instring, inpath):\n' +
-    //         '\treturn "["+",".join(filter(None, re.split("\\n|,\\s*\\n", instring)))+"]"\n';
-
-    //     /**
-    //     XcalarUploadPython(moduleName, entireString)
-    //     .then(function() {
-    //         UDF.storePython(moduleName, entireString);
-    //     })
-    //     .fail(function(error) {
-    //         console.error("upload default udf failed", error);
-    //     }); */
-    // }
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        UDF.__testOnly__ = {};
+        UDF.__testOnly__.isEditableUDF = isEditableUDF;
+        UDF.__testOnly__.getEntireUDF = getEntireUDF;
+        UDF.__testOnly__.downloadUDF = downloadUDF;
+        UDF.__testOnly__.parseSytanxError = parseSytanxError;
+        UDF.__testOnly__.uploadUDF = uploadUDF;
+    }
+    /* End Of Unit Test Only */
 
     return (UDF);
 }(jQuery, {}));
