@@ -8,6 +8,7 @@ describe('DSExport', function() {
 	var testTargetName = 'unitTestTarget';
 
 	before(function() {
+		UnitTest.onMinMode();
 		$nameInput = $("#targetName");
 		$submitBtn = $("#exportFormSubmit");
 		$submitBtn = $("#exportFormSubmit");
@@ -290,10 +291,15 @@ describe('DSExport', function() {
                     DSExport.refresh()
                     .then(function() {
                     	done();
-                    });
+                    })
+                    .fail(function() {
+	                	expect('didnt work').to.equal('should work');
+						done();
+	                });;
                 })
                 .fail(function(error) {
-                    Alert.error(DSExportTStr.DeleteFail, error.error);
+                    expect('didnt work').to.equal('should work');
+					done();
                 });
 			})
 			.fail(function(){
@@ -342,7 +348,15 @@ describe('DSExport', function() {
                     DSExport.refresh()
                     .then(function() {
                     	done();
-                    });
+                    })
+                    .fail(function() {
+	                	expect('didnt work').to.equal('should work');
+						done();
+	                });
+                })
+                .fail(function() {
+                	expect('didnt work').to.equal('should work');
+					done();
                 });
 			})
 			.fail(function(){
@@ -460,9 +474,31 @@ describe('DSExport', function() {
                     DSExport.refresh()
                     .then(function() {
                     	done();
-                    });
+                    })
+                    .fail(function() {
+	                	expect('didnt work').to.equal('should work');
+						done();
+	                });
+                })
+                .fail(function() {
+                	expect('didnt work').to.equal('should work');
+					done();
                 });
 			},1);
 		});
+	});
+
+	after(function(done) {
+		// delete even if already deleted to make sure, ignore error messages
+		XcalarRemoveExportTarget(testTargetName, ExTargetTypeT.ExTargetSFType)
+		.always(function() {
+			Alert.forceClose();
+			XcalarRemoveExportTarget(testTargetName, ExTargetTypeT.ExTargetUDFType)
+			.always(function() {
+				Alert.forceClose();
+				UnitTest.offMinMode();
+				done();
+			});
+		})
 	});
 });
