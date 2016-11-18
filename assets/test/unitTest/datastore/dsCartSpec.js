@@ -167,10 +167,10 @@ function dsCartModuleTest() {
                 "error" : ErrTStr.PrefixStartsWithLetter
             },{
                 "input" : $prefix,
-                "val"   : new Array(256).join("a"),
+                "val"   : new Array(22).join("a"),
                 "valid" : false,
                 "prefix": true,
-                "error" : ErrTStr.TooLong
+                "error" : ErrTStr.PrefixTooLong
             },{
                 "input" : $prefix,
                 "val"   : "a:b",
