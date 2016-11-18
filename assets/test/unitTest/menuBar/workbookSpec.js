@@ -71,9 +71,37 @@ describe('Workbook Test', function() {
             expect($("#container").hasClass("workbookMode")).to.be.true;
             expect($("#container").hasClass("monitorMode")).to.be.false;
         });
+
+        it("Should close workbook", function(done) {
+            $("#homeBtn").click();
+
+            var checkFunc = function() {
+                return !$("#container").hasClass("workbookMode");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($workbookPanel.find(".workbookBox.active").length)
+                .to.equal(0);
+                done();
+            })
+            .fail(function() {
+                throw "Error Case";
+            });
+        });
     });
 
     describe("Advanced Behavior Test", function() {
+        it("Should force show the workbook", function() {
+            var $input = $workbookPanel.find(".newWorkbookBox input");
+            $input.val();
+            Workbook.forceShow();
+            expect($("#container").hasClass("noWorkbook")).to.be.true;
+            var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
+            expect($input.val()).not.to.equal("");
+            $("#container").removeClass("noWorkbook")
+        });
+
         it("Should create new workbook", function(done) {
             var selector = ".workbookBox:not(.loading)";
             var wkbkNum = $workbookPanel.find(selector).length;
@@ -178,9 +206,7 @@ describe('Workbook Test', function() {
                 throw "Error Case";
             });
         });
-    });
 
-    describe("Close workbook", function() {
         it("Should close workbook", function(done) {
             $("#homeBtn").click();
 
