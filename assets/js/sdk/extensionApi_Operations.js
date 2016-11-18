@@ -42,8 +42,17 @@ window.XcSDK.Extension.prototype = (function() {
             // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
             // fieldDelim, recordDelim, hasHeader, quoteChar,
             // moduleName, funcName
+            var deferred = jQuery.Deferred();
             var txId = this.txId;
-            return XIApi.load(dsArgs, formatArgs, dsName, txId);
+            dsName = xcHelper.wrapDSName(dsName);
+
+            XIApi.load(dsArgs, formatArgs, dsName, txId)
+            .then(function() {
+                deferred.resolve(dsName);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         "index": function(colToIndex, tableName) {

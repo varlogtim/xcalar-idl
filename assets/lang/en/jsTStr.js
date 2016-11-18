@@ -200,7 +200,7 @@ ErrTStr = {
     'BracketsMis': 'Your function string has mismatched brackets.',
     'InvalidFunction': 'Invalid function',
     'TooLong': 'Please use fewer than 255 characters.',
-    'PrefixTooLong': 'Please fewer than 20 characters.',
+    'PrefixTooLong': 'Please use fewer than 20 characters.',
     'NoTable': 'Table doesn\'t exists',
     'TablesNotDeleted': 'The following tables were not deleted:',
     'ConstsNotDeleted': 'The following aggregates were not deleted:',

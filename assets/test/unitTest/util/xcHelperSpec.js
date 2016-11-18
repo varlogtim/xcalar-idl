@@ -1761,6 +1761,18 @@ describe('xcHelper Test', function() {
         expect(res.name).to.equal("test");
     });
 
+    it("xcHelper.normalizePrefix should work", function() {
+        // case 1
+        var res = xcHelper.normalizePrefix("abc");
+        expect(res).to.equal("abc");
+        // case 2
+        res = xcHelper.normalizePrefix(new Array(25).join("a"));
+        expect(res.length).to.equal(gPrefixLimit);
+        // case 3
+        res = xcHelper.normalizePrefix("a:b");
+        expect(res).to.equal("a_b");
+    });
+
     after(function() {
         StatusBox.forceHide();
     });

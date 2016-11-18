@@ -1236,12 +1236,7 @@ window.XIApi = (function(XIApi, $) {
     }
 
     function getNewPrefix(dsName) {
-        // Strip all random characters from dsName
-        var prefix = dsName.replace(/[^0-9a-z]/gi, '');
-        if (prefix.length > 255) {
-            prefix = prefix.substr(0, 255);
-        }
-        return prefix;
+        return xcHelper.normalizePrefix(dsName);
     }
 
     return (XIApi);
