@@ -1493,16 +1493,16 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap = tableWrapOrId;
             tableId = $tableWrap.data('id');
         }
-       
+
         var wsId = WSManager.getWSFromTable(tableId);
         if (wsId !== WSManager.getActiveWS()) {
             WSManager.switchWS(wsId);
         }
 
         focusTable(tableId);
-        
+
         options = options || {};
-     
+
         var tableWidth = $tableWrap.width();
         var tableLeft = $tableWrap.offset().left;
         var tableRight = tableLeft + tableWidth;
@@ -1516,7 +1516,7 @@ window.xcHelper = (function($, xcHelper) {
         // cases to alignRight - if table is partially visible from the left
         // side of the screen
         // alignCenter takes precedence over alignRight and alignLeft
-        
+
         if (tableLeft < mainMenuOffset && tableRight > mainFrameRight) {
             // table takes up the entire screen and more
             // no need to center
@@ -1667,9 +1667,9 @@ window.xcHelper = (function($, xcHelper) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
         return str.replace(/\&/g, "&amp;")
-                    .replace(/\</g, "&lt;")
-                    .replace(/\>/g, "&gt;")
-                    .replace(/\\t/g, "&emsp;");
+                  .replace(/\</g, "&lt;")
+                  .replace(/\>/g, "&gt;")
+                  .replace(/\\t/g, "&emsp;");
     };
 
     xcHelper.escapeRegExp = function(str) {
@@ -1790,7 +1790,7 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             mapStr += colName + ")";
         }
-        
+
         return mapStr;
     };
 

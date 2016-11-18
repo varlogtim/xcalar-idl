@@ -1394,6 +1394,7 @@ describe('xcHelper Test', function() {
     it('xcHelper.getFormat should work', function() {
         var getFormat = xcHelper.getFormat;
         expect(getFormat("a")).to.be.null;
+        expect(getFormat(34)).to.be.null; // 6311
         expect(getFormat("a.json")).to.equal("JSON");
         expect(getFormat("b.csv")).to.equal("CSV");
         expect(getFormat("c.tsv")).to.equal("CSV");

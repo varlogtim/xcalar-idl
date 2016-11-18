@@ -2,8 +2,8 @@
                 "table operations, and front end operations such as",
                 "resize column, minimize table etc"],
 "worksheetOperationLogs":
-    [{"title":"PointToDataset",
-    "options":{"operation":"pointToDataset",
+    [{"title":"PointToDataSource",
+    "options":{"operation":"pointToDataSource",
         "options": {
             "createTable":false,
             "dsToReplace":null
@@ -311,8 +311,8 @@
 
 "tableOperationLogs":
     [
-    {"title":"PointToDataset",
-    "options":{"operation":"pointToDataset",
+    {"title":"PointToDataSource",
+    "options":{"operation":"pointToDataSource",
         "options": {
             "createTable":false,
             "dsToReplace":null
@@ -498,8 +498,8 @@
 ],
 
 "frontEndOperationLogs":
-    [{"title":"PointToDataset",
-    "options":{"operation":"pointToDataset",
+    [{"title":"PointToDataSource",
+    "options":{"operation":"pointToDataSource",
         "options": {
             "createTable":false,
             "dsToReplace":null

@@ -225,7 +225,7 @@ var SQLType = {
 };
 
 var SQLOps = {
-    DSPoint: "pointToDataset",
+    DSPoint: "pointToDataSource",
     IndexDS: "indexFromDataset",
     AddOtherUserDS: "addOtherUserDS",
     Sort: "sort",
