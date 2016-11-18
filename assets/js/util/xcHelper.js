@@ -2129,6 +2129,7 @@ window.xcHelper = (function($, xcHelper) {
 
     // a.json returns JSON
     xcHelper.getFormat = function(name) {
+        name = "" + name; // In case name is an integer
         var index = name.lastIndexOf(".");
 
         if (index < 0) {
