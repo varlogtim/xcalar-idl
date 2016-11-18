@@ -32,9 +32,16 @@ function timeRelatedFunctionTest() {
             previousTime.setDate(previousTime.getDate() - 1);
             futureTime.setDate(futureTime.getDate() + 1);
 
+            var prevDateText = (previousTime.getMonth() + 1) + '/'
+                                + previousTime.getDate() + '/'
+                                +  previousTime.getFullYear();
+            var futureDateText = (futureTime.getMonth() + 1) + '/'
+                                + futureTime.getDate() + '/'
+                                +  futureTime.getFullYear();
+
             var options = {
                 "startTime": futureTime, // The time to start the next run
-                "dateText": "11/08/2016",
+                "dateText": futureDateText,
                 "timeText": "11 : 13 PM",
                 "repeat": "hourly",
                 "freq": 5,
@@ -54,7 +61,7 @@ function timeRelatedFunctionTest() {
             var currentTime = new Date();
             Scheduler.__testOnly__.getNextRunTime(schedule);
             var d = new Date(schedule.startTime);
-            expect(d.getMinutes() - currentTime.getMinutes()).to.within(0, 1);
+            expect((d.getTime() - currentTime)/(60*1000)).to.within(0, 1);
             expect(d.getSeconds() - previousTime.getSeconds()).to.equal(0);
 
             options.startTime = previousTime.getTime();
@@ -63,7 +70,7 @@ function timeRelatedFunctionTest() {
             var currentTime = new Date();
             Scheduler.__testOnly__.getNextRunTime(schedule);
             var d = new Date(schedule.startTime);
-            expect(d.getHours() - currentTime.getHours()).to.within(0, 1);
+            expect((d.getTime() - currentTime)/(3600*1000)).to.within(0, 1);
             expect(d.getMinutes() - previousTime.getMinutes()).to.equal(0);
             expect(d.getSeconds() - previousTime.getSeconds()).to.equal(0);
 
@@ -73,7 +80,7 @@ function timeRelatedFunctionTest() {
             var currentTime = new Date();
             Scheduler.__testOnly__.getNextRunTime(schedule);
             var d = new Date(schedule.startTime);
-            expect(d.getDate() - currentTime.getDate()).to.within(0, 1);
+            expect((d.getTime() - currentTime)/(3600*24*1000)).to.within(0, 1);
             expect(d.getHours() - previousTime.getHours()).to.equal(0);
             expect(d.getMinutes() - previousTime.getMinutes()).to.equal(0);
             expect(d.getSeconds() - previousTime.getSeconds()).to.equal(0);
@@ -84,8 +91,8 @@ function timeRelatedFunctionTest() {
             var currentTime = new Date();
             Scheduler.__testOnly__.getNextRunTime(schedule);
             var d = new Date(schedule.startTime);
-            expect(d.getDate() - currentTime.getDate()).to.within(0, 7);
-            expect((d.getDate() - previousTime.getDate()) % 7).to.equal(0);
+            expect((d.getTime() - currentTime)/(3600*24*1000)).to.within(0, 7);
+            expect(((d.getTime() - previousTime)/(3600*24*1000)) % 7).to.equal(0);
             expect(d.getHours() - previousTime.getHours()).to.equal(0);
             expect(d.getMinutes() - previousTime.getMinutes()).to.equal(0);
             expect(d.getSeconds() - previousTime.getSeconds()).to.equal(0);
@@ -96,24 +103,21 @@ function timeRelatedFunctionTest() {
             var currentTime = new Date();
             Scheduler.__testOnly__.getNextRunTime(schedule);
             var d = new Date(schedule.startTime);
-            expect(d.getDate() - currentTime.getDate()).to.within(0, 14);
-            expect((d.getDate() - previousTime.getDate()) % 14).to.equal(0);
+            expect((d.getTime() - currentTime)/(3600*24*1000)).to.within(0, 14);
+            expect(((d.getTime() - previousTime)/(3600*24*1000)) % 14).to.equal(0);
             expect(d.getHours() - previousTime.getHours()).to.equal(0);
             expect(d.getMinutes() - previousTime.getMinutes()).to.equal(0);
             expect(d.getSeconds() - previousTime.getSeconds()).to.equal(0);
 
             options.startTime = previousTime.getTime();
-            options.repeat = "monthly";
+            options.repeat = "***";
             var schedule = new SchedObj(options);
             var currentTime = new Date();
-            Scheduler.__testOnly__.getNextRunTime(schedule);
-            var d = new Date(schedule.startTime);
-            expect(d.getMonth() - currentTime.getMonth()).to.within(0, 1);
-            expect(d.getDate() - previousTime.getDate()).to.equal(0);
-            expect(d.getHours() - previousTime.getHours()).to.equal(0);
-            expect(d.getMinutes() - previousTime.getMinutes()).to.equal(0);
-            expect(d.getSeconds() - previousTime.getSeconds()).to.equal(0);
-
+            try {
+                Scheduler.__testOnly__.getNextRunTime(schedule);
+            } catch (error) {
+                expect(error.message).to.equal("Invalid option!");
+            }
         });
 
         it('Should get repeat period', function() {
@@ -152,6 +156,21 @@ function timeRelatedFunctionTest() {
             var period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
             expect(period).to.equal(14 * 24 * 3600);
 
+            options.repeat = "monthly";
+            var schedule = new SchedObj(options);
+            try {
+               var period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
+            } catch (errorStr) {
+               expect(errorStr).to.equal("Not support yet!");
+            }
+
+            options.repeat = "***";
+            var schedule = new SchedObj(options);
+            try {
+               var period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
+            } catch (errorStr) {
+               expect(errorStr).to.equal("Invalid option!");
+            }
         });
 
         it('Should show Time Helper', function() {
@@ -318,6 +337,23 @@ function timeRelatedFunctionTest() {
             var val = null;
             Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
             expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+
+            var type = "hour";
+            var val = "";
+            Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
+            expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+
+            var type = "hour";
+            var val = 12;
+            $newScheduleForm.find(".inputSection .ampm").text("AM");
+            Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
+            expect($newScheduleTime.val()).to.equal("12 : 59 AM");
+
+            var type = "day";
+            try {
+               Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
+            } catch (error) {}
+            expect($newScheduleTime.val()).to.equal("12 : 59 AM");
         });
 
         it('Should be able to change time', function() {
