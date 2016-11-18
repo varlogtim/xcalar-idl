@@ -582,7 +582,7 @@ function fileBrowserModuleTest() {
             expect($li.hasClass("select")).to.be.true;
         });
 
-        it("Should sort using title label", function() {
+        it.skip("Should sort using title label", function() {
             var $fileBrowserMain = $("#fileBrowserMain");
             var isListView = $fileBrowserMain.hasClass("listView");
 

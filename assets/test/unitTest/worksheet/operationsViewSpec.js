@@ -1113,9 +1113,8 @@ describe('OperationsView', function() {
                 submitForm()
                 .then(function() {
                     expect(options.output).to.not.be.null;
-                    var alertText = $('#alertContent').text().trim();
+                    var alertText = $('#alertContent .text').text().trim(); 
                     expect(alertText).to.equal('{"Value":' + options.output +'}');
-
                     if (args[1]) {
                         Aggregates.deleteAggs([args[1].str.slice(1)])
                         .then(function() {

@@ -98,6 +98,7 @@ window.DSExport = (function($, DSExport) {
     };
 
     DSExport.refresh = function(noWaitIcon) {
+        var deferred = jQuery.Deferred();
         if (!noWaitIcon) {
             xcHelper.showRefreshIcon($('#dsExportListSection'));
         }
@@ -120,16 +121,17 @@ window.DSExport = (function($, DSExport) {
             exportTargets = [];
     
             for (var i = 0; i < numTargs; i++) {
-                var type = ExTargetTypeTStr[targets[i].hdr.type];
+                var type = targets[i].hdr.type;
+                var typeTStr = ExTargetTypeTStr[type];
                 var options = {};
-                if (type === "file") {
+                if (type === ExTargetTypeT.ExTargetSFType) {
                     type = ExportTStr.LocalFS;
                     formatArg = targets[i].specificInput.sfInput.url;
-                } else if (type === "odbc") {
+                } else if (typeTStr === "odbc") {
                     type = "ODBC";
                     formatArg = targets[i].specificInput.odbcInput
                                                         .connectionString;
-                } else if (type === "udf") {
+                } else if (type === ExTargetTypeT.ExTargetUDFType) {
                     type = UDFTStr.UDF;
                     formatArg = targets[i].specificInput.udfInput.url;
                     var udfName = targets[i].specificInput.udfInput.appName;
@@ -153,10 +155,14 @@ window.DSExport = (function($, DSExport) {
                 exportTargets[typeIndex].targets.push(target);
             }
             restoreGrids(activeName, activeType);
+            deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(DSExportTStr.RestoreFail, error.error);
+            Alert.error(DSExportTStr.RestoreFail, error.error)
+            deferred.reject();
         });
+
+        return deferred.promise();
     };
 
     // updates the udf list
@@ -593,6 +599,15 @@ window.DSExport = (function($, DSExport) {
         var numGrids = $gridView.find(".grid-unit").length;
         $(".numExportTargets").html(numGrids);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DSExport.__testOnly__ = {};
+        DSExport.__testOnly__.submitForm = submitForm;
+        DSExport.__testOnly__.resetForm = resetForm;
+        DSExport.__testOnly__.showExportTargetForm = showExportTargetForm;
+    }
+    /* End Of Unit Test Only */
 
     return (DSExport);
 
