@@ -226,31 +226,34 @@ function xcalarCondrestart(res) {
 // Remove session files
 function removeSessionFiles(filePath, res) {
     // '/var/opt/xcalar/sessions' without the final slash is also legal
-    var sessionPath = getXlrRoot() + "/sessions/";
-    var completePath = getCompletePath(sessionPath, filePath);
-    var isLegalPath = isUnderBasePath(sessionPath, completePath);
-    var deferred = jQuery.Deferred();
-    if (!isLegalPath) {
-        console.log("The filename" + completePath + "is illegal");
-        var retMsg = {"status": Status.Error,
-                      "error" : new Error("Please Send a legal Session file/folder name.")};
-        res.send(retMsg);
-        return;
-    }
-    // Handle'/var/opt/xcalar/sessions', change to'/var/opt/xcalar/sessions/'
-    if (completePath == sessionPath.substring(0, sessionPath.length - 1)) {
-        completePath = completePath + '/';
-    }
-    // Handle '/var/opt/xcalar/sessions/', avoid delete the whole session
-    // folder, just delete everything under this folder.
-    if (completePath == sessionPath) {
-        completePath = completePath + '*';
-    }
-    console.log("Remove file at: ", completePath);
-    var command = 'rm -rf ' + completePath;
-    var promise = executeCommand(command);
-    promise
-    .then(function(result) {
+    var deferredOut = jQuery.Deferred();
+
+    getXlrRoot()
+    .then(function(xlrRoot) {
+        var sessionPath = xlrRoot + "/sessions/";
+        var completePath = getCompletePath(sessionPath, filePath);
+        var isLegalPath = isUnderBasePath(sessionPath, completePath);
+        if (!isLegalPath) {
+            console.log("The filename" + completePath + "is illegal");
+            var retMsg = {"status": Status.Error,
+                          "error" : new Error("Please Send a legal Session file/folder name.")};
+            res.send(retMsg);
+            return;
+        }
+        // Handle'/var/opt/xcalar/sessions', change to'/var/opt/xcalar/sessions/'
+        if (completePath == sessionPath.substring(0, sessionPath.length - 1)) {
+            completePath = completePath + '/';
+        }
+        // Handle '/var/opt/xcalar/sessions/', avoid delete the whole session
+        // folder, just delete everything under this folder.
+        if (completePath == sessionPath) {
+            completePath = completePath + '*';
+        }
+        console.log("Remove file at: ", completePath);
+        var command = 'rm -rf ' + completePath;
+        return executeCommand(command);
+    })
+    .then(function() {
         var file = filePath;
         if (!filePath) {
             file = "all files under session folder";
@@ -258,14 +261,15 @@ function removeSessionFiles(filePath, res) {
         var retMsg = {"status": Status.Ok,
                       "logs" : new Buffer("Remove " + file + " successfully!").toString('base64')};
         res.send(retMsg);
-        deferred.resolve();
+        deferredOut.resolve();
     })
-    .fail(function(result) {
+    .fail(function() {
         var retMsg = result;
         res.send(retMsg);
-        deferred.reject();
+        deferredOut.reject();
     });
-    return deferred.promise();
+
+    return deferredOut.promise();
 }
 
 function getCompletePath(sessionPath, filePath) {
