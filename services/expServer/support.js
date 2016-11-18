@@ -371,7 +371,7 @@ function submitTicket(contents, res) {
                '", "email": "' + email + '"}, "submitter_id": 410989, ' +
                '"subject": "' + subject + '", "comment": { "body": "' +
                contents + '" }}}\' -H "Content-Type: application/json" -v ' +
-               '-u dshetty@xcalar.com:i0turb1ne! -X POST');
+               '-u dshetty@xcalar.com/token:5b4NoJkwc36w2BRww0H9FQjdhXbZpnaLfrr7oZej -X POST');
     var acked = false;
     out.stderr.on('data', function(data) {
         var lines = data.split("\n");
