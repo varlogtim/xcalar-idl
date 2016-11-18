@@ -540,7 +540,12 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
             }
         }
 
-        if (!lateral) {
+        // if no visible lis, do not navigate up/down left/right
+        if (!$lis.length) {
+            return;
+        }
+
+        if (!lateral) { // up and down keys
             var index;
             var newIndex;
             if ($subMenu && $subMenu.is(':visible')) {
@@ -594,7 +599,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                     }
                 }
             }
-        } else if (lateral) { // left or right key is pressed
+        } else { // left or right key is pressed
             if (!$subMenu) { // if no submenu, do nothing
                 return;
             }

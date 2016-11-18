@@ -529,9 +529,18 @@ describe('OperationsView', function() {
                 var count = 0;
                 // go through each element inside .header and click
                 $allEls.each(function() {
-                    if ($(this).closest('.dropdownBox').length) {
+                    if ($(this).closest('.dropdownBox').length ||
+                        !$(this).is(":visible")) {
                         return;
                     }
+                    var $hiddenParents = $(this).parents().andSelf()
+                            .filter(function() {
+                                return $(this).css('visibility') === "hidden";
+                            });
+                    if ($hiddenParents.length) {
+                        return;
+                    }
+
                     $argInputs.eq(0).focus().trigger('focus').val("");
                     expect($argInputs.eq(0).val()).to.equal("");
                     $(this).click();
