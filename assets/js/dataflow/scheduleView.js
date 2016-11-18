@@ -460,9 +460,17 @@ window.Scheduler = (function(Scheduler, $) {
             {
                 return;
             }
-
-            toggleTimePicker($timePicker.closest('.scheduleForm'));
-
+            var $hourInput = $('.timePicker:visible').find('input.hour');
+            var $minInput = $('.timePicker:visible').find('input.minute');
+            if ($hourInput.val() > 12 || $hourInput.val() < 1) {
+                StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
+                               {"side": "left"});
+            } else if ($minInput.val() > 59 || $minInput.val() < 0) {
+                StatusBox.show(ErrTStr.SchedMinWrong, $minInput, false,
+                                {"side": "right"});
+            } else {
+                toggleTimePicker($timePicker.closest('.scheduleForm'));
+            }
         });
     }
 

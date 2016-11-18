@@ -562,7 +562,7 @@ module.exports = {
     "sched": {
         // create new schedule
         "CreateNew": "Create a new schedule",
-        "schedInstr": "First, choose a name for your schedule. Then select a start time, frequency, and number of times to run the schedule.",
+        "schedInstr": "Select the start time for your schedule, how frequently to run it, and the number of runs, then click save.",
         "schedName": "Schedule Name",
         "startTime": "Start Time",
         "freq": "Frequency",
