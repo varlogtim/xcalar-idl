@@ -4,7 +4,9 @@ describe('OperationsView', function() {
     var prefix;
 
     before(function(done) {
+        UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
+        UnitTest.min
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .always(function(ds, tName, tPrefix) {
             testDs = ds;
@@ -446,6 +448,7 @@ describe('OperationsView', function() {
         var $categoryMenu;
         var $functionsMenu;
         var $argInputs;
+        var operatorsMap;
 
         before(function(done) {
             $operationsView = $('#operationsView');
@@ -577,6 +580,265 @@ describe('OperationsView', function() {
 
     });
 
+    // using filter in operations view
+    describe('functions input test', function() {
+        var tableId;
+        var $operationsView;
+        var $functionsInput;
+        var $functionsList;
+        var $argSection;
+
+        before(function(done) {
+            $operationsView = $('#operationsView');
+            $('.xcTableWrap').each(function() {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
+                    tableId = $(this).find('.hashName').text().slice(1);
+                    return false;
+                }
+            });
+
+            OperationsView.show(tableId, 1, 'filter')
+            .then(function() {
+                $functionsInput = $operationsView.find('.filter .functionsInput');
+                $functionsList = $functionsInput.siblings('.list');
+                $argSection = $operationsView.find('.filter .argsSection').eq(0);
+                done();
+            });
+        });
+
+        it('clicking on functions input should work', function() {
+            expect($functionsInput.length).to.equal(1);
+            expect($functionsInput.is(":visible")).to.true;
+            expect($functionsList.length).to.equal(1);
+            expect($functionsList.is(":visible")).to.be.false;
+
+            $functionsInput.click();
+            expect($functionsList.is(":visible")).to.be.true;
+            var numLis = $functionsList.find('li:visible').length;
+            expect(numLis).to.be.gt(10);
+
+            $functionsInput.click();
+            expect($functionsList.is(":visible")).to.be.true;
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+        });
+
+        it('clicking on functions input iconWrapper produce full list', function() {
+            var numLis = $functionsList.find('li').length;
+            $functionsInput.siblings('.iconWrapper').click();
+            expect($functionsList.is(":visible")).to.be.true;
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+
+            $functionsInput.val('is').trigger(fakeEvent.input);
+            expect($functionsList.find("li:visible").length).to.be.lt(numLis);
+
+            $functionsInput.siblings('.iconWrapper').click();
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+        });
+
+        it('keydown enter and tab should update argument section', function() {
+            $functionsInput.val('').trigger(fakeEvent.enterKeydown);
+            expect($argSection.length).to.equal(1);
+            expect($argSection.hasClass('inactive')).to.be.true;
+
+            $functionsInput.val('and').trigger(fakeEvent.enterKeydown);
+            expect($argSection.hasClass('inactive')).to.be.false;
+            var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
+            expect($argSection.find('.arg').eq(1).val()).to.equal("");
+            expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
+
+            $functionsInput.val('').trigger({type:"keydown", which: keyCode.Tab});
+            expect($argSection.length).to.equal(1);
+            expect($argSection.hasClass('inactive')).to.be.true;
+
+            $functionsInput.val('and').trigger({type:"keydown", which: keyCode.Tab});
+            expect($argSection.hasClass('inactive')).to.be.false;
+            var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
+            expect($argSection.find('.arg').eq(1).val()).to.equal("");
+            expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
+        });
+
+        it('$.change on input should update argument section', function() {
+            StatusBox.forceHide();
+
+            $functionsInput.val('').change();
+            expect($argSection.length).to.equal(1);
+            expect($argSection.hasClass('inactive')).to.be.true;
+            expect($('#statusBox:visible').length).to.equal(0);
+
+            $functionsInput.val('and').change();
+            expect($argSection.hasClass('inactive')).to.be.false;
+            var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
+            expect($argSection.find('.arg').eq(1).val()).to.equal("");
+            expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
+
+            StatusBox.forceHide();
+            expect($('#statusBox:visible').length).to.equal(0);
+            $functionsInput.trigger(fakeEvent.mousedown);
+            $functionsInput.val('invalidFunction').change();
+            expect($('#statusBox:visible').length).to.equal(0);
+            
+            // trigger change via submit button to see if status box error shows
+            StatusBox.forceHide();
+            expect($('#statusBox:visible').length).to.equal(0);
+            $operationsView.find('.submit').trigger(fakeEvent.mousedown);
+            $functionsInput.val('test').change();
+            expect($('#statusBox:visible').length).to.equal(1);
+            StatusBox.forceHide();
+        });
+
+        it('functions list should scroll with key events', function() {
+            var numLis = $functionsList.find('li').length;
+            $functionsInput.val("");
+            $functionsInput.siblings('.iconWrapper').mousedown();
+            $functionsInput.siblings('.iconWrapper').click();
+
+            expect($functionsList.is(":visible")).to.be.true;
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+            expect(numLis).to.be.gt(10);
+            expect($functionsList.find('li.highlighted').length).to.equal(0);
+
+            $('body').trigger({type:"keydown", which: keyCode.Down});
+            expect($functionsList.find('li.highlighted').length).to.equal(1);
+            expect($functionsList.find('li').eq(0).hasClass('highlighted')).to.be.true;
+
+            $('body').trigger({type:"keydown", which: keyCode.Up});
+            expect($functionsList.find('li.highlighted').length).to.equal(1);
+            expect($functionsList.find('li').last().hasClass('highlighted')).to.be.true;
+
+            $('body').trigger({type:"keydown", which: keyCode.Down});
+            $('body').trigger({type:"keydown", which: keyCode.Down});
+            expect($functionsList.find('li.highlighted').length).to.equal(1);
+            expect($functionsList.find('li').eq(1).hasClass('highlighted')).to.be.true;
+            expect($functionsInput.val()).to.equal("between");
+        });
+
+        after(function(done) {
+            OperationsView.close();
+            setTimeout(function() { // allow time for op menu to close
+                done();
+            }, 500);
+        });
+    });
+
+    describe('filter', function() {
+        var tableId;
+        var $operationsView;
+        var $functionsInput;
+        var $functionsList;
+        var $argSection;
+        var $filterForm;
+
+        before(function(done) {
+            $operationsView = $('#operationsView');
+            $filterForm = $operationsView.find('.filter');
+            $('.xcTableWrap').each(function() {
+                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
+                    tableId = $(this).find('.hashName').text().slice(1);
+                    return false;
+                }
+            });
+
+            OperationsView.show(tableId, 1, 'filter')
+            .then(function() {
+                $functionsInput = $operationsView.find('.filter .functionsInput');
+                $functionsList = $functionsInput.siblings('.list');
+                $argSection = $filterForm.find('.argsSection').eq(0);
+                done();
+            });
+        });
+
+        describe('testing multiple conditions', function() {
+            var addGroup;
+            var removeGroup;
+            before(function() {
+                addGroup = OperationsView.__testOnly__.addFilterGroup;
+                removeGroup = OperationsView.__testOnly__.removeFilterGroup;
+            });
+
+            it('minimizing group with no args should work', function() {
+                expect($argSection.hasClass('inactive')).to.be.true;
+                expect($filterForm.find('.minGroup').length).to.equal(1);
+                expect($filterForm.find('.altFnTitle:visible').length).to.equal(0);
+                expect($filterForm.find('.functionsInput').val()).to.equal("");
+                expect($filterForm.find('.group').hasClass('minimized')).to.be.false;
+
+                $filterForm.find('.minGroup').click();
+
+                expect($filterForm.find('.group').hasClass('minimized')).to.be.true;
+                expect($filterForm.find('.altFnTitle:visible').length).to.equal(1);
+                expect($filterForm.find('.group').attr('data-numargs')).to.equal("0");
+            });
+
+            it('unminimize should work', function() {
+                expect($filterForm.find('.group').hasClass('minimized')).to.be.true;
+                $filterForm.find('.group').mouseup();
+                expect($filterForm.find('.group').hasClass('minimized')).to.be.false;
+            });
+
+            it('minimizing group with args should work', function() {
+                // check state
+                expect($argSection.hasClass('inactive')).to.be.true;
+                expect($filterForm.find('.minGroup').length).to.equal(1);
+                expect($filterForm.find('.altFnTitle:visible').length).to.equal(0);
+                expect($filterForm.find('.functionsInput').val()).to.equal("");
+                expect($filterForm.find('.group').hasClass('minimized')).to.be.false;
+                expect($argSection.find('.arg:visible').length).to.equal(0);
+
+                // trigger function and arg section
+                $functionsInput.val('and').trigger(fakeEvent.enterKeydown);
+                expect($argSection.hasClass('inactive')).to.be.false;
+                expect($argSection.find('.arg:visible').length).to.equal(2);
+
+                // click minimize
+                $filterForm.find('.minGroup').click();
+
+                // check
+                expect($filterForm.find('.group').hasClass('minimized')).to.be.true;
+                expect($filterForm.find('.group').attr('data-numargs')).to.equal("2");
+                expect($filterForm.find('.altFnTitle:visible').length).to.equal(0);
+
+                // unminimize
+                $filterForm.find('.group').mouseup();
+            });
+
+            it('adding and removing filter args should work', function() {
+                expect($filterForm.find('.group').length).to.equal(1);
+                expect($filterForm.find('.group').eq(0).hasClass('minimized')).to.be.false;
+
+                addGroup();
+
+                expect($filterForm.find('.group').length).to.equal(2);
+                expect($filterForm.find('.group').eq(0).hasClass('minimized')).to.be.true;
+                expect($filterForm.find('.group').eq(0).attr('data-numargs')).to.equal("2");
+                expect($filterForm.find('.group').eq(1).hasClass('minimized')).to.be.false;
+
+                addGroup();
+                expect($filterForm.find('.group').length).to.equal(3);
+
+                // cache 3rd group
+                var $thirdGroup = $filterForm.find('.group').eq(2);
+                expect($thirdGroup.find('.functionsList').data('fnlistnum')).to.equal(2);
+
+                // remove middle group
+                removeGroup($filterForm.find('.group').eq(1));
+
+                expect($filterForm.find('.group').length).to.equal(2);
+                expect($thirdGroup.find('.functionsList').data('fnlistnum')).to.equal(1);
+            });
+        });
+        
+
+        after(function(done) {
+            OperationsView.close();
+            setTimeout(function() { // allow time for op menu to close
+                done();
+            }, 500);
+        });
+    });
+
     // using map in operations view
     describe('map', function() {
         var tableId;
@@ -629,6 +891,49 @@ describe('OperationsView', function() {
                 expect($functionsMenu.find('li:visible').text()).to.equal("addipAddrToIntmacAddrToInt");
                 $filterInput.val('sub').trigger(fakeEvent.input);
                 expect($functionsMenu.find('li:visible').text()).to.equal("subsubstring");
+            });
+
+            it('mapFilter keydown up/down actions should work', function() {
+                $filterInput.val('').trigger(fakeEvent.input);
+                expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
+                expect($categoryMenu.find('li.active').length).to.equal(0);
+
+                $filterInput.trigger({type: "keydown", which: keyCode.Up});
+                expect($categoryMenu.find('li.active').length).to.equal(1);
+                expect($categoryMenu.find('li').eq(0).hasClass('active')).to.be.true;
+
+                $filterInput.trigger({type: "keydown", which: keyCode.Down});
+                 expect($categoryMenu.find('li.active').length).to.equal(1);
+                expect($categoryMenu.find('li').eq(1).hasClass('active')).to.be.true;
+
+                $filterInput.trigger({type: "keydown", which: keyCode.Up});
+                expect($categoryMenu.find('li.active').length).to.equal(1);
+                expect($categoryMenu.find('li').eq(0).hasClass('active')).to.be.true;
+            });
+
+            it('mapFilter keydown enter should work', function() {
+                $filterInput.val('findMinidx').trigger(fakeEvent.input);
+                expect($categoryMenu.find('li').eq(0).hasClass('active')).to.be.true;
+                expect($functionsMenu.find('li:visible').length).to.equal(1);
+                expect($functionsMenu.find('li:visible').eq(0).hasClass('active')).to.be.false;
+                expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.be.true;
+
+                $filterInput.trigger({type: "keydown", which: keyCode.Enter});
+                expect($functionsMenu.find('li:visible').eq(0).hasClass('active')).to.be.true;
+                expect($categoryMenu.find('li:visible').eq(0).hasClass('active')).to.be.true;
+                expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.be.false;
+            });
+
+            it('mapFilter clear should work', function() {
+                $filterInput.val('findMinidx').trigger(fakeEvent.input);
+                expect($filterInput.val()).to.equal('findMinidx');
+                expect($categoryMenu.find('li:visible').length).to.equal(1);
+                expect($functionsMenu.find('li:visible').length).to.equal(1);
+
+                $operationsView.find('.filterMapFuncArea .clear').trigger(fakeEvent.mousedown);
+                expect($filterInput.val()).to.equal('');
+                expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
+                expect($functionsMenu.find('li:visible').length).to.be.above(70);
             });
 
             it('clicking on filtered category list should work', function() {
@@ -897,7 +1202,6 @@ describe('OperationsView', function() {
         });
     });
 
-    // to be continued
     describe('aggregate', function() {
         var $aggForm;
         var $functionsInput;
@@ -1171,7 +1475,8 @@ describe('OperationsView', function() {
     after(function(done) {
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {
-           done();
+            UnitTest.offMinMode();
+            done();
         });
     });
 });

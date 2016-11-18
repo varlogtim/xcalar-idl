@@ -1142,8 +1142,7 @@ window.OperationsView = (function($, OperationsView) {
         index = index || 0;
         if (!isOperationValid(index)) {
             showErrorMessage(0, index);
-            var keep = true;
-            clearInput(0, index, keep);
+            clearInput(0, index);
             return;
         }
 
@@ -1176,14 +1175,9 @@ window.OperationsView = (function($, OperationsView) {
         $nextInput[0].selectionStart = $nextInput[0].selectionEnd = val.length;
     }
 
-    function clearInput(inputNum, groupNum, keep) {
-        if (!keep) {
-            $operationsView.find('.autocomplete')
-                            .eq(inputNum).val("")
-                            .attr('placeholder', "");
-        }
+    function clearInput(inputNum, groupNum) {
         if (inputNum === 0) {
-            var $group = $activeOpSection.find('.groupo').eq(groupNum);
+            var $group = $activeOpSection.find('.group').eq(groupNum);
             $group.find('.functionsInput').data('category', 'null');
             $group.find('.argsSection').last()
                        .addClass('inactive');
@@ -3959,18 +3953,22 @@ window.OperationsView = (function($, OperationsView) {
     // $group is optional, will minimize all groups if not passed in
     function minimizeGroups($group) {
         if (!$group) {
-            $activeOpSection.find('.group').addClass('minimized').each(function () {
+            $activeOpSection.find('.group').each(function () {
                 var $group = $(this);
+                if ($group.hasClass('minimized')) {
+                    return;
+                }
                 var numArgs = $group.find('.arg:visible').length;
                 $group.attr('data-numargs', numArgs);
+                $group.addClass('minimized');
                 if ($group.find('.functionsInput').val().trim() === "") {
                     $group.addClass('fnInputEmpty');
                 }
             });
         } else {
-            $group.addClass('minimized');
             var numArgs = $group.find('.arg:visible').length;
             $group.attr('data-numargs', numArgs);
+            $group.addClass('minimized');
             if ($group.find('.functionsInput').val().trim() === "") {
                 $group.addClass('fnInputEmpty');
             }
@@ -4109,6 +4107,8 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.formulateMapFilterString = formulateMapFilterString;
         OperationsView.__testOnly__.isNumberInQuotes = isNumberInQuotes;
         OperationsView.__testOnly__.checkAggregateNameValidity = checkAggregateNameValidity;
+        OperationsView.__testOnly__.addFilterGroup = addFilterGroup;
+        OperationsView.__testOnly__.removeFilterGroup = removeFilterGroup;
         OperationsView.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */
