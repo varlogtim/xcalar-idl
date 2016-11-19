@@ -65,18 +65,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.getWorkbook = function(workbookId) {
         var allWorkbooks = wkbkSet.getAll();
         if (!allWorkbooks) {
-            return;
+            return null;
         }
         if (!(workbookId in allWorkbooks)) {
-            return;
+            return null;
         }
 
         return allWorkbooks[workbookId];
-    };
-
-    WorkbookManager.getWorkbookIdByName = function(workbookName) {
-        // Get full workbookId by relative name
-        return getWKBKId(workbookName);
     };
 
     WorkbookManager.getWKBKsAsync = function() {
@@ -101,18 +96,15 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return (activeWKBKId);
     };
 
-    // get current user
-    WorkbookManager.getUser = function() {
-        return (username);
+    WorkbookManager.updateWorksheet = function(numWorksheets) {
+        var workbook = wkbkSet.get(activeWKBKId);
+        workbook.numWorksheets = numWorksheets;
     };
 
     // make new workbook
     WorkbookManager.newWKBK = function(wkbkName, srcWKBKId) {
-        var deferred = jQuery.Deferred();
-
         if (!wkbkName) {
-            deferred.reject("Invalid name");
-            return (deferred.promise());
+            return PromiseHelper.reject("Invalid name");
         }
 
         var wkbk;
@@ -123,11 +115,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
             copySrc = wkbkSet.get(srcWKBKId);
             if (copySrc == null) {
                 // when the source workbook's meta not exist
-                deferred.reject("missing workbook meta");
-                return (deferred.promise());
+                return PromiseHelper.reject("missing workbook meta");
             }
         }
 
+        var deferred = jQuery.Deferred();
         var copySrcName = isCopy ? copySrc.name : null;
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
@@ -160,7 +152,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             // If workbook is active, make it inactive so that our UX is linear
-            return (XcalarListWorkbooks(wkbkName));
+            return XcalarListWorkbooks(wkbkName);
         })
         .then(function(retStruct) {
             if (retStruct.numSessions !== 1) {
@@ -189,11 +181,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
 
         return deferred.promise();
-    };
-
-    WorkbookManager.updateWorksheet = function(numWorksheets) {
-        var workbook = wkbkSet.get(activeWKBKId);
-        workbook.numWorksheets = numWorksheets;
     };
 
     // switch to another workbook
@@ -225,13 +212,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
             })
             .then(function() {
                 switchWorkbookAnimation();
-                location.reload();
+                activeWKBKId = wkbkId;
+                xcHelper.reload();
                 deferred.resolve();
             })
             .fail(function(ret) {
                 if (ret && ret.status === StatusT.StatusSessionNotInact) {
                     switchWorkbookAnimation();
-                    location.reload();
+                    xcHelper.reload();
                     deferred.resolve();
                 } else {
                     if (!ret) {
@@ -277,8 +265,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(function() {
             switchWorkbookAnimation();
             removeUnloadPrompt();
-
-            location.reload();
+            activeWKBKId = wkbkId;
+            xcHelper.reload();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -395,7 +383,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             removeUnloadPrompt();
-            location.reload();
+            activeWKBKId = null;
+            xcHelper.reload();
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -775,46 +764,41 @@ window.WorkbookManager = (function($, WorkbookManager) {
     function copyHelper(srcId, newId) {
         var deferred = jQuery.Deferred();
 
-        var oldInfoKey    = generateKey(srcId, "gInfo");
-        var oldEphInfoKey = generateKey(srcId, "gEphInfo");
-        var oldLogKey     = generateKey(srcId, "gLog");
-        var oldErrKey     = generateKey(srcId, "gErr");
-        var newInfoKey    = generateKey(newId, "gInfo");
-        var newEphInfoKey = generateKey(newId, "gEphInfo");
-        var newLogKey     = generateKey(newId, "gLog");
-        var newErrKey     = generateKey(newId, "gErr");
-
-        // copy all info to new key
-        KVStore.get(oldInfoKey, gKVScope.META)
-        .then(function(value) {
-            return KVStore.put(newInfoKey, value, true, gKVScope.META);
-        })
+        copyAction("gInfo", gKVScope.META)
         .then(function() {
-            return KVStore.get(oldEphInfoKey, gKVScope.EPHM);
-        })
-        .then(function(value) {
             // If success, then put this key into the new workbook
             // If fail, then ignore and proceed with the rest of the copying
-            return KVStore.put(newEphInfoKey, value, false, gKVScope.EPH)
-                   .then(continuation);
-        }, function(value) {
-            // Getting of newEphInfoKey failed, continue with rest
-            continuation();
-        });
+            return copyAction("gEphInfo", gKVScope.EPHM, true);
+        })
+        .then(function() {
+            return copyAction("gLog", gKVScope.LOG);
+        })
+        .then(function() {
+            return copyAction("gErr", gKVScope.ERR);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
-        function continuation() {
-            KVStore.get(oldLogKey, gKVScope.LOG)
+        function copyAction(key, scope, ignoreFail) {
+            // copy all info to new key
+            var innerDeferred = jQuery.Deferred();
+            var oldKey = generateKey(srcId, key);
+            var newKey = generateKey(newId, key);
+
+            KVStore.get(oldKey, scope)
             .then(function(value) {
-                return KVStore.put(newLogKey, value, true, gKVScope.LOG);
+                return KVStore.put(newKey, value, true, scope);
             })
-            .then(function() {
-                return KVStore.get(oldErrKey, gKVScope.ERR);
-            })
-            .then(function(value) {
-                return KVStore.put(newErrKey, value, true, gKVScope.ERR);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+            .then(innerDeferred.resolve)
+            .fail(function(error) {
+                if (ignoreFail) {
+                    innerDeferred.resolve();
+                } else {
+                    innerDeferred.reject(error);
+                }
+            });
+
+            return innerDeferred.promise();
         }
 
         return deferred.promise();
@@ -868,6 +852,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
     function switchWorkbookAnimation() {
         Workbook.hide(true);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        WorkbookManager.__testOnly__ = {};
+        WorkbookManager.__testOnly__.generateKey = generateKey;
+        WorkbookManager.__testOnly__.getWKBKId = getWKBKId;
+        WorkbookManager.__testOnly__.delWKBKHelper = delWKBKHelper;
+        WorkbookManager.__testOnly__.copyHelper = copyHelper;
+        WorkbookManager.__testOnly__.resetActiveWKBK = resetActiveWKBK;
+        WorkbookManager.__testOnly__.saveWorkbook = saveWorkbook;
+    }
+    /* End Of Unit Test Only */
 
     return (WorkbookManager);
 }(jQuery, {}));

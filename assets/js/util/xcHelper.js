@@ -6,6 +6,10 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.reload = function() {
+        location.reload();
+    };
+
     // looks for xcTable-AB12 or $('#xcTable-AB12') and returns AB12
     xcHelper.parseTableId = function(idOrEl) {
         // can pass in a string or jQuery element
