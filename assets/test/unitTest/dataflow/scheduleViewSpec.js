@@ -371,6 +371,14 @@ function timeRelatedFunctionTest() {
             Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
             expect($newScheduleTime.val()).to.equal("11 : 11 PM");
 
+            var type = "ampm";
+            Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
+            expect($newScheduleTime.val()).to.equal("11 : 11 AM");
+
+            var type = "ampm";
+            Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+
             var type = "minute";
             Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
             expect($newScheduleTime.val()).to.equal("11 : 12 PM");
@@ -386,6 +394,122 @@ function timeRelatedFunctionTest() {
             var type = "hour";
             Scheduler.__testOnly__.changeTime(type, false, $newScheduleForm);
             expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+
+            var type = "***";
+            Scheduler.__testOnly__.changeTime(type, false, $newScheduleForm);
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        });
+
+        it('Should be able to use time picker click', function() {
+            var $newTimePicker = $("#newScheduler-timePicker");
+
+            $newScheduleTime = $newScheduleForm.find(".timeSection .time");
+            var date = $newScheduleTime.data("date");
+            date.setHours(23);
+            date.setMinutes(11);
+            $newScheduleTime.val("11 : 11 PM");
+
+            $newTimePicker.removeClass("hour");
+            $newTimePicker.removeClass("minute");
+
+            $newTimePicker.find(".btn.increase.ampm").click();
+            expect($newScheduleTime.val()).to.equal("11 : 11 AM");
+
+            $newTimePicker.find(".btn.increase.ampm").click();
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+
+            $newTimePicker.find(".btn.increase.ampm").click();
+            expect($newScheduleTime.val()).to.equal("11 : 11 AM");
+
+            $newTimePicker.find(".btn.increase.ampm").click();
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+
+            $newTimePicker.find(".btn.increase.minute").click();
+            expect($newScheduleTime.val()).to.equal("11 : 12 PM");
+
+            $newTimePicker.find(".btn.decrease.minute").click();
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+
+            $newTimePicker.find(".btn.increase.hour").click();
+            expect($newScheduleTime.val()).to.equal("12 : 11 PM");
+
+            $newTimePicker.find(".btn.decrease.hour").click();
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        });
+
+        it('Should be able to use time picker input', function() {
+            var $newTimePicker = $("#newScheduler-timePicker");
+
+            $newScheduleTime = $newScheduleForm.find(".timeSection .time");
+            var date = $newScheduleTime.data("date");
+            date.setHours(23);
+            date.setMinutes(11);
+            $newScheduleTime.val("11 : 11 PM");
+
+            $newTimePicker.find("input.minute").val(-1);
+            $newTimePicker.find("input.minute").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+
+            $newTimePicker.find("input.minute").val("fdsajfldsa;jfdl;sa");
+            $newTimePicker.find("input.minute").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+
+            $newTimePicker.find("input.minute").val(0);
+            $newTimePicker.find("input.minute").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 00 PM");
+
+            $newTimePicker.find("input.minute").val(1);
+            $newTimePicker.find("input.minute").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 01 PM");
+
+            $newTimePicker.find("input.minute").val(59);
+            $newTimePicker.find("input.minute").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(60);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(-1);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+
+            $newTimePicker.find("input.hour").val("fdsajfldsa;jfdl;sa");
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(0);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(1);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("01 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(12);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(13);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(6.5);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+
+            $newTimePicker.find("input.hour").val(null);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+
+            $newTimePicker.find("input.hour").val("");
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+
+            $newScheduleForm.find(".inputSection .ampm").text("AM");
+            $newTimePicker.find("input.hour").val(12);
+            $newTimePicker.find("input.hour").trigger("input");
+            expect($newScheduleTime.val()).to.equal("12 : 59 AM");
         });
 
 };
