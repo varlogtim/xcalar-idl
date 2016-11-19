@@ -179,6 +179,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         reverseSort = false;
 
         tableSizeMap = {};
+        $modal.find(".title.active").removeClass("active");
         $modal.find('.grid-unit.failed').removeClass('failed');
     }
 
@@ -210,6 +211,11 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         .always(function() {
             clearTimeout(timer);
             $modal.removeClass("load");
+            if (reverseSort != null) {
+                // because in sortTableList it will turn over
+                // so should change first to keep the sort same
+                reverseSort = !reverseSort;
+            }
             populateTableLists();
             if (failed) {
                 failHandler(arguments);
@@ -366,8 +372,12 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                     return -1;
                 } else if (sizeB == null) {
                     return 1;
+                } else if (sizeA === sizeB) {
+                    return 0;
+                } else if (sizeA > sizeB) {
+                    return 1;
                 } else {
-                    return sizeA > sizeB;
+                    return -1;
                 }
             });
         } else if (sortKey === "date") {
@@ -388,8 +398,12 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                     return -1;
                 } else if (tB == null) {
                     return 1;
+                } else if (tA === tB) {
+                    return 0;
+                } else if (tA > tB) {
+                    return 1;
                 } else {
-                    return tA > tB;
+                    return -1;
                 }
             });
         }

@@ -385,7 +385,6 @@ describe("WorkbookManager Test", function() {
                 done();
             });
         });
-
         
         it("Should switch workbook", function(done) {
             WorkbookManager.switchWKBK(testWkbkId)
