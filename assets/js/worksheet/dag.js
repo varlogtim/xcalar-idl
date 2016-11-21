@@ -1447,7 +1447,6 @@ window.Dag = (function($, Dag) {
         var numNodes = nodeArray.length;
         var index = 0;
         var node = nodeArray[index];
-        var children = "";
         var depth = 0;
         var condensedDepth = 0;
 
@@ -1457,12 +1456,10 @@ window.Dag = (function($, Dag) {
         var dagOptions = {condensed: condensed};
         var isPrevHidden = false; // is parent node in a collapsed state
         var group = [];
-        
 
         var dagImageHtml = drawDagNode(node, storedInfo, nodeArray, index,
-                                       dagInfo, children, depth,
-                                       condensedDepth, isPrevHidden, group,
-                                       dagOptions).html;
+                                       dagInfo, depth, condensedDepth,
+                                       isPrevHidden, group, dagOptions).html;
 
         var height = storedInfo.height * dagTableOuterHeight + 30;
         var width = storedInfo.condensedWidth * dagTableWidth - 150;
@@ -2803,7 +2800,7 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagNode(dagNode, storedInfo, dagArray, index,
-                         parentChildMap, children, depth, condensedDepth,
+                         parentChildMap, depth, condensedDepth,
                          isPrevHidden, group, options) {
         var coor = {};
         var lower; // upper branch y-coordinate
@@ -2811,15 +2808,12 @@ window.Dag = (function($, Dag) {
         var nodeInfo = parentChildMap[index];
         var numParents = nodeInfo.parents.length;
         var accumulatedDrawings = "";
-        children += "," + index;
-        if (children[0] === ",") {
-            children = children.substr(1);
-        }
+
         var isHidden = false;
         var newCondensedDepth = condensedDepth;
         // condense if not a join, not a leaf, and not the root
         if (options.condensed && !nodeInfo.multiParent &&
-            nodeInfo.numParents === 1 && nodeInfo.child !== -1) {
+            numParents === 1 && nodeInfo.child !== -1) {
             isHidden = true;
             nodeInfo.isHidden = true;
             if (!isPrevHidden) {
@@ -2843,7 +2837,7 @@ window.Dag = (function($, Dag) {
 
             drawRet = drawDagNode(dagArray[parentIndex], storedInfo,
                                   dagArray, parentIndex, parentChildMap,
-                                  children, newDepth, newCondensedDepth,
+                                  newDepth, newCondensedDepth,
                                   isHidden, group, options);
 
             accumulatedDrawings += drawRet.html;
@@ -2877,7 +2871,7 @@ window.Dag = (function($, Dag) {
         coor.condensedX = condensedDepth;
 
         var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
-                                    children, coor, isHidden, isPrevHidden,
+                                    coor, isHidden, isPrevHidden,
                                     group, storedInfo.groups, options);
 
         var newHtml = accumulatedDrawings + oneTable;
@@ -2888,8 +2882,8 @@ window.Dag = (function($, Dag) {
         });
     }
 
-    function drawDagTable(dagNode, dagArray, parentChildMap, index, children,
-                          coor, isHidden, isPrevHidden, group, groups, options) {
+    function drawDagTable(dagNode, dagArray, parentChildMap, index, coor,
+                          isHidden, isPrevHidden, group, groups, options) {
         var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
                                          index);
 
@@ -2953,7 +2947,6 @@ window.Dag = (function($, Dag) {
                         'data-tablename="' + tableName + '" ' +
                         'data-table="' + originalTableName + '" ' +
                         'data-index="' + index + '" ' +
-                        'data-children="' + children + '" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
                         'data-url="' + encodeURI(url) + '">' +
@@ -2985,7 +2978,6 @@ window.Dag = (function($, Dag) {
             }
             html += '<div class="dagTable ' + state + '" ' +
                         'data-tablename="' + tableName + '" ' +
-                        'data-children="' + children + '" ' +
                         'data-index="' + index + '" ' +
                         'data-id="' + tableId + '" ' +
                         'data-parents="' + parents + '">' +
