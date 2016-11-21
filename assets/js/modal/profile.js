@@ -626,7 +626,6 @@ window.Profile = (function($, Profile, d3) {
 
     function freePointer() {
         var deferred = jQuery.Deferred();
-
         if (resultSetId == null) {
             deferred.resolve();
         } else {
@@ -1342,7 +1341,6 @@ window.Profile = (function($, Profile, d3) {
         return d3.select("#profile-chart .groupbyChart .barChart");
     }
 
-
     function resizeChart() {
         if (statsCol.groupByInfo &&
             statsCol.groupByInfo.isComplete === true)
@@ -1459,16 +1457,21 @@ window.Profile = (function($, Profile, d3) {
                     var rowPercent = mouseX / $scrollerBar.width();
                     // make sure rowPercent in [0, 1]
                     rowPercent = Math.min(1, Math.max(0, rowPercent));
-                    var left = getPosition(rowPercent, $scroller, $scrollerBar);
+                    var left = getPosition(rowPercent);
                     $scroller.css("left", left);
                 }
             }
         });
     }
 
-    function getPosition(percent, $scroller, $scrollerBar) {
+    function getPosition(percent) {
         precent = Math.min(99.9, Math.max(0, percent * 100));
-        var barWidth =  $scrollerBar.width();
+
+        var $section = $modal.find(".scrollSection");
+        var $scrollBar = $section.find(".scrollBar");
+        var $scroller = $scrollBar.find(".scroller");
+
+        var barWidth =  $scrollBar.width();
         var position = barWidth * percent;
 
         position = Math.max(0, position);
@@ -1498,7 +1501,7 @@ window.Profile = (function($, Profile, d3) {
             // case of going to same row
             // put the row scoller in right place
             $skipInput.val(rowNum);
-            left = getPosition(rowPercent, $scroller, $scrollBar);
+            left = getPosition(rowPercent);
             $scroller.css("left", left);
 
             if (!forceUpdate) {
@@ -1519,12 +1522,12 @@ window.Profile = (function($, Profile, d3) {
                 rowsToFetch = totalRows;
             }
 
-            var oldLeft = getPosition(rowPercent, $scroller, $scrollBar);
+            var oldLeft = getPosition(rowPercent);
             if (isFromInput) {
                 rowPercent = (totalRows === 1) ?
                                         0 : (rowNum - 1) / (totalRows - 1);
 
-                left = getPosition(rowPercent, $scroller, $scrollBar);
+                left = getPosition(rowPercent);
                 $scroller.addClass("scrolling")
                     .css("left", oldLeft);
 
@@ -1537,7 +1540,7 @@ window.Profile = (function($, Profile, d3) {
                 $scroller.css("left", oldLeft);
             }
         } else {
-            left = getPosition(rowPercent, $scroller, $scrollBar);
+            left = getPosition(rowPercent);
             $scroller.css("left", left);
 
             rowsToFetch = numRowsToFetch;
@@ -1557,6 +1560,7 @@ window.Profile = (function($, Profile, d3) {
         groupByData = [];
 
         setArrows(null, true);
+
         fetchGroupbyData(rowPosition, rowsToFetch)
         .then(function() {
             toggleFilterOption(true);
@@ -1856,6 +1860,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         curStatsCol.groupByInfo.isComplete = "running";
+        $modal.attr("data-state", "pending");
 
         var refreshTimer = setTimeout(function() {
             // refresh if not complete
@@ -1884,8 +1889,11 @@ window.Profile = (function($, Profile, d3) {
             order = sortMap.origin; // reset to normal order
             curStatsCol.groupByInfo.isComplete = true;
 
-            refreshGroupbyInfo(true);
             Transaction.done(txId);
+            return refreshGroupbyInfo(true);
+        })
+        .then(function() {
+            $modal.attr("data-state", "finished");
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
@@ -1896,7 +1904,7 @@ window.Profile = (function($, Profile, d3) {
 
     function runBucketing(newBucketNum, curStatsCol, txId) {
         var deferred = jQuery.Deferred();
-        var buckets   = curStatsCol.groupByInfo.buckets;
+        var buckets = curStatsCol.groupByInfo.buckets;
         var curBucket = buckets[newBucketNum];
 
         if (curBucket != null && curBucket.table != null) {
@@ -1906,7 +1914,7 @@ window.Profile = (function($, Profile, d3) {
 
         // bucket based on original groupby table
         var tableName = buckets[0].table;
-        var mapTable  = getNewName(tableName, ".bucket");
+        var mapTable = getNewName(tableName, ".bucket");
         var indexTable;
         var groupbyTable;
         var finalTable;
@@ -1966,7 +1974,6 @@ window.Profile = (function($, Profile, d3) {
             // Note that grouby table can not delete because when
             // sort bucket table it looks for the unsorted table,
             // which is this one
-
             PromiseHelper.when(def1, def2)
             .always(function() {
                 deferred.resolve();
@@ -2174,7 +2181,6 @@ window.Profile = (function($, Profile, d3) {
         var chart = getChart();
         var bars = chart.selectAll(".barArea.selected");
         var barsSize = bars.size();
-        // var $bars = $modal.find(".groupbyChart .barArea.selected");
 
         if (barsSize === 0) {
             isHidden = true;
@@ -2422,9 +2428,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function getNewName(tableName, affix, rand) {
-        // XXX Should simplify it when gTables store short tName
         var name = xcHelper.getTableName(tableName);
-
         name = name + affix;
 
         if (rand) {
@@ -2471,6 +2475,18 @@ window.Profile = (function($, Profile, d3) {
             resetGroupbyInfo();
         }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        Profile.__testOnly__ = {};
+        Profile.__testOnly__.getResultSetId = function() {
+            return resultSetId;
+        };
+        Profile.__testOnly__.getStatsCol = function() {
+            return statsCol;
+        };
+    }
+    /* End Of Unit Test Only */
 
     return (Profile);
 }(jQuery, {}, d3));

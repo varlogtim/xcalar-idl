@@ -273,7 +273,7 @@ window.xcFunction = (function($, xcFunction) {
                 "msgTable": xcHelper.getTableId(finalTableName),
                 "sql"     : sql
             });
-            deferred.resolve();
+            deferred.resolve(finalTableName);
         })
         .fail(function(error, sorted) {
             clearTimeout(timer);
