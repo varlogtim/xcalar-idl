@@ -1717,11 +1717,10 @@ window.JoinView = (function($, JoinView) {
     }
 
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
-        // var tableCols = gTables[tableId].tableCols;
         var col = gTables[tableId].getColByFrontName(val);
-        var type = col.type;
+        var type = col.getType();
         var backColName = col.getBackColName();
-        var frontColName = col.getFrontColName(true);
+        var frontColName = col.getFrontColName(); // not include prefix
         var colNum = gTables[tableId].getColNumByBackName(backColName);
 
         var context1 = contextCheck($('#xcTable-' + tableId), colNum, type);
@@ -1732,15 +1731,15 @@ window.JoinView = (function($, JoinView) {
 
         var $suggTable = $('#xcTable-' + suggTableId);
         var suggTable = gTables[suggTableId];
-        $suggTable.find(".header").each(function(colNum) {
+        $suggTable.find(".header").each(function(curColNum) {
             var $curTh = $(this);
             // 0 is rowMarker
-            if (colNum !== 0 && !$curTh.hasClass('dataCol') &&
+            if (curColNum !== 0 && !$curTh.hasClass('dataCol') &&
                 getType($curTh) === type) {
-                var context2 = contextCheck($suggTable, colNum, type);
+                var context2 = contextCheck($suggTable, curColNum, type);
 
-                var curColName = suggTable.getCol(colNum)
-                                            .getFrontColName(true);
+                var curColName = suggTable.getCol(curColNum)
+                                          .getFrontColName();
                 var dist = getTitleDistance(frontColName, curColName);
                 var score = getScore(context1, context2, dist, type);
 

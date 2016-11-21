@@ -1256,17 +1256,27 @@ window.DS = (function ($, DS) {
             return;
         }
 
+        var $grid;
         if ($label == null) {
-            var $grid = DS.getGrid($gridMenu.data("dsid"));
+            $grid = DS.getGrid($gridMenu.data("dsid"));
             $label = $grid.find("> .label");
+        } else {
+            $grid = $label.closest(".grid-unit");
         }
 
         if (dsId == null) {
-            dsId = $label.closest(".grid-unit").data("dsid");
+            dsId = $grid.data("dsid");
         }
 
-        var isEditable = DS.getDSObj(dsId).isEditable();
-        if ($label.hasClass("focused") || !isEditable) {
+        var dsObj = DS.getDSObj(dsId);
+        var isEditable = dsObj.isEditable();
+        if (!isEditable && dsObj.beFolder()) {
+            // if not editable, then should open the folder
+            $grid.trigger("dblclick");
+            return;
+        }
+
+        if ($label.hasClass("focused")) {
             return;
         }
         $label.addClass("focused");
