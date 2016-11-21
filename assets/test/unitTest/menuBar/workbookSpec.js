@@ -3,6 +3,7 @@ describe('Workbook Test', function() {
 
     before(function(){
         $workbookPanel = $("#workbookPanel");
+        UnitTest.onMinMode();
     });
 
     describe("Basic Api Test", function() {
@@ -182,21 +183,11 @@ describe('Workbook Test', function() {
         });
 
         it("Should delete workbook", function(done) {
-            var $boxs = $workbookPanel.find(".workbookBox");
-            var wkbkNum = $boxs.length;
-            $boxs.eq(0).find(".delete").click();
-            $boxs.eq(1).find(".delete").click();
+            // delete two test created workbooks one by one
+            var promises = [];
+            promises.push(deleteHelper.bind(this));
 
-            var checkFunc = function() {
-                var diff = $workbookPanel.find(".workbookBox").length - wkbkNum;
-                if (diff > 0) {
-                    // error case
-                    return null;
-                }
-                return (diff === -2);
-            };
-
-            UnitTest.testFinish(checkFunc)
+            PromiseHelper.chain(promises)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
                 .to.equal(1);
@@ -205,6 +196,26 @@ describe('Workbook Test', function() {
             .fail(function() {
                 throw "Error Case";
             });
+
+            function deleteHelper() {
+                var $boxs = $workbookPanel.find(".workbookBox");
+                var wkbkNum = $boxs.length;
+                $boxs.eq(0).find(".delete").click();
+
+                assert.isTrue($("#alertModal").is(":visible"));
+                $("#alertModal").find(".confirm").click();
+
+                var checkFunc = function() {
+                    var diff = $workbookPanel.find(".workbookBox").length - wkbkNum;
+                    if (diff > 0) {
+                        // error case
+                        return null;
+                    }
+                    return (diff === -1);
+                };
+
+                return UnitTest.testFinish(checkFunc);
+            }
         });
 
         it("Should close workbook", function(done) {
@@ -224,5 +235,9 @@ describe('Workbook Test', function() {
                 throw "Error Case";
             });
         });
+    });
+
+    after(function() {
+        UnitTest.offMinMode();
     });
 });

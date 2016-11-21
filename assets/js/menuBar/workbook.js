@@ -311,18 +311,14 @@ window.Workbook = (function($, Workbook) {
         $workbookSection.on("click", ".delete", function() {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.attr("data-workbook-id");
-            WorkbookManager.deleteWKBK(workbookId)
-            .then(function() {
-                $workbookBox.addClass('removing');
-                setTimeout(function() {
-                    $workbookBox.remove();
-                }, 600);
-                
-            })
-            .fail(function(error) {
-                StatusBox.show(error.error, $workbookBox);
+            Alert.show({
+                "title"    : WKBKTStr.Delete,
+                "msg"      : WKBKTStr.DeleteMsg,
+                "onConfirm": function() {
+                    deleteWorkbookHelper($workbookBox);
+                }
             });
+
             $(".tooltip").remove();
         });
 
@@ -555,6 +551,20 @@ window.Workbook = (function($, Workbook) {
             .find(".loadSection").remove()
             .end()
             .find(animClasses).hide().fadeIn();
+    }
+
+    function deleteWorkbookHelper($workbookBox) {
+        var workbookId = $workbookBox.attr("data-workbook-id");
+        WorkbookManager.deleteWKBK(workbookId)
+        .then(function() {
+            $workbookBox.addClass('removing');
+            setTimeout(function() {
+                $workbookBox.remove();
+            }, 600);
+        })
+        .fail(function(error) {
+            StatusBox.show(error.error, $workbookBox);
+        });
     }
 
     function createWorkbookCard(workbook, extraClasses) {
