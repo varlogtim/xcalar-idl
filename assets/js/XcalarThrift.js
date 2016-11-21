@@ -916,60 +916,64 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     return (deferred.promise());
 }
 
-// ignoreNotFound: boolean, if true, will not console.error
-function XcalarDestroyDataset(dsName, txId, ignoreNotFound) {
+function XcalarDestroyDataset(dsName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
-    var deferred = jQuery.Deferred();
     if (Transaction.checkAndSetCanceled(txId)) {
-        return (deferred.reject().promise());
+        return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
 
+    var deferred = jQuery.Deferred();
     dsName = parseDS(dsName);
-    var workItem = xcalarDeleteDagNodesWorkItem(dsName,
-                                                SourceTypeT.SrcDataset);
-    var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
-    var def2 = XcalarGetQuery(workItem);
 
-    var delDagNodesRes;
-    var query;
-
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        delDagNodesRes = ret1;
-        query = ret2;
+    deleteDagNodeHelper()
+    .then(function() {
         return xcalarApiDeleteDatasets(tHandle, dsName);
     })
-    .then(function(ret3) {
+    .then(function() {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
+            deferred.resolve();
+        }
+    })
+    .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId);
+        var thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+
+    function deleteDagNodeHelper() {
+        var innerDeferred = jQuery.Deferred();
+        var workItem = xcalarDeleteDagNodesWorkItem(dsName,
+                                                SourceTypeT.SrcDataset);
+        var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+        var def2 = XcalarGetQuery(workItem);
+
+        jQuery.when(def1, def2)
+        .then(function(delDagNodesRes, query) {
             // txId may be null if performing a
             // deletion not triggered by the user (i.e. clean up)
             if (txId != null) {
                 Transaction.log(txId, query);
             }
-            deferred.resolve(delDagNodesRes);
-        }
-    })
-    .fail(function(error1, error2) {
-        if (!error2) {
-            error2 = "";
-        }
-        Transaction.checkAndSetCanceled(txId);
-        var thriftError;
-        if (ignoreNotFound && error1 === StatusT.StatusDagNodeNotFound) {
-            thriftError = {status: error1, 
-                           error: "Error:" + StatusTStr[error1]};
-        } else {
-            thriftError = thriftLog("XcalarDestroyDataset", error1, error2);
-        }
-        deferred.reject(thriftError);
-    });
+            innerDeferred.resolve();
+        })
+        .fail(function(error1, error2) {
+            if (error1 === StatusT.StatusDagNodeNotFound) {
+                // this error is allowed
+                innerDeferred.resolve();
+            } else {
+                innerDeferred.reject(error1, error2);
+            }
+        });
 
-    return (deferred.promise());
+        return innerDeferred.promise();
+    }
 }
 
 function XcalarIndexFromDataset(datasetName, key, tablename, prefix, txId) {

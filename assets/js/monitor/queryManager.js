@@ -1446,8 +1446,7 @@ window.QueryManager = (function(QueryManager, $) {
 
     function deleteDatasetHelper(dsName) {
         dsName = dsName.slice(gDSPrefix.length);
-        var ignoreNotFound = true;
-        XcalarDestroyDataset(dsName, null, ignoreNotFound);
+        XcalarDestroyDataset(dsName, null);
     }
 
      /* Unit Test Only */
