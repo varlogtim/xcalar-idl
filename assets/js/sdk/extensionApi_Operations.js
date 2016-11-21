@@ -216,6 +216,27 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.fetchColumnData(colName, tableName, startRowNum, rowsToFetch);
         },
 
+        "appSet": function(name, hostType, duty, execStr) {
+            var self = this;
+            var txId = self.txId;
+
+            return XIApi.appSet(txId, name, hostType, duty, execStr);
+        },
+
+        "appRun": function(name, isGlobal, inStr) {
+            var self = this;
+            var txId = self.txId;
+
+            return XIApi.appRun(txId, name, isGlobal, inStr);
+        },
+
+        "appReap": function(name, appGroupId) {
+            var self = this;
+            var txId = self.txId;
+
+            return XIApi.appReap(txId, name, appGroupId);
+        },
+
         // private function
         "_addMeta": function(srcTable, dstTable, dstCols, options) {
             // XXX options is later used to customize tableCols

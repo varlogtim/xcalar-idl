@@ -145,7 +145,7 @@ window.UExtFuncTest = (function(UExtFuncTest) {
     }
 
     function listFuncTest() {
-        var ext = new XcSDK.Extension({"noTable": true});
+        var ext = new XcSDK.Extension();
         ext.start = function() {
             // seach "js promise" online if you do not understand it
             // check promiseApi.js to see the api.

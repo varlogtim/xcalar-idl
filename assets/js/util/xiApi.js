@@ -549,6 +549,56 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    XIApi.appSet = function(txId, name, hostType, duty, execStr) {
+        // appName: name for app, doesn't have to match any name in execStr
+        // hostType: python for python app, presumably cpp for cpp app
+        // duty: leave blank, or possibly "load"
+        // execStr: body of the app
+        var deferred = jQuery.Deferred();
+        if (txId == null) {
+            return PromiseHelper.reject("Invalid args in appSet");
+        }
+
+        // TODO: check for valid appName, hostType, duty, execStr
+        // SUBTODO: What restrictions do we have for appName?
+        // SUBTODO: What are valid hostTypes?
+        // SUBTODO: What are valid duties?
+        // SUBTODO: If execStr has, for instance, syntax error,
+        //          should we check that here or wait until backend
+        //          catches it.
+        XcalarAppSet(name, hostType, duty, execStr)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    XIApi.appRun = function(txId, name, isGlobal, inStr) {
+        var deferred = jQuery.Deferred();
+        if (txId == null) {
+            return PromiseHelper.reject("Invalid args in appSet");
+        }
+        XcalarAppGet(name, hostType, duty, execStr)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    XIApi.appReap = function(txId, name, appGroupId) {
+        var deferred = jQuery.Deferred();
+        if (txId == null) {
+            return PromiseHelper.reject("Invalid args in appSet");
+        }
+        XcalarAppReap(name, appGroupId)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+
+
     function multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId) {
         var deferred = jQuery.Deferred();
         var len = lColNames.length;
