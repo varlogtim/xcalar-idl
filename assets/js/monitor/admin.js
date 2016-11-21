@@ -35,7 +35,6 @@ window.Admin = (function($, Admin) {
             addMonitorMenuSupportListeners();
             refreshUserList();
             setupAdminStatusBar();
-            SupportTools.setup();
             MonitorLog.setup();
         }
     };
@@ -106,6 +105,18 @@ window.Admin = (function($, Admin) {
         sessionStorage.setItem("xcalar-fullUsername", adminName);
 
         unloadHandler(false, true);
+    };
+
+    Admin.showSupport = function() {
+        Alert.forceClose();
+        
+        MainMenu.openPanel('monitorPanel');
+        $('#setupButton').click();
+        MainMenu.open(true);
+        MonitorGraph.stop();
+        $('#container').addClass('supportOnly');
+        $('#configCard').addClass('xc-hidden');
+        StatusMessage.updateLocation();
     };
 
     function addMonitorMenuUserListListeners() {
@@ -324,7 +335,7 @@ window.Admin = (function($, Admin) {
 
     function startNode() {
         supportPrep('startNode')
-        .then(XFTSupportTools.startXcalarServices)
+        .then(XFTSupportTools.clusterStart)
         .then(function(ret) {
             // refresh page
             console.log('success start', ret);
@@ -345,7 +356,7 @@ window.Admin = (function($, Admin) {
 
     function stopNode() {
         supportPrep('stopNode')
-        .then(XFTSupportTools.stopXcalarServices)
+        .then(XFTSupportTools.clusterStop)
         .then(function(ret) {
             console.log('success stop', ret);
             if ($('#container').hasClass('supportOnly')) {
@@ -370,10 +381,8 @@ window.Admin = (function($, Admin) {
     function restartNode() {
         // restart is unreliable so we stop and start instead
         supportPrep('restartNode')
-        .then(XFTSupportTools.stopXcalarServices)
-        .then(function() {
-            return (XFTSupportTools.startXcalarServices());
-        })
+        .then(XFTSupportTools.clusterStop)
+        .then(XFTSupportTools.clusterStart)
         .then(function() {
             location.reload();
         })
@@ -387,7 +396,7 @@ window.Admin = (function($, Admin) {
 
     function getStatus() {
         $('#configSupportStatus').addClass('unavailable');
-        XFTSupportTools.statusXcalarServices()
+        XFTSupportTools.clusterStatus()
         .then(function(ret) {
             var logs = ret.logs;
             if (!logs) {

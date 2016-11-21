@@ -1037,7 +1037,7 @@ window.xcHelper = (function($, xcHelper) {
                 $btn = $(html);
 
                 $btn.click(function() {
-                    SupportTools.show();
+                    Admin.showSupport();
                 });
                 break;
             default:
