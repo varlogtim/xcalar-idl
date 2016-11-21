@@ -1739,8 +1739,9 @@ window.JoinView = (function($, JoinView) {
                 var context2 = contextCheck($suggTable, curColNum, type);
 
                 var curColName = suggTable.getCol(curColNum)
-                                          .getFrontColName();
-                var dist = getTitleDistance(frontColName, curColName);
+                                          .getFrontColName(true);
+                var parsedName = xcHelper.parsePrefixColName(curColName).name;
+                var dist = getTitleDistance(frontColName, parsedName);
                 var score = getScore(context1, context2, dist, type);
 
                 if (score > maxScore) {
@@ -1769,6 +1770,7 @@ window.JoinView = (function($, JoinView) {
         var bucket  = {};
         var bucket2 = {};
         var match   = 0;
+        var words   = {};
 
         if (type === "string") {
             // Note: current way is hash each char and count frequency
@@ -1777,11 +1779,18 @@ window.JoinView = (function($, JoinView) {
                 for (var i = 0; i < value.length; i++) {
                     bucket[value.charAt(i)] = true;
                 }
+
+                words[value] = words[value] || 0;
+                words[value]++;
             });
 
             context2.vals.forEach(function(value) {
                 for (var i = 0; i < value.length; i++) {
                     bucket2[value.charAt(i)] = true;
+                }
+                // when has whole word match
+                if (words.hasOwnProperty(value)) {
+                    match += 10 * words[value];
                 }
             });
 
