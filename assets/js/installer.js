@@ -495,8 +495,7 @@ window.Installer = (function(Installer, $) {
             deferred.resolve();
         })
         .fail(function() {
-            // JJJ handle this cleanly
-            deferred.reject(arguments);
+            deferred.reject.apply({}, arguments);
         });
 
 
