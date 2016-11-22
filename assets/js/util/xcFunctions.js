@@ -428,8 +428,11 @@ window.xcFunction = (function($, xcFunction) {
             "rename"       : rJoinInfo.rename
         };
 
+        var finalJoinTableName;
+
         XIApi.join(txId, joinType, lTableInfo, rTableInfo, newTableName)
         .then(function(finalTableName, finalTableCols) {
+            finalJoinTableName = finalTableName;
             var tablesToReplace = [];
             var refreshOptions = {};
             if (!options.keepTables) {
@@ -448,7 +451,7 @@ window.xcFunction = (function($, xcFunction) {
                 "msgTable"      : newTableId,
                 "noNotification": focusOnTable
             });
-            deferred.resolve();
+            deferred.resolve(finalJoinTableName);
         })
         .fail(function(error) {
             if (typeof error === "object" &&

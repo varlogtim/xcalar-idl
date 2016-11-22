@@ -211,16 +211,21 @@ window.JoinView = (function($, JoinView) {
         // delete multi clause
         $clauseContainer.on("click", ".joinClause .middleIcon", function() {
             var $joinClause = $(this).closest(".joinClause");
-            $joinClause.slideUp(100, function() {
+            if (gMinModeOn) {
+                clauseRemoveHelper();
+            } else {
+                $joinClause.slideUp(100, clauseRemoveHelper);
+            }
+           
+            function clauseRemoveHelper() {
                 $joinClause.remove();
                 updatePreviewText();
                 checkNextBtn();
-                // reset estimator if removing a filled input
                 if ($joinClause.find('.leftClause').val().trim() !== "" ||
                     $joinClause.find('.leftClause').val().trim() !== "") {
                     isNextNew = true;
                 }
-            });
+            }
         });
 
         $joinView.on('focus', '.tableListSection .arg', function() {
@@ -742,7 +747,8 @@ window.JoinView = (function($, JoinView) {
     function estimateJoinSize() {
         var deferred = jQuery.Deferred();
         if (!validTableNameChecker()) {
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
         var tableIds = getTableIds();
         var cols = getClauseCols();
@@ -788,6 +794,8 @@ window.JoinView = (function($, JoinView) {
             $estimatorWrap.find('.value').text('N/A');
             deferred.reject();
         });
+
+        return deferred.promise();
     }
 
     // generates all left and right table columns to keep
@@ -986,10 +994,10 @@ window.JoinView = (function($, JoinView) {
 
         var isValidTableName = xcHelper.tableNameInputChecker($joinTableName);
         if (!isValidTableName) {
-            return;
+            return PromiseHelper.reject();
         }
         if (!validTableNameChecker()) {
-            return;
+            return PromiseHelper.reject();
         }
 
         var newTableName = $joinTableName.val().trim();
@@ -997,7 +1005,7 @@ window.JoinView = (function($, JoinView) {
         formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();
         var tableName = newTableName + Authentication.getHashId();
-        joinSubmitHelper(joinType, tableName);
+        return joinSubmitHelper(joinType, tableName);
 
         // XXX some bugs here
         formHelper.enableSubmit();
@@ -1035,6 +1043,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function joinSubmitHelper(joinType, newTableName) {
+        var deferred = jQuery.Deferred();
         var lCols = [];
         var rCols = [];
         var $invalidClause = null;
@@ -1058,7 +1067,9 @@ window.JoinView = (function($, JoinView) {
         if ($invalidClause != null || lCols.length === 0) {
             toggleNextView(); // go back
             invalidMultiClauseTooltip($invalidClause);
-            return false;
+
+            deferred.reject();
+            return deferred.promise();
         }
 
         var tableIds = getTableIds();
@@ -1146,8 +1157,9 @@ window.JoinView = (function($, JoinView) {
                                lImmediates, leftRenameArray, false) ||
                 !executeChecks($rightRenames, $rightOrigNames, $rightNewNames,
                                rImmediates, rightRenameArray, false)) {
-                return false;
-
+                
+                deferred.reject();
+                return deferred.promise();
             }
 
             // Cross check between left and right fat ptrs on whether they
@@ -1157,7 +1169,8 @@ window.JoinView = (function($, JoinView) {
                                                     .val()) > -1) {
                     StatusBox.show(ErrTStr.PrefixConflict,$leftFatRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
                 var firstIdx = lFatPtr.indexOf($leftFatRenames.eq(i)
                                                        .find(".newName").val());
@@ -1165,7 +1178,8 @@ window.JoinView = (function($, JoinView) {
                                                    .val(), firstIdx + 1) > -1) {
                     StatusBox.show(ErrTStr.PrefixConflict,$leftFatRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
             }
 
@@ -1175,7 +1189,8 @@ window.JoinView = (function($, JoinView) {
                     StatusBox.show(ErrTStr.ColumnConflict,
                                    $rightFatRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
                 var firstIdx = rFatPtr.indexOf($rightFatRenames.eq(i)
                                                        .find(".newName").val());
@@ -1184,7 +1199,8 @@ window.JoinView = (function($, JoinView) {
                     StatusBox.show(ErrTStr.ColumnConflict,
                                    $rightFatRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
             }
 
@@ -1195,7 +1211,8 @@ window.JoinView = (function($, JoinView) {
                                                     .val()) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
                 var firstIdx = lImmediates.indexOf($leftRenames.eq(i)
                                                        .find(".newName").val());
@@ -1203,7 +1220,8 @@ window.JoinView = (function($, JoinView) {
                                                    .val(), firstIdx + 1) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
             }
 
@@ -1212,7 +1230,8 @@ window.JoinView = (function($, JoinView) {
                                                      .val()) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
                 var firstIdx = rImmediates.indexOf($rightRenames.eq(i)
                                                        .find(".newName").val());
@@ -1220,7 +1239,8 @@ window.JoinView = (function($, JoinView) {
                                                    .val(), firstIdx + 1) > -1) {
                     StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
                                    true);
-                    return false;
+                    deferred.reject();
+                    return deferred.promise();
                 }
             }
 
@@ -1245,8 +1265,7 @@ window.JoinView = (function($, JoinView) {
 
             leftRenameArray = leftRenameArray.concat(leftFatRenameArray);
             rightRenameArray = rightRenameArray.concat(rightFatRenameArray);
-            proceedWithJoin(leftRenameArray, rightRenameArray);
-            return true;
+            return proceedWithJoin(leftRenameArray, rightRenameArray);
         }
 
         var lTableMeta = gTables[lTableId].backTableMeta;
@@ -1369,8 +1388,7 @@ window.JoinView = (function($, JoinView) {
         // display the columns and ask the user to rename them
         // XXX Remove when backend fixes their stuff
         if (!turnOnPrefix) {
-            proceedWithJoin();
-            return true;
+            return proceedWithJoin();
         }
 
         if (lImmediatesToRename.length > 0 || lFatPtrToRename.length > 0) {
@@ -1392,8 +1410,7 @@ window.JoinView = (function($, JoinView) {
                                   getPrefixes(lColsToKeep),
                                   getPrefixes(rColsToKeep), leftAutoRenames,
                                   rightAutoRenames);
-            proceedWithJoin(leftAutoRenames, rightAutoRenames);
-            return true;
+            return proceedWithJoin(leftAutoRenames, rightAutoRenames);
         }
 
         if (lImmediatesToRename.length > 0) {
@@ -1423,9 +1440,11 @@ window.JoinView = (function($, JoinView) {
             $("#prefixHeader").hide();
         }
         formHelper.refreshTabbing();
-        return false;
+        deferred.reject();
+        return deferred.promise();;
 
         function proceedWithJoin(leftRenames, rightRenames) {
+            var innerDeferred = jQuery.Deferred();
             var keepTable = $joinView.find('.keepTablesCBWrap')
                                     .find('.checkbox').hasClass('checked');
 
@@ -1454,9 +1473,15 @@ window.JoinView = (function($, JoinView) {
 
             xcFunction.join(joinType, lJoinInfo, rJoinInfo,
                             newTableName, options)
+            .then(function(finalTableName) {
+                innerDeferred.resolve(finalTableName);
+            })
             .fail(function(error) {
                 submissionFailHandler(origFormOpenTime, error);
+                innerDeferred.reject();
             });
+
+            return innerDeferred.promise();
         }
 
         function removeNoChanges(elem) {
@@ -1692,7 +1717,6 @@ window.JoinView = (function($, JoinView) {
         });
     }
 
-    var tooltipTimer;
 
     function showErrorTooltip($el, options, otherOptions) {
         var deafultOptions = {
@@ -1710,14 +1734,16 @@ window.JoinView = (function($, JoinView) {
 
         xcTooltip.remove($el);
         // cannot overwrite previous title without removing the title attributes
-        clearTimeout(tooltipTimer);
 
-        tooltipTimer = xcTooltip.transient($el, options, displayTime);
+        xcTooltip.transient($el, options, displayTime);
         $el.focus();
     }
 
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
         var col = gTables[tableId].getColByFrontName(val);
+        if (!col) {
+            return false;
+        }
         var type = col.getType();
         var backColName = col.getBackColName();
         var frontColName = col.getFrontColName(); // not include prefix
@@ -2038,6 +2064,10 @@ window.JoinView = (function($, JoinView) {
         JoinView.__testOnly__ = {};
         JoinView.__testOnly__.addClause = addClause;
         JoinView.__testOnly__.checkMatchingColTypes = checkMatchingColTypes;
+        JoinView.__testOnly__.estimateJoinSize = estimateJoinSize;
+        JoinView.__testOnly__.checkFirstView = checkFirstView;
+        JoinView.__testOnly__.validTableNameChecker = validTableNameChecker;
+        JoinView.__testOnly__.submitJoin = submitJoin;
     }
     /* End Of Unit Test Only */
 

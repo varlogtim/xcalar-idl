@@ -48,7 +48,6 @@ describe('DFCreateView', function() {
 
     describe('check user actions', function() {
         it('column picker should work', function() {
-            var $tableList = $dfView.find('.tableList');
             var numCols = $dfView.find('.cols li').length;
             expect(numCols).to.be.gt(4);
             expect($dfView.find('.cols li.checked').length).to.equal(numCols);
