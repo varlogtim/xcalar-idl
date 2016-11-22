@@ -454,8 +454,6 @@ function fileBrowserModuleTest() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                var $datasets = findGrid("datasets");
-                expect($datasets.length).to.equal(0);
                 var $grid = findGrid("netstore");
                 expect($grid.length).to.equal(1);
 

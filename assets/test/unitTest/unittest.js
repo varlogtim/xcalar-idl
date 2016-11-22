@@ -27,8 +27,8 @@ var testDatasets = {
     },
 
     "schedule": {
-        "path"      : "nfs:///var/tmp/qa/indexJoin/schedule/",
-        "url"       : "var/tmp/qa/indexJoin/schedule/",
+        "path"      : "nfs:///netstore/datasets/indexJoin/schedule/",
+        "url"       : "netstore/datasets/indexJoin/schedule/",
         "format"    : "JSON",
         "moduleName": "",
         "funcName"  : "",
