@@ -27,18 +27,15 @@ window.TblAnim = (function($, TblAnim) {
 
         event.preventDefault();
         rescol.mouseStart = event.pageX;
-        rescol.grabbedCell = $th;  // the th
-        rescol.startWidth = rescol.grabbedCell.outerWidth();
+        rescol.startWidth = rescol.$th.outerWidth();
 
         rescol.index = colNum;
         rescol.newWidth = rescol.startWidth;
         rescol.table = $table;
         rescol.tableHead = $el.closest('.xcTableWrap').find('.xcTheadWrap');
+        rescol.leftDragMax = rescol.cellMinWidth - rescol.startWidth;
 
-        rescol.tempCellMinWidth = rescol.cellMinWidth;
-        rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
-
-        if (!rescol.grabbedCell.hasClass('selectedCell')) {
+        if (!rescol.$th.hasClass('selectedCell')) {
             $('.selectedCell').removeClass('selectedCell');
             FnBar.clear();
         }
@@ -89,10 +86,11 @@ window.TblAnim = (function($, TblAnim) {
         var newWidth;
         if (dragDist > rescol.leftDragMax) {
             newWidth = rescol.startWidth + dragDist;
-        } else if (dragDist < rescol.leftDragMax ) {
-            newWidth = rescol.tempCellMinWidth;
+        } else {
+            // resizing too small so we set with to the minimum allowed
+            newWidth = rescol.cellMinWidth;
         }
-        rescol.grabbedCell.outerWidth(newWidth);
+        rescol.$th.outerWidth(newWidth);
         rescol.newWidth = newWidth;
 
         moveTableTitles();
@@ -107,9 +105,10 @@ window.TblAnim = (function($, TblAnim) {
     function endColResize() {
         $(document).off('mousemove.onColResize');
         $(document).off('mouseup.endColResize');
-        if (gMouseStatus === "checkingResizeCol") {
+        var mouseStatus = gMouseStatus;
+        gMouseStatus = null;
+        if (mouseStatus === "checkingResizeCol") {
             $(document).off('mousemove.checkColResize');
-            gMouseStatus = null;
             return;
         }
 
@@ -128,13 +127,13 @@ window.TblAnim = (function($, TblAnim) {
             var table = gTables[rescol.tableId];
             var progCol = table.tableCols[rescol.index - 1];
 
-            if (rescol.newWidth === 15) {
+            if (rescol.newWidth === rescol.cellMinWidth) {
                 rescol.table
                       .find('th.col' + rescol.index + ',td.col' + rescol.index)
                       .addClass("userHidden");
                 progCol.isHidden = true;
             } else {
-                progCol.width = rescol.grabbedCell.outerWidth();
+                progCol.width = rescol.$th.outerWidth();
             }
             var column = gTables[rescol.tableId].tableCols[rescol.index - 1];
             widthState = column.sizedToHeader;
@@ -149,7 +148,7 @@ window.TblAnim = (function($, TblAnim) {
             rescol.isDatastore = false;
             if (Math.abs(rescol.newWidth - rescol.startWidth) > 1) {
                 // set autoresize to header only if column moved at least 2 pixels
-                rescol.grabbedCell.find('.colGrab').data('sizedtoheader', false);
+                rescol.$th.find('.colGrab').data('sizedtoheader', false);
             }
         }
 
@@ -193,7 +192,6 @@ window.TblAnim = (function($, TblAnim) {
             unhideOffScreenTables();
             xcHelper.reenableTextSelection();
             $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
-            $('#col-resizeCursor').remove();
             clearTimeout(gRescol.timer);    //prevent single-click action
             gRescol.clicks = 0;      //after action performed, reset counter
 
@@ -359,19 +357,19 @@ window.TblAnim = (function($, TblAnim) {
 
     /* START ROW RESIZING */
 
-    TblAnim.startRowResize = function(el, event) {
+    TblAnim.startRowResize = function($el, event) {
         rowInfo.mouseStart = event.pageY;
         gMouseStatus = "checkingRowMove";
-        rowInfo.$el = el;
-        var $table = el.closest('.xcTbodyWrap');
+        rowInfo.$el = $el;
+        var $table = $el.closest('.xcTbodyWrap');
         rowInfo.$table = $table;
-        rowInfo.actualTd = el.closest('td');
+        rowInfo.actualTd = $el.closest('td');
         // we actually target the td above the one we're grabbing.
-        if (el.hasClass('last')) {
+        if ($el.hasClass('last')) {
             rowInfo.targetTd = $table.find('tr:last').find('td').eq(0);
             rowInfo.actualTd = rowInfo.targetTd;
         } else {
-            rowInfo.targetTd = el.closest('tr').prev().find('td').eq(0);
+            rowInfo.targetTd = $el.closest('tr').prev().find('td').eq(0);
         }
 
         rowInfo.startHeight = rowInfo.targetTd.outerHeight();
@@ -497,14 +495,13 @@ window.TblAnim = (function($, TblAnim) {
 
         var $divs = $targetRow.find('td > div');
         if (toHeight < gRescol.minCellHeight) {
-            $targetTd.outerHeight(gRescol.minCellHeight);
-            $divs.css('max-height', gRescol.minCellHeight - padding);
-            $divs.eq(0).css('max-height', gRescol.minCellHeight);
-        } else {
-            $targetTd.outerHeight(toHeight);
-            $divs.css('max-height', toHeight - padding);
-            $divs.eq(0).css('max-height', toHeight);
+            toHeight = gRescol.minCellHeight;
         }
+
+        $targetTd.outerHeight(toHeight);
+        $divs.css('max-height', toHeight - padding);
+        $divs.eq(0).css('max-height', toHeight);
+
         var rowObj = gTables[tableId].rowHeights;
         var pageNum = Math.floor((rowNum) / gNumEntriesPerPage);
 
@@ -568,96 +565,98 @@ window.TblAnim = (function($, TblAnim) {
     function checkColDrag(event) {
         dragInfo.pageX = event.pageX;
         // mouse must move at least 2 pixels horizontally to trigger draggin
-        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 1) {
-            $(document).off('mousemove.checkColDrag');
-            $(document).on('mousemove.onColDrag', onColDrag);
-            gMouseStatus = "dragging";
-            var el = dragInfo.$el;
-            var pageX = event.pageX;
-            var $mainFrame = $('#mainFrame');
-            dragInfo.colNum = xcHelper.parseColNum(el);
-            var $tableWrap = dragInfo.$tableWrap;
-
-            var $table = el.closest('.xcTable');
-            var $tbodyWrap = $table.parent();
-            var $editableHead = el.find('.editableHead');
-            dragInfo.$table = $tableWrap;
-            dragInfo.tableId = xcHelper.parseTableId($table);
-            dragInfo.element = el;
-            dragInfo.colIndex = parseInt(el.index());
-            dragInfo.offsetTop = el.offset().top;
-            dragInfo.grabOffset = pageX - el.offset().left;
-            // dragInfo.grabOffset = distance from the left side of dragged column
-            // to the point that was grabbed
-            dragInfo.docHeight = $(document).height();
-            dragInfo.val = $editableHead.val();
-            var shadowDivHeight = $tbodyWrap.height();
-            var shadowTop = $tableWrap.find('.header').position().top - 5;
-
-            dragInfo.inFocus = $editableHead.is(':focus');
-            dragInfo.selected = el.hasClass('selectedCell');
-            dragInfo.isHidden = el.hasClass('userHidden');
-            dragInfo.colWidth = el.width();
-            dragInfo.windowWidth = $(window).width();
-            dragInfo.mainFrameLeft = $mainFrame[0].getBoundingClientRect().left;
-
-            var timer;
-            if (gTables[dragInfo.tableId].tableCols.length > 50) {
-                timer = 100;
-            } else {
-                timer = 40;
-            }
-            dragdropMoveMainFrame(dragInfo, timer);
-
-            // the following code deals with hiding non visible tables and locking the
-            // scrolling when we reach the left or right side of the table
-
-            var mfWidth = $mainFrame.width();
-
-            var mfScrollLeft = $mainFrame.scrollLeft();
-            var tableLeft = dragInfo.$table.offset().left - MainMenu.getOffset();
-            $mainFrame.addClass('scrollLocked');
-
-            var leftLimit = mfScrollLeft + tableLeft;
-            leftLimit = Math.min(leftLimit, mfScrollLeft);
-            var rightLimit = mfScrollLeft + tableLeft + $tableWrap.width() - mfWidth +
-                             dragInfo.grabOffset;
-            rightLimit = Math.max(rightLimit, mfScrollLeft);
-
-            var hideOptions = {
-                marginLeft : mfScrollLeft - leftLimit,
-                marginRight: rightLimit - mfScrollLeft
-            };
-            hideOffScreenTables(hideOptions);
-
-            var scrollLeft;
-            $mainFrame.on('scroll.draglocked', function() {
-                scrollLeft = $mainFrame.scrollLeft();
-                
-                if (scrollLeft <= leftLimit) {
-                    $mainFrame.scrollLeft(leftLimit);
-                } else if (scrollLeft >= rightLimit) {
-                    $mainFrame.scrollLeft(rightLimit);
-                }
-
-                moveTableTitles();
-                moveFirstColumn();
-            });
-
-            // create a fake transparent column by cloning
-
-            createTransparentDragDropCol(pageX);
-
-            // create a replica shadow with same column width, height,
-            // and starting position
-            xcHelper.disableTextSelection();
-            $tableWrap.append('<div id="shadowDiv" style="width:' +
-                            dragInfo.colWidth +
-                            'px;height:' + (shadowDivHeight) + 'px;left:' +
-                            (dragInfo.element.position().left) +
-                            'px;top:' + shadowTop + 'px;"></div>');
-            createDropTargets();
+        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) < 2) {
+            return;
         }
+
+        $(document).off('mousemove.checkColDrag');
+        $(document).on('mousemove.onColDrag', onColDrag);
+        gMouseStatus = "dragging";
+        var el = dragInfo.$el;
+        var pageX = event.pageX;
+        var $mainFrame = $('#mainFrame');
+        dragInfo.colNum = xcHelper.parseColNum(el);
+        var $tableWrap = dragInfo.$tableWrap;
+
+        var $table = el.closest('.xcTable');
+        var $tbodyWrap = $table.parent();
+        var $editableHead = el.find('.editableHead');
+        dragInfo.$table = $tableWrap;
+        dragInfo.tableId = xcHelper.parseTableId($table);
+        dragInfo.element = el;
+        dragInfo.colIndex = parseInt(el.index());
+        dragInfo.offsetTop = el.offset().top;
+        dragInfo.grabOffset = pageX - el.offset().left;
+        // dragInfo.grabOffset = distance from the left side of dragged column
+        // to the point that was grabbed
+        dragInfo.docHeight = $(document).height();
+        dragInfo.val = $editableHead.val();
+        var shadowDivHeight = $tbodyWrap.height();
+        var shadowTop = $tableWrap.find('.header').position().top - 5;
+
+        dragInfo.inFocus = $editableHead.is(':focus');
+        dragInfo.selected = el.hasClass('selectedCell');
+        dragInfo.isHidden = el.hasClass('userHidden');
+        dragInfo.colWidth = el.width();
+        dragInfo.windowWidth = $(window).width();
+        dragInfo.mainFrameLeft = $mainFrame[0].getBoundingClientRect().left;
+
+        var timer;
+        if (gTables[dragInfo.tableId].tableCols.length > 50) {
+            timer = 100;
+        } else {
+            timer = 40;
+        }
+        dragdropMoveMainFrame(dragInfo, timer);
+
+        // the following code deals with hiding non visible tables and locking the
+        // scrolling when we reach the left or right side of the table
+
+        var mfWidth = $mainFrame.width();
+
+        var mfScrollLeft = $mainFrame.scrollLeft();
+        var tableLeft = dragInfo.$table.offset().left - MainMenu.getOffset();
+        $mainFrame.addClass('scrollLocked');
+
+        var leftLimit = mfScrollLeft + tableLeft;
+        leftLimit = Math.min(leftLimit, mfScrollLeft);
+        var rightLimit = mfScrollLeft + tableLeft + $tableWrap.width() - mfWidth +
+                         dragInfo.grabOffset;
+        rightLimit = Math.max(rightLimit, mfScrollLeft);
+
+        var hideOptions = {
+            marginLeft : mfScrollLeft - leftLimit,
+            marginRight: rightLimit - mfScrollLeft
+        };
+        hideOffScreenTables(hideOptions);
+
+        var scrollLeft;
+        $mainFrame.on('scroll.draglocked', function() {
+            scrollLeft = $mainFrame.scrollLeft();
+            
+            if (scrollLeft <= leftLimit) {
+                $mainFrame.scrollLeft(leftLimit);
+            } else if (scrollLeft >= rightLimit) {
+                $mainFrame.scrollLeft(rightLimit);
+            }
+
+            moveTableTitles();
+            moveFirstColumn();
+        });
+
+        // create a fake transparent column by cloning
+
+        createTransparentDragDropCol(pageX);
+
+        // create a replica shadow with same column width, height,
+        // and starting position
+        xcHelper.disableTextSelection();
+        $tableWrap.append('<div id="shadowDiv" style="width:' +
+                        dragInfo.colWidth +
+                        'px;height:' + (shadowDivHeight) + 'px;left:' +
+                        (dragInfo.element.position().left) +
+                        'px;top:' + shadowTop + 'px;"></div>');
+        createDropTargets();
     }
 
     function onColDrag(event) {
@@ -906,8 +905,8 @@ window.TblAnim = (function($, TblAnim) {
         $('#dropTargets').css('left', left);
     }
 
-    function dragdropSwapColumns(el) {
-        var dropTargetId = parseInt((el.attr('id')).substring(10));
+    function dragdropSwapColumns($el) {
+        var dropTargetId = parseInt(($el.attr('id')).substring(10));
         var nextCol = dropTargetId - Math.abs(dropTargetId - dragInfo.colIndex);
         var prevCol = dropTargetId + Math.abs(dropTargetId - dragInfo.colIndex);
         var movedCol;
@@ -1123,8 +1122,8 @@ window.TblAnim = (function($, TblAnim) {
         $("#dropTargets").css('left', '-' + left + 'px');
     }
 
-    function dragdropSwapTables(el) {
-        var dropTargetIndex = parseInt((el.attr('id')).substring(10));
+    function dragdropSwapTables($el) {
+        var dropTargetIndex = parseInt(($el.attr('id')).substring(10));
         var $activeTables = $('.xcTableWrap:not(.inActive)');
         var $table = $activeTables.eq(dropTargetIndex);
 
@@ -1194,6 +1193,26 @@ window.TblAnim = (function($, TblAnim) {
             $target.removeClass('scrollLocked');
         }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        TblAnim.__testOnly__ = {};
+        TblAnim.__testOnly__.checkColResize = checkColResize;
+        TblAnim.__testOnly__.onColResize = onColResize;
+        TblAnim.__testOnly__.endColResize = endColResize;
+        TblAnim.__testOnly__.rowInfo = rowInfo;
+        TblAnim.__testOnly__.dragInfo = dragInfo;
+        TblAnim.__testOnly__.checkRowResize = checkRowResize;
+        TblAnim.__testOnly__.onRowResize = onRowResize;
+        TblAnim.__testOnly__.endRowResize = endRowResize;
+        TblAnim.__testOnly__.checkColDrag = checkColDrag;
+        TblAnim.__testOnly__.onColDrag = onColDrag;
+        TblAnim.__testOnly__.endColDrag = endColDrag;
+        TblAnim.__testOnly__.dragdropSwapColumns = dragdropSwapColumns;
+        TblAnim.__testOnly__.dragdropSwapTables = dragdropSwapTables;
+
+    }
+    /* End Of Unit Test Only */
 
     return (TblAnim);
 

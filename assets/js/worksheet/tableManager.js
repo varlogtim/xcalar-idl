@@ -2236,9 +2236,9 @@ window.TblManager = (function($, TblManager) {
                     return;
                 }
             }
-            var headCol = $(this).parent().parent();
+            var $headCol = $(this).parent().parent();
 
-            TblAnim.startColDrag(headCol, event);
+            TblAnim.startColDrag($headCol, event);
         });
 
         $thead.on('mousedown', '.editableHead', function(event) {
