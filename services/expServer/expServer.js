@@ -299,6 +299,11 @@ app.post("/removeSessionFiles", function(req, res) {
     support.removeSessionFiles(filename, res);
 });
 
+app.post("/removeSHM", function(req, res) {
+    console.log("Remove Files under folder SHM");
+    support.removeSHM(res);
+});
+
 app.post("/getLicense", function(req, res) {
     console.log("Get License");
     support.getLicense(res);

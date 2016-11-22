@@ -272,6 +272,12 @@ function removeSessionFiles(filePath, res) {
     return deferredOut.promise();
 }
 
+function removeSHM(res) {
+    console.log("Enter Xcalar remove SHM");
+    var command = 'rm /dev/shm/xcalar-*';
+    return executeCommand(command, res);
+}
+
 function getCompletePath(sessionPath, filePath) {
     var normalizedPath;
     if (filePath === undefined) {
@@ -403,3 +409,4 @@ exports.removeSessionFiles = removeSessionFiles;
 exports.slaveExecuteAction =  slaveExecuteAction;
 exports.masterExecuteAction = masterExecuteAction;
 exports.readHostsFromFile = readHostsFromFile;
+exports.removeSHM = removeSHM;

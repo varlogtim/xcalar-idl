@@ -103,6 +103,11 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         return requestService(action, str);
     };
 
+    XFTSupportTools.removeSHM = function() {
+        var action = "/removeSHM";
+        return requestService(action);
+    };
+
     XFTSupportTools.getLicense = function() {
         var action = "/getLicense";
         return requestService(action);
