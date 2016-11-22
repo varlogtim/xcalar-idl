@@ -102,46 +102,146 @@ window.Support = (function(Support, $) {
     Support.memoryCheck = function() {
         var deferred = jQuery.Deferred();
 
-        var yellowThreshold = 80;
-        var redThreshold = 90;
+        var yellowThreshold = 0.8;
+        var redThreshold = 0.9;
 
-        var isYellow = false;
-        var isRed = false;
-
-        XcalarApiTop()
-        .then(function(result) {
-            detectMemoryUsage(result.topOutputPerNode);
-            handleMemoryUsage();
+        refreshTables()
+        .then(function() {
+            return getMemoryUsage();
         })
+        .then(detectMemoryUsage)
         .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
 
-        function detectMemoryUsage(tops) {
-            for (var i = 0, len = tops.length; i < len; i++) {
-                var memoryUsage = tops[i].memUsageInPercent;
-                if (memoryUsage > redThreshold) {
-                    // when it's red, can stop loop immediately
-                    isRed = true;
-                    break;
-                } else if (memoryUsage > yellowThreshold) {
-                    // when it's yellow, should continue loop
-                    // to see if it has any red case
-                    isYellow = true;
-                }
-            }
+        function refreshTables() {
+            var innerDeferred = jQuery.Deferred();
+            // need it to detect if users have tables
+            TableList.refreshOrphanList(false)
+            .always(innerDeferred.resolve);
+
+            return innerDeferred.promise();
         }
 
-        function handleMemoryUsage() {
+        function getMemoryUsage() {
+            var innerDeferred = jQuery.Deferred();
+
+            XcalarApiTop()
+            .then(function(ret) {
+                var adapterRet = ret.topOutputPerNode.map(adapter);
+                innerDeferred.resolve(adapterRet);
+            })
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
+
+        function detectMemoryUsage(nodes) {
+            jQuery.each(nodes, function(index, nodeInfo) {
+                var shouldAlert;
+                if (nodeInfo.mlock && nodeInfo.mlock.xdb_pages) {
+                    var tableInfo = nodeInfo.mlock.xdb_pages;
+                    var tableUsage = tableInfo.used / tableInfo.total;
+                    shouldAlert = handleMemoryUsage(tableUsage, true);
+
+                    if (shouldAlert) {
+                        // stop looping
+                        return false;
+                    }
+                }
+                // XXX not sure if it's the right formula for ds yet
+                if (nodeInfo.malloc) {
+                    var dsInfo = nodeInfo.malloc;
+                    var dsUsage = dsInfo.used / dsInfo.total;
+                    shouldAlert = handleMemoryUsage(dsUsage, false);
+
+                    if (shouldAlert) {
+                        // stop looping
+                        return false;
+                    }
+                }
+            });
+        }
+
+        function handleMemoryUsage(memoryUsage, isTable) {
+            var shouldAlert = false;
             var $memoryAlert = $("#memoryAlert");
-            if (isRed) {
+
+            if (memoryUsage > redThreshold) {
+                // when it's red, can stop loop immediately
                 $memoryAlert.addClass("red").removeClass("yellow");
-            } else if (isYellow) {
+                shouldAlert = true;
+            } else if (memoryUsage > yellowThreshold) {
+                // when it's yellow, should continue loop
+                // to see if it has any red case
                 $memoryAlert.addClass("yellow").removeClass("red");
+                shouldAlert = true;
             } else {
                 $memoryAlert.removeClass("red").removeClass("yellow");
             }
+
+            if (shouldAlert) {
+                var text;
+                if (isTable) {
+                    if (jQuery.isEmptyObject(gTables) &&
+                        gOrphanTables.length === 0)
+                    {
+                        text = TooltipTStr.LowMemByOthers;
+                    } else {
+                        text = TooltipTStr.LowMemInTable;
+                    }
+                    $memoryAlert.addClass("tableAlert");
+                } else {
+                    text = TooltipTStr.LowMemInDS;
+                    $memoryAlert.removeClass("tableAlert");
+                }
+
+                xcTooltip.changeText($memoryAlert, text);
+            }
+
+            return shouldAlert;
+        }
+
+        // XXX now is a fake adapter, will remove it after
+        // wire with backend api
+        function adapter(topInfo, index) {
+            var memUsedInBytes = topInfo.memUsedInBytes;
+            var percentage = topInfo.memUsageInPercent;
+            var totalUsed = Math.ceil(memUsedInBytes / percentage * 100);
+            return {
+                "sys": {
+                    "available": 32047702016,
+                    "total"    : 270195826688,
+                    "used"     : 238148124672
+                },
+                // for ds?
+                "malloc": {
+                    "total"            : 108078333952,
+                    "used"             : 1,
+                    "used_by_usrnode"  : 10858942464,
+                    "used_by_childnode": 17939521536
+                },
+                "hostName": "node" + (index + 1),
+                "swap"    : {
+                    "available": 198080679936,
+                    "total"    : 199999090688,
+                    "used"     : 1918410752
+                },
+                "mlock": {
+                    "transport_pages": {
+                        "available": 545443840,
+                        "total"    : 545443840,
+                        "used"     : 0
+                    },
+                    "total"    : 162117492736,
+                    "xdb_pages": {
+                        "available": totalUsed - memUsedInBytes,
+                        "total"    : totalUsed,
+                        "used"     : memUsedInBytes
+                    }
+                }
+            };
         }
     };
 

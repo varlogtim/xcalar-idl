@@ -91,7 +91,10 @@ TooltipTStr = {
     'NoExport': 'Cannot export column of type <type>',
     'Undo': 'Undo: <op>',
     'NoUndo': 'Last operation is "<op>", cannot undo',
-    'Redo': 'Redo: <op>'
+    'Redo': 'Redo: <op>',
+    'LowMemInTable': 'Warning! You are running low on table space. Click on the button to delete some tables.',
+    'LowMemInDS': 'Warning! You are running low on dataset space. Click on the button to delete some dataset refs.',
+    'LowMemByOthers': 'Other users in the cluster have exceeded the optimum memory allocated for tables. Please contact an administrator.'
 };
 
 CommonTxtTstr = {

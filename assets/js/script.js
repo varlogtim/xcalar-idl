@@ -371,7 +371,25 @@ window.StartManager = (function(StartManager, $) {
 
     function setupMemoryAlert() {
         $("#memoryAlert").click(function() {
-            DeleteTableModal.show();
+            var $btn = $(this);
+            if ($(this).hasClass("tableAlert")) {
+                DeleteTableModal.show();
+            } else {
+                // go to datastore panel
+                var $datastoreTab = $("#dataStoresTab");
+                if (!$datastoreTab.hasClass("active")) {
+                    $datastoreTab.click();
+                }
+
+                if(!$datastoreTab.hasClass("mainMenuOpen")) {
+                    $datastoreTab.click();
+                }
+
+                var $inButton = $("#inButton");
+                if (!$inButton.hasClass("active")) {
+                    $inButton.click();
+                }
+            }
         });
     }
 
