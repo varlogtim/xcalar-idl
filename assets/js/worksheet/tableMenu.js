@@ -74,11 +74,29 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var exitType = $(this).data('exittype');
             switch (exitType) {
+                case ('aggregate'):
+                    OperationsView.close();
+                    break;
                 case ('export'):
                     ExportView.close();
                     break;
-                case ("smartCast"):
+                case ('smartCast'):
                     SmartCastView.close();
+                    break;
+                case ('filter'):
+                    OperationsView.close();
+                    break;
+                case ('groupby'):
+                    OperationsView.close();
+                    break;
+                case ('map'):
+                    OperationsView.close();
+                    break;
+                case ('join'):
+                    JoinView.close();
+                    break;
+                case ('ext'):
+                    BottomMenu.close();
                     break;
                 case ("dataflow"):
                     DFCreateView.close();

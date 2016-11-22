@@ -1817,15 +1817,8 @@ window.TblManager = (function($, TblManager) {
             }
         }, ".tableTitle .tableName");
 
-        $xcTheadWrap[0].oncontextmenu = function(event) {
-            var $target = $(event.target).closest('.dropdownBox');
-            if ($target.length) {
-                $target.trigger('click');
-                event.preventDefault();
-            }
-        };
-
-        $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function(event) {
+        // trigger open table menu on .dropdownBox click
+        $xcTheadWrap.on('click', '.dropdownBox', function(event) {
             var classes = "tableMenu";
             var $dropdown = $(this);
             var $tableWrap = $dropdown.closest('.xcTableWrap');
@@ -1851,6 +1844,35 @@ window.TblManager = (function($, TblManager) {
             xcHelper.dropdownOpen($dropdown, $('#tableMenu'), options);
         });
 
+        // trigger open table menu on .dropdownBox right-click
+        $xcTheadWrap.on('contextmenu', '.dropdownBox', function(event) {
+            $(event.target).trigger('click');
+            event.preventDefault(); // prevent default browser's rightclick menu
+        });
+
+        // trigger open table menu on .tableGrab click
+        $xcTheadWrap.on('click', '.tableGrab', function(event) {
+            var $target = $(this);
+            // .noDropdown gets added during table drag
+            if (!$target.hasClass('noDropdown') &&
+                !$target.closest('.columnPicker').length) {
+                var click = $.Event("click");
+                click.rightClick = true;
+                click.pageX = event.pageX;
+                $target.siblings('.dropdownBox').trigger(click);
+                event.preventDefault();
+            }
+        });
+
+        // trigger open table menu on .tableGrab right-click
+        $xcTheadWrap.on('contextmenu', '.tableGrab', function(event) {
+            var click = $.Event("click");
+            click.rightClick = true;
+            click.pageX = event.pageX;
+            $(event.target).siblings('.dropdownBox').trigger(click);
+            event.preventDefault();
+        });
+
         // Change from $xcTheadWrap.find('.tableGrab').mousedown...
         $xcTheadWrap.on('mousedown', '.tableGrab', function(event) {
             // Not Mouse down
@@ -1859,29 +1881,7 @@ window.TblManager = (function($, TblManager) {
             }
             TblAnim.startTableDrag($(this).parent(), event);
         });
-
-        $xcTheadWrap.on('click', '.tableGrab', function(event) {
-            var $target = $(this);
-            if (!$(this).hasClass('noDropdown')) {
-                var click = $.Event("click");
-                click.rightClick = true;
-                click.pageX = event.pageX;
-                $target.siblings('.dropdownBox').trigger(click);
-                event.preventDefault();
-            }
-        });
-
-        $xcTheadWrap[0].oncontextmenu = function(event) {
-            var $target = $(event.target).closest('.tableGrab');
-            if ($target.length) {
-                var click = $.Event("click");
-                click.rightClick = true;
-                click.pageX = event.pageX;
-                $target.siblings('.dropdownBox').trigger(click);
-                event.preventDefault();
-            }
-        };
-
+       
         var $table = $('#xcTable-' + tableId);
         $table.width(0);
         matchHeaderSizes($table);

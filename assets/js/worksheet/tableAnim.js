@@ -944,7 +944,8 @@ window.TblAnim = (function($, TblAnim) {
     /* START TABLE DRAG DROP */
 
     TblAnim.startTableDrag = function($el, e) {
-        if ($el.closest('.noDrag').length || $('.xcTable').length === 1) {
+        if ($el.closest('.noDrag').length || $('.xcTable').length === 1 ||
+            $el.closest('.columnPicker').length) {
             return;
         }
         gMouseStatus = "checkingMovingTable";
@@ -1010,7 +1011,6 @@ window.TblAnim = (function($, TblAnim) {
         if (gMouseStatus === "checkingMovingTable") {
             gMouseStatus = null;
             $(document).off('mousemove.checkTableDrag');
-            dragInfo.$el.find('.tableGrab').removeClass('noDropdown');
             return;
         }
         $(document).off('mousemove.onTableDrag');
@@ -1020,6 +1020,7 @@ window.TblAnim = (function($, TblAnim) {
             'left'  : '0px',
             'height': '100%'
         });
+        dragInfo.$el.find('.tableGrab').removeClass('noDropdown');
         $('#shadowTable, #dropTargets').remove();
         $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
         dragInfo.$table.scrollTop(dragInfo.tableScrollTop);

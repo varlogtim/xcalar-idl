@@ -3677,7 +3677,11 @@ FormHelper.prototype = {
                 if (callback == null || !(callback instanceof Function)) {
                     return;
                 }
-                var $target = $(event.target).closest('.xcTheadWrap');
+                var $eventTarget = $(event.target);
+                if ($eventTarget.closest('.dropdownBox').length) {
+                    return;
+                }
+                var $target = $eventTarget.closest('.xcTheadWrap');
                 if ($target.length === 0) {
                     // error case
                     console.error("no header");

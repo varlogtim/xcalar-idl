@@ -883,20 +883,16 @@ html.edge {
         .dragArea {
             display: none;
         }
+        
         .tableTitle {
-            pointer-events: none; // disallow renaming when form open
-            .dropdownBox {
-                display: none;
+            .tableGrab {
+                cursor: pointer;
+            }
+            .labelWrap .text {
+                pointer-events: none;
             }
         }
-        &.exportMode {
-            .tableTitle .dropdownBox {
-                // allow exiting of export through dropdown menu
-               display: block;
-               pointer-events: initial;
-            }
-        }
-
+        
         th:first-child, td:first-child {
             pointer-events: none;
         }
