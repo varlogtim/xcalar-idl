@@ -62,7 +62,6 @@ var gAlwaysDelete = false;
 var gEnableCopyCols = false;
 var gEnableJoinKeyCheck = false;
 var gShowDroppedTablesImage = false;
-var gChangeNfsToFile = false;
 var gDefaultFDelim = "\t";
 var gDefaultRDelim = "\n";
 var gDefaultQDelim = '"';
@@ -72,7 +71,7 @@ var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
                         // datasets will abide by this limit. If you don't want
                         // to use it anymore, just set it back to 0
 var gUdfDefaultNoCheck = false; // when set true, allow update default udf
-var gSessionNoCleanup = true;
+var gSessionNoCleanup = false;
 var gIcvMode = false;
 var gEnableIndexStyle = false;
 var gAdmin = false; // if admin user

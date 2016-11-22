@@ -2375,11 +2375,6 @@ function getNamePattern(userUrl, isRecur, isRegex) {
     // XXX test: single file
     // XXX test: folder with *, file with *
     // Find location of first *
-
-    if (gChangeNfsToFile) {
-        userUrl = userUrl.replace("nfs:///", "file:///");
-    }
-
     var star = userUrl.indexOf("*");
     if (star === -1 && !isRecur && !isRegex) {
         return [userUrl, ""];

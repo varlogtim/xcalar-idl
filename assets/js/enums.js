@@ -127,7 +127,8 @@ var DSObjTerm = {
 
 var FileProtocol = {
     "nfs": "nfs:///",
-    "hdfs": "hdfs://"
+    "hdfs": "hdfs://",
+    "file": "file:///"
 };
 
 var fakeEvent = {

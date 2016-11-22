@@ -83,6 +83,9 @@ function dsFormModuleTest() {
             },{
                 "protocol": "hdfs://",
                 "path"    : "host/"
+            },{
+                "protocol": "file:///",
+                "path"    : ""
             }];
             paths.forEach(function(pathObj) {
                 var isValid = isValidPathToBrowse(pathObj.protocol, pathObj.path);

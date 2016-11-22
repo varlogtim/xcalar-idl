@@ -424,7 +424,8 @@ module.exports = {
 // keep in sync with the FileProtocol in enums.js
     "FileProtocol": {
         "nfs": "nfs:///",
-        "hdfs": "hdfs://"
+        "hdfs": "hdfs://",
+        "file": "file:///"
     },
 
     "dsView": {
