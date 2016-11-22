@@ -2887,7 +2887,7 @@ window.OperationsView = (function($, OperationsView) {
         var aggCol = args[groupByColIndex];
 
         colTypeInfos = colTypeInfos || [];
-        colTypeInfos.forEach(function(colInfo) {
+        jQuery.each(colTypeInfos, function(index, colInfo) {
             if (colInfo.argNum === groupByColIndex) {
                 aggCol = xcHelper.castStrHelper(aggCol, colInfo.type);
                 // stop looping

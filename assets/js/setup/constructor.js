@@ -259,12 +259,12 @@ TableMeta.prototype = {
         var backColName = progCol.getBackColName();
         if (self.backTableMeta != null) {
             var valueAttrs = self.backTableMeta.valueAttrs || [];
-            valueAttrs.forEach(function(valueAttr) {
+            valueAttrs.some(function(valueAttr) {
                 if (valueAttr.name === backColName &&
                     valueAttr.type !== DfFieldTypeT.DfFatptr) {
                     progCol.setImmediateType(valueAttr.type);
                     // end loop
-                    return false;
+                    return true;
                 }
             });
         } else {
@@ -517,16 +517,13 @@ TableMeta.prototype = {
                           self.backTableMeta.valueAttrs != null);
         if (!onlyCheckPulledCol && prefix === "" && hasBackMeta) {
             // when it's immediates, when use backMeta to check
-            var found = false;
-            self.backTableMeta.valueAttrs.forEach(function(valueAttr) {
+            var found = self.backTableMeta.valueAttrs.some(function(valueAttr) {
                 if (valueAttr.type === DfFieldTypeT.DfFatptr) {
                     // fat pointer
-                    return;
+                    return false;
                 }
                 if (colName === valueAttr.name) {
-                    found = true;
-                    // stop loop
-                    return false;
+                    return true;
                 }
             });
 
