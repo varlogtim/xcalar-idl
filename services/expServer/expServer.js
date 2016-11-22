@@ -233,10 +233,12 @@ app.post("/runInstaller", function(req, res) {
     var hasPrivHosts = false;
     fs.writeFile(hostnameLocation, hostArray.join("\n"));
 
-    if (credArray.privHostNames.length > 0) {
+    if(credArray.privHostNames.length > 0) {
         fs.writeFile(privHostnameLocation, credArray.privHostNames.join("\n"));
-        hasPrivHosts = true;
+    } else {
+        fs.writeFile(privHostnameLocation, credArray.hostnames.join("\n"));
     }
+    hasPrivHosts = true;
 
     var execString = scriptDir + "/cluster-install.sh";
     cliArguments = genExecString(hostnameLocation, hasPrivHosts,
