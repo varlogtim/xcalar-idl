@@ -302,10 +302,12 @@ describe('ExportView', function() {
     });
 
     describe('test submit errors', function() {
-        it('splitType-single and header-separate file should return error', function(done) {
-            $exportForm.find('.splitType .radioButton:eq(0 )').click();
-            $exportForm.find('.headerType .radioButton:eq(1)').click();
-            $exportForm.find("#exportName").val("shouldNotBeExported");
+        it('appending to non-existant file should return error', function(done) {
+            $exportForm.find('.splitType .radioButton:eq(0)').click();
+            $exportForm.find('.headerType .radioButton:eq(0)').click();
+            $exportForm.find('.createRule .radioButton:eq(2)').click();
+            var uniqueName = "exportUnitTest" + Date.now() + Math.floor(Math.random() * 100000);
+            $exportForm.find("#exportName").val(uniqueName);
 
             ExportView.__testOnly__.submitForm()
             .then(function() {
@@ -313,7 +315,8 @@ describe('ExportView', function() {
             })
             .fail(function() {
                 expect($('#alertModal:visible').length).to.equal(1);
-                expect($('#alertContent').text().indexOf('Cannot export to a single file')).to.be.gt(-1);
+                var expectedText = StatusTStr[StatusT.StatusExportSFFileDoesntExist];
+                expect($('#alertContent').text().indexOf(expectedText)).to.be.gt(-1);
                 Alert.forceClose();
             })
             .always(function() {
