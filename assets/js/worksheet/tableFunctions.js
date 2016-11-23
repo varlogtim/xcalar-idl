@@ -125,6 +125,7 @@ function getWidestTdWidth(el, options) {
     var padding = 10;
     var largestTd = $table.find('tbody tr:first td:eq(' + id + ')');
     var headerWidth = 0;
+    var prefixWidth = 0;
 
     if (fitAll || includeHeader) {
         var $th;
@@ -138,7 +139,15 @@ function getWidestTdWidth(el, options) {
             extraPadding += 4;
         }
         headerWidth = getTextWidth($th) + extraPadding;
-
+        // include prefix width
+        if ($th.closest('.xcTable').length) {
+            var prefixText = $th.closest('.header').find('.prefix').text();
+            prefixWidth = getTextWidth(null, prefixText, {
+                "defaultHeaderStyle": true
+            });
+            headerWidth = Math.max(headerWidth, prefixWidth);
+        }
+        
         if (!fitAll) {
             return (headerWidth);
         }

@@ -15,14 +15,8 @@ describe('TblAnim', function() {
             testDs = ds;
             tableName = tName;
             prefix = tPrefix;
-           
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    $table = $(this).find('.dataTable');
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
+            $table = $('#xcTable-' + tableId);
 
             done();
         });
@@ -33,12 +27,16 @@ describe('TblAnim', function() {
         var $th;
         var startWidth;
         var startX = 0;
+        var table;
+        var progCol;
 
         before(function() {
             $el = $table.find('.colGrab').eq(0);
             $th = $el.closest('th');
             startWidth = $th.outerWidth();
             startX = 0;
+            table = gTables[tableId];
+            progCol = table.tableCols[0];
         });
 
         it('startColResize should work', function() {
@@ -101,17 +99,48 @@ describe('TblAnim', function() {
         it('endColResize should work', function() {
             expect(gMouseStatus).to.equal('resizingCol');
             expect($('#resizeCursor').length).to.equal(1);
+            expect(progCol.sizedToHeader).to.be.true;
 
             TblAnim.__testOnly__.endColResize();
 
             expect(gMouseStatus).to.be.null;
-            var table = gTables[gRescol.tableId];
-            var progCol = table.tableCols[gRescol.index - 1];
             expect(progCol.isHidden).to.be.false;
             expect(progCol.width).to.equal(startWidth + 10);
             // based on onColResize width
             expect($th.outerWidth()).to.equal(startWidth + 10);
             expect($('#resizeCursor').length).to.equal(0);
+            expect(progCol.sizedToHeader).to.be.false;
+        });
+    });
+
+
+    describe('dblClickResize', function() {
+        var $el;
+        var $th;
+        var startWidth;
+        var table;
+        var progCol;
+
+        before(function() {
+            $el = $table.find('.colGrab').eq(0);
+            $th = $el.closest('th');
+            startWidth = $th.outerWidth();
+            table = gTables[tableId];
+            progCol = table.tableCols[0];
+        });
+
+        it("dblClickResize should work", function() {
+            var resize = TblAnim.__testOnly__.dblClickResize;
+            var originalWidth = progCol.width;
+            expect(startWidth).to.equal(originalWidth);
+            expect(progCol.sizedToHeader).to.be.false;
+
+            gRescol.clicks = 2;
+            resize($el, null, null);
+            expect(progCol.sizedToHeader).to.be.true;
+            expect(gRescol.clicks).to.equal(0);
+            expect(progCol.width).to.equal(startWidth - 10);
+            expect($th.outerWidth()).to.equal(startWidth - 10);
         });
     });
 
@@ -339,7 +368,7 @@ describe('TblAnim', function() {
         var dragInfo;
 
         before(function() {
-            $el = $table.find('.col1');
+            $el = $table.find('th.col1');
             $th = $el;
             startWidth = $th.outerWidth();
             startX = 0;
@@ -349,6 +378,7 @@ describe('TblAnim', function() {
         it('startColDrag should work', function() {
             expect(gMouseStatus).to.be.null;
             expect(startWidth).to.be.gt(50);
+            expect($table.find('th').index($th)).to.equal(1);
 
             var e = $.Event('mousedown', {pageX: startX});
             TblAnim.startColDrag($el, e);
@@ -384,6 +414,13 @@ describe('TblAnim', function() {
             expect(dragInfo.fauxCol.css('left')).to.equal("10px");
         });
 
+        it('faux column should be correctly positioned', function() {
+            var $fauxCol = $('#fauxCol');
+            expect($fauxCol.length).to.equal(1);
+            expect($fauxCol.offset().top).to.equal($th.find('.header').offset().top);
+            expect($fauxCol.width()).to.equal($th.width());
+        });
+
         it('dragdropSwapColumns should work', function() {
             var swap = TblAnim.__testOnly__.dragdropSwapColumns;
             var $dropTarget = $('.dropTarget').eq(0);
@@ -394,6 +431,9 @@ describe('TblAnim', function() {
 
             swap($dropTarget);
             expect(dragInfo.colIndex).to.equal(1);
+
+            swap($dropTarget);
+            expect(dragInfo.colIndex).to.equal(2);
         });
 
 
@@ -405,17 +445,119 @@ describe('TblAnim', function() {
             expect($("#shadowDiv").length).to.equal(0);
             expect($(".dropTarget").length).to.equal(0);
             expect($('#moveCursor').length).to.equal(0);
+            expect($table.find('th').index($th)).to.equal(2);
         });
     });
 
+    describe('table drag', function() {
+        var $el;
+        var $th;
+        var startWidth;
+        var startX = 0;
+        var dragInfo;
+        var $tableWrap;
+
+        before(function(done) {
+            $el = $("#xcTableWrap-" + tableId).find('.tableTitle');
+            $th = $el;
+            startWidth = $th.outerWidth();
+            startX = 0;
+            dragInfo = TblAnim.__testOnly__.dragInfo;
+            $tableWrap = $table.closest('.xcTableWrap');
+
+            UnitTest.addTable(testDs)
+            .always(function(tName, tPrefix) {
+                tableName2 = tName;
+                prefix2 = tPrefix;
+                done();
+            });
+        });
+
+        it('startTableDrag should work', function() {
+            expect(gMouseStatus).to.be.null;
+            expect(startWidth).to.be.gt(50);
+
+            var e = $.Event('mousedown', {pageX: startX});
+            TblAnim.startTableDrag($el, e);
+
+            expect(gMouseStatus).to.equal("checkingMovingTable");
+            expect($('#moveCursor').length).to.equal(1);
+        });
+
+        it('checkTableDrag should work', function() {
+            // should not trigger move
+            var newX = 2;
+            var e = $.Event('mousemove', {pageX: newX});
+            TblAnim.__testOnly__.checkTableDrag(e);
+            expect(gMouseStatus).to.equal("checkingMovingTable");
+            expect($tableWrap.hasClass('tableDragging')).to.be.false;
+
+            newX = 5;
+            var e = $.Event('mousemove', {pageX: newX});
+            TblAnim.__testOnly__.checkTableDrag(e);
+
+
+            expect(gMouseStatus).to.equal("dragging");
+            expect($tableWrap.hasClass('tableDragging')).to.be.true;
+            expect($tableWrap.css('position')).to.equal('absolute');
+            expect($("#shadowTable").length).to.equal(1);
+            expect($(".dropTarget").length).to.equal($('.xcTable').length - 1);
+        });
+
+        it('onTableDrag should work', function() {
+            newX = 10;
+            var tableOffset = $tableWrap.offset().left;
+            var e = $.Event('mousemove', {pageX: newX});
+            TblAnim.__testOnly__.onTableDrag(e);
+
+            expect(dragInfo.pageX).to.equal(newX);
+            expect($tableWrap.css('left')).to.equal(newX - (startX - tableOffset) + "px");
+        });
+
+        it('dragdropSwapTables should work', function() {
+            var swap = TblAnim.__testOnly__.dragdropSwapTables;
+            var $dropTarget = $('.dropTarget').last();
+            var initialIndex = $('.xcTableWrap').index($tableWrap);
+            expect(dragInfo.tableIndex).to.equal(initialIndex);
+
+            swap($dropTarget);
+            expect(dragInfo.tableIndex).to.equal(initialIndex + 1);
+
+            swap($dropTarget);
+            expect(dragInfo.tableIndex).to.equal(initialIndex);
+            expect($('.xcTableWrap').index($tableWrap)).to.equal(initialIndex);
+
+            swap($dropTarget);
+            expect(dragInfo.tableIndex).to.equal(initialIndex + 1);
+            expect($('.xcTableWrap').index($tableWrap)).to.equal(initialIndex + 1);
+        });
+
+
+        it('endTableDrag should work', function() {
+            expect(gMouseStatus).to.equal("dragging");
+            var $dagWrap = $("#dagWrap-" + tableId);
+            var initialIndex = $('.dagWrap').index($dagWrap);
+
+            TblAnim.__testOnly__.endTableDrag();
+            var newIndex = $('.dagWrap').index($dagWrap);
+            expect(newIndex).to.equal(initialIndex + 1);
+            expect($('.xcTableWrap').index($tableWrap)).to.equal(initialIndex + 1);
+            expect(gMouseStatus).to.be.null;
+            expect($("#shadowTable").length).to.equal(0);
+            expect($(".dropTarget").length).to.equal(0);
+            expect($('#moveCursor').length).to.equal(0);
+            expect($tableWrap.hasClass('tableDragging')).to.be.false;
+        });
+    });
   
 
     after(function(done) {
-
-        UnitTest.deleteAll(tableName, testDs)
+        UnitTest.deleteTable(tableName2)
         .always(function() {
-            UnitTest.offMinMode();
-            done();
+            UnitTest.deleteAll(tableName, testDs)
+            .always(function() {
+                done();
+            })
         });
     });
 });

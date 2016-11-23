@@ -769,7 +769,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.fauxCol = $('#fauxCol');
         var $fauxTable = $('#fauxTable');
 
-        var rowHeight = 25;
+        var rowHeight = gRescol.minCellHeight;
         // turn this into binary search later
         var topPx = $table.find('.header').offset().top - rowHeight;
         var topRowIndex = -1;
@@ -1210,6 +1210,10 @@ window.TblAnim = (function($, TblAnim) {
         TblAnim.__testOnly__.endColDrag = endColDrag;
         TblAnim.__testOnly__.dragdropSwapColumns = dragdropSwapColumns;
         TblAnim.__testOnly__.dragdropSwapTables = dragdropSwapTables;
+        TblAnim.__testOnly__.checkTableDrag = checkTableDrag;
+        TblAnim.__testOnly__.onTableDrag = onTableDrag;
+        TblAnim.__testOnly__.endTableDrag = endTableDrag;
+        TblAnim.__testOnly__.dblClickResize = dblClickResize;
 
     }
     /* End Of Unit Test Only */
