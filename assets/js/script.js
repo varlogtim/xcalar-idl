@@ -122,7 +122,7 @@ window.StartManager = (function(StartManager, $) {
             WSManager.focusOnWorksheet();
         })
         .then(function() {
-            if (!isBrowseFireFox && !isBrowserIE) {
+            if (!isBrowserFirefox && !isBrowserIE) {
                 gMinModeOn = false; // turn off min mode
             }
 
@@ -788,7 +788,7 @@ window.StartManager = (function(StartManager, $) {
             StatusBox.forceHide();
         });
 
-        if (!window.isBrowseChrome) {
+        if (!window.isBrowserChrome) {
             //  prevent cursor from showing in IE and firefox
             $(document).on('focus', 'input[readonly]', function(){
                 this.blur();

@@ -41,7 +41,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         FilePreviewer.setup();
 
-        if (!window.isBrowseChrome) {
+        if (!window.isBrowserChrome) {
             lowerFileLimit = 600;
             upperFileLimit = subUpperFileLimit;
         }

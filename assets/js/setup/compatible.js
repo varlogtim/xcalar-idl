@@ -2,8 +2,8 @@ window.Compatible = (function($, Compatible) {
     window.isBrowserMicrosoft = false;
     window.isBrowserEdge = false;
     window.isBrowserIE = false;
-    window.isBrowseChrome = false;
-    window.isBrowseFireFox = false;
+    window.isBrowserChrome = false;
+    window.isBrowserFirefox = false;
     window.isBrowserSafari = false;
     window.isSystemMac = false;
 
@@ -270,13 +270,13 @@ window.Compatible = (function($, Compatible) {
         if (isBrowserMicrosoft) {
             $('html').addClass('microsoft');
         } else if (/chrome/i.test(userAgent)) {
-            window.isBrowseChrome = true;
+            window.isBrowserChrome = true;
         } else if (/firefox/i.test(userAgent)) {
-            window.isBrowseFireFox = true;
+            window.isBrowserFirefox = true;
             $('html').addClass('firefox');
         }
 
-        if (/safari/i.test(userAgent) && !window.isBrowseChrome) {
+        if (/safari/i.test(userAgent) && !window.isBrowserChrome) {
             window.isBrowserSafari = true;
         }
     }
