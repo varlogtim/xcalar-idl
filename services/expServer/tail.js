@@ -23,7 +23,10 @@ function TailUserInformation() {
     this.isFirstMonitorReq = true;
     this.fileID = undefined;
     this.position = undefined;
+    // The last time that expServer receive a request
     this.lastMonitorTime = undefined;
+    // The last time to fetch the log
+    this.lastGetLogTime = undefined;
     return this;
 }
 
@@ -43,6 +46,9 @@ TailUserInformation.prototype = {
     getLastMonitorTime: function() {
         return this.lastMonitorTime;
     },
+    getLastGetLogTime: function() {
+        return this.lastGetLogTime;
+    },
     setUserID: function(userID) {
         this.userID = userID;
     },
@@ -57,6 +63,9 @@ TailUserInformation.prototype = {
     },
     setLastMonitorTime: function(lastMonitorTime) {
         this.lastMonitorTime = lastMonitorTime;
+    },
+    setLastGetLogTime: function(lastGetLogTime) {
+        this.lastGetLogTime = lastGetLogTime;
     }
 };
 
@@ -74,32 +83,14 @@ function removeTailUser(userID) {
     }
 }
 
-function tailByChildProcess(filename, requireLineNum, res) {
-    var deferred = jQuery.Deferred();
-    var command = 'tail ' + filename + ' -n ' + requireLineNum;
-    cp.exec(command, function(err,stdout,stderr){
-        if(err){
-            console.log(err.message);
-            res.send({"status": Status.Error});
-            deferred.reject();
-        } else {
-            var lines = String(stdout);
-            lines = new Buffer(lines).toString('base64');
-            res.send({"status": Status.Ok,
-                      "logs" : lines});
-            deferred.resolve(lines);
-        }
-    });
-    return deferred.promise();
-}
-
-function tailByLargeBuffer(filename, requireLineNum, res) {
+// tail with Xcalar.log exist
+function tail(filename, requireLineNum, res) {
     console.log("Enter tail by large buffer")
     if(!isLogNumValid(requireLineNum)) {
         if(res) {
             res.send({"status": Status.Error,
-                      "error": new Error("Please Enter a nonnegative integer" +
-                                         "not over 500")});
+                      "error": "Please Enter a nonnegative integer" +
+                                         "not over 500"});
         }
         return;
     }
@@ -198,17 +189,7 @@ function tailByLargeBuffer(filename, requireLineNum, res) {
     return deferredOut.promise();
 }
 
-function isLogNumValid(num) {
-    if(isNaN(num)) {
-        return false;
-    } else {
-        if(Number.isInteger(num) && num >= 0  && num <= gMaxLogs) {
-            return true;
-        }
-        return false;
-    }
-}
-
+// tail f with Xcalar.log exist
 function tailf(filename, res, userID) {
     var user = tailUsers.get(userID);
     // Detect the case that xi quit without sending the stop Monitoring command
@@ -216,7 +197,7 @@ function tailf(filename, res, userID) {
     // First time for Monitor, just fetch 10 recent logs by calling function tailByLargeBuffer
     if(user.getIsFirstMonitorReq()) {
         clearFirstMonitor(userID);
-        var promise = tailByLargeBuffer(filename, 10, res);
+        var promise = tail(filename, 10, res);
         jQuery.when(promise)
         .then(function(fd, stat) {
             user.setFileID(fd);
@@ -224,15 +205,16 @@ function tailf(filename, res, userID) {
         });
     // Fetch new Logs after the first time;
     } else {
-        sendRecentLogs(res, userID);
+        sendRecentLogsWithLog(res, userID);
     }
 }
 
-function sendRecentLogs(res, userID) {
+// send recent logs with Xcalar.log exist
+function sendRecentLogsWithLog(res, userID) {
     var user = tailUsers.get(userID);
     var lines = "";
     var deferred = jQuery.Deferred();
-    
+
     var readRecentLogs = function() {
         var buf = new Buffer(bufferSize);
         var fileID = user.getFileID();
@@ -272,6 +254,108 @@ function sendRecentLogs(res, userID) {
     });
 }
 
+// tail without Xcalar.log exists, in centOS
+function tailWithoutLog(requireLineNum, res) {
+    console.log("Tail the Xcalar logs");
+    if (!isLogNumValid(requireLineNum)) {
+        if (res) {
+            res.send({"status": Status.Error,
+                      "error": "Please Enter a nonnegative integer" +
+                                         "not over 500"});
+        }
+        return;
+    }
+    var deferred = jQuery.Deferred();
+    var command = 'journalctl -n ' + requireLineNum;
+    cp.exec(command, function(err,stdout,stderr) {
+        var lines = String(stdout);
+        console.log(lines);
+        var result;
+        result = {"status": Status.Ok,
+                  "logs" : lines};
+        if (res) {
+            res.send(result);
+        }
+        var currentTime = getCurrentTime();
+        deferred.resolve(currentTime);
+    });
+    return deferred.promise();
+}
+
+// tail f without Xcalar.log exist, in centOS
+function tailfWithoutLog(res, userID) {
+    var user = tailUsers.get(userID);
+    // Detect the case that xi quit without sending the stop Monitoring command
+    lostConnectDetection(userID);
+    // First time for Monitor, just fetch 10 recent logs by calling function
+    // tailByLargeBuffer
+    if(user.getIsFirstMonitorReq()) {
+        clearFirstMonitor(userID);
+        tailWithoutLog(10, res)
+        .then(function(currentTime) {
+            user.setLastGetLogTime(currentTime);
+        });
+    // Fetch new Logs after the first time;
+    } else {
+        return sendRecentLogsWithoutLog(res, userID);
+    }
+}
+
+// send recent logs without Xcalar.log exist
+function sendRecentLogsWithoutLog(res, userID) {
+    var user = tailUsers.get(userID);
+    var lastGetLogTime = user.getLastGetLogTime();
+    var currentTime = getCurrentTime();
+
+    user.setLastGetLogTime(currentTime);
+    var deferred = jQuery.Deferred();
+    var command = 'journalctl --since ' + lastGetLogTime +
+                  ' --until ' + currentTime;
+    cp.exec(command, function(err,stdout,stderr) {
+        var lines = String(stdout);
+        var firstLineIndex = lines.indexOf("\n");
+        lines = lines.substring(firstLineIndex + 1);
+        if(lines) {
+            console.log(lines);
+        }
+        var result;
+        result = {"status": Status.Ok,
+                  "logs" : lines};
+        if (res) {
+            res.send(result);
+        }
+        deferred.resolve(currentTime);
+    });
+    return deferred.promise();
+}
+
+function isLogNumValid(num) {
+    if(isNaN(num)) {
+        return false;
+    } else {
+        if(Number.isInteger(num) && num >= 0  && num <= gMaxLogs) {
+            return true;
+        }
+        return false;
+    }
+}
+
+function getCurrentTime() {
+    var date = new Date();
+    var month = date.getMonth()+1 < 10 ? "0" + (date.getMonth() + 1) :
+                                         date.getMonth()+1 ;
+    var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+    var year = date.getFullYear();
+    var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+    var minute = date.getMinutes() < 10 ? "0" + date.getMinutes() :
+                                          date.getMinutes();
+    var second = date.getSeconds() < 10 ? "0" + date.getSeconds() :
+                                          date.getSeconds();
+    var formatedDate = '"' + year + '-' + month + '-' + day + ' ' + hour + ':'
+                        + minute + ':' + second + '"';
+    return formatedDate;
+}
+
 function lostConnectDetection(userID) {
     var user = tailUsers.get(userID);
     var currentTime = new Date().getTime();
@@ -292,9 +376,10 @@ function clearFirstMonitor(userID) {
     user.setIsFirstMonitorReq(false);
 }
 
+exports.tail = tail;
 exports.tailf = tailf;
-exports.tailByLargeBuffer = tailByLargeBuffer;
-exports.tailByChildProcess = tailByChildProcess;
+exports.tailWithoutLog = tailWithoutLog;
+exports.tailfWithoutLog = tailfWithoutLog;
 exports.setFirstMonitor = setFirstMonitor;
 exports.createTailUser = createTailUser;
 exports.removeTailUser = removeTailUser;

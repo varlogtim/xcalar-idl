@@ -1,6 +1,8 @@
 window.XFTSupportTools = (function(XFTSupportTools) {
     var monitorIntervalId;
     var lastReturnSucc = true;
+    var timeout = 50000;
+    var timeoutFactor = 2;
 
     XFTSupportTools.getRecentLogs = function(requireLineNum) {
         var action = "/recentLogs";
@@ -119,6 +121,17 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         return requestService(action, str);
     };
 
+    XFTSupportTools.setTimeout = function(time) {
+        var action = "/setTimeout";
+        var str = {"timeout": time};
+        timeout = time * timeoutFactor;
+        return requestService(action, str);
+    };
+
+    XFTSupportTools.setTimeoutFactor = function(factor) {
+        timeoutFactor = factor;
+    };
+
     function requestService(action, str) {
         var promise = postRequest(action, str);
         var deferred = jQuery.Deferred();
@@ -143,7 +156,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             data: JSON.stringify(str),
             contentType: 'application/json',
             url: hostname + "/app" + action,
-            timeout: 50000,
+            timeout: timeout,
             success: function(data) {
                 var ret = data;
                 var retMsg;

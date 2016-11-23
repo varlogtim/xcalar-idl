@@ -345,17 +345,32 @@ app.post("/recentLogs", function(req, res) {
     console.log("Fetch Recent Logs as Master");
     var credArray = req.body;
     var requireLineNum =  credArray["requireLineNum"];
-    var str = {"requireLineNum" : requireLineNum, "filename": file};
-    support.masterExecuteAction("/recentLogs", res, str);
+
+    support.hasLogFile(file)
+    .then(function() {
+        var str = {"requireLineNum" : requireLineNum, "filename": file};
+        support.masterExecuteAction("/recentLogs", res, str);
+    })
+    .fail(function() {
+        var str = {"requireLineNum" : requireLineNum};
+        support.masterExecuteAction("/recentJournals", res, str);
+    });
 });
 
 app.post("/monitorLogs", function(req, res) {
     console.log("Monitor Recent Logs as Master");
     var credArray = req.body;
     var userID =  credArray["userID"];
-    var str = {"filename": file, "userID": userID};
-    console.log("userID", userID);
-    support.masterExecuteAction("/monitorLogs", res, str);
+
+    support.hasLogFile(file)
+    .then(function() {
+        var str = {"filename": file, "userID": userID};
+        support.masterExecuteAction("/monitorLogs", res, str);
+    })
+    .fail(function() {
+        var str = {"userID": userID};
+        support.masterExecuteAction("/monitorJournals", res, str);
+    });
 });
 
 app.post("/stopMonitorLogs", function(req, res) {
@@ -364,6 +379,14 @@ app.post("/stopMonitorLogs", function(req, res) {
     var userID =  credArray["userID"];
     var str = {"userID": userID};
     support.masterExecuteAction("/stopMonitorLogs", res, str);
+});
+
+app.post("/setTimeout", function(req, res) {
+    console.log("Set the current time out as Master");
+    var credArray = req.body;
+    var timeout =  credArray["timeout"];
+    var str = {"timeout": timeout};
+    support.masterExecuteAction("/setTimeout", res, str);
 });
 
 // Slave request
@@ -414,6 +437,30 @@ app.post("/stopMonitorLogs/slave", function(req, res) {
     var userID =  credArray["userID"];
     var str = {"filename": file, "userID": userID};
     support.slaveExecuteAction("/stopMonitorLogs/slave", res, str);
+});
+
+app.post("/recentJournals/slave", function(req, res) {
+    console.log("Fetch Recent Journals as Slave");
+    var credArray = req.body;
+    var requireLineNum =  credArray["requireLineNum"];
+    var str = {"requireLineNum" : requireLineNum};
+    support.slaveExecuteAction("/recentJournals/slave", res, str);
+});
+
+app.post("/monitorJournals/slave", function(req, res) {
+    console.log("Monitor Recent Journals as Slave");
+    var credArray = req.body;
+    var userID =  credArray["userID"];
+    var str = {"userID": userID};
+    support.slaveExecuteAction("/monitorJournals/slave", res, str);
+});
+
+app.post("/setTimeout/slave", function(req, res) {
+    console.log("Set the current time out as Slave");
+    var credArray = req.body;
+    var timeout =  credArray["timeout"];
+    var str = {"timeout": timeout};
+    support.slaveExecuteAction("/setTimeout/slave", res, str);
 });
 
 function copyFiles(res) {

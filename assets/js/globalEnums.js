@@ -3,5 +3,6 @@ var Status = {
     "Unknown": 0,
     "Ok": 1,
     "Done"   : 2,
-    "Running": 3
+    "Running": 3,
+    "Incomplete": 4
 }

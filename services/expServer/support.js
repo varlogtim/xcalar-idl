@@ -3,9 +3,11 @@ var lineReader = require('readline');
 var fs = require('fs');
 var os = require('os');
 var path = require('path');
+var timer = require('timers');
 
 var ssf = require('./supportStatusFile');
 var tail = require('./tail');
+
 var Status = ssf.Status;
 
 var jQuery;
@@ -21,6 +23,9 @@ var hostFile = '/config/privHosts.txt';
 
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
+var timeout = 25000;
+var multiFactor = 5;
+var monitorFactor = 0.05;
 var tailUsers = new Map();
 
 // Get all the Hosts from file
@@ -42,6 +47,23 @@ function readHostsFromFile(hostFile) {
         return deferred.resolve(hosts);
     });
     return deferred.promise();
+}
+
+function setTimeOut(time, res) {
+    console.log("time", time)
+    var deferred = jQuery.Deferred();
+    if (time >= timeout && time <= timeout * multiFactor) {
+        timeout = time;
+        res.send({"status": Status.Ok,
+                  "logs": "Set new timeout " + time
+                    + " successfully!"});
+        deferred.resolve();
+    } else {
+        res.send({"status": Status.Error,
+                  "logs": "Please Enter timeout between " + timeout + " and "
+                          + timeout * multiFactor});
+        deferred.reject();
+    }
 }
 
 function masterExecuteAction (action, res, str) {
@@ -90,7 +112,7 @@ function slaveExecuteAction (action, res, str) {
         case "/service/condrestart/slave":
             return xcalarCondrestart(res);
         case "/recentLogs/slave":
-            return tail.tailByLargeBuffer(str["filename"], str["requireLineNum"], res);
+            return tail.tail(str["filename"], str["requireLineNum"], res);
         case "/monitorLogs/slave":
             {
                 tail.createTailUser(str["userID"]);
@@ -104,6 +126,18 @@ function slaveExecuteAction (action, res, str) {
                 res.send(retMsg);
                 return;
             }
+        case "/recentJournals/slave":
+            return tail.tailWithoutLog(str["requireLineNum"], res);
+        case "/monitorJournals/slave":
+            {
+                tail.createTailUser(str["userID"]);
+                return tail.tailfWithoutLog(res, str["userID"]);
+            }
+        case "/setTimeout/slave":
+            {
+                return setTimeOut(str["timeout"], res);
+            }
+
         default:
             console.log("Should not be here!");
     }
@@ -127,13 +161,13 @@ function sendCommandToSlaves(action, str, hosts) {
             url: "http://" + hostName + "/app" + action,
             // If one node fails for monitoring logs, we may still want to read
             // the logs from other logs, should not wait too long
-            timeout: action == "/monitorLogs/slave" ? 1000 : 30000,
+            timeout: action == "/monitorLogs/slave" ? timeout * monitorFactor : timeout,
             success: function(data) {
                 var ret = data;
                 var retMsg;
                 if (ret.status === Status.Ok) {
                     retMsg = ret;
-                } else if (ret.status === Status.Error) {
+                } else if (ret.status === Status.Error || ret.status === Status.Incomplete) {
                     retMsg = ret;
                     hasFailure = true;
                 } else {
@@ -185,7 +219,7 @@ function generateLogs(action, results) {
             if (resSlave["logs"]) {
                 str = str + "Logs: " + resSlave["logs"] + "\n\n";
             } else if (resSlave["error"]) {
-                str = str + "Error: " + resSlave["error"].message + "\n\n";
+                str = str + "Error: " + resSlave["error"] + "\n\n";
             }
         }
     }
@@ -234,7 +268,7 @@ function removeSessionFiles(filePath, res) {
         var completePath = getCompletePath(sessionPath, filePath);
         var isLegalPath = isUnderBasePath(sessionPath, completePath);
         if (!isLegalPath) {
-            console.log("The filename" + completePath + "is illegal");
+            console.log("The filename " + completePath + " is illegal");
             var retMsg = {"status": Status.Error,
                           "error" : new Error("Please Send a legal Session file/folder name.")};
             res.send(retMsg);
@@ -296,22 +330,96 @@ function isUnderBasePath(basePath, completePath) {
            completePath === basePath.substring(0, basePath.length - 1);
 }
 
+// function executeCommand(command, res) {
+//     var deferred = jQuery.Deferred();
+//     cp.exec(command, function(err,stdout,stderr) {
+//         var lines = String(stdout);
+//         console.log(lines);
+//         var result;
+//         result = {"status": Status.Ok,
+//                   "logs" : lines};
+//         if (res) {
+//             res.send(result);
+//         }
+//         deferred.resolve();
+//     });
+//     return deferred.promise();
+// }
+
+
 function executeCommand(command, res) {
     var deferred = jQuery.Deferred();
-    cp.exec(command, function(err,stdout,stderr) {
-        var lines = String(stdout);
-        console.log(lines);
-        var result;
-        result = {"status": Status.Ok,
-                  "logs" : lines};
-        if (res) {
+    var intervalID;
+    var out = cp.exec(command);
+    var lines = "";
+    var isSend = false;
+    var isClose = false;
+
+    intervalID = timer.setTimeout(function(){
+        console.log("Over time!");
+        if (!isSend && res) {
+            var result;
+            result = {"status": isComplete(command, lines) ? Status.Ok :
+                                                            Status.Incomplete,
+                      "logs" : lines};
+            isSend = true;
+            res.send(result);
+        }
+        timer.clearTimeout(intervalID);
+        deferred.resolve();
+    }, timeout);
+
+    out.stdout.on('data', function(data) {
+        console.log("data", data)
+        lines += data;
+    });
+
+    out.stdout.on('close', function(data) {
+        if (!isSend && res) {
+            isSend = true;
+            var result;
+            result = {"status": isComplete(command, lines) ? Status.Ok :
+                                                            Status.Incomplete,
+                      "logs" : lines};
             res.send(result);
         }
         deferred.resolve();
     });
+
+    out.stdout.on('error', function(data) {
+        lines += data;
+        console.log("lines", lines);
+    });
+
     return deferred.promise();
 }
 
+function isComplete(command, data) {
+    switch(command) {
+        case  "service xcalar start" :
+            if ((data.indexOf('Mgmtd running') != -1)
+            || (data.indexOf('Mgmtd already running') != -1)) {
+                return true;
+            } else {
+                return false;
+            }
+        case  "service xcalar stop" :
+            if ((data.indexOf('Xcalar is not running') != -1)
+            || (data.indexOf('Stopping Xcalar') != -1)
+            || (data.indexOf('Stopping remaining Xcalar processes') != -1)) {
+                return true;
+            } else {
+                return false;
+            }
+        case  "service xcalar restart" :
+            if(data.indexOf('Mgmtd running') != -1) {
+                return true;
+            } else {
+                return false;
+            }
+        default : return true;
+    }
+}
 // Other commands
 function getXlrRoot() {
     var cfgLocation = "/etc/xcalar/default.cfg";
@@ -402,6 +510,21 @@ function submitTicket(contents, res) {
     });
 }
 
+function hasLogFile(filePath) {
+    var deferred = jQuery.Deferred();
+    fs.access(filePath, function(err) {
+        console.log("err", err)
+        if (!err) {
+            deferred.resolve();
+            return;
+        } else {
+            deferred.reject();
+            return;
+        }
+    });
+    return deferred.promise();
+}
+
 exports.getXlrRoot = getXlrRoot;
 exports.getLicense = getLicense;
 exports.submitTicket = submitTicket;
@@ -410,3 +533,4 @@ exports.slaveExecuteAction =  slaveExecuteAction;
 exports.masterExecuteAction = masterExecuteAction;
 exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
+exports.hasLogFile = hasLogFile;
