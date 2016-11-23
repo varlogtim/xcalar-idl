@@ -639,14 +639,14 @@ window.JoinView = (function($, JoinView) {
                                                     validTypes);
 
         if (leftColRes.invalid) {
-            columnErrorHandler('left', leftColRes);
+            columnErrorHandler('left', leftColRes, tableIds[0]);
             return false;
         } else {
             var rightColRes = xcHelper.convertFrontColNamesToBack(rCols,
                                                                   tableIds[1],
                                                                   validTypes);
             if (rightColRes.invalid) {
-                columnErrorHandler('right', rightColRes);
+                columnErrorHandler('right', rightColRes, tableIds[1]);
                 return (false);
             }
         }
@@ -668,10 +668,11 @@ window.JoinView = (function($, JoinView) {
         return (true);
     }
 
-    function columnErrorHandler(side, colRes) {
+    function columnErrorHandler(side, colRes, tableId) {
         var errorText;
         var $clauseSection;
         var $input;
+        var tooltipTime = 2000;
 
         if (side === "left") {
             $clauseSection = $clauseContainer.find('.joinClause .leftClause');
@@ -684,9 +685,12 @@ window.JoinView = (function($, JoinView) {
                     }).eq(0);
 
         if (colRes.reason === 'notFound') {
-            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                "name": colRes.name
+            var tableName = gTables[tableId].getName();
+            errorText = xcHelper.replaceMsg(ErrWRepTStr.ColNotInTable, {
+                "name": colRes.name,
+                "table": tableName
             });
+            tooltipTime = 3000;
         } else if (colRes.reason = "tableNotFound") {
             errorText = ErrTStr.SourceTableNotExists;
         } else if (colRes.reason === 'type') {
@@ -695,9 +699,7 @@ window.JoinView = (function($, JoinView) {
                 "type": colRes.type
             });
         }
-        showErrorTooltip($input, {
-            "title": errorText
-        });
+        showErrorTooltip($input, {"title": errorText}, {"time": tooltipTime});
     }
 
     // assumes lCols and rCols exist, returns obj with sucess property

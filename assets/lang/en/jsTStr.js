@@ -256,6 +256,7 @@ ErrWRepTStr = {
     'InvalidColOnTable': 'Column "<col>" does not exist in table <table>.',
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
     'InvalidColType': 'Column "<name>" has an invalid type: <type>',
+    'ColNotInTable': 'Column "<name>" not found in table "<table>."',
     'NoLessNum': 'Please enter a value bigger than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
     'TableNotDeleted': 'Table <name> was not deleted.',
