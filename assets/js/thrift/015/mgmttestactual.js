@@ -13962,6 +13962,7 @@ XcalarApiDatasetT = function(args) {
   this.name = null;
   this.loadIsComplete = null;
   this.refCount = null;
+  this.isListable = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -13980,6 +13981,9 @@ XcalarApiDatasetT = function(args) {
     }
     if (args.refCount !== undefined) {
       this.refCount = args.refCount;
+    }
+    if (args.isListable !== undefined) {
+      this.isListable = args.isListable;
     }
   }
 };
@@ -14039,6 +14043,13 @@ XcalarApiDatasetT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 7:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isListable = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -14078,6 +14089,11 @@ XcalarApiDatasetT.prototype.write = function(output) {
   if (this.refCount !== null && this.refCount !== undefined) {
     output.writeFieldBegin('refCount', Thrift.Type.I32, 6);
     output.writeI32(this.refCount);
+    output.writeFieldEnd();
+  }
+  if (this.isListable !== null && this.isListable !== undefined) {
+    output.writeFieldBegin('isListable', Thrift.Type.BOOL, 7);
+    output.writeBool(this.isListable);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -19660,11 +19676,19 @@ XcalarApiQueryOutputT.prototype.write = function(output) {
 
 XcalarApiBulkLoadOutputT = function(args) {
   this.dataset = null;
+  this.numFiles = null;
+  this.numBytes = null;
   this.errorString = null;
   this.errorFile = null;
   if (args) {
     if (args.dataset !== undefined) {
       this.dataset = args.dataset;
+    }
+    if (args.numFiles !== undefined) {
+      this.numFiles = args.numFiles;
+    }
+    if (args.numBytes !== undefined) {
+      this.numBytes = args.numBytes;
     }
     if (args.errorString !== undefined) {
       this.errorString = args.errorString;
@@ -19697,13 +19721,27 @@ XcalarApiBulkLoadOutputT.prototype.read = function(input) {
       }
       break;
       case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.numFiles = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.I64) {
+        this.numBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
       if (ftype == Thrift.Type.STRING) {
         this.errorString = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 3:
+      case 5:
       if (ftype == Thrift.Type.STRING) {
         this.errorFile = input.readString().value;
       } else {
@@ -19726,13 +19764,23 @@ XcalarApiBulkLoadOutputT.prototype.write = function(output) {
     this.dataset.write(output);
     output.writeFieldEnd();
   }
+  if (this.numFiles !== null && this.numFiles !== undefined) {
+    output.writeFieldBegin('numFiles', Thrift.Type.I64, 2);
+    output.writeI64(this.numFiles);
+    output.writeFieldEnd();
+  }
+  if (this.numBytes !== null && this.numBytes !== undefined) {
+    output.writeFieldBegin('numBytes', Thrift.Type.I64, 3);
+    output.writeI64(this.numBytes);
+    output.writeFieldEnd();
+  }
   if (this.errorString !== null && this.errorString !== undefined) {
-    output.writeFieldBegin('errorString', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('errorString', Thrift.Type.STRING, 4);
     output.writeString(this.errorString);
     output.writeFieldEnd();
   }
   if (this.errorFile !== null && this.errorFile !== undefined) {
-    output.writeFieldBegin('errorFile', Thrift.Type.STRING, 3);
+    output.writeFieldBegin('errorFile', Thrift.Type.STRING, 5);
     output.writeString(this.errorFile);
     output.writeFieldEnd();
   }
@@ -28277,7 +28325,10 @@ StatusT = {
   'StatusTwoPcBarMsgInvalid' : 518,
   'StatusTwoPcBarTimeout' : 519,
   'StatusTooManyChildren' : 520,
-  'StatusMaxFileLimitReached' : 521
+  'StatusMaxFileLimitReached' : 521,
+  'StatusApiWouldBlock' : 522,
+  'StatusExportSFSingleHeaderConflict' : 523,
+  'StatusAggFnInClass1Ast' : 524
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -28602,15 +28653,15 @@ StatusTStr = {0 : 'Success',
 320 : 'The session has an unrecoverable error',
 321 : 'The session is active on another node',
 322 : 'The delete operation is not permitted',
-323 : 'Failed to load UDF module',
+323 : 'Failed to load extension',
 324 : 'A module with the given name already exists',
-325 : 'The specified module was not found',
+325 : 'The specified extension was not found',
 326 : 'The given module contains no functions',
 327 : 'Module name is invalid',
 328 : 'Module type is invalid',
 329 : 'Module source is invalid',
 330 : 'Module source is too large',
-331 : 'Failed to load UDF function',
+331 : 'Failed to load function',
 332 : 'The specified function was not found in the given module',
 333 : 'UDF function name exceeds allowed length',
 334 : 'UDF function has too many parameters',
@@ -28618,8 +28669,8 @@ StatusTStr = {0 : 'Success',
 336 : 'Variable type not supported by UDF',
 337 : 'Persisted UDF is invalid',
 338 : 'Failed to convert value to python data type',
-339 : 'Failed to execute UDF',
-340 : 'Invalid argument passed to UDF',
+339 : 'Failed to execute extension',
+340 : 'Invalid argument passed to extension function',
 341 : 'Failed to delete UDF on all nodes',
 342 : 'Token name in evalString is too long',
 343 : 'No configuration file specified',
@@ -28755,10 +28806,10 @@ StatusTStr = {0 : 'Success',
 473 : 'No tables left in sessionGraph',
 474 : 'The table is empty',
 475 : 'Input regular expression is invalid',
-476 : 'User defined function not found',
+476 : 'Extension function not found',
 477 : 'Too many outstanding APIs, try again later',
 478 : 'The supplied user name is not within the allowed size range',
-479 : 'Failed to inject Python UDF module',
+479 : 'Failed to inject Python module',
 480 : 'Invalid initialization',
 481 : 'Failed to parse user defined file list',
 482 : 'Invalid load arguments',
@@ -28800,7 +28851,10 @@ StatusTStr = {0 : 'Success',
 518 : 'Unknown Message for two PC barrier',
 519 : 'Timed out during cluster startup / shutdown synchronization',
 520 : 'Configured limit on child processes has been reached',
-521 : 'Limit on files loaded has been reached'
+521 : 'Limit on files loaded has been reached',
+522 : 'Resource temporarily unavailable, try again later',
+523 : 'Cannot export append to a single file with adding a header',
+524 : 'Cannot call an aggregate function during filter/map'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -29111,9 +29165,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 13201720
+  'XcalarApiVersionSignature' : 206280712
 };
-XcalarApiVersionTStr = {13201720 : '0c97138a8da582b7b12cc58924cf6548'
+XcalarApiVersionTStr = {206280712 : 'c4b9808076033bd7d29147d15673976c'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -29608,13 +29662,13 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
-        var loadOutput = result.output.outputResult.loadOutput;
         var status = result.output.hdr.status;
+        var loadOutput = result.output.outputResult.loadOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(status, loadOutput);
         }
         deferred.resolve(loadOutput);
     })
@@ -33565,6 +33619,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         .then(function(result) {
             printResult(result);
             loadOutput = result;
+            test.assert(result.numBytes == 27053171);
+            test.assert(result.numFiles == 1);
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;
             return getDatasetCount("yelp");
@@ -33706,20 +33762,20 @@ PromiseHelper = (function(PromiseHelper, $) {
         loadArgs.csv.isCRLF = false;
 
         xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/edgeCases/bad.json", "bad", DfFormatTypeT.DfFormatJson, 0, loadArgs)
-        .done(function(result) {
+        .then(function(result) {
+            test.fail("load succeeded when it should have failed")
+        })
+        .fail(function(status, result) {
             printResult(result);
             loadOutput = result;
-            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'(Failed to parse data format value)";
-            var errFile = "nfs://" + qaTestDir + "/edgeCases/bad.json";
+            var errStr = "line: 2 column: 1 position: 10892 error: end of file expected near '{'";
+            var errFile = qaTestDir + "/edgeCases/bad.json";
             if (loadOutput.errorString == errStr &&
                 loadOutput.errorFile == errFile) {
                 test.pass();
             } else {
                 test.fail("errorString: \"" + loadOutput.errorString + "\" should be: \"" + errStr + "\" errorFile: \"" + loadOutput.errorFile + "\" should be: \"" + errFile);
             }
-        })
-        .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
         });
     }
 
@@ -36715,8 +36771,7 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     addTestCase(testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
-    // XXX (dwillis) enable when udf-on-load exists again
-    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoadRegex, "loadRegex", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testPreview, "preview", defaultTimeout, TestCaseEnabled, "");

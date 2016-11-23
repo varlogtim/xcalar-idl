@@ -1778,6 +1778,7 @@ XcalarApiDatasetT = function(args) {
   this.name = null;
   this.loadIsComplete = null;
   this.refCount = null;
+  this.isListable = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -1796,6 +1797,9 @@ XcalarApiDatasetT = function(args) {
     }
     if (args.refCount !== undefined) {
       this.refCount = args.refCount;
+    }
+    if (args.isListable !== undefined) {
+      this.isListable = args.isListable;
     }
   }
 };
@@ -1855,6 +1859,13 @@ XcalarApiDatasetT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 7:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isListable = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1894,6 +1905,11 @@ XcalarApiDatasetT.prototype.write = function(output) {
   if (this.refCount !== null && this.refCount !== undefined) {
     output.writeFieldBegin('refCount', Thrift.Type.I32, 6);
     output.writeI32(this.refCount);
+    output.writeFieldEnd();
+  }
+  if (this.isListable !== null && this.isListable !== undefined) {
+    output.writeFieldBegin('isListable', Thrift.Type.BOOL, 7);
+    output.writeBool(this.isListable);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
