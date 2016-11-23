@@ -216,7 +216,7 @@ window.JoinView = (function($, JoinView) {
             } else {
                 $joinClause.slideUp(100, clauseRemoveHelper);
             }
-           
+
             function clauseRemoveHelper() {
                 $joinClause.remove();
                 updatePreviewText();
@@ -405,8 +405,13 @@ window.JoinView = (function($, JoinView) {
                     var isFind = suggestJoinKey(tableId,
                                                 $inputToCheck.val().trim(),
                                                 $inputToFill, suggTableId);
+                    if (isFind === JoinKeySuggestion.KeyUnsure) {
+                        showErrorTooltip($suggErrorArea, {
+                            "title"    : JoinTStr.UnlikelyJoinKey,
+                            "placement": "right"
+                        });
 
-                    if (!isFind) {
+                    } else if (isFind === JoinKeySuggestion.KeyNotFound) {
                         text = isLeftTableVal ? JoinTStr.NoMatchRight :
                                                 JoinTStr.NoMatchLeft;
                         showErrorTooltip($suggErrorArea, {
@@ -639,14 +644,14 @@ window.JoinView = (function($, JoinView) {
                                                     validTypes);
 
         if (leftColRes.invalid) {
-            columnErrorHandler('left', leftColRes, tableIds[0]);
+            columnErrorHandler('left', leftColRes);
             return false;
         } else {
             var rightColRes = xcHelper.convertFrontColNamesToBack(rCols,
                                                                   tableIds[1],
                                                                   validTypes);
             if (rightColRes.invalid) {
-                columnErrorHandler('right', rightColRes, tableIds[1]);
+                columnErrorHandler('right', rightColRes);
                 return (false);
             }
         }
@@ -1017,6 +1022,7 @@ window.JoinView = (function($, JoinView) {
         return deferred.promise();
     }
 
+
     function executeChecks($renames, $origNames, $newNames, origArray,
                            renameArray, isFatptr) {
         // Check that none are empty
@@ -1162,6 +1168,7 @@ window.JoinView = (function($, JoinView) {
                                lImmediates, leftRenameArray, false) ||
                 !executeChecks($rightRenames, $rightOrigNames, $rightNewNames,
                                rImmediates, rightRenameArray, false)) {
+
                 deferred.reject();
                 return deferred.promise();
             }
@@ -1744,6 +1751,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
+
         var col = gTables[tableId].getColByFrontName(val);
         if (!col) {
             return false;
@@ -1757,7 +1765,8 @@ window.JoinView = (function($, JoinView) {
         var colToSugg = null;
 
         // only score that more than -50 will be suggested, can be modified
-        var maxScore = -50;
+        var thresholdScore = -50;
+        var maxScore = (-Number.MAX_VALUE);
 
         var $suggTable = $('#xcTable-' + suggTableId);
         var suggTable = gTables[suggTableId];
@@ -1786,10 +1795,12 @@ window.JoinView = (function($, JoinView) {
         if (colToSugg != null) {
             $inputToFill.val(colToSugg);
 
-            return true;
+            if (thresholdScore > maxScore) {
+                return JoinKeySuggestion.KeyUnsure;
+            }
+            return JoinKeySuggestion.KeySuggested;
         }
-
-        return false;
+        return JoinKeySuggestion.KeyNotFound;
     }
 
     function getScore(context1, context2, titleDist, type) {
@@ -1888,7 +1899,10 @@ window.JoinView = (function($, JoinView) {
             return {"max": 0, "min": 0, "total": 0, "variance": 0};
         }
 
-        var max = Number.MIN_VALUE;
+        // Number min value provides smallest absolute value number, e.g.
+        // 5e-352 or something similar.  Take negative of max value for true min.
+        // Otherwise this script breaks on negative numbers.
+        var max = (-Number.MAX_VALUE);
         var min = Number.MAX_VALUE;
         var total = 0;
         var datas = [];

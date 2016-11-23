@@ -335,7 +335,7 @@ describe('JoinView', function() {
             $joinForm.find('.smartSuggest').click();
             expect($joinForm.find('.leftClause').val()).to.equal(colName);
         });
-       
+
         it('smart suggest error should show if both inputs filled', function() {
             var cachededTooltipFunc = xcTooltip.transient;
             xcTooltip.transient = function($el, options, time) {

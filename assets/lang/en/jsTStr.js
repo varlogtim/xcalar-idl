@@ -371,8 +371,10 @@ JoinTStr = {
     'NoRightTable': 'Select right table first',
     'NoKeyLeft': 'Left table has no selected key',
     'NoKeyRight': 'Right table has no selected key',
-    'NoMatchLeft': 'Sorry, cannot find a good key to match the left table',
-    'NoMatchRight': 'Sorry, cannot find a good key to match the right table',
+    'NoMatchLeft': 'Sorry, cannot find a valid key to match the left table',
+    'NoMatchRight': 'Sorry, cannot find a valid key to match the right table',
+    'UnlikelyJoinKey': 'This pairing is unlikely by our estimation, ' +
+        'but still the best key found.',
     'NoColToCheck': 'No available column names to check',
     'InvalidClause': 'Invalid Clause to join',
     'TypeMistch': 'Left selected column and right selected column has type ' +

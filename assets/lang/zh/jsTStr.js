@@ -235,7 +235,9 @@ JoinTStr = {
 'ToSingleJoin': '切换到单加盟',
 'ToMultiJoin': '切换到多条加入',
 'InvalidClause': '无效条款加盟',
-'TypeMistch': '左边选中的列和右侧选择列的类型mistch，不能加入'
+'TypeMistch': '左边选中的列和右侧选择列的类型mistch，不能加入',
+// 'UnlikelyJoinKey': 'This pairing is unlikely by our estimation, ' +
+//    'but still the best key found.' // Wo bu hui shuo zhongwen
 };
 ExportTStr = {
 'Success': '出口成功',

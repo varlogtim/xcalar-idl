@@ -37,13 +37,19 @@ var SPMode = {
 
 var ExecuteAction = {
     Update: 1,
-    Eval: 2,
+    Eval: 2
+};
+
+var JoinKeySuggestion = {
+    KeySuggested: 1,
+    KeyUnsure: 2,
+    KeyNotFound: 3
 };
 
 var AffectedEntryAction = {
     AddConnected: 1,
     DelConnected: 2,
-    DelConnectedRemoveEntry: 3,
+    DelConnectedRemoveEntry: 3
 };
 
 var SyncOrAsync = {
@@ -62,7 +68,7 @@ var WSTableType = {
     "TempHidden": "tempHiddenTables",
     "Orphan"    : "orphanedTables",
     "Undo"      : "undoneTables",
-    "Lock"      : "lockedTables",
+    "Lock"      : "lockedTables"
 };
 
 var DelWSType = {
