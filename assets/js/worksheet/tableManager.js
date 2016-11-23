@@ -609,10 +609,10 @@ window.TblManager = (function($, TblManager) {
         // this function does some preparation for ColManager.pullAllCols()
         startIndex = startIndex || 0;
         var $table = $('#xcTable-' + tableId);
-        var newCells = ColManager.pullAllCols(startIndex, jsonData, tableId,
-                                                direction, rowToPrependTo);
-        addRowListeners(newCells);
-        adjustRowHeights(newCells, startIndex, tableId);
+        var $trs = ColManager.pullAllCols(startIndex, jsonData, tableId,
+                                            direction, rowToPrependTo);
+        addRowListeners($trs);
+        adjustRowHeights($trs, startIndex, tableId);
 
         var idColWidth = getTextWidth($table.find('tr:last td:first'));
         var newWidth = Math.max(idColWidth, 22);
@@ -1611,13 +1611,6 @@ window.TblManager = (function($, TblManager) {
                              'style="top:0px;"></div>');
 
         $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
-
-        // var tableName = "";
-        // build this table title somewhere else
-        // var table = gTables[tableId];
-        // if (table != null) {
-        //     tableName = table.tableName;
-        // }
         var tableTitleClass = "";
         if ($('.xcTable:visible').length === 1) {
             tableTitleClass = " tblTitleSelected";
@@ -1788,7 +1781,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function addTableListeners(tableId) {
-        var $xcTableWrap = $('#xcTableWrap-' + tableId);
+        var $xcTableWrap = $("#xcTableWrap-" + tableId);
         var oldId = gActiveTableId;
         $xcTableWrap.on("mousedown", ".lockedTableIcon", function() {
             // handlers fire in the order that it's bound in.
@@ -1816,7 +1809,7 @@ window.TblManager = (function($, TblManager) {
             $(this).scrollTop(0); // prevent scrolling when colmenu is open
         });
 
-        var $rowGrab = $('#xcTbodyWrap-' + tableId).find('.rowGrab.last');
+        var $rowGrab = $("#xcTbodyWrap-" + tableId).find(".rowGrab.last");
         $rowGrab.mousedown(function(event) {
             if (event.which === 1) {
                 TblAnim.startRowResize($(this), event);
@@ -1824,18 +1817,18 @@ window.TblManager = (function($, TblManager) {
         });
     }
 
-    function addRowListeners(newCells) {
-        var $jsonEle = newCells.find('.jsonElement');
+    function addRowListeners($trs) {
+        var $jsonEle = $trs.find(".jsonElement");
         $jsonEle.dblclick(showJSONMoal);
         $jsonEle.on("click", ".pop", showJSONMoal);
 
-        newCells.find('.rowGrab').mousedown(function(event) {
+        $trs.find(".rowGrab").mousedown(function(event) {
             if (event.which === 1) {
                 TblAnim.startRowResize($(this), event);
             }
         });
 
-        newCells.find('.idSpan').click(function() {
+        $trs.find('.idSpan').click(function() {
             var tableId = xcHelper.parseTableId($(this).closest('table'));
             var rowNum = parseInt($(this).closest('tr').attr('class').substring(3));
             if (gTables[tableId].bookmarks.indexOf(rowNum) < 0) {
@@ -1855,9 +1848,9 @@ window.TblManager = (function($, TblManager) {
         }
     }
 
-    function adjustRowHeights(newCells, rowIndex, tableId) {
+    function adjustRowHeights($trs, rowIndex, tableId) {
         var rowObj = gTables[tableId].rowHeights;
-        var numRows = newCells.length;
+        var numRows = $trs.length;
         var pageNum = Math.floor(rowIndex / gNumEntriesPerPage);
         var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
         var padding = 4;
@@ -1867,7 +1860,7 @@ window.TblManager = (function($, TblManager) {
         for (var i = pageNum; i < lastPageNum; i++) {
             if (rowObj[i]) {
                 for (var row in rowObj[i]) {
-                    $row = newCells.filter(function() {
+                    $row = $trs.filter(function() {
                         return ($(this).hasClass('row' + (row - 1)));
                     });
                     $firstTd = $row.find('td.col0');
@@ -1979,7 +1972,7 @@ window.TblManager = (function($, TblManager) {
             }
         };
 
-        $thead.find('.rowNumHead').mousedown(function() {
+        $thead.find(".rowNumHead").mousedown(function() {
             if ($thead.closest('.modalOpen').length ||
                 $thead.closest('.xcTableWrap').hasClass('columnPicker')) {
                 return;
