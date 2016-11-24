@@ -16,6 +16,7 @@ describe('DSExport', function() {
 		$targetInput = $targetTypeList.find('input');
 		$form = $("#exportDataForm");
 		$fileFormatMenu = $targetTypeList.find('ul');
+
 		$("#outButton").click();
 		// make sure panel is open and we didn't just close it
 		if (!$("#datastoreMenu").is(":visible")) {
@@ -441,6 +442,7 @@ describe('DSExport', function() {
 		it('grid icon menu should work', function(done) {
 			var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
 			var $menu = $("#expTargetGridMenu");
+
 			expect($grid.hasClass('selected')).to.be.false;
 			expect($menu.is(":visible")).to.be.false;
 

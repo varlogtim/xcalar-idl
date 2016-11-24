@@ -991,7 +991,6 @@ window.JoinView = (function($, JoinView) {
     function submitJoin() {
         // check validation
         // if submit is enabled, that means first view is already valid
-
         var isValidTableName = xcHelper.tableNameInputChecker($joinTableName);
         if (!isValidTableName) {
             return PromiseHelper.reject();
@@ -1000,15 +999,20 @@ window.JoinView = (function($, JoinView) {
             return PromiseHelper.reject();
         }
 
+        var deferred = jQuery.Deferred();
         var newTableName = $joinTableName.val().trim();
 
         formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();
         var tableName = newTableName + Authentication.getHashId();
         joinSubmitHelper(joinType, tableName)
+        .then(deferred.resolve)
+        .fail(deferred.reject)
         .always(function() {
             formHelper.enableSubmit();
         });
+
+        return deferred.promise();
     }
 
     function executeChecks($renames, $origNames, $newNames, origArray,
