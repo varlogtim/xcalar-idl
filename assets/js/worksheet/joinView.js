@@ -1005,11 +1005,10 @@ window.JoinView = (function($, JoinView) {
         formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();
         var tableName = newTableName + Authentication.getHashId();
-        return joinSubmitHelper(joinType, tableName);
-
-        // XXX some bugs here
-        formHelper.enableSubmit();
-
+        joinSubmitHelper(joinType, tableName)
+        .always(function() {
+            formHelper.enableSubmit();
+        });
     }
 
     function executeChecks($renames, $origNames, $newNames, origArray,
