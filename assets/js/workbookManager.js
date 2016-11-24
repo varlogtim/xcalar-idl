@@ -595,6 +595,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             var loseOldMeta = false;
             var activeWorkbooks = [];
             var storedActiveId;
+            var wrongNode = false;
 
             if (oldWorkbooks == null) {
                 oldWorkbooks = {};
@@ -630,6 +631,30 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // refresh workbook info
             saveWorkbook()
             .then(function() {
+                // XXX This does not work yet because of a backend bug
+                // where you are not able to deactivate a workbook from another
+                // node.
+                var innerDeferred = jQuery.Deferred();
+                var deferred;
+                // Test session kvstore write
+                if (activeWorkbooks.length == 1) {
+                    deferred = KVStore.put("testKey", "unused", false,
+                                XcalarApiKeyScopeT.XcalarApiKeyScopeSession);
+                } else {
+                    innerDeferred.resolve();
+                    return innerDeferred.promise();
+                }
+
+                deferred
+                .then(innerDeferred.resolve)
+                .fail(function() {
+                    wrongNode = true;
+                    innerDeferred.resolve();
+                });
+
+                return innerDeferred.promise();
+            })
+            .then(function() {
                 if (loseOldMeta) {
                     // If we fail to get our old meta data, set activeWorkbook
                     // to null
@@ -649,6 +674,22 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     // resolves this
                     storedActiveId = undefined;
                     return KVStore.delete(activeWKBKKey, gKVScope.WKBK);
+                } else if (activeWorkbooks.length > 1 || wrongNode) {
+                    // This clause needs to be in front of the other 2
+                    // This is something that we do not support
+                    // We will inactivate all the sessions and force user to
+                    // reselect
+                    storedActiveId = undefined;
+                    var defArray = [];
+                    for (var i = 0; i<activeWorkbooks.length; i++) {
+                        defArray.push(XcalarDeactivateWorkbook(
+                                                           activeWorkbooks[i]));
+                    }
+                    if (activeId) {
+                        defArray.push(KVStore.delete(activeWKBKKey,
+                                                     gKVScope.WKBK));
+                    }
+                    return PromiseHelper.when.apply(this, defArray);
                 } else if (activeWorkbooks.length === 1 && !activeId) {
                     // Backend has active, we don't. Set it and go
                     storedActiveId = getWKBKId(activeWorkbooks[0]);
@@ -661,19 +702,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     storedActiveId = getWKBKId(activeWorkbooks[0]);
                     return KVStore.put(activeWKBKKey, storedActiveId, true,
                                        gKVScope.WKBK);
-                } else if (activeWorkbooks.length > 1) {
-                    // This is something that we do not support
-                    // We will inactivate all the sessions and force user to
-                    // reselect
-                    storedActiveId = undefined;
-                    var defArray = [];
-                    for (var i = 0; i<activeWorkbooks.length; i++) {
-                        defArray.push(XcalarDeactivateWorkbook(
-                                                           activeWorkbooks[i]));
-                    }
-
-                    defArray.push(KVStore.delete(activeWKBKKey, gKVScope.WKBK));
-                    return PromiseHelper.when.apply(this, defArray);
                 } else {
                     deferred.resolve();
                 }
@@ -696,7 +724,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         try {
             var numSessions = sessionInfo.numSessions;
-            // if no any workbook, force displaying the workbook modal
+            // if no workbook, force displaying the workbook modal
             if (wkbkId == null || numSessions === 0 || !wkbkSet.has(wkbkId)) {
                 if (wkbkId == null) {
                     deferred.reject(WKBKTStr.NoWkbk);

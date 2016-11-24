@@ -282,7 +282,7 @@ window.Workbook = (function($, Workbook) {
             }
 
             if (!found) {
-                // Add some random 5 digit number and call it a dya
+                // Add some random 5 digit number and call it a day
                 currentWorkbookName += "-" + Math.floor(Math.random()*100000);
             }
 

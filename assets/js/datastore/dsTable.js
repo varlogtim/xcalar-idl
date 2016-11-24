@@ -223,6 +223,8 @@ window.DSTable = (function($, DSTable) {
 
         if (path !== "N/A" || !partial) {
             $("#dsInfo-path").text(path);
+            xcTooltip.changeText($("#dsInfo-path"), path);
+            xcTooltip.enable($("#dsInfo-path"));
         }
 
         if (format) {
