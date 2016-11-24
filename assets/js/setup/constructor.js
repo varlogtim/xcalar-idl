@@ -3407,6 +3407,11 @@ ExportHelper.prototype = {
         $('.xcTableWrap').removeClass('exportMode');
     },
 
+    clearRename: function() {
+        this.$view.find(".renameSection").addClass("xc-hidden")
+                    .find(".renamePart").empty();
+    },
+
     getExportColumns: function() {
         var self = this;
         var colsToExport = [];

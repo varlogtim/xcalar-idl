@@ -104,6 +104,7 @@ window.DFCreateView = (function($, DFCreateView) {
         $dfView.find('.selectAllWrap').find('.checkbox').addClass('checked');
         focusedThNum = null;
         focusedListNum = null;
+        exportHelper.clearRename();
     }
 
     function deselectAll() {
@@ -120,6 +121,7 @@ window.DFCreateView = (function($, DFCreateView) {
                                       .removeClass('checked');
         focusedThNum = null;
         focusedListNum = null;
+        exportHelper.clearRename();
     }
 
     function selectInitialTableCols() {
@@ -193,6 +195,7 @@ window.DFCreateView = (function($, DFCreateView) {
                 .find('.checkbox').addClass('checked');
 
         checkToggleSelectAllBox();
+        exportHelper.clearRename();
     }
 
     function deselectCol(colNum) {
@@ -202,6 +205,7 @@ window.DFCreateView = (function($, DFCreateView) {
         $colList.find('li[data-colnum="' + colNum + '"]').removeClass('checked')
                 .find('.checkbox').removeClass('checked');
         checkToggleSelectAllBox();
+        exportHelper.clearRename();
     }
 
     // if all lis are checked, select all checkbox will be checked as well

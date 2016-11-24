@@ -698,6 +698,7 @@ window.ExportView = (function($, ExportView) {
                 .addClass('checked')
                 .find('.checkbox').addClass('checked');
         checkToggleSelectAllBox();
+        exportHelper.clearRename();
     }
 
     function deselectCol(colNum) {
@@ -708,6 +709,7 @@ window.ExportView = (function($, ExportView) {
                 .removeClass('checked')
                 .find('.checkbox').removeClass('checked');
         checkToggleSelectAllBox();
+        exportHelper.clearRename();
     }
 
     // if all lis are checked, select all checkbox will be checked as well
@@ -754,6 +756,7 @@ window.ExportView = (function($, ExportView) {
         
         focusedThNum = null;
         focusedListNum = null;
+        exportHelper.clearRename();
     }
 
     function clearAllCols() {
@@ -765,6 +768,7 @@ window.ExportView = (function($, ExportView) {
                                           .removeClass('checked');
         focusedThNum = null;
         focusedListNum = null;
+        exportHelper.clearRename();
     }
 
     function setupFormDelimiter() {
