@@ -530,7 +530,7 @@ describe("TableManager Test", function() {
 
             it("Should mousedown tableGrab to start drag", function() {
                 var test = null;
-                var oldFunc = TblAnim.startColDrag;
+                var oldFunc = TblAnim.startTableDrag;
                 TblAnim.startTableDrag = function() {
                     test = true;
                 };
