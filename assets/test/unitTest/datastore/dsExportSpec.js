@@ -17,6 +17,10 @@ describe('DSExport', function() {
 		$form = $("#exportDataForm");
 		$fileFormatMenu = $targetTypeList.find('ul');
 		$("#outButton").click();
+		// make sure panel is open and we didn't just close it
+		if (!$("#datastoreMenu").is(":visible")) {
+			$("#outButton").click();
+		}
 	});
 
 	describe('XcalarListExportTargets', function() {
