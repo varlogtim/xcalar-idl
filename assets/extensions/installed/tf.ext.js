@@ -137,6 +137,7 @@ window.UExtTF = (function(UExtTF) {
         XcalarAppRun(appName, isGlobal, inStr)
         .then(function(result) {
             // Get tensorflow results
+            // var appGroupId = result.appGroupId;
             var appGroupId = result.output.outputResult.appRunOutput.appGroupId;
             return XcalarAppReap(appName, appGroupId);
         })
@@ -145,6 +146,7 @@ window.UExtTF = (function(UExtTF) {
             // Kick off loading results as dataset and into XI
             var innerParsed;
             try {
+                // var outerParsed = JSON.parse(result.outStr);
                 var outerParsed = JSON.parse(result.output.outputResult.appReapOutput.outStr);
                 innerParsed = JSON.parse(outerParsed[0]);
             } catch (err) {
@@ -245,6 +247,7 @@ window.UExtTF = (function(UExtTF) {
         XcalarAppRun(appName, isGlobal, inStr)
         .then(function(result) {
             // Get tensorflow results
+            // var appGroupId = result.appGroupId;
             var appGroupId = result.output.outputResult.appRunOutput.appGroupId;
             return XcalarAppReap(appName, appGroupId);
         })
@@ -253,6 +256,7 @@ window.UExtTF = (function(UExtTF) {
             // Kick off loading results as dataset and into XI
             var innerParsed;
             try {
+                // var outerParsed = JSON.parse(result.outStr);
                 var outerParsed = JSON.parse(result.output.outputResult.appReapOutput.outStr);
                 innerParsed = JSON.parse(outerParsed[0]);
             } catch (err) {

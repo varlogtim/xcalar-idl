@@ -1160,7 +1160,6 @@ window.JoinView = (function($, JoinView) {
                                lImmediates, leftRenameArray, false) ||
                 !executeChecks($rightRenames, $rightOrigNames, $rightNewNames,
                                rImmediates, rightRenameArray, false)) {
-                
                 deferred.reject();
                 return deferred.promise();
             }

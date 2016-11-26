@@ -26,7 +26,7 @@ describe('DFCreateView', function() {
             done();
         });
     });
-    
+
     describe('check dfCreateView initial state', function() {
         it('Batch DF Name should be blank', function() {
             expect($dfView.find('#newDFNameInput')).to.have.lengthOf(1);
@@ -111,7 +111,7 @@ describe('DFCreateView', function() {
             expect(listText.length).to.be.gt(20);
             expect(listText).to.equal(colText);
         });
-        
+
         function getHighlightedColText() {
             var text = "";
             $table.find('th.modalHighlighted').each(function() {
