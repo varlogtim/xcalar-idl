@@ -27,8 +27,13 @@ window.DagFunction = (function($, DagFunction) {
             var apiString = XcalarApisTStr[getDagOutput.node[i].api];
             var inputName = DagFunction.getInputType(apiString);
             var inputStruct = getDagOutput.node[i].input[inputName];
+            var dagNodeId = getDagOutput.node[i].dagNodeId;
+            if (getDagOutput.node[i].api === XcalarApisT.XcalarApiBulkLoad) {
+                dagNodeId = getDagOutput.node[i].input.loadInput.dataset
+                                                                .datasetId;
+            }
             valArray.push(new TreeValue(getDagOutput.node[i].api, inputStruct,
-                getDagOutput.node[i].dagNodeId, inputName));
+                                        dagNodeId, inputName));
         }
         var allEndPoints = [];
         var lineageStruct = {};
@@ -300,7 +305,6 @@ window.DagFunction = (function($, DagFunction) {
         return listOfXids;
 
     }
-
 
     DagFunction.runProcedureWithParams = function(tableName, param, doNotRun) {
         function updateSourceName(structArray, translation) {
