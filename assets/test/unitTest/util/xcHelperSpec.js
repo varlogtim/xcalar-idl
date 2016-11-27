@@ -227,8 +227,14 @@ describe('xcHelper Test', function() {
 
     it('xcHelper.wrapDSName should work', function() {
         var res = xcHelper.wrapDSName("test");
+        var nameParts = res.split(".");
+        var userName = nameParts[0];
+        var randId = nameParts[1];
+        nameParts.splice(0, 2);
+        var actualName = nameParts.join(".");
         var expected = Support.getUser() + "." + "test";
-        expect(res).to.equal(expected);
+        expect(userName + "." + actualName).to.equal(expected);
+        expect(("" + randId).length).to.equal(5);
     });
 
     it('xcHelper.parseDSName should work', function() {
@@ -236,11 +242,19 @@ describe('xcHelper Test', function() {
         var res = xcHelper.parseDSName("test");
         expect(res).to.be.an('object');
         expect(res.user).to.be.equal(DSTStr.UnknownUser);
+        expect(res.randId).to.be.equal(DSTStr.UnknownId);
         expect(res.dsName).to.be.equal("test");
         // case 2
         res = xcHelper.parseDSName("user.test2");
         expect(res).to.be.an('object');
         expect(res.user).to.be.equal("user");
+        expect(res.randId).to.be.equal(DSTStr.UnknownId);
+        expect(res.dsName).to.be.equal("test2");
+        // case 3
+        res = xcHelper.parseDSName("user.36472.test2");
+        expect(res).to.be.an('object');
+        expect(res.user).to.be.equal("user");
+        expect(("" + res.randId).length).to.be.equal(5);
         expect(res.dsName).to.be.equal("test2");
     });
 

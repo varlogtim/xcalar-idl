@@ -977,6 +977,7 @@ function XcalarDestroyDataset(dsName, txId) {
 }
 
 function XcalarIndexFromDataset(datasetName, key, tablename, prefix, txId) {
+    // Note: datasetName must be of the form username.hashId.dsName
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }

@@ -264,25 +264,34 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.wrapDSName = function(dsName) {
         dsName = dsName || "";
-        var fulldsName = Support.getUser() + "." + dsName;
+        var fulldsName = xcHelper.randName(Support.getUser() + ".", 5);
+        fulldsName += "." + dsName;
         return fulldsName;
     };
 
     xcHelper.parseDSName = function(fulldsName) {
         var nameSplits = fulldsName.split(".");
         var user;
+        var randId;
         var dsName;
 
         if (nameSplits.length === 1) {
             user = DSTStr.UnknownUser;
             dsName = nameSplits[0];
+        } else if (nameSplits.length === 2) {
+            user = nameSplits[0];
+            randId = DSTStr.UnknownId;
+            dsName = nameSplits[1];
         } else {
-            user = nameSplits.splice(0, 1)[0];
+            var meta = nameSplits.splice(0, 2);
+            user = meta[0];
+            randId = meta[1];
             dsName = nameSplits.join(".");
         }
 
         return {
             "user"  : user,
+            "randId": randId,
             "dsName": dsName
         };
     };
