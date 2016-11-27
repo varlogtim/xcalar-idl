@@ -21,6 +21,7 @@ window.DF = (function($, DF) {
             return PromiseHelper.when.apply({}, retArray);
         })
         .then(function() {
+            dataflows = {}; // Reset dataflow cache
             var retStructs = arguments;
             for (var i = 0; i<arguments.length; i++) {
                 if (arguments[i] == null) {

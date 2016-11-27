@@ -218,6 +218,20 @@ window.DFCard = (function($, DFCard) {
     }
 
     function addListeners() {
+        $dfMenu.on('click', '.refreshBtn', function(event, options) {
+            var dfKey = KVStore.gEphStorageKey;
+            xcHelper.showRefreshIcon($(".dfgList"));
+            KVStore.get(dfKey)
+            .then(function(ret) {
+                try {
+                    var dfStruct = JSON.parse(ret);
+                    DF.restore(dfStruct[getEMetaKeys().DF]);
+                } catch (error) {
+                    return;
+                }
+            });
+
+        });
         $listSection.on('click', '.dataFlowGroup', function(event, options) {
             options = options || {};
             var $dfg = $(this);
