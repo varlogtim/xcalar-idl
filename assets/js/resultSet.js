@@ -9,7 +9,7 @@ function freeAllResultSets() {
     DS.release();
 }
 
-function freeAllResultSetsSync() {
+function freeAllResultSetsSync(alwaysResolve) {
     var deferred = jQuery.Deferred();
     var promises = [];
 
@@ -37,7 +37,11 @@ function freeAllResultSetsSync() {
     .then(deferred.resolve)
     .fail(function(error) {
         console.error(error);
-        deferred.reject(error);
+        if (alwaysResolve) {
+            deferred.resolve();
+        } else {
+           deferred.reject(error);
+        }
     });
 
     return (deferred.promise());

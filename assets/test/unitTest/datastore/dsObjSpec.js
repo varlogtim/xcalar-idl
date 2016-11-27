@@ -165,7 +165,9 @@ function dsObjTest() {
             var newName = xcHelper.randName("folder");
             $textarea.text(newName);
             $textarea.trigger(fakeEvent.enter);
-            expect($label.hasClass("focused")).to.be.false;
+            if ($label.hasClass("focused")) {
+                $textarea.blur();
+            }
             expect($label.data("dsname")).to.equal(newName);
         });
 

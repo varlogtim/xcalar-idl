@@ -17,106 +17,131 @@ describe('Constructor Test', function() {
         });
     });
 
-    it('XcVersion should be a constructor', function() {
-        var versionInfo = new XcVersion({
-            'version': 'test',
-            'SHA'    : 123,
+    describe("XcVersion Constructor Test", function() {
+        it('XcVersion should be a constructor', function() {
+            var versionInfo = new XcVersion({
+                'version': 'test',
+                'SHA'    : 123,
+            });
+
+            expect(versionInfo).to.be.an('object');
+            expect(Object.keys(versionInfo).length).to.equal(2);
+
+            expect(versionInfo).to.have.property('version')
+            .and.to.equal('test');
+
+            expect(versionInfo).to.have.property('SHA')
+            .and.to.equal(123);
+        });
+    });
+
+    describe("XcAuth Constructor Test", function() {
+        it('XcAuth should be a constructor', function() {
+            var autoInfo = new XcAuth({
+                'idCount': 1,
+                'hashTag': 'test'
+            });
+
+            expect(autoInfo).to.be.an('object');
+            expect(Object.keys(autoInfo).length).to.equal(2);
+
+            expect(autoInfo).to.have.property('idCount')
+            .and.to.equal(1);
+
+            expect(autoInfo).to.have.property('hashTag')
+            .and.to.equal('test');
+        });
+    });
+
+    describe("MouseEvents Constructor Test", function() {
+        it('MouseEvents should be a constructor', function() {
+            var mouseEvent = new MouseEvents();
+            var $target = $('<div id="test"></div>');
+            expect(mouseEvent.getLastClickTarget()).not.to.equal($target);
+            expect(mouseEvent.getLastMouseDownTarget()).not.to.equal($target);
+
+            mouseEvent.setClickTarget($target);
+            expect(mouseEvent.getLastClickTarget()).to.equal($target);
+
+            mouseEvent.setMouseDownTarget($target);
+            expect(mouseEvent.getLastMouseDownTarget()).to.equal($target);
+            expect(mouseEvent.getLastMouseDownTime()).to.be.a('number');
         });
 
-        expect(versionInfo).to.be.an('object');
-        expect(Object.keys(versionInfo).length).to.equal(2);
-
-        expect(versionInfo).to.have.property('version')
-        .and.to.equal('test');
-
-        expect(versionInfo).to.have.property('SHA')
-        .and.to.equal(123);
-    });
-
-    it('XcAuth should be a constructor', function() {
-        var autoInfo = new XcAuth({
-            'idCount': 1,
-            'hashTag': 'test'
-        });
-
-        expect(autoInfo).to.be.an('object');
-        expect(Object.keys(autoInfo).length).to.equal(2);
-
-        expect(autoInfo).to.have.property('idCount')
-        .and.to.equal(1);
-
-        expect(autoInfo).to.have.property('hashTag')
-        .and.to.equal('test');
-    });
-
-    it('MouseEvents should be a constructor', function() {
-        var mouseEvent = new MouseEvents();
-        var $target = $('<div id="test"></div>');
-        expect(mouseEvent.getLastClickTarget()).not.to.equal($target);
-        expect(mouseEvent.getLastMouseDownTarget()).not.to.equal($target);
-
-        mouseEvent.setClickTarget($target);
-        expect(mouseEvent.getLastClickTarget()).to.equal($target);
-
-        mouseEvent.setMouseDownTarget($target);
-        expect(mouseEvent.getLastMouseDownTarget()).to.equal($target);
-        expect(mouseEvent.getLastMouseDownTime()).to.be.a('number');
-    });
-
-    it('XcLog should be a constructor', function() {
-        // case 1
-        var log1 = new XcLog({
-            'title'  : 'test1',
-            'cli'    : 'cliTest',
-            'options': {
-                'operation': 'foo'
+        it("Should set and get multiple mouse down target", function() {
+            var mouseEvent = new MouseEvents();
+            var mouseDownTargets = mouseEvent.getLastMouseDownTargets();
+            expect(mouseDownTargets).to.be.an("array");
+            expect(mouseDownTargets.length).to.equal(1);
+            for (var i = 1; i <= 3; i++) {
+                var $target = $('<div id="test' + i + '"></div>');
+                mouseEvent.setMouseDownTarget($target);
+                // upto 3
+                var len = Math.min(3, i + 1);
+                console.log(mouseDownTargets.length, len)
+                expect(mouseDownTargets.length).to.equal(len);
             }
         });
-
-        expect(log1).to.be.an('object');
-        expect(Object.keys(log1).length).to.equal(4);
-
-        expect(log1).to.have.property('cli').and.to.equal('cliTest');
-        expect(log1).to.have.property('timestamp')
-        .and.to.be.a('number');
-
-        expect(log1.isError()).to.be.false;
-        expect(log1.getOperation()).to.equal('foo');
-        expect(log1.getTitle()).to.equal('test1');
-        expect(log1.getOptions()).to.be.an('object');
-
-        // case 2
-        var log2 = new XcLog({
-            'title'  : 'test2',
-            'cli'    : 'cliTest2',
-            'error'  : 'testError',
-            'options': {
-                'operation': 'bar'
-            }
-        });
-
-        expect(log2).to.be.an('object');
-        expect(Object.keys(log2).length).to.equal(6);
-
-        expect(log2).to.have.property('cli').and.to.equal('cliTest2');
-        expect(log2).to.have.property('error').and.to.equal('testError');
-        expect(log2.isError()).to.be.true;
-        expect(log2.getOperation()).to.equal('bar');
-        expect(log2.getTitle()).to.equal('test2');
     });
 
-    it('ColFunc should be a constructor', function() {
-        var colFunc = new ColFunc({
-            "name": "test",
-            "args": "pull(test)"
-        });
-        expect(colFunc).to.be.an('object');
-        expect(Object.keys(colFunc).length).to.equal(2);
+    describe("XcLog Constructor Test", function() {
+        it('XcLog should be a constructor', function() {
+            // case 1
+            var log1 = new XcLog({
+                'title'  : 'test1',
+                'cli'    : 'cliTest',
+                'options': {
+                    'operation': 'foo'
+                }
+            });
 
-        expect(colFunc).to.have.property('name')
-        .and.to.equal('test');
-        expect(colFunc).to.have.property('args')
-        .and.to.equal('pull(test)');
+            expect(log1).to.be.an('object');
+            expect(Object.keys(log1).length).to.equal(4);
+
+            expect(log1).to.have.property('cli').and.to.equal('cliTest');
+            expect(log1).to.have.property('timestamp')
+            .and.to.be.a('number');
+
+            expect(log1.isError()).to.be.false;
+            expect(log1.getOperation()).to.equal('foo');
+            expect(log1.getTitle()).to.equal('test1');
+            expect(log1.getOptions()).to.be.an('object');
+
+            // case 2
+            var log2 = new XcLog({
+                'title'  : 'test2',
+                'cli'    : 'cliTest2',
+                'error'  : 'testError',
+                'options': {
+                    'operation': 'bar'
+                }
+            });
+
+            expect(log2).to.be.an('object');
+            expect(Object.keys(log2).length).to.equal(6);
+
+            expect(log2).to.have.property('cli').and.to.equal('cliTest2');
+            expect(log2).to.have.property('error').and.to.equal('testError');
+            expect(log2.isError()).to.be.true;
+            expect(log2.getOperation()).to.equal('bar');
+            expect(log2.getTitle()).to.equal('test2');
+        });
+    });
+
+    describe("ColFunc Constructor Test", function() {
+        it('ColFunc should be a constructor', function() {
+            var colFunc = new ColFunc({
+                "name": "test",
+                "args": "pull(test)"
+            });
+            expect(colFunc).to.be.an('object');
+            expect(Object.keys(colFunc).length).to.equal(2);
+
+            expect(colFunc).to.have.property('name')
+            .and.to.equal('test');
+            expect(colFunc).to.have.property('args')
+            .and.to.equal('pull(test)');
+        });
     });
 
     describe("ProgCol constructor test", function() {
@@ -135,14 +160,10 @@ describe('Constructor Test', function() {
             });
 
             expect(progCol).to.be.an('object');
-            expect(progCol.getFrontColName()).to.equal('test');
-            expect(progCol.getFrontColName(true)).to.equal('prefix::test');
             expect(progCol.getBackColName()).to.equal('prefix::backTest');
             expect(progCol.getPrefix()).to.equal('prefix');
-            expect(progCol.getType()).to.equal('float');
             expect(progCol.isNumberCol()).to.be.true;
             expect(progCol.isEmptyCol()).to.be.false;
-            expect(progCol.getWidth()).to.equal(100);
 
             // case 2
             progCol = new ProgCol({
@@ -153,6 +174,90 @@ describe('Constructor Test', function() {
                 }
             });
             expect(progCol.isDATACol()).to.be.true;
+        });
+
+        it("Should set and get front col name", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "decimal" : 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getFrontColName()).to.equal("test");
+            expect(progCol.getFrontColName(true)).to.equal("prefix::test");
+
+            progCol.setFrontColName("test2");
+            expect(progCol.getFrontColName()).to.equal("test2");
+        });
+
+        it("Should get and update type", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "integer",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getType()).to.equal(ColumnType.integer);
+            progCol.updateType(1.2);
+            expect(progCol.getType()).to.equal(ColumnType.float);
+
+            // case 2
+            progCol = new ProgCol({
+                "name"    : "",
+                "backName": "",
+                "isNewCol": true
+            });
+
+            expect(progCol.getType()).to.equal(ColumnType.undefined);
+            progCol.updateType(1.2);
+            // cannot change empty col
+            expect(progCol.getType()).to.equal(ColumnType.undefined);
+
+            // case 3
+            progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "integer",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            progCol.immediate = true;
+            progCol.knownType = true;
+            expect(progCol.getType()).to.equal(ColumnType.integer);
+            progCol.updateType(1.2);
+            // cannot change known type
+            expect(progCol.getType()).to.equal(ColumnType.integer);
+
+        });
+
+        it("Should get and set width", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "width"   : 100,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getWidth()).to.equal(100);
+            progCol.setWidth(150);
+            expect(progCol.getWidth()).to.equal(150);
         });
 
         it("Should get display width", function() {
@@ -348,6 +453,73 @@ describe('Constructor Test', function() {
             expect(progCol.getDecimal()).to.equal(-1);
             progCol.setDecimal(2);
             expect(progCol.getDecimal()).to.equal(2);
+        });
+
+        it("Should set to be child of array", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.isChildOfArray()).to.be.false;
+            progCol.beChidOfArray();
+            expect(progCol.isChildOfArray()).to.be.true;
+        });
+
+        it("Should stringify func", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var res = progCol.stringifyFunc();
+            expect(res).to.equal("pull");
+
+            // case 2
+            progCol2 = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "map",
+                    "args": [{
+                        "args": ["a::b"],
+                        "name": "absInt"
+                    }]
+                }
+            });
+
+            res = progCol2.stringifyFunc();
+            expect(res).to.equal("map(absInt(a::b))");
+        });
+
+        it("Should parse func", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "backTest",
+                "type"    : "float",
+                "isNewCol": false
+            });
+
+            // case 1
+            progCol.userStr = "";
+            progCol.parseFunc();
+            expect(progCol.func.name).not.to.exist;
+            // case 2
+            progCol.userStr = "map(absInt(a::b))";
+            progCol.parseFunc();
+            expect(progCol.func.name).to.equal("map");
         });
     });
 
@@ -596,7 +768,38 @@ describe('Constructor Test', function() {
             expect(col).to.equal(progCol);
         });
 
-        it("should sort columns", function() {
+        it("Should add col and check immediate type", function() {
+            var dataCol = ColManager.newDATACol();
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [dataCol],
+                "isLocked" : false
+            });
+
+            table.backTableMeta = {
+                "valueAttrs": [{
+                    "name": "testImmeidate",
+                    "type": DfFieldTypeT.DfString
+                }]
+            };
+
+            var progCol =  new ProgCol({
+                "name"    : "testImmeidate",
+                "backName": "testImmeidate",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            table.addCol(1, progCol);
+            expect(table.tableCols.length).to.equal(2);
+            var col = table.getCol(1);
+            expect(col.getType()).to.equal(ColumnType.string);
+        });
+
+        it("Should sort columns", function() {
             var progCol1 =  new ProgCol({
                 "name"    : "b",
                 "backName": "b",
@@ -629,22 +832,6 @@ describe('Constructor Test', function() {
             // case 2
             table.sortCols(ColumnSortOrder.descending);
             expect(table.getCol(1).getFrontColName()).to.equal("b");
-        });
-
-        it('table should free result set', function(done) {
-            var table = new TableMeta({
-                "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
-            });
-            table.freeResultset()
-            .then(function() {
-                expect(table.resultSetId).to.equal(-1);
-                done();
-            })
-            .fail(function(error) {
-                throw error;
-            });
         });
 
         it("table should get immediates info", function() {
@@ -721,6 +908,194 @@ describe('Constructor Test', function() {
             } catch (error) {
                 expect(error).not.to.be.null;
             }
+        });
+
+        it("Should get meta test1", function(done) {
+            var oldFunc = XcalarGetTableMeta;
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+
+            XcalarGetTableMeta = function() {
+                return PromiseHelper.resolve();
+            };
+
+            table.getMeta()
+            .then(function() {
+                expect(table.backTableMeta).not.to.exists;
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarGetTableMeta = oldFunc;
+            });
+        });
+
+        it("Should get meta test2", function(done) {
+            var oldFunc = XcalarGetTableMeta;
+            var progCol = new ProgCol({
+                "name"    : "testCol",
+                "backName": "prefix::backTestCol",
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var dataCol = ColManager.newDATACol();
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [progCol, dataCol]
+            });
+
+            XcalarGetTableMeta = function() {
+                return PromiseHelper.resolve({
+                    "keyAttr": {
+                        "name"           : "recordNum",
+                        "type"           : 5,
+                        "valueArrayIndex": -1
+                    },
+                    "ordering"  : 1,
+                    "valueAttrs": [{
+                        "name"           : "test",
+                        "type"           : DfFieldTypeT.DfFatptr,
+                        "valueArrayIndex": 0
+                    },{
+                        "name"           : "prefix::backTestCol",
+                        "type"           : DfFieldTypeT.DfBoolean,
+                        "valueArrayIndex": 1
+                    }]
+                });
+            };
+
+            table.getMeta()
+            .then(function() {
+                expect(table.backTableMeta).to.exists;
+                expect(table.ordering).to.equal(1);
+                expect(table.keyName).to.equal("recordNum");
+                var col = table.getColByBackName("prefix::backTestCol");
+                expect(col).not.to.be.null;
+                expect(col.getType()).to.equal(ColumnType.boolean);
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarGetTableMeta = oldFunc;
+            });
+        });
+
+        it("Should update result set", function(done) {
+            var oldFunc = XcalarMakeResultSetFromTable;
+            XcalarMakeResultSetFromTable = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 10
+                });
+            };
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+
+            table.updateResultset()
+            .then(function() {
+                expect(table.resultSetId).to.equal(1);
+                expect(table.resultSetMax).to.equal(10);
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarMakeResultSetFromTable = oldFunc;
+            });
+        });
+
+        it("getMetaAndResultSet should work", function(done) {
+            var test1 = null;
+            var test2 = null;
+            var oldMakeResult = XcalarMakeResultSetFromTable;
+            var oldGetMeta = XcalarGetTableMeta;
+
+            XcalarMakeResultSetFromTable = function() {
+                test1 = true;
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 10
+                });
+            };
+
+            XcalarGetTableMeta = function() {
+                test2 = true;
+                return PromiseHelper.resolve();
+            };
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+
+            table.getMetaAndResultSet()
+            .then(function() {
+                expect(test1).to.be.true;
+                expect(test2).to.be.true;
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarMakeResultSetFromTable = oldMakeResult;
+                XcalarGetTableMeta = oldGetMeta;
+            });
+        });
+
+        it('table should free result set test1', function(done) {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+            table.freeResultset()
+            .then(function() {
+                expect(table.resultSetId).to.equal(-1);
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            });
+        });
+
+        it('table should free result set test2', function(done) {
+            var oldFunc = XcalarSetFree;
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1"
+            });
+
+            table.resultSetId = 1;
+
+            table.freeResultset()
+            .then(function() {
+                expect(table.resultSetId).to.equal(-1);
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarSetFree = oldFunc;
+            });
         });
     });
 
@@ -806,7 +1181,23 @@ describe('Constructor Test', function() {
             expect(baseSettings['DsDefaultSampleSize']).to.equal(2000);
         });
 
-        it('UserPref should be a constructor', function() {
+        it("Should update adminSettings", function() {
+            var genSettings = new GenSettings();
+            genSettings.updateAdminSettings({"a": 1});
+            expect(genSettings.adminSettings).to.exist;
+            expect(genSettings.adminSettings.a).to.equal(1);
+        });
+
+        it("Should update xcSettings", function() {
+            var genSettings = new GenSettings();
+            genSettings.updateXcSettings({"a": 1});
+            expect(genSettings.xcSettings).to.exist;
+            expect(genSettings.xcSettings.a).to.equal(1);
+        });
+    });
+
+    describe("UserPref Constructor Test", function() {
+        it("UserPref should be a constructor", function() {
             var userPref = new UserPref();
             expect(userPref).to.be.an('object');
             expect(Object.keys(userPref).length).to.equal(5);
@@ -820,7 +1211,6 @@ describe('Constructor Test', function() {
 
             userPref.update();
         });
-
     });
      
     describe("DSFormAdvanceOption Constructor Test", function() {
@@ -934,6 +1324,12 @@ describe('Constructor Test', function() {
             expect($limit.find(".size").val()).to.equal("123");
         });
 
+        it("Should modify preview size", function() {
+            advanceOption.modify({"previewSize": 456});
+            expect($limit.find(".unit").val()).to.equal("B");
+            expect($limit.find(".size").val()).to.equal("456");
+        });
+
         it("Should get args", function() {
             advanceOption.reset();
 
@@ -1022,19 +1418,299 @@ describe('Constructor Test', function() {
         expect(controller.getQuote()).to.equal("\"");
     });
 
-    describe('DSObj Constructor Test', function() {
-        // XXx TODO: add more to test basic attr
-        it('Should get and set error', function() {
+    describe.skip('DSObj Constructor Test', function() {
+        it("Should be a constructor", function() {
+            var dsObj = new DSObj({
+                "id"        : "testId",
+                "name"      : "testName",
+                "user"      : "testUser",
+                "fullName"  : "testFullName",
+                "parentId"  : DSObjTerm.homeParentId,
+                "uneditable": false,
+                "path"      : "nfs:///netstore/datasets/gdelt/",
+                "format"    : "CSV",
+                "pattern"   : "abc.csv",
+                "numEntries": 1000
+            });
+
+
+            expect(dsObj).to.be.instanceof(DSObj);
+            expect(dsObj.getId()).to.equal("testId");
+            expect(dsObj.getParentId()).to.equal(DSObjTerm.homeParentId);
+            expect(dsObj.getName()).to.equal("testName");
+            expect(dsObj.getUser()).to.equal("testUser");
+            expect(dsObj.getFullName()).to.equal("testFullName");
+            expect(dsObj.getFormat()).to.equal("CSV");
+            expect(dsObj.getPath()).to.equal("nfs:///netstore/datasets/gdelt/");
+            expect(dsObj.getPathWithPattern())
+            .to.equal("nfs:///netstore/datasets/gdelt/abc.csv");
+            expect(dsObj.getNumEntries()).to.equal(1000);
+            expect(dsObj.beFolder()).to.be.false;
+            expect(dsObj.beFolderWithDS()).to.be.false;
+            expect(dsObj.isEditable()).to.be.true;
+        });
+
+        it("Should get point args", function() {
+            var dsObj = new DSObj({
+                "id"        : "testId",
+                "name"      : "testName",
+                "user"      : "testUser",
+                "fullName"  : "testFullName",
+                "parentId"  : DSObjTerm.homeParentId,
+                "uneditable": false,
+                "path"      : "nfs:///netstore/datasets/gdelt/",
+                "format"    : "CSV",
+                "numEntries": 1000
+            });
+
+            var res = dsObj.getPointArgs();
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("nfs:///netstore/datasets/gdelt/");
+            expect(res[1]).to.equal("CSV");
+            expect(res[2]).to.equal("testFullName");
+        });
+
+        it("Should get and set size", function() {
+            var dsObj = new DSObj({
+                "id"        : "testId",
+                "name"      : "testName",
+                "fullName"  : "testFullName",
+                "parentId"  : DSObjTerm.homeParentId,
+                "size"      : "123B"
+            });
+
+            expect(dsObj.getSize()).to.equal("123B");
+            dsObj.setSize(456);
+            expect(dsObj.getSize()).to.equal("456B");
+        });
+
+        it("Should get memory taken size", function(done) {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId
+            });
+
+            var oldFunc = XcalarGetDatasetMeta;
+            XcalarGetDatasetMeta = function() {
+                return PromiseHelper.resolve({
+                    "metas": [{"size": 123}]
+                });
+            };
+
+            dsObj.getMemoryTakenSize()
+            .then(function(res) {
+                expect(res).to.equal("123B");
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarGetDatasetMeta = oldFunc;
+            });
+        });
+
+        it("Should get and set error", function() {
+            // case 1
             var dsObj = new DSObj({"parentId": DSObjTerm.homeParentId});
             expect(dsObj.getError()).to.be.undefined;
             dsObj.setError("test");
             expect(dsObj.getError()).to.equal("test");
-
+            // case 2
             dsObj = new DSObj({
                 "parentId": DSObjTerm.homeParentId,
                 "error"   : "test2"
             });
             expect(dsObj.getError()).to.equal("test2");
+        });
+
+        it("Should set preview size", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false
+            });
+            // case 1
+            dsObj.setPreviewSize("invalid num");
+            expect(dsObj.previewSize).not.to.exist;
+            // case 2
+            dsObj.setPreviewSize(123);
+            expect(dsObj.previewSize).to.equal(123);
+        });
+
+        it("Should makeResultSet", function(done) {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false
+            });
+
+            var oldFunc = XcalarMakeResultSetFromDataset;
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries" : 123
+                });
+            };
+
+            dsObj.makeResultSet()
+            .then(function() {
+                expect(dsObj.resultSetId).to.equal(1);
+                expect(dsObj.numEntries).to.equal(123);
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarMakeResultSetFromDataset = oldFunc;
+            });
+        });
+
+        describe("Fetch data test", function() {
+            var oldFetch;
+            var dsObj;
+
+            before(function() {
+                oldFetch = XcalarFetchData;
+                dsObj = new DSObj({
+                    "id"         : "testId",
+                    "name"       : "testName",
+                    "fullName"   : "testFullName",
+                    "parentId"   : DSObjTerm.homeParentId,
+                    "isFolder"   : false,
+                    "resultSetId": 1
+                });
+            });
+
+            it("Should return null in invalid case", function(done) {
+                dsObj.numEntries = -1;
+
+                dsObj.fetch(1, 10)
+                .then(function(ret) {
+                    throw "error case";
+                })
+                .fail(function(error) {
+                    expect(error).to.be.an("object");
+                    expect(error.error).to.equal(DSTStr.NoRecords);
+                    done();
+                });
+            });
+
+            it("Should fetch data", function(done) {
+                XcalarFetchData = function() {
+                    var json = JSON.stringify({"a": "b"});
+                    return PromiseHelper.resolve([{"value": json}]);
+                };
+
+                dsObj.numEntries = 1000;
+
+                dsObj.fetch(1, 10)
+                .then(function(jsons, jsonKeys) {
+                    expect(jsons).to.be.an("array");
+                    expect(jsonKeys).to.be.an("array");
+                    expect(jsonKeys[0]).to.equal("a");
+                    done();
+                })
+                .fail(function() {
+                    throw "error case";
+                });
+            });
+
+            it("Should handle normal fail case", function(done) {
+                XcalarFetchData = function() {
+                    return PromiseHelper.reject({"error": "test"});
+                };
+
+                dsObj.fetch(1, 10)
+                .then(function(ret) {
+                    throw "error case";
+                })
+                .fail(function(error) {
+                    expect(error).to.be.an("object");
+                    expect(error.error).to.equal("test");
+                    done();
+                });
+            });
+
+            it("Should handle fetch fail case", function(done) {
+                var oldMakeResult = XcalarMakeResultSetFromDataset;
+                var shouldFail = true;
+
+                XcalarMakeResultSetFromDataset = function() {
+                    return PromiseHelper.resolve({
+                        "resultSetId": null,
+                        "numEntries" : 1000
+                    });
+                };
+
+                XcalarFetchData = function() {
+                    if (shouldFail) {
+                        shouldFail = false;
+
+                        return PromiseHelper.reject({
+                            "status": StatusT.StatusInvalidResultSetId
+                        });
+                    } else {
+                        var json = JSON.stringify({"a": "b"});
+                        return PromiseHelper.resolve([{"value": json}]);
+                    }
+                };
+
+                dsObj.resultSetId = null;
+
+                dsObj.fetch(1, 10)
+                .then(function(jsons, jsonKeys) {
+                    expect(jsons).to.be.an("array");
+                    expect(jsonKeys).to.be.an("array");
+                    expect(jsonKeys[0]).to.equal("a");
+                    done();
+                })
+                .fail(function() {
+                    throw "error case";
+                })
+                .always(function() {
+                    XcalarMakeResultSetFromDataset = oldMakeResult;
+                });
+            });
+
+            after(function() {
+                XcalarFetchData = oldFetch;
+            });
+        });
+
+        it("Should release dsObj", function(done) {
+            var oldFunc = XcalarSetFree;
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            var dsObj = new DSObj({
+                "id"         : "testId",
+                "name"       : "testName",
+                "fullName"   : "testFullName",
+                "parentId"   : DSObjTerm.homeParentId,
+                "isFolder"   : false,
+                "resultSetId": 1
+            });
+
+            dsObj.release()
+            .then(function() {
+                expect(dsObj.resultSetId).to.be.null;
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            })
+            .always(function() {
+                XcalarSetFree = oldFunc;
+            });
         });
     });
 
@@ -1056,7 +1732,11 @@ describe('Constructor Test', function() {
         it('Cart should be a constructor', function() {
             var cart = new Cart({
                 "dsId"     : "test",
-                "tableName": "testTable"
+                "tableName": "testTable",
+                "items"    : [{
+                    "colNum": 1,
+                    "value" : "test"
+                }]
             });
 
             expect(cart).to.be.an('object');
@@ -1065,6 +1745,7 @@ describe('Constructor Test', function() {
             expect(cart).to.have.property('tableName');
             expect(cart).to.have.property('items')
             .and.to.be.a('array');
+            expect(cart.items.length).to.equal(1);
         });
 
         it('Cart should have correct function to call', function() {
@@ -1093,24 +1774,46 @@ describe('Constructor Test', function() {
             cart.emptyItem();
             expect(cart.items.length).to.equal(0);
         });
+
+        it("Should get dsName", function() {
+            var oldFunc = DS.getDSObj;
+            DS.getDSObj = function() {
+                return new DSObj({
+                    "fullName": "testFullName",
+                    "isFolder": false,
+                    "parentId": DSObjTerm.homeParentId
+                });
+            };
+
+            var cart = new Cart({
+                "dsId"     : "test",
+                "tableName": "testTable",
+            });
+            var res = cart.getDSName();
+            expect(res).to.equal("testFullName");
+
+            DS.getDSObj = oldFunc;
+        });
     });
 
-    it('WSMETA is a constructor', function() {
-        var meta = new WSMETA({
-            "wsInfos"      : {},
-            "wsOrder"      : [],
-            "hiddenWS"     : [],
-            "noSheetTables": [],
-            "activeWS"     : "test"
-        });
+    describe("WSMETA Constructor Test", function() {
+        it('WSMETA should be a constructor', function() {
+            var meta = new WSMETA({
+                "wsInfos"      : {},
+                "wsOrder"      : [],
+                "hiddenWS"     : [],
+                "noSheetTables": [],
+                "activeWS"     : "test"
+            });
 
-        expect(meta).to.be.an('object');
-        expect(Object.keys(meta).length).to.equal(5);
-        expect(meta).to.have.property('wsInfos');
-        expect(meta).to.have.property('wsOrder');
-        expect(meta).to.have.property('hiddenWS');
-        expect(meta).to.have.property('noSheetTables');
-        expect(meta).to.have.property('activeWS');
+            expect(meta).to.be.an('object');
+            expect(Object.keys(meta).length).to.equal(5);
+            expect(meta).to.have.property('wsInfos');
+            expect(meta).to.have.property('wsOrder');
+            expect(meta).to.have.property('hiddenWS');
+            expect(meta).to.have.property('noSheetTables');
+            expect(meta).to.have.property('activeWS');
+        });
     });
 
     describe('WorksheetObj Constructor Test', function() {
@@ -1609,15 +2312,20 @@ describe('Constructor Test', function() {
 
         it('ProfileGroupbyInfo should be a constructor', function() {
             groupbyInfo = new ProfileGroupbyInfo({
+                "allNull": true,
                 "buckets": {
                     0: bucketInfo
                 }
             });
 
             expect(groupbyInfo).to.be.an('object');
-            expect(Object.keys(groupbyInfo).length).to.equal(3);
-            expect(groupbyInfo).to.have.property('isComplete').and.to.be.false;
-            expect(groupbyInfo).to.have.property('nullCount').and.to.equal(0);
+            expect(Object.keys(groupbyInfo).length).to.equal(4);
+            expect(groupbyInfo).to.have.property('isComplete')
+            .and.to.be.false;
+            expect(groupbyInfo).to.have.property('nullCount')
+            .and.to.equal(0);
+            expect(groupbyInfo).to.have.property('allNull')
+            .and.to.be.true;
             expect(groupbyInfo).to.have.property('buckets');
             expect(groupbyInfo.buckets[0].table).to.equal('testTable');
         });

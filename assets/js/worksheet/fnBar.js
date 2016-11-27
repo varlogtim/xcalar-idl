@@ -633,7 +633,7 @@ window.FnBar = (function(FnBar, $) {
             var oldUsrStr  = tableCol.userStr;
             var fnBarValNoSpace = xcHelper.removeNonQuotedSpaces(
                                                         fnBarVal.slice(1));
-            var oldUsrStrNoSpace =  tableCol.stringifyFunc();
+            var oldUsrStrNoSpace = tableCol.stringifyFunc();
 
             $colInput.blur();
             // when usrStr not change

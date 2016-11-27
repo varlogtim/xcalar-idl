@@ -252,7 +252,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         // to switch workbook, should release all ref count first
         $("#initialLoadScreen").show();
 
-        freeAllResultSetsSync()
+        freeAllResultSetsSync(true)
         .then(function() {
             return KVStore.commit();
         })

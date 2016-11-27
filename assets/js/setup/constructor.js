@@ -214,6 +214,8 @@ TableMeta.prototype = {
         .then(function(tableMeta) {
             if (tableMeta == null || tableMeta.valueAttrs == null) {
                 console.error("backend return error");
+                deferred.resolve();
+                return;
             }
 
             self.backTableMeta = tableMeta;
@@ -348,10 +350,7 @@ TableMeta.prototype = {
                 self.resultSetId = -1;
                 deferred.resolve();
             })
-            .fail(function(error) {
-                console.error("Free Result Fails!", error);
-                deferred.reject(error);
-            });
+            .fail(deferred.reject);
         }
 
         return deferred.promise();
@@ -1121,7 +1120,7 @@ DSFormAdvanceOption.prototype = {
     modify: function(options) {
         options = options || {};
         var previewSize = options.previewSize;
-        
+
         if (previewSize !== null && previewSize > 0) {
             this._changePreivewSize(previewSize);
         }
@@ -1334,19 +1333,6 @@ function CartItem(options) {
 
     return this;
 }
-
-// fileBrowser.js
-function FilePreviewer(url) {
-    this.url = url;
-    return this;
-}
-
-FilePreviewer.prototype = {
-    view: function(offset, numBytesRequested) {
-        var url = this.url;
-        return XcalarPreview(url, false, false, numBytesRequested, offset);
-    }
-};
 
 // worksheet.js
 function WSMETA(options) {
@@ -1641,7 +1627,6 @@ function ProfileBucketInfo(options) {
  * @property {DSObj[]} [eles], An Array of child DSObjs
  * @property {number} totalChildren The total nummber of child
  * @property {string} format foramt of ds, ie. CSV, JSON, etc..
- * @property {string} mDate modify date
  * @property {string} path ds url
  * @property {string} fileSize size of ds
  * @property {number} numEntries number of ds records
@@ -1655,7 +1640,6 @@ function DSObj(options) {
     this.parentId = options.parentId;
     this.isFolder = options.isFolder || false;
     this.uneditable = options.uneditable;
-    this.mDate = options.mDate;
     if (options.error != null) {
         this.error = options.error;
     }
@@ -1956,7 +1940,7 @@ DSObj.prototype = {
 
         if (newName === "") {
             // not allow empty name
-            return (this);
+            return false;
         }
 
         var self = this;

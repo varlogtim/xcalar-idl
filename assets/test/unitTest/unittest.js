@@ -67,7 +67,7 @@ window.UnitTest = (function(UnitTest, $) {
         });
 
         $('#backXC').click(function() {
-            freeAllResultSetsSync()
+            freeAllResultSetsSync(true)
             .then(Support.releaseSession)
             .then(function() {
                 removeUnloadPrompt();
