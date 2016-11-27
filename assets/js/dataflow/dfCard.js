@@ -467,9 +467,9 @@ window.DFCard = (function($, DFCard) {
                     .attr("data-table", $exportTable.attr("data-tablename"))
                     .data("paramValue", encodeURI(paramValue));
 
-        $exportTable.find(".tableTitle").text(paramValue)
-                    .attr("title", encodeURI(paramValue))
-                    .attr("data-original-title", encodeURI(paramValue));
+        var $elem = $exportTable.find(".tableTitle");
+        $elem.text(paramValue);
+        xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(paramValue));
 
         // Data table moved so that the hasParam class is added correctly
         $wrap.find(".actionType.export").attr("data-table", "");

@@ -2177,9 +2177,10 @@ Dataflow.prototype = {
     "updateParameterizedNode": function(dagNodeId, paramInfo) {
         var $tableNode = this.colorNodes(dagNodeId);
         if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
-            $tableNode.find(".tableTitle").text(paramInfo.paramValue)
-                      .attr("title", paramInfo.paramValue)
-                      .attr("data-original-title", paramInfo.paramValue);
+            var $elem = $tableNode.find(".tableTitle");
+            $elem.text(paramInfo.paramValue);
+            xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(
+                                                         paramInfo.paramValue));
         } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter) {
             $tableNode.find(".parentsTitle").text("<Parameterized>");
         }

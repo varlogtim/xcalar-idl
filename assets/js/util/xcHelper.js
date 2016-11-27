@@ -2157,7 +2157,12 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    // XX unit test not written
+    xcHelper.convertToHtmlEntity = function(s) {
+        return s.replace(/[\u00A0-\u9999<>\&]/g, function(i) {
+            return '&#' + i.charCodeAt(0) + ';';
+        });
+    };
+
     /**
      * sortVals
      * @param  {string} a     [first value]

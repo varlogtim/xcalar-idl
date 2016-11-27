@@ -57,7 +57,7 @@ describe("TableManager Test", function() {
             delete gTables[tableId];
         });
 
-        it("vefiryTableType should work", function() {
+        it("verifyTableType should work", function() {
             var vefiryTableType = TblManager.__testOnly__.vefiryTableType;
             var tableName = xcHelper.randName("test_table#ab");
             var tableId = xcHelper.getTableId(tableName);
@@ -457,7 +457,7 @@ describe("TableManager Test", function() {
             .to.be.false;
         });
 
-        describe("Thead Listerer Test", function() {
+        describe("Thead Listener Test", function() {
             var $xcTheadWrap;
 
             before(function() {

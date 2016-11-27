@@ -29,7 +29,6 @@ describe('JoinView', function() {
             done();
         });
     });
-    
 
     describe('check join initial state', function() {
         it('join type should be selected', function() {
@@ -45,7 +44,7 @@ describe('JoinView', function() {
         });
 
         it('right table name should not be selected', function() {
-            expect($('#joinRightTableList .text').val()).to.equal(""); 
+            expect($('#joinRightTableList .text').val()).to.equal("");
             expect($joinForm.find('.tableListSection.right .iconWrap')
                 .css('pointer-events')).to.equal("none");
         });

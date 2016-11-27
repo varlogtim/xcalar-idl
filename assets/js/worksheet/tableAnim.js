@@ -633,7 +633,7 @@ window.TblAnim = (function($, TblAnim) {
         var scrollLeft;
         $mainFrame.on('scroll.draglocked', function() {
             scrollLeft = $mainFrame.scrollLeft();
-            
+
             if (scrollLeft <= leftLimit) {
                 $mainFrame.scrollLeft(leftLimit);
             } else if (scrollLeft >= rightLimit) {
@@ -728,10 +728,11 @@ window.TblAnim = (function($, TblAnim) {
 
             Tips.refresh();
         }
+
         setTimeout(function() {
             unhideOffScreenTables();
         }, 0);
-        
+
     }
 
     function cloneCellHelper(obj) {

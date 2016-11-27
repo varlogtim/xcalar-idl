@@ -536,8 +536,7 @@ describe('xcHelper Test', function() {
             var $a = $(event.target);
             var testName = $a.attr("download");
             var testContent = $a.attr("href");
-            
-            
+
             deferrd.resolve(testName, testContent);
         };
         $(document).on("click", "a", clickEvent);
@@ -566,8 +565,7 @@ describe('xcHelper Test', function() {
             var $a = $(event.target);
             var testName = $a.attr("download");
             var testContent = $a.attr("href");
-            
-            
+
             deferrd.resolve(testName, testContent);
         };
         $(document).on("click", "a", clickEvent);
@@ -833,7 +831,7 @@ describe('xcHelper Test', function() {
 
         var testCases = [{
             "val"  : "testTable",
-            "valid": true 
+            "valid": true
         },
         {
             "val"  : "",
@@ -873,7 +871,7 @@ describe('xcHelper Test', function() {
                 assert.isTrue($statusBox.is(":visible"));
                 expect($statusBox.find(".message").text())
                 .to.equal(testCase.error);
-                
+
                 if (testCase.options && testCase.options.onErr) {
                     expect(onErrTrigger).to.be.true;
                 }
@@ -1403,6 +1401,12 @@ describe('xcHelper Test', function() {
         expect(getFormat("f.test")).to.be.null;
     });
 
+    it('xcHelper.convertToHtmlEntity should work', function() {
+        var terribleString = "<&boo>";
+        var convertHtml = xcHelper.convertToHtmlEntity;
+        expect(convertHtml(terribleString)).to.equal("&#60;&#38;boo&#62;");
+    });
+
     it('xcHelper.sortVals should work', function() {
         var func = xcHelper.sortVals;
         var asc = ColumnSortOrder.ascending;
@@ -1441,10 +1445,9 @@ describe('xcHelper Test', function() {
         var fourthPart = 'load --url "nfs:///schedule/" --format json ' +
                          '--size 0B --name "f264.schedule";';
         var fifthPart = '   '; // blank
-        
 
         var query =  firstPart + secondPart + thirdPart + fourthPart + fifthPart;
-            
+
         var parsedQuery = xcHelper.parseQuery(query);
         expect(parsedQuery).to.be.an("array");
         expect(parsedQuery).to.have.lengthOf(4); // should exclude the blank
@@ -1519,7 +1522,7 @@ describe('xcHelper Test', function() {
             },
             type: "number"
         });
-        
+
         gTables["xc-Test"] = new TableMeta({
             "tableId"  : "xc-Test",
             "tableName": "test",

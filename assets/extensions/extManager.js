@@ -600,7 +600,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         ExtensionManager.trigger(tableId, modName, fnName, args);
         // close tab, do this because if new table created, they don't have the
         // event listener
-        // XXXX should change event listerer to pop up
+        // XXXX should change event listener to pop up
         $("#extensionTab").click();
     }
 
