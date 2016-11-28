@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Common tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Changing the data type for a column</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/foundation.5.5.0.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.topic-ratings-button
+{
+	-pie-background: transparent url('../../Skins/Default/Stylesheets/Images/star-full.png') no-repeat center center;
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.edit-user-profile-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/edit-profile.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.5.5.0_custom.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.offcanvas.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap">
+            <div class="off-canvas-wrap" data-offcanvas="">
+                <section class="inner-wrap">
+                    <nav class="tab-bar" data-mc-ignore="true">
+                        <section class="middle tab-bar-section outer-row clearfix">
+                            <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
+                                <div class="navigation-wrapper">
+                                    <ul class="navigation clearfix">
+                                        <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../A_GettingStarted/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/EasySteps.htm">Easy steps (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="ManageDatasetRef.htm">Managing dataset references</a>
+                                                </li>
+                                                <li><a href="CreateTable.htm">Creating a table</a>
+                                                </li>
+                                                <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
+                                                <li><a href="#" class="selected">Changing the data type for a column</a>
+                                                </li>
+                                                <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
+                                                </li>
+                                                <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
+                                                </li>
+                                                <li><a href="FilterValue.htm">Filtering in a table column</a>
+                                                </li>
+                                                <li><a href="UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                </li>
+                                                <li><a href="JoinTables.htm">Joining tables</a>
+                                                </li>
+                                                <li><a href="GroupBy.htm">Grouping data in a table</a>
+                                                </li>
+                                                <li><a href="Map.htm">Using the Map function to create new values</a>
+                                                </li>
+                                                <li><a href="Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="QuickAggregates.htm">Determining aggregate values</a>
+                                                </li>
+                                                <li><a href="ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                </li>
+                                                <li><a href="ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../C_AdvancedTasks/Extensions.htm">Using extensions</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/FunctionBar.htm">Using the function or search bar</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/ExportTable.htm">Exporting a table</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/Parameterization.htm">Parameterizing queries</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/OptimizeMemory.htm">Optimizing memory usage</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../D_Reference/InsightWindow.htm">Xcalar Insight window</a>
+                                                </li>
+                                                <li><a href="../D_Reference/WkbkBrowser.htm">Workbook Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_Reference/DataBrowser.htm">Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/DataflowGraph.htm">Dataflow graph</a>
+                                                </li>
+                                                <li><a href="../D_Reference/Table_options.htm">Table options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/ColumnOptions.htm">Column options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/CellOptions.htm">Cell options</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div><a class="menu-icon right-off-canvas-toggle" href="#"><span></span></a>
+                            </div>
+                        </section>
+                        <div class="nav-search row outer-row">
+                            <form class="search" action="#">
+                                <div class="search-bar search-bar-container needs-pie">
+                                    <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                    <div class="search-filter-wrapper">
+                                        <div class="search-filter">
+                                            <div class="search-filter-content">
+                                                <ul>
+                                                    <li>All Files</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-submit-wrapper" dir="ltr">
+                                        <div class="search-submit" title="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
+                    <aside class="right-off-canvas-menu" data-mc-ignore="true">
+                        <ul class="off-canvas-list" data-mc-back-link="Back" data-mc-css-tree-node-expanded="has-submenu" data-mc-css-tree-node-collapsed="has-submenu" data-mc-css-sub-menu="right-submenu" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="True" data-mc-defer-expand-event="True" data-mc-expand-event="click.fndtn.offcanvas" data-mc-toc="True">
+                        </ul>
+                    </aside>
+                    <section class="main-section">
+                        <div class="row outer-row" data-mc-content-body="True">
+                            <div id="contentBody">
+                                <div class="row collapse">
+                                    <div class="sideContent">
+                                        <div class="clearfix">
+                                            <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component">
+                                                <div class="button-group-container-left">
+                                                    <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                    </button>
+                                                    <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                    </button>
+                                                    <div class="button-group star-buttons loading feedback-topic-required">
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="button-separator">
+                                                    </div>
+                                                    <button class="button feedback-required login-button" id="normalLoginBtn" data-state1-class="login-button" data-state2-class="edit-user-profile-button" title="Login" data-state1-title="Login">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="login" />
+                                                    </button>
+                                                    <button class="button needs-pie print-button" title="Print">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="menu _Skins_SideMenu mc-component">
+                                            <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
+                                                <ul class="sub-menu">
+                                                    <li><a href="ManageDatasetRef.htm">Managing dataset references</a>
+                                                    </li>
+                                                    <li><a href="CreateTable.htm">Creating a table</a>
+                                                    </li>
+                                                    <li><a href="AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                    </li>
+                                                    <li><a href="#" class="selected">Changing the data type for a column</a>
+                                                    </li>
+                                                    <li><a href="CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
+                                                    </li>
+                                                    <li><a href="UndoRedo.htm">Undoing and redoing an operation</a>
+                                                    </li>
+                                                    <li><a href="FilterValue.htm">Filtering in a table column</a>
+                                                    </li>
+                                                    <li><a href="UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                    </li>
+                                                    <li><a href="JoinTables.htm">Joining tables</a>
+                                                    </li>
+                                                    <li><a href="GroupBy.htm">Grouping data in a table</a>
+                                                    </li>
+                                                    <li><a href="Map.htm">Using the Map function to create new values</a>
+                                                    </li>
+                                                    <li><a href="Correlation.htm">Determining correlation between two values</a>
+                                                    </li>
+                                                    <li><a href="QuickAggregates.htm">Determining aggregate values</a>
+                                                    </li>
+                                                    <li><a href="ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                    </li>
+                                                    <li><a href="ManageWorksheet.htm">Managing worksheets</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Changing the data type for a column</span>
+                                    </div>
+                                    <div class="bodyProxyNarrow">
+                                        <h1>Changing the data type for a column</h1>
+                                        <p>After you create a dataset reference to point to a data source, you can create tables from the fields in the dataset. Each column in the table created is assigned a data type, which can be one of the following:</p>
+                                        <ul>
+                                            <li value="1">Array</li>
+                                            <li value="2">Boolean</li>
+                                            <li value="3">Float</li>
+                                            <li value="4">Integer</li>
+                                            <li value="5">Mixed</li>
+                                            <li value="6">Object</li>
+                                            <li value="7">String</li>
+                                            <li value="8">Unknown</li>
+                                        </ul>
+                                        <p>A column's initial data type is Mixed if there are different types of data in the column. A column's initial data type is Unknown if <span class="GeneralProductName">Xcalar Insight</span> cannot determine the data type or if all the values in the column are null or FNF (field not found). </p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;A table cell contains FNF when the row does not have a column that other rows in the table have. For example, if a column named EmlopyeeID exists for all rows except row 1, the value on row 1 under the EmployeeID column header is FNF.</div>
+                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;The initial data type for a value generated by a UDF is always String. If your UDF&#160;produces a value that needs to be a type other than String, it is important to follow the instructions in this section to change its data type before performing operations on the value.</div>
+                                        <h2>Restrictions on data type changes</h2>
+                                        <p>Remember the following restrictions when you attempt to change a column's data type:</p>
+                                        <ul>
+                                            <li value="1">Changing a column's data type to Array, Object, or Unknown is not allowed.</li>
+                                            <li value="2">You can change the data type for a column only if the column contains values. If you create a column with the <span class="UIelement">Add a column</span> option in the column drop-down menu, you cannot set the data type for the new, empty column.</li>
+                                        </ul>
+                                        <h2>Supported integer types and floating point values</h2>
+                                        <p> The following integer types are supported:</p>
+                                        <ul>
+                                            <li value="1">Signed and unsigned 32-bit integers</li>
+                                            <li value="2">Signed and unsigned 64-bit integers</li>
+                                        </ul>
+                                        <p>Both 32-bit and 64-bit floating-point values are supported.</p>
+                                        <h2>Different ways to change the data type</h2>
+                                        <p>You can use one of the following methods to change the data type:</p>
+                                        <ul>
+                                            <li value="1">Use the <span class="UIelement">Change data type</span> option in the column drop-down menu. This method changes the data type for one column, and does not create a column. </li>
+                                            <li value="2">Select the <span class="UIelement">Map…</span> option in the column drop-down menu. This method keeps the existing column intact and creates a column with the new data type.</li>
+                                            <li value="3">Use the <span class="UIelement">Smart Type Casting</span> feature. This method changes the data type for one or multiple columns. It does not create new columns. </li>
+                                        </ul>
+                                        <h2>Using the <span class="UIelement">Change data type</span> option</h2>
+                                        <p>Follow these steps to change the data type for one column:</p>
+                                        <ol>
+                                            <li value="1">Right click the column header to display the column drop-down menu.</li>
+                                            <li value="2">Select the <span class="UIelement">Change data type</span> option in the column drop-down menu.</li>
+                                            <li value="3">Select the data type in the menu.</li>
+                                        </ol>
+                                        <h2>Using the Map function to change the data type</h2>
+                                        <p>After you select the <span class="UIelement">Map…</span> option in the column drop-down menu, the <span class="UIelement">Map</span> panel is displayed. </p>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />Expand and read the following list that describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Insight</span> panel.</a></span>
+                                            <div class="MCDropDownBody dropDownBody">
+                                                <ul>
+                                                    <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
+                                                    <li value="2">When typing a column name, always start with the dollar sign ($).</li>
+                                                    <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
+                                                    <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
+                                                    <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your mouse to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
+                                                    <li value="6">If an operand accepts a column name, it also accepts an aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                    <li value="7">If necessary,  click <img src="../Resources/Images/Insight_assets/xi-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
+                                                    <li value="8">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <p>Follow these steps to create a column with the desired data type:</p>
+                                        <ol>
+                                            <li value="1">In the <span class="UIelement">Table</span> field, if the desired table name is not already displayed, click the down arrow to display a list of tables and then select the desired table.</li>
+                                            <li value="2">In the <span class="UIelement">Category</span> field, select <span class="UIelement">type-casting</span>.</li>
+                                            <li value="3">In the <span class="UIelement">Function</span> field, select the desired data type.</li>
+                                            <li value="4">
+                                                <p>The first argument (x) is the active column name by default. You can accept the default or enter the name for another column whose data type will be changed. </p>
+                                                <p>If the desired data type is integer, enter the base as the second argument. For example, for base 10, type <span class="UIelement">10</span>; for binary, type <span class="UIelement">2</span>. </p>
+                                            </li>
+                                            <li value="5">Type a column name in the <span class="UIelement">New Resultant Column Name</span> field.</li>
+                                            <li value="6">If you are interested only in the rows where the <span class="UIelement">Map</span> function fails, select <span class="UIelement">View only erroneous rows</span>. For example, if you want to know if there are values in a particular column that cannot be type cast into Integer, select this option. The resultant table will contain only rows with data in this column that cannot be changed by the Map function.</li>
+                                            <li value="7">
+                                                <p>Click <span class="UIelement">Map</span>. A new column is created with the new data type. </p>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you did not enter the second argument,  an error message is displayed, requiring you to click the <span class="UIelement">No Argument</span> check box. After you click the check box, click Map.</div>
+                                            </li>
+                                        </ol>
+                                        <p>The following sample <span class="UIelement">Map</span> panel illustrates how you can change the data type  to integer.</p>
+                                        <p>
+                                            <img src="../Resources/Images/Insight_screenshots/map-change-data-type.png" />
+                                        </p>
+                                        <h2>Using the Smart Type Casting feature</h2>
+                                        <p><span class="GeneralProductName">Xcalar Insight</span> provides data type suggestions for columns in your table. Follow these steps to change the data type for one or multiple columns:</p>
+                                        <ol>
+                                            <li value="1">Right click the table title to display the drop-down menu.</li>
+                                            <li value="2">Select <span class="UIelement">Smart Type Casting…</span>. The <span class="UIelement">SMART&#160;CAST</span> panel is displayed.</li>
+                                            <li value="3">The <span class="UIelement">SMART&#160;CAST</span> panel shows the data types suggested  for particular columns. To change a suggestion, click a data type and select a new data type from the pop-up menu.</li>
+                                            <li value="4">
+                                                <p>(Optional)For any column that is not in the <span class="UIelement">SMART&#160;CAST</span> panel, you can click anywhere in the column to place it in the panel. Then click the data type for the column and select a new data type from the pop-up menu.</p>
+                                                <p>If for any reason you want to remove all columns and their data types in the panel, click <span class="UIelement">CLEAR&#160;ALL</span>.</p>
+                                            </li>
+                                            <li value="5">Click <span class="UIelement">CAST</span>.</li>
+                                        </ol>
+                                        <div class="Example"><span class="label">TIP:</span>&#160;To display the suggestions again (for example, after you edited data types for several columns), click <span class="UIelement">DETECT</span>. Remember, however, that doing so removes columns that you added to the panel. The <span class="UIelement">SMART&#160;CAST</span> panel now contains only columns with data types suggested by <span class="GeneralProductName">Xcalar Insight</span>.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a class="exit-off-canvas"></a>
+                </section>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Parameterizing queries</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/foundation.5.5.0.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.topic-ratings-button
+{
+	-pie-background: transparent url('../../Skins/Default/Stylesheets/Images/star-full.png') no-repeat center center;
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.edit-user-profile-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/edit-profile.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.5.5.0_custom.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.offcanvas.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap">
+            <div class="off-canvas-wrap" data-offcanvas="">
+                <section class="inner-wrap">
+                    <nav class="tab-bar" data-mc-ignore="true">
+                        <section class="middle tab-bar-section outer-row clearfix">
+                            <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
+                                <div class="navigation-wrapper">
+                                    <ul class="navigation clearfix">
+                                        <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../A_GettingStarted/Requirements.htm">Requirements for Xcalar Insight</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/EasySteps.htm">Easy steps (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../B_CommonTasks/ManageDatasetRef.htm">Managing dataset references</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/CreateTable.htm">Creating a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/ChangeDataType.htm">Changing the data type for a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/UndoRedo.htm">Undoing and redoing an operation</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/FilterValue.htm">Filtering in a table column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/JoinTables.htm">Joining tables</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/GroupBy.htm">Grouping data in a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/Map.htm">Using the Map function to create new values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/QuickAggregates.htm">Determining aggregate values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="Extensions.htm">Using extensions</a>
+                                                </li>
+                                                <li><a href="UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="FunctionBar.htm">Using the function or search bar</a>
+                                                </li>
+                                                <li><a href="CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                </li>
+                                                <li><a href="UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="ExportTable.htm">Exporting a table</a>
+                                                </li>
+                                                <li><a href="#" class="selected">Parameterizing queries</a>
+                                                </li>
+                                                <li><a href="UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                </li>
+                                                <li><a href="OptimizeMemory.htm">Optimizing memory usage</a>
+                                                </li>
+                                                <li><a href="Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                                <li><a href="UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../D_Reference/InsightWindow.htm">Xcalar Insight window</a>
+                                                </li>
+                                                <li><a href="../D_Reference/WkbkBrowser.htm">Workbook Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/WorksheetWindow.htm">Worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_Reference/DataBrowser.htm">Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/DataflowGraph.htm">Dataflow graph</a>
+                                                </li>
+                                                <li><a href="../D_Reference/Table_options.htm">Table options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/ColumnOptions.htm">Column options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/CellOptions.htm">Cell options</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div><a class="menu-icon right-off-canvas-toggle" href="#"><span></span></a>
+                            </div>
+                        </section>
+                        <div class="nav-search row outer-row">
+                            <form class="search" action="#">
+                                <div class="search-bar search-bar-container needs-pie">
+                                    <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                    <div class="search-filter-wrapper">
+                                        <div class="search-filter">
+                                            <div class="search-filter-content">
+                                                <ul>
+                                                    <li>All Files</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-submit-wrapper" dir="ltr">
+                                        <div class="search-submit" title="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
+                    <aside class="right-off-canvas-menu" data-mc-ignore="true">
+                        <ul class="off-canvas-list" data-mc-back-link="Back" data-mc-css-tree-node-expanded="has-submenu" data-mc-css-tree-node-collapsed="has-submenu" data-mc-css-sub-menu="right-submenu" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="True" data-mc-defer-expand-event="True" data-mc-expand-event="click.fndtn.offcanvas" data-mc-toc="True">
+                        </ul>
+                    </aside>
+                    <section class="main-section">
+                        <div class="row outer-row" data-mc-content-body="True">
+                            <div id="contentBody">
+                                <div class="row collapse">
+                                    <div class="sideContent">
+                                        <div class="clearfix">
+                                            <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component">
+                                                <div class="button-group-container-left">
+                                                    <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                    </button>
+                                                    <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                    </button>
+                                                    <div class="button-group star-buttons loading feedback-topic-required">
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="button-separator">
+                                                    </div>
+                                                    <button class="button feedback-required login-button" id="normalLoginBtn" data-state1-class="login-button" data-state2-class="edit-user-profile-button" title="Login" data-state1-title="Login">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="login" />
+                                                    </button>
+                                                    <button class="button needs-pie print-button" title="Print">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="menu _Skins_SideMenu mc-component">
+                                            <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                                <ul class="sub-menu">
+                                                    <li><a href="Extensions.htm">Using extensions</a>
+                                                    </li>
+                                                    <li><a href="UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="FunctionBar.htm">Using the function or search bar</a>
+                                                    </li>
+                                                    <li><a href="CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="ExportTable.htm">Exporting a table</a>
+                                                    </li>
+                                                    <li><a href="#" class="selected">Parameterizing queries</a>
+                                                    </li>
+                                                    <li><a href="UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                    </li>
+                                                    <li><a href="OptimizeMemory.htm">Optimizing memory usage</a>
+                                                    </li>
+                                                    <li><a href="Monitor.htm">Using the Monitor</a>
+                                                    </li>
+                                                    <li><a href="UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTasks.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Parameterizing queries</span>
+                                    </div>
+                                    <div class="bodyProxyNarrow">
+                                        <h1>Parameterizing queries</h1>
+                                        <p><span class="GeneralProductName">Xcalar Insight</span> supports parameterization of queries. This feature enables you to re-use an existing dataflow with customized values, eliminating the need for building a dataflow from scratch for each query. Specifically, you can take advantage of an existing batch dataflow to accomplish the following goals:</p>
+                                        <ul>
+                                            <li value="1">apply the entire series of operations defined by a batch dataflow to another dataset</li>
+                                            <li value="2">substitute a filter function for an existing one in a batch dataflow</li>
+                                            <li value="3">name the export file created by a batch dataflow</li>
+                                        </ul>
+                                        <p>This section assumes that you have already created a batch dataflow and you are familiar with the concept of exporting a table. The following topics provide information about dataflows and exporting tables:</p>
+                                        <ul>
+                                            <li value="1"><a href="CreateBatchDataflow.htm" class="MCXref xref">Understanding and creating batch dataflows</a>
+                                            </li>
+                                            <li value="2"><a href="UseBatchDataflow.htm" class="MCXref xref">Using batch dataflows</a>
+                                            </li>
+                                            <li value="3"><a href="ExportTable.htm" class="MCXref xref">Exporting a table</a>
+                                            </li>
+                                        </ul>
+                                        <h2>General steps for parameterizing a query</h2>
+                                        <p>The following list describes the general steps for parameterizing a query:</p>
+                                        <ol>
+                                            <li value="1">Create a parameter.</li>
+                                            <li value="2">Pass the parameter to the query.</li>
+                                            <li value="3">Assign a value to the parameter.</li>
+                                        </ol>
+                                        <p>The exact steps might vary depending on the type of query being parameterized.</p>
+                                        <h2>Using the Parameterize Query modal window without a parameter</h2>
+                                        <p>&#160;<span class="GeneralProductName">Xcalar Insight</span> allows you to customize a batch dataflow without creating a parameter. To accomplish this, follow the instructions in <a href="#Passing" class="MCXref xref selected">Passing a parameter </a>to display the <span class="UIelement">Parameterize Query</span> modal window. Instead of dragging and dropping a parameter in the  modal window, simply type the desired value where a parameter should be placed. <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you define a parameter instead of entering the value directly because having a parameter provides a convenient way to update a particular value. You can also re-use the same parameter for different things in the dataflow. For example, you can use the same parameter in the data source path name and in the export file name to maintain consistency.  </p>
+                                        <h2>Parameter naming guidelines</h2>
+                                        <p>When creating a parameter, remember to choose a name that describes the meaning of the parameter. </p>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a parameter:</a></span>
+                                            <div class="MCDropDownBody dropDownBody">
+                                                <ul>
+                                                    <li value="1">Parameter names are case-sensitive. </li>
+                                                    <li value="2">Length can be from 1 to 255 characters.</li>
+                                                    <li value="3"> Characters can be A-Z, a-z, and 0-9.</li>
+                                                    <li value="4">No special characters (for example, underscore, parenthesis, hyphen, or space)&#160;are permitted.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <h2><a name="Creating"></a>Creating a parameter</h2>
+                                        <p>Parameters are created for each batch dataflow. They are not shared among batch dataflows. You can create for each batch dataflow as many parameters as needed.</p>
+                                        <p>Follow these steps to create a parameter:</p>
+                                        <ol>
+                                            <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Dataflows</span> panel. Then select the batch dataflow that you want to parameterize. &#160;The dataflow graph for the selected batch dataflow is displayed.</li>
+                                            <li value="2">
+                                                <p>In the upper right corner of the window, click the Down arrow next to <span class="UIelement">Parameters</span>. Then type the parameter name as shown in the following screenshot.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/create-param.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1414" data-mc-height="609" src="../Resources/Images/Insight_screenshots/create-param_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">Click <span class="UIelement">CREATE&#160;NEW&#160;PARAMETER</span> or press Enter.</li>
+                                        </ol>
+                                        <h2><a name="Passing"></a>Passing a parameter </h2>
+                                        <p>Passing a parameter means substituting the parameter value for the value originally used in the batch dataflow. You can pass a parameter at different stages of a batch dataflow:&#160;when pointing to a data source, performing a filter operation, or exporting a table to a file. The exact steps for passing a parameter depend on what you want to parameterize.</p>
+                                        <p>Follow these steps to pass a parameter:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the batch dataflow graph, click one of the following icon and then the <span class="UIelement">Create Parameterized Query</span> pop-up:</p>
+                                                <ul>
+                                                    <li value="1">dataset icon</li>
+                                                    <li value="2">filter operation icon</li>
+                                                    <li value="3">exported table icon</li>
+                                                </ul>
+                                                <p>The <span class="UIelement">Parameterize Query</span> modal window is displayed. The exact contents of the modal window depend on the icon from which you launch the modal window.</p>
+                                            </li>
+                                            <li value="2">In the <span class="UIelement">Parameter List</span>, verify that the parameter you want to use has been created.&#160;If not, create the parameter as described in <a href="#Creating" class="MCXref xref selected">Creating a parameter</a>.</li>
+                                            <li value="3">In the <span class="UIelement">Parameterize Query</span> section, drag and drop the parameter from the <span class="UIelement">Parameter List</span>. Where you drop the parameter depends on where you want the parameter value substitution to occur.</li>
+                                            <li value="4">Assign a value to each parameter that you drag and drop as described in <a href="#Assignin" class="MCXref xref selected">Assigning a value to a parameter</a>.</li>
+                                        </ol>
+                                        <div class="Example"><span class="label">TIP:</span> You can drag and drop more than one parameter. Suppose you have a parameter named Month and a parameter named Year. To parameterize the export operation, you can drag and drop both parameters to the <span class="UIelement">Export As</span> field so that the month and year are concatenated to form a part of the export file name (for example, to form a file name prefix).</div>
+                                        <h2><a name="Assignin"></a>Assigning a value to a parameter</h2>
+                                        <p>The value assigned to a parameter is the value that will be used when the batch dataflow is run, instead of the original value used when the batch dataflow is defined.</p>
+                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160; Suppose you have created a parameter named Month, you can assign a different value to it depending on the month in which the data in the dataset is collected. If the data is from the month of October, you can assign the string OCTOBER to the Month parameter, and then apply the Month parameter as the export file name. In this way the export file can contain the string OCTOBER (for example, export-airlines-OCTOBER.csv), which makes it obvious that the export file is created by a dataflow based on data collected in October.</div>
+                                        <p>Follow these steps to assign a value to a parameter:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the batch dataflow graph, click one of the following icons:</p>
+                                                <ul>
+                                                    <li value="1">dataset icon</li>
+                                                    <li value="2">filter operation icon</li>
+                                                    <li value="3">exported table icon</li>
+                                                </ul>
+                                                <p>Then click   the <span class="UIelement">Create Parameterized Query</span> pop-up. The <span class="UIelement">Parameterize Query</span> modal window is displayed. The exact contents of the modal window depend on the icon from which you launch the modal window.</p>
+                                            </li>
+                                            <li value="2">
+                                                <p>For each parameter that has been applied to an operation, in the <span class="UIelement">Value</span> column, enter the parameter value. For example, for the Month parameter, you can enter OCTOBER.</p>
+                                                <div class="Note"><span class="label">IMPORTANT:</span>&#160;When defining a parameter for a filter function, you can specify a string as the parameter value. For a string to be interpreted correctly, it must be enclosed in double quote marks. For example, if a column's data type is string, and you want to filter the string 10, you must enter "10" as the parameter value. Without the quote marks, the value is interpreted as an integer and the filter operation does not produce the expected results.</div>
+                                                <p>If you want the parameter to have no value, leave the <span class="UIelement">Value</span> column blank and click the check box in the <span class="UIelement">No Value</span> column.</p>
+                                                <div class="Example">
+                                                    <p><span class="label">EXAMPLE:</span>&#160;To parameterize the export file name, you can define two parameters (for example, firstDigit and secondDigit) for the  file suffix such that the export file name is in this format:&#160;</p>
+                                                    <p>airlines&lt;firstDigit&gt;&lt;secondDigit&gt;.csv</p>
+                                                    <p>When the suffix requires only one digit, you can assign no value to firstDigit and a numeral to secondDigit. Doing so creates files named airlines1.csv, airlines2.csv, and so on. When the suffix requires two digits, assign a numeral to both firstDigit and secondDigit. Doing so creates files named airlines11.csv, airlines12.csv, and so on</p>
+                                                </div>
+                                            </li>
+                                            <li value="3">Click <span class="UIelement">SAVE</span>.</li>
+                                        </ol>
+                                        <h2>Example of parameterization</h2>
+                                        <p>The following example illustrates how a batch dataflow is parameterized to create different export files based on the same batch dataflow.</p>
+                                        <p>The batch dataflow named FlightInfo in this example consists of these operations:</p>
+                                        <ul>
+                                            <li value="1"><span class="GeneralProductName">Xcalar Insight</span> points to a data source containing flight information from various air carriers and creates a table with four columns such as day of the week, air time, and so on.</li>
+                                            <li value="2">Smart type casting is used to cast the correct data type for each column.</li>
+                                            <li value="3">A filter operation is performed to include only rows from Sunday (1 in the DayOfWeek_integer column).</li>
+                                            <li value="4">An export file is created with all the columns.</li>
+                                        </ul>
+                                        <p>The following screenshot illustrates the batch dataflow graph:</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-FlightInfo.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1401" data-mc-height="81" src="../Resources/Images/Insight_screenshots/batch-dataflow-FlightInfo_thumb_0_40.png" tabindex="" /></a>
+                                        </p>
+                                        <h3>Parameterizing the data source</h3>
+                                        <p>You can parameterize the data source in a batch dataflow, which enables you to substitute a new pathname to the data source for the one currently used.</p>
+                                        <p>Follow these steps to parameterize the data source:</p>
+                                        <ol>
+                                            <li value="1">In the FlightInfo dataflow graph, create a parameter named AnnualAirlinesData.</li>
+                                            <li value="2">
+                                                <p>In the FlightInfo dataflow graph, click the first icon and then click the <span class="UIelement">Create Parameterized Query</span> pop-up. The following modal window is displayed:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/parameterized-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="919" data-mc-height="477" src="../Resources/Images/Insight_screenshots/parameterized-data-source_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">
+                                                <p>Drag and drop the AnnualAirlinesData parameter to the <span class="UIelement">File Path</span> field. This is the data source to which <span class="GeneralProductName">Xcalar Insight</span> points when running the batch dataflow. In this example, <span class="GeneralProductName">Xcalar Insight</span> points to nfs:///mydata/flights/airlines-2016.</p>
+                                            </li>
+                                            <li value="4">Click <span class="UIelement">SAVE</span>. The first icon in the batch dataflow graph is displayed in green to indicate that it is parameterized.</li>
+                                        </ol>
+                                        <h3>Parameterizing the filter operation</h3>
+                                        <p>To run the same batch dataflow but with other filtering criteria, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">In the FlightInfo dataflow graph, create a parameter named Day.</li>
+                                            <li value="2">
+                                                <p>In the FlightInfo dataflow graph, click the filter operation icon and then click the <span class="UIelement">Create Parameterized Query</span> pop-up. The following modal window is displayed:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/parameterized-filter.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="916" data-mc-height="479" src="../Resources/Images/Insight_screenshots/parameterized-filter_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">
+                                                <p>In the <span class="UIelement">Parameterized Query</span> section, define the filter operation you want to use for this batch dataflow as follows:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Select the column for the filtering. In this example, use the default value, which is the same column used by the current batch dataflow.</li>
+                                                    <li value="2">Click the field following the word <span class="UIelement">by</span> to display a list of filter functions. In this example, select <span class="UIelement">eq</span>.</li>
+                                                    <li value="3">Drag the Day parameter and drop it in the last field of this section. </li>
+                                                </ol>
+                                                <p>This operation filters  the DayOfWeek_integer column to keep only the rows with the value  equal to the value of the Day parameter.</p>
+                                            </li>
+                                            <li value="4">For the Day parameter, type a number representing the day of week in the <span class="UIelement">Value</span> column. In this example, type 2 for Monday.</li>
+                                            <li value="5">Click <span class="UIelement">SAVE</span>. The filter operation icon in the batch dataflow graph is displayed in green to indicate that it is parameterized.</li>
+                                        </ol>
+                                        <h3>Parameterizing the export operation</h3>
+                                        <p>You might want to paremeterize the export operation so that the export file  is named in a way meaningful to you. &#160;You can name the export file based on the type of filter operation done in the batch dataflow. For example, if the exported table contains only rows for flight data from Monday, you can parameterize the export operation to include the string Monday in the export file name. </p>
+                                        <p>Follow these steps to parameterize the export operation:</p>
+                                        <ol>
+                                            <li value="1">In the FlightInfo dataflow graph, create a parameter named DayOfWeek.</li>
+                                            <li value="2">
+                                                <p>In the FlightInfo dataflow graph, click the exported table icon and then click the <span class="UIelement">Create Parameterized Query</span> pop-up. The following modal window is displayed:</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/parameterized-export.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="976" data-mc-height="483" src="../Resources/Images/Insight_screenshots/parameterized-export_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">
+                                                <p>Drag and drop the DayOfWeek parameter to the <span class="UIelement">Export As</span> field, which determines the export file name. You can include other characters in this field in addition to the parameter. For example, you can specify the following in the <span class="UIelement">Export As</span> field:</p>
+                                                <p>airlines-&lt;DayOfWeek&gt;.csv</p>
+                                            </li>
+                                            <li value="4">For the DayOfWeek parameter, type the string that will be used as a substitution in the export file name. In this example, type Monday.</li>
+                                            <li value="5">Click <span class="UIelement">SAVE</span>. The exported table icon in the batch dataflow graph is displayed in green to indicate that it is parameterized. When you run this parameterized batch dataflow, the resultant table contains only flight information for Monday, and the table is exported to the file named Monday.csv.</li>
+                                        </ol>
+                                        <p>The following screenshot illustrates the batch dataflow graph for FlightInfo after you finish parameterizing.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/parameterized-example.png"><img class="MCPopupThumbnail img imgWideButShortImage" data-mc-width="1397" data-mc-height="64" src="../Resources/Images/Insight_screenshots/parameterized-example_thumb_0_40.png" tabindex="" /></a>
+                                        </p>
+                                        <p>Before you run the batch dataflow, click the <span class="UIelement">Create Parameterized Query</span> pop-up for each green icon to verify that the parameters are defined properly. In this example, you can change the Day, DayOfWeek, and AnnualAirlinesData parameters to point to different data sources, filter based on different criteria, and name export files to reflect the purpose of running the dataflow. </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a class="exit-off-canvas"></a>
+                </section>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>
