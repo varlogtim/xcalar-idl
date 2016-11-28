@@ -1,5 +1,4 @@
 /assets/js/config.js
-/assets/js/tutorial/helpHashTags.js
 /assets/stylesheets/**/*.css
 /assets/widget/*.css
 /assets/customerPortal/*.css
@@ -20,3 +19,5 @@ undoredoTest.html
 /js/
 .swp
 /services/expServer/*.tar.gz
+/assets/help/user/Content/SearchInsight.htm
+/assets/help/admin/Content/SearchInsight.htm

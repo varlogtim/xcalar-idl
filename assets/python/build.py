@@ -65,9 +65,8 @@ def replacePathsInHtml():
         newFile.close()
         shutil.move(abs_path, f)
 
-def genSearchInsight():
+def genSearchInsight(searchLocation):
     print "Generating SearchInsight.htm"
-    searchLocation = "prod/assets/help/Content/Search.htm"
     newFile = searchLocation.split(".")[0]+"Insight.htm"
     insertions = "prod/site/partials/mcf.html"
     code = open(searchLocation, "rb").read()
@@ -87,9 +86,11 @@ def genSearchInsight():
     fout.close()
 
     # Copy to assets
-    shutil.copyfile("prod/assets/help/Content/SearchInsight.htm", "assets/help/Content/SearchInsight.htm")
+    shutil.copyfile(newFile, newFile[newFile.find("/")+1:])
+
 
 if __name__ == "__main__":
     catFilesTogether()
     replacePathsInHtml()
-    genSearchInsight()
+    genSearchInsight("prod/assets/help/user/Content/Search.htm")
+    genSearchInsight("prod/assets/help/admin/Content/Search.htm")

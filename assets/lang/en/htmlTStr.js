@@ -76,7 +76,7 @@ module.exports = {
 
     "paths": {
         "tableau"       : "assets/htmlFiles/tableau.html",
-        "helpDocs"      : "assets/help/Content/Home.htm"
+        "helpUserDocs"  : "assets/help/user/Content/Home.htm",
     },
 
     "statistics": {

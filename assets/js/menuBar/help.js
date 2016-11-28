@@ -1,6 +1,18 @@
 window.Help = (function($, Help) {
+    var searchURL = paths.helpUserSearch;
+    var curHelpHashTags;
+    var helpContentPath = paths.helpUserContent;
     Help.setup = function() {
-        // Toggleing helper tooltips
+        if (localStorage.admin === "true") { // XXX fixme
+            // Admin gets different categories
+            curHelpHashTags = adminHelpHashTags;
+            searchURL = paths.helpAdminSearch;
+            helpContentPath = paths.helpAdminContent;
+            $(".noResults a").attr("href", helpContentPath);
+        } else {
+            curHelpHashTags = helpHashTags;
+        }
+        // Toggling helper tooltips
         setupHelpSearch();
 
         $('#helpOnOff').click(function() {
@@ -72,8 +84,7 @@ window.Help = (function($, Help) {
                     $(".resultsArea").append(
                                            '<iframe id="mcfResults"></iframe>');
                     $iframe = $("#mcfResults");
-                    $iframe.attr('src','assets/help/Content/SearchInsight.htm#search-'+
-                                 $searchInput.val());
+                    $iframe.attr('src', searchURL + $searchInput.val());
                     $iframe.load(function() {
                         $resultsArea.show();
                     });
@@ -122,7 +133,7 @@ window.Help = (function($, Help) {
                         '<div class="categoryWrap">' +
                             '<div class="subHeading">';
             if (categories[i].more) {
-                html += '<a href="' + paths.helpContent +
+                html += '<a href="' + helpContentPath +
                         getFormattedUrl(categories[i].more.url) +
                         '" target="xchelp">' +
                         categories[i].title +
@@ -147,7 +158,7 @@ window.Help = (function($, Help) {
                     html += '<div class="row clearfix">';
                 }
                 url = getFormattedUrl(subTopic[j].url);
-                html += '<div class="linkWrap"><a href="' + paths.helpContent +
+                html += '<div class="linkWrap"><a href="' + helpContentPath +
                          url + '" ' + 'target="xchelp">' + subTopic[j].title +
                          '</a></div>';
                 if (j % 2 !== 0) {
@@ -170,8 +181,8 @@ window.Help = (function($, Help) {
         var topicIndex;
         var url;
         var fullName;
-        for (var i = 0; i < helpHashTags.pages.length; i++) {
-            page = helpHashTags.pages[i];
+        for (var i = 0; i < curHelpHashTags.pages.length; i++) {
+            page = curHelpHashTags.pages[i];
             topic = page.url;
             topicIndex = topic.indexOf('Content/');
             url = topic.slice(topicIndex + 'Content/'.length);

@@ -1,4 +1,4 @@
-import os, json
+import os, json,shutil
 from pyquery import PyQuery as pq
 from stopWords import stopWords
 
@@ -94,14 +94,25 @@ class xcalarTags:
             print self.globalTags[key]
 
 if __name__ == "__main__":
+    newFile = "../js/tutorial/helpHashTags.js"
     hashTagTree = xcalarTags()
 
-    hashTagTree.getTagsFromFolder("../help/", "htm")
+    hashTagTree.getTagsFromFolder("../help/user/", "htm")
     hashTagTree.invertTags()
     # hashTagTree.prettyPrint()
     array = hashTagTree.convertHashTagsDict()
-    fout = open("../js/tutorial/helpHashTags.js", "wb")
+    fout = open(newFile, "wb")
     fout.write("var helpHashTags = {\"pages\":")
     fout.write(json.dumps(array))
     fout.write("};")
 
+    newFile = "../js/tutorial/adminHelpHashTags.js"
+    hashTagTree = xcalarTags()
+    hashTagTree.getTagsFromFolder("../help/admin/", "htm")
+    hashTagTree.invertTags()
+    # hashTagTree.prettyPrint()
+    array = hashTagTree.convertHashTagsDict()
+    fout = open(newFile, "wb")
+    fout.write("var adminHelpHashTags = {\"pages\":")
+    fout.write(json.dumps(array))
+    fout.write("};")

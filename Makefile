@@ -36,7 +36,7 @@ build: $(DESTDIR) generateHtml
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/mcf.less > prod/assets/stylesheets/css/mcf.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/testSuite.less > prod/assets/stylesheets/css/testSuite.css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/installer.less > prod/assets/stylesheets/css/installer.css
-	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less/*
+	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less
 	@rm -rf $(DESTDIR)/prod/assets/dev
 	@echo "=== Minifying ==="
 	@cd $(DESTDIR)/prod/assets/python && python getHashTags.py
