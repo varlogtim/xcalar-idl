@@ -873,24 +873,35 @@ describe('OperationsView', function() {
         describe('map\'s search filter', function() {
             
             it('filter on input should update menus', function() {
-                // xx dependent on there not being a UDF that has the word
-                // add or sub
-
                 $filterInput.val('add').trigger(fakeEvent.input);
-                expect($categoryMenu.find('li:visible')).to.have.length(2);
-                expect($categoryMenu.find('li:visible').text()).to.equal("arithmeticconversion");
+                var $catLis = $categoryMenu.find('li:visible').filter(function() {
+                    return ($(this).text().indexOf('user') === -1); 
+                });
 
-                expect($functionsMenu.find('li:visible')).to.have.length(3);
-                expect($functionsMenu.find('li:visible').text()).to.equal("addipAddrToIntmacAddrToInt");
+                var $funcLis = $functionsMenu.find('li:visible').filter(function() {
+                    return ($(this).text().indexOf(':') === -1); 
+                });
+                expect($catLis).to.have.length(2);
+                expect($catLis.text()).to.equal("arithmeticconversion");
+
+                expect($funcLis).to.have.length(3);
+                expect($funcLis.text()).to.equal("addipAddrToIntmacAddrToInt");
 
                 $filterInput.val('').trigger(fakeEvent.input);
                 expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
                 expect($functionsMenu.find('li:visible').length).to.be.above(70);
 
                 $filterInput.val('add').trigger(fakeEvent.input);
-                expect($functionsMenu.find('li:visible').text()).to.equal("addipAddrToIntmacAddrToInt");
+                $funcLis = $functionsMenu.find('li:visible').filter(function() {
+                    return ($(this).text().indexOf(':') === -1); 
+                });
+                expect($funcLis.text()).to.equal("addipAddrToIntmacAddrToInt");
+
                 $filterInput.val('sub').trigger(fakeEvent.input);
-                expect($functionsMenu.find('li:visible').text()).to.equal("subsubstring");
+                $funcLis = $functionsMenu.find('li:visible').filter(function() {
+                    return ($(this).text().indexOf(':') === -1); 
+                });
+                expect($funcLis.text()).to.equal("subsubstring");
             });
 
             it('mapFilter keydown up/down actions should work', function() {
