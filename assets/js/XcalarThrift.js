@@ -3488,3 +3488,20 @@ function XcalarAppReap(name, appGroupId) {
     });
     return (deferred.promise());
 }
+
+function XcalarAppExecute(name, isGlobal, inStr) {
+    var deferred = jQuery.Deferred();
+
+    XcalarAppRun(name, isGlobal, inStr)
+    .then(function(ret) {
+        var appGroupId = ret.output.outputResult.appRunOutput.appGroupId;
+        return XcalarAppReap(name, appGroupId);
+    })
+    .then(function(reapRet) {
+        var res = reapRet.output.outputResult.appReapOutput;
+        deferred.resolve(res);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}

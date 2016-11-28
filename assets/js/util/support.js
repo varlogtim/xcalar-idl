@@ -10,6 +10,8 @@ window.Support = (function(Support, $) {
 
     var numNodes;
     var statsMap = null;
+    var hasSetApp = false;
+    var isCheckingMem = false;
     // constant
     var defaultCommitFlag = "commit-default";
 
@@ -100,10 +102,17 @@ window.Support = (function(Support, $) {
     };
 
     Support.memoryCheck = function() {
+        if (isCheckingMem) {
+            console.warn("Last time's  mem check not finish yet");
+            return PromiseHelper.resolve();
+        }
+
         var deferred = jQuery.Deferred();
 
         var yellowThreshold = 0.8;
         var redThreshold = 0.9;
+
+        isCheckingMem = true;
 
         refreshTables()
         .then(function() {
@@ -111,7 +120,10 @@ window.Support = (function(Support, $) {
         })
         .then(detectMemoryUsage)
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(deferred.reject)
+        .always(function() {
+            isCheckingMem = false;
+        });
 
         return deferred.promise();
 
@@ -127,12 +139,39 @@ window.Support = (function(Support, $) {
         function getMemoryUsage() {
             var innerDeferred = jQuery.Deferred();
 
-            XcalarApiTop()
+            setApp()
+            .then(function() {
+                return XcalarAppExecute("mem2", true, "");
+            })
             .then(function(ret) {
-                var adapterRet = ret.topOutputPerNode.map(adapter);
-                innerDeferred.resolve(adapterRet);
+                try {
+                    var res = JSON.parse(ret.outStr);
+                    var adapterRet = res.map(adapter);
+
+                    innerDeferred.resolve(adapterRet);
+                } catch (error){
+                    innerDeferred.reject(error);
+                }
             })
             .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
+        }
+
+        function setApp() {
+            var innerDeferred = jQuery.Deferred();
+
+            if (hasSetApp) {
+                innerDeferred.resolve();
+            } else {
+                var str = "#!/usr/bin/env python2.7\nimport os\nimport sys\nimport socket\nsys.path.append(\"/opt/xcalar/scripts\")\nfrom pyClient.WorkItem import *\nfrom pyClient.XcalarApi import XcalarApi\nfrom QueryStateEnums.ttypes import *\nimport LibApisEnums.ttypes\n\ndef __get_node_id(cfgPath=\"/etc/xcalar/default.cfg\"):\n    res = os.popen(\"grep 'Node.*IpAddr=' %s\" % (cfgPath)).read()[:-1]\n    nodes = res.split('\\n')\n    all_nodes = []\n    for node in nodes:\n        node = node.split(\"=\")[1]\n        all_nodes.append(node)\n    currentHost = socket.gethostname()\n    hostId = 0\n    for node in all_nodes:\n        if node == currentHost:\n            break\n        hostId += 1\n    return hostId\n\ndef __get_stats(hostId):\n    mgmtdUrl = \"http://localhost:9090/thrift/service/XcalarApiService/\"\n    xcalarApi = XcalarApi(mgmtdUrl)\n    \n    workItem = WorkItemGetStatGroupIdMap(0,\"superuser\",4047850)\n    groups = xcalarApi.execute(workItem)\n    \n    workItem = WorkItemGetStats(hostId,\"superuser\",4047850)\n    output = xcalarApi.execute(workItem)\n    obj = output\n    map = {}\n    for o in obj:\n        groupname = groups[o.groupId]\n        if groupname not in map:\n            map[groupname] = {}\n        map[groupname][o.statName] = o.statValue\n    return map\n\ndef __get_xdb_pages_info(map):\n    agg = map['xdb.page.bc']\n    total = agg['totMemBytes']\n    used = (agg['fastAllocs'] - agg['fastFrees']) * 16 * 1024\n    available = total - used\n    return {'used': used, 'available': available, 'total': total}\n\ndef __get_transport_pages_info(map):\n    agg = map['transPage.scalar.bc']\n    agg['slowFrees'] += map['transPage.priority.bc']['slowFrees'] + map['transPage.usrEph.bc']['slowFrees'] + map['transPage.fatPtr.bc']['slowFrees']\n    agg['totMemBytes'] += map['transPage.priority.bc']['totMemBytes'] + map['transPage.usrEph.bc']['totMemBytes'] + map['transPage.fatPtr.bc']['totMemBytes']\n    agg['fastFrees'] += map['transPage.priority.bc']['fastFrees'] + map['transPage.usrEph.bc']['fastFrees'] + map['transPage.fatPtr.bc']['fastFrees']\n    agg['fastAllocs'] += map['transPage.priority.bc']['fastAllocs'] + map['transPage.usrEph.bc']['fastAllocs'] + map['transPage.fatPtr.bc']['fastAllocs']\n    agg['slowAllocs'] += map['transPage.priority.bc']['slowAllocs'] + map['transPage.usrEph.bc']['slowAllocs'] + map['transPage.fatPtr.bc']['slowAllocs']\n    total = agg['totMemBytes']\n    used = (agg['fastAllocs'] - agg['fastFrees']) * 128 * 1024\n    available = total - used\n    return {'used': used, 'available': available, 'total': total}\n\ndef __get_swap_info(hostName=None):\n    f=open(\"/proc/meminfo\",\"r\").read()\n    totalSwap = f.split(\"\\n\")[14]\n    totalSwap = int(totalSwap.split(\":\")[1].lstrip(\" \").split(\" \")[0].rstrip(\" \")) * 1024\n    availableSwap = f.split(\"\\n\")[15]\n    availableSwap = int(availableSwap.split(\":\")[1].lstrip(\" \").split(\" \")[0].rstrip(\" \")) * 1024\n    usedSwap = totalSwap - availableSwap\n    return {'used': usedSwap, 'available':availableSwap, 'total': totalSwap}\n\ndef __get_usrnode_mem(hostName=None):\n    cmd = \"ps aux | grep \\\"/opt/xcalar/bin/usrnode\\\" | grep -v grep | awk '{print $6}' | awk '{s+=$1} END {print s}'\"\n    f = os.popen(cmd).read()[:-1]\n    if f == \"\":\n        return -1\n    return int(f) * 1024\n\ndef __get_childnode_mem(hostName=None):\n    cmd = \"ps aux | grep \\\"/opt/xcalar/bin/childnode\\\" | grep -v grep | awk '{print $6}' | awk '{s+=$1} END {print s}'\"\n    if hostName is not None and hostName != socket.gethostname():\n        cmd = cmd.replace(\"$\", \"\\$\")\n        cmd = ssh_jenkins_prefix + hostName + \" \\\"\" + cmd + \"\\\"\"\n    f = os.popen(cmd).read()[:-1]\n    if f == \"\":\n        return -1\n    return int(f) * 1024\n\ndef __get_sys_mem(hostName=None):\n    if hostName is None or hostName == socket.gethostname():\n        f=open(\"/proc/meminfo\",\"r\").read()\n    else:\n        cmd = ssh_jenkins_prefix + hostName + \" \\\"cat /proc/meminfo\\\"\"\n        f = os.popen(cmd).read()[:-1]\n    memMap = {}\n    for stat in f.split(\"\\n\"):\n        if len(stat) > 0:\n            memMap[stat.split(\":\")[0]] = int(stat.split(\":\")[1].lstrip(\" \").split(\" \")[0].rstrip(\" \")) * 1024\n    totalMem = memMap['MemTotal']\n    if \"MemAvailable\" in memMap:\n        availableMem = memMap['MemAvailable']\n    else:\n        availableMem = memMap['MemFree']\n    usedMem = totalMem - availableMem\n    mlock = f.split(\"\\n\")[13]\n    mlock = int(mlock.split(\":\")[1].lstrip(\" \").split(\" \")[0].rstrip(\" \")) * 1024\n    return {'used': usedMem, 'available': availableMem, 'mlock':mlock, 'total': totalMem}\n\n# malloc used = dataset size = sys used + swap used - bc total\ndef __get_malloc_info(map, hostName):\n    sysMem = __get_sys_mem(hostName)\n    swapMem = __get_swap_info(hostName)\n    bc = __get_mlock_info(map, hostName)\n    usedMalloc = sysMem['used'] + swapMem['used'] - bc['total']\n    #usedMalloc = sysMem['used'] - bc['total']\n    totalMalloc = sysMem['total'] + swapMem['used'] - bc['total']\n    #totalMalloc = sysMem['total'] - bc['total']\n    usrnode_total = __get_usrnode_mem(hostName)\n    usrnode_malloc = usrnode_total - bc['total']\n    childnode_malloc = __get_childnode_mem(hostName)\n    return {'total': totalMalloc, 'total_used': usedMalloc, 'usrnode': usrnode_malloc, 'childnode': childnode_malloc}\n\ndef __get_mlock_info(map, hostName):\n    total = __get_sys_mem(hostName)['mlock']\n    xdb = __get_xdb_pages_info(map)\n    transport = __get_transport_pages_info(map)\n    return {'used':xdb['used']+transport['used'], 'available':xdb['available']+transport['available'], 'total':total}\n\ndef mem_info(cfgPath=\"/etc/xcalar/default.cfg\"):\n    host = socket.gethostname()\n    hostId = __get_node_id(cfgPath=cfgPath)\n    statsMap = __get_stats(hostId)\n    sysMem = __get_sys_mem(host)\n    swapMem = __get_swap_info(host)\n    mlock = __get_mlock_info(statsMap, host)\n    xdb_pages = __get_xdb_pages_info(statsMap)\n    transport_pages = __get_transport_pages_info(statsMap)\n    malloc = __get_malloc_info(statsMap, host)\n    memInfo = {}\n    memInfo['hostName'] = host\n    memInfo['sys'] = {}\n    memInfo['sys']['used'] = sysMem['used']\n    memInfo['sys']['available'] = sysMem['available']\n    memInfo['sys']['total'] = sysMem['total']\n    memInfo['swap'] = {}\n    memInfo['swap']['used'] = swapMem['used']\n    memInfo['swap']['available'] = swapMem['available']\n    memInfo['swap']['total'] = swapMem['total']\n\n    memInfo['mlock'] = {}\n    memInfo['mlock']['total'] = mlock['total']\n    memInfo['mlock']['xdb_pages'] = {}\n    memInfo['mlock']['xdb_pages']['used'] = xdb_pages['used']\n    memInfo['mlock']['xdb_pages']['available'] = xdb_pages['available']\n    memInfo['mlock']['xdb_pages']['total'] = xdb_pages['total']\n    memInfo['mlock']['transport_pages'] = {}\n    memInfo['mlock']['transport_pages']['used'] = transport_pages['used']\n    memInfo['mlock']['transport_pages']['available'] = transport_pages['available']\n    memInfo['mlock']['transport_pages']['total'] = transport_pages['total']\n\n    memInfo['malloc'] = {}\n    memInfo['malloc']['used'] = malloc['total_used']\n    memInfo['malloc']['total'] = malloc['total']\n    return memInfo\n\ndef mem_info_json_string(cfgPath=\"/etc/xcalar/default.cfg\"):\n    return str(mem_info(cfgPath)).replace(\"'\", \"\\\"\")\n\ndef main(a):\n    return mem_info_json_string(cfgPath=\"/etc/xcalar/default.cfg\")";
+                XcalarAppSet("mem2", "Python", "", str)
+                .then(function() {
+                    hasSetApp = true;
+                    innerDeferred.resolve();
+                })
+                .fail(innerDeferred.reject);
+            }
 
             return innerDeferred.promise();
         }
@@ -144,7 +183,6 @@ window.Support = (function(Support, $) {
                     var tableInfo = nodeInfo.mlock.xdb_pages;
                     var tableUsage = tableInfo.used / tableInfo.total;
                     shouldAlert = handleMemoryUsage(tableUsage, true);
-
                     if (shouldAlert) {
                         // stop looping
                         return false;
@@ -203,45 +241,16 @@ window.Support = (function(Support, $) {
             return shouldAlert;
         }
 
-        // XXX now is a fake adapter, will remove it after
-        // wire with backend api
-        function adapter(topInfo, index) {
-            var memUsedInBytes = topInfo.memUsedInBytes;
-            var percentage = topInfo.memUsageInPercent;
-            var totalUsed = Math.ceil(memUsedInBytes / percentage * 100);
-            return {
-                "sys": {
-                    "available": 32047702016,
-                    "total"    : 270195826688,
-                    "used"     : 238148124672
-                },
-                // for ds?
-                "malloc": {
-                    "total"            : 108078333952,
-                    "used"             : 1,
-                    "used_by_usrnode"  : 10858942464,
-                    "used_by_childnode": 17939521536
-                },
-                "hostName": "node" + (index + 1),
-                "swap"    : {
-                    "available": 198080679936,
-                    "total"    : 199999090688,
-                    "used"     : 1918410752
-                },
-                "mlock": {
-                    "transport_pages": {
-                        "available": 545443840,
-                        "total"    : 545443840,
-                        "used"     : 0
-                    },
-                    "total"    : 162117492736,
-                    "xdb_pages": {
-                        "available": totalUsed - memUsedInBytes,
-                        "total"    : totalUsed,
-                        "used"     : memUsedInBytes
-                    }
-                }
-            };
+        function adapter(node) {
+            var nodeInfo = node[0];
+
+            try {
+                nodeInfo = JSON.parse(node[0]);
+            } catch (error) {
+                throw error;
+            }
+
+            return nodeInfo;
         }
     };
 
