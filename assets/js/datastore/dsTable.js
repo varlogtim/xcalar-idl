@@ -37,6 +37,7 @@ window.DSTable = (function($, DSTable) {
 
         $("#dsTableView").removeClass("xc-hidden");
         $("#dataCartBtn").removeClass("xc-hidden");
+        $dsTableContainer.data("id", dsId);
         DSForm.hide();
 
         // update date part of the table info first to make UI smooth
@@ -156,6 +157,7 @@ window.DSTable = (function($, DSTable) {
         $("#dataCartBtn").addClass("xc-hidden");
         $("#dsListSection").find(".gridItems .grid-unit.active")
                                 .removeClass("active");
+        $dsTableContainer.removeData("id");
     };
 
     DSTable.getId = function() {

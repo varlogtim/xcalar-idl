@@ -634,7 +634,8 @@ window.DS = (function ($, DS) {
         var forceRemove = options.forceRemove || false;
         var dsName = dsObj.getFullName();
         var dsId = dsObj.getId();
-        var isShowDSTable = (DSTable.getId() === dsId);
+        var isShowDSTable = (DSTable.getId() === dsId ||
+                            $("#dsTableContainer").data("id") === dsId);
         var noDeFocus = (options.noDeFocus ||
                         !isShowDSTable ||
                         false);
