@@ -644,14 +644,14 @@ window.JoinView = (function($, JoinView) {
                                                     validTypes);
 
         if (leftColRes.invalid) {
-            columnErrorHandler('left', leftColRes);
+            columnErrorHandler('left', leftColRes, tableIds[0]);
             return false;
         } else {
             var rightColRes = xcHelper.convertFrontColNamesToBack(rCols,
                                                                   tableIds[1],
                                                                   validTypes);
             if (rightColRes.invalid) {
-                columnErrorHandler('right', rightColRes);
+                columnErrorHandler('right', rightColRes, tableIds[1]);
                 return (false);
             }
         }
