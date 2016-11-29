@@ -32,7 +32,7 @@ window.XVM = (function(XVM) {
 
     XVM.getLicenseMode = function() {
         return (licenseMode);
-    }
+    };
 
     XVM.checkVersionMatch = function() {
         var deferred = jQuery.Deferred();
@@ -70,6 +70,11 @@ window.XVM = (function(XVM) {
                     console.log("Frontend's thrift version is: " + versionNum);
                     console.log("Frontend's git SHA is: " + gGitVersion);
                     deferred.reject({error: ThriftTStr.Update});
+                } else if (licKey.expired) {
+                    console.log(licKey);
+                    deferred.reject({error: "Your license has expired on " +
+                                            licenseKey+"!"});
+
                 } else {
                     deferred.resolve();
                 }

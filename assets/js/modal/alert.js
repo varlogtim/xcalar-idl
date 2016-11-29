@@ -302,7 +302,9 @@ window.Alert = (function($, Alert){
             var $adminSupportBtn = xcHelper.supportButton("adminSupport");
             var $supportBtn = xcHelper.supportButton("support");
 
-            if (options.logout) {
+            if (options.expired) {
+                $btnSection.prepend($logoutBtn);
+            } else if (options.logout) {
                 $btnSection.prepend($adminSupportBtn, $logoutBtn, $copySqlBtn,
                                     $supportBtn);
             } else {

@@ -204,7 +204,7 @@ window.StartManager = (function(StartManager, $) {
                     title = ThriftTStr.SetupErr;
                 }
                 // check whether there's another alert that's already on the screen
-                Alert.error(title, error, {"lockScreen": true});
+                Alert.error(title, error, {"lockScreen": true, "expired": true});
                 StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
 

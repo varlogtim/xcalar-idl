@@ -79,13 +79,13 @@ window.UExtAppRunReap = (function(UExtAppRunReap) {
         // Following line calls function in XcalarThrift
         XcalarAppRun(appName, isGlobal, inStr)
         .then(function(result) {
-            var appGroupId = result.output.outputResult.appRunOutput.appGroupId;
+            var appGroupId = result.appGroupId;
             return XcalarAppReap(appName, appGroupId);
         })
         .then(function(result) {
             Alert.error("App Ran!",
                         "Ran and reaped app successfully. Output: " +
-                       JSON.stringify(result.output.outputResult.appReapOutput.outStr));
+                       JSON.stringify(result.outStr));
             deferred.resolve();
         })
         .fail(function() {

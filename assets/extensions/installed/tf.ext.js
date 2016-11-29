@@ -138,7 +138,7 @@ window.UExtTF = (function(UExtTF) {
         .then(function(result) {
             // Get tensorflow results
             // var appGroupId = result.appGroupId;
-            var appGroupId = result.output.outputResult.appRunOutput.appGroupId;
+            var appGroupId = result.appGroupId;
             return XcalarAppReap(appName, appGroupId);
         })
         .then(function(result) {
@@ -147,7 +147,7 @@ window.UExtTF = (function(UExtTF) {
             var innerParsed;
             try {
                 // var outerParsed = JSON.parse(result.outStr);
-                var outerParsed = JSON.parse(result.output.outputResult.appReapOutput.outStr);
+                var outerParsed = JSON.parse(result.outStr);
                 innerParsed = JSON.parse(outerParsed[0]);
             } catch (err) {
                 deferred.reject("Failed to parse extension output.");
@@ -161,7 +161,7 @@ window.UExtTF = (function(UExtTF) {
             logDir = innerParsed.logDir;
 
             // console.log(uniqueTag, exposedLoc, logDir);
-            // console.log(JSON.stringify(result.output.outputResult.appReapOutput.outStr));
+            // console.log(JSON.stringify(result.outStr));
 
             Alert.error("Extension Ran!",
                         "Successfully trained model. Unique Tag:\n" + String(uniqueTag));
@@ -248,7 +248,7 @@ window.UExtTF = (function(UExtTF) {
         .then(function(result) {
             // Get tensorflow results
             // var appGroupId = result.appGroupId;
-            var appGroupId = result.output.outputResult.appRunOutput.appGroupId;
+            var appGroupId = result.appGroupId;
             return XcalarAppReap(appName, appGroupId);
         })
         .then(function(result) {
@@ -257,7 +257,7 @@ window.UExtTF = (function(UExtTF) {
             var innerParsed;
             try {
                 // var outerParsed = JSON.parse(result.outStr);
-                var outerParsed = JSON.parse(result.output.outputResult.appReapOutput.outStr);
+                var outerParsed = JSON.parse(result.outStr);
                 innerParsed = JSON.parse(outerParsed[0]);
             } catch (err) {
                 deferred.reject("Failed to parse extension output.");
@@ -271,7 +271,7 @@ window.UExtTF = (function(UExtTF) {
             logDir = innerParsed.logDir;
 
             // console.log(uniqueTag, exposedLoc, logDir);
-            // console.log(JSON.stringify(result.output.outputResult.appReapOutput.outStr));
+            // console.log(JSON.stringify(result.outStr));
             Alert.error("Extension Ran!",
                         "Successfully tested model. Unique Tag:\n" + String(uniqueTag));
 

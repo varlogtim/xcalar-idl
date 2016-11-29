@@ -3494,13 +3494,10 @@ function XcalarAppExecute(name, isGlobal, inStr) {
 
     XcalarAppRun(name, isGlobal, inStr)
     .then(function(ret) {
-        var appGroupId = ret.output.outputResult.appRunOutput.appGroupId;
+        var appGroupId = ret.appGroupId;
         return XcalarAppReap(name, appGroupId);
     })
-    .then(function(reapRet) {
-        var res = reapRet.output.outputResult.appReapOutput;
-        deferred.resolve(res);
-    })
+    .then(deferred.resolve)
     .fail(deferred.reject);
 
     return deferred.promise();
