@@ -1274,6 +1274,28 @@ table.datasetTable {
 /* a specail case */
 #datastore-in-view {
     .advanceSection {
+        .advanceOption.interactive {
+            .limit {
+                height: 40px;
+
+                .radioButtonGroup {
+                    height: 30px;
+                }
+
+                [data-option="default"] {
+                    display: none;
+                }
+
+                .radio, .radioText {
+                    display: none;
+                }
+
+                .inputWrap {
+                    margin-left: 0;
+                }
+            }
+        }
+
         .listInfo {
             margin-bottom: 20px;
 

@@ -269,7 +269,8 @@ ErrWRepTStr = {
     'OutputNotExists': '<name> no longer exists.',
     'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
     'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
-                        ' and followed by the name'
+                        ' and followed by the name',
+    'InvalidSampleSize': 'Maxmium dataset size is <size>.'
 };
 
 TipsTStr = {

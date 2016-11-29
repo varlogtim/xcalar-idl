@@ -528,6 +528,10 @@ window.DSPreview = (function($, DSPreview) {
 
         var loadURL = loadArgs.getPath();
         var advanceArgs = advanceOption.getArgs();
+        if (advanceArgs == null) {
+            return PromiseHelper.reject("Checking Invalid");
+        }
+
         var pattern = advanceArgs.pattern;
         var isRecur = advanceArgs.isRecur;
         var isRegex = advanceArgs.isRegex;

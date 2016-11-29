@@ -150,6 +150,10 @@ window.UserSettings = (function($, UserSettings) {
         userPrefs = new UserPref();
         hasDSChange = false;
         addEventListeners();
+
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
+            $("#monitorDsSampleInput").find("li:contains(TB)").hide();
+        }
     }
 
     // not used but may be in the future
@@ -221,18 +225,14 @@ window.UserSettings = (function($, UserSettings) {
             "onSelect": function($li) {
                 var $input = $li.closest(".dropDownList").find(".unit");
                 $input.val($li.text());
-                var size = getDsSampleLimitValue();
-                UserSettings.setPref("DsDefaultSampleSize", size, true);
-                updateDsPreviewLimitInput(size);
+                updateDsPreviewLimitInput();
             },
             "container": $("#monitorGenSettingsCard"),
             "bounds"   : $("#monitor-settings")
         }).setupListeners();
 
         $dsSampleLimit.on('change', '.size', function() {
-            var size = getDsSampleLimitValue();
-            UserSettings.setPref("DsDefaultSampleSize", size, true);
-            updateDsPreviewLimitInput(size);
+            updateDsPreviewLimitInput();
         });
 
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
@@ -258,11 +258,22 @@ window.UserSettings = (function($, UserSettings) {
         });
     }
 
-    function updateDsPreviewLimitInput(size) {
-        var advanceOption = DSPreview.getAdvanceOption();
-        advanceOption.modify({
-            previewSize: size
-        });
+    function updateDsPreviewLimitInput() {
+        var $dsSampleLimit = $('#monitorDsSampleInput');
+        var size = getDsSampleLimitValue();
+        var error = DataStore.checkSampleSize(size);
+        if (error != null) {
+            StatusBox.show(error, $dsSampleLimit, false);
+
+            var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
+            setDsSampleLimitValue(dsSampleLimit);
+        } else {
+            UserSettings.setPref("DsDefaultSampleSize", size, true);
+            var advanceOption = DSPreview.getAdvanceOption();
+            advanceOption.modify({
+                previewSize: size
+            });
+        }
     }
            
     function restoreSettingsPanel() {

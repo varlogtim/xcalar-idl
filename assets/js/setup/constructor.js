@@ -1032,6 +1032,11 @@ UserPref.prototype = {
 // dsForm.js and fileBrowser.js
 function DSFormAdvanceOption($section, container) {
     this.$section = $section;
+    this.isInteractiveMod = (XVM.getLicenseMode() === XcalarMode.Mod);
+    if (this.isInteractiveMod) {
+        $section.addClass(XcalarMode.Mod);
+        $section.find(".limit li:contains(TB)").hide();
+    }
 
     // add event listener
     $section.on("click", ".listInfo .expand, .listInfo .text", function() {
@@ -1105,6 +1110,9 @@ DSFormAdvanceOption.prototype = {
         if (previewSize != null && previewSize > 0) {
             hasSet = true;
             $limit.find(".radioButton[data-option='custom']").click();
+        } else if (this.isInteractiveMod) {
+            $limit.find(".radioButton[data-option='custom']").click();
+            previewSize = UserSettings.getPref('DsDefaultSampleSize');
         } else {
             $limit.find(".radioButton[data-option='default']").click();
             previewSize = UserSettings.getPref('DsDefaultSampleSize');
@@ -1112,8 +1120,8 @@ DSFormAdvanceOption.prototype = {
 
         this._changePreivewSize(previewSize);
 
-        if (hasSet && !$section.hasClass("active")) {
-            $section.find(".listInfo .expand").click();
+        if (hasSet) {
+            this._expandSection();
         }
     },
 
@@ -1139,27 +1147,39 @@ DSFormAdvanceOption.prototype = {
         }
     },
 
+    _expandSection: function() {
+        var $section = this.$section;
+        if (!$section.hasClass("active")) {
+            $section.find(".listInfo .expand").click();
+        }
+    },
+
     getArgs: function() {
         var $section = this.$section;
         var $limit = $section.find(".option.limit");
-        var $radioButton = $limit.find(".radioButton[data-option='custom']");
+        var $customBtn = $limit.find(".radioButton[data-option='custom']");
         var previewSize = 0; // default size
         var size = "";
         var unit = "";
 
-        if ($radioButton.hasClass("active")) {
+        if ($customBtn.hasClass("active")) {
             size = $limit.find(".size").val();
             var $unit = $limit.find(".unit");
             unit = $unit.val();
             // validate preview size
             if (size !== "" && unit === "") {
-                if (!$section.hasClass("active")) {
-                    $section.find(".listInfo .expand").click();
-                }
+                this._expandSection();
                 StatusBox.show(ErrTStr.NoEmptyList, $unit, false);
                 return null;
             }
             previewSize = xcHelper.getPreviewSize(size, unit);
+
+            var error = DataStore.checkSampleSize(previewSize);
+            if (error != null) {
+                this._expandSection();
+                StatusBox.show(error, $unit, false);
+                return null;
+            }
         }
 
         var $pattern = $section.find(".option.pattern");

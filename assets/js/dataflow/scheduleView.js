@@ -208,7 +208,7 @@ window.Scheduler = (function(Scheduler, $) {
     Scheduler.showNewScheduleFormView = function () {
         resetCreateNewScheduleForm();
         $newScheduleForm.removeClass("xc-hidden");
-        if (XVM.getLicenseMode() === "interactive") {
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
             lockCard();
         } else {
             unlockCard();
