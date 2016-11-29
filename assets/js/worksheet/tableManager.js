@@ -1658,23 +1658,23 @@ window.TblManager = (function($, TblManager) {
             }
         }, ".tableTitle .text");
 
-        $xcTheadWrap.on({
-            "focus": function() {
-                var $tableName = $(this);
-                updateTableNameWidth($tableName);
-                moveTableTitles();
-            },
-            "blur": function() {
-                var tableId = $xcTheadWrap.data("id");
-                updateTableHeader(tableId);
-                moveTableTitles();
-            },
-            "input": function() {
-                var $tableName = $(this);
-                updateTableNameWidth($tableName);
-                moveTableTitles($tableName.closest('.xcTableWrap'));
-            }
-        }, ".tableTitle .tableName");
+        // $xcTheadWrap.on({
+        //     "focus": function() {
+        //         var $tableName = $(this);
+        //         updateTableNameWidth($tableName);
+        //         moveTableTitles();
+        //     },
+        //     "blur": function() {
+        //         var tableId = $xcTheadWrap.data("id");
+        //         updateTableHeader(tableId);
+        //         moveTableTitles();
+        //     },
+        //     "input": function() {
+        //         var $tableName = $(this);
+        //         updateTableNameWidth($tableName);
+        //         moveTableTitles($tableName.closest('.xcTableWrap'));
+        //     }
+        // }, ".tableTitle .tableName");
 
         // trigger open table menu on .dropdownBox click
         $xcTheadWrap.on('click', '.dropdownBox', function(event) {
@@ -1758,7 +1758,7 @@ window.TblManager = (function($, TblManager) {
         var tableName = xcHelper.getTableName(fullTableName);
         var nameHtml =
             '<input type="text" class="tableName" value="' + tableName + '" ' +
-            ' autocorrect="off" spellcheck="false">' +
+            ' autocorrect="off" spellcheck="false" readonly>' +
             '<span class="hashName">#' +
                 tableId +
             '</span>';
