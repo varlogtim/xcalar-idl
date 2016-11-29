@@ -23,8 +23,17 @@ var hostFile = '/config/privHosts.txt';
 
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
-var timeout = 25000;
-var multiFactor = 5;
+
+// timeout for waiting the command to be executed
+var timeoutBase = 30000;
+var timeout = 30000;
+// XI need to wait for the master node response, master node need
+// to wait for all slave node responses, slave node need to wait
+// for execution to stop. The higher layer should wait longer.
+var expendFactor = 1.2;
+// the timeout may change due to the network speed
+var networkFactor = 5;
+// for monitorRecentLogs(), do not want to wait to long
 var monitorFactor = 0.05;
 var tailUsers = new Map();
 
@@ -52,7 +61,7 @@ function readHostsFromFile(hostFile) {
 function setTimeOut(time, res) {
     console.log("time", time)
     var deferred = jQuery.Deferred();
-    if (time >= timeout && time <= timeout * multiFactor) {
+    if (time >= timeoutBase && time <= timeoutBase * networkFactor) {
         timeout = time;
         res.send({"status": Status.Ok,
                   "logs": "Set new timeout " + time
@@ -60,8 +69,8 @@ function setTimeOut(time, res) {
         deferred.resolve();
     } else {
         res.send({"status": Status.Error,
-                  "logs": "Please Enter timeout between " + timeout + " and "
-                          + timeout * multiFactor});
+                  "logs": "Please Enter timeout between " + timeoutBase + " and "
+                          + timeoutBase * networkFactor});
         deferred.reject();
     }
 }
@@ -161,7 +170,7 @@ function sendCommandToSlaves(action, str, hosts) {
             url: "http://" + hostName + "/app" + action,
             // If one node fails for monitoring logs, we may still want to read
             // the logs from other logs, should not wait too long
-            timeout: action == "/monitorLogs/slave" ? timeout * monitorFactor : timeout,
+            timeout: action == "/monitorLogs/slave" ? timeout * monitorFactor : timeout * expendFactor,
             success: function(data) {
                 var ret = data;
                 var retMsg;
@@ -356,7 +365,6 @@ function executeCommand(command, res) {
     var isClose = false;
 
     intervalID = timer.setTimeout(function(){
-        console.log("Over time!");
         if (!isSend && res) {
             var result;
             result = {"status": isComplete(command, lines) ? Status.Ok :
@@ -513,7 +521,6 @@ function submitTicket(contents, res) {
 function hasLogFile(filePath) {
     var deferred = jQuery.Deferred();
     fs.access(filePath, function(err) {
-        console.log("err", err)
         if (!err) {
             deferred.resolve();
             return;
