@@ -22,8 +22,8 @@ window.DF = (function($, DF) {
         })
         .then(function() {
             dataflows = {}; // Reset dataflow cache
-            var retStructs = arguments;
-            for (var i = 0; i<arguments.length; i++) {
+            // var retStructs = arguments;
+            for (var i = 0; i < arguments.length; i++) {
                 if (arguments[i] == null) {
                     continue;
                 }
@@ -34,7 +34,7 @@ window.DF = (function($, DF) {
                 dataflows[retName].retinaNodes = arguments[i].retina.retinaDag
                                                                     .node;
                 var nodes = {};
-                for (j = 0; j<dataflows[retName].retinaNodes.length; j++) {
+                for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
                     nodes[dataflows[retName].retinaNodes[j].name.name] =
                                     dataflows[retName].retinaNodes[j].dagNodeId;
                 }
@@ -42,12 +42,12 @@ window.DF = (function($, DF) {
 
                 // Populate export column information
                 dataflows[retName].columns = [];
-                for (j = 0; j<dataflows[retName].retinaNodes.length; j++) {
+                for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
                     if (dataflows[retName].retinaNodes[j].api ===
                         XcalarApisT.XcalarApiExport) {
                         var exportCols = dataflows[retName].retinaNodes[j].input
                                                       .exportInput.meta.columns;
-                        for (var k = 0; k<exportCols.length; k++) {
+                        for (var k = 0; k < exportCols.length; k++) {
                             var newCol = {};
                             newCol.frontCol = exportCols[k].headerAlias;
                             newCol.backCol = exportCols[k].name;
@@ -64,7 +64,7 @@ window.DF = (function($, DF) {
             // updateParameterizedNode requires dag to be printed since it
             // directly modifies the css for the node
             if (ret) {
-                for (var i = 0; i<arguments.length; i++) {
+                for (var i = 0; i < arguments.length; i++) {
                     if (arguments[i] == null) {
                         continue;
                     }
@@ -115,10 +115,10 @@ window.DF = (function($, DF) {
 
     DF.addDataflow = function(dataflowName, dataflow, options) {
         var isUpload = false;
-        var noClick = false;
+        // var noClick = false;
         if (options) {
             isUpload = options.isUpload;
-            noClick = options.noClick;
+            // noClick = options.noClick;
         }
         var deferred = jQuery.Deferred();
         dataflows[dataflowName] = dataflow;
@@ -156,58 +156,61 @@ window.DF = (function($, DF) {
         .then(function() {
             delete dataflows[dataflowName];
             DFCard.deleteDF(dataflowName);
-            return (KVStore.commit());
+            return saveHelper();
         })
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function() {
-            deferred.reject();
-        });
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
         return deferred.promise();
+
+        function saveHelper() {
+            var innerDeferred = jQuery.Deferred();
+            KVStore.commit()
+            .always(innerDeferred.resolve);
+
+            return innerDeferred.promise();
+        }
     };
 
     // For addining. modifying and removing the schedule
-     DF.getSchedule = function(dataflowName) {
+    DF.getSchedule = function(dataflowName) {
         var dataflow = dataflows[dataflowName];
-        if(dataflow) {
+        if (dataflow) {
             return dataflow.schedule;
         }
     };
 
     DF.addScheduleToDataflow = function(dataflowName, options) {
         var dataflow = dataflows[dataflowName];
-        if(dataflow) {
-            if(!dataflow.schedule) {
+        if (dataflow) {
+            if (!dataflow.schedule) {
                 dataflow.schedule = new SchedObj(options);
             } else {
                 var schedule = dataflow.schedule;
                 schedule.update(options);
             }
-            console.log("Add it successfully!")
         } else {
-            console.log("No such dataflow exist!");
+            console.warn("No such dataflow exist!");
         }
         KVStore.commit();
     };
 
     DF.removeScheduleFromDataflow = function(dataflowName) {
         var dataflow = dataflows[dataflowName];
-        if(dataflow) {
+        if (dataflow) {
             dataflow.schedule = null;
-            console.log("Remove it successfully!")
         } else {
-            console.log("No such dataflow exist!");
+            console.warn("No such dataflow exist!");
         }
         KVStore.commit();
     };
 
     DF.hasSchedule = function(dataflowName) {
         var dataflow = dataflows[dataflowName];
-        if(dataflow) {
+        if (dataflow) {
             return dataflow.hasSchedule();
         } else {
-            console.log("No such dataflow exist!");
+            console.warn("No such dataflow exist!");
             return false;
         }
     };
@@ -217,7 +220,6 @@ window.DF = (function($, DF) {
     };
 
     function createRetina(retName) {
-        var deferred = jQuery.Deferred();
         var df = dataflows[retName];
         var tableName = df.tableName;
         var columns = [];
@@ -239,7 +241,7 @@ window.DF = (function($, DF) {
         retinaDstTable.columns = columns;
         tableArray.push(retinaDstTable);
 
-        return (XcalarMakeRetina(retName, tableArray));
+        return XcalarMakeRetina(retName, tableArray);
     }
 
     // called after retina is created to update the ids of dag nodes

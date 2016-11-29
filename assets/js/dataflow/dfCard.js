@@ -218,7 +218,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function addListeners() {
-        $dfMenu.on('click', '.refreshBtn', function(event, options) {
+        $dfMenu.on('click', '.refreshBtn', function() {
             var dfKey = KVStore.gEphStorageKey;
             xcHelper.showRefreshIcon($(".dfgList"));
             KVStore.get(dfKey)
@@ -362,15 +362,13 @@ window.DFCard = (function($, DFCard) {
             // Click on top most retina
             if ($dfMenu.find(".listBox").eq(0)) {
                 $dfMenu.find(".listBox").eq(0).click();
-            } else {
-
             }
             xcHelper.showSuccess();
             deferred.resolve();
         })
-        .fail(function() {
+        .fail(function(error) {
             xcHelper.showFail();
-            deferred.reject();
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -680,7 +678,7 @@ window.DFCard = (function($, DFCard) {
         for (var dataflow in dataflows) {
             numGroups++;
             var icon = "";
-            if(DF.hasSchedule(dataflow)) {
+            if (DF.hasSchedule(dataflow)) {
                 icon = "xi-menu-scheduler";
             } else {
                 icon = "xi-menu-add-scheduler";
