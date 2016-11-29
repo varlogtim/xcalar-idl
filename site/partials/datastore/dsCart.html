@@ -64,9 +64,13 @@
     <div id="dataCart">
       <% if (dicts.tutor.name == "datastoreDemo2") { %>
       <div class="selectedTable" data-dsid="John Smith.yelpUsers">
-        <div class="cartTitleArea" data-introstep="w3-newTableName">
-          <input class="tableNameEdit textOverflow" type="text" spellcheck="false" value="yelpUsers">
-          <i class="icon xi-edit fa-15 xc-action"></i>
+        <div class="cartTitleArea tableTitle" data-introstep="w3-newTableName">
+          <div class="subTitle">Table Name</div>
+          <div class="input">
+            <input class="tableNameEdit textOverflow" type="text" spellcheck="false" value="yelpUsers">
+            <i class="icon edit xi-edit fa-15 xc-action"></i>
+            <div class="action"><i class="expand icon xi-down fa-15 xc-action" data-container="body" data-toggle="tooltip" title="Show Advanced Option"></i><i class="collapse icon xi-up fa-15 xc-action" data-container="body" data-toggle="tooltip" title="Hide Advanced Option"></i></div>
+          </div>
         </div>
         <div class="cartEmptyHint xc-hidden">No Columns Selected</div>
         <ul data-introstep="w3-selectedCol">

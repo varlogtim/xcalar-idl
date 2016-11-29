@@ -24,16 +24,20 @@ destMap = {
     "undoredoTest.html": "undoredoTest.html"
 };
 
+var noPrettify = ["datastoreDemo1.html", "datastoreDemo2.html", "workbookDemo.html"];
+
 htmlMinOptions = {};
 
 count = 0;
 for (var src in destMap) {
   var dest = destMap[src];
-  prettifyOptions["html" + count] = {
-    "src": dest,
-    "dest": dest
-  };
-  count++;
+  if (noPrettify.indexOf(src) === -1) {
+    prettifyOptions["html" + count] = {
+      "src": dest,
+      "dest": dest
+    };
+    count++;
+  }
 
   htmlMinOptions[dest] = dest;
 }
@@ -76,7 +80,8 @@ module.exports = function(grunt) {
       dist: {                                      // Target
         options: {                                 // Target options
           removeComments: true,
-          collapseWhitespace: true
+          collapseWhitespace: true,
+          preserveLineBreaks: true
         },
         // files: {                                   // Dictionary of files
         //   'index.html': 'index.html',     // 'destination': 'source'
