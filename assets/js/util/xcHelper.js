@@ -263,7 +263,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.getUserPrefix = function() {
-        return "." + Support.getUser();
+        return Support.getUser();
     };
 
     xcHelper.wrapDSName = function(dsName) {
