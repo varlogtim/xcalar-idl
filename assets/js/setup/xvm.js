@@ -11,6 +11,8 @@ window.XVM = (function(XVM) {
     var versionKey = "xcalar-version";
     var backendVersion = "";
     var licenseKey = "";
+    var licenseMode = XcalarMode.Mod; // interactive or operational
+    //var licenseMode = XcalarMode.Oper;
 
     XVM.getVersion = function() {
         return (fullVersion);
@@ -27,6 +29,10 @@ window.XVM = (function(XVM) {
     XVM.getLicenseKey = function() {
         return (licenseKey);
     };
+
+    XVM.getLicenseMode = function() {
+        return (licenseMode);
+    }
 
     XVM.checkVersionMatch = function() {
         var deferred = jQuery.Deferred();
@@ -48,6 +54,14 @@ window.XVM = (function(XVM) {
                     var d = new Date(0);
                     d.setUTCSeconds(utcSeconds);
                     licenseKey = d.toDateString();
+                    // if (licKey.mode === modeling) {
+                    //     licenseMode = XcalarMode.Mod;
+                    // } else if (licKey.mode === operational) {
+                    //     licenseMode = XcalarMode.Oper;
+                    // } else {
+                    //     console.error("Illegal op mode");
+                    //     licenseMode = XcalarMode.Mod;
+                    // }
                 }
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                     console.log("Thrift version mismatch! Backend's thrift " +

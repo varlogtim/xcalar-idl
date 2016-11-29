@@ -84,6 +84,7 @@ TooltipTStr = {
     'ParamValNoChange': 'This parameter value cannot be changed',
     // Sync with htmlTStr
     "IcvRestriction": 'ICV only available for Map and Group By',
+    "OnlyInOpMode": "Feature only available in Operational mode",
 
     // with replace
     'CollapsedTables': '<number> tables are collapsed',

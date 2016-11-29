@@ -9,6 +9,7 @@ window.DFCard = (function($, DFCard) {
     var $retTabSection; // $dfCard.find('.retTabSection');
     var $retLists;      // $("#retLists");
     var canceledRuns = {};
+    var xdpMode = XcalarMode.Mod;
 
     var retinaTrLen = 7;
     var retinaTr = '<div class="row unfilled">' +
@@ -36,6 +37,7 @@ window.DFCard = (function($, DFCard) {
         $header = $dfCard.find('.cardHeader h2');
         $retTabSection = $dfCard.find('.retTabSection');
         $retLists = $("#retLists");
+        xdpMode = XVM.getLicenseMode();
 
         addListeners();
         setupDagDropdown();
@@ -120,6 +122,8 @@ window.DFCard = (function($, DFCard) {
     }
 
     function setupRetinaTab() {
+        $(".tabWrap").addClass(XcalarMode.Mod);
+
         $dfView.on("mousedown", function(event) {
             var $target = $(event.target);
             if ($target.closest('#statusBox').length) {
@@ -138,6 +142,9 @@ window.DFCard = (function($, DFCard) {
 
         // toggle open retina pop up
         $retTabSection.on('mousedown', '.retTab', function(event) {
+            if (xdpMode === XcalarMode.Mod) {
+                return showLicenseTooltip(this);
+            }
             event.stopPropagation();
             var $tab = $(this);
             if ($tab.hasClass('active')) {
@@ -321,6 +328,9 @@ window.DFCard = (function($, DFCard) {
         });
 
         $dfCard.on("click", ".runNowBtn", function() {
+            if (xdpMode === XcalarMode.Mod) {
+                return showLicenseTooltip(this);
+            }
             var $btn = $(this);
             var retName = $("#dfgMenu .listSection")
                                 .find(".selected .groupName").text();
@@ -345,6 +355,9 @@ window.DFCard = (function($, DFCard) {
 
         var optsSelector = ".advancedOpts > .text, .advancedOpts > .icon";
         $dfCard.on("click", optsSelector, function() {
+            if (xdpMode === XcalarMode.Mod) {
+                return showLicenseTooltip(this);
+            }
             $(this).closest(".advancedOpts").toggleClass("active");
         });
 
@@ -404,7 +417,7 @@ window.DFCard = (function($, DFCard) {
                         dataflowName +
                     '</span>' +
                 '</div>' +
-                '<button class="runNowBtn btn btn-small iconBtn" ' +
+                '<button class="runNowBtn btn btn-small iconBtn ' + xdpMode + '" ' +
                 'data-toggle="tooltip" data-container="body" ' +
                 'data-placement="top" data-original-title="' +
                 DFTStr.Run + '">' +
@@ -412,7 +425,7 @@ window.DFCard = (function($, DFCard) {
                     '<i class="icon xi-close"></i>' +
                     '<div class="spin"></div>' +
                 '</button>' +
-                '<div class="advancedOpts">' +
+                '<div class="advancedOpts ' + xdpMode + '">' +
                     '<span class="text">' + DFTStr.AdvancedOpts + '</span>' +
                     '<i class="icon fa-10 xi-arrow-down xc-action"></i>' +
                     '<div class="optionBox radioButtonGroup">' +
@@ -991,6 +1004,12 @@ window.DFCard = (function($, DFCard) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function showLicenseTooltip(elem) {
+        xcTooltip.add($(elem), {"title": TooltipTStr.OnlyInOpMode});
+        xcTooltip.refresh($(elem));
+        console.log("Wrong license type");
     }
 
     /* Unit Test Only */

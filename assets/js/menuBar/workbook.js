@@ -94,7 +94,7 @@ window.Workbook = (function($, Workbook) {
         }
         $workbookPanel.addClass('hidden');
         $workbookSection.find('.workbookBox').remove();
-        
+
         if (immediate) {
             $workbookPanel.hide();
             $('#container').removeClass('workbookMode');

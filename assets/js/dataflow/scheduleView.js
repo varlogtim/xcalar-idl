@@ -208,6 +208,11 @@ window.Scheduler = (function(Scheduler, $) {
     Scheduler.showNewScheduleFormView = function () {
         resetCreateNewScheduleForm();
         $newScheduleForm.removeClass("xc-hidden");
+        if (XVM.getLicenseMode() === "interactive") {
+            lockCard();
+        } else {
+            unlockCard();
+        }
     };
 
     Scheduler.showScheduleDetailView = function () {
@@ -228,6 +233,15 @@ window.Scheduler = (function(Scheduler, $) {
     Scheduler.hideNewScheduleFormView = function () {
         $newScheduleForm.addClass("xc-hidden");
     };
+
+    function lockCard() {
+        $newScheduleForm.find(".cardLocked").height($newScheduleForm.height());
+        $newScheduleForm.find(".cardLocked").show();
+    }
+
+    function unlockCard() {
+        $newScheduleForm.find(".cardLocked").hide();
+    }
 
     function newScheduleIcon (dataflowName) {
         $span = $("span").filter(function() { return ($(this).text() === dataflowName);});

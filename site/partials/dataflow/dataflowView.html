@@ -45,6 +45,7 @@
 
     <!-- Schedule -->
   <div id="newScheduleForm" class="scheduleForm cardContainer">
+    <div class="cardLocked" data-original-title="<%= dicts.TooltipTStr.OnlyInOpMode %>" data-placement="bottom" data-container="body" data-toggle="tooltip"></div>
     <header class="cardHeader">
       <div class="title"><%= dicts.sched.newSched %></div>
       <div class="close"><i class="icon xi-close fa-15"></i></div>
@@ -412,7 +413,7 @@
             <!-- <input type="number" spellcheck="false" placeholder="<%= dicts.sched.numRunHint %>"> -->
             <input type="number" spellcheck="false">
           </div>
-        </div> 
+        </div>
       </section>
       <!-- <section class="buttonArea"> -->
       <section class="cardBottom">
@@ -455,7 +456,7 @@
             <div class="tableContainer">
               <div id="retLists" class="tableWrapper"></div>
             </div>
-          </div> 
+          </div>
           <!-- End of retPopUp -->
         </div>
       </div>

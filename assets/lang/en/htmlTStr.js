@@ -234,6 +234,7 @@ module.exports = {
         "IcvRestriction": "ICV only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Aggregates",
+        "OnlyInOpMode": "Feature only available in Operational mode",
         "ChooseUdfModule": 'Please choose a module first' // used in jststr
     },
 

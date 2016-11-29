@@ -218,6 +218,11 @@ window.Support = (function(Support, $) {
             } else {
                 $memoryAlert.removeClass("red").removeClass("yellow");
             }
+            // XXX Remove following if clause when ds memory is fixed
+            if (!isTable) {
+                shouldAlert = false;
+                $memoryAlert.removeClass("red").removeClass("yellow");
+            }
 
             if (shouldAlert) {
                 var text;

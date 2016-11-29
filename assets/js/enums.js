@@ -305,3 +305,8 @@ var SQLOps = {
     MarkPrefix: "markPrefix",
     Replay: "Replay"
 };
+
+var XcalarMode = {
+    Oper: "operational",
+    Mod: "interactive"
+};
