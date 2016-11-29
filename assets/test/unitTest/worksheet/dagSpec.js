@@ -127,6 +127,7 @@ describe('Dag', function() {
 
                 $dagPanel.css('top', '20%');
                 $dagPanel.find('.dagArea').css('height', 'calc(80% - 5px)');
+                $('#maximizeDag').removeClass('unavailable');
                 var panelHeight = $dagPanel.height();
 
                 expect(parseInt($dagPanel.css('top'))).to.equal(Math.floor(panelHeight * .2));
@@ -288,13 +289,12 @@ describe('Dag', function() {
             describe('middle table', function() {
                 // test right-most table
                 it('menu should open', function() {
-                    $dagPanel.find('.dagTable .dagTableIcon').eq(0).click();
+                    $dagPanel.find('.dagImage').last().find('.dagTable .dagTableIcon').eq(0).click();
                     expect($menu.is(":visible")).to.be.true;
                     expect($menu.find('li:visible').length).to.equal(7);
                     expect($menu.find('li.unavailable:visible').length).to.equal(2);
                     expect($menu.find('li.deleteTableDescendants').hasClass('unavailable')).to.be.true;
                     expect($menu.find('li.generateIcv').hasClass('unavailable')).to.be.true;
-                    console.log($menu.find('li:visible').text());
                     expect($menu.find('li.addTable').is(":visible")).to.be.true;
                     expect($menu.find('li.revertTable').is(":visible")).to.be.true;
                     expect($menu.find('li.archiveTable').is(":visible")).to.be.false;

@@ -174,6 +174,7 @@ describe('AlertModal', function() {
         $modalBg.removeClass("locked");
         $alertModal.removeClass("locked");
         $alertModal.find(".close").click();
+        $("#container").removeClass('locked');
         assert.isFalse($alertModal.is(":visible"));
     });
 

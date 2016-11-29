@@ -258,9 +258,16 @@ describe('DFCreateView', function() {
     });
 
     after(function(done) {
-        UnitTest.deleteAll(tableName, testDs)
-        .always(function() {
-            done();
-        });
+        $("#maximizeDag").click();
+        setTimeout(function() {
+            $("#closeDag").click();
+            setTimeout(function() {
+                UnitTest.deleteAll(tableName, testDs)
+                .always(function() {
+                    done();
+                });
+            }, 100);
+        }, 400);
+        
     });
 });

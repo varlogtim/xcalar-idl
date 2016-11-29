@@ -129,10 +129,6 @@ window.UnitTest = (function(UnitTest, $) {
         $("#dataStoresTab").click();
         if (!$("#inButton").hasClass('active')) {
             $("#inButton").click();
-            // make sure panel is open and we didn't just close it
-            if (!$("#datastoreMenu").is(":visible")) {
-                $("#inButton").click();
-            }
         }
 
         TestSuite.__testOnly__.loadDS(dsName, url, pointCheck)
@@ -147,10 +143,9 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.addTable = function(dsName) {
         var deferred = jQuery.Deferred();
 
-        if (!$("#inButton").hasClass('active')) {
-            $("#inButton").click();
-            // make sure panel is open and we didn't just close it
-            if (!$("#datastoreMenu").is(":visible")) {
+        if (!$("#dataStoresTab").hasClass("active")) {
+            $("#dataStoresTab").click();
+            if (!$("#inButton").hasClass('active')) {
                 $("#inButton").click();
             }
         }
