@@ -6,7 +6,7 @@ window.xcFunction = (function($, xcFunction) {
         "Full Outer Join" : JoinOperatorT.FullOuterJoin
     };
 
-    // filter table column
+    // filter table column, returns resulting table name
     xcFunction.filter = function(colNum, tableId, fltOptions) {
         var deferred = jQuery.Deferred();
 
@@ -58,7 +58,7 @@ window.xcFunction = (function($, xcFunction) {
                 "msgTable": xcHelper.getTableId(finalTableName),
                 "sql"     : sql
             });
-            deferred.resolve();
+            deferred.resolve(finalTableName);
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);

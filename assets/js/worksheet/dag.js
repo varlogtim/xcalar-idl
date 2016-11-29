@@ -156,7 +156,7 @@ window.DagPanel = (function($, DagPanel) {
 
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
-                $dagPanel.removeClass('invisible');
+                $dagPanel.removeClass('xc-hidden');
                 $panelSwitch.attr('data-original-title', TooltipTStr.CloseQG);
                 $('.tooltip').hide();
 
@@ -173,9 +173,6 @@ window.DagPanel = (function($, DagPanel) {
                     Dag.focusDagForActiveTable();
                     clickDisabled = true;
                     setTimeout(function() {
-                        // var px = 38 * (dagTopPct / 100);
-                        // $('#mainFrame').height('calc(' + dagTopPct + '% - ' +
-                        //                        px + 'px)');
                         $('#mainFrame').height(dagTopPct + '%');
                         $dagPanel.addClass('noTransform');
                         $dagPanel.css('top', dagTopPct + '%');
@@ -302,11 +299,8 @@ window.DagPanel = (function($, DagPanel) {
                 }
                 dagTopPct = 100 * (dagPanelTop / containerHeight);
 
-                // var px = 38 * (dagTopPct / 100);
                 $dagPanel.css('top', dagTopPct + '%');
-                // $('#mainFrame').height('calc(' + dagTopPct + '% - ' + px + 'px)');
                 $('#mainFrame').height(dagTopPct + '%');
-                // $dagArea.css('height', (100 - dagTopPct) + '%');
                 $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
                 RowScroller.updateViewRange(gActiveTableId);
                 // Refocus on table
@@ -349,7 +343,7 @@ window.DagPanel = (function($, DagPanel) {
             });
 
             clickDisabled = false;
-            $dagPanel.addClass('invisible');
+            $dagPanel.addClass('xc-hidden');
             RowScroller.updateViewRange(gActiveTableId);
 
             if (window.isBrowserMicrosoft) {
@@ -381,11 +375,7 @@ window.DagPanel = (function($, DagPanel) {
         addMenuBehaviors($menu);
         dagTableDropDownActions($menu);
 
-        var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
-                        '.dagTable:not(.dataStore) .tableTitle,' +
-                        '.dagTable:not(.dataStore) .lockIcon';
-
-        $dagPanel.on('click', selection, function(event) {
+        $dagPanel.on('click', '.dagTable:not(.dataStore)', function(event) {
             $('.menu').hide().removeClass('leftColMenu');
             removeMenuKeyboardNavigation();
             $('#dagSchema').hide();
@@ -488,24 +478,11 @@ window.DagPanel = (function($, DagPanel) {
             var $target = $(e.target);
             var $dagWrap = $target.closest('.dagWrap');
 
-            $target = $(e.target).closest('.dagTable:not(.dataStore) .dagTableIcon');
-            var $secondTarget = $(e.target).closest('.dagTable:not(.dataStore) .icon');
-            var $thirdTarget = $(e.target).closest('.dagTable:not(.dataStore)' +
-                                                    ' .tableTitle');
-            var $fourthTarget = $(e.target).closest('.dagTable:not(.dataStore)' +
-                                                    ' .lockIcon');
+            $target = $(e.target).closest('.dagTable:not(.dataStore) ' +
+                                         '.dagTableIcon');
             if ($target.length) {
                 $target.trigger('click');
-                return false;
-            } else if ($secondTarget.length) {
-                $secondTarget.trigger('click');
-                return false;
-            } else if ($thirdTarget.length) {
-                $thirdTarget.trigger('click');
-                return false;
-            } else if ($fourthTarget.length) {
-                $fourthTarget.trigger('click');
-                return false;
+                return false; 
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
                 $('#dagSchema').hide();
@@ -635,16 +612,6 @@ window.DagPanel = (function($, DagPanel) {
                     break;
                 case ('collapseAll'):
                     Dag.collapseAll($dagWrap);
-                    break;
-                case ('archiveTable'):
-                    var table = gTables[dagId];
-                    if (table && table.hasLock()) {
-                        return;
-                    }
-                    TblManager.archiveTables([dagId]);
-                    break;
-                case ('deleteTable'):
-                    deleteTable(dagId, tableName);
                     break;
                 case ('dataflow'):
                     if (!$dagWrap.hasClass('fromRetina')) {
@@ -838,7 +805,6 @@ window.DagPanel = (function($, DagPanel) {
         }
         $('.tooltip').hide();
     }
-
 
 
     function dagTableDropDownActions($menu) {
@@ -1310,12 +1276,12 @@ window.Dag = (function($, Dag) {
             }
             var isWorkspacePanelVisible = $('#workspacePanel')
                                             .hasClass('active');
-            var isDagPanelVisible = !$('#dagPanel').hasClass('invisible');
+            var isDagPanelVisible = !$('#dagPanel').hasClass('xc-hidden');
             if (!isWorkspacePanelVisible) {
                 $('#workspacePanel').addClass('active');
             }
             if (!isDagPanelVisible) {
-                $('#dagPanel').removeClass('invisible');
+                $('#dagPanel').removeClass('xc-hidden');
             }
             var isFromRetina = checkNodeArrayForRetina(dagObj.node);
             var addDFTooltip;
@@ -1415,7 +1381,7 @@ window.Dag = (function($, Dag) {
                 $('#workspacePanel').removeClass('active');
             }
             if (!isDagPanelVisible) {
-                $('#dagPanel').addClass('invisible');
+                $('#dagPanel').addClass('xc-hidden');
             }
             deferred.resolve();
         })

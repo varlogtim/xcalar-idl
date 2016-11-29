@@ -560,7 +560,7 @@ window.StatusMessage = (function($, StatusMessage) {
 
                 $('#workspaceTab').click();
 
-                if (!$('#dagPanel').hasClass('invisible') &&
+                if (!$('#dagPanel').hasClass('xc-hidden') &&
                     $('#dagPanel').css('top') === "0px") {
                     $('#closeDag').click();
                 }

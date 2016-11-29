@@ -51,7 +51,7 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.setup = function() {
         $(document).ready(function() {
             mocha.run();
-            console.log("Setup coder coverage!!!");
+            console.log("Setup code coverage!!!");
         });
 
         $("#toggleXC").click(function() {
@@ -127,6 +127,13 @@ window.UnitTest = (function(UnitTest, $) {
         var url = testDSObj.url;
         var pointCheck = testDSObj.pointCheck || "";
         $("#dataStoresTab").click();
+        if (!$("#inButton").hasClass('active')) {
+            $("#inButton").click();
+            // make sure panel is open and we didn't just close it
+            if (!$("#datastoreMenu").is(":visible")) {
+                $("#inButton").click();
+            }
+        }
 
         TestSuite.__testOnly__.loadDS(dsName, url, pointCheck)
         .then(function() {
@@ -140,12 +147,18 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.addTable = function(dsName) {
         var deferred = jQuery.Deferred();
 
-        if (!$("#dataStoresTab").hasClass("active")) {
-            $("#dataStoresTab").click();
+        if (!$("#inButton").hasClass('active')) {
+            $("#inButton").click();
+            // make sure panel is open and we didn't just close it
+            if (!$("#datastoreMenu").is(":visible")) {
+                $("#inButton").click();
+            }
         }
+        
         // XXX this create table way doesn't make sure
         // creating process is finishing
         // need to refine
+       
         TestSuite.__testOnly__.createTable(dsName)
         .then(function(tableName, prefix) {
             setTimeout(function() {

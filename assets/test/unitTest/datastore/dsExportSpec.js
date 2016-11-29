@@ -16,7 +16,7 @@ describe('DSExport', function() {
 		$targetInput = $targetTypeList.find('input');
 		$form = $("#exportDataForm");
 		$fileFormatMenu = $targetTypeList.find('ul');
-
+		$("#dataStoresTab").click();
 		$("#outButton").click();
 		// make sure panel is open and we didn't just close it
 		if (!$("#datastoreMenu").is(":visible")) {

@@ -526,7 +526,6 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             tableName = $("#dataCart .tableNameEdit").val();
             header = ".tableTitle .tableName[value='" + tableName + "']";
-
             $("#dataCart-submit").click();
             return checkExists(header);
         })

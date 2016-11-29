@@ -46,7 +46,6 @@ window.DataStore = (function($, DataStore) {
             if ($button.hasClass("active")) {
                 return;
             }
-
             var $panel = $("#datastorePanel");
             var $title = $panel.find(".topBar .title");
             var $menu = $("#datastoreMenu");
