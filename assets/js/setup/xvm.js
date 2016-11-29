@@ -1,9 +1,9 @@
 // XVM = Xcalar Version Manager
 window.XVM = (function(XVM) {
-    var majorVersion = "0";
-    var minorVersion = "9";
-    var revisionVersion = "12";
-    var thriftInterfaceVersion = "12";
+    var majorVersion = "1";
+    var minorVersion = "0";
+    var revisionVersion = "1";
+    var thriftInterfaceVersion = "15";
     var kvVersion = "0"; // Currently unused
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
@@ -11,7 +11,8 @@ window.XVM = (function(XVM) {
     var versionKey = "xcalar-version";
     var backendVersion = "";
     var licenseKey = "";
-    var licenseMode = XcalarMode.Mod; // interactive or operational
+    var licenseMode = (window.XcalarMode ? XcalarMode.Mod : "");
+                     // interactive or operational
     //var licenseMode = XcalarMode.Oper;
 
     XVM.getVersion = function() {
@@ -54,6 +55,7 @@ window.XVM = (function(XVM) {
                     var d = new Date(0);
                     d.setUTCSeconds(utcSeconds);
                     licenseKey = d.toDateString();
+                    licenseMode = XcalarMode.Mod;
                     // if (licKey.mode === modeling) {
                     //     licenseMode = XcalarMode.Mod;
                     // } else if (licKey.mode === operational) {
