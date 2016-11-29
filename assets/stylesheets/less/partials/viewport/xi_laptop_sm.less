@@ -38,6 +38,12 @@
     }
 }
 
+@media screen and (max-width: @width-minScreen) {
+    #userBox {
+        left: @width-minScreen - @width-userBox;
+    }
+}
+
 @media screen and (max-width: 1024px) {
     #datastore-out-view .formSection .radioButtonGroup {
         padding-left: 0;
