@@ -107,6 +107,7 @@ CommonTxtTstr = {
     'CopyLog': 'Copy log',
     'Create': 'Create',
     'DefaultVal': 'Default value',
+    'RevertDefaultVal': 'Revert to default value',
     'Exit': 'Exit',
     'GenBundle': 'Generate Bundle',
     'GenBundleDone': 'Bundle Generated',
@@ -500,6 +501,7 @@ MonitorTStr = {
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',
+    'DefaultWithVal': 'Revert to default value: <value>',
     'NodeConfirmMsg': 'Are you sure you want to <type> the cluster?',
     'SwitchUserMsg': 'Are you sure you want to use Xcalar as <username>?'
 };

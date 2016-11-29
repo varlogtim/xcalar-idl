@@ -68,7 +68,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
             if (paramObj) {
                 $nameInput.data('value', paramObj.paramName)
-                          .prop('disabled', true)
+                          .prop('readonly', true)
                           .val(paramObj.paramName);
                 $curValInput.val(paramObj.paramValue);
                 $formRow.addClass('nameIsSet');
@@ -77,15 +77,25 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     if ($newValInput.val() === "") {
                         $newValInput.val(paramObj.paramValue);
                     }
-                    $newValInput.prop('disabled', false).focus();
+                    $newValInput.prop('readonly', false).focus();
                 } else {
                     $formRow.addClass('uneditable');
-                    $newValInput.addClass('disabled')
-                                .prop('disabled', true)
+                    $newValInput.addClass('readonly')
+                                .prop('readonly', true)
                                 .val("");
                     $formRow.find('.defaultParam').addClass('xc-hidden');
                     xcTooltip.enable($newValInput);
                 }
+                var defValTooltip;
+                if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
+                    defValTooltip = xcHelper.replaceMsg(
+                                                MonitorTStr.DefaultWithVal,
+                                                {value: paramObj.defaultValue});
+                } else {
+                    defValTooltip = CommonTxtTstr.RevertDefaultVal;
+                }
+                xcTooltip.changeText($formRow.find('.defaultParam'),
+                                     defValTooltip);
             } else {
                 $nameInput.data('value', val);
                 $curValInput.val('');
@@ -257,9 +267,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         }
         $placeholder.siblings().remove();
         $placeholder.before(html);
-        // setTimeout(function() {
-        //     $placeholder.prev().removeClass('animating');
-        // }, 0);
     }
 
     function updateParamInputs(rows) {
@@ -276,18 +283,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             }
         }
     }
-
-    // function appendWaitingIcon($formRow) {
-    //     var $curValInput = $formRow.find('.curVal');
-    //     var $curValArg = $curValInput.parent();
-    //     $curValArg.append('<div class="waitingIcon"></div>');
-    //     var $waitingIcon = $curValArg.find('.waitingIcon');
-    //     var offsetLeft = $curValInput.position().left;
-    //     var width = $curValInput.outerWidth();
-    //     $waitingIcon.fadeIn(200);
-    //     var left = offsetLeft + (width / 2) - ($waitingIcon.width() / 2) + 10;
-    //     $waitingIcon.css('left', left);
-    // }
 
     function addInputRow() {
         var html = getInputRowHtml();
@@ -310,7 +305,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             paramName = paramObj.paramName;
             curVal = paramObj.paramValue;
             rowClassNames += " nameIsSet";
-            paramNameDisabledProp = "disabled";
+            paramNameDisabledProp = "readonly";
             if (paramObj.changeable) {
                 newVal = curVal;
             } else {
@@ -335,15 +330,15 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                       '<label class="argWrap">' +
                         '<span class="text">' + MonitorTStr.CurVal +
                         ':</span>' +
-                        '<input type="text" class="xc-input curVal disabled" ' +
-                        'disabled value="' + curVal + '">' +
+                        '<input type="text" class="xc-input curVal readonly" ' +
+                        'readonly value="' + curVal + '">' +
                       '</label>' +
                       '<label class="argWrap">' +
                         '<span class="text">' + MonitorTStr.NewVal +
                         ':</span>';
         if (uneditable) {
-            html += '<input type="text" class="xc-input newVal disabled" ' +
-                        'disabled value="' + newVal + '" ' +
+            html += '<input type="text" class="xc-input newVal readonly" ' +
+                        'readonly value="' + newVal + '" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-original-title="' + TooltipTStr.ParamValNoChange +
                         '">';
@@ -356,10 +351,18 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
         html += '</label>';
         if (!uneditable) {
+            var defValTooltip;
+            if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
+                defValTooltip = xcHelper.replaceMsg(
+                                            MonitorTStr.DefaultWithVal,
+                                            {value: paramObj.defaultValue});
+            } else {
+                defValTooltip = CommonTxtTstr.RevertDefaultVal;
+            }
             html +=
                 '<div class="defaultParam iconWrap xc-action" ' +
                     'data-toggle="tooltip" data-container="body" ' +
-                    'data-original-title="' + CommonTxtTstr.DefaultVal + '">' +
+                    'data-original-title="' + defValTooltip + '">' +
                     '<i class="icon xi-restore center fa-15"></i>' +
                 '</div>';
         }
