@@ -1,14 +1,33 @@
-JSFILES=`find prod/assets/js -not -path "../../3rd" -name "*.js"`
+#!/bin/bash
+
+set -e
+
+JSFILES="$(find prod/assets/js -not -path "../../3rd" -name "*.js" | tr '\n' ' ')"
 OS=`uname`
-echo $OS
-for f in $JSFILES;
-do
-	short=${f%.js};
-    if [ "${OS}" = "Darwin" ]; then
-	    ./prod/3rd/bower_components/uglify-js/bin/uglifyjs $f > $short.min.js
-	else
-        uglifyjs $f > $short.min.js
-    fi
-    mv $short.min.js $f
-    echo $f
-done
+if [ "${OS}" = "Darwin" ]; then
+    export PATH="$PWD/prod/3rd/bower_components/uglify-js/bin:$PATH"
+fi
+
+TMPDIR="${TMPDIR:-/tmp/`id -un`}/xcalar-gui"
+mkdir -p "$TMPDIR"
+makefile="$TMPDIR/uglify-$$.mk"
+cat > "$makefile"  <<EOF
+JSFILES=$JSFILES
+OUTFILES=\$(patsubst %.js,%.min.js,\$(JSFILES))
+all: \$(OUTFILES)
+
+%.min.js: %.js
+	@echo $<
+	@uglifyjs \$< > \$@
+	@mv \$@ \$<
+EOF
+
+set +e
+make -j`nproc` -f "$makefile"
+rc=$?
+if [ $rc -ne 0 ]; then
+    echo >&2 "ERROR($rc): Failed to minify sources. See $makefile"
+    exit $rc
+fi
+rm -f "$makefile"
+exit 0
