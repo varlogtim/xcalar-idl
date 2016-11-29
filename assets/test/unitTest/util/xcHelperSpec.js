@@ -225,6 +225,11 @@ describe('xcHelper Test', function() {
         expect(res.filterString).to.be.equal('and(not(eq(test, 1)), exists(test))');
     });
 
+    it("xcHelper.getUserPrefix should work", function() {
+        var res = xcHelper.getUserPrefix();
+        expect(res).to.equal("." + Support.getUser());
+    });
+
     it('xcHelper.wrapDSName should work', function() {
         var res = xcHelper.wrapDSName("test");
         var nameParts = res.split(".");

@@ -262,9 +262,14 @@ window.xcHelper = (function($, xcHelper) {
         };
     };
 
+    xcHelper.getUserPrefix = function() {
+        return "." + Support.getUser();
+    };
+
     xcHelper.wrapDSName = function(dsName) {
         dsName = dsName || "";
-        var fulldsName = xcHelper.randName(Support.getUser() + ".", 5);
+        var fulldsName = xcHelper.getUserPrefix() + ".";
+        fulldsName = xcHelper.randName(fulldsName, 5);
         fulldsName += "." + dsName;
         return fulldsName;
     };
@@ -984,7 +989,7 @@ window.xcHelper = (function($, xcHelper) {
         });
     };
 
-    xcHelper.supportButton = function(type, doneCallback, failCallback) {
+    xcHelper.supportButton = function(type) {
         var $btn;
         var html;
 
@@ -1030,7 +1035,7 @@ window.xcHelper = (function($, xcHelper) {
 
                 $btn.click(function() {
                     SupTicketModal.show();
-                    var $supportBtn = $(this).blur();
+                    $(this).blur();
                     Alert.tempHide();
                     MonitorGraph.stop();
                 });
@@ -1661,7 +1666,6 @@ window.xcHelper = (function($, xcHelper) {
             return false;
         }
 
-        var isValid = xcHelper.isStartWithLetter(str);
         // has to start with alpha character
         if (!xcHelper.isStartWithLetter(str)) {
             return false;

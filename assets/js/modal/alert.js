@@ -136,7 +136,7 @@ window.Alert = (function($, Alert){
 
     Alert.unhide = function() {
         $modal.removeClass('xc-hidden');
-    }
+    };
 
     Alert.getOptionVal = function() {
         var val = $("#alertOptionInput").val().trim();
@@ -300,24 +300,13 @@ window.Alert = (function($, Alert){
             var $copySqlBtn = xcHelper.supportButton("sql");
             var $logoutBtn = xcHelper.supportButton();
             var $adminSupportBtn = xcHelper.supportButton("adminSupport");
-
-            var supportDone = function(path, bid) {
-                var text = ThriftTStr.CCNBE + "\n" +
-                            "Bundle Id " + bid + " Generated at " + path;
-                $("#alertContent .text").text(text);
-            };
-            var supportFail = function() {
-                var text = ThriftTStr.CCNBE + "\n" +
-                           CommonTxtTstr.GenBundleFail + ".";
-                $("#alertContent .text").text(text);
-            };
-            var $supportBtn = xcHelper.supportButton("support", supportDone, supportFail);
+            var $supportBtn = xcHelper.supportButton("support");
 
             if (options.logout) {
-                $btnSection.prepend($adminSupportBtn, $logoutBtn, $copySqlBtn, 
+                $btnSection.prepend($adminSupportBtn, $logoutBtn, $copySqlBtn,
                                     $supportBtn);
             } else {
-                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $logoutBtn, 
+                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $logoutBtn,
                                     $supportBtn);
             }
         }

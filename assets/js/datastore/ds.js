@@ -834,8 +834,7 @@ window.DS = (function ($, DS) {
     function restoreHelper(oldHomeFolder, datasets, atStartUp) {
         var numDatasets = datasets.numDatasets;
         var searchHash = {};
-        var userPrefix = xcHelper.wrapDSName("");
-
+        var userPrefix = xcHelper.getUserPrefix();
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
 
