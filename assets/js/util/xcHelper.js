@@ -2913,17 +2913,14 @@ window.xcHelper = (function($, xcHelper) {
         var isChildOfArray = $('#xcTable-' + tableId)
                                 .find('th.col' + options.colNum)
                                 .find('.header').hasClass('childOfArray');
-        var isUndef = $div.hasClass('undefined') ||
-                      $div.find('.undefined').length;
-        var shouldNotFilter = options.isMutiCol || isChildOfArray || isUndef ||
-                            (
-                                columnType !== "string" &&
-                                columnType !== "float" &&
-                                columnType !== "integer" &&
-                                columnType !== "boolean"
-                            );
+        // allow fnfs but not array elements, multi-type, or anything but
+        // valid types
+        var validTypes = ["string", "float", "integer", "boolean"];
+        var shouldNotFilter = options.isMutiCol || isChildOfArray ||
+                            validTypes.indexOf(columnType) === -1;
         var notAllowed = $div.find('.null, .blank').length;
-        var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox").length > 1;
+        var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox")
+                                                  .length > 1;
 
         var $tdFilter  = $menu.find(".tdFilter");
         var $tdExclude = $menu.find(".tdExclude");
