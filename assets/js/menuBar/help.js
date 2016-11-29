@@ -105,7 +105,7 @@ window.Help = (function($, Help) {
     function generateHelpTopics() {
         var categoriesObj = {};
         var url;
-        var maxToDisplay = 6;
+        var maxToDisplay = 100;
         var html = "";
         var subTopic;
 
@@ -214,9 +214,15 @@ window.Help = (function($, Help) {
 
     function sortByTitles(list) {
         list.sort(function(a, b) {
-            if (a.title < b.title) {
+            a = a.url;
+            b = b.url;
+            a = a.substring(a.lastIndexOf("/"));
+            a = a.substring(0, a.indexOf("_"));
+            b = b.substring(b.lastIndexOf("/"));
+            b = b.substring(0, b.indexOf("_"));
+            if (a < b) {
                 return -1;
-            } else if (a.title > b.title) {
+            } else if (a > b) {
                 return 1;
             } else {
                 return 0;

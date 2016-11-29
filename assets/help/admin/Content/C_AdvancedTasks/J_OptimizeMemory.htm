@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Optimizing memory usage</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/foundation.5.5.0.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.topic-ratings-button
+{
+	-pie-background: transparent url('../../Skins/Default/Stylesheets/Images/star-full.png') no-repeat center center;
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.edit-user-profile-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/edit-profile.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.5.5.0_custom.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.offcanvas.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap">
+            <div class="off-canvas-wrap" data-offcanvas="">
+                <section class="inner-wrap">
+                    <nav class="tab-bar" data-mc-ignore="true">
+                        <section class="middle tab-bar-section outer-row clearfix">
+                            <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
+                                <div class="navigation-wrapper">
+                                    <ul class="navigation clearfix">
+                                        <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/C_AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/D_ChangeDataType.htm">Changing the data type for a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/J_GroupBy.htm">Grouping data in a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/K_Map.htm">Using the Map function to create new values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/L_Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/M_QuickAggregates.htm">Determining aggregate values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="A_Extensions.htm">Using extensions</a>
+                                                </li>
+                                                <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                </li>
+                                                <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                </li>
+                                                <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                </li>
+                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                </li>
+                                                <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                </li>
+                                                <li><a href="#" class="selected">Optimizing memory usage</a>
+                                                </li>
+                                                <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                                <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Insight window</a>
+                                                </li>
+                                                <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/C_WorksheetWindow.htm">Worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_Reference/D_DataBrowser.htm">Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/E_DataflowGraph.htm">Dataflow graph</a>
+                                                </li>
+                                                <li><a href="../D_Reference/F_Table_options.htm">Table options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div><a class="menu-icon right-off-canvas-toggle" href="#"><span></span></a>
+                            </div>
+                        </section>
+                        <div class="nav-search row outer-row">
+                            <form class="search" action="#">
+                                <div class="search-bar search-bar-container needs-pie">
+                                    <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                    <div class="search-filter-wrapper">
+                                        <div class="search-filter">
+                                            <div class="search-filter-content">
+                                                <ul>
+                                                    <li>All Files</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-submit-wrapper" dir="ltr">
+                                        <div class="search-submit" title="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
+                    <aside class="right-off-canvas-menu" data-mc-ignore="true">
+                        <ul class="off-canvas-list" data-mc-back-link="Back" data-mc-css-tree-node-expanded="has-submenu" data-mc-css-tree-node-collapsed="has-submenu" data-mc-css-sub-menu="right-submenu" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="True" data-mc-defer-expand-event="True" data-mc-expand-event="click.fndtn.offcanvas" data-mc-toc="True">
+                        </ul>
+                    </aside>
+                    <section class="main-section">
+                        <div class="row outer-row" data-mc-content-body="True">
+                            <div id="contentBody">
+                                <div class="row collapse">
+                                    <div class="sideContent">
+                                        <div class="clearfix">
+                                            <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component">
+                                                <div class="button-group-container-left">
+                                                    <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                    </button>
+                                                    <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                    </button>
+                                                    <div class="button-group star-buttons loading feedback-topic-required">
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="button-separator">
+                                                    </div>
+                                                    <button class="button feedback-required login-button" id="normalLoginBtn" data-state1-class="login-button" data-state2-class="edit-user-profile-button" title="Login" data-state1-title="Login">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="login" />
+                                                    </button>
+                                                    <button class="button needs-pie print-button" title="Print">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="menu _Skins_SideMenu mc-component">
+                                            <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                                <ul class="sub-menu">
+                                                    <li><a href="A_Extensions.htm">Using extensions</a>
+                                                    </li>
+                                                    <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    </li>
+                                                    <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                    </li>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    </li>
+                                                    <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                    </li>
+                                                    <li><a href="#" class="selected">Optimizing memory usage</a>
+                                                    </li>
+                                                    <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                    </li>
+                                                    <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTasks.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Optimizing memory usage</span>
+                                    </div>
+                                    <div class="bodyProxyNarrow">
+                                        <h1>Optimizing memory usage</h1>
+                                        <p><span class="GeneralProductName">Xcalar Insight</span> displays a low-memory notification to all logged-in users when <span class="GeneralProductName2short">XCE</span> reaches a pre-defined level of memory consumption. The <span class="GeneralCompanyNameShort">Xcalar</span> administrator might also notify users to free up memory before the automatic notification is sent. It is important for you to optimize memory usage  to ensure that <span class="GeneralProductName2short">XCE</span> can run at the highest performance level possible. See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a> for more information about the low-memory notification and what steps to take in response to the notification.</p>
+                                        <h2>Best practices for conserving memory</h2>
+                                        <p><span class="GeneralProductName">Xcalar Insight</span> users can follow these best practices to conserve memory: </p>
+                                        <ul>
+                                            <li value="1">Reduce the number of tables.</li>
+                                            <li value="2">
+                                                <p>Reduce the number of fields in the <span class="UIelement">Data Browser</span>.</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;Fields that come from your dataset cannot be removed individually. For example, if your dataset has two fields:&#160;<span class="UIelement">Carrier</span> and <span class="UIelement">Description</span>, you cannot remove only the <span class="UIelement">Carrier</span> field and keep the <span class="UIelement">Description</span> field to try to reduce the number of fields. </div>
+                                            </li>
+                                        </ul>
+                                        <p>More detailed information about these best practices are provided in the sections that follow.</p>
+                                        <h2>Effects of tables on memory consumption</h2>
+                                        <p>Each table in your workbooks consumes memory regardless of the table's status, which can be active, hidden, or temporary. Keeping only the tables required for modeling your queries helps conserve memory. </p>
+                                        <h2>Methods for dropping tables</h2>
+                                        <p>You can drop tables with these methods:</p>
+                                        <ul>
+                                            <li value="1">Display the <span class="label">Tables</span> panel. Then select the tables to drop. See <a href="../B_CommonTasks/N_ChangeTableStatus.htm" class="MCXref xref">Understanding and changing table statuses</a> for more information about the <span class="UIelement">Tables</span> panel.</li>
+                                            <li value="2">In the query graph, right-click a table icon to display a pop-up menu. Select <span class="UIelement">Drop Table</span> to remove the table from the worksheet. This method enables you to see how the table was created or modified when you performed the modeling.</li>
+                                            <li value="3">In the active worksheet, locate the table to drop, and right-click the table title bar to display a drop-down menu. Then select <span class="UIelement">Drop Table</span>.</li>
+                                            <li value="4">In the <span class="UIelement">Monitor</span> tab, click the <span class="UIelement">Drop Tables</span> button to display the <span class="UIelement">Drop Tables</span>&#160;modal window, which lists all tables in your workbook and the amount of memory used by each . See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a> for more information about the <span class="UIelement">Drop Tables</span>&#160;modal window.</li>
+                                        </ul>
+                                        <h2>Effects of table columns on memory used</h2>
+                                        <p>The number of columns in a table has no significant effect on memory consumption.&#160;For example, from the same dataset reference, you can create two tables:&#160;one with 2 columns and one with 15 columns. Both tables use the same amount of memory, which is 16 MB. The following screenshots show the columns in the tables and the amount of memory used by each table.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/tables-diff-cols-same-memory.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1200" data-mc-height="625" src="../Resources/Images/Insight_screenshots/tables-diff-cols-same-memory_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/tables-same-memory-used.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="598" data-mc-height="609" src="../Resources/Images/Insight_screenshots/tables-same-memory-used_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <p>Because the number of columns is not correlated with memory consumption,  you cannot free up memory by deleting table columns. </p>
+                                        <h2>Effects of fields in the Data Browser on memory used</h2>
+                                        <p>Each table has a <span class="UIelement">Data Browser</span> associated with it. The <span class="UIelement">Data Browser</span> lists all the fields that are already in the table or can potentially be added to the table. Initially, each table you create from a data source consumes the same amount of memory as each table's <span class="UIelement">Data Browser</span> contains only the fields from the data source. These fields are listed in the prefixed fields section of the <span class="UIelement">Data Browser</span>. This group of prefixed fields consumes a fixed amount of memory, regardless of how many fields are in the group. </p>
+                                        <p>After you perform operations on a table, derived columns are created in the resultant table and these columns are also added in the resultant table's <span class="UIelement">Data Browse</span>. They as derived fields. Each derived field consumes additional memory.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;A table resulting from a batch dataflow does not have prefixed fields.&#160;The <span class="UIelement">Data Browser</span> for this table consists of only derived fields.</div>
+                                        <div class="Example"><span class="label">Example</span>: A two-column table is created from a dataset with two fields:&#160;<span class="UIelement">Destination</span> and <span class="UIelement">Distance</span>. If no operations have created columns in this table, the table  uses 2.2 MB of memory. Suppose you change the <span class="UIelement">Distance</span> column's data type to integer. A new table is created with a derived column named <span class="UIelement">Distance_integer</span>. In the <span class="UIelement">Data Browser</span>&#160;for this table, the field <span class="UIelement">Distance</span> remains in the prefixed fields section, and a new field named <span class="UIelement">Distance_integer</span> is added in the derived fields section. If you use the <span class="UIelement">Drop Tables</span> modal window to check memory usage, you can see that the new table consumes 4.2 MB instead of 2.2 MB of memory because of the derived field added. The more columns your operations create, the more derived fields are added to the <span class="UIelement">Data Browser</span>. The derived fields increase the amount of memory consumed.</div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;As in the case of other columns, deleting a derived column does not free up memory. For example, if you delete the <span class="UIelement">Distance_integer</span> column in the example above, the table continues to use 4.2 MB of memory. Memory used is not reduced because the derived field, <span class="UIelement">Distance_integer</span>, remains in the <span class="UIelement">Data Browser</span>.</div>
+                                        <h2><a name="Removing"></a>Removing fields from the Data Browser</h2>
+                                        <p>Because the number of fields in the <span class="UIelement">Data Browser</span> has an impact on memory used, the logical step to conserve memory is to reduce the number of fields in the <span class="UIelement">Data Browser</span>. However, remember that in the context of memory consumption, the collection of fields from the source dataset (that is, the prefixed fields) is considered one unit. You cannot remove some fields and keep some fields in that collection. You can decide either to keep or to eliminate the collection in its entirety.</p>
+                                        <p>The contents of the <span class="UIelement">Data Browser</span>&#160;are not directly editable. To change the contents, use the Projection Mode feature, which enables you to keep only columns of interest in a table and to remove unnecessary ones from the <span class="UIelement">Data Browser</span>. </p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The term "projection"&#160;originates from relational algebra. Its meaning in <span class="GeneralProductName">Xcalar Insight</span> should be clearly distinguished from its meaning in daily usage.</div>
+                                        <h3>Understanding Projection Mode</h3>
+                                        <p>Projection Mode in the <span class="UIelement">Data Browser</span> enables you to eliminate unnecessary fields that <span class="GeneralProductName">Xcalar Insight</span> keeps in memory for a table. You can choose to keep only the fields that interest you  in the table and in the <span class="UIelement">Data Browser</span>. In doing so, you can reduce the amount of memory used by the table.</p>
+                                        <h3>Using Projection Mode</h3>
+                                        <p>Follow these steps to use Projection Mode to keep memory consumption low for a table:</p>
+                                        <ol>
+                                            <li value="1">Double click anywhere in the <span class="UIelement">DATA</span> column of the table to display the <span class="UIelement">Data Browser</span>.</li>
+                                            <li value="2">
+                                                <p>Click the down arrow in the <span class="UIelement">Data Browser</span> to select <span class="UIelement">Projection&#160;Mode</span>. The following screenshot shows the location of the arrow.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/data-browser-modes.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="726" data-mc-height="597" src="../Resources/Images/Insight_screenshots/data-browser-modes_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">
+                                                <p>Click the check box preceding the field name if you want to keep the field  in the resultant table. For example, click <span class="UIelement">DayOfWeek_integer</span> if you want to keep it in the resultant table. You might have to use the scrollbar to view all field names. The following screenshot </p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/data-browser-project-fields.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="778" data-mc-height="695" src="../Resources/Images/Insight_screenshots/data-browser-project-fields_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="4">Click the <span class="UIelement">submit projection</span> button. A new table is created with only the columns you chose in the <span class="UIelement">Data Browser</span>. As in the case of other operations, you can use the <span class="UIelement">Undo</span> button to revert the table to the previous version before the projection.</li>
+                                        </ol>
+                                        <p>You can perform projections on any columns to reduce the number of columns in the active table so that the table is less cluttered. However, the main purpose of projection is to optimize memory usage. Therefore, pay attention to the number of fields being eliminated from the <span class="UIelement">Data Browser</span> when you decide which column to choose for projection. </p>
+                                        <h3>Example of projection on derived fields</h3>
+                                        <p>The <span class="UIelement">Data Browser</span> shows 19 fields, and 4 fields  are derived fields such as <span class="UIelement">DayOfWeek_integer</span>, <span class="UIelement">DepTime_integer</span>, <span class="UIelement">DepTime_integer</span>, and so on. These derived fields are created due to operations such as Map. The rest (15 fields) are from the collection of fields in the source dataset. They are <span class="UIelement">MonthDayYear</span>, <span class="UIelement">Distance</span>, <span class="UIelement">DepTime</span>, and so on. The names of these fields have a prefix, such as <span class="UIelement">airlines.1</span>.</p>
+                                        <p>Suppose you perform a projection on <span class="UIelement">DayOfWeek_integer</span> and <span class="UIelement">DepTime_integer</span>, the resultant table contains only these columns. All fields except for <span class="UIelement">DayOfWeek_integer</span> and <span class="UIelement">DepTime_integer</span> are eliminated from the <span class="UIelement">Data Browser</span>. The resultant table now consumes much less memory than the table before the projection. For the resultant table, the <span class="GeneralProductName2short">XCE</span> cluster no longer needs memory to track all 4 derived fields and the collection of fields from the data source.</p>
+                                        <h3>Example of projection on prefixed fields</h3>
+                                        <p>You cannot choose individual entries from the list of prefixed fields. The set of prefixed fields is eliminated or retained as one unit through projection. The prefixed fields consume a fixed amount of memory, which is about the same as that consumed by a derived field.</p>
+                                        <p>Suppose you are only interested in <span class="UIelement">airlines1::Distance</span> and <span class="UIelement">airlines1::MonthDayYear</span>, you cannot project these fields and discard other prefixed fields such as <span class="UIelement">airlines1::Carrier</span> and <span class="UIelement">airlines1::FlightNum</span>. The <span class="UIelement">Data Browser</span> must keep the entire collection of prefixed fields. After the projection, the unselected derived fields no longer exist in the table or the <span class="UIelement">Data Browser</span>.  This frees up memory that otherwise would be needed to track 4 derived fields.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a class="exit-off-canvas"></a>
+                </section>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>
