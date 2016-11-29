@@ -2884,8 +2884,10 @@ window.Dag = (function($, Dag) {
                         tableWrapRight + 'px;">' + dagOrigin;
 
         var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
-        var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
-        var dagInfo = getDagNodeInfo(dagNode, key, parents);
+        var parentNames = Dag.getDagSourceNames(parentChildMap, index,
+                                                dagArray);
+        var dagInfo = getDagNodeInfo(dagNode, key, parentNames, index,
+                                     parentChildMap, dagArray);
         var state = dagInfo.state;
         var tableName = getDagName(dagNode);
         nodeInfo.name = tableName;
@@ -2945,8 +2947,7 @@ window.Dag = (function($, Dag) {
             html += '<div class="dagTable ' + state + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-index="' + index + '" ' +
-                        'data-id="' + tableId + '" ' +
-                        'data-parents="' + parents + '">' +
+                        'data-id="' + tableId + '">' +
                         '<div class="dagTableIcon ' + icv + '" ' +
                         'data-toggle="tooltip" ' +
                         'data-placement="top" ' +
@@ -3010,17 +3011,20 @@ window.Dag = (function($, Dag) {
         var numParents = getDagnumParents(dagNode);
 
         if (numParents > 0) {
-            var parents = Dag.getDagSourceNames(parentChildMap, index, dagArray);
+            var parentNames = Dag.getDagSourceNames(parentChildMap, index,
+                                                dagArray);
             var additionalInfo = "";
-            var firstParent = parents[0];
+            var firstParent = parentNames[0];
             if (numParents > 1) {
                 for (var i = 1; i < numParents; i++) {
-                    additionalInfo += ", " + parents[i];
+                    additionalInfo += ", " + parentNames[i];
                 }
             }
             var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
             var operation = key.substring(0, key.length - 5);
-            var info = getDagNodeInfo(dagNode, key, parents);
+
+            var info = getDagNodeInfo(dagNode, key, parentNames, index,
+                                     parentChildMap, dagArray);
             var resultTableName = getDagName(dagNode);
             if (info.type === "sort") {
                 operation = "sort";
@@ -3191,7 +3195,8 @@ window.Dag = (function($, Dag) {
         return (dagNode.name.name);
     }
 
-    function getDagNodeInfo(dagNode, key, parents) {
+    function getDagNodeInfo(dagNode, key, parents, index, parentChildMap,
+                            dagArray) {
         var parenIndex;
         var filterType;
         var evalStr;
@@ -3280,15 +3285,9 @@ window.Dag = (function($, Dag) {
                 }
                 break;
             case ('groupByInput'):
-                var parentTableId = xcHelper.getTableId(value.srcTable.tableName);
-                var groupedOn;
                 var sampleStr = "";
-                if (parentTableId in gTables) {
-                    groupedOn = gTables[parentTableId].getKeyName();
-                } else {
-                    // Created with backend. Tskie
-                    groupedOn = "(See previous table index)";
-                }
+                var groupedOn = getGroupedOnText(index, parentChildMap,
+                                                 dagArray);
                 if (value.includeSrcTableSample) {
                     sampleStr = " (Sample included)";
                 } else {
@@ -3403,6 +3402,54 @@ window.Dag = (function($, Dag) {
                 break;
         }
         return (info);
+    }
+
+    function getGroupedOnText(index, parentChildMap, dagArray) {
+        var text = "";
+        var numParents = parentChildMap[index].numParents;
+        var parentIndex = parentChildMap[index].parents[0];
+        if (numParents === 1 &&
+            dagArray[parentIndex].api === XcalarApisT.XcalarApiIndex) {
+            var keyName = dagArray[parentIndex].input.indexInput.keyName;
+
+            // if indexed on a column named "multiGroupBy" then this may
+            // have been xcalar-generated sort, so check this table's 
+            // parent to find the source columns
+            if (keyName.indexOf("multiGroupBy") === 0) {
+                var grandParentIndex = parentChildMap[parentIndex].parents[0];
+                var cols = parseConcatCols(dagArray[grandParentIndex]);
+                if (cols.length) {
+                    text = "(";
+                    for (var i = 0; i < cols.length; i++) {
+                        text += cols[i] + ", ";
+                    }
+                    text = text.slice(0, -2);
+                    text += ")";
+                }
+            } 
+            if (!text) {
+                text = "(" + keyName + ")";
+            }
+        } else {
+            text = "(See previous table index)";
+        }
+        return text;
+    }
+
+    // used only for parsing concated col names used for multi group by
+    function parseConcatCols(dagNode) {
+        var cols = [];
+        if (dagNode.api === XcalarApisT.XcalarApiMap) {
+            var evalStr = dagNode.input.mapInput.evalStr;
+            if (evalStr.indexOf("\".Xc.\"") > -1 &&
+                evalStr.indexOf('concat') === 0) {
+                var func = {args: []};
+                ColManager.parseFuncString(evalStr, func);
+                func = func.args[0];
+                cols = getSourceColNames(func);
+            }
+        }
+        return cols;
     }
 
     /* Generation of dag elements and canvas lines */
