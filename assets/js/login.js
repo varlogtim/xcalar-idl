@@ -38,6 +38,11 @@ $(document).ready(function() {
                     ret = data;
                     if (ret.status === Status.Ok) {
                         console.log('success');
+                        if (data.isAdmin) {
+                            localStorage.admin = true;
+                        } else {
+                            localStorage.admin = false;
+                        }
                         submit();
                     } else if (ret.status === Status.Error) {
                         alert('Incorrect Password. Please try again.');
