@@ -250,7 +250,7 @@ window.MainMenu = (function($, MainMenu) {
             } else {
                 closeMenu($curTab, noAnim);
             }
-
+            xcHelper.hideSuccessBox();
             panelSwitchingHandler($curTab, lastTabId);
         });
     }

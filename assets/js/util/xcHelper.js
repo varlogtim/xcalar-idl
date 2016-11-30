@@ -798,8 +798,11 @@ window.xcHelper = (function($, xcHelper) {
         return (bytes);
     };
 
+    var successTimers = {};
+
     xcHelper.showSuccess = function() {
         var $successMessage = $('#successMessageWrap');
+        xcHelper.hideSuccessBox();
         $successMessage.show();
         if (!gMinModeOn) {
             var $checkMark = $successMessage.find('.checkMark');
@@ -810,33 +813,45 @@ window.xcHelper = (function($, xcHelper) {
             $textAndCheckMark.addClass('hidden');
             $checkMark.hide();
 
-            setTimeout(function() {
+            successTimers.step1 = setTimeout(function() {
                 $text.removeClass('hidden');
             }, 200);
 
-            setTimeout(function() {
-                $checkMark.show().removeClass('hidden')
-                                 .addClass('bounceInDown animated');
-
+            successTimers.step2 = setTimeout(function() {
+                $checkMark.show().removeClass('hidden');
             }, 400);
 
-            setTimeout(function() {
+            successTimers.step3 = setTimeout(function() {
                 $textAndCheckMark.addClass('hidden');
             }, 2000);
 
-            setTimeout(function() {
-                $successMessage.hide();
+            successTimers.step4 = setTimeout(function() {
+                xcHelper.hideSuccessBox();
             }, 2600);
         } else {
-            setTimeout(function() {
-                $successMessage.hide();
+            successTimers.step4 = setTimeout(function() {
+                xcHelper.hideSuccessBox();
             }, 1800);
         }
     };
+
+    xcHelper.hideSuccessBox = function() {
+        var $successMessage = $('#successMessageWrap');
+        $successMessage.find('.checkMark, .successMessage, .largeText')
+                       .addClass('hidden');
+        $successMessage.removeClass("failed");
+        $checkMark.hide();
+        $successMessage.hide();
+        for (var timer in successTimers) {
+            clearTimeout(successTimers[timer]);
+        }
+    };
+
     // XXX Cheng: combine common code with xcHelper.showSuccess
     // in 1.1
     xcHelper.showFail = function() {
         var $successMessage = $('#successMessageWrap');
+        xcHelper.hideSuccessBox();
         $successMessage.addClass("failed");
         $successMessage.show();
         if (!gMinModeOn) {
@@ -848,28 +863,24 @@ window.xcHelper = (function($, xcHelper) {
             $textAndCheckMark.addClass('hidden');
             $checkMark.hide();
 
-            setTimeout(function() {
+            successTimers.step1 = setTimeout(function() {
                 $text.removeClass('hidden');
             }, 200);
 
-            setTimeout(function() {
-                $checkMark.show().removeClass('hidden')
-                                 .addClass('bounceInDown animated');
-
+            successTimers.step2 = setTimeout(function() {
+                $checkMark.show().removeClass('hidden');
             }, 400);
 
-            setTimeout(function() {
+            successTimers.step3 = setTimeout(function() {
                 $textAndCheckMark.addClass('hidden');
             }, 2000);
 
-            setTimeout(function() {
-                $successMessage.hide();
-                $successMessage.removeClass("failed");
+            successTimers.step4 = setTimeout(function() {
+                xcHelper.hideSuccessBox();
             }, 2600);
         } else {
-            setTimeout(function() {
-                $successMessage.hide();
-                $successMessage.removeClass("failed");
+            successTimers.step4 = setTimeout(function() {
+                xcHelper.hideSuccessBox();
             }, 1800);
         }
     };

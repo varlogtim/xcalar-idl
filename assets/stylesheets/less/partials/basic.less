@@ -1142,13 +1142,6 @@ input {
         }
     }
 
-    .animated {
-        webkit-animation-duration: 0.7s;
-        animation-duration: 0.7s;
-        -webkit-animation-fill-mode: both;
-        animation-fill-mode: both;
-    }
-
     @-webkit-keyframes bounceInDown {
       from, 60%, 75%, 90%, to {
         -webkit-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
@@ -1218,8 +1211,12 @@ input {
     }
 
     .bounceInDown {
-      -webkit-animation-name: bounceInDown;
-      animation-name: bounceInDown;
+        -webkit-animation-name: bounceInDown;
+        animation-name: bounceInDown;
+        webkit-animation-duration: 0.7s;
+        animation-duration: 0.7s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
     }
 }
 
