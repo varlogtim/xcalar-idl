@@ -227,7 +227,7 @@ describe('xcHelper Test', function() {
 
     it("xcHelper.getUserPrefix should work", function() {
         var res = xcHelper.getUserPrefix();
-        expect(res).to.equal("." + Support.getUser());
+        expect(res).to.equal(Support.getUser());
     });
 
     it('xcHelper.wrapDSName should work', function() {
