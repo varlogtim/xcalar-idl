@@ -37,6 +37,10 @@ window.DFCard = (function($, DFCard) {
         $header = $dfCard.find('.cardHeader h2');
         $retTabSection = $dfCard.find('.retTabSection');
         $retLists = $("#retLists");
+
+    };
+
+    DFCard.initialize = function() {
         xdpMode = XVM.getLicenseMode();
 
         addListeners();
@@ -122,7 +126,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function setupRetinaTab() {
-        $(".tabWrap").addClass(XcalarMode.Mod);
+        $(".tabWrap").addClass(xdpMode);
 
         $dfView.on("mousedown", function(event) {
             var $target = $(event.target);

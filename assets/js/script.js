@@ -116,6 +116,7 @@ window.StartManager = (function(StartManager, $) {
             WSManager.initialize();
             BottomMenu.initialize();
             Workbook.initialize();
+            DataflowPanel.initialize();
             // restore user settings
             JoinView.restore();
             FileBrowser.restore();

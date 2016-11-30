@@ -58,8 +58,6 @@ window.DF = (function($, DF) {
                 }
             }
 
-            DFCard.drawDags();
-
             // restore old parameterized data
             // updateParameterizedNode requires dag to be printed since it
             // directly modifies the css for the node
@@ -89,10 +87,14 @@ window.DF = (function($, DF) {
                     }
                 }
             }
-            DFCard.updateDF();
         });
 
         return deferred.promise();
+    };
+
+    DF.initialize = function() {
+        DFCard.drawDags();
+        DFCard.updateDF();
     };
 
     DF.getAllDataflows = function() {

@@ -11,7 +11,7 @@ window.XVM = (function(XVM) {
     var versionKey = "xcalar-version";
     var backendVersion = "";
     var licenseKey = "";
-    var licenseMode = (window.XcalarMode ? XcalarMode.Mod : "");
+    var licenseMode = "";
                      // interactive or operational
     //var licenseMode = XcalarMode.Oper;
 
@@ -56,14 +56,16 @@ window.XVM = (function(XVM) {
                     d.setUTCSeconds(utcSeconds);
                     licenseKey = d.toDateString();
                     licenseMode = XcalarMode.Mod;
-                    // if (licKey.mode === modeling) {
-                    //     licenseMode = XcalarMode.Mod;
-                    // } else if (licKey.mode === operational) {
-                    //     licenseMode = XcalarMode.Oper;
-                    // } else {
-                    //     console.error("Illegal op mode");
-                    //     licenseMode = XcalarMode.Mod;
-                    // }
+                    if (licKey.product === "XceMod") {
+                        licenseMode = XcalarMode.Mod;
+                    } else if (licKey.product === "XceOper") {
+                        licenseMode = XcalarMode.Oper;
+                    } else if (licKey.product === "Xce") {
+                        licenseMode = XcalarMode.Oper;
+                    } else {
+                        console.error("Illegal op mode");
+                        licenseMode = XcalarMode.Mod;
+                    }
                 }
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                     console.log("Thrift version mismatch! Backend's thrift " +

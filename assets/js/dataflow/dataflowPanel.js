@@ -6,6 +6,11 @@ window.DataflowPanel = (function($, DataflowPanel) {
         UploadDataflowCard.setup();
     };
 
+    DataflowPanel.initialize = function() {
+    	DFCard.initialize();
+    	DF.initialize();
+    };
+
     DataflowPanel.active = function() {
 
     };
