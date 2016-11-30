@@ -3,6 +3,7 @@ $(document).ready(function() {
     // $("#loginContainer").fadeIn(2000);
     // $("#loginNameBox").focus();
     // $("#insightVersion").fadeIn(2000);
+    Compatible.check();
     var hostname = "";
     setupHostName();
 
