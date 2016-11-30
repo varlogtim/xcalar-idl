@@ -1,1 +1,1 @@
-var gLoginEnabled = false;
+var gLoginEnabled = true;
