@@ -335,7 +335,7 @@
             .tableTitle {
                 width: 180px;
             }
-            &:hover {
+            &:hover:not(.noDropdown) {
                 .dagTableIcon {
                     background-color: @color-bg-select-blue;
                 }
@@ -359,6 +359,13 @@
                     background-color: @color-bg-fern-green !important;
                 }
             }
+            &.noDropdown {
+                pointer-events: none;
+                .tableTitle {
+                    pointer-events: initial;
+                    cursor: initial;
+                }
+            }
         }
 
         .actionType {
@@ -374,6 +381,9 @@
                 .dagIcon {
                     background-color: @color-bg-fern-green;
                 }
+            }
+            &.noDropdown {
+                cursor: initial;
             }
         }
 

@@ -469,6 +469,10 @@ window.DFCard = (function($, DFCard) {
         applyDeltaTagsToDag(dataflowName, $dagWrap);
         Dag.addDagEventListeners($dagWrap);
         xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"));
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
+            $dagWrap.find('.parameterizable:not(.export)')
+                    .addClass('noDropdown');
+        }
     }
 
     function applyDeltaTagsToDag(dataflowName, $wrap) {
@@ -525,8 +529,14 @@ window.DFCard = (function($, DFCard) {
     function enableDagTooltips() {
         var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
         xcTooltip.disable($tooltipTables);
-        var selector = '.dataStoreIcon, ' +
+        var selector;
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
+            selector = '.export .dagTableIcon';
+        } else {
+            selector = '.dataStoreIcon, ' +
                         '.export .dagTableIcon, .actionType.filter';
+        }
+
         xcTooltip.add($('#dfgViz').find(selector), {
             "title": CommonTxtTstr.ClickToOpts
         });
@@ -539,15 +549,19 @@ window.DFCard = (function($, DFCard) {
 
         $dagArea[0].oncontextmenu = function(e) {
             var $target = $(e.target).closest('.actionType');
+            var prevent = false;
             if ($(e.target).closest('.dagTable.dataStore').length) {
                 $target = $(e.target).closest('.dagTable.dataStore');
             } else if ($(e.target).closest('.dagTable.export').length) {
                 $target = $(e.target).closest('.dagTable.export');
+                prevent = true;
             }
             if ($target.length) {
                 $target.trigger('click');
-                e.preventDefault();
-                e.stopPropagation();
+                if (XVM.getLicenseMode() !== XcalarMode.Mod || prevent) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
             }
         };
 
@@ -555,6 +569,10 @@ window.DFCard = (function($, DFCard) {
 
         // Attach styling to all nodes that have a dropdown
         $dfCard.find(selector).addClass("parameterizable");
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
+            $dfCard.find('.parameterizable:not(.export)')
+                    .addClass('noDropdown');
+        }
 
         $dagArea.on('click', selector, function() {
             $('.menu').hide();
@@ -593,6 +611,11 @@ window.DFCard = (function($, DFCard) {
                 $menu.find(".showExportCols").hide();
             } else {
                 $menu.find(".showExportCols").show();
+            }
+            if (XVM.getLicenseMode() === XcalarMode.Mod) {
+                $menu.find('.createParamQuery').hide();
+            } else {
+                $menu.find('.createParamQuery').show();
             }
         });
 
