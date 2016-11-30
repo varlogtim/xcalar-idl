@@ -138,7 +138,7 @@ window.ExportView = (function($, ExportView) {
         expList.setupListeners();
 
         xcHelper.optionButtonEvent($exportView.find(".formRow"),
-            function(option, $radio) {
+        function(option, $radio) {
             if ($radio.closest(".typeRow").length > 0) {
                 if (option !== "DfFormatCsv") {
                     $advancedSection.find('.csvRow').removeClass('csvSelected')

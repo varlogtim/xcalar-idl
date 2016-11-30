@@ -686,8 +686,8 @@ window.JoinView = (function($, JoinView) {
         }
 
         $input = $clauseSection.filter(function() {
-                        return ($(this).val() === colRes.name);
-                    }).eq(0);
+            return ($(this).val() === colRes.name);
+        }).eq(0);
 
         if (colRes.reason === 'notFound') {
             var tableName = gTables[tableId].getName();
@@ -1330,7 +1330,7 @@ window.JoinView = (function($, JoinView) {
                 if (colNameParts.length < 2) {
                     continue;
                 }
-                if (prefixes.indexOf(colNameParts[0]) == -1) {
+                if (prefixes.indexOf(colNameParts[0]) === -1) {
                     prefixes.push(colNameParts[0]);
                 }
             }
@@ -1452,7 +1452,7 @@ window.JoinView = (function($, JoinView) {
         }
         formHelper.refreshTabbing();
         deferred.reject();
-        return deferred.promise();;
+        return deferred.promise();
 
         function proceedWithJoin(leftRenames, rightRenames) {
             var innerDeferred = jQuery.Deferred();

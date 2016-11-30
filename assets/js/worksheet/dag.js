@@ -482,7 +482,7 @@ window.DagPanel = (function($, DagPanel) {
                                          '.dagTableIcon');
             if ($target.length) {
                 $target.trigger('click');
-                return false; 
+                return false;
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
                 $('#dagSchema').hide();
@@ -3205,7 +3205,7 @@ window.Dag = (function($, Dag) {
         info.state = DgDagStateTStr[dagNode.state];
 
         switch (key) {
-            case('aggregateInput'):
+            case ('aggregateInput'):
                 evalStr = value.evalStr;
                 info.type = "aggregate" + evalStr.slice(0, evalStr.indexOf('('));
                 info.text = evalStr;
@@ -3560,7 +3560,7 @@ window.Dag = (function($, Dag) {
                 origX += 6; // rounder curve if y diff is small
             }
             ctx.moveTo(origX, tableY); // start at node coors
-            ctx.bezierCurveTo(origX, tableY, 
+            ctx.bezierCurveTo(origX, tableY,
                               origX, yOffset,
                               xOffset, yOffset);
         }

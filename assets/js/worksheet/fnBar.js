@@ -127,7 +127,7 @@ window.FnBar = (function(FnBar, $) {
             } else if (trimmedVal === "" &&
                         change.removed[0].indexOf("=") === 0) {
                 // "=" was deleted so stay focused on column
-            }else {
+            } else {
                 $functionArea.addClass('searching');
                 if (!$fnBar.hasClass('inFocus')) {
                     // change event can be triggered when removing focus from

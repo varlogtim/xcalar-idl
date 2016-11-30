@@ -40,7 +40,7 @@ function freeAllResultSetsSync(alwaysResolve) {
         if (alwaysResolve) {
             deferred.resolve();
         } else {
-           deferred.reject(error);
+            deferred.reject(error);
         }
     });
 

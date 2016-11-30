@@ -406,7 +406,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         if (isGenSub) {
             // it's generating
             return;
-        } 
+        }
         SupTicketModal.show();
         isGenSub = false;
     }

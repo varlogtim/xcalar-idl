@@ -416,7 +416,7 @@ ProfileTStr = {
                  'modal and view it later.',
 
     // With replace
-    'Info': "Profile of column: <b><col></b>, type: <b><type></b>"
+    'Info': "Profile of column: <b><col></b>, type: <b><type></b>."
 };
 
 WKBKTStr = {

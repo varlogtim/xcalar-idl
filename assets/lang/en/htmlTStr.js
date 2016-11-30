@@ -369,7 +369,7 @@ module.exports = {
         "SubGen": "Support Bundle Generating",
         "SubGened": "Support Bundle Generated",
         "SubGenFail": "Support Bundle Generation Failed",
-        "SubInstr": "Please check your backend for a .tar.gz.file",
+        "SubInstr": "Please check your backend for a .tar.gz.file.",
         "SYS": "SYSTEM",
         "Syst": "System",
         "TotalTime": "Total Time",
@@ -784,7 +784,7 @@ module.exports = {
 
     "deleteTable": {
         "header": "Drop Tables",
-        "instr": "To free space on this application please drop old or unnecessary tables",
+        "instr": "To free space on this application please drop old or unnecessary tables.",
         "CONFIRM": "DROP TABLES",
         "Orphan": "Temporary Tables",
         "Inactive": "Hidden Tables",

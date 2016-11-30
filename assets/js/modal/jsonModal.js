@@ -216,7 +216,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on("click", ".pullAll", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
             var rowNum = $jsonWrap.data('rownum');
-            var tableId = $jsonWrap.data('tableid');  
+            var tableId = $jsonWrap.data('tableid');
             var colNum = $("#xcTable-" + tableId).find('th.dataCol').index();
             var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
            
@@ -1022,7 +1022,7 @@ window.JSONModal = (function($, JSONModal) {
         return prettyJson;
     }
 
-    // splits json into array, grouped by prefix 
+    // splits json into array, grouped by prefix
     function splitJsonIntoGroups(jsonObj) {
         var groups = {};
         var splitName;

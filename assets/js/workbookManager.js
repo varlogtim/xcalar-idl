@@ -637,7 +637,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 var innerDeferred = jQuery.Deferred();
                 var deferred;
                 // Test session kvstore write
-                if (activeWorkbooks.length == 1) {
+                if (activeWorkbooks.length === 1) {
                     deferred = KVStore.put("testKey", "unused", false,
                                 XcalarApiKeyScopeT.XcalarApiKeyScopeSession);
                 } else {

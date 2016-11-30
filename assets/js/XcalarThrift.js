@@ -627,7 +627,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             Transaction.checkAndSetCanceled(txId);
             var loadError = null;
             if (error1 && typeof(error1) === "object" &&
-                error1.length == 2) {
+                error1.length === 2) {
                 // This has a valid error struct that we can use
                 var errorStruct = error1[1];
                 if (errorStruct.errorString || errorStruct.errorFile) {

@@ -309,8 +309,8 @@ window.QueryManager = (function(QueryManager, $) {
         }
         var dstTable = subQuery.dstTable.split(".").pop();
         var $grid = DS.getGridByName(dstTable);
-        DS.cancel($grid); 
-        // DS.cancel preps the DsObj and icon and 
+        DS.cancel($grid);
+        // DS.cancel preps the DsObj and icon and
         // eventually calls QueryManager.cancelQuery
     };
 

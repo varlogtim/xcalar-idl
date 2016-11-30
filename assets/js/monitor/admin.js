@@ -416,7 +416,7 @@ window.Admin = (function($, Admin) {
                 msg = err.error.statusText;
             }
             if (!msg) {
-                msg = ErrTStr.Unknown; 
+                msg = ErrTStr.Unknown;
             }
             Alert.error(MonitorTStr.GetStatusFail, msg);
         })

@@ -1412,7 +1412,7 @@ window.DSPreview = (function($, DSPreview) {
 
             for (var i = 1, len = $headers.length; i < len; i++) {
                 var $text = $headers.eq(i).find(".text");
-                html += '<td class="cell"><div class="innerCell">' + 
+                html += '<td class="cell"><div class="innerCell">' +
                             $text.html() + '</div></td>';
                 $text.html("column" + (i - 1));
             }
