@@ -837,6 +837,7 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.hideSuccessBox = function() {
         var $successMessage = $('#successMessageWrap');
+        var $checkMark = $successMessage.find('.checkMark');
         $successMessage.find('.checkMark, .successMessage, .largeText')
                        .addClass('hidden');
         $successMessage.removeClass("failed");
