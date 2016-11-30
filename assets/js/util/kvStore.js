@@ -191,6 +191,7 @@ window.KVStore = (function($, KVStore) {
         .then(getPersistentKeys, getPersistentKeys);
 
         function getPersistentKeys(gInfosE) {
+            var isEmpty;
             if (typeof(gInfosE) === "object") {
                 for (var key in gInfosE) {
                     gInfos[key] = gInfosE[key];
@@ -204,7 +205,7 @@ window.KVStore = (function($, KVStore) {
                 return KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META);
             })
             .then(function(gInfosPart) {
-                var isEmpty = (gInfosPart == null);
+                isEmpty = (gInfosPart == null);
                 gInfosPart = gInfosPart || {};
 
                 for (var key in gInfosPart) {
@@ -219,16 +220,17 @@ window.KVStore = (function($, KVStore) {
                     DSCart.restore(gInfos[METAKeys.CART]);
                     Profile.restore(gInfos[METAKeys.STATS]);
                     oldLogCursor = gInfos[METAKeys.LOGC];
-                    DF.restore(gInfos[EMetaKeys.DF]);
-
-                    if (isEmpty) {
-                        console.info("KVStore is empty!");
-                    } else {
-                        return SQL.restore(oldLogCursor);
-                    }
+                    return DF.restore(gInfos[EMetaKeys.DF]);
                 } catch (error) {
                     console.error(error.stack);
                     return PromiseHelper.reject(error);
+                }
+            })
+            .then(function() {
+                if (isEmpty) {
+                    console.info("KVStore is empty!");
+                } else {
+                    return SQL.restore(oldLogCursor);
                 }
             })
             .then(function() {

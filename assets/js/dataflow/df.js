@@ -26,7 +26,9 @@ window.DF = (function($, DF) {
         .then(function() {
             dataflows = {}; // Reset dataflow cache
             retStructs = arguments;
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
