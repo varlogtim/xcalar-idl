@@ -16,15 +16,17 @@ window.DataStore = (function($, DataStore) {
     };
 
     DataStore.checkSampleSize = function(previewSize) {
-        if (XVM.getLicenseMode() === XcalarMode.Mod &&
-            previewSize <= gMaxSampleSize)
-        {
-            return null;
+        if (XVM.getLicenseMode() === XcalarMode.Mod){
+            if (previewSize <= gMaxSampleSize) {
+                return null;
+            } else {
+                var error = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
+                    "size": xcHelper.sizeTranslator(gMaxSampleSize)
+                });
+                return error;
+            }
         } else {
-            var error = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
-                "size": xcHelper.sizeTranslator(gMaxSampleSize)
-            });
-            return error;
+            return null;
         }
     };
 

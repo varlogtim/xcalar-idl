@@ -342,8 +342,9 @@ window.DSTable = (function($, DSTable) {
             DSCart.removeCart(dsId);
         });
 
+        var $dsTableView = $("#dsTableView");
         // reload ds with new preview size
-        $("#dsTableView").on("click", ".errorSection .retry", function() {
+        $dsTableView.on("click", ".errorSection .retry", function() {
             var $grid = $("#dsListSection .grid-unit.active");
             var dsId = $grid.data("dsid");
             if (dsId == null) {
@@ -356,6 +357,10 @@ window.DSTable = (function($, DSTable) {
             } else {
                 rePointDS(dsId);
             }
+        });
+
+        $dsTableView.on('mouseenter', '.tooltipOverflow', function() {
+            xcTooltip.auto(this);
         });
 
         // click to select a column
@@ -406,10 +411,6 @@ window.DSTable = (function($, DSTable) {
                 target  : "datastore",
                 minWidth: 25
             });
-        });
-
-        $tableWrap.on('mouseenter', '.tooltipOverflow', function() {
-            xcTooltip.auto(this);
         });
 
         $dsTableContainer.scroll(function(){
