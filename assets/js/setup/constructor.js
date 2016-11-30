@@ -1032,11 +1032,6 @@ UserPref.prototype = {
 // dsForm.js and fileBrowser.js
 function DSFormAdvanceOption($section, container) {
     this.$section = $section;
-    this.isInteractiveMod = (XVM.getLicenseMode() === XcalarMode.Mod);
-    if (this.isInteractiveMod) {
-        $section.addClass(XcalarMode.Mod);
-        $section.find(".limit li:contains(TB)").hide();
-    }
 
     // add event listener
     $section.on("click", ".listInfo .expand, .listInfo .text", function() {
@@ -1074,6 +1069,15 @@ function DSFormAdvanceOption($section, container) {
 }
 
 DSFormAdvanceOption.prototype = {
+    setMode: function() {
+        var $section = this.$section;
+        this.isInteractiveMod = (XVM.getLicenseMode() === XcalarMode.Mod);
+        if (this.isInteractiveMod) {
+            $section.addClass(XcalarMode.Mod);
+            $section.find(".limit li:contains(TB)").hide();
+        }
+    },
+
     reset: function() {
         var $section = this.$section;
         $section.find("input").val("")

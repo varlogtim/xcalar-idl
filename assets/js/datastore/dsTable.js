@@ -24,6 +24,10 @@ window.DSTable = (function($, DSTable) {
         setupSampleTable();
     };
 
+    DSTable.initialize = function() {
+        advanceOption.setMode();
+    };
+
     DSTable.show = function(dsId, isLoading) {
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {

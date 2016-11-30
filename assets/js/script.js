@@ -107,6 +107,7 @@ window.StartManager = (function(StartManager, $) {
         XVM.checkVersionMatch()
         .then(setupSession)
         .then(function() {
+            DataStore.initialize();
             // Extensions need to be moved to after version check because
             // somehow uploadUdf causes mgmtd to crash if checkVersion doesn't
             // pass

@@ -3,16 +3,21 @@
  */
 window.DataStore = (function($, DataStore) {
     DataStore.setup = function() {
-        if (XVM.getLicenseMode() === XcalarMode.Mod) {
-            gMaxSampleSize = xcHelper.textToBytesTranslator("10GB");
-        }
-
         DS.setup();
         setupViews();
         DSForm.setup();
         DSTable.setup();
         DSCart.setup();
         DSExport.setup();
+    };
+
+    DataStore.initialize = function() {
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
+            gMaxSampleSize = xcHelper.textToBytesTranslator("10GB");
+        }
+
+        DSTable.initialize();
+        DSPreview.initialize();
     };
 
     DataStore.checkSampleSize = function(previewSize) {

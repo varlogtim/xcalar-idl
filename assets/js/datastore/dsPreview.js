@@ -124,6 +124,10 @@ window.DSPreview = (function($, DSPreview) {
         setupForm();
     };
 
+    DSPreview.initialize = function() {
+        advanceOption.setMode();
+    };
+
     DSPreview.show = function(options, fromFormCard, dsId) {
         DSForm.switchView(DSForm.View.Preview);
 
