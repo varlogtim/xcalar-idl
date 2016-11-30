@@ -36,7 +36,7 @@ window.DataStore = (function($, DataStore) {
     };
 
     DataStore.update = function(numDatasets) {
-        var $numDataStores = $(".numDataStores");
+        var $numDataStores = $(".numDataStores:not(.tutor)");
 
         if (numDatasets != null) {
             $numDataStores.text(numDatasets);

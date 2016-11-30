@@ -2,10 +2,17 @@
 <div id="datastoreBar" class="topBar no-selection">
   <header class="title"><%= dicts.ds.DSIn %></header>
   <div class="rightArea">
+    <% if (dicts.tutor.name == "datastoreDemo2") { %>
+    <button id="dataCartBtn" class="btn-icon active">
+      <i class="icon xi-datacart"></i>
+      <div class="text dataCartNum tutor textOverflowOneLine">2</div>
+    </button>
+    <% } else { %>
     <button id="dataCartBtn" class="noCart btn-icon active xc-hidden">
       <i class="icon xi-datacart"></i>
       <div class="text dataCartNum textOverflowOneLine"></div>
     </button>
+    <% } %>
   </div>
 </div>
 <div id="sendToWorksheetLoadBar">

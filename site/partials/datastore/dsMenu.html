@@ -32,10 +32,12 @@
 </div>
 <div class="titleSection no-selection">
   <header>
-    <% if (dicts.tutor.name !== "datastoreDemo2") { %>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)</span>
+    <% if (dicts.tutor.name === "datastoreDemo1") { %>
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">0</span>)</span>
+    <% } else if (dicts.tutor.name === "datastoreDemo2") { %>
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">1</span>)</span>
     <% } else { %>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">10</span>)</span>
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)</span>
     <% } %>
   </header>
   <div id="forwardFolderBtn" class="xc-action xc-disabled" title="<%= dicts.dsView.Forward %>" data-container="body" data-toggle="tooltip" data-placement="top">

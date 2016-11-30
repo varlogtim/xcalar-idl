@@ -669,7 +669,7 @@ window.DSCart = (function($, DSCart) {
             var numCol = cart.items.length;
             $container.removeClass("noCart");
             $cartBtn.removeClass("noCart");
-            $(".dataCartNum").text(numCol);
+            $(".dataCartNum:not(.tutor)").text(numCol);
             DSCart.getCartElement(dsId).removeClass("xc-hidden");
         }
 
