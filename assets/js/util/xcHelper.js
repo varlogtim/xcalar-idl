@@ -516,22 +516,44 @@ window.xcHelper = (function($, xcHelper) {
         if (textWidth < maxWidth) {
             finalText = text;
         } else {
-            var len = xcHelper.getMaxTextLen(ctx, text, maxWidth, checkLen,
-                                             text.length);
-            var textLen = text.length;
-            // if textLen is 22 and len is 21
-            // then the finalText may be longer if no this check
-            if (textLen - 3 > 0 && textLen - 3 < len) {
-                len = textLen - 3;
-            }
-            finalText = text.slice(0, len - 3) + "..." +
-                        text.slice(text.length - 3);
+            var len = binarySearchEllipsisLen(checkLen, text.length, maxWidth);
+            finalText = ellispsiText(text, len);
         }
 
         if ($ele.is("input")) {
             $ele.val(finalText);
         } else {
             $ele.text(finalText);
+        }
+
+        function binarySearchEllipsisLen(minLen, maxLen, desiredWidth) {
+            while (minLen < maxLen) {
+                var midLen = Math.floor((maxLen + minLen) / 2);
+                var str = ellispsiText(text, midLen);
+                var width = ctx.measureText(str).width;
+
+                if (width > desiredWidth) {
+                    maxLen = midLen - 1;
+                } else if (width < desiredWidth) {
+                    minLen = midLen + 1;
+                } else {
+                    return midLen;
+                }
+            }
+
+            return minLen;
+        }
+
+        function ellispsiText(str, ellpsisLen) {
+            var strLen = str.length;
+            // if strLen is 22 and ellpsisLen is 21
+            // then the finalText may be longer if no this check
+            if (strLen - 3 > 0 && ellpsisLen > strLen - 3) {
+                ellpsisLen = strLen - 3;
+            }
+            var res = str.slice(0, ellpsisLen - 3) + "..." +
+                      str.slice(str.length - 3);
+            return res;
         }
     };
 
