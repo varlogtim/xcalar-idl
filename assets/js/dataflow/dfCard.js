@@ -554,7 +554,7 @@ window.DFCard = (function($, DFCard) {
         var selector = '.dagTable.export, .dagTable.dataStore, .actionType';
 
         // Attach styling to all nodes that have a dropdown
-        $(selector).addClass("parameterizable");
+        $dfCard.find(selector).addClass("parameterizable");
 
         $dagArea.on('click', selector, function() {
             $('.menu').hide();

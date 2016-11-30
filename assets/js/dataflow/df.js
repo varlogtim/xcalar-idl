@@ -1,10 +1,13 @@
 window.DF = (function($, DF) {
     var dataflows = {};
+    var retStructs = []; // temp usage only
+    var dfCache; // temp usage only
 
     DF.restore = function(ret) {
         // This call now has to return a promise
         var deferred = jQuery.Deferred();
         var retArray = [];
+        dfCache = ret;
 
         XcalarListRetinas()
         .then(function(list) {
@@ -22,78 +25,79 @@ window.DF = (function($, DF) {
         })
         .then(function() {
             dataflows = {}; // Reset dataflow cache
-            // var retStructs = arguments;
-            for (var i = 0; i < arguments.length; i++) {
-                if (arguments[i] == null) {
-                    continue;
-                }
-                var j = 0;
-                // Populate node information
-                var retName = arguments[i].retina.retinaDesc.retinaName;
-                dataflows[retName] = new Dataflow(retName);
-                dataflows[retName].retinaNodes = arguments[i].retina.retinaDag
-                                                                    .node;
-                var nodes = {};
-                for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
-                    nodes[dataflows[retName].retinaNodes[j].name.name] =
-                                    dataflows[retName].retinaNodes[j].dagNodeId;
-                }
-                dataflows[retName].nodeIds = nodes;
-
-                // Populate export column information
-                dataflows[retName].columns = [];
-                for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
-                    if (dataflows[retName].retinaNodes[j].api ===
-                        XcalarApisT.XcalarApiExport) {
-                        var exportCols = dataflows[retName].retinaNodes[j].input
-                                                      .exportInput.meta.columns;
-                        for (var k = 0; k < exportCols.length; k++) {
-                            var newCol = {};
-                            newCol.frontCol = exportCols[k].headerAlias;
-                            newCol.backCol = exportCols[k].name;
-                            dataflows[retName].columns.push(newCol);
-                        }
-                        break;
-                    }
-                }
-            }
-
-            // restore old parameterized data
-            // updateParameterizedNode requires dag to be printed since it
-            // directly modifies the css for the node
-            if (ret) {
-                for (var i = 0; i < arguments.length; i++) {
-                    if (arguments[i] == null) {
-                        continue;
-                    }
-                    var retinaName = arguments[i].retina.retinaDesc.retinaName;
-
-                    if (retinaName in ret) {
-                        jQuery.extend(dataflows[retinaName], ret[retinaName]);
-                        for (var nodeId in ret[retinaName].parameterizedNodes) {
-                            var $tableNode =
-                                       dataflows[retinaName].colorNodes(nodeId);
-                            var type = ret[retinaName]
-                                           .parameterizedNodes[nodeId]
-                                           .paramType;
-                            if (type === XcalarApisT.XcalarApiFilter) {
-                                $tableNode.find(".parentsTitle")
-                                          .text("<Parameterized>");
-                            }
-                        }
-                        if (ret[retinaName].schedule) {
-                            dataflows[retinaName].schedule = new SchedObj(ret[retinaName].schedule);
-                        }
-                    }
-                }
-            }
+            retStructs = arguments;
         });
 
         return deferred.promise();
     };
 
     DF.initialize = function() {
+        for (var i = 0; i < retStructs.length; i++) {
+            if (retStructs[i] == null) {
+                continue;
+            }
+            var j = 0;
+            // Populate node information
+            var retName = retStructs[i].retina.retinaDesc.retinaName;
+            dataflows[retName] = new Dataflow(retName);
+            dataflows[retName].retinaNodes = retStructs[i].retina.retinaDag
+                                                                .node;
+            var nodes = {};
+            for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
+                nodes[dataflows[retName].retinaNodes[j].name.name] =
+                                dataflows[retName].retinaNodes[j].dagNodeId;
+            }
+            dataflows[retName].nodeIds = nodes;
+
+            // Populate export column information
+            dataflows[retName].columns = [];
+            for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
+                if (dataflows[retName].retinaNodes[j].api ===
+                    XcalarApisT.XcalarApiExport) {
+                    var exportCols = dataflows[retName].retinaNodes[j].input
+                                                  .exportInput.meta.columns;
+                    for (var k = 0; k < exportCols.length; k++) {
+                        var newCol = {};
+                        newCol.frontCol = exportCols[k].headerAlias;
+                        newCol.backCol = exportCols[k].name;
+                        dataflows[retName].columns.push(newCol);
+                    }
+                    break;
+                }
+            }
+        }
         DFCard.drawDags();
+        // restore old parameterized data
+        // updateParameterizedNode requires dag to be printed since it
+        // directly modifies the css for the node
+
+        for (var i = 0; i < retStructs.length; i++) {
+            if (retStructs[i] == null) {
+                continue;
+            }
+            var retinaName = retStructs[i].retina.retinaDesc.retinaName;
+
+            if (retinaName in dfCache) {
+                jQuery.extend(dataflows[retinaName], dfCache[retinaName]);
+                for (var nodeId in dfCache[retinaName].parameterizedNodes) {
+                    var $tableNode =
+                               dataflows[retinaName].colorNodes(nodeId);
+                    var type = dfCache[retinaName]
+                                   .parameterizedNodes[nodeId]
+                                   .paramType;
+                    if (type === XcalarApisT.XcalarApiFilter) {
+                        $tableNode.find(".parentsTitle")
+                                  .text("<Parameterized>");
+                    }
+                }
+                if (dfCache[retinaName].schedule) {
+                    dataflows[retinaName].schedule = new SchedObj(
+                                                  dfCache[retinaName].schedule);
+                }
+            }
+        }
+        dfCache = undefined;
+        retStructs = undefined;
         DFCard.updateDF();
     };
 

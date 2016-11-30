@@ -33,7 +33,10 @@ window.AboutModal = (function($, AboutModal) {
         // have the same thrift version or they won't talk
 
         var licenseKey = XVM.getLicenseKey();
-
+        var $title = $modal.find(".title").eq(0);
+        var capitalize = XVM.getLicenseMode()[0].toUpperCase() +
+                         XVM.getLicenseMode().slice(1);
+        $title.text($title.text() + " - " + capitalize + " mode");
         $modal.find(".frontVersion .text").text(frontVersion);
         $modal.find(".backVersion .text").text(backVersion);
         $modal.find(".thriftVersion .text").text(thriftVersion);
