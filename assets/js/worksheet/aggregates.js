@@ -99,8 +99,9 @@ window.Aggregates = (function(Aggregates, $) {
             deferred.resolve();
         })
         .fail(function() {
-            aggDeleteFailHandler(arguments, aggNames, sql, txId);
-            deferred.reject();
+            var successAggs = aggDeleteFailHandler(arguments, aggNames, sql,
+                                                   txId);
+            deferred.reject(successAggs);
         });
 
 
