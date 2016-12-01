@@ -4,6 +4,16 @@ html.microsoft {
     }
 }
 
+html.firefox {
+    .xcTableWrap {
+        &.tableLocked, &.jsonModalOpen {
+            .tableCover.visible {
+                box-shadow: 0px 1px rgba(0,0,0,0.3);
+            }
+        }
+    }
+}
+
 html.firefox, html.microsoft {
     .xcTable {
         margin-right: -12px;
@@ -49,11 +59,11 @@ html.edge {
     margin-right: 5px;
     table-layout: fixed;
     cursor: default;
-    white-space: pre;
 
     thead {
         background-color: @color-table-header-gray;
         box-shadow: inset 0px -1px 0 0 rgba(0, 0, 0, 0.2);
+        white-space: pre;
 
         .selectedCell, .selectedCol, .colSelected {
             .flexContainer, .columnTab {
@@ -125,49 +135,52 @@ html.edge {
         }
     }
 
-    tbody tr {
-        background-color: @color-white;
-        td {
-           border-right: 5px solid @color-white; 
-        }
-
-        &:nth-child(odd) {
+    tbody {
+        white-space: pre;
+        tr {
+            background-color: @color-white;
             td {
-                background-color: @color-table-oddRow-gray;
-                background-color: #EDEDED;
-
-                &.indexedColumn:not(.noIndexStyle) {
-                    background-color: @color-table-indexed-blue !important;
-                }
-                &.selectedCell, &.selectedCol, &.colSelected {
-                    background-color: @color-table-oddSelectedCell-blue;
-                }
-                &.jsonElement, &.jsonElement .pop, &.dataCol {
-                    background-color: @color-table-oddRow-green;
-                }
+               border-right: 5px solid @color-white; 
             }
 
-            .idSpan {
-                background-color: @color-table-oddRowMarker-gray;
-            }
-        }
-        &:nth-child(even) {
-            td {
-                background-color: @color-table-evenRow-gray;
+            &:nth-child(odd) {
+                td {
+                    background-color: @color-table-oddRow-gray;
+                    background-color: #EDEDED;
 
-                &.indexedColumn:not(.noIndexStyle) {
-                    background-color: @color-table-indexed-lightBlue !important;
+                    &.indexedColumn:not(.noIndexStyle) {
+                        background-color: @color-table-indexed-blue !important;
+                    }
+                    &.selectedCell, &.selectedCol, &.colSelected {
+                        background-color: @color-table-oddSelectedCell-blue;
+                    }
+                    &.jsonElement, &.jsonElement .pop, &.dataCol {
+                        background-color: @color-table-oddRow-green;
+                    }
                 }
-                &.selectedCell, &.selectedCol, &.colSelected {
-                    background-color: @color-table-evenSelectedCell-blue;
-                }
-                &.jsonElement, &.jsonElement .pop, &.dataCol {
-                    background-color: @color-table-evenRow-green;
+
+                .idSpan {
+                    background-color: @color-table-oddRowMarker-gray;
                 }
             }
+            &:nth-child(even) {
+                td {
+                    background-color: @color-table-evenRow-gray;
 
-            .idSpan {
-                background-color: @color-table-evenRowMarker-gray;
+                    &.indexedColumn:not(.noIndexStyle) {
+                        background-color: @color-table-indexed-lightBlue !important;
+                    }
+                    &.selectedCell, &.selectedCol, &.colSelected {
+                        background-color: @color-table-evenSelectedCell-blue;
+                    }
+                    &.jsonElement, &.jsonElement .pop, &.dataCol {
+                        background-color: @color-table-evenRow-green;
+                    }
+                }
+
+                .idSpan {
+                    background-color: @color-table-evenRowMarker-gray;
+                }
             }
         }
     }
@@ -238,6 +251,7 @@ html.edge {
             .transition(opacity 0.3s);
             content: "";
             opacity: 0;
+            white-space: normal; // otherwise, has height in firefox
         }
 
         &.editable {
