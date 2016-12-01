@@ -2686,8 +2686,8 @@ window.xcHelper = (function($, xcHelper) {
         var options;
         var openOffset = 350; // when the menu is open;
         var menuOffset = 285;
-        var delay = 200; // length of time menu animates
-        var extraDelay = 280; // in case of lag
+        var menuAnimTime = 200; // length of time menu takes to animate
+        var extraDelay = 80; // in case of lag
         if (close) {
             options = {marginRight: openOffset};
             menuOffset *= -1;
@@ -2698,7 +2698,7 @@ window.xcHelper = (function($, xcHelper) {
         moveTableTitles(null, {
             "offset"       : menuOffset,
             "menuAnimating": true,
-            "animSpeed"    : delay
+            "animSpeed"    : menuAnimTime
         });
         setTimeout(function() {
             unhideOffScreenTables();
@@ -2708,7 +2708,7 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').removeClass('scrollLocked');
             $('#dagScrollBarWrap').removeClass('xc-hidden');
             DagPanel.adjustScrollBarPositionAndSize();
-        }, extraDelay);
+        }, menuAnimTime + extraDelay);
     };
 
     /*
