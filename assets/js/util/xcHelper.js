@@ -823,8 +823,20 @@ window.xcHelper = (function($, xcHelper) {
     var successTimers = {};
 
     xcHelper.showSuccess = function() {
+        showSuccessBoxMessage(true);
+    };
+
+    xcHelper.showFail = function() {
+        showSuccessBoxMessage(false);
+    };
+
+    function showSuccessBoxMessage(isSuccess) {
         var $successMessage = $('#successMessageWrap');
         xcHelper.hideSuccessBox();
+        if (!isSuccess) {
+            $successMessage.addClass("failed");
+        }
+
         $successMessage.show();
         if (!gMinModeOn) {
             var $checkMark = $successMessage.find('.checkMark');
@@ -855,7 +867,7 @@ window.xcHelper = (function($, xcHelper) {
                 xcHelper.hideSuccessBox();
             }, 1800);
         }
-    };
+    }
 
     xcHelper.hideSuccessBox = function() {
         var $successMessage = $('#successMessageWrap');
@@ -867,44 +879,6 @@ window.xcHelper = (function($, xcHelper) {
         $successMessage.hide();
         for (var timer in successTimers) {
             clearTimeout(successTimers[timer]);
-        }
-    };
-
-    // XXX Cheng: combine common code with xcHelper.showSuccess
-    // in 1.1
-    xcHelper.showFail = function() {
-        var $successMessage = $('#successMessageWrap');
-        xcHelper.hideSuccessBox();
-        $successMessage.addClass("failed");
-        $successMessage.show();
-        if (!gMinModeOn) {
-            var $checkMark = $successMessage.find('.checkMark');
-            var $text = $successMessage.find('.successMessage');
-            var $largeText = $successMessage.find('.largeText');
-            $text = $text.add($largeText);
-            var $textAndCheckMark = $checkMark.add($text);
-            $textAndCheckMark.addClass('hidden');
-            $checkMark.hide();
-
-            successTimers.step1 = setTimeout(function() {
-                $text.removeClass('hidden');
-            }, 200);
-
-            successTimers.step2 = setTimeout(function() {
-                $checkMark.show().removeClass('hidden');
-            }, 400);
-
-            successTimers.step3 = setTimeout(function() {
-                $textAndCheckMark.addClass('hidden');
-            }, 2000);
-
-            successTimers.step4 = setTimeout(function() {
-                xcHelper.hideSuccessBox();
-            }, 2600);
-        } else {
-            successTimers.step4 = setTimeout(function() {
-                xcHelper.hideSuccessBox();
-            }, 1800);
         }
     };
 
