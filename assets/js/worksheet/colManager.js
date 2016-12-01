@@ -1198,9 +1198,10 @@ window.ColManager = (function($, ColManager) {
                 nestedVals.push([""]);
             } else {
                 var backColName = progCol.getBackColName();
-                nested = parseColFuncArgs(backColName);
                 if (!isValidColToPull(backColName)) {
                     nested = [""];
+                } else {
+                    nested = parseColFuncArgs(backColName);
                 }
 
                 nestedVals.push(nested);
@@ -1423,7 +1424,9 @@ window.ColManager = (function($, ColManager) {
             // fall through
         } else if (/\.([0-9])/.test(colName)) {
             // dot followed by number is invalid
-            return false;
+            // return false; // xx disabling this to allow numbered keys such as
+            // {"1": "str"} GUI-6482 should address this issue
+            return true;
         }
 
         return true;
