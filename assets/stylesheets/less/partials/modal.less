@@ -1284,10 +1284,15 @@ html.microsoft {
 /* End of Extension Modal */
 /* Alert Modal */
 #alertModal {
-    .size(@width: 500px, @height: auto);
+    @checkboxHeight: 36px;
+    @instrHeight: 60px;
+    @modalBaseHeight: 167px;
+    .size(@width: 500px, @height: auto, @min-width: 500px, @min-height: @modalBaseHeight);
     bottom: auto;
     z-index: 100;
     box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
+    .flex-display;
+    .flex-direction(column);
 
     .modalHeader {
         text-transform: uppercase;
@@ -1306,10 +1311,24 @@ html.microsoft {
         #alertHeader {
             cursor: default;
         }
+        .ui-resizable-handle {
+            display: none; // no resizing locked modals
+        }
     }
 
     &.highZindex {
         z-index: @z-index-locked + 2;
+    }
+
+    &.hasCheckbox {
+        min-height: @modalBaseHeight + @checkboxHeight !important;
+    }
+
+    &.hasInstr {
+        min-height: @modalBaseHeight + @instrHeight !important;
+        &.hasCheckbox {
+            min-height: @modalBaseHeight + @instrHeight + @checkboxHeight !important;
+        }
     }
 
     .funcBtn {
@@ -1319,25 +1338,28 @@ html.microsoft {
     }
 
     #alertContent {
-        .size(@width: 100%, @height: 75px);
+        .size(@width: 100%);
         padding: 5px 20px;
         overflow: auto;
         vertical-align: middle;
+        .flex(1 0 75px);
+        .flex-display;
+        .flex-direction(column);
+        .align-items(center);
 
         .text {
-            .size(@max-height: 65px);
             text-align: center;
             white-space: pre-line;
-            .vertical-align;
             .auto-selection;
+            .flex(1 0 auto);
+            .flex-display;
+            .align-items(center);
         }
 
         &.leftAlign {
             .text {
                 padding-left: 52px;
                 text-align: left;
-                max-height: 62px;
-                .textOverflow;
                 width: 90%;
             }
         }
@@ -1378,13 +1400,14 @@ html.microsoft {
 
     #alertInstruction {
         .size(@height: 60px);
+        .flex(0 0 60px);
     }
 
     #alertOption {
-        padding: 15px 5px 0 5px;
+        padding: 0 5px;
         #alertCheckBox {
             text-align: center;
-            margin: 0 auto;
+            margin: 15px auto 0px;
             .font(@weight: bold, @size: 13px);
             .checkbox {
                 .size(16px, 17px);
@@ -1404,6 +1427,7 @@ html.microsoft {
     }
 
     .modalBottom {
+        .flex(0 0 56px);
         .btn {
             .size(@width: 130px);
 

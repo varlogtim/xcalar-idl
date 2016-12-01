@@ -22,6 +22,13 @@ window.Alert = (function($, Alert){
             "containment": "window"
         });
 
+        $modal.resizable({
+            "handles"    : "n, e, s, w, se",
+            "minHeight"  : 167,
+            "minWidth"   : 500,
+            "containment": "document"
+        });
+
         var alertList = new MenuHelper($modal.find(".dropDownList"), {
             "onSelect": function($li) {
                 $("#alertOptionInput").val($li.text()).focus();
@@ -89,6 +96,12 @@ window.Alert = (function($, Alert){
         } else {
             $modal.removeClass('highZindex');
         }
+
+        // resize modal back to it's smallest width and height
+        var minWidth = $modal.css('min-width');
+        var minHeight = $modal.css('min-height');
+        $modal.width(minWidth);
+        $modal.height(minHeight);
 
         modalHelper.setup(extraOptions)
         .always(function() {
@@ -202,8 +215,11 @@ window.Alert = (function($, Alert){
         if (options.instr != null) {
             $alertInstr.find(".text").text(options.instr);
             $alertInstr.show();
+
+            $modal.addClass('hasInstr');
         } else {
             $alertInstr.hide();
+            $modal.removeClass('hasInstr');
         }
 
         // set checkbox,  default is unchecked
@@ -216,8 +232,10 @@ window.Alert = (function($, Alert){
                 $(this).toggleClass("checked");
             });
             $checkbox.show();
+            $modal.addClass('hasCheckbox');
         } else {
             $checkbox.hide();
+            $modal.removeClass('hasCheckbox');
         }
 
         // set option list
