@@ -752,8 +752,8 @@ window.Installer = (function(Installer, $) {
                 "userDN"       : values[1],
                 "searchFilter" : values[2],
                 "serverKeyFile": values[3],
-                "activeDir"    : adOption,
-                "useTLS"       : tlsOption
+                "activeDir"    : adOption.toString(),
+                "useTLS"       : tlsOption.toString()
             };
 
             console.log(struct);
