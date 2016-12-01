@@ -1,8 +1,0 @@
-{
-    "ldap_uri":"ldap://pdc1.int.xcalar.com:389",
-    "userDN":"cn=users,dc=int,dc=xcalar,dc=net",
-    "useTLS":"true",
-    "searchFilter":"(&(objectclass=user)(userPrincipalName=%username%))",
-    "activeDir":"true",
-    "serverKeyFile":"/etc/ssl/certs/ca-certificates.crt"
-}
