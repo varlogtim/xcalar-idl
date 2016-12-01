@@ -25,6 +25,11 @@ $(document).ready(function() {
             username = username.substring(0, index);
         }
 
+        var atIndex = username.indexOf("@");
+        if (atIndex > 0) {
+            username = username.substring(0, atIndex);
+        }
+
         console.log("username:", username);
         var pass = $('#loginPasswordBox').val();
         var str = {"xipassword": pass, "xiusername": username};
