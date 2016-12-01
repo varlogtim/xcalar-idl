@@ -187,7 +187,6 @@ window.FnBar = (function(FnBar, $) {
                 }
             }
             fnTemplate += ')';
-
             return fnTemplate;
         }
 
@@ -434,7 +433,7 @@ window.FnBar = (function(FnBar, $) {
                     seen[fnName] = true;
                     list.push({
                         text       : mapFunc.fnName + "()",
-                        displayText: fnName,
+                        displayText: mapFunc.fnName,
                         template   : mapFunc.template,
                         templateTwo: mapFunc.templateTwo,
                         argDescs   : mapFunc.modArgDescs,
