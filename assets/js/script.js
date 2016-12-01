@@ -198,7 +198,10 @@ window.StartManager = (function(StartManager, $) {
 
             } else {
                 // when it's an error from backend we cannot handle
-                if (error.error != null && error.error.indexOf('Update required') !== -1) {
+                var errorStruct = {"lockScreen": true};
+                if (error && error.error != null && error.error.indexOf('expired') !== -1) {
+                    errorStruct = {"lockScreen": true, "expired": true};
+                } else if (error.error != null && error.error.indexOf('Update required') !== -1) {
                     title = ThriftTStr.UpdateErr;
                 } else if (error.error != null && error.error.indexOf('Connection') !== -1) {
                     title = ThriftTStr.CCNBEErr;
@@ -206,7 +209,7 @@ window.StartManager = (function(StartManager, $) {
                     title = ThriftTStr.SetupErr;
                 }
                 // check whether there's another alert that's already on the screen
-                Alert.error(title, error, {"lockScreen": true, "expired": true});
+                Alert.error(title, error, errorStruct);
                 StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
 
