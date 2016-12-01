@@ -1602,7 +1602,10 @@ window.DSPreview = (function($, DSPreview) {
                         '</td>';
             var jsonRow = json[i];
             for (var j = 0; j < colLen; j++) {
-                var val = jsonRow[headers[j]] || "";
+                var val = jsonRow[headers[j]];
+                if (val == null) {
+                    val = "";
+                }
                 if (typeof val === "object") {
                     val = JSON.stringify(val);
                 }
