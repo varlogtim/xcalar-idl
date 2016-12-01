@@ -15,19 +15,8 @@ $(document).ready(function() {
         // prevents form from having it's default action
         event.preventDefault();
         var username = $("#loginNameBox").val();
-        var fullUsername = username;
         if (username === "") {
             return;
-        }
-
-        var index = username.indexOf("/");
-        if (index > 0) {
-            username = username.substring(0, index);
-        }
-
-        var atIndex = username.indexOf("@");
-        if (atIndex > 0) {
-            username = username.substring(0, atIndex);
         }
 
         console.log("username:", username);
@@ -72,6 +61,17 @@ $(document).ready(function() {
         }
 
         function submit() {
+            var fullUsername = username;
+            var index = username.indexOf("/");
+            if (index > 0) {
+                username = username.substring(0, index);
+            }
+
+            var atIndex = username.indexOf("@");
+            if (atIndex > 0) {
+                username = username.substring(0, atIndex);
+            }
+
             sessionStorage.setItem("xcalar-username", username);
             sessionStorage.setItem("xcalar-fullUsername", fullUsername);
             // XXX this redirect is only for temporary use
