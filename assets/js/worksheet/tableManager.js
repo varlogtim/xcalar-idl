@@ -1944,7 +1944,8 @@ window.TblManager = (function($, TblManager) {
                 }
             } else {
                 if ($el.closest('.selectedCell').length > 0) {
-                    if (notDropDown) {
+                    // when not on dropdown and is left click
+                    if (notDropDown && event.which === 1) {
                         highlightColumn($editableHead, false);
                         lastSelectedCell = null;
                     } else {
