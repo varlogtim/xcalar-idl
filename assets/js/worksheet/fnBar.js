@@ -8,6 +8,7 @@ window.FnBar = (function(FnBar, $) {
     var mainOperators = ['pull', 'map', 'filter'];
     var xdfMap = {};
     var udfMap = {};
+    var aggMap = {};
     var colNamesCache = {};
     var lastFocusedCol;
     var isAlertOpen = false;
@@ -219,6 +220,13 @@ window.FnBar = (function(FnBar, $) {
         }
     };
 
+    FnBar.updateAggMap = function(aggs) {
+        aggMap = {};
+        for (var a in aggs) {
+            aggMap[aggs[a].aggName] = aggs[a].aggName;
+        }
+    };
+
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
         var newFocus = false;
         if (lastFocusedCol == null) {
@@ -320,7 +328,7 @@ window.FnBar = (function(FnBar, $) {
             if (fullVal.indexOf("(") === -1) {
                 onlyMainOperators = true;
             }
-            var word = /[\w$:]+/;
+            var word = /[\w$:^]+/; // allow : and ^
             var cur = editor.getCursor();
             var fnBarText = editor.getLine(0);
             var list = [];
@@ -406,6 +414,19 @@ window.FnBar = (function(FnBar, $) {
                     // search udfMap
                     for (var udfFn in udfMap) {
                         seachMapFunction(udfFn, udfMap[udfFn]);
+                    }
+
+                    // search aggMap
+                    for (var agg in aggMap) {
+                        if (agg.indexOf(curWord) !== -1 &&
+                            !seen.hasOwnProperty(agg)) {
+                            list.push({
+                                text       : agg,
+                                displayText: agg,
+                                render     : renderList,
+                                className  : "colName"
+                            });
+                        }
                     }
                 }
             }

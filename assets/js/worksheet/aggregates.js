@@ -4,10 +4,12 @@ window.Aggregates = (function(Aggregates, $) {
 
     Aggregates.restore = function(aggInfos) {
         aggs = aggInfos || {};
+        FnBar.updateAggMap(aggs);
     };
 
     Aggregates.clear = function() {
         aggs = {};
+        FnBar.updateAggMap(aggs);
     };
 
     // Get all aggregate information
@@ -60,12 +62,14 @@ window.Aggregates = (function(Aggregates, $) {
             // extract tableId/colNam/aggOp to sort by one of them
             aggRes.key = tableId + "#" + colName + "#" + aggOp;
             container[name] = aggRes;
+            FnBar.updateAggMap(aggs);
         }
     };
 
     // remove one entry of aggregate information
     Aggregates.removeAgg = function(dagName) {
         delete aggs[dagName];
+        FnBar.updateAggMap(aggs);
     };
 
     // deletes from backend
@@ -94,7 +98,6 @@ window.Aggregates = (function(Aggregates, $) {
                 Aggregates.removeAgg(aggNames[i]);
                 Dag.makeInactive(aggNames[i], true);
             }
-            Aggregates.removeAgg();
             Transaction.done(txId);
             deferred.resolve();
         })

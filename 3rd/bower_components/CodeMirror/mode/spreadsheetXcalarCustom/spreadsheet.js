@@ -95,11 +95,13 @@
 
           break;
           // return "udfColon";
+        case "^":
+          // for agg names
+          break;
         case ";":
         case "*":
         case "-":
         case "+":
-        case "^":
         case "<":
         case "/":
         case "=":
@@ -144,7 +146,7 @@
           } else {
             return "number";
           }
-        } else if (stream.match(/^[a-zA-Z_]\w*\:*\w*/)) { 
+        } else if (stream.match(/^[a-zA-Z_^]\w*\:*\w*/)) { 
           if (stream.match(/(?=[\(])/, false)) {
             return "keyword";
           } else {
