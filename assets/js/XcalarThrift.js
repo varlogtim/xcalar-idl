@@ -1302,7 +1302,9 @@ function XcalarGetTableMeta(tableName) {
     if (tHandle == null) {
         deferred.resolve(0);
     } else {
-        xcalarGetTableMeta(tHandle, tableName)
+        var isPrecise = false; // Set to true if you are collecting stats from
+                               // the backend about xdb pages and hashslots.
+        xcalarGetTableMeta(tHandle, tableName, isPrecise)
         .then(function(metaOutput) {
             deferred.resolve(metaOutput);
         })
