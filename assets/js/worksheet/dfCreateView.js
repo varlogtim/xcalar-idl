@@ -66,19 +66,7 @@ window.DFCreateView = (function($, DFCreateView) {
         selectInitialTableCols();
         setupTableColListeners();
         formHelper.setup();
-        exportHelper.showHelper();
-
-        if (!wasMenuOpen) {
-            // due to lag if many columns are present, do another table
-            // alignment 500 ms after menu opens
-            setTimeout(function() {
-                if (isOpen) {
-                    moveTableDropdownBoxes();
-                    moveTableTitles();
-                    moveFirstColumn(); 
-                }
-            }, 500); 
-        }
+        exportHelper.showHelper()
     };
 
     DFCreateView.close = function() {

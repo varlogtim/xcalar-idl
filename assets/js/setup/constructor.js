@@ -3738,6 +3738,15 @@ FormHelper.prototype = {
             wasMenuOpen = true;
         } else {
             MainMenu.open();
+            // due to lag if many columns are present, do another table
+            // alignment 600 ms after menu opens
+            setTimeout(function() {
+                if (MainMenu.isMenuOpen("mainMenu")) {
+                    moveTableDropdownBoxes();
+                    moveTableTitles();
+                    moveFirstColumn(); 
+                }
+            }, 600);
         }
 
         return wasMenuOpen;
