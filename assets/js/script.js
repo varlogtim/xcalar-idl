@@ -800,7 +800,7 @@ window.StartManager = (function(StartManager, $) {
             });
         }
 
-        window.onerror = function(error, url, line) {
+        window.onerror = function(error, url, line, column) {
             var mouseDownTargetHTML = gMouseEvents.getLastMouseDownTarget()
                                                .clone().empty()[0].outerHTML;
             var mouseDownTime = gMouseEvents.getLastMouseDownTime();
@@ -809,6 +809,7 @@ window.StartManager = (function(StartManager, $) {
                 error: error,
                 url: url,
                 line: line,
+                column: column,
                 lastMouseDown: {
                     el: mouseDownTargetHTML,
                     time: mouseDownTime
