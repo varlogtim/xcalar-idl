@@ -416,6 +416,12 @@ window.TblManager = (function($, TblManager) {
         }
 
         var table = gTables[tableId];
+        if (!table) {
+            deferred.reject('table not found');
+            console.warn('gTable not found to send to undone');
+            return deferred.promise();
+        }
+
         table.freeResultset()
         .then(function() {
             var wsId;
