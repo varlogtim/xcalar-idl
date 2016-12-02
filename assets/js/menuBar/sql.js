@@ -200,6 +200,16 @@ window.SQL = (function($, SQL) {
         return errors;
     };
 
+    SQL.getConsoleErrors = function() {
+        var consoleErrors = [];
+        for (var err in errors) {
+            if (errors[err].title === "Console error") {
+                consoleErrors.push(errors[err]);
+            }
+        } 
+        return consoleErrors;
+    };
+
     SQL.getAllLogs = function() {
         return sqlCache;
     };

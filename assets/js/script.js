@@ -800,6 +800,24 @@ window.StartManager = (function(StartManager, $) {
             });
         }
 
+        window.onerror = function(error, url, line) {
+            var mouseDownTargetHTML = gMouseEvents.getLastMouseDownTarget()
+                                               .clone().empty()[0].outerHTML;
+            var mouseDownTime = gMouseEvents.getLastMouseDownTime();
+
+            var info = {
+                error: error,
+                url: url,
+                line: line,
+                lastMouseDown: {
+                    el: mouseDownTargetHTML,
+                    time: mouseDownTime
+                }
+            };
+
+            SQL.errorLog("Console error", null, null, info);
+        };
+
         function tableScroll(scrollType, isUp) {
             if (!$("#workspaceTab").hasClass("active") ||
                 gActiveTableId == null)
