@@ -27,20 +27,19 @@ window.AboutModal = (function($, AboutModal) {
         var frontVersion = XVM.getVersion() + "-" + gGitVersion;
         var backVersionParts = XVM.getBackendVersion().split("-");
         var backVersion = backVersionParts[0] + "-" +
-                          backVersionParts[backVersionParts.length-1];
+                          backVersionParts[backVersionParts.length - 1];
         var thriftVersion = XVM.getSHA().substring(0, 8);
         // Both backend and front end must
         // have the same thrift version or they won't talk
 
         var licenseKey = XVM.getLicenseKey();
-        var $title = $modal.find(".title").eq(0);
         var capitalize = XVM.getLicenseMode()[0].toUpperCase() +
                          XVM.getLicenseMode().slice(1);
-        $title.text($title.text() + " - " + capitalize + " mode");
+        $modal.find(".mode .text").text(" - " + capitalize + " mode");
         $modal.find(".frontVersion .text").text(frontVersion);
         $modal.find(".backVersion .text").text(backVersion);
         $modal.find(".thriftVersion .text").text(thriftVersion);
-        $modal.find(".license span").text(licenseKey);
+        $modal.find(".license .text").text(licenseKey);
     };
 
     function closeModal() {
