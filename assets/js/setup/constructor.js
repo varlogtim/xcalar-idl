@@ -2919,11 +2919,11 @@ XcSubQuery.prototype = {
 // an object used for global Modal Actions
 function ModalHelper($modal, options) {
     /* options include:
-     * focusOnOpen: if set true, will focus on confirm btn when open modal
      * noResize: if set true, will not reszie the modal
      * noCenter: if set true, will not center the modal
      * noTabFocus: if set true, press tab will use browser's default behavior
      * noEsc: if set true, no event listener on key esc,
+     * noEnter: if set true, no event listener on key enter,
      * noBackground: if set true, no darkened modal background
      */
     this.$modal = $modal;
@@ -3031,6 +3031,32 @@ ModalHelper.prototype = {
                     return true;
                 }
                 $modal.find(".modalHeader .close").click();
+                return false;
+            } else if (event.which === keyCode.Enter) {
+                if (options.noEnter || $(":focus").hasClass('btn')) {
+                    // let default behavior take over
+                    return true;
+                }
+                var $btn = $modal.find('.modalBottom .btn:visible')
+                                 .filter(function() {
+                                    return (!$(this).hasClass('cancel') &&
+                                            !$(this).hasClass('close'));
+                                });
+                if ($btn.length === 0) {
+                    // no confirm button so treat as close
+                    if (!$modal.hasClass('locked')) {
+                        $modal.find(".modalHeader .close").click();
+                    }
+                } else if ($btn.length === 1) {
+                    // trigger confirm
+                    $btn.click();
+                } else {
+                    // multiple confirm buttons
+                    StatusBox.show(ErrTStr.SelectOption,
+                                    $modal.find('.modalBottom'), false,
+                                    {type: "info", highZindex: true,
+                                    offsetY: 12});
+                }
                 return false;
             }
         });
@@ -3286,11 +3312,6 @@ ModalHelper.prototype = {
             addFocusEvent($focusables[i], i);
         }
 
-        // focus on the right most button
-        if (this.options.focusOnOpen) {
-            getEleToFocus();
-        }
-
         $(document).on("keydown.xcModalTabbing" + this.id, function(event) {
             if (event.which === keyCode.Tab) {
                  // for switch between modal tab using tab key
@@ -3314,6 +3335,10 @@ ModalHelper.prototype = {
 
         // find the input or button that is visible and not disabled to focus
         function getEleToFocus() {
+            if (!$focusables.length) {
+                focusIndex = -1;
+                return;
+            }
             // the current ele is not active, should no by focused
             if (!isActive($focusables[focusIndex])) {
                 var start  = focusIndex;
@@ -3908,6 +3933,10 @@ FormHelper.prototype = {
 
         // find the input or button that is visible and not disabled to focus
         function getEleToFocus() {
+            if (!$focusables.length) {
+                focusIndex = -1;
+                return;
+            }
             // the current ele is not active, should no by focused
             if (!isActive($focusables[focusIndex])) {
                 var start  = focusIndex;

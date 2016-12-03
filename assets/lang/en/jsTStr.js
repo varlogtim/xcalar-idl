@@ -236,6 +236,7 @@ ErrTStr = {
     'OutputNotFoundMsg': 'Output is not available.',
     'SourceTableNotExists': 'Source table does not exist.',
     'TableNotExists': 'Table does not exist.',
+    'SelectOption': 'Please select an option.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

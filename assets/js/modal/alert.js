@@ -11,7 +11,6 @@ window.Alert = (function($, Alert){
         $btnSection = $("#alertActions");
 
         modalHelper = new ModalHelper($modal, {
-            "focusOnOpen": true,
             "noResize"   : true,
             "center"     : {"verticalQuartile": true}
         });
@@ -103,12 +102,7 @@ window.Alert = (function($, Alert){
         $modal.width(minWidth);
         $modal.height(minHeight);
 
-        modalHelper.setup(extraOptions)
-        .always(function() {
-            if (options.focusOnConfirm) {
-                $btnSection.find(".confirm").focus();
-            }
-        });
+        modalHelper.setup(extraOptions);
     };
 
     Alert.error = function(title, error, options) {
