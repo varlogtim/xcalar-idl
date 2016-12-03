@@ -951,7 +951,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testGetTableMeta(test) {
-        xcalarGetTableMeta(thriftHandle, origTable)
+        xcalarGetTableMeta(thriftHandle, origTable, false)
         .done(function(metaOutput) {
             printResult(metaOutput);
 
@@ -1035,7 +1035,7 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     function testGetTableCount(test) {
         var verifyTableCount = curryVerifyCountOutput(test);
-        xcalarGetTableMeta(thriftHandle, origTable)
+        xcalarGetTableMeta(thriftHandle, origTable, false)
         .done(verifyTableCount)
         .fail(test.fail);
     }
@@ -3132,7 +3132,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         }
 
         function indexDatasetSuccessFn(indexOutput) {
-            xcalarGetTableMeta(thriftHandle, indexOutput.tableName)
+            xcalarGetTableMeta(thriftHandle, indexOutput.tableName, false)
             .done(function(metaOutput) {
                 var totalCount = 0;
                 for (var ii = 0; ii < metaOutput.numMetas; ii++) {

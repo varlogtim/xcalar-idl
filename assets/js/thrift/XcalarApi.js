@@ -578,32 +578,35 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName,
     return (deferred.promise());
 }
 
-function xcalarGetMetaWorkItem(datasetName, tableName) {
+function xcalarGetMetaWorkItem(datasetName, tableName, isPrecise) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.getTableMetaInput = new XcalarApiNamedInputT();
+    workItem.input.getTableMetaInput = new XcalarApiGetTableMetaInputT()
+    workItem.input.getTableMetaInput.tableNameInput = new XcalarApiNamedInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetTableMeta;
     if (tableName == "") {
-        workItem.input.getTableMetaInput.isTable = false;
-        workItem.input.getTableMetaInput.name = datasetName;
+        workItem.input.getTableMetaInput.tableNameInput.isTable = false;
+        workItem.input.getTableMetaInput.tableNameInput.name = datasetName;
+        workItem.input.getTableMetaInput.isPrecise = isPrecise;
     } else {
-        workItem.input.getTableMetaInput.isTable = true;
-        workItem.input.getTableMetaInput.name = tableName;
+        workItem.input.getTableMetaInput.tableNameInput.isTable = true;
+        workItem.input.getTableMetaInput.tableNameInput.name = tableName;
+        workItem.input.getTableMetaInput.isPrecise = isPrecise;
     }
-    workItem.input.getTableMetaInput.xid = XcalarApiXidInvalidT;
+    workItem.input.getTableMetaInput.tableNameInput.xid = XcalarApiXidInvalidT;
 
     return (workItem);
 }
 
-function xcalarGetMetaInt(thriftHandle, datasetName, tableName) {
+function xcalarGetMetaInt(thriftHandle, datasetName, tableName, isPrecise) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetMeta(tableName = " + tableName + ", " +
                     "datasetName =" + datasetName + ")");
     }
 
-    var workItem = xcalarGetMetaWorkItem(datasetName, tableName);
+    var workItem = xcalarGetMetaWorkItem(datasetName, tableName, isPrecise);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -627,11 +630,11 @@ function xcalarGetMetaInt(thriftHandle, datasetName, tableName) {
 }
 
 function xcalarGetDatasetMeta(thriftHandle, datasetName) {
-    return (xcalarGetMetaInt(thriftHandle, datasetName, ""));
+    return (xcalarGetMetaInt(thriftHandle, datasetName, "", false));
 }
 
-function xcalarGetTableMeta(thriftHandle, tableName) {
-    return (xcalarGetMetaInt(thriftHandle, "", tableName));
+function xcalarGetTableMeta(thriftHandle, tableName, isPrecise) {
+    return (xcalarGetMetaInt(thriftHandle, "", tableName, isPrecise));
 }
 
 function xcalarShutdownWorkItem(force) {

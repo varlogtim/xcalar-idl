@@ -477,11 +477,11 @@ PromiseHelper = (function(PromiseHelper, $) {
             return xcalarAppRun(thriftHandle, name, false, "hello");
         })
         .then(function(result) {
-            var groupId = result.output.outputResult.appRunOutput.appGroupId;
+            var groupId = result.appGroupId;
             return xcalarAppReap(thriftHandle, groupId);
         })
         .then(function(result) {
-            var outStr = result.output.outputResult.appReapOutput.outStr;
+            var outStr = result.outStr;
             var expectedStr = "[[\"shello\"]]";
             if (outStr == expectedStr) {
                 test.pass();

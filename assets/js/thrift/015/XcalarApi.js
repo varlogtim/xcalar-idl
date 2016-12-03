@@ -249,6 +249,7 @@ function xcalarAppSet(thriftHandle, name, hostType, duty, execStr) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
+
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
@@ -289,13 +290,15 @@ function xcalarAppRun(thriftHandle, name, isGlobal, inStr) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function (result) {
         var status = result.output.hdr.status;
+        var appRunOutput = result.output.outputResult.appRunOutput;
+
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(result);
+        deferred.resolve(appRunOutput);
     })
     .fail(function(error) {
         console.log("xcalarAppRun() caught exception:", error);
@@ -326,13 +329,15 @@ function xcalarAppReap(thriftHandle, appGroupId) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function (result) {
         var status = result.output.hdr.status;
+        var appReapOutput = result.output.outputResult.appReapOutput;
+
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(result);
+        deferred.resolve(appReapOutput);
     })
     .fail(function(error) {
         console.log("xcalarAppReap() caught exception:", error);
