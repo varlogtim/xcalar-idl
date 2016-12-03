@@ -105,18 +105,6 @@ window.JoinView = (function($, JoinView) {
             resetJoinView();
         });
 
-        $joinTableName.blur(function() {
-            var tableName = $joinTableName.val().trim();
-            if (tableName && !xcHelper.isValidTableName(tableName)) {
-                // status box would get closed on blur event if no timeout
-                setTimeout(function() {
-                    StatusBox.show(ErrTStr.InvalidTableName, $joinTableName);
-                }, 0);
-
-                return;
-            }
-        });
-
         var joinTypeList = new MenuHelper($joinTypeSelect, {
             "onSelect": function($li) {
                 var joinType = $li.text();
