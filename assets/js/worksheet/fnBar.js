@@ -49,7 +49,10 @@ window.FnBar = (function(FnBar, $) {
             var val = editor.getValue();
             var mismatch = xcHelper.checkMatchingBrackets(val);
 
-            if (mismatch.index === -1) {
+            if (mismatch.index === -1) { 
+                // stop bubbling in case alert modal
+                // keydown also gets triggered by this
+                event.stopPropagation();
                 functionBarEnter();
             } else {
                 var funcStr = "\"" + val.slice(0, mismatch.index) +

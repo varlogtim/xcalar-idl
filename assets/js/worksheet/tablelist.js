@@ -1197,14 +1197,8 @@ window.TableList = (function($, TableList) {
         if ($noSheetTables.length > 0) {
             $noSheetTables.addClass("highlight");
             // must get highlight class from source
-            var $clone = $("#bottomMenu").clone();
             var noSheetTables = [];
             var wsToSent;
-
-            $clone.addClass("faux");
-            $("#modalBackground").after($clone);
-
-            $clone.css({"z-index": "initial"});
 
             Alert.show({
                 "title"  : SideBarTStr.SendToWS,
@@ -1215,7 +1209,6 @@ window.TableList = (function($, TableList) {
                 },
                 "onConfirm": function() {
                     $noSheetTables.removeClass("highlight");
-                    $("#bottomMenu.faux").remove();
 
                     var wsName = Alert.getOptionVal();
                     var wsId = WSManager.getWSIdByName(wsName);
@@ -1236,7 +1229,6 @@ window.TableList = (function($, TableList) {
                 },
                 "onCancel": function() {
                     $noSheetTables.removeClass("highlight");
-                    $("#bottomMenu.faux").remove();
                 }
             });
         } else {
