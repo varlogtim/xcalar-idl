@@ -3073,7 +3073,16 @@ function XcalarListXdfs(fnNamePattern, categoryPattern) {
     }
 
     xcalarApiListXdfs(tHandle, fnNamePattern, categoryPattern)
-    .then(deferred.resolve)
+    .then(function(listXdfsOutput) {
+        // xx remove findMinIdx until backend fixes crashes
+        for (var i = 0; i < listXdfsOutput.fnDescs.length; i++) {
+            if (listXdfsOutput.fnDescs[i].fnName === "findMinIdx") {
+                listXdfsOutput.fnDescs.splice(i , 1);
+                break;
+            }
+        }
+        deferred.resolve(listXdfsOutput);
+    })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarListXdf", error);
         SQL.errorLog("List Xdf", null, null, thriftError);
