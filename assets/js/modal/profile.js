@@ -583,7 +583,7 @@ window.Profile = (function($, Profile, d3) {
                             .attr("data-origina-title", "...")
                             .addClass("animatedEllipsis");
             } else {
-                var text = aggVal.toLocaleString();
+                var text = xcHelper.numToStr(aggVal);
                 $infoSection.find("." + aggkey)
                             .removeClass("animatedEllipsis")
                             .attr("data-original-title", text)
@@ -615,7 +615,7 @@ window.Profile = (function($, Profile, d3) {
                                 .attr("data-original-title", "...")
                                 .addClass("animatedEllipsis");
                 } else {
-                    var text = statsVal.toLocaleString();
+                    var text = xcHelper.numToStr(statsVal);
                     $infoSection.find("." + statsKey)
                                 .removeClass("animatedEllipsis")
                                 .attr("data-original-title", text)
@@ -1369,7 +1369,7 @@ window.Profile = (function($, Profile, d3) {
             return num;
         }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
-        return num.toLocaleString("en", {"maximumFractionDigits": "5"});
+        return xcHelper.numToStr(num, 5);
     }
 
     function resetScrollBar(updateRowInfo) {
@@ -1687,7 +1687,7 @@ window.Profile = (function($, Profile, d3) {
         var $maxRange = $skipInput.siblings(".max-range");
 
         // set width of elements
-        $maxRange.text(totalRows.toLocaleString());
+        $maxRange.text(xcHelper.numToStr(totalRows));
         $skipInput.width($maxRange.width() + 5); // 5 is for input padding
     }
 

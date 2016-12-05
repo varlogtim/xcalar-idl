@@ -1019,7 +1019,7 @@ window.TableList = (function($, TableList) {
                     tableName = CommonTxtTstr.NA;
                 }
                 if (aggConst.value != null) {
-                    value = aggConst.value;
+                    value = xcHelper.numToStr(aggConst.value);
                 } else {
                     value = CommonTxtTstr.NA;
                 }

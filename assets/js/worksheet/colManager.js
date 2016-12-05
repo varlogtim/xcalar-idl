@@ -1519,7 +1519,7 @@ window.ColManager = (function($, ColManager) {
         if (truncated) {
             var truncLen = tdValLen - limit;
             formatVal = formatVal.substr(0, limit) +
-                        "...(" + (truncLen.toLocaleString("en")) +
+                        "...(" + (xcHelper.numToStr(truncLen)) +
                         " " + TblTStr.Truncate + ")";
             tdClass += " truncated";
         }

@@ -1776,7 +1776,7 @@ window.DSPreview = (function($, DSPreview) {
                     // skip delimiter
                     if (hiddenStrLen) {
                         html += "<span class='truncMessage'>...(" +
-                                hiddenStrLen.toLocaleString("en") + " " +
+                                xcHelper.numToStr(hiddenStrLen) + " " +
                                 TblTStr.Truncate + ")</span>";
                     }
                     if (isTh) {
@@ -1838,7 +1838,7 @@ window.DSPreview = (function($, DSPreview) {
             var lenDiff = data.length - dataLen;
             if (lenDiff > 0) {
                 html += "<span class='truncMessage'>...(" +
-                        lenDiff.toLocaleString("en") + " " +
+                        xcHelper.numToStr(lenDiff) + " " +
                         TblTStr.Truncate + ")</span>";
             }
         }

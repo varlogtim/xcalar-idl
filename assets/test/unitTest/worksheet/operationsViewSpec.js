@@ -1355,7 +1355,7 @@ describe('OperationsView', function() {
                         num: 0,
                         str: gColPrefix + prefix + gPrefixSign + "yelping_since"
                     }],
-                    output: 1000
+                    output: "1,000"
                 };
 
                 runAgg(options)
@@ -1377,7 +1377,7 @@ describe('OperationsView', function() {
                         str: gAggVarPrefix + "yelping_since"
                     },
                     ],
-                    output: 1000
+                    output: "1,000"
                 };
 
                 runAgg(options)

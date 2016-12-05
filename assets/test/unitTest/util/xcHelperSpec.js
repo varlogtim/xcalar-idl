@@ -1693,6 +1693,15 @@ describe('xcHelper Test', function() {
         $modal.remove();
     });
 
+    it('xcHelper.numToStr should work', function() {
+        expect(xcHelper.numToStr(5)).to.equal("5");
+        expect(xcHelper.numToStr(1234)).to.equal("1,234");
+        expect(xcHelper.numToStr("1234")).to.equal("1,234");
+        expect(xcHelper.numToStr(1.12345)).to.equal("1.123");
+        expect(xcHelper.numToStr(1.12345, 5)).to.equal("1.12345");
+        expect(xcHelper.numToStr(null)).to.equal(null);
+        expect(xcHelper.numToStr(undefined)).to.equal(undefined);
+    });
 
     it('xcHelper.fillInputFromCell should work', function() {
         // case 1

@@ -215,7 +215,7 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-size").text(size);
 
         if (typeof numEntries === "number") {
-            numEntries = Number(numEntries).toLocaleString('en');
+            numEntries = xcHelper.numToStr(numEntries);
         }
 
         // If we are preloading the data, we want to show N/A until it is done
@@ -634,7 +634,7 @@ window.DSTable = (function($, DSTable) {
                     if (hiddenStrLen > 0) {
                         parsedVal = parsedVal.slice(0, colStrLimit) +
                                     "...(" +
-                                    hiddenStrLen.toLocaleString("en") + " " +
+                                    xcHelper.numToStr(hiddenStrLen) + " " +
                                     TblTStr.Truncate + ")";
                     }
                 }

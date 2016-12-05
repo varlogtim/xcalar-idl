@@ -2685,6 +2685,19 @@ window.xcHelper = (function($, xcHelper) {
         }, menuAnimTime + extraDelay);
     };
 
+
+    // adds commas to large numbers (52000 becomes "52,000")
+    xcHelper.numToStr = function(value, maxDecimals) {
+        if (maxDecimals == null) {
+            maxDecimals = 3;
+        }
+        if (value != null) {
+            value = Number(value).toLocaleString("en",
+                                        {"maximumFractionDigits": maxDecimals});
+        }
+        return value;
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

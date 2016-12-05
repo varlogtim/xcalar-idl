@@ -1348,7 +1348,7 @@ window.JSONModal = (function($, JSONModal) {
                         '</div>' +
                         '<div class="rowNum">Row:' +
                             '<span class="text">' +
-                                rowNum.toLocaleString("en") + '</span>' +
+                                xcHelper.numToStr(rowNum) + '</span>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +

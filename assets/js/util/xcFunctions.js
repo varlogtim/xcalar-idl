@@ -170,10 +170,9 @@ window.xcFunction = (function($, xcFunction) {
             }
 
             Transaction.done(txId, {"msgTable": tableId});
-
             // show result in alert modal
             var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
-                "val": value
+                "val": xcHelper.numToStr(value)
             });
 
             Alert.show({

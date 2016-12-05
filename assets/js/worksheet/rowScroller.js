@@ -251,7 +251,7 @@ window.RowScroller = (function($, RowScroller) {
             $numPages.text("");
         } else {
             var rowCount = table.resultSetCount;
-            var num = Number(rowCount).toLocaleString("en");
+            var num = xcHelper.numToStr(rowCount);
             $numPages.text("of " + num);
             var numDigits = ("" + rowCount).length;
             inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
