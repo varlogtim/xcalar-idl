@@ -333,6 +333,10 @@ function addMenuBehaviors($mainMenu) {
                 $('.tooltip').remove();
             }
         }, "li");
+
+        $subMenu.on('contextmenu', function(e) {
+            e.preventDefault();
+        });
     }
 
     $mainMenu.on('mouseup', 'li', function(event) {
@@ -400,6 +404,10 @@ function addMenuBehaviors($mainMenu) {
             $('.tooltip').remove();
         }
     }, "li");
+
+    $mainMenu.on('contextmenu', function(e) {
+        e.preventDefault();
+    });
 
     function showSubMenu($li, subMenuClass) {
         if ($li.hasClass('selected')) {

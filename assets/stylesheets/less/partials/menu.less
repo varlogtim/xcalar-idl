@@ -17,6 +17,34 @@
         text-align: center;
     }
 
+    .textAlign, .sort {
+        .xi-tick {
+            float: right;
+            margin-rigth: 2px;
+            line-height: 16px;
+            display: none;
+        }
+    }
+
+    &.textAlignLeft .leftAlign .xi-tick {
+        display: block;
+    }
+    &.textAlignCenter .centerAlign .xi-tick {
+        display: block;
+    }
+    &.textAlignRight .rightAlign .xi-tick {
+        display: block;
+    }
+    &.textAlignWrap .wrapAlign .xi-tick {
+        display: block;
+    }
+
+    &.sortedAsc li.sort .xi-tick {
+        display: block;
+    }
+    &.sortedDesc .revSort .xi-tick {
+        display: block;
+    }
 }
 
 #tableMenu {

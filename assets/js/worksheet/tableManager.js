@@ -2027,6 +2027,8 @@ window.TblManager = (function($, TblManager) {
             var isRightClick = event.rightClick;
 
             var colNum = xcHelper.parseColNum($th);
+            var table = gTables[tableId];
+            var progCol = table.tableCols[colNum - 1];
 
             $(".tooltip").hide();
             resetColMenuInputs($el);
@@ -2036,6 +2038,12 @@ window.TblManager = (function($, TblManager) {
 
             if ($th.hasClass('indexedColumn')) {
                 options.classes += " type-indexed";
+                var order = table.getOrdering();
+                if (order === XcalarOrderingT.XcalarOrderingAscending) {
+                    options.classes += " sortedAsc";
+                } else if (order === XcalarOrderingT.XcalarOrderingDescending) {
+                    options.classes += " sortedDesc";
+                }
             }
 
             if ($th.hasClass('dataCol')) {
@@ -2058,6 +2066,8 @@ window.TblManager = (function($, TblManager) {
             if ($el.closest('.xcTable').hasClass('emptyTable')) {
                 options.classes += " type-emptyTable";
             }
+
+            options.classes += " textAlign" + progCol.textAlign;
 
             if ($('th.selectedCell').length > 1) {
                 options.classes += " type-multiColumn";
