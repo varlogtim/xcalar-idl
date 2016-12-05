@@ -1268,6 +1268,16 @@ html.edge {
         background-color: white;
     }
 
+    &.emptyTable {
+        // disables bookmarking on empty table
+        td:first-child {
+            cursor: initial;
+        }
+        .idWrap {
+            pointer-events: none;
+        }
+    }
+
     tbody tr {
         td {
             .idWrap {

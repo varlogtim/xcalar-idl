@@ -32,12 +32,12 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.parseRowNum = function($el) {
+    xcHelper.parseRowNum = function($tr) {
         var keyword = "row";
-        var classNames = $el.attr("class");
+        var classNames = $tr.attr("class");
 
         if (classNames == null) {
-            console.error("Unexpected element to parse row", $el);
+            console.error("Unexpected element to parse row", $tr);
             return null;
         }
 
@@ -46,7 +46,7 @@ window.xcHelper = (function($, xcHelper) {
         var rowNum = parseInt(substring);
 
         if (isNaN(rowNum)) {
-            console.error("Unexpected element to parse row", $el);
+            console.error("Unexpected element to parse row", $tr);
             return null;
         }
 

@@ -1834,10 +1834,16 @@ window.TblManager = (function($, TblManager) {
             }
         });
 
+        // bookmark
         $trs.find('.idSpan').click(function() {
             var tableId = xcHelper.parseTableId($(this).closest('table'));
-            var rowNum = parseInt($(this).closest('tr').attr('class').substring(3));
-            if (gTables[tableId].bookmarks.indexOf(rowNum) < 0) {
+            var table = gTables[tableId];
+            if (table.resultSetCount === 0) {
+                // no rows to bookmark
+                return;
+            } 
+            var rowNum = xcHelper.parseRowNum($(this).closest('tr'));
+            if (table.bookmarks.indexOf(rowNum) < 0) {
                 TblManager.bookmarkRow(rowNum, tableId);
             } else {
                 TblManager.unbookmarkRow(rowNum, tableId);
