@@ -1947,6 +1947,9 @@ window.TblManager = (function($, TblManager) {
                             unhighlightColumn($col);
                         }
                     }
+                    if ($table.find('.selectedCell').length === 0) {
+                        FnBar.clear();
+                    }
                 }
             } else {
                 if ($el.closest('.selectedCell').length > 0) {
@@ -1967,17 +1970,23 @@ window.TblManager = (function($, TblManager) {
             lastSelectedCell = $editableHead;
         });
 
-        $thead[0].oncontextmenu = function(event) {
-            var $target = $(event.target).closest('.header');
-            if ($target.length) {
-                $target = $target.find('.dropdownBox');
-                var click = $.Event("click");
-                click.rightClick = true;
-                click.pageX = event.pageX;
-                $target.trigger(click);
+        $thead.contextmenu(function(event) {
+            var $evTarget = $(event.target);
+            var $header = $evTarget.closest('.header');
+            if ($header.length) {
+                var $dotWrap = $evTarget.closest('.dotWrap');
+                if ($dotWrap.length) {
+                    dotWrapClick($dotWrap);
+                } else {
+                    var $target = $header.find('.dropdownBox');
+                    var click = $.Event("click");
+                    click.rightClick = true;
+                    click.pageX = event.pageX;
+                    $target.trigger(click);
+                }
                 event.preventDefault();
             }
-        };
+        });
 
         $thead.find(".rowNumHead").mousedown(function() {
             if ($thead.closest('.modalOpen').length ||
@@ -1989,22 +1998,16 @@ window.TblManager = (function($, TblManager) {
             });
         });
 
-        $thead.on("click", ".topHeader .dotWrap", function() {
-            var $dotWrap = $(this);
-            var $dot = $dotWrap.find(".dot");
-            var $topHeader = $dotWrap.closest(".topHeader");
-            var x = $dot[0].getBoundingClientRect().left;
-            var y = $topHeader[0].getBoundingClientRect().bottom;
-            var $menu = $("#prefixColorMenu");
-            var prefix = $topHeader.find(".prefix").text();
-            var color = $topHeader.data("color");
+        $thead.on("mousedown", ".topHeader .dotWrap", function() {
+            var $th = $(this).closest('th')
+            var colNum = xcHelper.parseColNum($th);
+            FnBar.focusOnCol($th, tableId, colNum);
+            highlightColumn($th, false);
+            lastSelectedCell = $editableHead;
+        });
 
-            xcHelper.dropdownOpen($dotWrap, $menu, {
-                "mouseCoors": {"x": x + 1, "y": y},
-                "floating"  : true,
-                "prefix"    : prefix,
-                "color"     : color
-            });
+        $thead.on("click", ".topHeader .dotWrap", function() {
+            dotWrapClick($(this));
         });
 
         $thead.on("click", ".dropdownBox", function(event) {
@@ -2333,6 +2336,23 @@ window.TblManager = (function($, TblManager) {
         $thead.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
         });
+
+        function dotWrapClick($dotWrap) {
+            var $dot = $dotWrap.find(".dot");
+            var $topHeader = $dotWrap.closest(".topHeader");
+            var x = $dot[0].getBoundingClientRect().left;
+            var y = $topHeader[0].getBoundingClientRect().bottom;
+            var $menu = $("#prefixColorMenu");
+            var prefix = $topHeader.find(".prefix").text();
+            var color = $topHeader.data("color");
+
+            xcHelper.dropdownOpen($dotWrap, $menu, {
+                "mouseCoors": {"x": x + 1, "y": y},
+                "floating"  : true,
+                "prefix"    : prefix,
+                "color"     : color
+            });
+        }
     };
 
     // creates thead and cells but not the body of the table
