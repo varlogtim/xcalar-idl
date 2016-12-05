@@ -2580,11 +2580,6 @@ SearchBar.prototype = {
                 }
                 $selectedMatch.addClass('selected');
                 searchBar.$position.html(searchBar.matchIndex + 1);
-                // if (options.scrollMatchIntoView) {
-                //     options.scrollMatchIntoView($selectedMatch);
-                // } else {
-
-                // }
                 searchBar.scrollMatchIntoView($selectedMatch);
             }
         }

@@ -755,14 +755,13 @@ window.JSONModal = (function($, JSONModal) {
 
     function scrollMatchIntoView($match) {
         var $modalWindow = $match.closest('.prettyJson');
-        var modalHeight = $modalWindow.height();
+        var modalHeight = $modalWindow.outerHeight();
         var scrollTop = $modalWindow.scrollTop();
-        var matchOffsetTop = $match.position().top +
-                            $match.closest('.mainKey').position().top;
-        if (matchOffsetTop > (scrollTop + modalHeight - 35)) {
-            $modalWindow.scrollTop(matchOffsetTop + 40 - (modalHeight / 2));
-        } else if (matchOffsetTop < (scrollTop - 25)) {
-            $modalWindow.scrollTop(matchOffsetTop + 30 - (modalHeight / 2));
+        var modalWindowTop = $modalWindow.offset().top;
+        var matchOffset = $match.offset().top - modalWindowTop;
+
+        if (matchOffset > modalHeight - 15 || matchOffset < 0) {
+            $modalWindow.scrollTop(scrollTop + matchOffset - (modalHeight / 2));
         }
     }
 
