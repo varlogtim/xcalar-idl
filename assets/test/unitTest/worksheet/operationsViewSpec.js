@@ -923,8 +923,8 @@ describe('OperationsView', function() {
             });
 
             it('mapFilter keydown enter should work', function() {
-                $filterInput.val('findMinidx').trigger(fakeEvent.input);
-                expect($categoryMenu.find('li').eq(0).hasClass('active')).to.be.true;
+                $filterInput.val('aTAn2').trigger(fakeEvent.input);
+                expect($categoryMenu.find('li').eq(6).hasClass('active')).to.be.true;
                 expect($functionsMenu.find('li:visible').length).to.equal(1);
                 expect($functionsMenu.find('li:visible').eq(0).hasClass('active')).to.be.false;
                 expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.be.true;
@@ -936,8 +936,8 @@ describe('OperationsView', function() {
             });
 
             it('mapFilter clear should work', function() {
-                $filterInput.val('findMinidx').trigger(fakeEvent.input);
-                expect($filterInput.val()).to.equal('findMinidx');
+                $filterInput.val('atan2').trigger(fakeEvent.input);
+                expect($filterInput.val()).to.equal('atan2');
                 expect($categoryMenu.find('li:visible').length).to.equal(1);
                 expect($functionsMenu.find('li:visible').length).to.equal(1);
 
@@ -1271,8 +1271,8 @@ describe('OperationsView', function() {
 
                 $functionsInput.val('avg').trigger('change');
                 expect($aggForm.find('.argsSection').hasClass('inactive')).to.be.false;
-                expect($aggForm.find('.descriptionText').text()).to.equal("Description: Computes average value in a set.");
-                expect($aggForm.find('.description').eq(0).text()).to.equal("Field name to compute average value of:");
+                expect($aggForm.find('.descriptionText').text()).to.equal("Description: Computes the average (mean) value in a set.");
+                expect($aggForm.find('.description').eq(0).text()).to.equal("Field name to compute average (mean) value of:");
                 expect($aggForm.find('.colNameSection .arg').val()).to.equal("");
             });
         });
