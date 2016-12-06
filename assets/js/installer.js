@@ -371,14 +371,14 @@ window.Installer = (function(Installer, $) {
             finalStruct.nfsOption = {};
             deferred.resolve();
         } else {
-            if ($("#nfsServer").html().trim().length === 0) {
+            if ($("#nfsServer").text().trim().length === 0) {
                 deferred.reject("NFS Server Invalid",
                               "You must provide a valid NFS Server IP or FQDN");
             } else {
                 finalStruct.nfsOption = {};
-                finalStruct.nfsOption.nfsServer = $("#nfsServer").html().trim();
+                finalStruct.nfsOption.nfsServer = $("#nfsServer").text().trim();
                 finalStruct.nfsOption.nfsMountPoint = "/" + $("#nfsMountPoint")
-                                                                 .html().trim();
+                                                                 .text().trim();
                 finalStruct.nfsOption.nfsUsername = $("#nfsUserName").val()
                                                                      .trim();
                 finalStruct.nfsOption.nfsGroup = $("#nfsUserGroup").val()
