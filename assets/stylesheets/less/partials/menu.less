@@ -489,12 +489,16 @@
     &.type-multiColumn {
         .multiColumn {
             &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType,
-            &.resizeColumns, &.extensions {
+            &.resizeColumns, &.extensions, &.multiGroupby {
                 display: list-item !important;
                 li {
                     display: list-item !important;
                 }
             }
+            &.divider {
+                display: block;
+            }
+
 
         }
 
@@ -521,6 +525,12 @@
                 &.multiChangeDataType {
                     display: none !important;
                 }
+            }
+        }
+
+        &.type-undefined, &.type-newColumn {
+            .multiGroupby {
+                display: none !important;
             }
         }
 

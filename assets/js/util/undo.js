@@ -64,8 +64,8 @@ window.Undo = (function($, Undo) {
             // show filter form if filter was triggered from the form and was
             // the most recent operation
             if (isMostRecent && options.formOpenTime) {
-                OperationsView.show(null, null, null, true,
-                                    options.formOpenTime);
+                OperationsView.show(null, null, null, {restore: true,
+                                    restoreTime: options.formOpenTime});
             }
             deferred.resolve();
         })
@@ -93,8 +93,8 @@ window.Undo = (function($, Undo) {
             // most recent operation
             if (isMostRecent &&
                 (options.mapOptions && options.mapOptions.formOpenTime)) {
-                OperationsView.show(null, null, null, true,
-                                    options.mapOptions.formOpenTime);
+                OperationsView.show(null, null, null, {restore: true,
+                               restoreTime: options.mapOptions.formOpenTime});
             }
             deferred.resolve();
         })
@@ -223,8 +223,8 @@ window.Undo = (function($, Undo) {
         promise.then(function() {
             if (isMostRecent &&
                 (options.options && options.options.formOpenTime)) {
-                OperationsView.show(null, null, null, true,
-                                    options.options.formOpenTime);
+                OperationsView.show(null, null, null, {restore: true,
+                                  restoreTime: options.options.formOpenTime});
             }
             deferred.resolve();
         })

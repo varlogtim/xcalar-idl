@@ -148,7 +148,7 @@ describe('OperationsView', function() {
                 }
             });
 
-            OperationsView.show(tableId, 1, 'group by')
+            OperationsView.show(tableId, [1], 'group by')
             .then(function() {
                 operatorsMap = OperationsView.getOperatorsMap();
                 $functionInput = $operationsView.find('.groupby .functionsInput');
@@ -332,6 +332,25 @@ describe('OperationsView', function() {
             });
         });
 
+        describe('multiGroupBy from multiple selected columns', function() {
+            before(function(done) {
+                $("#operationsView .close").click();
+                setTimeout(function() {
+                    done();
+                }, 500);
+            })
+            
+            it('2 selected columns should produce 2 group on inputs', function(done) {
+                OperationsView.show(tableId, [1, 2], 'group by')
+                .then(function() {
+                    expect($operationsModal.find('.gbOnArg').length).to.equal(2);
+                    expect($operationsModal.find('.gbOnArg').eq(0).val()).to.equal(gColPrefix + prefix + gPrefixSign + "yelping_since");
+                    expect($operationsModal.find('.gbOnArg').eq(1).val()).to.equal(gColPrefix + prefix + gPrefixSign + "votes");
+                    done();
+                });
+            });
+        });
+
         after(function() {
             $("#operationsView .close").click();
         });
@@ -459,7 +478,7 @@ describe('OperationsView', function() {
                 }
             });
 
-            OperationsView.show(tableId, 1, 'map')
+            OperationsView.show(tableId, [1], 'map')
             .then(function() {
                 operatorsMap = OperationsView.getOperatorsMap();
                 $categoryMenu = $operationsView.find('.map .categoryMenu');
@@ -597,7 +616,7 @@ describe('OperationsView', function() {
                 }
             });
 
-            OperationsView.show(tableId, 1, 'filter')
+            OperationsView.show(tableId, [1], 'filter')
             .then(function() {
                 $functionsInput = $operationsView.find('.filter .functionsInput');
                 $functionsList = $functionsInput.siblings('.list');
@@ -741,7 +760,7 @@ describe('OperationsView', function() {
                 }
             });
 
-            OperationsView.show(tableId, 1, 'filter')
+            OperationsView.show(tableId, [1], 'filter')
             .then(function() {
                 $functionsInput = $operationsView.find('.filter .functionsInput');
                 $functionsList = $functionsInput.siblings('.list');
@@ -859,7 +878,7 @@ describe('OperationsView', function() {
                 }
             });
 
-            OperationsView.show(tableId, 1, 'map')
+            OperationsView.show(tableId, [1], 'map')
             .then(function() {
                 $categoryMenu = $operationsView.find('.map .categoryMenu');
                 $functionsMenu = $operationsView.find('.map .functionsMenu');
@@ -1227,7 +1246,7 @@ describe('OperationsView', function() {
             });
 
 
-            OperationsView.show(tableId, 1, 'aggregate')
+            OperationsView.show(tableId, [1], 'aggregate')
             .then(function() {
                 $aggForm = $operationsView.find('.aggregate:visible');
                 $functionsInput = $aggForm.find('.functionsInput:visible');
@@ -1450,13 +1469,13 @@ describe('OperationsView', function() {
                         })
                         .always(function() {
                             Alert.forceClose();
-                            OperationsView.show(tableId, 1, 'aggregate')
+                            OperationsView.show(tableId, [1], 'aggregate')
                             .then(function() {
                                 deferred.resolve();
                             }); 
                         });
                     } else {
-                        OperationsView.show(tableId, 1, 'aggregate')
+                        OperationsView.show(tableId, [1], 'aggregate')
                         .then(function() {
                             deferred.resolve();
                         }); 

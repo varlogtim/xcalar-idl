@@ -74,21 +74,15 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var exitType = $(this).data('exittype');
             switch (exitType) {
-                case ('aggregate'):
-                    OperationsView.close();
-                    break;
                 case ('export'):
                     ExportView.close();
                     break;
                 case ('smartCast'):
                     SmartCastView.close();
                     break;
+                case ('aggregate'):
                 case ('filter'):
-                    OperationsView.close();
-                    break;
                 case ('groupby'):
-                    OperationsView.close();
-                    break;
                 case ('map'):
                     OperationsView.close();
                     break;
@@ -664,10 +658,19 @@ window.TblMenu = (function(TblMenu, $) {
             if (event.which !== 1 || $(this).hasClass('unavailable')) {
                 return;
             }
-            var colNum = $colMenu.data('colNum');
+            var $li = $(this);
             var tableId = $colMenu.data('tableId');
-            var func = $(this).data('func');
-            OperationsView.show(tableId, colNum, func);
+            var func = $li.data('func');
+            var colNums;
+            var options = {};
+            if ($li.hasClass('multiGroupby')) {
+                options.multiGroupby = true;
+                colNums = $colMenu.data('columns');
+            } else {
+                colNums = [$colMenu.data('colNum')];
+            }
+
+            OperationsView.show(tableId, colNums, func, options);
         });
 
         $colMenu.on('mouseup', '.profile', function(event) {
@@ -856,23 +859,17 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var exitType = $(this).data('exittype');
             switch (exitType) {
-                case ('aggregate'):
-                    OperationsView.close();
-                    break;
                 case ('export'):
                     ExportView.close();
                     break;
-                case ('smartCast'):
-                    SmartCastView.close();
-                    break;
+                case ('aggregate'):
                 case ('filter'):
-                    OperationsView.close();
-                    break;
                 case ('groupby'):
-                    OperationsView.close();
-                    break;
                 case ('map'):
                     OperationsView.close();
+                    break;
+                case ('smartCast'):
+                    SmartCastView.close();
                     break;
                 case ('join'):
                     JoinView.close();

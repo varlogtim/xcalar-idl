@@ -623,10 +623,14 @@ window.OperationsView = (function($, OperationsView) {
         });
     };
 
+    // options
     // restore: boolean, if true, will not clear the form from it's last state
-    OperationsView.show = function(currTableId, currColNum, operator, restore,
-                                   restoreTime) {
-        if (restoreTime && restoreTime !== formOpenTime) {
+    // restoreTime: time when previous operation took place
+    OperationsView.show = function(currTableId, currColNums, operator,
+                                   options) {
+        options = options || {};
+
+        if (options.restoreTime && options.restoreTime !== formOpenTime) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
             // overwritten
@@ -638,7 +642,7 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.showView();
         formOpenTime = Date.now();
 
-        if (restore) {
+        if (options.restore) {
             $activeOpSection.removeClass('xc-hidden');
         } else {
             operatorName = operator.toLowerCase().trim();
@@ -647,8 +651,8 @@ window.OperationsView = (function($, OperationsView) {
             showOpSection();
             resetForm();
 
-            currentCol = gTables[tableId].getCol(currColNum);
-            colNum = currColNum;
+            colNum = currColNums[0];
+            currentCol = gTables[tableId].getCol(colNum);
             colName = currentCol.getFrontColName(true);
             isNewCol = currentCol.isNewCol;
         }
@@ -656,8 +660,11 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.submit').text(operatorName.toUpperCase());
 
         // highlight active column
-        $('#xcTable-' + tableId).find('.col' + colNum)
-                                .addClass('modalHighlighted');
+        if (currColNums && currColNums.length === 1) {
+            $('#xcTable-' + tableId).find('.col' + colNum)
+                                    .addClass('modalHighlighted');
+        }
+        
         operationsViewShowListeners();
 
         // used for css class
@@ -683,7 +690,7 @@ window.OperationsView = (function($, OperationsView) {
             XcalarListXdfs("*", "User*")
             .then(function(listXdfsObj) {
                 udfUpdateOperatorsMap(listXdfsObj.fnDescs);
-                operationsViewShowHelper(restore);
+                operationsViewShowHelper(options.restore);
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -691,7 +698,7 @@ window.OperationsView = (function($, OperationsView) {
                 deferred.reject();
             });
         } else {
-            operationsViewShowHelper(restore);
+            operationsViewShowHelper(options.restore, currColNums);
             deferred.resolve();
         }
         return (deferred.promise());
@@ -705,12 +712,6 @@ window.OperationsView = (function($, OperationsView) {
     OperationsView.close = function() {
         if (isOpen) {
             closeOpSection();
-        }
-    };
-
-    OperationsView.updateTableLists = function() {
-        if (isOpen) {
-
         }
     };
 
@@ -745,7 +746,8 @@ window.OperationsView = (function($, OperationsView) {
 
     // listeners added whenever operation view opens
     function operationsViewShowListeners() {
-        $('.xcTable').on('mousedown', '.header, td.clickable', keepInputFocused);
+        $('.xcTable').on('mousedown', '.header, td.clickable',
+                          keepInputFocused);
 
         $(document).on('click.OpSection', function() {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
@@ -774,7 +776,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // functions that get called after list udfs is called during op view show
-    function operationsViewShowHelper(restore) {
+    function operationsViewShowHelper(restore, colNums) {
         var aggs = Aggregates.getNamedAggs();
         aggNames = [];
         for (var i in aggs) {
@@ -802,7 +804,7 @@ window.OperationsView = (function($, OperationsView) {
             if (operatorName === "map") {
                 $('#mapFilter').focus();
             } else if (operatorName === "group by") {
-                $activeOpSection.find('.gbOnArg').val(gColPrefix + colName);
+                populateGroupOnFields(colNums);
             } else {
                 $activeOpSection.find('.functionsInput').focus();
             }
@@ -833,6 +835,19 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.removeWaitingBG();
         formHelper.refreshTabbing();
     }
+
+    function populateGroupOnFields(colNums) {
+        $activeOpSection.find('.gbOnArg').val(gColPrefix + colName);
+
+        for (var i = 1; i < colNums.length; i++) {
+            var progCol = gTables[tableId].getCol(colNums[i]);
+            if (!progCol.isNewCol) {
+                addGroupOnArg();var name = progCol.getFrontColName(true);
+                $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);
+            }
+        }
+        $activeOpSection.find('.gbOnArg').last().blur();
+    }       
 
     function showOpSection() {
         var concatedOpName = operatorName.replace(/ /g, "");
@@ -3061,7 +3076,7 @@ window.OperationsView = (function($, OperationsView) {
                 name     : btnText,
                 className: btnClass,
                 func     : function() {
-                    OperationsView.show(null , null , null , true);
+                    OperationsView.show(null , null , null , {restore: true});
                 }
             }]
         });
