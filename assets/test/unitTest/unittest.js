@@ -187,9 +187,15 @@ window.UnitTest = (function(UnitTest, $) {
         return deferred.promise();
     };
 
-    UnitTest.deleteTable = function(table) {
-        var tableId = xcHelper.getTableId(table);
-        return TblManager.deleteTables(tableId, TableType.Active, true);
+    UnitTest.deleteTable = function(table, type) {
+        type = type || TableType.Active;
+        var tableId;
+        if (type === TableType.Orphan) {
+            tableId = table;
+        } else {
+            tableId = xcHelper.getTableId(table);
+        }
+        return TblManager.deleteTables(tableId, type, true);
     };
 
     UnitTest.deleteDS = function(dsName) {
@@ -253,6 +259,20 @@ window.UnitTest = (function(UnitTest, $) {
         }
 
         assert.isFalse($alertModal.is(":visible"));
+    };
+
+    UnitTest.hasAlertWithText = function(text, options) {
+        options = options || {};
+        var $alertModal = $("#alertModal");
+        assert.isTrue($alertModal.is(":visible"));
+        expect($("#alertContent .text").text()).to.equal(text);
+        if (options.confirm)  {
+            $alertModal.find(".confirm").click();
+        } else {
+            $alertModal.find(".cancel").click();
+        }
+
+        assert.isFalse($alertModal.is(":visible")); 
     };
 
     return (UnitTest);

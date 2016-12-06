@@ -296,6 +296,10 @@ window.FnBar = (function(FnBar, $) {
         editor.setCursor(0, valLen);
     };
 
+    FnBar.getEditor = function() {
+        return editor;
+    }
+
     function clearSearch() {
         $functionArea.removeClass('searching');
         $functionArea.find('.position').hide();
@@ -567,7 +571,7 @@ window.FnBar = (function(FnBar, $) {
         
         var tableCol = table.tableCols[colNum - 1];
 
-        tableCol.userStr = "\"" + tableCol.name + "\"" + " = " +
+        tableCol.userStr = "\"" + tableCol.getFrontColName() + "\"" + " = " +
                             fnBarVal;
     }
 
@@ -628,11 +632,14 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function functionBarEnter() {
+        var deferred = jQuery.Deferred();
+
         var fnBarVal = editor.getValue().trim();
         var $colInput = $lastColInput;
 
         if (!$colInput || !$colInput.length) {
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
 
         if (fnBarVal.indexOf('=') === 0) {
@@ -641,18 +648,20 @@ window.FnBar = (function(FnBar, $) {
             var colNum   = xcHelper.parseColNum($colInput);
             var table    = gTables[tableId];
             var tableCol = table.tableCols[colNum - 1];
-            var colName  = tableCol.name;
+            var colName = tableCol.getBackColName();
+            var frontColName  = tableCol.getFrontColName();
             var cursor = editor.getCursor();
 
-            if (tableCol.isNewCol && colName === "") {
+            if (tableCol.isNewCol && frontColName === "") {
                 // when it's new column and do not give name yet
                 StatusBox.show(ErrTStr.NoEmpty, $colInput);
-                return;
+                deferred.reject();
+                return deferred.promise();
             }
 
             $fnBar.removeClass("inFocus");
 
-            var newFuncStr = '"' + colName + '" ' + fnBarVal;
+            var newFuncStr = '"' + frontColName + '" ' + fnBarVal;
             var oldUsrStr  = tableCol.userStr;
             var fnBarValNoSpace = xcHelper.removeNonQuotedSpaces(
                                                         fnBarVal.slice(1));
@@ -661,19 +670,22 @@ window.FnBar = (function(FnBar, $) {
             $colInput.blur();
             // when usrStr not change
             if (fnBarValNoSpace === oldUsrStrNoSpace) {
-                return;
+                deferred.reject();
+                return deferred.promise();
             }
 
             var operation = getOperationFromFuncStr(newFuncStr);
             if (mainOperators.indexOf(operation) < 0) {
                 invalidOperationHandler(operation, fnBarVal);
-                return;
+                deferred.reject();
+                return deferred.promise();
             } else if (operation !== "pull") {
                 // check if correct number of parenthesis exists, should have
                 // at least two
                 if (newFuncStr.replace(/[^(]/g, "").length < 2) {
                     invalidNumParensHandler();
-                    return;
+                    deferred.reject();
+                    return deferred.promise();
                 }
             }
            
@@ -695,16 +707,23 @@ window.FnBar = (function(FnBar, $) {
                 };
                 showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
                                  confirmFunc, buttonOption);
+                deferred.reject();
             } else {
                 var confirmFunc = function() {
+                    var innerDeferred = jQuery.Deferred();
                     ColManager.execCol(operation, newFuncStr, tableId, colNum)
                     .then(function(ret) {
                         if (ret === "update") {
                             TblManager.updateHeaderAndListInfo(tableId);
                             KVStore.commit();
                         }
-                    });
+                        innerDeferred.resolve(ret);
+                    })
+                    .fail(innerDeferred.reject);
+
                     isAlertOpen = false;
+
+                    return innerDeferred.promise();
                 };
 
                 // show alert if column in string does not match selected col
@@ -716,12 +735,18 @@ window.FnBar = (function(FnBar, $) {
                     });
                     showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
                                      confirmFunc);
+                    deferred.reject();
                 } else {
                     // no errors, submit the function
-                    confirmFunc();
+                    confirmFunc()
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
                 }
             }
+        } else {
+            deferred.reject();
         }
+        return deferred.promise();
     }
 
     function invalidOperationHandler(operation, fnBarVal) {
@@ -835,6 +860,13 @@ window.FnBar = (function(FnBar, $) {
         operation = operation.substr(0, operation.indexOf("(")).trim();
         return (operation);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        FnBar.__testOnly__ = {};
+        FnBar.__testOnly__.functionBarEnter = functionBarEnter;
+    }
+    /* End Of Unit Test Only */
 
     return (FnBar);
 }({}, jQuery));
