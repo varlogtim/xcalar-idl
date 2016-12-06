@@ -3627,8 +3627,8 @@ FormHelper.Template = {
     "rename": '<div class="rename">' +
                 '<input class="columnName origName arg" type="text" ' +
                 'spellcheck="false" disabled/>' +
-                '<div class="middleIcon">' +
-                    '<div class="renameIcon iconWrapper">' +
+                '<div class="middleIcon renameIcon">' +
+                    '<div class="iconWrapper">' +
                         '<i class="icon xi-play-circle fa-14"></i>' +
                     '</div>' +
                 '</div>' +

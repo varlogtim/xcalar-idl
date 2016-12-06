@@ -1438,6 +1438,13 @@ window.JoinView = (function($, JoinView) {
         } else {
             $("#prefixHeader").hide();
         }
+
+        // scroll to rename section
+        $joinView.find('.mainContent').scrollTop(0);
+        var renameTop = $renameSection.position().top -
+                        $joinView.find('header .title').height();
+        $joinView.find('.mainContent').scrollTop(renameTop);
+
         formHelper.refreshTabbing();
         deferred.reject();
         return deferred.promise();
