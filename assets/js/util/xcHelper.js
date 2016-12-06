@@ -845,7 +845,7 @@ window.xcHelper = (function($, xcHelper) {
             $text = $text.add($largeText);
             var $textAndCheckMark = $checkMark.add($text);
             $textAndCheckMark.addClass('hidden');
-            $checkMark.hide();
+            $checkMark.hide().addClass('bounceInDown');
 
             successTimers.step1 = setTimeout(function() {
                 $text.removeClass('hidden');
@@ -863,6 +863,9 @@ window.xcHelper = (function($, xcHelper) {
                 xcHelper.hideSuccessBox();
             }, 2600);
         } else {
+            $successMessage.find('.hidden').removeClass('hidden');
+            $successMessage.find('.checkMark').removeClass('bounceInDown')
+                                              .show();
             successTimers.step4 = setTimeout(function() {
                 xcHelper.hideSuccessBox();
             }, 1800);
