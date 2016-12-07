@@ -74,17 +74,17 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var exitType = $(this).data('exittype');
             switch (exitType) {
-                case ('export'):
-                    ExportView.close();
-                    break;
-                case ('smartCast'):
-                    SmartCastView.close();
-                    break;
                 case ('aggregate'):
                 case ('filter'):
                 case ('groupby'):
                 case ('map'):
                     OperationsView.close();
+                    break;
+                case ('export'):
+                    ExportView.close();
+                    break;
+                case ('smartCast'):
+                    SmartCastView.close();
                     break;
                 case ('join'):
                     JoinView.close();
@@ -100,6 +100,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
         });
 
+        // xx currently not visible
         $tableMenu.on('mouseup', '.copyColNames', function(event) {
             if (event.which !== 1) {
                 return;
@@ -428,7 +429,6 @@ window.TblMenu = (function(TblMenu, $) {
                 colNums = [$colMenu.data('colNum')];
                 decimals.push(decimal);
             }
-
             ColManager.roundToFixed(colNums, tableId, decimals);
             closeMenu($allMenus);
         });
