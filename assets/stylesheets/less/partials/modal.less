@@ -2265,52 +2265,52 @@ html.microsoft {
            border-collapse: collapse;
         }
 
-        td:first-child {
-            text-transform: capitalize;
-        }
-
         .boxed {
             .textOverflowOneLine;
             .text-selection;
         }
     }
 
-    table {
-        border-collapse: collapse;
-        td {
+    .flexContainer {
+        > div {
             text-align: left;
-            padding: 0px 5px;
-            .font(@weight: 600, @size: 12px, @color: @color-font-navy);
+            padding: 0px;
+            margin: 0px 5px;
+            .font(@line-height: 30px, @weight: 600, @size: 12px, @color: @color-font-navy);
+
+            &:first-child {
+                text-transform: capitalize;
+            }
+        }
+        .boxed {
+            .size(@height: 30px);
+            .font(@color: @color-font-select-blue);
+            background-color: @color-bg-white-three;
+            border: 1px solid @color-border-white-five;
+            padding: 0px 4px 0px 6px;
+
+            &.small {
+                .size(@min-width: 35px, @max-width: 50px);
+                text-align: center;
+                padding-left: 6px;
+            }
+            &.sm-med {
+                .flex(1 0 120px);
+                .size(@width: 120px);
+            }
+            &.medium {
+                .size(@min-width: 120px, @max-width: 350px);
+                .size(@width: 350px);
+            }
+            &.large {
+                .size(@min-width: 400px, @max-width: 600px);
+            }
+            &.xlarge {
+                .size(@min-width: 500px, @max-width: 800px);
+            }
 
             .boxed {
-                .size(@height: 30px);
-                .font(@line-height: 30px, @color: @color-font-select-blue);
-                background-color: @color-bg-white-three;
-                border: 1px solid @color-border-white-five;
-                padding: 0px 4px 0px 6px;
-
-                &.small {
-                    .size(@min-width: 35px, @max-width: 50px);
-                    text-align: center;
-                    padding-left: 6px;
-                }
-                &.sm-med {
-                    .size(@width: 120px);
-                }
-                &.medium {
-                    .size(@min-width: 120px, @max-width: 350px);
-                    .size(@width: 275px);
-                }
-                &.large {
-                    .size(@min-width: 400px, @max-width: 600px);
-                }
-                &.xlarge {
-                    .size(@min-width: 500px, @max-width: 800px);
-                }
-
-                .boxed {
-                    border: none;
-                }
+                border: none;
             }
         }
     }
@@ -2335,6 +2335,7 @@ html.microsoft {
         background-color: @color-bg-select-blue;
         cursor: pointer;
         color: @color-white;
+        font-size: 13px;
 
         .icon {
             .size(@width: 19px, @height: 100%);
@@ -2350,10 +2351,6 @@ html.microsoft {
     }
 
     .editableParamQuery {
-        td:first-child {
-            text-transform: capitalize;
-        }
-
         .tdWrapper {
             .position(relative);
             box-shadow: none;
@@ -2362,6 +2359,7 @@ html.microsoft {
                 .position(absolute, @top: 0px, @right: 0px);
                 .size(30px, 30px);
                 background-color: @color-bg-select-blue;
+                line-height: 15px;
 
                 .icon {
                     color: @color-white;
@@ -2378,6 +2376,7 @@ html.microsoft {
             .transform (translateZ(0));
             cursor: text;
             .font(@size: 12px);
+            width: 100% !important;
 
             .draggableDiv {
                 margin: -2px 2px;
@@ -2393,7 +2392,7 @@ html.microsoft {
             }
             &.dummyWrap {
                 display: none;
-                padding: 3px 37px 4px 4px;
+                padding: 4px 37px 4px 4px;
                 overflow: hidden;
             }
             &.dummy {
@@ -2439,6 +2438,7 @@ html.microsoft {
         }
 
         .dropDownList {
+            color: @color-font-darkGray;
             .editableParamDiv {
                 margin-left: 0px;
                 margin-right: 0px;
