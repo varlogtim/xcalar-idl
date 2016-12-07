@@ -2009,7 +2009,7 @@ window.TblManager = (function($, TblManager) {
             var colNum = xcHelper.parseColNum($th);
             FnBar.focusOnCol($th, tableId, colNum);
             highlightColumn($th, false);
-            lastSelectedCell = $editableHead;
+            lastSelectedCell = $th;
         });
 
         $thead.on("click", ".topHeader .dotWrap", function() {

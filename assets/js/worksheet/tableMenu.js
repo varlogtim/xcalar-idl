@@ -548,7 +548,7 @@ window.TblMenu = (function(TblMenu, $) {
             ColManager.unhideCols([colNum], tableId);
         });
 
-        $subMenu.on('mouseup', '.textAlign', function(event) {
+        $subMenu.on('mouseup', 'li.textAlign', function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -560,7 +560,7 @@ window.TblMenu = (function(TblMenu, $) {
                 colNums = [$colMenu.data('colNum')];
             }
             var tableId = $colMenu.data('tableId');
-            ColManager.textAlign(colNums, tableId, $(this).attr("class"));
+            ColManager.textAlign(colNums, tableId, $li.attr("class"));
         });
 
         $subMenu.on('mouseup', '.resize', function(event) {
@@ -599,6 +599,7 @@ window.TblMenu = (function(TblMenu, $) {
             var $li = $(this);
             var colTypeInfos = [];
             var colNum;
+            // xx need to use data or class instead of text in case of language
             var newType = $li.find(".label").text().toLowerCase();
             if ($li.closest(".multiChangeDataType").length !== 0) {
                 var colNums = $colMenu.data("columns");
@@ -662,7 +663,7 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $colMenu.data('tableId');
             var func = $li.data('func');
             var colNums;
-            var options = {};
+
             if ($li.hasClass('multiGroupby')) {
                 options.multiGroupby = true;
                 colNums = $colMenu.data('columns');
@@ -670,7 +671,7 @@ window.TblMenu = (function(TblMenu, $) {
                 colNums = [$colMenu.data('colNum')];
             }
 
-            OperationsView.show(tableId, colNums, func, options);
+            OperationsView.show(tableId, colNums, func);
         });
 
         $colMenu.on('mouseup', '.profile', function(event) {
@@ -811,7 +812,7 @@ window.TblMenu = (function(TblMenu, $) {
             var $highlightBoxs = $("#xcTable-" + tableId).find(".highlightBox");
             var valArray = [];
             var colVal;
-            var cells = sortHightlightCells($highlightBoxs);
+            var cells = sortHighlightCells($highlightBoxs);
             for (var i = 0, len = cells.length; i < len; i++) {
                 colVal = cells[i].siblings(".originalData").text();
 
@@ -965,7 +966,7 @@ window.TblMenu = (function(TblMenu, $) {
         $hiddenInput.remove();
     }
 
-    function sortHightlightCells($highlightBoxes) {
+    function sortHighlightCells($highlightBoxes) {
         var cells = [];
 
         $highlightBoxes.each(function() {
@@ -985,6 +986,13 @@ window.TblMenu = (function(TblMenu, $) {
 
         return (cells);
     }
+
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        TblMenu.__testOnly__ = {};
+    }
+    /* End Of Unit Test Only */
 
     return (TblMenu);
 }({}, jQuery));

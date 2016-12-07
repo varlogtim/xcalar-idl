@@ -15,12 +15,7 @@ describe('ExportView', function() {
             tableName = tName;
             prefix = tPrefix;
             $exportForm = $('#exportView');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
             // add a second table for table list testing
             UnitTest.addTable(testDs)
             .always(function(tName, tPrefix) {

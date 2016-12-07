@@ -7,8 +7,9 @@ describe('TableMenu', function() {
     var $tableWrap;
     var $tableMenu;
     var $tableSubMenu;
-    var $colMenu = $('#colMenu');
-    var $colSubMenu = $('#colSubMenu');
+    var $colMenu;
+    var $colSubMenu;
+    var $cellMenu;
     var rightMouseup;
 
     before(function(done) {
@@ -26,6 +27,7 @@ describe('TableMenu', function() {
             $tableSubMenu = $('#tableSubMenu');
             $colMenu = $('#colMenu');
             $colSubMenu = $('#colSubMenu');
+            $cellMenu = $('#cellMenu');
             rightMouseup = {"type": "mouseup", "which": 3};
             done();
         });
@@ -410,7 +412,7 @@ describe('TableMenu', function() {
                 $tableSubMenu.find('.moveRight').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                 $tableSubMenu.find('.moveRight').removeClass('unavailable');
+                $tableSubMenu.find('.moveRight').removeClass('unavailable');
                 $tableSubMenu.find('.moveRight').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
@@ -477,7 +479,6 @@ describe('TableMenu', function() {
                 }, 10);
             });
         });
-
     });
 
     describe('column menu actions', function() {
@@ -519,6 +520,191 @@ describe('TableMenu', function() {
                 expect(called).to.be.true;
 
                 ColManager.delDupCols = cachedFunc;
+            });
+
+
+            it('duplicate', function() {
+                var cachedFunc = ColManager.dupCol;
+                var called = false;
+                ColManager.dupCol = function(colNum, tId) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.duplicate').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.duplicate').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.dupCol = cachedFunc;
+            });
+
+            it('hide', function() {
+                var cachedFunc = ColManager.hideCols;
+                var called = false;
+                ColManager.hideCols = function(colNums, tId) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.hide').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.hide').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.hideCols = cachedFunc;
+            });
+
+            it('unhide', function() {
+                var cachedFunc = ColManager.unhideCols;
+                var called = false;
+                ColManager.unhideCols = function(colNums, tId) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.unhide').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.unhide').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.unhideCols = cachedFunc;
+            });
+
+            it('joinList', function() {
+                var cachedFunc = JoinView.show;
+                var called = false;
+                JoinView.show = function(tId, colNum) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.joinList').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.joinList').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                JoinView.show = cachedFunc;
+            });
+
+            it('aggregate', function() {
+                var cachedFunc = OperationsView.show;
+                var called = false;
+                OperationsView.show = function(tId, colNums, func) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(func).to.equal("aggregate");
+                    called = true;
+                };
+
+                $colMenu.find('.functions.aggregate').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.functions.aggregate').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                OperationsView.show = cachedFunc;
+            });
+
+            it('filter', function() {
+                var cachedFunc = OperationsView.show;
+                var called = false;
+                OperationsView.show = function(tId, colNums, func) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(func).to.equal("filter");
+                    called = true;
+                };
+
+                $colMenu.find('.functions.filter').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.functions.filter').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                OperationsView.show = cachedFunc;
+            });
+
+            it('groupby', function() {
+                var cachedFunc = OperationsView.show;
+                var called = false;
+                OperationsView.show = function(tId, colNums, func) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(func).to.equal("group by");
+                    called = true;
+                };
+
+                $colMenu.find('.functions.groupby').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.functions.groupby').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                OperationsView.show = cachedFunc;
+            });
+
+            it('map', function() {
+                var cachedFunc = OperationsView.show;
+                var called = false;
+                OperationsView.show = function(tId, colNums, func) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(func).to.equal("map");
+                    called = true;
+                };
+
+                $colMenu.find('.functions.map').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.functions.map').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                OperationsView.show = cachedFunc;
+            });
+
+            it('profile', function() {
+                var cachedFunc = Profile.show;
+                var called = false;
+                Profile.show = function(tId, colNum) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.profile').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.profile').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                Profile.show = cachedFunc;
+            });
+
+            it('extensions', function() {
+                var cachedFunc = ExtensionManager.openView;
+                var called = false;
+                ExtensionManager.openView = function(colNum, tId) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.extensions').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.extensions').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ExtensionManager.openView = cachedFunc;
             });
 
             describe('exit op', function() {
@@ -658,8 +844,6 @@ describe('TableMenu', function() {
                     DFCreateView.close = cachedFunc;
                 });
             });
-
-
         });
 
         describe('sub menu', function() {
@@ -730,7 +914,6 @@ describe('TableMenu', function() {
             });
 
             it('changeFormat', function() {
-
                 var cachedFunc = ColManager.format;
                 var called = false;
                 ColManager.format = function(colNums, tId, formats) {
@@ -750,7 +933,6 @@ describe('TableMenu', function() {
             });
 
             it('digitsToRound', function() {
-
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
@@ -760,12 +942,354 @@ describe('TableMenu', function() {
                     called = true;
                 };
 
+
                 $colSubMenu.find('.digitsToRound').eq(0).val("3");
                 $colSubMenu.find('.digitsToRound').eq(0).trigger(fakeEvent.enter);
                 expect(called).to.be.true;
 
                 ColManager.roundToFixed = cachedFunc;
             });
+
+            it('changeRound.default', function() {
+                var cachedFunc = ColManager.roundToFixed;
+                var called = false;
+                ColManager.roundToFixed = function(colNums, tId, decimals) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(decimals[0]).to.equal(-1);
+                    called = true;
+                };
+
+                $colSubMenu.find('.changeRound.default').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.changeRound.default').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.roundToFixed = cachedFunc;
+            });
+
+            it('splitCol input', function() {
+                var cachedFunc = ColManager.splitCol;
+                var called = false;
+                ColManager.splitCol = function(colNum, tId, delim, numColToGet) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(delim).to.equal("\\");
+                    expect(numColToGet).to.equal(3);
+                    called = true;
+                };
+
+                $colSubMenu.find('.splitCol .delimiter').val("\\");
+                $colSubMenu.find('.splitCol .num').val(3);
+                $colSubMenu.find('.splitCol input').eq(0).trigger(fakeEvent.enter);
+                expect(called).to.be.true;
+
+                ColManager.splitCol = cachedFunc;
+            });
+
+            it('textAlign', function() {
+                var cachedFunc = ColManager.textAlign;
+                var called = false;
+                ColManager.textAlign = function(colNums, tId, elClass) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(elClass).to.equal('textAlign leftAlign');
+                    called = true;
+                };
+
+                $colSubMenu.find('li.textAlign').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('li.textAlign').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.textAlign = cachedFunc;
+            });
+
+            it('resize', function(done) {
+                var cachedFunc = TblManager.resizeColumns;
+                var called = false;
+                TblManager.resizeColumns = function(tId, resizeTo, colNum) {
+                    expect(tId).to.equal(tableId);
+                    expect(resizeTo).to.equal('sizeToHeader');
+                    expect(colNum).to.equal(1);
+                    called = true;
+                };
+
+                $colSubMenu.find('.resize.sizeToHeader').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.resize.sizeToHeader').eq(0).trigger(fakeEvent.mouseup);
+                setTimeout(function() {
+                    expect(called).to.be.true;
+                    TblManager.resizeColumns = cachedFunc;
+                    done();
+                }, 10);
+            });
+
+            it('typeList', function() {
+                var cachedFunc = ColManager.changeType;
+                var called = false;
+                ColManager.changeType = function(colTypeInfos, tId) {
+                    expect(colTypeInfos.length).to.equal(1);
+                    expect(colTypeInfos[0].colNum).to.equal(1);
+                    expect(colTypeInfos[0].type).to.equal("boolean");
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                    return PromiseHelper.resolve();
+                };
+
+                $colSubMenu.find('.typeList').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.typeList').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.changeType = cachedFunc;
+            });
+
+            it('sort', function() {
+                var cachedFunc = xcFunction.sort;
+                var called = false;
+                xcFunction.sort = function(colNum, tId, order) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(order).to.equal(SortDirection.Forward);
+                    called = true;
+                };
+
+                $colSubMenu.find('li.sort').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('li.sort').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                xcFunction.sort = cachedFunc;
+            });
+
+            it('revSort', function() {
+                var cachedFunc = xcFunction.sort;
+                var called = false;
+                xcFunction.sort = function(colNum, tId, order) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(order).to.equal(SortDirection.Backward);
+                    called = true;
+                };
+
+                $colSubMenu.find('li.revSort').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('li.revSort').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                xcFunction.sort = cachedFunc;
+            });
+        });
+
+        describe('multiple columns', function() {
+            before(function() {
+                $table.find('th.col1 .dragArea').trigger(fakeEvent.mousedown);
+                $table.find('th.col2 .dragArea').trigger({"type": "mousedown", "shiftKey": true});
+                $table.find('th.col2 .dropdownBox').click();
+            });
+
+            it('multiple columns should be selected', function() {
+                expect($table.find('th.selectedCell').length).to.equal(2);
+                expect($colMenu.data().columns.length).to.equal(2);
+            });
+
+            it('deleteColumns', function() {
+                var cachedFunc = ColManager.delCol;
+                var called = false;
+                ColManager.delCol = function(colNums, tId) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[1]).to.equal(2);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.deleteColumns').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.deleteColumns').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.delCol = cachedFunc;
+            });
+
+            it('hideColumns', function() {
+                var cachedFunc = ColManager.hideCols;
+                var called = false;
+                ColManager.hideCols = function(colNums, tId) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[1]).to.equal(2);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.hideColumns').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.hideColumns').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.hideCols = cachedFunc;
+            });
+
+            it('unhideColumns', function() {
+                var cachedFunc = ColManager.unhideCols;
+                var called = false;
+                ColManager.unhideCols = function(colNums, tId) {
+                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[1]).to.equal(2);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.unhideColumns').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.unhideColumns').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.unhideCols = cachedFunc;
+            });
+
+            it('changeRound.default', function() {
+                var cachedFunc = ColManager.roundToFixed;
+                var called = false;
+                ColManager.roundToFixed = function(colNums, tId, decimals) {
+                    console.log(arguments);
+                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[1]).to.equal(2);
+                    expect(tId).to.equal(tableId);
+                    expect(decimals.length).to.equal(0);
+                    called = true;
+                };
+
+                $colSubMenu.find('.multiRoundToFixed .changeRound.default').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.multiRoundToFixed .changeRound.default').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.roundToFixed = cachedFunc;
+            });
+        });
+    });
+
+    describe('cell menu actions', function() {
+        it('tdFilter', function() {
+            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            var cachedFunc = xcFunction.filter;
+            var called = false;
+            xcFunction.filter = function(colNum, tId, options) {
+                expect(colNum).to.equal(1);
+                expect(tId).to.equal(tableId);
+                expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'yelping_since, "2008-03")' );
+                expect(options.operator).to.equal("Filter");
+                called = true;
+            };
+
+            $cellMenu.find('.tdFilter').trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $cellMenu.find('.tdFilter').trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            xcFunction.filter = cachedFunc;
+        });
+
+        it('tdExclude', function() {
+            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            var cachedFunc = xcFunction.filter;
+            var called = false;
+            xcFunction.filter = function(colNum, tId, options) {
+                expect(colNum).to.equal(1);
+                expect(tId).to.equal(tableId);
+                expect(options.filterString).to.equal('not(eq(' + prefix + gPrefixSign + 'yelping_since, "2008-03"))');
+                expect(options.operator).to.equal("Exclude");
+                called = true;
+            };
+
+            $cellMenu.find('.tdExclude').trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $cellMenu.find('.tdExclude').trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            xcFunction.filter = cachedFunc;
+        });
+
+        it('tdJsonModal', function() {
+            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            var cachedFunc = JSONModal.show;
+            var called = false;
+            JSONModal.show = function($td, isArray, options) {
+                expect($td.is($table.find('td.col1').eq(0))).to.be.true;
+                expect(isArray).to.be.false;
+                expect(options.type).to.equal('string');
+                called = true;
+            };
+
+            $cellMenu.find('.tdJsonModal').trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $cellMenu.find('.tdJsonModal').trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+            $(".xcTable").find(".highlightBox").remove();
+
+            JSONModal.show = cachedFunc;
+        });
+
+        it('tdUnnest', function(done) {
+            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            var cachedFunc = ColManager.unnest;
+            var called = false;
+            ColManager.unnest = function(tId, colNum, rowNum) {
+                expect(tId).to.equal(tableId);
+                expect(colNum).to.equal(1);
+                expect(rowNum).to.equal(0);
+            
+                called = true;
+            };
+
+            $cellMenu.find('.tdUnnest').trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $cellMenu.find('.tdUnnest').trigger(fakeEvent.mouseup);
+            setTimeout(function() {
+                expect(called).to.be.true;
+                ColManager.unnest = cachedFunc;
+                done();
+            }, 10);
+        });
+    });
+
+    describe('prefix menu actions', function() {
+        before(function() {
+            $table.find('th.col1 .dotWrap').click();
+        });
+
+        it('prefix menu should work', function() {
+            var $prefixColorMenu = $("#prefixColorMenu");
+            var cachedFunc = TPrefix.markColor;
+            var called = false;
+            TPrefix.markColor = function(pfix, color) {
+                expect(pfix).to.equal(prefix);
+                expect(color).to.equal("indigo");
+                called = true;
+            };
+
+            $prefixColorMenu.find('.wrap').eq(0).trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $prefixColorMenu.find('.wrap').eq(0).trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            TPrefix.markColor = cachedFunc;
         });
     });
 
