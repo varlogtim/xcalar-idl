@@ -29,7 +29,10 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Algorithm",
             "fieldClass": "algorithm",
-            "autofill"  : "ImgRecCNN"
+            "enums"     : [
+                "LogRegCSV",
+                "ImgRecCNN"
+                ]
         },
         {
             "type"      : "string",
@@ -46,7 +49,7 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "Ex: ~/catsdogscars-preproc/train/"
+            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
         }]
     },
     {
@@ -63,7 +66,10 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Algorithm",
             "fieldClass": "algorithm",
-            "autofill"  : "ImgRecCNN"
+            "enums"     : [
+                "LogRegCSV",
+                "ImgRecCNN"
+                ]
         },
         {
             "type"      : "string",
@@ -75,7 +81,7 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "Ex: ~/catsdogscars-preproc/test/"
+            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
         }]
     }];
 
@@ -168,7 +174,7 @@ window.UExtTF = (function(UExtTF) {
 
             // This one call uses the latest API
             var dsArgs = {
-                "url"          : "nfs://" + exposedLoc,
+                "url"          : "file://" + exposedLoc + "/",
                 "isRecur"      : false,
                 "maxSampleSize": 200000,
                 "skipRows"     : false,
@@ -277,8 +283,8 @@ window.UExtTF = (function(UExtTF) {
 
             // This one call uses the latest API
             var dsArgs = {
-                "url"          : "nfs://" + exposedLoc,
-                "isRecur"      : false,
+                "url"          : "file://" + exposedLoc,
+                "isRecur"      : true,
                 "maxSampleSize": 200000,
                 "skipRows"     : false,
                 "isRegex"      : false
