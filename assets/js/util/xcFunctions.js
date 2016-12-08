@@ -342,6 +342,7 @@ window.xcFunction = (function($, xcFunction) {
     {
         var deferred = jQuery.Deferred();
         var joinType = joinLookUp[joinStr];
+        newTableName = newTableName + Authentication.getHashId();
 
         lJoinInfo = lJoinInfo || {};
         rJoinInfo = rJoinInfo || {};

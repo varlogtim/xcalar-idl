@@ -608,11 +608,7 @@ window.Replay = (function($, Replay) {
         // change tableId
         options.lJoinInfo.tableId = getTableId(options.lJoinInfo.tableId);
         options.rJoinInfo.tableId = getTableId(options.rJoinInfo.tableId);
-        // HACK: this is tricky that if we do not call Authentication.getHashId(),
-        // the id cursor cannot sync with the original one.
-        // Better way is to append hashId to newTableName in xcFunction.join()
-        options.newTableName = xcHelper.getTableName(options.newTableName) +
-                                Authentication.getHashId();
+        options.newTableName = xcHelper.getTableName(options.newTableName);
 
         var args = getArgs(options);
         return xcFunction.join.apply(window, args);

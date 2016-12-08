@@ -599,8 +599,6 @@ window.JoinView = (function($, JoinView) {
     }
 
     function checkFirstView() {
-        // var newTableName = newTableName + Authentication.getHashId();
-
         var lCols = [];
         var rCols = [];
         var $invalidClause = null;
@@ -995,12 +993,12 @@ window.JoinView = (function($, JoinView) {
         }
 
         var deferred = jQuery.Deferred();
-        var newTableName = $joinTableName.val().trim();
-
+        
         formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();
-        var tableName = newTableName + Authentication.getHashId();
-        joinSubmitHelper(joinType, tableName)
+        var newTableName = $joinTableName.val().trim();
+
+        joinSubmitHelper(joinType, newTableName)
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
