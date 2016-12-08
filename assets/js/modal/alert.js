@@ -52,7 +52,8 @@ window.Alert = (function($, Alert){
             buttons: buttons to show instead of confirm buttonm which contains:
                 name: name of the button
                 className: class of the button
-                func: callback to trigger when click
+                func: callback to trigger when click,
+                tooltip: tooltip to add
             hideButtons: array of button class names to hide,
                         values can be: logout, copySql, or cancel
             onConfirm: callback to trigger when click confirm button
@@ -284,8 +285,10 @@ window.Alert = (function($, Alert){
                 }
 
                 var $btn = $confirmBtn.clone();
-
+                
                 $btnSection.prepend($btn);
+
+                
 
                 $btn.show()
                     .text(btnOption.name)
@@ -295,6 +298,9 @@ window.Alert = (function($, Alert){
                     closeAlertModal();
                     btnOption.func();
                 });
+                if (btnOption.tooltip) {
+                    xcTooltip.add($btn, {title: btnOption.tooltip});
+                }
             });
         } else if (options.isAlert) {
             $modal.find(".cancel").text(AlertTStr.CLOSE);

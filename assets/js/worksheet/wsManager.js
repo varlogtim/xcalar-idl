@@ -1469,6 +1469,7 @@ window.WSManager = (function($, WSManager) {
                     {
                         "name"     : TblTStr.Del,
                         "className": "deleteTable",
+                        "tooltip"  : CommonTxtTstr.NoUndone,
                         "func"     : function() {
                             WSManager.delWS(wsId, DelWSType.Del);
                         }

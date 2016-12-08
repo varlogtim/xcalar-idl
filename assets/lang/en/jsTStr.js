@@ -134,6 +134,7 @@ CommonTxtTstr = {
     'SupportBundleInstr': 'Please check your backend for a .tar.gz file',
     'Value': 'Value',
     'XcWelcome': 'Have fun with Xcalar Insight!',
+    'NoUndone': 'This action cannot be undone',
 
     // with replace
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated' +
