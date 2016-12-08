@@ -663,6 +663,7 @@ window.TblMenu = (function(TblMenu, $) {
             var tableId = $colMenu.data('tableId');
             var func = $li.data('func');
             var colNums;
+            var options = {};
 
             if ($li.hasClass('multiGroupby')) {
                 options.multiGroupby = true;
@@ -671,7 +672,7 @@ window.TblMenu = (function(TblMenu, $) {
                 colNums = [$colMenu.data('colNum')];
             }
 
-            OperationsView.show(tableId, colNums, func);
+            OperationsView.show(tableId, colNums, func, options);
         });
 
         $colMenu.on('mouseup', '.profile', function(event) {
