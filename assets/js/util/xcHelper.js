@@ -109,38 +109,7 @@ window.xcHelper = (function($, xcHelper) {
 
     //define type of the column
     xcHelper.parseColType = function(val, oldType) {
-        var type = oldType || ColumnType.undefined;
-
-        if (val != null && oldType !== ColumnType.mixed) {
-            // note: "" is empty string
-            var valType = typeof val;
-            type = valType;
-            // get specific type
-            if (type === ColumnType.number) {
-                // the case when type is float
-                if (oldType === ColumnType.float || xcHelper.isFloat(val)) {
-                    type = ColumnType.float;
-                } else {
-                    type = ColumnType.integer;
-                }
-            } else if (type === ColumnType.object) {
-                if (val instanceof Array) {
-                    type = ColumnType.array;
-                }
-            }
-
-            var isAllNum = (valType === ColumnType.number) &&
-                           ((oldType === ColumnType.float) ||
-                            (oldType === ColumnType.integer));
-            if (oldType != null &&
-                oldType !== ColumnType.undefined &&
-                oldType !== type && !isAllNum)
-            {
-                type = ColumnType.mixed;
-            }
-        }
-
-        return (type);
+        return xcSuggest.parseColType(val, oldType);
     };
 
     xcHelper.getPreviewSize = function(previewSize, unit) {
@@ -1257,64 +1226,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.suggestType = function(datas, currentType, confidentRate) {
-        if (currentType === "integer" || currentType === "float") {
-            return currentType;
-        }
-
-        if (confidentRate == null) {
-            confidentRate = 1;
-        }
-
-        if (!(datas instanceof Array)) {
-            datas = [datas];
-        }
-
-        var isFloat;
-        var validData = 0;
-        var numHit = 0;
-        var booleanHit = 0;
-
-        for (var i = 0, len = datas.length; i < len; i++) {
-            var data = datas[i];
-            if (data == null) {
-                // skip this one
-                continue;
-            }
-
-            data = data.trim().toLowerCase();
-            if (data === "") {
-                // skip this one
-                continue;
-            }
-
-            validData++;
-            var num = Number(data);
-            if (!isNaN(num)) {
-                numHit++;
-
-                if (!isFloat && !Number.isInteger(num)) {
-                    // when it's float
-                    isFloat = true;
-                }
-            } else if (data === "true" || data === "false" ||
-                data === "t" || data === "f") {
-                booleanHit++;
-            }
-        }
-
-        if (validData === 0) {
-            return "string";
-        } else if (numHit / validData >= confidentRate) {
-            if (isFloat) {
-                return "float";
-            } else {
-                return "integer";
-            }
-        } else if (booleanHit / validData) {
-            return "boolean";
-        } else {
-            return "string";
-        }
+        return xcSuggest.suggestType(datas, currentType, confidenceRate);
     };
 
     xcHelper.lockTable = function(tableId, txId) {
