@@ -1226,7 +1226,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.suggestType = function(datas, currentType, confidentRate) {
-        return xcSuggest.suggestType(datas, currentType, confidenceRate);
+        return xcSuggest.suggestType(datas, currentType, confidentRate);
     };
 
     xcHelper.lockTable = function(tableId, txId) {
