@@ -144,7 +144,6 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
     }
 
     function lockCard() {
-        $card.find(".cardLocked").height($card.height());
         $card.find(".cardLocked").show();
     }
 

@@ -235,7 +235,6 @@ window.Scheduler = (function(Scheduler, $) {
     };
 
     function lockCard() {
-        $newScheduleForm.find(".cardLocked").height($newScheduleForm.height());
         $newScheduleForm.find(".cardLocked").show();
     }
 
