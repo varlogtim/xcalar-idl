@@ -123,21 +123,26 @@ function getWidestTdWidth(el, options) {
     var longestText = 0;
     var textLength;
     var padding = 10;
-    var largestTd = $table.find('tbody tr:first td:eq(' + id + ')');
+    var $largestTd = $table.find('tbody tr:first td:eq(' + id + ')');
     var headerWidth = 0;
     var prefixWidth = 0;
 
     if (fitAll || includeHeader) {
+        var extraPadding = 48;
+        if (options.datastore) {
+            extraPadding += 4;
+        }
         var $th;
         if ($table.find('.col' + id + ' .dataCol').length === 1) {
             $th = $table.find('.col' + id + ' .dataCol');
         } else {
             $th = $table.find('.col' + id + ' .editableHead');
         }
-        var extraPadding = 48;
-        if (options.datastore) {
-            extraPadding += 4;
+        if (!$th.length) {
+            $th = $table.find('th.col' + id);
+            extraPadding -= 40;
         }
+        
         headerWidth = getTextWidth($th) + extraPadding;
         // include prefix width
         if ($th.closest('.xcTable').length) {
@@ -153,19 +158,22 @@ function getWidestTdWidth(el, options) {
         }
     }
 
+    // we're going to take advantage of monospaced font
+    //and assume text length has an exact correlation to text width
     $table.find('tbody tr').each(function() {
-        // we're going to take advantage of monospaced font
-        //and assume text length has an exact correlation to text width
         var $td = $(this).children(':eq(' + (id) + ')');
-        textLength = $.trim($td.find('.displayedData').text()).length;
-
+        if (options.datastore) {
+            textLength = $.trim($td.text()).length;
+        } else {
+            textLength = $.trim($td.find('.displayedData').text()).length;
+        }
         if (textLength > longestText) {
             longestText = textLength;
-            largestTd = $td;
+            $largestTd = $td;
         }
     });
 
-    largestWidth = getTextWidth(largestTd) + padding;
+    largestWidth = getTextWidth($largestTd) + padding;
 
     if (fitAll) {
         largestWidth = Math.max(headerWidth, largestWidth);

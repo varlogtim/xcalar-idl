@@ -18,7 +18,7 @@ if (localStorage.shortcuts) {
                     console.info('timed out: short cuts not added');
                 }
                 count++;
-            }, 500);
+            }, 1000);
         }
     });
 }

@@ -221,7 +221,11 @@ window.TblAnim = (function($, TblAnim) {
 
             var $selectedCols;
             if (target === "datastore") {
-                $selectedCols = $table.find('th.selectedCol');
+                if ($th.hasClass('selectedCol')) {
+                    $selectedCols = $table.find('th.selectedCol');
+                } else {
+                    $selectedCols = $th;
+                }
             } else {
                 $selectedCols = $table.find('th.selectedCell');
             }

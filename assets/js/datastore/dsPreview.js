@@ -1394,8 +1394,17 @@ window.DSPreview = (function($, DSPreview) {
 
         if (hasHeader) {
             // promote header
+            var headerText = "";
+            var width;
+            var $th;
             for (var i = 1, len = $tds.length; i < len; i++) {
-                $headers.eq(i).find(".text").html($tds.eq(i).html());
+                headerHtml = $tds.eq(i).html();
+                headerText = $tds.eq(i).text();
+                $th = $headers.eq(i).parent();
+                width = Math.max(gNewCellWidth,
+                                 getTextWidth($th, headerText) + 8);
+                $th.width(width);
+                $headers.eq(i).find(".text").html(headerHtml);
             }
 
             // change line marker
@@ -1581,9 +1590,10 @@ window.DSPreview = (function($, DSPreview) {
                     '<th class="rowNumHead">' +
                         '<div class="header"></div>' +
                     '</th>';
-
         for (var i = 0; i < colLen; i++) {
-            html += '<th>' +
+            var width = Math.max(gNewCellWidth + 5,
+               getTextWidth(null, headers[i], {defaultHeaderStyle: true}) - 36);
+            html += '<th style="width:' + width + 'px;">' +
                         '<div class="header">' +
                             colGrabTemplate +
                             '<div class="text">' +
