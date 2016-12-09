@@ -42,31 +42,10 @@ window.DF = (function($, DF) {
             // Populate node information
             var retName = retStructs[i].retina.retinaDesc.retinaName;
             dataflows[retName] = new Dataflow(retName);
-            dataflows[retName].retinaNodes = retStructs[i].retina.retinaDag
-                                                                .node;
-            var nodes = {};
-            for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
-                nodes[dataflows[retName].retinaNodes[j].name.name] =
-                                dataflows[retName].retinaNodes[j].dagNodeId;
-            }
-            dataflows[retName].nodeIds = nodes;
+            updateDFInfo(retStructs[i]);
 
             // Populate export column information
-            dataflows[retName].columns = [];
-            for (j = 0; j < dataflows[retName].retinaNodes.length; j++) {
-                if (dataflows[retName].retinaNodes[j].api ===
-                    XcalarApisT.XcalarApiExport) {
-                    var exportCols = dataflows[retName].retinaNodes[j].input
-                                                  .exportInput.meta.columns;
-                    for (var k = 0; k < exportCols.length; k++) {
-                        var newCol = {};
-                        newCol.frontCol = exportCols[k].headerAlias;
-                        newCol.backCol = exportCols[k].name;
-                        dataflows[retName].columns.push(newCol);
-                    }
-                    break;
-                }
-            }
+            addColumns(retName);
         }
         DFCard.drawDags();
         // restore old parameterized data
@@ -144,6 +123,9 @@ window.DF = (function($, DF) {
         })
         .then(function(retInfo) {
             updateDFInfo(retInfo);
+            if (isUpload) {
+                addColumns(dataflowName, retInfo);
+            }
             // XXX TODO add sql
             DFCard.drawOneDag(dataflowName);
             DFCard.updateDF();
@@ -264,6 +246,24 @@ window.DF = (function($, DF) {
         for (var i = 0; i < retina.retinaDag.numNodes; i++) {
             var tableName = nodes[i].name.name;
             dataflow.nodeIds[tableName] = nodes[i].dagNodeId;
+        }
+    }
+
+    function addColumns(dataflowName, retInfo) {
+        var dFlow = dataflows[dataflowName];
+        var columns = dFlow.columns;
+        for (i = 0; i < dFlow.retinaNodes.length; i++) {
+            if (dFlow.retinaNodes[i].api === XcalarApisT.XcalarApiExport) {
+                var exportCols = dFlow.retinaNodes[i].input.exportInput
+                                                           .meta.columns;
+                for (var j = 0; j < exportCols.length; j++) {
+                    var newCol = {};
+                    newCol.frontCol = exportCols[j].headerAlias;
+                    newCol.backCol = exportCols[j].name;
+                    dFlow.columns.push(newCol);
+                }
+                break;
+            }
         }
     }
 

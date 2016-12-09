@@ -2126,7 +2126,7 @@ function Dataflow(name, options) {
     options = options || {};
     this.name = name; // Retina name
     this.tableName = options.tableName; // Original table name
-    this.columns = options.columns; // Columns to export
+    this.columns = options.columns || []; // Columns to export
     this.parameters = options.parameters || []; // Array of parameters in
                                                 // Dataflow
     this.paramMap = options.paramMap || {}; // Map for parameters.
