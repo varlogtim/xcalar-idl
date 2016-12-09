@@ -186,13 +186,20 @@ window.UDF = (function($, UDF) {
                 } else {
                     // auto-fill moduleName
                     $fnName.val(moduleName);
+
                     getEntireUDF(moduleName)
                     .then(function(entireString) {
+                        if ($fnName.val() !== moduleName) {
+                            // check if diff list item was selected during 
+                            // the async call
+                            return;
+                        }
                         if (entireString == null) {
                             editor.setValue("#" + SideBarTStr.DownoladMsg);
                         } else {
                             editor.setValue(entireString);
                         }
+                        
                     })
                     .fail(function(error) {
                         editor.setValue("#" + error);
