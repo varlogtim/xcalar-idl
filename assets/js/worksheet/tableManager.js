@@ -218,6 +218,8 @@ window.TblManager = (function($, TblManager) {
                 } else {
                     TableList.addTables([table], IsActive.Active);
                 }
+                // in case table showed up in temp list during its formation
+                TableList.removeTable(table.getName(), TableType.Orphan);
             }
             if ($('.xcTable:visible').length === 1) {
                 focusTable(tableId);

@@ -595,8 +595,12 @@ window.TableList = (function($, TableList) {
             $listWrap.find('.searchbarArea').hide();
         }
 
-        $tableList.find('.addTableBtn').removeClass('selected');
-        $tableList.find('.submit').addClass('xc-hidden');
+        var $submitBtns = $listWrap.find(".submit");
+        if ($listWrap.find(".addTableBtn.selected").length === 0) {
+            $submitBtns.addClass("xc-hidden");
+        } else {
+            $submitBtns.removeClass("xc-hidden");
+        }
         focusedListNum = null;
     };
 
