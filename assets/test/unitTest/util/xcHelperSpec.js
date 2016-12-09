@@ -261,6 +261,12 @@ describe('xcHelper Test', function() {
         expect(res.user).to.be.equal("user");
         expect(("" + res.randId).length).to.be.equal(5);
         expect(res.dsName).to.be.equal("test2");
+        // case 4
+        res = xcHelper.parseDSName("user.user.36472.test2");
+        expect(res).to.be.an('object');
+        expect(res.user).to.be.equal("user.user");
+        expect(("" + res.randId).length).to.be.equal(5);
+        expect(res.dsName).to.be.equal("test2");
     });
 
     it('xcHelper.getUnusedTableName should work', function(done) {

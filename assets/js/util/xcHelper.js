@@ -257,10 +257,9 @@ window.xcHelper = (function($, xcHelper) {
             randId = DSTStr.UnknownId;
             dsName = nameSplits[1];
         } else {
-            var meta = nameSplits.splice(0, 2);
-            user = meta[0];
-            randId = meta[1];
-            dsName = nameSplits.join(".");
+            randId = nameSplits[nameSplits.length - 2];
+            dsName = nameSplits[nameSplits.length - 1];
+            user = nameSplits.splice(0, nameSplits.length - 2).join(".");
         }
 
         return {

@@ -840,8 +840,7 @@ window.DS = (function ($, DS) {
             var dsName = datasets.datasets[i].name;
 
             if (atStartUp && dsName.endsWith(".preview") &&
-                dsName.startsWith(userPrefix))
-            {
+                xcHelper.parseDSName(dsName).user === userPrefix) {
                 // deal with preview datasets,
                 // if it's the current user's preview ds,
                 // then we delete it on start up time
@@ -933,8 +932,8 @@ window.DS = (function ($, DS) {
 
             if (ds != null) {
                 format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-
-                if (dsName.startsWith(userPrefix)) {
+                
+                if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     // XXX this case appears when same use switch workbook
                     // and lose the folder meta
                     // should change when we support user scope session
