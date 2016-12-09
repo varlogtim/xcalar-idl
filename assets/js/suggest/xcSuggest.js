@@ -116,11 +116,6 @@ window.xcSuggest = (function($, xcSuggest) {
                 }
             }
 
-            if (match === 0) {
-                // no match
-                return (-Number.MAX_VALUE);
-            }
-
             // for string compare absolute value
             score += match * 3;
             score += Math.abs(context1.max - context2.max) * -1;
