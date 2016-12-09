@@ -169,9 +169,13 @@ window.DagFunction = (function($, DagFunction) {
         if (oldTableName) {
             oldTableNames.push(oldTableName);
         }
+        xcHelper.lockTable(tableId);
+        xcHelper.lockTable(oldTableId);
         TblManager.refreshTable([newTableName], undefined, oldTableNames, wsId,
                                 null)
         .then(function() {
+            xcHelper.unlockTable(tableId);
+            xcHelper.unlockTable(oldTableId);
             var newTableId = xcHelper.getTableId(newTableName);
 
             var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();

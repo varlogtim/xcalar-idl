@@ -435,6 +435,13 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.addTable, .revertTable').removeClass('hidden');
                 $menu.find('.focusTable, .archiveTable').addClass('hidden');
             }
+            
+            var $dagWrap = $dagTable.closest('.dagWrap');
+            if ($dagWrap.hasClass('locked')) {
+                $menu.find('.revertTable').addClass('unavailable');
+            } else {
+                $menu.find('.revertTable').removeClass('unavailable');
+            }
 
             if ($dagTable.hasClass('locked')) {
                 $menu.find('li').hide();
@@ -816,7 +823,7 @@ window.DagPanel = (function($, DagPanel) {
         });
 
         $menu.find('.revertTable').mouseup(function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var oldTableName = $menu.data('tableelement').closest('.dagWrap')

@@ -1232,6 +1232,9 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.lockTable = function(tableId, txId) {
         // lock worksheet as well
         xcHelper.assert((tableId != null), "Invalid Parameters!");
+        if (!gTables[tableId]) {
+            return;
+        }
 
         var $tableWrap = $("#xcTableWrap-" + tableId);
         if ($tableWrap != null &&
