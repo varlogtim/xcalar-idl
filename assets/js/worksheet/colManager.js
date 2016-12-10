@@ -1286,7 +1286,8 @@ window.ColManager = (function($, ColManager) {
         return $tBody;
     };
 
-    ColManager.unnest = function(tableId, colNum, rowNum) {
+    // colNames is optional, if not provided then will try to pull all cols
+    ColManager.unnest = function(tableId, colNum, rowNum, colNames) {
         var $table = $('#xcTable-' + tableId);
         var $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
         var jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
@@ -1300,15 +1301,15 @@ window.ColManager = (function($, ColManager) {
         var isDATACol = progCol.isDATACol();
         var colNums = [];
 
-        var pasedCols = parseUnnestTd(table, progCol, jsonTdObj);
-        var numKeys = pasedCols.length;
+        var parsedCols = parseUnnestTd(table, progCol, jsonTdObj, colNames);
+        var numKeys = parsedCols.length;
 
         if (numKeys === 0) {
             return;
         }
 
         var ths = "";
-        pasedCols.forEach(function(parsedCol, index) {
+        parsedCols.forEach(function(parsedCol, index) {
             var colName = xcHelper.parsePrefixColName(parsedCol.colName).name;
             var backColName = parsedCol.escapedColName;
             var newProgCol = ColManager.newPullCol(colName, backColName);
@@ -1336,7 +1337,6 @@ window.ColManager = (function($, ColManager) {
             "rowNum"   : rowNum
         });
     };
-
 
     ColManager.parseFuncString = function (funcString, func) {
         // assumes we are sending in a valid func ex. map(add(3,2))
@@ -1818,36 +1818,52 @@ window.ColManager = (function($, ColManager) {
     }
     // End Of Help Functon for pullAllCols and pullCOlHelper
 
-    function parseUnnestTd(table, progCol, jsonTd) {
+    // colNames is optional, if not provided then will try to pull all cols
+    function parseUnnestTd(table, progCol, jsonTd, colNames) {
         var parsedCols = [];
         var isArray = (progCol.getType() === ColumnType.array);
+        var isNotDATACol = !progCol.isDATACol();
+        colNames = colNames || [];
 
-        for (var tdKey in jsonTd) {
-            var colName = tdKey;
-            // var escapedColName = xcHelper.escapeColName(tdKey);
-            var escapedColName = tdKey;
+        if (colNames.length) {
+            for (var i = 0; i < colNames.length; i++) {
+                var colName = colNames[i];
+                var escapedColName = colName;
 
-            if (!progCol.isDATACol()) {
-                var openSymbol = isArray ? "[" : ".";
-                var closingSymbol = isArray ? "]" : "";
-                var unnestColName = progCol.getBackColName();
-
-                // colName = unnestColName.replace(/\\./g, ".") +
-                //           openSymbol + tdKey + closingSymbol;
-                colName = unnestColName + openSymbol +
-                            colName + closingSymbol;
-                escapedColName = unnestColName + openSymbol +
-                                escapedColName + closingSymbol;
+                if (!table.hasColWithBackName(escapedColName)) {
+                    parsedCols.push({
+                        "colName"       : colName,
+                        "escapedColName": escapedColName
+                    });
+                }
             }
+        } else {
+            for (var tdKey in jsonTd) {
+                var colName = tdKey;
+                // var escapedColName = xcHelper.escapeColName(tdKey);
+                var escapedColName = tdKey;
 
-            if (!table.hasColWithBackName(escapedColName)) {
-                parsedCols.push({
-                    "colName"       : colName,
-                    "escapedColName": escapedColName
-                });
+                if (isNotDATACol) {
+                    var openSymbol = isArray ? "[" : ".";
+                    var closingSymbol = isArray ? "]" : "";
+                    var unnestColName = progCol.getBackColName();
+
+                    // colName = unnestColName.replace(/\\./g, ".") +
+                    //           openSymbol + tdKey + closingSymbol;
+                    colName = unnestColName + openSymbol +
+                                colName + closingSymbol;
+                    escapedColName = unnestColName + openSymbol +
+                                    escapedColName + closingSymbol;
+                }
+
+                if (!table.hasColWithBackName(escapedColName)) {
+                    parsedCols.push({
+                        "colName"       : colName,
+                        "escapedColName": escapedColName
+                    });
+                }
             }
         }
-
         return parsedCols;
     }
 

@@ -780,5 +780,13 @@ JsonModalTStr = {
   'SortAsc': 'Sort ascending',
   'SortDesc': 'Sort descending',
   'ToggleMode': 'Toggle mode',
-  'FieldsSelected': 'fields selected to project'
+  'FieldsSelected': 'fields selected to project',
+  'FieldsPull': 'fields selected to pull',
+  'SelectionMode': 'Single Select Mode',
+  'MultiSelectMode': 'Multi Select Mode',
+  'ProjectMode': 'Projection Mode',
+  'SubmitProjection': 'Submit Projection',
+  'SubmitPull': 'Pull fields',
+  'DeselectAll': 'Deselect all fields',
+  'SelectAll': 'Select all fields',
 };

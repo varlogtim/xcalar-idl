@@ -341,6 +341,145 @@
             }
         }
 
+        &.projectMode, &.multiSelectMode {
+            .prettyJson {
+                .noSelection;
+            }
+           
+            .immediatesType { 
+                .jsonCheckbox {
+                    display: block;
+                }
+
+                .jArray  {
+                    > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+                        cursor: default;
+                        &:hover {
+                            background-color: transparent;
+                            box-shadow: none;
+                        }
+                    }
+                }
+                .jKey {
+                    // pointer-events: none;
+                    // cursor: default;
+                    &:hover {
+                        background-color: transparent;
+                        box-shadow: none;
+                    }
+                }
+
+                .jObject > .jArray > .jsonBlock > .jKey {
+                    cursor: pointer;
+                    pointer-events: auto;
+                    &:hover {
+                        background-color: #dff8ff;
+                        box-shadow: 0px 0px 1px @color-table-borderBlue;
+                    }
+                }
+            }
+            
+            .split, .pullAll, .compareIcon, .sort {
+                opacity: 0.5;
+                pointer-events: none;
+                display: none;
+            }
+            .optionsBar {
+                .clearAll, .submitProject {
+                    display: inline-block;
+                }
+                .flexArea {
+                    width: ~"calc(100% - 130px)";
+
+                }
+            }
+
+            &:last-child {
+                .flexArea {
+                    width: ~"calc(100% - 162px)";
+                }
+            }
+
+            .tabBar {
+                display: none;
+            }
+        }
+
+        &.multiSelectMode {
+            .menu {
+                li.selectionOpt, li.projectionOpt {
+                    color: @color-font-darkGray;
+                    .check {
+                        display: none;
+                    }
+                }
+                li.multiSelectionOpt {
+                    color: @color-font-softBlue;
+                    .check {
+                        display: inline-block;
+                    }
+                }
+            }
+
+            .multiSelectModeBar {
+                display: block;
+            }
+
+            .prefixedType { 
+                .jsonCheckbox {
+                    display: block;
+                }
+                .prefixGroupTitle {
+                    .checkbox  {
+                        display: none;
+                    }
+                }
+
+                .jArray  {
+                    > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+                        cursor: default;
+                        &:hover {
+                            background-color: transparent;
+                            box-shadow: none;
+                        }
+                    }
+                }
+                .jKey {
+                    // pointer-events: none;
+                    // cursor: default;
+                    &:hover {
+                        background-color: transparent;
+                        box-shadow: none;
+                    }
+                }
+
+                .jObject > .jArray > .jsonBlock > .jKey {
+                    cursor: pointer;
+                    pointer-events: auto;
+                    &:hover {
+                        background-color: #dff8ff;
+                        box-shadow: 0px 0px 1px @color-table-borderBlue;
+                    }
+                }
+            }
+
+            .optionsBar {
+                .selectAll {
+                    display: inline-block;
+                }
+                .flexArea {
+                    width: ~"calc(100% - 160px)";
+                }
+            }
+
+
+            &:last-child {
+                .flexArea {
+                    width: ~"calc(100% - 192px)";
+                }
+            }
+        }
+
         &.projectMode {
             .prettyJson {
                 background-color: @color-json-project-bg;
@@ -396,7 +535,7 @@
             }
             
             .menu {
-                li.selectionOpt {
+                li.selectionOpt, li.multiSelectionOpt {
                     color: @color-font-darkGray;
                     .check {
                         display: none;
@@ -448,6 +587,7 @@
                 display: block;
             }
         }
+
 
         &.tabFiltered {
             .prefixGroupTitle {
@@ -539,7 +679,7 @@
                 margin-left: 1px;
                 font-size: 14px;
             }
-            &.clearAll {
+            &.clearAll, &.selectAll {
                 display: none;
                 .icon {
                     font-size: 14px;
@@ -571,9 +711,9 @@
         }
     }
 
-    .projectModeBar {
+    .projectModeBar, .multiSelectModeBar {
         display: none;
-        .colsSelected {
+        .numColsSelected {
             color: @color-font-select-blue;
             margin-left: 14px;
             max-width: ~"calc(100% - 20px)";
@@ -900,7 +1040,7 @@
         }
     }
 
-    .projectSelected {
+    .keySelected {
         background-color: @color-json-project-selected !important;
         box-shadow: none !important;
     }

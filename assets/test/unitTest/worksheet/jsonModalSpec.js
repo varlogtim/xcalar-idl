@@ -395,19 +395,67 @@ describe('JsonModal', function() {
         
             expect($jsonWrap.hasClass('projectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
-            expect($jsonWrap.find('.colsSelected').text()).to.equal("0/12 fields selected to project");
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to project");
 
             // select prefixed fields
             $jsonWrap.find('.prefixGroupTitle .checkbox').click();
-            expect($jsonWrap.find('.colsSelected').text()).to.equal("12/12 fields selected to project");
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("12/12 fields selected to project");
 
             // select mode
             $jsonWrap.find('.jsonModalMenu .selectionOpt').click();
 
             expect($jsonWrap.hasClass('projectMode')).to.be.false;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
-            expect($jsonWrap.find('.colsSelected').text()).to.equal("0/12 fields selected to project");
-            expect($jsonWrap.find('.colsSelected').is(":visible")).to.be.false;
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to project");
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').is(":visible")).to.be.false;
+        });
+    });
+
+    describe('multiSelectMode', function() {
+        var $jsonWrap;
+        before(function() {
+            $jsonWrap = $jsonModal.find('.jsonWrap');
+        });
+        it('toggle multiSelectMode should work', function() {
+            expect($jsonWrap.hasClass('multiSelectMode')).to.be.false;
+            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
+            expect($jsonWrap.find('.jsonModalMenu .multiSelectionOpt .check').is(":visible")).to.be.false;
+
+             // multiSelect mode
+            $jsonWrap.find('.jsonModalMenu .multiSelectionOpt').click();
+
+            expect($jsonWrap.hasClass('multiSelectMode')).to.be.true;
+            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to pull");
+
+        });
+
+        it('selecting a field should work', function() {
+            $jsonWrap.find('.jKey').eq(0).click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/12 fields selected to pull");
+        });
+
+        it('select and deselect all should work', function() {
+            $jsonWrap.find('.selectAll').click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("12/12 fields selected to pull");
+
+            $jsonWrap.find('.jKey').eq(0).click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("11/12 fields selected to pull");
+
+            $jsonWrap.find('.clearAll').click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to pull");
+        });
+
+        it('back to select mode', function() {
+            $jsonWrap.find('.jKey').eq(0).click();
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/12 fields selected to pull");
+
+            $jsonWrap.find('.jsonModalMenu .selectionOpt').click();
+
+            expect($jsonWrap.hasClass('multiSelectMode')).to.be.false;
+            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to pull");
+            expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').is(":visible")).to.be.false;
         });
     });
 
