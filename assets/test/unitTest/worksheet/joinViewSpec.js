@@ -200,18 +200,18 @@ describe('JoinView', function() {
             expect($("#joinType").find('.list').length).to.equal(1);
             expect($("#joinType").find('.list:visible').length).to.equal(0);
 
-            $('#joinType').find('.text').click();
+            $('#joinType').find('.text').trigger(fakeEvent.mouseup);
 
             expect($("#joinType").find('.list:visible').length).to.equal(1);
             expect($("#joinType").find('li:visible').length).to.equal(4);
             expect($("#joinType").find('.text').text()).to.equal('Inner Join');
 
-            $('#joinType').find('li').last().click();
+            $('#joinType').find('li').last().trigger(fakeEvent.mouseup);
 
             expect($("#joinType").find('.text').text()).to.equal('Full Outer Join');
             expect($("#joinType").find('.list:visible').length).to.equal(0);
 
-            $('#joinType').find('li').first().click();
+            $('#joinType').find('li').first().trigger(fakeEvent.mouseup);
             expect($("#joinType").find('.text').text()).to.equal('Inner Join');
         });
     });

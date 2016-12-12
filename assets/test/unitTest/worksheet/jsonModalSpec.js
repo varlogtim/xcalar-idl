@@ -391,7 +391,7 @@ describe('JsonModal', function() {
             expect($jsonWrap.find('.jsonModalMenu .projectOpt .check').is(":visible")).to.be.false;
 
             // project mode
-            $jsonWrap.find('.jsonModalMenu .projectionOpt').click();
+            $jsonWrap.find('.jsonModalMenu .projectionOpt').trigger(fakeEvent.mouseup);
         
             expect($jsonWrap.hasClass('projectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
@@ -402,7 +402,7 @@ describe('JsonModal', function() {
             expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("12/12 fields selected to project");
 
             // select mode
-            $jsonWrap.find('.jsonModalMenu .selectionOpt').click();
+            $jsonWrap.find('.jsonModalMenu .selectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('projectMode')).to.be.false;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
@@ -422,7 +422,7 @@ describe('JsonModal', function() {
             expect($jsonWrap.find('.jsonModalMenu .multiSelectionOpt .check').is(":visible")).to.be.false;
 
              // multiSelect mode
-            $jsonWrap.find('.jsonModalMenu .multiSelectionOpt').click();
+            $jsonWrap.find('.jsonModalMenu .multiSelectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
@@ -450,7 +450,7 @@ describe('JsonModal', function() {
             $jsonWrap.find('.jKey').eq(0).click();
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/12 fields selected to pull");
 
-            $jsonWrap.find('.jsonModalMenu .selectionOpt').click();
+            $jsonWrap.find('.jsonModalMenu .selectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.false;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;

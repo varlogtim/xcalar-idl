@@ -1275,7 +1275,7 @@ describe('Constructor Test', function() {
             expect($section.hasClass("active")).to.be.true;
 
             // dropdown list
-            $limit.find("li").click();
+            $limit.find("li").trigger(fakeEvent.mouseup);
 
             expect($limit.find(".unit").val()).to.equal("B");
 

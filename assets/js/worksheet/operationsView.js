@@ -1146,7 +1146,9 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function hideDropdowns() {
-        $operationsView.find('.list').hide();
+        $operationsView.find('.list').filter(function() {
+            return ($(this).closest('.tableList').length === 0);
+        }).hide();
         $operationsView.find('.list li').hide();
         $operationsView.find('.cast .list li').show();
         $operationsView.find('.tableList .list li').show();

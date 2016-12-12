@@ -1905,7 +1905,10 @@ window.JSONModal = (function($, JSONModal) {
         var $li;
         var $menu;
         var $jsonWrap;
-        $jsonArea.on("click", ".menu li", function() {
+        $jsonArea.on("mouseup", ".menu li", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             $li = $(this);
             if ($li.hasClass('selected')) {
                 return;
@@ -1936,6 +1939,12 @@ window.JSONModal = (function($, JSONModal) {
                 }
             }
             $menu.hide();
+        });
+        $jsonArea.on("mouseenter", ".menu li", function() {
+            $(this).addClass("hover");
+        });
+         $jsonArea.on("mouseleave", ".menu li", function() {
+            $(this).removeClass("hover");
         });
     }
 

@@ -1174,47 +1174,71 @@ window.DS = (function ($, DS) {
 
     function setupMenuActions() {
         // bg opeartion
-        $gridMenu.on("mouseup", ".newFolder", function() {
+        $gridMenu.on("mouseup", ".newFolder", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             DS.newFolder();
             cleanDSSelect();
         });
 
-        $gridMenu.on("mouseup", ".back", function() {
+        $gridMenu.on("mouseup", ".back", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             if (!$(this).hasClass("disabled")) {
                 DS.upDir();
             }
             cleanDSSelect();
         });
 
-        $gridMenu.on("mouseup", ".refresh", function() {
+        $gridMenu.on("mouseup", ".refresh", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             refreshHelper();
             cleanDSSelect();
         });
 
         // folder/ds operation
-        $gridMenu.on("mouseup", ".open", function() {
+        $gridMenu.on("mouseup", ".open", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             goToDirHelper($gridMenu.data("dsid"));
             cleanDSSelect();
         });
 
-        $gridMenu.on("mouseup", ".moveUp", function() {
+        $gridMenu.on("mouseup", ".moveUp", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             DS.dropToParent($grid);
             cleanDSSelect();
         });
 
-        $gridMenu.on("mouseup", ".rename", function() {
+        $gridMenu.on("mouseup", ".rename", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             renameHelper(null, $gridMenu.data("dsid"));
             cleanDSSelect();
         });
 
-        $gridMenu.on("mouseup", ".preview", function() {
+        $gridMenu.on("mouseup", ".preview", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             focusDSHelper($grid);
             cleanDSSelect();
         });
 
-        $gridMenu.on("mouseup", ".delete", function() {
+        $gridMenu.on("mouseup", ".delete", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             DS.remove($grid);
             cleanDSSelect();

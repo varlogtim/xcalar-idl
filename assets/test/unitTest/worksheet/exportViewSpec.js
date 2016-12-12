@@ -129,7 +129,7 @@ describe('ExportView', function() {
             expect($ul.is(":visible")).to.be.false;
             expect($text.text()).to.equal(tableName);
 
-            $tableList.click();
+            $tableList.trigger(fakeEvent.mouseup);
             expect($ul.is(":visible")).to.be.true;
             expect($ul.find('li').length).to.be.gt(1);
             var $selectedLi = $ul.find('li').filter(function() {
@@ -142,7 +142,7 @@ describe('ExportView', function() {
             expect($nextLi.length).to.equal(1);
             var nextLiName = $nextLi.text();
             expect(nextLiName).to.not.equal(tableName);
-            $nextLi.click();
+            $nextLi.trigger(fakeEvent.mouseup);
             expect($text.text()).to.equal(nextLiName);
         });
 
@@ -155,10 +155,10 @@ describe('ExportView', function() {
             expect($exportForm.find('.cols li.checked').length).to.equal(numCols - 1);
 
             // select new new table
-            $tableList.click();
+            $tableList.trigger(fakeEvent.mouseup);
             $tableList.find('li').filter(function() {
                 return $(this).text() === tableName; 
-            }).click();
+            }).trigger(fakeEvent.mouseup);;
 
             expect($tableList.find('.text').text()).to.equal(tableName);
             expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
@@ -244,18 +244,18 @@ describe('ExportView', function() {
         it('csv delimiters should work', function() {
             // field delims
             expect($advancedSection.find('.fieldDelim').val()).to.equal("\\t");
-            $advancedSection.find('.fieldDelim').click();
-            $advancedSection.find('.fieldDelim').siblings('.list').find('li').eq(1).click();
+            $advancedSection.find('.fieldDelim').trigger(fakeEvent.mouseup);
+            $advancedSection.find('.fieldDelim').siblings('.list').find('li').eq(1).trigger(fakeEvent.mouseup);
             expect($advancedSection.find('.fieldDelim').val()).to.equal(",");
 
-            $advancedSection.find('.fieldDelim').click();
-            $advancedSection.find('.fieldDelim').siblings('.list').find('li').eq(0).click();
+            $advancedSection.find('.fieldDelim').trigger(fakeEvent.mouseup);
+            $advancedSection.find('.fieldDelim').siblings('.list').find('li').eq(0).trigger(fakeEvent.mouseup);
             expect($advancedSection.find('.fieldDelim').val()).to.equal("\\t");
 
             expect($advancedSection.find('.recordDelim').val()).to.equal("\\n");
             expect($advancedSection.find('.recordDelim').siblings('.list').find('li').length).to.equal(1);
-            $advancedSection.find('.recordDelim').click();
-            $advancedSection.find('.recordDelim').siblings('.list').find('li').eq(0).click();
+            $advancedSection.find('.recordDelim').trigger(fakeEvent.mouseup);
+            $advancedSection.find('.recordDelim').siblings('.list').find('li').eq(0).trigger(fakeEvent.mouseup);
             expect($advancedSection.find('.recordDelim').val()).to.equal("\\n");
         });
 

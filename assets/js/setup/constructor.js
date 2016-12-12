@@ -4157,7 +4157,10 @@ MenuHelper.prototype = {
         } else {
             $dropDownList.addClass('yesclickable');
 
-            $dropDownList.on("click", function(event) {
+            $dropDownList.on("mouseup", function(event) {
+                if (event.which !== 1) {
+                    return;
+                }
                 if (self.exclude &&
                     $(event.target).closest(self.exclude).length) {
                     return;
@@ -4167,28 +4170,34 @@ MenuHelper.prototype = {
             });
         }
 
-        $dropDownList.on("mousedown", function(event) {
-            if (event.which === 1) {
-                // stop propagation of left mousedown
-                // because hide dropdown is triggered by it
-                // should invalid that when mousedown on dropDownList
-                event.stopPropagation();
-                var mousedownTarget;
-                if ($(this).find('input').length === 1) {
-                    mousedownTarget = $(this).find('input');
-                } else {
-                    mousedownTarget = $(this);
-                }
-                gMouseEvents.setMouseDownTarget(mousedownTarget);
-            }
-        });
+        // XX Need to find and document the use case of this otherwise remove
+        // because hidedropdown seems to only be called on mouseup now
+        // $dropDownList.on("mousedown", function(event) {
+        //     if (event.which === 1) {
+        //         // stop propagation of left mousedown
+        //         // because hide dropdown is triggered by it
+        //         // should invalid that when mousedown on dropDownList
+        //         event.stopPropagation();
+        //         var mousedownTarget;
+        //         if ($(this).find('input').length === 1) {
+        //             mousedownTarget = $(this).find('input');
+        //         } else {
+        //             mousedownTarget = $(this);
+        //         }
+        //         gMouseEvents.setMouseDownTarget(mousedownTarget);
+        //     }
+        // });
 
         // on click a list
         $dropDownList.on({
-            "click": function(event) {
+            "mouseup": function(event) {
+                event.stopPropagation();
+                if (event.which !== 1) {
+                    return;
+                }
                 var keepOpen = false;
 
-                event.stopPropagation();
+                
                 if (options.onSelect) {    // trigger callback
                     // keepOpen be true, false or undefined
                     keepOpen = options.onSelect($(this));
@@ -4216,7 +4225,7 @@ MenuHelper.prototype = {
         var $sections = self.$container.find(".dropDownList");
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
-        $(document).off('click.closeDropDown' + self.id);
+        $(document).off('mouseup.closeDropDown' + self.id);
     },
     toggleList: function($curlDropDownList) {
         var self = this;
@@ -4249,7 +4258,7 @@ MenuHelper.prototype = {
             }
             $curlDropDownList.addClass("open");
             $lists.show().addClass("openList");
-            $(document).on('click.closeDropDown' + self.id, function() {
+            $(document).on('mouseup.closeDropDown' + self.id, function() {
                 self.hideDropdowns();
             });
             if (typeof self.options.onOpen === "function") {

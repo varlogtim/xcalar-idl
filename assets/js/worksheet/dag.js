@@ -1820,7 +1820,10 @@ window.Dag = (function($, Dag) {
 
     Dag.setupDagSchema = function() {
         var $dagSchema = $("#dagSchema");
-        $dagSchema.on('click', 'li', function() {
+        $dagSchema.on('mouseup', 'li', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $li = $(this);
             var $name = $li.find('.name');
             $dagSchema.find('li.selected').removeClass('selected');

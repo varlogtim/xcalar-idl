@@ -1212,7 +1212,10 @@ window.WSManager = (function($, WSManager) {
             });
         });
 
-        $tabMenu.on("click", "li", function() {
+        $tabMenu.on("mouseup", "li", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $li = $(this);
             var wsId = $tabMenu.data("ws");
             if ($li.hasClass("unavailable")) {

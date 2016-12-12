@@ -576,7 +576,7 @@ function fileBrowserModuleTest() {
         it("Should use sort menu to sort", function() {
             var $li = $("#fileBrowserSortMenu").find('li[data-sortkey="size"]');
             expect($li.hasClass("select")).to.be.false;
-            $li.click();
+            $li.trigger(fakeEvent.mouseup);
             expect($li.hasClass("select")).to.be.true;
         });
 

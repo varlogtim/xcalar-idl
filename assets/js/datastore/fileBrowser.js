@@ -163,7 +163,10 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // // click sort option to sort
-        $sortMenu.on("click", "li", function(event) {
+        $sortMenu.on("mouseup", "li", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $li = $(this);
 
             event.stopPropagation();

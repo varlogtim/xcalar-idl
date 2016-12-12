@@ -238,7 +238,7 @@ describe('Worksheet Test', function() {
         it("Should delete empty worksheet by click", function() {
             var $tab = $("#worksheetTab-" + worksheetId2);
             $tab.find(".wsMenu").click();
-            $("#worksheetTabMenu .delete").click();
+            $("#worksheetTabMenu .delete").trigger(fakeEvent.mouseup);
             expect(WSManager.indexOfWS(worksheetId1)).to.equal(-1);
             $("#worksheetTabMenu").hide();
         });
@@ -296,7 +296,7 @@ describe('Worksheet Test', function() {
         it("Should rename worksheet by some event", function() {
             var $tab = $("#worksheetTab-" + worksheetId);
             $tab.find(".wsMenu").click();
-            $wsMenu.find(".rename").trigger(fakeEvent.click);
+            $wsMenu.find(".rename").trigger(fakeEvent.mouseup);
             var newName = xcHelper.randName("renamedWorsheet");
             $tab.find(".text").val(newName).trigger(fakeEvent.enter);
         });
@@ -320,7 +320,7 @@ describe('Worksheet Test', function() {
             var numOfActiveWS = WSManager.getNumOfWS();
             // hide worksheet
             $tab.find(".wsMenu").click();
-            $wsMenu.find(".hide").trigger(fakeEvent.click);
+            $wsMenu.find(".hide").trigger(fakeEvent.mouseup);
             expect(WSManager.getNumOfWS() - numOfActiveWS).to.equal(-1);
             $tab = $("#worksheetTab-" + worksheetId);
             expect($tab.closest("ul").attr("id")).to.equal("hiddenWorksheetTabs");
@@ -334,12 +334,12 @@ describe('Worksheet Test', function() {
             var $tab = $("#worksheetTab-" + worksheetId);
             // move up
             $tab.find(".wsMenu").click();
-            $wsMenu.find(".moveUp").trigger(fakeEvent.click);
+            $wsMenu.find(".moveUp").trigger(fakeEvent.mouseup);
             var newIndex = WSManager.indexOfWS(worksheetId);
             expect(newIndex - oldIndex).to.equal(-1);
             // move down
             $tab.find(".wsMenu").click();
-            $wsMenu.find(".moveDown").trigger(fakeEvent.click);
+            $wsMenu.find(".moveDown").trigger(fakeEvent.mouseup);
             newIndex = WSManager.indexOfWS(worksheetId);
             expect(newIndex - oldIndex).to.equal(0);
         });
@@ -347,7 +347,7 @@ describe('Worksheet Test', function() {
         it("Should delete worksheet via menu", function() {
             var $tab = $("#worksheetTab-" + worksheetId);
             $tab.find(".wsMenu").click();
-            $wsMenu.find(".delete").trigger(fakeEvent.click);
+            $wsMenu.find(".delete").trigger(fakeEvent.mouseup);
             var index = WSManager.indexOfWS(worksheetId);
             expect(index).to.equal(-1);
         });

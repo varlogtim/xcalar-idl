@@ -270,7 +270,7 @@ window.UDF = (function($, UDF) {
             $("#udfSection .tab:first-child").click();
             $("#udf-fnMenu").find("li").filter(function() {
                 return $(this).text() === moduleName;
-            }).click();
+            }).trigger(fakeEvent.mouseup);
         });
 
         // download udf
@@ -363,7 +363,7 @@ window.UDF = (function($, UDF) {
 
         if (!hasSelectedModule) {
             $input.val("");
-            $blankFunc.click();
+            $blankFunc.trigger(fakeEvent.mouseup);
         }
     }
 

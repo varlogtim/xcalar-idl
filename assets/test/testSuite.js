@@ -787,6 +787,7 @@ window.TestSuite = (function($, TestSuite) {
                 $args.eq(1).val(gColPrefix + "Month");
                 $args.eq(2).val(gColPrefix + "DayofMonth");
                 $args.eq(3).val("YearMonthDay");
+
                 $("#operationsView .submit").click();
 
                 return checkExists("#xcTable-" + tableId, null,
@@ -810,12 +811,13 @@ window.TestSuite = (function($, TestSuite) {
             .then(function() {
                 // fisrt step of join
                 $("#joinRightTableList").find("li:contains('airport')")
-                                        .trigger(fakeEvent.click);
+                                        .trigger(fakeEvent.mouseup);
                 var rTableName = $("#joinRightTableList").find(".text").val();
                 var rTableId = xcHelper.getTableId(rTableName);
                 var rightClause = getColNameWithPrefix(rTableId, "iata");
                 $("#mainJoin .rightClause").val(rightClause).change();
                 var lTableName = $("#joinLeftTableList").find(".text").val();
+                console.log($('.leftClause').val(), $('.rightClause').val());
                 var newName = xcHelper.getTableName(lTableName) + '-' +
                               xcHelper.getTableName(rTableName);
                 $("#joinView .btn.next").click();
@@ -930,6 +932,7 @@ window.TestSuite = (function($, TestSuite) {
                 }
             });
             if (!$li.find(".tableName").text().startsWith("flight")) {
+                console.warn($li.length, idCount + 5);
                 throw "Wrong table";
             }
             $li.find(".addTableBtn").click();
@@ -947,8 +950,9 @@ window.TestSuite = (function($, TestSuite) {
             $("#mainFrame").scrollLeft("10000");
             $(".xcTableWrap:eq(2) .tableTitle .dropdownBox .innerBox").click();
             $("#tableMenu .moveTable").trigger(fakeEvent.mouseenter);
-            $("#tableSubMenu .wsName").click();
-            $("#tableSubMenu .moveToWorksheet .list li").click();
+            $("#tableSubMenu .wsName").trigger(fakeEvent.mouseup);
+            $("#tableSubMenu .moveToWorksheet .list li")
+                                                .trigger(fakeEvent.mouseup);
             $("#tableSubMenu .moveToWorksheet .wsName")
                 .trigger(fakeEvent.enter);
 
@@ -1082,7 +1086,7 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             var rightTableId = ws.tables[0];
             $("#joinRightTableList").find("li[data-id='" + rightTableId + "']")
-                                    .trigger(fakeEvent.click);
+                                    .trigger(fakeEvent.mouseup);
             var lCol1 = xcHelper.getPrefixColName(lPrefix, "class_id");
             var lCol2 = xcHelper.getPrefixColName(lPrefix, "teacher_id");
 
@@ -1500,7 +1504,8 @@ window.TestSuite = (function($, TestSuite) {
         var $schedList = $addScheduleCard.find(".scheduleList");
         $schedList.find(".iconWrapper").click()
                 .end()
-                .find("ul li:contains('" + schedName + "')").click();
+                .find("ul li:contains('" + schedName + "')")
+                .trigger(fakeEvent.mouseup);
         $addScheduleCard.find("button.confirm").click();
 
         var selector = "#dfgViz .schedulesList:contains('1')";

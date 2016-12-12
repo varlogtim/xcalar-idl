@@ -145,7 +145,7 @@ window.DSCart = (function($, DSCart) {
                 WSManager.getWSLists(true);
         // auto select active worksheet
         $("#dataCartWSMenu").html(li)
-                            .find("li.activeWS").click();
+                            .find("li.activeWS").trigger(fakeEvent.mouseup);
     };
 
     // restore the cart

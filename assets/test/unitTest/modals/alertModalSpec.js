@@ -110,7 +110,7 @@ describe('AlertModal', function() {
         expect($("#alertlist").find("li").length).to.equal(2);
 
         // select an option
-        $("#alertlist").find("li").eq(0).click();
+        $("#alertlist").find("li").eq(0).trigger(fakeEvent.mouseup);
         var val = Alert.getOptionVal();
         expect(val).to.equal("Test 1");
 

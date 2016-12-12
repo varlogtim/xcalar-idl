@@ -349,18 +349,27 @@ window.StartManager = (function(StartManager, $) {
             username = sessionStorage.getItem("xcalar-username");
         }
 
-        $menu.on("click", ".help", function() {
+        $menu.on("mouseup", ".help", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $tab = $("#helpTab");
             if (!$tab.hasClass("active")) {
                 $tab.click();
             }
         });
 
-        $menu.on("click", ".about", function() {
+        $menu.on("mouseup", ".about", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             AboutModal.show();
         });
 
-        $menu.on('click', ".setup", function() {
+        $menu.on('mouseup', ".setup", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             // visible to admin only
             MainMenu.openPanel('monitorPanel');
             $('#setupButton').click();
@@ -369,7 +378,10 @@ window.StartManager = (function(StartManager, $) {
 
         $("#userName").text(username);
 
-        $("#signout").click(function() {
+        $("#signout").mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             unloadHandler();
         });
     }

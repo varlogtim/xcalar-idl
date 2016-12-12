@@ -73,7 +73,7 @@ describe('DSExport', function() {
 
 
 			// select UDF
-			$targetTypeList.find('li').eq(1).click();
+			$targetTypeList.find('li').eq(1).trigger(fakeEvent.mouseup);
 			expect($targetInput.val()).to.equal("UDF");
 			expect($targetInput.data('value')).to.equal("UDF");
 			expect($('#exportURL').closest('.formRow').hasClass('active')).to.be.true;
@@ -81,7 +81,7 @@ describe('DSExport', function() {
 
 			$("#exportURL").val('test');
 			expect($("#exportURL").val()).to.equal('test');
-			$form.find('.udfModuleListWrap li').eq(0).click();
+			$form.find('.udfModuleListWrap li').eq(0).trigger(fakeEvent.mouseup);
 			expect($form.find('.udfModuleName').val()).to.not.equal("");
 			expect($form.find('.udfFuncListWrap').css('pointer-events')).to.equal("auto");
 			$form.find('.udfFuncName').val('test');
@@ -112,22 +112,22 @@ describe('DSExport', function() {
 			expect($form.find('.placeholderRow:visible').length).to.equal(1);
 
 			// open menu
-			$targetTypeList.click();
+			$targetTypeList.trigger(fakeEvent.mouseup);
 			expect($fileFormatMenu.is(":visible")).to.be.true;
 			expect($targetTypeList.find('li').eq(0).text()).to.equal('Local File System');
 			// select local file system
-			$targetTypeList.find('li').eq(0).click();
+			$targetTypeList.find('li').eq(0).trigger(fakeEvent.mouseup);
 			expect($targetInput.val()).to.equal("Local File System");
 			expect($targetInput.data('value')).to.equal("LocalFilesystem");
 			expect($('#exportURL').closest('.formRow').hasClass('active')).to.be.true;
 			expect($form.find('.udfSelectorRow').hasClass('active')).to.be.false;
 
 			// open menu
-			$targetTypeList.click();
+			$targetTypeList.trigger(fakeEvent.mouseup);
 			expect($fileFormatMenu.is(":visible")).to.be.true;
 			expect($targetTypeList.find('li').eq(1).text()).to.equal('UDF');
 			// select UDF
-			$targetTypeList.find('li').eq(1).click();
+			$targetTypeList.find('li').eq(1).trigger(fakeEvent.mouseup);
 			expect($targetInput.val()).to.equal("UDF");
 			expect($targetInput.data('value')).to.equal("UDF");
 			expect($('#exportURL').closest('.formRow').hasClass('active')).to.be.true;
@@ -135,10 +135,10 @@ describe('DSExport', function() {
 		});
 
 		it('udf dropdowns should work', function() {
-			$form.find('.udfModuleListWrap li').eq(0).click();
+			$form.find('.udfModuleListWrap li').eq(0).trigger(fakeEvent.mouseup);
 			expect($form.find('.udfModuleName').val()).to.not.equal("");
 			expect($form.find('.udfFuncListWrap').css('pointer-events')).to.equal("auto");
-			$form.find('.udfFuncList li').eq(0).click();
+			$form.find('.udfFuncList li').eq(0).trigger(fakeEvent.mouseup);
 			expect($form.find('.udfFuncName').val()).to.not.equal("");
 			expect($form.find('.udfFuncName').val()).to.equal($('.udfFuncList li').eq(0).text());
 		});
@@ -212,7 +212,7 @@ describe('DSExport', function() {
 			it('blank path should produce error', function(done) {
 				StatusBox.forceHide();
 				$nameInput.val("ab");
-				$targetTypeList.find('li').eq(0).click();
+				$targetTypeList.find('li').eq(0).trigger(fakeEvent.mouseup);
 				expect($targetInput.val()).to.equal("Local File System");
 				$("#exportURL").val('');
 				expect($("#exportURL").val()).to.equal('');
@@ -233,7 +233,7 @@ describe('DSExport', function() {
 			it('blank udf module/function should produce error', function(done) {
 				StatusBox.forceHide();
 				$nameInput.val("ab");
-				$targetTypeList.find('li').eq(1).click();
+				$targetTypeList.find('li').eq(1).trigger(fakeEvent.mouseup);
 				expect($targetInput.val()).to.equal("UDF");
 				$("#exportURL").val('http://www.xcalar.com');
 
@@ -400,7 +400,7 @@ describe('DSExport', function() {
 
 
 			// select UDF
-			$targetTypeList.find('li').eq(1).click();
+			$targetTypeList.find('li').eq(1).trigger(fakeEvent.mouseup);
 			expect($targetInput.val()).to.equal("UDF");
 
 			$('#createExportButton').click();

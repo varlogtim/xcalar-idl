@@ -1040,7 +1040,7 @@ window.Replay = (function($, Replay) {
         }
 
         $("#worksheetTab-" + wsId + " .wsMenu").click();
-        $('#worksheetTabMenu').find('li.delete').click();
+        $('#worksheetTabMenu').find('li.delete').trigger(fakeEvent.mouseup);
 
         var callback = function() {
             if ($("#alertModal").is(":visible")) {
