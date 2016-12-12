@@ -983,6 +983,24 @@ ul.CodeMirror-hints {
             pointer-events: none;
             opacity: @opacity-hint;
         }
+
+        &.empty {
+            .tableLists {
+                display: none;
+            }
+            .listInstructions {
+                display: block;
+            }
+        }
+        .listInstructions {
+            display: none;
+            color: @color-white;
+            padding: 24px;
+            margin: 0 auto;
+            max-width: 500px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
     }
 
     .buttonSection {
@@ -1040,7 +1058,6 @@ ul.CodeMirror-hints {
 
     .tableLists {
         .size(@height: ~"calc(100% - 71px)");
-        
         overflow: hidden;
         overflow-y: auto;
         color: @color-white;

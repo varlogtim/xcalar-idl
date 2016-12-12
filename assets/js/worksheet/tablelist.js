@@ -236,12 +236,18 @@ window.TableList = (function($, TableList) {
             if ($timeLine.find(".tableInfo").length === 0) {
                 $timeLine.remove();
             }
+            if ($activeTableList.find('li').length === 0) {
+                $activeTableList.addClass('empty');
+            }
         } else {
             $tableList.addClass("transition").slideUp(150, function() {
                 $tableList.remove();
                 // clear time line & select boxes
                 if ($timeLine.find(".tableInfo").length === 0) {
                     $timeLine.remove();
+                }
+                if ($activeTableList.find('li').length === 0) {
+                    $activeTableList.addClass('empty');
                 }
             });
         }
@@ -471,6 +477,11 @@ window.TableList = (function($, TableList) {
                         }
                     }
                 }
+                if ($tableList.find('li').length === 0) {
+                    $tableList.addClass('empty');
+                } else {
+                    $tableList.removeClass('empty');
+                }
             }
         }
 
@@ -593,6 +604,10 @@ window.TableList = (function($, TableList) {
             }
         } else if ($tableList.find('ul').length === 0) {
             $listWrap.find('.searchbarArea').hide();
+        }
+
+        if ($listWrap.find('li').length === 0) {
+            $listWrap.addClass('empty');
         }
 
         var $submitBtns = $listWrap.find(".submit");
@@ -754,7 +769,14 @@ window.TableList = (function($, TableList) {
 
         var $tableList = (active === true) ? $("#activeTablesList") :
                                              $("#inactiveTablesList");
+        var $listSection = (active === true) ? $("#activeTableList") :
+                                               $("#archivedTableList")
 
+        if (sortedTables.length === 0) {
+            $listSection.addClass('empty');
+        } else {
+            $listSection.removeClass('empty');
+        }
         for (var i = 0; i < sortedTables.length; i++) {
             var table     = sortedTables[i][0];
             var timeStamp = sortedTables[i][1];
@@ -956,11 +978,14 @@ window.TableList = (function($, TableList) {
                         '</div>' +
                      '</li>';
         }
+
         $("#orphanedTablesList").html(html);
         if (numTables > 0) {
             $("#orphanedTableList-search").show();
+            $("#orphanedTableList").removeClass('empty');
         } else {
             $("#orphanedTableList-search").hide();
+            $("#orphanedTableList").addClass('empty');
         }
     }
 
@@ -1056,6 +1081,13 @@ window.TableList = (function($, TableList) {
                     '</div>' +
                 '</li>';
             }
+
+            if (numConsts === 0) {
+                $('#constantsListSection').addClass('empty');
+            } else {
+                $('#constantsListSection').removeClass('empty');
+            }
+
             $("#constantList").html(html);
             deferred.resolve();
         })
@@ -1104,6 +1136,12 @@ window.TableList = (function($, TableList) {
                 $submitBtns.addClass("xc-hidden");
             } else {
                 $submitBtns.removeClass("xc-hidden");
+            }
+
+            if ($constSection.find('li').length === 0) {
+                $constSection.addClass('empty');
+            } else {
+                $constSection.removeClass('empty');
             }
         });
 
