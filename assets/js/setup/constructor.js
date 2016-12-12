@@ -1692,7 +1692,7 @@ function DSObj(options) {
         this.previewSize = options.previewSize;
         this.quoteChar = options.quoteChar;
         this.skipRows = options.skipRows;
-        this.isRegex = options.isRegEx || false;
+        this.isRegex = options.isRegex || false;
     }
 
     if (this.parentId !== DSObjTerm.homeParentId) {
@@ -1748,7 +1748,7 @@ DSObj.prototype = {
         // loadURL, format, fullName,
         // fieldDelim, lineDelim, hasHeader,
         // moduleName, funcName, isRecur, previewSize,
-        // quoteChar, skipRows, isRegEx
+        // quoteChar, skipRows, isRegex
         var self = this;
         var path = self.getPathWithPattern();
 

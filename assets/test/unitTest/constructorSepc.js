@@ -1418,7 +1418,7 @@ describe('Constructor Test', function() {
         expect(controller.getQuote()).to.equal("\"");
     });
 
-    describe.skip('DSObj Constructor Test', function() {
+    describe('DSObj Constructor Test', function() {
         it("Should be a constructor", function() {
             var dsObj = new DSObj({
                 "id"        : "testId",
@@ -1460,7 +1460,8 @@ describe('Constructor Test', function() {
                 "uneditable": false,
                 "path"      : "nfs:///netstore/datasets/gdelt/",
                 "format"    : "CSV",
-                "numEntries": 1000
+                "numEntries": 1000,
+                "isRegex"   : true
             });
 
             var res = dsObj.getPointArgs();
@@ -1468,6 +1469,27 @@ describe('Constructor Test', function() {
             expect(res[0]).to.equal("nfs:///netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
             expect(res[2]).to.equal("testFullName");
+            expect(res[12]).to.equal(true);
+
+            var dsObj = new DSObj({
+                "id"        : "testId",
+                "name"      : "testName",
+                "user"      : "testUser",
+                "fullName"  : "testFullName",
+                "parentId"  : DSObjTerm.homeParentId,
+                "uneditable": false,
+                "path"      : "nfs:///netstore/datasets/gdelt/",
+                "format"    : "CSV",
+                "numEntries": 1000,
+                "isRegEx"   : true // typo on purpose to return false
+            });
+
+            var res = dsObj.getPointArgs();
+            expect(res).to.be.an("array");
+            expect(res[0]).to.equal("nfs:///netstore/datasets/gdelt/");
+            expect(res[1]).to.equal("CSV");
+            expect(res[2]).to.equal("testFullName");
+            expect(res[12]).to.equal(false);
         });
 
         it("Should get and set size", function() {
