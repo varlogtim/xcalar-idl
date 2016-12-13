@@ -913,8 +913,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#tableListTab").click();
             }
             $(".tableListSectionTab:contains(Temporary)").click();
-            $("#orphanedTableList .refresh").click();
-            return checkExists("#orphanedTableList-search:visible");
+            return TableList.refreshOrphanList(true);
         })
         .then(function() {
             // move the flight table (the one that has id startTableId + 5)
@@ -922,7 +921,8 @@ window.TestSuite = (function($, TestSuite) {
             var idCount = parseInt(startTableId.substring(2));
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 try {
-                    return $(this).data("id").endsWith(idCount + 5);
+                    // turn into string in case entire id is a number
+                    return ($(this).data("id") + "").endsWith(idCount + 5);
                 } catch (err) {
                     throw "testSuite bug";
                 }

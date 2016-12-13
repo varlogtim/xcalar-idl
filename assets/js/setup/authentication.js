@@ -67,7 +67,7 @@ window.Authentication = (function(jQuery, Authentication) {
             }
         }
 
-        var hashTag = str.charAt(Math.floor(Math.random() * str.length - 10) +
+        var hashTag = str.charAt(Math.floor(Math.random() * (str.length - 10)) +
                       10);
         for (var i = 0; i<numDigits-1; i++) {
             hashTag += str.charAt(Math.floor(Math.random() * str.length));
@@ -75,6 +75,13 @@ window.Authentication = (function(jQuery, Authentication) {
 
         return (hashTag);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        Authentication.__testOnly__ = {};
+        Authentication.__testOnly__.generateHashTag = generateHashTag;
+    }
+    /* End Of Unit Test Only */
 
     return (Authentication);
 }(jQuery, {}));

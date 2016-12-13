@@ -386,7 +386,7 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             var tableName = $.trim($dagTable.find('.tableTitle').text());
-            var tableId = $dagTable.data('id');
+            var tableId = $dagTable.data('id')  + "";
             var tableLocked = false;
             if (gTables[tableId] && gTables[tableId].hasLock()) {
                 tableLocked = true;
@@ -403,7 +403,7 @@ window.DagPanel = (function($, DagPanel) {
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
-                if ($li.data('id') === tableId) {
+                if (($li.data('id') + "") === tableId) {
                     $menu.find('.addTable, .revertTable').addClass('hidden');
                     $menu.find('.focusTable, .archiveTable').removeClass('hidden');
                     if (!tableLocked && !inColumnPickerMode) {
