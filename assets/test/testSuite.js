@@ -256,7 +256,7 @@ window.TestSuite = (function($, TestSuite) {
             return;
         }
         if (!statement) {
-            console.log("Assert failed!");
+            console.log("Assert failed!", assert.caller.name);
             TestSuite.fail(curDeferred, curTestName, curTestNumber);
         }
     }
@@ -378,6 +378,7 @@ window.TestSuite = (function($, TestSuite) {
     function getFirstTableInWS(worksheetIndex) {
         var wsId = WSManager.getWSByIndex(worksheetIndex);
         var tableId = WSManager.getWSById(wsId).tables[0];
+        assert(tableId != null);
         return tableId;
     }
 
@@ -470,6 +471,7 @@ window.TestSuite = (function($, TestSuite) {
         var $header = $("#xcTbodyWrap-" + tableId)
                        .find(".flexWrap.flex-mid input[value='" + columnName +
                        "']").eq(0);
+        assert($header.length === 1);
         $header.closest(".flexContainer").find(".flex-right .innerBox").click();
 
         var $colMenu = $("#colMenu ." + funcClassName);
