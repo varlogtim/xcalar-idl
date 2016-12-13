@@ -161,6 +161,33 @@
 
     &.open {
         .position(@left: @width-menuBar);
+
+        &::after { // used for darkening menu when json modal is open
+            content: "";
+            opacity: 0;
+            z-index: -1;
+            .transition(opacity 0.2s);
+        }
+        &.jsonModalOpen {
+            z-index: @z-index-modal;
+            .ui-resizable-handle {
+                display: none !important;
+                z-index: -1;
+            }
+            .ui-resizable-handle.ui-resizable-e {
+                display: none !important;
+                z-index: -1;
+            }
+            &::after {
+                content: "";
+                display: block;
+                .position(absolute, 0, 0);
+                .size(100%, 100%);
+                background-color: @color-black;
+                opacity: 0.4;
+                z-index: 4;
+            }
+        }
     }
 
     &.closed {
@@ -484,6 +511,13 @@
                 display: block !important;
             }
         }
+
+        &::after { // used for darkening menu when json modal is open
+            content: "";
+            opacity: 0;
+            z-index: -1;
+            .transition(opacity 0.2s);
+        }
     }
 
     &.poppedOut {
@@ -512,8 +546,8 @@
         }
     }
 
-    &.modalOpen {
-        z-index: 40;
+    &.jsonModalOpen { 
+        z-index: @z-index-modal;
         .ui-resizable-handle {
             display: none !important;
         }
@@ -522,6 +556,15 @@
                 display: none !important;
                 z-index: -1;
            }
+           &::after {
+                content: "";
+                display: block;
+                .position(absolute, 0, 0);
+                .size(100%, 100%);
+                background-color: @color-black;
+                opacity: 0.4;
+                z-index: 4;
+            }
         }
     }
 

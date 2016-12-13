@@ -891,7 +891,8 @@ window.JSONModal = (function($, JSONModal) {
             }
             $jsonModal.hide().width(500);
 
-            $('#bottomMenu').removeClass('modalOpen');
+            $('#bottomMenu').removeClass('jsonModalOpen');
+            $('#mainMenu').removeClass('jsonModalOpen');
             $('.tooltip').hide();
         }});
 
@@ -1587,6 +1588,9 @@ window.JSONModal = (function($, JSONModal) {
             $('.tableCover.jsonCover').remove();
             $tableWrap.find('.xcTbodyWrap').off('scroll.preventScrolling');
         } else {
+            $('#bottomMenu').addClass('jsonModalOpen');
+            $('#mainMenu').addClass('jsonModalOpen');
+
             if (isDataCol) {
                 $tableWrap = $('.xcTableWrap:visible:not(.tableLocked)')
                                   .addClass('jsonModalOpen');
@@ -1621,7 +1625,7 @@ window.JSONModal = (function($, JSONModal) {
                     shortTimer = 0;
                     longTimer = 0;
                 }
-                $('#bottomMenu').addClass('modalOpen');
+                
                 $modalBg.addClass('light').fadeIn(longTimer);
                 setTimeout(function() {
                     $jsonModal.fadeIn(shortTimer);

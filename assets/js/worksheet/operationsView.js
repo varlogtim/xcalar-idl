@@ -3763,8 +3763,7 @@ window.OperationsView = (function($, OperationsView) {
     function closeOpSection() {
         isOpen = false;
         // highlighted column sticks out if we don't close it early
-        $("#xcTable-" + tableId).find('.modalHighlighted')
-                                .removeClass('modalHighlighted');
+        $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
         toggleOperationsViewDisplay(true);
         formHelper.removeWaitingBG();
         enableInputs();
