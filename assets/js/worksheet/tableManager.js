@@ -468,6 +468,9 @@ window.TblManager = (function($, TblManager) {
 
     // noLog: boolean, if we are deleting undone tables, we do not log this
     //              transaction
+    // will pass if at least 1 table passes, even if others fail
+    // if no failures, will not return info, but if partial or full fail
+    // then it will return array of failures
     TblManager.deleteTables = function(tables, tableType, noAlert, noLog) {
         // XXX not tested yet!!!
         var deferred = jQuery.Deferred();

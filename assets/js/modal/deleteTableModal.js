@@ -199,12 +199,18 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         modalHelper.disableSubmit();
 
+        var errors;
         PromiseHelper.when(orphanDef, archivedDef, activeDef)
-        .then(function() {
+        .then(function(res1, res2, res3) {
+            if (res1 || res2 || res3) {
+                failed = true;
+                errors = arguments;
+            }
             xcHelper.showRefreshIcon($modal);
         })
         .fail(function(error1, error2, error3) {
             failed = true;
+            errors = arguments;
             var error = error1 || error2 || error3;
             console.error(error);
         })
@@ -218,7 +224,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             }
             populateTableLists();
             if (failed) {
-                failHandler(arguments);
+                failHandler(errors);
             }
             modalHelper.enableSubmit();
             // should re-dected memory usage
@@ -534,7 +540,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 });
             } else {
                 errorMsg = failedMsgs[0] + ". " +
-                           StatusMessageTStr.PartialDeleteTableFail;
+                           StatusMessageTStr.PartialDeleteTableFail + ".";
             }
         } else {
             errorMsg = failedMsgs[0] + ". " + ErrTStr.NoTablesDeleted;
