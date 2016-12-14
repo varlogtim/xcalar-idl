@@ -1192,7 +1192,6 @@ window.JSONModal = (function($, JSONModal) {
 
         jsonObjs = xcHelper.deepCopy(jsonObjs);
         var numExistingComparisons = Object.keys(comparisonObjs).length;
-        var numObjs = jsonObjs.length + numExistingComparisons;
         var numKeys;
         var keys;
 
@@ -1206,71 +1205,96 @@ window.JSONModal = (function($, JSONModal) {
             var numMatches = matches.length;
             var numPartials = partials.length;
 
+            var keysMapped = {};
+            for (var key in jsonObjs) {
+                keysMapped[xcHelper.parsePrefixColName(key).name] = key;
+            }
+
             for (var i = 0; i < numMatches; i++) {
-                var key = Object.keys(matches[i])[0];
                 var possibleMatch = matches[i];
                 var tempActiveObj = {};
                 var tempObj;
+                var key = Object.keys(matches[i])[0];
+                var key2 = key;
+                if (!jsonObjs.hasOwnProperty(key)) {
+                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
+                }
+
                 var compareResult = xcHelper.deepCompare(possibleMatch[key],
-                                                          jsonObjs[key]);
+                                                          jsonObjs[key2]);
                 if (compareResult) {
                     activeObj.matches.push(possibleMatch);
-                } else if (jsonObjs.hasOwnProperty(key)) {
-                    for (var k in comparisonObjs) {
-                        tempObj = comparisonObjs[k].matches.splice(i, 1)[0];
-                        comparisonObjs[k].partial.push(tempObj);
+                } else if (jsonObjs.hasOwnProperty(key2)) {
+                    for (var j in comparisonObjs) {
+                        tempObj = comparisonObjs[j].matches.splice(i, 1)[0];
+                        comparisonObjs[j].partial.push(tempObj);
                     }
-                    tempActiveObj[key] = jsonObjs[key];
+                    tempActiveObj[key2] = jsonObjs[key2];
                     tempPartials.push(tempActiveObj);
 
                     numMatches--;
                     i--;
                 } else {
-                    for (var k in comparisonObjs) {
-                        tempObj = comparisonObjs[k].matches.splice(i, 1)[0];
-                        comparisonObjs[k].unmatched.push(tempObj);
+                    for (var j in comparisonObjs) {
+                        tempObj = comparisonObjs[j].matches.splice(i, 1)[0];
+                        comparisonObjs[j].unmatched.push(tempObj);
                     }
                     numMatches--;
                     i--;
                 }
-                delete jsonObjs[key];
+                delete jsonObjs[key2];
             }
             for (var i = 0; i < numPartials; i++) {
                 var key = Object.keys(partials[i])[0];
+                var key2 = key;
+                if (!jsonObjs.hasOwnProperty(key)) {
+                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
+                }
                 var tempActiveObj = {};
                 var tempObj;
-                if (jsonObjs.hasOwnProperty(key)) {
-                    tempActiveObj[key] = jsonObjs[key];
+                if (jsonObjs.hasOwnProperty(key2)) {
+                    tempActiveObj[key2] = jsonObjs[key2];
                     activeObj.partial.push(tempActiveObj);
                 } else {
-                    for (var k in comparisonObjs) {
-                        tempObj = comparisonObjs[k].partial.splice(i, 1)[0];
-                        comparisonObjs[k].unmatched.push(tempObj);
+                    for (var j in comparisonObjs) {
+                        tempObj = comparisonObjs[j].partial.splice(i, 1)[0];
+                        comparisonObjs[j].unmatched.push(tempObj);
                     }
-                    tempActiveObj[key] = jsonObjs[key];
+                    tempActiveObj[key2] = jsonObjs[key2];
                     numPartials--;
                     i--;
                 }
-                delete jsonObjs[key];
+                delete jsonObjs[key2];
             }
             for (var i = 0; i < nonMatches.length; i++) {
                 var key = Object.keys(nonMatches[i])[0];
+                var key2 = key;
+                if (!jsonObjs.hasOwnProperty(key)) {
+                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
+                }
+
                 var tempActiveObj = {};
-                if (jsonObjs.hasOwnProperty(key)) {
-                    tempActiveObj[key] = jsonObjs[key];
+                if (jsonObjs.hasOwnProperty(key2)) {
+                    tempActiveObj[key2] = jsonObjs[key2];
                     activeObj.unmatched.push(tempActiveObj);
-                    delete jsonObjs[key];
+                    delete jsonObjs[key2];
                 }
             }
             activeObj.partial = activeObj.partial.concat(tempPartials);
             activeObj.unmatched = activeObj.unmatched.concat(jsonObjs);
             comparisonObjs[indices] = activeObj;
         } else {
+            var numObjs = jsonObjs.length + numExistingComparisons;
             keys = Object.keys(jsonObjs[0]);
             numKeys = keys.length;
             var matchedJsons = []; // when both objs have same key and values
             var unmatchedJsons = [];
             var partialMatchedJsons = []; // when both objs have the same key but different values
+
+            var keysMapped = {};
+            for (var key in jsonObjs[1]) {
+                keysMapped[xcHelper.parsePrefixColName(key).name] = key;
+            }
 
             for (var i = 0; i < numObjs; i++) {
                 matchedJsons.push([]);
@@ -1278,39 +1302,39 @@ window.JSONModal = (function($, JSONModal) {
                 partialMatchedJsons.push([]);
             }
             for (var i = 0; i < numKeys; i++) {
-                for (var j = 1; j < 2; j++) {
-                    var key = keys[i];
+                var key = keys[i];
+                var key2 = key;
+                if (!jsonObjs[1].hasOwnProperty(key)) {
+                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
+                }
 
-                    var compareResult = xcHelper.deepCompare(jsonObjs[0][key],
-                                                            jsonObjs[j][key]);
+                var compareResult = xcHelper.deepCompare(jsonObjs[0][key],
+                                                        jsonObjs[1][key2]);
 
-                    var obj = {};
-                    obj[key] = jsonObjs[0][key];
+                var obj = {};
+                var obj2 = {};
+                obj[key] = jsonObjs[0][key];
+                obj2[key2] = jsonObjs[1][key2];
 
-                    if (compareResult) {
-                        matchedJsons[0].push(obj);
-                        matchedJsons[j].push(obj);
-                        delete jsonObjs[j][key];
-                    } else if (jsonObjs[j].hasOwnProperty(key)) {
-
-                        partialMatchedJsons[0].push(obj);
-                        var secondObj = {};
-                        secondObj[key] = jsonObjs[j][key];
-                        partialMatchedJsons[j].push(secondObj);
-
-                        delete jsonObjs[j][key];
-                    } else {
-                        unmatchedJsons[0].push(obj);
-                    }
+                if (compareResult) { // perfect match
+                    matchedJsons[0].push(obj);
+                    matchedJsons[1].push(obj2);
+                    delete jsonObjs[1][key2];
+                } else if (jsonObjs[1].hasOwnProperty(key2)) {
+                    // keys match but values do not
+                    partialMatchedJsons[0].push(obj);
+                    partialMatchedJsons[1].push(obj2);
+                    delete jsonObjs[1][key2];
+                } else {
+                    // no match
+                    unmatchedJsons[0].push(obj);
                 }
             }
 
-            for (var i = 1; i < 2; i++) {
-                for (var key in jsonObjs[i]) {
-                    var obj = {};
-                    obj[key] = jsonObjs[i][key];
-                    unmatchedJsons[i].push(obj);
-                }
+            for (var key in jsonObjs[1]) {
+                var obj = {};
+                obj[key] = jsonObjs[1][key];
+                unmatchedJsons[1].push(obj);
             }
 
             for (var i = 0; i < indices.length; i++) {
