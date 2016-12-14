@@ -14,13 +14,13 @@ $(document).ready(function() {
     $("#loginForm").submit(function(event) {
         // prevents form from having it's default action
         event.preventDefault();
-        var username = $("#loginNameBox").val();
+        var username = $("#loginNameBox").val().trim();
         if (username === "") {
             return;
         }
 
         console.log("username:", username);
-        var pass = $('#loginPasswordBox').val();
+        var pass = $('#loginPasswordBox').val().trim();
         var str = {"xipassword": pass, "xiusername": username};
 
         if (gLoginEnabled) {
