@@ -1510,13 +1510,13 @@ window.xcHelper = (function($, xcHelper) {
         if (animate && !gMinModeOn) {
             $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
                                 function() {
-                                    moveFirstColumn();
+                                    TblManager.alignTableEls();
                                     xcHelper.removeSelectionRange();
                                     deferred.resolve();
                                 });
         } else {
             $('#mainFrame').scrollLeft(scrollPosition);
-            moveFirstColumn();
+            TblManager.alignTableEls();
             deferred.resolve();
         }
         return deferred.promise();
@@ -1541,12 +1541,12 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
                                 function() {
                                     focusTable(tableId);
-                                    moveFirstColumn();
+                                    TblManager.alignTableEls();
                                     xcHelper.removeSelectionRange();
                                 });
         } else {
             $('#mainFrame').scrollLeft(scrollPosition);
-            moveFirstColumn();
+            TblManager.alignTableEls();
         }
     };
 
@@ -2593,9 +2593,7 @@ window.xcHelper = (function($, xcHelper) {
         });
         setTimeout(function() {
             unhideOffScreenTables();
-            moveTableTitles();
-            moveTableDropdownBoxes();
-            moveFirstColumn();
+            TblManager.alignTableEls();
             $('#mainFrame').removeClass('scrollLocked');
             $('#dagScrollBarWrap').removeClass('xc-hidden');
             DagPanel.adjustScrollBarPositionAndSize();

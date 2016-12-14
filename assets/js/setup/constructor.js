@@ -3762,9 +3762,7 @@ FormHelper.prototype = {
             // alignment 600 ms after menu opens
             setTimeout(function() {
                 if (MainMenu.isMenuOpen("mainMenu")) {
-                    moveTableDropdownBoxes();
-                    moveTableTitles();
-                    moveFirstColumn(); 
+                    TblManager.alignTableEls();
                 }
             }, 600);
         }

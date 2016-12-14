@@ -1036,9 +1036,7 @@ window.TblAnim = (function($, TblAnim) {
             reorderAfterTableDrop(dragInfo.tableId, dragInfo.originalIndex,
                                     dragInfo.tableIndex);
         }
-        moveTableDropdownBoxes();
-        moveFirstColumn();
-        moveTableTitles();
+        TblManager.alignTableEls();
         $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
     }
 
@@ -1145,9 +1143,7 @@ window.TblAnim = (function($, TblAnim) {
         var oldIndex = dragInfo.tableIndex;
         dragInfo.tableIndex = dropTargetIndex;
         moveTableDropTargets(dropTargetIndex, oldIndex, $table);
-        moveFirstColumn();
-        moveTableDropdownBoxes();
-        moveTableTitles();
+        TblManager.alignTableEls();
     }
 
     function sizeTableForDragging() {

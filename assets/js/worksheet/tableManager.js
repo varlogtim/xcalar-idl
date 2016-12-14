@@ -334,9 +334,7 @@ window.TblManager = (function($, TblManager) {
             RowScroller.empty();
         }
 
-        moveTableDropdownBoxes();
-        moveTableTitles();
-        moveFirstColumn();
+        TblManager.alignTableEls();
 
         // disallow dragging if only 1 table in worksheet
         checkTableDraggable();
@@ -393,9 +391,7 @@ window.TblManager = (function($, TblManager) {
                 }
             }
 
-            moveTableDropdownBoxes();
-            moveTableTitles();
-            moveFirstColumn();
+            TblManager.alignTableEls();
 
             // disallow dragging if only 1 table in worksheet
             checkTableDraggable();
@@ -459,9 +455,7 @@ window.TblManager = (function($, TblManager) {
                 }
             }
 
-            moveTableDropdownBoxes();
-            moveTableTitles();
-            moveFirstColumn();
+            TblManager.alignTableEls();
 
             // disallow dragging if only 1 table in worksheet
             checkTableDraggable();
@@ -1091,6 +1085,12 @@ window.TblManager = (function($, TblManager) {
         TableList.updateTableInfo(tableId);
         var $table = $('#xcTable-' + tableId);
         matchHeaderSizes($table);
+    };
+
+    TblManager.alignTableEls = function($tableWrap) {
+        moveTableTitles($tableWrap);
+        moveTableDropdownBoxes();
+        moveFirstColumn();
     };
 
     // returns {
