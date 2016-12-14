@@ -3111,7 +3111,7 @@ ModalHelper.prototype = {
         var deferred = jQuery.Deferred();
         var options = $.extend(this.options, extraOptions) || {};
         var $modal = this.$modal;
-        var numModalsOpen = $('.modalContainer:visible').length;
+        var numModalsOpen = $('.modalContainer:visible:not(#aboutModal)').length;
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.find(".focusable").off(".xcModal")

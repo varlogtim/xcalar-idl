@@ -935,7 +935,7 @@ window.StartManager = (function(StartManager, $) {
             }
             if ($('#workspacePanel').hasClass('active') &&
                 !$('#container').hasClass('columnPicker') &&
-                !$('.modalContainer:visible').length &&
+                !$('.modalContainer:not(#aboutModal):visible').length &&
                 !$('textarea:focus').length &&
                 !$('input:focus').length) {
 

@@ -886,7 +886,7 @@ window.JSONModal = (function($, JSONModal) {
             toggleModal(null, true, 200);
             
             $modalBg.removeClass('light');
-            if ($('.modalContainer:visible').length < 2) {
+            if ($('.modalContainer:visible:not(#aboutModal)').length < 2) {
                 $modalBg.hide();
             }
             $jsonModal.hide().width(500);
