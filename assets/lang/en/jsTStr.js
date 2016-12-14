@@ -21,6 +21,7 @@ StatusMessageTStr = {
     'PartialDeleteTableFail': 'Some tables could not be deleted',
     'PartialDeleteConstFail': 'Some aggregates could not be deleted',
     'CouldNotDelete' : 'Could not be deleted',
+    'NotDeletedList': 'The following tables could not be deleted: ',
     'ExportTable' : 'Exporting table',
     'ExportFailed' : 'Export failed',
     'Aggregate' : 'Performing Aggregate',
@@ -667,9 +668,11 @@ UDFTStr = {
 TblTStr = {
     'Create': 'Create Table',
     'Del': 'Drop Tables',
+    'DEL': 'DROP TABLES',
     'DelMsg': 'Are you sure you want to drop table <table>?',
     'DelFail': 'Drop Tables Failed',
     'Archive': 'Hide Tables',
+    'ARCHIVE': 'HIDE TABLES',
     'Active': 'Send Tables to Worksheet',
     'ActiveFail': 'Active Tables Failed',
     'Truncate': 'Additional characters were truncated'

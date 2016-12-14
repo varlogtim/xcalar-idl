@@ -1470,7 +1470,7 @@ window.WSManager = (function($, WSManager) {
                 "msg"    : WSTStr.DelWSMsg,
                 "buttons": [
                     {
-                        "name"     : TblTStr.Del,
+                        "name"     : TblTStr.DEL,
                         "className": "deleteTable",
                         "tooltip"  : CommonTxtTstr.NoUndone,
                         "func"     : function() {
@@ -1478,7 +1478,7 @@ window.WSManager = (function($, WSManager) {
                         }
                     },
                     {
-                        "name"     : TblTStr.Archive,
+                        "name"     : TblTStr.ARCHIVE,
                         "className": "archiveTable",
                         "func"     : function() {
                             WSManager.delWS(wsId, DelWSType.Archive);
@@ -1509,19 +1509,64 @@ window.WSManager = (function($, WSManager) {
         // for active table, use this to delete
         var activeTables = worksheetGroup.get(wsId).tables;
 
-        TblManager.deleteTables(activeTables, TableType.Active)
-        .then(function() {
-            return TableList.tableBulkAction("delete", TableType.Archived);
-        })
-        .then(function() {
+        var delActiveTables = TblManager.deleteTables(activeTables,
+                                                      TableType.Active);
+        var delArchivedTables = TableList.tableBulkAction("delete",
+                                                          TableType.Archived);
+
+        var errors;
+        PromiseHelper.when(delActiveTables, delArchivedTables)
+        .then(function(res1, res2) {
+            if (res1 || res2) {
+                errors = arguments;
+            }
             deferred.resolve();
         })
-        .fail(function(error) {
-            Alert.error(TblTStr.DelFail, error);
+        .fail(function(error1, error2) {
+            var error = error1 || error2;
+            errors = arguments;
             deferred.reject(error);
+        })
+        .always(function() {
+            if (errors) {
+                deleteTableFailHandler(errors);
+            }
+            TableList.refreshOrphanList();
         });
+    }
 
-        TableList.refreshOrphanList();
+    function deleteTableFailHandler(errors) {
+        var options = {
+            remove: true,
+            keepInWS: false,
+            noFocusWS: true
+        }
+        var tableName;
+        var tableId;
+        var failedMsg;
+        var tableList = "";
+        for (var i = 0; i < errors.length; i++) {
+            if (errors[i] && errors[i].fails) {
+                for (var j = 0; j < errors[i].fails.length; j++) {
+                    tableName = errors[i].fails[j].tables;
+                    tableId = xcHelper.getTableId(tableName);
+                    TblManager.sendTableToOrphaned(tableId, options);
+                    tableList += tableName + ", ";
+                    if (!failedMsg) {
+                        failedMsg = errors[i].fails[j].error;
+                    }
+                }
+            }
+        }
+        if (!failedMsg) {
+            failedMsg = TblTStr.DelFail;
+        }
+        if (tableList) {
+            tableList = tableList.substr(0, tableList.length - 2);
+            failedMsg += ". "  + StatusMessageTStr.NotDeletedList + tableList;
+        }
+        
+        Alert.error(TblTStr.DelFail, failedMsg);
     }
 
     // Helper function to archive tables in a worksheet

@@ -1076,7 +1076,6 @@ function XcalarDeleteTable(tableName, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-
     var deferred = jQuery.Deferred();
 
     if (Transaction.checkAndSetCanceled(txId)) {
