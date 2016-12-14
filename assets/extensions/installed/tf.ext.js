@@ -29,21 +29,17 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Algorithm",
             "fieldClass": "algorithm",
+            "autofill"  : "ImgRecCNN",
             "enums"     : [
-                "LogRegCSV",
-                "ImgRecCNN"
-                ]
-        },
-        {
-            "type"      : "string",
-            "name"      : "Log Dir",
-            "fieldClass": "logDir",
-            "autofill"  : "/tmp/tensorflow/app/"
+                "ImgRecCNN",
+                "LogRegCSV"
+            ]
         },
         {
             "type"      : "number",
             "name"      : "Max Steps",
-            "fieldClass": "maxSteps"
+            "fieldClass": "maxSteps",
+            "autofill"  : 12
         },
         {
             "type"      : "string",
@@ -66,16 +62,18 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Algorithm",
             "fieldClass": "algorithm",
+            "autofill"  : "ImgRecCNN",
             "enums"     : [
-                "LogRegCSV",
-                "ImgRecCNN"
-                ]
+                "ImgRecCNN",
+                "LogRegCSV"
+            ]
         },
         {
             "type"      : "string",
-            "name"      : "Log Dir",
-            "fieldClass": "logDir",
-            "autofill"  : "/tmp/tensorflow/app/"
+            "name"      : "Unique Train Tag",
+            "fieldClass": "uniqueTag",
+            // TODO: ask cheng to make dynamic version
+            "autofill"  : loadLocalTag()
         },
         {
             "type"      : "string",
@@ -105,6 +103,55 @@ window.UExtTF = (function(UExtTF) {
         }
     };
 
+    function getUniqueTagParams() {
+        // TODO: Expose this via API?
+        var wb = WorkbookManager.getWorkbook(WorkbookManager.getActiveWKBK());
+        var wbId = wb.id;
+        // TODO: curUser vs srcUser?
+        var curUser = wb.curUser;
+        var curTime = Date.now();
+        var uniqueObj = {
+            "wbId"   : wbId,
+            "curUser": curUser,
+            "curTime": curTime
+        };
+        return uniqueObj;
+    }
+
+    function isOutputEmpty() {
+        //TODO: Fill out
+        return true;
+    }
+
+    function saveLocalStorage(resultObj) {
+        localStorage.setItem("MRuniqueTag", resultObj.uniqueTag);
+        localStorage.setItem("MRexposedLoc", resultObj.exposedLoc);
+        localStorage.setItem("MRlogDir", resultObj.logDir);
+        localStorage.setItem("MRcurTime", resultObj.uniqueObj.curTime);
+        localStorage.setItem("MRcurUser", resultObj.uniqueObj.curUser);
+        localStorage.setItem("MRwbId", resultObj.uniqueObj.wbId);
+        return undefined;
+    }
+
+    function loadLocalStorage() {
+        var resultObj = {
+            "uniqueTag" : localStorage.getItem("MRuniqueTag"),
+            "exposedLoc": localStorage.getItem("MRexposedLoc"),
+            "logDir"    : localStorage.getItem("MRlogDir"),
+            "uniqueObj" : {
+                "curTime": localStorage.getItem("MRcurTime"),
+                "curUser": localStorage.getItem("MRcurUser"),
+                "wbId"   : localStorage.getItem("MRwbId")
+            }
+        };
+        return resultObj;
+    }
+
+    function loadLocalTag() {
+        return localStorage.getItem("MRuniqueTag");
+    }
+
+
     function tfTrain() {
         var deferred = XcSDK.Promise.deferred();
         var ext = this;
@@ -118,22 +165,22 @@ window.UExtTF = (function(UExtTF) {
         // Parsed
         var dsName = args.dsName;
         var algorithm = args.algorithm;
-        var logDir = args.logDir;
         var resultFormat = args.resultFormat;
         var maxSteps = args.maxSteps;
         var dataDir = args.dataLoc;
+        var uniqueObj = getUniqueTagParams();
 
         var inStrObj = {
             "func"        : func,
             "algorithm"   : algorithm,
-            "logDir"      : logDir,
             "resultFormat": resultFormat,
             "maxSteps"    : maxSteps,
-            "dataDir"     : dataDir
+            // In the streaming version, dataDir will be changed to
+            // srcTable or similar
+            "dataDir"     : dataDir,
+            "uniqueObj"   : uniqueObj
         };
         var inStr =  JSON.stringify(inStrObj);
-
-        // console.log(appName, isGlobal, inStr);
 
         // Variables that will be set in the following promise handler
         // that need to be in this scope.
@@ -152,8 +199,9 @@ window.UExtTF = (function(UExtTF) {
             // Kick off loading results as dataset and into XI
             var innerParsed;
             try {
-                // var outerParsed = JSON.parse(result.outStr);
                 var outerParsed = JSON.parse(result.outStr);
+                // TODO: implement and test master node specification,
+                // e.g. if outerParsed[0] isn't the one we want.
                 innerParsed = JSON.parse(outerParsed[0]);
             } catch (err) {
                 deferred.reject("Failed to parse extension output.");
@@ -166,11 +214,14 @@ window.UExtTF = (function(UExtTF) {
             // Location of statefile for test is here
             logDir = innerParsed.logDir;
 
-            // console.log(uniqueTag, exposedLoc, logDir);
             // console.log(JSON.stringify(result.outStr));
 
             Alert.error("Extension Ran!",
                         "Successfully trained model. Unique Tag:\n" + String(uniqueTag));
+
+            saveLocalStorage(innerParsed);
+
+            console.log(innerParsed);
 
             // This one call uses the latest API
             var dsArgs = {
@@ -190,9 +241,9 @@ window.UExtTF = (function(UExtTF) {
             };
             return ext.load(dsArgs, formatArgs, dsName);
         })
-        .then(function() {
-            newTableName = ext.createTableName(dsName);
-            return ext.indexFromDataset(dsName, newTableName, "tf");
+        .then(function(dsNameLoaded) {
+            newTableName = ext.createTableName(dsNameLoaded);
+            return ext.indexFromDataset(dsNameLoaded, newTableName, "tf");
         })
         .then(function() {
             var newTable = ext.createNewTable(newTableName);
@@ -231,16 +282,16 @@ window.UExtTF = (function(UExtTF) {
         // Parsed
         var dsName = args.dsName;
         var algorithm = args.algorithm;
-        var logDir = args.logDir;
         var resultFormat = args.resultFormat;
         var dataDir = args.dataLoc;
+        var uniqueTag = args.uniqueTag;
 
         var inStrObj = {
             "func"        : func,
             "algorithm"   : algorithm,
-            "logDir"      : logDir,
             "resultFormat": resultFormat,
-            "dataDir"     : dataDir
+            "dataDir"     : dataDir,
+            "uniqueTag"   : uniqueTag
         };
         var inStr = JSON.stringify(inStrObj);
 
@@ -264,6 +315,8 @@ window.UExtTF = (function(UExtTF) {
             try {
                 // var outerParsed = JSON.parse(result.outStr);
                 var outerParsed = JSON.parse(result.outStr);
+                // TODO: ensure that if some node has empty output,
+                // continue to search around until find node full output
                 innerParsed = JSON.parse(outerParsed[0]);
             } catch (err) {
                 deferred.reject("Failed to parse extension output.");
@@ -299,9 +352,9 @@ window.UExtTF = (function(UExtTF) {
             };
             return ext.load(dsArgs, formatArgs, dsName);
         })
-        .then(function() {
-            newTableName = ext.createTableName(dsName);
-            return ext.indexFromDataset(dsName, newTableName, "tf");
+        .then(function(dsNameLoaded) {
+            newTableName = ext.createTableName(dsNameLoaded);
+            return ext.indexFromDataset(dsNameLoaded, newTableName, "tf");
         })
         .then(function() {
             var newTable = ext.createNewTable(newTableName);

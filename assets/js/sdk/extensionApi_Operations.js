@@ -36,6 +36,10 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         "load": function(dsArgs, formatArgs, dsName) {
+            // Important: dsName gets transformed. This promise returns new name.
+            // If following this by an indexFromDataset, be sure to use
+            // the transformed name.
+
             // dsArgs is as follows:
             // url, isRecur, maxSampleSize, skipRows, isRegex
             // formatArgs is as follows:
