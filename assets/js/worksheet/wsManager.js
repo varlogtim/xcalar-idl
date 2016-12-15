@@ -1007,9 +1007,15 @@ window.WSManager = (function($, WSManager) {
     WSManager.switchWS = function(worksheetId) {
         // cache current scroll bar position
         scrollTracker.cache(activeWorksheet);
+        $('#mainFrame').addClass('scrollLocked');
         WSManager.focusOnWorksheet(worksheetId);
         // change to origin position
         scrollTracker.restore(worksheetId);
+        setTimeout(function() {
+            // allow time for scrollbar to adjust before unlocking
+            $('#mainFrame').removeClass('scrollLocked');
+        }, 0);
+      
     };
 
     WSManager.dropUndoneTables = function() {

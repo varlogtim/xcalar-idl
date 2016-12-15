@@ -727,16 +727,19 @@ window.StartManager = (function(StartManager, $) {
             if (!mainFrameScrolling) {
                 mainFrameScrolling = true;
                 // apply the following actions only once per scroll session
-                $('.menu').hide();
+                
+                if ($(this).hasClass('scrollLocked')) {
+                    scrollPrevented = true;
+                } else {
+                    $('.menu').hide();
+                }
+                
                 removeMenuKeyboardNavigation();
                 $(".highlightBox").remove();
                 // table head's dropdown has position issue if not hide
                 $('.xcTheadWrap').find('.dropdownBox')
                                  .addClass('dropdownBoxHidden');
                 $('.tooltip').hide();
-                if ($(this).hasClass('scrollLocked')) {
-                    scrollPrevented = true;
-                }
             }
             $(this).scrollTop(0);
 
