@@ -70,7 +70,7 @@ window.UExtHello = (function(UExtHello) {
      *
      *
      *      6.1 Autofill for boolean type argument:
-     *          boolean type of field disaply as a checkbox in XI.
+     *          boolean type of field displays as a checkbox in XI.
      *          If autofill set to true, checkbox will be checked by default,
      *          otherwise, checkbox will not be checked by default.
      *
@@ -82,7 +82,10 @@ window.UExtHello = (function(UExtHello) {
      *      6.2 Autofill for string type argument:
      *          value can be any string.
      *
-     *  7) tyepCheck: Optional, an object to specify how XI should check
+     *      6.3 Autofill for number type argument:
+     *          value can be any number.
+     *
+     *  7) typeCheck: Optional, an object to specify how XI should check
      *                the argument. Different type of arguments accept
      *                different attributes. Here is a checklist:
      *
