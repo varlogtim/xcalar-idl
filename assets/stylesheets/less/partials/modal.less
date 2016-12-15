@@ -1100,8 +1100,16 @@
         > div {
             float: left;
             &#aggModal-tableName {
-                .size(@width: ~"calc(100% - 130px)");
+                .size(@width: 100%);
+                .flex-display;
+            }
 
+            .tableNameSection, .progressSection {
+                .flex(1 1 auto);
+            }
+            .progressSection {
+                text-align: right;
+                padding-right: 40px;
             }
 
             &#aggModal-backToProfile {
@@ -1129,6 +1137,20 @@
             margin-left: 10px;
             .font(@weight: bold, @size: 13px, @line-height: 25px,
                 @color: @color-font-select-blue);
+        }
+        .progressValue {
+            .font(@size: 13px, @line-height: 25px,
+                @color: @color-font-select-blue);
+        }
+    }
+
+
+    &.profileMode {
+        #aggModal-tableName {
+            .size(@width: ~"calc(100% - 130px)") !important;
+        }
+        #aggModal-backToProfile  {
+            display: block !important;
         }
     }
 

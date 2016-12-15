@@ -160,10 +160,10 @@ window.AggModal = (function($, AggModal) {
 
         // If this is triggered from a column profile then we want to track
         // this to be able to go back to the profile. Else colNum is empty
-        if (colNum) {
+        if (colNum != null) {
             $aggModal.data('tableid', tableId);
             $aggModal.data('colnum', colNum);
-            $backToProfile.show();
+            $aggModal.addClass('profileMode');
             cachedColNum = colNum;
         }
 
@@ -389,6 +389,10 @@ window.AggModal = (function($, AggModal) {
 
         var colLen  = aggCols.length;
         var dupCols = [];
+        var total = colLen * colLen;
+        var cellCount = 0;
+  
+        updateRunProgress(cellCount, total);
         // First we need to determine if this is a dataset-table
         // or just a regular table
 
@@ -406,10 +410,12 @@ window.AggModal = (function($, AggModal) {
             var aggCol = aggCols[col];
             var progCol = aggCol.col;
             // the diagonal is always 1
-            applyCorrResult(col, col, 1, []);
+            cellCount += applyCorrResult(col, col, 1, []);
+            cellCount += 1;
+            updateRunProgress(cellCount, total);
 
             if (dupCols[col]) {
-                // for duplicated columns, no need to trigger thrift call
+                // for duplicated columns, no need to trigger thrift call            
                 continue;
             }
 
@@ -419,9 +425,10 @@ window.AggModal = (function($, AggModal) {
                 dupCols[dupColNum] = true;
 
                 if (dupColNum > col) {
-                    applyCorrResult(col, dupColNum, 1, []);
+                    cellCount += applyCorrResult(col, dupColNum, 1, []);
                 }
             }
+            updateRunProgress(cellCount, total);
 
             // XXX now agg on child of array is not supported
             if (!aggCol.isChildOfArray) {
@@ -437,7 +444,12 @@ window.AggModal = (function($, AggModal) {
                                         vertCol.getBackColName());
                     // Run correlation function
                     var promise = runCorr(tableId, tableName,
-                                          sub, row, col, dups, txId);
+                                          sub, row, col, dups, txId)
+                    .then(function(numDupCells) {
+                        cellCount += 2;
+                        cellCount += numDupCells;
+                        updateRunProgress(cellCount, total);
+                    });
                     promises.push(promise);
                 }
             }
@@ -453,10 +465,14 @@ window.AggModal = (function($, AggModal) {
                 }
             }
 
-            deferred.reject("Unknow Correlation Error");
+            deferred.reject("Unknown Correlation Error");
         });
 
         return deferred.promise();
+    }
+
+    function updateRunProgress(curr, total) {
+        $aggModal.find('.progressValue').text(curr + "/" + total);
     }
 
     function calcAgg(tableName, tableId, txId) {
@@ -464,6 +480,11 @@ window.AggModal = (function($, AggModal) {
 
         var colLen = aggCols.length;
         var funLen = aggFunctions.length;
+        var total = colLen * funLen;
+        var cellCount = 0;
+
+        updateRunProgress(cellCount, total);
+
         // First we need to determine if this is a dataset-table
         // or just a regular table
         var dupCols = [];
@@ -491,10 +512,15 @@ window.AggModal = (function($, AggModal) {
                                             aggFunctions[row], row, col,
                                             dups, txId);
                         promises.push(promise);
+                        promise.then(function(numDone) {
+                            cellCount += numDone;
+                            updateRunProgress(cellCount, total);
+                        });
                     }
                 }
             }
         }
+        
 
         return PromiseHelper.when.apply(window, promises);
     }
@@ -524,7 +550,7 @@ window.AggModal = (function($, AggModal) {
                 var aggRes = colAgg[aggOpMap[opString]];
                 if (aggRes != null) {
                     applyAggResult(aggRes);
-                    deferred.resolve();
+                    deferred.resolve(dups.length + 1);
                     return (deferred.promise());
                 }
             }
@@ -541,13 +567,13 @@ window.AggModal = (function($, AggModal) {
             // end of cache value
 
             applyAggResult(value);
-            deferred.resolve();
+            deferred.resolve(dups.length + 1);
         })
         .fail(function(error) {
             console.error("quick agg error", error);
             applyAggResult('<span class="dash">--</span>', error.error);
             // still resolve
-            deferred.resolve();
+            deferred.resolve(dups.length + 1);
         });
 
         function applyAggResult(value, error) {
@@ -585,8 +611,9 @@ window.AggModal = (function($, AggModal) {
                     corrRes.indexOf("<span") > -1) {
                     error = "(" + AggTStr.DivByZeroExplain + ")";
                 }
-                applyCorrResult(row, col, corrRes, colDups, error);
-                deferred.resolve();
+                var numDupCells = applyCorrResult(row, col, corrRes, colDups,
+                                                  error);
+                deferred.resolve(numDupCells);
                 return (deferred.promise());
             }
         }
@@ -598,8 +625,8 @@ window.AggModal = (function($, AggModal) {
             corrCache[tableId][evalStr] = value;
             // end of cache value
 
-            applyCorrResult(row, col, value, colDups);
-            deferred.resolve();
+            var numDupCells = applyCorrResult(row, col, value, colDups);
+            deferred.resolve(numDupCells);
         })
         .fail(function(error) {
             console.error("Correlation Error", error);
@@ -610,10 +637,11 @@ window.AggModal = (function($, AggModal) {
                 error.error += "(" + AggTStr.DivByZeroExplain + ")";
             }
 
-            applyCorrResult(row, col, '<span class="dash">--</span>', colDups,
-                            error.error);
+            var numDupCells = applyCorrResult(row, col, 
+                                    '<span class="dash">--</span>', colDups,
+                                    error.error);
             // still resolve
-            deferred.resolve();
+            deferred.resolve(numDupCells);
         });
 
         return (deferred.promise());
@@ -623,6 +651,7 @@ window.AggModal = (function($, AggModal) {
         var isNumeric = jQuery.isNumeric(value);
         var bg;
         var $cells;
+        var numDupCells = 0;
 
         var title = (error == null) ? value : error;
         // error case force to have tooltip
@@ -672,6 +701,10 @@ window.AggModal = (function($, AggModal) {
 
             if (newCol > newRow) {
                 $cells = getCorrCell(newRow, newCol);
+                if (!$cells[0].text()) {
+                    numDupCells += 2;
+                }
+    
                 $cells[0].html(html);
                 $cells[1].html(html);
 
@@ -688,6 +721,10 @@ window.AggModal = (function($, AggModal) {
             for (var i = 0, len = allRows.length; i < len; i++) {
                 newRow = allRows[i];
                 $cells = getCorrCell(newRow, colNum);
+                if (!$cells[0].text()) {
+                    numDupCells += 2;
+                }
+
                 $cells[0].html(html);
                 $cells[1].html(html);
 
@@ -697,6 +734,8 @@ window.AggModal = (function($, AggModal) {
                 }
             }
         });
+
+        return (numDupCells);
     }
 
     function getCorrCell(row, col) {
@@ -710,7 +749,6 @@ window.AggModal = (function($, AggModal) {
         // the diagonal one
         var $cell2 = $corr.find('.aggTableFlex[data-col=' + diagColNum + ']' +
                                 '[data-row=' + digaRowNum + ']');
-
         return [$cell, $cell2];
     }
 
@@ -726,8 +764,9 @@ window.AggModal = (function($, AggModal) {
 
     function closeAggModal() {
         modalHelper.clear();
-        $backToProfile.hide();
+        $aggModal.removeClass('profileMode');
         $aggModal.width(920).height(670);
+        cachedColNum = null;
     }
 
 

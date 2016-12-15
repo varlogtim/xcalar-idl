@@ -21,9 +21,15 @@
   </section>
   <!-- Quick Aggregates Input Section -->
   <section class="modalTopMain">
-    <div id="aggModal-tableName" class="tableName textOverflowOneLine">
-      <span><%= dicts.aggModal.TableName %>:</span>
-      <span class="text"></span>
+    <div id="aggModal-tableName" class="tableName">
+      <div class="tableNameSection textOverflowOneLine">
+        <span><%= dicts.aggModal.TableName %>:</span>
+        <span class="text"></span>
+      </div>
+      <div class="progressSection textOverflowOneLine">
+        <span>Progress: </span>
+        <span class="progressValue">0/0</span>
+      </div>
     </div>
     <div id="aggModal-backToProfile">
       <span><%= dicts.aggModal.BackToProfile %></span>
