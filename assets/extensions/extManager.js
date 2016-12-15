@@ -742,6 +742,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         } else {
             if (argType === "number") {
                 inputType = "number";
+                if (arg.autofill != null) {
+                    inputVal = arg.autofill;
+                }
             } else if (arg.autofill != null) {
                 // when it's string
                 inputVal = arg.autofill;

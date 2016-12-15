@@ -181,8 +181,8 @@ ErrTStr = {
                         'worksheet from the pop up list.',
     'OnlyNumber': 'Please input a number.',
     'OnlyInt': 'Please input an integer.',
-    'OnlyPositiveNumber': 'Please input a number bigger than 0.',
-    'NoNegativeNumber': 'Please input a number bigger than or equal to 0',
+    'OnlyPositiveNumber': 'Please input a number greater than 0.',
+    'NoNegativeNumber': 'Please input a number greater than or equal to 0',
     'NoAllZeros': 'Values cannot all be zeros',
     'NoWKBKSelect': 'Please select a workbook',
     'NoWS': 'This worksheet is deleted, please choose another worksheet',
@@ -262,7 +262,7 @@ ErrWRepTStr = {
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
     'InvalidColType': 'Column "<name>" has an invalid type: <type>',
     'ColNotInTable': 'Column "<name>" not found in table "<table>."',
-    'NoLessNum': 'Please enter a value bigger than or equal to <num>',
+    'NoLessNum': 'Please enter a value greater than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
     'TableNotDeleted': 'Table <name> was not deleted.',
     'ConstNotDeleted': 'Aggregate <name> was not deleted.',
@@ -615,7 +615,7 @@ DSTStr = {
     'ShowAdvOpt': 'Show Advanced Option',
     'HideAdvOpt': 'Hide Advanced Option',
     'PointErr': 'Cannot Point to the dataset',
-    'OffsetErr': 'Offset is bigger than the dataset size'
+    'OffsetErr': 'Offset is larger than the dataset size'
 };
 
 DSFormTStr = {
