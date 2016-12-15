@@ -743,11 +743,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             if (argType === "number") {
                 inputType = "number";
                 if (arg.autofill != null) {
-                    inputVal = arg.autofill;
+                    inputVal = getAutofillVal(arg.autofill);
                 }
             } else if (arg.autofill != null) {
                 // when it's string
-                inputVal = arg.autofill;
+                inputVal = getAutofillVal(arg.autofill);
             }
 
             if (arg.enums != null && arg.enums instanceof Array) {
@@ -845,6 +845,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         return html;
+    }
+
+    function getAutofillVal(autofill) {
+        var val;
+        if (typeof autofill === "function") {
+            val = autofill();
+        } else {
+            val = autofill;
+        }
+        return val;
     }
 
     function storeExtConfigParams() {

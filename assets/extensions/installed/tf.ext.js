@@ -72,8 +72,9 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Unique Train Tag",
             "fieldClass": "uniqueTag",
-            // TODO: ask cheng to make dynamic version
-            "autofill"  : loadLocalTag()
+            "autofill"  : function() {
+                return loadLocalTag();
+            }
         },
         {
             "type"      : "string",
