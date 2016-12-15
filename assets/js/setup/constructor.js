@@ -1210,7 +1210,7 @@ function DSFormController() {
 
 DSFormController.prototype = {
     set: function(options) {
-        optoins = options || {};
+        options = options || {};
 
         if (options.path != null) {
             this.path = options.path;

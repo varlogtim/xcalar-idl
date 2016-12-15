@@ -513,8 +513,16 @@ window.DSTable = (function($, DSTable) {
             "previewSize": dsObj.previewSize,
             "pattern"    : dsObj.pattern,
             "isRecur"    : dsObj.isRecur,
-            "isRegex"    : dsObj.isRegex
-        }, false, dsId);
+            "isRegex"    : dsObj.isRegex,
+            "dsName"     : dsObj.getName(),
+            "skipRows"   : dsObj.skipRows,
+            "moduleName" : dsObj.moduleName,
+            "funcName"   : dsObj.funcName,
+            "hasHeader"  : dsObj.hasHeader,
+            "fieldDelim" : dsObj.fieldDelim,
+            "lineDelim"  : dsObj.lineDelim,
+            "quoteChar"  : dsObj.quoteChar
+        }, false, dsId, true);
     }
 
     // sample table html

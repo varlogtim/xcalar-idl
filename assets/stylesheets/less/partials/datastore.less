@@ -1505,10 +1505,11 @@ table.datasetTable {
     }
 
     .errorSection {
-        height: 35px;
+        // height: 35px; // xx why was the height limited?
         padding-top: 10px;
         padding-left: 25px;
         color: @color-table-red;
+        white-space: normal;
     }
 
     .previewSection {
@@ -1729,6 +1730,13 @@ table.datasetTable {
         margin-top: 10px;
         .size(@width: 100%, @height: 1px);
         background-color: @color-font-pinkish-grey2;
+    }
+
+    .bottomSection {
+        min-height: 150px; // to allow dropdown to open fully
+        .row:first-child {
+            margin-top: 10px;
+        }
     }
 
     #udfArgs {

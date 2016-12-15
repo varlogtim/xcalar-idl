@@ -128,7 +128,8 @@ window.DSPreview = (function($, DSPreview) {
         advanceOption.setMode();
     };
 
-    DSPreview.show = function(options, fromFormCard, dsId) {
+    // restore: boolean, set to true if restoring after an error
+    DSPreview.show = function(options, fromFormCard, dsId, restore) {
         DSForm.switchView(DSForm.View.Preview);
 
         if (dsId != null) {
@@ -143,16 +144,23 @@ window.DSPreview = (function($, DSPreview) {
             backToFormCard = false;
         }
 
-        resetForm();
-        loadArgs.set(options);
-        advanceOption.set(options);
+        if (restore) {
+            restoreForm(options);  
+        } else {
+            resetForm();
+            
+            loadArgs.set(options);
+            advanceOption.set(options);
 
-        var loadURL = loadArgs.getPath();
-        setDefaultDSName(loadURL);
+            var loadURL = loadArgs.getPath();
+            setDefaultDSName(loadURL);
+        }
 
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
             return previewData(excelModule, excelFunc);
+        } else if (restore) {
+            return previewData(options.moduleName, options.funcName);
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)
@@ -479,6 +487,9 @@ window.DSPreview = (function($, DSPreview) {
         if (udfModule !== "" && udfFunc !== "") {
             lastUDFModule = udfModule;
             lastUDFFunc = udfFunc;
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -508,6 +519,58 @@ window.DSPreview = (function($, DSPreview) {
         $("#fieldText").val("Null").addClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
     }
+
+    // xx not tested
+    function restoreForm(options) {
+        $form.find("input").not($formatText).val("");
+        $form.find(".checkbox.checked").removeClass("checked");
+
+        // dsName
+        $("#dsForm-dsName").val(options.dsName);
+        
+        // udf section
+        var wasUDFCached = cacheUDF(options.moduleName, options.funcName)
+        resetUdfSection();
+        if (wasUDFCached) {
+            toggleUDF(true);
+        }
+
+        // advanced section
+        advanceOption.set(options);
+
+        // format
+        var format = options.format;
+        if (format === formatMap.TEXT) {
+            format = "TEXT";
+        }
+        toggleFormat(format);
+
+        // header
+        if (options.hasHeader) {
+            toggleHeader(true);
+        }
+
+        //delims
+        applyFieldDelim(options.fieldDelim);
+        applyLineDelim(options.lineDelim);
+
+        // quote char
+        applyQuote(options.quoteChar);
+
+        // skip rows
+        $("#dsForm-skipRows").val(options.skipRows);
+
+        detectArgs = {
+            "fieldDelim": options.fieldDelim,
+            "lineDelim" : options.lineDelim,
+            "hasHeader" : options.hasHeader,
+            "skipRows"  : options.skipRows,
+            "quote"     : options.quoteChar
+        };
+
+        loadArgs.set(options);
+    }
+
 
     function submitForm(toCreateTable) {
         var res = validateForm();
@@ -629,7 +692,16 @@ window.DSPreview = (function($, DSPreview) {
                 "$ele"    : $dsName,
                 "formMode": true,
                 "error"   : ErrTStr.DSNameConfilct,
-                "check"   : DS.has
+                "check"   : function(name) {
+                    var dsToReplace = $previewCard.data("dsid") || null;
+                    if (dsToReplace) {
+                        if (name === xcHelper.parseDSName(dsToReplace).dsName) {
+                            return false;
+                        }
+                    }
+                    return DS.has(name);
+                }
+
             },
             {
                 "$ele"    : $dsName,

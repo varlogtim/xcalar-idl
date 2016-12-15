@@ -120,99 +120,102 @@
           include "advanceOption.html"
         </div>
         <div class="divider"></div>
-        <!-- row -->
-        <div class="row">
-          <label><%= dicts.dsForm.Format %>:</label>
-          <div id="fileFormat" class="dropDownList rowContent" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsFormat"' : '' %>>
-            <input class="text" type="text" spellcheck="false" disabled>
-            <div class="iconWrapper">
-              <i class="icon xi-arrow-down"></i>
-            </div>
-            <!-- Format Menu -->
-            <div id="fileFormatMenu" class="list">
-              <ul>
-                <li name="CSV"><%= dicts.dsFormat.CSV %></li>
-                <li name="JSON"><%= dicts.dsFormat.JSON %></li>
-                <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
-                <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
-              </ul>
-              <div class="scrollArea top">
-                <div class="arrow"></div>
+        <!-- bottom section -->
+        <div class="bottomSection">
+          <!-- row -->
+          <div class="row">
+            <label><%= dicts.dsForm.Format %>:</label>
+            <div id="fileFormat" class="dropDownList rowContent" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsFormat"' : '' %>>
+              <input class="text" type="text" spellcheck="false" disabled>
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
               </div>
-              <div class="scrollArea bottom">
-                <div class="arrow"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- row -->
-        <div class="row">
-          <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
-            <div class="text"><%= dicts.dsForm.Header %></div>
-            <div class="checkbox">
-              <i class="icon xi-ckbox-empty"></i>
-              <i class="icon xi-ckbox-selected"></i>
-            </div>
-          </div>
-        </div>
-        <!-- row -->
-        <div class="row">
-          <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
-          <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsOptions"' : '' %>>
-            <input id="lineText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
-            <div class="iconWrapper">
-              <i class="icon xi-arrow-down"></i>
-            </div>
-            <!-- dropdown menu -->
-            <div class="list">
-              <ul>
-                <li name="default"><%= dicts.common.Default %> (\n)</li>
-                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
-              </ul>
-              <div class="scrollArea top">
-                <div class="arrow"></div>
-              </div>
-              <div class="scrollArea bottom">
-                <div class="arrow"></div>
+              <!-- Format Menu -->
+              <div id="fileFormatMenu" class="list">
+                <ul>
+                  <li name="CSV"><%= dicts.dsFormat.CSV %></li>
+                  <li name="JSON"><%= dicts.dsFormat.JSON %></li>
+                  <li name="EXCEL"><%= dicts.dsFormat.EXCEL %></li>
+                  <li name="TEXT"><%= dicts.dsFormat.TEXT %></li>
+                </ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <!-- row -->
-        <div class="row">
-          <label for="fieldText"><%= dicts.dsForm.FieldDelim %>:</label>
-          <!-- Field Delimiter -->
+          <!-- row -->
+          <div class="row">
+            <div id="promoteHeaderCheckbox" class="checkboxSection rowContent">
+              <div class="text"><%= dicts.dsForm.Header %></div>
+              <div class="checkbox">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
+              </div>
+            </div>
+          </div>
+          <!-- row -->
+          <div class="row">
+            <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
+            <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsOptions"' : '' %>>
+              <input id="lineText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+              </div>
+              <!-- dropdown menu -->
+              <div class="list">
+                <ul>
+                  <li name="default"><%= dicts.common.Default %> (\n)</li>
+                  <li name="null" class="nullVal"><%= dicts.common.Null %></li>
+                </ul>
+                <div class="scrollArea top">
+                  <div class="arrow"></div>
+                </div>
+                <div class="scrollArea bottom">
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- row -->
+          <div class="row">
+            <label for="fieldText"><%= dicts.dsForm.FieldDelim %>:</label>
+            <!-- Field Delimiter -->
 
-          <div id="fieldDelim" class="dropDownList">
-            <input id="fieldText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
-            <div class="iconWrapper">
-              <i class="icon xi-arrow-down"></i>
-            </div>
-            <!-- dropdown menu -->
-            <div class="list">
-              <ul>
-                <li name="default"><%= dicts.common.Default %> (\t)</li>
-                <li name="comma"><%= dicts.common.Comma %> (,)</li>
-                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
-              </ul>
-              <div class="scrollArea top"><div class="arrow"></div></div>
-              <div class="scrollArea bottom"><div class="arrow"></div></div>
+            <div id="fieldDelim" class="dropDownList">
+              <input id="fieldText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
+              <div class="iconWrapper">
+                <i class="icon xi-arrow-down"></i>
+              </div>
+              <!-- dropdown menu -->
+              <div class="list">
+                <ul>
+                  <li name="default"><%= dicts.common.Default %> (\t)</li>
+                  <li name="comma"><%= dicts.common.Comma %> (,)</li>
+                  <li name="null" class="nullVal"><%= dicts.common.Null %></li>
+                </ul>
+                <div class="scrollArea top"><div class="arrow"></div></div>
+                <div class="scrollArea bottom"><div class="arrow"></div></div>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- row -->
-        <div class="row">
-          <label for="dsForm-quote"><%= dicts.dsForm.Quoting %>:</label>
-          <!-- Field Delimiter -->
-          <div class="inputWrap">
-            <input id="dsForm-quote" class="text" type="text" spellcheck="false">
+          <!-- row -->
+          <div class="row">
+            <label for="dsForm-quote"><%= dicts.dsForm.Quoting %>:</label>
+            <!-- Field Delimiter -->
+            <div class="inputWrap">
+              <input id="dsForm-quote" class="text" type="text" spellcheck="false">
+            </div>
           </div>
-        </div>
-        <!-- row -->
-        <div class="row">
-          <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %><i title="<%= dicts.dsForm.SkipRowsHint %>" class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"></i>:</label>
-          <div class="inputWrap">
-            <input id="dsForm-skipRows" class="text" type="number" value="0">
+          <!-- row -->
+          <div class="row">
+            <label for="dsForm-skipRows"><%= dicts.dsForm.SkipRows %><i title="<%= dicts.dsForm.SkipRowsHint %>" class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body"></i>:</label>
+            <div class="inputWrap">
+              <input id="dsForm-skipRows" class="text" type="number" value="0">
+            </div>
           </div>
         </div>
       </div>
