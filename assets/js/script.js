@@ -111,7 +111,8 @@ window.StartManager = (function(StartManager, $) {
             // Extensions need to be moved to after version check because
             // somehow uploadUdf causes mgmtd to crash if checkVersion doesn't
             // pass
-            setupExtensions();
+            // Extmanager promise so unit test can wait on resolution.
+            var extPromise = setupExtensions();
             documentReadyGeneralFunction();
             WSManager.initialize();
             BottomMenu.initialize();
@@ -122,6 +123,8 @@ window.StartManager = (function(StartManager, $) {
             FileBrowser.restore();
 
             WSManager.focusOnWorksheet();
+            // This adds a new failure mode to setup.
+            return extPromise;
         })
         .then(function() {
             if (!isBrowserFirefox && !isBrowserIE) {
@@ -295,11 +298,13 @@ window.StartManager = (function(StartManager, $) {
 
     function setupExtensions() {
         try {
-            ExtensionManager.setup();
+            var extPromise = ExtensionManager.setup();
             ExtensionPanel.setup();
+            return extPromise;
         } catch (error) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
+            return PromiseHelper.reject();
         }
     }
 

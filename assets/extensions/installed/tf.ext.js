@@ -29,7 +29,7 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Algorithm",
             "fieldClass": "algorithm",
-            "autofill"  : "ImgRecCNN",
+            "autofill"  : "LogRegCSV",
             "enums"     : [
                 "ImgRecCNN",
                 "LogRegCSV"
@@ -45,7 +45,9 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
+            "autofill"  : "/home/disenberg/datasets/breastCancer/train"
+            //"autofill"  : "/home/disenberg/datasets/imgRec/catsdogscars-preproc/train/"
+            //"autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
         }]
     },
     {
@@ -62,7 +64,7 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Algorithm",
             "fieldClass": "algorithm",
-            "autofill"  : "ImgRecCNN",
+            "autofill"  : "LogRegCSV",
             "enums"     : [
                 "ImgRecCNN",
                 "LogRegCSV"
@@ -80,7 +82,9 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
+            "autofill"  : "/home/disenberg/datasets/breastCancer/train"
+            //"autofill"  : "/home/disenberg/datasets/imgRec/catsdogscars-preproc/test/"
+            //"autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/test/"
         }]
     }];
 
@@ -209,11 +213,11 @@ window.UExtTF = (function(UExtTF) {
                 // When debugging, uncomment following and comment above.
                 // deferred.reject(err);
             }
-            uniqueTag = innerParsed.uniqueTag;
+            var uniqueTag = innerParsed.uniqueTag;
             // Exposed results are here
-            exposedLoc = innerParsed.exposedLoc;
+            var exposedLoc = innerParsed.exposedLoc;
             // Location of statefile for test is here
-            logDir = innerParsed.logDir;
+            var logDir = innerParsed.logDir;
 
             // console.log(JSON.stringify(result.outStr));
 
@@ -317,18 +321,32 @@ window.UExtTF = (function(UExtTF) {
                 // var outerParsed = JSON.parse(result.outStr);
                 var outerParsed = JSON.parse(result.outStr);
                 // TODO: ensure that if some node has empty output,
-                // continue to search around until find node full output
+                // continue to search around until find node w/ full output
+                // Not necessary until set up tf app scheduler
                 innerParsed = JSON.parse(outerParsed[0]);
             } catch (err) {
                 deferred.reject("Failed to parse extension output.");
                 // When debugging, uncomment following and comment above.
                 // deferred.reject(err);
             }
-            uniqueTag = innerParsed.uniqueTag;
+            var uniqueTag = innerParsed.uniqueTag;
             // Exposed results are here
-            exposedLoc = innerParsed.exposedLoc;
+            var exposedLoc = innerParsed.exposedLoc;
             // Location of statefile for test is here
-            logDir = innerParsed.logDir;
+            var logDir = innerParsed.logDir;
+
+            // This denotes whether or not deployment is all nodes on 1 machine
+            // or one node per machine.  Load must be called differently
+            var isGlobalVisible = innerParsed.isGlobalVisible;
+            //TODO: check if this is undefined or merely false
+            var prefix;
+
+            if (isGlobalVisible) {
+                prefix = "nfs://";
+            }
+            else {
+                prefix = "file://";
+            }
 
             // console.log(uniqueTag, exposedLoc, logDir);
             // console.log(JSON.stringify(result.outStr));
@@ -337,7 +355,7 @@ window.UExtTF = (function(UExtTF) {
 
             // This one call uses the latest API
             var dsArgs = {
-                "url"          : "file://" + exposedLoc,
+                "url"          : prefix + exposedLoc,
                 "isRecur"      : true,
                 "maxSampleSize": 200000,
                 "skipRows"     : false,

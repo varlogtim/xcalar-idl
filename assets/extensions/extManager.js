@@ -11,70 +11,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     var $lastInputFocused;
     var formHelper;
 
-    function setupPart4() {
-        var extList = [];
-        // get list of extensions currently loaded into system
-        for (var objs in window) {
-            if (objs.indexOf("UExt") === 0 ) {
-                for (var i = 0; i < extFileNames.length; i++) {
-                    if (objs.toLowerCase().substring(4, objs.length) +
-                        ".ext" === extFileNames[i].toLowerCase()) {
-                        // Found it!
-                        extList.push(objs);
-                        break;
-                    }
-                }
-            }
-        }
-
-        extList.sort();
-        generateExtList(extList);
-        storeExtConfigParams();
-    }
-
     function removeExt(extName) {
         for (var i = 0; i < extFileNames.length; i++) {
             if (extFileNames[i] === extName) {
                 extFileNames.splice(i, 1);
-                break;
+                return true;
             }
         }
-    }
-
-    function setupPart3Success(extName, data) {
-        // numChecksLeft can only be decremented inside the completion
-        // for upload
-        var pyString = data;
-        // Remove .ext
-        var pyModName = extName.substring(0, extName.length - 4);
-        XcalarUploadPython(pyModName, pyString)
-        .then(function() {
-            UDF.storePython(pyModName, pyString);
-            numChecksLeft--;
-            if (numChecksLeft === 0) {
-                setupPart4();
-            }
-        })
-        .fail(function() {
-            console.error("Extension failed to upload. Removing: " + extName);
-            // Remove extension from list
-            removeExt(extName);
-            numChecksLeft--;
-            if (numChecksLeft === 0) {
-                setupPart4();
-            }
-        });
-    }
-
-    function setupPart3Fail(extName, error) {
-        removeExt(extName);
-        numChecksLeft--;
-        console.log("Python file not found!");
-        if (numChecksLeft === 0) {
-            // I am the last guy that completed. Since JS is single threaded
-            // hallelujah
-            setupPart4();
-        }
+        // Already been removed.
+        return false;
     }
 
     function checkPythonFunctions(extFileNames) {
@@ -104,7 +49,40 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         return (needReupload);
     }
 
+    function loadAndStorePython(extName) {
+        var pyModName = extName.substring(0, extName.length - 4);
+        var innerDef = jQuery.Deferred();
+        var data;
+        jQuery.ajax({
+            type: "GET",
+            url : "assets/extensions/installed/" + extName + ".py"
+        })
+        .then(function(response, status, xhr) {
+            // Success case
+            data = response;
+            // Returns a promise
+            return XcalarUploadPython(pyModName, data);
+        },
+        function(error, status, xhr) {
+            // Fail case
+            console.error("Python file not found!");
+        })
+        .then(function() {
+            UDF.storePython(pyModName, data);
+            innerDef.resolve();
+        })
+        .fail(function() {
+            console.error("Extension failed to upload. Removing: "
+                          + extName);
+            // Remove extension from list
+            removeExt(extName);
+            innerDef.reject();
+        });
+        return (innerDef.promise());
+    }
+
     function setupPart2() {
+        var deferred = jQuery.Deferred();
         // check that python modules have been uploaded
         var extLoaded = $("#extension-ops-script script");
         for (var i = 0; i < extLoaded.length; i++) {
@@ -126,33 +104,42 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // Check that the python modules are uploaded
         // For now, we reupload everything everytime.
         var pythonReuploadList = checkPythonFunctions(extFileNames);
-        if (pythonReuploadList.length === 0) {
-            // No python requires reuploading
-            setupPart4();
-        } else {
         // if python module is gone, reupload by reading file from local system
-            numChecksLeft = pythonReuploadList.length;
-            for (var i = 0; i < pythonReuploadList.length; i++) {
-                jQuery.ajax({
-                    type: "GET",
-                    url : "assets/extensions/installed/" +
-                         pythonReuploadList[i] + ".py",
-                    success: (function(valOfI) {
-                        return function(data) {
-                            setupPart3Success(pythonReuploadList[valOfI], data);
-                        };
-                    })(i),
-                    error: (function(valOfI) {
-                        return function(error) {
-                            setupPart3Fail(pythonReuploadList[valOfI], error);
-                        };
-                    })(i)
-                });
-            }
+        extPromises = [];
+        for (var i = 0; i < pythonReuploadList.length; i++) {
+            var extName = pythonReuploadList[i];
+            extPromises.push(loadAndStorePython(extName));
         }
+        PromiseHelper.when.apply(this, extPromises)
+        // This case happens even if extPromises is empty.
+        .always(function(resultPromises) {
+            var extList = [];
+            // get list of extensions currently loaded into system
+            for (var objs in window) {
+                if (objs.indexOf("UExt") === 0 ) {
+                    for (var i = 0; i < extFileNames.length; i++) {
+                        if (objs.toLowerCase().substring(4, objs.length) +
+                            ".ext" === extFileNames[i].toLowerCase()) {
+                            // Found it!
+                            extList.push(objs);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            extList.sort();
+            generateExtList(extList);
+            storeExtConfigParams();
+            // Always resolve so don't crash setup if extensions fail.
+            deferred.resolve();
+        });
+
+        return (deferred.promise());
     }
 
     ExtensionManager.setup = function() {
+        var deferred = jQuery.Deferred();
         $extOpsView = $("#extension-ops");
         $extTriggerTableDropdown = $("#extension-ops-mainTable");
 
@@ -167,8 +154,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 options.async = true;
             }
         });
+
         $("#extension-ops-script").load("assets/extensions/extensions.html",
-                                undefined, setupPart2);
+                                   undefined, function(response, status, xhr) {
+            setupPart2(response, status, xhr)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        });
+
+        return (deferred.promise());
     };
     // This registers an extension.
     // The extension must have already been added via addExtension
