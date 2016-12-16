@@ -129,8 +129,8 @@ describe('DFCreateView', function() {
             $newNameInput.val("");
             expect(validate('')).to.be.false;
             // need to check duplicate df names
-            $newNameInput.val('a');
-            expect(validate('a')).to.be.true;
+            $newNameInput.val('z');
+            expect(validate('z')).to.be.true;
             $newNameInput.val('a2');
             expect(validate('a2')).to.be.true;
             $newNameInput.val('B2');

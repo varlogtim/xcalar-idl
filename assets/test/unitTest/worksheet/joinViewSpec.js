@@ -200,7 +200,7 @@ describe('JoinView', function() {
             expect($("#joinType").find('.list').length).to.equal(1);
             expect($("#joinType").find('.list:visible').length).to.equal(0);
 
-            $('#joinType').find('.text').trigger(fakeEvent.mouseup);
+            $('#joinType').find('.text').trigger(fakeEvent.click);
 
             expect($("#joinType").find('.list:visible').length).to.equal(1);
             expect($("#joinType").find('li:visible').length).to.equal(4);

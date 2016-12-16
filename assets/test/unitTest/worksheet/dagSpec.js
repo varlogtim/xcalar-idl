@@ -80,7 +80,7 @@ describe('Dag', function() {
                 DagPanel.adjustScrollBarPositionAndSize = scrollBarFunc;
 
                 done();
-            }, 1000);
+            }, 2000);
         });
 
         it('panel should close', function(done) {
@@ -141,7 +141,7 @@ describe('Dag', function() {
                     done();
                 }, 600);
 
-            }, 500);
+            }, 1000);
         });
     });
 

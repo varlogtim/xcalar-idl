@@ -112,7 +112,7 @@ describe('DSExport', function() {
 			expect($form.find('.placeholderRow:visible').length).to.equal(1);
 
 			// open menu
-			$targetTypeList.trigger(fakeEvent.mouseup);
+			$targetTypeList.trigger(fakeEvent.click);
 			expect($fileFormatMenu.is(":visible")).to.be.true;
 			expect($targetTypeList.find('li').eq(0).text()).to.equal('Local File System');
 			// select local file system
@@ -123,7 +123,7 @@ describe('DSExport', function() {
 			expect($form.find('.udfSelectorRow').hasClass('active')).to.be.false;
 
 			// open menu
-			$targetTypeList.trigger(fakeEvent.mouseup);
+			$targetTypeList.trigger(fakeEvent.click);
 			expect($fileFormatMenu.is(":visible")).to.be.true;
 			expect($targetTypeList.find('li').eq(1).text()).to.equal('UDF');
 			// select UDF

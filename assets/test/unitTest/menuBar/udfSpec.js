@@ -274,7 +274,7 @@ describe("UDF Test", function() {
 
         it("Should choose template", function() {
             var $menu = $("#udf-fnMenu");
-            $("#udf-fnList").trigger(fakeEvent.mouseup);
+            $("#udf-fnList").trigger(fakeEvent.click);
             assert.isTrue($menu.is(":visible"));
             $menu.find('li[name="blank"]').trigger(fakeEvent.mouseup);
             assert.isFalse($menu.is(":visible"));

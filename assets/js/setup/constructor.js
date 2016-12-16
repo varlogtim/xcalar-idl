@@ -4092,7 +4092,7 @@ RangeSlider.prototype = {
     exclude: selector for an element to exclude from default click
              behavior
  *
-    $menu needs to have the following structure:
+    $menu needs to have the following structure for scrolling:
         <div class="menu/list">
             <ul></ul>
             <div class="scrollArea top"></div>
@@ -4146,24 +4146,24 @@ MenuHelper.prototype = {
         var self = this;
         var options = self.options;
         var $dropDownList = self.$dropDownList;
+        var $list = self.$list;
         // toggle list section
         if (options.onlyClickIcon) {
+            self.$iconWrapper = $dropDownList.find('.iconWrapper');
             $dropDownList.on("click", ".iconWrapper", function(event) {
-                event.stopPropagation();
                 self.toggleList($(this).closest(".dropDownList"));
             });
         } else {
             $dropDownList.addClass('yesclickable');
 
-            $dropDownList.on("mouseup", function(event) {
-                if (event.which !== 1) {
+            $dropDownList.on("click", function(event) {
+                if ($(event.target).closest('.list').length) {
                     return;
                 }
                 if (self.exclude &&
                     $(event.target).closest(self.exclude).length) {
                     return;
                 }
-                event.stopPropagation();
                 self.toggleList($(this));
             });
         }
@@ -4189,22 +4189,19 @@ MenuHelper.prototype = {
         // on click a list
         $dropDownList.on({
             "mouseup": function(event) {
-                event.stopPropagation();
                 if (event.which !== 1) {
                     return;
                 }
                 var keepOpen = false;
-
                 
                 if (options.onSelect) {    // trigger callback
                     // keepOpen be true, false or undefined
                     keepOpen = options.onSelect($(this));
                 }
-                // keep Open may return weird tings
+                // keep Open may return weird tings, so check for true boolean
                 if (keepOpen === true) {
                     return;
                 }
-
                 self.hideDropdowns();
             },
             "mouseenter": function() {
@@ -4223,13 +4220,14 @@ MenuHelper.prototype = {
         var $sections = self.$container.find(".dropDownList");
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
-        $(document).off('mouseup.closeDropDown' + self.id);
+        $(document).off('mousedown.closeDropDown' + self.id);
     },
     toggleList: function($curlDropDownList) {
         var self = this;
         var $list = self.$list;
         if ($curlDropDownList.hasClass("open")) {    // close dropdown
-            this.hideDropdowns($curlDropDownList);
+            self.hideDropdowns();
+            
         } else {
             // hide all other dropdowns that are open on the page
             var $currentList;
@@ -4256,9 +4254,29 @@ MenuHelper.prototype = {
             }
             $curlDropDownList.addClass("open");
             $lists.show().addClass("openList");
-            $(document).on('mouseup.closeDropDown' + self.id, function() {
-                self.hideDropdowns();
+
+            $(document).on('mousedown.closeDropDown' + self.id, function(event) {
+                $target = $(event.target);
+               
+                if (self.options.onlyClickIcon) {
+                    // do not trigger close if clicking on icon dropdown
+                    if ($target.closest('.iconWrapper').is(self.$iconWrapper)) {
+                        return;
+                    }
+                    // do close if not clicking on the list, such as the input
+                    if (!$target.closest('.list').length) {
+                        self.hideDropdowns();
+                        return;
+                    }
+                }
+
+                // close if not clicking anywhere on the dropdownlist
+                if (!$target.closest('.dropDownList').is(self.$dropDownList)) {
+                    self.hideDropdowns();
+                }
             });
+
+
             if (typeof self.options.onOpen === "function") {
                 self.options.onOpen($curlDropDownList);
             }
