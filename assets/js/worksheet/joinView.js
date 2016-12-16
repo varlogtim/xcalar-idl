@@ -157,7 +157,7 @@ window.JoinView = (function($, JoinView) {
                 checkNextBtn();
                 updatePreviewText();
                 var tableId = getTableIds(index);
-                focusTable(tableId);
+                xcHelper.centerFocusedTable(tableId, true);
             } else {
                 return;
             }
