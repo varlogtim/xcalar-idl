@@ -1930,7 +1930,9 @@ window.TblManager = (function($, TblManager) {
 
             if (isSystemMac && event.metaKey ||
                 !isSystemMac && event.ctrlKey) {
-                if ($el.closest('.selectedCell').length > 0) {
+                 // do not unhighlight column if right-clicking
+                if ($el.closest('.selectedCell').length > 0 &&
+                    event.which !== 3) {
                     if (notDropDown) {
                         unhighlightColumn($editableHead);
                         FnBar.clear();
@@ -1948,21 +1950,24 @@ window.TblManager = (function($, TblManager) {
                     var $col;
                     var select = !$el.closest('th').hasClass('selectedCell');
 
-                    for (var i = lowNum; i <= highNum; i++) {
-                        $th = $table.find('th.col' + i);
-                        $col = $th.find('.editableHead');
-                        if ($col.length === 0) {
-                            continue;
-                        }
+                    // do not unhighlight column if right-clicking
+                    if (!(event.which === 3 && !select)) {
+                        for (var i = lowNum; i <= highNum; i++) {
+                            $th = $table.find('th.col' + i);
+                            $col = $th.find('.editableHead');
+                            if ($col.length === 0) {
+                                continue;
+                            }
 
-                        if (select) {
-                            highlightColumn($col, true);
-                        } else if (notDropDown) {
-                            unhighlightColumn($col);
+                            if (select) {
+                                highlightColumn($col, true);
+                            } else if (notDropDown) {
+                                unhighlightColumn($col);
+                            }
                         }
-                    }
-                    if ($table.find('.selectedCell').length === 0) {
-                        FnBar.clear();
+                        if ($table.find('.selectedCell').length === 0) {
+                            FnBar.clear();
+                        }
                     }
                 }
             } else {
