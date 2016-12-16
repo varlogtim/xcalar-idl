@@ -1096,12 +1096,17 @@ window.FileBrowser = (function($, FileBrowser) {
 
             var code = event.which;
             var $lastTarget = gMouseEvents.getLastMouseDownTarget();
+            var $lastTargParents = gMouseEvents.getLastMouseDownParents();
 
             hideBrowserMenu();
-            if ($target.is("input") ||
+            if ($target.is("input") || 
                 ($lastTarget != null &&
-                $lastTarget.closest("#fileBrowser").length === 0))
+                !$lastTargParents.filter("#fileBrowser").length &&
+                !$lastTargParents.filter("#dsForm-path").length &&
+                !$lastTargParents.filter("#importDataForm").length))
             {
+                // last click did not come from fileBrowser, dsFormPath, or
+                // importData form
                 // input doese trigger keyboard event
                 return true;
             }
@@ -1198,6 +1203,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var $nextIcon;
         var $curIcon = $container.find('.grid-unit.active');
         if (!$curIcon.length) {
+            $container.find('.grid-unit:visible').eq(0).click();
             return;
         }
         var isGridView = $fileBrowserMain.hasClass("gridView");

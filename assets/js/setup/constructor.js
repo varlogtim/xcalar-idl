@@ -57,9 +57,11 @@ function MouseEvents() {
     var lastTime = (new Date()).getTime();
     // will store last 3 mousedowns (needed for undo)
     var lastMouseDownTargets = [$lastMouseDownTarget];
+    var $lastMDParents = $lastMouseDownTarget;
 
     this.setMouseDownTarget = function($element) {
         $lastMouseDownTarget = $element;
+        $lastMDParents = $lastMouseDownTarget.parents();
         lastTime = (new Date()).getTime();
 
         // store up to last 3 mousedowns
@@ -75,6 +77,9 @@ function MouseEvents() {
 
     this.getLastMouseDownTarget = function() {
         return $lastMouseDownTarget;
+    };
+    this.getLastMouseDownParents = function() {
+        return $lastMDParents;  
     };
     this.getLastMouseDownTargets = function() {
         return lastMouseDownTargets;
