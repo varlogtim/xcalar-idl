@@ -2976,6 +2976,7 @@ ModalHelper.prototype = {
     },
 
     setup: function(extraOptions) {
+        var self = this;
         var deferred = jQuery.Deferred();
         var $modal = this.$modal;
         var options = $.extend(this.options, extraOptions) || {};
@@ -3033,7 +3034,8 @@ ModalHelper.prototype = {
                 $modal.find(".modalHeader .close").click();
                 return false;
             } else if (event.which === keyCode.Enter) {
-                if (options.noEnter || $(":focus").hasClass('btn')) {
+                if (options.noEnter || ($(":focus").hasClass('btn') && 
+                    $(":focus").closest('#' + self.id).length)) {
                     // let default behavior take over
                     return true;
                 }
