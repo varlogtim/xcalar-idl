@@ -45,9 +45,7 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "/home/disenberg/datasets/breastCancer/train"
-            //"autofill"  : "/home/disenberg/datasets/imgRec/catsdogscars-preproc/train/"
-            //"autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
+            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
         }]
     },
     {
@@ -82,9 +80,7 @@ window.UExtTF = (function(UExtTF) {
             "type"      : "string",
             "name"      : "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "/home/disenberg/datasets/breastCancer/train"
-            //"autofill"  : "/home/disenberg/datasets/imgRec/catsdogscars-preproc/test/"
-            //"autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/test/"
+            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/test/"
         }]
     }];
 
@@ -189,7 +185,9 @@ window.UExtTF = (function(UExtTF) {
 
         // Variables that will be set in the following promise handler
         // that need to be in this scope.
-        var newTableName;
+        var dsNameLoaded;
+        var tableName;
+        var uniqueTag;
 
         // Kick off tensorflow call
         XcalarAppRun(appName, isGlobal, inStr)
@@ -213,7 +211,7 @@ window.UExtTF = (function(UExtTF) {
                 // When debugging, uncomment following and comment above.
                 // deferred.reject(err);
             }
-            var uniqueTag = innerParsed.uniqueTag;
+            uniqueTag = innerParsed.uniqueTag;
             // Exposed results are here
             var exposedLoc = innerParsed.exposedLoc;
             // Location of statefile for test is here
@@ -226,7 +224,7 @@ window.UExtTF = (function(UExtTF) {
 
             saveLocalStorage(innerParsed);
 
-            console.log(innerParsed);
+            //console.log(innerParsed);
 
             // This one call uses the latest API
             var dsArgs = {
@@ -246,12 +244,13 @@ window.UExtTF = (function(UExtTF) {
             };
             return ext.load(dsArgs, formatArgs, dsName);
         })
-        .then(function(dsNameLoaded) {
-            newTableName = ext.createTableName(dsNameLoaded);
-            return ext.indexFromDataset(dsNameLoaded, newTableName, "tf");
+        .then(function(dsNameL) {
+            dsNameLoaded = dsNameL;
+            tableName = ext.createTableName(dsNameLoaded);
+            return ext.indexFromDataset(dsNameLoaded, tableName, "tf");
         })
         .then(function() {
-            var newTable = ext.createNewTable(newTableName);
+            var newTable = ext.createNewTable(tableName);
             newTable.addCol(new XcSDK.Column("tf::predicted_label",
                                              "string"));
             newTable.addCol(new XcSDK.Column("tf::actual_label",
@@ -260,7 +259,11 @@ window.UExtTF = (function(UExtTF) {
             return newTable.addToWorksheet();
         })
         .then(function() {
-            deferred.resolve();
+            deferred.resolve({
+                "uniqueTag": uniqueTag,
+                "dsName"   : dsNameLoaded,
+                "tableName": tableName
+            });
         })
         .fail(function() {
             Alert.error("App Failed!",
@@ -303,7 +306,8 @@ window.UExtTF = (function(UExtTF) {
         // console.log(appName, isGlobal, inStr);
 
         // Variables that will be set in the following promise handler
-        var newTableName;
+        var dsNameLoaded;
+        var tableName;
 
         // Kick off tensorflow call
         XcalarAppRun(appName, isGlobal, inStr)
@@ -371,12 +375,13 @@ window.UExtTF = (function(UExtTF) {
             };
             return ext.load(dsArgs, formatArgs, dsName);
         })
-        .then(function(dsNameLoaded) {
-            newTableName = ext.createTableName(dsNameLoaded);
-            return ext.indexFromDataset(dsNameLoaded, newTableName, "tf");
+        .then(function(dsNameL) {
+            dsNameLoaded = dsNameL;
+            tableName = ext.createTableName(dsNameLoaded);
+            return ext.indexFromDataset(dsNameLoaded, tableName, "tf");
         })
         .then(function() {
-            var newTable = ext.createNewTable(newTableName);
+            var newTable = ext.createNewTable(tableName);
             newTable.addCol(new XcSDK.Column("tf::predicted_label",
                                              "string"));
             newTable.addCol(new XcSDK.Column("tf::actual_label",
@@ -385,7 +390,11 @@ window.UExtTF = (function(UExtTF) {
             return newTable.addToWorksheet();
         })
         .then(function() {
-            deferred.resolve();
+            deferred.resolve({
+                "uniqueTag": uniqueTag,
+                "dsName"   : dsNameLoaded,
+                "tableName": tableName
+            });
         })
         .fail(function() {
             Alert.error("Extension Failed!",
@@ -398,7 +407,17 @@ window.UExtTF = (function(UExtTF) {
 
     }
 
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        UExtTF.__testOnly__ = {};
+        UExtTF.__testOnly__.getUniqueTagParams = getUniqueTagParams;
+        UExtTF.__testOnly__.isOutputEmpty = isOutputEmpty;
+        UExtTF.__testOnly__.saveLocalStorage = saveLocalStorage;
+        UExtTF.__testOnly__.loadLocalStorage = loadLocalStorage;
+        UExtTF.__testOnly__.loadLocalTag = loadLocalTag;
+        UExtTF.__testOnly__.tfTrain = tfTrain;
+        UExtTF.__testOnly__.tfTest = tfTest;
+    }
+    /* End Of Unit Test Only */
     return (UExtTF);
 }({}));
-
-
