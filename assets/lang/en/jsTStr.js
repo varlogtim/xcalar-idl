@@ -255,6 +255,7 @@ ErrWRepTStr = {
                         'please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
     'NoFile': 'File <file> was not found in the directory.',
+    'NoUDF': 'UDF \" <udf> \" does not exist.',
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',

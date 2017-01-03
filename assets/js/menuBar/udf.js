@@ -171,46 +171,52 @@ window.UDF = (function($, UDF) {
 
         /* Template dropdown list */
         new MenuHelper($("#udf-fnList"), {
-            "onSelect": function($li) {
-                $li.parent().find("li").removeClass("selected");
-                $li.addClass("selected");
-                var moduleName = $li.text();
-
-                StatusBox.forceHide();
-                $("#udf-fnList input").val(moduleName);
-
-                var $fnName = $("#udf-fnName");
-                if ($li.attr("name") === "blank") {
-                    $fnName.val("");
-                    editor.setValue(udfDefault);
-                } else {
-                    // auto-fill moduleName
-                    $fnName.val(moduleName);
-
-                    getEntireUDF(moduleName)
-                    .then(function(entireString) {
-                        if ($fnName.val() !== moduleName) {
-                            // check if diff list item was selected during 
-                            // the async call
-                            return;
-                        }
-                        if (entireString == null) {
-                            editor.setValue("#" + SideBarTStr.DownoladMsg);
-                        } else {
-                            editor.setValue(entireString);
-                        }
-                        
-                    })
-                    .fail(function(error) {
-                        editor.setValue("#" + error);
-                    });
-                }
-            },
+            "onSelect"     : seletUDFFuncList,
             "container"    : "#udfSection",
             "bounds"       : '#udfSection',
             "bottomPadding": 2
         }).setupListeners();
         /* end of function input section */
+
+        function seletUDFFuncList($li) {
+            $li.parent().find("li").removeClass("selected");
+            $li.addClass("selected");
+
+            var moduleName = $li.text();
+            var $fnListInput = $("#udf-fnList input");
+            var $fnName = $("#udf-fnName");
+
+            StatusBox.forceHide();
+            $fnListInput.val(moduleName);
+
+            if ($li.attr("name") === "blank") {
+                $fnName.val("");
+                editor.setValue(udfDefault);
+            } else {
+                // auto-fill moduleName
+                $fnName.val(moduleName);
+
+                getEntireUDF(moduleName)
+                .then(fillUDFFunc)
+                .fail(function(error) {
+                    fillUDFFunc("#" + error);
+                });
+            }
+
+            function fillUDFFunc(funcStr) {
+                if ($fnListInput.val() !== moduleName) {
+                    // check if diff list item was selected during
+                    // the async call
+                    return;
+                }
+
+                if (funcStr == null) {
+                    funcStr = "#" + SideBarTStr.DownoladMsg;
+                }
+
+                editor.setValue(funcStr);
+            }
+        }
 
         /* upload udf section */
         $("#udf-fnName").keypress(function(event) {
@@ -409,7 +415,9 @@ window.UDF = (function($, UDF) {
 
     function getEntireUDF(moduleName) {
         if (!storedUDF.hasOwnProperty(moduleName)) {
-            var error = "UDF: " + moduleName + " not exists";
+            var error = xcHelper.replaceMsg(ErrWRepTStr.NoUDF, {
+                "udf": moduleName
+            });
             return PromiseHelper.reject(error);
         }
 
@@ -418,7 +426,10 @@ window.UDF = (function($, UDF) {
         var entireString = storedUDF[moduleName];
         if (entireString == null) {
             XcalarDownloadPython(moduleName)
-            .then(deferred.resolve)
+            .then(function(udfStr) {
+                storedUDF[moduleName] = udfStr;
+                deferred.resolve(udfStr);
+            })
             .fail(deferred.reject);
         } else {
             deferred.resolve(entireString);
