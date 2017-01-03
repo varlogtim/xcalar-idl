@@ -64,6 +64,44 @@ describe("Profile Test", function() {
         });
     });
 
+    describe("Profile Cache Test", function() {
+        it("Profile.getCache should work", function() {
+            var cache = Profile.getCache();
+            expect(cache).to.be.an("object");
+        });
+
+        it("Profile.deleteCache should work", function() {
+            var cache = Profile.getCache();
+            var key = xcHelper.randName("testKey");
+            cache[key] = "test";
+
+            Profile.deleteCache(key);
+            expect(cache.hasOwnProperty(key)).to.be.false;
+        });
+
+        it("Profile.copy should work", function() {
+            var cache = Profile.getCache();
+            var key = xcHelper.randName("testKey");
+            var key2 = xcHelper.randName("testKey2");
+            cache[key] = "test";
+
+            Profile.copy(key, key2);
+            expect(cache.hasOwnProperty(key2)).to.be.true;
+
+            Profile.deleteCache(key);
+            Profile.deleteCache(key2);
+        });
+
+        it("Profile.copy should handle error case", function() {
+            var cache = Profile.getCache();
+            var key = xcHelper.randName("testKey");
+            var key2 = xcHelper.randName("testKey2");
+
+            Profile.copy(key, key2);
+            expect(cache.hasOwnProperty(key2)).to.be.false;
+        });
+    });
+
     describe("Profile SVG Test", function() {
         it("Should hover on bar area", function() {
             var $barArea = $modal.find(".barArea").eq(0);

@@ -1849,7 +1849,7 @@ window.TblManager = (function($, TblManager) {
             if (table.resultSetCount === 0) {
                 // no rows to bookmark
                 return;
-            } 
+            }
             var rowNum = xcHelper.parseRowNum($(this).closest('tr'));
             if (table.bookmarks.indexOf(rowNum) < 0) {
                 TblManager.bookmarkRow(rowNum, tableId);
@@ -2018,7 +2018,7 @@ window.TblManager = (function($, TblManager) {
         });
 
         $thead.on("mousedown", ".topHeader .dotWrap", function() {
-            var $th = $(this).closest('th')
+            var $th = $(this).closest('th');
             var colNum = xcHelper.parseColNum($th);
             FnBar.focusOnCol($th, tableId, colNum);
             highlightColumn($th, false);
@@ -2527,9 +2527,6 @@ window.TblManager = (function($, TblManager) {
             return XcalarDeleteTable(tableName, txId);
         })
         .then(function() {
-            // XXX if we'd like to hide the cannot delete bug,
-            // copy it to the fail function
-            WSManager.removeTable(tableId);
             Dag.makeInactive(tableId);
 
             if (tableType === TableType.Active) {
@@ -2546,8 +2543,7 @@ window.TblManager = (function($, TblManager) {
                 TableList.removeTable(tableId);
             }
 
-            delete gTables[tableId];
-
+            removeTableMeta(tableName);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -2575,9 +2571,9 @@ window.TblManager = (function($, TblManager) {
 
     function delUndoneTableHelper(tableId) {
         var deferred = jQuery.Deferred();
-
         var table = gTables[tableId];
-        var tableName = table.tableName;
+        var tableName = table.getName();
+
         XcalarDeleteTable(tableName, null)
         .then(function() {
             removeTableMeta(tableName);
@@ -2598,6 +2594,7 @@ window.TblManager = (function($, TblManager) {
         if (tableId != null && gTables[tableId] != null) {
             WSManager.removeTable(tableId);
             delete gTables[tableId];
+            Profile.deleteCache(tableId);
         }
     }
 

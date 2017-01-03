@@ -284,6 +284,10 @@ window.Profile = (function($, Profile, d3) {
         return (statsInfos);
     };
 
+    Profile.deleteCache = function(tableId) {
+        delete statsInfos[tableId];
+    };
+
     Profile.copy = function(oldTableId, newTableId) {
         if (statsInfos[oldTableId] == null) {
             return;
