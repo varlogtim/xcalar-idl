@@ -1434,7 +1434,7 @@ window.xcHelper = (function($, xcHelper) {
             tableId = tableWrapOrId;
         } else {
             $tableWrap = tableWrapOrId;
-            tableId = $tableWrap.data('id') + ""; // keep as string
+            tableId = $tableWrap.data('id');
         }
 
         var wsId = WSManager.getWSFromTable(tableId);

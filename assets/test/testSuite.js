@@ -925,8 +925,7 @@ window.TestSuite = (function($, TestSuite) {
             var idCount = parseInt(startTableId.substring(2));
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 try {
-                    // turn into string in case entire id is a number
-                    return ($(this).data("id") + "").endsWith(idCount + 5);
+                    return $(this).data("id").endsWith(idCount + 5);
                 } catch (err) {
                     throw "testSuite bug";
                 }
