@@ -991,6 +991,12 @@ ul.CodeMirror-hints {
             .listInstructions {
                 display: block;
             }
+            &.pending {
+                // hide instructions during a refreshTable call
+                .listInstructions {
+                    display: none;
+                }
+            }
         }
         .listInstructions {
             display: none;

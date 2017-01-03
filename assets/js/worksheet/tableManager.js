@@ -39,6 +39,9 @@ window.TblManager = (function($, TblManager) {
             oldTableNames = [oldTableNames];
         }
 
+        // set table list into a transition state
+        TableList.updatePendingState(true);
+
         // must get worksheet to add before async call,
         // otherwise newTable may add to wrong worksheet
         if (worksheet != null) {
@@ -119,6 +122,9 @@ window.TblManager = (function($, TblManager) {
                     delete gTables[newTableId];
                 }
                 deferred.reject(error);
+            })
+            .always(function() {
+                TableList.updatePendingState(false);
             });
         })
         .fail(function(error) {
@@ -126,6 +132,7 @@ window.TblManager = (function($, TblManager) {
             if (worksheet != null) {
                 WSManager.removeTable(newTableId);
             }
+            TableList.updatePendingState(false);
             deferred.reject(error);
         });
 

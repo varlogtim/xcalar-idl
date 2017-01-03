@@ -1,6 +1,8 @@
 window.TableList = (function($, TableList) {
     var searchHelper;
     var focusedListNum;
+    var pendingCount = 0; // number of pending refreshTable calls
+
     TableList.setup = function() {
         // setup table list section listeners
         var $tableListSections = $("#tableListSections");
@@ -617,6 +619,23 @@ window.TableList = (function($, TableList) {
             $submitBtns.removeClass("xc-hidden");
         }
         focusedListNum = null;
+    };
+
+    // affects the display of the activeTableList instruction msg
+    // pendingCount will have a positive value during TblManager.refreshTables
+    // and will hide the instruction msg and will unhide when count returns to 0
+    TableList.updatePendingState = function(increaseCount) {
+        if (increaseCount) {
+            pendingCount++;
+        } else {
+            pendingCount--;
+        }
+        var $listWrap = $("#activeTableList");
+        if (pendingCount > 0) {
+            $listWrap.addClass('pending');
+        } else {
+            $listWrap.removeClass('pending');
+        }
     };
 
     TableList.checkTableInList = function(tableIdOrName, type) {
