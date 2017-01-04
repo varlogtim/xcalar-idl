@@ -185,6 +185,7 @@ ErrTStr = {
     'OnlyNumber': 'Please input a number.',
     'OnlyInt': 'Please input an integer.',
     'OnlyPositiveNumber': 'Please input a number greater than 0.',
+    'NoFile': 'File not found.',
     'NoNegativeNumber': 'Please input a number greater than or equal to 0',
     'NoAllZeros': 'Values cannot all be zeros',
     'NoWKBKSelect': 'Please select a workbook',
@@ -258,7 +259,6 @@ ErrWRepTStr = {
     'TableConflict': 'Table "<name>" already exists, ' +
                         'please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
-    'NoFile': 'File <file> was not found in the directory.',
     'NoUDF': 'UDF \" <udf> \" does not exist.',
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',

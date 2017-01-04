@@ -958,10 +958,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 scrollIconIntoView($grid, true);
             }
         } else if (name !== "" && showError) {
-            var error = xcHelper.replaceMsg(ErrWRepTStr.NoFile, {
-                "file": name
-            });
-            StatusBox.show(error, $container, false, {side: 'top'});
+            StatusBox.show(ErrTStr.NoFile, $container, false, {side: 'top'});
         }
     }
 
