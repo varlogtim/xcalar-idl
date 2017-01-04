@@ -1022,13 +1022,6 @@ window.DS = (function ($, DS) {
             goToDirHelper(dir);
         });
 
-        // click empty area on gridView
-        $("#dsListSection .gridViewWrapper").on("click", function() {
-            // this hanlder is called before the following one
-            $gridView.find(".active").removeClass("active");
-            cleanDSSelect();
-        });
-
         $dsListFocusTrakcer.on("keydown", function(event) {
             // pre-check if it's the grid that focusing on
             var dsid = $dsListFocusTrakcer.data("dsid");
@@ -1319,7 +1312,6 @@ window.DS = (function ($, DS) {
             console.error("Invalid dsid");
         }
 
-        $gridView.find(".active").removeClass("active");
         DS.goToDir(dsid);
         clearDirStack();
     }
@@ -1537,13 +1529,11 @@ window.DS = (function ($, DS) {
         resetDropTarget();
 
         $grid.find("> .dragWrap").addClass("xc-hidden");
-        $gridView.find(".active").removeClass("active");
         $gridView.addClass("drag");
 
         // when enter extra space in grid view
         $gridView.on("dragenter", function(){
             resetDropTarget();
-            $gridView.find(".active").removeClass("active");
         });
     };
 
@@ -1558,9 +1548,9 @@ window.DS = (function ($, DS) {
         resetDropTarget();
         resetDragDS();
 
+        $gridView.find(".entering").removeClass("entering");
         $gridView.removeClass("drag");
         $gridView.off("dragenter");
-        $gridView.find(".active").removeClass("active");
     };
 
     // Helper function for drag enter event
@@ -1575,12 +1565,12 @@ window.DS = (function ($, DS) {
         // back up button
         if (!$curDropTarget || targetId !== $curDropTarget.attr("id")) {
             // change drop target
-            $(".grid-unit").removeClass("active");
+            $(".grid-unit.entering").removeClass("entering");
             $(".dragWrap").removeClass("active");
 
             if ($dragWrap.hasClass("midDragWrap")) {
                 // drop in folder case
-                $dragWrap.closest(".grid-unit").addClass("active");
+                $dragWrap.closest(".grid-unit").addClass("entering");
             } else {
                 // insert case
                 $dragWrap.addClass("active");
@@ -1632,8 +1622,8 @@ window.DS = (function ($, DS) {
         if (ds.moveTo(targetDS, -1)) {
             $grid.attr("data-dsParentId", targetId)
                 .data("dsParentId", targetId);
+            DS.goToDir(targetId);
             refreshDS();
-
             UserSettings.logDSChange();
         }
     };
@@ -1686,8 +1676,8 @@ window.DS = (function ($, DS) {
         if (ds.moveTo(grandPaDs, -1)) {
             $grid.attr("data-dsParentId", grandPaId)
                     .data("dsParentId", grandPaId);
+            DS.goToDir(grandPaId);
             refreshDS();
-
             UserSettings.logDSChange();
         }
     };

@@ -122,11 +122,6 @@ function dsObjTest() {
             expect($folder.hasClass("active")).to.be.true;
         });
 
-        it("Should click other place to de-focus the folder", function() {
-            $("#dsListSection .gridViewWrapper").click();
-            expect($folder.hasClass("active")).to.be.false;
-        });
-
         it("Should dbclick a folder to enter", function() {
             var e = jQuery.Event("dblclick");
             $folder.trigger(e);
@@ -426,13 +421,6 @@ function dsObjTest() {
             expect($gridView.hasClass("drag")).to.be.true;
         });
 
-        it("should remove active class when dragenter on grid view", function() {
-            $folder.addClass("active");
-            var e = jQuery.Event("dragenter");
-            $gridView.trigger(e);
-            expect($folder.hasClass("active")).to.be.false;
-        });
-
         it("Should allow drop", function() {
             var e = jQuery.Event("dragenter");
             expect(e.isDefaultPrevented()).to.be.false;
@@ -458,7 +446,7 @@ function dsObjTest() {
             DS.onDragEnter(e);
             expect($folder.find(".leftTopDragWrap").hasClass("active"))
             .to.be.false;
-            expect($folder.hasClass("active")).to.be.true;
+            expect($folder.hasClass("entering")).to.be.true;
             expect(DS.__testOnly__.getDropTarget().get(0)).to.equal(target);
         });
 
