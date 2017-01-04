@@ -936,7 +936,7 @@ window.TestSuite = (function($, TestSuite) {
             }
             $li.find(".addTableBtn").click();
 
-            $("#orphanedTableList .submit.active").click();
+            $("#orphanedTableListSection .submit.active").click();
             // switch back to worksheet list
             $("#worksheetListTab").click();
             $("#worksheetTabs .worksheetTab:first-child")

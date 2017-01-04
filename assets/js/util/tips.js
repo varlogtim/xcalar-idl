@@ -236,18 +236,18 @@ window.Tips = (function($, Tips) {
     }
 
     function addTableListTips() {
-        // tablelist in activeTableList
-        var $tableList = $("#activeTableList").find(".tableListBox").eq(0);
+        // tablelist in activeTableListSection
+        var $tableList = $("#activeTableListSection").find(".tableListBox").eq(0);
         setTooltip($tableList, {
             "title"    : TipsTStr.TablList,
             "container": "#activeTablesList .timeLine:first-child"
         });
 
         // tablelist in archivedList
-        $tableList = $("#archivedTableList").find(".tableListBox").eq(0);
+        $tableList = $("#archivedTableListSection").find(".tableListBox").eq(0);
         setTooltip($tableList, {
             "title"    : TipsTStr.TablList,
-            "container": "#archivedTableList .timeLine:first-child"
+            "container": "#archivedTableListSection .timeLine:first-child"
         });
     }
     /* End of Section of adding tips */

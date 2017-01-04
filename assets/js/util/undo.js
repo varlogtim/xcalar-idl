@@ -746,7 +746,7 @@ window.Undo = (function($, Undo) {
                                                 {"isUndo": true}));
             });
 
-            var $lists = $("#archivedTableList .tableInfo");
+            var $lists = $("#archivedTableListSection .tableInfo");
             archivedTables.forEach(function(tableId) {
                 // reArchive the table
                 $lists.filter(function() {

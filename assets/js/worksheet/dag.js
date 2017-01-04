@@ -1146,7 +1146,7 @@ window.DagPanel = (function($, DagPanel) {
                         var $li = $(this);
                         if ($li.data('tablename') === tableName) {
                             $li.find('.addTableBtn').click();
-                            $('#orphanedTableList .submit.delete').click();
+                            $('#orphanedTableListSection .submit.delete').click();
                             return (false);
                         }
                     });
@@ -1156,7 +1156,7 @@ window.DagPanel = (function($, DagPanel) {
                     var $li = $(this);
                     if ($li.data('id') === tableId) {
                         $li.find('.addTableBtn').click();
-                        $('#archivedTableList .submit.delete').click();
+                        $('#archivedTableListSection .submit.delete').click();
                         return (false);
                     }
                 });
@@ -1177,7 +1177,7 @@ window.DagPanel = (function($, DagPanel) {
                     var $li = $(this);
                     if ($li.data('tablename') === tableName) {
                         $li.find('.addTableBtn').click();
-                        $('#orphanedTableList .submit.delete').click();
+                        $('#orphanedTableListSection .submit.delete').click();
                         orphanFound = true;
                         return (false);
                     }

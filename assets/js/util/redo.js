@@ -304,9 +304,9 @@ window.Redo = (function($, Redo) {
         TableList.refreshOrphanList()
         .then(function() {
             if (tableType === TableType.Archived) {
-                $tableList = $('#archivedTableList');
+                $tableList = $('#archivedTableListSection');
             } else if (tableType === TableType.Orphan) {
-                $tableList = $('#orphanedTableList');
+                $tableList = $('#orphanedTableListSection');
             } else {
                 console.error(tableType, "not support redo!");
             }

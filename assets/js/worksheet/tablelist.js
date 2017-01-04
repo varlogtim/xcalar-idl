@@ -76,8 +76,8 @@ window.TableList = (function($, TableList) {
 
         $tableListSections.on("click", ".selectAll", function() {
             var $section = $(this).closest(".tableListSection");
-            var $btn = $section.find(".tableInfo:not(.hiddenWS) .addTableBtn")
-                                .addClass("selected");
+            var $btn = $section.find(".tableInfo:not(.hiddenWS) " +
+                                ".addTableBtn:visible").addClass("selected");
             if ($btn.length > 0) {
                 $section.find(".submit").removeClass("xc-hidden");
             }
@@ -85,25 +85,21 @@ window.TableList = (function($, TableList) {
         });
 
         $tableListSections.on("click", ".clearAll", function() {
-            var $section = $(this).closest(".tableListSection");
-            $section.find(".submit").addClass("xc-hidden")
-                    .end()
-                    .find(".addTableBtn").removeClass("selected");
-            focusedListNum = null;
+            clearAll($(this).closest(".tableListSection"));
         });
 
-        $("#orphanedTableList .refresh").click(function() {
-            var $section = $("#orphanedTableList");
+        $("#orphanedTableListSection .refresh").click(function() {
+            var $section = $("#orphanedTableListSection");
             searchHelper.clearSearch(function() {
                 clearTableListFilter($section);
             });
-            $section.find(".clearAll").click();
+            clearAll($section);
             TableList.refreshOrphanList(true);
             focusedListNum = null;
         });
 
         $("#constantsListSection .refresh").click(function() {
-            $(this).find(".clearAll").click();
+            clearAll($("#constantsListSection"));
             TableList.refreshConstantList(true);
             focusedListNum = null;
         });
@@ -118,7 +114,8 @@ window.TableList = (function($, TableList) {
 
         $tableListSections.on("click", ".submit.archive", function() {
             var tableIds = [];
-            $("#activeTableList").find(".addTableBtn.selected").each(function() {
+            $("#activeTableListSection").find(".addTableBtn.selected")
+            .each(function() {
                 tableIds.push($(this).closest('.tableInfo').data("id"));
             });
             if (tableIds.length) {
@@ -129,12 +126,12 @@ window.TableList = (function($, TableList) {
 
         $tableListSections.on("click", ".submit.active", function() {
             var $section = $(this).closest(".tableListSection");
-            if ($section.is("#archivedTableList")) {
+            if ($section.is("#archivedTableListSection")) {
                 activeTableAlert(TableType.Archived);
-            } else if ($section.is("#orphanedTableList")) {
+            } else if ($section.is("#orphanedTableListSection")) {
                 TableList.activeTables(TableType.Orphan);
                 searchHelper.clearSearch(function() {
-                    clearTableListFilter($("#orphanedTableList"), null);
+                    clearTableListFilter($("#orphanedTableListSection"), null);
                 });
             } else {
                 console.error("Error Case!");
@@ -147,9 +144,9 @@ window.TableList = (function($, TableList) {
             var tableType;
             var title = TblTStr.Del;
             var msg = SideBarTStr.DelTablesMsg;
-            if ($section.is("#archivedTableList")) {
+            if ($section.is("#archivedTableListSection")) {
                 tableType = TableType.Archived;
-            } else if ($section.is("#orphanedTableList")) {
+            } else if ($section.is("#orphanedTableListSection")) {
                 tableType = TableType.Orphan;
             } else if ($section.is("#constantsListSection")) {
                 title = SideBarTStr.DropConsts;
@@ -180,9 +177,11 @@ window.TableList = (function($, TableList) {
 
 
         searchHelper = new SearchBar($("#orphanedTableList-search"), {
-            "$list"         : $("#orphanedTableList").find('.tableLists'),
+            "$list"         : $("#orphanedTableListSection")
+                              .find('.tableLists'),
             "removeSelected": function() {
-                $("#orphanedTableList").find(".selected").removeClass('selected');
+                $("#orphanedTableListSection").find(".selected")
+                                              .removeClass('selected');
             },
             "highlightSelected": function($match) {
                 $match.addClass("selected");
@@ -194,12 +193,12 @@ window.TableList = (function($, TableList) {
 
         $("#orphanedTableList-search").on("input", "input", function() {
             var keyWord = $(this).val();
-            filterTableList($("#orphanedTableList"), keyWord);
+            filterTableList($("#orphanedTableListSection"), keyWord);
         });
 
         $("#orphanedTableList-search").on("click", ".clear", function() {
             searchHelper.clearSearch(function() {
-                clearTableListFilter($("#orphanedTableList"), null);
+                clearTableListFilter($("#orphanedTableListSection"), null);
                 searchHelper.$arrows.hide();
             });
         });
@@ -222,8 +221,8 @@ window.TableList = (function($, TableList) {
 
     // move table to inactive list
     TableList.moveTable = function(tableId) {
-        var $activeTableList = $('#activeTableList');
-        var $tableList = $activeTableList.find('.tableInfo[data-id="' +
+        var $activeTableListSection = $('#activeTableListSection');
+        var $tableList = $activeTableListSection.find('.tableInfo[data-id="' +
                                         tableId + '"]');
         var $timeLine = $tableList.closest(".timeLine");
         var table = gTables[tableId];
@@ -238,8 +237,8 @@ window.TableList = (function($, TableList) {
             if ($timeLine.find(".tableInfo").length === 0) {
                 $timeLine.remove();
             }
-            if ($activeTableList.find('li').length === 0) {
-                $activeTableList.addClass('empty');
+            if ($activeTableListSection.find('li').length === 0) {
+                $activeTableListSection.addClass('empty');
             }
         } else {
             $tableList.addClass("transition").slideUp(150, function() {
@@ -248,14 +247,14 @@ window.TableList = (function($, TableList) {
                 if ($timeLine.find(".tableInfo").length === 0) {
                     $timeLine.remove();
                 }
-                if ($activeTableList.find('li').length === 0) {
-                    $activeTableList.addClass('empty');
+                if ($activeTableListSection.find('li').length === 0) {
+                    $activeTableListSection.addClass('empty');
                 }
             });
         }
         
 
-        $activeTableList.find(".submit").addClass("xc-hidden")
+        $activeTableListSection.find(".submit").addClass("xc-hidden")
                         .end()
                         .find(".addTableBtn").removeClass("selected");
         focusedListNum = null;
@@ -332,12 +331,12 @@ window.TableList = (function($, TableList) {
         var hiddenWS = false;
 
         if (tableType === TableType.Archived) {
-            $tableList = $('#archivedTableList');
+            $tableList = $('#archivedTableListSection');
         } else if (tableType === TableType.WSHidden) {
             $tableList = $('#activeTablesList');
             hiddenWS = true;
         } else if (tableType === TableType.Orphan) {
-            $tableList = $('#orphanedTableList');
+            $tableList = $('#orphanedTableListSection');
         }
 
         var $tablesSelected;
@@ -347,7 +346,7 @@ window.TableList = (function($, TableList) {
             tableIds = WSManager.getWorksheets()[wsId].tables;
             $tablesSelected = $tableList.find(".worksheet-" + wsId)
                                         .closest(".tableInfo");
-            $('#archivedTableList').find('.worksheet-' + wsId)
+            $('#archivedTableListSection').find('.worksheet-' + wsId)
                                    .closest('.tableInfo')
                                    .removeAttr('data-toggle data-container ' +
                                                'title data-original-title')
@@ -471,10 +470,10 @@ window.TableList = (function($, TableList) {
 
             function handlerCallback() {
                 $li.remove();
-                if ($timeLine.find('.tableInfo').length === 0) {
+                if (!$timeLine.find('.tableInfo').length) {
                     $timeLine.remove();
-                    if ($tableList.find('.tableInfo:not(.hiddenWS)').length === 0 ) {
-                        if ($tableList.closest('#orphanedTableList').length !== 0) {
+                    if (!$tableList.find('.tableInfo:not(.hiddenWS)').length) {
+                        if (!$tableList.closest('#orphanedTableListSection').length) {
                             $("#orphanedTableList-search").hide();
                         }
                     }
@@ -494,8 +493,8 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.tablesToHiddenWS = function(wsIds) {
-        var $activeList = $('#activeTableList');
-        var $inactiveList = $('#archivedTableList');
+        var $activeList = $('#activeTableListSection');
+        var $inactiveList = $('#archivedTableListSection');
         var $bothLists = $activeList.add($inactiveList);
 
         for (var i = 0, len = wsIds.length; i < len; i++) {
@@ -544,7 +543,7 @@ window.TableList = (function($, TableList) {
                 }
             }
             setupOrphanedList(tableMap);
-            xcHelper.showRefreshIcon($('#orphanedTableList'));
+            xcHelper.showRefreshIcon($('#orphanedTableListSection'));
 
             if (prettyPrint) {
                 setTimeout(function() {
@@ -578,18 +577,18 @@ window.TableList = (function($, TableList) {
         }
 
         if (tableType === TableType.Active) {
-            $listWrap = $("#activeTableList");
+            $listWrap = $("#activeTableListSection");
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         } else if (tableType === TableType.Orphan) {
             // if orphan, tableIdOrName is actually tableName
-            $listWrap = $('#orphanedTableList');
+            $listWrap = $('#orphanedTableListSection');
             $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableIdOrName + '"]');
         } else if (tableType === TableType.Aggregate) {
             $listWrap = $('#constantsListSection');
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         } else {
-            $listWrap = $('#archivedTableList');
+            $listWrap = $('#archivedTableListSection');
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         }
 
@@ -621,7 +620,7 @@ window.TableList = (function($, TableList) {
         focusedListNum = null;
     };
 
-    // affects the display of the activeTableList instruction msg
+    // affects the display of the activeTableListSection instruction msg
     // pendingCount will have a positive value during TblManager.refreshTables
     // and will hide the instruction msg and will unhide when count returns to 0
     TableList.updatePendingState = function(increaseCount) {
@@ -630,7 +629,7 @@ window.TableList = (function($, TableList) {
         } else {
             pendingCount--;
         }
-        var $listWrap = $("#activeTableList");
+        var $listWrap = $("#activeTableListSection");
         if (pendingCount > 0) {
             $listWrap.addClass('pending');
         } else {
@@ -645,15 +644,15 @@ window.TableList = (function($, TableList) {
             tableType = type;
         }
         if (tableType === TableType.Active) {
-            $listWrap = $("#activeTableList");
+            $listWrap = $("#activeTableListSection");
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         } else if (tableType === TableType.Orphan) {
             // if orphan, tableIdOrName is actually tableName
-            $listWrap = $('#orphanedTableList');
+            $listWrap = $('#orphanedTableListSection');
             $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableIdOrName + '"]');
         } else {
-            $listWrap = $('#archivedTableList');
+            $listWrap = $('#archivedTableListSection');
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         }
 
@@ -669,7 +668,7 @@ window.TableList = (function($, TableList) {
             $waitingIcon = xcHelper.showRefreshIcon($('#constantsListSection'));
         }
         focusedListNum = null;
-        $('#constantsListSection').find(".clearAll").click();
+        clearAll($('#constantsListSection'));
         var startTime = Date.now();
         generateConstList()
         .then(deferred.resolve)
@@ -685,6 +684,12 @@ window.TableList = (function($, TableList) {
         return deferred.promise();
     };
 
+    function clearAll($section) {
+        $section.find(".submit").addClass("xc-hidden")
+                .end()
+                .find(".addTableBtn").removeClass("selected");
+        focusedListNum = null;
+    }
 
     function addOrphanedTable(tableName, wsId) {
         var deferred = jQuery.Deferred();
@@ -788,8 +793,8 @@ window.TableList = (function($, TableList) {
 
         var $tableList = (active === true) ? $("#activeTablesList") :
                                              $("#inactiveTablesList");
-        var $listSection = (active === true) ? $("#activeTableList") :
-                                               $("#archivedTableList")
+        var $listSection = (active === true) ? $("#activeTableListSection") :
+                                               $("#archivedTableListSection")
 
         if (sortedTables.length === 0) {
             $listSection.addClass('empty');
@@ -1001,10 +1006,10 @@ window.TableList = (function($, TableList) {
         $("#orphanedTablesList").html(html);
         if (numTables > 0) {
             $("#orphanedTableList-search").show();
-            $("#orphanedTableList").removeClass('empty');
+            $("#orphanedTableListSection").removeClass('empty');
         } else {
             $("#orphanedTableList-search").hide();
-            $("#orphanedTableList").addClass('empty');
+            $("#orphanedTableListSection").addClass('empty');
         }
     }
 
@@ -1184,6 +1189,8 @@ window.TableList = (function($, TableList) {
             }
         });
 
+        clearAll($section);
+
         if (keyWord == null || keyWord === "") {
             searchHelper.clearSearch(function() {
                 searchHelper.$arrows.hide();
@@ -1247,7 +1254,7 @@ window.TableList = (function($, TableList) {
         var $tableList;
 
         if (tableType === TableType.Archived) {
-            $tableList = $('#archivedTableList');
+            $tableList = $('#archivedTableListSection');
         }
 
         var $noSheetTables = $tableList.find(".addTableBtn.selected")
