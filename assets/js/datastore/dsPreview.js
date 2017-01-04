@@ -145,7 +145,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         if (restore) {
-            restoreForm(options);  
+            restoreForm(options);
         } else {
             resetForm();
             
@@ -529,7 +529,7 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-dsName").val(options.dsName);
         
         // udf section
-        var wasUDFCached = cacheUDF(options.moduleName, options.funcName)
+        var wasUDFCached = cacheUDF(options.moduleName, options.funcName);
         resetUdfSection();
         if (wasUDFCached) {
             toggleUDF(true);
@@ -838,24 +838,30 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getNameFromPath(path) {
-        var pathLen = path.length;
-        if (path.charAt(pathLen - 1) === "/") {
+        if (path.charAt(path.length - 1) === "/") {
             // remove the last /
-            path = path.substring(0, pathLen - 1);
+            path = path.substring(0, path.length - 1);
         }
 
-        var slashIndex = path.lastIndexOf("/");
-        var name = path.substring(slashIndex + 1);
+        var paths = path.split("/");
+        var splitLen = paths.length;
+        var name = paths[splitLen - 1];
 
-        var index = name.lastIndexOf(".");
-        // Also, we need to strip special characters. For now,
-        // we only keeo a-zA-Z0-9. They can always add it back if they want
-
-        if (index >= 0) {
-            name = name.substring(0, index);
+        // strip the suffix dot part and only keep a-zA-Z0-9.
+        name = name.split(".")[0].replace(/[^a-zA-Z0-9]/g, "");
+        if (!xcHelper.isStartWithLetter(name) && splitLen > 1) {
+            // when starts with number
+            var prefix = paths[splitLen - 2].replace(/[^a-zA-Z0-9]/g, "");
+            if (xcHelper.isStartWithLetter(prefix)) {
+                name = prefix + name;
+            }
         }
 
-        name = name.replace(/[^a-zA-Z0-9]/g, "");
+        if (!xcHelper.isStartWithLetter(name)) {
+            // if still starts with number
+            name = "ds" + name;
+        }
+
         var originalName = name;
         var tries = 1;
         var validNameFound = false;
