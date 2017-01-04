@@ -114,6 +114,8 @@ window.DSTable = (function($, DSTable) {
             }
 
             errorMsg = StatusMessageTStr.LoadFailed + ". " + errorMsg;
+            // backend might return this: "<string>"
+            errorMsg = xcHelper.escapeHTMLSepcialChar(errorMsg);
             setupViewAfterError(errorMsg);
 
             var $errorSection = $dsTableContainer.find(".errorSection");
