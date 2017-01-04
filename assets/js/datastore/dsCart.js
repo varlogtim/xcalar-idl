@@ -116,6 +116,10 @@ window.DSCart = (function($, DSCart) {
             }
         });
 
+        $cartArea.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
+
         //set up dropdown for worksheet list
         new MenuHelper($cartList, {
             "onSelect": function($li) {
@@ -126,6 +130,8 @@ window.DSCart = (function($, DSCart) {
             "container": "#dataCartContainer",
             "bounds"   : "#dataCartContainer"
         }).setupListeners();
+
+        setupResizable();
     };
 
     DSCart.switchToCart = function(dsId) {
@@ -445,6 +451,55 @@ window.DSCart = (function($, DSCart) {
         }
     };
 
+    function setupResizable() {
+        if (window.isBrowserSafari) {
+            // safari has cannot resize issue, don't know why
+            return;
+        }
+
+        var $dsTableView = $("#dsTableView");
+        var $leftSection = $dsTableView.find(".leftSection");
+        var $rightSection = $dsTableView.find(".rightSection");
+        var minWidth = $rightSection.outerWidth();
+        var viewWidth;
+
+        $rightSection.resizable({
+            "handles"    : "w",
+            "containment": "#dsTableView",
+            "minWidth"   : minWidth,
+            "start"      : function() {
+                // viewWidth can only be measured when is visible
+                // so measure it here
+                viewWidth = $dsTableView.outerWidth();
+                var maxWidth = viewWidth * 0.8;
+                $rightSection.resizable( "option", "maxWidth", maxWidth);
+                $leftSection.addClass("noAnim");
+                $rightSection.addClass("noAnim resizing");
+            },
+            "resize": function() {
+                var margin = $leftSection.outerWidth(true) -
+                             $leftSection.outerWidth();
+                var width = viewWidth - $rightSection.outerWidth() - margin;
+                $leftSection.outerWidth(width);
+            },
+            "stop": function() {
+                $leftSection.removeClass("noAnim");
+                $rightSection.removeClass("noAnim resizing");
+            }
+        });
+
+        $(window).on("resize", function() {
+            if ($rightSection.hasClass("resizing")) {
+                // resizable will trigger window resize
+                return;
+            }
+            // reset position
+            $leftSection.css("width", "");
+            $rightSection.css("left", "");
+            $rightSection.css("width", "");
+        });
+    }
+
     function trackQueries() {
         interval();
         queryInterval = setInterval(interval, intervalTime);
@@ -595,7 +650,10 @@ window.DSCart = (function($, DSCart) {
                     '<span class="iconWrap">' +
                         '<i class="center icon fa-16 xi-' + type + '"></i>' +
                     '</span>' +
-                    '<span class="colName textOverflow">' +
+                    '<span class="colName textOverflow tooltipOverflow"' +
+                    ' data-toggle="tooltip"' +
+                    ' data-container="body"' +
+                    ' data-title=" ' + escapedVal + '">' +
                         escapedVal +
                     '</span>' +
                 '</div>' +
