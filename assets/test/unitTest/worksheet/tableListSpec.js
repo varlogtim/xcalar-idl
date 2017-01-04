@@ -5,6 +5,7 @@ describe('TableList Test', function() {
     var tableId;
 
     before(function(done) {
+        UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .always(function(ds, tName, tPrefix) {
@@ -72,6 +73,15 @@ describe('TableList Test', function() {
             $input.val('e').trigger(fakeEvent.input);
             expect($listWrap.find('.addTableBtn.selected').length).to.equal(0);
             $input.val("");
+        });
+    });
+
+
+    after(function(done) {
+        UnitTest.deleteAll(tableName, testDs, TableType.Orphan)
+        .always(function() {
+            UnitTest.offMinMode();
+            done();
         });
     });
 });
