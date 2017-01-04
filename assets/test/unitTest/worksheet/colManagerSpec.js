@@ -272,6 +272,77 @@ describe('ColManager Test', function() {
             expect(fn('123.45123', 'default', 2)).to.equal('123.45');// floor round
             expect(fn('123.456', 'default', 5)).to.equal('123.45600');
         });
+
+        it('getTdInfo should work', function() {
+            var tdValue;
+            var nested;
+            var res;
+            var fn = ColManager.__testOnly__.getTdInfo;
+
+            // === null td values, knf false ===
+             
+            tdValue = {"a": {"b": null}};
+            nested = ["a", "b"];
+            expect(fn(tdValue, nested)).to.deep.equal({
+                tdValue: null, 
+                knf: false,
+                isChildOfArray: false
+            });
+
+            tdValue = {"a": [{"b": null}]};
+            nested = ["a", "0", "b"];
+            expect(fn(tdValue, nested)).to.deep.equal({
+                tdValue: null, 
+                knf: false,
+                isChildOfArray: true
+            });
+
+            // === null td values, knf true ===
+            
+            tdValue = {"a": {}};
+            nested = ["a", "b"];
+            expect(fn(tdValue, nested)).to.deep.equal({
+                tdValue: null, 
+                knf: true,
+                isChildOfArray: false
+            });
+
+            tdValue = {"a": [{}]};
+            nested = ["a", "0", "b"];
+            expect(fn(tdValue, nested)).to.deep.equal({
+                tdValue: null, 
+                knf: true,
+                isChildOfArray: true
+            });
+
+
+            tdValue = {"a": [{"b": "no"}]};
+            nested = ["a", "x", "b"];
+            expect(fn(tdValue, nested)).to.deep.equal({
+                tdValue: null, 
+                knf: true,
+                isChildOfArray: false
+            });
+
+            // === string td values ===
+       
+            tdValue = {"a": {"b": "yes"}};
+            nested = ["a", "b"];
+            expect(fn(tdValue, nested)).to.deep.equal({
+                tdValue: "yes", 
+                knf: false,
+                isChildOfArray: false
+            });
+
+            tdValue = {"a": [{"b": "yes"}]};
+            nested = ["a", "0", "b"];
+            expect(fn(tdValue, nested)).to.deep.equal({
+                tdValue: "yes", 
+                knf: false,
+                isChildOfArray: true
+            });
+
+        });
     });
 
     describe('Column Modification Test', function() {

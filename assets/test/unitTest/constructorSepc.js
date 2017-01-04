@@ -467,7 +467,7 @@ describe('Constructor Test', function() {
             });
 
             expect(progCol.isChildOfArray()).to.be.false;
-            progCol.beChidOfArray();
+            progCol.beChildOfArray();
             expect(progCol.isChildOfArray()).to.be.true;
         });
 

@@ -1454,28 +1454,11 @@ window.ColManager = (function($, ColManager) {
                 console.error('Error this value should not be empty');
                 tdValue = "";
             } else {
-                var nestedLength = nested.length;
-                for (var i = 0; i < nestedLength; i++) {
-                    if (tdValue[nested[i]] === null) {
-                        // when tdValue is null (not undefined)
-                        tdValue = tdValue[nested[i]];
-                        break;
-                    } else if (jQuery.isEmptyObject(tdValue) ||
-                        tdValue[nested[i]] == null)
-                    {
-                        knf = true;
-                        tdValue = null;
-                        break;
-                    }
-
-                    tdValue = tdValue[nested[i]];
-
-                    if (!progCol.isChildOfArray() &&
-                        i < nestedLength - 1 &&
-                        (tdValue instanceof Array))
-                    {
-                        progCol.beChidOfArray();
-                    }
+                var tdInfo = getTdInfo(tdValue, nested);
+                tdValue = tdInfo.tdValue;
+                knf = tdInfo.knf;
+                if (tdInfo.isChildOfArray) {
+                    progCol.beChildOfArray();
                 }
             }
 
@@ -1537,6 +1520,42 @@ window.ColManager = (function($, ColManager) {
         };
     }
 
+    // helper function for parseTdHelper that returns an object with
+    // tdValue string, knf boolean, and isChildOfArray boolean
+    function getTdInfo(tdValue, nested) {
+        var knf = false;
+        var nestedLength = nested.length;
+        var isChildOfArray = false;
+        var curVal;
+
+        for (var i = 0; i < nestedLength; i++) {
+            curVal = tdValue[nested[i]];
+            if (curVal === null) {
+                // when tdValue is null (not undefined)
+                tdValue = curVal;
+                break;
+            } else if (jQuery.isEmptyObject(tdValue) || curVal == null) {
+                knf = true;
+                tdValue = null;
+                break;
+            } else {
+                if (!isChildOfArray &&
+                    i < nestedLength - 1 && // anything but the last child
+                    (tdValue instanceof Array))
+                {
+                    isChildOfArray = true;
+                }
+                tdValue = curVal;
+            }
+        }
+
+        return ({
+            tdValue: tdValue,
+            knf: knf,
+            isChildOfArray: isChildOfArray
+        });
+    }
+
     function styleColHeadHelper(colNum, tableId) {
         var $table = $("#xcTable-" + tableId);
         var progCol = gTables[tableId].getCol(colNum);
@@ -1578,6 +1597,7 @@ window.ColManager = (function($, ColManager) {
         if (!progCol.isEmptyCol()) {
             $th.removeClass('newColumn');
         }
+
         if (progCol.getPrefix() !== "") {
             $th.find('.prefix').removeClass('immediate');
         }
@@ -2160,6 +2180,7 @@ window.ColManager = (function($, ColManager) {
         ColManager.__testOnly__.parsePullColArgs = parsePullColArgs;
         ColManager.__testOnly__.parseColFuncArgs = parseColFuncArgs;
         ColManager.__testOnly__.formatColumnCell = formatColumnCell;
+        ColManager.__testOnly__.getTdInfo = getTdInfo;
     }
     /* End Of Unit Test Only */
 

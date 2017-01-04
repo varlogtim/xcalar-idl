@@ -823,7 +823,7 @@ ProgCol.prototype = {
         return this.childOfArray;
     },
 
-    beChidOfArray: function() {
+    beChildOfArray: function() {
         this.childOfArray = true;
     },
 
