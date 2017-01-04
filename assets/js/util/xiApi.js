@@ -65,7 +65,7 @@ window.XIApi = (function(XIApi, $) {
 
         function deleteHelper(tableToDelete) {
             if (toDelete) {
-                return XcalarDeleteTable(tableToDelete, txId);
+                return XIApi.deleteTable(txId, tableToDelete);
             } else {
                 return PromiseHelper.resolve();
             }
@@ -574,30 +574,40 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.appRun = function(txId, name, isGlobal, inStr) {
-        var deferred = jQuery.Deferred();
         if (txId == null) {
             return PromiseHelper.reject("Invalid args in appSet");
         }
-        XcalarAppGet(name, hostType, duty, execStr)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        return XcalarAppGet(name, hostType, duty, execStr);
     };
 
     XIApi.appReap = function(txId, name, appGroupId) {
-        var deferred = jQuery.Deferred();
         if (txId == null) {
             return PromiseHelper.reject("Invalid args in appSet");
         }
-        XcalarAppReap(name, appGroupId)
+        return XcalarAppReap(name, appGroupId);
+    };
+
+    // toIgnoreError: boolean, if set true, will always resolve
+    // the promise even the call fails.
+    XIApi.deleteTable = function(txId, tableName, toIgnoreError) {
+        if (txId == null || tableName == null) {
+            return PromiseHelper.reject("Invalid args in delete table");
+        }
+
+        var deferred = jQuery.Deferred();
+
+        XcalarDeleteTable(tableName, txId)
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(function(error) {
+            if (toIgnoreError) {
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
+        });
 
         return deferred.promise();
     };
-
-
 
     function multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId) {
         var deferred = jQuery.Deferred();

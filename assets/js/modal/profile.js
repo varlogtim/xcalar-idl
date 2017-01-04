@@ -911,12 +911,8 @@ window.Profile = (function($, Profile, d3) {
 
             curStatsCol.groupByInfo.isComplete = true;
             if (tableToDelete != null) {
-                var innerDeferred = jQuery.Deferred();
                 // delete the indexed table if exist
-                XcalarDeleteTable(tableToDelete, txId)
-                .always(innerDeferred.resolve);
-
-                return innerDeferred.promise();
+                return XIApi.deleteTable(txId, tableToDelete, true);
             }
         })
         .then(function() {
@@ -1973,8 +1969,8 @@ window.Profile = (function($, Profile, d3) {
             curStatsCol.groupByInfo.isComplete = true;
 
             // delete intermediate table
-            var def1 = XcalarDeleteTable(mapTable, txId);
-            var def2 = XcalarDeleteTable(indexTable, txId);
+            var def1 = XIApi.deleteTable(txId, mapTable);
+            var def2 = XIApi.deleteTable(txId, indexTable);
 
             // Note that grouby table can not delete because when
             // sort bucket table it looks for the unsorted table,

@@ -2531,7 +2531,7 @@ window.TblManager = (function($, TblManager) {
         // Free the result set pointer that is still pointing to it
         table.freeResultset()
         .then(function() {
-            return XcalarDeleteTable(tableName, txId);
+            return XIApi.deleteTable(txId, tableName);
         })
         .then(function() {
             Dag.makeInactive(tableId);
@@ -2561,7 +2561,7 @@ window.TblManager = (function($, TblManager) {
     function delOrphanedHelper(tableName, txId) {
         var deferred = jQuery.Deferred();
 
-        XcalarDeleteTable(tableName, txId)
+        XIApi.deleteTable(txId, tableName)
         .then(function() {
             var tableIndex = gOrphanTables.indexOf(tableName);
             gOrphanTables.splice(tableIndex, 1);
@@ -2581,7 +2581,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         var tableName = table.getName();
 
-        XcalarDeleteTable(tableName, null)
+        XcalarDeleteTable(tableName)
         .then(function() {
             removeTableMeta(tableName);
             deferred.resolve();

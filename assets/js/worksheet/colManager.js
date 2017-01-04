@@ -487,7 +487,7 @@ window.ColManager = (function($, ColManager) {
                 return XIApi.aggregate(txId, AggrOp.MaxInteger, fieldName, newTableName);
             })
             .then(function(value) {
-                XcalarDeleteTable(newTableName, txId);
+                XIApi.deleteTable(txId, newTableName);
                 // Note that the splitColNum should be charCountNum + 1
                 alertHelper(value + 1, null, innerDeferred);
             })

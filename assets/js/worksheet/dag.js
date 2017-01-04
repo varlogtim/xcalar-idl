@@ -1198,7 +1198,7 @@ window.DagPanel = (function($, DagPanel) {
                     "sql"      : sql
                 });
 
-                XcalarDeleteTable(tableName, txId)
+                XIApi.deleteTable(txId, tableName)
                 .then(function() {
                     Dag.makeInactive(tableName, true);
                     // delete table will change meta, so should commit

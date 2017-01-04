@@ -44,10 +44,10 @@ if (window.XcSDK.Extension == null) {
 
 window.XcSDK.Extension.prototype = (function() {
     // inner helper function
-    function deleteTempTable(tableName, txId) {
+    function deleteTempTable(txId, tableName) {
         var deferred = jQuery.Deferred();
 
-        XcalarDeleteTable(tableName, txId)
+        XIApi.deleteTable(txId, tableName)
         .then(function() {
             var tableId = xcHelper.getTableId(tableName);
             if (tableId != null && gTables[tableId] != null) {
@@ -266,7 +266,7 @@ window.XcSDK.Extension.prototype = (function() {
                     var tableName = xcTable.getName();
                     if (tableName.startsWith(".temp")) {
                         // a paraell delete of temp table
-                        promises.push(deleteTempTable(tableName, txId));
+                        promises.push(deleteTempTable(txId, tableName));
                     } else if (xcTable.isInWorksheet()) {
                         var tablesToReplace = xcTable.getTablesToReplace();
                         if (tablesToReplace != null) {

@@ -953,7 +953,7 @@ window.DFCard = (function($, DFCard) {
                                            [], worksheet, txId);
         })
         .then(function() {
-            return deleteHelper();
+            return XIApi.deleteTable(txId, tableName, true);
         })
         .then(function() {
             Transaction.done(txId, {
@@ -970,15 +970,6 @@ window.DFCard = (function($, DFCard) {
         });
 
         return deferred.promise();
-
-        function deleteHelper() {
-            var innerDeferred = jQuery.Deferred();
-            XcalarDeleteTable(tableName, txId)
-            .always(function() {
-                innerDeferred.resolve();
-            });
-            return innerDeferred.promise();
-        }
     }
 
     function getProgCols(colNames) {

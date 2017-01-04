@@ -79,10 +79,6 @@ window.Aggregates = (function(Aggregates, $) {
             aggNames = [aggNames];
         }
         var promises = [];
-        for (var i = 0; i < aggNames.length; i++) {
-            promises.push(XcalarDeleteTable(aggNames[i]));
-        }
-
         var sql = {
             "operation": SQLOps.DeleteAgg,
             "aggs": aggNames
@@ -91,6 +87,10 @@ window.Aggregates = (function(Aggregates, $) {
             "operation": SQLOps.DeleteAgg,
             "sql"      : sql
         });
+
+        for (var i = 0; i < aggNames.length; i++) {
+            promises.push(XIApi.deleteTable(txId, aggNames[i]));
+        }
 
         PromiseHelper.when.apply(window, promises)
         .then(function() {
