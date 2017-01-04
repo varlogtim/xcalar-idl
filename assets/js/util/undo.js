@@ -355,7 +355,9 @@ window.Undo = (function($, Undo) {
                 var $th = $table.find('th.col' + options.colNum);
                 $th.addClass('newColumn')
                     .find('.header').attr('class', 'header')
-                    .find('.iconHelper').attr('title', '');
+                    .find('.iconHelper').attr('title', '')
+                    .end()
+                    .find('.prefix').addClass('immediate');
                 TPrefix.updateColor(options.tableId, options.colNum);
                 return PromiseHelper.resolve(null);
             } else {

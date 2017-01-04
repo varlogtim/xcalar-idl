@@ -300,6 +300,38 @@ describe('ColManager Test', function() {
             expect(table.getCol(1).isEmptyCol()).to.be.true;
         });
 
+        // simple test for newColumn and immediate classes on th
+        // XX need to expand on this test
+        it("Should Exec Column (Pull)", function() {
+            // initial state
+            var $th = $("#xcTable-" + tableId + " th.col1");
+            expect($th.hasClass('newColumn')).to.be.true;
+            expect($th.find('.prefix').hasClass('immediate')).to.be.true;
+
+            // exec a pullcol
+            var usrStr = 'fakeCol" = pull(schedule::fakeCol)';
+            ColManager.execCol("pull", usrStr, tableId, 1);
+            expect($th.hasClass('newColumn')).to.be.false;
+            expect($th.find('.prefix').hasClass('immediate')).to.be.false;
+        });
+
+        // simple test for newColumn and immediate classes on th
+        // XX need to expand on this test
+        it('Undo Exec Column should restore previous col', function(done) {
+            // initial state
+            var $th = $("#xcTable-" + tableId + " th.col1");
+            expect($th.hasClass('newColumn')).to.be.false;
+            expect($th.find('.prefix').hasClass('immediate')).to.be.false;
+
+            // exec a pullcol
+            SQL.undo()
+            .then(function() {
+                expect($th.hasClass('newColumn')).to.be.true;
+                expect($th.find('.prefix').hasClass('immediate')).to.be.true;
+                done();
+            });
+        });
+
         it("Should Delete Column", function() {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);

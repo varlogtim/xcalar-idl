@@ -1563,7 +1563,7 @@ window.ColManager = (function($, ColManager) {
             adjustedColType = "number";
         }
         adjustedColType = xcHelper.capitalize(adjustedColType);
-        $header.find(".iconHelper").attr("title", adjustedColType);
+        xcTooltip.changeText($header.find(".iconHelper"), adjustedColType);
 
         if (progCol.hasHidden()) {
             $table.find("td.col" + colNum).addClass("userHidden");
@@ -1574,6 +1574,12 @@ window.ColManager = (function($, ColManager) {
         if ($th.hasClass("selectedCell") ||
             $th.hasClass("modalHighlighted")) {
             highlightColumn($th, true);
+        }
+        if (!progCol.isEmptyCol()) {
+            $th.removeClass('newColumn');
+        }
+        if (progCol.getPrefix() !== "") {
+            $th.find('.prefix').removeClass('immediate');
         }
     }
 
