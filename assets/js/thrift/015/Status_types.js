@@ -532,7 +532,8 @@ StatusT = {
   'StatusExportSFSingleHeaderConflict' : 523,
   'StatusAggFnInClass1Ast' : 524,
   'StatusDagNodeDropped' : 525,
-  'StatusXdbSlotHasActiveCursor' : 526
+  'StatusXdbSlotHasActiveCursor' : 526,
+  'StatusProtobufDecodeError' : 527
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1060,5 +1061,6 @@ StatusTStr = {0 : 'Success',
 523 : 'Cannot export append to a single file with adding a header',
 524 : 'Cannot call an aggregate function during filter/map',
 525 : 'Dag node has been dropped',
-526 : 'Xdb slot has active cursor'
+526 : 'Xdb slot has active cursor',
+527 : 'Failed to decode protobuf message'
 };

@@ -788,13 +788,15 @@ PromiseHelper = (function(PromiseHelper, $) {
         test.trivial(xcalarIndexDataset(thriftHandle,
                      loadOutput.dataset.name, "review_count",
                      "yelp/user-review_count", "",
-                     XcalarOrderingT.XcalarOrderingUnordered));
+                     XcalarOrderingT.XcalarOrderingUnordered,
+                                        DfFieldTypeT.DfInt64));
     }
 
     function testIndexDatasetInt(test) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
                            "votes.funny", "yelp/user-votes.funny", "",
-                           XcalarOrderingT.XcalarOrderingUnordered)
+                           XcalarOrderingT.XcalarOrderingUnordered,
+                           DfFieldTypeT.DfInt64)
         .done(function(indexOutput) {
             printResult(indexOutput);
             origTable = indexOutput.tableName;
@@ -806,7 +808,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testIndexDatasetStr(test) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
                            "user_id", "yelp/user-user_id", "",
-                           XcalarOrderingT.XcalarOrderingUnordered)
+                           XcalarOrderingT.XcalarOrderingUnordered,
+                           DfFieldTypeT.DfString)
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
             origStrTable = indexStrOutput.tableName;
@@ -821,7 +824,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
                            "user_id", tableName, "",
                            XcalarOrderingT.XcalarOrderingUnordered,
-                           "prefix")
+                           "prefix", DfFieldTypeT.DfString)
         .then(function() {
             return xcalarMakeResultSetFromTable(thriftHandle, tableName);
         })
@@ -852,7 +855,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testIndexTable(test) {
         test.trivial(xcalarIndexTable(thriftHandle, origStrTable,
                          "name", "yelp/user-name", "",
-                         XcalarOrderingT.XcalarOrderingUnordered));
+                         XcalarOrderingT.XcalarOrderingUnordered,
+                                      DfFieldTypeT.DfString));
     }
 
     function testRenameNode(test) {
@@ -931,19 +935,22 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testIndexDatasetBogus(test) {
          test.trivial(xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
                       "garbage", "yelp/user-garbage", "",
-                      XcalarOrderingT.XcalarOrderingUnordered));
+                      XcalarOrderingT.XcalarOrderingUnordered,
+                                       DfFieldTypeT.DfUnknown));
     }
 
     function testIndexTable2(test) {
         test.trivial(xcalarIndexTable(thriftHandle, origStrTable,
                      "yelping_since", "yelp/user-yelping_since", "",
-                     XcalarOrderingT.XcalarOrderingUnordered));
+                     XcalarOrderingT.XcalarOrderingUnordered,
+                                      DfFieldTypeT.DfString));
     }
 
     function testIndexTableBogus(test) {
         test.trivial(xcalarIndexTable(thriftHandle, origTable,
                      "garbage2", "yelp/user-garbage2", "",
-                     XcalarOrderingT.XcalarOrderingUnordered));
+                     XcalarOrderingT.XcalarOrderingUnordered,
+                                      DfFieldTypeT.DfUnknown));
     }
 
     function testGetTableRefCount(test) {
@@ -1254,7 +1261,8 @@ PromiseHelper = (function(PromiseHelper, $) {
 
                 xcalarIndexTable(thriftHandle, startTableName, keyName,
                                  dstTableName,
-                                 "", XcalarOrderingT.XcalarOrderingUnordered)
+                                 "", XcalarOrderingT.XcalarOrderingUnordered,
+                                 DfFieldTypeT.DfInt64)
                 .done(
                     (function(idx) {
                     return (function(indexOutput) {
@@ -1277,7 +1285,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         function joinDoneFn() {
             xcalarIndexTable(thriftHandle, tmpTableName3, keyName2,
                              tmpTableName4, "",
-                             XcalarOrderingT.XcalarOrderingUnordered)
+                             XcalarOrderingT.XcalarOrderingUnordered,
+                             DfFieldTypeT.DfString)
             .done(function(indexOutput) {
                 xcalarApiMap(thriftHandle, keyName, "int(" + keyName2 + ")",
                              tmpTableName3, startTableName)
@@ -1297,11 +1306,13 @@ PromiseHelper = (function(PromiseHelper, $) {
 
         function loadDoneFn() {
             xcalarIndexDataset(thriftHandle, datasetName, "Dest", tmpTableName1,
-                               "", XcalarOrderingT.XcalarOrderingUnordered)
+                               "", XcalarOrderingT.XcalarOrderingUnordered,
+                              DfFieldTypeT.DfString)
             .done(function(indexOutput) {
                 xcalarIndexDataset(thriftHandle, datasetName2, "iata",
                                    tmpTableName2, "",
-                                   XcalarOrderingT.XcalarOrderingUnordered)
+                                   XcalarOrderingT.XcalarOrderingUnordered,
+                                   DfFieldTypeT.DfString)
                 .done(function(indexOutput) {
                     // For some reason, the join is required to reproduce the bug
                     xcalarJoin(thriftHandle, tmpTableName1, tmpTableName2,
@@ -1710,20 +1721,11 @@ PromiseHelper = (function(PromiseHelper, $) {
                             return wait();
                         }
 
-                        if (qrStateOutput.failedSingleQueryArray.length === 0 &&
+                        if (qrStateOutput.numFailedWorkItem === 0 &&
                             qrStateOutput.queryState != QueryStateT.qrFinished) {
                             test.fail("no failed query. queryState: " +
                                       QueryStateTStr[qrStateOutput.queryState]);
                         }
-
-                        if (qrStateOutput.queryState != QueryStateT.qrFinished &&
-                            qrStateOutput.failedSingleQueryArray[0].status !=
-                            StatusT.StatusCanceled) {
-                            console.log("xxx" + JSON.stringify(qrStateOutput));
-                            console.log(qrStateOutput.failedSingleQueryArray[0]
-                                        .status);
-                            test.fail("not canceled");
-                         }
 
                         test.pass();
 
@@ -1826,43 +1828,65 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testQueryCancel(test) {
+        var cancelledTableName = "cancelledTable2";
         var query = "index --key votes.funny --dataset " + datasetPrefix +
-            "yelp" + " --dsttable cancelledTable2 --sorted;" +
-            "index --key votes.funny --dataset " + datasetPrefix +
-            "yelp" + " --dsttable cancelledTable3 --sorted;" +
-            "index --key votes.funny --dataset " + datasetPrefix +
-            "yelp" + " --dsttable cancelledTable4 --sorted;";
+            "yelp" + " --dsttable " + cancelledTableName + " --sorted;"
 
-        queryName = "testQuery2";
-        var time = Math.random() * 1000 + 500;
+        var queryNamePrefix = "testQueryCancel-";
+        var time = 1000;
         console.log("interval " + time);
-        xcalarQuery(thriftHandle, queryName, query, true)
-        .then(function() {
-            return (xcalarQueryCancel(thriftHandle, queryName));
-        })
-        .then(function(cancelStatus) {
-            (function wait() {
-            setTimeout(function() {
-                xcalarQueryState(thriftHandle, queryName)
-                .then(function(result) {
-                    var qrStateOutput = result;
-                    if (qrStateOutput.queryState != QueryStateT.qrCancelled) {
-                        test.fail("not canceled qrStateOutput.queryState = " +
-                                  QueryStateTStr[qrStateOutput.queryState]);
-                    }
 
-                    return (xcalarQueryDelete(thriftHandle, queryName));
-                })
-                .then(function(status) {
-                    test.pass();
-                })
-                .fail(test.fail);
-             }, time);
-         })();
-        })
-        .fail(function(reason) {
-            test.fail("status: " + StatusTStr[reason]);
-        });
+        function queryAndCancel(jj) {
+            queryName = queryNamePrefix + "" + jj;
+
+            xcalarQuery(thriftHandle, queryName, query, true)
+            .then(function() {
+                return (xcalarQueryCancel(thriftHandle, queryName));
+            })
+            .then(function(cancelStatus) {
+                (function wait() {
+                setTimeout(function() {
+                    xcalarQueryState(thriftHandle, queryName)
+                    .done(function(result) {
+                        var qrStateOutput = result;
+                        if (qrStateOutput.queryState === QueryStateT.qrProcessing ||
+                            qrStateOutput.queryState === QueryStateT.qrNotStarted) {
+                            return wait();
+                        }
+
+                        return (xcalarQueryDelete(thriftHandle, queryName));
+                    })
+                    .then(function(status) {
+                        test.pass();
+                    })
+                    .fail(test.fail);
+                }, time);
+                })();
+            })
+            .fail(function(reason) {
+                if (reason == StatusT.StatusOperationHasFinished) {
+                    // We try again
+                    xcalarDeleteDagNodes(thriftHandle, cancelledTableName,
+                                         SourceTypeT.SrcTable)
+                    .then(function(deleteDagNodeOutput) {
+                        if (deleteDagNodeOutput.numNodes != 1) {
+                            test.fail("Number of nodes deleted != 1 (" + deleteDagNodeOutput.numNodes + ")");
+                        } else if (deleteDagNodeOutput.statuses[0].status != StatusT.StatusOk) {
+                            test.fail("Error deleting dag node. Status: " + StatusTStr[deleteDagNodeOutput.statuses[0].status] + "(" + deleteDagNodeOutput.statuses[0].status + ")");
+                        } else {
+                            queryAndCancel(jj + 1);
+                        }
+                    })
+                    .fail(function(reason) {
+                        test.fail("Failed to drop dag node. Reason: " + StatusTStr[reason]);
+                    });
+                } else {
+                    test.fail("status: " + StatusTStr[reason]);
+                }
+            });
+        }
+
+        queryAndCancel(0);
     }
 
     function waitForDag(test) {
@@ -1937,7 +1961,8 @@ PromiseHelper = (function(PromiseHelper, $) {
             // if we do sort, *then* map!!
             return xcalarIndexTable(thriftHandle, ret.tableName,
                                     "review_count", "yelp/voted.cool-times-funny-sortedby-most_reviewed", "",
-                                    XcalarOrderingT.XcalarOrderingDescending);
+                                    XcalarOrderingT.XcalarOrderingDescending,
+                                    DfFieldTypeT.DfInt64);
         })
         .then(function(ret) {
             test.assert(ret.tableName === "yelp/voted.cool-times-funny-sortedby-most_reviewed");
@@ -2200,7 +2225,8 @@ PromiseHelper = (function(PromiseHelper, $) {
 
         xcalarIndexDataset(thriftHandle, yelpReviewsDataset,
                            "votes.funny", "yelp/reviews-votes.funny", "",
-                           XcalarOrderingT.XcalarOrderingAscending)
+                           XcalarOrderingT.XcalarOrderingAscending,
+                           DfFieldTypeT.DfInt64)
         .then(exportAndCancel)
         .fail(function(reason) {
             test.fail("Index of reviews dataset failed with: " + StatusTStr[reason] +  " (" + reason + ")");
@@ -3165,7 +3191,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         function createDhtSuccessFn(status) {
             xcalarIndexDataset(thriftHandle, yelpUserDataset,
                                "average_stars", "yelp/user-average_stars",
-                               dhtName, XcalarOrderingT.XcalarOrderingInvalid)
+                               dhtName, XcalarOrderingT.XcalarOrderingInvalid,
+                               DfFieldTypeT.DfFloat64)
             .done(indexDatasetSuccessFn)
             .fail(function(status) {
                 var reason = "Index dataset returned status: " + StatusTStr[status];

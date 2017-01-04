@@ -1,3 +1,7 @@
+if (typeof exports === 'undefined') {
+    exports = {};
+}
+
 var userIdUnique = 1;
 var userIdName = "test";
 
@@ -16,9 +20,9 @@ WorkItem = function() {
     workItem.userId = userIdName;
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     return (workItem);
-}
+};
 
-function xcalarConnectThrift(hostname) {
+xcalarConnectThrift = exports.xcalarConnectThrift = function(hostname) {
     // protocol needs to be part of hostname
     // If not it's assumed ot be http://
 
@@ -28,7 +32,7 @@ function xcalarConnectThrift(hostname) {
     }
     var thriftUrl = hostname + "/thrift/service/XcalarApiService/";
 
-    console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")")
+    console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")");
 
     var transport = new Thrift.Transport(thriftUrl);
     var protocol  = new Thrift.Protocol(transport);
@@ -40,15 +44,15 @@ function xcalarConnectThrift(hostname) {
     thriftHandle.client = client;
 
     return (thriftHandle);
-}
+};
 
-function xcalarGetNumNodesWorkItem() {
+xcalarGetNumNodesWorkItem = exports.xcalarGetNumNodesWorkItem = function() {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiGetNumNodes;
     return (workItem);
-}
+};
 
-function xcalarGetNumNodes(thriftHandle) {
+xcalarGetNumNodes = exports.xcalarGetNumNodes = function(thriftHandle) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -77,16 +81,15 @@ function xcalarGetNumNodes(thriftHandle) {
     });
 
     return (deferred.promise());
-}
+};
 
-
-function xcalarGetVersionWorkItem() {
+xcalarGetVersionWorkItem = exports.xcalarGetVersionWorkItem = function() {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiGetVersion;
     return (workItem);
-}
+};
 
-function xcalarGetVersion(thriftHandle) {
+xcalarGetVersion = exports.xcalarGetVersion = function(thriftHandle) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -118,15 +121,15 @@ function xcalarGetVersion(thriftHandle) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetLicenseWorkItem() {
+xcalarGetLicenseWorkItem = exports.xcalarGetLicenseWorkItem = function() {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiGetLicense;
     return (workItem);
-}
+};
 
-function xcalarGetLicense(thriftHandle) {
+xcalarGetLicense = exports.xcalarGetLicense = function(thriftHandle) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -153,15 +156,15 @@ function xcalarGetLicense(thriftHandle) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetConfigParamsWorkItem() {
+xcalarGetConfigParamsWorkItem = exports.xcalarGetConfigParamsWorkItem = function() {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiGetConfigParams;
     return (workItem);
-}
+};
 
-function xcalarGetConfigParams(thriftHandle) {
+xcalarGetConfigParams = exports.xcalarGetConfigParams = function(thriftHandle) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -184,9 +187,9 @@ function xcalarGetConfigParams(thriftHandle) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarSetConfigParamWorkItem(paramName, paramValue) {
+xcalarSetConfigParamWorkItem = exports.xcalarSetConfigParamWorkItem = function(paramName, paramValue) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
@@ -195,9 +198,9 @@ function xcalarSetConfigParamWorkItem(paramName, paramValue) {
     workItem.input.setConfigParamInput.paramName = paramName;
     workItem.input.setConfigParamInput.paramValue = paramValue;
     return (workItem);
-}
+};
 
-function xcalarSetConfigParam(thriftHandle, paramName, paramValue) {
+xcalarSetConfigParam = exports.xcalarSetConfigParam = function(thriftHandle, paramName, paramValue) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarSetConfigParam(paramName = " + paramName +
@@ -222,9 +225,9 @@ function xcalarSetConfigParam(thriftHandle, paramName, paramValue) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarAppSetWorkItem(name, hostType, duty, execStr) {
+xcalarAppSetWorkItem = exports.xcalarAppSetWorkItem = function(name, hostType, duty, execStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.api = XcalarApisT.XcalarApiAppSet;
@@ -235,9 +238,9 @@ function xcalarAppSetWorkItem(name, hostType, duty, execStr) {
     workItem.input.appSetInput.duty = duty;
     workItem.input.appSetInput.execStr = execStr;
     return (workItem);
-}
+};
 
-function xcalarAppSet(thriftHandle, name, hostType, duty, execStr) {
+xcalarAppSet = exports.xcalarAppSet = function(thriftHandle, name, hostType, duty, execStr) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAppSet(name = " + name +
@@ -264,9 +267,9 @@ function xcalarAppSet(thriftHandle, name, hostType, duty, execStr) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarAppRunWorkItem(name, isGlobal, inStr) {
+xcalarAppRunWorkItem = exports.xcalarAppRunWorkItem = function(name, isGlobal, inStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.api = XcalarApisT.XcalarApiAppRun;
@@ -277,13 +280,13 @@ function xcalarAppRunWorkItem(name, isGlobal, inStr) {
     workItem.input.appRunInput.inStr = inStr;
 
     return (workItem);
-}
+};
 
-function xcalarAppRun(thriftHandle, name, isGlobal, inStr) {
+xcalarAppRun = exports.xcalarAppRun = function(thriftHandle, name, isGlobal, inStr) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarAppRun(name = " + name + ", isGlobal = " + isGlobal
-                    + ", inStr = " + inStr + ")");
+        console.log("xcalarAppRun(name = " + name + ", isGlobal = " + isGlobal +
+                    ", inStr = " + inStr + ")");
     }
     var workItem = xcalarAppRunWorkItem(name, isGlobal, inStr);
 
@@ -306,9 +309,9 @@ function xcalarAppRun(thriftHandle, name, isGlobal, inStr) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarAppReapWorkItem(appGroupId) {
+xcalarAppReapWorkItem = exports.xcalarAppReapWorkItem = function(appGroupId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.api = XcalarApisT.XcalarApiAppReap;
@@ -317,9 +320,9 @@ function xcalarAppReapWorkItem(appGroupId) {
     workItem.input.appReapInput.appGroupId = appGroupId;
 
     return (workItem);
-}
+};
 
-function xcalarAppReap(thriftHandle, appGroupId) {
+xcalarAppReap = exports.xcalarAppReap = function(thriftHandle, appGroupId) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAppReap(appGroupId = " + appGroupId + ")");
@@ -345,9 +348,9 @@ function xcalarAppReap(thriftHandle, appGroupId) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequested, offset) {
+xcalarPreviewWorkItem = exports.xcalarPreviewWorkItem = function(url, fileNamePattern, recursive, numBytesRequested, offset) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
@@ -356,15 +359,15 @@ function xcalarPreviewWorkItem(url, fileNamePattern, recursive, numBytesRequeste
                     "namePattern" : fileNamePattern,
                     "recursive" : recursive,
                     "offset" : offset,
-                    "bytesRequested" : numBytesRequested}
+                    "bytesRequested" : numBytesRequested};
 
-    workItem.api = XcalarApisT.XcalarApiPreview
+    workItem.api = XcalarApisT.XcalarApiPreview;
     workItem.input.previewInput = new XcalarApiPreviewInputT();
     workItem.input.previewInput.inputJson = JSON.stringify(inputObj);
     return (workItem);
-}
+};
 
-function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRequested, offset) {
+xcalarPreview = exports.xcalarPreview = function(thriftHandle, url, fileNamePattern, recursive, numBytesRequested, offset) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarPreview(url = " + url +
@@ -404,9 +407,9 @@ function xcalarPreview(thriftHandle, url, fileNamePattern, recursive, numBytesRe
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarLoadWorkItem(url, name, format, maxSampleSize, loadArgs) {
+xcalarLoadWorkItem = exports.xcalarLoadWorkItem = function(url, name, format, maxSampleSize, loadArgs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.loadInput = new XcalarApiBulkLoadInputT();
@@ -419,16 +422,16 @@ function xcalarLoadWorkItem(url, name, format, maxSampleSize, loadArgs) {
     workItem.input.loadInput.loadArgs = loadArgs;
     workItem.input.loadInput.loadArgs.maxSize = maxSampleSize;
     return (workItem);
-}
+};
 
-function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
+xcalarLoad = exports.xcalarLoad = function(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarLoad(url = " + url + ", name = " + name +
                     ", format = " +
                     DfFormatTypeTStr[format] + ", maxSampleSize = " +
-                    maxSampleSize.toString() + "recursive = " +
+                    maxSampleSize.toString() + ", recursive = " +
 		    loadArgs.recursive + ", fileNamePattern = " +
 		    loadArgs.fileNamePattern + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
@@ -437,7 +440,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
                         "loadArgs.csv.quoteDelim = " + loadArgs.csv.quoteDelim + ", " +
                         "loadArgs.csv.linesToSkip = " + loadArgs.csv.linesToSkip + ", " +
                         "loadArgs.csv.isCRLF = " + loadArgs.csv.isCRLF + ", " +
-                        "loadArgs.csv.hasHeader = " + loadArgs.csv.hasHeader)
+                        "loadArgs.csv.hasHeader = " + loadArgs.csv.hasHeader);
         }
     }
 
@@ -463,10 +466,11 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
     return (deferred.promise());
 
-}
+};
 
-function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName,
-                                    dhtName, fatptrPrefixName, ordering) {
+xcalarIndexDatasetWorkItem = exports.xcalarIndexDatasetWorkItem = function(datasetName, keyName, dstTableName,
+                                    dhtName, fatptrPrefixName, ordering,
+                                    keyType) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -483,23 +487,26 @@ function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName,
     workItem.input.indexInput.dhtName = dhtName;
     workItem.input.indexInput.fatptrPrefixName = fatptrPrefixName;
     workItem.input.indexInput.ordering = ordering;
+    workItem.input.indexInput.keyType = keyType;
     return (workItem);
-}
+};
 
-function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName,
-                            dhtName, ordering, fatptrPrefixName) {
+xcalarIndexDataset = exports.xcalarIndexDataset = function(thriftHandle, datasetName, keyName, dstTableName,
+                            dhtName, ordering, fatptrPrefixName, keyType) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarIndexDataset(datasetName = " + datasetName +
                     ", keyName = " + keyName + ", dstTableName = " +
                     dstTableName + ", fatptrPrefixName = " +
-                    fatptrPrefixName + ", ordering = " + ordering + ")");
+                    fatptrPrefixName + ", ordering = " + ordering +
+                    ", keyType = " + keyType + ")");
     }
 
     var workItem = xcalarIndexDatasetWorkItem(datasetName, keyName,
                                               dstTableName, dhtName,
-                                              fatptrPrefixName, ordering);
+                                              fatptrPrefixName, ordering,
+                                              keyType);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var indexOutput = result.output.outputResult.indexOutput;
@@ -520,11 +527,10 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName,
     });
 
     return (deferred.promise());
+};
 
-}
-
-function xcalarIndexTableWorkItem(srcTableName, dstTableName, keyName, dhtName,
-                                  ordering) {
+xcalarIndexTableWorkItem = exports.xcalarIndexTableWorkItem = function(srcTableName, dstTableName, keyName, dhtName,
+                                  ordering, keyType) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -540,22 +546,25 @@ function xcalarIndexTableWorkItem(srcTableName, dstTableName, keyName, dhtName,
     workItem.input.indexInput.keyName = keyName;
     workItem.input.indexInput.dhtName = dhtName;
     workItem.input.indexInput.ordering = ordering;
+    workItem.input.indexInput.keyType = keyType;
     return (workItem);
-}
+};
 
-function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName,
-                          dhtName, ordering) {
+xcalarIndexTable = exports.xcalarIndexTable = function(thriftHandle, srcTableName, keyName, dstTableName,
+                          dhtName, ordering, keyType) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarIndexTable(srcTableName = " + srcTableName +
                    ", keyName = " + keyName + ", dstTableName = " +
                     dstTableName + ", dhtName = " + dhtName +
-                    ", ordering = " + ordering + ")");
+                    ", ordering = " + ordering +
+                    ", keyType = " + keyType + ")");
     }
 
     var workItem = xcalarIndexTableWorkItem(srcTableName, dstTableName,
-                                            keyName, dhtName, ordering);
+                                            keyName, dhtName, ordering,
+                                            keyType);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -576,16 +585,16 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetMetaWorkItem(datasetName, tableName, isPrecise) {
+xcalarGetMetaWorkItem = exports.xcalarGetMetaWorkItem = function(datasetName, tableName, isPrecise) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.getTableMetaInput = new XcalarApiGetTableMetaInputT()
+    workItem.input.getTableMetaInput = new XcalarApiGetTableMetaInputT();
     workItem.input.getTableMetaInput.tableNameInput = new XcalarApiNamedInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetTableMeta;
-    if (tableName == "") {
+    if (tableName === "") {
         workItem.input.getTableMetaInput.tableNameInput.isTable = false;
         workItem.input.getTableMetaInput.tableNameInput.name = datasetName;
         workItem.input.getTableMetaInput.isPrecise = isPrecise;
@@ -597,9 +606,9 @@ function xcalarGetMetaWorkItem(datasetName, tableName, isPrecise) {
     workItem.input.getTableMetaInput.tableNameInput.xid = XcalarApiXidInvalidT;
 
     return (workItem);
-}
+};
 
-function xcalarGetMetaInt(thriftHandle, datasetName, tableName, isPrecise) {
+xcalarGetMetaInt = exports.xcalarGetMetaInt = function(thriftHandle, datasetName, tableName, isPrecise) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetMeta(tableName = " + tableName + ", " +
@@ -627,26 +636,26 @@ function xcalarGetMetaInt(thriftHandle, datasetName, tableName, isPrecise) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetDatasetMeta(thriftHandle, datasetName) {
+xcalarGetDatasetMeta = exports.xcalarGetDatasetMeta = function(thriftHandle, datasetName) {
     return (xcalarGetMetaInt(thriftHandle, datasetName, "", false));
-}
+};
 
-function xcalarGetTableMeta(thriftHandle, tableName, isPrecise) {
+xcalarGetTableMeta = exports.xcalarGetTableMeta = function(thriftHandle, tableName, isPrecise) {
     return (xcalarGetMetaInt(thriftHandle, "", tableName, isPrecise));
-}
+};
 
-function xcalarShutdownWorkItem(force) {
+xcalarShutdownWorkItem = exports.xcalarShutdownWorkItem = function(force) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiShutdown;
     workItem.input.shutdownInput = force;
     return (workItem);
-}
+};
 
-function xcalarShutdown(thriftHandle, force) {
+xcalarShutdown = exports.xcalarShutdown = function(thriftHandle, force) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarShutdown()");
@@ -669,9 +678,9 @@ function xcalarShutdown(thriftHandle, force) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarStartNodesWorkItem(numNodes) {
+xcalarStartNodesWorkItem = exports.xcalarStartNodesWorkItem = function(numNodes) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.startNodesInput = new XcalarApiStartNodesInputT();
@@ -679,9 +688,9 @@ function xcalarStartNodesWorkItem(numNodes) {
     workItem.api = XcalarApisT.XcalarApiStartNodes;
     workItem.input.startNodesInput.numNodes = numNodes;
     return (workItem);
-}
+};
 
-function xcalarStartNodes(thriftHandle, numNodes) {
+xcalarStartNodes = exports.xcalarStartNodes = function(thriftHandle, numNodes) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -700,15 +709,15 @@ function xcalarStartNodes(thriftHandle, numNodes) {
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log(JSON.stringify(error))
+        console.log(JSON.stringify(error));
         console.log("xcalarStartNodes() caught exception: "+error);
         deferred.reject(error);
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetStatsWorkItem(nodeId) {
+xcalarGetStatsWorkItem = exports.xcalarGetStatsWorkItem = function(nodeId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.statInput = new XcalarApiStatInputT();
@@ -716,9 +725,9 @@ function xcalarGetStatsWorkItem(nodeId) {
     workItem.api = XcalarApisT.XcalarApiGetStat;
     workItem.input.statInput.nodeId = nodeId;
     return (workItem);
-}
+};
 
-function xcalarGetStats(thriftHandle, nodeId) {
+xcalarGetStats = exports.xcalarGetStats = function(thriftHandle, nodeId) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -746,9 +755,9 @@ function xcalarGetStats(thriftHandle, nodeId) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarRenameNodeWorkItem(oldName, newName) {
+xcalarRenameNodeWorkItem = exports.xcalarRenameNodeWorkItem = function(oldName, newName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.renameNodeInput = new XcalarApiRenameNodeInputT();
@@ -757,9 +766,9 @@ function xcalarRenameNodeWorkItem(oldName, newName) {
 
     workItem.api = XcalarApisT.XcalarApiRenameNode;
     return (workItem);
-}
+};
 
-function xcalarRenameNode(thriftHandle, oldName, newName) {
+xcalarRenameNode = exports.xcalarRenameNode = function(thriftHandle, oldName, newName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarRenameNode(oldName = " + oldName +
@@ -787,9 +796,9 @@ function xcalarRenameNode(thriftHandle, oldName, newName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetStatsByGroupIdWorkItem(nodeIdList, groupIdList) {
+xcalarGetStatsByGroupIdWorkItem = exports.xcalarGetStatsByGroupIdWorkItem = function(nodeIdList, groupIdList) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.statByGroupIdInput = new XcalarApiStatByGroupIdInputT();
@@ -800,9 +809,9 @@ function xcalarGetStatsByGroupIdWorkItem(nodeIdList, groupIdList) {
     workItem.input.statByGroupIdInput.numGroupId = groupIdList.length;
     workItem.input.statByGroupIdInput.groupId = groupIdList;
     return (workItem);
-}
+};
 
-function xcalarGetStatsByGroupId(thriftHandle, nodeIdList, groupIdList) {
+xcalarGetStatsByGroupId = exports.xcalarGetStatsByGroupId = function(thriftHandle, nodeIdList, groupIdList) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetStatsByGroupId(nodeIds = " + nodeIdList.toString() +
@@ -831,9 +840,9 @@ function xcalarGetStatsByGroupId(thriftHandle, nodeIdList, groupIdList) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarResetStatsWorkItem(nodeId) {
+xcalarResetStatsWorkItem = exports.xcalarResetStatsWorkItem = function(nodeId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.statInput = new XcalarApiStatInputT();
@@ -841,9 +850,9 @@ function xcalarResetStatsWorkItem(nodeId) {
     workItem.api = XcalarApisT.XcalarApiResetStat;
     workItem.input.statInput.nodeId = nodeId;
     return (workItem);
-}
+};
 
-function xcalarResetStats(thriftHandle, nodeId) {
+xcalarResetStats = exports.xcalarResetStats = function(thriftHandle, nodeId) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarResetStats(nodeId = " + nodeId.toString() + ")");
@@ -868,9 +877,9 @@ function xcalarResetStats(thriftHandle, nodeId) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetStatGroupIdMapWorkItem(nodeId) {
+xcalarGetStatGroupIdMapWorkItem = exports.xcalarGetStatGroupIdMapWorkItem = function(nodeId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.statInput = new XcalarApiStatInputT();
@@ -878,9 +887,9 @@ function xcalarGetStatGroupIdMapWorkItem(nodeId) {
     workItem.api = XcalarApisT.XcalarApiGetStatGroupIdMap;
     workItem.input.statInput.nodeId = nodeId;
     return (workItem);
-}
+};
 
-function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
+xcalarGetStatGroupIdMap = exports.xcalarGetStatGroupIdMap = function(thriftHandle, nodeId, numGroupId) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetStatGroupIdMap(nodeId = " + nodeId.toString() +
@@ -909,9 +918,9 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarQueryWorkItem(queryName, queryStr, sameSession) {
+xcalarQueryWorkItem = exports.xcalarQueryWorkItem = function(queryName, queryStr, sameSession) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryInput = new XcalarApiQueryInputT();
@@ -921,9 +930,9 @@ function xcalarQueryWorkItem(queryName, queryStr, sameSession) {
     workItem.input.queryInput.queryStr = queryStr;
     workItem.input.queryInput.sameSession = sameSession;
     return (workItem);
-}
+};
 
-function xcalarQuery(thriftHandle, queryName, queryStr, sameSession) {
+xcalarQuery = exports.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQuery(query name= " + queryName +
@@ -950,9 +959,9 @@ function xcalarQuery(thriftHandle, queryName, queryStr, sameSession) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarQueryStateWorkItem(queryName) {
+xcalarQueryStateWorkItem = exports.xcalarQueryStateWorkItem = function(queryName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryStateInput = new XcalarApiQueryNameInputT();
@@ -960,9 +969,9 @@ function xcalarQueryStateWorkItem(queryName) {
     workItem.api = XcalarApisT.XcalarApiQueryState;
     workItem.input.queryStateInput.queryName = queryName;
     return (workItem);
-}
+};
 
-function xcalarQueryState(thriftHandle, queryName) {
+xcalarQueryState = exports.xcalarQueryState = function(thriftHandle, queryName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQueryState(query name = " + queryName + ")");
@@ -992,9 +1001,9 @@ function xcalarQueryState(thriftHandle, queryName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarQueryCancelWorkItem(queryName) {
+xcalarQueryCancelWorkItem = exports.xcalarQueryCancelWorkItem = function(queryName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryStateInput = new XcalarApiQueryNameInputT();
@@ -1002,9 +1011,9 @@ function xcalarQueryCancelWorkItem(queryName) {
     workItem.api = XcalarApisT.XcalarApiQueryCancel;
     workItem.input.queryStateInput.queryName = queryName;
     return (workItem);
-}
+};
 
-function xcalarQueryCancel(thriftHandle, queryName) {
+xcalarQueryCancel = exports.xcalarQueryCancel = function(thriftHandle, queryName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQueryCancel(query name = " + queryName + ")");
@@ -1032,9 +1041,9 @@ function xcalarQueryCancel(thriftHandle, queryName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarQueryDeleteWorkItem(queryName) {
+xcalarQueryDeleteWorkItem = exports.xcalarQueryDeleteWorkItem = function(queryName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryStateInput = new XcalarApiQueryNameInputT();
@@ -1042,9 +1051,9 @@ function xcalarQueryDeleteWorkItem(queryName) {
     workItem.api = XcalarApisT.XcalarApiQueryDelete;
     workItem.input.queryStateInput.queryName = queryName;
     return (workItem);
-}
+};
 
-function xcalarQueryDelete(thriftHandle, queryName) {
+xcalarQueryDelete = exports.xcalarQueryDelete = function(thriftHandle, queryName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQueryDelete(query name = " + queryName + ")");
@@ -1072,18 +1081,18 @@ function xcalarQueryDelete(thriftHandle, queryName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetOpStatsWorkItem(dstDagName) {
+xcalarGetOpStatsWorkItem = exports.xcalarGetOpStatsWorkItem = function(dstDagName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetOpStats;
     workItem.input.dagTableNameInput = dstDagName;
     return (workItem);
-}
+};
 
-function xcalarApiGetOpStats(thriftHandle, dstDagName) {
+xcalarApiGetOpStats = exports.xcalarApiGetOpStats = function(thriftHandle, dstDagName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiGetOpStats(dstDagName = " + dstDagName + ")");
@@ -1107,18 +1116,18 @@ function xcalarApiGetOpStats(thriftHandle, dstDagName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarCancellationWorkItem(dstDagName) {
+xcalarCancellationWorkItem = exports.xcalarCancellationWorkItem = function(dstDagName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiCancelOp;
     workItem.input.dagTableNameInput = dstDagName;
     return (workItem);
-}
+};
 
-function xcalarApiCancelOp(thriftHandle, dstDagName) {
+xcalarApiCancelOp = exports.xcalarApiCancelOp = function(thriftHandle, dstDagName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiCancelOp(dstDagName = " + dstDagName + ")");
@@ -1141,18 +1150,18 @@ function xcalarApiCancelOp(thriftHandle, dstDagName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarDagWorkItem(tableName) {
+xcalarDagWorkItem = exports.xcalarDagWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetDag;
     workItem.input.dagTableNameInput = tableName;
     return (workItem);
-}
+};
 
-function xcalarDag(thriftHandle, tableName) {
+xcalarDag = exports.xcalarDag = function(thriftHandle, tableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarDag(tableName = " + tableName + ")");
@@ -1179,9 +1188,9 @@ function xcalarDag(thriftHandle, tableName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarListDagNodesWorkItem(patternMatch, srcType) {
+xcalarListDagNodesWorkItem = exports.xcalarListDagNodesWorkItem = function(patternMatch, srcType) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
@@ -1191,9 +1200,9 @@ function xcalarListDagNodesWorkItem(patternMatch, srcType) {
     workItem.input.listDagNodesInput.srcType = srcType;
 
     return (workItem);
-}
+};
 
-function xcalarListTables(thriftHandle, patternMatch, srcType) {
+xcalarListTables = exports.xcalarListTables = function(thriftHandle, patternMatch, srcType) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListTables(patternMatch = " + patternMatch + ")" +
@@ -1219,17 +1228,17 @@ function xcalarListTables(thriftHandle, patternMatch, srcType) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarListDatasetsWorkItem() {
+xcalarListDatasetsWorkItem = exports.xcalarListDatasetsWorkItem = function() {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiListDatasets;
     return (workItem);
-}
+};
 
-function xcalarListDatasets(thriftHandle) {
+xcalarListDatasets = exports.xcalarListDatasets = function(thriftHandle) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListDatasets()");
@@ -1257,9 +1266,9 @@ function xcalarListDatasets(thriftHandle) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarMakeResultSetFromTableWorkItem(tableName) {
+xcalarMakeResultSetFromTableWorkItem = exports.xcalarMakeResultSetFromTableWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.makeResultSetInput = new XcalarApiNamedInputT();
@@ -1269,9 +1278,9 @@ function xcalarMakeResultSetFromTableWorkItem(tableName) {
     workItem.input.makeResultSetInput.name = tableName;
     workItem.input.makeResultSetInput.xid = XcalarApiXidInvalidT;
     return (workItem);
-}
+};
 
-function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
+xcalarMakeResultSetFromTable = exports.xcalarMakeResultSetFromTable = function(thriftHandle, tableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeResultSetFromTable(tableName = " + tableName +
@@ -1304,9 +1313,9 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarMakeResultSetFromDatasetWorkItem(datasetName) {
+xcalarMakeResultSetFromDatasetWorkItem = exports.xcalarMakeResultSetFromDatasetWorkItem = function(datasetName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.makeResultSetInput = new XcalarApiNamedInputT();
@@ -1316,9 +1325,9 @@ function xcalarMakeResultSetFromDatasetWorkItem(datasetName) {
     workItem.input.makeResultSetInput.name = datasetName;
     workItem.input.makeResultSetInput.xid = XcalarApiXidInvalidT;
     return (workItem);
-}
+};
 
-function xcalarMakeResultSetFromDataset(thriftHandle, datasetName) {
+xcalarMakeResultSetFromDataset = exports.xcalarMakeResultSetFromDataset = function(thriftHandle, datasetName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeResultSetFromDataset(datasetName = " +
@@ -1352,9 +1361,9 @@ function xcalarMakeResultSetFromDataset(thriftHandle, datasetName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarResultSetNextWorkItem(resultSetId, numRecords) {
+xcalarResultSetNextWorkItem = exports.xcalarResultSetNextWorkItem = function(resultSetId, numRecords) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.resultSetNextInput = new XcalarApiResultSetNextInputT();
@@ -1363,9 +1372,9 @@ function xcalarResultSetNextWorkItem(resultSetId, numRecords) {
     workItem.input.resultSetNextInput.resultSetId = resultSetId;
     workItem.input.resultSetNextInput.numRecords = numRecords;
     return (workItem);
-}
+};
 
-function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
+xcalarResultSetNext = exports.xcalarResultSetNext = function(thriftHandle, resultSetId, numRecords) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -1397,9 +1406,9 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarJoinWorkItem(leftTableName, rightTableName, joinTableName,
+xcalarJoinWorkItem = exports.xcalarJoinWorkItem = function(leftTableName, rightTableName, joinTableName,
                             joinType, leftRenameMap, rightRenameMap,
                             collisionCheck) {
     var workItem = new WorkItem();
@@ -1432,7 +1441,7 @@ function xcalarJoinWorkItem(leftTableName, rightTableName, joinTableName,
     } else {
         workItem.input.joinInput.numRightColumns = rightRenameMap.length;
         if (workItem.input.joinInput.renameMap == null) {
-            workItem.input.joinInput.renameMap = rightRenameMap
+            workItem.input.joinInput.renameMap = rightRenameMap;
         } else {
             workItem.input.joinInput.renameMap =
                 workItem.input.joinInput.renameMap.concat(rightRenameMap);
@@ -1440,9 +1449,9 @@ function xcalarJoinWorkItem(leftTableName, rightTableName, joinTableName,
     }
 
     return (workItem);
-}
+};
 
-function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
+xcalarJoin = exports.xcalarJoin = function(thriftHandle, leftTableName, rightTableName, joinTableName,
                     joinType, leftRenameMap, rightRenameMap, collisionCheck) {
     var deferred = jQuery.Deferred();
 
@@ -1481,9 +1490,9 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarProjectWorkItem(numColumns, columns,
+xcalarProjectWorkItem = exports.xcalarProjectWorkItem = function(numColumns, columns,
                                srcTableName, dstTableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1499,9 +1508,9 @@ function xcalarProjectWorkItem(numColumns, columns,
     workItem.input.projectInput.numColumns = numColumns;
     workItem.input.projectInput.columnNames = columns;
     return (workItem);
-}
+};
 
-function xcalarProject(thriftHandle, numColumns, columns,
+xcalarProject = exports.xcalarProject = function(thriftHandle, numColumns, columns,
                        srcTableName, dstTableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -1535,9 +1544,9 @@ function xcalarProject(thriftHandle, numColumns, columns,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarFilterWorkItem(srcTableName, dstTableName, filterStr) {
+xcalarFilterWorkItem = exports.xcalarFilterWorkItem = function(srcTableName, dstTableName, filterStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.filterInput = new XcalarApiFilterInputT();
@@ -1551,9 +1560,9 @@ function xcalarFilterWorkItem(srcTableName, dstTableName, filterStr) {
     workItem.input.filterInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.filterInput.filterStr = filterStr;
     return (workItem);
-}
+};
 
-function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
+xcalarFilter = exports.xcalarFilter = function(thriftHandle, filterStr, srcTableName, dstTableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarFilter(srcTableName = " + srcTableName +
@@ -1583,9 +1592,9 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGroupByWorkItem(srcTableName, dstTableName, groupByEvalStr,
+xcalarGroupByWorkItem = exports.xcalarGroupByWorkItem = function(srcTableName, dstTableName, groupByEvalStr,
                                newFieldName, includeSrcSample, icvMode) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1603,9 +1612,9 @@ function xcalarGroupByWorkItem(srcTableName, dstTableName, groupByEvalStr,
     workItem.input.groupByInput.includeSrcTableSample = includeSrcSample;
     workItem.input.groupByInput.icvMode = icvMode;
     return (workItem);
-}
+};
 
-function xcalarGroupByWithWorkItem(thriftHandle, workItem) {
+xcalarGroupByWithWorkItem = exports.xcalarGroupByWithWorkItem = function(thriftHandle, workItem) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
@@ -1632,9 +1641,9 @@ function xcalarGroupByWithWorkItem(thriftHandle, workItem) {
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
+xcalarGroupBy = exports.xcalarGroupBy = function(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
                        newFieldName, includeSrcSample, icvMode) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -1666,9 +1675,9 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarResultSetAbsoluteWorkItem(resultSetId, position) {
+xcalarResultSetAbsoluteWorkItem = exports.xcalarResultSetAbsoluteWorkItem = function(resultSetId, position) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.resultSetAbsoluteInput =
@@ -1678,9 +1687,9 @@ function xcalarResultSetAbsoluteWorkItem(resultSetId, position) {
     workItem.input.resultSetAbsoluteInput.resultSetId = resultSetId;
     workItem.input.resultSetAbsoluteInput.position = position;
     return (workItem);
-}
+};
 
-function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
+xcalarResultSetAbsolute = exports.xcalarResultSetAbsolute = function(thriftHandle, resultSetId, position) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarResultSetAbsolute(resultSetId = " +
@@ -1705,9 +1714,9 @@ function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarFreeResultSetWorkItem(resultSetId) {
+xcalarFreeResultSetWorkItem = exports.xcalarFreeResultSetWorkItem = function(resultSetId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.freeResultSetInput = new XcalarApiFreeResultSetInputT();
@@ -1715,9 +1724,9 @@ function xcalarFreeResultSetWorkItem(resultSetId) {
     workItem.api = XcalarApisT.XcalarApiFreeResultSet;
     workItem.input.freeResultSetInput.resultSetId = resultSetId;
     return (workItem);
-}
+};
 
-function xcalarFreeResultSet(thriftHandle, resultSetId) {
+xcalarFreeResultSet = exports.xcalarFreeResultSet = function(thriftHandle, resultSetId) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarFreeResultSet(resultSetId = " +
@@ -1743,9 +1752,9 @@ function xcalarFreeResultSet(thriftHandle, resultSetId) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarDeleteDagNodesWorkItem(namePattern, srcType) {
+xcalarDeleteDagNodesWorkItem = exports.xcalarDeleteDagNodesWorkItem = function(namePattern, srcType) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
@@ -1754,9 +1763,9 @@ function xcalarDeleteDagNodesWorkItem(namePattern, srcType) {
     workItem.input.deleteDagNodeInput.namePattern = namePattern;
     workItem.input.deleteDagNodeInput.srcType = srcType;
     return (workItem);
-}
+};
 
-function xcalarDeleteDagNodes(thriftHandle, namePattern, srcType) {
+xcalarDeleteDagNodes = exports.xcalarDeleteDagNodes = function(thriftHandle, namePattern, srcType) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarDeleteDagNodes(namePattern = " + namePattern + ")");
@@ -1783,9 +1792,9 @@ function xcalarDeleteDagNodes(thriftHandle, namePattern, srcType) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetTableRefCountWorkItem(tableName) {
+xcalarGetTableRefCountWorkItem = exports.xcalarGetTableRefCountWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.getTableRefCountInput = new XcalarApiTableT();
@@ -1794,9 +1803,9 @@ function xcalarGetTableRefCountWorkItem(tableName) {
     workItem.input.getTableRefCountInput.tableName = tableName;
     workItem.input.getTableRefCountInput.tableId = XcalarApiTableIdInvalidT;
     return (workItem);
-}
+};
 
-function xcalarGetTableRefCount(thriftHandle, tableName) {
+xcalarGetTableRefCount = exports.xcalarGetTableRefCount = function(thriftHandle, tableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetTableRefCount(tableName = " + tableName + ")");
@@ -1823,9 +1832,9 @@ function xcalarGetTableRefCount(thriftHandle, tableName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiMapWorkItem(evalStr, srcTableName, dstTableName,
+xcalarApiMapWorkItem = exports.xcalarApiMapWorkItem = function(evalStr, srcTableName, dstTableName,
                               newFieldName, icvMode) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1842,9 +1851,9 @@ function xcalarApiMapWorkItem(evalStr, srcTableName, dstTableName,
     workItem.input.mapInput.newFieldName = newFieldName;
     workItem.input.mapInput.icvMode = icvMode;
     return (workItem);
-}
+};
 
-function xcalarApiMapWithWorkItem(thriftHandle, workItem) {
+xcalarApiMapWithWorkItem = exports.xcalarApiMapWithWorkItem = function(thriftHandle, workItem) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiMap(newFieldName = " + newFieldName +
@@ -1872,9 +1881,9 @@ function xcalarApiMapWithWorkItem(thriftHandle, workItem) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
+xcalarApiMap = exports.xcalarApiMap = function(thriftHandle, newFieldName, evalStr, srcTableName,
                       dstTableName, icvMode) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -1906,9 +1915,9 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
+xcalarApiGetRowNumWorkItem = exports.xcalarApiGetRowNumWorkItem = function(srcTableName, dstTableName,
                               newFieldName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1923,9 +1932,9 @@ function xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
     workItem.input.getRowNumInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.getRowNumInput.newFieldName = newFieldName;
     return (workItem);
-}
+};
 
-function xcalarApiGetRowNum(thriftHandle, newFieldName, srcTableName,
+xcalarApiGetRowNum = exports.xcalarApiGetRowNum = function(thriftHandle, newFieldName, srcTableName,
                       dstTableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -1956,9 +1965,9 @@ function xcalarApiGetRowNum(thriftHandle, newFieldName, srcTableName,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarAggregateWorkItem(srcTableName, dstTableName, aggregateEvalStr) {
+xcalarAggregateWorkItem = exports.xcalarAggregateWorkItem = function(srcTableName, dstTableName, aggregateEvalStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.aggregateInput = new XcalarApiAggregateInputT();
@@ -1972,9 +1981,9 @@ function xcalarAggregateWorkItem(srcTableName, dstTableName, aggregateEvalStr) {
     workItem.input.aggregateInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.aggregateInput.evalStr = aggregateEvalStr;
     return (workItem);
-}
+};
 
-function xcalarAggregate(thriftHandle, srcTableName, dstTableName, aggregateEvalStr) {
+xcalarAggregate = exports.xcalarAggregate = function(thriftHandle, srcTableName, dstTableName, aggregateEvalStr) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAggregate(srcTableName = " + srcTableName +
@@ -2003,18 +2012,18 @@ function xcalarAggregate(thriftHandle, srcTableName, dstTableName, aggregateEval
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarAddExportTargetWorkItem(target) {
+xcalarAddExportTargetWorkItem = exports.xcalarAddExportTargetWorkItem = function(target) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiAddExportTarget;
     workItem.input.addTargetInput = target;
     return (workItem);
-}
+};
 
-function xcalarAddExportTarget(thriftHandle, target) {
+xcalarAddExportTarget = exports.xcalarAddExportTarget = function(thriftHandle, target) {
     var deferred = jQuery.Deferred();
     console.log("xcalarAddExportTarget(target.hdr.name = " + target.hdr.name +
                 ", target.hdr.type = " + ExTargetTypeTStr[target.hdr.type] +
@@ -2040,18 +2049,18 @@ function xcalarAddExportTarget(thriftHandle, target) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarRemoveExportTargetWorkItem(hdr) {
+xcalarRemoveExportTargetWorkItem = exports.xcalarRemoveExportTargetWorkItem = function(hdr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiRemoveExportTarget;
     workItem.input.removeTargetInput = hdr;
     return (workItem);
-}
+};
 
-function xcalarRemoveExportTarget(thriftHandle, targetHdr) {
+xcalarRemoveExportTarget = exports.xcalarRemoveExportTarget = function(thriftHandle, targetHdr) {
     var deferred = jQuery.Deferred();
     console.log("xcalarRemoveExportTarget(targetHdr.name = " + targetHdr.name +
                 ", targetHdr.type = " + ExTargetTypeTStr[targetHdr.type] +
@@ -2077,9 +2086,9 @@ function xcalarRemoveExportTarget(thriftHandle, targetHdr) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarListExportTargetsWorkItem(typePattern, namePattern) {
+xcalarListExportTargetsWorkItem = exports.xcalarListExportTargetsWorkItem = function(typePattern, namePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listTargetsInput = new XcalarApiListExportTargetsInputT();
@@ -2088,9 +2097,9 @@ function xcalarListExportTargetsWorkItem(typePattern, namePattern) {
     workItem.input.listTargetsInput.targetTypePattern = typePattern;
     workItem.input.listTargetsInput.targetNamePattern = namePattern;
     return (workItem);
-}
+};
 
-function xcalarListExportTargets(thriftHandle, typePattern, namePattern) {
+xcalarListExportTargets = exports.xcalarListExportTargets = function(thriftHandle, typePattern, namePattern) {
     var deferred = jQuery.Deferred();
     console.log("xcalarListExportTargets(typePattern = " + typePattern +
                 ", namePattern = " + namePattern + ")");
@@ -2117,9 +2126,9 @@ function xcalarListExportTargets(thriftHandle, typePattern, namePattern) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarExportWorkItem(tableName, target, specInput, createRule,
+xcalarExportWorkItem = exports.xcalarExportWorkItem = function(tableName, target, specInput, createRule,
                               sorted, numColumns, columns, exportName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -2138,9 +2147,9 @@ function xcalarExportWorkItem(tableName, target, specInput, createRule,
     workItem.input.exportInput.meta.columns = columns;
     workItem.input.exportInput.meta.createRule = createRule;
     return (workItem);
-}
+};
 
-function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
+xcalarExport = exports.xcalarExport = function(thriftHandle, tableName, target, specInput, createRule,
                       sorted, numColumns, columns, exportName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -2177,9 +2186,9 @@ function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
+xcalarListFilesWorkItem = exports.xcalarListFilesWorkItem = function(url, recursive, fileNamePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listFilesInput = new XcalarApiListFilesInputT();
@@ -2189,9 +2198,9 @@ function xcalarListFilesWorkItem(url, recursive, fileNamePattern) {
     workItem.input.listFilesInput.recursive = recursive;
     workItem.input.listFilesInput.fileNamePattern = fileNamePattern;
     return (workItem);
-}
+};
 
-function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern) {
+xcalarListFiles = exports.xcalarListFiles = function(thriftHandle, url, recursive, fileNamePattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListFiles(url = " + url + ")");
@@ -2218,17 +2227,17 @@ function xcalarListFiles(thriftHandle, url, recursive, fileNamePattern) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiDeleteRetinaWorkItem(retinaName) {
+xcalarApiDeleteRetinaWorkItem = exports.xcalarApiDeleteRetinaWorkItem = function(retinaName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.api = XcalarApisT.XcalarApiDeleteRetina;
     workItem.input.deleteRetinaInput = retinaName;
     return (workItem);
-}
+};
 
-function xcalarApiDeleteRetina(thriftHandle, retinaName) {
+xcalarApiDeleteRetina = exports.xcalarApiDeleteRetina = function(thriftHandle, retinaName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiDeleteRetina(retinaName = " + retinaName + ")");
@@ -2251,9 +2260,9 @@ function xcalarApiDeleteRetina(thriftHandle, retinaName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarMakeRetinaWorkItem(retinaName, tableArray) {
+xcalarMakeRetinaWorkItem = exports.xcalarMakeRetinaWorkItem = function(retinaName, tableArray) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.makeRetinaInput = new XcalarApiMakeRetinaInputT();
@@ -2263,9 +2272,9 @@ function xcalarMakeRetinaWorkItem(retinaName, tableArray) {
     workItem.input.makeRetinaInput.numTables = tableArray.length;
     workItem.input.makeRetinaInput.tableArray = tableArray;
     return (workItem);
-}
+};
 
-function xcalarMakeRetina(thriftHandle, retinaName, tableArray) {
+xcalarMakeRetina = exports.xcalarMakeRetina = function(thriftHandle, retinaName, tableArray) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarMakeRetina(retinaName = " + retinaName +
@@ -2289,15 +2298,15 @@ function xcalarMakeRetina(thriftHandle, retinaName, tableArray) {
 
     return (deferred.promise());
 
-}
+};
 
-function xcalarListRetinasWorkItem() {
+xcalarListRetinasWorkItem = exports.xcalarListRetinasWorkItem = function() {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiListRetinas;
     return (workItem);
-}
+};
 
-function xcalarListRetinas(thriftHandle) {
+xcalarListRetinas = exports.xcalarListRetinas = function(thriftHandle) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListRetinas()");
@@ -2324,18 +2333,18 @@ function xcalarListRetinas(thriftHandle) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarGetRetinaWorkItem(retinaName) {
+xcalarGetRetinaWorkItem = exports.xcalarGetRetinaWorkItem = function(retinaName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetRetina;
     workItem.input.getRetinaInput = retinaName;
     return (workItem);
-}
+};
 
-function xcalarGetRetina(thriftHandle, retinaName) {
+xcalarGetRetina = exports.xcalarGetRetina = function(thriftHandle, retinaName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGetRetina(retinaName = " + retinaName + ")");
@@ -2360,9 +2369,9 @@ function xcalarGetRetina(thriftHandle, retinaName) {
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
+xcalarUpdateRetinaWorkItem = exports.xcalarUpdateRetinaWorkItem = function(retinaName, dagNodeId, paramType,
                                     paramValue) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -2396,9 +2405,9 @@ function xcalarUpdateRetinaWorkItem(retinaName, dagNodeId, paramType,
         break;
     }
     return (workItem);
-}
+};
 
-function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
+xcalarUpdateRetina = exports.xcalarUpdateRetina = function(thriftHandle, retinaName, dagNodeId,
                             paramType, paramValue) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -2424,9 +2433,9 @@ function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarExecuteRetinaWorkItem(retinaName, parameters,
+xcalarExecuteRetinaWorkItem = exports.xcalarExecuteRetinaWorkItem = function(retinaName, parameters,
                                      exportToActiveSession, newTableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -2442,9 +2451,9 @@ function xcalarExecuteRetinaWorkItem(retinaName, parameters,
     workItem.input.executeRetinaInput.dstTable.tableId = XcalarApiTableIdInvalidT;
 
     return (workItem);
-}
+};
 
-function xcalarExecuteRetina(thriftHandle, retinaName, parameters,
+xcalarExecuteRetina = exports.xcalarExecuteRetina = function(thriftHandle, retinaName, parameters,
                              exportToActiveSession, newTableName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -2478,18 +2487,18 @@ function xcalarExecuteRetina(thriftHandle, retinaName, parameters,
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarListParametersInRetinaWorkItem(retinaName) {
+xcalarListParametersInRetinaWorkItem = exports.xcalarListParametersInRetinaWorkItem = function(retinaName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiListParametersInRetina;
     workItem.input.listParametersInRetinaInput = retinaName;
     return (workItem);
-}
+};
 
-function xcalarListParametersInRetina(thriftHandle, retinaName) {
+xcalarListParametersInRetina = exports.xcalarListParametersInRetina = function(thriftHandle, retinaName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListParametersInRetina(retinaName = " + retinaName +
@@ -2517,9 +2526,9 @@ function xcalarListParametersInRetina(thriftHandle, retinaName) {
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarKeyLookupWorkItem(scope, key) {
+xcalarKeyLookupWorkItem = exports.xcalarKeyLookupWorkItem = function(scope, key) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.keyLookupInput = new XcalarApiKeyLookupInputT();
@@ -2527,13 +2536,13 @@ function xcalarKeyLookupWorkItem(scope, key) {
     workItem.input.keyLookupInput.key = key;
     workItem.api = XcalarApisT.XcalarApiKeyLookup;
     return (workItem);
-}
+};
 
-function xcalarKeyLookup(thriftHandle, scope, key) {
+xcalarKeyLookup = exports.xcalarKeyLookup = function(thriftHandle, scope, key) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarKeyLookup(scope = " + scope + ", key = "
-                    + key + ")");
+        console.log("xcalarKeyLookup(scope = " + scope + ", key = " + key +
+                    ")");
     }
 
     var workItem = xcalarKeyLookupWorkItem(scope, key);
@@ -2557,9 +2566,9 @@ function xcalarKeyLookup(thriftHandle, scope, key) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarKeyAddOrReplaceWorkItem(scope, persist, key, value) {
+xcalarKeyAddOrReplaceWorkItem = exports.xcalarKeyAddOrReplaceWorkItem = function(scope, persist, key, value) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.keyAddOrReplaceInput = new XcalarApiKeyAddOrReplaceInputT();
@@ -2571,9 +2580,9 @@ function xcalarKeyAddOrReplaceWorkItem(scope, persist, key, value) {
     workItem.input.keyAddOrReplaceInput.kvPair.key = key;
     workItem.input.keyAddOrReplaceInput.kvPair.value = value;
     return (workItem);
-}
+};
 
-function xcalarKeyAddOrReplace(thriftHandle, scope, key, value, persist) {
+xcalarKeyAddOrReplace = exports.xcalarKeyAddOrReplace = function(thriftHandle, scope, key, value, persist) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         if (superVerbose) {
@@ -2606,9 +2615,9 @@ function xcalarKeyAddOrReplace(thriftHandle, scope, key, value, persist) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarKeyAppendWorkItem(scope, key, suffix) {
+xcalarKeyAppendWorkItem = exports.xcalarKeyAppendWorkItem = function(scope, key, suffix) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.keyAppendInput = new XcalarApiKeyAppendInputT();
@@ -2617,9 +2626,9 @@ function xcalarKeyAppendWorkItem(scope, key, suffix) {
     workItem.input.keyAppendInput.suffix = suffix;
     workItem.api = XcalarApisT.XcalarApiKeyAppend;
     return (workItem);
-}
+};
 
-function xcalarKeyAppend(thriftHandle, scope, key, suffix) {
+xcalarKeyAppend = exports.xcalarKeyAppend = function(thriftHandle, scope, key, suffix) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         if (superVerbose) {
@@ -2650,9 +2659,9 @@ function xcalarKeyAppend(thriftHandle, scope, key, suffix) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarKeySetIfEqualWorkItem(scope, persist, keyCompare, valueCompare,
+xcalarKeySetIfEqualWorkItem = exports.xcalarKeySetIfEqualWorkItem = function(scope, persist, keyCompare, valueCompare,
                                      valueReplace, keySecondary, valueSecondary)
 {
     var workItem = new WorkItem();
@@ -2675,22 +2684,24 @@ function xcalarKeySetIfEqualWorkItem(scope, persist, keyCompare, valueCompare,
     }
 
     return (workItem);
-}
+};
 
-function xcalarKeySetIfEqual(thriftHandle, scope, persist, keyCompare,
+xcalarKeySetIfEqual = exports.xcalarKeySetIfEqual = function(thriftHandle, scope, persist, keyCompare,
                              valueCompare, valueReplace, keySecondary,
                              valueSecondary) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         if (superVerbose) {
-            console.log("xcalarKeySetIfEqual(scope = " + scope + ", persist = "
-                        + persist + ", keyCompare = " + keyCompare +
-                        ", valueCompare = " + valueCompare + ", valueReplace = "
-                        + valueReplace + ", keySecondary = " + keySecondary +
+            console.log("xcalarKeySetIfEqual(scope = " + scope +
+                        ", persist = " + persist + ", keyCompare = " +
+                        keyCompare + ", valueCompare = " + valueCompare +
+                        ", valueReplace = " + valueReplace +
+                        ", keySecondary = " + keySecondary +
                         ", valueSecondary = " + valueSecondary + ")");
         } else {
-            console.log("xcalarKeySetIfEqual(scope = " + scope + ", persist = "
-                        + persist + ", keyCompare = " + keyCompare +
+            console.log("xcalarKeySetIfEqual(scope = " + scope +
+                        ", persist = " + persist + ", keyCompare = " +
+                        keyCompare +
                         ", valueCompare = <superVerbose mode only>" +
                         ", valueReplace = <superVerbose mode only>" +
                         ", keySecondary = " + keySecondary +
@@ -2720,9 +2731,9 @@ function xcalarKeySetIfEqual(thriftHandle, scope, persist, keyCompare,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarKeyDeleteWorkItem(scope, key) {
+xcalarKeyDeleteWorkItem = exports.xcalarKeyDeleteWorkItem = function(scope, key) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.keyDeleteInput = new XcalarApiKeyDeleteInputT();
@@ -2731,9 +2742,9 @@ function xcalarKeyDeleteWorkItem(scope, key) {
     workItem.input.keyDeleteInput.scope = scope;
     workItem.input.keyDeleteInput.key = key;
     return (workItem);
-}
+};
 
-function xcalarKeyDelete(thriftHandle, scope, key) {
+xcalarKeyDelete = exports.xcalarKeyDelete = function(thriftHandle, scope, key) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarKeyDelete(scope = " + scope + ", key = " +
@@ -2760,9 +2771,9 @@ function xcalarKeyDelete(thriftHandle, scope, key) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiTopWorkItem(measureIntervalInMs) {
+xcalarApiTopWorkItem = exports.xcalarApiTopWorkItem = function(measureIntervalInMs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.topInput = new XcalarApiTopInputT();
@@ -2770,9 +2781,9 @@ function xcalarApiTopWorkItem(measureIntervalInMs) {
     workItem.api = XcalarApisT.XcalarApiTop;
     workItem.input.topInput.measureIntervalInMs = measureIntervalInMs;
     return (workItem);
-}
+};
 
-function xcalarApiTop(thriftHandle, measureIntervalInMs) {
+xcalarApiTop = exports.xcalarApiTop = function(thriftHandle, measureIntervalInMs) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiTop(measureIntervalInMs = ", measureIntervalInMs,
@@ -2802,9 +2813,9 @@ function xcalarApiTop(thriftHandle, measureIntervalInMs) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiMemoryWorkItem(tagName) {
+xcalarApiMemoryWorkItem = exports.xcalarApiMemoryWorkItem = function(tagName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.memoryInput = new XcalarApiMemoryInputT();
@@ -2812,9 +2823,9 @@ function xcalarApiMemoryWorkItem(tagName) {
     workItem.api = XcalarApisT.XcalarApiMemory;
     workItem.input.memoryInput.tagName = tagName;
     return (workItem);
-}
+};
 
-function xcalarApiMemory(thriftHandle, tagName) {
+xcalarApiMemory = exports.xcalarApiMemory = function(thriftHandle, tagName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiMemory(tagName = ", tagName, ")");
@@ -2843,9 +2854,9 @@ function xcalarApiMemory(thriftHandle, tagName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSessionNewWorkItem(sessionName, fork, forkedSessionName) {
+xcalarApiSessionNewWorkItem = exports.xcalarApiSessionNewWorkItem = function(sessionName, fork, forkedSessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionNewInput = new XcalarApiSessionNewInputT();
@@ -2855,9 +2866,9 @@ function xcalarApiSessionNewWorkItem(sessionName, fork, forkedSessionName) {
     workItem.input.sessionNewInput.fork = fork;
     workItem.input.sessionNewInput.forkedSessionName = forkedSessionName;
     return (workItem);
-}
+};
 
-function xcalarApiSessionNew(thriftHandle, sessionName, fork,
+xcalarApiSessionNew = exports.xcalarApiSessionNew = function(thriftHandle, sessionName, fork,
                              forkedSessionName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -2886,9 +2897,9 @@ function xcalarApiSessionNew(thriftHandle, sessionName, fork,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSessionDeleteWorkItem(pattern) {
+xcalarApiSessionDeleteWorkItem = exports.xcalarApiSessionDeleteWorkItem = function(pattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionDeleteInput = new XcalarApiSessionDeleteInputT();
@@ -2898,9 +2909,9 @@ function xcalarApiSessionDeleteWorkItem(pattern) {
       // not actually used by delete...
     workItem.input.sessionDeleteInput.noCleanup = false;
     return (workItem);
-}
+};
 
-function xcalarApiSessionDelete(thriftHandle, pattern) {
+xcalarApiSessionDelete = exports.xcalarApiSessionDelete = function(thriftHandle, pattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionDelete(pattern = " + pattern + ")");
@@ -2925,9 +2936,9 @@ function xcalarApiSessionDelete(thriftHandle, pattern) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSessionInfoWorkItem(name) {
+xcalarApiSessionInfoWorkItem = exports.xcalarApiSessionInfoWorkItem = function(name) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionInfoInput = new XcalarApiSessionInfoInputT();
@@ -2935,9 +2946,9 @@ function xcalarApiSessionInfoWorkItem(name) {
     workItem.api = XcalarApisT.XcalarApiSessionInfo;
     workItem.input.sessionInfoInput.sessionName = name;
     return (workItem);
-}
+};
 
-function xcalarApiSessionInfo(thriftHandle, name) {
+xcalarApiSessionInfo = exports.xcalarApiSessionInfo = function(thriftHandle, name) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionInfo(name = )", name);
@@ -2962,9 +2973,9 @@ function xcalarApiSessionInfo(thriftHandle, name) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSessionInactWorkItem(name, noCleanup) {
+xcalarApiSessionInactWorkItem = exports.xcalarApiSessionInactWorkItem = function(name, noCleanup) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionDeleteInput = new XcalarApiSessionDeleteInputT();
@@ -2973,11 +2984,11 @@ function xcalarApiSessionInactWorkItem(name, noCleanup) {
     workItem.input.sessionDeleteInput.sessionName = name;
     workItem.input.sessionDeleteInput.noCleanup = noCleanup;
     return (workItem);
-}
+};
 
 // noCleanup = true means that the datasets and tables belonging to the
 // session will not be dropped when the session is made inactive
-function xcalarApiSessionInact(thriftHandle, name, noCleanup) {
+xcalarApiSessionInact = exports.xcalarApiSessionInact = function(thriftHandle, name, noCleanup) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionInact(name = )", name);
@@ -3002,18 +3013,18 @@ function xcalarApiSessionInact(thriftHandle, name, noCleanup) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSessionListWorkItem(pattern) {
+xcalarApiSessionListWorkItem = exports.xcalarApiSessionListWorkItem = function(pattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiSessionList;
     workItem.input.sessionListInput = pattern;
     return (workItem);
-}
+};
 
-function xcalarApiSessionList(thriftHandle, pattern) {
+xcalarApiSessionList = exports.xcalarApiSessionList = function(thriftHandle, pattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionList(pattern = )", pattern);
@@ -3036,9 +3047,9 @@ function xcalarApiSessionList(thriftHandle, pattern) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSessionPersistWorkItem(pattern) {
+xcalarApiSessionPersistWorkItem = exports.xcalarApiSessionPersistWorkItem = function(pattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionDeleteInput = new XcalarApiSessionDeleteInputT();
@@ -3048,9 +3059,9 @@ function xcalarApiSessionPersistWorkItem(pattern) {
      // not actually used by persist
     workItem.input.sessionDeleteInput.noCleanup = false;
     return (workItem);
-}
+};
 
-function xcalarApiSessionPersist(thriftHandle, pattern) {
+xcalarApiSessionPersist = exports.xcalarApiSessionPersist = function(thriftHandle, pattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionPersist(pattern = )", pattern);
@@ -3077,11 +3088,11 @@ function xcalarApiSessionPersist(thriftHandle, pattern) {
     });
 
     return (deferred.promise());
-}
+};
 
 // noCleanup = true means the tables and datasets will not be dropped
 // when the old session is made inactive
-function xcalarApiSessionSwitchWorkItem(sessionName, origSessionName,
+xcalarApiSessionSwitchWorkItem = exports.xcalarApiSessionSwitchWorkItem = function(sessionName, origSessionName,
                                         noCleanup) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3092,9 +3103,9 @@ function xcalarApiSessionSwitchWorkItem(sessionName, origSessionName,
     workItem.input.sessionSwitchInput.origSessionName = origSessionName;
     workItem.input.sessionSwitchInput.noCleanup = noCleanup;
     return (workItem);
-}
+};
 
-function xcalarApiSessionSwitch(thriftHandle, sessionName, origSessionName,
+xcalarApiSessionSwitch = exports.xcalarApiSessionSwitch = function(thriftHandle, sessionName, origSessionName,
                                 noCleanup) {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -3123,9 +3134,9 @@ function xcalarApiSessionSwitch(thriftHandle, sessionName, origSessionName,
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSessionRenameWorkItem(sessionName, origSessionName) {
+xcalarApiSessionRenameWorkItem = exports.xcalarApiSessionRenameWorkItem = function(sessionName, origSessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.sessionRenameInput = new XcalarApiSessionRenameInputT();
@@ -3134,9 +3145,9 @@ function xcalarApiSessionRenameWorkItem(sessionName, origSessionName) {
     workItem.input.sessionRenameInput.sessionName = sessionName;
     workItem.input.sessionRenameInput.origSessionName = origSessionName;
     return (workItem);
-}
+};
 
-function xcalarApiSessionRename(thriftHandle, sessionName, origSessionName) {
+xcalarApiSessionRename = exports.xcalarApiSessionRename = function(thriftHandle, sessionName, origSessionName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionRename(sessionName = ", sessionName, ", ",
@@ -3163,9 +3174,9 @@ function xcalarApiSessionRename(thriftHandle, sessionName, origSessionName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiListXdfsWorkItem(fnNamePattern, categoryPattern) {
+xcalarApiListXdfsWorkItem = exports.xcalarApiListXdfsWorkItem = function(fnNamePattern, categoryPattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.listXdfsInput = new XcalarApiListXdfsInputT();
@@ -3174,9 +3185,9 @@ function xcalarApiListXdfsWorkItem(fnNamePattern, categoryPattern) {
     workItem.input.listXdfsInput.fnNamePattern = fnNamePattern;
     workItem.input.listXdfsInput.categoryPattern = categoryPattern;
     return (workItem);
-}
+};
 
-function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
+xcalarApiListXdfs = exports.xcalarApiListXdfs = function(thriftHandle, fnNamePattern, categoryPattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiListXdfs(fnNamePattern = ", fnNamePattern, ", ",
@@ -3204,9 +3215,9 @@ function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiUdfAddUpdateWorkItem(api, type, moduleName, source)
+xcalarApiUdfAddUpdateWorkItem = exports.xcalarApiUdfAddUpdateWorkItem = function(api, type, moduleName, source)
 {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3219,9 +3230,9 @@ function xcalarApiUdfAddUpdateWorkItem(api, type, moduleName, source)
     workItem.input.udfAddUpdateInput.source = source;
 
     return (workItem);
-}
+};
 
-function xcalarApiUdfAdd(thriftHandle, type, moduleName, source)
+xcalarApiUdfAdd = exports.xcalarApiUdfAdd = function(thriftHandle, type, moduleName, source)
 {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -3251,9 +3262,9 @@ function xcalarApiUdfAdd(thriftHandle, type, moduleName, source)
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiUdfUpdate(thriftHandle, type, moduleName, source)
+xcalarApiUdfUpdate = exports.xcalarApiUdfUpdate = function(thriftHandle, type, moduleName, source)
 {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -3283,9 +3294,9 @@ function xcalarApiUdfUpdate(thriftHandle, type, moduleName, source)
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiUdfDeleteWorkItem(moduleName)
+xcalarApiUdfDeleteWorkItem = exports.xcalarApiUdfDeleteWorkItem = function(moduleName)
 {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3296,9 +3307,9 @@ function xcalarApiUdfDeleteWorkItem(moduleName)
     workItem.input.udfDeleteInput.moduleName = moduleName;
 
     return (workItem);
-}
+};
 
-function xcalarApiUdfDelete(thriftHandle, moduleName)
+xcalarApiUdfDelete = exports.xcalarApiUdfDelete = function(thriftHandle, moduleName)
 {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -3325,9 +3336,9 @@ function xcalarApiUdfDelete(thriftHandle, moduleName)
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiUdfGetWorkItem(moduleName)
+xcalarApiUdfGetWorkItem = exports.xcalarApiUdfGetWorkItem = function(moduleName)
 {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3338,9 +3349,9 @@ function xcalarApiUdfGetWorkItem(moduleName)
     workItem.input.udfGetInput.moduleName = moduleName;
 
     return (workItem);
-}
+};
 
-function xcalarApiUdfGet(thriftHandle, moduleName)
+xcalarApiUdfGet = exports.xcalarApiUdfGet = function(thriftHandle, moduleName)
 {
     var deferred = jQuery.Deferred();
     if (verbose) {
@@ -3367,9 +3378,9 @@ function xcalarApiUdfGet(thriftHandle, moduleName)
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiGetQuery(thriftHandle, workItem) {
+xcalarApiGetQuery = exports.xcalarApiGetQuery = function(thriftHandle, workItem) {
     var deferred = jQuery.Deferred();
     workItem.origApi = workItem.api;
     workItem.api = XcalarApisT.XcalarApiGetQuery;
@@ -3395,9 +3406,9 @@ function xcalarApiGetQuery(thriftHandle, workItem) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, ordering) {
+xcalarApiCreateDhtWorkItem = exports.xcalarApiCreateDhtWorkItem = function(dhtName, upperBound, lowerBound, ordering) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.createDhtInput = new XcalarApiCreateDhtInputT();
@@ -3410,9 +3421,9 @@ function xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, ordering) {
     workItem.input.createDhtInput.dhtArgs.ordering = ordering;
 
     return (workItem);
-}
+};
 
-function xcalarApiCreateDht(thriftHandle, dhtName, upperBound, lowerBound, ordering) {
+xcalarApiCreateDht = exports.xcalarApiCreateDht = function(thriftHandle, dhtName, upperBound, lowerBound, ordering) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiCreateDht(dhtName = " + dhtName + ", upperBound = " +
@@ -3441,9 +3452,9 @@ function xcalarApiCreateDht(thriftHandle, dhtName, upperBound, lowerBound, order
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiDeleteDhtWorkItem(dhtName) {
+xcalarApiDeleteDhtWorkItem = exports.xcalarApiDeleteDhtWorkItem = function(dhtName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.deleteDhtInput = new XcalarApiDeleteDhtInputT();
@@ -3452,9 +3463,9 @@ function xcalarApiDeleteDhtWorkItem(dhtName) {
     workItem.input.deleteDhtInput.dhtName = dhtName;
 
     return (workItem);
-}
+};
 
-function xcalarApiDeleteDht(thriftHandle, dhtName) {
+xcalarApiDeleteDht = exports.xcalarApiDeleteDht = function(thriftHandle, dhtName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiDeleteDht(dhtName = " + dhtName + ")");
@@ -3482,15 +3493,15 @@ function xcalarApiDeleteDht(thriftHandle, dhtName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiSupportGenerateWorkItem() {
+xcalarApiSupportGenerateWorkItem = exports.xcalarApiSupportGenerateWorkItem = function() {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiSupportGenerate;
     return (workItem);
-}
+};
 
-function xcalarApiSupportGenerate(thriftHandle) {
+xcalarApiSupportGenerate = exports.xcalarApiSupportGenerate = function(thriftHandle) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSupportGenerate()");
@@ -3518,10 +3529,10 @@ function xcalarApiSupportGenerate(thriftHandle) {
     });
 
     return (deferred.promise());
-}
+};
 
 
-function xcalarScheduleTaskWorkItem(taskName, scheduleInSecond, period,
+xcalarScheduleTaskWorkItem = exports.xcalarScheduleTaskWorkItem = function(taskName, scheduleInSecond, period,
                                     recurCount, type, arg) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3539,9 +3550,9 @@ function xcalarScheduleTaskWorkItem(taskName, scheduleInSecond, period,
     workItem.input.schedTaskInput.arg = arg;
 
     return (workItem);
-}
+};
 
-function xcalarScheduleTask(thriftHandle, taskName, scheduleInSecond, period,
+xcalarScheduleTask = exports.xcalarScheduleTask = function(thriftHandle, taskName, scheduleInSecond, period,
                             recurCount, type, arg) {
 
     var deferred = jQuery.Deferred();
@@ -3568,9 +3579,9 @@ function xcalarScheduleTask(thriftHandle, taskName, scheduleInSecond, period,
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarDeleteSchedTaskWorkItem(name) {
+xcalarDeleteSchedTaskWorkItem = exports.xcalarDeleteSchedTaskWorkItem = function(name) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
@@ -3580,9 +3591,9 @@ function xcalarDeleteSchedTaskWorkItem(name) {
     workItem.input.deleteSchedTaskInput.name = name;
 
     return (workItem);
-}
+};
 
-function xcalarDeleteSchedTask(thriftHandle, name) {
+xcalarDeleteSchedTask = exports.xcalarDeleteSchedTask = function(thriftHandle, name) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarDeleteSchedTask(name = " + name + ")");
@@ -3606,10 +3617,10 @@ function xcalarDeleteSchedTask(thriftHandle, name) {
     });
 
     return (deferred.promise());
-}
+};
 
 
-function xcalarListSchedTaskWorkItem(namePattern) {
+xcalarListSchedTaskWorkItem = exports.xcalarListSchedTaskWorkItem = function(namePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
@@ -3617,9 +3628,9 @@ function xcalarListSchedTaskWorkItem(namePattern) {
     workItem.input.listSchedTaskInput = new XcalarApiListSchedTaskInputT();
     workItem.input.listSchedTaskInput.namePattern = namePattern;
     return (workItem);
-}
+};
 
-function xcalarListSchedTask(thriftHandle, namePattern) {
+xcalarListSchedTask = exports.xcalarListSchedTask = function(thriftHandle, namePattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListSchedTask(namePattern = " + namePattern + ")");
@@ -3645,9 +3656,9 @@ function xcalarListSchedTask(thriftHandle, namePattern) {
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina) {
+xcalarApiImportRetinaWorkItem = exports.xcalarApiImportRetinaWorkItem = function(retinaName, overwrite, retina) {
     var workItem = new WorkItem();
     var encodedRetina = btoa(retina);
     workItem.input = new XcalarApiInputT();
@@ -3660,14 +3671,14 @@ function xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina) {
     workItem.input.importRetinaInput.retina = encodedRetina;
 
     return (workItem);
-}
+};
 
-function xcalarApiImportRetina(thriftHandle, retinaName, overwrite, retina) {
+xcalarApiImportRetina = exports.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarApiImportRetina(retinaName = " + retinaName +
-                    ", overwrite = " + overwrite + ")")
+                    ", overwrite = " + overwrite + ")");
     }
 
     var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina);
@@ -3692,9 +3703,9 @@ function xcalarApiImportRetina(thriftHandle, retinaName, overwrite, retina) {
         deferred.reject(error);
     });
     return (deferred.promise());
-}
+};
 
-function xcalarApiExportRetinaWorkItem(retinaName) {
+xcalarApiExportRetinaWorkItem = exports.xcalarApiExportRetinaWorkItem = function(retinaName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
@@ -3702,9 +3713,9 @@ function xcalarApiExportRetinaWorkItem(retinaName) {
     workItem.input.exportRetinaInput = new XcalarApiExportRetinaInputT();
     workItem.input.exportRetinaInput.retinaName = retinaName;
     return (workItem);
-}
+};
 
-function xcalarApiExportRetina(thriftHandle, retinaName) {
+xcalarApiExportRetina = exports.xcalarApiExportRetina = function(thriftHandle, retinaName) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -3737,9 +3748,9 @@ function xcalarApiExportRetina(thriftHandle, retinaName) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiStartFuncTestWorkItem(parallel, runAllTests, runOnAllNodes, testNamePatterns) {
+xcalarApiStartFuncTestWorkItem = exports.xcalarApiStartFuncTestWorkItem = function(parallel, runAllTests, runOnAllNodes, testNamePatterns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
@@ -3752,15 +3763,15 @@ function xcalarApiStartFuncTestWorkItem(parallel, runAllTests, runOnAllNodes, te
     workItem.input.startFuncTestInput.numTestPatterns = testNamePatterns.length;
 
     return (workItem);
-}
+};
 
-function xcalarApiStartFuncTest(thriftHandle, parallel, runOnAllNodes, runAllTests, testNamePatterns) {
+xcalarApiStartFuncTest = exports.xcalarApiStartFuncTest = function(thriftHandle, parallel, runOnAllNodes, runAllTests, testNamePatterns) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarApiStartFuncTest(parallel = ", parallel, ", runAllTests = ",
                     runAllTests, ", runOnAllNodes = ", runOnAllNodes,
-                    ", testNamePatterns = ", testNamePatterns, ")")
+                    ", testNamePatterns = ", testNamePatterns, ")");
     }
 
     var workItem = xcalarApiStartFuncTestWorkItem(parallel, runAllTests, runOnAllNodes, testNamePatterns);
@@ -3786,9 +3797,9 @@ function xcalarApiStartFuncTest(thriftHandle, parallel, runOnAllNodes, runAllTes
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiListFuncTestWorkItem(namePattern) {
+xcalarApiListFuncTestWorkItem = exports.xcalarApiListFuncTestWorkItem = function(namePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
@@ -3797,9 +3808,9 @@ function xcalarApiListFuncTestWorkItem(namePattern) {
     workItem.input.listFuncTestInput.namePattern = namePattern;
 
     return (workItem);
-}
+};
 
-function xcalarApiListFuncTest(thriftHandle, namePattern) {
+xcalarApiListFuncTest = exports.xcalarApiListFuncTest = function(thriftHandle, namePattern) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -3829,9 +3840,9 @@ function xcalarApiListFuncTest(thriftHandle, namePattern) {
     });
 
     return (deferred.promise());
-}
+};
 
-function xcalarApiDeleteDatasetsWorkItem(datasetNamePattern) {
+xcalarApiDeleteDatasetsWorkItem = exports.xcalarApiDeleteDatasetsWorkItem = function(datasetNamePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
@@ -3839,9 +3850,9 @@ function xcalarApiDeleteDatasetsWorkItem(datasetNamePattern) {
     workItem.input.deleteDatasetsInput = datasetNamePattern;
 
     return (workItem);
-}
+};
 
-function xcalarApiDeleteDatasets(thriftHandle, datasetNamePattern) {
+xcalarApiDeleteDatasets = exports.xcalarApiDeleteDatasets = function (thriftHandle, datasetNamePattern) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -3871,4 +3882,5 @@ function xcalarApiDeleteDatasets(thriftHandle, datasetNamePattern) {
     });
 
     return (deferred.promise());
-}
+};
+

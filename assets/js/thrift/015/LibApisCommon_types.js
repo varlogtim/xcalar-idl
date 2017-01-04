@@ -11674,6 +11674,73 @@ XcalarApiSetConfigParamInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiGetTableMetaInputT = function(args) {
+  this.tableNameInput = null;
+  this.isPrecise = null;
+  if (args) {
+    if (args.tableNameInput !== undefined) {
+      this.tableNameInput = args.tableNameInput;
+    }
+    if (args.isPrecise !== undefined) {
+      this.isPrecise = args.isPrecise;
+    }
+  }
+};
+XcalarApiGetTableMetaInputT.prototype = {};
+XcalarApiGetTableMetaInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.tableNameInput = new XcalarApiNamedInputT();
+        this.tableNameInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isPrecise = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiGetTableMetaInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiGetTableMetaInputT');
+  if (this.tableNameInput !== null && this.tableNameInput !== undefined) {
+    output.writeFieldBegin('tableNameInput', Thrift.Type.STRUCT, 1);
+    this.tableNameInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.isPrecise !== null && this.isPrecise !== undefined) {
+    output.writeFieldBegin('isPrecise', Thrift.Type.BOOL, 2);
+    output.writeBool(this.isPrecise);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -12002,7 +12069,7 @@ XcalarApiInputT.prototype.read = function(input) {
       break;
       case 4:
       if (ftype == Thrift.Type.STRUCT) {
-        this.getTableMetaInput = new XcalarApiNamedInputT();
+        this.getTableMetaInput = new XcalarApiGetTableMetaInputT();
         this.getTableMetaInput.read(input);
       } else {
         input.skip(ftype);

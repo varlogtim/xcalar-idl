@@ -2213,6 +2213,19 @@ function XcalarQueryState(queryName) {
 }
 
 function XcalarQueryCheck(queryName, txId) {
+    function getDagNodeStatuses(dagOutput) {
+        var nodeStatuses = {};
+        for (var i = 0; i < dagOutput.length; i++) {
+            var tableName = dagOutput[i].name.name;
+            if (tableName.indexOf(".XcalarDS.") > -1) {
+                tableName = tableName.substring(
+                                               tableName.indexOf(".XcalarDS."));
+            }
+            var state = dagOutput[i].state;
+            nodeStatuses[tableName] = DgDagStateTStr[state];
+        }
+        return nodeStatuses;
+    }
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -2227,6 +2240,9 @@ function XcalarQueryCheck(queryName, txId) {
     var timer = setInterval(function() {
         XcalarQueryState(queryName)
         .then(function(queryStateOutput) {
+            var nodeStatuses =
+                           getDagNodeStatuses(queryStateOutput.queryGraph.node);
+            console.log(nodeStatuses);
             var state = queryStateOutput.queryState;
             if (state === QueryStateT.qrFinished ||
                 state === QueryStateT.qrCancelled) {

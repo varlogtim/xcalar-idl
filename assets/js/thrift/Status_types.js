@@ -533,7 +533,13 @@ StatusT = {
   'StatusAggFnInClass1Ast' : 524,
   'StatusDagNodeDropped' : 525,
   'StatusXdbSlotHasActiveCursor' : 526,
-  'StatusProtobufDecodeError' : 527
+  'StatusProtobufDecodeError' : 527,
+  'StatusAppLoadFailed' : 528,
+  'StatusAppDoesNotExist' : 529,
+  'StatusNotShared' : 530,
+  'StatusProtobufEncodeError' : 531,
+  'StatusJsonError' : 532,
+  'StatusMsgStreamNotFound' : 533
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1062,5 +1068,11 @@ StatusTStr = {0 : 'Success',
 524 : 'Cannot call an aggregate function during filter/map',
 525 : 'Dag node has been dropped',
 526 : 'Xdb slot has active cursor',
-527 : 'Failed to decode protobuf message'
+527 : 'Failed to decode protobuf message',
+528 : 'Failed to load application',
+529 : 'XPU App does not exist',
+530 : 'Path is not on shared storage',
+531 : 'Failed to encode protobuf message',
+532 : 'JSON error occurred',
+533 : 'Message stream not found'
 };
