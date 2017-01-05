@@ -1736,9 +1736,61 @@ window.JoinView = (function($, JoinView) {
         $el.focus();
     }
 
+        function getColInputs(tableId, backColName) {
+        var col = gTables[tableId].getColByBackName(backColName);
+        if (!col) {
+            return null;
+        }
+        var type = col.getType();
+        var frontColName = col.getFrontColName();
+
+        var colNum = gTables[tableId].getColNumByBackName(backColName);
+        var data = gTables[tableId].getColContents(colNum);
+        var requiredInfo = {
+            'type': type,
+            'name': frontColName,
+            'data': data,
+            'uniqueIdentifier': backColName // Only IDs chosen result
+        };
+        return requiredInfo;
+    }
+
+    function getJoinKeyInputs(tableId, val, suggTableId) {
+        var srcInfo = getColInputs(tableId, val);
+        var destInfo = [];
+        var suggTable = gTables[suggTableId];
+        var suggCols = suggTable.getAllCols();
+        for (var i = 0; i < suggCols.length; i++) {
+            if(!suggCols[i].isDATACol()) {
+                var result = getColInputs(suggTableId,
+                    suggCols[i].getBackColName());
+                if (result !== null) {
+                    destInfo.push(result);
+                }
+            }
+        }
+        var inputs = {
+            'srcColInfo'  : srcInfo,
+            'destColsInfo': destInfo
+        };
+        return inputs;
+    }
+
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
-        return xcSuggest.suggestJoinKey(tableId, val, $inputToFill,
-                                            suggTableId);
+        var inputs = getJoinKeyInputs(tableId, val, suggTableId);
+
+        result = xcSuggest.suggestJoinKeyHeuristic(inputs);
+        var thresholdScore = -50;
+
+        if (result.colToSugg !== null) {
+            $inputToFill.val(result.colToSugg);
+
+            if (thresholdScore > result.maxScore) {
+                return JoinKeySuggestion.KeyUnsure;
+            }
+            return JoinKeySuggestion.KeySuggested;
+        }
+        return JoinKeySuggestion.KeyNotFound;
     }
 
 

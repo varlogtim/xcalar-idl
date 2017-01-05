@@ -5,65 +5,101 @@ window.xcSuggest = (function($, xcSuggest) {
 // 3: Smart casting column type (colManager).
 // 3: Smart suggesting join keys.
 
+    xcSuggest.suggestJoinKeyHeuristic = function(inputs) {
+        // Inputs has fields srcColInfo and destColsInfo
+        // srcColInfo is valid colInfo and destColsInfo is array of valid colInfo
+        // valid colInfo has type, name, and data fields, where data is an array
+        // of the text contents of the HTML column
+        // Requires: inputs.srcCol is filled with info from valid col
+        // Requires: inputs.destCol is an array, but can be empty
+        var srcColInfo = inputs.srcColInfo;
+        var type = srcColInfo.type;
 
-///////////////////////////////////////////////////////////////
-// Join Key Suggestion
-//////////////////////////////////////////////////////////////
-// Relevant structure:
-// joinView.suggestJoinKey <- Pretty straightforward
-    xcSuggest.suggestJoinKey = function(tableId, val, $inputToFill,
-                                        suggTableId) {
-
-        var col = gTables[tableId].getColByFrontName(val);
-        if (!col) {
-            return false;
-        }
-        var type = col.getType();
-        var backColName = col.getBackColName();
-        var frontColName = col.getFrontColName(); // not include prefix
-        var colNum = gTables[tableId].getColNumByBackName(backColName);
-
-        var context1 = contextCheck($('#xcTable-' + tableId), colNum, type);
+        var context1 = contextCheck(srcColInfo);
         var colToSugg = null;
 
         // only score that more than -50 will be suggested, can be modified
-        var thresholdScore = -50;
         var maxScore = (-Number.MAX_VALUE);
 
-        var $suggTable = $('#xcTable-' + suggTableId);
-        var suggTable = gTables[suggTableId];
-        $suggTable.find(".header").each(function(curColNum) {
-            var $curTh = $(this);
+        for (var i = 0; i < inputs.destColsInfo.length; i++) {
+            var curColInfo = inputs.destColsInfo[i];
             // 0 is rowMarker
-            if (curColNum !== 0 && !$curTh.hasClass('dataCol') &&
-                getType($curTh) === type) {
-                var context2 = contextCheck($suggTable, curColNum, type);
+            if (curColInfo.type === type) {
+                var context2 = contextCheck(curColInfo);
 
-                var curColName = suggTable.getCol(curColNum)
-                                          .getFrontColName(true);
-                var parsedName = xcHelper.parsePrefixColName(curColName).name;
-                var dist = getTitleDistance(frontColName, parsedName);
+                var dist = getTitleDistance(srcColInfo.name, curColInfo.name);
                 var score = getScore(context1, context2, dist, type);
 
                 if (score > maxScore) {
                     maxScore = score;
-                    colToSugg = curColName;
+                    colToSugg = curColInfo.uniqueIdentifier;
                 }
             }
-        });
-
-
-        // if find the suggeest join key
-        if (colToSugg != null) {
-            $inputToFill.val(colToSugg);
-
-            if (thresholdScore > maxScore) {
-                return JoinKeySuggestion.KeyUnsure;
-            }
-            return JoinKeySuggestion.KeySuggested;
         }
-        return JoinKeySuggestion.KeyNotFound;
+
+        return {
+            'colToSugg': colToSugg,
+            'maxScore' : maxScore
+        };
     };
+
+    function contextCheck(requiredInfo) {
+        // only check number and string
+        var type = requiredInfo.type;
+        var data = requiredInfo.data;
+        if (type !== "integer" && type !== "float" && type !== "string") {
+            return {"max": 0, "min": 0, "total": 0, "variance": 0};
+        }
+
+        // Number min value provides smallest absolute value number, e.g.
+        // 5e-352 or something similar.  Take negative of max value for true min.
+        // Otherwise this script breaks on negative numbers.
+        var max = (-Number.MAX_VALUE);
+        var min = Number.MAX_VALUE;
+        var total = 0;
+        var datas = [];
+        var values = [];
+        var val;
+
+        for (var i =0; i < data.length; i++) {
+            val = data[i];
+
+            var d;
+
+            if (type === "string") {
+                if (val === null || val === "") {
+                    // skip empty value
+                    return;
+                }
+                d = val.length; // for string, use its length as metrics
+            } else {
+                d = Number(val);
+            }
+
+            values.push(val);
+            datas.push(d);
+            max = Math.max(d, max);
+            min = Math.min(d, min);
+            total += d;
+        }
+
+        var count = datas.length;
+        var avg = total / count;
+        var sig2 = 0;
+
+        for (var i = 0; i < count; i++) {
+            sig2 += Math.pow((datas[i] - avg), 2);
+        }
+
+        return {
+            "max" : max,
+            "min" : min,
+            "avg" : avg,
+            "sig2": sig2,
+            "vals": values
+        };
+    }
+
 
     function getType($th) {
         // match "abc type-XXX abc" and "abc type-XXX"
@@ -155,63 +191,6 @@ window.xcSuggest = (function($, xcSuggest) {
         }
         // range is [0, 1), more close to 0, similar
         return Math.abs(diff / sum);
-    }
-
-
-    function contextCheck($table, colNum, type) {
-        // only check number and string
-        if (type !== "integer" && type !== "float" && type !== "string") {
-            return {"max": 0, "min": 0, "total": 0, "variance": 0};
-        }
-
-        // Number min value provides smallest absolute value number, e.g.
-        // 5e-352 or something similar.  Take negative of max value for true min.
-        // Otherwise this script breaks on negative numbers.
-        var max = (-Number.MAX_VALUE);
-        var min = Number.MAX_VALUE;
-        var total = 0;
-        var datas = [];
-        var values = [];
-        var val;
-
-        $table.find("td.col" + colNum).each(function() {
-            $textDiv = $(this).find(".originalData");
-            val = $textDiv.text();
-
-            var d;
-
-            if (type === "string") {
-                if (val == null || val === "") {
-                    // skip empty value
-                    return;
-                }
-                d = val.length; // for string, use its length as metrics
-            } else {
-                d = Number(val);
-            }
-
-            values.push(val);
-            datas.push(d);
-            max = Math.max(d, max);
-            min = Math.min(d, min);
-            total += d;
-        });
-
-        var count = datas.length;
-        var avg = total / count;
-        var sig2 = 0;
-
-        for (var i = 0; i < count; i++) {
-            sig2 += Math.pow((datas[i] - avg), 2);
-        }
-
-        return {
-            "max" : max,
-            "min" : min,
-            "avg" : avg,
-            "sig2": sig2,
-            "vals": values
-        };
     }
 
     function getTitleDistance(name1, name2) {
