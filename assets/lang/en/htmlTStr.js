@@ -157,7 +157,7 @@ module.exports = {
        "FocusTbl": "Find table in worksheet",
        "Format": "Format",
        "GB": "Group by",
-       "GenIcv": "Create ICV table",
+       "GenIcv": "Create erroneous rows table",
        "HideCol": "Hide column",
        "HideColPlura": "Hide columns",
        "HideTbl": "Minimize table",
@@ -231,7 +231,7 @@ module.exports = {
         "DoneQueries": "Show finished queries",
         "SelectCol": "Please select a column first!",
         "SelectFile": "Select a .tar.gz file first",
-        "IcvRestriction": "ICV only available for Map and Group By", // Sync with jsTstr
+        "IcvRestriction": "ER table only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Aggregates",
         "OnlyInOpMode": "Feature only available in Operational mode",
@@ -721,7 +721,7 @@ module.exports = {
         "map": "Map",
         "category": "Category",
         "function": "Function",
-        "erroneousRows": "Include only ICV rows",
+        "erroneousRows": "Include only erroneous rows",
         "filterFunc": "Filter Function",
         "noFunc": "No Function Chosen",
         "additional": "Additional Conditions",

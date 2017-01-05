@@ -81,10 +81,10 @@ TooltipTStr = {
     'ViewTableOptions': 'View table options',
     'RemoveQuery': 'Remove query',
     'CancelQuery': 'Cancel query',
-    'AlreadyIcv': 'This table is already an ICV table',
+    'AlreadyIcv': 'This table is already an erroneous rows(ER) table',
     'ParamValNoChange': 'This parameter value cannot be changed',
     // Sync with htmlTStr
-    "IcvRestriction": 'ICV only available for Map and Group By',
+    "IcvRestriction": 'Erroneous rows(ER) table only available for Map and Group By',
     "OnlyInOpMode": "Feature only available in Operational mode",
 
     // with replace
@@ -228,9 +228,9 @@ ErrTStr = {
     'NoColumns': 'No Columns Selected',
     'NoCast': 'No columns to cast.',
     'NoTypeChange': 'Please change at least one column\'s type to apply the cast.',
-    'IcvFailed': 'Failed to generate ICV table',
-    'IcvAlt': 'Failed to generate ICV table. Please use map with show ' +
-              'erroneous values selected instead.',
+    'IcvFailed': 'Failed to generate erroneous rows (ER) table',
+    'IcvAlt': 'Failed to generate erroneous rows (ER) table. Please use map ' +
+              'with show erroneous values selected instead.',
     'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload retina',
     'ConfigParamNotFound': 'Parameter not found.',

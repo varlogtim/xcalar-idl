@@ -967,13 +967,13 @@ window.DagPanel = (function($, DagPanel) {
         var origTableName = xcalarInput.dstTable.tableName;
         var tableRoot = xcHelper.getTableName(origTableName);
         var newTableId = Authentication.getHashId();
-        var newTableName = tableRoot + "_icv" + newTableId;
+        var newTableName = tableRoot + "_er" + newTableId;
 
         xcalarInput.dstTable.tableName = newTableName;
         // Turn on icv
         xcalarInput.icvMode = true;
         var origColName = xcalarInput.newFieldName;
-        xcalarInput.newFieldName = xcalarInput.newFieldName+"_icv";
+        xcalarInput.newFieldName = xcalarInput.newFieldName+"_er";
         // We want to skip all the checks, including all the indexes and stuff
         var options;
         var sql;
@@ -993,7 +993,7 @@ window.DagPanel = (function($, DagPanel) {
                     "mapOptions": options
                 };
                 txId = Transaction.start({
-                    "msg"      : StatusMessageTStr.Map + " ICV mode",
+                    "msg"      : StatusMessageTStr.Map + " erroneous rows",
                     "operation": SQLOps.Map,
                     "sql"      : sql,
                     "steps"    : 1
