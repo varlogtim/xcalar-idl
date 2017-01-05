@@ -1227,9 +1227,8 @@ describe('TableMenu', function() {
             $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
             var cachedFunc = JSONModal.show;
             var called = false;
-            JSONModal.show = function($td, isArray, options) {
+            JSONModal.show = function($td, options) {
                 expect($td.is($table.find('td.col1').eq(0))).to.be.true;
-                expect(isArray).to.be.false;
                 expect(options.type).to.equal('string');
                 called = true;
             };

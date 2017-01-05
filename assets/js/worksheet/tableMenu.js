@@ -782,11 +782,9 @@ window.TblMenu = (function(TblMenu, $) {
             var colNum  = $cellMenu.data('colNum');
             var $table  = $("#xcTable-" + tableId);
             var $td     = $table.find(".row" + rowNum + " .col" + colNum);
-            var isArray = $table.find("th.col" + colNum + " > div")
-                                .hasClass('type-array');
-            var colType = gTables[tableId].tableCols[colNum - 1].type;
+            var colType = gTables[tableId].tableCols[colNum - 1].getType();
 
-            JSONModal.show($td, isArray, {type: colType});
+            JSONModal.show($td, {type: colType});
         });
 
         $cellMenu.on('mouseup', '.tdUnnest', function(event) {

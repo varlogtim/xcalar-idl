@@ -2896,30 +2896,52 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
 
-        if ((columnType === "object" || columnType === "array") && !notAllowed) {
-            if ($div.text().trim() === "") {
-                $menu.find(".tdJsonModal").addClass("hidden");
-                $menu.find(".tdUnnest").addClass("hidden");
-            } else if (isMultiCell) {
-                // when more than one cell is selected
-                $menu.find(".tdJsonModal").addClass("hidden");
-                $menu.find(".tdUnnest").addClass("hidden");
-            } else {
-                $menu.find(".tdJsonModal").removeClass("hidden");
+        toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
+                                    notAllowed, options);        
+    }
+
+    function toggleUnnestandJsonOptions($menu, $div, columnType,
+                                        isMultiCell, notAllowed, options) {
+        var $unnestLi = $menu.find('.tdUnnest');
+        var $jsonModalLi = $menu.find('.tdJsonModal');
+        $unnestLi.addClass('hidden');
+        $jsonModalLi.addClass('hidden');
+
+        if ((columnType === "object" || columnType === "array") &&
+            !notAllowed) {
+            if ($div.text().trim() !== "" && !isMultiCell) {
+                // when  only one cell is selected
+                $jsonModalLi.removeClass("hidden");
+                
                 // do not allow pullall from data cell
-                if (options.isDataTd) {
-                    $menu.find(".tdUnnest").addClass("hidden");
-                } else {
-                    $menu.find(".tdUnnest").removeClass("hidden");
+                if (!options.isDataTd) {
+                    $unnestLi.removeClass("hidden");
                 }
             }
         } else {
             if ($div.parent().hasClass('truncated')) {
-                $menu.find(".tdJsonModal").removeClass("hidden");
-            } else {
-                $menu.find(".tdJsonModal").addClass("hidden");
+                $jsonModalLi.removeClass("hidden");
+            } 
+
+            if (columnType === "mixed" && !notAllowed) {
+                var text = $div.text().trim();
+                if (text !== "" && !isMultiCell &&
+                    !$div.find('.undefined').length) {
+                    // when only one cell is selected
+
+                    var mixedVal;
+             
+                    try {
+                        mixedVal = JSON.parse(text);
+                    } catch (err) {
+                        mixedVal = null;
+                    }
+                    if (mixedVal && typeof mixedVal === "object") {
+                        $jsonModalLi.removeClass("hidden");
+                        $unnestLi.removeClass("hidden");
+                    }
+                }
             }
-            $menu.find(".tdUnnest").addClass("hidden");
         }
     }
 
@@ -2961,6 +2983,14 @@ window.xcHelper = (function($, xcHelper) {
             xcTooltip.remove($menu.find('.createDf'));
         }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        xcHelper.__testOnly__ = {};
+        xcHelper.__testOnly__.toggleUnnestandJsonOptions =
+                              toggleUnnestandJsonOptions;
+    }
+    /* End Of Unit Test Only */
 
     return (xcHelper);
 }(jQuery, {}));

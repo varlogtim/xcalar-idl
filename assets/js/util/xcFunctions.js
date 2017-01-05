@@ -493,7 +493,7 @@ window.xcFunction = (function($, xcFunction) {
                                                     .find(".row" + (rowNum - 1))
                                                     .find('.jsonElement');
 
-                        JSONModal.show($td, false, {saveModeOff: true});
+                        JSONModal.show($td, {saveModeOff: true});
                         $("#jsonModal .dropdownBox").click();
                         $(".projectionOpt").click();
                     });

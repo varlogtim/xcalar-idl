@@ -1840,8 +1840,8 @@ window.TblManager = (function($, TblManager) {
 
     function addRowListeners($trs) {
         var $jsonEle = $trs.find(".jsonElement");
-        $jsonEle.dblclick(showJSONMoal);
-        $jsonEle.on("click", ".pop", showJSONMoal);
+        $jsonEle.dblclick(showJSONModal);
+        $jsonEle.on("click", ".pop", showJSONModal);
 
         $trs.find(".rowGrab").mousedown(function(event) {
             if (event.which === 1) {
@@ -1865,7 +1865,7 @@ window.TblManager = (function($, TblManager) {
             }
         });
 
-        function showJSONMoal() {
+        function showJSONModal() {
             if ($('#mainFrame').hasClass('modalOpen') &&
                 !$(this).closest('.xcTableWrap').hasClass('jsonModalOpen'))
             {

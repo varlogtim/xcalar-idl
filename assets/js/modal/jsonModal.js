@@ -101,9 +101,9 @@ window.JSONModal = (function($, JSONModal) {
 
     // type is only included if not a typical array or object
     // options:
-    //      type : string representing column data type
-    //      saveModeOff: boolean, if true, will not save projectState
-    JSONModal.show = function ($jsonTd, isArray, options) {
+    //     type : string representing column data type
+    //     saveModeOff: boolean, if true, will not save projectState
+    JSONModal.show = function ($jsonTd, options) {
         if ($.trim($jsonTd.text()).length === 0) {
             return;
         }
@@ -127,7 +127,7 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         // shows json modal
-        refreshJsonModal($jsonTd, isArray, isModalOpen, type);
+        refreshJsonModal($jsonTd, isModalOpen, type);
 
         if (isModalOpen) {
             updateSearchResults();
@@ -922,13 +922,15 @@ window.JSONModal = (function($, JSONModal) {
         $lastKeySelected = null;
     }
 
-    function refreshJsonModal($jsonTd, isArray, isModalOpen, type) {
+    function refreshJsonModal($jsonTd, isModalOpen, type) {
         var text = $jsonTd.find('.originalData').text();
         var jsonObj;
         var allProjectMode = false; // used to see if new json column will
         // come out in project mode
 
-        if (type && (type !== "array" && type !== "object")) {
+        if (type &&
+            (type !== ColumnType.array && type !== ColumnType.object &&
+             type !== ColumnType.mixed)) {
             jsonObj = text;
         } else {
             try {
@@ -937,6 +939,13 @@ window.JSONModal = (function($, JSONModal) {
                 console.error(error, text);
                 closeJSONModal();
                 return;
+            }
+            if (type === ColumnType.mixed) {
+                if (jsonObj instanceof Array) {
+                    type = ColumnType.array;
+                } else {
+                    type = ColumnType.object;
+                }
             }
         }
 
@@ -961,7 +970,7 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        fillJsonArea(jsonObj, $jsonTd, isArray, type);
+        fillJsonArea(jsonObj, $jsonTd, type);
 
         if (gMinModeOn || isModalOpen) {
             if (!isModalOpen) {
@@ -993,13 +1002,14 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function fillJsonArea(jsonObj, $jsonTd, isArray, type) {
+    function fillJsonArea(jsonObj, $jsonTd, type) {
         var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
         var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
         var tableName = gTables[tableId].tableName;
         var prettyJson = "";
+        var isArray = (type === ColumnType.array);
 
-        if (type && (type !== "object" && type !== "array")) {
+        if (type && (type !== ColumnType.object && type !== ColumnType.array)) {
             var typeClass = "";
             switch (type) {
                 case ('string'):

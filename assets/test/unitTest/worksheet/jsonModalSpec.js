@@ -1,4 +1,4 @@
-describe('JsonModal', function() {
+describe('JsonModal Test', function() {
     var testDs;
     var tableName;
     var prefix;
@@ -7,6 +7,7 @@ describe('JsonModal', function() {
     var $table;
 
     before(function(done) {
+        UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .always(function(ds, tName, tPrefix) {
@@ -56,6 +57,59 @@ describe('JsonModal', function() {
             expect($jsonModal.find('.jObject:visible').length).to.equal(1);
             var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').text().replace(/[\s\n]/g, "") + "}");
             expect(Object.keys(jsonObj).length).to.equal(12);
+        });
+    });
+
+    describe('opening modal from td', function() {
+        before(function(done) {
+            JSONModal.__testOnly__.closeJSONModal();
+            setTimeout(function() {
+                done();
+            }, 300);
+        });
+
+        it('object in mixed col should work', function(done) {
+            var $td = $table.find('.row0 .col11');
+            $td.find('.displayedData').html('{"a":"b"}');
+            JSONModal.show($td, {type: "mixed"});
+            // allow modal to fade in
+            setTimeout(function() {
+                expect($jsonModal.find('.jObject').length).to.equal(1);
+                expect($jsonModal.find('.jObject:visible').length).to.equal(1);
+                var text = $jsonModal.find('.prettyJson').text().replace(/[\s\n]/g, "");
+                expect(text).to.equal('{"a":"b"}');
+
+                JSONModal.__testOnly__.closeJSONModal();
+                setTimeout(function() {
+                    done();
+                }, 300);
+            }, 500); 
+        });
+
+        it('array in mixed col should work', function(done) {
+            var $td = $table.find('.row0 .col11');
+            $td.find('.displayedData').html('["a","b"]');
+            JSONModal.show($td, {type: "mixed"});
+            // allow modal to fade in
+            setTimeout(function() {
+                expect($jsonModal.find('.jObject').length).to.equal(1);
+                expect($jsonModal.find('.jObject:visible').length).to.equal(1);
+                var text = $jsonModal.find('.prettyJson').text().replace(/[\s\n]/g, "");
+                expect(text).to.equal('["a","b"]');
+
+                JSONModal.__testOnly__.closeJSONModal();
+                setTimeout(function() {
+                    done();
+                }, 300);
+            }, 500); 
+        });
+
+        after(function(done) {
+            JSONModal.show($table.find('.jsonElement').eq(0))
+            // allow modal to fade in
+            setTimeout(function() {
+                done();
+            }, 500);
         });
     });
 
@@ -156,7 +210,7 @@ describe('JsonModal', function() {
         it('clicking on object column should work', function(done) {
             var colNum = gTables[tableId].getColNumByBackName(prefix + gPrefixSign + 'compliments');
             expect(colNum).to.be.gt(0);
-            JSONModal.show($table.find('.row0 .col' + colNum), false, {type: "object"});
+            JSONModal.show($table.find('.row0 .col' + colNum), {type: "object"});
             setTimeout(function() {
                 expect($jsonModal.find('.bar').length).to.equal(0);
                 var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').text().replace(/[\s\n]/g, "") + "}");
@@ -198,7 +252,7 @@ describe('JsonModal', function() {
             var $td = $table.find('td').filter(function() {
                 return $(this).text() === '2008-03';
             }).eq(0);
-            JSONModal.show($td, false, {type: "string"});
+            JSONModal.show($td, {type: "string"});
             setTimeout(function() {
                 expect($jsonModal.find('.jsonWrap').text()).to.equal('"2008-03"');
                 JSONModal.__testOnly__.closeJSONModal();
@@ -555,7 +609,8 @@ describe('JsonModal', function() {
 
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {
-           done();
+            UnitTest.offMinMode();
+            done();
         });
        
     });
