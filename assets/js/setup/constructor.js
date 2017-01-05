@@ -1798,8 +1798,11 @@ DSObj.prototype = {
                     size += metas[i].size;
                 }
                 size = xcHelper.sizeTranslator(size);
+                if (self.size == null) {
+                    // when not get the size
+                    self.size = size;
+                }
             }
-
 
             deferred.resolve(size);
         })

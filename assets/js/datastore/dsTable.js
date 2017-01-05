@@ -210,11 +210,14 @@ window.DSTable = (function($, DSTable) {
         var format = dsObj.getFormat();
         var path = dsObj.getPathWithPattern() || "N/A";
         var numEntries = dsObj.getNumEntries() || "N/A";
-        var size = dsObj.getSize() || "N/A";
 
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
-        $("#dsInfo-size").text(size);
+        // there is no fail case
+        getDSSize(dsObj)
+        .then(function(size) {
+            $("#dsInfo-size").text(size);
+        });
 
         if (typeof numEntries === "number") {
             numEntries = xcHelper.numToStr(numEntries);
@@ -239,6 +242,30 @@ window.DSTable = (function($, DSTable) {
             $("#schema-format").text(format);
         }
         totalRows = parseInt(numEntries.replace(/\,/g, ""));
+    }
+
+    function getDSSize(dsObj) {
+        var size = dsObj.getSize();
+        if (size != null) {
+            return PromiseHelper.resolve(size);
+        }
+
+        // XXX issue here is memory taken size is a little
+        // different from the actual size
+        // (other user's ds do not get size)
+        var deferred = jQuery.Deferred();
+        dsObj.getMemoryTakenSize()
+        .then(function(size) {
+            if (size == null) {
+                size = "N/A";
+            }
+            deferred.resolve(size);
+        })
+        .fail(function() {
+            deferred.resolve("N/A");
+        });
+
+        return deferred.promise();
     }
 
     function dataStoreTableScroll($tableWrapper) {
