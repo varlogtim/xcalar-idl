@@ -247,13 +247,14 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var url = "http://" + server + "/status/" + url;
 
         $.ajax({
-            "type"   : "GET",
-            "url"    : url,
-            "success": function(data) {
+            "type"    : "GET",
+            "dataType": "jsonp",  // this is to fix cross domain issue
+            "url"     : url,
+            "success" : function(data) {
                 console.log("send to sever success");
             },
             "error": function(error) {
-                console.log("send to sever error");
+                console.log("send to sever error", error);
             }
         });
     }

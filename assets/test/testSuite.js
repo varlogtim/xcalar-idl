@@ -112,6 +112,7 @@ window.TestSuite = (function($, TestSuite) {
     };
 
     TestSuite.run = function(hasAnimation, toClean, noPopup, mode) {
+        initializeTests();
         console.info("If you are on VPN / slow internet, please set " +
                     "gLongTestSuite = 2");
         var finalDeferred = jQuery.Deferred();
@@ -251,13 +252,15 @@ window.TestSuite = (function($, TestSuite) {
         return finalDeferred.promise();
     };
 
-    function assert(statement) {
+    function assert(statement, reason) {
         if (mode) {
             return;
         }
+
+        reason = reason || assert.caller.name;
         if (!statement) {
-            console.log("Assert failed!", assert.caller.name);
-            TestSuite.fail(curDeferred, curTestName, curTestNumber);
+            console.log("Assert failed!", reason);
+            TestSuite.fail(curDeferred, curTestName, curTestNumber, reason);
         }
     }
 
@@ -1554,15 +1557,14 @@ window.TestSuite = (function($, TestSuite) {
             // XXX Jerene sees different values everytime. Since this is a json
             // technically any of the keys are okay, so long as it comes from
             // the schedule prefix since all of them are matched
-            assert($newTh.find('.editableHead').val().indexOf("days") > -1 ||
-                   $newTh.find('.editableHead').val().indexOf("time") > -1 ||
-                   $newTh.find('.editableHead').val().indexOf("student_ids") >
-                   -1 ||
-                   $newTh.find('.editableHead').val().indexOf("duration") >
-                   -1 ||
-                   $newTh.find('.editableHead').val().indexOf("teacher_id") >
-                   -1 ||
-                   $newTh.find('.editableHead').val().indexOf("class_id") > -1);
+            var colName = $newTh.find('.editableHead').val();
+            var statemnet = colName.indexOf("days") > -1 ||
+                           colName.indexOf("time") > -1 ||
+                           colName.indexOf("student_ids") > -1 ||
+                           colName.indexOf("duration") > -1 ||
+                           colName.indexOf("teacher_id") > -1 ||
+                           colName.indexOf("class_id") > -1;
+            assert(statemnet, "assert colName match in json modal");
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
@@ -1570,41 +1572,47 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
-    // function addSche
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
-    TestSuite.add(flightTest, "FlightTest", defaultTimeout, TestCaseEnabled);
-    TestSuite.add(newWorksheetTest, "NewWorksheetTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(multiGroupByTest, "MultiGroupByTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(multiJoinTest, "MultiJoinTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(columnRenameTest, "ColumnRenameTest",
-                  defaultTimeout, TestCaseDisabled);
-    TestSuite.add(tableRenameTest, "TableRenameTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(profileTest, "ProfileTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(corrTest, "CorrelationTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(aggTest, "QuickAggregateTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(schedTest, "ScheduleTest",
-                  defaultTimeout, TestCaseDisabled);
-    TestSuite.add(dfgTest, "DFTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(retinaTest, "RetinaTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(runRetinaTest, "RunRetinaTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(cancelRetinaTest, "CancelRetinaTest",
-                  defaultTimeout, TestCaseEnabled);
-    TestSuite.add(deleteRetinaTest, "DeleteRetinaTest",
-                  defaultTimeout, TestCaseDisabled);
-    TestSuite.add(addDFToSchedTest, "AddDFToScheduleTest",
-                  defaultTimeout, TestCaseDisabled);
-    TestSuite.add(jsonModalTest, "JsonModalTest",
-                  defaultTimeout, TestCaseEnabled);
+    function initializeTests() {
+        testCases = [];
+        TestSuite.add(flightTest, "FlightTest", defaultTimeout, TestCaseEnabled);
+        TestSuite.add(newWorksheetTest, "NewWorksheetTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(multiGroupByTest, "MultiGroupByTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(multiJoinTest, "MultiJoinTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(columnRenameTest, "ColumnRenameTest",
+                      defaultTimeout, TestCaseDisabled);
+        TestSuite.add(tableRenameTest, "TableRenameTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(profileTest, "ProfileTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(corrTest, "CorrelationTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(aggTest, "QuickAggregateTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(schedTest, "ScheduleTest",
+                      defaultTimeout, TestCaseDisabled);
+        TestSuite.add(dfgTest, "DFTest",
+                      defaultTimeout, TestCaseEnabled);
+        TestSuite.add(retinaTest, "RetinaTest",
+                      defaultTimeout, TestCaseEnabled);
+        // interactive mode not run test
+        var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Mod) ?
+                            TestCaseDisabled : TestCaseEnabled;
+
+        TestSuite.add(runRetinaTest, "RunRetinaTest",
+                      defaultTimeout, retinaEnabled);
+        TestSuite.add(cancelRetinaTest, "CancelRetinaTest",
+                      defaultTimeout, retinaEnabled);
+        TestSuite.add(deleteRetinaTest, "DeleteRetinaTest",
+                      defaultTimeout, TestCaseDisabled);
+        TestSuite.add(addDFToSchedTest, "AddDFToScheduleTest",
+                      defaultTimeout, TestCaseDisabled);
+        TestSuite.add(jsonModalTest, "JsonModalTest",
+                      defaultTimeout, TestCaseEnabled);
+    }
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
 
     /* Unit Test Only */
