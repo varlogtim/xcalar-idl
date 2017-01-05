@@ -308,7 +308,8 @@ describe('ColManager Test', function() {
             expect($th.hasClass('newColumn')).to.be.true;
             expect($th.find('.prefix').hasClass('immediate')).to.be.true;
 
-            // exec a pullcol
+            // give a name then exec a pullcol
+            ColManager.renameCol(1, tableId, "fakeCol");
             var usrStr = 'fakeCol" = pull(schedule::fakeCol)';
             ColManager.execCol("pull", usrStr, tableId, 1);
             expect($th.hasClass('newColumn')).to.be.false;
