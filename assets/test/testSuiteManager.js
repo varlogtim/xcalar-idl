@@ -1,6 +1,16 @@
+/*
+ *  params:
+ *      auto: y to auto run the test
+ *      users: number of users(windows to open)
+ *      mode: ten/hundred/"", default is ""
+ *      host: the hostname
+ *      server: server address
+ * example:
+ *  http://localhost:8888/test.html?auto=y&server=localhost%3A5909&users=1&mode=ten&host=localhost%3A8888
+ */
 window.TestSuiteManager = (function(TestSuiteManager) {
-
     var windowRefs = [];
+    var reports = [];
     var checkInterval;
 
     TestSuiteManager.setup = function() {
@@ -17,21 +27,29 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         });
 
         $(".closeAll").hide();
+
+        parsetParam();
     };
 
     TestSuiteManager.reportResults = function(id, results) {
         console.log(id, results);
-        $(".results .row").eq(id).find(".rightCol").html("Fail: " +
+        var res = "Fail: " +
             results.fail + ", Pass: " + results.pass + ", Skip: " +
-            results.skip + ", Time: " + results.time + "s");
+            results.skip + ", Time: " + results.time + "s";
+        var status;
+        $(".results .row").eq(id).find(".rightCol").html(res);
         if (results.fail > 0) {
             $(".results .row").eq(id).addClass("fail");
+            status = "fail";
         } else {
             var cur = $(".overall").text();
             var nums = cur.split("/");
             $(".overall").text((parseInt(nums[0]) + 1) + "/" + nums[1]);
             $(".results .row").eq(id).addClass("pass");
+            status = "pass";
         }
+
+        reports[id] = "status:" + status + res;
     };
 
     TestSuiteManager.getAllWindowRefs = function() {
@@ -43,7 +61,44 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         checkInterval = undefined;
     };
 
+    function parsetParam() {
+        var params = getSearchParameters();
+        var numUsers = Number(params["users"]);
+        if (isNaN(numUsers)) {
+            numUsers = 5;
+        }
+        numUsers = Math.max(Number(params["users"]), 1);
+        var mode = params["mode"];
+        var hostname = parseHostName(params["host"]);
+        var autoRun = params["auto"];
+
+        $("#numUsers").val(numUsers);
+        $("#mode").val(mode);
+
+        if (hostname != null) {
+            $("#hostname").val(hostname);
+        }
+
+        if (autoRun === "y") {
+            startRun();
+        }
+    }
+
+    function parseHostName(name) {
+        if (!name) {
+            return null;
+        }
+
+        name = decodeURIComponent(name);
+        if (!name.startsWith("http")) {
+            name = "http://" + name;
+        }
+
+        return name;
+    }
+
     function startRun() {
+        results = [];
         // Check arguments are valid. If not, populate with defaults
         var $inputs = $(".input");
         var numUsers = parseInt($inputs.eq(0).val());
@@ -93,7 +148,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         windowRefs = [];
         var i = 0;
         var curDelay = 0;
-        for (i = 0; i<numUsers; i++) {
+        for (i = 0; i < numUsers; i++) {
             var urlString = hostname + "/testSuite.html?type=testSuite&" +
                                         "test=y&noPopup=y";
             if (delay > 0) {
@@ -124,9 +179,8 @@ window.TestSuiteManager = (function(TestSuiteManager) {
               '<div class="rightCol">Running...</div>' +
             '</div>');
         }
-        $(".overall").html("0/"+numUsers);
+        $(".overall").html("0/" + numUsers);
         startCloseCheck(numUsers);
-
     }
 
     function clearForm() {
@@ -152,16 +206,17 @@ window.TestSuiteManager = (function(TestSuiteManager) {
 
     function closeCheckReported(numUsers) {
         var id = 0;
-        for (id = 0; id<numUsers; id++) {
+        for (id = 0; id < numUsers; id++) {
             if (windowRefs[id].closed && $(".results .row").eq(id)
                                .find(".rightCol").text().indexOf("Run") === 0) {
                 $(".results .row").eq(id).find(".rightCol")
                                   .text("Closed by user prior to completion");
                 $(".results .row").eq(id).addClass("close");
+                reports[id] = "status:close";
             }
         }
         var allDone = true;
-        for (id = 0; id<numUsers; id++) {
+        for (id = 0; id < numUsers; id++) {
             if (!$(".results .row").eq(id).hasClass("pass") &&
                 !$(".results .row").eq(id).hasClass("fail") &&
                 !$(".results .row").eq(id).hasClass("close")) {
@@ -172,7 +227,50 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             TestSuiteManager.clearInterval();
             $(".input").attr("disabled", false);
             $(".run").removeClass("inactive");
+            reportToServer();
         }
+    }
+
+    function reportToServer() {
+        var params = getSearchParameters();
+        var server = params["server"];
+        if (!server) {
+            return;
+        }
+        server = decodeURIComponent(server);
+
+        var url = "";
+        reports.forEach(function(res, index) {
+            url += "user" + index + "?" + res + "&";
+        })
+        url = encodeURIComponent(url);
+        var url = "http://" + server + "/status/" + url;
+
+        $.ajax({
+            "type"   : "GET",
+            "url"    : url,
+            "success": function(data) {
+                console.log("send to sever success");
+            },
+            "error": function(error) {
+                console.log("send to sever error");
+            }
+        });
+    }
+
+    function getSearchParameters() {
+        var prmstr = window.location.search.substr(1);
+        return prmstr != null && prmstr !== "" ? transformToAssocArray(prmstr) : {};
+    }
+
+    function transformToAssocArray(prmstr) {
+        var params = {};
+        var prmarr = prmstr.split("&");
+        for ( var i = 0; i < prmarr.length; i++) {
+            var tmparr = prmarr[i].split("=");
+            params[tmparr[0]] = tmparr[1];
+        }
+        return params;
     }
 
     return (TestSuiteManager);
