@@ -45,8 +45,7 @@ window.DSTable = (function($, DSTable) {
         DSForm.hide();
 
         // update date part of the table info first to make UI smooth
-        var partialUpdate = true;
-        updateTableInfo(dsObj, partialUpdate, isLoading);
+        updateTableInfo(dsObj, isLoading);
 
         if (isLoading) {
             setupViewBeforeLoading();
@@ -205,46 +204,43 @@ window.DSTable = (function($, DSTable) {
         });
     }
 
-    function updateTableInfo(dsObj, partial, isLoading) {
+    function updateTableInfo(dsObj, isLoading) {
         var dsName = dsObj.getName();
-        var format = dsObj.getFormat();
-        var path = dsObj.getPathWithPattern() || "N/A";
-        var numEntries = dsObj.getNumEntries() || "N/A";
+        var format = dsObj.getFormat() || CommonTxtTstr.NA;
+        var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
+        var numEntries = dsObj.getNumEntries();
+        var $path = $("#dsInfo-path");
+
+        var $path = $("#dsInfo-path");
+        $path.text(path);
+        xcTooltip.changeText($path, path);
+        xcTooltip.enable($path);
 
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
         // there is no fail case
-        getDSSize(dsObj)
+        getDSSize(dsObj, isLoading)
         .then(function(size) {
             $("#dsInfo-size").text(size);
         });
 
         if (typeof numEntries === "number") {
             numEntries = xcHelper.numToStr(numEntries);
-        }
-
-        // If we are preloading the data, we want to show N/A until it is done
-        if (partial && numEntries === "N/A") {
-            if (isLoading) {
-                $("#dsInfo-records").text(numEntries);
-            }
         } else {
-            $("#dsInfo-records").text(numEntries);
+            numEntries = CommonTxtTstr.NA;
         }
 
-        if (path !== "N/A" || !partial) {
-            $("#dsInfo-path").text(path);
-            xcTooltip.changeText($("#dsInfo-path"), path);
-            xcTooltip.enable($("#dsInfo-path"));
-        }
+        $("#dsInfo-records").text(numEntries);
+        $("#dsInfo-format").text(format);
 
-        if (format) {
-            $("#schema-format").text(format);
-        }
         totalRows = parseInt(numEntries.replace(/\,/g, ""));
     }
 
-    function getDSSize(dsObj) {
+    function getDSSize(dsObj, isLoading) {
+        if (isLoading) {
+            return PromiseHelper.resolve(CommonTxtTstr.NA);
+        }
+
         var size = dsObj.getSize();
         if (size != null) {
             return PromiseHelper.resolve(size);
@@ -257,12 +253,12 @@ window.DSTable = (function($, DSTable) {
         dsObj.getMemoryTakenSize()
         .then(function(size) {
             if (size == null) {
-                size = "N/A";
+                size = CommonTxtTstr.NA;
             }
             deferred.resolve(size);
         })
         .fail(function() {
-            deferred.resolve("N/A");
+            deferred.resolve(CommonTxtTstr.NA);
         });
 
         return deferred.promise();
