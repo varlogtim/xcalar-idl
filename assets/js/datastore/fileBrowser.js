@@ -487,7 +487,7 @@ window.FileBrowser = (function($, FileBrowser) {
         // performance when there's 1000+ files, is the remove slow?
         $container.removeClass("manyFiles");
         $fileBrowser.removeClass("unsortable");
-        $("#fileBrowserSearch input").val("");
+        $("#fileBrowserSearch input").val("").removeClass("error");
 
         $visibleFiles = $();
         curFiles = [];
@@ -726,11 +726,25 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function searchFiles(searchKey) {
-        var grid = getFocusGrid();
-        var regEx = (searchKey == null) ? null : new RegExp(searchKey);
+        var $input = $("#fileBrowserSearch input").removeClass("error");
         FilePreviewer.close();
-        sortFilesBy(sortKey, regEx);
-        focusOn(grid);
+
+        try {
+            var regEx = (searchKey == null) ? null : new RegExp(searchKey);
+            var grid = getFocusGrid();
+            sortFilesBy(sortKey, regEx);
+            focusOn(grid);
+        } catch (error) {
+            $input.addClass("error");
+            handleSearchError();
+        }
+    }
+
+    function handleSearchError() {
+        var html = '<div class="error">' +
+                        '<div>' + ErrTStr.InvalidRegEx + '</div>' +
+                    '</div>';
+        $innerContainer.html(html);
     }
 
     function sortAction($option, isFromSortOption) {
@@ -1099,7 +1113,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var $lastTargParents = gMouseEvents.getLastMouseDownParents();
 
             hideBrowserMenu();
-            if ($target.is("input") || 
+            if ($target.is("input") ||
                 ($lastTarget != null &&
                 !$lastTargParents.filter("#fileBrowser").length &&
                 !$lastTargParents.filter("#dsForm-path").length &&

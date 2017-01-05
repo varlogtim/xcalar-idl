@@ -658,6 +658,23 @@ function fileBrowserModuleTest() {
             expect($grid.hasClass("active")).to.be.true;
         });
 
+        it("Should hanld invalid search", function() {
+            var $input = $searchSection.find("input");
+            $searchSection.find("input").val("*").trigger("input");
+            // should only have one result
+            var error = $("#innerFileBrowserContainer").text();
+            expect(error).to.equal(ErrTStr.InvalidRegEx);
+            expect($input.hasClass("error")).to.be.true;
+        });
+
+        it("Should clear search to remove invalid search", function() {
+            var $input = $searchSection.find("input");
+            $searchSection.find(".clear").mousedown();
+            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.be.above(1);
+            expect($input.hasClass("error")).to.be.false;
+        });
+
         after(function() {
             $fileBrowser.find(".cancel").click();
         });
