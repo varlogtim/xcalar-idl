@@ -587,7 +587,29 @@ TableMeta.prototype = {
             // error case
             console.error("No bookmark in", rowNum);
         }
+    },
+
+    getColContents: function(colNum) {
+        // Returns JSON array containing the current contents of the column
+        // colName is front or back name
+        // Returns null if column does not exist
+        var self = this;
+        var curId = self.getId();
+        var $curTable = $('#xcTable-' + curId);
+        if (self.getCol(colNum) === null) {
+            return null;
+        }
+
+        var colContents = [];
+
+        $curTable.find("td.col" + colNum).each(function() {
+            var $textDiv = $(this).find(".originalData");
+            colContents.push($textDiv.text());
+        });
+
+        return colContents;
     }
+
 };
 
 function ProgCol(options) {

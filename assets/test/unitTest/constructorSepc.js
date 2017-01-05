@@ -1097,6 +1097,47 @@ describe('Constructor Test', function() {
                 XcalarSetFree = oldFunc;
             });
         });
+        it('table should get column contents', function() {
+            var tableId = "unitTest-exportHelper";
+            var colCont0 = "record0";
+
+            var progCol =  new ProgCol({
+                "name"    : "test",
+                "backName": "test",
+                "isNewCol": false,
+                "type"    : "string",
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var table = new TableMeta({
+                "tableName": "test#" + tableId,
+                "tableId"  : tableId,
+                "tableCols": [progCol],
+                "isLocked" : false
+            });
+            var fakeHtml =
+                '<div id="xcTable-' + tableId + '">' +
+                    '<table>' +
+                        '<tr>' +
+                            '<td class="col1">' +
+                                '<div class="originalData">' +
+                                    colCont0 +
+                                '</div>' +
+                            '</td>' +
+                        '</tr>' +
+                    '</table>' +
+                '</div>';
+            $(fakeHtml).appendTo("body");
+            succCont = table.getColContents(1);
+            expect(succCont.length).to.equal(1);
+            expect(succCont[0]).to.equal(colCont0);
+            expect(table.getColContents(0)).to.equal(null);
+            expect(table.getColContents(2)).to.equal(null);
+
+            $("#xcTable-" + tableId).remove();
+        });
     });
 
     describe('Meta Constructor Test', function() {
