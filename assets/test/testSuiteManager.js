@@ -6,7 +6,7 @@
  *      host: the hostname
  *      server: server address
  * example:
- *  http://localhost:8888/test.html?auto=y&server=localhost%3A5909&users=1&mode=ten&host=localhost%3A8888
+ *  http://localhost:8888/test.html?auto=y&server=localhost%3A5909&users=1&mode=ten&host=localhost%3A8888&close=force
  */
 window.TestSuiteManager = (function(TestSuiteManager) {
     var windowRefs = [];
@@ -28,7 +28,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
 
         $(".closeAll").hide();
 
-        parsetParam();
+        parseParam();
     };
 
     TestSuiteManager.reportResults = function(id, results) {
@@ -61,22 +61,29 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         checkInterval = undefined;
     };
 
-    function parsetParam() {
+    function parseParam() {
         var params = getSearchParameters();
         var numUsers = Number(params["users"]);
         if (isNaN(numUsers)) {
             numUsers = 5;
+        } else {
+            numUsers = Math.max(numUsers, 1);
         }
-        numUsers = Math.max(Number(params["users"]), 1);
+
         var mode = params["mode"];
         var hostname = parseHostName(params["host"]);
         var autoRun = params["auto"];
+        var close = params["close"];
 
         $("#numUsers").val(numUsers);
         $("#mode").val(mode);
 
         if (hostname != null) {
             $("#hostname").val(hostname);
+        }
+
+        if (close === "y" || close === "force") {
+            $("#close").val(close);
         }
 
         if (autoRun === "y") {
@@ -122,7 +129,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             $inputs.eq(3).val("y");
         }
         var close = $inputs.eq(4).val();
-        if (close !== "y" && close !== "n") {
+        if (close !== "y" && close !== "force") {
             close = "y";
             $inputs.eq(4).val("y");
         }
