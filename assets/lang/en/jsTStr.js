@@ -330,7 +330,7 @@ FnBarTStr = {
     'NewColMsg': 'Please create a new column to perform a map.',
     // with replace
     'InvalidNumParens': 'Your function string should take the form ' +
-                        'of <operation> (eq(2, 3))'
+                        'of <operation>(op(arg1, arg2, ...))'
 };
 
 ScrollTStr = {

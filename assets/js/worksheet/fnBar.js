@@ -684,7 +684,7 @@ window.FnBar = (function(FnBar, $) {
                 // check if correct number of parenthesis exists, should have
                 // at least two
                 if (newFuncStr.replace(/[^(]/g, "").length < 2) {
-                    invalidNumParensHandler();
+                    invalidNumParensHandler(operation);
                     deferred.reject();
                     return deferred.promise();
                 }
@@ -778,7 +778,7 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function invalidNumParensHandler(operation) {
-        var text = xcHelper.replaceMsg(FnBarTStr.FnBarTStr, {
+        var text = xcHelper.replaceMsg(FnBarTStr.InvalidNumParens, {
             operation: operation
         });
         setTimeout(function() {
