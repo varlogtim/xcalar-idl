@@ -6,6 +6,7 @@ window.FnBar = (function(FnBar, $) {
     var searchHelper;
     var editor;
     var mainOperators = ['pull', 'map', 'filter'];
+    var suggestedMainOperators = ['pull', 'map'];
     var xdfMap = {};
     var udfMap = {};
     var aggMap = {};
@@ -351,11 +352,11 @@ window.FnBar = (function(FnBar, $) {
             var curWord = (start !== end && fnBarText.slice(start, end));
             if (!curWord) {
                 if (onlyMainOperators) {
-                    for (var i = 0; i < mainOperators.length; i++) {
-                        seen[mainOperators[i]] = true;
+                    for (var i = 0; i < suggestedMainOperators.length; i++) {
+                        seen[suggestedMainOperators[i]] = true;
                         list.push({
-                            text       : mainOperators[i] + "()",
-                            displayText: mainOperators[i],
+                            text       : suggestedMainOperators[i] + "()",
+                            displayText: suggestedMainOperators[i],
                             hint       : autcompleteSelect,
                             render     : renderMainOpLi,
                             className  : "operator mainOperator"
@@ -382,13 +383,13 @@ window.FnBar = (function(FnBar, $) {
             // }
 
             if (onlyMainOperators) {
-                for (var i = 0; i < mainOperators.length; i++) {
-                    if (!seen.hasOwnProperty(mainOperators[i]) &&
-                        mainOperators[i].indexOf(curWord) !== -1) {
-                        seen[mainOperators[i]] = true;
+                for (var i = 0; i < suggestedMainOperators.length; i++) {
+                    if (!seen.hasOwnProperty(suggestedMainOperators[i]) &&
+                        suggestedMainOperators[i].indexOf(curWord) !== -1) {
+                        seen[suggestedMainOperators[i]] = true;
                         list.push({
-                            text       : mainOperators[i] + "()",
-                            displayText: mainOperators[i],
+                            text       : suggestedMainOperators[i] + "()",
+                            displayText: suggestedMainOperators[i],
                             hint       : autcompleteSelect,
                             render     : renderMainOpLi,
                             className  : "operator mainOperator"
