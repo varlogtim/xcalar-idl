@@ -1225,7 +1225,14 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.suggestType = function(datas, currentType, confidentRate) {
-        return xcSuggest.suggestType(datas, currentType, confidentRate);
+        var inputs = {
+            'colInfo': {
+                'data': datas,
+                'type': currentType
+            },
+            'confidentRate': confidentRate
+        }
+        return xcSuggest.suggestTypeHeuristic(inputs);
     };
 
     xcHelper.lockTable = function(tableId, txId) {

@@ -343,10 +343,10 @@ window.SmartCastView = (function($, SmartCastView) {
             // cache colTypes
             colTypes[colNum] = type;
 
-            if (type === "object" ||
-                type === "array" ||
-                type === "mixed" ||
-                type === "undefined" ||
+            if (type === ColumnType.object ||
+                type === ColumnType.array ||
+                type === ColumnType.mixed ||
+                type === ColumnType.undefined ||
                 progCol.isEmptyCol() ||
                 isChildOfArray)
             {

@@ -346,8 +346,16 @@ window.xcSuggest = (function($, xcSuggest) {
 // xcHelper.suggestType also shows up in
 // tableMenu, xcHelperSpec
 
-    xcSuggest.suggestType = function(datas, currentType, confidentRate) {
-        if (currentType === "integer" || currentType === "float") {
+//     xcSuggest.suggestTypeHeuristic = function(datas, currentType, confidentRate) {
+    xcSuggest.suggestTypeHeuristic = function(inputs) {
+        // Inputs has fields colInfo, confidentRate
+        var confidentRate = inputs.confidentRate;
+        var colInfo = inputs.colInfo;
+        var currentType = colInfo.type;
+        var datas = colInfo.data;
+
+        if (currentType === ColumnType.integer ||
+            currentType === ColumnType.float) {
             return currentType;
         }
 
@@ -391,19 +399,18 @@ window.xcSuggest = (function($, xcSuggest) {
                 booleanHit++;
             }
         }
-
         if (validData === 0) {
-            return "string";
+            return ColumnType.string;
         } else if (numHit / validData >= confidentRate) {
             if (isFloat) {
-                return "float";
+                return ColumnType.float;
             } else {
-                return "integer";
+                return ColumnType.integer;
             }
         } else if (booleanHit / validData) {
-            return "boolean";
+            return ColumnType.boolean;
         } else {
-            return "string";
+            return ColumnType.string;
         }
     };
 
