@@ -56,6 +56,7 @@ var gColPrefix = '$';
 var gPrefixSign = '::';
 var gDSPrefix = '.XcalarDS.';
 var gHiddenColumnWidth = 15;
+var gTurnOnPrefix = true;
 // ======== Support Parameters ======== //
 var gExportNoCheck = false;
 var gAlwaysDelete = false;

@@ -21,7 +21,6 @@ window.JoinView = (function($, JoinView) {
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
     var formOpenTime; // stores the last time the form was opened
-    var turnOnPrefix = true; // Set to false if backend crashes
 
     var validTypes = ['integer', 'float', 'string', 'boolean'];
 
@@ -1384,7 +1383,7 @@ window.JoinView = (function($, JoinView) {
         // Now that we have all the columns that we want to rename, we
         // display the columns and ask the user to rename them
         // XXX Remove when backend fixes their stuff
-        if (!turnOnPrefix) {
+        if (!gTurnOnPrefix) {
             return proceedWithJoin();
         }
 
