@@ -129,31 +129,31 @@ window.UExtTF = (function(UExtTF) {
     }
 
     function saveLocalStorage(resultObj) {
-        localStorage.setItem("MRuniqueTag", resultObj.uniqueTag);
-        localStorage.setItem("MRexposedLoc", resultObj.exposedLoc);
-        localStorage.setItem("MRlogDir", resultObj.logDir);
-        localStorage.setItem("MRcurTime", resultObj.uniqueObj.curTime);
-        localStorage.setItem("MRcurUser", resultObj.uniqueObj.curUser);
-        localStorage.setItem("MRwbId", resultObj.uniqueObj.wbId);
+        xcLocalStorage.setItem("MRuniqueTag", resultObj.uniqueTag);
+        xcLocalStorage.setItem("MRexposedLoc", resultObj.exposedLoc);
+        xcLocalStorage.setItem("MRlogDir", resultObj.logDir);
+        xcLocalStorage.setItem("MRcurTime", resultObj.uniqueObj.curTime);
+        xcLocalStorage.setItem("MRcurUser", resultObj.uniqueObj.curUser);
+        xcLocalStorage.setItem("MRwbId", resultObj.uniqueObj.wbId);
         return undefined;
     }
 
     function loadLocalStorage() {
         var resultObj = {
-            "uniqueTag" : localStorage.getItem("MRuniqueTag"),
-            "exposedLoc": localStorage.getItem("MRexposedLoc"),
-            "logDir"    : localStorage.getItem("MRlogDir"),
+            "uniqueTag" : xcLocalStorage.getItem("MRuniqueTag"),
+            "exposedLoc": xcLocalStorage.getItem("MRexposedLoc"),
+            "logDir"    : xcLocalStorage.getItem("MRlogDir"),
             "uniqueObj" : {
-                "curTime": localStorage.getItem("MRcurTime"),
-                "curUser": localStorage.getItem("MRcurUser"),
-                "wbId"   : localStorage.getItem("MRwbId")
+                "curTime": xcLocalStorage.getItem("MRcurTime"),
+                "curUser": xcLocalStorage.getItem("MRcurUser"),
+                "wbId"   : xcLocalStorage.getItem("MRwbId")
             }
         };
         return resultObj;
     }
 
     function loadLocalTag() {
-        return localStorage.getItem("MRuniqueTag");
+        return xcLocalStorage.getItem("MRuniqueTag");
     }
 
 

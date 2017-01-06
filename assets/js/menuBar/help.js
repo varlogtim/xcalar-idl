@@ -3,7 +3,7 @@ window.Help = (function($, Help) {
     var curHelpHashTags;
     var helpContentPath = paths.helpUserContent;
     Help.setup = function() {
-        if (localStorage.admin === "true") { // XXX fixme
+        if (xcLocalStorage.getItem("admin") === "true") { // XXX fixme
             // Admin gets different categories
             curHelpHashTags = adminHelpHashTags;
             searchURL = paths.helpAdminSearch;

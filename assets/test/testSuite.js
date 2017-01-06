@@ -225,10 +225,14 @@ window.TestSuite = (function($, TestSuite) {
             var timeMsg = "";
             var oldTime = "";
             if (fails === 0 && passes > 5) {
-                var bestTime = localStorage.time || 1000;
+                var bestTime = xcLocalStorage.getItem("time");
                 bestTime = parseFloat(bestTime);
+                if (isNaN(bestTime)) {
+                    bestTime = 1000;
+                }
+
                 if ((totTime / 1000) < bestTime) {
-                    localStorage.time = totTime / 1000;
+                    xcLocalStorage.setItem("time", totTime / 1000);
                     timeMsg = " New best time!";
                     if (bestTime === 1000) {
                         oldTime = " Old time: N/A";

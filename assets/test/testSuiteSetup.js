@@ -13,7 +13,7 @@
  *      type: string, type of test "undoredo", "testsuite"
  *      subType: string, subtype of undoredo test
  * example:
- *  http://localhost:8888/testSuite.html?test=true&delay=2000&user=test&clean=true&close=true
+ *  http://localhost:8888/testSuite.html?test=y&delay=2000&user=test&clean=y&close=y
  *  http://localhost:8080/undoredoTest.html?test=y&user=someone&type=undoredo&subType=frontEnd
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
@@ -36,7 +36,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
     TestSuiteSetup.initialize = function() {
         // in case of the auto login trigger of short cuts
-        localStorage.autoLogin = false;
+        xcLocalStorage.removeItem("autoLogin");
 
         var params = getSearchParameters();
         var runTest = hasUser && parseBooleanParam(params["test"]);
@@ -51,10 +51,10 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 return;
             }
 
-            var toTest = sessionStorage.getItem(testSuiteKey);
+            var toTest = xcSessionStorage.getItem(testSuiteKey);
             if (toTest != null) {
                 // next time not auto run it
-                sessionStorage.removeItem(testSuiteKey);
+                xcSessionStorage.removeItem(testSuiteKey);
                 if (testType === "undoredo") {
                     return autoRunUndoTest();
                 } else {
@@ -73,8 +73,8 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
     function autoLogin(user) {
         // XXX this may need to be replace after we have authentiaction
-        sessionStorage.setItem("xcalar-fullUsername", user);
-        sessionStorage.setItem("xcalar-username", user);
+        xcSessionStorage.setItem("xcalar-fullUsername", user);
+        xcSessionStorage.setItem("xcalar-username", user);
     }
 
     function autoCreateWorkbook() {
@@ -84,7 +84,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             Workbook.show(true);
         }
 
-        sessionStorage.setItem(testSuiteKey, "true");
+        xcSessionStorage.setItem(testSuiteKey, "true");
         return creatWorkbook();
     }
 

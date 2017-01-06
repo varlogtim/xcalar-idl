@@ -9,10 +9,10 @@ window.Admin = (function($, Admin) {
 
     Admin.initialize = function() {
         //xx temp hack  to determine admin
-        if (localStorage.admin === "true") {
+        if (xcLocalStorage.getItem("admin") === "true") {
             gAdmin = true;
-            if (sessionStorage.usingAs === "true" &&
-                sessionStorage.adminName !== Support.getUser()) {
+            if (xcSessionStorage.getItem("usingAs") === "true" &&
+                xcSessionStorage.getItem("adminName") !== Support.getUser()) {
                 posingAsUser = true;
                 $('#container').addClass('posingAsUser');
             } else {
@@ -20,8 +20,8 @@ window.Admin = (function($, Admin) {
                 $("#userNameArea").html('<i class="icon xi-user-setting"></i>');
             }
         }
-        if (localStorage.xcSupport === "true" &&
-            sessionStorage.usingAs !== "true") {
+        if (xcLocalStorage.getItem("xcSupport") === "true" &&
+            xcSessionStorage.getItem("usingAs") !== "true") {
             gXcSupport = true;
             $('#container').addClass('admin xcSupport');
         }
@@ -85,11 +85,11 @@ window.Admin = (function($, Admin) {
         if (!Admin.isAdmin()) {
             return;
         }
-        sessionStorage.setItem("xcalar-username", username);
-        sessionStorage.setItem("xcalar-fullUsername", username);
-        if (sessionStorage.getItem('usingAs') !== "true") {
-            sessionStorage.setItem("usingAs", true);
-            sessionStorage.setItem("adminName", Support.getUser());
+        xcSessionStorage.setItem("xcalar-username", username);
+        xcSessionStorage.setItem("xcalar-fullUsername", username);
+        if (xcSessionStorage.getItem("usingAs") !== "true") {
+            xcSessionStorage.setItem("usingAs", true);
+            xcSessionStorage.setItem("adminName", Support.getUser());
         }
 
         unloadHandler(false, true);
@@ -99,10 +99,10 @@ window.Admin = (function($, Admin) {
         if (!Admin.isAdmin()) {
             return;
         }
-        sessionStorage.setItem("usingAs", false);
-        var adminName = sessionStorage.getItem("adminName");
-        sessionStorage.setItem("xcalar-username", adminName);
-        sessionStorage.setItem("xcalar-fullUsername", adminName);
+        xcSessionStorage.removeItem("usingAs");
+        var adminName = xcSessionStorage.getItem("adminName");
+        xcSessionStorage.setItem("xcalar-username", adminName);
+        xcSessionStorage.setItem("xcalar-fullUsername", adminName);
 
         unloadHandler(false, true);
     };

@@ -1,5 +1,4 @@
 $(document).ready(function() {
-    // localStorage.setItem("xc-login", true);
     // $("#loginContainer").fadeIn(2000);
     // $("#loginNameBox").focus();
     // $("#insightVersion").fadeIn(2000);
@@ -33,10 +32,11 @@ $(document).ready(function() {
                     ret = data;
                     if (ret.status === Status.Ok) {
                         console.log('success');
+                        // XXX this is a temp hack, should not using it later
                         if (data.isAdmin) {
-                            localStorage.admin = true;
+                            xcLocalStorage.setItem("admin", true);
                         } else {
-                            localStorage.admin = false;
+                            xcLocalStorage.removeItem("admin");
                         }
                         submit();
                     } else if (ret.status === Status.Error) {
@@ -72,8 +72,8 @@ $(document).ready(function() {
                 username = username.substring(0, atIndex);
             }
 
-            sessionStorage.setItem("xcalar-username", username);
-            sessionStorage.setItem("xcalar-fullUsername", fullUsername);
+            xcSessionStorage.setItem("xcalar-username", username);
+            xcSessionStorage.setItem("xcalar-fullUsername", fullUsername);
             // XXX this redirect is only for temporary use
             window.location = paths.indexAbsolute;
         }

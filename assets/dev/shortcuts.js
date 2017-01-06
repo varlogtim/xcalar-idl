@@ -1,9 +1,9 @@
-if (localStorage.shortcuts) {
-    $(document).ready(function() {
+$(document).ready(function() {
+    if (xcLocalStorage.getItem("shortcuts") != null) {
         if (window.location.pathname.indexOf('login.html') > -1) {
             Shortcuts.login();
         } else {
-            if (!localStorage.autoLogin || JSON.parse(localStorage.autoLogin)) {
+            if (xcLocalStorage.getItem("autoLogin") != null) {
                 Shortcuts.createWorkbook();
             }
 
@@ -20,8 +20,8 @@ if (localStorage.shortcuts) {
                 count++;
             }, 1000);
         }
-    });
-}
+    }
+});
 
 window.Shortcuts = (function($, Shortcuts) {
     var shortcutsOn = false;
@@ -31,31 +31,31 @@ window.Shortcuts = (function($, Shortcuts) {
         if (shortcutsOn) {
             return false;
         }
-        localStorage.shortcuts = true;
+        xcLocalStorage.setItem("shortcuts", "true");
         if (!name) {
             name = "user";
         }
-        localStorage.shortcutName = name;
-        localStorage.xcPass = pass;
-        localStorage.autoLogin = true;
+        xcLocalStorage.setItem("shortcutName", name || "");
+        xcLocalStorage.setItem("xcPass", pass || "");
+        xcLocalStorage.setItem("autoLogin", "true");
         Shortcuts.setup();
     };
 
     Shortcuts.off = function() {
-        localStorage.removeItem('shortcuts');
-        localStorage.removeItem('shortcutName');
-        localStorage.removeItem('xcPass');
-        localStorage.removeItem('autoLogin');
+        xcLocalStorage.removeItem("shortcuts");
+        xcLocalStorage.removeItem("shortcutName");
+        xcLocalStorage.removeItem("xcPass");
+        xcLocalStorage.removeItem("autoLogin");
         Shortcuts.remove();
         shortcutsOn = false;
     };
 
     Shortcuts.toggleAutoLogin = function(turnOn) {
         if (turnOn) {
-            localStorage.autoLogin = true;
+            xcLocalStorage.setItem("autoLogin", "true");
             autoLogin = true;
         } else {
-            localStorage.autoLogin = false;
+            xcLocalStorage.removeItem("autoLogin");
             autoLogin = false;
         }
         toggleAutoLoginMenu(turnOn);
@@ -65,12 +65,12 @@ window.Shortcuts = (function($, Shortcuts) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.verboseOff').show();
             $('#shortcutSubMenu').find('.verboseOn').hide();
-            localStorage.verbose = true;
+            xcLocalStorage.setItem("verbose", "true");
             verbose = true;
         } else {
             $('#shortcutSubMenu').find('.verboseOff').hide();
             $('#shortcutSubMenu').find('.verboseOn').show();
-            localStorage.verbose = false;
+            xcLocalStorage.removeItem("verbose");
             verbose = false;
         }
     };
@@ -79,19 +79,19 @@ window.Shortcuts = (function($, Shortcuts) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.adminOff').show();
             $('#shortcutSubMenu').find('.adminOn').hide();
-            if (sessionStorage.usingAs !== "true") {
+            if (xcSessionStorage.getItem("usingAs") !== "true") {
                 $('#container').addClass('admin');
             }
 
             $('#shortcutMenuIcon').css('margin-right', 20);
-            localStorage.admin = true;
+            xcLocalStorage.setItem("admin", "true");
             gAdmin = true;
         } else {
             $('#shortcutSubMenu').find('.adminOff').hide();
             $('#shortcutSubMenu').find('.adminOn').show();
             $('#container').removeClass('admin');
             $('#shortcutMenuIcon').css('margin-right', 0);
-            localStorage.admin = false;
+            xcLocalStorage.removeItem("admin");
             gAdmin = false;
 
         }
@@ -101,12 +101,12 @@ window.Shortcuts = (function($, Shortcuts) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.joinKeyOff').show();
             $('#shortcutSubMenu').find('.joinKeyOn').hide();
-            localStorage.gEnableJoinKeyCheck = true;
+            xcLocalStorage.setItem("gEnableJoinKeyCheck", "true");
             gEnableJoinKeyCheck = true;
         } else {
             $('#shortcutSubMenu').find('.joinKeyOff').hide();
             $('#shortcutSubMenu').find('.joinKeyOn').show();
-            localStorage.gEnableJoinKeyCheck = false;
+            xcLocalStorage.removeItem("gEnableJoinKeyCheck");
             gEnableJoinKeyCheck = false;
         }
     };
@@ -114,32 +114,28 @@ window.Shortcuts = (function($, Shortcuts) {
     Shortcuts.setup = function() {
         shortcutsOn = true;
 
-        if (localStorage.autoLogin) {
-            autoLogin = JSON.parse(localStorage.autoLogin);
-        } else {
+        if (xcLocalStorage.getItem("autoLogin") === "true") {
             autoLogin = true;
-            localStorage.autoLogin = true;
+        } else {
+            autoLogin = false;
         }
 
-        if (localStorage.verbose) {
-            verbose = JSON.parse(localStorage.verbose);
+        if (xcLocalStorage.getItem("verbose") === "true") {
+            verbose = true;
         } else {
             verbose = false;
-            localStorage.verbose = false;
         }
 
-        if (localStorage.admin) {
-            gAdmin = JSON.parse(localStorage.admin);
+        if (xcLocalStorage.getItem("admin") === "true") {
+            gAdmin = true;
         } else {
             gAdmin = false;
-            localStorage.admin = false;
         }
 
-        if (localStorage.gEnableJoinKeyCheck) {
-            gEnableJoinKeyCheck = JSON.parse(localStorage.gEnableJoinKeyCheck);
+        if (xcLocalStorage.getItem("gEnableJoinKeyCheck") === "true") {
+            gEnableJoinKeyCheck = true;
         } else {
             gEnableJoinKeyCheck = false;
-            localStorage.gEnableJoinKeyCheck = false;
         }
 
         dsForm();
@@ -158,10 +154,10 @@ window.Shortcuts = (function($, Shortcuts) {
     };
 
     Shortcuts.login = function() {
-        if (!localStorage.autoLogin || JSON.parse(localStorage.autoLogin)) {
+        if (xcLocalStorage.getItem("autoLogin") != null) {
             var num = Math.ceil(Math.random() * 1000);
-            var name = localStorage.shortcutName + num;
-            var xcPass = localStorage.xcPass;
+            var name = xcLocalStorage.getItem("shortcutName") + num;
+            var xcPass = xcLocalStorage.getItem("xcPass");
             $('#loginNameBox').val(name);
             $('#loginPasswordBox').val(xcPass);
             if (xcPass) {

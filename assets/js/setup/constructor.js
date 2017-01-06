@@ -4699,3 +4699,50 @@ ExtCategorySet.prototype = {
     }
 };
 /* End of Extension Panel */
+
+/* Storage */
+// Here the use of factory is to hide the salt in the scope
+// so outside can not see it
+(function createXcStorage() {
+    var salt = "All rights to use the secret key is reserved to Xcalar Inc";
+
+    function XcStorage(storage) {
+        this.storage = storage;
+        return this;
+    }
+
+    XcStorage.prototype = {
+        setItem: function(key, value) {
+            var encodedVal = this._encode(value);
+            this.storage.setItem(key, encodedVal);
+        },
+
+        getItem: function(key) {
+            var encodedVal = this.storage.getItem(key);
+            if (encodedVal == null) {
+                return null;
+            }
+            return this._decode(encodedVal);
+        },
+
+        removeItem: function(key) {
+            return this.storage.removeItem(key);
+        },
+
+        _encode: function(str) {
+            // null will be "null", that's how local/session storage handle it
+            str = String(str);
+            return CryptoJS.AES.encrypt(str, salt).toString();
+        },
+
+        _decode: function(encodedStr) {
+            var encode = CryptoJS.enc.Utf8;
+            return CryptoJS.AES.decrypt(encodedStr, salt).toString(encode);
+        }
+    };
+
+    window.xcLocalStorage = new XcStorage(localStorage);
+    window.xcSessionStorage = new XcStorage(sessionStorage);
+}());
+/* End of Storage */
+

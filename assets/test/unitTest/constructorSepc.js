@@ -2743,4 +2743,35 @@ describe('Constructor Test', function() {
             expect(list[1].getName()).to.equal('test');
         });
     });
+
+    describe("Storage Test", function() {
+        it("Should have locoal storage and session storage", function() {
+            expect(xcLocalStorage).to.exists;
+            expect(xcSessionStorage).to.exists;
+            expect(xcLocalStorage.storage).to.equal(localStorage);
+            expect(xcSessionStorage.storage).to.equal(sessionStorage);
+        });
+
+        it("Should setItem", function() {
+            xcSessionStorage.setItem("key", "value");
+            expect(sessionStorage.hasOwnProperty("key")).to.be.true;
+            // should be encoded
+            expect(sessionStorage.getItem("key")).not.to.equal("value");
+        });
+
+        it("Should getItem", function() {
+            // case 1
+            var value = xcSessionStorage.getItem("errorKey");
+            expect(value).to.be.null;
+
+            // case 2
+            value = xcSessionStorage.getItem("key");
+            expect(value).to.equal("value");
+        });
+
+        it("Should removeItem", function() {
+            xcSessionStorage.removeItem("key");
+            expect(sessionStorage.hasOwnProperty("key")).to.be.false;
+        });
+    });
 });

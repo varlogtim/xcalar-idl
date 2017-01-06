@@ -215,12 +215,12 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.getLocalStorage = function() {
-        return localStorage.getItem(sqlLocalStoreKey);
+        return xcLocalStorage.getItem(sqlLocalStoreKey);
     };
 
     SQL.getBackup = function() {
         var key = sqlLocalStoreKey + "-backup";
-        return localStorage.getItem(key);
+        return xcLocalStorage.getItem(key);
     };
 
     SQL.backup = function() {
@@ -231,7 +231,7 @@ window.SQL = (function($, SQL) {
         }
 
         var key = sqlLocalStoreKey + "-backup";
-        localStorage.setItem(key, JSON.stringify(sqlCache));
+        xcLocalStorage.setItem(key, JSON.stringify(sqlCache));
     };
 
     SQL.clear = function() {
@@ -823,11 +823,11 @@ window.SQL = (function($, SQL) {
     }
 
     function resetLoclStore() {
-        localStorage.removeItem(sqlLocalStoreKey);
+        xcLocalStorage.removeItem(sqlLocalStoreKey);
     }
 
     function localCommit() {
-        localStorage.setItem(sqlLocalStoreKey, JSON.stringify(sqlCache));
+        xcLocalStorage.setItem(sqlLocalStoreKey, JSON.stringify(sqlCache));
     }
 
     function showSQL(sql, cursor) {

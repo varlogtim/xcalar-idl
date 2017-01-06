@@ -41,15 +41,15 @@ function unloadHandler(isAsync, doNotLogout) {
             if (doNotLogout) {
                 window.location = paths.index;
             } else {
-                sessionStorage.setItem("xcalar-username", "");
-                window.location = paths.dologout;
+                logoutRedirect();
             }
         });
     }
 }
 
 function logoutRedirect() {
-    sessionStorage.setItem("xcalar-username", "");
+    xcSessionStorage.removeItem("xcalar-username");
+    xcSessionStorage.removeItem("xcalar-fullUsername");
     window.location = paths.dologout;
 }
 
@@ -345,9 +345,9 @@ window.StartManager = (function(StartManager, $) {
             });
         });
 
-        var username = sessionStorage.getItem("xcalar-fullUsername");
+        var username = xcSessionStorage.getItem("xcalar-fullUsername");
         if (username == null) {
-            username = sessionStorage.getItem("xcalar-username");
+            username = xcSessionStorage.getItem("xcalar-username");
         }
 
         $menu.on("mouseup", ".help", function(event) {

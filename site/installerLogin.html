@@ -4,6 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Xcalar Installer</title>
 include "partials/loginPart.html"
+<script>
 $(document).ready(function() {
     $('#loginButton').click(function(event) {
 
@@ -21,8 +22,8 @@ $(document).ready(function() {
         // XXX prevent form to submit, temporary use
         event.preventDefault();
         console.log("username:", username);
-        sessionStorage.setItem("xcalar-username", username);
-        sessionStorage.setItem("xcalar-fullUsername", fullUsername);
+        xcSessionStorage.setItem("xcalar-username", username);
+        xcSessionStorage.setItem("xcalar-fullUsername", fullUsername);
         // XXX this redirect is only for temporary use
         window.location = paths.installer;
     });
@@ -30,5 +31,4 @@ $(document).ready(function() {
         XVM.getSHA().substring(0, 6) + ", Revision " + XVM.getVersion());
 });
 </script>
-</body>
 </html>

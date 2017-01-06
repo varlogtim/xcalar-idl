@@ -19,7 +19,7 @@ window.Support = (function(Support, $) {
 
     Support.setup = function() {
         try {
-            username = sessionStorage.getItem("xcalar-username");
+            username = xcSessionStorage.getItem("xcalar-username");
             // set up session variables
             userIdName = username;
             userIdUnique = getUserIdUnique(username);
@@ -53,7 +53,7 @@ window.Support = (function(Support, $) {
             return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
         })
         .then(function() {
-            sessionStorage.removeItem(username);
+            xcSessionStorage.removeItem(username);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -63,7 +63,7 @@ window.Support = (function(Support, $) {
 
     // in case you are hold forever
     Support.forceReleaseSession = function() {
-        sessionStorage.removeItem(username);
+        xcSessionStorage.removeItem(username);
         XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG)
         .then(function() {
             location.reload();
@@ -436,7 +436,7 @@ window.Support = (function(Support, $) {
         })
         .then(function() {
             // mark as hold in browser tab
-            sessionStorage.setItem(username, "hold");
+            xcSessionStorage.setItem(username, "hold");
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -450,7 +450,7 @@ window.Support = (function(Support, $) {
             .then(function(val) {
                 if (val == null || val.value === defaultCommitFlag) {
                     innerDeferred.resolve();
-                } else if (sessionStorage.getItem(username) === "hold") {
+                } else if (xcSessionStorage.getItem(username) === "hold") {
                     // when this browser tab hold the seesion and not release
                     console.warn("Session not release last time...");
                     innerDeferred.resolve();
@@ -493,9 +493,10 @@ window.Support = (function(Support, $) {
         // hide all modal
         $(".modalContainer:not(.locked)").hide();
         // this browser tab does not hold any more
-        sessionStorage.removeItem(username);
+        xcSessionStorage.removeItem(username);
         // user should force to logout
-        sessionStorage.removeItem("xcalar-username");
+        xcSessionStorage.removeItem("xcalar-username");
+        xcSessionStorage.removeItem("xcalar-fullUsername");
 
         Alert.show({
             "title"     : WKBKTStr.Expire,
