@@ -1551,20 +1551,15 @@ window.TestSuite = (function($, TestSuite) {
                     $jsonModal.find('.partial:eq(1) > div').length);
 
             // generate new column in table
-            $jsonModal.find(".matched:eq(2) > div .jKey").eq(0)
-                      .trigger(fakeEvent.click);
+            var $div = $jsonModal.find(".matched:eq(2) > div .jKey").eq(0);
+            var clickedName = $div.text();
+            $div.trigger(fakeEvent.click);
             var $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
-            // XXX Jerene sees different values everytime. Since this is a json
-            // technically any of the keys are okay, so long as it comes from
-            // the schedule prefix since all of them are matched
+           
             var colName = $newTh.find('.editableHead').val();
-            var statemnet = colName.indexOf("days") > -1 ||
-                           colName.indexOf("time") > -1 ||
-                           colName.indexOf("student_ids") > -1 ||
-                           colName.indexOf("duration") > -1 ||
-                           colName.indexOf("teacher_id") > -1 ||
-                           colName.indexOf("class_id") > -1;
-            assert(statemnet, "assert colName match in json modal");
+            assert(colName.length > 1, "assert colname exists");
+            assert(clickedName.indexOf(colName) > -1, "assert colName match in json modal");
+
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
