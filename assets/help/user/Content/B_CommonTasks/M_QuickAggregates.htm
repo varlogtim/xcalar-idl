@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -177,6 +181,10 @@
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -264,6 +272,8 @@
                                                     </li>
                                                     <li><a href="E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                     </li>
+                                                    <li><a href="E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                    </li>
                                                     <li><a href="F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                     </li>
                                                     <li><a href="G_FilterValue.htm">Filtering in a table column</a>
@@ -284,6 +294,8 @@
                                                     </li>
                                                     <li><a href="O_ManageWorksheet.htm">Managing worksheets</a>
                                                     </li>
+                                                    <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -292,13 +304,13 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Determining aggregate values</h1>
-                                        <p>Determining an aggregate value means using values from rows in a column as input to generate a new value. For example, based on values in the Salary column, you can run an aggregate function to determine the average salary. </p>
+                                        <p>Determining an aggregate value means using values from rows in a column as input to calculate a new value. For example, based on values in the Salary column, you can run an aggregate function to determine the average salary. </p>
                                         <p>You can determine the aggregate values for numeric columns in one of two ways:</p>
                                         <ul>
                                             <li value="1">Calculate aggregate values for all columns in a table.</li>
                                             <li value="2">Calculate aggregate values for a selected column.</li>
                                         </ul>
-                                        <p>&#160;</p>
+                                        <p>This section explains how to determine aggregate values from numeric values. One aggregate function, listAgg, is a string function. For more information about listAgg, see <a href="J_GroupBy.htm#Understa" class="MCXref xref">Understanding the listAgg (list aggregate) function</a>.</p>
                                         <h2>Calculating aggregate values for all columns</h2>
                                         <p>Follow these steps to calculate aggregate values for all numeric columns in a table:</p>
                                         <ol>
@@ -318,7 +330,7 @@
                                         <ol>
                                             <li value="1">
                                                 <p>Right click the header for the column. In the drop-down menu, select <span class="UIelement">Aggregate</span>. The <span class="UIelement">AGGREGATE</span>&#160;panel is displayed.</p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />Expand and read the following list that describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Insight</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Insight</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
@@ -367,7 +379,7 @@
                                             </li>
                                         </ol>
                                         <h2>Displaying saved aggregate values</h2>
-                                        <p>If you use the <span class="UIelement">New Resultant Aggregate Name</span> field in the <span class="UIelement">AGGREGATE</span>&#160;panel, the value is saved under the aggregate name. If you want to use one of the saved aggregate values as input to a function, you can verify the name of the aggregate value by displaying a list of values. To display the saved aggregate values, click <img src="../Resources/Images/Insight_assets/xi-worksheet.png" /> to display the <span class="UIelement">TABLE</span>&#160;panel. Then click <span class="UIelement">Constants</span>. </p>
+                                        <p>If you use the <span class="UIelement">New Resultant Aggregate Name</span> field in the <span class="UIelement">AGGREGATE</span>&#160;panel, the value is saved under the aggregate name. If you want to use one of the saved aggregate values as input to a function, you can verify the name of the aggregate value by displaying a list of values. To display the saved aggregate values, click <img src="../Resources/Images/Insight_assets/xi-worksheet.png" /> to display the <span class="UIelement">TABLE</span>&#160;panel. Then click <span class="UIelement">Aggregates</span>. </p>
                                         <p>&#160;</p>
                                     </div>
                                 </div>

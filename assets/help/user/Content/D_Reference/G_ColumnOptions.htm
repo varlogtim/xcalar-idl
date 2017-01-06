@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -177,6 +181,10 @@
                                                 <li><a href="H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -271,6 +279,10 @@
                                                     <li><a href="H_CellOptions.htm">Cell options</a>
                                                     </li>
                                                     <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
+                                                    </li>
+                                                    <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                    </li>
+                                                    <li><a href="L_Glossary.htm">Glossary</a>
                                                     </li>
                                                 </ul>
                                             </li>
@@ -379,6 +391,7 @@
                                         <p>You can format values in a numeric column as percentages.</p>
                                         <h2>Round</h2>
                                         <p>You can round the values in a column by specifying the number of decimal places. This option is available only if the data type of the column is Float.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;This option does not create a derived column. It only affects how the values in the column are displayed. For example, if you round the value to 1 decimal place, the value 2.21 is displayed as 2.2, but the actual value in the field remains as 2.21. If you subsequently use the add function to increment the value by 1, the value  becomes 3.21, not 3.2.</div>
                                         <h2>Split column</h2>
                                         <p>You can split a column if it contains strings. You cannot split a numeric column. New columns are created as a result of the split, and the original column remains in the table.</p>
                                         <p>Follow these steps to split a column:</p>
@@ -391,16 +404,8 @@
                                             <li value="3">Click the check mark in the pop-up to submit your information.</li>
                                         </ol>
                                         <h2>Sort</h2>
-                                        <p>You can sort values in a column so that values are displayed in ascending or descending order. </p>
-                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Sorting only affects how the rows are displayed. Subsequent operations do not preserve the result of the sort. For example, you can sort on a column named <span class="UIelement">Age</span> to display rows ordered by age. Later if you perform an arithmetic function to sum two other columns, the resultant table displayed after the function is in the original, unsorted order. The rows are no longer sorted by age.</div>
-                                        <p>Follow these steps to sort a column:</p>
-                                        <ol>
-                                            <li value="1">In the column drop-down menu, select <span class="UIelement">Sort</span>. A pop-up is displayed for you to specify whether to sort in ascending or descending order.</li>
-                                            <li value="2">
-                                                <p>If the data type of the column is&#160;String and <span class="GeneralProductName">Xcalar Insight</span> decides that most of the values in the column are numbers, it displays the <span class="UIelement">Sort Suggestion</span> dialog box. Depending on the desired method of sorting, click <span class="UIelement">Alphabetically</span> or <span class="UIelement">Numerically</span>. </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;If you select <span class="UIelement">Numerically</span>, the data type of the column is changed to integer.</div>
-                                            </li>
-                                        </ol>
+                                        <p>You can sort values in a column so that values are displayed in ascending or descending order. Rows containing FNF in the sorted column are not included in the resultant table. Therefore, it is possible the resultant table contains fewer rows than before the sort. For more information about FNF, see <a href="../B_CommonTasks/P_UnderstandFNF.htm" class="MCXref xref">Working with a table containing FNF</a>.</p>
+                                        <p>For more information about sorting, see <a href="../B_CommonTasks/E1_SortAndQuartile.htm" class="MCXref xref">Sorting a column and finding quartiles</a>.</p>
                                     </div>
                                 </div>
                             </div>

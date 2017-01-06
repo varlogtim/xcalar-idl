@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -177,6 +181,10 @@
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -327,36 +335,36 @@
                                         <h2>Running a batch dataflow</h2>
                                         <p>In the batch dataflow graph, click <img src="../Resources/Images/Insight_assets/xi-run-batch-dataflow.png" /> to run the batch dataflow. When the batch dataflow is in progress, the <img src="../Resources/Images/Insight_assets/xi-run-batch-dataflow.png" /> icon turns into a spinner. You can click the spinner to terminate the execution of the batch dataflow.</p>
                                         <p>The following screenshot shows an example of a batch dataflow.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-graph-example.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1390" data-mc-height="362" src="../Resources/Images/Insight_screenshots/batch-dataflow-graph-example_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-graph-example.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1393" data-mc-height="365" src="../Resources/Images/Insight_screenshots/batch-dataflow-graph-example_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>You can also run a batch dataflow according to a pre-defined a schedule. For information about scheduling a batch dataflow, see <a href="#Creating" class="MCXref xref selected">Creating a schedule for a batch dataflow</a>.</p>
                                         <h2>Downloading and uploading a batch dataflow</h2>
-                                        <p>You can download a batch dataflow to your computer as a .tar.gz file. The downloaded batch dataflow can be uploaded to any <span class="GeneralProductName2short">XCE</span> cluster. </p>
+                                        <p>You can download a batch dataflow to your computer as a .tar.gz file. The downloaded batch dataflow is called a dataflow file. After you create a dataflow file, you can upload it to any <span class="GeneralProductName2short">XCE</span> cluster. </p>
                                         <h3>Downloading</h3>
                                         <p>To download a batch dataflow, click <img src="../Resources/Images/Insight_assets/xi-download-batch-dataflow.png" /> for the selected batch dataflow in the batch dataflow list. </p>
                                         <p>The following screenshot shows the icons for downloading and uploading batch dataflows.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/download-upload-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1586" data-mc-height="673" src="../Resources/Images/Insight_screenshots/download-upload-dataflow_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h3>Uploading</h3>
-                                        <p>You can upload a batch dataflow that was downloaded from the same <span class="GeneralProductName2short">XCE</span> cluster or any other <span class="GeneralProductName2short">XCE</span> cluster. If the batch dataflow has a UDF&#160;associated with it (for example, a UDF is used in one of the operations in the dataflow), the UDFs of the cluster are affected in one of the following ways:</p>
+                                        <p>You can upload a batch dataflow that was downloaded from the same <span class="GeneralProductName2short">XCE</span> cluster or any other <span class="GeneralProductName2short">XCE</span> cluster. If the dataflow file has a UDF&#160;associated with it (for example, a UDF is used in one of the operations in the dataflow), the UDFs of the cluster are affected in one of the following ways:</p>
                                         <ul>
-                                            <li value="1">If the module name of the UDF does not conflict with any module name on the cluster, the module containing the UDF is uploaded to the cluster as well. For example, if the batch dataflow uses the UDF&#160;named calendar:getWeekday, the calendar module is added to your cluster when you upload the batch dataflow.</li>
+                                            <li value="1">If the module name of the UDF does not conflict with any module name on the cluster, the module containing the UDF is uploaded to the cluster as well. For example, if the dataflow file uses the UDF&#160;named calendar:getWeekday, the calendar module is added to your cluster when you upload the dataflow file.</li>
                                             <li value="2">
-                                                <p>If the module name of the UDF conflicts with a module name on the cluster, what happens depends on whether you choose to overwrite the module on the cluster with the module in the batch dataflow:</p>
+                                                <p>If the module name of the UDF conflicts with a module name on the cluster, what happens depends on whether you choose to overwrite the module on the cluster with the module in the dataflow file:</p>
                                                 <ul>
-                                                    <li value="1">If you choose to overwrite the module on the cluster, all contents of the module on the cluster are replaced by the contents of the module in the batch dataflow. For example, if the batch dataflow uses the UDF&#160;named calendar:getWeekday, the module named calendar on the cluster is overwritten by the module from the batch dataflow.</li>
+                                                    <li value="1">If you choose to overwrite the module on the cluster, all contents of the module on the cluster are replaced by the contents of the module in the dataflow file. For example, if the dataflow file uses the UDF&#160;named calendar:getWeekday, the module named calendar on the cluster is overwritten by the module from the dataflow file.</li>
                                                     <li value="2">
-                                                        <p>If you do not choose to overwrite the module on the cluster, the same function on the cluster is used when you run the batch dataflow. If the function by the same name does not exist in the module, the attempt to run the batch dataflow fails.</p>
-                                                        <p>For example, if the batch dataflow uses the UDF&#160;named calendar:getWeekday and the cluster also has a UDF by the same name, the calendar:getWeekday UDF on the cluster is invoked when you run the batch dataflow. However, if the calendar module on the cluster does not contain a getWeekday function, you cannot run the batch dataflow. You must copy the function to the module on the cluster before trying to run the batch dataflow again.</p>
+                                                        <p>If you do not choose to overwrite the module on the cluster, the same function on the cluster is used when you run the dataflow from the dataflow file. If the function by the same name does not exist in the module, the attempt to run the dataflow fails.</p>
+                                                        <p>For example, if the dataflow file uses the UDF&#160;named calendar:getWeekday and the cluster also has a UDF by the same name, the calendar:getWeekday UDF on the cluster is invoked when you run the dataflow from the dataflow file. However, if the calendar module on the cluster does not contain a getWeekday function, you cannot run the dataflow. You must copy the function to the module on the cluster before trying to run the dataflow again.</p>
                                                     </li>
                                                 </ul>
-                                                <div class="Note"><span class="label">IMPORTANT:</span>&#160;You cannot revert a module after it is overwritten by a batch dataflow upload. Enable the overwriting only after you verify that you no longer need the contents of the existing module that has the same name as that in the batch dataflow. </div>
+                                                <div class="Note"><span class="label">IMPORTANT:</span>&#160;You cannot revert a module after it is overwritten by a dataflow file upload. Enable the overwriting only after you verify that you no longer need the contents of the existing module that has the same name as that in the dataflow file. </div>
                                             </li>
                                         </ul>
-                                        <p>To upload a batch dataflow, follow these steps:</p>
+                                        <p>To upload a dataflow file, follow these steps:</p>
                                         <ol>
-                                            <li value="1">Click the icon for uploading a dataflow.</li>
-                                            <li value="2">In the <span class="UIelement">Upload Dataflow</span> window, specify the following information:<ul><li value="1">The location of the previously downloaded batch dataflow, which must be in the .tar.gz format. You can click <span class="UIelement">BROWSE</span>&#160;to navigate to the location and select the file.</li><li value="2">Name of the batch dataflow if you want to change the name.</li><li value="3"><p>Whether the UDFs in the batch dataflow will overwrite the ones that exist on the cluster if these UDFs have the same module name. </p></li></ul></li>
+                                            <li value="1">Click the icon for uploading a dataflow file.</li>
+                                            <li value="2">In the <span class="UIelement">Upload Dataflow</span> window, specify the following information:<ul><li value="1">The location of the dataflow file, which must be in the .tar.gz format. You can click <span class="UIelement">BROWSE</span>&#160;to navigate to the location and select the file.</li><li value="2">Name of the dataflow if you want to change the name.</li><li value="3"><p>Whether the UDFs in the dataflow file will overwrite the ones that exist on the cluster if these UDFs have the same module name. </p></li></ul></li>
                                             <li value="3">Click <span class="UIelement">UPLOAD</span>.</li>
                                         </ol>
                                         <h2><a name="Creating"></a>Creating a schedule for a batch dataflow</h2>

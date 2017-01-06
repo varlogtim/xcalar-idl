@@ -111,6 +111,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
@@ -130,6 +132,8 @@
                                                 <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -178,6 +182,10 @@
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -312,11 +320,16 @@
                                                 <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encoding systems are not supported without UDFs.</p>
                                             </li>
                                             <li value="4">
-                                                <p>If you plan to create a dataset by pointing to multiple files with the same schema, create a directory and place the files in the directory. Then you can point to the directory. Alternatively, if the source files are in a directory with other files, you can rename the source files so that <span class="GeneralProductName">Xcalar Insight</span> can find them with the wild card character (*) when pointing to them. For example, suppose you want to create a dataset by pointing to airlines data gathered in the year 2015 and 2016, which are in two files. You can create a directory named AirlinesData and place both files in the directory. Then point to the AirlinesData directory. If you do not want to create a directory,  you can give names to the files such as airlines2015.csv and airlines2016.csv. Then instruct <span class="GeneralProductName">Xcalar Insight</span> to point to airlines201*.csv. Preparing the source files in this way enables you to create one dataset with records from both files.</p>
+                                                <p>If you plan to create a dataset by pointing to multiple files with the same schema, create a directory and place the files in the directory. Then you can point to the directory. Alternatively, if the source files are in a directory with other files, you can rename the source files so that <span class="GeneralProductName">Xcalar Insight</span> can find them with the wild card character (*) when pointing to them. </p>
+                                                <p>For example, suppose you want to point to airlines data gathered in 2015 and 2016, which are in two files. Prepare the source files to create a dataset with records from both files in one of two ways:</p>
+                                                <ul>
+                                                    <li value="1">Create a directory named AirlinesData and place both files in the directory. Then point to the AirlinesData directory. </li>
+                                                    <li value="2">Give names to the files such as airlines2015.csv and airlines2016.csv. Then instruct <span class="GeneralProductName">Xcalar Insight</span> to point to airlines201*.csv. Preparing the source files in this way enables you to create one dataset with records from both files.</li>
+                                                </ul>
                                             </li>
                                         </ul>
                                         <div class="Note">
-                                            <p><span class="label">CAUTION</span>:&#160;Before you proceed, determine whether the data source contains field names with illegal characters. If so, you can still point to the data source but you must use a user-defined function (UDF) provided by <span class="GeneralCompanyNameShort">Xcalar</span> to replace these characters. (Information about using UDFs is available later in this section.)&#160;If you do not use the UDF when pointing to your data, you might see unexpected query results. The following characters are disallowed as field names in <span class="GeneralProductName">Xcalar Insight</span>:</p>
+                                            <p><span class="label">CAUTION</span>:&#160;Before you proceed, determine whether the data source contains field names with illegal characters. If so, you can still point to the data source but you must use a user-defined function (UDF) provided by <span class="GeneralCompanyNameShort">Xcalar</span> to replace these characters. (Information about using UDFs is available later in this section.)&#160;If you do not use the UDF when pointing to your data, you might see unexpected query results. The following is a complete list of disallowed characters in field names:</p>
                                             <ul>
                                                 <li value="1">single quote mark (')</li>
                                                 <li value="2">double quote mark (")</li>
@@ -352,7 +365,7 @@
                                                         <p class="userInput">/mydata/airlines.csv</p>
                                                     </li>
                                                     <li value="2">
-                                                        <p>Click <span class="UIelement">BROWSE</span> to display the <span class="UIelement">Browse Data Source</span> window, in which  you can navigate to the data source. Click to choose the file or directory to be used as your data source. </p>
+                                                        <p>Click <span class="UIelement">BROWSE</span> to display the <span class="UIelement">Browse Data Source</span> window, in which  you can navigate to the data source. Click the file or directory to be used as your data source. </p>
                                                         <div class="Example"><span class="label">TIP:</span>&#160;If you have a large number of files, use the <span class="UIelement">Regex Search</span> field to filter out irrelevant files. For example, typing the regular expression <span class="UIelement">us(t|a)</span> filters out all files but these two:&#160;<span class="UIelement">usability</span> and <span class="UIelement">justin</span>.</div>
                                                         <p>Optionally, you can right click a file icon in this window and then click <span class="UIelement">Preview</span> to preview the raw data  before selecting the file. You can preview the file in ASCII&#160;format or as a hex dump. No previewer is available for directories. The following screenshots explain how to preview a file named airlines.csv.</p>
                                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/file-previewer-ascii.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="987" data-mc-height="508" src="../Resources/Images/Insight_screenshots/file-previewer-ascii_thumb_0_150.png" tabindex="" /></a>
@@ -362,12 +375,12 @@
                                                     </li>
                                                 </ul>
                                             </li>
-                                            <li value="4">
+                                            <li value="4">Click <span class="UIelement">NEXT</span>.</li>
+                                            <li value="5">
                                                 <p>(Optional)&#160;After you select the data source, you can specify values for the advanced options as described in <a href="#About" class="MCXref xref selected">About advanced options</a>. The following screenshot shows the location of the options. In most cases, you can skip the advanced options and go on to the next step.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1195" data-mc-height="532" src="../Resources/Images/Insight_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="675" data-mc-height="300" src="../Resources/Images/Insight_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
-                                            <li value="5">Click <span class="UIelement">NEXT</span>.</li>
                                             <li value="6">The <span class="UIelement">Point to New Data Source</span> window shows a preview of the records in the data source in a tabular format. This preview enables you to verify that you have selected the intended data source file. You can position your mouse on a column header and drag it to resize each column. You can also use your mouse to scroll the rows.</li>
                                             <li value="7">
                                                 <p>In the <span class="UIelement">Dataset Reference Name</span> field,  accept the suggested name or type the desired name. The dataset reference gives you a way to preview the dataset and create tables from the dataset after you successfully point to your data source. The name can be changed later. For more information about dataset references, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing dataset references</a>.</p>

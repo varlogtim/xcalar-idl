@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -177,6 +181,10 @@
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -278,19 +286,23 @@
                                         <p>You can create workbooks in <span class="GeneralProductName">Xcalar Insight</span>, which can be regarded as files. Within a workbook, you can create as many worksheets as you want. Worksheets in the same workbook usually contain data related to the same project. The worksheet displayed on your screen is the active worksheet.</p>
                                         <p>The relationship between a worksheet and a workbook is similar to the relationship between an Excel worksheet and workbook.</p>
                                         <p>The following sample screen shows a <span class="UIelement">Worksheet</span> window for a workbook titled MyNewWorkbook.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/workbook_worksheet_selection.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1190" data-mc-height="664" src="../Resources/Images/Insight_screenshots/workbook_worksheet_selection_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/workbook_worksheet_selection.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="739" data-mc-height="433" src="../Resources/Images/Insight_screenshots/workbook_worksheet_selection_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Understanding tables</h2>
-                                        <p>Tables are created from a dataset reference that points to a data source. You can manipulate and transform data within a table (for example, by sorting or filtering) or you can manipulate multiple tables to create a new table (for example, by joining).&#160;You use table operations to implement an algorithm that you design for deriving meaning from your data.  With Xcalar's True Data-In-Place architecture, data is pointed to at the source and analyzed without any  ETL (Extract, Transform, and Load). </p>
+                                        <p>Tables are created from a dataset that points to a data source. You access the dataset through a dataset reference created in <span class="GeneralProductName">Xcalar Insight</span>. You can manipulate and transform data within a table (for example, by sorting or filtering) or you can manipulate multiple tables to create a new table (for example, by joining).&#160;Use table operations to implement an algorithm that you design for deriving meanings from your data.  With Xcalar's True Data-In-Place architecture, data is pointed to at the source and analyzed without any  ETL (Extract, Transform, and Load). </p>
                                         <p>Each table is created with a name unique in the worksheet. You can rename a table after the table is created.</p>
-                                        <p>When you create a table from the dataset reference, you can select the fields of interest to be included in the table.&#160;Fields from the data source can be added to an existing table any time.&#160;</p>
+                                        <p>When you create a table through the dataset reference, you can select the fields of interest to be included in the table.&#160;Fields from the data source can be added to an existing table any time.</p>
+                                        <p>The following diagram illustrates the relationships among data sources, datasets, dataset references, and tables.</p>
+                                        <p>
+                                            <img src="../Resources/Images/dataset-concepts.png" />
+                                        </p>
                                         <h2>Data formats supported</h2>
                                         <p><span class="GeneralProductName">Xcalar Insight</span> natively supports CSV, JSON, Excel, and raw text, and can support proprietary formats using UDFs.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;The CSV format includes not only comma-separated values but also other delimiter-separated values. The default field delimiter is tab and the default record delimiter is newline (\n). You can select the delimiter for separating fields and for separating records. </div>
                                         <h2>How <span class="GeneralProductName">Xcalar Insight</span> saves your work</h2>
                                         <p><span class="GeneralProductName">Xcalar Insight</span> saves the results of all data operations as they are being completed. For example, after you filter a column, the resultant table is saved automatically. You do not have to click <span class="UIelement">Save</span>.</p>
                                         <p>If your work is for manipulating the appearance of a table or a table column, the work is saved automatically when you sign out. However, before this automatic save, if you refresh your browser, your browser displays a message warning about unsaved changes. You must click <span class="UIelement">Save</span> to avoid losing the changes. The following screenshot shows the location of <span class="UIelement">Save</span>.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/save-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1143" data-mc-height="574" src="../Resources/Images/Insight_screenshots/save-worksheet_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/save-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="739" data-mc-height="423" src="../Resources/Images/Insight_screenshots/save-worksheet_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you delete the first table column and resize the second column, you can sign out  without clicking <span class="UIelement">Save</span>.&#160;These changes are automatically saved. However, if you refresh the browser after making these changes instead of signing out, the browser warns that you have unsaved changes. If you proceed with the browser refresh, the table in the refreshed browser does not reflect the deletion of the first column and the new width of the second column.</div>
                                         <div class="Note"><span class="label">IMPORTANT:</span>&#160;If you use the same browser window to go to another website, you can use the browser's <span class="UIelement">Back</span> button to return to <span class="GeneralProductName">Xcalar Insight</span>. This causes the browser to reload the <span class="GeneralProductName">Xcalar Insight</span> page, and the result is similar to a browser refresh. This means that your changes are lost. Therefore, always click <span class="UIelement">Save</span> before you use the same browser window to navigate to another website.</div>

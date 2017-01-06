@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,6 +183,10 @@
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -298,19 +306,27 @@
                                         <p>When entering an operation name in the function bar, always precede the name with the equal sign (=). After you finish typing, press the <span class="UIelement">Return</span> or <span class="UIelement">Enter</span> key to execute the operation.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;You can execute an operation only on a column that has a column name. If the column header is empty, you cannot type in the function bar.</div>
                                         <p>Operations that you can execute from the function bar are described in this section. You cannot execute other operations.</p>
-                                        <h3>About column names in the function bar</h3>
-                                        <p>The argument to an operation in the function bar can be a column name or a field name in the <span class="UIelement">Data Browser</span> for any row. Be sure to type a column name correctly when you copy it from your table. Part of the column header in your table might be obscured. For example, the column name <span class="UIelement">DayOfWeek_integer</span> might be visible as <span class="UIelement">DayOfWeek</span> in a narrow column that cannot accommodate the entire column name. If you mistype a column name as an argument, you might get unpredictable results. For example, the resultant column might be filled with the FNF (field not found) value.</p>
-                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;In addition to column names  as arguments for a function, you can use an aggregate value for a column that you saved earlier. You must precede the aggregate value name with a caret (^). For example, if the average value for the salary column is  average_salary, enter <span class="UIelement">^average_salary</span> if you want to use it as an argument to the Map operation in the function bar.</div>
+                                        <h3>Rules for entering names in the function bar</h3>
+                                        <p>The argument to an operation in the function bar can be a column name, a field name  in the <span class="UIelement">Data Browser</span>, or an aggregate name. Remember the following rules when typing the name:</p>
+                                        <ul>
+                                            <li value="1">Verify the name is typed in its entirety. When copying it from the table, be aware that part of the column header in your table might be obscured. For example, the column name <span class="UIelement">DayOfWeek_integer</span> might be visible as <span class="UIelement">DayOfWeek</span> in a narrow column. A mistyped column name might produce unpredictable results. For example, the resultant column might be filled with FNF (field not found).</li>
+                                            <li value="2">
+                                                <p>Make sure the column name prefix is included if the column is not a derived column. For example, if the prefix is Airlines and the name is Destination, type the following:</p>
+                                                <p class="userInput">Airlines::Destination</p>
+                                            </li>
+                                            <li value="3">You can use an aggregate value that you saved earlier. You must precede the aggregate value name with a caret (^). For example, if the average value for the salary column is  average_salary, enter <span class="UIelement">^average_salary</span> if you want to use it as an argument  in the function bar.</li>
+                                        </ul>
                                         <h3>Pull operation</h3>
                                         <p>Use the Pull operation to populate the active column with values from the column named in the operation. The source column can be a column already existing in the table or a column listed under the <span class="UIelement">DATA</span> header. After the Pull operation, the data type of the active column is changed to match the type of the named column.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160; If the source column has been formatted (for example, as percentages), the format is not copied to the active column. That is, the values in the active column after the pull are  not in  percentages. </div>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;To populate the active column with the values in a column named Days, type <span class="UIelement">=pull(Days)</span> in the function bar. The rows of the active column are now filled with the same values as the rows in the Days column.</div>
                                         <h3>Map operation</h3>
                                         <p>You can execute all Map operations and pass the function names and argument values in the function bar.</p>
-                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;You can add the values 3 and 4 with the Add function by typing <span class="UIelement">=map(add(3,4))</span>.</div>
+                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;You can add the values 3 and 4 with the add function by typing <span class="UIelement">=map(add(3,4))</span>.</div>
                                         <p>You can also invoke a UDF&#160;in a Map operation in the function bar as shown in the following example, which invokes a UDF for converting column1 to the UNIX timestamp:</p>
                                         <p class="userInput">map(default:convertToUnixTS(column1, ))</p>
                                         <div class="Note"><span class="label">Recommendation</span>:&#160;The function bar provides a convenient way for advanced users to enter a Map function. You must be familiar with the Map function syntax to be able to successfully execute it in the function bar. <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the MAP panel described in <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a> if you are not familiar with a Map function. The panel provides a description of the function and shows the number of operands appropriate for the function.</div>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Function names are case-sensitive. Be sure to type the name in the correct case when using the function bar.&#160;A function name in the incorrect case results in the <span class="UIelement">Error: Could not find function</span> message.</div>
                                         <h3>Example of a Map operation with nested functions</h3>
                                         <p>You can nest functions in an operation by using brackets. The following steps illustrate how to perform a Map operation with nested functions and store the resultant values in a new column:</p>
                                         <ol>

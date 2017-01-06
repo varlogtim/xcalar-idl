@@ -38,6 +38,7 @@ body
 	font-weight: 400;
 	line-height: 1.5em;
 	font-size: 16px;
+	mc-hyphenate: never;
 }
 
 a.MCBreadcrumbsLink
@@ -398,6 +399,7 @@ pre
 	p.subTitle
 	{
 		font-size: 24pt;
+		color: #378cb3;
 	}
 
 	p.Header
@@ -422,7 +424,7 @@ pre
 
 	body
 	{
-		
+		mc-hyphenate: never;
 	}
 
 	td ul
@@ -432,8 +434,8 @@ pre
 
 	h1
 	{
-		font-weight: 600;
 		margin-top: 12px;
+		font-size: 30px;
 	}
 
 	h2
@@ -448,7 +450,42 @@ pre
 
 	MadCap|tocProxy
 	{
-		border-top-color: #378cb3;
+		border-top-style: none;
+	}
+
+	p.Title
+	{
+		color: #378cb3;
+	}
+
+	h1.contents
+	{
+		mc-heading-level: 0;
+	}
+
+	span.UIelement
+	{
+		font-weight: 700;
+	}
+
+	tr
+	{
+		page-break-inside: avoid;
+	}
+
+	MadCap|dropDownHead
+	{
+		
+	}
+
+	MadCap|dropDownHotspot
+	{
+		color: #4a4a4a;
+	}
+
+	MadCap|dropDownBody
+	{
+		border-bottom-style: none;
 	}
 }
 
@@ -485,5 +522,17 @@ p.comments	/*Questions or reminders for our eyes only*/
 p.Header
 {
 	
+}
+
+h1.contents
+{
+	margin-bottom: 8px;
+	padding-bottom: 20px;
+	margin-top: 30px;
+	font-size: 36px;
+	color: #378cb3;
+	font-weight: 400;
+	line-height: 49px;
+	mc-hyphenate: never;
 }
 

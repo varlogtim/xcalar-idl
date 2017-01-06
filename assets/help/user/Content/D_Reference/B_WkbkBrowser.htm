@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -177,6 +181,10 @@
                                                 <li><a href="H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -272,6 +280,10 @@
                                                     </li>
                                                     <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
                                                     </li>
+                                                    <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                    </li>
+                                                    <li><a href="L_Glossary.htm">Glossary</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -293,6 +305,14 @@
                                         <h2>About activating a workbook</h2>
                                         <p>Upon creation, a workbook is inactive. You must activate the workbook before you can use it as your workspace.</p>
                                         <p>After you log out and log in again to <span class="GeneralProductName">Xcalar Insight</span>, the workbook that was active before you logged out remains active. However, if the Xcalar cluster is powered off and then powered on again, none of the workbooks are active and you must activate one of the workbooks in the <span class="UIelement">Workbook Browser</span>.</p>
+                                        <h2>Effects of deleting a workbook</h2>
+                                        <p>The following list describes the effects of deleting a workbook:</p>
+                                        <ul>
+                                            <li value="1">All worksheets in the workbook and all tables in the worksheets are deleted. They are not recoverable after the deletion.</li>
+                                            <li value="2">
+                                                <p>A dataset reference created through the workbook might or might not remain depending on whether the dataset reference is also being used by other workbooks. The dataset reference and its associated dataset are removed only if the workbook being deleted is the only one using the dataset reference. For more information about dataset reference deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm#Effects" class="MCXref xref">Effects of deleting a dataset reference</a></p>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>

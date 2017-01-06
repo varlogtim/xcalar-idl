@@ -75,7 +75,7 @@ mcTableColumnStyle
 {
 	span: 1;
 	separator-style: solid;
-	separator-width: 3px;
+	separator-width: 2px;
 	name: Column1;
 	id: 0;
 	cell-padding-left: 8px;
@@ -88,6 +88,9 @@ mcTableColumnStyle
 	span: 1;
 	id: 5;
 	name: Column2;
+	separator-style: solid;
+	separator-width: 2px;
+	separator-color: #ffffff;
 }
 
 mcTableHeadStyle
@@ -123,6 +126,7 @@ mcTableBodyStyle
 	font-family: 'Open Sans';
 	color: #4a4a4a;
 	vertical-align: top;
+	page-break-inside: avoid;
 }
 
 mcTableBodyStyle
@@ -646,7 +650,7 @@ mcTableFootStyle
 
 .TableStyle-SimpleTable-HeadE-Column1-Header1
 {
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 	color: #4a4a4a;
@@ -687,7 +691,7 @@ mcTableFootStyle
 
 .TableStyle-SimpleTable-HeadH-Column1-Header1
 {
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 	color: #4a4a4a;
@@ -741,7 +745,7 @@ mcTableFootStyle
 
 .TableStyle-SimpleTable-HeadB-Column1-Header1
 {
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 	color: #4a4a4a;
@@ -808,6 +812,9 @@ mcTableFootStyle
 
 .TableStyle-SimpleTable-HeadE-Column2-Header1
 {
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 	color: #4a4a4a;
 	text-align: center;
 	background-color: #dddddd;
@@ -846,6 +853,9 @@ mcTableFootStyle
 
 .TableStyle-SimpleTable-HeadH-Column2-Header1
 {
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 	color: #4a4a4a;
 	text-align: center;
 	background-color: #dddddd;
@@ -897,6 +907,9 @@ mcTableFootStyle
 
 .TableStyle-SimpleTable-HeadB-Column2-Header1
 {
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 	color: #4a4a4a;
 	text-align: center;
 	background-color: #dddddd;
@@ -964,7 +977,7 @@ mcTableFootStyle
 {
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 	background-color: #c0c0c0;
@@ -997,7 +1010,7 @@ mcTableFootStyle
 {
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 	background-color: #c0c0c0;
@@ -1039,7 +1052,7 @@ mcTableFootStyle
 {
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 	background-color: #c0c0c0;
@@ -1090,6 +1103,9 @@ mcTableFootStyle
 {
 	padding-left: 6px;
 	padding-right: 6px;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 	background-color: #c0c0c0;
 	border-top-width: 2px;
 	border-top-color: #000000;
@@ -1120,6 +1136,9 @@ mcTableFootStyle
 {
 	padding-left: 6px;
 	padding-right: 6px;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 	background-color: #c0c0c0;
 }
 
@@ -1159,6 +1178,9 @@ mcTableFootStyle
 {
 	padding-left: 6px;
 	padding-right: 6px;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 	background-color: #c0c0c0;
 }
 
@@ -1193,7 +1215,7 @@ mcTableFootStyle
 
 .TableStyle-SimpleTable-Body-Body1
 {
-	
+	page-break-inside: avoid;
 }
 
 .TableStyle-SimpleTable-BodyI-Column1-Body1
@@ -1227,7 +1249,7 @@ mcTableFootStyle
 	border-bottom-style: solid;
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 }
@@ -1269,7 +1291,7 @@ mcTableFootStyle
 	padding-bottom: 10px;
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 }
@@ -1329,7 +1351,7 @@ mcTableFootStyle
 	padding-bottom: 10px;
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 }
@@ -1407,6 +1429,9 @@ mcTableFootStyle
 	border-bottom-width: 3px;
 	border-bottom-color: #ffffff;
 	border-bottom-style: solid;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 }
 
 .TableStyle-SimpleTable-BodyE-Column2-Body1 p
@@ -1446,6 +1471,9 @@ mcTableFootStyle
 	padding-right: 10px;
 	padding-top: 10px;
 	padding-bottom: 10px;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 }
 
 .TableStyle-SimpleTable-BodyH-Column2-Body1 p
@@ -1503,6 +1531,9 @@ mcTableFootStyle
 	padding-right: 10px;
 	padding-top: 10px;
 	padding-bottom: 10px;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 }
 
 .TableStyle-SimpleTable-BodyB-Column2-Body1 p
@@ -1578,7 +1609,7 @@ mcTableFootStyle
 	border-bottom-style: solid;
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 }
@@ -1614,7 +1645,7 @@ mcTableFootStyle
 	padding-bottom: 10px;
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 }
@@ -1665,7 +1696,7 @@ mcTableFootStyle
 	padding-bottom: 10px;
 	padding-left: 8px;
 	padding-right: 8px;
-	border-right-width: 3px;
+	border-right-width: 2px;
 	border-right-color: #ffffff;
 	border-right-style: solid;
 }
@@ -1731,6 +1762,9 @@ mcTableFootStyle
 	border-bottom-width: 3px;
 	border-bottom-color: #ffffff;
 	border-bottom-style: solid;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 }
 
 .TableStyle-SimpleTable-BodyE-Column2-Body2 p
@@ -1764,6 +1798,9 @@ mcTableFootStyle
 	padding-right: 10px;
 	padding-top: 10px;
 	padding-bottom: 10px;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 }
 
 .TableStyle-SimpleTable-BodyH-Column2-Body2 p
@@ -1812,6 +1849,9 @@ mcTableFootStyle
 	padding-right: 10px;
 	padding-top: 10px;
 	padding-bottom: 10px;
+	border-right-width: 2px;
+	border-right-color: #ffffff;
+	border-right-style: solid;
 }
 
 .TableStyle-SimpleTable-BodyB-Column2-Body2 p

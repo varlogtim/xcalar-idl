@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,6 +183,10 @@
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -266,6 +274,8 @@
                                                     </li>
                                                     <li><a href="E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                     </li>
+                                                    <li><a href="E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                    </li>
                                                     <li><a href="F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                     </li>
                                                     <li><a href="G_FilterValue.htm">Filtering in a table column</a>
@@ -286,6 +296,8 @@
                                                     </li>
                                                     <li><a href="O_ManageWorksheet.htm">Managing worksheets</a>
                                                     </li>
+                                                    <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -305,7 +317,7 @@
                                         <p>You can delete a dataset reference whether or not you created it. However, you must drop all tables in your workbook created from the dataset reference before you can delete the dataset reference. If you have an active, hidden, or temporary table that was created from the dataset reference, the dataset is still in use. As a result, you cannot delete the dataset reference. </p>
                                         <p>If another user has tables that were created from your dataset reference, you can delete it from your list of data references. However, the dataset reference continues to exist for the other user.</p>
                                         <div class="Example"><span class="label">EXAMPLE</span>:&#160;You (userA) have a dataset reference named airlines. If tables (whether active, hidden, or temporary) created from airlines exist in your workbook, your attempt to delete airlines results in an error message. After you drop the tables created from this dataset reference, you can successfully delete it. If another user, userB, has tables created from airlines, even though airlines no longer appears in your dataset reference list, userB continues to see it in userA's dataset reference folder. The dataset reference can be deleted by userB only after userB drops all tables created from it.</div>
-                                        <h3>Effects of deleting a dataset reference</h3>
+                                        <h3><a name="Effects"></a>Effects of deleting a dataset reference</h3>
                                         <p>After you delete a dataset reference, it no longer appears in your list of dataset references. As a result, you no longer have a way to preview the dataset or create tables from it.&#160;</p>
                                         <p>The dataset associated with a dataset reference being deleted is also removed from memory, provided that no other users are using the dataset. Therefore, deleting a dataset reference might cause the cluster to release memory.</p>
                                         <h3>Steps for deleting a dataset reference</h3>

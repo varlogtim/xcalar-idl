@@ -110,6 +110,8 @@
                                                 </li>
                                                 <li><a href="E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                 </li>
+                                                <li><a href="E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
                                                 <li><a href="F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                 </li>
                                                 <li><a href="G_FilterValue.htm">Filtering in a table column</a>
@@ -129,6 +131,8 @@
                                                 <li><a href="N_ChangeTableStatus.htm">Understanding and changing a table status</a>
                                                 </li>
                                                 <li><a href="O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -179,6 +183,10 @@
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -266,6 +274,8 @@
                                                     </li>
                                                     <li><a href="E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
                                                     </li>
+                                                    <li><a href="E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                    </li>
                                                     <li><a href="F_UndoRedo.htm">Undoing and redoing an operation</a>
                                                     </li>
                                                     <li><a href="G_FilterValue.htm">Filtering in a table column</a>
@@ -286,6 +296,8 @@
                                                     </li>
                                                     <li><a href="O_ManageWorksheet.htm">Managing worksheets</a>
                                                     </li>
+                                                    <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -294,15 +306,18 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Creating an integrity constraint violations table</h1>
-                                        <p>Tables created in <span class="GeneralCompanyNameShort">Xcalar</span> might contain integrity constraint violations.&#160;The following list describes the typical scenarios when integrity constraint violations occur:</p>
+                                        <p>Tables created in <span class="GeneralCompanyNameShort">Xcalar</span> might contain integrity constraint violations.&#160;In <span class="GeneralProductName">Xcalar Insight</span>, a table containing only rows with integrity constraint violations is called an ICV&#160;table.</p>
+                                        <p>The following list describes the typical scenarios when integrity constraint violations occur:</p>
                                         <ul>
-                                            <li value="1">Integrity constraint violations occur when the values are inserted or updated in the data source before <span class="GeneralProductName">Xcalar Insight</span> points to it. The dataset  being pointed to might include erroneous values. For example, in a dataset for flight information, the Airtime field might contain a string due to data entry errors.</li>
+                                            <li value="1">Integrity constraint violations occur when the values are inserted or updated in the data source before <span class="GeneralProductName">Xcalar Insight</span> points to it. The dataset  might include erroneous values in a particular field. For example, in a dataset for flight information, the Airtime field, which should contain numeric values, might contain a string value such as 5O (instead of 50)&#160;due to a data entry error.</li>
                                             <li value="2">
-                                                <p>A <span class="GeneralProductName">Xcalar Insight</span> function  cannot operate on a value in a table cell.&#160;For example, if an integer column contains the string N/A and you use the Map function to increment values in the column, the row with the N/A string in the resultant table is considered an integrity constraint violation. A message similar to the following is displayed in the cell with the violation:</p>
+                                                <p>A <span class="GeneralProductName">Xcalar Insight</span> function  cannot operate on a value in a table cell.&#160;The cell in the resultant ICV table displays a message about the cause of the violation. </p>
+                                                <p>For example, in an integer column, there are rows containing FNF (field not found). If you use the Map function to increment values in the column, the ICV table displays the following message in each row with FNF:</p>
                                                 <p class="CLIoutput">Some variables are undefined during evaluation</p>
+                                                <p>Similarly, if you use the div function and the divisor is 0, the row containing the resultant value is also considered an ICV row. The ICV table displays the following message in each row where the division cannot be performed:</p>
+                                                <p class="CLIoutput">Divide by zero error</p>
                                             </li>
                                         </ul>
-                                        <p>In <span class="GeneralProductName">Xcalar Insight</span>, a table containing only rows with integrity constraint violations is called an ICV&#160;table.</p>
                                         <h2>Creating an ICV table</h2>
                                         <p>Rows containing integrity constraint violations might be of interest because you can gain insights from erroneous data (for example, by finding unexpected values in an analysis of data for fraud detection) or because you want to filter out data that exist due to errors. </p>
                                         <h3>Functions for creating an ICV&#160;table</h3>
@@ -311,11 +326,11 @@
                                         <ul>
                                             <li value="1"><a href="K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>
                                             </li>
-                                            <li value="2"><a href="J_GroupBy.htm" class="MCXref xref">Grouping data in a table</a>. </li>
+                                            <li value="2"><a href="J_GroupBy.htm" class="MCXref xref">Grouping data in a table</a> <![CDATA[ ]]></li>
                                         </ul>
                                         <h3>Example of a Map function for creating an ICV&#160;table</h3>
                                         <p>In the table created from a dataset with flight information, the column named ArrDelay contains the number of minutes for each flight's arrival delay. Suppose the initial data type for this column is String, you can use the <span class="UIelement">type-casting</span> function in the <span class="UIelement">MAP</span> panel to change its type to Integer. If you select the <span class="UIelement">View only erroneous rows</span> in the <span class="UIelement">MAP</span> panel, the new table contains only the rows with integrity constraint violations in the resultant column.</p>
-                                        <p>The following screenshot illustrates the <span class="UIelement">Map</span> panel for changing the data type of a column.</p>
+                                        <p>The following screenshot illustrates the <span class="UIelement">MAP</span> panel for changing the data type of a column.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/example-map-to-create-ICV.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1114" data-mc-height="600" src="../Resources/Images/Insight_screenshots/example-map-to-create-ICV_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following screenshot illustrates the resultant table containing only rows with integrity constraint violations in the ArrDelay column.</p>
@@ -334,6 +349,10 @@
                                             <li value="3">The dataflow graph from which the new table is created stays in the worksheet and remains unchanged.</li>
                                         </ul>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;From the dataflow graph, you can create an ICV&#160;table from any table produced by a Map or Group By function. It can be a temporary or active table.</div>
+                                        <p>The following screenshot shows the dataflow graph after the ICV table is created.</p>
+                                        <p>
+                                            <img src="../Resources/Images/Insight_screenshots/example-red-ICV-in-dfg.png" />
+                                        </p>
                                     </div>
                                 </div>
                             </div>
