@@ -2922,7 +2922,8 @@ window.Dag = (function($, Dag) {
                 icon = '<i class="icon xi_data"></i>';
             }
 
-            html += '<div class="dagTable dataStore' + outerClassNames + '" ' +
+            html += '<div class="dagTable dataStore ' + state + 
+                        outerClassNames + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-table="' + originalTableName + '" ' +
                         'data-index="' + index + '" ' +
@@ -2948,8 +2949,7 @@ window.Dag = (function($, Dag) {
 
             var tableId = xcHelper.getTableId(tableName);
             var tooltipTxt;
-            if (dagInfo.state ===
-                DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
+            if (state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
                 tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
                             {"tablename": tableName});
             } else {

@@ -354,16 +354,48 @@
             &.export .tableTitle {
                 width: 120px;
             }
-            &.hasParam {
-                .dataStoreIcon, .dagTableIcon {
-                    background-color: @color-bg-fern-green !important;
-                }
-            }
+
             &.noDropdown {
                 pointer-events: none;
                 .tableTitle {
                     pointer-events: initial;
                     cursor: initial;
+                }
+            }
+            &.Created {
+                .dagTableIcon {
+                    background-color:  @color-bg-select-blue;
+                }
+            }
+            &.Processing {
+                &:hover {
+                    .dagTableIcon, .dataStoreIcon {
+                        background-color: @color-bg-gold !important;
+                    } 
+                }
+                .dagTableIcon, .dataStoreIcon {
+                    background-color: @color-bg-gold;
+                }
+            }
+            &.Cleaned, &.Dropped, &.Ready {
+                &:hover {
+                    .dagTableIcon, .dataStoreIcon {
+                        background-color: @color-bg-fern-green !important;
+                    } 
+                }
+                .dagTableIcon, .dataStoreIcon {
+                    background-color: @color-bg-fern-green;
+                }
+            }
+
+            &.Queued, &.Error {
+                &:hover {
+                    .dagTableIcon, .dataStoreIcon {
+                        background-color: @color-error-border !important;
+                    } 
+                }
+                .dagTableIcon, .dataStoreIcon {
+                    background-color: @color-error-border;
                 }
             }
         }
@@ -374,13 +406,15 @@
             }
             &.hasParam {
 
-                .actionTypeWrap {
-                    border: 1px solid #699669;
+                // .actionTypeWrap {
+                //     border: 1px solid #699669;
 
-                }
-                .dagIcon {
-                    background-color: @color-bg-fern-green;
-                }
+                // }
+                // xx may not use a background because it's too similar to
+                // the status colors
+                // .dagIcon {
+                //     background-color: @color-bg-fern-green;
+                // }
             }
             &.noDropdown {
                 cursor: initial;

@@ -608,6 +608,8 @@ window.DFParamModal = (function($, DFParamModal){
 
     function storeRetina() {
         //XX need to check if all default inputs are filled
+        
+        var deferred = jQuery.Deferred();
         var $paramPart = $dfgParamModal.find(".editableTable");
         var $editableDivs = $paramPart.find('input.editableParamDiv');
         var $paramInputs = $dfgParamModal.find('input.editableParamDiv');
@@ -635,7 +637,8 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         if (!isValid) {
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
 
         // check for empty param values
@@ -649,7 +652,8 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         if (!isValid) {
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
 
         params = [];
@@ -675,7 +679,8 @@ window.DFParamModal = (function($, DFParamModal){
         if (!isValid) {
             var $paramVal = $invalidTr.find(".paramVal");
             StatusBox.show(ErrTStr.NoEmptyOrCheck, $paramVal);
-            return;
+            deferred.reject();
+            return deferred.promise();
         }
 
         var retName = $dfgParamModal.data("dfg");
@@ -702,12 +707,14 @@ window.DFParamModal = (function($, DFParamModal){
             KVStore.commit();
             closeDFParamModal();
             // show success message??
+            deferred.resolve();
         })
         .fail(function(error) {
             Alert.error(DFTStr.UpdateParamFail, error);
+            deferred.reject();
         });
 
-        return;
+        return deferred.promise();
 
         function genOrigQueryStruct() {
             var type = $iconTrigger.data('type');
@@ -994,6 +1001,14 @@ window.DFParamModal = (function($, DFParamModal){
         $dfgParamModal.find('.draggableParams').empty();
         $paramLists.empty();
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DFParamModal.__testOnly__ = {};
+        DFParamModal.__testOnly__.storeRetina = storeRetina;
+    }
+    /* End Of Unit Test Only */
+
 
     return (DFParamModal);
 

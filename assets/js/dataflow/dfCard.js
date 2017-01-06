@@ -10,6 +10,8 @@ window.DFCard = (function($, DFCard) {
     var $retLists;      // $("#retLists");
     var canceledRuns = {};
     var xdpMode = XcalarMode.Mod;
+    var retinaCheckInterval = 2000;
+    var retinasInProgress = {};
 
     var retinaTrLen = 7;
     var retinaTr = '<div class="row unfilled">' +
@@ -26,6 +28,7 @@ window.DFCard = (function($, DFCard) {
                    '</div>';
 
     var currentDataflow = null;
+    var dagStateClasses = "";
 
     DFCard.setup = function() {
         $dfView = $('#dataflowView');
@@ -38,6 +41,11 @@ window.DFCard = (function($, DFCard) {
         $retTabSection = $dfCard.find('.retTabSection');
         $retLists = $("#retLists");
 
+        // used to remove all status classes from dag table icons
+        for (var i in DgDagStateTStr) {
+            dagStateClasses += DgDagStateTStr[i] + " ";
+        }
+        dagStateClasses = dagStateClasses.trim();
     };
 
     DFCard.initialize = function() {
@@ -795,11 +803,18 @@ window.DFCard = (function($, DFCard) {
             return PromiseHelper.reject();
         }
 
+        var passedCheckBeforeRunDFG = false;
         checkBeforeRunDFG(advancedOpts.activeSession)
         .then(function() {
-            return XcalarExecuteRetina(retName, paramsArray, advancedOpts);
+            passedCheckBeforeRunDFG = true;
+            var promise = XcalarExecuteRetina(retName, paramsArray,
+                                              advancedOpts);
+            startStatusCheck(retName);
+
+            return promise;
         })
         .then(function() {
+            endStatusCheck(retName, passedCheckBeforeRunDFG);
             if (advancedOpts.activeSession) {
                 return projectAfterRunDFG(advancedOpts.newTableName, exportInfo);
             }
@@ -821,6 +836,7 @@ window.DFCard = (function($, DFCard) {
             deferred.resolve();
         })
         .fail(function(error) {
+            endStatusCheck(retName, passedCheckBeforeRunDFG);
             // do not show alert if op was canceled and
             // has cancel error msg
             if (typeof error === "object" &&
@@ -847,6 +863,74 @@ window.DFCard = (function($, DFCard) {
             } else {
                 return checkExistingFileName(fileName, targetName);
             }
+        }
+    }
+
+    function startStatusCheck(retName) {
+        retinasInProgress[retName] = true;
+        statusCheckInterval(retName);
+    }
+
+    function statusCheckInterval(retName) {
+        setTimeout(function() {
+            if (!retinasInProgress[retName]) {
+                // retina is finished, no more checking
+                return;
+            }
+
+            XcalarQueryState(retName)
+            .then(function(retInfo) {
+                updateRetinaStatuses(retName, retInfo);
+                statusCheckInterval(retName);
+            })
+            .fail(function(err) {
+                console.error(err);
+                statusCheckInterval(retName);
+            });
+
+        }, retinaCheckInterval);
+    }
+
+    function updateRetinaStatuses(retName, retInfo) {
+        var $dagWrap = getDagWrap(retName);
+        var nodes = retInfo.queryGraph.node;
+        var tableName;
+        var state;
+        var node;
+        for (var i = 0; i < nodes.length; i++) {
+            var tableName = getTableNameFromStatus(nodes[i]);
+            
+            state = DgDagStateTStr[nodes[i].state];
+            $dagWrap.find('.dagTable[data-tablename="' + tableName + '"]')
+                    .removeClass(dagStateClasses)
+                    .addClass(state);
+        }
+    }
+
+    function getTableNameFromStatus(node) {
+        var name = node.name.name;
+        if (node.api === XcalarApisT.XcalarApiBulkLoad) {
+            // name looks something like this and we want username.91863.dsName
+            // ".XcalarLRQ.72057594037959103.XcalarDS.username.91863.dsName"
+            var splitName = name.split('.');
+            name = splitName.splice(4, splitName.length).join(".");
+        }
+       
+        return (name);
+    }
+
+    function endStatusCheck(retName, updateStatus) {
+        if (!retinasInProgress[retName]) {
+            return;
+        }
+
+        delete retinasInProgress[retName];
+
+        if (updateStatus) {
+            XcalarQueryState(retName)
+            .then(function(retInfo) {
+                updateRetinaStatuses(retName, retInfo);
+            });
         }
     }
 
@@ -1034,6 +1118,10 @@ window.DFCard = (function($, DFCard) {
     if (window.unitTestMode) {
         DFCard.__testOnly__ = {};
         DFCard.__testOnly__.deleteDataflow = deleteDataflow;
+        DFCard.__testOnly__.runDF = runDF;
+        DFCard.__testOnly__.retinasInProgress = retinasInProgress;
+        DFCard.__testOnly__.startStatusCheck = startStatusCheck;
+        DFCard.__testOnly__.endStatusCheck = endStatusCheck;
     }
     /* End Of Unit Test Only */
 
