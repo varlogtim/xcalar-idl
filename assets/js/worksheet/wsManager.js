@@ -1178,20 +1178,18 @@ window.WSManager = (function($, WSManager) {
             var wsId = $tab.data("ws");
             var numTabs = $workSheetTabs.find(".worksheetTab").length;
 
-            if ($tabMenu.is(":visible") && $tabMenu.data("ws") === wsId ||
-                $tab.hasClass("locked"))
-            {
-                $tabMenu.hide();
-                return;
-            }
-
             // switch to that worksheet first
-            if (!$tab.hasClass("active")) {
+            if (!$tab.hasClass("active") && !$tab.hasClass("locked")) {
                 WSManager.switchWS(wsId);
             }
             xcHelper.dropdownOpen($wsMenu, $tabMenu, {
                 "offsetX" : -7,
                 "floating": true,
+                "toClose" : function() {
+                    return ($tabMenu.is(":visible") &&
+                            $tabMenu.data("ws") === wsId) ||
+                            $tab.hasClass("locked");
+                },
                 "callback": function() {
                     if (numTabs === 1) {
                         $tabMenu.find(".delete").addClass("unavailable");

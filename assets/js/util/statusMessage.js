@@ -29,13 +29,9 @@ window.StatusMessage = (function($, StatusMessage) {
 
         var $statusMenu = $("#pageStatusMenu");
         $statusText.on("click", ".menuIcon", function() {
-            if ($statusMenu.is(":visible")) {
-                $statusMenu.hide();
-                return;
-            }
-
             xcHelper.dropdownOpen($(this), $statusMenu, {
-                "floating": true
+                "floating": true,
+                "toggle"  : true
             });
         });
 

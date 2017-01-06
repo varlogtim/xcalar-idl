@@ -54,11 +54,6 @@ window.SmartCastView = (function($, SmartCastView) {
         addMenuBehaviors($castMenu);
 
         $castView.on("click", ".colType", function() {
-            if ($castMenu.is(":visible")) {
-                $castMenu.hide();
-                return;
-            }
-
             var $col = $(this);
             var $row = $col.closest(".row");
             var bound = this.getBoundingClientRect();
@@ -71,7 +66,8 @@ window.SmartCastView = (function($, SmartCastView) {
             xcHelper.dropdownOpen($col, $castMenu, {
                 "mouseCoors": {"x": bound.left + 8, "y": bound.bottom},
                 "classes"   : initialType,
-                "floating"  : true
+                "floating"  : true,
+                "toggle"    : true
             });
         });
 

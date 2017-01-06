@@ -338,14 +338,10 @@ window.StartManager = (function(StartManager, $) {
         addMenuBehaviors($menu);
 
         $("#userNameArea").click(function() {
-            if ($menu.is(":visible")) {
-                $menu.hide();
-                return;
-            }
-
             var $target = $(this);
             xcHelper.dropdownOpen($target, $menu, {
-                "offsetY": -3
+                "offsetY": -3,
+                "toggle" : true
             });
         });
 

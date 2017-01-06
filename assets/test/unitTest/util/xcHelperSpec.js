@@ -1812,125 +1812,176 @@ describe('xcHelper Test', function() {
     });
 
     describe('xcHelper.dropdownOpen', function() {
-        var testDs;
-        var tableName;
-        var prefix;
-        var tableId;
+        describe('Basic Test', function() {
+            var $icon, $menu;
 
-        before(function(done) {
-            UnitTest.onMinMode();
-            var testDSObj = testDatasets.fakeYelp;
-            UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-            .always(function(ds, tName, tPrefix) {
-                testDs = ds;
-                tableName = tName;
-                prefix = tPrefix;
-                tableId = xcHelper.getTableId(tableName);
-                done();
+            before(function() {
+                $icon = $('<div id="unitTestIcon">Icon</div>');
+                $menu = $('<div id="unitTestMenu">Menu</div>');
+                $("body").append($icon)
+                        .append($menu);
+            });
+
+            beforeEach(function() {
+                $menu.hide();
+            });
+
+            it("Should open the menu", function() {
+                xcHelper.dropdownOpen($icon, $menu);
+                assert.isTrue($menu.is(":visible"));
+            });
+
+            it("Should toggle the menu", function() {
+                xcHelper.dropdownOpen($icon, $menu);
+                assert.isTrue($menu.is(":visible"));
+                // toggle the menu
+                xcHelper.dropdownOpen($icon, $menu, {
+                    "toggle": true
+                });
+                assert.isFalse($menu.is(":visible"));
+            });
+
+            it("Should close the menu with toClose option", function() {
+                xcHelper.dropdownOpen($icon, $menu);
+                assert.isTrue($menu.is(":visible"));
+                // toggle the menu
+                xcHelper.dropdownOpen($icon, $menu, {
+                    "toClose": function() { return false; }
+                });
+                assert.isTrue($menu.is(":visible"));
+
+                xcHelper.dropdownOpen($icon, $menu, {
+                    "toClose": function() { return true; }
+                });
+                assert.isFalse($menu.is(":visible"));
+            });
+
+            after(function() {
+                $icon.remove();
+                $menu.remove();
             });
         });
 
-        it ('toggleUnnestandJsonOptions should work', function() {
-            var fn = xcHelper.__testOnly__.toggleUnnestandJsonOptions;
-            var $menu = $("#cellMenu");
-            var $unnestLi = $menu.find('.tdUnnest');
-            var $jsonModalLi = $menu.find('.tdJsonModal');
-            var $div = $('#xcTable-' + tableId).find('.row0 .col11 .displayedData');
-            var multiCell = false;
-            var notAllowed = $div.find('.null, .blank').length;
-            var columnType = "mixed";
-            var options;
+        describe('toggle json options test', function() {
+            var testDs;
+            var tableName;
+            var prefix;
+            var tableId;
 
-            // initial state
-            // expect($menu.is(":visible")).to.be.true;
-            expect($unnestLi.length).to.equal(1);
-            expect($jsonModalLi.length).to.equal(1);
+            before(function(done) {
+                UnitTest.onMinMode();
+                var testDSObj = testDatasets.fakeYelp;
+                UnitTest.addAll(testDSObj, "unitTestFakeYelp")
+                .always(function(ds, tName, tPrefix) {
+                    testDs = ds;
+                    tableName = tName;
+                    prefix = tPrefix;
+                    tableId = xcHelper.getTableId(tableName);
+                    done();
+                });
+            });
 
-            $div.html("string");
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.true;
-            expect($jsonModalLi.hasClass('hidden')).to.be.true;
+            it ('toggleUnnestandJsonOptions should work', function() {
+                var fn = xcHelper.__testOnly__.toggleUnnestandJsonOptions;
+                var $menu = $("#cellMenu");
+                var $unnestLi = $menu.find('.tdUnnest');
+                var $jsonModalLi = $menu.find('.tdJsonModal');
+                var $div = $('#xcTable-' + tableId).find('.row0 .col11 .displayedData');
+                var multiCell = false;
+                var notAllowed = $div.find('.null, .blank').length;
+                var columnType = "mixed";
+                var options;
 
+                // initial state
+                // expect($menu.is(":visible")).to.be.true;
+                expect($unnestLi.length).to.equal(1);
+                expect($jsonModalLi.length).to.equal(1);
 
-            $div.html('{"a":"b"}');
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.false;
-            expect($jsonModalLi.hasClass('hidden')).to.be.false;
-
-            // test notAllowed, multiCell, and undefined with object val
-
-            notAllowed = true;
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.true;
-            expect($jsonModalLi.hasClass('hidden')).to.be.true;
-
-            notAllowed = false;
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.false;
-            expect($jsonModalLi.hasClass('hidden')).to.be.false;
-
-            multiCell = true;
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.true;
-            expect($jsonModalLi.hasClass('hidden')).to.be.true;
-
-            multiCell = false;
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.false;
-            expect($jsonModalLi.hasClass('hidden')).to.be.false;
-
-            $div.append('<div class="undefined"></div>');
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.true;
-            expect($jsonModalLi.hasClass('hidden')).to.be.true;
-
-            $div.find('.undefined').remove();
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.false;
-            expect($jsonModalLi.hasClass('hidden')).to.be.false;
-
-            notAllowed = true;
-            multiCell = true;
-            $div.append('<div class="undefined"></div>');
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.true;
-            expect($jsonModalLi.hasClass('hidden')).to.be.true;
-
-            notAllowed = false;
-            multiCell = false;
-            $div.find('.undefined').remove();
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.false;
-            expect($jsonModalLi.hasClass('hidden')).to.be.false;
+                $div.html("string");
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.true;
+                expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
 
-            // test array
-            $div.html('["a","b"]');
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.false;
-            expect($jsonModalLi.hasClass('hidden')).to.be.false;
+                $div.html('{"a":"b"}');
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.false;
+                expect($jsonModalLi.hasClass('hidden')).to.be.false;
 
-            $div.html('["a", invalid]');
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.true;
-            expect($jsonModalLi.hasClass('hidden')).to.be.true;
+                // test notAllowed, multiCell, and undefined with object val
 
-            $div.parent().addClass('truncated');
-            $div.html('["a", invalid]');
-            fn($menu, $div, columnType, multiCell, notAllowed, options);
-            expect($unnestLi.hasClass('hidden')).to.be.true;
-            expect($jsonModalLi.hasClass('hidden')).to.be.false;
-            $div.parent().removeClass('truncated');
-        });
+                notAllowed = true;
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.true;
+                expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
-        after(function(done) {
-            UnitTest.deleteAll(tableName, testDs, TableType.Orphan)
-            .always(function() {
-                UnitTest.offMinMode();
-                done();
+                notAllowed = false;
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.false;
+                expect($jsonModalLi.hasClass('hidden')).to.be.false;
+
+                multiCell = true;
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.true;
+                expect($jsonModalLi.hasClass('hidden')).to.be.true;
+
+                multiCell = false;
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.false;
+                expect($jsonModalLi.hasClass('hidden')).to.be.false;
+
+                $div.append('<div class="undefined"></div>');
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.true;
+                expect($jsonModalLi.hasClass('hidden')).to.be.true;
+
+                $div.find('.undefined').remove();
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.false;
+                expect($jsonModalLi.hasClass('hidden')).to.be.false;
+
+                notAllowed = true;
+                multiCell = true;
+                $div.append('<div class="undefined"></div>');
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.true;
+                expect($jsonModalLi.hasClass('hidden')).to.be.true;
+
+                notAllowed = false;
+                multiCell = false;
+                $div.find('.undefined').remove();
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.false;
+                expect($jsonModalLi.hasClass('hidden')).to.be.false;
+
+
+                // test array
+                $div.html('["a","b"]');
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.false;
+                expect($jsonModalLi.hasClass('hidden')).to.be.false;
+
+                $div.html('["a", invalid]');
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.true;
+                expect($jsonModalLi.hasClass('hidden')).to.be.true;
+
+                $div.parent().addClass('truncated');
+                $div.html('["a", invalid]');
+                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                expect($unnestLi.hasClass('hidden')).to.be.true;
+                expect($jsonModalLi.hasClass('hidden')).to.be.false;
+                $div.parent().removeClass('truncated');
+            });
+
+            after(function(done) {
+                UnitTest.deleteAll(tableName, testDs, TableType.Orphan)
+                .always(function() {
+                    UnitTest.offMinMode();
+                    done();
+                });
             });
         });
-        
     });
 
     after(function() {

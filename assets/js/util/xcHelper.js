@@ -2633,7 +2633,9 @@ window.xcHelper = (function($, xcHelper) {
         shiftKey: boolean,
         floating: boolean (menu floats around and can pop up above user's mouse)
         callback: function,
-        isDataTd: boolean, true if clicking on the json td
+        isDataTd: boolean, true if clicking on the json td,
+        toClose: function, return true if want to close the menu
+        toggle: boolean, if set true, will toggle open/close of menu
     }
     */
     xcHelper.dropdownOpen = function($dropdownIcon, $menu, options) {
@@ -2814,6 +2816,15 @@ window.xcHelper = (function($, xcHelper) {
     }
 
     function menuHelper($dropdownIcon, $menu, $subMenu, menuId, tableId, options) {
+        var toClose = options.toClose;
+        if (toClose instanceof Function && options.toClose() === true) {
+            return "closeMenu";
+        }
+
+        if (options.toggle && $menu.is(":visible")) {
+            return "closeMenu";
+        }
+
         switch (menuId) {
             case ('tableMenu'):
                 // case that should close table menu
