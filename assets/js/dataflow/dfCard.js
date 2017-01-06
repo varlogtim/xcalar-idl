@@ -868,10 +868,21 @@ window.DFCard = (function($, DFCard) {
 
     function startStatusCheck(retName) {
         retinasInProgress[retName] = true;
-        statusCheckInterval(retName);
+        var $dagWrap = getDagWrap(retName);
+        var createdState = DgDagStateTStr[DgDagStateTStr.DgDagStateCreated]
+        $dagWrap.find('.dagTable').removeClass(dagStateClasses)
+                                  .addClass(createdState);
+        statusCheckInterval(retName, true);
     }
 
-    function statusCheckInterval(retName) {
+    function statusCheckInterval(retName, firstRun) {
+        var checkTime;
+        if (firstRun) {
+            // shorter timeout on the first call
+            checkTime = 1000;
+        } else {
+            checkTime = retinaCheckInterval;
+        }
         setTimeout(function() {
             if (!retinasInProgress[retName]) {
                 // retina is finished, no more checking
