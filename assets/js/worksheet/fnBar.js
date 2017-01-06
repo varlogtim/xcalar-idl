@@ -106,7 +106,16 @@ window.FnBar = (function(FnBar, $) {
                 lastFocusedCol === undefined) {
                 // No active column, disallow user from typing in a
                 newText = "";
-                xcTooltip.refresh($('#funcBarMenuArea'), 1000);
+                var $div = $('#funcBarMenuArea');
+                var timeoutTime;
+                if ($('#container').hasClass('columnPicker')) {
+                    xcTooltip.changeText($div, TooltipTStr.NoFnBarFormOpen);
+                    timeoutTime = 2500;
+                } else {
+                    xcTooltip.changeText($div, TooltipTStr.SelectCol);
+                    timeoutTime = 1200;
+                }
+                xcTooltip.refresh($div, timeoutTime);
             }
             if (change.update) {
                 change.update(change.from, change.to, [newText]);
@@ -593,10 +602,14 @@ window.FnBar = (function(FnBar, $) {
     function setupSearchHelper() {
         searchHelper = new SearchBar($functionArea, {
             "removeSelected": function() {
-                $('.xcTable:visible').find('.selectedCell')
-                                     .removeClass('selectedCell');
+                $('.xcTable').find('.selectedCell')
+                             .removeClass('selectedCell');
+                $('.xcTable').find('.modalHighlighted')
+                             .removeClass('modalHighlighted');
             },
             "highlightSelected": function($match) {
+                $('.xcTable').find('.modalHighlighted')
+                             .removeClass('modalHighlighted');
                 if ($match.is('th')) {
                     highlightColumn($match);
                     $('#mainFrame').find('.tblTitleSelected')
@@ -611,15 +624,16 @@ window.FnBar = (function(FnBar, $) {
             },
             "scrollMatchIntoView": function($match) {
                 var $mainFrame = $('#mainFrame');
-                var mainFrameWidth = $mainFrame.width();
+                var mainFrameOffset = MainMenu.getOffset();
+                var rightBoundary = mainFrameOffset + $mainFrame.width();
                 var matchOffsetLeft = $match.offset().left;
-                var scrollLeft = $mainFrame.scrollLeft();
                 var matchWidth = $match.width();
-                if (matchOffsetLeft > mainFrameWidth - matchWidth) {
-                    $mainFrame.scrollLeft(matchOffsetLeft + scrollLeft -
-                                        ((mainFrameWidth - matchWidth) / 2));
-                } else if (matchOffsetLeft < 25) {
-                    $mainFrame.scrollLeft(matchOffsetLeft + scrollLeft -
+                var matchDiff = matchOffsetLeft - (rightBoundary - matchWidth);
+
+                if (matchDiff > 0 || matchOffsetLeft < (mainFrameOffset)) {
+                    var scrollLeft = $mainFrame.scrollLeft();
+                    var mainFrameWidth = $mainFrame.width();
+                    $mainFrame.scrollLeft(scrollLeft + matchDiff +
                                         ((mainFrameWidth - matchWidth) / 2));
                 }
             },

@@ -55,6 +55,8 @@ TooltipTStr = {
     'FocusColumn': 'Focused Column',
     'ChooseUdfModule': 'Please choose a module first', // used in htmltstr
     'ChooseColToExport': 'Please select the columns you want to export',
+    'SelectCol': 'Please select a column first!',
+    'NoFnBarFormOpen': 'Please exit the current form to enter an operation',
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'No worksheet to move to',
     'NoUndoNoOp': 'No operation to undo',
