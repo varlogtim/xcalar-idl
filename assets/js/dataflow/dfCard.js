@@ -244,7 +244,10 @@ window.DFCard = (function($, DFCard) {
             .then(function(ret) {
                 try {
                     var dfStruct = JSON.parse(ret);
-                    DF.restore(dfStruct[getEMetaKeys().DF]);
+                    DF.restore(dfStruct[getEMetaKeys().DF])
+                    .then(function() {
+                        DF.initialize();
+                    });
                 } catch (error) {
                     return;
                 }
