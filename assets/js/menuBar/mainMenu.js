@@ -275,6 +275,10 @@ window.MainMenu = (function($, MainMenu) {
             case ("dataflowTab"):
                 $('#dataflowPanel').addClass("active");
                 DataflowPanel.active();
+                if ($curTab.hasClass('firstTouch')) {
+                    $curTab.removeClass('firstTouch');
+                    DFCard.focusFirstDF();
+                }
                 break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");

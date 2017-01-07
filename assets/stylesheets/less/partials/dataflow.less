@@ -26,6 +26,7 @@
 
 #dfgViz {
     .image("../../images/dagIcons/dag-background.png", right, top, repeat);
+    position: relative; // used for positioning refresh icon
 
     .interactive {
         opacity: 0.3 !important;
@@ -485,6 +486,10 @@
                 }
             }
         }
+    }
+
+    .refreshIcon {
+        z-index: 2;
     }
 }
 

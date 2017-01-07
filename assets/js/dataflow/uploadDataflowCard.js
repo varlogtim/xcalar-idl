@@ -70,7 +70,6 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                          {"isUpload": true,
                           "noClick" : true});
 
-            DFCard.updateDF();
             closeCard();
             // Click on the newly uploaded dataflow
             $(".groupName:contains('" + retName +"')").closest(".dataFlowGroup")

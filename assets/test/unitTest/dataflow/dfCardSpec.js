@@ -6,6 +6,7 @@ describe('DFCard Test', function() {
     var tableId;
     var $table;
     var testDfName = "unitTestDF";
+    var $dfWrap;
 
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
@@ -25,6 +26,13 @@ describe('DFCard Test', function() {
 
             DFCreateView.__testOnly__.submitForm()
             .then(function() {
+                // triggers construction of dag image
+                $('#dfgMenu').find('.listBox').filter(function() {
+                    return ($(this).find('.groupName').text() === testDfName);
+                }).closest('.listBox').trigger('click');
+
+                $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+
                 $("#maximizeDag").click();
                 setTimeout(function() {
                     $("#closeDag").click();
@@ -39,12 +47,12 @@ describe('DFCard Test', function() {
         });
     });
 
-    describe('Status Progress check', function() {
-        var $dfWrap;
-        before(function() {
-            $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
-        });
+    it('dag tables should have Created class', function() {
+        expect($dfWrap.find('.dagTable').length).to.equal(3);
+        expect($dfWrap.find('.dagTable.Created').length).to.equal(3);
+    });
 
+    describe('Status Progress check', function() {
         // using fake xcalarquerystate
         it('XcalarQueryState should be called when starting status check', function(done) {
             var cachedFn = XcalarQueryState;
@@ -86,11 +94,6 @@ describe('DFCard Test', function() {
             }, 2500);
         });
 
-        it('dag tables should have Created class', function() {
-            expect($dfWrap.find('.dagTable').length).to.equal(3);
-            expect($dfWrap.find('.dagTable.Created').length).to.equal(3);
-        });
-
         // using real xcalarquerystate
         it('dag table statuses should update when executing retina', function(done) {
             // make this the active df
@@ -120,6 +123,7 @@ describe('DFCard Test', function() {
     after(function(done) {
         DFCard.__testOnly__.deleteDataflow(testDfName)
         .always(function() {
+            Alert.forceClose();
             done(); 
         });
     });

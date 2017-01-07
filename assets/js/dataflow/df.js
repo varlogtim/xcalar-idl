@@ -47,11 +47,8 @@ window.DF = (function($, DF) {
             // Populate export column information
             addColumns(retName);
         }
-        DFCard.drawDags();
-        // restore old parameterized data
-        // updateParameterizedNode requires dag to be printed since it
-        // directly modifies the css for the node
 
+        // restore schedules
         for (var i = 0; i < retStructs.length; i++) {
             if (retStructs[i] == null) {
                 continue;
@@ -60,17 +57,7 @@ window.DF = (function($, DF) {
 
             if (retinaName in dfCache) {
                 jQuery.extend(dataflows[retinaName], dfCache[retinaName]);
-                for (var nodeId in dfCache[retinaName].parameterizedNodes) {
-                    var $tableNode =
-                               dataflows[retinaName].colorNodes(nodeId);
-                    var type = dfCache[retinaName]
-                                   .parameterizedNodes[nodeId]
-                                   .paramType;
-                    if (type === XcalarApisT.XcalarApiFilter) {
-                        $tableNode.find(".parentsTitle")
-                                  .text("<Parameterized>");
-                    }
-                }
+     
                 if (dfCache[retinaName].schedule) {
                     dataflows[retinaName].schedule = new SchedObj(
                                                   dfCache[retinaName].schedule);
@@ -79,11 +66,17 @@ window.DF = (function($, DF) {
         }
         dfCache = undefined;
         retStructs = undefined;
-        DFCard.updateDF();
+
+        DFCard.clearDFImages();
+        DFCard.refreshDFList();
     };
 
     DF.getAllDataflows = function() {
         return (dataflows);
+    };
+
+    DF.getNumDataflows = function() {
+        return (Object.keys(dataflows).length);
     };
 
     DF.getAllCommitKeys = function() {
@@ -127,8 +120,7 @@ window.DF = (function($, DF) {
                 addColumns(dataflowName, retInfo);
             }
             // XXX TODO add sql
-            DFCard.drawOneDag(dataflowName);
-            DFCard.updateDF();
+            DFCard.addDFToList(dataflowName);
             KVStore.commit();
             deferred.resolve();
         })

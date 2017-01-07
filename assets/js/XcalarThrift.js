@@ -2190,7 +2190,7 @@ function XcalarQuery(queryName, queryString, txId) {
     return (deferred.promise());
 }
 
-function XcalarQueryState(queryName) {
+function XcalarQueryState(queryName, statusesToIgnore) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -2204,13 +2204,25 @@ function XcalarQueryState(queryName) {
     xcalarQueryState(tHandle, queryName)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarQueryState", error);
-        SQL.errorLog("XcalarQueryState", null, null, thriftError);
+        var thriftError = queryStateErrorStatusHandler(error, statusesToIgnore);
         deferred.reject(thriftError);
     });
 
     return (deferred.promise());
 }
+
+function queryStateErrorStatusHandler(error, statusesToIgnore) {
+    var thriftError;
+    if (statusesToIgnore && statusesToIgnore.indexOf(error) > -1) {
+        thriftError = {status: error, error: "Error:" + StatusTStr[error]};
+    } else {
+        thriftError = thriftLog("XcalarQueryState", error);
+        SQL.errorLog("XcalarQueryState", null, null, thriftError);
+    }
+
+    return (thriftError);
+}
+
 
 function XcalarQueryCheck(queryName, txId) {
     function getDagNodeStatuses(dagOutput) {
