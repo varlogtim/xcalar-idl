@@ -69,7 +69,7 @@ window.xcSuggest = (function($, xcSuggest) {
             if (type === "string") {
                 if (val === null || val === "") {
                     // skip empty value
-                    return;
+                    continue;
                 }
                 d = val.length; // for string, use its length as metrics
             } else {
