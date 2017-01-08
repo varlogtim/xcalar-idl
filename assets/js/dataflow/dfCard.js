@@ -110,7 +110,7 @@ window.DFCard = (function($, DFCard) {
         $dfMenu.find('.listWrap').filter(function() {
             return ($(this).find('.groupName').text() === dfName);
         }).remove();
-        var dataflows = DF.getAllDataflows();      
+        var dataflows = DF.getAllDataflows();
         $dfMenu.find('.numGroups').text(DF.getNumDataflows());
         DFCard.focusFirstDF();
     };
@@ -120,7 +120,7 @@ window.DFCard = (function($, DFCard) {
     };
 
     DFCard.clearDFImages = function() {
-        $dfCard.find('.cardMain').empty(); 
+        $dfCard.find('.cardMain').empty();
     };
 
     DFCard.updateRetinaTab = function(retName) {
@@ -143,7 +143,7 @@ window.DFCard = (function($, DFCard) {
 
     DFCard.focusFirstDF = function() {
         $dfMenu.find('.listBox').eq(0).trigger('click');
-    }
+    };
 
     function addParamToRetina(name, val) {
         var $row = $retLists.find(".unfilled:first");
@@ -801,7 +801,7 @@ window.DFCard = (function($, DFCard) {
         var exportInfo = dagNode.input.exportInput;
         var targetName = exportInfo.meta.target.name;
         var fileName = parseFileName(exportInfo, paramsArray);
-        var advancedOpts = getAdvancetExportOption(retName);
+        var advancedOpts = getAdvancedExportOption(retName);
         if (advancedOpts == null) {
             // error case
             return PromiseHelper.reject();
@@ -940,7 +940,7 @@ window.DFCard = (function($, DFCard) {
             var splitName = name.split('.');
             name = splitName.splice(4, splitName.length).join(".");
         }
-       
+
         return (name);
     }
 
@@ -1000,7 +1000,7 @@ window.DFCard = (function($, DFCard) {
         return fileName;
     }
 
-    function getAdvancetExportOption(dataflowName) {
+    function getAdvancedExportOption(dataflowName) {
         var activeSession = false;
         var newTableName = "";
 

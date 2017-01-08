@@ -206,7 +206,7 @@ ErrTStr = {
     'PreservedName': 'This name is preserved, please use another name.',
     'InvalidWin': 'Cannot window an unsorted table',
     'InvalidQuery': 'Query Failed',
-    'InvalidRegEx': 'Error: Invalid regular expression',
+    'InvalidRegEx': 'Invalid regular expression (Please check your syntax)',
     'BracketsMis': 'Your function string has mismatched brackets.',
     'InvalidFunction': 'Invalid function',
     'TooLong': 'Please use fewer than 255 characters.',

@@ -57,7 +57,7 @@ window.DF = (function($, DF) {
 
             if (retinaName in dfCache) {
                 jQuery.extend(dataflows[retinaName], dfCache[retinaName]);
-     
+
                 if (dfCache[retinaName].schedule) {
                     dataflows[retinaName].schedule = new SchedObj(
                                                   dfCache[retinaName].schedule);
