@@ -59,7 +59,7 @@ window.DFCard = (function($, DFCard) {
     };
 
     DFCard.addDFToList = function(dataflowName) {
-        var dataflows = DF.getAllDataflows();
+        // var dataflows = DF.getAllDataflows();
         var html = getDFListItemHtml(dataflowName);
 
         $dfMenu.find('.listSection').append(html);
@@ -110,7 +110,7 @@ window.DFCard = (function($, DFCard) {
         $dfMenu.find('.listWrap').filter(function() {
             return ($(this).find('.groupName').text() === dfName);
         }).remove();
-        var dataflows = DF.getAllDataflows();
+        // var dataflows = DF.getAllDataflows();
         $dfMenu.find('.numGroups').text(DF.getNumDataflows());
         DFCard.focusFirstDF();
     };
@@ -301,7 +301,7 @@ window.DFCard = (function($, DFCard) {
             });
         });
 
-        $listSection.on('click', '.dataFlowGroup', function(event) {
+        $listSection.on('click', '.dataFlowGroup', function() {
             var $dfg = $(this);
             var $dataflowLi = $dfg.find('.listBox');
             if ($dataflowLi.hasClass('selected')) {
@@ -557,7 +557,7 @@ window.DFCard = (function($, DFCard) {
         // Attach styling to all nodes that have a dropdown
         $dfCard.find(selector).addClass("parameterizable");
 
-        var retinaName = dataflowName;
+        // var retinaName = dataflowName;
         for (var nodeId in dataflow.parameterizedNodes) {
             var $tableNode = dataflow.colorNodes(nodeId);
             var type = dataflow.parameterizedNodes[nodeId]
@@ -898,7 +898,7 @@ window.DFCard = (function($, DFCard) {
                 statusCheckInterval(retName);
             });
 
-        }, retinaCheckInterval);
+        }, checkTime);
     }
 
     function getAndUpdateRetinaStatuses(retName, ignoreNoExist) {

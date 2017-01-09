@@ -84,7 +84,7 @@ function MouseEvents() {
         return $lastMouseDownTarget;
     };
     this.getLastMouseDownParents = function() {
-        return $lastMDParents;  
+        return $lastMDParents;
     };
     this.getLastMouseDownTargets = function() {
         return lastMouseDownTargets;
@@ -3064,13 +3064,13 @@ ModalHelper.prototype = {
                 $modal.find(".modalHeader .close").click();
                 return false;
             } else if (event.which === keyCode.Enter) {
-                if (options.noEnter || ($(":focus").hasClass('btn') && 
+                if (options.noEnter || ($(":focus").hasClass('btn') &&
                     $(":focus").closest('#' + self.id).length)) {
                     // let default behavior take over
                     return true;
                 }
                 var $btn = $modal.find('.modalBottom .btn:visible')
-                                 .filter(function() {
+                                .filter(function() {
                                     return (!$(this).hasClass('cancel') &&
                                             !$(this).hasClass('close'));
                                 });
@@ -3085,9 +3085,11 @@ ModalHelper.prototype = {
                 } else {
                     // multiple confirm buttons
                     StatusBox.show(ErrTStr.SelectOption,
-                                    $modal.find('.modalBottom'), false,
-                                    {type: "info", highZindex: true,
-                                    offsetY: 12});
+                                    $modal.find('.modalBottom'), false, {
+                                        "type"      : "info",
+                                        "highZindex": true,
+                                        "offsetY"   : 12
+                                    });
                 }
                 return false;
             }
@@ -4183,11 +4185,10 @@ MenuHelper.prototype = {
         var self = this;
         var options = self.options;
         var $dropDownList = self.$dropDownList;
-        var $list = self.$list;
         // toggle list section
         if (options.onlyClickIcon) {
             self.$iconWrapper = $dropDownList.find('.iconWrapper');
-            $dropDownList.on("click", ".iconWrapper", function(event) {
+            $dropDownList.on("click", ".iconWrapper", function() {
                 self.toggleList($(this).closest(".dropDownList"));
             });
         } else {

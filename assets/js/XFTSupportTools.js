@@ -6,9 +6,9 @@ window.XFTSupportTools = (function(XFTSupportTools) {
 
     XFTSupportTools.getRecentLogs = function(requireLineNum) {
         var action = "/recentLogs";
-        var str = {"requireLineNum" : requireLineNum};
+        var str = {"requireLineNum": requireLineNum};
         return requestService(action, str);
-    }
+    };
 
     // pass in callbacks to get triggered upon each post return
     XFTSupportTools.monitorLogs = function(errCallback, successCallback) {
@@ -21,7 +21,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 lastReturnSucc = false;
                 var action = "/monitorLogs";
                 // support multiple user)
-                var data = {"userID" : userIdUnique};
+                var data = {"userID": userIdUnique};
                 postRequest(action, data)
                 .then(function(ret) {
                     console.info(ret);
@@ -43,17 +43,17 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 });
             }
         }
-    }
+    };
 
     XFTSupportTools.stopMonitorLogs = function() {
         var deferred = jQuery.Deferred();
         clearInterval(monitorIntervalId);
         $.ajax({
-            type: 'POST',
-            data: JSON.stringify({"userID" : userIdUnique}),
-            contentType: 'application/json',
-            url: hostname + "/app/stopMonitorLogs",
-            success: function(data) {
+            "type"       : "POST",
+            "data"       : JSON.stringify({"userID": userIdUnique}),
+            "contentType": "application/json",
+            "url"        : hostname + "/app/stopMonitorLogs",
+            success      : function(data) {
                 var ret = data;
                 if (ret.status === Status.Ok) {
                     console.log('Stop successfully');
@@ -101,7 +101,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
 
     XFTSupportTools.removeSessionFiles = function(filename) {
         var action = "/removeSessionFiles";
-        var str = {"filename" : filename};
+        var str = {"filename": filename};
         return requestService(action, str);
     };
 
@@ -133,17 +133,15 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     };
 
     function requestService(action, str) {
-        var promise = postRequest(action, str);
         var deferred = jQuery.Deferred();
-        promise
+
+        postRequest(action, str)
         .then(function(result) {
-            console.log("Every Node execute successfully");
-            console.log(result.logs);
+            console.log("Every Node execute successfully", result.logs);
             deferred.resolve(result);
         })
         .fail(function(result) {
-            console.log("With Node fail to execute");
-            console.log(result.logs);
+            console.log("With Node fail to execute", result.logs);
             deferred.reject(result);
         });
         return deferred.promise();
@@ -152,58 +150,35 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     function postRequest(action, str) {
         var deferred = jQuery.Deferred();
         $.ajax({
-            type: 'POST',
-            data: JSON.stringify(str),
-            contentType: 'application/json',
-            url: hostname + "/app" + action,
-            timeout: timeout,
-            success: function(data) {
+            "type"       : "POST",
+            "data"       : JSON.stringify(str),
+            "contentType": "application/json",
+            "url"        : hostname + "/app" + action,
+            "timeout"    : timeout,
+            success      : function(data) {
                 var ret = data;
-                var retMsg;
+                if (ret.logs != null) {
+                    ret.logs = atob(ret.logs);
+                } else {
+                    ret.logs = "";
+                }
+
                 if (ret.status === Status.Ok) {
-                    var retMsg;
-                    var status;
-                    var logs;
-                    if (ret.logs) {
-                        logs = atob(ret.logs);
-                        status = Status.Ok;
-                    } else {
-                        logs = "";
-                        status = Status.Ok;
-                    }
-                    retMsg = {
-                        status: status,
-                        logs: logs
-                    };
-                    deferred.resolve(retMsg);
+                    deferred.resolve(ret);
                 } else if (ret.status === Status.Error) {
-                    var logs;
-                    if (ret.logs) {
-                        logs = atob(ret.logs);
-                        ret.logs = logs;
-                    }
                     deferred.reject(ret);
                 } else {
-                    retMsg = {
-                        status: Status.Unknown,
-                        error: ret.error,
-                    };
-                    var logs;
-                    if (ret.logs) {
-                        logs = atob(retMsg.logs);
-                        retMsg.logs = logs;
-                    }
-                    deferred.reject(retMsg);
+                    ret.status = Status.Unknown;
+                    deferred.reject(ret);
                 }
             },
             error: function(error) {
                 console.error(error);
                 clearInterval(monitorIntervalId);
-                retMsg = {
-                    status: Status.Error,
-                    error: error
-                };
-                deferred.reject(retMsg);
+                deferred.reject({
+                    "status": Status.Error,
+                    "error" : error
+                });
             }
         });
         return deferred.promise();

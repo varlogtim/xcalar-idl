@@ -81,7 +81,7 @@ window.Aggregates = (function(Aggregates, $) {
         var promises = [];
         var sql = {
             "operation": SQLOps.DeleteAgg,
-            "aggs": aggNames
+            "aggs"     : aggNames
         };
         var txId = Transaction.start({
             "operation": SQLOps.DeleteAgg,

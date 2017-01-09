@@ -11,8 +11,8 @@ window.Alert = (function($, Alert){
         $btnSection = $("#alertActions");
 
         modalHelper = new ModalHelper($modal, {
-            "noResize"   : true,
-            "center"     : {"verticalQuartile": true}
+            "noResize": true,
+            "center"  : {"verticalQuartile": true}
         });
 
         $modal.draggable({

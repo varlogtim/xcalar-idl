@@ -182,8 +182,7 @@ window.DFParamModal = (function($, DFParamModal){
                 for (var i = 1; i < retStruct.args.length; i++) {
                     defaultText += '<div class="boxed medium">' +
                                         encodeURI(retStruct.args[i]) +
-                                    '</div>';             
-                                
+                                    '</div>';
                 }
 
 
@@ -192,9 +191,9 @@ window.DFParamModal = (function($, DFParamModal){
                         '<div class="static">by</div>' +
                         getParameterInputHTML(1, "sm-med", {filter: true});
                 for (var i = 1; i < retStruct.args.length; i++) {
-                    editableText += 
+                    editableText +=
                             getParameterInputHTML(1 + i, "medium allowEmpty");
-                }    
+                }
             } else {
                 // index, sort, map etc to be added in later
                 defaultText += '<div class="static">by</div>';

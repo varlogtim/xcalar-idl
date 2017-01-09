@@ -1541,10 +1541,10 @@ window.WSManager = (function($, WSManager) {
 
     function deleteTableFailHandler(errors) {
         var options = {
-            remove: true,
-            keepInWS: false,
-            noFocusWS: true
-        }
+            "remove"   : true,
+            "keepInWS" : false,
+            "noFocusWS": true
+        };
         var tableName;
         var tableId;
         var failedMsg;
@@ -1567,7 +1567,7 @@ window.WSManager = (function($, WSManager) {
         }
         if (tableList) {
             tableList = tableList.substr(0, tableList.length - 2);
-            failedMsg += ". "  + StatusMessageTStr.NotDeletedList + tableList;
+            failedMsg += ". " + StatusMessageTStr.NotDeletedList + tableList;
         }
         
         Alert.error(TblTStr.DelFail, failedMsg);

@@ -184,7 +184,8 @@ window.JSONModal = (function($, JSONModal) {
         });
         $jsonModal.find('.searchIcon').click(toggleSearch);
 
-        $jsonArea.on({"click": function(event) {
+        $jsonArea.on({
+            "click": function(event) {
                 var $el = $(this);
                 selectJsonKey($el, event);
             }
@@ -297,7 +298,7 @@ window.JSONModal = (function($, JSONModal) {
         });
 
         $jsonArea.on("click", ".selectAll", function() {
-            selectAllFields($(this))
+            selectAllFields($(this));
         });
 
         $jsonArea.on("click", ".dropdownBox", function() {
@@ -442,7 +443,7 @@ window.JSONModal = (function($, JSONModal) {
     function selectAllFields($btn) {
         var $jsonWrap = $btn.closest('.jsonWrap');
         $jsonWrap.find('.mainKey').each(function() {
-            var $el = $(this).children('.jKey'); 
+            var $el = $(this).children('.jKey');
             $el.addClass('keySelected');
             $el.siblings('.jsonCheckbox').addClass('checked');
         });
@@ -450,7 +451,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.clearAll').removeClass('disabled');
         updateNumPullColsSelected($jsonWrap);
         $lastKeySelected = null;
-    };
+    }
 
     function clearAllSelectedCols($btn) {
         var $jsonWrap = $btn.closest('.jsonWrap');
@@ -492,7 +493,7 @@ window.JSONModal = (function($, JSONModal) {
             $jsonWrap.find('.clearAll').removeClass('disabled');
         }
         if ($jsonWrap.hasClass('multiSelectMode')) {
-            updateNumPullColsSelected($jsonWrap)
+            updateNumPullColsSelected($jsonWrap);
         } else {
             updateNumProjColsSelected($jsonWrap);
         }
@@ -567,7 +568,7 @@ window.JSONModal = (function($, JSONModal) {
                 updateNumPullColsSelected($jsonWrap);
             } else {
                 updateNumProjColsSelected($jsonWrap);
-            }  
+            }
         } else {
             var tableId = $jsonWrap.data('tableid');
             var table = gTables[tableId];
@@ -1953,7 +1954,6 @@ window.JSONModal = (function($, JSONModal) {
             }
             $jsonArea.find('.menu li').removeClass('liSelected');
             $li.addClass('liSelected');
-            var $action = $li.data('action');
 
             $menu = $li.closest('.menu');
             $jsonWrap = $menu.closest('.jsonWrap');
@@ -1981,7 +1981,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on("mouseenter", ".menu li", function() {
             $(this).addClass("hover");
         });
-         $jsonArea.on("mouseleave", ".menu li", function() {
+        $jsonArea.on("mouseleave", ".menu li", function() {
             $(this).removeClass("hover");
         });
     }

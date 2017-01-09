@@ -389,7 +389,6 @@ window.StartManager = (function(StartManager, $) {
 
     function setupMemoryAlert() {
         $("#memoryAlert").click(function() {
-            var $btn = $(this);
             if ($(this).hasClass("tableAlert")) {
                 DeleteTableModal.show();
             } else {
@@ -822,13 +821,13 @@ window.StartManager = (function(StartManager, $) {
             var mouseDownTime = gMouseEvents.getLastMouseDownTime();
 
             var info = {
-                error: error,
-                url: url,
-                line: line,
-                column: column,
-                lastMouseDown: {
-                    el: mouseDownTargetHTML,
-                    time: mouseDownTime
+                "error"        : error,
+                "url"          : url,
+                "line"         : line,
+                "column"       : column,
+                "lastMouseDown": {
+                    "el"  : mouseDownTargetHTML,
+                    "time": mouseDownTime
                 }
             };
 

@@ -206,7 +206,7 @@ window.SQL = (function($, SQL) {
             if (errors[err].title === "Console error") {
                 consoleErrors.push(errors[err]);
             }
-        } 
+        }
         return consoleErrors;
     };
 

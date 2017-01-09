@@ -50,7 +50,7 @@ window.FnBar = (function(FnBar, $) {
             var val = editor.getValue();
             var mismatch = xcHelper.checkMatchingBrackets(val);
 
-            if (mismatch.index === -1) { 
+            if (mismatch.index === -1) {
                 // stop bubbling in case alert modal
                 // keydown also gets triggered by this
                 event.stopPropagation();
@@ -308,7 +308,7 @@ window.FnBar = (function(FnBar, $) {
 
     FnBar.getEditor = function() {
         return editor;
-    }
+    };
 
     function clearSearch() {
         $functionArea.removeClass('searching');

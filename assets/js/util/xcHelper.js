@@ -1234,7 +1234,7 @@ window.xcHelper = (function($, xcHelper) {
                 'type': currentType
             },
             'confidentRate': confidentRate
-        }
+        };
         return xcSuggest.suggestTypeHeuristic(inputs);
     };
 
@@ -2918,7 +2918,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
-                                    notAllowed, options);        
+                                    notAllowed, options);
     }
 
     function toggleUnnestandJsonOptions($menu, $div, columnType,
@@ -2942,7 +2942,7 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             if ($div.parent().hasClass('truncated')) {
                 $jsonModalLi.removeClass("hidden");
-            } 
+            }
 
             if (columnType === "mixed" && !notAllowed) {
                 var text = $div.text().trim();

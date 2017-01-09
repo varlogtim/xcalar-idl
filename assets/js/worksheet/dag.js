@@ -2922,7 +2922,7 @@ window.Dag = (function($, Dag) {
                 icon = '<i class="icon xi_data"></i>';
             }
 
-            html += '<div class="dagTable dataStore ' + state + 
+            html += '<div class="dagTable dataStore ' + state +
                         outerClassNames + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-table="' + originalTableName + '" ' +
@@ -3424,7 +3424,7 @@ window.Dag = (function($, Dag) {
             var keyName = dagArray[parentIndex].input.indexInput.keyName;
 
             // if indexed on a column named "multiGroupBy" then this may
-            // have been xcalar-generated sort, so check this table's 
+            // have been xcalar-generated sort, so check this table's
             // parent to find the source columns
             if (keyName.indexOf("multiGroupBy") === 0) {
                 var grandParentIndex = parentChildMap[parentIndex].parents[0];
@@ -3437,7 +3437,7 @@ window.Dag = (function($, Dag) {
                     text = text.slice(0, -2);
                     text += ")";
                 }
-            } 
+            }
             if (!text) {
                 text = "(" + keyName + ")";
             }

@@ -415,7 +415,7 @@ window.AggModal = (function($, AggModal) {
             updateRunProgress(cellCount, total);
 
             if (dupCols[col]) {
-                // for duplicated columns, no need to trigger thrift call            
+                // for duplicated columns, no need to trigger thrift call
                 continue;
             }
 
@@ -637,7 +637,7 @@ window.AggModal = (function($, AggModal) {
                 error.error += "(" + AggTStr.DivByZeroExplain + ")";
             }
 
-            var numDupCells = applyCorrResult(row, col, 
+            var numDupCells = applyCorrResult(row, col,
                                     '<span class="dash">--</span>', colDups,
                                     error.error);
             // still resolve

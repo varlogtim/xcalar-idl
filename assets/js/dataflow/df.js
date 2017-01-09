@@ -38,7 +38,6 @@ window.DF = (function($, DF) {
             if (retStructs[i] == null) {
                 continue;
             }
-            var j = 0;
             // Populate node information
             var retName = retStructs[i].retina.retinaDesc.retinaName;
             dataflows[retName] = new Dataflow(retName);
@@ -241,9 +240,8 @@ window.DF = (function($, DF) {
         }
     }
 
-    function addColumns(dataflowName, retInfo) {
+    function addColumns(dataflowName) {
         var dFlow = dataflows[dataflowName];
-        var columns = dFlow.columns;
         for (i = 0; i < dFlow.retinaNodes.length; i++) {
             if (dFlow.retinaNodes[i].api === XcalarApisT.XcalarApiExport) {
                 var exportCols = dFlow.retinaNodes[i].input.exportInput

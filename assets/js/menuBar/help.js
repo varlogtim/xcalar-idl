@@ -194,9 +194,11 @@ window.Help = (function($, Help) {
                 continue;
             }
             if (!categories[topic]) {
-                categories[topic] = {title: topic,
-                                     subTopics: [],
-                                     fullName: fullName};
+                categories[topic] = {
+                    "title"    : topic,
+                    "subTopics": [],
+                    "fullName" : fullName
+                };
             }
             // If topic and page.title are the same, then it's the link
             if (topic.toLowerCase() === page.title.toLowerCase()) {

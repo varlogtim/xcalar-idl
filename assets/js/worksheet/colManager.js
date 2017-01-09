@@ -1550,9 +1550,9 @@ window.ColManager = (function($, ColManager) {
         }
 
         return ({
-            tdValue: tdValue,
-            knf: knf,
-            isChildOfArray: isChildOfArray
+            "tdValue"       : tdValue,
+            "knf"           : knf,
+            "isChildOfArray": isChildOfArray
         });
     }
 

@@ -64,8 +64,10 @@ window.Undo = (function($, Undo) {
             // show filter form if filter was triggered from the form and was
             // the most recent operation
             if (isMostRecent && options.formOpenTime) {
-                OperationsView.show(null, null, null, {restore: true,
-                                    restoreTime: options.formOpenTime});
+                OperationsView.show(null, null, null, {
+                    "restore"    : true,
+                    "restoreTime": options.formOpenTime
+                });
             }
             deferred.resolve();
         })
@@ -93,8 +95,10 @@ window.Undo = (function($, Undo) {
             // most recent operation
             if (isMostRecent &&
                 (options.mapOptions && options.mapOptions.formOpenTime)) {
-                OperationsView.show(null, null, null, {restore: true,
-                               restoreTime: options.mapOptions.formOpenTime});
+                OperationsView.show(null, null, null, {
+                    "restore"    : true,
+                    "restoreTime": options.mapOptions.formOpenTime
+                });
             }
             deferred.resolve();
         })
@@ -223,8 +227,10 @@ window.Undo = (function($, Undo) {
         promise.then(function() {
             if (isMostRecent &&
                 (options.options && options.options.formOpenTime)) {
-                OperationsView.show(null, null, null, {restore: true,
-                                  restoreTime: options.options.formOpenTime});
+                OperationsView.show(null, null, null, {
+                    "restore"    : true,
+                    "restoreTime": options.options.formOpenTime
+                });
             }
             deferred.resolve();
         })
@@ -432,9 +438,10 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.RenameCol] = function(options) {
         focusTableHelper(options);
-        ColManager.renameCol(options.colNum, options.tableId, options.colName,
-                             {keepEditable: options.wasNew,
-                              prevWidth: options.prevWidth});
+        ColManager.renameCol(options.colNum, options.tableId, options.colName, {
+            "keepEditable": options.wasNew,
+            "prevWidth"   : options.prevWidth
+        });
         return PromiseHelper.resolve(null);
     };
 

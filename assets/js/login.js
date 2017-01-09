@@ -25,11 +25,11 @@ $(document).ready(function() {
 
         if (gLoginEnabled) {
             $.ajax({
-                type: 'POST',
-                data: JSON.stringify(str),
-                contentType: 'application/json',
-                url: hostname + "/app/login",
-                success: function(data) {
+                "type"       : "POST",
+                "data"       : JSON.stringify(str),
+                "contentType": "application/json",
+                "url"        : hostname + "/app/login",
+                "success"    : function(data) {
                     ret = data;
                     if (ret.status === Status.Ok) {
                         console.log('success');
@@ -49,7 +49,7 @@ $(document).ready(function() {
                     }
 
                 },
-                error: function(error) {
+                "error": function(error) {
                     //Auth server probably down or something. Just let them in
                     console.log(error);
                     submit();

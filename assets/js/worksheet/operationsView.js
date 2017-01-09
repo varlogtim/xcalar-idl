@@ -847,7 +847,7 @@ window.OperationsView = (function($, OperationsView) {
             }
         }
         $activeOpSection.find('.gbOnArg').last().blur();
-    }       
+    }
 
     function showOpSection() {
         var concatedOpName = operatorName.replace(/ /g, "");
@@ -1928,7 +1928,7 @@ window.OperationsView = (function($, OperationsView) {
                     $inputs = $inputs.not(':last');
                 }
                 var numNonBlankArgs = 0;
-                $inputs.each(function(i) {
+                $inputs.each(function() {
                     var $input = $(this);
                     var $row = $input.closest('.row');
                     var noArgsChecked = $row.find('.noArg.checked').length > 0;
@@ -2357,7 +2357,6 @@ window.OperationsView = (function($, OperationsView) {
         var deferred = jQuery.Deferred();
 
         var $nameInput;
-        var isPromise = false;
         switch (operatorName) {
             case ('map'):
                 $nameInput = $activeOpSection.find('.arg:visible').last();

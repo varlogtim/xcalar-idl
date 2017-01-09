@@ -677,7 +677,7 @@ window.JoinView = (function($, JoinView) {
         if (colRes.reason === 'notFound') {
             var tableName = gTables[tableId].getName();
             errorText = xcHelper.replaceMsg(ErrWRepTStr.ColNotInTable, {
-                "name": colRes.name,
+                "name" : colRes.name,
                 "table": tableName
             });
             tooltipTime = 3000;
@@ -822,7 +822,6 @@ window.JoinView = (function($, JoinView) {
 
     function validTableNameChecker() {
         var errorTitle;
-        var $input;
         var $errorInput;
         if (!gTables[getTableIds(0)]) {
             errorTitle = JoinTStr.NoLeftTable;
@@ -1026,8 +1025,11 @@ window.JoinView = (function($, JoinView) {
             } else {
                 type = DfFieldTypeT.DfUnknown;
             }
-            renameArray.push({"orig": origName, "new": newName,
-                              "type": type});
+            renameArray.push({
+                "orig": origName,
+                "new" : newName,
+                "type": type
+            });
         }
 
         for (i = 0; i < $origNames.length; i++) {
@@ -1465,13 +1467,12 @@ window.JoinView = (function($, JoinView) {
             };
 
             var options = {
-                keepTables   : keepTable,
-                formOpenTime : formOpenTime
+                "keepTables"  : keepTable,
+                "formOpenTime": formOpenTime
             };
 
             JoinView.close();
 
-            var startTime = Date.now();
             var origFormOpenTime = formOpenTime;
 
             xcFunction.join(joinType, lJoinInfo, rJoinInfo,
@@ -1735,7 +1736,7 @@ window.JoinView = (function($, JoinView) {
         $el.focus();
     }
 
-        function getColInputs(tableId, backColName) {
+    function getColInputs(tableId, backColName) {
         var col = gTables[tableId].getColByBackName(backColName);
         if (!col) {
             return null;
@@ -1746,9 +1747,9 @@ window.JoinView = (function($, JoinView) {
         var colNum = gTables[tableId].getColNumByBackName(backColName);
         var data = gTables[tableId].getColContents(colNum);
         var requiredInfo = {
-            'type': type,
-            'name': frontColName,
-            'data': data,
+            'type'            : type,
+            'name'            : frontColName,
+            'data'            : data,
             'uniqueIdentifier': backColName // Only IDs chosen result
         };
         return requiredInfo;
@@ -1760,7 +1761,7 @@ window.JoinView = (function($, JoinView) {
         var suggTable = gTables[suggTableId];
         var suggCols = suggTable.getAllCols();
         for (var i = 0; i < suggCols.length; i++) {
-            if(!suggCols[i].isDATACol()) {
+            if (!suggCols[i].isDATACol()) {
                 var result = getColInputs(suggTableId,
                     suggCols[i].getBackColName());
                 if (result !== null) {

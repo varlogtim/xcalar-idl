@@ -66,7 +66,7 @@ window.DFCreateView = (function($, DFCreateView) {
         selectInitialTableCols();
         setupTableColListeners();
         formHelper.setup();
-        exportHelper.showHelper()
+        exportHelper.showHelper();
     };
 
     DFCreateView.close = function() {
@@ -323,8 +323,6 @@ window.DFCreateView = (function($, DFCreateView) {
 
     function submitForm() {
         var deferred = jQuery.Deferred();
-        var isValid;
-
         var dfName = $newNameInput.val().trim();
 
         if (!validateDFName(dfName)) {

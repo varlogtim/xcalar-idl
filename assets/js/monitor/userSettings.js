@@ -9,7 +9,6 @@ window.UserSettings = (function($, UserSettings) {
 
     UserSettings.restore = function() {
         var deferred = jQuery.Deferred();
-        var userConfigParams;
         setup();
 
         KVStore.getAndParse(KVStore.gUserKey, gKVScope.USER)

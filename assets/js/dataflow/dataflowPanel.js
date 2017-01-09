@@ -7,8 +7,8 @@ window.DataflowPanel = (function($, DataflowPanel) {
     };
 
     DataflowPanel.initialize = function() {
-    	DFCard.initialize();
-    	DF.initialize();
+        DFCard.initialize();
+        DF.initialize();
     };
 
     DataflowPanel.active = function() {

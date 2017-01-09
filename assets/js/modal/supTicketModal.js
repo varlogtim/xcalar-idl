@@ -104,10 +104,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }
         var comment = $modal.find('.xc-textArea').val().trim();
         var ticketObj = {
-            type: issueType,
-            comment: comment,
+            "type"   : issueType,
+            "comment": comment,
         };
-
 
         if (download) {
             downloadTicket(ticketObj);
@@ -157,7 +156,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
         XcalarSupportGenerate()
         .then(function(ret) {
-            deferred.resolve();
+            deferred.resolve(ret);
             // do not show anything if succeeds
         })
         .fail(function(err) {
@@ -187,9 +186,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
             ticketObj.userIdUnique = userIdUnique;
             ticketObj.sessionName = WorkbookManager.getActiveWKBK();
             ticketObj.version = {
-                backendVersion: XVM.getBackendVersion(),
-                frontendVersion: gGitVersion,
-                thriftVersion: XVM.getSHA(),
+                "backendVersion" : XVM.getBackendVersion(),
+                "frontendVersion": gGitVersion,
+                "thriftVersion"  : XVM.getSHA(),
             };
             return XFTSupportTools.fileTicket(JSON.stringify(ticketObj));
         }
@@ -211,14 +210,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
     function downloadTicket(ticketObj) {
         ticketObj.time = new Date();
         xcHelper.downloadAsFile('xcalarTicket.txt', JSON.stringify(ticketObj));
-    }
-
-    function fakePromise() {
-        var deferred = jQuery.Deferred();
-        setTimeout(function() {
-            deferred.resolve();
-        }, 3000);
-        return deferred.promise();
     }
 
     function closeModal() {

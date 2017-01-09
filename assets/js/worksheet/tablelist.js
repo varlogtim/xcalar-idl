@@ -175,9 +175,8 @@ window.TableList = (function($, TableList) {
             focusOnTableColumn($col);
         });
 
-
         searchHelper = new SearchBar($("#orphanedTableList-search"), {
-            "$list"         : $("#orphanedTableListSection")
+            "$list": $("#orphanedTableListSection")
                               .find('.tableLists'),
             "removeSelected": function() {
                 $("#orphanedTableListSection").find(".selected")
@@ -794,7 +793,7 @@ window.TableList = (function($, TableList) {
         var $tableList = (active === true) ? $("#activeTablesList") :
                                              $("#inactiveTablesList");
         var $listSection = (active === true) ? $("#activeTableListSection") :
-                                               $("#archivedTableListSection")
+                                               $("#archivedTableListSection");
 
         if (sortedTables.length === 0) {
             $listSection.addClass('empty');
@@ -1130,7 +1129,6 @@ window.TableList = (function($, TableList) {
     function deleteConstants() {
         var deferred = jQuery.Deferred();
         var constNames = [];
-        var promises = [];
         var constName;
         var $constSection = $('#constantsListSection');
         $constSection.find('.addTableBtn.selected').each(function() {
