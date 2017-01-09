@@ -6,14 +6,15 @@ window.TestSuite = (function($, TestSuite) {
 
     var TestCaseEnabled = true;
     var TestCaseDisabled = false;
-    var defaultTimeout = 2560000;
-    var defaultCheckTimeout = 60000;
+    var defaultTimeout = 600000; // 10min
+    var defaultCheckTimeout = 60000; // 1min
     var slowInternetFactor = gLongTestSuite || 1;
                         // Change this to 2, 3, etc if you have a slow
                         // internet
     var passes = 0;
     var fails = 0;
     var skips = 0;
+    var failReason = null;
     var disableIsPass = true;
     var startTime = 0;
     var totTime = 0;
@@ -69,6 +70,7 @@ window.TestSuite = (function($, TestSuite) {
             console.warn("Test " + testName + " failed -- " + reason);
             console.warn("not ok " + currentTestNumber + " - Test \"" +
                          testName + "\" failed (" + reason + ")");
+            failReason = reason;
             deferred.reject();
         } else {
             console.error("Invalid state", deferred.state());
@@ -117,8 +119,10 @@ window.TestSuite = (function($, TestSuite) {
                     "gLongTestSuite = 2");
         var finalDeferred = jQuery.Deferred();
         var initialDeferred = jQuery.Deferred();
+        var errorCatchDeferred = jQuery.Deferred();
         var deferred = initialDeferred;
         var minModeCache = gMinModeOn;
+        var oldWindowErrFunc = window.onerror;
 
         // XXX use min mode for testing to get around of
         // animation crash test problem
@@ -144,6 +148,9 @@ window.TestSuite = (function($, TestSuite) {
             console.log('Running regular dataset');
         }
 
+        window.onerror = function(message, url, line, column, error) {
+            TestSuite.fail(errorCatchDeferred, null, null, error.stack);
+        };
 
         // Start PromiseHelper.chaining the callbacks
         try {
@@ -190,11 +197,14 @@ window.TestSuite = (function($, TestSuite) {
                 endRun();
             }
         }
+
         deferred.fail(function() {
             returnValue = 1;
         });
 
         deferred.always(endRun);
+
+        errorCatchDeferred.fail(endRun);
 
         function endRun() {
             if (toClean) {
@@ -206,6 +216,7 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         function finish() {
+            window.onerror = oldWindowErrFunc;
             console.log("# pass", passes);
             console.log("# fail", fails);
             console.log("# skips", skips);
@@ -240,10 +251,11 @@ window.TestSuite = (function($, TestSuite) {
             }
             gMinModeOn = minModeCache;
             finalDeferred.resolve({
-                "pass": passes,
-                "fail": fails,
-                "skip": skips,
-                "time": totTime / 1000
+                "pass" : passes,
+                "fail" : fails,
+                "skip" : skips,
+                "time" : totTime / 1000,
+                "error": failReason
             });
         }
 

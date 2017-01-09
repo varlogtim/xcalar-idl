@@ -36,6 +36,9 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var res = "Fail: " +
             results.fail + ", Pass: " + results.pass + ", Skip: " +
             results.skip + ", Time: " + results.time + "s";
+        if (results.error) {
+            res += " , Error: " + results.error;
+        }
         var status;
         $(".results .row").eq(id).find(".rightCol").html(res);
         if (results.fail > 0) {
@@ -249,7 +252,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var url = "";
         reports.forEach(function(res, index) {
             url += "user" + index + "?" + res + "&";
-        })
+        });
         url = encodeURIComponent(url);
         var url = "http://" + server + "/status/" + url;
 
