@@ -249,12 +249,15 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         }
         server = decodeURIComponent(server);
 
-        var url = "";
+        // http://host:port/action?name=setstatus&res=res
+        var output = "";
         reports.forEach(function(res, index) {
-            url += "user" + index + "?" + res + "&";
+            output += "user" + index + "?" + res + "&";
         });
-        url = encodeURIComponent(url);
-        var url = "http://" + server + "/status/" + url;
+        output = encodeURIComponent(output);
+
+        var url = "http://" + server +
+                    "/action?name=setstatus&res=" + output;
 
         $.ajax({
             "type"    : "GET",
