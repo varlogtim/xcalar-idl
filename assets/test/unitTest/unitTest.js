@@ -154,7 +154,8 @@ window.UnitTest = (function(UnitTest, $) {
         // creating process is finishing
         // need to refine
        
-        TestSuite.__testOnly__.createTable(dsName)
+        var sortColumnsAtoZ = true;
+        TestSuite.__testOnly__.createTable(dsName, sortColumnsAtoZ)
         .then(function(tableName, prefix) {
             setTimeout(function() {
                 deferred.resolve(tableName, prefix);

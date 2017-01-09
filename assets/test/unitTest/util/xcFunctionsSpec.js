@@ -19,8 +19,7 @@ describe("xcFunctions Test", function() {
                 tableName = tName;
                 prefix = tPrefix;
                 tableId = xcHelper.getTableId(tableName);
-                // xx temp use until we pass in the option to unitTest
-                TblManager.sortColumns(tableId, "forward");
+
                 // remove "time" column
                 ColManager.delCol([6], tableId)
                 .then(function(){

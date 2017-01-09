@@ -514,7 +514,8 @@ window.TestSuite = (function($, TestSuite) {
                             dsName + '"]:not(.inactive.fetching)';
     }
 
-    function createTable(dsName) {
+    // sorted: boolean to sort columns A-Z
+    function createTable(dsName, sorted) {
         var $grid = $(getDSIcon(dsName));
         var dsId = $grid.data("dsid");
         var innerDeferred = jQuery.Deferred();
@@ -551,6 +552,12 @@ window.TestSuite = (function($, TestSuite) {
             return checkExists(header);
         })
         .then(function() {
+            if (sorted) {
+                var $table = $(".tableTitle .tableName[value='" + tableName +
+                                "']").closest('.xcTableWrap');
+                var tableId =$table.data('id');
+                TblManager.sortColumns(tableId, "forward");
+            }
             var $header = $(header);
             var hasName = $header.siblings(".hashName").text();
             var $prefix = $header.closest(".xcTableWrap")

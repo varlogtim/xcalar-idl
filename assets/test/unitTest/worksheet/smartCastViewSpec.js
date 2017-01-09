@@ -148,14 +148,14 @@ describe('Smart Cast View Test', function() {
             var $colType = $castTable.find(".colType");
             var $castMenu = $("#castMenu");
             expect($colType.hasClass("initialType")).to.be.true;
-            expect($colType.find(".text").text()).to.equal("string");
+            expect($colType.find(".text").text()).to.equal("float");
             // open cast menu
             $colType.click();
             assert.isTrue($castMenu.is(":visible"));
             // change type
-            $castMenu.find('li[data-type="integer"]').mouseup();
+            $castMenu.find('li[data-type="string"]').mouseup();
             expect($colType.hasClass("initialType")).to.be.false;
-            expect($colType.find(".text").text()).to.equal("integer");
+            expect($colType.find(".text").text()).to.equal("string");
             // close cast menu
             $colType.click();
             assert.isFalse($castMenu.is(":visible"));

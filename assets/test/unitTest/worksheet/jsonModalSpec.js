@@ -15,12 +15,7 @@ describe('JsonModal Test', function() {
             tableName = tName;
             prefix = tPrefix;
             $jsonModal = $('#jsonModal');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId)
             JSONModal.show($table.find('.jsonElement').eq(0))
             // allow modal to fade in
@@ -140,18 +135,18 @@ describe('JsonModal Test', function() {
         it('pulling a field out should work', function(done) {
             ColManager.delCol([1], tableId, {noAnimate: true})
             .then(function() {
-                var $yelpingSinceKey = $jsonModal.find('.jKey').filter(function() {
-                    return ($(this).text() === "yelping_since");
+                var $averageStarsKey = $jsonModal.find('.jKey').filter(function() {
+                    return ($(this).text() === "average_stars");
                 });
-                expect($yelpingSinceKey.length).to.equal(1);
-                expect($yelpingSinceKey.siblings().text()).to.equal("2008-03");
-                $yelpingSinceKey.click();
+                expect($averageStarsKey.length).to.equal(1);
+                expect($averageStarsKey.siblings().text()).to.equal("3.54");
+                $averageStarsKey.click();
                 var $headerInput = $table.find('.editableHead').filter(function() {
-                    return ($(this).val() === "yelping_since")
+                    return ($(this).val() === "average_stars")
                 });
                 expect($headerInput.length).to.equal(1);
                 expect($headerInput.closest('th').hasClass('col12')).to.be.true;
-                expect($table.find('.row0 .col12 .displayedData').text()).to.equal("2008-03");
+                expect($table.find('.row0 .col12 .displayedData').text()).to.equal("3.54");
 
                 JSONModal.show($table.find('.jsonElement').eq(0));
                 // allow modal to fade in

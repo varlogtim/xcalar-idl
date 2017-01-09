@@ -1902,7 +1902,6 @@ describe('xcHelper Test', function() {
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
-
                 $div.html('{"a":"b"}');
                 fn($menu, $div, columnType, multiCell, notAllowed, options);
                 expect($unnestLi.hasClass('hidden')).to.be.false;

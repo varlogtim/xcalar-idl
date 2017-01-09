@@ -408,18 +408,19 @@ describe('ColManager Test', function() {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);
 
+            expect(table.hasCol("average_stars")).to.be.true;
             ColManager.delCol([1, 2], tableId);
             expect(getColLen(tableId) - colLen).to.equal(-2);
             var progCol = table.getCol(1);
             expect(progCol.isEmptyCol()).to.be.false;
-            expect(progCol.getFrontColName()).not.to.equal("yelping_since");
+            expect(progCol.getFrontColName()).not.to.equal("average_stars");
+            expect(table.hasCol("average_stars")).to.be.false;
         });
 
         it("Should Pull Column", function(done) {
             var table = gTables[tableId];
             var colLen = getColLen(tableId);
-            var colName = xcHelper.getPrefixColName(prefix, "yelping_since");
-
+            var colName = xcHelper.getPrefixColName(prefix, "average_stars");
             var options = {
                 "direction"  : ColDir.Left,
                 "fullName"   : colName,
@@ -430,7 +431,7 @@ describe('ColManager Test', function() {
             .then(function() {
                 expect(getColLen(tableId) - colLen).to.equal(1);
                 var progCol = table.getCol(1);
-                expect(progCol.getFrontColName()).to.equal("yelping_since");
+                expect(progCol.getFrontColName()).to.equal("average_stars");
                 done();
             })
             .fail(function(error) {
@@ -442,20 +443,20 @@ describe('ColManager Test', function() {
             // the yelping_since col
             var progCol = gTables[tableId].getCol(1);
             var $input = $("#xcTable-" + tableId + " th.col1 .editableHead");
-            var backCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+            var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
 
-            ColManager.renameCol(1, tableId, "yelping_since_test", {
+            ColManager.renameCol(1, tableId, "average_stars_test", {
                 "keepEditable": true
             });
-            expect(progCol.getFrontColName()).to.equal("yelping_since_test");
+            expect(progCol.getFrontColName()).to.equal("average_stars_test");
             expect(progCol.getBackColName()).to.equal(backCol);
-            expect($input.val()).to.equal("yelping_since_test");
+            expect($input.val()).to.equal("average_stars_test");
             expect($input.prop("disabled")).to.be.false;
             // rename back
-            ColManager.renameCol(1, tableId, "yelping_since");
-            expect(progCol.getFrontColName()).to.equal("yelping_since");
+            ColManager.renameCol(1, tableId, "average_stars");
+            expect(progCol.getFrontColName()).to.equal("average_stars");
             expect(progCol.getBackColName()).to.equal(backCol);
-            expect($input.val()).to.equal("yelping_since");
+            expect($input.val()).to.equal("average_stars");
             expect($input.prop("disabled")).to.be.true;
         });
 
@@ -800,8 +801,8 @@ describe('ColManager Test', function() {
             expect($table.find('tr').last().is($rows)).to.be.true;
 
             numRows = newNumRows;
-            var colName1 = xcHelper.getPrefixColName(prefix, 'yelping_since');
-            var colName2 = xcHelper.getPrefixColName(prefix, 'votes');
+            var colName1 = xcHelper.getPrefixColName(prefix, 'average_stars');
+            var colName2 = xcHelper.getPrefixColName(prefix, 'compliments');
             jsonData = ['{"' + colName1 + '":"testValue1"}', '{"' + colName2 + '":"testValue2"}'];
             
             // adding 2 rows now, Rowdirection top so prepended
@@ -853,7 +854,7 @@ describe('ColManager Test', function() {
 
             numRows = newNumRows;
 
-            colName1 = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            colName1 = xcHelper.getPrefixColName(prefix, 'average_stars');
             jsonData = ['{"' + colName1 + '":null}'];
             $rows = ColManager.pullAllCols(numRows, jsonData, tableId,
                                             RowDirection.Bottom);
@@ -869,7 +870,7 @@ describe('ColManager Test', function() {
 
             numRows = newNumRows;
 
-            colName1 = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            colName1 = xcHelper.getPrefixColName(prefix, 'average_stars');
             jsonData = ['{"' + colName1 + '":null, badJson}'];
             $rows = ColManager.pullAllCols(numRows, jsonData, tableId,
                                             RowDirection.Bottom);
@@ -882,8 +883,6 @@ describe('ColManager Test', function() {
             expect($rows.find('td').eq(2).text()).to.equal("FNF");
             expect($rows.find('td').last().text()).to.equal('null');
             expect($table.find('tr').last().is($rows)).to.be.true;
-
-            numRows = newNumRows;
         });
 
         after(function(done) {
@@ -891,6 +890,7 @@ describe('ColManager Test', function() {
             .always(function() {
                 done();
             });
+            
         });
     });
 

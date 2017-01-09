@@ -483,14 +483,14 @@ describe('TableMenu', function() {
 
     describe('column menu actions', function() {
         before(function() {
-            $table.find('th.col1 .dropdownBox').click();
+            $table.find('th.col12 .dropdownBox').click();
         });
         describe('main menu', function() {
             it('deleteColumn', function() {
                 var cachedFunc = ColManager.delCol;
                 var called = false;
                 ColManager.delCol = function(colNums, tId) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -508,7 +508,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.delDupCols;
                 var called = false;
                 ColManager.delDupCols = function(colNum, tId) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -527,7 +527,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.dupCol;
                 var called = false;
                 ColManager.dupCol = function(colNum, tId) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -545,7 +545,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.hideCols;
                 var called = false;
                 ColManager.hideCols = function(colNums, tId) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -563,7 +563,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.unhideCols;
                 var called = false;
                 ColManager.unhideCols = function(colNums, tId) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -581,7 +581,7 @@ describe('TableMenu', function() {
                 var cachedFunc = JoinView.show;
                 var called = false;
                 JoinView.show = function(tId, colNum) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -599,7 +599,7 @@ describe('TableMenu', function() {
                 var cachedFunc = OperationsView.show;
                 var called = false;
                 OperationsView.show = function(tId, colNums, func) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("aggregate");
                     called = true;
@@ -618,7 +618,7 @@ describe('TableMenu', function() {
                 var cachedFunc = OperationsView.show;
                 var called = false;
                 OperationsView.show = function(tId, colNums, func) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("filter");
                     called = true;
@@ -637,7 +637,7 @@ describe('TableMenu', function() {
                 var cachedFunc = OperationsView.show;
                 var called = false;
                 OperationsView.show = function(tId, colNums, func) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("group by");
                     called = true;
@@ -656,7 +656,7 @@ describe('TableMenu', function() {
                 var cachedFunc = OperationsView.show;
                 var called = false;
                 OperationsView.show = function(tId, colNums, func) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("map");
                     called = true;
@@ -675,7 +675,7 @@ describe('TableMenu', function() {
                 var cachedFunc = Profile.show;
                 var called = false;
                 Profile.show = function(tId, colNum) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -693,7 +693,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ExtensionManager.openView;
                 var called = false;
                 ExtensionManager.openView = function(colNum, tId) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -852,7 +852,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.addNewCol;
                 var called = false;
                 ColManager.addNewCol = function(colNum, tId, dir) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(dir).to.equal(ColDir.Left);
                     called = true;
@@ -872,7 +872,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.addNewCol;
                 var called = false;
                 ColManager.addNewCol = function(colNum, tId, dir) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(dir).to.equal(ColDir.Right);
                     called = true;
@@ -892,7 +892,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.renameCol;
                 var called = false;
                 ColManager.renameCol = function(colNum, tId, colName) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(colName).to.equal("test");
                     called = true;
@@ -917,7 +917,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.format;
                 var called = false;
                 ColManager.format = function(colNums, tId, formats) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(formats[0]).to.equal("percent");
                     called = true;
@@ -936,7 +936,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(decimals[0]).to.equal(3);
                     called = true;
@@ -954,7 +954,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(decimals[0]).to.equal(-1);
                     called = true;
@@ -973,7 +973,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.splitCol;
                 var called = false;
                 ColManager.splitCol = function(colNum, tId, delim, numColToGet) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(delim).to.equal("\\");
                     expect(numColToGet).to.equal(3);
@@ -992,7 +992,7 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.textAlign;
                 var called = false;
                 ColManager.textAlign = function(colNums, tId, elClass) {
-                    expect(colNums[0]).to.equal(1);
+                    expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(elClass).to.equal('textAlign leftAlign');
                     called = true;
@@ -1013,7 +1013,7 @@ describe('TableMenu', function() {
                 TblManager.resizeColumns = function(tId, resizeTo, colNum) {
                     expect(tId).to.equal(tableId);
                     expect(resizeTo).to.equal('sizeToHeader');
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     called = true;
                 };
 
@@ -1033,7 +1033,7 @@ describe('TableMenu', function() {
                 var called = false;
                 ColManager.changeType = function(colTypeInfos, tId) {
                     expect(colTypeInfos.length).to.equal(1);
-                    expect(colTypeInfos[0].colNum).to.equal(1);
+                    expect(colTypeInfos[0].colNum).to.equal(12);
                     expect(colTypeInfos[0].type).to.equal("boolean");
                     expect(tId).to.equal(tableId);
                     called = true;
@@ -1053,7 +1053,7 @@ describe('TableMenu', function() {
                 var cachedFunc = xcFunction.sort;
                 var called = false;
                 xcFunction.sort = function(colNum, tId, order) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(order).to.equal(SortDirection.Forward);
                     called = true;
@@ -1072,7 +1072,7 @@ describe('TableMenu', function() {
                 var cachedFunc = xcFunction.sort;
                 var called = false;
                 xcFunction.sort = function(colNum, tId, order) {
-                    expect(colNum).to.equal(1);
+                    expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(order).to.equal(SortDirection.Backward);
                     called = true;
@@ -1090,9 +1090,9 @@ describe('TableMenu', function() {
 
         describe('multiple columns', function() {
             before(function() {
-                $table.find('th.col1 .dragArea').trigger(fakeEvent.mousedown);
-                $table.find('th.col2 .dragArea').trigger({"type": "mousedown", "shiftKey": true});
-                $table.find('th.col2 .dropdownBox').click();
+                $table.find('th.col11 .dragArea').trigger(fakeEvent.mousedown);
+                $table.find('th.col12 .dragArea').trigger({"type": "mousedown", "shiftKey": true});
+                $table.find('th.col12 .dropdownBox').click();
             });
 
             it('multiple columns should be selected', function() {
@@ -1104,8 +1104,8 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.delCol;
                 var called = false;
                 ColManager.delCol = function(colNums, tId) {
-                    expect(colNums[0]).to.equal(1);
-                    expect(colNums[1]).to.equal(2);
+                    expect(colNums[0]).to.equal(11);
+                    expect(colNums[1]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -1123,8 +1123,8 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.hideCols;
                 var called = false;
                 ColManager.hideCols = function(colNums, tId) {
-                    expect(colNums[0]).to.equal(1);
-                    expect(colNums[1]).to.equal(2);
+                    expect(colNums[0]).to.equal(11);
+                    expect(colNums[1]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -1142,8 +1142,8 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.unhideCols;
                 var called = false;
                 ColManager.unhideCols = function(colNums, tId) {
-                    expect(colNums[0]).to.equal(1);
-                    expect(colNums[1]).to.equal(2);
+                    expect(colNums[0]).to.equal(11);
+                    expect(colNums[1]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -1162,8 +1162,8 @@ describe('TableMenu', function() {
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
                     console.log(arguments);
-                    expect(colNums[0]).to.equal(1);
-                    expect(colNums[1]).to.equal(2);
+                    expect(colNums[0]).to.equal(11);
+                    expect(colNums[1]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(decimals.length).to.equal(0);
                     called = true;
@@ -1182,11 +1182,11 @@ describe('TableMenu', function() {
 
     describe('cell menu actions', function() {
         it('tdFilter', function() {
-            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
-                expect(colNum).to.equal(1);
+                expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
                 expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'yelping_since, "2008-03")' );
                 expect(options.operator).to.equal("Filter");
@@ -1203,11 +1203,11 @@ describe('TableMenu', function() {
         });
 
         it('tdExclude', function() {
-            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
-                expect(colNum).to.equal(1);
+                expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
                 expect(options.filterString).to.equal('not(eq(' + prefix + gPrefixSign + 'yelping_since, "2008-03"))');
                 expect(options.operator).to.equal("Exclude");
@@ -1224,11 +1224,11 @@ describe('TableMenu', function() {
         });
 
         it('tdJsonModal', function() {
-            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
             var cachedFunc = JSONModal.show;
             var called = false;
             JSONModal.show = function($td, options) {
-                expect($td.is($table.find('td.col1').eq(0))).to.be.true;
+                expect($td.is($table.find('td.col12').eq(0))).to.be.true;
                 expect(options.type).to.equal('string');
                 called = true;
             };
@@ -1244,12 +1244,12 @@ describe('TableMenu', function() {
         });
 
         it('tdUnnest', function(done) {
-            $table.find('td.col1').eq(0).trigger(fakeEvent.mousedown);
+            $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
             var cachedFunc = ColManager.unnest;
             var called = false;
             ColManager.unnest = function(tId, colNum, rowNum) {
                 expect(tId).to.equal(tableId);
-                expect(colNum).to.equal(1);
+                expect(colNum).to.equal(12);
                 expect(rowNum).to.equal(0);
             
                 called = true;
@@ -1269,7 +1269,7 @@ describe('TableMenu', function() {
 
     describe('prefix menu actions', function() {
         before(function() {
-            $table.find('th.col1 .dotWrap').click();
+            $table.find('th.col12 .dotWrap').click();
         });
 
         it('prefix menu should work', function() {

@@ -51,7 +51,7 @@ describe('JoinView', function() {
 
         it('should only have one clause row', function() {
             expect($joinForm.find('.joinClause')).to.have.lengthOf(1);
-            var colName = prefix + gPrefixSign + "yelping_since";
+            var colName = prefix + gPrefixSign + "average_stars";
             expect($joinForm.find('.leftClause').val()).to.equal(colName);
             expect($joinForm.find('.leftClause').prop('disabled')).to.be.false;
             expect($joinForm.find('.rightClause').val()).to.equal("");
@@ -95,7 +95,7 @@ describe('JoinView', function() {
             $joinForm.find('.middleIcon:eq(1)').click();
 
             expect($joinForm.find('.middleIcon').length).to.equal(1);
-            var colName = prefix + gPrefixSign + "yelping_since";
+            var colName = prefix + gPrefixSign + "average_stars";
             expect($joinForm.find('.leftClause').val()).to.equal(colName);
             expect($joinForm.find('.leftClause').prop('disabled')).to.be.false;
         });
@@ -117,7 +117,7 @@ describe('JoinView', function() {
             expect($joinForm.find('.next:visible').length).to.equal(1);
             expect($joinForm.find('.next').css('pointer-events')).to.equal("none");
 
-            var colName = prefix + gPrefixSign + "yelping_since";
+            var colName = prefix + gPrefixSign + "average_stars";
             $joinForm.find('.rightClause').val(colName).change();
             expect($joinForm.find('.next').css('pointer-events')).to.not.equal("none");
             
@@ -151,20 +151,20 @@ describe('JoinView', function() {
             var cols = tableCols;
             var checkRes;
             // cols
-            // col 0 - yelping_since (string)
-            // col 1 - votes (object)
+            // col 11 - yelping_since (string)
+            // col 10 - votes (object)
             // col 4 - friends (array)
             // col 7 - review_count (integer)
-            // col 9 - average_stars (float)
+            // col 0 - average_stars (float)
 
 
-            checkRes = check([cols[0].backName], [cols[0].backName], [tableId, tableId]);
-            expect(cols[0].getType()).to.equal('string');
+            checkRes = check([cols[11].backName], [cols[11].backName], [tableId, tableId]);
+            expect(cols[11].getType()).to.equal('string');
             expect(checkRes).to.be.an('object');
             expect(checkRes.success).to.be.true;
 
-            checkRes = check([cols[1].backName], [cols[1].backName], [tableId, tableId]);
-            expect(cols[1].getType()).to.equal('object');
+            checkRes = check([cols[10].backName], [cols[10].backName], [tableId, tableId]);
+            expect(cols[10].getType()).to.equal('object');
             expect(checkRes).to.be.an('object');
             expect(checkRes.success).to.be.true;
 
@@ -179,7 +179,7 @@ describe('JoinView', function() {
             expect(checkRes).to.be.an('object');
             expect(checkRes.success).to.be.true;
 
-            checkRes = check([cols[7].backName], [cols[0].backName], [tableId, tableId]);
+            checkRes = check([cols[7].backName], [cols[11].backName], [tableId, tableId]);
             expect(cols[7].getType()).to.equal('integer');
             expect(cols[7].isImmediate()).to.be.false;
             expect(checkRes).to.be.an('object');
@@ -188,9 +188,9 @@ describe('JoinView', function() {
             expect(checkRes.types[1]).to.equal('string');
             expect(checkRes.row).to.equal(0);
 
-            checkRes = check([cols[7].backName], [cols[9].backName], [tableId, tableId]);
-            expect(cols[9].getType()).to.equal('float');
-            expect(cols[9].isImmediate()).to.be.false;
+            checkRes = check([cols[7].backName], [cols[0].backName], [tableId, tableId]);
+            expect(cols[0].getType()).to.equal('float');
+            expect(cols[0].isImmediate()).to.be.false;
             expect(checkRes).to.be.an('object');
             expect(checkRes.success).to.be.true;
 
@@ -218,8 +218,8 @@ describe('JoinView', function() {
 
     describe('clause column pickers', function() {
         it('clause column pickers should work', function() {
-            var colName1 = prefix + gPrefixSign + "yelping_since";
-            var colName2 = prefix + gPrefixSign + "votes";
+            var colName1 = prefix + gPrefixSign + "average_stars";
+            var colName2 = prefix + gPrefixSign + "compliments";
             $joinForm.find('.leftClause').val("").change();
             $joinForm.find('.rightClause').val("").change();
             expect($joinForm.find('.leftClause').val()).to.equal("");

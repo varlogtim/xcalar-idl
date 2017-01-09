@@ -15,15 +15,12 @@ describe('DFCreateView', function() {
             tableName = tName;
             prefix = tPrefix;
             $dfView = $('#dfCreateView');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    $table = $("#xcTable-" + tableId);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
+            $table = $("#xcTable-" + tableId);
             DFCreateView.show($("#dagWrap-" + tableId));
-            done();
+            setTimeout(function() {
+                done();
+            }, 400);
         });
     });
 
@@ -73,7 +70,7 @@ describe('DFCreateView', function() {
         });
 
         it('clicking on non-exportable column header should not select', function() {
-            var $th = $("#xcTable-" + tableId).find('th.col2');
+            var $th = $("#xcTable-" + tableId).find('th.col11');
             expect($th.find('input').val()).to.equal("votes");
             expect($th.hasClass('modalHighlighted')).to.be.false;
 

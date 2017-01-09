@@ -23,104 +23,102 @@ describe('FnBar', function() {
     });
 
     describe('fn bar test', function() {
-    	before(function() {
-    		$table.find('th.col1 .dragArea').mousedown();
-    	});
+        before(function() {
+            $table.find('th.col1 .dragArea').mousedown();
+        });
 
-    	it('fnBar should read correctly', function() {
-    		expect(true).to.be.true;
-    		expect($("#functionArea").find(".CodeMirror-code").text()).to.equal('= pull(' + prefix + gPrefixSign + 'yelping_since)');
-    	});
+        it('fnBar should read correctly', function() {
+            expect(true).to.be.true;
+            expect($("#functionArea").find(".CodeMirror-code").text()).to.equal('= pull(' + prefix + gPrefixSign + 'average_stars)');
+        });
     });
 
     describe('filter test', function() {
-    	it('successful filter should work', function(done) {
-    		var cachedFunc = ColManager.execCol;
-    		var passed = false;
-    		ColManager.execCol = function(op, newFuncStr, tableId, colNum) {
-    			passed = true;
-    			return PromiseHelper.resolve();
-    		}
+        it('successful filter should work', function(done) {
+            var cachedFunc = ColManager.execCol;
+            var passed = false;
+            ColManager.execCol = function(op, newFuncStr, tableId, colNum) {
+                passed = true;
+                return PromiseHelper.resolve();
+            };
 
-    		editor.setValue('= filter(eq(' + prefix + gPrefixSign + 'yelping_since, 0))');
+            editor.setValue('= filter(eq(' + prefix + gPrefixSign + 'average_stars, 0))');
 
-    		FnBar.__testOnly__.functionBarEnter()
-    		.then(function() {
-    			expect(passed).to.be.true;
-    		})
-    		.fail(function() {
-    			expect('failed').to.equal('should succeed');
-    		})
-    		.always(function() {
-    			ColManager.execCol = cachedFunc;
-    			done();
-    		});
-    		
-    	});
+            FnBar.__testOnly__.functionBarEnter()
+            .then(function() {
+                expect(passed).to.be.true;
+            })
+            .fail(function() {
+                expect('failed').to.equal('should succeed');
+            })
+            .always(function() {
+                ColManager.execCol = cachedFunc;
+                done();
+            });
+        });
 
-    	it('error filter should not work', function(done) {
-    		var cachedFunc = ColManager.execCol;
-    		var passed = false;
-    		ColManager.execCol = function(op, newFuncStr, tId, colNum) {
-    			passed = true;
-    			expect(op).to.equal('filter');
-    			expect(newFuncStr).to.equal('"yelping_since" = filter(eq(' + prefix + gPrefixSign + 'yelping_since, 0)))');
-    			expect(tId).to.equal(tableId);
-    			expect(colNum).to.equal(1);
-    			return PromiseHelper.resolve();
-    		}
+        it('error filter should not work', function(done) {
+            var cachedFunc = ColManager.execCol;
+            var passed = false;
+            ColManager.execCol = function(op, newFuncStr, tId, colNum) {
+                passed = true;
+                expect(op).to.equal('filter');
+                expect(newFuncStr).to.equal('"average_stars" = filter(eq(' + prefix + gPrefixSign + 'average_stars, 0)))');
+                expect(tId).to.equal(tableId);
+                expect(colNum).to.equal(1);
+                return PromiseHelper.resolve();
+            }
 
-    		editor.setValue('= filter(eq(' + prefix + gPrefixSign + 'wrongName, 0))');
+            editor.setValue('= filter(eq(' + prefix + gPrefixSign + 'wrongName, 0))');
 
-    		FnBar.__testOnly__.functionBarEnter()
-    		.then(function() {
-    			expect('succeeded').to.equal('should fail');
-    		})
-    		.fail(function() {
-    			var msg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
-                    colName: prefix + gPrefixSign + 'yelping_since'
+            FnBar.__testOnly__.functionBarEnter()
+            .then(function() {
+                expect('succeeded').to.equal('should fail');
+            })
+            .fail(function() {
+                var msg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
+                    colName: prefix + gPrefixSign + 'average_stars'
                 });
                 UnitTest.hasAlertWithText(msg);
-    			expect(passed).to.be.false;
-    		})
-    		.always(function() {
-    			ColManager.execCol = cachedFunc;
-    			done();
-    		});
-    		
-    	});
+                expect(passed).to.be.false;
+            })
+            .always(function() {
+                ColManager.execCol = cachedFunc;
+                done();
+            });
+        });
 
-    	it('submit filter should work', function(done) {
-    		editor.setValue('= filter(eq(' + prefix + gPrefixSign + 'yelping_since, "2008-03"))');
-    		expect($table.find('tbody tr').length).to.be.gt(10);
+        it('submit filter should work', function(done) {
+            editor.setValue('= filter(eq(' + prefix + gPrefixSign + 'average_stars, 4.5))');
+            expect($table.find('tbody tr').length).to.be.gt(10);
 
-    		FnBar.__testOnly__.functionBarEnter()
-    		.then(function(ret) {
-    			newTableName = ret;
-    			var newTableId = xcHelper.getTableId(ret);
-            	var $newTable = $('#xcTable-' + newTableId);
-    		
-    			expect($newTable.find('tbody tr').length).to.equal(8);
-    			expect($newTable.find('.row0 td.col1').text()).to.equal('2008-03');
-    			expect($newTable.find('.row5 td.col1').text()).to.equal('2008-03');
-    			done();
-    		})
-    		.fail(function() {
-    			expect('failed').to.equal('should succeed');
-    			done();
-    		});
-    	});
+            FnBar.__testOnly__.functionBarEnter()
+            .then(function(ret) {
+                newTableName = ret;
+                var newTableId = xcHelper.getTableId(ret);
+                var $newTable = $('#xcTable-' + newTableId);
+
+                expect($newTable.find('tbody tr').length).to.equal(27);
+                expect($newTable.find('.row0 td.col1 .originalData').text()).to.equal('4.5');
+                expect($newTable.find('.row5 td.col1 .originalData').text()).to.equal('4.5');
+                expect($newTable.find('.row15 td.col1 .originalData').text()).to.equal('4.5');
+                done();
+            })
+            .fail(function() {
+                expect('failed').to.equal('should succeed');
+                done();
+            });
+        });
     });
 
     after(function(done) {
-    	UnitTest.deleteTable(tableName, TableType.Orphan)
-    	.always(function(){
-    		UnitTest.deleteAll(newTableName, testDs)
-	        .always(function() {
-	            UnitTest.offMinMode();
-	            done();
-	        });
-    	});
-        
+        UnitTest.deleteTable(tableName, TableType.Orphan)
+        .always(function(){
+            UnitTest.deleteAll(newTableName, testDs)
+            .always(function() {
+                UnitTest.offMinMode();
+                done();
+            });
+        });
     });
 });

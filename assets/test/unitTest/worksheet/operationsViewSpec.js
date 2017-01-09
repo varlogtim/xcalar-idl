@@ -133,7 +133,9 @@ describe('OperationsView', function() {
         var columns;
         var someColumns;
         // var columnNames = ["yelping_since", "votes", "one", "compliments", "friends", "two\\.three", "elite", "review_count", "four", "average_stars", "mixVal", "user_id", "DATA"];
+        // var columnNames = ["average_stars","compliments","elite", "four","friends","mixVal","one", "review_count","two.three", "user_id", "votes", yelping_since", "DATA"];
         var someColumnNames = ["yelping_since", "compliments", "friends", "review_count", "four", "average_stars", "mixVal", "DATA"];
+        var someColumnNames = ["average_stars","compliments","four","friends","mixVal","review_count","yelping_since", "DATA"];
 
         before(function(done) {
             getExistingTypes = OperationsView.__testOnly__.getExistingTypes;
@@ -141,12 +143,7 @@ describe('OperationsView', function() {
             parseType = OperationsView.__testOnly__.parseType;
             $operationsModal = $('#operationsView');
             $operationsView = $('#operationsView');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'group by')
             .then(function() {
@@ -344,8 +341,8 @@ describe('OperationsView', function() {
                 OperationsView.show(tableId, [1, 2], 'group by')
                 .then(function() {
                     expect($operationsModal.find('.gbOnArg').length).to.equal(2);
-                    expect($operationsModal.find('.gbOnArg').eq(0).val()).to.equal(gColPrefix + prefix + gPrefixSign + "yelping_since");
-                    expect($operationsModal.find('.gbOnArg').eq(1).val()).to.equal(gColPrefix + prefix + gPrefixSign + "votes");
+                    expect($operationsModal.find('.gbOnArg').eq(0).val()).to.equal(gColPrefix + prefix + gPrefixSign + "average_stars");
+                    expect($operationsModal.find('.gbOnArg').eq(1).val()).to.equal(gColPrefix + prefix + gPrefixSign + "compliments");
                     done();
                 });
             });
@@ -471,12 +468,7 @@ describe('OperationsView', function() {
 
         before(function(done) {
             $operationsView = $('#operationsView');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'map')
             .then(function() {
@@ -540,10 +532,10 @@ describe('OperationsView', function() {
                 $argInputs.eq(0).focus().trigger('focus').val(""); // focus & trigger to make sure
                 expect($argInputs.eq(0).val()).to.equal("");
                 var $header = $('#xcTable-' + tableId).find('th.col1 .header');
-                expect($header.find('input').val()).to.equal('yelping_since');
+                expect($header.find('input').val()).to.equal('average_stars');
                 $header.click();
 
-                var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+                var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
                 expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
 
 
@@ -583,7 +575,7 @@ describe('OperationsView', function() {
                 $argInputs.eq(0).focus().trigger('focus').val(""); // focus & trigger to make sure
                 expect($argInputs.eq(0).val()).to.equal("");
                 var $header = $('#xcTable-' + tableId).find('th.col1 .header');
-                expect($header.find('input').val()).to.equal('yelping_since');
+                expect($header.find('input').val()).to.equal('average_stars');
                 $header.click();
                 expect($argInputs.eq(0).val()).to.equal("");
 
@@ -609,12 +601,7 @@ describe('OperationsView', function() {
 
         before(function(done) {
             $operationsView = $('#operationsView');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'filter')
             .then(function() {
@@ -661,7 +648,7 @@ describe('OperationsView', function() {
 
             $functionsInput.val('and').trigger(fakeEvent.enterKeydown);
             expect($argSection.hasClass('inactive')).to.be.false;
-            var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
             expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
             expect($argSection.find('.arg').eq(1).val()).to.equal("");
             expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
@@ -672,7 +659,7 @@ describe('OperationsView', function() {
 
             $functionsInput.val('and').trigger({type:"keydown", which: keyCode.Tab});
             expect($argSection.hasClass('inactive')).to.be.false;
-            var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
             expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
             expect($argSection.find('.arg').eq(1).val()).to.equal("");
             expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
@@ -688,7 +675,7 @@ describe('OperationsView', function() {
 
             $functionsInput.val('and').change();
             expect($argSection.hasClass('inactive')).to.be.false;
-            var prefixCol = xcHelper.getPrefixColName(prefix, 'yelping_since');
+            var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
             expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
             expect($argSection.find('.arg').eq(1).val()).to.equal("");
             expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
@@ -753,12 +740,7 @@ describe('OperationsView', function() {
         before(function(done) {
             $operationsView = $('#operationsView');
             $filterForm = $operationsView.find('.filter');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'filter')
             .then(function() {
@@ -871,12 +853,7 @@ describe('OperationsView', function() {
         before(function(done) {
             $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'map')
             .then(function() {
@@ -987,18 +964,18 @@ describe('OperationsView', function() {
             it('should select category when clicked', function() {
                 // string - concat
                 $categoryMenu.find('li').filter(function() {
-                    return ($(this).text() === "string");
+                    return ($(this).text() === "arithmetic");
                 }).trigger(fakeEvent.click);
-                expect($categoryMenu.find("li.active").text()).to.equal('string');
+                expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
 
                 $functionsMenu.find('li').filter(function() {
-                    return ($(this).text() === "concat");
+                    return ($(this).text() === "add");
                 }).trigger(fakeEvent.click);
                 var $argInputs = $operationsView.find('.arg[type=text]:visible');
-                var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+                var prefixCol = xcHelper.getPrefixColName(prefix, "average_stars");
                 expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                 expect($argInputs.eq(1).val()).to.equal("");
-                expect($argInputs.eq(2).val()).to.startsWith("yelping_since_concat");
+                expect($argInputs.eq(2).val()).to.startsWith("average_stars_add");
 
                 // user-defined - default:splitWithDelim
                 $categoryMenu.find('li').filter(function() {
@@ -1013,7 +990,7 @@ describe('OperationsView', function() {
                 expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                 expect($argInputs.eq(1).val()).to.equal("");
                 expect($argInputs.eq(2).val()).to.equal("");
-                expect($argInputs.eq(3).val()).to.startsWith("yelping_since_udf");
+                expect($argInputs.eq(3).val()).to.startsWith("average_stars_udf");
 
                 // check arg descriptions
                 var $descriptions = $argInputs.closest('.row').find('.description');
@@ -1050,13 +1027,17 @@ describe('OperationsView', function() {
                     category: "string",
                     func: "concat",
                     args: [{
+                        num: 0,
+                        str: gColPrefix + prefixCol
+                    },
+                    {
                         num: 1,
                         str: "zz"
                     }],
                     expectedMapStr: 'concat(' + prefixCol + ', "zz")',
                     expectedCliMapStr: 'concat(' + prefixCol + ', "zz")',
                     transform: function(colVal) {
-                        return (colVal + this.args[0].str);
+                        return (colVal + this.args[1].str);
                     }
                 };
 
@@ -1072,6 +1053,9 @@ describe('OperationsView', function() {
                     category: "string",
                     func: "concat",
                     args: [{
+                        num: 0,
+                        str: gColPrefix + prefixCol
+                    },{
                         num: 1,
                         str: ""
                     }],
@@ -1108,12 +1092,12 @@ describe('OperationsView', function() {
                 var options = {
                     category: "user-defined",
                     func: "default:splitWithDelim",
-                    args: [{num: 1,str: 1}, {num:2, str: "\"-\""}],
+                    args: [{num: 0, str: gColPrefix + prefixCol},{num: 1,str: 1}, {num:2, str: "\"-\""}],
                     expectedMapStr: 'default:splitWithDelim(' + prefixCol + ', 1, "-")',
                     expectedCliMapStr: 'default:splitWithDelim(' + prefixCol + ', 1, "-")',
                     transform: function(colVal) {
                         var delim = "-";
-                        var index = this.args[0].str;
+                        var index = this.args[1].str;
                         return colVal.split(delim).splice(index).join(delim);
                     }
                 };
@@ -1191,11 +1175,11 @@ describe('OperationsView', function() {
                             return false;
                         }
                     });
-                    var orgCellText = $tableWrap.find('.row0 .col2 .originalData').text();
+                    var orgCellText = $tableWrap.find('.row0 .col13 .originalData').text();
                     var newCellText = $tableWrap.find('.row0 .col1 .originalData').text();
                     expect(newCellText).to.equal(options.transform(orgCellText));
 
-                    var orgCellText = $tableWrap.find('.row15 .col2 .originalData').text();
+                    var orgCellText = $tableWrap.find('.row15 .col13 .originalData').text();
                     var newCellText = $tableWrap.find('.row15 .col1 .originalData').text();
                     expect(newCellText).to.equal(options.transform(orgCellText));
                     var sqlCli = SQL.viewLastAction(true).cli;
@@ -1218,12 +1202,7 @@ describe('OperationsView', function() {
         after(function(done) {
             OperationsView.close();
             var tableId;
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
 
             // allow time for operations view to close
             setTimeout(function() {
@@ -1238,12 +1217,7 @@ describe('OperationsView', function() {
         before(function(done) {
             $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
-            $('.xcTableWrap').each(function() {
-                if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                    tableId = $(this).find('.hashName').text().slice(1);
-                    return false;
-                }
-            });
+            tableId = xcHelper.getTableId(tableName);
 
 
             OperationsView.show(tableId, [1], 'aggregate')
@@ -1300,7 +1274,7 @@ describe('OperationsView', function() {
             it('field name input should be autofilled when function selected', function() {
                 var $fieldInput = $aggForm.find('.arg').eq(0);
                 $functionsInput.val('avg').trigger('change');
-                expect($fieldInput.val()).to.equal(gColPrefix + prefix + gPrefixSign + "yelping_since");
+                expect($fieldInput.val()).to.equal(gColPrefix + prefix + gPrefixSign + "average_stars");
             });
         });
 
