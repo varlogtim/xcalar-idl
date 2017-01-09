@@ -204,7 +204,11 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
-    // Point to dataset, promise returns dsObj
+    /* Point to dataset, promise returns dsObj
+        options:
+            createTable: if set true, will auto create the table
+            dsToReplace: if set true, will replace the old ds
+    */
     DS.point = function(pointArgs, options) {
         options = options || {};
         var createTable = options.createTable || false;

@@ -1686,6 +1686,7 @@ function ProfileBucketInfo(options) {
  * @property {string} path ds url
  * @property {string} fileSize size of ds
  * @property {number} numEntries number of ds records
+ * XXX @property {array} headers temp fix to preserve CSV header order
  */
 function DSObj(options) {
     options = options || {};
@@ -1696,6 +1697,11 @@ function DSObj(options) {
     this.parentId = options.parentId;
     this.isFolder = options.isFolder || false;
     this.uneditable = options.uneditable;
+
+    if (options.headers != null) {
+        this.headers = options.headers;
+    }
+
     if (options.error != null) {
         this.error = options.error;
     }
@@ -1964,6 +1970,7 @@ DSObj.prototype = {
                     jsonKeys.push(uniquekey);
                 }
 
+                jsonKeys = self._preserveHeaderOrder(jsonKeys);
                 innerDeferred.resolve(jsons, jsonKeys);
 
             } catch (error) {
@@ -1973,6 +1980,45 @@ DSObj.prototype = {
 
             return innerDeferred.promise();
         }
+    },
+
+    // XXX temp fix to preserve CSV header order
+    // Step 1. check if all headers exist in jsonKeys
+    // Step 2. check if any extra headers in jsonKeys but not in headers
+    _preserveHeaderOrder: function(jsonKeys) {
+        if (!jsonKeys) {
+            return jsonKeys;
+        }
+
+        var headers = this.headers;
+        if (headers == null) {
+            return jsonKeys;
+        }
+
+        var jsonKeyMap = {};
+        var headerMap = {};
+        var newHeaders = [];
+
+        jsonKeys.forEach(function(key) {
+            jsonKeyMap[key] = true;
+        });
+
+        // Step 1. check if all headers exist in jsonKeys
+        headers.forEach(function(header) {
+            if (jsonKeyMap.hasOwnProperty(header)) {
+                newHeaders.push(header);
+                headerMap[header] = true;
+            }
+        });
+
+        // Step 2. check if any extra headers in jsonKeys but not in headers
+        jsonKeys.forEach(function(key) {
+            if (!headerMap.hasOwnProperty(key)) {
+                newHeaders.push(key);
+            }
+        });
+
+        return newHeaders;
     },
 
     release: function() {

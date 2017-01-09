@@ -211,7 +211,6 @@ window.DSTable = (function($, DSTable) {
         var numEntries = dsObj.getNumEntries();
         var $path = $("#dsInfo-path");
 
-        var $path = $("#dsInfo-path");
         $path.text(path);
         xcTooltip.changeText($path, path);
         xcTooltip.enable($path);

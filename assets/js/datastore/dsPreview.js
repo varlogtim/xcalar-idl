@@ -607,6 +607,12 @@ window.DSPreview = (function($, DSPreview) {
         // console.log(dsName, format, udfModule, udfFunc, fieldDelim, lineDelim,
         //     header, loadURL, quote, skipRows, isRecur, isRegex, previewSize);
 
+        // XXX temp fix to preserve CSV header order
+        var headers = null;
+        if (format !== formatMap.JSON) {
+            headers = getColumnHeaders();
+        }
+
         cacheUDF(udfModule, udfFunc);
 
         var colLen = 0;
@@ -646,7 +652,8 @@ window.DSPreview = (function($, DSPreview) {
                 "previewSize": previewSize,
                 "quoteChar"  : quote,
                 "skipRows"   : skipRows,
-                "isRegex"    : isRegex
+                "isRegex"    : isRegex,
+                "headers"    : headers
             };
 
             var dsToReplace = $previewCard.data("dsid") || null;
@@ -661,6 +668,15 @@ window.DSPreview = (function($, DSPreview) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function getColumnHeaders() {
+        var headers = [];
+        $previewTable.find("th:not(.rowNumHead)").each(function() {
+            headers.push($(this).find(".text").text());
+        });
+
+        return headers;
     }
 
     function validateForm() {

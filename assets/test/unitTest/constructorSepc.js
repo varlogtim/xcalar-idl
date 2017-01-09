@@ -1636,6 +1636,41 @@ describe('Constructor Test', function() {
             });
         });
 
+
+        it("Should preserve order", function() {
+            // XXX temp fix to preserve CSV header order
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false
+            });
+
+            // when no headers
+            var res = dsObj._preserveHeaderOrder(null);
+            expect(res).to.be.null;
+
+            res = dsObj._preserveHeaderOrder(["e", "f"]);
+            expect(res[0]).to.equal("e");
+            expect(res[1]).to.equal("f");
+
+            // when has headers
+            dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false,
+                "headers" : ["a", "b", "c"]
+            });
+
+            res = dsObj._preserveHeaderOrder(["c", "b", "e"]);
+            expect(res[0]).to.equal("b");
+            expect(res[1]).to.equal("c");
+            expect(res[2]).to.equal("e");
+        });
+
         describe("Fetch data test", function() {
             var oldFetch;
             var dsObj;
