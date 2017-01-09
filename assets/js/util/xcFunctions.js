@@ -762,7 +762,7 @@ window.xcFunction = (function($, xcFunction) {
                 "sql"     : sql
             });
 
-            deferred.resolve();
+            deferred.resolve(finalTableName);
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
@@ -945,9 +945,10 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
     };
 
-    xcFunction.project = function(colNames, tableId) {
+    xcFunction.project = function(colNames, tableId, options) {
         var deferred = jQuery.Deferred();
 
+        options = options || {};
         var tableName = gTables[tableId].tableName;
         var dstTableName = tableName.split("#")[0] + Authentication.getHashId();
         var worksheet = WSManager.getWSFromTable(tableId);
@@ -990,35 +991,15 @@ window.xcFunction = (function($, xcFunction) {
 
             var tableCols = xcHelper.deepCopy(gTables[tableId].tableCols);
             var finalTableCols = [];
-            var dataCol;
             var colNameIndex;
             for (var i = 0; i < tableCols.length; i++) {
                 colNameIndex = colNames.indexOf(tableCols[i].backName);
                 if (colNameIndex > -1) {
                     finalTableCols.push(tableCols[i]);
-                    // empty out the allColnames array
-                    allColNames[colNameIndex].found = true;
                 } else if (tableCols[i].backName === "DATA") {
-                    dataCol = ColManager.newDATACol();
+                    finalTableCols.push(ColManager.newDATACol());
                 }
             }
-            // loop through colnames that weren't pulled out in table
-            var newProgCol;
-            var colName;
-            var escapedName;
-
-            function filterColNames(colNameObj) {
-                return (!colNameObj.found);
-            }
-            allColNames = allColNames.filter(filterColNames);
-            for (var i = 0; i < allColNames.length; i++) {
-                colName = allColNames[i].name;
-                // escapedName = xcHelper.escapeColName(colName);
-                escapedName = colName;
-                newProgCol = ColManager.newPullCol(colName, escapedName);
-                finalTableCols.push(newProgCol);
-            }
-            finalTableCols.push(dataCol);
 
             return TblManager.refreshTable([dstTableName], finalTableCols,
                                            [tableName], worksheet, txId,
@@ -1041,7 +1022,7 @@ window.xcFunction = (function($, xcFunction) {
                 "sql"           : sql,
                 "noNotification": focusOnTable
             });
-            deferred.resolve();
+            deferred.resolve(dstTableName);
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
