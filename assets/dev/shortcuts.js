@@ -11,7 +11,7 @@ $(document).ready(function() {
             var interval = setInterval(function() {
                 // initial load screen leaving signifies start up is done
                 if ($("#initialLoadScreen:visible").length === 0) {
-                    Shortcuts.setup();
+                    Shortcuts.setup(true);
                     clearInterval(interval);
                 } else if (count > 20) {
                     clearInterval(interval);
@@ -111,7 +111,7 @@ window.Shortcuts = (function($, Shortcuts) {
         }
     };
 
-    Shortcuts.setup = function() {
+    Shortcuts.setup = function(fullSetup) {
         shortcutsOn = true;
 
         if (xcLocalStorage.getItem("autoLogin") === "true") {
@@ -138,8 +138,11 @@ window.Shortcuts = (function($, Shortcuts) {
             gEnableJoinKeyCheck = false;
         }
 
-        dsForm();
-        createMainMenu();
+        if (fullSetup) {
+            dsForm();
+            createMainMenu();
+        }
+        
         Shortcuts.toggleVerbose(verbose);
         Shortcuts.toggleAdmin(gAdmin);
         Shortcuts.toggleJoinKey(gEnableJoinKeyCheck);

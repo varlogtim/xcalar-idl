@@ -216,6 +216,18 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
+        $('#skipSplashBox').click(function() {
+            var $checkbox = $(this);
+            $checkbox.toggleClass('checked');
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref('skipSplash', true, true);
+                xcLocalStorage.setItem("noSplashLogin", true);
+            } else {
+                UserSettings.setPref('skipSplash', false, true);
+                xcLocalStorage.setItem("noSplashLogin", false);
+            }
+        });
+
         var $dsSampleLimit = $('#monitorDsSampleInput');
         new MenuHelper($dsSampleLimit.find(".dropDownList"), {
             "onSelect": function($li) {
@@ -274,12 +286,18 @@ window.UserSettings = (function($, UserSettings) {
            
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref('hideDataCol');
+        var skipSplash = UserSettings.getPref('skipSplash');
         var graphInterval = UserSettings.getPref('monitorGraphInterval');
         var commitInterval = UserSettings.getPref('commitInterval');
         var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
         
         if (!hideDataCol) {
             $('#showDataColBox').addClass('checked');
+        }
+        if (!window.hasFlash) {
+            $('#skipSplashBox').closest('.optionSet').addClass('xc-hidden');
+        } else if (skipSplash) {
+            $('#skipSplashBox').addClass('checked');
         }
 
         monIntervalSlider.setSliderValue(graphInterval);

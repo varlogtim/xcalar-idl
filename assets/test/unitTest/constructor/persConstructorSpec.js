@@ -1568,8 +1568,10 @@ describe("Persistent Constructor Test", function() {
             var genSettings = new GenSettings();
             var baseSettings = genSettings.getBaseSettings();
 
-            expect(Object.keys(baseSettings).length).to.equal(4);
+            expect(Object.keys(baseSettings).length).to.equal(5);
             expect(baseSettings).to.have.property("hideDataCol")
+            .and.to.be.false;
+            expect(baseSettings).to.have.property('skipSplash')
             .and.to.be.false;
             expect(baseSettings).to.have.property("monitorGraphInterval")
             .and.to.equal(3);
@@ -1600,8 +1602,9 @@ describe("Persistent Constructor Test", function() {
             expect(Object.keys(adminAndXc.xcSettings)).to.have.length(1);
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings)).to.have.length(4);
+            expect(Object.keys(baseSettings)).to.have.length(5);
             expect(baseSettings["hideDataCol"]).to.be.false;
+            expect(baseSettings['skipSplash']).to.be.false;
             expect(baseSettings["monitorGraphInterval"]).to.equal(9);
             expect(baseSettings["commitInterval"]).to.equal(600);
             expect(baseSettings["DsDefaultSampleSize"]).to.equal(2000);
@@ -2525,9 +2528,7 @@ describe("Persistent Constructor Test", function() {
         var sched;
 
         before(function() {
-            df = new Dataflow("testRet", {
-                "tableName": "testTable"
-            });
+            df = new Dataflow("testRet");
 
             var createTime = new Date().getTime();
             var startTime = new Date().getTime();
@@ -2547,13 +2548,11 @@ describe("Persistent Constructor Test", function() {
 
         it("Should have 10 attributes", function() {
             expect(df).to.be.an.instanceof(Dataflow);
-            expect(Object.keys(df).length).to.equal(10);
+            expect(Object.keys(df).length).to.equal(9);
             expect(df).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(df).to.have.property("name")
             .and.to.equal("testRet");
-            expect(df).to.have.property("tableName")
-            .and.to.equal("testTable");
             expect(df).to.have.property("columns")
             .and.to.be.an("array");
             expect(df).to.have.property("parameters")

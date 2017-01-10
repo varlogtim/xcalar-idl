@@ -3,6 +3,46 @@
 <link href="../stylesheets/css/login.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+  <div id="splashContainer">
+    <div id="flashContent">
+      <object id="outerSplashObject" width="550" height="400"  align="middle">
+        <param name="movie" value="../video/XD_splash_middle.swf" />
+        <param name="quality" value="high" />
+        <param name="bgcolor" value="#1f5d7a" />
+        <param name="play" value="true" />
+        <param name="loop" value="true" />
+        <param name="wmode" value="transparent" />
+        <param name="scale" value="showall" />
+        <param name="menu" value="true" />
+        <param name="devicefont" value="false" />
+        <param name="salign" value="r" />
+        <param name="allowScriptAccess" value="sameDomain" />
+        <!--[if !IE]>-->
+        <object id="innerSplashObject" type="application/x-shockwave-flash" data="../video/XD_splash_middle.swf" width="550" height="400">
+          <param name="movie" value="../video/XD_splash_middle.swf" />
+          <param name="quality" value="high" />
+          <param name="bgcolor" value="#1f5d7a" />
+          <param name="play" value="true" />
+          <param name="loop" value="true" />
+          <param name="wmode" value="transparent" />
+          <param name="scale" value="showall" />
+          <param name="menu" value="true" />
+          <param name="devicefont" value="false" />
+          <param name="salign" value="r" />
+          <param name="allowScriptAccess" value="sameDomain" />
+        <!--<![endif]-->
+          <a href="http://www.adobe.com/go/getflash">
+            <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+          </a>
+        <!--[if !IE]>-->
+        </object>
+        <!--<![endif]-->
+      </object>
+    </div>
+  </div>
+  <script type="text/javascript">
+    
+  </script>
   <div id="logo" class="xc-logo">
     <div class="innerShadow"></div>
     <i class="icon xd-logo-bw"></i>
@@ -15,7 +55,7 @@
       </header>
     </div>
     <div id="loadingBar">
-      <div class="innerBar"></div>
+      <div class="innerBar animated"></div>
     </div>
     <div class="outerWrap">
       <div id="formArea">
@@ -100,3 +140,4 @@
   <script src="../js/login_globals.js"></script>
   <script src="../js/globalEnums.js"></script>
 </body>
+

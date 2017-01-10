@@ -36,8 +36,18 @@ form {
         cursor: pointer;
     }
 }
+#splashContainer {
+    .center-align;
+    top: 45%;
+    position: absolute;
+}
+
+#outerSplashObject, #innerSplashObject {
+    pointer-events: none;
+}
 
 #logo {
+    display: none;
     position: absolute;
     top: 10px;
     left: 10px;
@@ -46,6 +56,7 @@ form {
 #loginContainer {
     height: 500px;
     .vertical-align;
+    display: none;
 }
 
 .outerWrap {
@@ -87,15 +98,18 @@ header {
         left: -200px;
         // XX need to add this to mixin
         background: linear-gradient(to right, @color-border-softBlue, #d6e4ec, @color-border-softBlue);
-        .keyframe(slideRight, {
-            0%   {left: -200px;}
-            100% {left: 100%;}
-        });
-        .keyframeAnim(slideRight 0.7s linear forwards 0.3s);
 
-        &.immediateAnimation {
-           .keyframeAnim(slideRight 0.7s linear forwards 0s);
-        }
+        &.animated {
+            .keyframe(slideRight, {
+                0%   {left: -200px;}
+                100% {left: 100%;}
+            });
+            .keyframeAnim(slideRight 0.7s linear forwards 0.3s);
+
+            &.immediateAnimation {
+               .keyframeAnim(slideRight 0.7s linear forwards 0s);
+            }
+        } 
     }
 }
 

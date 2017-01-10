@@ -1,14 +1,23 @@
-$(document).ready(function() {
-    // $("#loginContainer").fadeIn(2000);
-    // $("#loginNameBox").focus();
-    // $("#insightVersion").fadeIn(2000);
-    Compatible.check();
+Compatible.check();
+if (!window.hasFlash || xcLocalStorage.getItem("noSplashLogin") === "true") {
+    $("#loginContainer").show();
+    $("#logo").show();
+    $("#splashContainer").hide();
+}
+
+$(document).ready(function() {    
     var hostname = "";
     setupHostName();
 
-    setTimeout(function() {
-        $('#loginForm').fadeIn(1000);
-    }, 800);
+    if (!window.hasFlash ||
+        xcLocalStorage.getItem("noSplashLogin") === "true") {
+        setTimeout(function() {
+            $("#loginForm").fadeIn(1000);
+            $("#logo").fadeIn(1000);
+        }, 800);
+    } else {
+        showSplashScreen();
+    }
 
     $("#loginForm").submit(function(event) {
         // prevents form from having it's default action
@@ -112,6 +121,20 @@ $(document).ready(function() {
         });
     });
 
+    function showSplashScreen() {
+        $("#loginForm").show();
+        $('#loadingBar .innerBar').removeClass('animated');
+
+        setTimeout(function() {
+            $("#splashContainer").fadeOut(1000);
+        }, 5800);
+       
+        setTimeout(function() {
+            $("#loginContainer").fadeIn(1000);
+            $("#logo").fadeIn(1000);
+        }, 6600);
+    }
+
     function focusOnFirstEmptyInput() {
         var $visibleInputs = $('.input:visible').filter(function() {
             return ($(this).val().trim() === "");
@@ -122,7 +145,8 @@ $(document).ready(function() {
     }
 
     function loadBarAnimation() {
-        var loadBarHtml = '<div class="innerBar immediateAnimation"></div>';
+        var loadBarHtml = '<div class="innerBar ' +
+                          'immediateAnimation animated"></div>';
         $('#loadingBar').empty().append(loadBarHtml);
     }
 

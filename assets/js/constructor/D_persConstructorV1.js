@@ -327,6 +327,7 @@ var GenSettingsV1 = (function() {
         options = options || {};
         var defaultSettings = {
             "hideDataCol"         : false,
+            "skipSplash"          : false,
             "monitorGraphInterval": 3, // in seconds
             "commitInterval"      : 120, // in seconds
             "DsDefaultSampleSize" : 10 * GB

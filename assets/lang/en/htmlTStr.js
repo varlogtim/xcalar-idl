@@ -372,6 +372,7 @@ module.exports = {
         "SETUP": "SETUP",
         "Setup": "Setup",
         "showDataCol": "SHOW DATA COLUMN ON NEW TABLE CREATION",
+        "skipSplash": "SKIP SPLASH LOGIN SCREEN",
         "StartedTime": "Started Time",
         "StartNode": "Start Cluster",
         "Status": "Status",
