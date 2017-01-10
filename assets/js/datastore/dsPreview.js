@@ -2,9 +2,9 @@
  * Module for data preview
  */
 window.DSPreview = (function($, DSPreview) {
-    var $previewCard; // $("#dsForm-preview");
-    var $previeWrap;      // $("#dsPreviewWrap")
-    var $previewTable;    // $("#previewTable")
+    var $previewCard;   // $("#dsForm-preview");
+    var $previeWrap;    // $("#dsPreviewWrap")
+    var $previewTable;  // $("#previewTable")
 
     var $highlightBtns; // $("#dsForm-highlighter");
 
@@ -148,7 +148,7 @@ window.DSPreview = (function($, DSPreview) {
             restoreForm(options);
         } else {
             resetForm();
-            
+
             loadArgs.set(options);
             advanceOption.set(options);
 
@@ -360,11 +360,10 @@ window.DSPreview = (function($, DSPreview) {
             var $submitBtn = $(this).blur();
             var toCreateTable = $submitBtn.hasClass("createTable");
             xcHelper.disableSubmit($submitBtn);
-
-            submitForm(toCreateTable)
-            .always(function() {
-                xcHelper.enableSubmit($submitBtn);
-            });
+            // enableSubmit is done during the next showing of the form
+            // If the form isn't shown, there's no way it can be submitted
+            // anyway
+            submitForm(toCreateTable);
         });
     }
 
@@ -513,6 +512,8 @@ window.DSPreview = (function($, DSPreview) {
         };
         resetUdfSection();
         toggleFormat();
+        // enable submit
+        xcHelper.enableSubmit($form.find(".confirm"));
 
         // reset delimiter fields
         // to show \t, \ should be escaped
@@ -527,7 +528,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // dsName
         $("#dsForm-dsName").val(options.dsName);
-        
+
         // udf section
         var wasUDFCached = cacheUDF(options.moduleName, options.funcName);
         resetUdfSection();

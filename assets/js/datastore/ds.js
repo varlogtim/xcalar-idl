@@ -571,7 +571,7 @@ window.DS = (function ($, DS) {
             // show loadError if has, otherwise show error message
             var disaplyError = loadError || error;
             dsObj.setError(disaplyError);
-            
+
             if (error === StatusTStr[StatusT.StatusCanceled] ||
                 error.status === StatusT.StatusCanceled) {
                 removeDS($grid);
