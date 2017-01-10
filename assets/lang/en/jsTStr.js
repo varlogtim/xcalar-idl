@@ -117,6 +117,7 @@ CommonTxtTstr = {
     'GenBundleDone': 'Bundle Generated',
     'GenBundleFail': 'Bundle Generated Failed',
     'HoldToDrag': 'Click and hold to drag',
+    'ClickSelect': 'Click to select',
     'Immediates': 'Derived Field',
     'InP': 'In progress',
     'LeaveWarn': 'You are leaving Xcalar',

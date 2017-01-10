@@ -897,7 +897,10 @@ window.TableList = (function($, TableList) {
                         '<span class="expand">' +
                             '<i class="icon xi-arrow-down fa-7"></i>' +
                         '</span>' +
-                        '<span class="addTableBtn">' +
+                        '<span class="addTableBtn" data-toggle="tooltip" ' +
+                        ' data-container="body"' +
+                        ' data-original-title="' + CommonTxtTstr.ClickSelect + 
+                        '">' +
                             '<i class="icon xi_table fa-18"></i>' +
                             '<i class="icon xi-ckbox-empty fa-18"></i>' +
                             '<i class="icon xi-tick fa-11"></i>' +
@@ -987,7 +990,10 @@ window.TableList = (function($, TableList) {
                     'data-id="' + tableId + '"' +
                     'data-tablename="' + tableName + '">' +
                         '<div class="tableListBox xc-expand-list">' +
-                            '<span class="addTableBtn">' +
+                            '<span class="addTableBtn" data-toggle="tooltip" ' +
+                        ' data-container="body"' +
+                        ' data-original-title="' + CommonTxtTstr.ClickSelect +
+                        '">' +
                                 '<i class="icon xi_table fa-18"></i>' +
                                 '<i class="icon xi-ckbox-empty fa-18"></i>' +
                                 '<i class="icon xi-tick fa-11"></i>' +
@@ -1087,7 +1093,10 @@ window.TableList = (function($, TableList) {
                         '<div class="srcName">' + tableName + '</div>' +
                     '</div>' +
                     '<div class="tableListBox xc-expand-list">' +
-                        '<span class="addTableBtn">' +
+                        '<span class="addTableBtn" data-toggle="tooltip" ' +
+                        ' data-container="body"' +
+                        ' data-original-title="' + CommonTxtTstr.ClickSelect +
+                        '"' +
                             '<i class="icon xi-aggregate fa-18"></i>' +
                             '<i class="icon xi-ckbox-empty fa-18"></i>' +
                             '<i class="icon xi-tick fa-11"></i>' +
