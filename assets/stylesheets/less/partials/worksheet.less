@@ -10,10 +10,17 @@
 #insight {
     .position(absolute, @bottom: 49px, @left: 298px);
     .size(243px, 79px);
-    .image("../../images/logo/insight-lg.png");
+    // .image("../../images/logo/insight-lg.png");
     background-size: 100%;
     z-index: -1;
     opacity: 0.35;
+
+    .icon {
+        .position(relative, @top: -7px);
+        &:before {
+            font-size: 95px;
+        }
+    }
 }
 
 /* DRAG AND DROP TABLES */

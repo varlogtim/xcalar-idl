@@ -137,7 +137,7 @@ CommonTxtTstr = {
     'SupportBundle': 'Support Bundle Generated',
     'SupportBundleInstr': 'Please check your backend for a .tar.gz file',
     'Value': 'Value',
-    'XcWelcome': 'Have fun with Xcalar Insight!',
+    'XcWelcome': 'Have fun with Xcalar Design!',
     'NoUndone': 'This action cannot be undone',
 
     // with replace
@@ -432,12 +432,12 @@ WKBKTStr = {
     'NoMeta': 'No Meta',
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
-    'NewWKBKInstr': 'Get started with Xcalar Insight by creating a new ' +
+    'NewWKBKInstr': 'Get started with Xcalar Design by creating a new ' +
                     'workbook. Give your new workbook a name and click on ' +
                     'the Create Workbook Button. Once the workbook is ' +
                     'created, mouse over it and click on the Play button to ' +
                     'get started with your new Workbook. Alternatively, ' +
-                    'start with one of Xcalar Insight\'s tutorials to learn ' +
+                    'start with one of Xcalar Design\'s tutorials to learn ' +
                     'more.',
     'CurWKBKInstr': 'To continue with your currently active workbook, hover ' +
                     'over the card with a blue background and click on the ' +

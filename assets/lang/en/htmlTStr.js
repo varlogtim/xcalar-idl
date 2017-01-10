@@ -1,7 +1,7 @@
 // for the rendering of html file
 module.exports = {
     "common": {
-        "XI": "Xcalar Insight",
+        "XD": "Xcalar Design",
         "ADD": "ADD",
         "AdvancedOpts": "Advanced Options",
         "APPLY": "APPLY",
@@ -280,7 +280,7 @@ module.exports = {
         "save": "Last Saved On",
         "create": "Created On",
         "EC": "Establishing Connection",
-        "adminText": "This is what Xcalar Insight looks like to",
+        "adminText": "This is what Xcalar Design looks like to",
         "adminClose": "Return to administrator account",
     },
 
@@ -699,7 +699,7 @@ module.exports = {
 
     "smartCast": {
         "header": "SMART CAST",
-        "instr": "Cast columns from one type to another by selecting the columns from the current table. Click on the DETECT button to get Xcalar Insight to detect the appropriate types.",
+        "instr": "Cast columns from one type to another by selecting the columns from the current table. Click on the DETECT button to get Xcalar Design to detect the appropriate types.",
         "detect": "DETECT",
         "clearAll": "CLEAR ALL",
         "colInstrHeader": "Select Columns to Cast",
@@ -779,13 +779,13 @@ module.exports = {
         "news": "News",
         "newWKBK": "New Workbook",
         "noActive": "No active worksheets. Please create one first.",
-        "learnMore": "Learn more about Xcalar Insight",
+        "learnMore": "Learn more about Xcalar Design",
         "relatedDocs": "Related Tutorials Help Docs",
         "stepTour": "Step-by-Step Tour",
         "tuts": "Tutorials",
         "viewNewHelpDoc": "View our new help documentation",
         "visit": "Visit",
-        "welcomeXI": "Welcome to <b>Xcalar Insight</b>",
+        "welcomeXI": "Welcome to <b>Xcalar Design</b>",
         "Wkbk": "Workbook",
         "Wkbkname": "Workbook name"
     },
@@ -839,8 +839,8 @@ module.exports = {
     },
 
     "login": {
-        "loginHeader": "Login to Xcalar Insight!",
-        "signupHeader": "Sign up for Xcalar Insight!",
+        "loginHeader": "Login to Xcalar Design!",
+        "signupHeader": "Sign up for Xcalar Design!",
         "username": "USERNAME",
         "usernameLower": "Username",
         "password": "PASSWORD",

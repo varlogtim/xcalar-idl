@@ -7,7 +7,7 @@ if [ "$UNAME" != Linux ]; then
     exit 0
 fi
 
-echo "Start Xcalar Insight Configuration..."
+echo "Start Xcalar Design Configuration..."
 echo "Install necessary packages..."
 # install newer nodejs and npm
 if [ "$(node -v 2>/dev/null | cut -d'.' -f1)" != "v5" ]; then

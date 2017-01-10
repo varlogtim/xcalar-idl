@@ -1,7 +1,7 @@
 {
-  "name": "XcalarInsight",
+  "name": "XcalarDesign",
   "version": "0.9.14.14",
-  "description": "Installs the packages that are required to build Xcalar Insight",
+  "description": "Installs the packages that are required to build Xcalar Design",
   "main": "Gruntfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
