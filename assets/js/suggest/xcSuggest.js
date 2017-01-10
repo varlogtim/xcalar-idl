@@ -47,8 +47,9 @@ window.xcSuggest = (function($, xcSuggest) {
         // only check number and string
         var type = requiredInfo.type;
         var data = requiredInfo.data;
-        if (type !== "integer" && type !== "float" && type !== "string") {
-            return {"max": 0, "min": 0, "total": 0, "variance": 0};
+        if (type !== ColumnType.integer && type !== ColumnType.float &&
+            type !== ColumnType.string) {
+            return {"max": 0, "min": 0, "avg": 0, "sig2": 0, "vals": []};
         }
 
         // Number min value provides smallest absolute value number, e.g.
@@ -66,11 +67,13 @@ window.xcSuggest = (function($, xcSuggest) {
 
             var d;
 
+            if (val === null || val === "") {
+                // skip empty value
+                continue;
+            }
+
             if (type === "string") {
-                if (val === null || val === "") {
-                    // skip empty value
-                    continue;
-                }
+
                 d = val.length; // for string, use its length as metrics
             } else {
                 d = Number(val);
@@ -81,6 +84,10 @@ window.xcSuggest = (function($, xcSuggest) {
             max = Math.max(d, max);
             min = Math.min(d, min);
             total += d;
+        }
+
+        if (values.length === 0) {
+            return {"max": 0, "min": 0, "avg": 0, "sig2": 0, "vals": []};
         }
 
         var count = datas.length;
@@ -201,11 +208,11 @@ window.xcSuggest = (function($, xcSuggest) {
 
         name1 = xcHelper.parsePrefixColName(name1.toLowerCase()).name;
         name2 = xcHelper.parsePrefixColName(name2.toLowerCase()).name;
-
         if (name1 === name2) {
             // same name
             return 0;
-        } else if (name1.startsWith(name2) || name2.startsWith(name1)) {
+        } else if ((name1.startsWith(name2) || name2.startsWith(name1)) &&
+                   (name1 !== "" && name2 !== "")) {
             // which means the name is quite related
             return 2;
         }
@@ -213,7 +220,6 @@ window.xcSuggest = (function($, xcSuggest) {
         var distArray = levenshteinenator(name1, name2);
         var len = distArray.length;
         var dist = distArray[len - 1][distArray[len - 1].length - 1];
-
         return (dist);
 
         // http://andrew.hedges.name/experiments/levenshtein/levenshtein.js
@@ -413,6 +419,17 @@ window.xcSuggest = (function($, xcSuggest) {
             return ColumnType.string;
         }
     };
+
+        /* Unit Test Only */
+    if (window.unitTestMode) {
+        xcSuggest.__testOnly__ = {};
+        xcSuggest.__testOnly__.contextCheck = contextCheck;
+        xcSuggest.__testOnly__.getType = getType;
+        xcSuggest.__testOnly__.getScore = getScore;
+        xcSuggest.__testOnly__.calcSim = calcSim;
+        xcSuggest.__testOnly__.getTitleDistance = getTitleDistance;
+    }
+    /* End Of Unit Test Only */
 
     return (xcSuggest);
 }(jQuery, {}));
