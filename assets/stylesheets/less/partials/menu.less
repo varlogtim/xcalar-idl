@@ -588,11 +588,18 @@
         display: none !important;
     }
 
-    &.type-object, &.type-newColumn, &.type-mixed,
+    &.type-object, &.type-newColumn,
     &.recordNum, &.childOfArray, &.type-array {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
         .profile
         {
+            display: none;
+        }
+    }
+
+    // show map option
+    &.type-mixed {
+        .sort, .aggregate, .groupby, .filter, .joinList, .profile {
             display: none;
         }
     }

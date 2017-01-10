@@ -2924,7 +2924,7 @@ window.xcHelper = (function($, xcHelper) {
     function toggleUnnestandJsonOptions($menu, $div, columnType,
                                         isMultiCell, notAllowed, options) {
         if (!$div.hasClass('originalData')) {
-            $div = $div.siblings('originalData');
+            $div = $div.siblings('.originalData');
         }
         var $unnestLi = $menu.find('.tdUnnest');
         var $jsonModalLi = $menu.find('.tdJsonModal');

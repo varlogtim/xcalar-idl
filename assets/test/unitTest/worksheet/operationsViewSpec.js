@@ -132,9 +132,7 @@ describe('OperationsView', function() {
         var parseType;
         var columns;
         var someColumns;
-        // var columnNames = ["yelping_since", "votes", "one", "compliments", "friends", "two\\.three", "elite", "review_count", "four", "average_stars", "mixVal", "user_id", "DATA"];
-        // var columnNames = ["average_stars","compliments","elite", "four","friends","mixVal","one", "review_count","two.three", "user_id", "votes", yelping_since", "DATA"];
-        var someColumnNames = ["yelping_since", "compliments", "friends", "review_count", "four", "average_stars", "mixVal", "DATA"];
+        // allcolumnNames = ["average_stars","compliments","elite", "four","friends","mixVal","one", "review_count","two.three", "user_id", "votes", yelping_since", "DATA"];
         var someColumnNames = ["average_stars","compliments","four","friends","mixVal","review_count","yelping_since", "DATA"];
 
         before(function(done) {
@@ -224,16 +222,18 @@ describe('OperationsView', function() {
 
         });
 
-        describe.skip('test type checking', function() {
-            this.timeout(30000);
+        describe('test type checking', function() {
+            this.timeout(60000);
             // this will take a long time because we
             // test out a variety of arguments against each other and each test
             // loops through all the columns in a table each time to check if the
             // column name exists in the table
-            it('should detect if arg types are valid or invalid', function() {
-                columns = gTables[tableId].tableCols;
-                someColumns = [columns[0], columns[1], columns[2], columns[5], columns[7], columns[8], columns[9], columns[10]];
-                expect(columns.length).to.equal(13);
+            it.skip('should detect if arg types are valid or invalid', function() {
+                cols = gTables[tableId].tableCols;
+                       // yelping_since, votes,  one,two\\.three,review_count,four,average_stars, mixVal
+                someColumns = [cols[11], cols[10], cols[6], cols[8], cols[7], cols[3], cols[0], cols[5]]
+
+                expect(cols.length).to.equal(13);
                 var testArgs = [];
                 var args;
                 for (var i = 0; i < someColumns.length; i++) {
@@ -436,16 +436,20 @@ describe('OperationsView', function() {
                     } else if (hasValidColPrefix(testArgs2[j]) &&
                                 !gTables[tableId].hasCol(testArgs2[j].slice(1))) {
                         hasValidTypes = false;
-                    } else if (arg1ValidTypes.indexOf(arg1Types[i]) > -1 &&
-                        arg2ValidTypes.indexOf(arg2Types[j]) > -1) {
+                    } else if ((arg1ValidTypes.indexOf(arg1Types[i]) > -1 ||
+                        arg1Types[i] === "mixed") &&
+                        (arg2ValidTypes.indexOf(arg2Types[j]) > -1 ||
+                        arg2Types[j] === "mixed")) {
+                        // if arg's type matches one of the input's types or is mixed
+                        // then it is valid
                         hasValidTypes = true;
                     } else {
                         hasValidTypes = false;
                     }
                     if (hasValidTypes !== argInfos[count].isPassing) {
-                        console.error(arg1ValidTypes, arg1Types[i]);
-                        console.warn(arg2ValidTypes, arg2Types[j]);
-                        console.info(testArgs1[i], testArgs2[j], argInfos[count]);
+                        console.error('types allowed: ' + arg1ValidTypes, '   type provided: ' + arg1Types[i]);
+                        console.warn('types allowed: ' +  arg2ValidTypes, '   type provided: ' + arg2Types[j]);
+                        console.info('arg1: ' + testArgs1[i], '   arg2: ' + testArgs2[j], '   argInfos: ' + argInfos[count]);
                         debugger;
                     }
 

@@ -2570,8 +2570,8 @@ window.OperationsView = (function($, OperationsView) {
                                     continue;
                                 }
 
-                                errorText = validateColInput(types, colTypes[i],
-                                                            $input);
+                                errorText = validateColInputType(types,
+                                                        colTypes[i], $input);
                                 if (errorText != null) {
                                     isPassing = false;
                                     $errorInput = $input;
@@ -3200,9 +3200,11 @@ window.OperationsView = (function($, OperationsView) {
         return types;
     }
 
-    function validateColInput(requiredTypes, inputType, $input) {
+    function validateColInputType(requiredTypes, inputType, $input) {
         if (inputType === "newColumn") {
             return ErrTStr.InvalidOpNewColumn;
+        } else if (inputType === ColumnType.mixed) {
+            return null;
         } else if (requiredTypes.includes(inputType)) {
             return null;
         } else if (inputType === ColumnType.number &&
@@ -3337,9 +3339,9 @@ window.OperationsView = (function($, OperationsView) {
         var types = parseType(typeid);
         var argType = "string";
 
-        if (types.indexOf("string") > -1 ||
-            types.indexOf("mixed") > -1 ||
-            types.indexOf("undefined") > -1)
+        if (types.indexOf(ColumnType.string) > -1 ||
+            types.indexOf(ColumnType.mix) > -1 ||
+            types.indexOf(ColumnType.undefined) > -1)
         {
             // if it accept string/mixed/undefined, any input
             // should be valid
@@ -3358,7 +3360,7 @@ window.OperationsView = (function($, OperationsView) {
             argType = "string/boolean/integer/float";
         }
 
-        if (types.indexOf("boolean") > -1) {
+        if (types.indexOf(ColumnType.boolean) > -1) {
             // XXX this part might be buggy
             if (isBoolean) {
                 return null;
@@ -3380,14 +3382,14 @@ window.OperationsView = (function($, OperationsView) {
             };
         }
 
-        if (types.indexOf("float") > -1) {
+        if (types.indexOf(ColumnType.float) > -1) {
             // if arg is integer, it could be a float
             return null;
         }
 
-        if (types.indexOf("integer") > -1) {
+        if (types.indexOf(ColumnType.integer) > -1) {
             if (tmpArg % 1 !== 0) {
-                argType = "float";
+                argType = ColumnType.float;
 
                 return {
                     "validType"  : types,
@@ -3506,12 +3508,12 @@ window.OperationsView = (function($, OperationsView) {
 
                 // XXX potential bug is that existingTypes
                 // has both string and number
-                shouldBeString = existingTypes.hasOwnProperty("string");
+                shouldBeString = existingTypes.hasOwnProperty(ColumnType.string);
                 if (!shouldBeString) {
                     // when its number
                     value = parsedVal;
                 }
-            } else if (existingTypes.hasOwnProperty("string") &&
+            } else if (existingTypes.hasOwnProperty(ColumnType.string) &&
                         isNumberInQuotes(value)) {
                 // keep value as is
             } else if (shouldBeBoolean &&
@@ -3527,7 +3529,7 @@ window.OperationsView = (function($, OperationsView) {
             value = "\"" + value + "\"";
             // stringify puts in too many slashes
         } else {
-            if (typeof value === "string") {
+            if (typeof value === ColumnType.string) {
                 value = value.trim();
             }
         }
@@ -3542,7 +3544,7 @@ window.OperationsView = (function($, OperationsView) {
         // string
         typeShift = 1 << DfFieldTypeT.DfString;
         if ((typeId & typeShift) > 0) {
-            types.push("string");
+            types.push(ColumnType.string);
         }
 
         // integer
@@ -3551,33 +3553,33 @@ window.OperationsView = (function($, OperationsView) {
                     (1 << DfFieldTypeT.DfInt64) |
                     (1 << DfFieldTypeT.DfUInt64);
         if ((typeId & typeShift) > 0) {
-            types.push("integer");
+            types.push(ColumnType.integer);
         }
 
         // float
         typeShift = (1 << DfFieldTypeT.DfFloat32) |
                     (1 << DfFieldTypeT.DfFloat64);
         if ((typeId & typeShift) > 0) {
-            types.push("float");
+            types.push(ColumnType.float);
         }
 
         // boolean
         typeShift = 1 << DfFieldTypeT.DfBoolean;
         if ((typeId & typeShift) > 0) {
-            types.push("boolean");
+            types.push(ColumnType.boolean);
         }
 
         // mixed
         typeShift = 1 << DfFieldTypeT.DfMixed;
         if ((typeId & typeShift) > 0) {
-            types.push("mixed");
+            types.push(ColumnType.mixed);
         }
 
         // undefined/unknown
         typeShift = (1 << DfFieldTypeT.DfNull) |
                     (1 << DfFieldTypeT.DfUnknown);
         if ((typeId & typeShift) > 0) {
-            types.push("undefined");
+            types.push(ColumnType.undefined);
         }
 
         return (types);
@@ -3654,7 +3656,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function hasFuncFormat(val) {
-        if (typeof val !== "string") {
+        if (typeof val !== ColumnType.string) {
             return false;
         }
         val = val.trim();
