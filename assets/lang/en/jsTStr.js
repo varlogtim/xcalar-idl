@@ -601,7 +601,7 @@ DSTStr = {
     'NoParse': 'Cannot parse the dataset.',
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
-    'NoRecrodsHint': 'Please change the preview size and try to point again',
+    'NoRecrodsHint': 'Please check the validation of path, pattern, dataset size, UDF and try again.',
     'CancalPoint': 'Cancel Point to dataset',
     'DSSourceHint': 'Please try another path or use another protocol',
     'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',

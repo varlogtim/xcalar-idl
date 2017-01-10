@@ -1156,6 +1156,10 @@ window.DSPreview = (function($, DSPreview) {
 
         promise
         .then(function(result, isLoadFormatJSON) {
+            if (!result) {
+                var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
+                return PromiseHelper.reject(error);
+            }
             $waitSection.addClass("hidden");
             rawData = result;
 
@@ -1303,9 +1307,8 @@ window.DSPreview = (function($, DSPreview) {
         })
         .then(function(result) {
             if (!result) {
-                var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
-                deferred.reject({"error": error});
-                return PromiseHelper.resolve(null);
+                deferred.resolve(null, isLoadFormatJSON);
+                return;
             }
 
             try {
