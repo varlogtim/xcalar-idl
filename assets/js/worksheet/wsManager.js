@@ -1011,6 +1011,7 @@ window.WSManager = (function($, WSManager) {
         WSManager.focusOnWorksheet(worksheetId);
         // change to origin position
         scrollTracker.restore(worksheetId);
+        TblManager.alignTableEls();
         setTimeout(function() {
             // allow time for scrollbar to adjust before unlocking
             $('#mainFrame').removeClass('scrollLocked');
