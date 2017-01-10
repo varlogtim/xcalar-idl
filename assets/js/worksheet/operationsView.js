@@ -3340,7 +3340,7 @@ window.OperationsView = (function($, OperationsView) {
         var argType = "string";
 
         if (types.indexOf(ColumnType.string) > -1 ||
-            types.indexOf(ColumnType.mix) > -1 ||
+            types.indexOf(ColumnType.mixed) > -1 ||
             types.indexOf(ColumnType.undefined) > -1)
         {
             // if it accept string/mixed/undefined, any input
@@ -3468,7 +3468,7 @@ window.OperationsView = (function($, OperationsView) {
                 colNum = null;
             }
         }
-        return colNum;
+        return (colNum);
     }
 
     function showEmptyOptions($input) {
