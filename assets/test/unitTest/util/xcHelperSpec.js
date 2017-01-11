@@ -1811,6 +1811,41 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("a_b");
     });
 
+    it('xcHelper.getColNameMap', function() {
+        var progCol1 = ColManager.newCol({
+            "backName": "Test",
+            "name"    : "undfCol",
+            "isNewCol": false
+        });
+   
+        var progCol2 = ColManager.newCol({
+            "backName": "test2",
+            "name"    : "stringCol",
+            "isNewCol": false
+        });
+
+        var progCol3 = ColManager.newCol({
+            "backName": "",
+            "name"    : "",
+            "isNewCol": false
+        });
+
+         var progCol4 = ColManager.newDATACol();
+
+        gTables["xc-Test"] = new TableMeta({
+            "tableId"  : "xc-Test",
+            "tableName": "test",
+            "tableCols": [progCol1, progCol2, progCol3, progCol4]
+        });
+
+        var colNameMap = xcHelper.getColNameMap('xc-Test');
+        expect(Object.keys(colNameMap).length).to.equal(2);
+        expect(colNameMap["test"]).to.equal("Test");
+        expect(colNameMap["test2"]).to.equal("test2");
+
+        delete gTables["xcTest"];
+    });
+
     describe('xcHelper.dropdownOpen', function() {
         describe('Basic Test', function() {
             var $icon, $menu;

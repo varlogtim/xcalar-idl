@@ -2623,6 +2623,19 @@ window.xcHelper = (function($, xcHelper) {
         return value;
     };
 
+    xcHelper.getColNameMap = function(tableId) {
+        var colNameMap = {};
+        var cols = gTables[tableId].getAllCols();
+        var name;
+        for (var i = 0; i < cols.length; i++) {
+            name = cols[i].backName.trim();
+            if (name.length && !cols[i].isDATACol()) {
+                colNameMap[name.toLowerCase()] = name;
+            }
+        }
+        return (colNameMap);
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

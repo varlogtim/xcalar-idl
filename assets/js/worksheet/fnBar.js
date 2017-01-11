@@ -589,14 +589,7 @@ window.FnBar = (function(FnBar, $) {
         if (!gTables[tableId]) {
             return;
         }
-        colNamesCache = {};
-        var cols = gTables[tableId].tableCols;
-        for (var i = 0; i < cols.length; i++) {
-            var name = cols[i].backName.trim();
-            if (name.length && !cols[i].isDATACol()) {
-                colNamesCache[name.toLowerCase()] = name;
-            }
-        }
+        colNamesCache = xcHelper.getColNameMap(tableId);
     }
 
     function setupSearchHelper() {

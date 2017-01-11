@@ -12,6 +12,7 @@ window.OperationsView = (function($, OperationsView) {
     var currentCol;
     var colNum = "";
     var colName = "";
+    var colNamesCache = [];
     var isNewCol;
     var operatorName = ""; // group by, map, filter, aggregate, etc..
     var funcName = "";
@@ -21,7 +22,6 @@ window.OperationsView = (function($, OperationsView) {
     var functionsMap = {};
     var $lastInputFocused;
     var quotesNeeded = [];
-    var corrector;
     var aggNames = [];
     var suggestLists = [[]]; // groups of arguments
     var isOpen = false;
@@ -32,6 +32,7 @@ window.OperationsView = (function($, OperationsView) {
     var tableId;
     var formHelper;
     var formOpenTime; // stores the last time the form was opened
+    var listMax = 30; // max length for hint list
 
     // shows valid cast types
     var castMap = {
@@ -377,7 +378,8 @@ window.OperationsView = (function($, OperationsView) {
                 var $list = $input.siblings('.openList');
                 if ($list.length && (event.which === keyCode.Up ||
                     event.which === keyCode.Down)) {
-                    listHighlight($input, event.which, event);
+                    var isArgInput = true;
+                    listHighlight($input, event.which, event, isArgInput);
                 }
             },
             'keypress': function(event) {
@@ -482,10 +484,14 @@ window.OperationsView = (function($, OperationsView) {
         // click on the hint list
         $operationsView.on('click', '.hint li', function() {
             var $li = $(this);
+            var val = $li.text();
+            if (val[0] !== gAggVarPrefix) {
+                val = gColPrefix + val;
+            }
 
             $li.removeClass("openli")
                 .closest(".hint").removeClass("openList").hide()
-                .siblings(".arg").val($li.text())
+                .siblings(".arg").val(val)
                 .closest(".dropDownList").removeClass("open");
             checkIfStringReplaceNeeded();
         });
@@ -605,6 +611,7 @@ window.OperationsView = (function($, OperationsView) {
                             return;
                         }
                         xcHelper.centerFocusedTable(tableId, true);
+                        updateColNamesCache();
                     } else {
                         return;
                     }
@@ -794,8 +801,6 @@ window.OperationsView = (function($, OperationsView) {
                 }
             });
             colNames.concat(aggNames);
-
-            corrector = new Corrector(colNames);
 
             populateInitialCategoryField(operatorName);
             fillInputPlaceholder(0);
@@ -1037,56 +1042,30 @@ window.OperationsView = (function($, OperationsView) {
         var $allGroups = $activeOpSection.find('.group');
         var groupIndex = $allGroups.index($ul.closest('.group'));
         var argIndex = $ul.closest('.group').find('.hint').index($ul);
-        var shouldSuggest = true;
-        var corrected;
-        var listLimit = 30; // do not show more than 30 results
-        var aggNameMatches = [];
-        var aggNameLis = "";
-        var hasCorrected = false;
+        var listLis = "";
+        var aggNameMatches;
+        var colNameMatches;
+        var allMatches;
+        var count = 0;
 
-        // when there is multi cols
-        if (curVal.indexOf(",") > -1) {
-            shouldSuggest = false;
-        } else {
-            if (curVal.length) {
-                var count = 0;
-                for (var i = 0; i < aggNames.length; i++) {
-                    if (aggNames[i].toLowerCase().indexOf(curVal) > -1 ) {
-                        count++;
-                        aggNameMatches.push(aggNames[i]);
-                        if (count > listLimit) {
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            aggNameMatches.sort();
-            for (var i = 0; i < aggNameMatches.length; i++) {
-                aggNameLis += '<li class="openli">' + aggNameMatches[i] +
+        // ignore if there are multiple cols
+        if (curVal.indexOf(",") === -1) {
+            aggNameMatches = getMatchingAggNames(curVal);
+            colNameMatches = getMatchingColNames(curVal);
+            allMatches = aggNameMatches.concat(colNameMatches);
+            for (var i = 0; i < allMatches.length; i++) {
+                listLis += '<li class="openli">' + allMatches[i] +
                               '</li>';
-            }
-            corrected = corrector.suggest(curVal);
-            if (corrected != null && corrected !== curVal) {
-                hasCorrected = true;
-            }
-            // should not suggest if the input val is already a column name
-            if (!hasCorrected && !aggNameMatches.length) {
-                shouldSuggest = false;
+                count++;
+                if (count > listMax) {
+                    break;
+                }
             }
         }
 
         // should not suggest if the input val is already a column name
-        if (shouldSuggest) {
-            $ul.find('ul').empty();
-            if (hasCorrected) {
-                $ul.find('ul').append('<li class="openli">' + corrected +
-                                  '</li>');
-            }
-            if (aggNameLis.length) {
-                $ul.find('ul').append(aggNameLis);
-            }
-            
+        if (listLis.length) {
+            $ul.find('ul').html(listLis);
             $ul.addClass("openList").show();
             suggestLists[groupIndex][argIndex].showOrHideScrollers();
 
@@ -1094,8 +1073,67 @@ window.OperationsView = (function($, OperationsView) {
             positionDropdown($ul);
         } else {
             $ul.find('ul').empty().end().removeClass("openList").hide()
-                .closest(".dropDownList").removeClass("open");
+            .closest(".dropDownList").removeClass("open");
         }
+    }
+
+    function updateColNamesCache() {
+        colNamesCache = xcHelper.getColNameMap(tableId);
+    }
+
+    function getMatchingAggNames(val) {
+        var list = [];
+        var originalVal = val;
+        val = val.toLowerCase();
+        if (val.length) {
+            var count = 0;
+            for (var i = 0; i < aggNames.length; i++) {
+                if (aggNames[i].toLowerCase().indexOf(val) > -1 ) {
+                    list.push(aggNames[i]);
+                }
+            }
+        }
+
+        if (list.length === 1 && list[0] === originalVal) {
+            // do not populate if exact match
+            return [];
+        }
+        
+        list.sort();
+        return (list);
+    }
+
+    function getMatchingColNames(val) {
+        var list = [];
+        var seen = {};
+        var originalVal = val;
+
+        if (val[0] === gColPrefix) {
+            val = val.slice(1);
+        }
+        val = val.toLowerCase();
+
+        if (val.length) {
+            for (var name in colNamesCache) {
+                if (name.indexOf(val) !== -1 &&
+                    !seen.hasOwnProperty(name)) {
+                    seen[name] = true;
+                    list.push(colNamesCache[name]);
+                }
+            }
+        }
+
+        if (list.length === 1 && (gColPrefix + list[0] === originalVal)) {
+            // do not populate if exact match
+            return [];
+        }
+
+        // shorter results on top
+        list.sort(function(a, b) {
+            return a.length - b.length;
+        });
+        
+        return (list);
     }
 
     function positionDropdown($ul) {
@@ -1235,7 +1273,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function listHighlight($input, keyCodeNum, event) {
+    function listHighlight($input, keyCodeNum, event, isArgInput) {
         var direction;
         if (keyCodeNum === keyCode.Up) {
             direction = -1;
@@ -1281,6 +1319,9 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var val = $highlightedLi.text();
+        if (isArgInput && val[0] !== gAggVarPrefix) {
+            val = gColPrefix + val;
+        }
         $highlightedLi.addClass('highlighted');
         $input.val(val);
 
@@ -1423,6 +1464,7 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             tableName = gTables[tableId].getName();
             $tableListSection.find('.dropDownList .text').text(tableName);
+            updateColNamesCache();
         }
 
         $tableListSection.find('li').filter(function() {
@@ -4127,6 +4169,10 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.addFilterGroup = addFilterGroup;
         OperationsView.__testOnly__.removeFilterGroup = removeFilterGroup;
         OperationsView.__testOnly__.submitForm = submitForm;
+        OperationsView.__testOnly__.getMatchingAggNames = getMatchingAggNames;
+        OperationsView.__testOnly__.getMatchingColNames = getMatchingColNames;
+        OperationsView.__testOnly__.aggNames = aggNames;
+        OperationsView.__testOnly__.colNames = colNamesCache;
     }
     /* End Of Unit Test Only */
 

@@ -118,6 +118,70 @@ describe('OperationsView', function() {
         });
     });
 
+    describe('function getMatchingAggNames', function() {
+        it('getMatchingAggNames() should work', function() {
+            var fn = OperationsView.__testOnly__.getMatchingAggNames;
+            var aggNames = OperationsView.__testOnly__.aggNames;
+            var oldAggNames = aggNames;
+            aggNames.length = 0; // empty the array;
+            aggNames.push("^ayz");
+            aggNames.push("^abc");
+            aggNames.push("^abcd");
+
+            expect(fn("^ay")).to.deep.equal(["^ayz"]);
+            expect(fn("^Ay")).to.deep.equal(["^ayz"]);
+            expect(fn("^ayz")).to.deep.equal([]); // exact matches will be empty
+            expect(fn("ayz")).to.deep.equal(['^ayz']); // exact matches will be empty
+            expect(fn("^aYz")).to.deep.equal(["^ayz"]);
+            expect(fn("ay")).to.deep.equal(["^ayz"]);
+            expect(fn("ayf")).to.deep.equal([]);
+            expect(fn("")).to.deep.equal([]);
+
+            expect(fn("a")).to.deep.equal(["^abc", "^abcd", "^ayz"]);
+            expect(fn("ab")).to.deep.equal(["^abc", "^abcd"]);
+            expect(fn("bc")).to.deep.equal(["^abc", "^abcd"]);
+
+            aggNames.length = 0;
+            for (var i = 0; i < oldAggNames.length; i++) {
+                aggNames.push(oldAggNames[i]);
+            }
+        });
+        
+    });
+
+    describe('function getMatchingColNames', function() {
+          it('getMatchingColNames() should work', function() {
+            var fn = OperationsView.__testOnly__.getMatchingColNames;
+            var colNames = OperationsView.__testOnly__.colNames;
+            var oldColNames = xcHelper.deepCopy(colNames);
+            for (var i in colNames)  {
+                delete colNames[i];// empty the object;
+            }
+            colNames["ayz"] = "ayz";
+            colNames["abc"] = "abc";
+            colNames["abcd"] = "Abcd";
+
+            expect(fn("ay")).to.deep.equal(["ayz"]);
+            expect(fn("$ay")).to.deep.equal(["ayz"]);
+            expect(fn("ayz")).to.deep.equal(["ayz"]); // not considered match without $
+            expect(fn("$ayz")).to.deep.equal([]); // exact match will be empty
+            expect(fn("Ayz")).to.deep.equal(["ayz"]);
+
+            expect(fn("abcd")).to.deep.equal(["Abcd"]);
+            expect(fn("$Abcd")).to.deep.equal([]); // exact match will be empty
+
+            expect(fn("a")).to.deep.equal(["ayz", "abc", "Abcd"]);
+            expect(fn("ab")).to.deep.equal(["abc", "Abcd"]);
+
+            for (var i in colNames)  {
+                delete colNames[i];// empty the object;
+            }
+            for (var i in oldColNames) {
+                colNames[i] = oldColNames[i];
+            }
+        });
+    });
+
     describe('group by', function() {
         var tableId;
         var $operationsModal;

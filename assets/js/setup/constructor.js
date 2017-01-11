@@ -2527,6 +2527,7 @@ Corrector.prototype = {
         }
     },
 
+    // returns only 1 value
     suggest: function(word, isEdits2) {
         word = word.toLowerCase();
 
