@@ -287,7 +287,7 @@ window.xcSuggest = (function($, xcSuggest) {
 // Relevant structure:
 // See colManager.js, line 1480 (parseTdHelper)
 // val given by tdValue, which is determined by parseRowJSON
-//  progCol.updateType in constructor.js
+//  progCol.updateType in metaConstructor.js
 //   xcHelper.parseColType
 //
 // xcHelper.parseColType also shows up in
