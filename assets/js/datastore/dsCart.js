@@ -216,9 +216,10 @@ window.DSCart = (function($, DSCart) {
 
         for (var i = 0, len = items.length; i < len; i++) {
             var colName = items[i].value;
+            var type = items[i].type;
             // var escapedName = xcHelper.escapeColName(colName);
             var escapedName = xcHelper.getPrefixColName(prefix, colName);
-            var progCol = ColManager.newPullCol(colName, escapedName);
+            var progCol = ColManager.newPullCol(colName, escapedName, type);
 
             newTableCols.push(progCol);
             sql.columns.push(colName);
