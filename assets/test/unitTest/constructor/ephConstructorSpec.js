@@ -1,4 +1,4 @@
-describe("Util Constructor Test", function() {
+describe("Ephemeral Constructor Test", function() {
     describe("XcMap Test", function() {
         it("Should be a map", function() {
             var map = new XcMap();

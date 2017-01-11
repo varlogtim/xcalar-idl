@@ -1,4 +1,4 @@
-describe("Meta Constructor Test", function() {
+describe("Persistent Constructor Test", function() {
     describe("Meta Constructor Test", function() {
         it("METAConstructor should have the right key", function() {
             var keys = getMETAKeys();
