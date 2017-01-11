@@ -1,0 +1,54 @@
+<div id="dsUploader" class="cardContainer fileBrowser">
+  <header class="cardHeader">
+    <div class="title">Add File / Create Dataset Reference</div>
+  </header>
+  <div class="cardInstruction">
+    <i class="icon xi-info-circle"></i>
+    <div class="text">To add a file, drag and drop files from your computer into this window or click Browse.</div>
+    <button id="dsUploadBrowse" class="btn browse" type="button"><%= dicts.common.BROWSE %></button>
+  </div>
+  <div class="cardMain">
+    <div id="dsUploaderMain" class="xc-grid leftMain listView fileBrowserMain fileDroppable">
+      <!-- Loading Section -->
+      <section class="loadingSection">
+        <div class="waitingIcon"></div>
+      </section>
+      <!-- Titles -->
+      <section class="titleSection">
+        <div class="title gridIcon"></div>
+        <!-- file name -->
+        <div class="title fileName" data-sortkey="name">
+          <span class="label"><%= dicts.common.Name %></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+        <!-- file date -->
+        <div class="title fileDate" data-sortkey="date">
+          <span class="label"><%= dicts.common.DateModified %></span>
+          <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+        <!-- file size -->
+        <div class="title fileSize" data-sortkey="size">
+          <span class="label"><%= dicts.common.Size %></span>
+         <i class="icon xi-sort fa-15 xc-action"></i>
+        </div>
+      </section>
+      <!-- Main Content -->
+      <section id="dsUploaderContainer" class="mainSection fileBrowserContainer">
+        <div id="innerdsUploader" class="clearfix innerFileBrowserContainer">
+          <div title="bin" class="folder visible grid-unit">
+            <i class="gridIcon icon xi-folder"></i>
+            <div class="label fileName" data-name="bin">bin</div>
+            <div class="fileDate">2:02:04 PM 6-29-2016</div>
+            <div class="fileSize">5mb</div>
+          </div>
+        </div>
+      </section>
+      <div id="dsUploaderDropArea" method="post" action="" enctype="multipart/form-data">
+        drop files here
+        <input id="dsUploadSubmit" spellcheck="false" type="file" style="display: none;">
+      </div>
+    </div>
+  </div>
+  <div class="cardBottom">
+  </div>
+</div>

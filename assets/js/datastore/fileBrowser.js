@@ -1035,7 +1035,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var iconClass = isDirectory ? "xi-folder" : "xi_data";
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
-            var date = xcHelper.timeStampTranslater(mtime) || "";
+            var date = xcHelper.timeStampTranslator(mtime) || "";
 
             html +=
                 '<div title="' + name + '" class="' +

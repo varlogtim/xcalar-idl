@@ -1,5 +1,5 @@
 <!-- File Browser -->
-<div id="fileBrowser" class="cardContainer xc-hidden">
+<div id="fileBrowser" class="cardContainer xc-hidden fileBrowser">
   <!-- File Browser Header -->
   <header class="cardHeader">
     <div class="title"><%= dicts.fileBrowser.header %></div>
@@ -68,7 +68,7 @@
   </section>
   <section class="cardMain">
     <!-- File Browser Main Section -->
-    <div id="fileBrowserMain" class="xc-grid leftMain gridView">
+    <div id="fileBrowserMain" class="xc-grid leftMain gridView fileBrowserMain">
         <!-- Loading Sectoin -->
         <section class="loadingSection">
           <div class="waitingIcon"></div>
@@ -93,8 +93,8 @@
           </div>
         </section>
         <!-- Main Content -->
-        <section id="fileBrowserContainer" class="mainSection">
-          <div id="innerFileBrowserContainer" class="clearfix"></div>
+        <section id="fileBrowserContainer" class="mainSection fileBrowserContainer">
+          <div id="innerFileBrowserContainer" class="clearfix innerFileBrowserContainer"></div>
         </section>
     </div>
     <div id="fileBrowserPreview" class="rightMain xc-hidden">

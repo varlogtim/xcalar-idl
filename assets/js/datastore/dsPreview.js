@@ -349,7 +349,11 @@ window.DSPreview = (function($, DSPreview) {
             resetForm();
             clearPreviewTable();
             if (backToFormCard) {
-                DSForm.show({"noReset": true});
+                if (gDsUploadEnabled) {
+                    DSUploader.show();
+                } else {
+                    DSForm.show({"noReset": true});
+                }
             } else {
                 FileBrowser.show(protocol, path);
             }

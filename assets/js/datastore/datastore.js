@@ -6,6 +6,7 @@ window.DataStore = (function($, DataStore) {
         DS.setup();
         setupViews();
         DSForm.setup();
+        DSUploader.setup();
         DSTable.setup();
         DSCart.setup();
         DSExport.setup();

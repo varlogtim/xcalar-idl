@@ -610,12 +610,12 @@ describe('xcHelper Test', function() {
         });
     });
 
-    it('xcHelper.timeStampTranslater should work', function() {
+    it('xcHelper.timeStampTranslator should work', function() {
         // case 1
-        var res = xcHelper.timeStampTranslater(1463788661);
+        var res = xcHelper.timeStampTranslator(1463788661);
         expect(res).to.equal("4:57:41 PM 5-20-2016");
         //case 2
-        res = xcHelper.timeStampTranslater();
+        res = xcHelper.timeStampTranslator();
         expect(res).to.be.null;
     });
 

@@ -7,8 +7,9 @@ window.DSForm = (function($, DSForm) {
 
     DSForm.View = {
         "Path"   : "DSForm",
+        "Uploader": "DSUploader",
         "Browser": "FileBrowser",
-        "Preview": "DSPreview"
+        "Preview": "DSPreview",
     };
 
     DSForm.setup = function() {
@@ -40,7 +41,12 @@ window.DSForm = (function($, DSForm) {
             resetForm();
         }
 
-        DSForm.switchView(DSForm.View.Path);
+        if (gDsUploadEnabled) {
+            DSForm.switchView(DSForm.View.Uploader);
+        } else {
+            DSForm.switchView(DSForm.View.Path);
+        }
+      
         $filePath.focus();
     };
 
@@ -49,6 +55,9 @@ window.DSForm = (function($, DSForm) {
         switch (view) {
             case DSForm.View.Path:
                 $cardToSwitch = $pathCard;
+                break;
+            case DSForm.View.Uploader:
+                $cardToSwitch = $("#dsUploader");
                 break;
             case DSForm.View.Browser:
                 $cardToSwitch = $("#fileBrowser");

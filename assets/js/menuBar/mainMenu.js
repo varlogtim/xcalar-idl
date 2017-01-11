@@ -291,6 +291,7 @@ window.MainMenu = (function($, MainMenu) {
                     DSForm.initialize();
                     // relese the old ref count if any
                     DS.release();
+                    DSUploader.refreshFiles();
                 }
                 break;
             case ("monitorTab"):

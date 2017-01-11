@@ -10,7 +10,7 @@
         overflow: hidden;
     }
 
-     &.in {
+    &.in {
         .subPanel {
             &.in {
                 display: block;
@@ -739,8 +739,87 @@ table.datasetTable {
 }
 /* End of Path Card */
 
+/* dsUploader Card */
+#dsUploader {
+    .cardMain {
+        height: ~"calc(100% - 90px)";
+    }
+    .browse {
+        margin-top: -5px;
+        margin-left: 5px;
+    }
+
+    #dsUploaderMain {
+        position: relative;
+    }
+
+    #dsUploaderContainer {
+        overflow-y: auto;
+        height: ~"calc(100% - 42px)";
+    }
+
+    #dsUploaderDropArea {
+        background-color: @color-white;
+        outline: 4px dashed #124861;
+        outline-offset: -20px;
+        padding: 20px;
+        display: none;
+        .size(100%, 100%);
+        .position(absolute, 0px, 0px);
+        .justify-content(center);
+        .flex-direction(column);
+        text-align: center;
+        font-size: 50px;
+        opacity: 0.75;
+        color: @color-font-gray36;
+        color: @color-text-midlightGray;
+        font-weight: bold;
+        pointer-events: none;
+    }
+
+    #dsUploaderDropArea.entering {
+        background-color: white;
+        .flex-display;
+        * {
+            pointer-events: none;
+        }
+    }
+
+    .fileDragging {
+        #dsUploaderDropArea {
+            background-color: white;
+            .flex-display;
+        }
+        * {
+            pointer-events: none;
+        }
+    }
+
+    .grid-unit {
+        cursor: pointer;
+        > div {
+            cursor: pointer;
+        }
+
+        &:hover {
+            background-color: @color-bg-light-blue-grey;
+            .gridIcon {
+                color: @color-font-softBlue;
+            }
+        }
+    }
+
+    .cardBottom {
+        margin: 0 10%;
+        padding-right: 0;
+        padding-top: 10px;
+        padding-bottom: 20px;
+    }
+}
+/* End of File Adder Card */
+
 /* File Browser */
-#fileBrowser {
+.fileBrowser {
     .size(@min-width: 650px, @height: ~"calc(100% - 5px)");
     text-transform: capitalize;
     overflow: visible;
@@ -935,7 +1014,7 @@ table.datasetTable {
         }
     }
 
-    #fileBrowserMain {
+    .fileBrowserMain {
         .size(@height: 100%);
 
         .titleSection {
@@ -1017,7 +1096,7 @@ table.datasetTable {
             }
         }
 
-        #innerFileBrowserContainer {
+        .innerFileBrowserContainer {
             overflow: hidden;
         }
 

@@ -757,14 +757,23 @@ window.xcHelper = (function($, xcHelper) {
         document.body.removeChild(element);
     };
 
-
-    xcHelper.timeStampTranslater = function(unixTime) {
+    // options:
+    // hasMilliseconds: boolean, if true, will not add milliseconds
+    // noSeconds: boolean, if true, will not display seconds
+    xcHelper.timeStampTranslator = function(unixTime, options) {
         if (unixTime == null) {
             return null;
         }
-
-        var timeStamp = unixTime * 1000;
-        time = xcHelper.getTime(null, timeStamp) + " " +
+        options = options || {};
+        var timeStamp;
+        if (options.hasMilliseconds) {
+            timeStamp = unixTime;
+        } else {
+            timeStamp = unixTime * 1000;
+        }
+        var noSeconds = options.noSeconds || false;
+        
+        time = xcHelper.getTime(null, timeStamp, noSeconds) + " " +
                xcHelper.getDate("-", null, timeStamp);
         return time;
     };

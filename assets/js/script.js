@@ -802,6 +802,47 @@ window.StartManager = (function(StartManager, $) {
             gLastClickTarget = $(event.target);
         });
 
+         $(document).on('dragstart dragenter', function(event) {    
+            if (event.originalEvent.dataTransfer.types.indexOf('Files') > -1) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                event.originalEvent.dataTransfer.effectAllowed= 'none';
+                event.originalEvent.dataTransfer.dropEffect= 'none';
+
+                $('.fileDroppable').addClass('fileDragging');
+            }
+        });
+
+
+        $(document).on('dragover', function(event) {    
+            if (event.originalEvent.dataTransfer.types &&
+                event.originalEvent.dataTransfer.types.indexOf('Files') > -1) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                event.originalEvent.dataTransfer.effectAllowed= 'none';
+                event.originalEvent.dataTransfer.dropEffect= 'none';
+            }
+        });
+
+        $(document).on('drop dragleave dragend', function (event) { 
+            if (event.originalEvent.pageX != 0 ||
+                event.originalEvent.pageY != 0) {
+                return false;
+            }
+
+            if (event.originalEvent.dataTransfer.types.indexOf('Files') > -1) {
+                event.stopPropagation();
+                event.preventDefault();
+
+                event.originalEvent.dataTransfer.effectAllowed= 'none';
+                event.originalEvent.dataTransfer.dropEffect= 'none';
+
+                $('.fileDroppable').removeClass('fileDragging');
+            }
+        });
+
         $(window).blur(function() {
             $('.menu').hide();
             removeMenuKeyboardNavigation();
