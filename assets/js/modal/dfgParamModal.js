@@ -607,7 +607,6 @@ window.DFParamModal = (function($, DFParamModal){
 
     function storeRetina() {
         //XX need to check if all default inputs are filled
-        
         var deferred = jQuery.Deferred();
         var $paramPart = $dfgParamModal.find(".editableTable");
         var $editableDivs = $paramPart.find('input.editableParamDiv');

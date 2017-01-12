@@ -1102,6 +1102,8 @@ window.DFCard = (function($, DFCard) {
         var extensionDotIndex = fileName.lastIndexOf(".");
         if (extensionDotIndex > 0) {
             fileName = fileName.slice(0, extensionDotIndex);
+        } else {
+            return PromiseHelper.reject(DFTStr.NoFileExt);
         }
 
         XcalarListExportTargets(ExTargetTypeTStr[1], targetName)

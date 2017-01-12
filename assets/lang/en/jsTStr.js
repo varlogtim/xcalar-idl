@@ -578,7 +578,8 @@ DFTStr = {
     "AdvancedOpts": "Advanced Export Options",
     "Default": "Export to file system",
     "Import": "Export as a Xcalar table",
-    "FindTable": "The final table <table> is in the worksheet"
+    "FindTable": "The final table <table> is in the worksheet",
+    "NoFileExt": "Export file name must have an extension"
 };
 
 DSTStr = {
