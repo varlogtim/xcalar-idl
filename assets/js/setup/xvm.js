@@ -108,8 +108,8 @@ window.XVM = (function(XVM) {
         .then(function(value) {
             if (value == null) {
                 versionInfo = new XcVersion({
-                    "version": fullVersion,
-                    "SHA"    : XVM.getSHA()
+                    "fullVersion": fullVersion,
+                    "SHA"        : XVM.getSHA()
                 });
                 return KVStore.put(versionKey, JSON.stringify(versionInfo),
                                     true, gKVScope.VER);

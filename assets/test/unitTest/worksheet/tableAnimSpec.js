@@ -509,7 +509,6 @@ describe('TblAnim', function() {
             var tableOffset = $tableWrap.offset().left;
             var e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.onTableDrag(e);
-
             expect(dragInfo.pageX).to.equal(newX);
             expect($tableWrap.css('left')).to.equal(newX - (startX - tableOffset) + "px");
         });

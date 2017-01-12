@@ -579,7 +579,6 @@ function viewRelatedFunctionTest() {
     it('Should show schedule detail view correctly', function() {
         $newScheduleTime = $newScheduleForm.find(".timeSection .time");
         $inputSection = $newScheduleForm.find(".timePicker .inputSection");
-
         $scheduleDetail.show();
         assert.isFalse($scheduleDetail.is(":visible"));
         assert.isFalse($scheduleInfos.is(":visible"));

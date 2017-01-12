@@ -318,11 +318,10 @@ window.Profile = (function($, Profile, d3) {
 
         if (statsCol == null) {
             statsCol = statsInfos[tableId][colName] = new ProfileInfo({
-                "modalId": xcHelper.randName("stats"),
                 "colName": colName,
-                "type"   : progCol.type
+                "type"   : progCol.getType()
             });
-        } else if (statsCol.modalId === $modal.data("id")) {
+        } else if (statsCol.getId() === $modal.data("id")) {
             // when same modal open twice
             deferred.resolve();
             return (deferred.promise());
@@ -337,7 +336,7 @@ window.Profile = (function($, Profile, d3) {
             "tableId"  : tableId,
             "colNum"   : colNum,
             "colName"  : colName,
-            "modalId"  : statsCol.modalId
+            "id"       : statsCol.getId()
         };
         var txId = Transaction.start({
             "msg"      : StatusMessageTStr.Profile + " " + colName,
@@ -461,7 +460,7 @@ window.Profile = (function($, Profile, d3) {
 
         // hide scroll bar first
         $modal.addClass("noScrollBar");
-        $modal.data("id", statsCol.modalId);
+        $modal.data("id", statsCol.getId());
 
         modalHelper.setup();
 
@@ -1720,7 +1719,7 @@ window.Profile = (function($, Profile, d3) {
             "tableId"   : curTableId,
             "colNum"    : curColNum,
             "bucketSize": bucketNum,
-            "modalId"   : statsCol.modalId
+            "id"        : statsCol.getId()
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileSort,
@@ -1875,7 +1874,7 @@ window.Profile = (function($, Profile, d3) {
             "bucketSize": newBucketNum,
             "tableId"   : curTableId,
             "colNum"    : curColNum,
-            "modalId"   : statsCol.modalId
+            "id"        : statsCol.getId()
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileBucketing,
@@ -2447,7 +2446,7 @@ window.Profile = (function($, Profile, d3) {
 
     function isModalVisible(curStatsCol) {
         return ($modal.is(":visible") &&
-                $modal.data("id") === curStatsCol.modalId);
+                $modal.data("id") === curStatsCol.getId());
     }
 
     function failureHandler(curStatsCol, error, txId) {

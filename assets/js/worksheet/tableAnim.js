@@ -741,8 +741,8 @@ window.TblAnim = (function($, TblAnim) {
 
     function cloneCellHelper(obj) {
         var trClass = "";
-        if ($(obj).hasClass('changedHeight')) {
-            trClass = 'changedHeight';
+        if ($(obj).hasClass("changedHeight")) {
+            trClass = "changedHeight";
         }
         var td = $(obj).children().eq(dragInfo.colIndex);
 

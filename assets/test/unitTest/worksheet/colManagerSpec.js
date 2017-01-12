@@ -101,117 +101,111 @@ describe('ColManager Test', function() {
             str = "add(1,2)";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"add","args":[1,2]}]';
+            desiredStr = '[{"version":1,"name":"add","args":[1,2]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "add  (1,3)";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"add","args":[1,3]}]';
+            desiredStr = '[{"version":1,"name":"add","args":[1,3]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "add(1  ,4)";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"add","args":[1,4]}]';
+            desiredStr = '[{"version":1,"name":"add","args":[1,4]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "add ( 1  , 5  )";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"add","args":[1,5]}]';
+            desiredStr = '[{"version":1,"name":"add","args":[1,5]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'concat ("wo rd",5)';
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"concat","args":["\\\"wo rd\\\"",5]}]';
+            desiredStr = '[{"version":1,"name":"concat","args":["\\\"wo rd\\\"",5]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'concat (\'wo"r"a"d\',5)';
             func = {args: []};
             fn(str, func);
-            var desiredFunc = {
-                args: ["'wo\"r\"a\"d'", 5],
-                name: 'concat'
-            };
-            expect(func.args[0]).to.deep.equal(desiredFunc);
+            desiredStr = '[{"version":1,"name":"concat","args":["\'wo\\\"r\\\"a\\\"d\'",5]}]';
+            expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'con\\"c\\,at (\'w\\,o"r\\\'d\',5)';
             func = {args: []};
             fn(str, func);
-            desiredFunc = {
-                args: ["'w\\,o\"r\\'d'", 5],
-                name: 'con\\"c\\,at'
-            };
-            expect(func.args[0]).to.deep.equal(desiredFunc);
+            desiredStr = '[{"version":1,"name":"con\\\\\\"c\\\\,at","args":["\'w\\\\,o\\"r\\\\\'d\'",5]}]';
+            expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'concat ("wo\\"rd",6)';
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"concat","args":["\\"wo\\\\\\"rd\\"",6]}]';
+            desiredStr = '[{"version":1,"name":"concat","args":["\\"wo\\\\\\"rd\\"",6]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'concat ("w\'o\\"rd",7)';
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"concat","args":["\\"w\'o\\\\\\"rd\\"",7]}]';
+            desiredStr = '[{"version":1,"name":"concat","args":["\\"w\'o\\\\\\"rd\\"",7]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'add(1e2,7)';
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"add","args":["1e2",7]}]';
+            desiredStr = '[{"version":1,"name":"add","args":["1e2",7]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'add(0xFF,8)';
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"add","args":["0xFF",8]}]';
+            desiredStr = '[{"version":1,"name":"add","args":["0xFF",8]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'add(null,9)';
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"add","args":["null",9]}]';
+            desiredStr = '[{"version":1,"name":"add","args":["null",9]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "map(add()";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"map","args":[{"name":"add","args":[]}]}]';
+            desiredStr = '[{"version":1,"name":"map","args":[{"version":1,"name":"add","args":[]}]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "map(add( , )";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"map","args":[{"name":"add","args":["",""]}]}]';
+            desiredStr = '[{"version":1,"name":"map","args":[{"version":1,"name":"add","args":["",""]}]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "map(add(,)";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"map","args":[{"name":"add","args":[]}]}]';
+            desiredStr = '[{"version":1,"name":"map","args":[{"version":1,"name":"add","args":[]}]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "map(add(1,)";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"map","args":[{"name":"add","args":[1]}]}]';
+            desiredStr = '[{"version":1,"name":"map","args":[{"version":1,"name":"add","args":[1]}]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = "map(add(1,,2)";
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"map","args":[{"name":"add","args":[1,2]}]}]';
+            desiredStr = '[{"version":1,"name":"map","args":[{"version":1,"name":"add","args":[1,2]}]}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);
 
             str = 'map( add(1,con cat ("ab", "cd" )) )';
             func = {args: []};
             fn(str, func);
-            desiredStr = '[{"name":"map","args":' +
-                            '[{"name":"add","args":' +
-                                '[1,{"name":"con cat","args":["\\"ab\\"","\\"cd\\""]}]' +
+            desiredStr = '[{"version":1,"name":"map","args":' +
+                            '[{"version":1,"name":"add","args":' +
+                                '[1,{"version":1,"name":"con cat","args":["\\"ab\\"","\\"cd\\""]}]' +
                             '}]' +
                         '}]';
             expect(JSON.stringify(func.args)).to.equal(desiredStr);

@@ -17,6 +17,48 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
+    describe("WKBKSet Constructor Test", function() {
+        var wkbkSet;
+        var wkbk;
+
+        before(function() {
+            wkbkSet = new WKBKSet();
+        });
+
+        it("Should be a WKBKSet", function() {
+            expect(wkbkSet).to.be.instanceof(WKBKSet);
+        });
+
+        it("Should put workbook", function() {
+            wkbk = new WKBK({
+                "name": "test",
+                "id"  : "testId"
+            });
+
+            wkbkSet.put("testId", wkbk);
+            expect(wkbkSet.getAll()).be.have.property("testId");
+        });
+
+        it("Should get workbook", function() {
+            expect(wkbkSet.get("testId")).to.equal(wkbk);
+        });
+
+        it("Should know if has workbook", function() {
+            expect(wkbkSet.has("testId")).to.be.true;
+            expect(wkbkSet.has("errorId")).to.be.false;
+        });
+
+        it("Should getWithStringify", function() {
+            expect(wkbkSet.getWithStringify().indexOf("testId") >= 0)
+            .to.be.true;
+        });
+
+        it("Should delete workbook", function() {
+            wkbkSet.delete("testId");
+            expect(wkbkSet.has("testId")).to.be.false;
+        });
+    });
+
     describe("MouseEvents Constructor Test", function() {
         it("MouseEvents should be a constructor", function() {
             var mouseEvent = new MouseEvents();

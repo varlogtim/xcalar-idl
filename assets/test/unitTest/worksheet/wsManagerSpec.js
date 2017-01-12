@@ -41,13 +41,7 @@ describe('Worksheet Test', function() {
     describe("Basic Worksheet API Test", function() {
         it("Should get all meta", function() {
             var meta = WSManager.getAllMeta();
-            expect(meta).to.be.an("object");
-            expect(Object.keys(meta).length).to.equal(5);
-            expect(meta).have.property("wsInfos");
-            expect(meta).have.property("wsOrder");
-            expect(meta).have.property("hiddenWS");
-            expect(meta).have.property("noSheetTables");
-            expect(meta).have.property("activeWS");
+            expect(meta).to.be.an.instanceof(WSMETA);
         });
 
         it("Should get worksheets", function() {

@@ -6,8 +6,10 @@ describe("Persistent Constructor Test", function() {
             metaInfos = new METAConstructor();
         });
 
-        it("Should have no attr initially", function() {
-            expect(Object.keys(metaInfos).length).to.equal(0);
+        it("Should have only have version property", function() {
+            expect(metaInfos).to.be.an.instanceof(METAConstructor);
+            expect(Object.keys(metaInfos).length).to.equal(1);
+            expect(metaInfos.version).to.equal(currentVersion);
         });
 
         it("Should restore oldMetaInfos", function() {
@@ -22,7 +24,7 @@ describe("Persistent Constructor Test", function() {
                 "query"      : "testQuery"
             });
 
-            expect(Object.keys(metaInfos).length).to.equal(8);
+            expect(Object.keys(metaInfos).length).to.equal(9);
         });
 
         it("Should get table meta", function() {
@@ -77,8 +79,10 @@ describe("Persistent Constructor Test", function() {
             ephMeta = new EMetaConstructor();
         });
 
-        it("Should have no attr initially", function() {
-            expect(Object.keys(ephMeta).length).to.equal(0);
+        it("Should have only have version property", function() {
+            expect(ephMeta).to.be.an.instanceof(EMetaConstructor);
+            expect(Object.keys(ephMeta).length).to.equal(1);
+            expect(ephMeta.version).to.equal(currentVersion);
         });
 
         it("Should restore oldEphMeta", function() {
@@ -86,7 +90,7 @@ describe("Persistent Constructor Test", function() {
                 "DF": "testDF"
             });
 
-            expect(Object.keys(ephMeta).length).to.equal(1);
+            expect(Object.keys(ephMeta).length).to.equal(2);
         });
 
         it("Should get DF meta", function() {
@@ -106,8 +110,10 @@ describe("Persistent Constructor Test", function() {
             userInfos = new UserInfoConstructor();
         });
 
-        it("Should have no attr initially", function() {
-            expect(Object.keys(userInfos).length).to.equal(0);
+        it("Should have only have version property", function() {
+            expect(userInfos).to.be.an.instanceof(UserInfoConstructor);
+            expect(Object.keys(userInfos).length).to.equal(1);
+            expect(userInfos.version).to.equal(currentVersion);
         });
 
         it("Should restore oldMeta", function() {
@@ -115,7 +121,7 @@ describe("Persistent Constructor Test", function() {
                 "gDSObj"        : "testDS",
                 "userpreference": "testPref"
             });
-            expect(Object.keys(userInfos).length).to.equal(2);
+            expect(Object.keys(userInfos).length).to.equal(3);
         });
 
         it("Should get pref info", function() {
@@ -135,16 +141,19 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("XcVersion Constructor Test", function() {
-        it("XcVersion should be a constructor", function() {
+        it("Should have 3 attributes", function() {
             var versionInfo = new XcVersion({
-                "version": "test",
-                "SHA"    : 123,
+                "fullVersion": "test",
+                "SHA"        : 123,
             });
 
-            expect(versionInfo).to.be.an("object");
-            expect(Object.keys(versionInfo).length).to.equal(2);
+            expect(versionInfo).to.be.an.instanceof(XcVersion);
+            expect(Object.keys(versionInfo).length).to.equal(3);
 
             expect(versionInfo).to.have.property("version")
+            .and.to.equal(currentVersion);
+
+            expect(versionInfo).to.have.property("fullVersion")
             .and.to.equal("test");
 
             expect(versionInfo).to.have.property("SHA")
@@ -153,14 +162,21 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("XcAuth Constructor Test", function() {
-        it("XcAuth should be a constructor", function() {
-            var autoInfo = new XcAuth({
+        var autoInfo;
+
+        before(function() {
+            autoInfo = new XcAuth({
                 "idCount": 1,
                 "hashTag": "test"
             });
+        });
 
-            expect(autoInfo).to.be.an("object");
-            expect(Object.keys(autoInfo).length).to.equal(2);
+        it("XcAuth should have 3 properties", function() {
+            expect(autoInfo).to.be.an.instanceof(XcAuth);
+            expect(Object.keys(autoInfo).length).to.equal(3);
+
+            expect(autoInfo).to.have.property("version")
+            .and.to.equal(currentVersion);
 
             expect(autoInfo).to.have.property("idCount")
             .and.to.equal(1);
@@ -168,11 +184,41 @@ describe("Persistent Constructor Test", function() {
             expect(autoInfo).to.have.property("hashTag")
             .and.to.equal("test");
         });
+
+        it("Should getHashTag", function() {
+            expect(autoInfo.getHashTag()).to.equal("test");
+        });
+
+        it("Should getIdCount", function() {
+            expect(autoInfo.getIdCount()).to.equal(1);
+        });
+
+        it("Should increase id count", function() {
+            expect(autoInfo.incIdCount()).to.equal(2);
+        });
     });
 
     describe("XcLog Constructor Test", function() {
-        it("XcLog should be a constructor", function() {
-            // case 1
+        it("Should have 5 attributes", function() {
+            var log = new XcLog({
+                "title"  : "test1",
+                "cli"    : "cliTest",
+                "options": {
+                    "operation": "foo"
+                }
+            });
+
+            expect(log).to.be.an.instanceof(XcLog);
+            expect(Object.keys(log).length).to.equal(5);
+
+            expect(log).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(log).to.have.property("cli").and.to.equal("cliTest");
+            expect(log).to.have.property("timestamp")
+            .and.to.be.a("number");
+        });
+
+        it("Should know if is error log", function() {
             var log1 = new XcLog({
                 "title"  : "test1",
                 "cli"    : "cliTest",
@@ -181,19 +227,6 @@ describe("Persistent Constructor Test", function() {
                 }
             });
 
-            expect(log1).to.be.an("object");
-            expect(Object.keys(log1).length).to.equal(4);
-
-            expect(log1).to.have.property("cli").and.to.equal("cliTest");
-            expect(log1).to.have.property("timestamp")
-            .and.to.be.a("number");
-
-            expect(log1.isError()).to.be.false;
-            expect(log1.getOperation()).to.equal("foo");
-            expect(log1.getTitle()).to.equal("test1");
-            expect(log1.getOptions()).to.be.an("object");
-
-            // case 2
             var log2 = new XcLog({
                 "title"  : "test2",
                 "cli"    : "cliTest2",
@@ -203,26 +236,55 @@ describe("Persistent Constructor Test", function() {
                 }
             });
 
-            expect(log2).to.be.an("object");
-            expect(Object.keys(log2).length).to.equal(6);
-
-            expect(log2).to.have.property("cli").and.to.equal("cliTest2");
-            expect(log2).to.have.property("error").and.to.equal("testError");
+            expect(log1.isError()).to.be.false;
             expect(log2.isError()).to.be.true;
-            expect(log2.getOperation()).to.equal("bar");
-            expect(log2.getTitle()).to.equal("test2");
+        });
+
+        it("Should get operation", function() {
+            var log = new XcLog({
+                "title"  : "test1",
+                "cli"    : "cliTest",
+                "options": {
+                    "operation": "foo"
+                }
+            });
+            expect(log.getOperation()).to.equal("foo");
+        });
+
+        it("Shoult get title", function() {
+            var log = new XcLog({
+                "title"  : "test1",
+                "cli"    : "cliTest",
+                "options": {
+                    "operation": "foo"
+                }
+            });
+            expect(log.getTitle()).to.equal("test1");
+        });
+
+        it("Should get options", function() {
+            var log = new XcLog({
+                "title"  : "test1",
+                "cli"    : "cliTest",
+                "options": {
+                    "operation": "foo"
+                }
+            });
+            expect(log.getOptions()).to.be.an("object");
         });
     });
 
     describe("ColFunc Constructor Test", function() {
-        it("ColFunc should be a constructor", function() {
+        it("Should have 3 attributes", function() {
             var colFunc = new ColFunc({
                 "name": "test",
                 "args": "pull(test)"
             });
-            expect(colFunc).to.be.an("object");
-            expect(Object.keys(colFunc).length).to.equal(2);
 
+            expect(colFunc).to.be.an.instanceof(ColFunc);
+            expect(Object.keys(colFunc).length).to.equal(3);
+            expect(colFunc).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(colFunc).to.have.property("name")
             .and.to.equal("test");
             expect(colFunc).to.have.property("args")
@@ -231,12 +293,11 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("ProgCol constructor test", function() {
-        it("ProgCol should be a constructor", function() {
-            // case 1
+        it("Should have 17 attributes", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "decimal" : 10,
@@ -245,21 +306,106 @@ describe("Persistent Constructor Test", function() {
                 }
             });
 
-            expect(progCol).to.be.an("object");
-            expect(progCol.getBackColName()).to.equal("prefix::backTest");
-            expect(progCol.getPrefix()).to.equal("prefix");
-            expect(progCol.isNumberCol()).to.be.true;
-            expect(progCol.isEmptyCol()).to.be.false;
+            expect(progCol).to.be.an.instanceof(ProgCol);
+            expect(Object.keys(progCol).length).to.equal(17);
+            expect(progCol).to.have.property("version")
+            .and.to.equal(1);
+            expect(progCol).to.have.property("name")
+            .and.to.equal("test");
+            expect(progCol).to.have.property("backName")
+            .and.to.equal("prefix::backTest");
+            expect(progCol).to.have.property("prefix")
+            .and.to.equal("prefix");
+            expect(progCol).to.have.property("immediate")
+            .and.to.be.false;
+            expect(progCol).to.have.property("type")
+            .and.to.equal(ColumnType.float);
+            expect(progCol).to.have.property("knownType")
+            .and.to.be.false;
+            expect(progCol).to.have.property("childOfArray")
+            .and.to.be.false;
+            expect(progCol).to.have.property("isNewCol")
+            .and.to.be.false;
+            expect(progCol).to.have.property("isHidden")
+            .and.to.be.false;
+            expect(progCol).to.have.property("width")
+            .and.to.equal(100);
+            expect(progCol).to.have.property("format")
+            .and.to.be.null;
+            expect(progCol).to.have.property("decimal")
+            .and.to.equal(10);
+            expect(progCol).to.have.property("sizedToHeader")
+            .and.to.be.true;
+            expect(progCol).to.have.property("textAlign")
+            .and.to.equal(ColTextAlign.Left);
+            expect(progCol).to.have.property("userStr")
+            .and.to.equal("");
+            expect(progCol).to.have.property("func")
+            .and.to.be.instanceof(ColFunc);
+        });
 
-            // case 2
-            progCol = new ProgCol({
+        it("Should know if is data col", function() {
+            var progCol = new ProgCol({
                 "name": "DATA",
-                "type": "object",
+                "type": ColumnType.object,
                 "func": {
                     "name": "raw"
                 }
             });
             expect(progCol.isDATACol()).to.be.true;
+
+            // case 2
+            var progCol2 = new ProgCol({
+                "name"    : "test",
+                "type"    : ColumnType.object,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+            expect(progCol2.isDATACol()).to.be.false;
+        });
+
+        it("Should know if is number col", function() {
+            var progCol1 = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : ColumnType.float
+            });
+
+            var progCol2 = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : ColumnType.integer
+            });
+
+            var progCol3 = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : ColumnType.string
+            });
+
+            expect(progCol1.isNumberCol()).to.be.true;
+            expect(progCol2.isNumberCol()).to.be.true;
+            expect(progCol3.isNumberCol()).to.be.false;
+        });
+
+        it("Should know if is empty col", function() {
+            var progCol1 = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : ColumnType.float,
+                "isNewCol": false
+            });
+
+            var progCol2 = new ProgCol({
+                "name"    : "",
+                "backName": "prefix::backTest",
+                "type"    : ColumnType.float,
+                "isNewCol": true
+            });
+
+            expect(progCol1.isEmptyCol()).to.be.false;
+            expect(progCol2.isEmptyCol()).to.be.true;
         });
 
         it("Should set and get front col name", function() {
@@ -286,7 +432,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "integer",
+                "type"    : ColumnType.integer,
                 "isNewCol": false,
                 "func"    : {
                     "name": "pull"
@@ -313,7 +459,7 @@ describe("Persistent Constructor Test", function() {
             progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "integer",
+                "type"    : ColumnType.integer,
                 "isNewCol": false,
                 "func"    : {
                     "name": "pull"
@@ -333,7 +479,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "func"    : {
@@ -351,7 +497,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "decimal" : 10,
@@ -371,7 +517,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "decimal" : 10,
@@ -391,7 +537,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "decimal" : 10,
@@ -409,11 +555,27 @@ describe("Persistent Constructor Test", function() {
             expect(progCol.getTextAlign()).to.equal(ColTextAlign.Center);
         });
 
+        it("Should getPrefix", function() {
+            var progCol = new ProgCol({
+                "name"    : "test",
+                "backName": "prefix::backTest",
+                "type"    : ColumnType.float,
+                "isNewCol": false,
+                "width"   : 100,
+                "decimal" : 10,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            expect(progCol.getPrefix()).to.equal("prefix");
+        });
+
         it("Should get and set back col name", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "decimal" : 10,
@@ -440,7 +602,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "decimal" : 10,
@@ -504,7 +666,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "decimal" : 10,
@@ -528,7 +690,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "width"   : 100,
                 "func"    : {
@@ -545,7 +707,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "func"    : {
                     "name": "pull"
@@ -561,7 +723,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "func"    : {
                     "name": "pull"
@@ -575,7 +737,7 @@ describe("Persistent Constructor Test", function() {
             progCol2 = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false,
                 "func"    : {
                     "name": "map",
@@ -594,7 +756,7 @@ describe("Persistent Constructor Test", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "backTest",
-                "type"    : "float",
+                "type"    : ColumnType.float,
                 "isNewCol": false
             });
 
@@ -610,22 +772,79 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("Table Constructor Test", function() {
-        it("TableMeta Constructor should work", function() {
+        it("Should have 18 attributes", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId"  : "a1",
                 "isLocked" : false
             });
 
-            expect(table).to.be.an("object");
-            expect(table.getId()).to.equal("a1");
-            expect(table.getName()).to.equal("test#a1");
+            expect(table).to.be.an.instanceof(TableMeta);
+            expect(Object.keys(table).length).to.equal(18);
+            expect(table).have.property("version").and
+            .to.equal(currentVersion);
+            expect(table).have.property("tableName").and
+            .to.equal("test#a1");
+            expect(table).have.property("tableId").and
+            .to.equal("a1");
+            expect(table).have.property("isLocked").and
+            .to.be.false;
+            expect(table).have.property("status").and
+            .to.equal(TableType.Active);
+            expect(table).have.property("timeStamp").and
+            .to.be.a("number");
+            expect(table).have.property("tableCols").and
+            .to.be.null;
+            expect(table).have.property("tableCols").and
+            .to.be.null;
+            expect(table).have.property("bookmarks").and
+            .to.be.an("array");
+            expect(table).have.property("rowHeights").and
+            .to.be.an("object");
+            expect(table).have.property("resultSetId").and
+            .to.be.equal(-1);
+            expect(table).have.property("icv").and
+            .to.be.equal("");
+            expect(table).have.property("keyName").and
+            .to.be.equal("");
+            expect(table).have.property("ordering").and
+            .to.be.null;
+            expect(table).have.property("backTableMeta").and
+            .to.be.null;
+            expect(table).have.property("resultSetCount").and
+            .to.be.equal(-1);
+            expect(table).have.property("resultSetMax").and
+            .to.be.equal(-1);
+            expect(table).have.property("numPages").and
+            .to.be.equal(-1);
+        });
 
+        it("TableMeta Constructor should handle error case", function() {
             try {
                 new TableMeta();
             } catch (error) {
                 expect(error).not.to.be.null;
             }
+        });
+
+        it("Should get id", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+
+            expect(table.getId()).to.equal("a1");
+        });
+
+        it("Should get name", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+
+            expect(table.getName()).to.equal("test#a1");
         });
 
         it("Table should update timestamp", function(done) {
@@ -667,7 +886,7 @@ describe("Persistent Constructor Test", function() {
                 "tableId"  : "a1",
                 "isLocked" : false
             });
-            expect(table.getOrdering()).to.be.undefined;
+            expect(table.getOrdering()).to.be.null;
 
             var testVal = "testOrder";
             table.ordering = testVal;
@@ -1333,18 +1552,23 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("GenSettings and UserPref Constructor Test", function() {
-        it("GenSettings should be a constructor", function() {
+        it("Should have 4 attributes", function() {
             var genSettings = new GenSettings();
-            expect(genSettings).to.be.an("object");
-            expect(Object.keys(genSettings).length).to.equal(3);
 
+            expect(genSettings).to.be.an.instanceof(GenSettings);
+            expect(Object.keys(genSettings).length).to.equal(4);
+            expect(genSettings).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(genSettings).to.have.property("adminSettings");
             expect(genSettings).to.have.property("xcSettings");
             expect(genSettings).to.have.property("baseSettings");
+        });
 
+        it("Should get baseSettings", function() {
+            var genSettings = new GenSettings();
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings).length).to.equal(4);
 
+            expect(Object.keys(baseSettings).length).to.equal(4);
             expect(baseSettings).to.have.property("hideDataCol")
             .and.to.be.false;
             expect(baseSettings).to.have.property("monitorGraphInterval")
@@ -1399,24 +1623,55 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("UserPref Constructor Test", function() {
-        it("UserPref should be a constructor", function() {
+        it("Should have 6 attributes", function() {
             var userPref = new UserPref();
-            expect(userPref).to.be.an("object");
-            expect(Object.keys(userPref).length).to.equal(5);
 
-            expect(userPref).to.have.property("datasetListView");
-            expect(userPref).to.have.property("browserListView");
-            expect(userPref).to.have.property("keepJoinTables");
+            expect(userPref).to.be.an.instanceof(UserPref);
+            expect(Object.keys(userPref).length).to.equal(6);
+            expect(userPref).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(userPref).to.have.property("datasetListView")
+            .and.to.be.false;
+            expect(userPref).to.have.property("browserListView")
+            .and.to.be.false;
+            expect(userPref).to.have.property("keepJoinTables")
+            .and.to.be.false;
             expect(userPref).to.have.property("activeMainTab")
             .and.to.equal("workspaceTab");
             expect(userPref).to.have.property("general").and.to.be.empty;
 
             userPref.update();
         });
+
+        it("Should update attribute", function() {
+            var datasetListView = !$("#dataViewBtn").hasClass("listView");
+            var userPref = new UserPref({
+                "datasetListView": datasetListView
+            });
+
+            userPref.update();
+            expect(userPref.datasetListView).not.to.equal(datasetListView);
+        });
     });
 
     describe("DSObj Constructor Test", function() {
-        it("Should be a constructor", function() {
+        it("Should have 10 attributes for ds", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "user"    : "testUser",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": true
+            });
+
+            expect(dsObj).to.be.instanceof(DSObj);
+            expect(Object.keys(dsObj).length).to.equal(10);
+            expect(dsObj).to.have.property("version")
+            .and.to.equal(currentVersion);
+        });
+
+        it("Should have 25 attributes for ds", function() {
             var dsObj = new DSObj({
                 "id"        : "testId",
                 "name"      : "testName",
@@ -1430,21 +1685,175 @@ describe("Persistent Constructor Test", function() {
                 "numEntries": 1000
             });
 
-
             expect(dsObj).to.be.instanceof(DSObj);
+            expect(Object.keys(dsObj).length).to.equal(25);
+            expect(dsObj).to.have.property("version")
+            .and.to.equal(currentVersion);
+        });
+
+        it("Should get id", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId
+            });
+
             expect(dsObj.getId()).to.equal("testId");
+        });
+
+        it("Should get parent id", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId
+            });
+
             expect(dsObj.getParentId()).to.equal(DSObjTerm.homeParentId);
+        });
+
+        it("Should get name", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId
+            });
+
             expect(dsObj.getName()).to.equal("testName");
-            expect(dsObj.getUser()).to.equal("testUser");
+        });
+
+        it("Should get full name", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "fullName": "testFullName"
+            });
+
             expect(dsObj.getFullName()).to.equal("testFullName");
+        });
+
+        it("Should get user", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "user"    : "testUser",
+                "parentId": DSObjTerm.homeParentId
+            });
+
+            expect(dsObj.getUser()).to.equal("testUser");
+        });
+
+        it("Should get format", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "format"  : "CSV",
+                "parentId": DSObjTerm.homeParentId
+            });
+
             expect(dsObj.getFormat()).to.equal("CSV");
-            expect(dsObj.getPath()).to.equal("nfs:///netstore/datasets/gdelt/");
+        });
+
+        it("Should get path", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "path"    : "nfs:///netstore/datasets/gdelt/"
+            });
+
+            expect(dsObj.getPath())
+            .to.equal("nfs:///netstore/datasets/gdelt/");
+        });
+
+        it("Should get path with pattern", function() {
+            var dsObj = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "path"    : "nfs:///netstore/datasets/gdelt/",
+                "pattern" : "abc.csv"
+            });
+
             expect(dsObj.getPathWithPattern())
             .to.equal("nfs:///netstore/datasets/gdelt/abc.csv");
+        });
+
+        it("Should get num entries", function() {
+            var dsObj = new DSObj({
+                "id"        : "testId",
+                "name"      : "testName",
+                "parentId"  : DSObjTerm.homeParentId,
+                "numEntries": 1000
+            });
             expect(dsObj.getNumEntries()).to.equal(1000);
-            expect(dsObj.beFolder()).to.be.false;
-            expect(dsObj.beFolderWithDS()).to.be.false;
-            expect(dsObj.isEditable()).to.be.true;
+        });
+
+        it("Should know if is folder or not", function() {
+            var dsObj1 = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": true,
+            });
+
+            var dsObj2 = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false,
+            });
+
+            expect(dsObj1.beFolder()).to.be.true;
+            expect(dsObj2.beFolder()).to.be.false;
+        });
+
+        it("Should know if dsObj is folder with ds", function() {
+            var dsObj1 = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": true,
+            });
+
+            dsObj1.eles.push("test");
+
+            var dsObj2 = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": true,
+            });
+
+            var dsObj3 = new DSObj({
+                "id"      : "testId",
+                "name"    : "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false,
+            });
+
+            expect(dsObj1.beFolderWithDS()).to.be.true;
+            expect(dsObj2.beFolderWithDS()).to.be.false;
+            expect(dsObj3.beFolderWithDS()).to.be.false;
+        });
+
+        it("Should know if is editable", function() {
+            var dsObj1 = new DSObj({
+                "id"        : "testId",
+                "name"      : "testName",
+                "parentId"  : DSObjTerm.homeParentId,
+                "uneditable": false,
+            });
+
+            var dsObj2 = new DSObj({
+                "id"        : "testId",
+                "name"      : "testName",
+                "parentId"  : DSObjTerm.homeParentId,
+                "uneditable": true
+            });
+
+            expect(dsObj1.isEditable()).to.be.true;
+            expect(dsObj2.isEditable()).to.be.false;
         });
 
         it("Should get point args", function() {
@@ -1769,22 +2178,25 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe("Cart Constructor Test", function() {
-        it("CartItem should be a constructor", function() {
+    describe("CatItem Constructor Test", function() {
+        it("Should hvae 4 attributes", function() {
             var cartItem = new CartItem({
                 "colNum": 1,
                 "value" : "test"
             });
 
-            expect(cartItem).to.be.an("object");
-            expect(Object.keys(cartItem).length).to.equal(3);
-
+            expect(cartItem).to.be.an.instanceof(CartItem);
+            expect(Object.keys(cartItem).length).to.equal(4);
+            expect(cartItem).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(cartItem).to.have.property("colNum");
             expect(cartItem).to.have.property("value");
             expect(cartItem).to.have.property("type");
         });
+    });
 
-        it("Cart should be a constructor", function() {
+    describe("Cart Constructor Test", function() {
+        it("Should have 4 attributes", function() {
             var cart = new Cart({
                 "dsId"     : "test",
                 "tableName": "testTable",
@@ -1794,13 +2206,16 @@ describe("Persistent Constructor Test", function() {
                 }]
             });
 
-            expect(cart).to.be.an("object");
-            expect(Object.keys(cart).length).to.equal(3);
-            expect(cart).to.have.property("dsId");
-            expect(cart).to.have.property("tableName");
+            expect(cart).to.be.an.instanceof(Cart);
+            expect(Object.keys(cart).length).to.equal(4);
+            expect(cart).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(cart).to.have.property("dsId")
+            .and.to.equal("test");
+            expect(cart).to.have.property("tableName")
+            .and.to.equal("testTable");
             expect(cart).to.have.property("items")
-            .and.to.be.a("array");
-            expect(cart.items.length).to.equal(1);
+            .and.to.be.an("array");
         });
 
         it("Cart should have correct function to call", function() {
@@ -1852,7 +2267,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("WSMETA Constructor Test", function() {
-        it("WSMETA should be a constructor", function() {
+        it("Should have 6 attributes", function() {
             var meta = new WSMETA({
                 "wsInfos"      : {},
                 "wsOrder"      : [],
@@ -1861,35 +2276,48 @@ describe("Persistent Constructor Test", function() {
                 "activeWS"     : "test"
             });
 
-            expect(meta).to.be.an("object");
-            expect(Object.keys(meta).length).to.equal(5);
-            expect(meta).to.have.property("wsInfos");
+            expect(meta).to.be.an.instanceof(WSMETA);
+            expect(Object.keys(meta).length).to.equal(6);
+            expect(meta).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(meta).to.have.property("wsInfos")
+            .and.to.be.an
             expect(meta).to.have.property("wsOrder");
             expect(meta).to.have.property("hiddenWS");
             expect(meta).to.have.property("noSheetTables");
-            expect(meta).to.have.property("activeWS");
+            expect(meta).to.have.property("activeWS")
+            .and.to.equal("test");
         });
     });
 
     describe("WorksheetObj Constructor Test", function() {
-        it("WorksheetObj Should be a constructor", function() {
+        it("Should have 10 attributes ", function() {
             var worksheet = new WorksheetObj({
                 "id"  : "testId",
                 "name": "testName",
                 "date": "testDate"
             });
 
-            expect(worksheet).to.be.an("object");
-            expect(Object.keys(worksheet).length).to.equal(9);
-            expect(worksheet.id).to.equal("testId");
-            expect(worksheet.name).to.equal("testName");
-            expect(worksheet.date).to.equal("testDate");
-
-            for (var key in WSTableType) {
-                var tableType = WSTableType[key];
-                expect(worksheet[tableType]).to.be.an("array");
-                expect(worksheet[tableType].length).to.be.equal(0);
-            }
+            expect(worksheet).to.be.an.instanceof(WorksheetObj);
+            expect(Object.keys(worksheet).length).to.equal(10);
+            expect(worksheet).have.property("version")
+            .and.to.equal(currentVersion);
+            expect(worksheet).have.property("id")
+            .and.to.equal("testId");
+            expect(worksheet).have.property("name")
+            .and.to.equal("testName");
+            expect(worksheet).have.property("date")
+            .and.to.equal("testDate");
+            expect(worksheet).have.property("archivedTables")
+            .and.to.be.an("array");
+            expect(worksheet).have.property("orphanedTables")
+            .and.to.be.an("array");
+            expect(worksheet).have.property("tempHiddenTables")
+            .and.to.be.an("array");
+            expect(worksheet).have.property("undoneTables")
+            .and.to.be.an("array");
+            expect(worksheet).have.property("lockedTables")
+            .and.to.be.an("array");
         });
 
         it("Should have basic getter", function() {
@@ -1937,17 +2365,18 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("WKBK Constructor Test", function() {
-        it("WKBK should be a constructor", function() {
+        it("Should hanlde create error", function() {
             try {
                 new WKBK();
             } catch (error) {
                 expect(error).not.to.be.null;
             }
+        });
 
+        it("Should have 9 attributes", function() {
             var wkbk = new WKBK({
                 "name"         : "test",
                 "id"           : "testId",
-                "noMeta"       : false,
                 "srcUser"      : "testUser",
                 "curUser"      : "testUser",
                 "created"      : 1234,
@@ -1955,8 +2384,9 @@ describe("Persistent Constructor Test", function() {
                 "numWorksheets": 12
             });
 
-            expect(wkbk).to.be.an("object");
-            expect(Object.keys(wkbk).length).to.equal(8);
+            expect(Object.keys(wkbk).length).to.equal(9);
+            expect(wkbk).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(wkbk).to.have.property("name")
             .and.to.equal("test");
             expect(wkbk).to.have.property("id")
@@ -2001,145 +2431,175 @@ describe("Persistent Constructor Test", function() {
             wkbk.update();
             expect(wkbk.getModifyTime()).not.to.equal(2234);
         });
-
-        it("WKBKSet should be constructor", function() {
-            var wkbkSet = new WKBKSet();
-            expect(wkbkSet).to.be.an("object");
-
-            var wkbk = new WKBK({
-                "name": "test",
-                "id"  : "testId"
-            });
-
-            wkbkSet.put("testId", wkbk);
-            expect(wkbkSet.getAll()).be.have.property("testId");
-            expect(wkbkSet.get("testId")).to.equal(wkbk);
-            expect(wkbkSet.has("testId")).to.be.true;
-            expect(wkbkSet.has("errorId")).to.be.false;
-            expect(wkbkSet.getWithStringify().indexOf("testId") >= 0).to.be.true;
-
-            wkbkSet.delete("testId");
-            expect(wkbkSet.has("testId")).to.be.false;
-        });
     });
-
-    describe.skip("DF Constructor Test", function() {
-        var expandInfo;
-        var opsInfo;
-        var tableInfo;
-        var dataFlow;
-        var retinaNode;
-
-        it("CanvasExpandInfo should be a constructor", function() {
-            expandInfo = new CanvasExpandInfo({
-                "tooltip": "test",
-                "left"   : 0,
-                "top"    : 1
-            });
-
-            expect(expandInfo).to.be.an("object");
-            expect(Object.keys(expandInfo).length).to.equal(3);
-            expect(expandInfo).to.have.property("tooltip").and.to.equal("test");
-            expect(expandInfo).to.have.property("left").and.to.equal(0);
-            expect(expandInfo).to.have.property("top").and.to.equal(1);
-        });
-
-        it("CanvasOpsInfo should be a constructor", function() {
-            opsInfo = new CanvasOpsInfo({
-                "tooltip": "test",
-                "type"   : "testType",
-                "column" : "testCol",
-                "info"   : "testInfo",
-                "table"  : "testTable",
-                "parents": "testParents",
-                "left"   : 0,
-                "top"    : 1,
-                "classes": "testClasses"
-            });
-
-            expect(opsInfo).to.be.an("object");
-            expect(Object.keys(opsInfo).length).to.equal(10);
-            expect(opsInfo).to.have.property("tooltip").and.to.equal("test");
-            expect(opsInfo).to.have.property("type").and.to.equal("testType");
-            expect(opsInfo).to.have.property("column").and.to.equal("testCol");
-            expect(opsInfo).to.have.property("info").and.to.equal("testInfo");
-            expect(opsInfo).to.have.property("table").and.to.equal("testTable");
-            expect(opsInfo).to.have.property("parents").and.to.equal("testParents");
-            expect(opsInfo).to.have.property("left").and.to.equal(0);
-            expect(opsInfo).to.have.property("top").and.to.equal(1);
-            expect(opsInfo).to.have.property("classes").and.to.equal("testClasses");
-        });
-
-        it("CanvasTableInfo should be a constructor", function() {
-            tableInfo = new CanvasTableInfo({
-                "index"   : 1,
-                "children": "testChild",
-                "type"    : "testType",
-                "left"    : 1,
-                "top"     : 2,
-                "title"   : "testTitle",
-                "table"   : "testTable",
-                "url"     : "testUrl"
-            });
-
-            expect(tableInfo).to.be.an("object");
-            expect(Object.keys(tableInfo).length).to.equal(8);
-            expect(tableInfo).to.have.property("index").and.to.equal(1);
-            expect(tableInfo).to.have.property("children").and.to.equal("testChild");
-            expect(tableInfo).to.have.property("type").and.to.equal("testType");
-            expect(tableInfo).to.have.property("left").and.to.equal(1);
-            expect(tableInfo).to.have.property("top").and.to.equal(2);
-            expect(tableInfo).to.have.property("title").and.to.equal("testTitle");
-            expect(tableInfo).to.have.property("table").and.to.equal("testTable");
-            expect(tableInfo).to.have.property("url").and.to.equal("testUrl");
-        });
-
-        it("CanvasInfo should be a constructor", function() {
-            var canvasInfo = new CanvasInfo({
-                "height"     : 1,
-                "width"      : 2,
-                "tables"     : [tableInfo],
-                "operations" : [opsInfo],
-                "expandIcons": [expandInfo]
-            });
-
-            expect(canvasInfo).to.be.an("object");
-            expect(Object.keys(canvasInfo).length).to.equal(5);
-            expect(canvasInfo).to.have.property("height").and.to.equal(1);
-            expect(canvasInfo).to.have.property("width").and.to.equal(2);
-            expect(canvasInfo).to.have.property("tables");
-            expect(canvasInfo).to.have.property("operations");
-            expect(canvasInfo).to.have.property("expandIcons");
-        });
-
-        it("DFFlow should be a constructor", function() {
-            dataFlow = new DFFlow({
-                "name"   : "testFlow",
-                "columns": ["col1", "col2"]
-            });
-
-            expect(dataFlow).to.be.an("object");
-            expect(Object.keys(dataFlow).length).to.equal(3);
-            expect(dataFlow).to.have.property("name").and.to.equal("testFlow");
-            expect(dataFlow).to.have.property("columns")
-            .and.to.an.instanceof(Array);
-            expect(dataFlow).to.have.property("canvasInfo")
-            .and.to.an.instanceof(CanvasInfo);
-        });
-
-        it("RetinaNode should be a constructor", function() {
-            retinaNode = new RetinaNode({
+    
+    describe("RetinaNode Constructor Test", function() {
+        it("Should have 4 arrtibues", function() {
+            var retinaNode = new RetinaNode({
                 "paramType" : "testType",
                 "paramValue": "testVal",
                 "paramQuery": ["testQuery"]
             });
 
-            expect(retinaNode).to.be.an("object");
-            expect(Object.keys(retinaNode).length).to.equal(3);
-            expect(retinaNode).to.have.property("paramType").and.to.equal("testType");
-            expect(retinaNode).to.have.property("paramValue").and.to.equal("testVal");
-            expect(retinaNode).to.have.property("paramQuery");
+            expect(retinaNode).to.be.an.instanceof(RetinaNode);
+            expect(Object.keys(retinaNode).length).to.equal(4);
+            expect(retinaNode).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(retinaNode).to.have.property("paramType")
+            .and.to.equal("testType");
+            expect(retinaNode).to.have.property("paramValue")
+            .and.to.equal("testVal");
+            expect(retinaNode).to.have.property("paramQuery")
+            .and.to.be.an("array");
             expect(retinaNode.paramQuery[0]).to.equal("testQuery");
+        });
+    });
+
+     describe("SchedObj Constructor Test", function() {
+        var sched;
+        var currentTime = new Date().getTime();
+
+        before(function() {
+            var createTime = currentTime;
+            var startTime = currentTime;
+            var modifiedTime = currentTime;
+            var options = {
+                "startTime": startTime,
+                "dateText" : "11/08/2016",
+                "timeText" : "09 : 25 AM",
+                "repeat"   : "hourly",
+                "modified" : modifiedTime,
+                "recur"    : 10,
+                "created"  : createTime
+            };
+            sched = new SchedObj(options);
+        });
+
+        it("Should have 8 attributes", function() {
+            expect(sched).to.be.an.instanceof(SchedObj);
+            expect(sched).to.have.property("startTime")
+            .and.to.equal(currentTime);
+            expect(sched).to.have.property("dateText")
+            .and.to.equal("11/08/2016");
+            expect(sched).to.have.property("timeText")
+            .and.to.equal("09 : 25 AM");
+            expect(sched).to.have.property("repeat")
+            .and.to.equal("hourly");
+            expect(sched).to.have.property("modified")
+            .and.to.equal(currentTime);
+            expect(sched).to.have.property("recur")
+            .and.to.equal(10);
+            expect(sched).to.have.property("created")
+            .and.to.equal(currentTime);
+        });
+
+        it("Should update schedule", function() {
+            var createTime2 = new Date().getTime();
+            var startTime2 = new Date().getTime();
+            var modifiedTime2 = new Date().getTime();
+            var options2 = {
+                "startTime": startTime2,
+                "dateText" : "12/09/2016",
+                "timeText" : "10 : 35 AM",
+                "repeat"   : "weekly",
+                "modified" : modifiedTime2,
+                "recur"    : 7,
+                "created"  : createTime2
+            };
+
+            sched.update(options2);
+            expect(sched.startTime).to.equal(startTime2);
+            expect(sched.dateText).to.equal("12/09/2016");
+            expect(sched.timeText).to.equal("10 : 35 AM");
+            expect(sched.repeat).to.equal("weekly");
+            expect(sched.modified).to.equal(modifiedTime2);
+            expect(sched.recur).to.equal(7);
+            // create time cannot be update
+            expect(sched.created).not.to.equal(createTime2);
+            expect(sched.created).to.equal(currentTime);
+        });
+    });
+
+    describe("Dataflow Constructor Test", function() {
+        var df;
+        var sched;
+
+        before(function() {
+            df = new Dataflow("testRet", {
+                "tableName": "testTable"
+            });
+
+            var createTime = new Date().getTime();
+            var startTime = new Date().getTime();
+            var modifiedTime = new Date().getTime();
+            var options = {
+                "startTime": startTime,
+                "dateText" : "11/08/2016",
+                "timeText" : "09 : 25 AM",
+                "repeat"   : "hourly",
+                "freq"     : 5,
+                "modified" : modifiedTime,
+                "recur"    : 10,
+                "created"  : createTime
+            };
+            sched = new SchedObj(options);
+        });
+
+        it("Should have 10 attributes", function() {
+            expect(df).to.be.an.instanceof(Dataflow);
+            expect(Object.keys(df).length).to.equal(10);
+            expect(df).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(df).to.have.property("name")
+            .and.to.equal("testRet");
+            expect(df).to.have.property("tableName")
+            .and.to.equal("testTable");
+            expect(df).to.have.property("columns")
+            .and.to.be.an("array");
+            expect(df).to.have.property("parameters")
+            .and.to.be.an("array");
+            expect(df).to.have.property("paramMap")
+            .and.to.be.an("object");
+            expect(df).to.have.property("nodeIds")
+            .and.to.be.an("object");
+            expect(df).to.have.property("parameterizedNodes")
+            .and.to.be.an("object");
+            expect(df).to.have.property("retinaNodes")
+            .and.to.be.an("object");
+            expect(df).to.have.property("schedule")
+            .and.to.be.null;
+        });
+
+        it("Should set schedule", function() {
+            df.setSchedule(sched);
+            expect(df).to.have.property("schedule")
+            .and.to.an.instanceof(SchedObj);
+        });
+
+        it("Should get schedule", function() {
+            expect(df.getSchedule()).to.equal(sched);
+        });
+
+        it("Should know if has schedule", function() {
+             expect(df.hasSchedule()).to.be.true;
+        });
+
+        it("Should remove schedule", function() {
+            df.removeSchedule();
+            expect(df.hasSchedule()).to.be.false;
+        });
+    });
+
+    describe.skip("DF Constructor Test", function() {
+        var dataFlow;
+        var retinaNode;
+
+        before(function() {
+            retinaNode = new RetinaNode({
+                "paramType" : "testType",
+                "paramValue": "testVal",
+                "paramQuery": ["testQuery"]
+            });
         });
 
         it("Dataflow should be a constructor", function() {
@@ -2210,82 +2670,8 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe("DF Schedule Constructor Test", function() {
-        it("DF should have schedule", function() {
-            var dfg = new Dataflow("testDF");
-            expect(dfg).to.have.property("schedule").and.to.be.null;
-            var createTime = new Date().getTime();
-            var startTime = new Date().getTime();
-            var modifiedTime = new Date().getTime();
-            var options = {
-                "startTime": startTime,
-                "dateText" : "11/08/2016",
-                "timeText" : "09 : 25 AM",
-                "repeat"   : "hourly",
-                "freq"     : 5,
-                "modified" : modifiedTime,
-                "recur"    : 10,
-                "created"  : createTime
-            };
-
-            var createTime2 = new Date().getTime();
-            var startTime2 = new Date().getTime();
-            var modifiedTime2 = new Date().getTime();
-            var options2 = {
-                "startTime": startTime2,
-                "dateText" : "12/09/2016",
-                "timeText" : "10 : 35 AM",
-                "repeat"   : "weekly",
-                "freq"     : 6,
-                "modified" : modifiedTime2,
-                "recur"    : 7,
-                "created"  : createTime2
-            };
-
-            var sched = new SchedObj(options);
-            // Test setSchedule function
-            dfg.setSchedule(sched);
-            expect(dfg).to.have.property("schedule")
-            .and.to.an("Object");
-            expect(dfg.schedule.startTime).to.equal(startTime);
-            expect(dfg.schedule.dateText).to.equal("11/08/2016");
-            expect(dfg.schedule.timeText).to.equal("09 : 25 AM");
-            expect(dfg.schedule.repeat).to.equal("hourly");
-            expect(dfg.schedule.freq).to.equal(5);
-            expect(dfg.schedule.modified).to.equal(modifiedTime);
-            expect(dfg.schedule.recur).to.equal(10);
-            expect(dfg.schedule.created).to.equal(createTime);
-
-            // Test getSchedule function
-            expect(dfg.getSchedule()).to.equal(sched);
-
-            // Test hasSchedule function, removeSchedule function
-            expect(dfg.hasSchedule()).to.be.true;
-            dfg.removeSchedule();
-            expect(dfg.hasSchedule()).to.be.false;
-
-            // Test update function, setSchedule function
-            sched.update(options2);
-            expect(dfg).to.have.property("schedule").and.to.be.null;
-            dfg.setSchedule(sched);
-            expect(dfg).to.have.property("schedule")
-            .and.to.an("Object");
-            expect(dfg.schedule.startTime).to.equal(startTime2);
-            expect(dfg.schedule.dateText).to.equal("12/09/2016");
-            expect(dfg.schedule.timeText).to.equal("10 : 35 AM");
-            expect(dfg.schedule.repeat).to.equal("weekly");
-            expect(dfg.schedule.freq).to.equal(6);
-            expect(dfg.schedule.modified).to.equal(modifiedTime2);
-            expect(dfg.schedule.recur).to.equal(7);
-            expect(dfg.schedule.created).to.equal(createTime);
-        });
-    });
-
-    describe("Profile Constructor Test", function() {
-        var bucketInfo;
-        var groupbyInfo;
-
-        it("ProfileAggInfo should be a constructor", function() {
+    describe("ProfileAggInfo Constructor Test", function() {
+        it("Should have 7 attributes", function() {
             var aggInfo = new ProfileAggInfo({
                 "max"    : 1,
                 "min"    : 1,
@@ -2295,8 +2681,10 @@ describe("Persistent Constructor Test", function() {
                 "sd"     : 0
             });
 
-            expect(aggInfo).to.be.an("object");
-            expect(Object.keys(aggInfo).length).to.equal(6);
+            expect(aggInfo).to.be.an.instanceof(ProfileAggInfo);
+            expect(Object.keys(aggInfo).length).to.equal(7);
+            expect(aggInfo).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(aggInfo).to.have.property("max").and.to.equal(1);
             expect(aggInfo).to.have.property("min").and.to.equal(1);
             expect(aggInfo).to.have.property("count").and.to.equal(1);
@@ -2304,15 +2692,12 @@ describe("Persistent Constructor Test", function() {
             expect(aggInfo).to.have.property("average").and.to.equal(1);
             expect(aggInfo).to.have.property("sd").and.to.equal(0);
         });
+    });
 
-        it("ProfileStatsInfo should be a constructor", function() {
-            // case 1
-            var statsInfo = new ProfileStatsInfo({"unsorted": true});
-            expect(statsInfo).to.be.an("object");
-            expect(Object.keys(statsInfo).length).to.equal(1);
-            expect(statsInfo).to.have.property("unsorted").and.to.be.true;
-            // case 2
-            statsInfo = new ProfileStatsInfo({
+    describe("ProfileStatsInfo Constructor Test", function() {
+        it("Should have 7 attributes", function() {
+            var statsInfo = new ProfileStatsInfo({
+                "unsorted"     : false,
                 "zeroQuartile" : 2,
                 "lowerQuartile": 2,
                 "median"       : 3,
@@ -2320,16 +2705,27 @@ describe("Persistent Constructor Test", function() {
                 "fullQuartile" : 4
             });
 
-            expect(Object.keys(statsInfo).length).to.equal(5);
-            expect(statsInfo).to.have.property("zeroQuartile").and.to.equal(2);
-            expect(statsInfo).to.have.property("lowerQuartile").and.to.equal(2);
-            expect(statsInfo).to.have.property("median").and.to.equal(3);
-            expect(statsInfo).to.have.property("upperQuartile").and.to.equal(2);
-            expect(statsInfo).to.have.property("fullQuartile").and.to.equal(4);
+            expect(statsInfo).to.be.an.instanceof(ProfileStatsInfo);
+            expect(Object.keys(statsInfo).length).to.equal(7);
+            expect(statsInfo).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(statsInfo).to.have.property("unsorted").and.to.be.false;
+            expect(statsInfo).to.have.property("zeroQuartile")
+            .and.to.equal(2);
+            expect(statsInfo).to.have.property("lowerQuartile")
+            .and.to.equal(2);
+            expect(statsInfo).to.have.property("median")
+            .and.to.equal(3);
+            expect(statsInfo).to.have.property("upperQuartile")
+            .and.to.equal(2);
+            expect(statsInfo).to.have.property("fullQuartile")
+            .and.to.equal(4);
         });
+    });
 
-        it("ProfileBucketInfo should be a constructor", function() {
-            bucketInfo = new ProfileBucketInfo({
+    describe("ProfileBucketInfo Constructor Test", function() {
+        it("Should have 8 attributes", function() {
+            var bucketInfo = new ProfileBucketInfo({
                 "bucketSize": 0,
                 "table"     : "testTable",
                 "colName"   : "testCol",
@@ -2337,56 +2733,98 @@ describe("Persistent Constructor Test", function() {
                 "sum"       : 1
             });
 
-            expect(bucketInfo).to.be.an("object");
-            expect(Object.keys(bucketInfo).length).to.equal(7);
+            expect(bucketInfo).to.be.an.instanceof(ProfileBucketInfo);
+            expect(Object.keys(bucketInfo).length).to.equal(8);
+            expect(bucketInfo).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(bucketInfo).to.have.property("bucketSize").and.to.equal(0);
-            expect(bucketInfo).to.have.property("table").and.to.equal("testTable");
+            expect(bucketInfo).to.have.property("table")
+            .and.to.equal("testTable");
             expect(bucketInfo).to.have.property("ascTable").and.to.be.null;
             expect(bucketInfo).to.have.property("descTable").and.to.be.null;
-            expect(bucketInfo).to.have.property("colName").and.to.equal("testCol");
+            expect(bucketInfo).to.have.property("colName")
+            .and.to.equal("testCol");
             expect(bucketInfo).to.have.property("max").and.to.equal(1);
             expect(bucketInfo).to.have.property("sum").and.to.equal(1);
         });
+    });
 
-        it("ProfileGroupbyInfo should be a constructor", function() {
-            groupbyInfo = new ProfileGroupbyInfo({
+    describe("ProfileGroupbyInfo Constructor Test", function() {
+        it("Should have 5 attributes", function() {
+            var bucketInfo = new ProfileBucketInfo({
+                "bucketSize": 0,
+                "table"     : "testTable",
+                "colName"   : "testCol",
+                "max"       : 1,
+                "sum"       : 1
+            });
+
+            var groupbyInfo = new ProfileGroupbyInfo({
                 "allNull": true,
                 "buckets": {
                     0: bucketInfo
                 }
             });
 
-            expect(groupbyInfo).to.be.an("object");
-            expect(Object.keys(groupbyInfo).length).to.equal(4);
+            expect(groupbyInfo).to.be.an.instanceof(ProfileGroupbyInfo);
+            expect(Object.keys(groupbyInfo).length).to.equal(5);
+            expect(groupbyInfo).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(groupbyInfo).to.have.property("isComplete")
             .and.to.be.false;
             expect(groupbyInfo).to.have.property("nullCount")
             .and.to.equal(0);
             expect(groupbyInfo).to.have.property("allNull")
             .and.to.be.true;
-            expect(groupbyInfo).to.have.property("buckets");
-            expect(groupbyInfo.buckets[0].table).to.equal("testTable");
+            expect(groupbyInfo).to.have.property("buckets")
+            .and.to.be.an("object");
         });
+    });
 
-        it("ProfileInfo should be a constructor", function() {
+    describe("ProfileInfo Constructor Test", function() {
+        it("Should have 8 attributes", function() {
             var profileInfo = new ProfileInfo({
-                "modalId": "testModal",
-                "colName": "testCol",
-                "type"   : "integer"
+                "id"          : "testModal",
+                "colName"     : "testCol",
+                "frontColName": "testFrontCol",
+                "type"        : "integer"
             });
 
-            expect(profileInfo).to.be.an("object");
-            expect(Object.keys(profileInfo).length).to.equal(6);
-            expect(profileInfo).to.have.property("modalId").and.to.equal("testModal");
-            expect(profileInfo).to.have.property("colName").and.to.equal("testCol");
-            expect(profileInfo).to.have.property("type").and.to.equal("integer");
+            expect(profileInfo).to.be.an.instanceof(ProfileInfo);
+            expect(Object.keys(profileInfo).length).to.equal(8);
+            expect(profileInfo).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(profileInfo).to.have.property("id")
+            .and.to.equal("testModal");
+            expect(profileInfo).to.have.property("colName")
+            .and.to.equal("testCol");
+            expect(profileInfo).to.have.property("frontColName")
+            .and.to.equal("testFrontCol");
+            expect(profileInfo).to.have.property("type")
+            .and.to.equal("integer");
             expect(profileInfo).to.have.property("aggInfo")
             .and.to.be.an.instanceof(ProfileAggInfo);
             expect(profileInfo).to.have.property("statsInfo")
             .and.to.be.an.instanceof(ProfileStatsInfo);
             expect(profileInfo).to.have.property("groupByInfo")
             .and.to.be.an.instanceof(ProfileGroupbyInfo);
+        });
 
+        it("Should get id", function() {
+            var profileInfo = new ProfileInfo({
+                "id"     : "testModal",
+                "colName": "testCol",
+                "type"   : "integer"
+            });
+            expect(profileInfo.getId()).to.equal("testModal");
+        });
+
+        it("Should add bucket", function() {
+            var profileInfo = new ProfileInfo({
+                "id"     : "testModal",
+                "colName": "testCol",
+                "type"   : "integer"
+            });
             profileInfo.addBucket(0, {
                 "bucketSize": 0,
                 "table"     : "testTable"
@@ -2395,9 +2833,45 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
+    describe("XcSubQuery Constructor Test", function() {
+        it("Should have 10 attributes", function() {
+            var xcSubQuery = new XcSubQuery({
+                "name"          : "test",
+                "time"          : 123,
+                "query"         : "testQuery",
+                "dstTable"      : "testDstTable",
+                "id"            : 1,
+                "index"         : 2,
+                "queryName"     : "testQueryName",
+                "exportFileName": "testExport"
+            });
+
+            expect(xcSubQuery).to.be.an.instanceof(XcSubQuery);
+            expect(Object.keys(xcSubQuery).length).to.equal(10);
+            expect(xcSubQuery).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(xcSubQuery).to.have.property("name")
+            .and.to.equal("test");
+            expect(xcSubQuery).to.have.property("time")
+            .and.to.equal(123);
+            expect(xcSubQuery).to.have.property("query")
+            .and.to.equal("testQuery");
+            expect(xcSubQuery).to.have.property("dstTable")
+            .and.to.equal("testDstTable");
+            expect(xcSubQuery).to.have.property("id")
+            .and.to.equal(1);
+            expect(xcSubQuery).to.have.property("index")
+            .and.to.equal(2);
+            expect(xcSubQuery).to.have.property("queryName")
+            .and.to.equal("testQueryName");
+            expect(xcSubQuery).to.have.property("exportFileName")
+            .and.to.equal("testExport");
+        });
+    });
+
     // XX incomplete since the change where monitor query bars are working
     describe("XcQuery Constructor Test", function() {
-        it("XcQuery should be a constructor", function() {
+        it("Should have 16 attributes", function() {
             var xcQuery = new XcQuery({
                 "name"    : "test",
                 "fullName": "full test",
@@ -2407,12 +2881,40 @@ describe("Persistent Constructor Test", function() {
                 "numSteps": 2
             });
 
-            expect(xcQuery).to.be.an("object");
-            expect(Object.keys(xcQuery).length).to.equal(15);
-            expect(xcQuery).to.have.property("name").and.to.equal("test");
-            expect(xcQuery).to.have.property("time").and.to.equal(123);
-            expect(xcQuery).to.have.property("fullName").and.to.equal("full test");
-            expect(xcQuery).to.have.property("state").and.to.equal(QueryStateT.qrNotStarted);
+            expect(xcQuery).to.be.an.instanceof(XcQuery);
+            expect(Object.keys(xcQuery).length).to.equal(16);
+            expect(xcQuery).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(xcQuery).to.have.property("name")
+            .and.to.equal("test");
+            expect(xcQuery).to.have.property("time")
+            .and.to.equal(123);
+            expect(xcQuery).to.have.property("elapsedTime")
+            .and.to.equal(0);
+            expect(xcQuery).to.have.property("fullName")
+            .and.to.equal("full test");
+            expect(xcQuery).to.have.property("type")
+            .and.to.equal("xcFunction");
+            expect(xcQuery).to.have.property("subQueries")
+            .and.to.be.an("array");
+            expect(xcQuery).to.have.property("id")
+            .and.to.equal(1);
+            expect(xcQuery).to.have.property("numSteps")
+            .and.to.equal(2);
+            expect(xcQuery).to.have.property("currStep")
+            .and.to.equal(0);
+            expect(xcQuery).to.have.property("outputTableName")
+            .and.to.equal("");
+            expect(xcQuery).to.have.property("outputTableState")
+            .and.to.equal("");
+            expect(xcQuery).to.have.property("queryStr")
+            .and.to.equal("");
+            expect(xcQuery).to.have.property("sqlNum")
+            .and.to.be.null;
+            expect(xcQuery).to.have.property("state")
+            .and.to.equal(QueryStateT.qrNotStarted);
+            expect(xcQuery).to.have.property("cancelable")
+            .and.to.be.true;
         });
 
         it("XcQuery OOP function should work", function() {

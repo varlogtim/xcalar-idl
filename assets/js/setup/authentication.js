@@ -33,16 +33,15 @@ window.Authentication = (function(jQuery, Authentication) {
     };
 
     Authentication.getHashId = function() {
-        var idCount = authInfo.idCount;
-
-        authInfo.idCount += 1;
+        var idCount = authInfo.getIdCount();
+        authInfo.incIdCount();
 
         KVStore.put(authKey, JSON.stringify(authInfo), true, gKVScope.AUTH)
         .fail(function(error) {
             console.error("Save Authentication fails", error);
         });
 
-        return ("#" + authInfo.hashTag + idCount);
+        return ("#" + authInfo.getHashTag() + idCount);
     };
 
     Authentication.clear = function() {

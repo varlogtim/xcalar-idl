@@ -30,6 +30,39 @@ XcMap.prototype = {
     }
 };
 
+// workbookManager.js
+function WKBKSet() {
+    this.set = {};
+
+    return this;
+}
+
+WKBKSet.prototype = {
+    get: function(wkbkId) {
+        return this.set[wkbkId];
+    },
+
+    getWithStringify: function() {
+        return JSON.stringify(this.set);
+    },
+
+    getAll: function() {
+        return this.set;
+    },
+
+    put: function(wkbkId, wkbk) {
+        this.set[wkbkId] = wkbk;
+    },
+
+    has: function(wkbkId) {
+        return this.set.hasOwnProperty(wkbkId);
+    },
+
+    delete: function(wkbkId) {
+        delete this.set[wkbkId];
+    }
+};
+
 // global MouseEvents
 // useful to keep track of mousedown so when a blur happens, we know what
 // element was clicked on to cause the blur

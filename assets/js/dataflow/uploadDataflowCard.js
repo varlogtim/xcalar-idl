@@ -66,9 +66,10 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return readRetinaFromFile(file, retName);
         })
         .then(function() {
-            DF.addDataflow(retName, new Dataflow(retName),
-                         {"isUpload": true,
-                          "noClick" : true});
+            DF.addDataflow(retName, new Dataflow(retName), {
+                "isUpload": true,
+                "noClick" : true
+            });
 
             closeCard();
             // Click on the newly uploaded dataflow

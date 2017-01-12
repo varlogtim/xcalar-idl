@@ -355,7 +355,7 @@ window.Scheduler = (function(Scheduler, $) {
         d.setHours(timeObj.getHours(), timeObj.getMinutes(),
                     timeObj.getSeconds());
 
-        var startTime   = d.getTime();
+        var startTime = d.getTime();
         var currentTime = new Date().getTime();
 
         if (!isDayPerMonth && startTime < currentTime) {
@@ -363,14 +363,11 @@ window.Scheduler = (function(Scheduler, $) {
             return;
         }
 
-        var freq = null;
         var options = {
-            // "name"     : name,
             "startTime": startTime,
             "dateText" : date,
             "timeText" : time,
             "repeat"   : repeat,
-            "freq"     : freq,
             "modified" : currentTime,
             "recur"    : recur
         };

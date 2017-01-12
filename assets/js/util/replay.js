@@ -1432,7 +1432,7 @@ window.Replay = (function($, Replay) {
         if (nextOptions.operation === SQLOps.ProfileSort ||
             nextOptions.operation === SQLOps.ProfileBucketing)
         {
-            if (options.modalId === nextOptions.modalId) {
+            if (options.id === nextOptions.id) {
                 return true;
             }
         }
