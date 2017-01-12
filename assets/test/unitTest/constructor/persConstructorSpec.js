@@ -1,31 +1,137 @@
 describe("Persistent Constructor Test", function() {
-    describe("Meta Constructor Test", function() {
-        it("METAConstructor should have the right key", function() {
-            var keys = getMETAKeys();
-            var meta = new METAConstructor(keys);
-            keyCheck(keys, meta);
+    describe("METAConstructor Constructor Test", function() {
+        var metaInfos;
+
+        before(function() {
+            metaInfos = new METAConstructor();
         });
 
-        it("EMetaConstructor should have the right key", function() {
-            var keys = getEMetaKeys();
-            var meta = new EMetaConstructor(keys);
-            keyCheck(keys, meta);
+        it("Should have no attr initially", function() {
+            expect(Object.keys(metaInfos).length).to.equal(0);
         });
 
-        it("UserInfoConstructor should have the right key", function() {
-            var keys = getUserInfoKeys();
-            var meta = new UserInfoConstructor(keys);
-            keyCheck(keys, meta);
+        it("Should restore oldMetaInfos", function() {
+            metaInfos.restore({
+                "TILookup"   : "testTable",
+                "worksheets" : "testWS",
+                "aggregates" : "testAgg",
+                "datacarts"  : "testCart",
+                "statsCols"  : "testStats",
+                "sqlcursor"  : "testCursor",
+                "tablePrefix": "testTablePrefix",
+                "query"      : "testQuery"
+            });
+
+            expect(Object.keys(metaInfos).length).to.equal(8);
         });
 
-        function keyCheck(keys, meta) {
-            expect(keys).to.be.an("object");
-            expect(meta).to.be.an("object");
+        it("Should get table meta", function() {
+            expect(metaInfos.getTableMeta()).to.equal("testTable");
+        });
 
-            for (var key in keys) {
-                expect(meta).have.property(keys[key]);
-            }
-        }
+        it("Should get worksheet meta", function() {
+            expect(metaInfos.getWSMeta()).to.equal("testWS");
+        });
+
+        it("Should get agg meta", function() {
+            expect(metaInfos.getAggMeta()).to.equal("testAgg");
+        });
+
+        it("Should get cart meta", function() {
+            expect(metaInfos.getCartMeta()).to.equal("testCart");
+        });
+
+        it("Should get stats meta", function() {
+            expect(metaInfos.getStatsMeta()).to.equal("testStats");
+        });
+
+        it("Should get log cursor meta", function() {
+            expect(metaInfos.getLogCMeta()).to.equal("testCursor");
+        });
+
+        it("Should get table prefix meta", function() {
+            expect(metaInfos.getTpfxMeta()).to.equal("testTablePrefix");
+        });
+
+        it("Should get query meta", function() {
+            expect(metaInfos.getQueryMeta()).to.equal("testQuery");
+        });
+
+        it("Should update", function() {
+            metaInfos.update();
+            expect(metaInfos.getTableMeta()).not.to.equal("testTable");
+            expect(metaInfos.getWSMeta()).not.to.equal("testWS");
+            expect(metaInfos.getAggMeta()).not.to.equal("testAgg");
+            expect(metaInfos.getCartMeta()).not.to.equal("testCart");
+            expect(metaInfos.getStatsMeta()).not.to.equal("testStats");
+            expect(metaInfos.getLogCMeta()).not.to.equal("testCursor");
+            expect(metaInfos.getTpfxMeta()).not.to.equal("testTablePrefix");
+            expect(metaInfos.getQueryMeta()).not.to.equal("testQuery");
+        });
+    });
+
+    describe("EMetaConstructor Constructor Test", function() {
+        var ephMeta;
+
+        before(function() {
+            ephMeta = new EMetaConstructor();
+        });
+
+        it("Should have no attr initially", function() {
+            expect(Object.keys(ephMeta).length).to.equal(0);
+        });
+
+        it("Should restore oldEphMeta", function() {
+            ephMeta.restore({
+                "DF": "testDF"
+            });
+
+            expect(Object.keys(ephMeta).length).to.equal(1);
+        });
+
+        it("Should get DF meta", function() {
+            expect(ephMeta.getDFMeta()).to.equal("testDF");
+        });
+
+        it("Should update", function() {
+            ephMeta.update();
+            expect(ephMeta.getDFMeta()).not.to.equal("testDF");
+        });
+    });
+
+    describe("UserInfoConstructor Constructor Test", function() {
+        var userInfos;
+
+        before(function() {
+            userInfos = new UserInfoConstructor();
+        });
+
+        it("Should have no attr initially", function() {
+            expect(Object.keys(userInfos).length).to.equal(0);
+        });
+
+        it("Should restore oldMeta", function() {
+            userInfos.restore({
+                "gDSObj"        : "testDS",
+                "userpreference": "testPref"
+            });
+            expect(Object.keys(userInfos).length).to.equal(2);
+        });
+
+        it("Should get pref info", function() {
+            expect(userInfos.getPrefInfo()).to.equal("testPref");
+        });
+
+        it("Should get ds info", function() {
+            expect(userInfos.getDSInfo()).to.equal("testDS");
+        });
+
+        it("Should update info", function() {
+            userInfos.update();
+
+            expect(userInfos.getPrefInfo()).not.to.equal("testPref");
+            expect(userInfos.getDSInfo()).not.to.equal("testDS");
+        });
     });
 
     describe("XcVersion Constructor Test", function() {

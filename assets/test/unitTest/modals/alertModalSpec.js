@@ -106,7 +106,7 @@ describe('AlertModal', function() {
 
         assert.isTrue($alertModal.is(":visible"));
         expect($alertTitle.text()).to.equal(title);
-        expect($("#alertOptionLabel").text()).to.equal(testLabel);
+        expect($("#alertOptionLabel").text()).to.equal(testLabel + ":");
         expect($("#alertlist").find("li").length).to.equal(2);
 
         // select an option

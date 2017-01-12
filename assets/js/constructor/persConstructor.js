@@ -1,9 +1,9 @@
-// store.js
-function getMETAKeys() {
+// kvStore.js
+var METAConstructor = (function() {
     // the key should be as short as possible
     // and when change the store key, change it here, it will
     // apply to all places
-    return {
+    var METAKeys = {
         "TI"   : "TILookup",
         "WS"   : "worksheets",
         "AGGS" : "aggregates",
@@ -13,68 +13,156 @@ function getMETAKeys() {
         "TPFX" : "tablePrefix",
         "QUERY": "query"
     };
-}
 
-function METAConstructor(METAKeys) {
-    METAKeys = METAKeys || {};
-    // basic thing to store
-    this[METAKeys.TI] = savegTables();
-    this[METAKeys.WS] = WSManager.getAllMeta();
-    this[METAKeys.AGGS] = Aggregates.getAggs();
-    // this[METAKeys.CLI] = CLIBox.getCli(); // string
-    this[METAKeys.CART] = DSCart.getCarts();
-    this[METAKeys.STATS] = Profile.getCache();
-    this[METAKeys.LOGC] = SQL.getCursor();
-    this[METAKeys.TPFX] = TPrefix.getCache();
-    this[METAKeys.QUERY] = QueryManager.getCache();
-    return this;
-
-    function savegTables() {
-        var persistTables = xcHelper.deepCopy(gTables);
-
-        for (var tableId in persistTables) {
-            var table = persistTables[tableId];
-            delete table.currentRowNumber;
-            delete table.keyName;
-            delete table.resultSetCount;
-            delete table.numPages;
-            delete table.ordering;
-        }
-
-        return persistTables;
+    function METAConstructor() {
+        return this;
     }
-}
 
-function getEMetaKeys() {
-    return {
-        "DF": "DF"
+    METAConstructor.prototype = {
+        restore: function(oldMeta) {
+            oldMeta = oldMeta || {};
+            for (var key in METAKeys) {
+                var entry = METAKeys[key];
+                this[entry] = oldMeta[entry];
+            }
+            return this;
+        },
+
+        update: function() {
+            // basic thing to store
+            this[METAKeys.TI] = savegTables();
+            this[METAKeys.WS] = WSManager.getAllMeta();
+            this[METAKeys.AGGS] = Aggregates.getAggs();
+            this[METAKeys.CART] = DSCart.getCarts();
+            this[METAKeys.STATS] = Profile.getCache();
+            this[METAKeys.LOGC] = SQL.getCursor();
+            this[METAKeys.TPFX] = TPrefix.getCache();
+            this[METAKeys.QUERY] = QueryManager.getCache();
+            return this;
+
+            function savegTables() {
+                var persistTables = xcHelper.deepCopy(gTables);
+
+                for (var tableId in persistTables) {
+                    var table = persistTables[tableId];
+                    delete table.currentRowNumber;
+                    delete table.keyName;
+                    delete table.resultSetCount;
+                    delete table.numPages;
+                    delete table.ordering;
+                }
+
+                return persistTables;
+            }
+        },
+
+        getTableMeta: function() {
+            return this[METAKeys.TI];
+        },
+
+        getWSMeta: function() {
+            return this[METAKeys.WS];
+        },
+
+        getAggMeta: function() {
+            return this[METAKeys.AGGS];
+        },
+
+        getCartMeta: function() {
+            return this[METAKeys.CART];
+        },
+
+        getStatsMeta: function() {
+            return this[METAKeys.STATS];
+        },
+
+        getLogCMeta: function() {
+            return this[METAKeys.LOGC];
+        },
+
+        getTpfxMeta: function() {
+            return this[METAKeys.TPFX];
+        },
+
+        getQueryMeta: function() {
+            return this[METAKeys.QUERY];
+        }
     };
-}
 
-function EMetaConstructor(EMetaKeys) {
-    // This is a global key. All users see the same stuff
-    EMetaKeys = EMetaKeys || {};
-    this[EMetaKeys.DF] = DF.getAllCommitKeys(); // Only persist necessary stuff
-    return this;
-}
+    return METAConstructor;
+}());
 
-// userSettings.js
-function getUserInfoKeys() {
+// kvStore.js
+var EMetaConstructor = (function() {
     // the key should be as short as possible
     // and when change the store key, change it here, it will
     // apply to all places
-    return {
+    var EMetaKeys = {
+        "DF": "DF"
+    };
+
+    function EMetaConstructor() {
+        return this;
+    }
+
+    EMetaConstructor.prototype = {
+        restore: function(oldEMeta) {
+            oldEMeta = oldEMeta || {};
+            this[EMetaKeys.DF] = oldEMeta[EMetaKeys.DF];
+        },
+
+        update: function() {
+            // update
+            this[EMetaKeys.DF] = DF.getAllCommitKeys();
+            return this;
+        },
+
+        getDFMeta: function() {
+            return this[EMetaKeys.DF];
+        }
+    };
+
+    return EMetaConstructor;
+}());
+
+// userSettings.js
+var UserInfoConstructor = (function() {
+    // the key should be as short as possible
+    // and when change the store key, change it here, it will
+    // apply to all places
+    var UserInfoKeys = {
         "DS"  : "gDSObj",
         "PREF": "userpreference"
     };
-}
 
-function UserInfoConstructor(UserInfoKeys, options) {
-    options = options || {};
-    this[UserInfoKeys.DS] = options.DS || null;
-    this[UserInfoKeys.PREF] = options.PREF || null;
-    return this;
-}
+    function UserInfoConstructor() {
+        return this;
+    }
+
+    UserInfoConstructor.prototype = {
+        restore: function(oldMeta) {
+            oldMeta = oldMeta || {};
+            this[UserInfoKeys.DS] = oldMeta[UserInfoKeys.DS];
+            this[UserInfoKeys.PREF] = oldMeta[UserInfoKeys.PREF];
+            return this;
+        },
+
+        update: function() {
+            this[UserInfoKeys.DS] = DS.getHomeDir();
+            this[UserInfoKeys.PREF] = UserSettings.getAllPrefs();
+        },
+
+        getPrefInfo: function() {
+            return this[UserInfoKeys.PREF];
+        },
+
+        getDSInfo: function() {
+            return this[UserInfoKeys.DS];
+        }
+    };
+
+    return UserInfoConstructor;
+}());
 
 // version.js
 function XcVersion(options) {

@@ -1,6 +1,6 @@
 window.UserSettings = (function($, UserSettings) {
     var userPrefs;
-    var UserInfoKeys;
+    var userInfos;
     var hasDSChange; // becomes true if ds.js detected settings change
     var cachedPrefs = {};
     var monIntervalSlider;
@@ -13,19 +13,20 @@ window.UserSettings = (function($, UserSettings) {
 
         KVStore.getAndParse(KVStore.gUserKey, gKVScope.USER)
         .then(function(res) {
-            var result;
+            userInfos.restore(res);
+            var dsInfo;
             if (res != null) {
-                userPrefs = new UserPref(res[UserInfoKeys.PREF]);
+                userPrefs = new UserPref(userInfos.getPrefInfo());
                 saveLastPrefs();
-                result = res[UserInfoKeys.DS];
+                dsInfo = userInfos.getDSInfo();
             } else {
                 userPrefs = new UserPref();
-                result = null;
+                dsInfo = null;
             }
             restoreMainTabs();
 
             var atStartup = true;
-            return (DS.restore(result, atStartup));
+            return DS.restore(dsInfo, atStartup);
         })
         .then(function() {
             return (KVStore.getAndParse(KVStore.gSettingsKey, gKVScope.GLOB));
@@ -44,7 +45,6 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     UserSettings.commit = function(showSuccess) {
-
         var deferred = jQuery.Deferred();
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
@@ -55,10 +55,7 @@ window.UserSettings = (function($, UserSettings) {
         userPrefs.update();
         var shouldCommit = hasDSChange || userPrefChangeCheck();
         if (shouldCommit) {
-            var userInfos = new UserInfoConstructor(UserInfoKeys, {
-                "DS"  : DS.getHomeDir(),
-                "PREF": userPrefs
-            });
+            userInfos.update();
 
             var kvKey;
             var kvScope;
@@ -145,7 +142,7 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     function setup() {
-        UserInfoKeys = getUserInfoKeys();
+        userInfos = new UserInfoConstructor();
         userPrefs = new UserPref();
         hasDSChange = false;
         addEventListeners();
@@ -176,7 +173,7 @@ window.UserSettings = (function($, UserSettings) {
         var shouldCommit = false;
         if (userPrefs == null) {
             // in case commit is triggered at setup time
-            if (!UserInfoKeys == null) {
+            if (userInfos != null) {
                 // this is a error case
                 console.error("userPreference is null!");
             }

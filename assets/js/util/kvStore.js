@@ -3,13 +3,13 @@ window.KVStore = (function($, KVStore) {
     // and when change the store key, change it here, it will
     // apply to all places
     var isUnCommit = false;
-    var METAKeys;
-    var EMetaKeys; // Ephemeral meta data keys
+    var metaInfos;
+    var ephMetaInfos; // Ephemeral meta
     // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
     // gSettingsKey
     KVStore.setup = function(keys) {
-        METAKeys = getMETAKeys();
-        EMetaKeys = getEMetaKeys();
+        metaInfos = new METAConstructor();
+        ephMetaInfos = new EMetaConstructor();
         for (var keyName in keys) {
             KVStore[keyName] = keys[keyName];
         }
@@ -105,16 +105,17 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.commit = function(atStartUp) {
         var deferred = jQuery.Deferred();
-        var meta = new METAConstructor(METAKeys);
-        var ephMeta = new EMetaConstructor(EMetaKeys);
+        metaInfos.update();
+        ephMetaInfos.update();
 
         Support.stopHeartbeatCheck();
 
-        KVStore.put(KVStore.gStorageKey, JSON.stringify(meta), true,
+        KVStore.put(KVStore.gStorageKey, JSON.stringify(metaInfos), true,
                     gKVScope.META)
         .then(function() {
-            return KVStore.put(KVStore.gEphStorageKey, JSON.stringify(ephMeta),
-                               false, gKVScope.EPHM);
+            return KVStore.put(KVStore.gEphStorageKey,
+                                JSON.stringify(ephMetaInfos), false,
+                                gKVScope.EPHM);
         })
         .then(function() {
             return SQL.commit();
@@ -211,16 +212,17 @@ window.KVStore = (function($, KVStore) {
                 for (var key in gInfosPart) {
                     gInfos[key] = gInfosPart[key];
                 }
-
                 try {
-                    WSManager.restore(gInfos[METAKeys.WS]);
-                    TPrefix.restore(gInfos[METAKeys.TPFX]);
-                    Aggregates.restore(gInfos[METAKeys.AGGS]);
-                    TblManager.restoreTableMeta(gInfos[METAKeys.TI]);
-                    DSCart.restore(gInfos[METAKeys.CART]);
-                    Profile.restore(gInfos[METAKeys.STATS]);
-                    oldLogCursor = gInfos[METAKeys.LOGC];
-                    return DF.restore(gInfos[EMetaKeys.DF]);
+                    metaInfos.restore(gInfos);
+                    WSManager.restore(metaInfos.getWSMeta());
+                    TPrefix.restore(metaInfos.getTpfxMeta());
+                    Aggregates.restore(metaInfos.getAggMeta());
+                    TblManager.restoreTableMeta(metaInfos.getTableMeta());
+                    DSCart.restore(metaInfos.getCartMeta());
+                    Profile.restore(metaInfos.getStatsMeta());
+                    oldLogCursor = metaInfos.getLogCMeta();
+                    ephMetaInfos.restore(gInfos);
+                    return DF.restore(ephMetaInfos.getDFMeta());
                 } catch (error) {
                     console.error(error.stack);
                     return PromiseHelper.reject(error);
@@ -235,7 +237,7 @@ window.KVStore = (function($, KVStore) {
             })
             .then(function() {
                 // must come after sql.restore
-                QueryManager.restore(gInfos[METAKeys.QUERY]);
+                QueryManager.restore(metaInfos.getQueryMeta());
                 deferred.resolve();
             })
             .fail(function(error) {
