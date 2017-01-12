@@ -1468,6 +1468,23 @@ html.microsoft {
         }
     }
 
+    #alertUserInputArea {
+        .flex-display;
+        .justify-content(center);
+        width: 100%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        .label {
+            float: left;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+        input {
+            width: ~"calc(100% - 200px)";
+            background-color: @color-white;
+        }
+    }
+
     &.locked {
         z-index: @z-index-locked + 2;
         #alertHeader {

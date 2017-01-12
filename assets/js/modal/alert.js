@@ -239,12 +239,22 @@ window.Alert = (function($, Alert){
         $("#alertOptionInput").val("");
         if (options.optList) {
             $("#alertlist").empty().append(options.optList.list);
-            $("#alertOptionLabel").text(options.optList.label);
+            $("#alertOptionLabel").text(options.optList.label + ":");
             $optionSection.show();
             $modal.addClass("withOptions");
         } else {
             $optionSection.hide();
             $modal.removeClass("withOptions");
+        }
+
+        if (options.userInput) {
+            $("#alertUserInputArea").removeClass('xc-hidden');
+            $("#alertUserInputArea").find('.label').html(options.userInput.label);
+            $("#alertUserInput").val(options.userInput.autofill);
+        } else {
+            $("#alertUserInputArea").addClass('xc-hidden');
+             $("#alertUserInputArea").find('.label').empty();
+             $("#alertUserInput").val("");
         }
 
         if (options.modal) {
