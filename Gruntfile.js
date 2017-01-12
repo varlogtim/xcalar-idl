@@ -18,6 +18,7 @@ destMap = {
     "dologout.html": "assets/htmlFiles/dologout.html",
     "tableau.html": "assets/htmlFiles/tableau.html",
     "install.html": "install.html",
+    "dashboard.html": "dashboard.html",
     "testSuite.html": "testSuite.html",
     "undoredoTest.html": "undoredoTest.html"
 };
@@ -95,6 +96,7 @@ module.exports = function(grunt) {
           'assets/stylesheets/css/login.css': 'assets/stylesheets/less/login.less',
           'assets/stylesheets/css/mcf.css': 'assets/stylesheets/less/mcf.less',
           'assets/stylesheets/css/installer.css': 'assets/stylesheets/less/installer.less',
+          'assets/stylesheets/css/dashboard.css': 'assets/stylesheets/less/dashboard.less',
           'assets/stylesheets/css/xu.css': 'assets/stylesheets/less/xu.less',
           'assets/stylesheets/css/testSuite.css': 'assets/stylesheets/less/testSuite.less'
         }
