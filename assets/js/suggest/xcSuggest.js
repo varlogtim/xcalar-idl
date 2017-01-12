@@ -299,41 +299,6 @@ window.xcSuggest = (function($, xcSuggest) {
 // xcHelper.parseColType also shows up in
 // dsTable, constructor, xcHelperSpec
 
-    xcSuggest.parseColType = function(val, oldType) {
-        var type = oldType || ColumnType.undefined;
-
-        if (val != null && oldType !== ColumnType.mixed) {
-            // note: "" is empty string
-            var valType = typeof val;
-            type = valType;
-            // get specific type
-            if (type === ColumnType.number) {
-                // the case when type is float
-                if (oldType === ColumnType.float || xcHelper.isFloat(val)) {
-                    type = ColumnType.float;
-                } else {
-                    type = ColumnType.integer;
-                }
-            } else if (type === ColumnType.object) {
-                if (val instanceof Array) {
-                    type = ColumnType.array;
-                }
-            }
-
-            var isAllNum = (valType === ColumnType.number) &&
-                           ((oldType === ColumnType.float) ||
-                            (oldType === ColumnType.integer));
-            if (oldType != null &&
-                oldType !== ColumnType.undefined &&
-                oldType !== type && !isAllNum)
-            {
-                type = ColumnType.mixed;
-            }
-        }
-
-        return (type);
-    };
-
 ///////////////////////////////////////////////////////////////
 // End JSON Delim Suggestion
 // Begin Col Type

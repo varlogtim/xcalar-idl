@@ -1,6 +1,4 @@
 describe('xcSuggest Test', function() {
-    var minModeCache;
-
     describe('Join Key & Support', function() {
         it('contextCheck should work', function() {
 
