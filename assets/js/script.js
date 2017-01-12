@@ -103,6 +103,7 @@ window.StartManager = (function(StartManager, $) {
         setupModals();
         TutorialsSetup.setup();
         Admin.initialize();
+        xcSuggest.setup();
 
         XVM.checkVersionMatch()
         .then(setupSession)

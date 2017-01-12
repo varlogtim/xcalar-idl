@@ -317,3 +317,9 @@ var XcalarMode = {
     Mod: "interactive",
     Demo: "demo"
 };
+
+var MLSetting = {
+    SuggestJoinKey: "SuggestJoinKey",
+    SuggestType: "SuggestType",
+    DetectDelim: "DetectDelim",
+};

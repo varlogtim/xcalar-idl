@@ -1779,7 +1779,9 @@ window.JoinView = (function($, JoinView) {
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
         var inputs = getJoinKeyInputs(tableId, val, suggTableId);
 
-        result = xcSuggest.suggestJoinKeyHeuristic(inputs);
+        result = xcSuggest.suggestJoinKey(inputs);
+        // NOTE: Heuristic score on range of all ints,
+        // but ML score on range of -100 to 0;
         var thresholdScore = -50;
 
         if (result.colToSugg !== null) {

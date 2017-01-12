@@ -5,7 +5,32 @@ window.xcSuggest = (function($, xcSuggest) {
 // 3: Smart casting column type (colManager).
 // 3: Smart suggesting join keys.
 
-    xcSuggest.suggestJoinKeyHeuristic = function(inputs) {
+    var MLEngine;
+
+    // Turn off ML Engine
+    var useEngine = false;
+
+    xcSuggest.setup = function() {
+        MLEngine = window.skRFPredictor;
+        MLEngine.setup();
+    };
+
+    xcSuggest.suggestJoinKey = function(inputs) {
+        // For now, the two both use the same features.
+        var featuresPerColumn = processJoinKeyInputsHeuristic(inputs);
+        if (useEngine) {
+            try {
+                return suggestJoinKeyML(featuresPerColumn);
+            }
+            catch (err) {
+                console.log("ML Engine failed with error: " + err +
+                    "\nSwitching to heuristic.");
+            }
+        }
+        return suggestJoinKeyHeuristic(featuresPerColumn);
+    };
+
+    function processJoinKeyInputsHeuristic(inputs) {
         // Inputs has fields srcColInfo and destColsInfo
         // srcColInfo is valid colInfo and destColsInfo is array of valid colInfo
         // valid colInfo has type, name, and data fields, where data is an array
@@ -15,33 +40,141 @@ window.xcSuggest = (function($, xcSuggest) {
         var srcColInfo = inputs.srcColInfo;
         var type = srcColInfo.type;
 
-        var context1 = contextCheck(srcColInfo);
+        var srcContext = contextCheck(srcColInfo);
+        var featuresPerColumn = [];
+        for (var i = 0; i < inputs.destColsInfo.length; i++) {
+            var curColInfo = inputs.destColsInfo[i];
+            // 0 is rowMarker
+            if (curColInfo.type === type) {
+                var destContext = contextCheck(curColInfo);
+                var match   = 0;
+                if (type === "string") {
+                    var bucket  = {};
+                    var bucket2 = {};
+                    var words   = {};
+
+                    // Note: current way is hash each char and count frequency
+                    // change it if you have better way!
+                    srcContext.vals.forEach(function(value) {
+                        for (var i = 0; i < value.length; i++) {
+                            bucket[value.charAt(i)] = true;
+                        }
+
+                        words[value] = words[value] || 0;
+                        words[value]++;
+                    });
+
+                    destContext.vals.forEach(function(value) {
+                        for (var i = 0; i < value.length; i++) {
+                            bucket2[value.charAt(i)] = true;
+                        }
+                        // when has whole word match
+                        if (words.hasOwnProperty(value)) {
+                            match += 10 * words[value];
+                        }
+                    });
+
+                    for (var c in bucket2) {
+                        if (bucket.hasOwnProperty(c)) {
+                            if (/\W/.test(c)) {
+                                // special char, high weight
+                                match += 10;
+                            } else {
+                                match += 1;
+                            }
+                        }
+                    }
+                }
+
+                var dist = getTitleDistance(srcColInfo.name, curColInfo.name);
+                featuresPerColumn.push({
+                    "context1": srcContext,
+                    "context2": destContext,
+                    "dist": dist,
+                    "type": type,
+                    "match": match,
+                    "uniqueIdentifier": curColInfo.uniqueIdentifier});
+            } else {
+                featuresPerColumn.push(null);
+            }
+        }
+        return featuresPerColumn;
+    }
+
+    function suggestJoinKeyML(featuresPerColumn) {
+        var colToSugg = null;
+
+        // only score that more than 0 will be suggested, can be modified
+        var maxScore = 0;
+
+        for (var i = 0; i < featuresPerColumn.length; i++) {
+            var curFeatures = featuresPerColumn[i];
+            if (curFeatures !== null) {
+                var MLInput = [
+                    curFeatures.context1,
+                    curFeatures.context2,
+                    curFeatures.dist,
+                    curFeatures.type,
+                    curFeatures.match
+                ];
+                var prediction = MLEngine.predict(MLSetting.SuggestJoinKey,
+                                            MLInput);
+                var score;
+                if (prediction.classIdx === 1) {
+                    score = prediction.score;
+                } else {
+                    // Prediction.classIdx must be 0
+                    score = 1 - prediction.score;
+                }
+                if (score > maxScore) {
+                    maxScore = score;
+                    colToSugg = curFeatures.uniqueIdentifier;
+                }
+            }
+        }
+        // Because suggestJoinKey expects score on range of integers
+        // And the threshold is -50, change the score of this algorithm to
+        // be on range of -100 to 0
+
+        return {
+            'colToSugg': colToSugg,
+            'maxScore' : (maxScore * 100) - 100
+        };
+    }
+
+    function suggestJoinKeyHeuristic(featuresPerColumn) {
+        // Inputs has fields srcColInfo and destColsInfo
+        // srcColInfo is valid colInfo and destColsInfo is array of valid colInfo
+        // valid colInfo has type, name, and data fields, where data is an array
+        // of the text contents of the HTML column
+        // Requires: inputs.srcCol is filled with info from valid col
+        // Requires: inputs.destCol is an array, but can be empty
         var colToSugg = null;
 
         // only score that more than -50 will be suggested, can be modified
         var maxScore = (-Number.MAX_VALUE);
 
-        for (var i = 0; i < inputs.destColsInfo.length; i++) {
-            var curColInfo = inputs.destColsInfo[i];
-            // 0 is rowMarker
-            if (curColInfo.type === type) {
-                var context2 = contextCheck(curColInfo);
-
-                var dist = getTitleDistance(srcColInfo.name, curColInfo.name);
-                var score = getScore(context1, context2, dist, type);
-
+        for (var i = 0; i < featuresPerColumn.length; i++) {
+            var curFeatures = featuresPerColumn[i];
+            if (curFeatures !== null) {
+                var score = getScore(curFeatures.context1,
+                        curFeatures.context2,
+                        curFeatures.dist,
+                        curFeatures.type,
+                        curFeatures.match);
                 if (score > maxScore) {
                     maxScore = score;
-                    colToSugg = curColInfo.uniqueIdentifier;
+                    colToSugg = curFeatures.uniqueIdentifier;
                 }
             }
         }
 
         return {
-            'colToSugg': colToSugg,
-            'maxScore' : maxScore
+            "colToSugg": colToSugg,
+            "maxScore" : maxScore
         };
-    };
+    }
+
 
     function contextCheck(requiredInfo) {
         // only check number and string
@@ -116,48 +249,13 @@ window.xcSuggest = (function($, xcSuggest) {
     }
 
 
-    function getScore(context1, context2, titleDist, type) {
+    function getScore(context1, context2, titleDist, type, match) {
         // the two value of max, min, sig2, avg..closer, score is better,
         // also, shorter distance, higher score. So those socres are negative
 
         var score   = 0;
-        var bucket  = {};
-        var bucket2 = {};
-        var match   = 0;
-        var words   = {};
 
         if (type === "string") {
-            // Note: current way is hash each char and count frequency
-            // change it if you have better way!
-            context1.vals.forEach(function(value) {
-                for (var i = 0; i < value.length; i++) {
-                    bucket[value.charAt(i)] = true;
-                }
-
-                words[value] = words[value] || 0;
-                words[value]++;
-            });
-
-            context2.vals.forEach(function(value) {
-                for (var i = 0; i < value.length; i++) {
-                    bucket2[value.charAt(i)] = true;
-                }
-                // when has whole word match
-                if (words.hasOwnProperty(value)) {
-                    match += 10 * words[value];
-                }
-            });
-
-            for (var c in bucket2) {
-                if (bucket.hasOwnProperty(c)) {
-                    if (/\W/.test(c)) {
-                        // special char, high weight
-                        match += 10;
-                    } else {
-                        match += 1;
-                    }
-                }
-            }
 
             // for string compare absolute value
             score += match * 3;
@@ -286,20 +384,8 @@ window.xcSuggest = (function($, xcSuggest) {
 
 // dsPreview.js
 
-///////////////////////////////////////////////////////////////
-// End Delim Suggestion
-// Begin Delim JSON Suggestion
-//////////////////////////////////////////////////////////////
-// Relevant structure:
-// See colManager.js, line 1480 (parseTdHelper)
-// val given by tdValue, which is determined by parseRowJSON
-//  progCol.updateType in persConstructorSpec.js
-//   xcHelper.parseColType
-//
-// xcHelper.parseColType also shows up in
-// dsTable, constructor, xcHelperSpec
 
-///////////////////////////////////////////////////////////////
+////////////
 // End JSON Delim Suggestion
 // Begin Col Type
 //////////////////////////////////////////////////////////////
