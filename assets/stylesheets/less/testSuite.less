@@ -65,7 +65,7 @@ form {
         .size(@width: @div-width, @height: 50px);
         .position(relative, @top: 10px);
         overflow: hidden;
-        margin: 100px auto 10px;
+        margin: 50px auto 10px;
         .font(@weight: 400, @size: 36px, @line-height: 36px, @family: @font-base);
     }
 
@@ -96,7 +96,6 @@ form {
     &#bottomSection {
         padding-top: 15px;
         height: 100%;
-        overflow: auto;
     }
 
 }
@@ -142,9 +141,7 @@ input:-webkit-autofill:focus {
 }
 
 #formArea {
-    width: @div-width;
     margin: 0 auto;
-    padding-left: 50px;
     position: relative;
     height: 100%;
 
@@ -205,17 +202,48 @@ input:-webkit-autofill:focus {
         text-align: right;
     }
 
+    .topSection {
+        border: 0px;
+        border-bottom: 1px;
+        border-color: @color-border-softBlue;
+        border-style: solid;
+    }
+
+    .verticalSection {
+        &.leftSection {
+            border-right: 1px;
+            border-color: @color-border-softBlue;
+            border-style: solid;
+            border-left: 0px;
+        }
+        &.rightSection {
+            border-right: 0px;
+            border-left: 0px;
+        }
+        height: 100%;
+        width: 50%;
+        float: left;
+        border-top: 0px;
+        border-bottom: 0px;
+    }
+
     .section {
         padding-bottom: 20px;
         position: relative;
         font-size: 13px;
         font-weight: 500;
-        padding-left: 5%;
         overflow: hidden;
+
+        .heading {
+            .font(@weight: 400, @size: 20px, @line-height: 20px, @family: @font-base);
+            width: 100%;
+            text-align: center;
+            padding: 5px;
+        }
 
         .bar {
             position: absolute;
-            line-height: 30px;
+            line-height: 16px;
             left: 0px;
             top: 15px;
             text-indent: 4px;
@@ -257,11 +285,12 @@ input:-webkit-autofill:focus {
         .row {
             font-size: 14px;
             background-color: rgba(255, 255, 255, 0.1);
-            width: 100%;
+            width: ~"calc(100% - 10px)";
             position: relative;
             display: inline-block;
             padding-top: 5px;
             padding-bottom: 5px;
+            margin: 3px 6px 3px 6px;
 
             .leftCol {
                 padding-left: 5px;
@@ -293,11 +322,11 @@ input:-webkit-autofill:focus {
             outline: none;
             margin-left: 150px;
             padding-left: 10px;
-            .font(@weight: 500, @size: 16px, @line-height: 30px, @color: @color-white);
+            .font(@weight: 500, @size: 16px, @line-height: 16px, @color: @color-white);
             position: relative;
             z-index: 1;
             padding-top: 2px;
-            margin-top: 14px;
+            margin-top: 4px;
 
             &::after {
                 content: "";
