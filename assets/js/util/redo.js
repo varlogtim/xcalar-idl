@@ -221,7 +221,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.SortTableCols] = function(options) {
         focusTableHelper(options);
-        TblManager.sortColumns(options.tableId, options.direction);
+        TblManager.sortColumns(options.tableId, options.sortKey, options.direction);
         return PromiseHelper.resolve(null);
     };
 

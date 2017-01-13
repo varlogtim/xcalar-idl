@@ -885,7 +885,7 @@ describe("Persistent Constructor Test", function() {
             expect(col.getType()).to.equal(ColumnType.string);
         });
 
-        it("Should sort columns", function() {
+        it("Should sort columns by name", function() {
             var progCol1 =  new ProgCol({
                 "name"    : "b",
                 "backName": "b",
@@ -912,12 +912,118 @@ describe("Persistent Constructor Test", function() {
             });
 
             // case 1
-            table.sortCols(ColumnSortOrder.ascending);
+            table.sortCols(ColumnSortType.name, ColumnSortOrder.ascending);
             expect(table.getCol(1).getFrontColName()).to.equal("a");
 
             // case 2
-            table.sortCols(ColumnSortOrder.descending);
+            table.sortCols(ColumnSortType.name, ColumnSortOrder.descending);
             expect(table.getCol(1).getFrontColName()).to.equal("b");
+        });
+
+        it("Should sort columns by type", function() {
+            var progCol1 =  new ProgCol({
+                "name"    : "a",
+                "backName": "a",
+                "type"    : ColumnType.string,
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var progCol2 =  new ProgCol({
+                "name"    : "b",
+                "backName": "b",
+                "type"    : ColumnType.array,
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [progCol1, progCol2],
+                "isLocked" : false
+            });
+
+            // case 1
+            table.sortCols(ColumnSortType.type, ColumnSortOrder.ascending);
+            expect(table.getCol(1).getFrontColName()).to.equal("b");
+
+            // case 2
+            table.sortCols(ColumnSortType.type, ColumnSortOrder.descending);
+            expect(table.getCol(1).getFrontColName()).to.equal("a");
+        });
+
+        it("Should sort columns by prefix", function() {
+            var progCol1 =  new ProgCol({
+                "name"    : "a",
+                "backName": "prefix2::a",
+                "type"    : ColumnType.string,
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var progCol2 =  new ProgCol({
+                "name"    : "b",
+                "backName": "prefix1::b",
+                "type"    : ColumnType.array,
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [progCol1, progCol2],
+                "isLocked" : false
+            });
+
+            // case 1
+            table.sortCols(ColumnSortType.prefix, ColumnSortOrder.ascending);
+            expect(table.getCol(1).getFrontColName()).to.equal("b");
+
+            // case 2
+            table.sortCols(ColumnSortType.prefix, ColumnSortOrder.descending);
+            expect(table.getCol(1).getFrontColName()).to.equal("a");
+        });
+
+        it("Should sort by name when have same prefix", function() {
+            var progCol1 =  new ProgCol({
+                "name"    : "b",
+                "backName": "prefix::b",
+                "type"    : ColumnType.string,
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var progCol2 =  new ProgCol({
+                "name"    : "a",
+                "backName": "prefix::a",
+                "type"    : ColumnType.array,
+                "isNewCol": false,
+                "func"    : {
+                    "name": "pull"
+                }
+            });
+
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "tableCols": [progCol1, progCol2],
+                "isLocked" : false
+            });
+
+            table.sortCols(ColumnSortType.prefix, ColumnSortOrder.ascending);
+            expect(table.getCol(1).getFrontColName()).to.equal("a");
         });
 
         it("table should get immediates info", function() {

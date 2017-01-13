@@ -19,9 +19,17 @@
     <li class="moveTable parentMenu" data-submenu="moveTable">
       <%= dicts.MenuTStr.Move %>
     </li>
-    <li class="sort parentMenu" data-submenu="sort">
-      <%= dicts.MenuTStr.SortCols %>
+    <div class="divider identityDivider"></div>
+    <li class="sortByName parentMenu" data-submenu="sortByName" data-optoin="name">
+      <%= dicts.MenuTStr.SortColsByName %>
     </li>
+    <li class="sortByType parentMenu" data-submenu="sortByType" data-optoin="type">
+      <%= dicts.MenuTStr.SortColsByType %>
+    </li>
+    <li class="sortByPrefix parentMenu" data-submenu="sortByPrefix" data-optoin="prefix">
+      <%= dicts.MenuTStr.SortColsByPrefix %>
+    </li>
+    <div class="divider identityDivider"></div>
     <li class="resizeCols parentMenu" data-submenu="resizeCols">
       <%= dicts.MenuTStr.ResizeAllCols %>
     </li>
@@ -80,7 +88,29 @@
     </li>
     <div class="subMenuArea"></div>
   </ul>
-  <ul class="sort">
+  <ul class="sortByName">
+    <li class="sortForward">
+      <i class="icon blue fa-15 xi-arrowtail-up sortUp"></i>
+      <%= dicts.MenuTStr.SortAsc %>
+    </li>
+    <li class="sortReverse">
+      <i class="icon blue fa-15 xi-arrowtail-down sortDown"></i>
+      <%= dicts.MenuTStr.SortDesc %>
+    </li>
+    <div class="subMenuArea"></div>
+  </ul>
+  <ul class="sortByType">
+    <li class="sortForward">
+      <i class="icon blue fa-15 xi-arrowtail-up sortUp"></i>
+      <%= dicts.MenuTStr.SortAsc %>
+    </li>
+    <li class="sortReverse">
+      <i class="icon blue fa-15 xi-arrowtail-down sortDown"></i>
+      <%= dicts.MenuTStr.SortDesc %>
+    </li>
+    <div class="subMenuArea"></div>
+  </ul>
+  <ul class="sortByPrefix">
     <li class="sortForward">
       <i class="icon blue fa-15 xi-arrowtail-up sortUp"></i>
       <%= dicts.MenuTStr.SortAsc %>

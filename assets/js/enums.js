@@ -118,6 +118,12 @@ var ColumnType = {
     "unknown": "unknown"
 };
 
+var ColumnSortType = {
+    "name": "name",
+    "type": "type",
+    "prefix": "prefix"
+};
+
 var ColumnSortOrder = {
     "ascending" : -1,
     "descending": 1

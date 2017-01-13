@@ -805,7 +805,7 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
-    TblManager.sortColumns = function(tableId, direction) {
+    TblManager.sortColumns = function(tableId, sortKey, direction) {
         var table = gTables[tableId];
         var oldOrder = []; // to save the old column order
         var order = (direction === "reverse") ? ColumnSortOrder.descending :
@@ -829,7 +829,7 @@ window.TblManager = (function($, TblManager) {
             thLists[colNum] = $th;
         }
 
-        table.sortCols(order);
+        table.sortCols(sortKey, order);
 
         var $rows = $table.find('tbody tr');
         var numRows = $rows.length;
@@ -873,6 +873,7 @@ window.TblManager = (function($, TblManager) {
             "operation"    : SQLOps.SortTableCols,
             "tableName"    : table.tableName,
             "tableId"      : tableId,
+            "sortKey"      : sortKey,
             "direction"    : direction,
             "originalOrder": oldOrder,
             "htmlExclude"  : ['originalOrder']

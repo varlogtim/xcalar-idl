@@ -421,7 +421,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.AddNewCol] = ["colNum", "tableId", "direction"];
         argsMap[SQLOps.PullCol] = ["colNum", "tableId", "pullColOptions"];
         argsMap[SQLOps.PullAllCols] = ["tableId", "colNum", "rowNum"];
-        argsMap[SQLOps.SortTableCols] = ["tableId", "direction"];
+        argsMap[SQLOps.SortTableCols] = ["tableId", "sortKey", "direction"];
         argsMap[SQLOps.ResizeTableCols] = ["tableId", "resizeTo", "columnNums"];
         argsMap[SQLOps.DragResizeTableCol] = ["tableId", "colNum", "fromWidth",
                                                "toWidth"];

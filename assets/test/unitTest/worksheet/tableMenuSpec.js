@@ -34,9 +34,9 @@ describe('TableMenu', function() {
     });
 
     describe('table menu actions', function() {
-    	before(function() {
-    		$tableWrap.find('.tableTitle .dropdownBox').click();
-    	});
+        before(function() {
+            $tableWrap.find('.tableTitle .dropdownBox').click();
+        });
 
         describe('main menu', function() {
             it('archiveTable', function() {
@@ -346,8 +346,6 @@ describe('TableMenu', function() {
                     DFCreateView.close = cachedFunc;
                 });
             });
-
-            
         });
 
         describe('submenu', function() {
@@ -419,19 +417,22 @@ describe('TableMenu', function() {
                 reorderAfterTableDrop = cachedFunc;
             });
 
-            it('sortForward', function(done) {
+            it('sortForward by name', function(done) {
                 var cachedFunc = TblManager.sortColumns;
                 var called = false;
-                TblManager.sortColumns = function(tId, dir) {
+                TblManager.sortColumns = function(tId, sortType, dir) {
                     expect(tId).to.equal(tableId);
+                    expect(sortType).to.equal(ColumnSortType.name);
                     expect(dir).to.equal('forward');
                     called = true;
                 };
 
-                $tableSubMenu.find('.sortForward').trigger(rightMouseup);
+                $tableSubMenu.find('.sortByName .sortForward')
+                .trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $tableSubMenu.find('.sortForward').trigger(fakeEvent.mouseup);
+                $tableSubMenu.find('.sortByName .sortForward')
+                .trigger(fakeEvent.mouseup);
                 setTimeout(function() {
                     expect(called).to.be.true;
                     TblManager.sortColumns = cachedFunc;
@@ -439,19 +440,68 @@ describe('TableMenu', function() {
                 }, 10);
             });
 
-            it('sortReverse', function(done) {
+            it('sortReverse by name', function(done) {
                 var cachedFunc = TblManager.sortColumns;
                 var called = false;
-                TblManager.sortColumns = function(tId, dir) {
+                TblManager.sortColumns = function(tId, sortType, dir) {
                     expect(tId).to.equal(tableId);
+                    expect(sortType).to.equal(ColumnSortType.name);
                     expect(dir).to.equal('reverse');
                     called = true;
                 };
 
-                $tableSubMenu.find('.sortReverse').trigger(rightMouseup);
+                $tableSubMenu.find('.sortByName .sortReverse')
+                .trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $tableSubMenu.find('.sortReverse').trigger(fakeEvent.mouseup);
+                $tableSubMenu.find('.sortByName .sortReverse')
+                .trigger(fakeEvent.mouseup);
+                setTimeout(function() {
+                    expect(called).to.be.true;
+                    TblManager.sortColumns = cachedFunc;
+                    done();
+                }, 10);
+            });
+
+            it('sortForward by type', function(done) {
+                var cachedFunc = TblManager.sortColumns;
+                var called = false;
+                TblManager.sortColumns = function(tId, sortType, dir) {
+                    expect(tId).to.equal(tableId);
+                    expect(sortType).to.equal(ColumnSortType.type);
+                    expect(dir).to.equal('forward');
+                    called = true;
+                };
+
+                $tableSubMenu.find('.sortByType .sortForward')
+                .trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $tableSubMenu.find('.sortByType .sortForward')
+                .trigger(fakeEvent.mouseup);
+                setTimeout(function() {
+                    expect(called).to.be.true;
+                    TblManager.sortColumns = cachedFunc;
+                    done();
+                }, 10);
+            });
+
+            it('sortForward by prefix', function(done) {
+                var cachedFunc = TblManager.sortColumns;
+                var called = false;
+                TblManager.sortColumns = function(tId, sortType, dir) {
+                    expect(tId).to.equal(tableId);
+                    expect(sortType).to.equal(ColumnSortType.prefix);
+                    expect(dir).to.equal('forward');
+                    called = true;
+                };
+
+                $tableSubMenu.find('.sortByPrefix .sortForward')
+                .trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $tableSubMenu.find('.sortByPrefix .sortForward')
+                .trigger(fakeEvent.mouseup);
                 setTimeout(function() {
                     expect(called).to.be.true;
                     TblManager.sortColumns = cachedFunc;
@@ -1293,11 +1343,10 @@ describe('TableMenu', function() {
     });
 
     after(function(done) {
-		UnitTest.deleteAll(tableName, testDs)
+        UnitTest.deleteAll(tableName, testDs)
         .always(function() {
             UnitTest.offMinMode();
             done();
         });
-    
     });
 });

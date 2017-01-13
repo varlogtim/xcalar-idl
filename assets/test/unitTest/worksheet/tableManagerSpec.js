@@ -366,10 +366,10 @@ describe("TableManager Test", function() {
             .to.be.false;
         });
 
-        it("Should sort columns", function() {
+        it("TblManager.sortColumns should work", function() {
             var table = gTables[tableId];
             var colName = table.getCol(1).getFrontColName();
-            TblManager.sortColumns(tableId, "reverse");
+            TblManager.sortColumns(tableId, ColumnSortType.name, "reverse");
             var curColName = table.getCol(1).getFrontColName();
             expect(curColName).not.to.equal(colName);
         });

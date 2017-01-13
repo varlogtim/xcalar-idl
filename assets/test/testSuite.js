@@ -556,7 +556,7 @@ window.TestSuite = (function($, TestSuite) {
                 var $table = $(".tableTitle .tableName[value='" + tableName +
                                 "']").closest('.xcTableWrap');
                 var tableId =$table.data('id');
-                TblManager.sortColumns(tableId, "forward");
+                TblManager.sortColumns(tableId, ColumnSortType.name, "forward");
             }
             var $header = $(header);
             var hasName = $header.siblings(".hashName").text();

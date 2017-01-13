@@ -242,27 +242,43 @@ window.TblMenu = (function(TblMenu, $) {
             });
         });
 
-        $subMenu.on('mouseup', '.sortForward', function(event) {
+        $subMenu.on("mouseup", ".sortByName li", function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var tableId = $tableMenu.data('tableId');
-            // could be long process so we allow the menu to close first
-            setTimeout(function() {
-                TblManager.sortColumns(tableId, "forward");
-            }, 0);
+
+            sortHelper(ColumnSortType.name, $(this));
         });
 
-        $subMenu.on('mouseup', '.sortReverse', function(event) {
+        $subMenu.on("mouseup", ".sortByType li", function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var tableId = $tableMenu.data('tableId');
+
+            sortHelper(ColumnSortType.type, $(this));
+        });
+
+        $subMenu.on("mouseup", ".sortByPrefix li", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            sortHelper(ColumnSortType.prefix, $(this));
+        });
+
+        function sortHelper(sortKey, $li) {
+            var direction;
+            if ($li.hasClass("sortForward")) {
+                direction = "forward";
+            } else {
+                direction = "reverse";
+            }
+            var tableId = $tableMenu.data("tableId");
             // could be long process so we allow the menu to close first
             setTimeout(function() {
-                TblManager.sortColumns(tableId, "reverse");
+                TblManager.sortColumns(tableId, sortKey, direction);
             }, 0);
-        });
+        }
 
         $subMenu.on('mouseup', '.resizeCols li', function(event) {
             if (event.which !== 1) {

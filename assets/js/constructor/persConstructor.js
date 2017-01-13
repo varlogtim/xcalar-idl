@@ -377,11 +377,31 @@ TableMeta.prototype = {
         return removed;
     },
 
-    sortCols: function(order) {
+    sortCols: function(sortKey, order) {
+        sortKey = sortKey || ColumnSortType.name;
+
         this.tableCols.sort(function(a, b) {
-            var aName = a.getFrontColName();
-            var bName = b.getFrontColName();
-            return xcHelper.sortVals(aName, bName, order);
+            if (sortKey === ColumnSortType.type) {
+                aVal = a.getType();
+                bVal = b.getType();
+            } else if (sortKey === ColumnSortType.prefix) {
+                aVal = a.getPrefix();
+                bVal = b.getPrefix();
+            } else {
+                // sort by name
+                aVal = a.getFrontColName();
+                bVal = b.getFrontColName();
+            }
+
+            var res = xcHelper.sortVals(aVal, bVal, order);
+            if (res === 0 && sortKey !== ColumnSortType.name) {
+                // when equal, sort by name
+                aVal = a.getFrontColName();
+                bVal = b.getFrontColName();
+                res = xcHelper.sortVals(aVal, bVal, order);
+            }
+
+            return res;
         });
     },
 
