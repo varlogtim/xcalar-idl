@@ -41,6 +41,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         }
         var status;
         $(".results .row").eq(id).find(".rightCol").html(res);
+        printToServer(id+":: "+res)
         if (results.fail > 0) {
             $(".results .row").eq(id).addClass("fail");
             status = "fail";
@@ -258,6 +259,34 @@ window.TestSuiteManager = (function(TestSuiteManager) {
 
         var url = "http://" + server +
                     "/action?name=setstatus&res=" + output;
+
+        $.ajax({
+            "type"    : "GET",
+            "dataType": "jsonp",  // this is to fix cross domain issue
+            "url"     : url,
+            "success" : function(data) {
+                console.log("send to sever success");
+            },
+            "error": function(error) {
+                console.log("send to sever error", error);
+            }
+        });
+    }
+
+    function printToServer(res) {
+        console.log(res)
+        var params = getSearchParameters();
+        var server = params["server"];
+        if (!server) {
+            return;
+        }
+        server = decodeURIComponent(server);
+
+        // http://host:port/action?name=print&res=res
+        output = encodeURIComponent(res);
+
+        var url = "http://" + server +
+                    "/action?name=print&res=" + output;
 
         $.ajax({
             "type"    : "GET",
