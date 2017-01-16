@@ -314,5 +314,6 @@ var SQLOps = {
 
 var XcalarMode = {
     Oper: "operational",
-    Mod: "interactive"
+    Mod: "interactive",
+    Demo: "demo"
 };

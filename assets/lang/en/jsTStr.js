@@ -248,7 +248,8 @@ ErrTStr = {
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
                       ' choose another name.',
-    'InvalidColumn' : 'Invalid column name: <name>'
+    'InvalidColumn': 'Invalid column name: <name>',
+    'LicenseExpire': 'Your license has expired on \"<date>\"'
 };
 
 ErrWRepTStr = {
@@ -279,6 +280,17 @@ ErrWRepTStr = {
     'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
                         ' and followed by the name',
     'InvalidSampleSize': 'Maxmium dataset size is <size>.'
+};
+
+DemoTStr = {
+    "title": "Welcome to Xcalar Design",
+    "msg"  : "Your license will expire in",
+    "day"  : "day",
+    "days" : "days",
+    "hour" : "hour",
+    "hours": "hours",
+    "minute": "minute",
+    "minutes": "minutes"
 };
 
 TipsTStr = {

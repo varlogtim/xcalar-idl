@@ -12,6 +12,7 @@ window.XVM = (function(XVM) {
     var backendVersion = "";
     var licenseKey = "";
     var licenseMode = "";
+    var expirationDate = null;
                      // interactive or operational
     //var licenseMode = XcalarMode.Oper;
 
@@ -54,6 +55,8 @@ window.XVM = (function(XVM) {
                     var utcSeconds = parseInt(licKey.expiration);
                     var d = new Date(0);
                     d.setUTCSeconds(utcSeconds);
+                    expirationDate = d;
+
                     licenseKey = d.toDateString();
                     licenseMode = XcalarMode.Mod;
                     if (licKey.product === "XceMod") {
@@ -73,11 +76,13 @@ window.XVM = (function(XVM) {
                       XcalarApiVersionT.XcalarApiVersionSignature);
                     console.log("Frontend's thrift version is: " + versionNum);
                     console.log("Frontend's git SHA is: " + gGitVersion);
-                    deferred.reject({error: ThriftTStr.Update});
+                    deferred.reject({"error": ThriftTStr.Update});
                 } else if (licKey.expired) {
                     console.log(licKey);
-                    deferred.reject({error: "Your license has expired on " +
-                                            licenseKey+"!"});
+                    var error = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
+                        "date": licenseKey
+                    });
+                    deferred.reject({"error": error});
 
                 } else {
                     deferred.resolve();
@@ -97,6 +102,63 @@ window.XVM = (function(XVM) {
         });
 
         return (deferred.promise());
+    };
+
+    XVM.alertLicenseExpire = function() {
+        // for demo mode only
+        if (XVM.getLicenseMode() !== XcalarMode.Demo) {
+            return;
+        }
+
+        var currentTime = new Date().getTime();
+        var expireTime = expirationDate.getTime();
+
+        if (expireTime <= currentTime) {
+            // this is an error case, should not happen
+            var msg = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
+                "date": licenseKey
+            });
+
+            Alert.show({
+                "title"     : DemoTStr.title,
+                "msg"       : msg,
+                "lockScreen": true,
+                "expired"   : true
+            });
+        } else {
+            Alert.show({
+                "title"  : DemoTStr.title,
+                "msg"    : getExpireCountDownMsg(expireTime - currentTime),
+                "isAlert": true
+            });
+        }
+
+        function getExpireCountDownMsg(diff) {
+            var oneMinute = 1000 * 60;
+            var oneHour = oneMinute * 60;
+            var oneDay = oneHour * 24;
+
+            var dayDiff = Math.floor(diff / oneDay);
+            diff -= dayDiff * oneDay;
+            var hourDiff = Math.floor(diff / oneHour);
+            diff -= hourDiff * oneHour;
+            var minuteDiff = Math.floor(diff / oneMinute);
+
+            var words = [];
+            words.push(getWord(dayDiff, DemoTStr.day, DemoTStr.days));
+            words.push(getWord(hourDiff, DemoTStr.hour, DemoTStr.hours));
+            words.push(getWord(minuteDiff, DemoTStr.minute, DemoTStr.minutes));
+
+            return DemoTStr.msg + " " + words.join(", ");
+        }
+
+        function getWord(num, singular, plural) {
+            if (num <= 1) {
+                return num + " " + singular;
+            } else {
+                return num + " " + plural;
+            }
+        }
     };
 
     XVM.commitVersionInfo = function() {
