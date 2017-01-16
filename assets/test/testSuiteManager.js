@@ -12,6 +12,8 @@ window.TestSuiteManager = (function(TestSuiteManager) {
     var windowRefs = [];
     var reports = [];
     var checkInterval;
+    var curRunRefreshRate = 1000;
+    var metaRefreshRate = 5000;
 
     TestSuiteManager.setup = function() {
         $(".run").click(function() {
@@ -29,6 +31,10 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         $(".closeAll").hide();
 
         parseParam();
+        populateParams();
+        populatePreviousRuns();
+        populateCurrentUsers();
+        startPoll();
     };
 
     TestSuiteManager.reportResults = function(id, results) {
@@ -41,7 +47,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         }
         var status;
         $(".results .row").eq(id).find(".rightCol").html(res);
-        printToServer(id+":: "+res)
+        printToServer(id + ":: " + res);
         if (results.fail > 0) {
             $(".results .row").eq(id).addClass("fail");
             status = "fail";
@@ -67,17 +73,17 @@ window.TestSuiteManager = (function(TestSuiteManager) {
 
     function parseParam() {
         var params = getSearchParameters();
-        var numUsers = Number(params["users"]);
+        var numUsers = Number(params.users);
         if (isNaN(numUsers)) {
             numUsers = 5;
         } else {
             numUsers = Math.max(numUsers, 1);
         }
 
-        var mode = params["mode"];
-        var hostname = parseHostName(params["host"]);
-        var autoRun = params["auto"];
-        var close = params["close"];
+        var mode = params.mode;
+        var hostname = parseHostName(params.host);
+        var autoRun = params.auto;
+        var close = params.close;
 
         $("#numUsers").val(numUsers);
         $("#mode").val(mode);
@@ -244,7 +250,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
 
     function reportToServer() {
         var params = getSearchParameters();
-        var server = params["server"];
+        var server = params.server;
         if (!server) {
             return;
         }
@@ -274,9 +280,9 @@ window.TestSuiteManager = (function(TestSuiteManager) {
     }
 
     function printToServer(res) {
-        console.log(res)
+        console.log(res);
         var params = getSearchParameters();
-        var server = params["server"];
+        var server = params.server;
         if (!server) {
             return;
         }
@@ -314,6 +320,87 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             params[tmparr[0]] = tmparr[1];
         }
         return params;
+    }
+
+    function populatePreviousRuns() {
+        // NOTE: This call MUST be idempotent. This call will be called every
+        // x seconds and refreshed
+        JenkinsTestData.getHistoricalRuns()
+        .then(function(ret) {
+            // Data is returned in descending order
+            var html = "";
+            for (var i = 0; i < ret.length; i++) {
+                html += '<div class="row">';
+                html += '<div class="pastBuild">' + ret[i].build + '</div>';
+                var val;
+                if (!ret[i].start) {
+                    val = "N/A";
+                } else {
+                    val = ret[i].start.split(".")[0];
+                }
+                html += '<div class="pastTime">' + val + '</div>';
+                html += '<div class="pastDuration">' + ret[i].duration +
+                        '</div>';
+                html += '<div class="pastResults">' + ret[i].succeeded + "/" +
+                        ret[i].failed + '</div>';
+                html += '</div>';
+            }
+            $("#pastRuns .results").html(html);
+        });
+    }
+
+    function populateCurrentUsers() {
+        // NOTE: This call MUST be idempotent. This call will be called every
+        // x seconds and refreshed
+        JenkinsTestData.getEachUserStatus()
+        .then(function(ret) {
+            var html = "";
+            for (var i = 0; i < ret.length; i++) {
+                var status = "";
+                var text = "Not started";
+                switch (ret[i].status) {
+                    case ('Failed'):
+                        status = "fail";
+                        text = "Time: " + ret[i].duration + "s";
+                        break;
+                    case ('Success'):
+                        status = "pass";
+                        text = "Time: " + ret[i].duration + "s";
+                        break;
+                    default:
+                        status = "";
+                        text = "Running...";
+                }
+                html += '<div class="row ' + status + '">' +
+                          '<div class="leftCol">User ' + i + '</div>' +
+                          '<div class="rightCol">' + text +'</div>' +
+                        '</div>';
+
+            }
+            $(".rightSection .results").html(html);
+        });
+    }
+
+    function populateParams() {
+        JenkinsTestData.getParamsForLastBuild()
+        .then(function(ret) {
+            var html = "";
+            for (var i = 0; i < ret.length; i++) {
+                html += '<div class="option">' +
+                          '<input class="input" type="text" autocomplete="off" value="' + ret[i].value + '">' +
+                          '<div class="bar">' + ret[i].name + '</div>' +
+                        '</div>';
+            }
+            $(".leftSection .topSection").html(html);
+        });
+    }
+
+    function startPoll() {
+        setInterval(function() {
+            populateParams();
+            populatePreviousRuns();
+        }, metaRefreshRate);
+        setInterval(populateCurrentUsers, curRunRefreshRate);
     }
 
     return (TestSuiteManager);

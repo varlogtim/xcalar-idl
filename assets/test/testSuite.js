@@ -1578,7 +1578,7 @@ window.TestSuite = (function($, TestSuite) {
             var clickedName = $div.text();
             $div.trigger(fakeEvent.click);
             var $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
-           
+
             var colName = $newTh.find('.editableHead').val();
             assert(colName.length > 1, "assert colname exists");
             assert(clickedName.indexOf(colName) > -1, "assert colName match in json modal");
