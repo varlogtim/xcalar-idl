@@ -7,6 +7,8 @@ from sklearn.ensemble import RandomForestClassifier
 # Iris dataset for testing only
 from sklearn.datasets import load_iris
 
+thisPath = "/var/www/xcalar-gui/assets/js/suggest/"
+
 def exportDT(dtModel):
     skTree = dtModel.tree_
     skExportObj = {
@@ -31,12 +33,13 @@ def exportRF(rfModel):
 def hardcodeJSONStr(strIn, strOut, jsFileIn, jsFileOut):
     with open(jsFileIn, 'r') as fileI, open(jsFileOut, 'w') as fileO:
         for line in fileI:
-            if line.strip() == strIn:
-                whitespaceBef = line.rstrip()[:-len(strIn)]
-                whitespaceAft = line.lstrip()[len(strIn):]
-                fileO.write(whitespaceBef)
+            if line.strip().startswith(strIn):
+                amtWhiteSpaceBef = len(strIn) - len(strIn.lstrip())
+                amtWhiteSpaceAft = len(strIn) - len(strIn.rstrip())
+                fileO.write(strIn[:amtWhiteSpaceBef])
                 fileO.write(strOut)
-                fileO.write(whitespaceAft)
+                if (-amtWhiteSpaceAft > 0):
+                    fileO.write(strIn[-amtWhiteSpaceAft:])
             else:
                 fileO.write(line)
 
@@ -50,19 +53,19 @@ def makeRFStr(X,y):
     exportObj = exportRF(skModel)
     return json.dumps(exportObj)
 
-
-def makeAndAppendModels(X,y):
+def makeAndAppendModelsTemplate(X,y):
     rfStr = makeRFStr(X,y)
-    strIn = "var JoinModelStr;"
-    strOut = "var JoinModelStr = '" + \
+    strIn = "joinModelStr:"
+    strOut = "joinModelStr: '" + \
              rfStr + "';"
-    jsFileIn = "skRFPredictorNoMod.js"
-    jsFileOut = "skRFPredictor.js"
+    jsFileIn = thisPath + "skRFModels.js"
+    jsFileOut = thisPath + "skRFModelsTmp.js"
     hardcodeJSONStr(strIn, strOut, jsFileIn, jsFileOut)
+    os.rename(jsFileOut, jsFileIn)
 
 def IrisTest():
     iris = load_iris()
-    makeAndAppendModels(iris.data, iris.target)
+    makeAndAppendModelsTemplate(iris.data, iris.target)
 
 if __name__ == "__main__":
     IrisTest()

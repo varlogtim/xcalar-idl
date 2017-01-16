@@ -16,7 +16,15 @@ window.xcSuggest = (function($, xcSuggest) {
     };
 
     xcSuggest.suggestJoinKey = function(inputs) {
-        // For now, the two both use the same features.
+        // Inputs has fields srcColInfo and destColsInfo
+        // srcColInfo is valid colInfo and destColsInfo is array of valid colInfo
+        // valid colInfo has type, name, and data fields, where data is an array
+        // of the text contents of the HTML column as strings
+        // Requires: inputs.srcCol is filled with info from valid col
+        // Requires: inputs.destCol is an array, but can be empty
+
+        // For now, the ML and heuristic both use the same features.
+
         var featuresPerColumn = processJoinKeyInputsHeuristic(inputs);
         if (useEngine) {
             try {
@@ -169,10 +177,11 @@ window.xcSuggest = (function($, xcSuggest) {
             }
         }
 
-        return {
+        var returnObj = {
             "colToSugg": colToSugg,
             "maxScore" : maxScore
         };
+        return returnObj;
     }
 
 

@@ -59,7 +59,8 @@ describe('xcSuggest', function() {
             var nonZeroAltIntRI = {
                 "type": ColumnType.integer,
                 "data": ["1", "3"]
-            }
+            };
+
             var nonZeroAltIntCX = contextCheck(nonZeroAltIntRI);
 
             var mixedNullIntRI = {
@@ -154,7 +155,7 @@ describe('xcSuggest', function() {
                 "avg" : 5700.5,
                 "sig2": 42.3,
                 "vals": [10000, 72, 5700]
-            }
+            };
 
             var nullTD = 0.0;
 
@@ -326,5 +327,287 @@ describe('xcSuggest', function() {
             expect(sim2).to.be.most(simEmpty1);
         });
 
+        it('suggestJoinKey should work', function() {
+            var emptyColInfoNum = {
+                "type" : ColumnType.integer,
+                "name" : "",
+                "data" : [""]
+            };
+
+            var emptyColInfoTitleNum = {
+                "type" : ColumnType.integer,
+                "name" : "numcol1",
+                "data" : [""]
+            };
+
+            var singletonColInfoNum = {
+                "type" : ColumnType.integer,
+                "name" : "numcol2",
+                "data" : ["0"]
+            };
+
+            var colInfoNum = {
+                "type" : ColumnType.integer,
+                "name" : "numcol3",
+                "data" : ["0", "1"]
+            };
+
+            var colHasEmptyInfoNum = {
+                "type" : ColumnType.integer,
+                "name" : "numcol4",
+                "data" : ["0", "", "1"]
+            };
+
+            var colHasEmptyDisorderInfoNum = {
+                "type" : ColumnType.integer,
+                "name" : "numcol5",
+                "data" : ["1", "", "0"]
+            };
+
+            var colHasNullDisorderInfoNum = {
+                "type" : ColumnType.integer,
+                "name" : "numcol6",
+                "data" : ["1", null, "0"]
+            };
+
+            var emptyColInfoStr = {
+                "type" : ColumnType.string,
+                "name" : "",
+                "data" : [""]
+            };
+
+            var emptyColInfoTitleStr = {
+                "type" : ColumnType.string,
+                "name" : "strcol1",
+                "data" : [""]
+            };
+
+            var singletonColInfoStr = {
+                "type" : ColumnType.string,
+                "name" : "strcol2",
+                "data" : ["0"]
+            };
+
+            var colInfoStr = {
+                "type" : ColumnType.string,
+                "name" : "strcol3",
+                "data" : ["0", "1"]
+            };
+
+            var colHasEmptyInfoStr = {
+                "type" : ColumnType.string,
+                "name" : "strcol4",
+                "data" : ["0", "", "1"]
+            };
+
+            var colHasEmptyDisorderInfoStr = {
+                "type" : ColumnType.string,
+                "name" : "strcol5",
+                "data" : ["1", "", "0"]
+            };
+
+            var colHasNullDisorderInfoStr = {
+                "type" : ColumnType.string,
+                "name" : "strcol6",
+                "data" : ["1", null, "0"]
+            };
+
+            var singletonColInfoChaStr = {
+                "type" : ColumnType.string,
+                "name" : "chastrcol2",
+                "data" : ["a"]
+            };
+
+            var colInfoChaStr = {
+                "type" : ColumnType.string,
+                "name" : "chastrcol3",
+                "data" : ["a", "b"]
+            };
+
+            var colHasEmptyInfoChaStr = {
+                "type" : ColumnType.string,
+                "name" : "chastrcol4",
+                "data" : ["a", "", "b"]
+            };
+
+            var colHasEmptyDisorderInfoChaStr = {
+                "type" : ColumnType.string,
+                "name" : "chastrcol5",
+                "data" : ["b", "", "a"]
+            };
+
+            var colHasNullDisorderInfoChaStr = {
+                "type" : ColumnType.string,
+                "name" : "chastrcol6",
+                "data" : ["b", null, "a"]
+            };
+
+            // TODO: double check that is format that obj strings
+            // come in as
+            var colInfoObject = {
+                "type" : ColumnType.object,
+                "name" : "objcol1",
+                "data" : ["{hehe: hoho}"]
+            };
+
+            function mkIn(srcCol, destCols) {
+                function infoDeepCpy(colInfo) {
+                    var retObj = {
+                        "type" :colInfo.type,
+                        "name" :colInfo.name,
+                        "data" :colInfo.data
+                    };
+                    return retObj;
+                }
+                var srcInfo = infoDeepCpy(srcCol);
+                srcInfo.uniqueIdentifier = -1;
+                var destInfos = [];
+                for (i = 0; i < destCols.length; i++) {
+                    destInfos.push(infoDeepCpy(destCols[i]));
+                    destInfos[i].uniqueIdentifier = i;
+                }
+                return {"srcColInfo": srcInfo, "destColsInfo": destInfos};
+            }
+
+            // Check against empty dest table.
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoNum,[])).colToSugg)
+            .to.be.null;
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoTitleNum,[])).colToSugg)
+            .to.be.null;
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoNum,[])).colToSugg)
+            .to.be.null;
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoStr,[])).colToSugg)
+            .to.be.null;
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoTitleStr,[])).colToSugg)
+            .to.be.null;
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[])).colToSugg)
+            .to.be.null;
+
+
+            // Check that types must match
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoNum,[emptyColInfoNum])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoNum,[emptyColInfoStr])).colToSugg)
+            .to.be.null;
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoNum,[colInfoObject])).colToSugg)
+            .to.be.null;
+
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoStr,[emptyColInfoStr])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoStr,[emptyColInfoNum])).colToSugg)
+            .to.be.null;
+            expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoStr,[colInfoObject])).colToSugg)
+            .to.be.null;
+
+            // Check basic similarity and that empty elements don't cause regression
+            // (Bug 6784)
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoNum,[singletonColInfoNum])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoNum,[
+                singletonColInfoNum,
+                colInfoNum
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoNum,[
+                singletonColInfoNum,
+                colHasEmptyInfoNum
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoNum,[
+                singletonColInfoNum,
+                colHasEmptyDisorderInfoNum
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoNum,[
+                singletonColInfoNum,
+                colHasNullDisorderInfoNum
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(colHasEmptyInfoNum,[
+                singletonColInfoNum,
+                colHasEmptyDisorderInfoNum
+            ])).colToSugg)
+            .to.be.equal(1);
+            expect(xcSuggest.suggestJoinKey(mkIn(colHasNullDisorderInfoNum,[
+                singletonColInfoNum,
+                colHasNullDisorderInfoNum
+            ])).colToSugg)
+            .to.be.equal(1);
+
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[singletonColInfoStr])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[
+                singletonColInfoStr,
+                colInfoStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[
+                singletonColInfoStr,
+                colHasEmptyInfoStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[
+                singletonColInfoStr,
+                colHasEmptyDisorderInfoStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[
+                singletonColInfoStr,
+                colHasNullDisorderInfoStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(colHasEmptyInfoStr,[
+                singletonColInfoStr,
+                colHasEmptyDisorderInfoStr
+            ])).colToSugg)
+            .to.be.equal(1);
+            expect(xcSuggest.suggestJoinKey(mkIn(colHasNullDisorderInfoStr,[
+                singletonColInfoStr,
+                colHasNullDisorderInfoStr
+            ])).colToSugg)
+            .to.be.equal(1);
+
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoChaStr,[singletonColInfoChaStr])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoChaStr,[
+                singletonColInfoChaStr,
+                colInfoChaStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoChaStr,[
+                singletonColInfoChaStr,
+                colHasEmptyInfoChaStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoChaStr,[
+                singletonColInfoChaStr,
+                colHasEmptyDisorderInfoChaStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoChaStr,[
+                singletonColInfoChaStr,
+                colHasNullDisorderInfoChaStr
+            ])).colToSugg)
+            .to.be.equal(0);
+            expect(xcSuggest.suggestJoinKey(mkIn(colHasEmptyInfoChaStr,[
+                singletonColInfoChaStr,
+                colHasEmptyDisorderInfoChaStr
+            ])).colToSugg)
+            .to.be.equal(1);
+            expect(xcSuggest.suggestJoinKey(mkIn(colHasNullDisorderInfoChaStr,[
+                singletonColInfoChaStr,
+                colHasNullDisorderInfoChaStr
+            ])).colToSugg)
+            .to.be.equal(1);
+
+            // Multitype tests
+            expect(xcSuggest.suggestJoinKey(mkIn(colInfoNum,[
+                colHasEmptyDisorderInfoNum,
+                colInfoStr,
+                colInfoChaStr,
+                colHasNullDisorderInfoChaStr
+                ])).colToSugg)
+            .to.be.equal(0);
+        });
     });
 });
