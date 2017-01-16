@@ -39,6 +39,8 @@ window.DSUploader = (function($, DSUploader) {
             return;
         }
 
+        xcHelper.showRefreshIcon($uploaderMain);
+
         // xx temp until we get a real call
         setTimeout(function() {
             allFiles = allFiles;
@@ -75,28 +77,47 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function setupDragDrop() {
+        var dragCount = 0;
         $uploaderMain.on('drag dragstart dragend dragover dragenter ' +
             'dragleave drop', function(event) {
             event.preventDefault();
             event.stopPropagation();
         });
 
-        // $uploaderMain.on('dragenter dragover', function(e) {
-      
-        $uploaderMain.on('dragenter', 'dragover', function(event) {
-            event.stopPropagation();
-            event.originalEvent.dataTransfer.effectAllowed = "copy";
-            event.originalEvent.dataTransfer.dropEffect = "copy";
-            $("#dsUploaderDropArea").addClass('entering');
+        $uploaderMain.on('dragenter', function(event) {
+            var dt = event.originalEvent.dataTransfer;
+            if (dt.types && (dt.types.indexOf ?
+                dt.types.indexOf('Files') !== -1 :
+                dt.types.contains('Files'))) {
+                dt.effectAllowed = "copy";
+                dt.dropEffect = "copy";
+                $("#dsUploaderDropArea").addClass('entering');
+                dragCount++;
+            }
         });
 
-        $uploaderMain.on('dragleave drop', function() {
-            $("#dsUploaderDropArea").removeClass('entering');
+        $uploaderMain.on('dragover', function(event) {
+            event.originalEvent.dataTransfer.effectAllowed = "copy";
+            event.originalEvent.dataTransfer.dropEffect = "copy";
+        });
+
+        $uploaderMain.on('dragleave', function(event) {
+            var dt = event.originalEvent.dataTransfer;
+            if (dt.types && (dt.types.indexOf ?
+                dt.types.indexOf('Files') !== -1 :
+                dt.types.contains('Files'))) {
+                dragCount--;
+                if (dragCount === 0) {
+                    $("#dsUploaderDropArea").removeClass('entering');
+                }
+            }
         });
 
         $uploaderMain.on('drop', function(event) {
+            dragCount = 0;
+            $("#dsUploaderDropArea").removeClass('entering');
             var files = event.originalEvent.dataTransfer.files;
-            if (!files.length) {
+            if (!files || !files.length) {
                 return;
             }
             droppedFiles = files;
@@ -128,6 +149,7 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function submitForm() {
+        //xx temp path
         var path = "nfs:///netstore/datasets/indexJoin/schedule/schedule.json";
         var format = null;
         var options = {
@@ -140,7 +162,7 @@ window.DSUploader = (function($, DSUploader) {
 
     function submitFiles(files, event) {
         if (files.length > 1) {
-            Alert.show({title: 'Invalid Upload', msg: "Only one file can be uploaded at a time."});
+            Alert.show({title: DSTStr.InvalidUpload, msg: DSTStr.OneFileUpload});
             return;
         }
         var hasDuplicate = checkFileNameDuplicate(files[0].name);
@@ -166,24 +188,22 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function invalidNameAlert(oldName) {
-        var msg = "Invalid name. Please rename your file."
         Alert.show({
-            "title"    : "Invalid file name",
-            "msg"      : msg,
-            "userInput": {"label": "New name", "autofill": oldName},
+            "title"    : DSTStr.InvalidFileName,
+            "msg"      : DSTStr.InvalidFileDesc,
+            "userInput": {"label":  DSTStr.NewName + ":", "autofill": oldName},
             "onConfirm": function() {
                 var newName = $("#alertUserInput").val();
-                validateAndSubmitNewName(newName);
+                validateAndSubmitNewName(newName, oldName);
             }
         });
     }
 
     function duplicateNameAlert(name) {
-        var msg = "File with the same name exists. Please rename your file."
         Alert.show({
-            "title"    : "Duplicate file name",
-            "msg"      : msg,
-            "userInput": {"label": "New name", "autofill": name},
+            "title"    : DSTStr.DupFileName,
+            "msg"      : DSTStr.DupFileNameDesc,
+            "userInput": {"label": DSTStr.NewName + ":", "autofill": name},
             "onConfirm": function() {
                 var newName = $("#alertUserInput").val();
                 validateAndSubmitNewName(newName, name);

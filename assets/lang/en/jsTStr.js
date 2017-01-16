@@ -609,6 +609,13 @@ DSTStr = {
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
     'Excel': "EXCEL",
     'Home': 'Home',
+    'InvalidUpload': 'Invalid Upload',
+    'OneFileUpload': 'Only one file can be uploaded at a time.',
+    'InvalidFileName': 'Invalid File Name',
+    'InvalidFileNameDesc': 'Invalid name. Please rename your file.',
+    'NewName': 'New name',
+    'DupFileName': 'Duplicate File Name',
+    'DupFileNameDesc': 'File with the same name exists. Please rename your file.',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',

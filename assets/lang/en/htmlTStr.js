@@ -446,6 +446,12 @@ module.exports = {
         "delDSBtn": "Delete folder or dataset reference"
     },
 
+    "dsUploader": {
+        "DropHere": "Drop Files Here",
+        "AddFile": "Add File / Create Dataset Reference",
+        "AddFileDesc": "To add a file, drag and drop files from your computer into this window or click Browse."
+    },
+
     "dsForm": {
         "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button.",
         "filePath": "Data Source Path",
