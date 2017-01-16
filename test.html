@@ -27,8 +27,9 @@
       <div class="outerWrap" id="bottomSection">
         <div id="formArea">
           <div class="verticalSection leftSection">
-            <div class="section topSection">
-              <!-- <div class="option">
+            <!-- topSection, hidden for TV  dashboard -->
+            <div class="section topSection" style="display: none">
+              <div class="option">
                 <input class="input" id="numUsers" type="text" autocomplete="off" placeholder="[Number of test instances]" value="5">
                 <div class="bar">Num Instances</div>
               </div>
@@ -55,14 +56,14 @@
               <div class="option">
                 <input class="input" id="mode" type="text" autocomplete="off" placeholder="[blank/ten/hundred]" value="ten">
                 <div class="bar">mode</div>
-              </div> -->
+              </div>
             </div>
+            <!-- end of top section -->
             <div id = "pastRuns" class="section">
               <div class="heading">
                 Previous Runs
               </div>
-              <div class="results">
-              </div>
+              <div class="results"></div>
             </div>
           </div>
           <div class="verticalSection rightSection">
@@ -80,8 +81,7 @@
                 <div class="rightCol">Running...</div>
               </div>
             </div>
-            <div class="section overall">
-            </div>
+            <div class="section overall"></div>
           </div>
 <!--           <div class="section buttonSection">
               <input class="btn run" type="button" value="START">
