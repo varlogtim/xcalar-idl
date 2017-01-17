@@ -41,6 +41,11 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         var params = getSearchParameters();
         var runTest = hasUser && parseBooleanParam(params["test"]);
         var testType = params["type"];
+        var toTest = xcSessionStorage.getItem(testSuiteKey);
+
+        if (toTest) {
+            heartBeat();
+        }
 
         StartManager.setup()
         .then(function() {
@@ -51,7 +56,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 return;
             }
 
-            var toTest = xcSessionStorage.getItem(testSuiteKey);
             if (toTest != null) {
                 // next time not auto run it
                 xcSessionStorage.removeItem(testSuiteKey);
@@ -70,6 +74,18 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             }
         });
     };
+
+    function heartBeat() {
+        var connectionCheck = true;
+        var interval = 60 * 1000; // 1min
+        var timer = setInterval(function() {
+            XcalarGetVersion(connectionCheck)
+            .fail(function() {
+                clearInterval(timer);
+                reportResults({"error": "Connection issue"});
+            });
+        }, interval);
+    }
 
     function autoLogin(user) {
         // XXX this may need to be replace after we have authentiaction
@@ -142,34 +158,21 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         if (isNaN(delay)) {
             delay = 0;
         }
-        var close = params["close"];
-
         var clean = parseBooleanParam(params["clean"]);
         var animation = parseBooleanParam(params["animation"]);
         var noPopup = parseBooleanParam(params["noPopup"]);
         var mode = params["mode"];
-
-        var id = Number(params["id"]);
-        if (isNaN(id)) {
-            id = 0;
-        }
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
             TestSuite.run(animation, clean, noPopup, mode)
             .then(function(res) {
                 console.info(res);
-                window.opener.reportResults(id, res);
-                if (close) {
-                    if (close === "force") {
-                        window.close();
-                    } else {
-                        if (res.fail === 0) {
-                            window.close();
-                        }
-                    }
-                }
-            });
+                reportResults(res);
+            })
+            .fail(function() {
+                console.log("fail")
+            })
         }, delay);
     }
 
@@ -189,6 +192,26 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                // undotest should be handling end cases 
             });
         }, delay);
+    }
+
+    function reportResults(res) {
+        var params = getSearchParameters();
+        var close = params["close"];
+        var id = Number(params["id"]);
+        if (isNaN(id)) {
+            id = 0;
+        }
+
+        window.opener.reportResults(id, res);
+        if (close) {
+            if (close === "force") {
+                window.close();
+            } else {
+                if (res.fail === 0) {
+                    window.close();
+                }
+            }
+        }
     }
 
     function parseBooleanParam(param) {
