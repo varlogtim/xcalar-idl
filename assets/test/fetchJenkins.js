@@ -89,7 +89,7 @@ window.JenkinsTestData = (function(JenkinsTestData) {
                     var failure = 0;
                     var success = 0;
                     for (var i = 0, len = lines.length; i < len; i++) {
-                        if (lines[i].startsWith("==> Finished:")) {
+                        if (lines[i].startsWith("==> Finished:") && lines[i].includes("status:close")!=true) {
                             users = lines[i].split("&");
                             failure = 0;
                             success = 0;
