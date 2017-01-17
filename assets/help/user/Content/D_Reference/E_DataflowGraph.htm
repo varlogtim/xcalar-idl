@@ -88,9 +88,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -116,7 +116,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -164,7 +164,7 @@
                                         </li>
                                         <li class="has-children"><a href="Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -183,6 +183,8 @@
                                                 <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -262,7 +264,7 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="Reference.htm">Reference</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                    <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                     </li>
                                                     <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                     </li>
@@ -281,6 +283,8 @@
                                                     <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
                                                     </li>
                                                     <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                    </li>
+                                                    <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
                                                     </li>
                                                     <li><a href="L_Glossary.htm">Glossary</a>
                                                     </li>
@@ -304,13 +308,13 @@
                                             <li value="2">A Map function is executed to change the data type of the <span class="UIelement">DayOfWeek</span> column to Integer. </li>
                                             <li value="3">A Map function is executed to create a column that keeps values greater than 4 in the <span class="UIelement">DayOfWeek_integer</span> column.</li>
                                             <li value="4">The table is filtered to include only rows with the letter U in the Carrier column.</li>
-                                            <li value="5">A Map function is executed on the DayOfWeek_integer column to produce a table with rows containing integrity constraint violations. For more information about integrity constraint violations, see <a href="../B_CommonTasks/H_UnderstandICV.htm" class="MCXref xref">Creating an integrity constraint violations table</a>.</li>
+                                            <li value="5">A Map function is executed on the DayOfWeek_integer column to produce a table with rows containing integrity constraint violations. For more information about integrity constraint violations, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
                                         </ol>
-                                        <p>In this example, a table is dropped. This table is removed from Xcalar Insight permanently. You cannot add it back to your worksheet or perform operations on it.</p>
+                                        <p>In this example, a table is dropped. This table is removed from <span class="GeneralProductName">Xcalar Design</span> permanently. You cannot add it back to your worksheet or perform operations on it.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/example-query-graph.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1231" data-mc-height="283" src="../Resources/Images/Insight_screenshots/example-query-graph_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Collapsing and expanding table icons in a dataflow graph</h2>
-                                        <p><span class="GeneralProductName">Xcalar Insight</span> automatically collapses multiple table icons in a dataflow graph for better readability. The following screenshot shows the icon that indicates some table icons are collapsed in the dataflow graph.&#160;You can hover over the icon to see the exact number of table icons collapsed. Click the icon to expand the table icons.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> automatically collapses multiple table icons in a dataflow graph for better readability. The following screenshot shows the icon that indicates some table icons are collapsed in the dataflow graph.&#160;You can hover over the icon to see the exact number of table icons collapsed. Click the icon to expand the table icons.</p>
                                         <p>
                                             <img src="../Resources/Images/Insight_screenshots/collapse-tables-in-dataflow.png" />
                                         </p>
@@ -353,7 +357,7 @@
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;After a Join operation, it might not be obvious where a particular column comes from because multiple tables are involved in creating the resultant table. Use <span class="UIelement">Show Schema</span> to quickly determine the origin of the field.</div>
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;If a column in the active table was created by a function such as a Map function, you can use <span class="UIelement">Show Schema</span> to locate the first occurrence of the field and the operation that created the field.</div>
                                             </li>
-                                            <li value="4">Create an ICV table:&#160;You can use the same function to create a version of this table, except that the resultant table is an ICV table. This option is available if the selected table is created by a Map or Group By function.&#160;For more information about ICV tables, see <a href="../B_CommonTasks/H_UnderstandICV.htm" class="MCXref xref">Creating an integrity constraint violations table</a>.</li>
+                                            <li value="4">Create a table with erroneous rows only:&#160;You can use the same function to create a version of this table, except that the resultant table contains only erroneous rows. This option is available if the selected table is created by a Map or Group By function.&#160;For more information about tables with erroneous rows only, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
                                         </ul>
                                         <h2>Saving or displaying a dataflow graph as an image file</h2>
                                         <p>If you want to save a dataflow graph as an image (for example, to include the image in a presentation or to share the image with others), click <img src="../Resources/Images/Insight_assets/xi-save-dataflow-as-image.png" />. The image is saved in the .png format.</p>

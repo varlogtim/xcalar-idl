@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Creating an integrity constraint violations table</title>
+        <meta name="author" content="" /><title>Creating a table with erroneous rows only</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
@@ -88,9 +88,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -116,7 +116,7 @@
                                                 </li>
                                                 <li><a href="G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="#" class="selected">Creating an integrity constraint violations table</a>
+                                                <li><a href="#" class="selected">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -160,11 +160,13 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/K_Monitor.htm">Using the Monitor</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/L_UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -183,6 +185,8 @@
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -278,7 +282,7 @@
                                                     </li>
                                                     <li><a href="G_FilterValue.htm">Filtering in a table column</a>
                                                     </li>
-                                                    <li><a href="#" class="selected">Creating an integrity constraint violations table</a>
+                                                    <li><a href="#" class="selected">Creating a table with erroneous rows only</a>
                                                     </li>
                                                     <li><a href="I_JoinTables.htm">Joining tables</a>
                                                     </li>
@@ -300,54 +304,58 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Creating an integrity constraint violations table</span>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Creating a table with erroneous rows only</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Creating an integrity constraint violations table</h1>
-                                        <p>Tables created in <span class="GeneralCompanyNameShort">Xcalar</span> might contain integrity constraint violations.&#160;In <span class="GeneralProductName">Xcalar Insight</span>, a table containing only rows with integrity constraint violations is called an ICV&#160;table.</p>
-                                        <p>The following list describes the typical scenarios when integrity constraint violations occur:</p>
+                                        <h1>Creating a table with erroneous rows only</h1>
+                                        <p>Erroneous table rows are rows in which a function fails to produce a valid value.  Creating a table with erroneous rows only can help you locate integrity constraint violations in your data source.</p>
+                                        <h2>Examples of  erroneous rows</h2>
+                                        <p>The following list describes the scenarios where <span class="GeneralProductName">Xcalar Design</span> detects invalid values and creates a table with erroneous rows only:</p>
                                         <ul>
-                                            <li value="1">Integrity constraint violations occur when the values are inserted or updated in the data source before <span class="GeneralProductName">Xcalar Insight</span> points to it. The dataset  might include erroneous values in a particular field. For example, in a dataset for flight information, the Airtime field, which should contain numeric values, might contain a string value such as 5O (instead of 50)&#160;due to a data entry error.</li>
+                                            <li value="1">Suppose a syntax error occurs when the values are inserted or updated in the data source before <span class="GeneralProductName">Xcalar Design</span> points to it. You can create a table with erroneous rows only to detect the violations.  For example, if the Age field contains a string such as 5O (instead of 50)&#160;due to a data entry error, when you run a function to cast this field to Integer, the cell with 5O is shown as FNF  (field not found) in the resultant table. If you create an erroneous-rows-only table when running the function, the resultant table provides an explanation for why the cell with 5O cannot be converted to an integer.</li>
                                             <li value="2">
-                                                <p>A <span class="GeneralProductName">Xcalar Insight</span> function  cannot operate on a value in a table cell.&#160;The cell in the resultant ICV table displays a message about the cause of the violation. </p>
-                                                <p>For example, in an integer column, there are rows containing FNF (field not found). If you use the Map function to increment values in the column, the ICV table displays the following message in each row with FNF:</p>
-                                                <p class="CLIoutput">Some variables are undefined during evaluation</p>
-                                                <p>Similarly, if you use the div function and the divisor is 0, the row containing the resultant value is also considered an ICV row. The ICV table displays the following message in each row where the division cannot be performed:</p>
-                                                <p class="CLIoutput">Divide by zero error</p>
+                                                <p>Suppose a column contains FNF in some cells. You can run a function to create a table with erroneous rows only to identify where FNF occurs.</p>
                                             </li>
+                                            <li value="3">If you use the div function and the divisor is 0, the resultant rows are considered erroneous rows. </li>
                                         </ul>
-                                        <h2>Creating an ICV table</h2>
-                                        <p>Rows containing integrity constraint violations might be of interest because you can gain insights from erroneous data (for example, by finding unexpected values in an analysis of data for fraud detection) or because you want to filter out data that exist due to errors. </p>
-                                        <h3>Functions for creating an ICV&#160;table</h3>
-                                        <p>The Map and Group By functions enable you to create an ICV&#160;table. This means that when you use the Map or Group By function to create a table, you can specify that the table includes only rows with integrity constraint violations.</p>
-                                        <p>This section assumes that you understand how to use the Map and Group By functions in <span class="GeneralProductName">Xcalar Insight</span>. If not, familiarize yourself with these functions by reading the following topics:</p>
+                                        <p>In each erroneous row, a message is provided to explain the error. The message helps you determine the type of integrity constraint violation in the source data. The following list shows some examples of the messages:</p>
+                                        <ul>
+                                            <li value="1">Cast operation failed</li>
+                                            <li value="2">Some variables are undefined during evaluation</li>
+                                            <li value="3">Divide by zero error</li>
+                                        </ul>
+                                        <h2>Creating a table with erroneous rows only</h2>
+                                        <p>Erroneous rows might be of interest because you can gain insights from erroneous data (for example, by finding unexpected values in an analysis of data for fraud detection) or because you want to cleanse data before performing further data transformation. </p>
+                                        <h3>Functions for creating a table with erroneous rows only</h3>
+                                        <p>The Map and Group By functions enable you to create a table with erroneous rows only. This means that when you use the Map or Group By function to create a table, you can specify that the table includes only rows in which the function cannot produce a valid value.</p>
+                                        <p>This section assumes that you understand how to use the Map and Group By functions in <span class="GeneralProductName">Xcalar Design</span>. If not, familiarize yourself with these functions by reading the following topics:</p>
                                         <ul>
                                             <li value="1"><a href="K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>
                                             </li>
                                             <li value="2"><a href="J_GroupBy.htm" class="MCXref xref">Grouping data in a table</a> <![CDATA[ ]]></li>
                                         </ul>
-                                        <h3>Example of a Map function for creating an ICV&#160;table</h3>
-                                        <p>In the table created from a dataset with flight information, the column named ArrDelay contains the number of minutes for each flight's arrival delay. Suppose the initial data type for this column is String, you can use the <span class="UIelement">type-casting</span> function in the <span class="UIelement">MAP</span> panel to change its type to Integer. If you select the <span class="UIelement">View only erroneous rows</span> in the <span class="UIelement">MAP</span> panel, the new table contains only the rows with integrity constraint violations in the resultant column.</p>
+                                        <h3>Example of a Map function for creating a table with erroneous values</h3>
+                                        <p>In the table created from a dataset with flight information, the column named ArrDelay contains the number of minutes for each flight's arrival delay. Suppose the initial data type for this column is String, you can use the <span class="UIelement">type-casting</span> function in the <span class="UIelement">MAP</span> panel to change its type to Integer. If you select the <span class="UIelement">Include only erroneous rows</span> in the <span class="UIelement">MAP</span> panel, the new table contains only the rows with integrity constraint violations in the resultant column.</p>
                                         <p>The following screenshot illustrates the <span class="UIelement">MAP</span> panel for changing the data type of a column.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/example-map-to-create-ICV.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1114" data-mc-height="600" src="../Resources/Images/Insight_screenshots/example-map-to-create-ICV_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <p>The following screenshot illustrates the resultant table containing only rows with integrity constraint violations in the ArrDelay column.</p>
+                                        <p>The following screenshot illustrates the resultant table containing only erroneous rows in the ArrDelay column.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/example-ICV-column.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1108" data-mc-height="613" src="../Resources/Images/Insight_screenshots/example-ICV-column_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <h3>Re-running a function in a dataflow to create an ICV table</h3>
+                                        <h3>Re-running a function in a dataflow to create a table with erroneous rows only</h3>
                                         <p>This section assumes that you are familiar with the dataflow graph in a worksheet. For information about dataflows, see <a href="../D_Reference/E_DataflowGraph.htm" class="MCXref xref">Dataflow graph</a>.</p>
-                                        <p>In a dataflow graph, you can create an&#160;ICV&#160;table through a Map or Group by function previously executed. For example, in the following dataflow graph, you can click the icon for the airlines3 table to display a pop-up menu. In the menu, you can select <span class="UIelement">Integrity Constraints Table</span> to create a table with the same Map function shown in the dataflow. This method generates a table in the same way as selecting <span class="UIelement">Include only ICV rows</span> in the <span class="UIelement">MAP</span> panel.</p>
+                                        <p>In a dataflow graph, you can create a&#160;table with erroneous rows only through a Map or Group by function previously executed. For example, in the following dataflow graph, you can click the icon for the airlines3 table to display a pop-up menu. In the menu, you can select <span class="UIelement">Erroneous Rows Table</span> to create a table with the same Map function shown in the dataflow. This method generates a table in the same way as selecting <span class="UIelement">Include only erroneous rows</span> in the <span class="UIelement">MAP</span> panel.</p>
                                         <p>
                                             <img src="../Resources/Images/Insight_screenshots/example-create-ICV-from-dfg.png" />
                                         </p>
-                                        <p>The following list describes the results of creating an ICV&#160;table from the dataflow graph:</p>
+                                        <p>The following list describes the results of creating a table with erroneous rows from the dataflow graph:</p>
                                         <ul>
-                                            <li value="1">A new table is created by the Map or Group By function. In this example, the new table contains only rows with integrity constraint violations in the Distance_integer column. </li>
-                                            <li value="2">The new table is an active table with its own dataflow graph. The table icon in the graph is red to indicate that the table is an ICV table.</li>
+                                            <li value="1">A new table is created by the Map or Group By function. In this example, the new table contains only rows with errors in the Distance_integer column. </li>
+                                            <li value="2">The new table is an active table with its own dataflow graph. The table icon in the graph is red to indicate that the table contains erroneous rows only.</li>
                                             <li value="3">The dataflow graph from which the new table is created stays in the worksheet and remains unchanged.</li>
                                         </ul>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;From the dataflow graph, you can create an ICV&#160;table from any table produced by a Map or Group By function. It can be a temporary or active table.</div>
-                                        <p>The following screenshot shows the dataflow graph after the ICV table is created.</p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;From the dataflow graph, you can create a table with erroneous rows only from any table produced by a Map or Group By function. It can be a temporary or active table.</div>
+                                        <p>The following screenshot shows the dataflow graph after the table with erroneous rows only is created.</p>
                                         <p>
                                             <img src="../Resources/Images/Insight_screenshots/example-red-ICV-in-dfg.png" />
                                         </p>

@@ -88,9 +88,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -116,7 +116,7 @@
                                                 </li>
                                                 <li><a href="G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -166,7 +166,7 @@
                                         </li>
                                         <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -185,6 +185,8 @@
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -280,7 +282,7 @@
                                                     </li>
                                                     <li><a href="G_FilterValue.htm">Filtering in a table column</a>
                                                     </li>
-                                                    <li><a href="H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                    <li><a href="H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                     </li>
                                                     <li><a href="I_JoinTables.htm">Joining tables</a>
                                                     </li>
@@ -313,7 +315,7 @@
                                         <ol>
                                             <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-worksheet.png" /> (Worksheet icon).</li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/Insight_assets/xi-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel. names of all tables on the worksheet. The tables are organized by their status.</p>
+                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/Insight_assets/xi-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel to display the names of all tables on the worksheet. The tables are organized by their status.</p>
                                             </li>
                                         </ol>
                                         <h2>Active table</h2>
@@ -322,10 +324,10 @@
                                         <h2>Hidden table</h2>
                                         <p>A hidden table is a table that you set aside to reduce clutter in your worksheet.&#160;The hidden table can be added back to the worksheet in the future. When you hide a table, both the table and the dataflow graph associated with the table disappear from the worksheet.</p>
                                         <h2>Temporary table</h2>
-                                        <p><span class="GeneralProductName">Xcalar Insight</span> creates temporary tables in several ways.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> creates temporary tables in several ways.</p>
                                         <p>A temporary table is a table that is no longer active after you perform an operation or undo  an operation. </p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you create from your dataset a table named <span class="UIelement">airlines#pe8</span>. It is the active table displayed in the worksheet, in which you  can perform various operations. If you change the data type of a column in it, a new active table  named <span class="UIelement">airlines#pe9</span> is created. The table named <span class="UIelement">airlines#pe8</span> is now categorized as a temporary table.</div>
-                                        <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert To This Table</span> option in a dataflow graph. <span class="GeneralProductName">Xcalar Insight</span> does not drop the table resulting from the operation; instead, it categorizes the table as a temporary table.</p>
+                                        <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert To This Table</span> option in a dataflow graph. <span class="GeneralProductName">Xcalar Design</span> does not drop the table resulting from the operation; instead, it categorizes the table as a temporary table.</p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you change a data type for a column in <span class="UIelement">airlines#pe8</span> and the resultant table is named <span class="UIelement">airlines#pe9</span>. If you undo the data type change, airlines#pe8 becomes the active table again, but <span class="UIelement">airlines#pe9</span> is not dropped. Instead, <span class="UIelement">airlines#pe9</span> is kept as a temporary table.</div>
                                         <p>A temporary table can be added back to the worksheet to become an active table again.</p>
                                         <div class="Note"><span class="label">NOTE</span>: Remember to click <img src="../Resources/Images/Insight_assets/xi-refresh-temp-tables.png" /> in the <span class="UIelement">Tables</span> panel to refresh the temporary tables list after you run an operation or undo an operation. It ensures that the  most up-to-date list is displayed. </div>

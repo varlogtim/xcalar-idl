@@ -88,9 +88,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -116,7 +116,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -164,7 +164,7 @@
                                         </li>
                                         <li class="has-children"><a href="Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -183,6 +183,8 @@
                                                 <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -262,7 +264,7 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="Reference.htm">Reference</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                    <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                     </li>
                                                     <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                     </li>
@@ -281,6 +283,8 @@
                                                     <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
                                                     </li>
                                                     <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                    </li>
+                                                    <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
                                                     </li>
                                                     <li><a href="L_Glossary.htm">Glossary</a>
                                                     </li>
@@ -309,8 +313,55 @@
                                         <h2>Move</h2>
                                         <p>If you have multiple tables in the worksheet, you can move the table to the left or to the right.</p>
                                         <p>If you have multiple worksheets in the workbook, you can move the table to a different worksheet.</p>
-                                        <h2>Sort columns</h2>
-                                        <p>You can arrange the table columns by sorting the column headers in ASCII order. </p>
+                                        <h2>Sort columns </h2>
+                                        <p>You can arrange table columns by name, type, and prefix. The following list describes how <span class="GeneralProductName">Xcalar Design</span> compares strings when sorting by name or prefix:</p>
+                                        <ul>
+                                            <li value="1">
+                                                <p>If strings end with a non-numeric value, they are sorted in ASCII&#160;order. For example, the following strings are sorted in ascending order:&#160;</p>
+                                                <ul>
+                                                    <li value="1">1DayOfWeek</li>
+                                                    <li value="2">Carrier</li>
+                                                    <li value="3">Dep1Time</li>
+                                                    <li value="4">Dep2Time</li>
+                                                </ul>
+                                            </li>
+                                            <li value="2">
+                                                <p>If strings  end with a numeric value, they are sorted in ASCII&#160;order for the alphabetical portion and then numerically for the ending numeric portion. For example, the following strings are sorted in ascending order:</p>
+                                                <ul>
+                                                    <li value="1">3column</li>
+                                                    <li value="2">column1</li>
+                                                    <li value="3">column2</li>
+                                                    <li value="4">column10</li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                        <h3>Sort column by name</h3>
+                                        <p>You can arrange table columns by sorting the column names. Prefixes are not considered in the sorting. The following list illustrates how columns are sorted by name in ascending order:</p>
+                                        <ul>
+                                            <li value="1">AirTime_integer</li>
+                                            <li value="2">airlines::Carrier</li>
+                                            <li value="3">DayOfWeek_integer</li>
+                                        </ul>
+                                        <h3>Sort columns by type</h3>
+                                        <p>You can arrange table columns by sorting the columns' data types. For each data type, the columns are sorted by name. If you sort in ascending order, derived fields are placed before prefixed fields. </p>
+                                        <p>The following list shows how data types are ordered in ascending order:</p>
+                                        <ul>
+                                            <li value="1">Boolean</li>
+                                            <li value="2">Float</li>
+                                            <li value="3">Integer</li>
+                                            <li value="4">String</li>
+                                        </ul>
+                                        <h3>Sort columns by prefix</h3>
+                                        <p>You can arrange table columns by sorting the prefixes. For each prefix, the columns are sorted by name. If you sort in ascending order, derived fields are placed before prefixed fields.</p>
+                                        <p>The following list shows how prefixed fields and derived fields in a table are ordered if you sort  in ascending order:</p>
+                                        <ul>
+                                            <li value="1">ArrTime_integer</li>
+                                            <li value="2">DayOfWeek_integer</li>
+                                            <li value="3">airlines::Carrier</li>
+                                            <li value="4">airlines::DepTime</li>
+                                            <li value="5">myairlines::AirTime</li>
+                                            <li value="6">myairlines::TaxiOut</li>
+                                        </ul>
                                         <h2>Resize all columns</h2>
                                         <p>You can resize all columns at once.&#160;For more information about resizing a column, see <a href="G_ColumnOptions.htm#Resizing" class="MCXref xref">Resize</a>.</p>
                                         <h2>Correlation</h2>

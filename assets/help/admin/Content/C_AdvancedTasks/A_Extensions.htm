@@ -89,9 +89,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -117,7 +117,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -167,7 +167,7 @@
                                         </li>
                                         <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -186,6 +186,8 @@
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -297,7 +299,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Using extensions</h1>
-                                        <p><span class="GeneralProductName">Xcalar Insight</span> provides a set of extensions that enhance its features. This section describes how to invoke extensions in general and how each default extension works.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> provides a set of extensions that enhance its features. This section describes how to invoke extensions in general and how each default extension works.</p>
                                         <h2>Invoking an extension</h2>
                                         <p>You can invoke an extension from the column drop-down menu or from the <span class="UIelement">My Extensions</span> panel.</p>
                                         <p>Follow these steps to invoke an extension from the column drop-down menu:</p>
@@ -311,7 +313,7 @@
                                             <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-extensions.png" /> to display the <span class="UIelement">My Extensions</span> panel.</li>
                                             <li value="2">Click the extension name.</li>
                                         </ol>
-                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Insight</span> panel.</a></span>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
                                                     <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
@@ -330,13 +332,13 @@
                                         <h3>Understanding partitions</h3>
                                         <p>A partition is a table containing a subset of records that exist in the active table. The column from which you start the extension is the partition column.</p>
                                         <p>A partition contains the rows with the same value in the partition column. You cannot specify the number of rows in a partition.&#160;Also, the partition value is determined by the exact value in a column. You cannot specify the condition for the rows in a partition. For example, you cannot specify that the values greater than 100 in the partition column be in one partition and the values less than 100 in the partition column be in another partition.</p>
-                                        <div class="Example"><span class="label">Example:</span>&#160;Your active table has a column named <span class="UIelement">Salary</span>, and the values in this column are 100, 200, 300, and 400. Suppose you start the <span class="UIelement">Horizontal Partition</span> extension from this column, <span class="GeneralProductName">Xcalar Insight</span> creates 4 partitions:&#160;a partition containing all the rows with 100 as the Salary value, a partition containing all the rows with 200 as the Salary value , and so on.</div>
+                                        <div class="Example"><span class="label">Example:</span>&#160;Your active table has a column named <span class="UIelement">Salary</span>, and the values in this column are 100, 200, 300, and 400. Suppose you start the <span class="UIelement">Horizontal Partition</span> extension from this column, <span class="GeneralProductName">Xcalar Design</span> creates 4 partitions:&#160;a partition containing all the rows with 100 as the Salary value, a partition containing all the rows with 200 as the Salary value , and so on.</div>
                                         <h3>Understanding the number of horizontal partitions</h3>
                                         <p>The number of partitions is the number of tables created by the extension. You can create 1 to 10 partitions.</p>
-                                        <p><span class="GeneralProductName">Xcalar Insight</span> chooses the values with the highest frequencies when creating the partitions. </p>
-                                        <div class="Example"><span class="label">Example:</span>&#160;Suppose four values exist in the partition column, which are 100, 200, 300, and 400, and you want to create two partitions, <span class="GeneralProductName">Xcalar Insight</span> will create partitions for the values with the two highest frequencies. If the values 200 and 300 occur most frequently in the column, one partition is created for the rows with 200 and another  is created for the rows with 300. No partitions are created for rows with 100 or 400.</div>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> chooses the values with the highest frequencies when creating the partitions. </p>
+                                        <div class="Example"><span class="label">Example:</span>&#160;Suppose four values exist in the partition column, which are 100, 200, 300, and 400, and you want to create two partitions, <span class="GeneralProductName">Xcalar Design</span> will create partitions for the values with the two highest frequencies. If the values 200 and 300 occur most frequently in the column, one partition is created for the rows with 200 and another  is created for the rows with 300. No partitions are created for rows with 100 or 400.</div>
                                         <p class="Note">If multiple values have the same frequencies in the partition column, the result might be nondeterministic. That is, partitions are created for some, but not all, values of the same frequency when the limit of the number of partitions is reached.</p>
-                                        <p>If the specified number of partitions is greater than the number of different values in the partition column, <span class="GeneralProductName">Xcalar Insight</span> will create only the necessary number of partitions. For example, if only four values exist in the partition column and you specify 10 partitions, only four partitions will be created.</p>
+                                        <p>If the specified number of partitions is greater than the number of different values in the partition column, <span class="GeneralProductName">Xcalar Design</span> will create only the necessary number of partitions. For example, if only four values exist in the partition column and you specify 10 partitions, only four partitions will be created.</p>
                                         <h3>Invoking the <span class="UIelement">Horizontal Partition</span> extension</h3>
                                         <p>Follow these steps to invoke the Horizontal Partition extension:</p>
                                         <ol>
@@ -503,7 +505,7 @@
                                             <li value="4">In the <span class="UIelement">Left Column</span> field, select the left table's column to join on.</li>
                                             <li value="5">In the <span class="UIelement">Right Table</span> field, select the right table.</li>
                                             <li value="6">In the Right Column field, select the right table's column to join on.</li>
-                                            <li value="7">Fill out the <span class="UIelement">Limit on left table</span> and <span class="UIelement">Limit on right table</span> fields, which limit the number of rows <span class="GeneralProductName">Xcalar Insight</span> uses for the estimate. A higher limit gives you a more accurate estimate but takes longer. Limiting the number of rows to about 1,000 rows provides a reasonable estimate without adversely affecting the computer that runs your browser. </li>
+                                            <li value="7">Fill out the <span class="UIelement">Limit on left table</span> and <span class="UIelement">Limit on right table</span> fields, which limit the number of rows <span class="GeneralProductName">Xcalar Design</span> uses for the estimate. A higher limit gives you a more accurate estimate but takes longer. Limiting the number of rows to about 1,000 rows provides a reasonable estimate without adversely affecting the computer that runs your browser. </li>
                                             <li value="8">Click <span class="UIelement">APPLY</span>. A pop-up window shows the estimated number of rows after the Join operation. </li>
                                         </ol>
                                         <h2>Generate Row Num</h2>

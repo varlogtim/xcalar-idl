@@ -88,9 +88,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -116,7 +116,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -164,7 +164,7 @@
                                         </li>
                                         <li class="has-children"><a href="Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -183,6 +183,8 @@
                                                 <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -262,7 +264,7 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="Reference.htm">Reference</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                    <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                     </li>
                                                     <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                     </li>
@@ -282,6 +284,8 @@
                                                     </li>
                                                     <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                     </li>
+                                                    <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
+                                                    </li>
                                                     <li><a href="L_Glossary.htm">Glossary</a>
                                                     </li>
                                                 </ul>
@@ -292,9 +296,9 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Column options</h1>
-                                        <p>This section describes the column options that enable you to manipulate table columns without performing a database operation. The options are available in the column drop-down menu that you display by right clicking the column header.</p>
+                                        <p>This section describes the column options that enable you to manipulate table columns without performing a database operation. The options are available in the column drop-down menu that you display by right clicking the column header or clicking the triangle in the lower-right corner of the column header.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;If you have an operation panel opened (for example, the <span class="UIelement">MAP</span> panel), you must exit that panel before you can display the column drop-down menu. To close the panel, right click the column header to display a pop-up and click in the command in the pop-up to exit the panel. Alternatively, you can click <img src="../Resources/Images/Insight_assets/xi-close-panel.png" /> in the panel to close it.</div>
-                                        <p>The column drop-down menu contains more options that the ones described here. The other options are described in the following topics:</p>
+                                        <p>Unless the data type of the column is Mixed, the column drop-down menu contains more options than the ones described in this section. The other options are described in the following topics:</p>
                                         <ul>
                                             <li value="1"><a href="../B_CommonTasks/M_QuickAggregates.htm" class="MCXref xref">Determining aggregate values</a>
                                             </li>
@@ -311,6 +315,7 @@
                                             <li value="7"><a href="../C_AdvancedTasks/A_Extensions.htm" class="MCXref xref">Using extensions</a>
                                             </li>
                                         </ul>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;If the data type of a column is Mixed, you can start a Map function or  an extension from the drop-down menu. Other functions described in the list above are not available.</div>
                                         <h2>Add a column</h2>
                                         <p>You can add a blank column and populate it with values from a function that you enter in the function bar. Follow these steps to add a blank column:</p>
                                         <ol>

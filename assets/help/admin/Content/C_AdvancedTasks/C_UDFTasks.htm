@@ -89,9 +89,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -117,7 +117,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -167,7 +167,7 @@
                                         </li>
                                         <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -186,6 +186,8 @@
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -298,11 +300,11 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Using user-defined functions (UDFs)</h1>
                                         <p>This section describes the UDF-related tasks.</p>
-                                        <h2>Creating a UDF in <span class="GeneralProductName">Xcalar Insight</span></h2>
-                                        <p>UDFs are global. UDFs created by one  <span class="GeneralProductName">Xcalar Insight</span> user can be used and edited by all other users. </p>
+                                        <h2>Creating a UDF in <span class="GeneralProductName">Xcalar Design</span></h2>
+                                        <p>UDFs are global. UDFs created by one  <span class="GeneralProductName">Xcalar Design</span> user can be used and edited by all other users. </p>
                                         <p>You define one or multiple UDFs in a Python module. You can create a module in these ways:</p>
                                         <ul>
-                                            <li value="1">Type the code directly in <span class="GeneralProductName">Xcalar Insight</span>.</li>
+                                            <li value="1">Type the code directly in <span class="GeneralProductName">Xcalar Design</span>.</li>
                                             <li value="2">Upload from your computer. </li>
                                         </ul>
                                         <p>Both methods require that you display the <span class="UIelement">User Defined Function</span> panel.</p>
@@ -323,7 +325,7 @@
                                             <li value="3">Type the code in the panel.</li>
                                             <li value="4">
                                                 <p>In the <span class="UIelement">Module name</span> field, type the module name. </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;Module names are case insensitive. If you type letters in uppercase, <span class="GeneralProductName">Xcalar Insight</span> displays them in lowercase when listing the modules. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref">UDF naming conventions</a> for information about name requirements.</div>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;Module names are case insensitive. If you type letters in uppercase, <span class="GeneralProductName">Xcalar Design</span> displays them in lowercase when listing the modules. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref">UDF naming conventions</a> for information about name requirements.</div>
                                             </li>
                                             <li value="5"> Click <span class="UIelement">ADD&#160;UDF</span>. If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">CONFIRM</span>. Otherwise, click <span class="UIelement">CANCEL</span> and then rename the module.</li>
                                         </ol>
@@ -346,7 +348,7 @@
                                             <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
                                             <li value="2">Edit the module in one of two ways:<ul><li value="1">Click <img src="../Resources/Images/Insight_assets/xi-edit-UDF-icon.png" /> to edit the desired module. Then edit the code in the <span class="UIelement">User Defined Function</span> panel. Add the edited module to <span class="GeneralProductName2short">XCE</span> without changing its name.</li><li value="2">Click <img src="../Resources/Images/Insight_assets/xi-download-udf-icon.png" /> to download the desired module to your computer. Then modify the module by using an editor on your computer. Upload the file after you finish editing it.</li></ul></li>
                                         </ol>
-                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Because UDFs are global and accessible to all <span class="GeneralProductName">Xcalar Insight</span> users, remember to notify other users of the changes so that they are aware of the revision.</div>
+                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Because UDFs are global and accessible to all <span class="GeneralProductName">Xcalar Design</span> users, remember to notify other users of the changes so that they are aware of the revision.</div>
                                         <h2>Deleting a module</h2>
                                         <p>Follow these steps to download a module from XCE to your computer:</p>
                                         <ol>
@@ -354,7 +356,7 @@
                                             <li value="2">Click <img src="../Resources/Images/Insight_assets/xi-trashcan.png" /> to delete the module.</li>
                                         </ol>
                                         <h2>Example of a UDF for a database operation</h2>
-                                        <p>Suppose you have the following table in <span class="GeneralProductName">Xcalar Insight</span> showing some events and their dates, and you want to add a column that shows the day of week for each event. You can write a UDF to create the Weekday column.</p>
+                                        <p>Suppose you have the following table in <span class="GeneralProductName">Xcalar Design</span> showing some events and their dates, and you want to add a column that shows the day of week for each event. You can write a UDF to create the Weekday column.</p>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -387,9 +389,9 @@
                                         <p class="userInput">&#160;&#160;&#160;&#160;&#160;weekday = time.strftime(“%A”, parsedTime)</p>
                                         <p class="userInput">&#160;&#160;&#160;&#160;&#160;return weekday</p>
                                         <p>The <span class="UIelement">getWeekday</span> function takes a column and a date-time format string as input. The Python built-in <span class="UIelement">time</span> module, which is imported into <span class="UIelement">calendar</span>, parses the input. The output from <span class="UIelement">calendar</span> is a new table with the Weekday column showing the day of week for each event.</p>
-                                        <p>After you upload the <span class="UIelement">calendar</span> module, it is available for all <span class="GeneralProductName">Xcalar Insight</span> users to use.</p>
+                                        <p>After you upload the <span class="UIelement">calendar</span> module, it is available for all <span class="GeneralProductName">Xcalar Design</span> users to use.</p>
                                         <h3>Executing the UDF</h3>
-                                        <p>In <span class="GeneralProductName">Xcalar Insight</span>, start a Map operation from the <span class="UIelement">Date</span> column. Select <span class="UIelement">user-defined</span> as the category and then select <span class="UIelement">calendar:getWeekday</span> as the function. Specify the <span class="UIelement">Date</span> column ($Date)&#160;as the first argument and <span class="UIelement">%Y-%m-%d</span> as the second argument.</p>
+                                        <p>In <span class="GeneralProductName">Xcalar Design</span>, start a Map operation from the <span class="UIelement">Date</span> column. Select <span class="UIelement">user-defined</span> as the category and then select <span class="UIelement">calendar:getWeekday</span> as the function. Specify the <span class="UIelement">Date</span> column ($Date)&#160;as the first argument and <span class="UIelement">%Y-%m-%d</span> as the second argument.</p>
                                         <p>The process for executing a UDF is the same as those for executing other database functions. For more information about the Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
                                         <h3>Result of executing the UDF</h3>
                                         <p>The following table is created with an additional column showing the day of week for each date:</p>
@@ -423,7 +425,7 @@
                                             </tbody>
                                         </table>
                                         <h2>Example of using a streaming UDF when pointing to a data source</h2>
-                                        <p>If you want to point to a data source containing data not natively supported by XCE, you can execute a streaming UDF that converts the data format immediately before <span class="GeneralProductName">Xcalar Insight</span> points to the data. In the following example, the data source contains files in XML, which you can convert into JSON&#160;with a streaming UDF.</p>
+                                        <p>If you want to point to a data source containing data not natively supported by XCE, you can execute a streaming UDF that converts the data format immediately before <span class="GeneralProductName">Xcalar Design</span> points to the data. In the following example, the data source contains files in XML, which you can convert into JSON&#160;with a streaming UDF.</p>
                                         <h3>Coding the streaming UDF</h3>
                                         <p>Write the following code in a module named <span class="UIelement">convertxmltojson</span>:</p>
                                         <p class="userInput">import xmltodict</p>

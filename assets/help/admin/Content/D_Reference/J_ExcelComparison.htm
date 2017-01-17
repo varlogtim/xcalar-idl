@@ -89,9 +89,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -117,7 +117,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -167,7 +167,7 @@
                                         </li>
                                         <li class="has-children"><a href="Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -186,6 +186,8 @@
                                                 <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="#" class="selected">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -265,7 +267,7 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="Reference.htm">Reference</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="A_InsightWindow.htm">Xcalar Insight window</a>
+                                                    <li><a href="A_InsightWindow.htm">Xcalar Design window</a>
                                                     </li>
                                                     <li><a href="B_WkbkBrowser.htm">Workbook Browser</a>
                                                     </li>
@@ -285,6 +287,8 @@
                                                     </li>
                                                     <li><a href="#" class="selected">Excel-equivalent functions</a>
                                                     </li>
+                                                    <li><a href="K_SASComparison.htm">SAS-equivalent functions</a>
+                                                    </li>
                                                     <li><a href="L_Glossary.htm">Glossary</a>
                                                     </li>
                                                 </ul>
@@ -295,7 +299,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Excel-equivalent functions</h1>
-                                        <p>Many <span class="GeneralCompanyNameShort">Xcalar</span> Map functions accomplish the same tasks as Excel functions. This section lists the <span class="GeneralCompanyNameShort">Xcalar</span> functions that are equivalent to the Excel functions. If a <span class="GeneralCompanyNameShort">Xcalar</span> equivalent is not available, this section suggests an alternate method.</p>
+                                        <p>This section lists the <span class="GeneralCompanyNameShort">Xcalar</span> functions that accomplish the same tasks as the Excel functions. If an equivalent <span class="GeneralCompanyNameShort">Xcalar</span> function is not available, this section suggests an alternate method. Also, if the <span class="GeneralCompanyNameShort">Xcalar</span> function works differently than the corresponding Excel function, a brief description of the <span class="GeneralCompanyNameShort">Xcalar</span> function is provided.</p>
                                         <h2>Excel function category:&#160;Operators</h2>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');width: 100%;margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -303,15 +307,13 @@
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <thead>
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Alternate method</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Syntax</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -320,104 +322,91 @@
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Plus (Addition)</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">add</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Add its operands</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">=map(add(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">map(add(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">-</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Minus (Subtraction)</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sub</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Subtract its operands</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">=map(sub(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">map(sub(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">*</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Multiply</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">mult</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Multiply its operands</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">=map(mult(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">map(mult(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">/</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Divide</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">div</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Divide its operands</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">=map(div(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">map(div(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">%</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Percent</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&#160;</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Calculated with the mult and div functions</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">^</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Exponentiation</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">pow</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">=map(pow(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">map(pow(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">=</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Equal</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">eq</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Equal</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">map(pow(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">=&gt;</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Greater than or equal to</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ge</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Greater than or equal to</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">map(ge(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&gt;</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Greater than</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">gt</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Greater than</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">map(gt(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">&lt;=</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Less than or equal to</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">le</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Less than or equal to</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">map(le(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&lt;</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Less than</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">lt</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Less than</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">map(lt(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">&lt;&gt;</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Not equal to</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">neq</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Not equal to</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">map(neq(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">&amp;</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Concatenates two values and produces one</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">concat</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Concatenate its operands</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">=map(concat(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">map(concat(operand1,operand2))</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -428,15 +417,13 @@
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <thead>
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel Function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel Description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Alternate method</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Syntax</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -445,16 +432,17 @@
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Rounds a number down, toward zero</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">floor</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Returns the largest integer less than or equal to the input. Equivalent to the Excel function when the multiple is 1.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">=map(floor(operand))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
+                                                        <p>map(floor(operand))</p>
+                                                        <p>Returns the largest integer less than or equal to the input. Equivalent to the Excel function when the multiple is 1.</p>
+                                                    </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">STDEV</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Estimates standard deviation based on a sample</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">&#160;</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Profile</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">Estimates standard deviation based on a sample.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column1-Body2">&#160;</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -464,14 +452,12 @@
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <thead>
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Xcalar description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Syntax</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -479,8 +465,10 @@
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">NOW</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns the serial number of the current date and time</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">default:now</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns the  current time of the XDP cluster.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                        <p>map(default:now())</p>
+                                                        <p>Returns the  current time of the XDP cluster.</p>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -494,8 +482,8 @@
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Syntax</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -503,25 +491,25 @@
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">AND</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns TRUE if all of its arguments are TRUE</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">and</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">=map(And(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(and(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">IF</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Specifies a logical test to perform</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">if</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">=map(if(condition, return value, return value if false))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(if(condition, return value, return value if false))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">NOT</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Reverses the logic of its argument</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">not</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(not(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">OR</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns TRUE if any argument is TRUE</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">or</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">=map(Or(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">map(or(operand1,operand2))</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -530,24 +518,20 @@
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <thead>
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Xcalar description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">&#160;</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Alternate method</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">VLOOKUP</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Looks in the first column of an array and moves across the row to return the value of a cell</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Join</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Join two tables using matching column(s)</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                        <p>Join operation to join two tables using matching column(s)</p>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -556,15 +540,13 @@
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" style="width: 324px;" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
                                             <thead>
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Xcalar description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Syntax</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar Map function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -572,176 +554,151 @@
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ABS</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the absolute value of a number</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">abs</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the absolute value</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">=map(abs(operand))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(abs(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">CEILING</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Rounds a number to the nearest integer or to the nearest multiple of significance</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ceil</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">=map(ceil(operand))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(ceil(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">POWER</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the result of a number raised to a power</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">pow</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">=map(pow(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(pow(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">PRODUCT</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Multiplies its arguments</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">mult</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Multiplies its operands</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">=map(mult(operand1,operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(mult(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">RAND</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns a random number between 0 and 1</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">genRandom</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">=map(genRandom(0,1))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(genRandom(0,1))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">RANDBETWEEN</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns a random number between the numbers you specify</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">genRandom</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">=map(genRandom(operand1,operand2})</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(genRandom(operand1,operand2})</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ROUND</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Rounds a number to a specified number of digits</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">round</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns to the nearest integer</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                        <p>map(round(operand))</p>
+                                                        <p>Returns the nearest integer</p>
+                                                    </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">SQRT</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns a positive square root</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sqrt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns a positive square root</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(sqrt(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">SUM</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Adds its arguments</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">add</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Add its operands</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(add(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">SUMIF</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Adds the cells specified by a given criteria</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Derived</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Log</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the logarithm of a number to a specified base</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">log or log2</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                        <p>map(log(operand))</p>
+                                                        <p>map(log2(operand))</p>
+                                                    </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Log</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the logarithm of a number to a specified base</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">log or log2</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Log10</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the base-10 logarithm of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">log10</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(log10(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Log10</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the base-10 logarithm of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">log10</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Mod</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the remainder from division</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">mod</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(mod(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Mod</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the remainder from division</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">mod</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">=map(mod(operand1, operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ACOS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arccosine of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">acos</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(acos(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ACOS</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arccosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">acos</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arccosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ACOSH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the inverse hyperbolic cosine of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">acosh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(acosh(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ACOSH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the inverse hyperbolic cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">acosh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the inverse hyperbolic cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ASIN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arcsine of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">asin</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(asin(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ASIN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arcsine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">asin</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arcsine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ASINH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the inverse hyperbolic sine of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">asinh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(asinh(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ASINH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the inverse hyperbolic sine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">asinh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the inverse hyperbolic sine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ATAN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arctangent of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">atan</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(atan(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ATAN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arctangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">atan</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arctangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ATANH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the inverse hyperbolic tangent of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">atanh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(atanh(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ATANH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the inverse hyperbolic tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">atanh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the inverse hyperbolic tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the cosine of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">cos</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(cos(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COS</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">cos</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COSH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the hyperbolic cosine of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">cosh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(cosh(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COSH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">cosh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">SIN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the sine of the given angle</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">sin</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(sin(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">SIN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the sine of the given angle</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sin</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the sine of the given angle</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">SINH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the hyperbolic sine of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sinh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(sinh(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">SINH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic sine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">sinh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic sine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">TAN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the tangent of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">tan</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(tan(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">TAN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">tan</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">&#160;</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">TANH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns the hyperbolic tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">tanh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns the hyperbolic tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">TANH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns the hyperbolic tangent of a number</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">tanh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">map(tanh(operand))</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -755,7 +712,7 @@
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Aggregate function</th>
                                                     <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Alternate method</th>
                                                 </tr>
                                             </thead>
@@ -768,65 +725,43 @@
                                                         <p>One of the following methods:</p>
                                                         <ul>
                                                             <li value="1">Profile</li>
-                                                            <li value="2">Using Group by</li>
-                                                            <li value="3">Aggregate</li>
+                                                            <li value="2">Group by with the avg function</li>
                                                         </ul>
                                                     </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">AVERAGEIF</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the average (arithmetic mean) of all the cells in a range that meet a given criteria</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Derived</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COUNT</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Counts how many numbers are in the list of arguments</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">count</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                        <p>One of the following methods:</p>
-                                                        <ul>
-                                                            <li value="1">Profile</li>
-                                                            <li value="2">Using Group by</li>
-                                                            <li value="3">Aggregate</li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COUNTA</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Counts how many values are in the list of arguments</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Aggregate Count</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">&#160;</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COUNTIF</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Counts the number of cells within a range that meet the given criteria</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Derived</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">MAX</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the maximum value in a list of arguments</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">max, maxInteger</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COUNT</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Counts how many numbers are in the list of arguments</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">count</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
                                                         <p>One of the following methods:</p>
                                                         <ul>
                                                             <li value="1">Profile</li>
-                                                            <li value="2">Using Group by</li>
-                                                            <li value="3">Aggregate</li>
+                                                            <li value="2">Group by with the count function</li>
                                                         </ul>
                                                     </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">MIN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns the minimum value in a list of arguments</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">min, minInteger</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">MAX</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the maximum value in a list of arguments</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">max, maxInteger</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
                                                         <p>One of the following methods:</p>
                                                         <ul>
                                                             <li value="1">Profile</li>
-                                                            <li value="2">Using Group by</li>
-                                                            <li value="3">Aggregate</li>
+                                                            <li value="2">Group by with the max or maxInteger function</li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">MIN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns the minimum value in a list of arguments</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">min, minInteger</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                        <p>One of the following methods:</p>
+                                                        <ul>
+                                                            <li value="1">Profile</li>
+                                                            <li value="2">Group by with the min or minInteger</li>
                                                         </ul>
                                                     </td>
                                                 </tr>
@@ -842,8 +777,8 @@
                                                 <tr class="TableStyle-SimpleTable-Head-Header1">
                                                     <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Excel function</th>
                                                     <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Excel description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Syntax</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -851,25 +786,28 @@
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">CONCAT</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Combines the text from multiple ranges and/or strings, but it does not provide the delimiter or Ignore Empty arguments.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">concat</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(concat(operand1,operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">LEFT</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the leftmost characters from a text value</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">substring</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">=map(substring(string, 0, endIndex)</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(substring(string, 0, endIndex)</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">LEN</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the number of characters in a text string</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">len</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(len(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">SEARCH</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Finds one text value within another (not case-sensitive)</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">find</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                        <p>map(find(string to search, string to find, starting index, ending index))</p>
+                                                        <p>The search is case-sensitive.</p>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>

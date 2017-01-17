@@ -89,9 +89,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -117,7 +117,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -167,7 +167,7 @@
                                         </li>
                                         <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -186,6 +186,8 @@
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -265,9 +267,9 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="GettingStarted.htm">Getting started</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                    <li><a href="A_Requirements.htm">Requirements for Xcalar Design</a>
                                                     </li>
-                                                    <li><a href="B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                    <li><a href="B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                     </li>
                                                     <li><a href="C_EasySteps.htm">Easy steps (with default settings)</a>
                                                     </li>
@@ -281,17 +283,21 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Detailed steps (with custom settings)</h1>
-                                        <p>This section provides detailed information about the steps up to the point where you can start performing operations in tables presented in a <span class="GeneralProductName">Xcalar Insight</span> workbook. Read this section if you want to better understand the fields displayed when you start using <span class="GeneralProductName">Xcalar Insight</span> and if you want to override default settings when pointing to your data source.</p>
-                                        <h2>Starting <span class="GeneralProductName">Xcalar Insight</span></h2>
-                                        <p>Follow these steps to start <span class="GeneralProductName">Xcalar Insight</span>:</p>
+                                        <p>This section provides detailed information about the steps up to the point where you can start performing operations in tables presented in a <span class="GeneralProductName">Xcalar Design</span> workbook. Read this section if you want to better understand the fields displayed when you start using <span class="GeneralProductName">Xcalar Design</span> and if you want to override default settings when pointing to your data source.</p>
+                                        <h2>Starting <span class="GeneralProductName">Xcalar Design</span></h2>
+                                        <h3>If <span class="GeneralCompanyNameShort">Xcalar</span> deploys <span class="GeneralProductName3short">XDP</span> for you from a cloud platform</h3>
+                                        <p>Follow the instructions provided on <span class="GeneralCustomerPortal">http://myxcalar.zendesk.com</span> to start <span class="GeneralProductName">Xcalar Design</span> and use the user name and password provided by <span class="GeneralCompanyNameShort">Xcalar</span> to log in.</p>
+                                        <h3>If you install your <span class="GeneralProductName3short">XDP</span> cluster</h3>
+                                        <p>Follow these steps to start <span class="GeneralProductName">Xcalar Design</span>:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Point the browser using the HTTPS&#160;protocol to the location where <span class="GeneralProductName">Xcalar Insight</span> is installed. For example, enter the following URL that represents the location of <span class="GeneralProductName">Xcalar Insight</span>:</p>
+                                                <p>Point the browser using the HTTPS&#160;protocol to the location where <span class="GeneralProductName">Xcalar Design</span> is installed. For example, enter the following URL:</p>
                                                 <p class="userInput">https://xcalar.mycompany.com/index.html</p>
                                             </li>
-                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName2">Xcalar Compute Engine</span> administrator. If this is your first login, the <span class="UIelement">Workbook Browser</span> is displayed. Otherwise, <span class="GeneralProductName">Xcalar Insight</span> resumes where you left off the last time you used it.</li>
+                                            <li value="2">Log in by using the login name and password given to you by the <span class="GeneralProductName2">Xcalar Compute Engine</span> administrator. </li>
                                         </ol>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;Each <span class="GeneralProductName">Xcalar Insight</span> user can have one login at a given time. Closing the browser window does not automatically log you out of <span class="GeneralProductName">Xcalar Insight</span>. If you are logged in to <span class="GeneralProductName">Xcalar Insight</span> and you try to log in again, a message informs you that you cannot have concurrent logins. You can either go back to the login screen or continue the login, which causes <span class="GeneralProductName">Xcalar Insight</span> to terminate your other connection. Remember that if you have unsaved changes through the other connection, the termination causes the changes to be lost.</div>
+                                        <h3>About <span class="GeneralProductName">Xcalar Design</span> login</h3>
+                                        <p>Each <span class="GeneralProductName">Xcalar Design</span> user can have one login at a given time. Closing the browser window does not automatically log you out of <span class="GeneralProductName">Xcalar Design</span>. If you are logged in to <span class="GeneralProductName">Xcalar Design</span> and you try to log in again, a message informs you that you cannot have concurrent logins. You can either go back to the login screen or continue the login, which causes <span class="GeneralProductName">Xcalar Design</span> to terminate your other connection. Remember that if you have unsaved changes through the other connection, the termination causes the changes to be lost.</p>
                                         <h2>Before creating a workbook as your workspace</h2>
                                         <p>Before creating a book, decide on the workbook name. Workbook names can be changed at any time.</p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
@@ -307,26 +313,26 @@
                                         <p>Follow these steps to create a workbook:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>The <span class="UIelement">Workbook Browser</span> is automatically displayed after you log in to <span class="GeneralProductName">Xcalar Insight</span> for the first time. At other times, you can display or dismiss the <span class="UIelement">Workbook Browser</span> by clicking <img src="../Resources/Images/Insight_assets/xi-workbook-browser.png" /> in the upper left corner of the window. In the <span class="UIelement">Workbook Browser</span>, enter the workbook name and click <span class="UIelement">Create Workbook</span> on the <span class="UIelement">New Workbook</span> card.</p>
+                                                <p>The <span class="UIelement">Workbook Browser</span> is automatically displayed after you log in to <span class="GeneralProductName">Xcalar Design</span> for the first time. At other times, you can display or dismiss the <span class="UIelement">Workbook Browser</span> by clicking <img src="../Resources/Images/Insight_assets/xi-workbook-browser.png" /> in the upper left corner of the window. In the <span class="UIelement">Workbook Browser</span>, enter the workbook name and click <span class="UIelement">Create Workbook</span> on the <span class="UIelement">New Workbook</span> card.</p>
                                                 <p>After the workbook is created,  it contains one worksheet named <span class="UIelement">Sheet 1</span>. </p>
                                             </li>
                                             <li value="2">The newly created workbook is inactive. To activate it, click <img src="../Resources/Images/Insight_assets/xi-activate-workbook.png" />, which is the first icon on the menu when you hover over the workbook card. (An active workbook is the one you can work on, and you can have only one active workbook at a time.)</li>
                                         </ol>
                                         <p>For more information about the <span class="UIelement">Workbook Browser</span>, see <a href="../D_Reference/B_WkbkBrowser.htm" class="MCXref xref">Workbook Browser</a>.</p>
                                         <h2><a name="Prerequi"></a>Prerequisites for pointing to your data source</h2>
-                                        <p>Make sure that your data source meets the following prerequisites before pointing <span class="GeneralProductName">Xcalar Insight</span> to it:</p>
+                                        <p>Make sure that your data source meets the following prerequisites before pointing <span class="GeneralProductName">Xcalar Design</span> to it:</p>
                                         <ul>
-                                            <li value="1">Pointing to a data source means telling <span class="GeneralProductName">Xcalar Insight</span> to derive metadata from one or multiple files containing raw data. These files must be accessible to <span class="GeneralProductName3short">XDP</span> via the NFS&#160;or HDFS&#160;protocol. </li>
-                                            <li value="2">The data source can be a file or a directory. If you point to a directory, <span class="GeneralProductName">Xcalar Insight</span> points to data in all files in the directory. You can also point to subdirectories recursively. Make sure that all files being pointed to are in the same format and have the same schema. Otherwise, the result might be unpredictable.</li>
+                                            <li value="1">Pointing to a data source means telling <span class="GeneralProductName">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be accessible to <span class="GeneralProductName3short">XDP</span> via the NFS&#160;or HDFS&#160;protocol. </li>
+                                            <li value="2">The data source can be a file or a directory. If you point to a directory, <span class="GeneralProductName">Xcalar Design</span> points to data in all files in the directory. You can also point to subdirectories recursively. Make sure that all files being pointed to are in the same format and have the same schema. Otherwise, the result might be unpredictable.</li>
                                             <li value="3">
                                                 <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encoding systems are not supported without UDFs.</p>
                                             </li>
                                             <li value="4">
-                                                <p>If you plan to create a dataset by pointing to multiple files with the same schema, create a directory and place the files in the directory. Then you can point to the directory. Alternatively, if the source files are in a directory with other files, you can rename the source files so that <span class="GeneralProductName">Xcalar Insight</span> can find them with the wild card character (*) when pointing to them. </p>
+                                                <p>If you plan to create a dataset by pointing to multiple files with the same schema, create a directory and place the files in the directory. Then you can point to the directory. Alternatively, if the source files are in a directory with other files, you can rename the source files so that <span class="GeneralProductName">Xcalar Design</span> can find them with the wild card character (*) when pointing to them. </p>
                                                 <p>For example, suppose you want to point to airlines data gathered in 2015 and 2016, which are in two files. Prepare the source files to create a dataset with records from both files in one of two ways:</p>
                                                 <ul>
                                                     <li value="1">Create a directory named AirlinesData and place both files in the directory. Then point to the AirlinesData directory. </li>
-                                                    <li value="2">Give names to the files such as airlines2015.csv and airlines2016.csv. Then instruct <span class="GeneralProductName">Xcalar Insight</span> to point to airlines201*.csv. Preparing the source files in this way enables you to create one dataset with records from both files.</li>
+                                                    <li value="2">Give names to the files such as airlines2015.csv and airlines2016.csv. Then instruct <span class="GeneralProductName">Xcalar Design</span> to point to airlines201*.csv. Preparing the source files in this way enables you to create one dataset with records from both files.</li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -380,7 +386,7 @@
                                             <li value="4">Click <span class="UIelement">NEXT</span>.</li>
                                             <li value="5">
                                                 <p>(Optional)&#160;After you select the data source, you can specify values for the advanced options as described in <a href="#About" class="MCXref xref selected">About advanced options</a>. The following screenshot shows the location of the options. In most cases, you can skip the advanced options and go on to the next step.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="675" data-mc-height="300" src="../Resources/Images/Insight_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="674" data-mc-height="440" src="../Resources/Images/Insight_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="6">The <span class="UIelement">Point to New Data Source</span> window shows a preview of the records in the data source in a tabular format. This preview enables you to verify that you have selected the intended data source file. You can position your mouse on a column header and drag it to resize each column. You can also use your mouse to scroll the rows.</li>
@@ -398,13 +404,13 @@
                                                 </div>
                                             </li>
                                             <li value="8">
-                                                <p>If you want <span class="GeneralProductName">Xcalar Insight</span> to invoke a user-defined function (UDF) when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. A UDF for parsing data before <span class="GeneralProductName">Xcalar Insight</span> points to the data is called a streaming UDF. </p>
+                                                <p>If you want <span class="GeneralProductName">Xcalar Design</span> to invoke a user-defined function (UDF) when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. A UDF for parsing data before <span class="GeneralProductName">Xcalar Design</span> points to the data is called a streaming UDF. </p>
                                                 <p>For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding user-defined functions (UDFs)</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using user-defined functions (UDFs)</a>. If no UDFs are needed for parsing the data, skip to the next step.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;Parsing a data source with a streaming UDF is required if your data source contains illegal characters. For a list of these characters, see <a href="#Prerequi" class="MCXref xref selected">Prerequisites for pointing to your data source</a>.</div>
                                             </li>
                                             <li value="9">
-                                                <p>The fields in the rest of the <span class="UIelement">Point to New Data Source</span> window tell <span class="GeneralProductName">Xcalar Insight</span> about the data format and layout. <span class="GeneralProductName">Xcalar Insight</span> automatically detects the format and layout of the data source, but you can override the default values. :</p>
-                                                <div class="Note"><span class="label">TIP:</span>&#160;After you enter values in these fields, if you want to see the values recommended by <span class="GeneralProductName">Xcalar Insight</span> again, click <span class="UIelement">REDETECT</span>.</div>
+                                                <p>The fields in the rest of the <span class="UIelement">Point to New Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. :</p>
+                                                <div class="Note"><span class="label">TIP:</span>&#160;After you enter values in these fields, if you want to see the values recommended by <span class="GeneralProductName">Xcalar Design</span> again, click <span class="UIelement">REDETECT</span>.</div>
                                                 <p>The following table describes the fields.</p>
                                                 <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -425,9 +431,9 @@
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><span class="UIelement">Promote First Row as Header</span>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                                <p>Depending on the data format, <span class="GeneralProductName">Xcalar Insight</span> automatically selects or deselects this option. For example, if the data source is a CSV file, <span class="GeneralProductName">Xcalar Insight</span> recommends that you promote the first row as header.</p>
-                                                                <p>When pointing to multiple files with the same first row, <span class="GeneralProductName">Xcalar Insight</span> promotes the first row of the first file and omits the first row of subsequent files.</p>
-                                                                <p>If you use the <span class="UIelement">Skip Rows</span> field to skip rows that do not require analysis, <span class="GeneralProductName">Xcalar Insight</span> promotes the first row after the row-skipping.&#160;</p>
+                                                                <p>Depending on the data format, <span class="GeneralProductName">Xcalar Design</span> automatically selects or deselects this option. For example, if the data source is a CSV file, <span class="GeneralProductName">Xcalar Design</span> recommends that you promote the first row as header.</p>
+                                                                <p>When pointing to multiple files with the same first row, <span class="GeneralProductName">Xcalar Design</span> promotes the first row of the first file and omits the first row of subsequent files.</p>
+                                                                <p>If you use the <span class="UIelement">Skip Rows</span> field to skip rows that do not require analysis, <span class="GeneralProductName">Xcalar Design</span> promotes the first row after the row-skipping.&#160;</p>
                                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;The file <span class="UIelement">employees.csv</span> contains comments in the first row, and the strings <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> in cells on the second row. You can specify <span class="UIelement">1</span> in the <span class="UIelement">Skip Rows</span> field to eliminate the first row and promote the row containing <span class="UIelement">Name</span> and <span class="UIelement">Salary</span> as header.</div>
                                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;You can promote the first row  only at this point. You will not be able to change the first row into the header row at a later time.</div>
                                                             </td>
@@ -445,7 +451,7 @@
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Quoting Character</span>
                                                             </td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The character surrounding a string in the data source. The double quote mark (") is the default quoting character in <span class="GeneralProductName">Xcalar Insight</span>. If the data source uses another character to enclose a string, enter the character in this field.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The character surrounding a string in the data source. The double quote mark (") is the default quoting character in <span class="GeneralProductName">Xcalar Design</span>. If the data source uses another character to enclose a string, enter the character in this field.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyB-Column1-Body2"><span class="UIelement">Skip Rows</span>
@@ -478,23 +484,23 @@
                                         <p>To point to only files with names that match a particular string pattern, type the string with a wild card character in the  <span class="UIelement">Pattern</span> field. The wild card character is an asterisk (*). For example, to point to all files with names ending with csv, type <span class="UIelement">*csv</span> in this field. </p>
                                         <p>Alternatively, you can enter a regular expression in the <span class="UIelement">Pattern</span> field and select the <span class="UIelement">regex</span> option. For example, you can enter the regular expression <span class="UIelement">sellers(1|2|3)</span> to point to <span class="UIelement">sellers1info.csv</span>, <span class="UIelement">sellers2data.csv</span>, and <span class="UIelement">sellers3.Info.csv</span>, but not <span class="UIelement">serllers4.csv</span>.</p>
                                         <h3>Recursive pointing</h3>
-                                        <p>If you point to a directory, you can tell <span class="GeneralProductName">Xcalar Insight</span> to traverse all subdirectories to point to all files in the subdirectories.</p>
+                                        <p>If you point to a directory, you can tell <span class="GeneralProductName">Xcalar Design</span> to traverse all subdirectories to point to all files in the subdirectories.</p>
                                         <p>When pointing to files recursively, you can use pattern matching to restrict the files to those with names that match the specified pattern.</p>
                                         <h3><a name="Dataset"></a>Dataset size</h3>
-                                        <p>The <span class="UIelement">Dataset Size</span> field limits the size of the dataset created by <span class="GeneralProductName">Xcalar Insight</span> when it points to a data source. If pointing to a data source results in a dataset that exceeds the setting of this field, the attempt to point to the data source fails with an error message. </p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;Regardless of the setting, if the size of the smallest file in the data source exceeds this limit, the attempt to point to the data source fails. The dataset created by <span class="GeneralProductName">Xcalar Insight</span> must point to at least one file in the data source. It cannot point to a partial file.</div>
+                                        <p>The <span class="UIelement">Dataset Size</span> field limits the size of the dataset created by <span class="GeneralProductName">Xcalar Design</span> when it points to a data source. If pointing to a data source results in a dataset that exceeds the setting of this field, the attempt to point to the data source fails with an error message. </p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;Regardless of the setting, if the size of the smallest file in the data source exceeds this limit, the attempt to point to the data source fails. The dataset created by <span class="GeneralProductName">Xcalar Design</span> must point to at least one file in the data source. It cannot point to a partial file.</div>
                                         <p>The following list describes the meanings of the options for this field:</p>
                                         <ul>
                                             <li value="1">
-                                                <p><span class="UIelement">Entire file/folder</span>:&#160;If this option is selected, the maximum dataset size is 1 TB by default. Due to the high limit, it is likely that <span class="GeneralProductName">Xcalar Insight</span> can point to all data in the entire data source, whether it is a file or a folder.  This option is particularly useful for interactive analysis.</p>
+                                                <p><span class="UIelement">Entire file/folder</span>:&#160;If this option is selected, the maximum dataset size is 1 TB by default. Due to the high limit, it is likely that <span class="GeneralProductName">Xcalar Design</span> can point to all data in the entire data source, whether it is a file or a folder.  This option is particularly useful for interactive analysis.</p>
                                                 <p>
                                                     <MadCap:conditionalText data-mc-conditions="General.Admin help">You, the cluster administrator, can change the maximum dataset size by setting the value of the <span class="UIelement">MaxInteractiveDataSize</span> parameter through the <span class="UIelement">Setup</span> icon of the Monitor. For information about setting parameter values, see <a href="../C_AdvancedTasks/L_UseSetup.htm#Configur" class="MCXref xref">Configuring parameters</a>. </MadCap:conditionalText> <![CDATA[ ]]></p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160; If your data source is a 900-GB file or a folder consisting of files that add up to 900 GB, <span class="GeneralProductName">Xcalar Insight</span> can point to all data in the data source because the dataset size is below the 1-TB limit. If your data source is a 1.2 TB  file, the attempt to point to it fails. If your data source is a folder consisting of files that add up to 1.2 TB, <span class="GeneralProductName">Xcalar Insight</span> points to as many files in the folder as possible until the 1-TB limit is reached, provided that the smallest file in the folder is less than 1 TB.</div>
+                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160; If your data source is a 900-GB file or a folder consisting of files that add up to 900 GB, <span class="GeneralProductName">Xcalar Design</span> can point to all data in the data source because the dataset size is below the 1-TB limit. If your data source is a 1.2 TB  file, the attempt to point to it fails. If your data source is a folder consisting of files that add up to 1.2 TB, <span class="GeneralProductName">Xcalar Design</span> points to as many files in the folder as possible until the 1-TB limit is reached, provided that the smallest file in the folder is less than 1 TB.</div>
                                             </li>
                                             <li value="2">
-                                                <p><span class="UIelement">Custom size</span>: Typically, you use this option when you point to a folder. You can set a limit on the dataset size such that <span class="GeneralProductName">Xcalar Insight</span> will create a dataset from as many files as allowed by the limit. If you point to a data source that is a single file, the file must be under the specified limit, or the attempt to point to it fails. This option is particularly useful for previewing raw data and modeling.</p>
+                                                <p><span class="UIelement">Custom size</span>: Typically, you use this option when you point to a folder. You can set a limit on the dataset size such that <span class="GeneralProductName">Xcalar Design</span> will create a dataset from as many files as allowed by the limit. If you point to a data source that is a single file, the file must be under the specified limit, or the attempt to point to it fails. This option is particularly useful for previewing raw data and modeling.</p>
                                                 <p>The factory default for this field is 10&#160;GB. You can override this default through the <span class="UIelement">Settings</span> icon in the Monitor. Your new default value is applied each time you point to a new data source. (For more information about the Monitor, see <a href="../C_AdvancedTasks/K_Monitor.htm" class="MCXref xref">Using the Monitor</a>.) The <span class="UIelement">Custom size</span> field automatically reflects the default currently in effect. If pointing to a data source requires a size greater than the default, simply enter the desired value in the <span class="UIelement">Custom size</span> field.</p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160; Suppose the dataset size is left at the factory default (10&#160;GB). If your data source is a 5-GB file or folder, you can point to all data in the data source. If the data source is a 15-GB file, the attempt to point to it fails. If the data source is a 15-GB&#160;folder, <span class="GeneralProductName">Xcalar Insight</span> points to as many files  as allowed by the 10-GB limit, provided that the smallest file is smaller than 10 GB. </div>
+                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160; Suppose the dataset size is left at the factory default (10&#160;GB). If your data source is a 5-GB file or folder, you can point to all data in the data source. If the data source is a 15-GB file, the attempt to point to it fails. If the data source is a 15-GB&#160;folder, <span class="GeneralProductName">Xcalar Design</span> points to as many files  as allowed by the 10-GB limit, provided that the smallest file is smaller than 10 GB. </div>
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;Suppose you use the Monitor to change the default dataset size to 20 GB. Each time you point to a new data source, the <span class="UIelement">Custom size</span> field automatically shows the default you set (20 GB). To override this default, simply enter the desired value. For example, to be able to point to a data source that is a 30-GB file, you must enter 30 GB or a greater value.</div>
                                             </li>
                                         </ul>
@@ -503,7 +509,7 @@
                                         <ul>
                                             <li value="1">Create a table (if a table is not yet created) as described in <a href="../B_CommonTasks/B_CreateTable.htm" class="MCXref xref">Creating a table</a>.</li>
                                             <li value="2">If you know what task you need to perform, see <a href="../B_CommonTasks/CommonTasks.htm" class="MCXref xref">Common tasks</a> to find the instructions for the task.</li>
-                                            <li value="3">Learn more about various <span class="GeneralProductName">Xcalar Insight</span> windows from these topics:<ul><li value="1"><a href="../D_Reference/B_WkbkBrowser.htm" class="MCXref xref">Workbook Browser</a></li><li value="2"><a href="../D_Reference/C_WorksheetWindow.htm" class="MCXref xref">Worksheet window with tables</a></li><li value="3"><a href="../D_Reference/A_InsightWindow.htm" class="MCXref xref">Xcalar Insight window</a></li></ul></li>
+                                            <li value="3">Learn more about various <span class="GeneralProductName">Xcalar Design</span> windows from these topics:<ul><li value="1"><a href="../D_Reference/B_WkbkBrowser.htm" class="MCXref xref">Workbook Browser</a></li><li value="2"><a href="../D_Reference/C_WorksheetWindow.htm" class="MCXref xref">Worksheet window with tables</a></li><li value="3"><a href="../D_Reference/A_InsightWindow.htm" class="MCXref xref">Xcalar Design window</a></li></ul></li>
                                         </ul>
                                     </div>
                                 </div>

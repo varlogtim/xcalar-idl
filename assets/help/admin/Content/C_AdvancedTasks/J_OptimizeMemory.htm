@@ -88,9 +88,9 @@
                                     <ul class="navigation clearfix">
                                         <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Insight</a>
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar Insight concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
                                                 </li>
@@ -116,7 +116,7 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
                                                 </li>
-                                                <li><a href="../B_CommonTasks/H_UnderstandICV.htm">Creating an integrity constraint violations table</a>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
                                                 </li>
@@ -166,7 +166,7 @@
                                         </li>
                                         <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Insight window</a>
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
                                                 </li>
                                                 <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
                                                 </li>
@@ -185,6 +185,8 @@
                                                 <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
                                                 </li>
@@ -296,9 +298,9 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Optimizing memory usage</h1>
-                                        <p><span class="GeneralProductName">Xcalar Insight</span> displays a low-memory notification to all logged-in users when <span class="GeneralProductName2short">XCE</span> reaches a pre-defined level of memory consumption. The <span class="GeneralCompanyNameShort">Xcalar</span> administrator might also notify users to free up memory before the automatic notification is sent. It is important for you to optimize memory usage  to ensure that <span class="GeneralProductName2short">XCE</span> can run at the highest performance level possible. See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a> for more information about the low-memory notification and what steps to take in response to the notification.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> displays a low-memory notification to all logged-in users when <span class="GeneralProductName2short">XCE</span> reaches a pre-defined level of memory consumption. The <span class="GeneralCompanyNameShort">Xcalar</span> administrator might also notify users to free up memory before the automatic notification is sent. It is important for you to optimize memory usage  to ensure that <span class="GeneralProductName2short">XCE</span> can run at the highest performance level possible. See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a> for more information about the low-memory notification and what steps to take in response to the notification.</p>
                                         <h2>Best practices for conserving memory</h2>
-                                        <p><span class="GeneralProductName">Xcalar Insight</span> users can follow these best practices to conserve memory: </p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> users can follow these best practices to conserve memory: </p>
                                         <ul>
                                             <li value="1">Reduce the number of tables.</li>
                                             <li value="2">
@@ -333,9 +335,9 @@
                                         <h2><a name="Removing"></a>Removing fields from the Data Browser</h2>
                                         <p>Because the number of fields in the <span class="UIelement">Data Browser</span> has an impact on memory used, the logical step to conserve memory is to reduce the number of fields in the <span class="UIelement">Data Browser</span>. However, remember that in the context of memory consumption, the collection of fields from the source dataset (that is, the prefixed fields) is considered one unit. You cannot remove some fields and keep some fields in that collection. You can decide either to keep or to eliminate the collection in its entirety.</p>
                                         <p>The contents of the <span class="UIelement">Data Browser</span>&#160;are not directly editable. To change the contents, use the Projection Mode feature, which enables you to keep only columns of interest in a table and to remove unnecessary ones from the <span class="UIelement">Data Browser</span>. </p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;The term "projection"&#160;originates from relational algebra. Its meaning in <span class="GeneralProductName">Xcalar Insight</span> should be clearly distinguished from its meaning in daily usage.</div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The term "projection"&#160;originates from relational algebra. Its meaning in <span class="GeneralProductName">Xcalar Design</span> should be clearly distinguished from its meaning in daily usage.</div>
                                         <h3>Understanding Projection Mode</h3>
-                                        <p>Projection Mode in the <span class="UIelement">Data Browser</span> enables you to eliminate unnecessary fields that <span class="GeneralProductName">Xcalar Insight</span> keeps in memory for a table. You can choose to keep only the fields that interest you  in the table and in the <span class="UIelement">Data Browser</span>. In doing so, you can reduce the amount of memory used by the table.</p>
+                                        <p>Projection Mode in the <span class="UIelement">Data Browser</span> enables you to eliminate unnecessary fields that <span class="GeneralProductName">Xcalar Design</span> keeps in memory for a table. You can choose to keep only the fields that interest you  in the table and in the <span class="UIelement">Data Browser</span>. In doing so, you can reduce the amount of memory used by the table.</p>
                                         <h3>Using Projection Mode</h3>
                                         <p>Follow these steps to use Projection Mode to keep memory consumption low for a table:</p>
                                         <ol>
