@@ -4,6 +4,7 @@
 import os, shutil, fnmatch, re, tempfile
 
 def catFilesTogether():
+    sortSubfolder = ["prod/assets/js/constructor"]
     jsRoot = "prod/assets/js/"
     for f in os.listdir(jsRoot):
         if os.path.isdir(jsRoot+f):
@@ -12,7 +13,13 @@ def catFilesTogether():
                 continue
             print "Squashing all js files in: "+subFolder
             outFile = open(jsRoot+"/"+f+".js", "w")
-            for file in os.listdir(subFolder):
+            fileList = []
+            if subFolder in sortSubfolder:
+                print "Sorting: " + subFolder
+                fileList = sorted(os.listdir(subFolder))
+            else:
+                fileList = os.listdir(subFolder)
+            for file in fileList:
                 partialJsFile = subFolder+"/"+file
                 extension = file.split(".")[-1]
 
