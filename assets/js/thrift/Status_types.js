@@ -539,7 +539,9 @@ StatusT = {
   'StatusNotShared' : 530,
   'StatusProtobufEncodeError' : 531,
   'StatusJsonError' : 532,
-  'StatusMsgStreamNotFound' : 533
+  'StatusMsgStreamNotFound' : 533,
+  'StatusUnderflow' : 534,
+  'StatusPageCacheFull' : 535
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1074,5 +1076,7 @@ StatusTStr = {0 : 'Success',
 530 : 'Path is not on shared storage',
 531 : 'Failed to encode protobuf message',
 532 : 'JSON error occurred',
-533 : 'Message stream not found'
+533 : 'Message stream not found',
+534 : 'Value too small for defined data type',
+535 : 'No space left in page cache'
 };
