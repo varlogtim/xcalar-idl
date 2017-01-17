@@ -145,6 +145,30 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
+        /*
+        lTableInfo/rTableInfo: object with the following attrs:
+            columns: array of back colum names to join
+            pulledColumns: columns to pulled out (front col name)
+            tableName: table's name
+            reaname: array of rename object
+
+        rename map: object generate by
+        xcHelper.getJoinRenameMap(oldName, newName, type)
+        if it's fat ptr, pass in DfFieldTypeT.DfFatptr, othewise, pass in null
+
+            sample:
+                var lTableInfo = {
+                    "tableName"    : "test#ab123",
+                    "columns"      : ["test::colA", "test::colB"],
+                    "pulledColumns": ["test::colA", "test::colB"],
+                    "rename"       : [{
+                        "new" : "test2",
+                        "old" : "test",
+                        "type": DfFieldTypeT.DfFatptr
+                    }]
+                }
+
+        */
         "join": function(joinType, lTableInfo, rTableInfo, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
