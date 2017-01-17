@@ -377,7 +377,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
                         break;
                     default:
                         status = "";
-                        text = "Running...";
+                        text = "Running: " + ret[i].duration + "s";
                 }
                 html += '<div class="row ' + status + '">' +
                           '<div class="leftCol">User ' + i + '</div>' +
