@@ -26,31 +26,23 @@ window.JenkinsTestData = (function(JenkinsTestData) {
                 var usersStatus = [];
                 var startDate = null;
                 var status = null;
-                var initialized = false;
                 for (var i = 0, len = lines.length; i < len; i++) {
-                    if (lines[i].startsWith("Test started: ")) {
-                        startTime = lines[i].replace("Test started: ", "");
-                        startDate = new Date(startTime);
-                    }
 
                     if (lines[i].startsWith("/action?name=start")) {
                         items = lines[i].split("&");
                         numUsers = items[items.length-1].split("=")[1];
                     }
 
-                    if (!initialized && numUsers) {
-                        // For the users that have not completed, add their statuses as
-                        // Running
+                    if (startDate==null && lines[i].startsWith("Test started: ")) {
+                        startTime = lines[i].replace("Test started: ", "")
+                        startDate = new Date(startTime)
                         for (var j = 0; j < numUsers; j++) {
-                            if (startDate != null) {
-                                duration = (new Date() - startDate) / 1000;
-                                usersStatus[j] = {
-                                    "status": "Running",
-                                    "duration": duration
-                                };
-                            }
+                            duration = (new Date() - startDate) / 1000;
+                            usersStatus[j] = {
+                                "status": "Running",
+                                "duration": duration
+                            };
                         }
-                        initialized = true;
                     }
 
                     if (lines[i].startsWith("User finishes: ")) {
