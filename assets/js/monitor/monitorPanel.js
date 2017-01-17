@@ -69,57 +69,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
         return (graphIsActive);
     };
 
-    MonitorPanel.processNodeStats = function(nodes, apiTopResult, numNodes) {
-        var StatsObj = function() {
-            this.used = [];
-            this.tot = [];
-            this.sumUsed = 0;
-            this.sumTot = 0;
-        };
-
-        var cpu     = new StatsObj();
-        var ram     = new StatsObj();
-        var network = new StatsObj(); // For network, send is used, recv is tot
-        var disk    = new StatsObj();
-        for (var i = 0; i < numNodes; i++) {
-            var cpuPct = apiTopResult.topOutputPerNode[i].cpuUsageInPercent;
-            cpuPct = Math.round(cpuPct * 100) / 100;
-            cpu.used.push(cpuPct);
-            cpu.sumUsed += cpuPct;
-            cpu.sumTot += 100;
-
-            var ramUsed = apiTopResult.topOutputPerNode[i].memUsedInBytes;
-            var ramTot =
-                apiTopResult.topOutputPerNode[i].memUsedInBytes*100/
-                apiTopResult.topOutputPerNode[i].memUsageInPercent;
-            ramUsed = ramUsed;
-            ramTot = ramTot;
-            ram.used.push(ramUsed);
-            ram.tot.push(ramTot);
-            ram.sumUsed += ramUsed;
-            ram.sumTot += ramTot;
-
-            var networkUsed = apiTopResult.topOutputPerNode[i]
-                                          .networkSendInBytesPerSec;
-            var networkTot = apiTopResult.topOutputPerNode[i]
-                                         .networkRecvInBytesPerSec;
-            network.used.push(networkUsed);
-            network.tot.push(networkTot);
-            network.sumUsed += networkUsed;
-            network.sumTot += networkTot;
-
-            var diskUsed = nodes[i].usedDisk * 5;
-            var diskTot = nodes[i].totDisk * 5;
-            disk.used.push(diskUsed);
-            disk.tot.push(diskTot);
-            disk.sumUsed += diskUsed;
-            disk.sumTot += diskTot;
-        }
-        var allStats = [cpu, ram, network, disk];
-
-        return (allStats);
-    };
-
     MonitorPanel.updateDonuts = function(allStats, numNodes) {
         $('.donut').each(function(index) {
             var el = this;

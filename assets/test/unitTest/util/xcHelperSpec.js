@@ -1846,6 +1846,62 @@ describe('xcHelper Test', function() {
         delete gTables["xcTest"];
     });
 
+    describe("xcHelper.getMemUsage", function() {
+        it("Should work in normal case", function(done) {
+            xcHelper.getMemUsage()
+            .then(function(res) {
+                expect(res).to.be.an("array");
+                expect(res.length).to.be.at.least(1);
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            });
+        });
+
+        it("Should handle cannot parse error", function(done) {
+            var oldFunc = XcalarAppExecute;
+            XcalarAppExecute = function() {
+                return PromiseHelper.resolve({
+                    "outStr": "invalid thing to parse"
+                });
+            };
+
+            xcHelper.getMemUsage()
+            .then(function() {
+                throw "error case";
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.null;
+                done();
+            })
+            .always(function() {
+                XcalarAppExecute = oldFunc;
+            });
+        });
+
+        it("Should handle inner parse error", function(done) {
+            var oldFunc = XcalarAppExecute;
+            XcalarAppExecute = function() {
+                return PromiseHelper.resolve({
+                    "outStr": "[\"invalid thing to parse\"]" 
+                });
+            };
+
+            xcHelper.getMemUsage()
+            .then(function() {
+                throw "error case";
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.null;
+                done();
+            })
+            .always(function() {
+                XcalarAppExecute = oldFunc;
+            });
+        });
+    });
+
     describe('xcHelper.dropdownOpen', function() {
         describe('Basic Test', function() {
             var $icon, $menu;

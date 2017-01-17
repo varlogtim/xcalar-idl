@@ -114,7 +114,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     function getStatsAndUpdateGraph() {
-        var numNodes;
         if (count % 10 === 0) {
             xGridVals.push(numXGridMarks * xGridWidth);
             numXGridMarks++;
@@ -130,30 +129,31 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var donutTime = xcHelper.getTime(d);
         $("#graphTime").text(date + " " + donutTime);
 
+        var numNodes;
         var apiTopResult;
 
         XcalarApiTop()
         .then(function(result) {
             apiTopResult = result;
             numNodes = result.numNodes;
-            return XcalarGetStats(numNodes);
+            return xcHelper.getMemUsage();
         })
-        .then(function(nodes) {
-            var allStats = MonitorPanel.processNodeStats(nodes,
-                                                    apiTopResult, numNodes);
+        .then(function(memInfos) {
+            var allStats = processNodeStats(memInfos, apiTopResult, numNodes);
             updateGraph(allStats, numNodes);
             MonitorPanel.updateDonuts(allStats, numNodes);
             failCount = 0;
         })
         .fail(function(error) {
-            console.error('XcalarGetStats failed', error);
+            console.error("get status fails", error);
             failCount++;
             // if it fails 2 times in a row, we show a connection error
             if (failCount === 2) {
-                thriftLog('XcalarGetStats failed',
-                          {status: StatusT.StatusConnRefused});
-                console.error('showing connection refused because monitor' +
-                                'failed to get stats twice in a row');
+                thriftLog("get status fails", {
+                    "status": StatusT.StatusConnRefused
+                });
+                console.error("showing connection refused because monitor" +
+                            "failed to get stats twice in a row");
             }
         });
 
@@ -165,6 +165,48 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var rand = Math.random() * 0.1;
             svgWrap.attr("height", height + rand);
         }, 150);
+    }
+
+    function processNodeStats(memInfos, apiTopResult, numNodes) {
+        var StatsObj = function() {
+            this.used = [];
+            this.tot = [];
+            this.sumUsed = 0;
+            this.sumTot = 0;
+            return this;
+        };
+
+        var cpu = new StatsObj();
+        var ram = new StatsObj();
+        var network = new StatsObj(); // For network, send is used, recv is tot
+
+        for (var i = 0; i < numNodes; i++) {
+            var node = apiTopResult.topOutputPerNode[i];
+            var cpuPct = node.cpuUsageInPercent;
+            cpuPct = Math.round(cpuPct * 100) / 100;
+            cpu.used.push(cpuPct);
+            cpu.sumUsed += cpuPct;
+            cpu.sumTot += 100;
+
+            if (memInfos[i] != null && memInfos[i].sys != null) {
+                var ramUsed = memInfos[i].sys.used;
+                var ramTot = memInfos[i].sys.total;
+                ram.used.push(ramUsed);
+                ram.tot.push(ramTot);
+                ram.sumUsed += ramUsed;
+                ram.sumTot += ramTot;
+            }
+
+            var networkUsed = node.networkSendInBytesPerSec;
+            var networkTot = node.networkRecvInBytesPerSec;
+            network.used.push(networkUsed);
+            network.tot.push(networkTot);
+            network.sumUsed += networkUsed;
+            network.sumTot += networkTot;
+        }
+
+        var allStats = [cpu, ram, network];
+        return (allStats);
     }
 
     function updateGraph(allStats, numNodes) {

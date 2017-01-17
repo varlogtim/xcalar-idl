@@ -2676,6 +2676,36 @@ window.xcHelper = (function($, xcHelper) {
         return (colNameMap);
     };
 
+    xcHelper.getMemUsage = function() {
+        var deferred = jQuery.Deferred();
+
+        XcalarAppExecute("Mem", true, "/etc/xcalar/default.cfg")
+        .then(function(ret) {
+            try {
+                var res = JSON.parse(ret.outStr);
+                var parsedRes = res.map(parser);
+                deferred.resolve(parsedRes);
+            } catch (error){
+                deferred.reject(error);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+
+        function parser(node) {
+            var nodeInfo = node[0];
+
+            try {
+                nodeInfo = JSON.parse(node[0]);
+            } catch (error) {
+                throw error;
+            }
+
+            return nodeInfo;
+        }
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},
