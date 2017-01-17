@@ -271,6 +271,9 @@ window.Support = (function(Support, $) {
 
             Support.commitCheck()
             .then(function() {
+                // this one just commit tracker data
+                // can be paraell
+                xcTracker.commit();
                 return Support.memoryCheck();
             })
             .then(function() {
