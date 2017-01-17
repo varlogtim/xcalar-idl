@@ -681,7 +681,7 @@ window.JoinView = (function($, JoinView) {
                 "table": tableName
             });
             tooltipTime = 3000;
-        } else if (colRes.reason = "tableNotFound") {
+        } else if (colRes.reason == "tableNotFound") {
             errorText = ErrTStr.SourceTableNotExists;
         } else if (colRes.reason === 'type') {
             errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
@@ -991,7 +991,7 @@ window.JoinView = (function($, JoinView) {
         }
 
         var deferred = jQuery.Deferred();
-        
+
         formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();
         var newTableName = $joinTableName.val().trim();
