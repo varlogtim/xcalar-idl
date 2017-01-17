@@ -29,6 +29,8 @@ build: $(DESTDIR) generateHtml
 	@echo "=== Creating new prod folder ==="
 	@mkdir -p $(DESTDIR)/prod
 	@rsync -a * $(DESTDIR)/prod --exclude prod --exclude node_modules
+	@echo "=== Removing unused files ==="
+	@rm -f $(DESTDIR)/prod/assets/js/thrift/mgmttestactual.js
 	@echo "=== Compile Less ==="
 	cd $(DESTDIR) && mkdir -p prod/assets/stylesheets/css
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/login.less > prod/assets/stylesheets/css/login.css
