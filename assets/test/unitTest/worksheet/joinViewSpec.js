@@ -220,19 +220,26 @@ describe('JoinView', function() {
         it('clause column pickers should work', function() {
             var colName1 = prefix + gPrefixSign + "average_stars";
             var colName2 = prefix + gPrefixSign + "compliments";
+            var colName3 = prefix + gPrefixSign + "four";
             $joinForm.find('.leftClause').val("").change();
             $joinForm.find('.rightClause').val("").change();
             expect($joinForm.find('.leftClause').val()).to.equal("");
             expect($joinForm.find('.rightClause').val()).to.equal("");
 
-            // $joinForm.find('.leftClause').mousedown().triggerHandler('focus');
+            // type number should work
             $joinForm.find('.leftClause').focus().trigger('focus');
             $table.find('.header').eq(1).click();
             expect($joinForm.find('.leftClause').val()).to.equal(colName1);
 
+            // type object should not work
             $joinForm.find('.rightClause').focus().trigger('focus');
             $table.find('.header').eq(2).click();
-            expect($joinForm.find('.rightClause').val()).to.equal(colName2);
+            expect($joinForm.find('.rightClause').val()).to.equal("");
+
+            // type boolean should work
+            $joinForm.find('.rightClause').focus().trigger('focus');
+            $table.find('.header').eq(4).click();
+            expect($joinForm.find('.rightClause').val()).to.equal(colName3);
 
             // add another row of clauses
             JoinView.__testOnly__.addClause();
@@ -244,8 +251,8 @@ describe('JoinView', function() {
             expect($joinForm.find('.leftClause').eq(1).val()).to.equal(colName1);
 
             $joinForm.find('.rightClause').eq(1).focus().trigger('focus');
-            $table.find('.header').eq(2).click();
-            expect($joinForm.find('.rightClause').eq(1).val()).to.equal(colName2);
+            $table.find('.header').eq(4).click();
+            expect($joinForm.find('.rightClause').eq(1).val()).to.equal(colName3);
 
             // remove last clause row
             $joinForm.find('.middleIcon:eq(1)').click();

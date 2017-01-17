@@ -1456,6 +1456,7 @@ function FormHelper($form, options) {
      *      noEvent: if set true, no picker event handler
      *      colCallback: called when click on column
      *      headCallback: called when click on table head
+     *      validColTypes: (optional) array of valid column types
      */
     this.$form = $form;
     this.options = options || {};
@@ -1463,7 +1464,7 @@ function FormHelper($form, options) {
     this.state = null;
     this.mainMenuState = null;
 
-    this.init();
+    this.__init();
 
     return this;
 }
@@ -1484,7 +1485,7 @@ FormHelper.Template = {
 
 FormHelper.prototype = {
     // called only once per form upon creation
-    init: function() {
+    __init: function() {
         // tooltip overflow setup
         var self = this;
         var $form = self.$form;
@@ -1534,6 +1535,59 @@ FormHelper.prototype = {
         // it stop some default events
         $(".xcTableWrap").addClass('columnPicker');
 
+        // add noColumnPicker class to array and object columns
+        var $headers = $(".xcTable").find(".header")
+        var $arrayHeaders = $headers.filter(function() {
+            return $(this).hasClass("type-array"); 
+        }).addClass("noColumnPicker");
+        var $objHeaders = $headers.filter(function() {
+            return $(this).hasClass("type-object"); 
+        }).addClass("noColumnPicker");
+
+        xcTooltip.add($arrayHeaders, {
+            title: ColTStr.NoOperateArray,
+            container: "body",
+            placement: "bottom"
+        });
+
+        xcTooltip.add($objHeaders, {
+            title: ColTStr.NoOperateObject,
+            container: "body",
+            placement: "bottom"
+        });
+
+        if (columnPicker.validColTypes) {
+            var validTypes = columnPicker.validColTypes;
+            var $otherHeaders = $();
+
+            $(".xcTable").each(function() {
+                var $table = $(this)
+                var table = gTables[xcHelper.parseTableId($table)];
+                var $invalidHeaders = $table.find(".header").filter(function() {
+                    var $header = $(this);
+                    if ($header.hasClass("noColumnPicker")) {
+                        return false;
+                    }
+                    var colNum = xcHelper.parseColNum($header.parent());
+                    if (colNum > 0) {
+                        var type = table.getCol(colNum).getType();
+                        return (validTypes.indexOf(type) === -1);
+                    } else {
+                        return false;
+                    }
+                });
+                $otherHeaders = $otherHeaders.add($invalidHeaders);
+            });
+
+            $otherHeaders.addClass("noColumnPicker");
+
+            xcTooltip.add($otherHeaders, {
+                title: ColTStr.NoOperateGeneral,
+                container: "body",
+                placement: "bottom"
+            });
+        }
+
         if (!columnPicker.noEvent) {
             var colSelector = ".xcTable .header, .xcTable td.clickable";
             $("#mainFrame").on("click.columnPicker", colSelector, function(event) {
@@ -1547,6 +1601,22 @@ FormHelper.prototype = {
                     $target.closest('.dropdownBox').length) {
                     return;
                 }
+
+                // check to see if cell has a valid type
+                var $td = $target.closest('td');
+                var $header;
+                if ($td.length) {
+                    var colNum = xcHelper.parseColNum($td);
+                    $header = $td.closest('.xcTable').find('th.col' + colNum)
+                                                     .find('.header');
+                } else {
+                    $header = $(this);
+                }
+
+                if ($header.hasClass('noColumnPicker')) {
+                    return;
+                }
+ 
                 callback($target);
             });
 
@@ -1650,6 +1720,9 @@ FormHelper.prototype = {
         $form.find(".focusable").off(".xcForm")
                                   .removeClass("focusable");
         $(".xcTableWrap").removeClass("columnPicker");
+        var $noColPickers = $(".xcTable").find('.noColumnPicker')
+                                         .removeClass('noColumnPicker');
+        xcTooltip.remove($noColPickers);
         $("#mainFrame").off("click.columnPicker");
         $("#container").removeClass(self.state);
         self.state = null;

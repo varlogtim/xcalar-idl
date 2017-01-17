@@ -31,7 +31,8 @@ window.ExportView = (function($, ExportView) {
 
         var columnPicker = {
             "state"  : "exportState",
-            "noEvent": true
+            "noEvent": true,
+            "validColTypes": validTypes
         };
         formHelper = new FormHelper($exportView, {
             "columnPicker": columnPicker

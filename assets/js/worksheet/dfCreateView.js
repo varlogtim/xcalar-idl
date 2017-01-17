@@ -24,7 +24,8 @@ window.DFCreateView = (function($, DFCreateView) {
             "focusOnOpen" : true,
             "columnPicker": {
                 "state"  : "dataflowState",
-                "noEvent": true
+                "noEvent": true,
+                "validColTypes": validTypes
             }
         });
 

@@ -712,6 +712,9 @@ ColTStr = {
     'RenameStartNum': 'Invalid name, cannot begin with a number',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',
+    'NoOperateArray': 'Cannot directly operate on entire arrays',
+    'NoOperateObject': 'Cannot directly operate on entire objects',
+    'NoOperateGeneral': 'Cannot directly operate on columns of this type',
     // With Replace
     'SplitColWarnMsg': 'About <num> columns will be generated, do you still ' +
                        'want to continue the operation?'

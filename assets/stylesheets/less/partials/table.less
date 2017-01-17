@@ -919,6 +919,13 @@ html.edge {
             .editableHead {
                 cursor: pointer;
             }
+            .header.noColumnPicker {
+                cursor: not-allowed;
+                .editableHead {
+                    pointer-events: none; // disables clicking and colname tooltip
+                    // and prevents clash with "not allowed" tooltip on .header
+                }
+            }
         }
 
 

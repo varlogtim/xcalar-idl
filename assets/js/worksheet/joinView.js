@@ -54,6 +54,7 @@ window.JoinView = (function($, JoinView) {
 
         var columnPicker = {
             "state"      : "joinState",
+            "validColTypes": validTypes,
             "colCallback": function($target) {
                 if ($lastInputFocused &&
                     !$lastInputFocused.closest('.joinTableList').length) {

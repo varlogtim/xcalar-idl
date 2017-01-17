@@ -89,6 +89,7 @@ window.SmartCastView = (function($, SmartCastView) {
 
         var columnPicker = {
             "state"      : "smartCastState",
+            "validColTypes": validTypes,
             "colCallback": function($target) {
                 var id = $target.closest(".xcTable").data("id");
                 if (id !== curTableId) {

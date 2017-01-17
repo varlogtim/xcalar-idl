@@ -22,6 +22,7 @@ window.xcTooltip = (function(xcTooltip, $) {
         });
     };
 
+    // can accept multiple elements as $element
     xcTooltip.add = function($element, options) {
         var defaultOptions = {
             "title"    : "",
@@ -43,6 +44,7 @@ window.xcTooltip = (function(xcTooltip, $) {
                 .attr("data-original-title", title);
     };
 
+    // can accept multiple elements as $element
     xcTooltip.remove = function($element) {
         $element.removeAttr("title")
                 .removeAttr("data-toggle")
