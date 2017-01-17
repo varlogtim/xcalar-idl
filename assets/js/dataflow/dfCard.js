@@ -1053,11 +1053,11 @@ window.DFCard = (function($, DFCard) {
             return colName;
         });
 
-        var dstTableName = xcHelper.getTableName(tableName) +
-                        Authentication.getHashId();
+        var dstTableName;
 
-        XcalarProject(colNames, tableName, dstTableName, txId)
-        .then(function() {
+        XIApi.project(txId, colNames, tableName)
+        .then(function(newTableName) {
+            dstTableName = newTableName;
             var tableCols = getProgCols(colNames);
             return TblManager.refreshTable([dstTableName], tableCols,
                                            [], worksheet, txId);

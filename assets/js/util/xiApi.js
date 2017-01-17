@@ -443,6 +443,32 @@ window.XIApi = (function(XIApi, $) {
         }
     };
 
+    /*
+        columns: an array of column names (back column name)
+        tableName: table's name
+        newTableName(optional): new table's name
+    */
+    XIApi.project = function(txId, columns, tableName, newTableName) {
+        if (txId == null || columns == null || tableName == null)
+        {
+            return PromiseHelper.reject("Invalid args in project");
+        }
+
+        var deferred = jQuery.Deferred();
+
+        if (!isValidTableName(newTableName)) {
+            newTableName = getNewTableName(tableName);
+        }
+
+        XcalarProject(columns, tableName, newTableName, txId)
+        .then(function() {
+            deferred.resolve(newTableName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     XIApi.query = function(txId, queryName, queryStr) {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");

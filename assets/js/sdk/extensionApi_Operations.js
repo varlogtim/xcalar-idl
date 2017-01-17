@@ -75,7 +75,6 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         "indexFromDataset": function(datasetName, newTableName, prefix) {
-            var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
 
@@ -198,6 +197,26 @@ window.XcSDK.Extension.prototype = (function() {
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);
                 deferred.resolve(dstTable, dstCols);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
+        /*
+            columns: an array of column names (back column name)
+            tableName: table's name
+            newTableName(optional): new table's name
+        */
+        "project": function(columns, tableName, newTableName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var txId = self.txId;
+
+            XIApi.project(txId, columns, tableName, newTableName)
+            .then(function(dstTable) {
+                self._addMeta(tableName, dstTable);
+                deferred.resolve(dstTable);
             })
             .fail(deferred.reject);
 

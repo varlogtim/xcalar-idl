@@ -949,10 +949,8 @@ window.xcFunction = (function($, xcFunction) {
         var deferred = jQuery.Deferred();
 
         options = options || {};
-        var tableName = gTables[tableId].tableName;
-        var dstTableName = tableName.split("#")[0] + Authentication.getHashId();
+        var tableName = gTables[tableId].getName();
         var worksheet = WSManager.getWSFromTable(tableId);
-
 
         var startTime = Date.now();
         var focusOnTable = false;
@@ -972,8 +970,10 @@ window.xcFunction = (function($, xcFunction) {
 
         xcHelper.lockTable(tableId, txId);
 
-        XcalarProject(colNames, tableName, dstTableName, txId)
-        .then(function() {
+        var dstTableName;
+        XIApi.project(txId, colNames, tableName)
+        .then(function(newTableName) {
+            dstTableName = newTableName;
             var timeAllowed = 1000;
             var endTime = Date.now();
             var elapsedTime = endTime - startTime;
