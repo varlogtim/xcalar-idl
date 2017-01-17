@@ -289,14 +289,18 @@ window.DFCard = (function($, DFCard) {
             xcHelper.showRefreshIcon($(".dfgList"));
             KVStore.get(dfKey)
             .then(function(ret) {
+                var dfStruct;
                 try {
-                    var dfStruct = JSON.parse(ret);
-                    DF.restore(dfStruct[getEMetaKeys().DF])
+                    dfStruct = JSON.parse(ret);
+                } catch (error) {
+                    return;
+                }
+                if (dfStruct) {
+                    var key = new EMetaConstructor().getMetaKeys().DF;
+                    DF.restore(dfStruct[key])
                     .then(function() {
                         DF.initialize();
                     });
-                } catch (error) {
-                    return;
                 }
             });
         });
@@ -543,13 +547,13 @@ window.DFCard = (function($, DFCard) {
         var $loadNodes = $wrap.find(".dagTable.dataStore");
         $loadNodes.each(function(idx, val) {
             var $val = $(val);
-            $val.data("paramValue", $val.data("url"));
+            $val.data("paramValue", encodeURI($val.data("url")));
         });
 
         var $opNodes = $wrap.find(".actionType.dropdownBox");
         $opNodes.each(function(idx, val) {
             var $op = $(val);
-            $op.data("paramValue", $op.attr("data-info"));
+            $op.data("paramValue", encodeURI($op.attr("data-info")));
         });
 
         var selector = '.dagTable.export, .dagTable.dataStore, ' +

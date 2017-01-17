@@ -831,7 +831,6 @@ var DataflowV1 = (function() {
     /* Attr
         version: 1
         name: (string) Retina name
-        tableName: (string) Original table name
         columns: (array) Columns to export
         parameters: (array) array of parameters in Dataflow
         paramMap: (obj) map for parameters
@@ -845,7 +844,6 @@ var DataflowV1 = (function() {
 
         this.version = versionV1;
         this.name = name;
-        this.tableName = options.tableName;
         this.columns = options.columns || [];
         this.parameters = options.parameters || [];
         this.paramMap = options.paramMap || {};

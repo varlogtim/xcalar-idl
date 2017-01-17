@@ -539,7 +539,7 @@ function viewRelatedFunctionTest() {
         $scheduleInfos = $('#scheduleInfos');
         $tab = $('#dataflowTab');
 
-        DF.addDataflow("df1", new Dataflow("df1"),
+        DF.addDataflow("df1", new Dataflow("df1"), null,
         {"isUpload": true,
          "noClick" : true});
         Scheduler.setDataFlowName("df1");

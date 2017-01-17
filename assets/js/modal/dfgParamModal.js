@@ -124,25 +124,26 @@ window.DFParamModal = (function($, DFParamModal){
         var type = $currentIcon.data('type');
         var tableName = $currentIcon.data('table') || // For aliased tables
                         $currentIcon.data('tablename');
-        var dfgName = DFCard.getCurrentDF();
-        var dfg = DF.getDataflow(dfgName);
-        var id = dfg.nodeIds[tableName];
+        var dfName = DFCard.getCurrentDF();
+        var df = DF.getDataflow(dfName);
+        var id = df.nodeIds[tableName];
 
         $iconTrigger = $currentIcon; // Set cache
 
         $dfgParamModal.data({
             "id" : id,
-            "dfg": dfgName
+            "dfg": dfName
         });
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized Query:
+        var paramValue = decodeURI($currentIcon.data('paramValue'));
 
         if (type === "dataStore") {
             defaultText += '<div>' +
                                 DFTStr.PointTo + ':' +
                             '</div>' +
                             '<div class="boxed xlarge">' +
-                                $currentIcon.data('paramValue') +
+                                xcHelper.escapeHTMLSepcialChar(paramValue) +
                             '</div>';
 
             editableText += '<div class="static" data-op="load">' +
@@ -154,16 +155,19 @@ window.DFParamModal = (function($, DFParamModal){
                                 DFTStr.ExportTo + ':' +
                             '</div>' +
                             '<div class="boxed xlarge">' +
-                                $currentIcon.data('paramValue') +
+                                xcHelper.escapeHTMLSepcialChar(paramValue) +
                             '</div>';
             editableText += '<div class="static" data-op="export">' +
                                 DFTStr.ExportTo + ':' +
                             '</div>' +
                             getParameterInputHTML(0, "xlarge");
         } else { // not a datastore but a table
+            var retStruct = xcHelper.extractOpAndArgs(paramValue, ',');
+
             defaultText += '<div>' + type + ':</div>' +
                             '<div class="boxed medium">' +
-                                $currentIcon.data('column') +
+                                xcHelper.escapeHTMLSepcialChar(
+                                    retStruct.args[0]) +
                             '</div>';
 
             editableText += '<div class="static" data-op="' + type + '">' +
@@ -171,17 +175,16 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>';
 
             if (type === "filter") {
-                var filterInfo = $currentIcon.data('paramValue') + " ";
-                var retStruct = xcHelper.extractOpAndArgs(filterInfo, ',');
-
+                
 
                 defaultText += '<div class="static">by</div>' +
                                 '<div class="boxed sm-med">' +
-                                    retStruct.op +
+                                xcHelper.escapeHTMLSepcialChar(retStruct.op) +
                                 '</div>';
                 for (var i = 1; i < retStruct.args.length; i++) {
                     defaultText += '<div class="boxed medium">' +
-                                        encodeURI(retStruct.args[i]) +
+                                        xcHelper.escapeHTMLSepcialChar(
+                                            retStruct.args[i]) +
                                     '</div>';
                 }
 
@@ -200,13 +203,13 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
 
+        
         $dfgParamModal.find('.template').html(defaultText);
         $editableRow.html(editableText);
 
-
         var draggableInputs = "";
         validParams = [];
-        DF.getDataflow(dfgName).parameters.forEach(function(paramName) {
+        DF.getDataflow(dfName).parameters.forEach(function(paramName) {
             draggableInputs += generateDraggableParams(paramName);
             validParams.push(paramName);
         });
@@ -221,7 +224,7 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         fillUpRows();
-        populateSavedFields(id, dfgName);
+        populateSavedFields(id, dfName);
 
         if (type === "filter") {
             var $list = $dfgParamModal.find('.tdWrapper.dropDownList');

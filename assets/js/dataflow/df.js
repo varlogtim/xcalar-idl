@@ -84,6 +84,7 @@ window.DF = (function($, DF) {
         for (var df in deepCopy) {
             delete deepCopy[df].nodeIds;
             delete deepCopy[df].retinaNodes;
+            delete deepCopy[df].columns;
         }
         return deepCopy;
     };
@@ -92,7 +93,7 @@ window.DF = (function($, DF) {
         return (dataflows[dataflowName]);
     };
 
-    DF.addDataflow = function(dataflowName, dataflow, options) {
+    DF.addDataflow = function(dataflowName, dataflow, expTableName, options) {
         var isUpload = false;
         // var noClick = false;
         if (options) {
@@ -106,7 +107,7 @@ window.DF = (function($, DF) {
         if (isUpload) {
             innerDef = PromiseHelper.resolve();
         } else {
-            innerDef = createRetina(dataflowName);
+            innerDef = createRetina(dataflowName, expTableName);
         }
 
         innerDef
@@ -200,9 +201,8 @@ window.DF = (function($, DF) {
         return dataflows.hasOwnProperty(dataflowName);
     };
 
-    function createRetina(retName) {
+    function createRetina(retName, tableName) {
         var df = dataflows[retName];
-        var tableName = df.tableName;
         var columns = [];
 
         var tableArray = [];
@@ -221,7 +221,6 @@ window.DF = (function($, DF) {
         retinaDstTable.target.name = tableName;
         retinaDstTable.columns = columns;
         tableArray.push(retinaDstTable);
-
         return XcalarMakeRetina(retName, tableArray);
     }
 
@@ -241,7 +240,7 @@ window.DF = (function($, DF) {
     }
 
     function addColumns(dataflowName) {
-        var dFlow = dataflows[dataflowName];
+        var dFlow = DF.getDataflow(dataflowName);
         for (i = 0; i < dFlow.retinaNodes.length; i++) {
             if (dFlow.retinaNodes[i].api === XcalarApisT.XcalarApiExport) {
                 var exportCols = dFlow.retinaNodes[i].input.exportInput

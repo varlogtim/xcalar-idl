@@ -222,13 +222,12 @@ window.DFCreateView = (function($, DFCreateView) {
 
     function saveDataFlow(dataflowName, columns, tableName) {
         var dataflowParams = {
-            "tableName": tableName,
-            "columns"  : columns,
+            "columns"  : columns
         };
 
         var df = new Dataflow(dataflowName, dataflowParams);
 
-        return (DF.addDataflow(dataflowName, df));
+        return (DF.addDataflow(dataflowName, df, tableName));
     }
 
     function addFormEvents() {
