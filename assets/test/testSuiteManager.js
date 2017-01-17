@@ -330,7 +330,15 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             // Data is returned in descending order
             var html = "";
             for (var i = 0; i < ret.length; i++) {
-                html += '<div class="row">';
+                var extraClass = "";
+                if (ret[i].succeeded === 0 && ret[i].failed === 0) {
+                    extraClass = "";
+                } else if (ret[i].failed > 0) {
+                    extraClass = "fail";
+                } else {
+                    extraClass = "pass";
+                }
+                html += '<div class="row ' + extraClass + '">';
                 html += '<div class="pastBuild">' + ret[i].build + '</div>';
                 var val;
                 if (!ret[i].start) {
