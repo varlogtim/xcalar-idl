@@ -28,9 +28,10 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         "arrayOfFields": [{
             "type"      : "column",
             "name"      : "Window On",
-            "fieldClass": "winCol",
+            "fieldClass": "winCols",
             "autofill"  : true,
             "typeCheck" : {
+                "multiColumn": true,
                 "columnType": ["number", "string"]
             }
         },
@@ -127,34 +128,50 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 return XcSDK.Promise.reject("Lag and Lead cannot all be zeros");
             }
 
+            var srcId = xcHelper.getTableId(ext.getTriggerTable().getName());
+            // XXX GUI-6899
+            var fieldAttrs = gTables[srcId].backTableMeta.valueAttrs
+            var numFields = fieldAttrs.length;
+            var srcColNames = [];
+            var avoidCollision = false;
+
+            for (var i = 0; i < numFields; i++) {
+                if (fieldAttrs[i].name.includes("_lag_") ||
+                    fieldAttrs[i].name.includes("_lead_")) {
+                    avoidCollision = true;
+                }
+            }
+
             // set some useful attribute
+            self.setAttribute("avoidCollision", avoidCollision);
+
             self.setAttribute("randNumber", Math.floor(Math.random() * 100));
             // constant to mark it's a lag table, lead table, or current table
-            self.setAttribute("WinState", {
+            self.setAttribute("winState", {
                 "lag" : "lag",
                 "lead": "lead",
-                "cur" : "cur"
             });
 
             // cache tableNames for lag, lead and cur table
             self.setAttribute("tableNames", {
                 "lag" : [],
                 "lead": [],
-                "cur" : ""
             });
 
-            // cache renamed col of the colName in lag, lead and cur table
-            self.setAttribute("winColNames", {
+            // cache winCols for lag and lead
+            self.setAttribute("winColFinal", {
                 "lag" : [],
                 "lead": [],
-                "cur" : ""
+                "cur" : [],
             });
 
-            // cache names of genUniq col in lag, lead and cur table
-            self.setAttribute("genUniqColNames", {
+            // renameMap for appending _lag and _lead to orig colNames
+            self.setAttribute("renameMap", []);
+
+            // cache names of rowNum col in lag, lead and cur table
+            self.setAttribute("rowNumColNames", {
                 "lag" : [],
                 "lead": [],
-                "cur" : ""
             });
         };
 
@@ -163,144 +180,163 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             var self = this;
             var args = self.getArgs();
             var sortCol = args.sortCol;
-            var winCol = args.winCol;
+            var winCols = args.winCols;
             var direction = args.order;
             var lag = args.lag;
             var lead = args.lead;
+            var srcTable = ext.getTriggerTable().getName();
+            var rowNumTable;
+            var rowNumCol;
 
-            var WinState = self.getAttribute("WinState");
+            var winState = self.getAttribute("winState");
+            var renameMap = self.getAttribute("renameMap");
+            var winColFinal = self.getAttribute("winColFinal");
             var finalTableName;
-            var newOrigSortedOnCol;
 
             // Step 1: sort table
             winSortTable(self, sortCol, direction)
             .then(function(tableAfterSort) {
-                // Step 2: Get Row Num Column, on SORTED table.
+                // Step 2: Get Row Num Column, on SORTED table and index on it.
                 return winGenRowNum(self, tableAfterSort);
             })
-            .then(function(tableWithRowNum, rowNumCol) {
-                // Step 3: Generate the columns for lag and lead. We need to
-                // duplicate current table to have a unique column name, if not
-                // later we will suffer when we self join
-                var defArray = [];
-                var i;
-                for (i = 0; i < lag; i++) {
-                    defArray.push(windLagLeadMap(self, WinState.lag, i,
-                                                tableWithRowNum, rowNumCol));
-                }
-
-                for (i = 0; i < lead; i++) {
-                    defArray.push(windLagLeadMap(self, WinState.lead, i,
-                                                tableWithRowNum, rowNumCol));
-                }
-
-                defArray.push(windLagLeadMap(self, WinState.cur, -1,
-                                            tableWithRowNum, rowNumCol));
-                return XcSDK.Promise.when.apply(window, defArray);
+            .then(function(tableWithRowNum, rowNumColTmp) {
+                // Step 3: Project the columns we want to window on. Converts
+                // fatptr columns to immediates
+                rowNumCol = rowNumColTmp;
+                rowNumTable = tableWithRowNum;
+                return winProject(self, tableWithRowNum);
             })
-            .then(function() {
-                // Step 4: Create unique col names for each of the tables
-                // This is so that we don't suffer when we self join
-                var defArray = [];
-                var i;
-                for (i = 0; i < lag; i++) {
-                    defArray.push(winColRename(self, WinState.lag, i, winCol));
-                }
-                for (i = 0; i < lead; i++) {
-                    defArray.push(winColRename(self, WinState.lead, i, winCol));
-                }
-
-                defArray.push(winColRename(self, WinState.cur, -1, winCol));
-                return XcSDK.Promise.when.apply(window, defArray);
-            })
-            .then(function() {
-                // Step 5: Need to rename the original sorted by column in cur
-                // table to avoid name collisions
-                return windRenameSortCol(ext, sortCol);
-            })
-            .then(function(tableAfterCast, newColName) {
-                newOrigSortedOnCol = newColName;
-                // Step 6: inner join funnesss!
-                // Order: Take cur, join lags then join leads
+            .then(function(tableAfterProject) {
+                // Step 4: Generate the columns for lag and lead.
                 var defChain = [];
-
-                var tableNames = self.getAttribute("tableNames");
-                var genUniqColNames = self.getAttribute("genUniqColNames");
-                var joinType = XcSDK.Enums.JoinType.InnerJoin;
-
-                var lTable = tableNames.cur;
-                var lCol = genUniqColNames.cur;
-                var rTable;
-                var rCol;
-                var newTableName;
                 var i;
-
                 for (i = 0; i < lag; i++) {
-                    newTableName = self.createTableName(null, "_window");
-                    rTable = tableNames.lag[i];
-                    rCol = genUniqColNames.lag[i];
-                    finalTableName = newTableName;
-                    defChain.push(self.join.bind(self, joinType,
-                                                {"tableName": lTable,
-                                                 "columns" :lCol},
-                                                {"tableName": rTable,
-                                                 "columns": rCol},
-                                                 newTableName));
-                    lTable = newTableName;
+                    defChain.push(windLagLeadMap.bind(this, self, winState.lag, i,
+                                                 tableAfterProject, rowNumCol));
                 }
-
                 for (i = 0; i < lead; i++) {
-                    newTableName = self.createTableName(null, "_window");
-                    rTable = tableNames.lead[i];
-                    rCol = genUniqColNames.lead[i];
-                    finalTableName = newTableName;
-                    defChain.push(self.join.bind(self, joinType,
-                                                 {"tableName": lTable,
-                                                  "columns" :lCol},
-                                                 {"tableName": rTable,
-                                                  "columns": rCol},
-                                                 newTableName));
-                    lTable = newTableName;
+                    defChain.push(windLagLeadMap.bind(this, self, winState.lead, i,
+                                                 tableAfterProject, rowNumCol));
                 }
 
                 return XcSDK.Promise.chain(defChain);
             })
-            //.then(function() {
-            //    // Step 7: Sort ascending or descending by the cur order number
-            //    return self.sort(direction, newOrigSortedOnCol, finalTableName);
-            //})
             .then(function() {
-                // Step 8: YAY WE ARE FINALLY DONE! Just start picking out all
-                // the columns now and do the sort and celebrate
-                var table = self.getTable(finalTableName);
+                // Step 5: inner join funnesss!
+                // Order: Take cur, join lags then join leads
+                var defChain = [];
+
+                var tableNames = self.getAttribute("tableNames");
+                var rowNumColNames = self.getAttribute("rowNumColNames");
+                var joinType = XcSDK.Enums.JoinType.InnerJoin;
+
+                var lTable = rowNumTable;
+                var lCol = rowNumCol;
+                var rTable;
+                var rCol;
+                var newTableName, newColName, col;
+                var i, j;
+
+                for (i = 0; i < lag; i++) {
+                    var renameMapTmp = [];
+                    for (j = 0; j < renameMap.length; j++) {
+                        newColName = renameMap[j].orig + "_lag_" + (i + 1);
+                        renameMapTmp.push(
+                            xcHelper.getJoinRenameMap(renameMap[j].orig,
+                                                      newColName,
+                                                      renameMap[j].type));
+
+                        col = new XcSDK.Column(newColName,
+                                               winCols[j].getType());
+                        winColFinal.lag.push(col);
+                    }
+
+                    newTableName = self.createTableName(null, "_window");
+                    rTable = tableNames.lag[i];
+                    rCol = rowNumColNames.lag[i];
+                    defChain.push(self.join.bind(self, joinType,
+                                                 {"tableName": lTable,
+                                                  "columns" : lCol},
+                                                 {"tableName": rTable,
+                                                  "columns": rCol,
+                                                  "rename" : renameMapTmp},
+                                                 newTableName));
+                    lTable = newTableName;
+                }
+
+                for (i = 0; i < lead; i++) {
+                    var renameMapTmp = [];
+                    for (j = 0; j < renameMap.length; j++) {
+                        newColName = renameMap[j].orig + "_lead_" + (i + 1);
+                        renameMapTmp.push(
+                            xcHelper.getJoinRenameMap(renameMap[j].orig,
+                                                      newColName,
+                                                      renameMap[j].type));
+
+                        col = new XcSDK.Column(newColName,
+                                               winCols[j].getType());
+                        winColFinal.lead.push(col);
+                    }
+
+                    newTableName = self.createTableName(null, "_window");
+                    rTable = tableNames.lead[i];
+                    rCol = rowNumColNames.lead[i];
+                    defChain.push(self.join.bind(self, joinType,
+                                                 {"tableName": lTable,
+                                                  "columns" :lCol},
+                                                 {"tableName": rTable,
+                                                  "columns": rCol,
+                                                  "rename" : renameMapTmp},
+                                                 newTableName));
+                    lTable = newTableName;
+                }
+
+                finalTableName = newTableName;
+
+                return XcSDK.Promise.chain(defChain);
+            })
+            .then(function() {
+                // Step 6: Sort on the original sortCol
+                newTableName = self.createTableName(null, "_window");
+                return self.sort(direction, rowNumCol,
+                                 finalTableName, newTableName);
+            })
+            .then(function(tableAfterSort) {
+                // Step 7: YAY WE ARE FINALLY DONE! pick out the columns
+                var table = self.getTable(tableAfterSort);
                 if (table != null) {
                     table.deleteAllCols();
-                    // Don't pull cur. Instead pull the original sorted col which
-                    // cur was generated on.
-                    var winColNames = self.getAttribute("winColNames");
-                    var colType = sortCol.getType();
-                    if (colType === "integer" || colType === "float") {
-                        colType = "float";
-                    }
-                    var winColType = winCol.getType();
-                    if (winColType === "integer" || winColType === "float") {
-                        winColType = "float";
+                    table.addCol(sortCol);
+                    var numWinCols = winCols.length;
+                    var winColNames = [];
+
+                    for (var i = 0; i < numWinCols; i++) {
+                        for (var k = lag-1; k >= 0; k--) {
+                            table.addCol(winColFinal.lag[i + k*numWinCols]);
+                        }
+
+                        table.addCol(winCols[i]);
+                        winColNames.push(winCols[i].getName());
+
+                        for (var k = 0; k < lead; k++) {
+                            table.addCol(winColFinal.lead[i + k*numWinCols]);
+                        }
                     }
 
-                    var col = new XcSDK.Column(newOrigSortedOnCol, colType);
-                    table.addCol(col);
-                    for (var i = lag - 1; i >= 0; i--) {
-                        col = new XcSDK.Column(winColNames.lag[i], winColType);
+                    var srcCols = ext.getTriggerTable().tableCols;
+                    for (var i = 0; i < srcCols.length; i++) {
+                        var colName = srcCols[i].getBackColName();
+                        var colType = srcCols[i].getType();
+                        if (winColNames.includes(colName) ||
+                            colName == "DATA" ||
+                            colName == sortCol.getName()) {
+                            continue;
+                        }
+
+                        var col = new XcSDK.Column(colName, colType);
                         table.addCol(col);
                     }
 
-                    col = new XcSDK.Column(winColNames.cur, winColType);
-                    table.addCol(col);
-
-                    for (var i = 0; i < lead; i++) {
-                        col = new XcSDK.Column(winColNames.lead[i], winColType);
-                        table.addCol(col);
-                    }
                     return table.addToWorksheet();
                 }
 
@@ -349,12 +385,64 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         return deferred.promise();
     }
 
+    function winProject(ext, srcTable) {
+        var deferred = XcSDK.Promise.deferred();
+        var newColName = "orig_order_" + ext.getAttribute("randNumber");
+
+        var winColFinal = ext.getAttribute("winColFinal");
+        var renameMap = ext.getAttribute("renameMap");
+        var winCols = ext.getArgs().winCols;
+        var winColNames = [];
+        var defChain = [];
+        var newTableName, newColName, mapStr, prefix, col;
+
+        // extract all fatptr cols as immediates by casting to same type
+        for (var i = 0; i < winCols.length; i++) {
+            prefix = winCols[i].getPrefix();
+            if (prefix != "") {
+                mapStr = winCols[i].getTypeForCast() +
+                    "(" + winCols[i].getName() + ")";
+
+                newTableName = ext.createTableName(null, "_project");
+                newColName = prefix + "_" + winCols[i].getParsedName();
+
+                if (ext.getAttribute("avoidCollision")) {
+                    newColName += "_win" + ext.getAttribute("randNumber");
+                }
+
+                defChain.push(ext.map.bind(ext, mapStr, srcTable, newColName,
+                                           newTableName));
+                srcTable = newTableName;
+            } else {
+                newColName = winCols[i].getName();
+            }
+
+            winColNames.push(newColName);
+            col = new XcSDK.Column(newColName, winCols[i].getType());
+            winColFinal.cur.push(col);
+
+            renameMap.push(xcHelper.getJoinRenameMap(newColName, "", null));
+        }
+
+        XcSDK.Promise.chain(defChain)
+        .then(function() {
+            return (ext.project(winColNames, newTableName));
+        })
+        .then(function(tableAfterProject) {
+            deferred.resolve(tableAfterProject);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function windLagLeadMap(ext, state, index, srcTable, rowNumCol) {
         var deferred = XcSDK.Promise.deferred();
 
+
         var tableNames = ext.getAttribute("tableNames");
-        var genUniqColNames = ext.getAttribute("genUniqColNames");
-        var WinState = ext.getAttribute("WinState");
+        var rowNumColNames = ext.getAttribute("rowNumColNames");
+        var winState = ext.getAttribute("winState");
         var randNumber = ext.getAttribute("randNumber");
 
         var newColName;
@@ -362,144 +450,33 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         var suffix = (index + 1);
         var tableNameSuffix;
 
-        if (state === WinState.lag) {
+        if (state === winState.lag) {
             // lagMapString
-            mapStr = "add(" + rowNumCol + ", " + suffix + ")";
+            mapStr = "int(add(" + rowNumCol + ", " + suffix + "))";
             tableNameSuffix = "_" + randNumber + "_lag_" + suffix;
             newColName = "lag_" + suffix + "_" + randNumber;
 
-        } else if (state === WinState.lead) {
+        } else if (state === winState.lead) {
             // leadMapString
-            mapStr = "sub(" + rowNumCol + ", " + suffix + ")";
+            mapStr = "int(sub(" + rowNumCol + ", " + suffix + "))";
             tableNameSuffix = "_" + randNumber + "_lead_" + suffix;
             newColName = "lead_" + suffix + "_" + randNumber;
-        } else if (state === WinState.cur) {
-            // curMapString
-            mapStr = "float(" + rowNumCol + ")";
-            tableNameSuffix = "_" + randNumber + "_cur";
-            newColName = "cur_" + randNumber;
-        } else {
+        }  else {
             throw "Error Case!";
         }
 
         var newTableName = ext.createTableName(null, tableNameSuffix);
-        // cache tableName and colName for later user
-        if (state === WinState.cur) {
-            tableNames.cur = newTableName;
-            genUniqColNames.cur = newColName;
-        } else {
-            tableNames[state][index] = newTableName;
-            genUniqColNames[state][index] = newColName;
-        }
-
-        ext.map(mapStr, srcTable, newColName, newTableName)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function winColRename(ext, state, index, winCol) {
-        var deferred = XcSDK.Promise.deferred();
-
-        var tableNames = ext.getAttribute("tableNames");
-        var winColNames = ext.getAttribute("winColNames");
-        var WinState = ext.getAttribute("WinState");
-
-        var winColName = winCol.getName();
-        var winColType = winCol.getType();
-
-        var srcTable;
-        var suffix = (index + 1);
-        var mapStr = "(" + winColName + ")";
-        if (winColType === "string") {
-            mapStr = "string" + mapStr;
-        } else {
-            mapStr = "float" + mapStr;
-        }
-
-        var newColName = winCol.getParsedName();
-        if (state === WinState.lag) {
-            // lag
-            srcTable = tableNames.lag[index];
-            newColName = "lag_" + suffix + "_" + newColName;
-        } else if (state === WinState.lead) {
-            // lead
-            srcTable = tableNames.lead[index];
-            newColName = "lead_" + suffix + "_" + newColName;
-        } else if (state === WinState.cur) {
-            // cur
-            srcTable = tableNames.cur;
-            newColName = "cur_" + newColName;
-        } else {
-            return XcSDK.Promise.reject("Error Case");
-        }
-
-        var newTableName = ext.createTableName(null, null, srcTable);
-        // update tableName and cache colName
-        if (state === WinState.cur) {
-            tableNames.cur = newTableName;
-            winColNames.cur = newColName;
-        } else {
-            tableNames[state][index] = newTableName;
-            winColNames[state][index] = newColName;
-        }
 
         ext.map(mapStr, srcTable, newColName, newTableName)
         .then(function(tableAfterMap) {
-            var table = ext.getTable(tableAfterMap);
-            if (table != null) {
-                // add the col to meta
-                var colNum = table.getColNum(winCol);
-                if (colNum > 0) {
-                    var col = new XcSDK.Column(newColName, winColType);
-                    // inseart to col before winCol
-                    table.addCol(col, colNum - 1);
-                }
-            }
+            return (ext.index(newColName, newTableName));
         })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        .then(function(tableAfterIndex) {
+            // cache tableName and colName for later user
+            tableNames[state][index] = tableAfterIndex;
+            rowNumColNames[state][index] = newColName;
 
-        return deferred.promise();
-    }
-
-    function windRenameSortCol(ext, sortCol) {
-        var deferred = XcSDK.Promise.deferred();
-
-        var colName = sortCol.getName();
-        var colType = sortCol.getType();
-        var mapStr;
-
-        switch (colType) {
-            // this is front end think of type, inaccurate,
-            // so cast it to float
-            case "integer":
-            case "float":
-                mapStr = "float(" + colName + ")";
-                break;
-            case "boolean":
-                mapStr = "bool(" + colName + ")";
-                break;
-            case "string":
-                mapStr = "string(" + colName + ")";
-                break;
-            default:
-                return XcSDK.Promise.reject("Wrong type in window");
-        }
-
-        var tableNames = ext.getAttribute("tableNames");
-        var srcTable = tableNames.cur;
-
-        var newColName = "orig_" + sortCol.getParsedName() + "_" +
-                         ext.getAttribute("randNumber");
-        var newTableName = ext.createTableName(null, null, srcTable);
-
-        tableNames.cur = newTableName;
-
-        ext.map(mapStr, srcTable, newColName, newTableName)
-        .then(function(tableAfterMap) {
-            deferred.resolve(tableAfterMap, newColName);
+            deferred.resolve(tableAfterIndex);
         })
         .fail(deferred.reject);
 
@@ -575,4 +552,3 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
     return (UExtXcalarDef);
 }({}));
-

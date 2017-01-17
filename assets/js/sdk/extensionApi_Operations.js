@@ -162,7 +162,7 @@ window.XcSDK.Extension.prototype = (function() {
                     "pulledColumns": ["test::colA", "test::colB"],
                     "rename"       : [{
                         "new" : "test2",
-                        "old" : "test",
+                        "orig" : "test",
                         "type": DfFieldTypeT.DfFatptr
                     }]
                 }

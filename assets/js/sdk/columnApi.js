@@ -23,6 +23,19 @@ window.XcSDK.Column.prototype = {
         return this.colType;
     },
 
+    // returns name of cast function for colType
+    getTypeForCast: function() {
+        if (this.colType == "integer") {
+            return "int"
+        } else if (this.colType == "boolean") {
+            return "bool"
+        } else {
+            // string and float
+            return this.colType
+        }
+    },
+
+    // returns "" if no prefix
     getPrefix: function() {
         return xcHelper.parsePrefixColName(this.colName).prefix;
     },
