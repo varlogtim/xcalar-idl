@@ -219,7 +219,10 @@ window.FileBrowser = (function($, FileBrowser) {
                         return;
                     }
 
-                    retrievePaths(path, true);
+                    retrievePaths(path, true)
+                    .fail(function() {
+                        showNoFileError();
+                    });
                 }, 400);
 
                 return false;
@@ -958,8 +961,12 @@ window.FileBrowser = (function($, FileBrowser) {
                 scrollIconIntoView($grid, true);
             }
         } else if (name !== "" && showError) {
-            StatusBox.show(ErrTStr.NoFile, $container, false, {side: 'top'});
+            showNoFileError();
         }
+    }
+
+    function showNoFileError() {
+        StatusBox.show(ErrTStr.NoFile, $container, false, {side: "top"});
     }
 
     function getFocusGrid() {
