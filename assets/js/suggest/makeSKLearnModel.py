@@ -54,8 +54,8 @@ def makeRFStr(X,y):
 def makeAndAppendModels(X,y):
     rfStr = makeRFStr(X,y)
     strIn = "var JoinModelStr;"
-    strOut = "var JoinModelStr = String.raw`" + \
-             rfStr + "`;"
+    strOut = "var JoinModelStr = '" + \
+             rfStr + "';"
     jsFileIn = "skRFPredictorNoMod.js"
     jsFileOut = "skRFPredictor.js"
     hardcodeJSONStr(strIn, strOut, jsFileIn, jsFileOut)
