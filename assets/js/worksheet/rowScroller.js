@@ -164,14 +164,13 @@ window.RowScroller = (function($, RowScroller) {
             };
             $('#rowScroller-' + tableId).addClass('scrolling');
 
-            goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
+            goToPage(backRow, numRowsToAdd, RowDirection.Bottom, info)
             .then(function() {
                 var arr = [];
                 $table.find('tbody tr').each(function() {
                     arr.push($(this).find('td:first').text());
                 });
-                $('#xcTableWrap-' + tableId).find('.tableCoverWaiting')
-                                            .remove();
+                TblManager.removeWaitingCursor(tableId);
                 $('#rowScroller-' + tableId).removeClass('scrolling');
                 var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
                 positionScrollbar(rowToScrollTo, tableId);

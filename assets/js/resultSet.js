@@ -51,8 +51,8 @@ function freeAllResultSetsSync(alwaysResolve) {
 // if our table has rows 0-60 and we're scrolling downwards, rowNumber = 60
 // if our table has rows 60-120 and we're scrolling upwards, rowNumber = 40
 // if we're fetching 20 rows
-function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
-                    rowToPrependTo, retry) {
+function goToPage(rowNumber, numRowsToAdd, direction, info, loop,
+                    rowToPrependTo) {
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
@@ -76,11 +76,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     var setAbsolutePassed = false;
     gIsTableScrolling = true;
 
-    XcalarSetAbsolute(table.resultSetId, rowPosition)
-    .then(function() {
-        setAbsolutePassed = true;
-        return generateDataColumnJson(table, numRowsToAdd);
-    })
+    generateDataColumnJson(table, rowPosition, numRowsToAdd)
     .then(function(jsonData) {
         prepullTableHeight = $table.height();
         TblManager.pullRowsBulk(tableId, jsonData, rowPosition,
@@ -102,8 +98,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         var totalRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
         if (totalRowsStillNeeded > 0) {
             if (!info.looped) {
-                $('#xcTableWrap-' + tableId)
-                            .append('<div class="tableCoverWaiting"></div>');
+                TblManager.addWaitingCursor(tableId);
             }
 
             info.looped = true;
@@ -129,30 +124,8 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         deferred.resolve();
     })
     .fail(function(error) {
-        if (!retry && !setAbsolutePassed &&
-            error.status === StatusT.StatusInvalidResultSetId) {
-
-            XcalarMakeResultSetFromTable(table.getName())
-            .then(function(result) {
-                table.resultSetId = result.resultSetId;
-                goToPage(rowNumber, numRowsToAdd, direction, loop, info,
-                        rowToPrependTo, true)
-                .then(function() {
-                    deferred.resolve();
-                })
-                .fail(function(error2) {
-                    console.error("2nd attempt of goToPage fails!", error2);
-                    deferred.reject(error2);
-                });
-            })
-            .fail(function(error1) {
-                console.error("generateDataColumnJson fails!", error1);
-                deferred.reject(error1);
-            });
-        } else {
-            console.error("goToPage fails!", error);
-            deferred.reject(error);
-        }
+        console.error("goToPage fails!", error);
+        deferred.reject(error);
     })
     .always(function() {
         gIsTableScrolling = false;
@@ -171,7 +144,7 @@ function scrollDownHelper(position, oldPosition, jsonLen, numRowsStillNeeded,
                                   (table.resultSetMax - newRowToGoTo));
 
         return (goToPage(newRowToGoTo, numRowsToFetch, RowDirection.Bottom,
-                         true, info));
+                         info, true));
 
     } else if (info.bulk) {
         // reached the very end of table, will start scrolling up for
@@ -184,16 +157,15 @@ function scrollDownHelper(position, oldPosition, jsonLen, numRowsStillNeeded,
             table.resultSetMax = jsonLen + oldPosition;
             table.currentRowNumber = table.resultSetMax;
             var numRowsToRemove = $table.find("tbody tr").length -
-                info.numRowsAdded;
-            $table.find("tbody tr").slice(0, numRowsToRemove)
-                .remove();
+                                  info.numRowsAdded;
+            $table.find("tbody tr").slice(0, numRowsToRemove).remove();
         }
         if (numRowsStillNeeded === 0) {
             return PromiseHelper.resolve(null);
         } else {
             info.reverseLooped = true;
             return (goToPage(newRowToGoTo, numRowsStillNeeded, RowDirection.Top,
-                         true, info));
+                         info, true));
         }
     } else {
         return PromiseHelper.resolve(null);
@@ -211,8 +183,8 @@ function scrollUpHelper(position, totalRowsStillNeeded, numRowsToFetch, $table,
             numRowsToFetch = info.currentFirstRow - position;
         }
         if (numRowsToFetch > 0) {
-            return (goToPage(position, numRowsToFetch, RowDirection.Top, true,
-                            info, position + numRowsToFetch));
+            return (goToPage(position, numRowsToFetch, RowDirection.Top,
+                            info, true, position + numRowsToFetch));
         } else {
             return (scrollUpHelper(position, totalRowsStillNeeded,
                                    numRowsToFetch, $table, info));
@@ -227,7 +199,7 @@ function scrollUpHelper(position, totalRowsStillNeeded, numRowsToFetch, $table,
             position = Math.max(info.targetRow, 0);
             info.currentFirstRow = position + totalRowsStillNeeded;
             return (goToPage(position, totalRowsStillNeeded, RowDirection.Top,
-                             true, info));
+                             info, true));
         } else {
             return PromiseHelper.resolve(null);
         }
@@ -282,11 +254,11 @@ function getFirstPage(table) {
     }
     TblManager.adjustRowFetchQuantity();
     var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetCount);
-    return generateDataColumnJson(table, numRowsToAdd);
+    return generateDataColumnJson(table, null, numRowsToAdd);
 }
 
 // produces an array of all the td values that will go into the DATA column
-function generateDataColumnJson(table, numRowsToFetch, retry) {
+function generateDataColumnJson(table, rowPosition, numRowsToFetch) {
     var jsons = [];
 
     if (table.resultSetId === 0) {
@@ -297,8 +269,18 @@ function generateDataColumnJson(table, numRowsToFetch, retry) {
     }
 
     var deferred = jQuery.Deferred();
+    var promise;
 
-    XcalarGetNextPage(table.resultSetId, numRowsToFetch)
+    if (rowPosition == null) {
+        promise = PromiseHelper.resolve(null);
+    } else {
+        promise = tableSetAbsolute(table, rowPosition);
+    }
+
+    promise
+    .then(function() {
+        return (tableGetNextPage(table, numRowsToFetch));
+    })
     .then(function(tableOfEntries) {
         var kvPairs = tableOfEntries.kvPair;
         var numKvPairs = tableOfEntries.numKvPairs;
@@ -317,22 +299,11 @@ function generateDataColumnJson(table, numRowsToFetch, retry) {
         deferred.resolve(jsons);
     })
     .fail(function(error) {
-        if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
-            XcalarMakeResultSetFromTable(table.getName())
-            .then(function(result) {
-                table.resultSetId = result.resultSetId;
-                generateDataColumnJson(table, numRowsToFetch, true)
-                .then(deferred.resolve)
-                .fail(function(error2) {
-                    console.error("2nd attempt of generateDataColumnJson " +
-                        "fails!", error2);
-                    deferred.reject(error2);
-                });
-            })
-            .fail(function(error1) {
-                console.error("generateDataColumnJson fails!", error1);
-                deferred.reject(error1);
-            });
+        if (error.status === StatusT.StatusNoBufs) {
+            numRowsToFetch = Math.floor(numRowsToFetch / 2);
+            generateDataColumnJson(table, rowPosition, numRowsToFetch)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
         } else {
             console.error("generateDataColumnJson fails!", error);
             deferred.reject(error);
@@ -340,4 +311,52 @@ function generateDataColumnJson(table, numRowsToFetch, retry) {
     });
 
     return deferred.promise();
+}
+
+// resets invalid resultsetIds
+function tableGetNextPage(table, numRowsToFetch, retry) {
+    var deferred = jQuery.Deferred();
+
+    XcalarGetNextPage(table.resultSetId, numRowsToFetch)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        // invalid result set ID may need to be refreshed
+        if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
+            XcalarMakeResultSetFromTable(table.getName())
+            .then(function(result) {
+                table.resultSetId = result.resultSetId;
+                return tableGetNextPage(table, numRowsToFetch, true);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            deferred.reject(error);
+        }
+    });
+
+    return (deferred.promise());
+}
+
+// resets invalid resultsetIds
+function tableSetAbsolute(table, rowPosition, retry) {
+    var deferred = jQuery.Deferred();
+
+    XcalarSetAbsolute(table.resultSetId, rowPosition)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        // invalid result set ID may need to be refreshed
+        if (!retry && error.status === StatusT.StatusInvalidResultSetId) {
+            XcalarMakeResultSetFromTable(table.getName())
+            .then(function(result) {
+                table.resultSetId = result.resultSetId;
+                return tableSetAbsolute(table, rowPosition, retry);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            deferred.reject(error);
+        }
+    });
+
+    return (deferred.promise());
 }

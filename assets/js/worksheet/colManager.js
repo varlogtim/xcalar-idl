@@ -1269,13 +1269,14 @@ window.ColManager = (function($, ColManager) {
 
         // assign column type class to header menus
         var $tBody = $(tBodyHTML);
-        if (direction === 1) {
+        if (direction === RowDirection.Top) {
             if (rowToPrependTo > -1) {
                 $table.find('.row' + rowToPrependTo).before($tBody);
             } else {
                 $table.find('tbody').prepend($tBody);
             }
         } else {
+            
             $table.find('tbody').append($tBody);
         }
 

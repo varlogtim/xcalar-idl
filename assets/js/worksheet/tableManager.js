@@ -1104,6 +1104,14 @@ window.TblManager = (function($, TblManager) {
         moveFirstColumn();
     };
 
+    TblManager.addWaitingCursor = function(tableId) {
+        $('#xcTableWrap-' + tableId).append('<div class="tableCoverWaiting"></div>');
+    };
+
+    TblManager.removeWaitingCursor = function(tableId) {
+        $('#xcTableWrap-' + tableId).find('.tableCoverWaiting').remove();
+    };
+
     // returns {
     //    hasSuccess:boolean,
     //    fails: [{tables: "tableName", error: "error"}]
@@ -1220,8 +1228,8 @@ window.TblManager = (function($, TblManager) {
                             "currentFirstRow" : topRowNum
                         };
 
-                        goToPage(rowNumber, numRowsToAdd, RowDirection.Top,
-                                false, info)
+                        goToPage(rowNumber, numRowsToAdd, RowDirection.Top, 
+                                 info)
                         .then(function() {
                             innerDeferred.resolve();
                         })
@@ -1230,8 +1238,7 @@ window.TblManager = (function($, TblManager) {
                         })
                         .always(function() {
                             scrolling = false;
-                            $('#xcTableWrap-' + tableId).find('.tableCoverWaiting')
-                                                .remove();
+                            TblManager.removeWaitingCursor(tableId);
                         });
                     } else {
                         adjustRowScrollerRange = true;
@@ -1263,7 +1270,7 @@ window.TblManager = (function($, TblManager) {
                     };
 
                     goToPage(table.currentRowNumber, numRowsToAdd,
-                             RowDirection.Bottom, false, info)
+                             RowDirection.Bottom, info)
                     .then(function() {
                         innerDeferred.resolve();
                     })
@@ -1272,8 +1279,7 @@ window.TblManager = (function($, TblManager) {
                     })
                     .always(function() {
                         scrolling = false;
-                        $('#xcTableWrap-' + tableId).find('.tableCoverWaiting')
-                                                    .remove();
+                        TblManager.removeWaitingCursor(tableId);
                     });
                 } else {
                     adjustRowScrollerRange = true;
@@ -1518,7 +1524,7 @@ window.TblManager = (function($, TblManager) {
                 };
 
                 return goToPage(table.currentRowNumber, numRowsStillNeeded,
-                                RowDirection.Bottom, false, info)
+                                RowDirection.Bottom, info)
                         .then(function() {
                             var lastRow = $table.find('tr:last');
                             var lastRowNum = parseInt(lastRow.attr('class')
@@ -1544,9 +1550,7 @@ window.TblManager = (function($, TblManager) {
                             }
                         })
                         .always(function() {
-                            $('#xcTableWrap-' + tableId)
-                                            .find('.tableCoverWaiting')
-                                            .remove();
+                            TblManager.removeWaitingCursor(tableId);
                         });
             }
         })
