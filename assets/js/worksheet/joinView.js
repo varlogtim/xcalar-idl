@@ -996,7 +996,6 @@ window.JoinView = (function($, JoinView) {
         formHelper.disableSubmit();
         var joinType = $joinTypeSelect.find(".text").text();
         var newTableName = $joinTableName.val().trim();
-
         joinSubmitHelper(joinType, newTableName)
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -1076,6 +1075,16 @@ window.JoinView = (function($, JoinView) {
         var rTableId = tableIds[1];
         var lTable = gTables[lTableId];
         var rTable = gTables[rTableId];
+
+        // Must collect joinKey data here in case old tables not kept
+        var joinKeyDataToSubmit;
+        try {
+            joinKeyDataToSubmit = prepJoinKeyDataSubmit(lCols, rCols,
+                                                        lTableId, rTableId);
+        } catch (err) {
+            console.log("Failed to prep join key data with err: " + err)
+            joinKeyDataToSubmit = null;
+        }
 
         var lColNums = [];
         var rColNums = [];
@@ -1479,6 +1488,14 @@ window.JoinView = (function($, JoinView) {
             xcFunction.join(joinType, lJoinInfo, rJoinInfo,
                             newTableName, options)
             .then(function(finalTableName) {
+                // Submit data for data collection
+                try {
+                    if (joinKeyDataToSubmit) {
+                        submitJoinKeyData(joinKeyDataToSubmit);
+                    }
+                } catch (err) {
+                    console.log("Submit Join Key Data failed with error: " + err);
+                }
                 innerDeferred.resolve(finalTableName);
             })
             .fail(function(error) {
@@ -1490,8 +1507,35 @@ window.JoinView = (function($, JoinView) {
         }
 
         function removeNoChanges(elem) {
-            return (!(elem.orig === elem.new));
+            return (elem.orig !== elem.new);
         }
+    }
+
+    function prepJoinKeyDataSubmit(lCols, rCols, lTableId, rTableId) {
+        var dataPerClause = [];
+        // Iterate over each clause, treating every pair of left|right clause
+        // as a completely independent data point.
+        for (i = 0; i < lCols.length; i++) {
+            var curSrcBackName = lCols[i];
+            var curDestBackName = rCols[i];
+            var joinKeyInputs = getJoinKeyInputs(lTableId,
+                                                curSrcBackName,
+                                                rTableId);
+            var dataToSubmit = xcSuggest.processJoinKeySubmitData(joinKeyInputs,
+                                                        curDestBackName);
+            if (!dataToSubmit.isValid) {
+                console.log("Tried to submit invalid mlInputData: " +
+                    JSON.stringify(dataToSubmit));
+                return null;
+            } else {
+                dataPerClause.push(dataToSubmit);
+            }
+        }
+        return dataPerClause;
+    }
+
+    function submitJoinKeyData(joinKeyDataToSubmit) {
+        xcSuggest.submitJoinKeyData(joinKeyDataToSubmit);
     }
 
     //show alert to go back to op view
@@ -1667,7 +1711,7 @@ window.JoinView = (function($, JoinView) {
         $joinView.removeClass('nextStep');
         updateJoinTableName();
         resetRenames();
-    }
+        }
 
     function updateJoinTableName() {
         var joinTableName = "";
@@ -1780,15 +1824,15 @@ window.JoinView = (function($, JoinView) {
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
         var inputs = getJoinKeyInputs(tableId, val, suggTableId);
 
-        result = xcSuggest.suggestJoinKey(inputs);
+        var suggestion = xcSuggest.suggestJoinKey(inputs);
         // NOTE: Heuristic score on range of all ints,
         // but ML score on range of -100 to 0;
         var thresholdScore = -50;
 
-        if (result.colToSugg !== null) {
-            $inputToFill.val(result.colToSugg);
+        if (suggestion.colToSugg !== null) {
+            $inputToFill.val(suggestion.colToSugg);
 
-            if (thresholdScore > result.maxScore) {
+            if (thresholdScore > suggestion.maxScore) {
                 return JoinKeySuggestion.KeyUnsure;
             }
             return JoinKeySuggestion.KeySuggested;

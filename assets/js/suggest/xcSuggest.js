@@ -1,9 +1,13 @@
 window.xcSuggest = (function($, xcSuggest) {
-// TODO: Potential issue: introduces circular dependencies.
-// 1: Record & Field delimiters.
-// 2: Smart casting column type (smartCastView).
-// 3: Smart casting column type (colManager).
-// 3: Smart suggesting join keys.
+/* General workflow:
+ * 1.) Some ML setting gets most raw form of data possible
+ * 2.) ML setting processes those inputs into features for the ML platform
+ * 2a.) The features must also contain a reserved field "uniqueIdentifier"
+ *      which uniquely identifies the result we select
+ * 3.) ML engine evaluates the model for that setting on the features
+ * 4.) ML setting returns the unique identifier and score
+ *
+*/
 
     var MLEngine;
 
@@ -25,18 +29,46 @@ window.xcSuggest = (function($, xcSuggest) {
 
         // For now, the ML and heuristic both use the same features.
 
-        var featuresPerColumn = processJoinKeyInputsHeuristic(inputs);
+        var featuresPerColumn = processJoinKeyInputs(inputs);
         if (useEngine) {
             try {
                 return suggestJoinKeyML(featuresPerColumn);
-            }
-            catch (err) {
+            } catch (err) {
                 console.log("ML Engine failed with error: " + err +
                     "\nSwitching to heuristic.");
             }
         }
         return suggestJoinKeyHeuristic(featuresPerColumn);
     };
+
+    xcSuggest.processJoinKeySubmitData = function(joinKeyInputs,
+                                            curDestBackName) {
+        var mlInputData = {};
+        var inputFeatures = processJoinKeyInputs(joinKeyInputs);
+        addSuggestFeatures(mlInputData, inputFeatures);
+        addSuggestLabels(mlInputData, curDestBackName);
+        addIsValid(mlInputData);
+        return mlInputData;
+    };
+
+    xcSuggest.isValidJoinKeySubmitData = function(mlInputData) {
+        return checkSuggestDataPortionsMatch(mlInputData);
+    };
+
+    xcSuggest.submitJoinKeyData = function(dataPerClause) {
+        var realSubmit = false; // Hardcoded flag, will change or remove
+        if (realSubmit) {
+            xcTracker.track(XCTrackerCategory.SuggestJoinKey, dataPerClause);
+        } else {
+            console.log("DataSubSuccess: " + JSON.stringify(dataPerClause));
+        }
+    };
+
+    function processJoinKeyInputs(inputs) {
+        // For now this is a shallow cover, this will change once heuristic
+        // and ML use different features
+        return processJoinKeyInputsHeuristic(inputs);
+    }
 
     function processJoinKeyInputsHeuristic(inputs) {
         // Inputs has fields srcColInfo and destColsInfo
@@ -55,7 +87,12 @@ window.xcSuggest = (function($, xcSuggest) {
             // 0 is rowMarker
             if (curColInfo.type === type) {
                 var destContext = contextCheck(curColInfo);
-                var match   = 0;
+                var match = 0;
+                var maxDiff;
+                var minDiff;
+                var avgDiff;
+                var sig2Diff;
+                var titleDist;
                 if (type === "string") {
                     var bucket  = {};
                     var bucket2 = {};
@@ -92,16 +129,30 @@ window.xcSuggest = (function($, xcSuggest) {
                             }
                         }
                     }
+                    maxDiff = Math.abs(srcContext.max - destContext.max);
+                    minDiff = Math.abs(srcContext.min - destContext.min);
+                    avgDiff = Math.abs(srcContext.avg - destContext.avg);
+                    sig2Diff = Math.abs(srcContext.sig2 - destContext.sig2);
+                } else {
+                    // Type is number
+                    maxDiff = calcSim(srcContext.max, destContext.max);
+                    minDiff = calcSim(srcContext.min, destContext.min);
+                    avgDiff = calcSim(srcContext.avg, destContext.avg);
+                    sig2Diff = calcSim(srcContext.sig2, destContext.sig2);
                 }
 
-                var dist = getTitleDistance(srcColInfo.name, curColInfo.name);
+                titleDist = getTitleDistance(srcColInfo.name, curColInfo.name);
+
                 featuresPerColumn.push({
-                    "context1": srcContext,
-                    "context2": destContext,
-                    "dist": dist,
-                    "type": type,
-                    "match": match,
-                    "uniqueIdentifier": curColInfo.uniqueIdentifier});
+                    "maxDiff"         : maxDiff,
+                    "minDiff"         : minDiff,
+                    "avgDiff"         : avgDiff,
+                    "sig2Diff"        : sig2Diff,
+                    "match"           : match,
+                    "titleDist"       : titleDist,
+                    "type"            : type,
+                    "uniqueIdentifier": curColInfo.uniqueIdentifier
+                });
             } else {
                 featuresPerColumn.push(null);
             }
@@ -165,11 +216,7 @@ window.xcSuggest = (function($, xcSuggest) {
         for (var i = 0; i < featuresPerColumn.length; i++) {
             var curFeatures = featuresPerColumn[i];
             if (curFeatures !== null) {
-                var score = getScore(curFeatures.context1,
-                        curFeatures.context2,
-                        curFeatures.dist,
-                        curFeatures.type,
-                        curFeatures.match);
+                var score = getScore(curFeatures);
                 if (score > maxScore) {
                     maxScore = score;
                     colToSugg = curFeatures.uniqueIdentifier;
@@ -183,7 +230,6 @@ window.xcSuggest = (function($, xcSuggest) {
         };
         return returnObj;
     }
-
 
     function contextCheck(requiredInfo) {
         // only check number and string
@@ -204,7 +250,7 @@ window.xcSuggest = (function($, xcSuggest) {
         var values = [];
         var val;
 
-        for (var i =0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {
             val = data[i];
 
             var d;
@@ -249,42 +295,33 @@ window.xcSuggest = (function($, xcSuggest) {
         };
     }
 
-
-    function getType($th) {
-        // match "abc type-XXX abc" and "abc type-XXX"
-        var match = $th.attr("class").match(/type-(.*)/)[1];
-        // match = "type-XXX" or "type-XXX abc"
-        return (match.split(" ")[0]);
-    }
-
-
-    function getScore(context1, context2, titleDist, type, match) {
+    function getScore(curFeatures) {
         // the two value of max, min, sig2, avg..closer, score is better,
         // also, shorter distance, higher score. So those socres are negative
 
-        var score   = 0;
+        var score = 0;
 
-        if (type === "string") {
+        if (curFeatures.type === "string") {
 
             // for string compare absolute value
-            score += match * 3;
-            score += Math.abs(context1.max - context2.max) * -1;
-            score += Math.abs(context1.min - context2.min) * -1;
-            score += Math.abs(context1.avg - context2.avg) * -2;
-            score += Math.abs(context1.sig2 - context2.sig2) * -5;
-            score += titleDist * -7;
+            score += curFeatures.match * 3;
+            score += curFeatures.maxDiff * -1;
+            score += curFeatures.minDiff * -1;
+            score += curFeatures.avgDiff * -2;
+            score += curFeatures.sig2Diff * -5;
+            score += curFeatures.titleDist * -7;
         } else {
             // a base score for number,
             // since limit score to pass is -50
-            match = 20;
+            var match = 20;
 
             // for number compare relative value
             score += match * 3;
-            score += calcSim(context1.max, context2.max) * -8;
-            score += calcSim(context1.min, context2.min) * -8;
-            score += calcSim(context1.avg, context2.avg) * -16;
-            score += calcSim(context1.sig2, context2.sig2) * -40;
-            score += titleDist * -7;
+            score += curFeatures.maxDiff * -8;
+            score += curFeatures.minDiff * -8;
+            score += curFeatures.avgDiff * -16;
+            score += curFeatures.sig2Diff * -40;
+            score += curFeatures.titleDist * -7;
         }
         return score;
     }
@@ -309,7 +346,8 @@ window.xcSuggest = (function($, xcSuggest) {
 
     function getTitleDistance(name1, name2) {
         if (name1.startsWith("column") || name2.startsWith("column")) {
-            // any column has auto-generate column name, then do not check
+            // If any column has auto-generated column name, then do not check
+            // TODO: Change this, otherwise prefers autogenerated labels over other
             return 0;
         }
 
@@ -382,6 +420,101 @@ window.xcSuggest = (function($, xcSuggest) {
         }
     }
 
+    ///////////////// Data Submission Handling //////////
+    function checkSuggestDataPortionsMatch(inputData) {
+        // TODO: Add more checks
+        if (!checkSuggestDataPortionsValid(inputData) ||
+            !checkSuggestDataPortionsFilled(inputData)) {
+            return false;
+        }
+        if (inputData.features.length !== inputData.labels.length) {
+            console.log("InputData features lenght does not match label length.");
+            return false;
+        }
+        // corrLabels tracks how many columns per dataset are labeled 1 (match).
+        // Should be exactly 1.
+        // TODO: change the corrLabel concept when we support softclass inputs
+        // E.g. when we no longer require exactly one column to be correct
+        var corrLabels = 0;
+        for (i = 0; i < inputData.features.length; i++) {
+            if (inputData.labels[i] == 1) {
+                if (corrLabels > 1) {
+                    console.log("More than one column labeled as match.");
+                    return false;
+                }
+                corrLabels++;
+            }
+        }
+        if (corrLabels === 0) {
+            console.log("No columns labeled as match.");
+            return false;
+        }
+        return true;
+    }
+
+    function checkSuggestDataPortionsValid(inputData) {
+        // If suggestData is cleared, OK
+        if (!inputData) {
+            return true;
+        }
+
+        // Has labels but no features, this should not happen
+        if (!inputData.features && inputDat.labels) {
+            console.log("Input features empty but labels not.");
+            return false;
+        }
+
+        return true;
+    }
+
+    function checkSuggestDataPortionsFilled(inputData) {
+        // Returns true if has all portions
+        return (inputData && inputData.features && inputData.labels);
+    }
+
+    function addSuggestFeatures(inputData, features) {
+        inputData.features = features;
+        return features;
+    }
+
+    function addSuggestLabels(inputData, destColBackName) {
+        var labels = [];
+        if (inputData.labels) {
+            console.log("Already labeled input data.");
+        }
+        // TODO: change the onecorr concept when we support softclass inputs
+        // E.g. when we no longer require exactly one column to be correct
+        if (inputData.features) {
+            for (i = 0; i < inputData.features.length; i++) {
+                var curFeatures = inputData.features[i];
+                if (curFeatures === null) {
+                    // Type mismatch between columns, we do not consider case
+                    labels.push(0);
+                } else if (curFeatures.uniqueIdentifier == destColBackName) {
+                    labels.push(1);
+                } else {
+                    labels.push(0);
+                }
+            }
+        } else {
+            // Called label without adding features first.
+            console.log("No input data to label.");
+        }
+        inputData.labels = labels;
+        return labels;
+    }
+
+    function addIsValid(inputData) {
+        var isValid = checkSuggestDataPortionsMatch(inputData);
+        inputData.isValid = isValid;
+        return isValid;
+    }
+
+
+    ///////////////// End Submission Handling //////////
+
+
+
 ///////////////////////////////////////////////////////////////
 // End Join Key Suggestion
 // Begin Delim Suggestion
@@ -412,7 +545,6 @@ window.xcSuggest = (function($, xcSuggest) {
 // xcHelper.suggestType also shows up in
 // tableMenu, xcHelperSpec
 
-//     xcSuggest.suggestTypeHeuristic = function(datas, currentType, confidentRate) {
     xcSuggest.suggestTypeHeuristic = function(inputs) {
         // Inputs has fields colInfo, confidentRate
         var confidentRate = inputs.confidentRate;
@@ -484,7 +616,6 @@ window.xcSuggest = (function($, xcSuggest) {
     if (window.unitTestMode) {
         xcSuggest.__testOnly__ = {};
         xcSuggest.__testOnly__.contextCheck = contextCheck;
-        xcSuggest.__testOnly__.getType = getType;
         xcSuggest.__testOnly__.getScore = getScore;
         xcSuggest.__testOnly__.calcSim = calcSim;
         xcSuggest.__testOnly__.getTitleDistance = getTitleDistance;

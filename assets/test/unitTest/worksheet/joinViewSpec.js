@@ -120,7 +120,7 @@ describe('JoinView', function() {
             var colName = prefix + gPrefixSign + "average_stars";
             $joinForm.find('.rightClause').val(colName).change();
             expect($joinForm.find('.next').css('pointer-events')).to.not.equal("none");
-            
+
             expect($joinForm.find('.firstStep:visible').length).to.equal(1);
             expect($joinForm.find('.secondStep:visible').length).to.equal(0);
             $joinForm.find('.next').click();
@@ -272,7 +272,7 @@ describe('JoinView', function() {
             var colName = prefix + gPrefixSign + "yelping_since";
             $joinForm.find('.leftClause').val(colName).change();
             $joinForm.find('.rightClause').val(colName).change();
-            
+
             $joinForm.find('.next').click();
             expect($joinForm.find('.firstStep:visible').length).to.equal(0);
             expect($joinForm.find('.secondStep:visible').length).to.equal(1);
@@ -475,7 +475,7 @@ describe('JoinView', function() {
             var newTableName = "joinUnitTest" + Date.now();
             $("#joinTableNameInput").val(newTableName);
             expect($joinForm.find('.renameSection').is(":visible")).to.be.false;
-            
+
             // should fail because needs rename;
             submit()
             .then(function() {
@@ -505,7 +505,7 @@ describe('JoinView', function() {
                 });
 
             });
-           
+
         });
     });
 

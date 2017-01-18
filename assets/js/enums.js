@@ -323,3 +323,8 @@ var MLSetting = {
     SuggestType: "SuggestType",
     DetectDelim: "DetectDelim",
 };
+
+// Should be a superset of MLSetting
+var XCTrackerCategory = {
+    SuggestJoinKey: "SuggestJoinKey",
+};

@@ -5,7 +5,7 @@ mocha.setup({
     "bail": true,
     // must include Setup Test and optionally include other test
     // e.g. /Mocha Setup Test|Workbook Test/
-    // defulat:
+    // default:
     // "grep": /Mocha Setup Test|.*/
     "grep": /Mocha Setup Test|.*/
 });
@@ -149,11 +149,11 @@ window.UnitTest = (function(UnitTest, $) {
                 $("#inButton").click();
             }
         }
-        
+
         // XXX this create table way doesn't make sure
         // creating process is finishing
         // need to refine
-       
+
         var sortColumnsAtoZ = true;
         TestSuite.__testOnly__.createTable(dsName, sortColumnsAtoZ)
         .then(function(tableName, prefix) {
@@ -273,7 +273,7 @@ window.UnitTest = (function(UnitTest, $) {
             $alertModal.find(".cancel").click();
         }
 
-        assert.isFalse($alertModal.is(":visible")); 
+        assert.isFalse($alertModal.is(":visible"));
     };
 
     return (UnitTest);
