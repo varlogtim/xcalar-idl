@@ -623,7 +623,7 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.appRun = function(txId, name, isGlobal, inStr) {
-        if (txId == null || name == null)) {
+        if (txId == null || name == null) {
             return PromiseHelper.reject("Invalid args in appSet");
         }
         return XcalarAppRun(name, isGlobal, inStr);
@@ -637,7 +637,7 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.appExecute = function(txId, name, isGlobal, inStr) {
-        if (txId == null || name == null)) {
+        if (txId == null || name == null) {
             return PromiseHelper.reject("Invalid args in appRun");
         }
         return XcalarAppExecute(name, isGlobal, inStr);
