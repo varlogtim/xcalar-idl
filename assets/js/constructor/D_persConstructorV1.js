@@ -1,4 +1,7 @@
 var versionV1 = 1;
+var __isVersionV0 = function(options) {
+    return __isOldVersion(options, versionV1);
+};
 // kvStore.js
 var METAConstructorV1 = (function() {
     var METAKeys = {
@@ -197,15 +200,9 @@ var TableMetaV1 = (function() {
 
         self.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();
 
-        if (options.tableCols != null) {
-            self.tableCols = [];
-            var oldCols = options.tableCols;
-            for (var i = 0, len = oldCols.length; i < len; i++) {
-                var progCol = new ProgCol(oldCols[i]);
-                self.tableCols[i] = progCol;
-            }
-        } else {
-            self.tableCols = null;
+        if (__isVersionV0(options)) {
+            self.tableCols = TableMetaV1.restoreProgCol(options.tableCols,
+                                                        versionV1);
         }
 
         self.bookmarks = options.bookmarks || [];
@@ -218,7 +215,6 @@ var TableMetaV1 = (function() {
             self.resultSetId = -1;
         }
 
-
         self.icv = options.icv || "";
         self.keyName = ""; // placeholder
         self.ordering = null; // placeholder
@@ -229,6 +225,22 @@ var TableMetaV1 = (function() {
 
         return this;
     }
+
+    // static method
+    TableMetaV1.restoreProgCol = function(oldCols, version) {
+        if (oldCols == null || !(oldCols instanceof Array)) {
+            return null;
+        }
+
+        var ProgColCtor = __getConstructor("ProgCol", version);
+        var tableCols = [];
+
+        for (var i = 0, len = oldCols.length; i < len; i++) {
+            tableCols[i] = new ProgColCtor(oldCols[i]);
+        }
+
+        return tableCols;
+    };
 
     return TableMetaV1;
 }());
@@ -306,7 +318,10 @@ var ProgColV1 = (function() {
         }
 
         this.prefix = xcHelper.parsePrefixColName(this.backName).prefix;
-        this.func = new ColFunc(options.func);
+
+        if (__isVersionV0(options)) {
+            this.func = new ColFuncV1(options.func);
+        }
 
         return this;
     }
@@ -414,49 +429,31 @@ var CartV1 = (function() {
         this.version = versionV1;
         this.dsId = options.dsId;
         this.tableName = options.tableName;
-        // items will be restored in DSCart.initialize
-        this.items = [];
-
-        var items = options.items;
-        if (items != null) {
-            for (var i = 0, len = items.length; i < len; i++) {
-                this.items[i] = new CartItem(items[i]);
-            }
+        if (__isVersionV0(options)) {
+            this.items = CartV1.restoreItem(options.items, versionV1);
         }
 
         return this;
     }
 
+    // static method
+    CartV1.restoreItem = function(oldItems, version) {
+        var CartItemCtor = __getConstructor("CartItem", version);
+        var items = [];
+        if (oldItems != null && oldItems instanceof Array) {
+            for (var i = 0, len = oldItems.length; i < len; i++) {
+                items[i] = new CartItemCtor(oldItems[i]);
+            }
+        }
+
+        return items;
+    };
+
     return CartV1;
 }());
 
 // worksheet.js
-var WSMETAV1 = (function() {
-    /* Attr:
-        version: 1
-        wsInfos: (obj) set of WorksheetObj
-        wsOrder: (array) worksheet order
-        hiddenWS: (array) list of hidden worksheet
-        noSheetTables: (array) list of tables not in any worksheets
-        activeWS: (string) current active worksheet
-    */
-    function WSMETAV1(options) {
-        options = options || {};
-
-        this.version = versionV1;
-        this.wsInfos = options.wsInfos;
-        this.wsOrder = options.wsOrder;
-        this.hiddenWS = options.hiddenWS;
-        this.noSheetTables = options.noSheetTables;
-        this.activeWS = options.activeWS;
-
-        return this;
-    }
-
-    return WSMETAV1;
-}());
-
-// worksheet.js
+// inner part of WSMETA
 var WorksheetObjV1 = (function() {
     /* Attr
         version: 1
@@ -488,6 +485,48 @@ var WorksheetObjV1 = (function() {
     }
 
     return WorksheetObjV1;
+}());
+
+// worksheet.js
+var WSMETAV1 = (function() {
+    /* Attr:
+        version: 1
+        wsInfos: (obj) set of WorksheetObj
+        wsOrder: (array) worksheet order
+        hiddenWS: (array) list of hidden worksheet
+        noSheetTables: (array) list of tables not in any worksheets
+        activeWS: (string) current active worksheet
+    */
+    function WSMETAV1(options) {
+        options = options || {};
+
+        this.version = versionV1;
+
+        if (__isVersionV0(options)) {
+            this.wsInfos = WSMETAV1.restoreWSInfos(options.wsInfos, versionV1);
+        }
+
+        this.wsOrder = options.wsOrder;
+        this.hiddenWS = options.hiddenWS;
+        this.noSheetTables = options.noSheetTables;
+        this.activeWS = options.activeWS;
+
+        return this;
+    }
+
+    WSMETAV1.restoreWSInfos = function(oldWSInfos, version) {
+        oldWSInfos = oldWSInfos || {};
+
+        var WorksheetObjCtor = __getConstructor("WorksheetObj", version);
+        var wsInfos = {};
+        for (var id in oldWSInfos) {
+            wsInfos[id] = new WorksheetObjCtor(oldWSInfos[id]);
+        }
+
+        return wsInfos;
+    };
+
+    return WSMETAV1;
 }());
 
 // workbook.js
@@ -636,21 +675,32 @@ var ProfileGroupbyInfoV1 = (function() {
         if (options.allNull === true) {
             this.allNull = true;
         }
-        this.buckets = {};
 
-        var buckets = options.buckets || {};
-        for (var bucketNum in buckets) {
-            var bucketInfo = new ProfileBucketInfo(buckets[bucketNum]);
-            this.buckets[bucketNum] = bucketInfo;
+        if (__isVersionV0(options)) {
+            this.buckets = ProfileGroupbyInfoV1.restoreBuckets(options.buckets,
+                                                            versionV1);
         }
 
         return this;
     }
 
+    ProfileGroupbyInfoV1.restoreBuckets = function(oldBuckets, version) {
+        oldBuckets = oldBuckets || {};
+
+        var BucketCtor = __getConstructor("ProfileBucketInfo", version);
+        var buckets = {};
+        for (var bucketNum in oldBuckets) {
+            var bucketInfo = new BucketCtor(oldBuckets[bucketNum]);
+            buckets[bucketNum] = bucketInfo;
+        }
+        return buckets;
+    };
+
     return ProfileGroupbyInfoV1;
 }());
 
 // profile.js
+// inner part of ProfileGroupbyInfo
 var ProfileBucketInfoV1 = (function() {
     /* Attr:
         version: 1
@@ -701,12 +751,30 @@ var ProfileInfoV1 = (function() {
         this.frontColName = options.frontColName || null; // placeholder
         this.type = options.type;
 
-        this.aggInfo = new ProfileAggInfo(options.aggInfo);
-        this.statsInfo = new ProfileStatsInfo(options.statsInfo);
-        this.groupByInfo = new ProfileGroupbyInfo(options.groupByInfo);
+        if (__isVersionV0(options)) {
+            var restoreInfos = ProfileInfoV1.restoreInfos(options, versionV1);
+            this.aggInfo = restoreInfos.aggInfo;
+            this.statsInfo = restoreInfos.statsInfo;
+            this.groupByInfo = restoreInfos.groupByInfo;
+        }
 
         return this;
     }
+
+    ProfileInfoV1.restoreInfos = function(options, version) {
+        options = options || {};
+
+        var res = {};
+        var AggInfoCtor = __getConstructor("ProfileAggInfo", version);
+        var StatsInfoCtor = __getConstructor("ProfileStatsInfo", version);
+        var GroupbyInfoCtor = __getConstructor("ProfileGroupbyInfo" , version);
+
+        res.aggInfo = new AggInfoCtor(options.aggInfo);
+        res.statsInfo = new StatsInfoCtor(options.statsInfo);
+        res.groupByInfo = new GroupbyInfoCtor(options.groupByInfo);
+
+        return res;
+    };
 
     return ProfileInfoV1;
 }());
@@ -832,12 +900,12 @@ var DataflowV1 = (function() {
     /* Attr
         version: 1
         name: (string) Retina name
-        columns: (array) Columns to export
+        columns: (array, not persist) Columns to export
         parameters: (array) array of parameters in Dataflow
         paramMap: (obj) map for parameters
-        nodeIds: (obj) map of dagNames and dagIds
+        nodeIds: (obj, not pesist) map of dagNames and dagIds
+        retinaNodes: (obj, not persist) retina node info from backend
         parameterizedNodes: (obj) map of dagNodeIds to parameterized structs
-        retinaNodes: (obj)
         schedule: (SchedObj) schedule of the dataflow
     */
     function DataflowV1(name, options) {
@@ -849,19 +917,39 @@ var DataflowV1 = (function() {
         this.parameters = options.parameters || [];
         this.paramMap = options.paramMap || {};
         this.nodeIds = options.nodeIds || {};
-        this.parameterizedNodes = {};
         this.retinaNodes = {};
-        this.schedule = null;
 
-        if (options.parameterizedNodes != null) {
-            for (var nodeId in options.parameterizedNodes) {
-                var parameterizedNodes = options.parameterizedNodes[nodeId];
-                this.parameterizedNodes[nodeId] = new RetinaNode(parameterizedNodes);
-            }
+        if (__isVersionV0(options)) {
+            var restoreInfos = DataflowV1.restoreInfos(options, versionV1);
+            this.parameterizedNodes = restoreInfos.parameterizedNodes;
+            this.schedule = restoreInfos.schedule;
         }
 
         return this;
     }
+
+    DataflowV1.restoreInfos = function(oldInfos, version) {
+        oldInfos = oldInfos || {};
+
+        var res = {};
+        var RetinaNodeCtor = __getConstructor("RetinaNode", version);
+        var ScheduleObjCtor = __getConstructor("SchedObj", version);
+
+        res.parameterizedNodes = {};
+        var parameterizedNodes = oldInfos.parameterizedNodes || {};
+        for (var nodeId in parameterizedNodes) {
+            var oldRetinaNode = parameterizedNodes[nodeId];
+            res.parameterizedNodes[nodeId] = new RetinaNodeCtor(oldRetinaNode);
+        }
+
+        if (oldInfos.schedule != null) {
+            res.schedule = new ScheduleObjCtor(oldInfos.schedule);
+        } else {
+            res.schedule = null;
+        }
+
+        return res;
+    };
 
     return DataflowV1;
 }());
@@ -906,7 +994,6 @@ var XcQueryV1 = (function() {
         time: (date)
         elapsedTime: (integer) time used
         type: (sring) query type
-        subQueries: (array) list of XcSubQuery
         id:  (integer) query id
         numSteps: (integer) total steps in query
         currStep: (integer) current step
@@ -916,6 +1003,7 @@ var XcQueryV1 = (function() {
         sqlNum: sql's id
         state: (string) enums in QueryStateT
         cancelable: (boolean) can cancel or not
+        subQueries: (array, not persist) list of XcSubQuery
     */
     function XcQueryV1(options) {
         options = options || {};
@@ -926,13 +1014,13 @@ var XcQueryV1 = (function() {
         this.elapsedTime = options.elapsedTime || 0;
         this.fullName = options.fullName; // real name for backend
         this.type = options.type;
-        this.subQueries = [];
         this.id = options.id;
         this.numSteps = options.numSteps;
         this.currStep = 0;
         this.outputTableName = options.outputTableName || "";
         this.outputTableState = options.outputTableState || "";
         this.queryStr = options.queryStr || "";
+        this.subQueries = [];
 
         if (options.sqlNum != null) {
             this.sqlNum = options.sqlNum;
@@ -955,45 +1043,5 @@ var XcQueryV1 = (function() {
     }
 
     return XcQueryV1;
-}());
-
-var XcSubQueryV1 = (function() {
-    /* Attr:
-        version: 1
-        name: (string) subQuery's name
-        time: (date) craeted time
-        query: (string) query
-        dstTable: (string) dst table
-        id: (integer) subQuery's id
-        index: (integer) subQuery's index
-        queryName: (string) query name
-        state: (string) enums in QueryStateT
-        exportFileName: (string, optional) export's file
-    */
-    function XcSubQueryV1(options) {
-        options = options || {};
-
-        this.version = versionV1;
-        this.name = options.name;
-        this.time = options.time;
-        this.query = options.query;
-        this.dstTable = options.dstTable;
-        this.id = options.id;
-        this.index = options.index;
-        this.queryName = options.queryName;
-
-        if (options.state == null) {
-            this.state = QueryStateT.qrNotStarted;
-        } else {
-            this.state = options.state;
-        }
-        if (options.exportFileName) {
-            this.exportFileName = options.exportFileName;
-        }
-
-        return this;
-    }
-
-    return XcSubQueryV1;
 }());
 /* End of Query */

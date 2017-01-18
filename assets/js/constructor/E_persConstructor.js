@@ -218,8 +218,14 @@ var XcLog = (function(_super) {
 // Constructor for table meta data
 var TableMeta = (function(_super) {
     function TableMeta(options) {
-        _super.call(this, options);
-        return this;
+        options = options || {};
+        xcAssert(__isCurrentVersion(options));
+        var self = _super.call(this, options);
+
+        // TableMeta.initializeProgCol is inherited from super class
+        self.tableCols = TableMeta.restoreProgCol(options.tableCols);
+
+        return self;
     }
 
     __extends(TableMeta, _super, {
@@ -687,8 +693,12 @@ var ColFunc = (function(_super) {
 
 var ProgCol = (function(_super) {
     function ProgCol(options) {
-        _super.call(this, options);
-        return this;
+        options = options || {};
+        xcAssert(__isCurrentVersion(options));
+        var self = _super.call(this, options);
+
+        self.func = new ColFunc(options.func);
+        return self;
     }
 
     __extends(ProgCol, _super, {
@@ -1018,8 +1028,12 @@ var CartItem = (function(_super) {
 // dsCart.js
 var Cart = (function(_super) {
     function Cart(options) {
-        _super.call(this, options);
-        return this;
+        options = options || {};
+        xcAssert(__isCurrentVersion(options));
+        var self = _super.call(this, options);
+
+        self.items = Cart.restoreItem(options.items);
+        return self;
     }
 
     __extends(Cart, _super, {
@@ -1079,8 +1093,13 @@ var Cart = (function(_super) {
 // worksheet.js
 var WSMETA = (function(_super) {
     function WSMETA(options) {
-        _super.call(this, options);
-        return this;
+        options = options || {};
+        xcAssert(__isCurrentVersion(options));
+
+        var self = _super.call(this, options);
+
+        self.wsInfos = WSMETA.restoreWSInfos(options.wsInfos);
+        return self;
     }
 
     __extends(WSMETA, _super);
@@ -1202,8 +1221,12 @@ var ProfileStatsInfo = (function(_super) {
 // profile.js
 var ProfileGroupbyInfo = (function(_super) {
     function ProfileGroupbyInfo(options) {
-        _super.call(this, options);
-        return this;
+        options = options || {};
+        xcAssert(__isCurrentVersion(options));
+        var self = _super.call(this, options);
+
+        self.buckets = ProfileGroupbyInfo.restoreBuckets(options.buckets);
+        return self;
     }
 
     __extends(ProfileGroupbyInfo, _super);
@@ -1226,8 +1249,15 @@ var ProfileBucketInfo = (function(_super) {
 // profile.js
 var ProfileInfo = (function(_super) {
     function ProfileInfo(options) {
-        _super.call(this, options);
-        return this;
+        options = options || {};
+        xcAssert(__isCurrentVersion(options));
+        var self = _super.call(this, options);
+
+        var restoreInfos = ProfileInfo.restoreInfos(options);
+        self.aggInfo = restoreInfos.aggInfo;
+        self.statsInfo = restoreInfos.statsInfo;
+        self.groupByInfo = restoreInfos.groupByInfo;
+        return self;
     }
 
     __extends(ProfileInfo, _super, {
@@ -1720,8 +1750,15 @@ var RetinaNode = (function(_super) {
 
 var Dataflow = (function(_super) {
     function Dataflow(name, options) {
-        _super.call(this, name, options);
-        return this;
+        options = options || {};
+        xcAssert(__isCurrentVersion(options));
+
+        var self = _super.call(this, name, options);
+
+        var restoreInfos = Dataflow.restoreInfos(options);
+        self.parameterizedNodes = restoreInfos.parameterizedNodes;
+        self.schedule = restoreInfos.schedule;
+        return self;
     }
 
     __extends(Dataflow, _super, {
@@ -2005,69 +2042,4 @@ var XcQuery = (function(_super) {
 
     return XcQuery;
 }(XcQueryV1));
-
-var XcSubQuery = (function(_super) {
-    function XcSubQuery(options) {
-        _super.call(this, options);
-        return this;
-    }
-
-    __extends(XcSubQuery, _super, {
-        getName: function() {
-            return this.name;
-        },
-
-        getId: function() {
-            return this.id;
-        },
-
-        getTime: function() {
-            return this.time;
-        },
-
-        getQuery: function() {
-            // XXX XcalarQueryState also return the query,
-            // so maybe not store it into backend?
-            return this.query;
-        },
-
-        getState: function() {
-            return this.state;
-        },
-
-        setState: function(state) {
-            this.state = state;
-        },
-
-        getStateString: function() {
-            return QueryStateTStr[this.state];
-        },
-
-        check: function() {
-            var self = this;
-            var deferred = jQuery.Deferred();
-            if (!self.dstTable) {
-                // XXX This happens if the call is a "drop"
-                // Since we don't have a dstDag call, we will just return 50%
-                deferred.resolve(50);
-                xcAssert(self.name === "drop", "Unexpected operation!");
-            } else {
-                XcalarGetOpStats(self.dstTable)
-                .then(function(ret) {
-                    var stats = ret.opDetails;
-                    deferred.resolve(parseFloat((100 * (stats.numWorkCompleted /
-                                            stats.numWorkTotal)).toFixed(2)));
-                })
-                .fail(function(error) {
-                    console.error(error);
-                    deferred.reject();
-                });
-            }
-
-            return deferred.promise();
-        }
-    });
-
-    return XcSubQuery;
-}(XcSubQueryV1));
 /* End of Query */

@@ -356,9 +356,9 @@ describe("Persistent Constructor Test", function() {
 
             // case 2
             var progCol2 = new ProgCol({
-                "name"    : "test",
-                "type"    : ColumnType.object,
-                "func"    : {
+                "name": "test",
+                "type": ColumnType.object,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -2284,7 +2284,7 @@ describe("Persistent Constructor Test", function() {
             expect(meta).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(meta).to.have.property("wsInfos")
-            .and.to.be.an
+            .and.to.be.an("object");
             expect(meta).to.have.property("wsOrder");
             expect(meta).to.have.property("hiddenWS");
             expect(meta).to.have.property("noSheetTables");
@@ -2458,7 +2458,7 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-     describe("SchedObj Constructor Test", function() {
+    describe("SchedObj Constructor Test", function() {
         var sched;
         var currentTime = new Date().getTime();
 
@@ -2580,7 +2580,7 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("Should know if has schedule", function() {
-             expect(df.hasSchedule()).to.be.true;
+            expect(df.hasSchedule()).to.be.true;
         });
 
         it("Should remove schedule", function() {
@@ -2829,42 +2829,6 @@ describe("Persistent Constructor Test", function() {
                 "table"     : "testTable"
             });
             expect(profileInfo.groupByInfo.buckets).to.have.property(0);
-        });
-    });
-
-    describe("XcSubQuery Constructor Test", function() {
-        it("Should have 10 attributes", function() {
-            var xcSubQuery = new XcSubQuery({
-                "name"          : "test",
-                "time"          : 123,
-                "query"         : "testQuery",
-                "dstTable"      : "testDstTable",
-                "id"            : 1,
-                "index"         : 2,
-                "queryName"     : "testQueryName",
-                "exportFileName": "testExport"
-            });
-
-            expect(xcSubQuery).to.be.an.instanceof(XcSubQuery);
-            expect(Object.keys(xcSubQuery).length).to.equal(10);
-            expect(xcSubQuery).to.have.property("version")
-            .and.to.equal(currentVersion);
-            expect(xcSubQuery).to.have.property("name")
-            .and.to.equal("test");
-            expect(xcSubQuery).to.have.property("time")
-            .and.to.equal(123);
-            expect(xcSubQuery).to.have.property("query")
-            .and.to.equal("testQuery");
-            expect(xcSubQuery).to.have.property("dstTable")
-            .and.to.equal("testDstTable");
-            expect(xcSubQuery).to.have.property("id")
-            .and.to.equal(1);
-            expect(xcSubQuery).to.have.property("index")
-            .and.to.equal(2);
-            expect(xcSubQuery).to.have.property("queryName")
-            .and.to.equal("testQueryName");
-            expect(xcSubQuery).to.have.property("exportFileName")
-            .and.to.equal("testExport");
         });
     });
 

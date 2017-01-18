@@ -8,3 +8,24 @@ var __extends = (this && this.__extends) || function (d, b, methods) {
         d.prototype[method] = methods[method];
     }
 };
+
+var __isCurrentVersion = function(options) {
+    return (options == null ||
+            options.version == null ||
+            options.version === currentVersion);
+};
+var __isOldVersion = function(options, constructorVersion) {
+    // check if the version is one before the constructorVersion
+    return (options != null &&
+            options.version != null &&
+            options.version === (constructorVersion - 1));
+};
+
+var __getConstructor = function(constructorName, version) {
+    var suffix = "";
+    if (version != null && version !== currentVersion) {
+        suffix = "V" + version;
+    }
+
+    return window[constructorName + suffix];
+};

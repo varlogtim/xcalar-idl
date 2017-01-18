@@ -41,7 +41,8 @@ window.WSManager = (function($, WSManager) {
     // Restore worksheet structure from backend
     // should be called before drawing xcTables and data flow graphs
     WSManager.restore = function(sheetInfos) {
-        sheetInfos = sheetInfos || {};
+        sheetInfos = new WSMETA(sheetInfos);
+
         wsOrder = sheetInfos.wsOrder || [];
         hiddenWS = sheetInfos.hiddenWS || [];
         noSheetTables = sheetInfos.noSheetTables || [];
@@ -49,7 +50,7 @@ window.WSManager = (function($, WSManager) {
         var oldWorksheetLookup = sheetInfos.wsInfos || {};
 
         for (var worksheetId in oldWorksheetLookup) {
-            var worksheet = new WorksheetObj(oldWorksheetLookup[worksheetId]);
+            var worksheet = oldWorksheetLookup[worksheetId];
             cacheWorksheetInfo(worksheet);
             for (var key in WSTableType) {
                 var tableType = WSTableType[key];

@@ -530,12 +530,12 @@ describe("Ephemeral Constructor Test", function() {
         it('formHelper columnPicker should work', function() {
             var colPickerCallBackTriggered = false;
             var columnPicker = {
-                "state": "testState",
+                "state"        : "testState",
                 "validColTypes": ["float"],
-                "colCallback": function($target) {
+                "colCallback"  : function() {
                     colPickerCallBackTriggered = true;
                 }
-            }
+            };
             formHelper = new FormHelper($(), {"columnPicker": columnPicker});
 
             // initial state
@@ -560,7 +560,7 @@ describe("Ephemeral Constructor Test", function() {
             // click on boolean column
             $table.find('th.col1 .header').trigger('click');
             expect(colPickerCallBackTriggered).to.be.true;
-        }); 
+        });
 
         it('formHelper clear should work', function() {
             expect($table.find('.header.noColumnPicker').length).to.be.gt(2);
@@ -704,6 +704,40 @@ describe("Ephemeral Constructor Test", function() {
         it("Should removeItem", function() {
             xcSessionStorage.removeItem("key");
             expect(sessionStorage.hasOwnProperty("key")).to.be.false;
+        });
+    });
+
+    describe("XcSubQuery Constructor Test", function() {
+        it("Should have 10 attributes", function() {
+            var xcSubQuery = new XcSubQuery({
+                "name"          : "test",
+                "time"          : 123,
+                "query"         : "testQuery",
+                "dstTable"      : "testDstTable",
+                "id"            : 1,
+                "index"         : 2,
+                "queryName"     : "testQueryName",
+                "exportFileName": "testExport"
+            });
+
+            expect(xcSubQuery).to.be.an.instanceof(XcSubQuery);
+            expect(Object.keys(xcSubQuery).length).to.equal(9);
+            expect(xcSubQuery).to.have.property("name")
+            .and.to.equal("test");
+            expect(xcSubQuery).to.have.property("time")
+            .and.to.equal(123);
+            expect(xcSubQuery).to.have.property("query")
+            .and.to.equal("testQuery");
+            expect(xcSubQuery).to.have.property("dstTable")
+            .and.to.equal("testDstTable");
+            expect(xcSubQuery).to.have.property("id")
+            .and.to.equal(1);
+            expect(xcSubQuery).to.have.property("index")
+            .and.to.equal(2);
+            expect(xcSubQuery).to.have.property("queryName")
+            .and.to.equal("testQueryName");
+            expect(xcSubQuery).to.have.property("exportFileName")
+            .and.to.equal("testExport");
         });
     });
 });

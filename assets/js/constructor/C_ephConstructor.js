@@ -2707,3 +2707,97 @@ DSFileUpload.prototype = {
 };
 
 /* END DSFileUploader */
+
+/* sub query */
+var XcSubQuery = (function() {
+    /* Attr:
+        name: (string) subQuery's name
+        time: (date) craeted time
+        query: (string) query
+        dstTable: (string) dst table
+        id: (integer) subQuery's id
+        index: (integer) subQuery's index
+        queryName: (string) query name
+        state: (string) enums in QueryStateT
+        exportFileName: (string, optional) export's file
+    */
+    function XcSubQuery(options) {
+        options = options || {};
+
+        this.name = options.name;
+        this.time = options.time;
+        this.query = options.query;
+        this.dstTable = options.dstTable;
+        this.id = options.id;
+        this.index = options.index;
+        this.queryName = options.queryName;
+
+        if (options.state == null) {
+            this.state = QueryStateT.qrNotStarted;
+        } else {
+            this.state = options.state;
+        }
+        if (options.exportFileName) {
+            this.exportFileName = options.exportFileName;
+        }
+    }
+
+    XcSubQuery.prototype = {
+        getName: function() {
+            return this.name;
+        },
+
+        getId: function() {
+            return this.id;
+        },
+
+        getTime: function() {
+            return this.time;
+        },
+
+        getQuery: function() {
+            // XXX XcalarQueryState also return the query,
+            // so maybe not store it into backend?
+            return this.query;
+        },
+
+        getState: function() {
+            return this.state;
+        },
+
+        setState: function(state) {
+            this.state = state;
+        },
+
+        getStateString: function() {
+            return QueryStateTStr[this.state];
+        },
+
+        check: function() {
+            var self = this;
+            var deferred = jQuery.Deferred();
+            if (!self.dstTable) {
+                // XXX This happens if the call is a "drop"
+                // Since we don't have a dstDag call, we will just return 50%
+                deferred.resolve(50);
+                xcHelper.assert(self.name === "drop", "Unexpected operation!");
+            } else {
+                XcalarGetOpStats(self.dstTable)
+                .then(function(ret) {
+                    var stats = ret.opDetails;
+                    deferred.resolve(parseFloat((100 * (stats.numWorkCompleted /
+                                            stats.numWorkTotal)).toFixed(2)));
+                })
+                .fail(function(error) {
+                    console.error(error);
+                    deferred.reject();
+                });
+            }
+
+            return deferred.promise();
+        }
+    };
+
+    return XcSubQuery;
+}());
+/* end of sub query */
