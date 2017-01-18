@@ -150,26 +150,18 @@ window.RowScroller = (function($, RowScroller) {
                                 targetRow - rowToBuffer);
             backRow = Math.max(backRow, 0);
 
-            var tableName = table.tableName;
             var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
             var info = {
-                "numRowsToAdd"    : numRowsToAdd,
-                "numRowsAdded"    : 0,
                 "lastRowToDisplay": backRow + numRowsToAdd,
                 "targetRow"       : targetRow,
                 "bulk"            : true,
-                "tableName"       : tableName,
                 "tableId"         : tableId,
                 "currentFirstRow" : backRow
             };
             $('#rowScroller-' + tableId).addClass('scrolling');
 
-            goToPage(backRow, numRowsToAdd, RowDirection.Bottom, info)
+            RowManager.addRows(backRow, numRowsToAdd, RowDirection.Bottom, info)
             .then(function() {
-                var arr = [];
-                $table.find('tbody tr').each(function() {
-                    arr.push($(this).find('td:first').text());
-                });
                 TblManager.removeWaitingCursor(tableId);
                 $('#rowScroller-' + tableId).removeClass('scrolling');
                 var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
@@ -357,7 +349,7 @@ window.RowScroller = (function($, RowScroller) {
         }
         var tableLeft = $table.offset().left;
         var tdXCoor = Math.max(0, tableLeft);
-        var tdYCoor = 150; //top rows's distance from top of window
+        var tdYCoor = 160; //top rows's distance from top of window
         var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
         var firstId = $(firstEl).closest('tr').attr('class');
 

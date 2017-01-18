@@ -37,9 +37,9 @@ describe("Mocha Setup Test", function() {
         var valid = (mode === XcalarMode.Oper) || (mode === XcalarMode.Mod)
                     || (mode === XcalarMode.Demo);
         expect(valid).to.be.true;
-
-        UnitTest.hasAlertWithTitle(DemoTStr.title);
-
+        if (mode === XcalarMode.Demo) {
+            UnitTest.hasAlertWithTitle(DemoTStr.title);
+        }
     });
 
     it("Should be able to test DSCart module", function() {

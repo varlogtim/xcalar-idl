@@ -1269,23 +1269,68 @@ window.ColManager = (function($, ColManager) {
 
         // assign column type class to header menus
         var $tBody = $(tBodyHTML);
-        if (direction === RowDirection.Top) {
-            if (rowToPrependTo > -1) {
-                $table.find('.row' + rowToPrependTo).before($tBody);
-            } else {
-                $table.find('tbody').prepend($tBody);
-            }
-        } else {
-            
-            $table.find('tbody').append($tBody);
-        }
+        attachRows($table, $tBody, rowToPrependTo, direction, numRows);
 
         for (var colNum = 1; colNum <= numCols; colNum++) {
             styleColHeadHelper(colNum, tableId);
         }
 
+      
         return $tBody;
     };
+
+    function attachRows($table, $rows, rowToPrependTo, direction, numRows) {
+        
+        var startingLength = $table.find('tr').length;
+        var numTempRows = $table.find(".tempRow").length;
+
+        if (direction === RowDirection.Top) {
+            if (rowToPrependTo != null && rowToPrependTo > -1) {
+                var $rowToPrependTo = getRowToPrependTo($table, rowToPrependTo);
+                if (!$rowToPrependTo) {
+                    $table.find('tbody').prepend($rows);
+                } else {
+                    if ($rowToPrependTo.prev().hasClass('tempRow')) {
+                        $rowToPrependTo.prevAll(".tempRow:lt(" + numRows + ")")
+                                       .slice().remove();
+                    }
+                    $rowToPrependTo.before($rows);
+                }
+            } else {
+                $table.find(".tempRow").slice(0, numRows).remove();
+                $table.find('tbody').prepend($rows);
+            }
+        } else { 
+            var $prevRow = $table.find(".tempRow").eq(0).prev();
+            $table.find(".tempRow").slice(0, numRows).remove();
+            if ($prevRow.length) {
+                $prevRow.after($rows);
+            } else {
+                $table.find('tbody').append($rows);
+            }
+        }
+    }
+
+    function getRowToPrependTo($table, rowNum) {
+         // $('.row' + rowNum) may not exist, 
+         // so we find the previous row and call next
+        var $row = $table.find(".row" + (rowNum - 1)).next();
+
+        if (!$row.length) {
+            $row = $table.find('.row' + rowNum);
+            if (!$row.length) {
+                $row = null;
+                $table.find('tbody tr').each(function() {
+                    $row = $(this);
+                    if (xcHelper.parseRowNum($row) > rowNum) {
+                        return false;
+                    }
+                });
+            }
+        }
+
+        return ($row);
+    }
 
     // colNames is optional, if not provided then will try to pull all cols
     ColManager.unnest = function(tableId, colNum, rowNum, colNames) {
