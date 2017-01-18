@@ -284,6 +284,13 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.appReap(txId, name, appGroupId);
         },
 
+        "appExecute": function(name, isGlobal, inStr) {
+            var self = this;
+            var txId = self.txId;
+
+            return XIApi.appExecute(txId, name, isGlobal, inStr);
+        },
+
         // private function
         "_addMeta": function(srcTable, dstTable, dstCols, options) {
             // XXX options is later used to customize tableCols

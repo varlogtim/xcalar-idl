@@ -605,12 +605,11 @@ window.XIApi = (function(XIApi, $) {
         // duty: leave blank, or possibly "load"
         // execStr: body of the app
         var deferred = jQuery.Deferred();
-        if (txId == null) {
+        if (txId == null || name == null) {
             return PromiseHelper.reject("Invalid args in appSet");
         }
 
-        // TODO: check for valid appName, hostType, duty, execStr
-        // SUBTODO: What restrictions do we have for appName?
+        // TODO: check for valid hostType, duty, execStr
         // SUBTODO: What are valid hostTypes?
         // SUBTODO: What are valid duties?
         // SUBTODO: If execStr has, for instance, syntax error,
@@ -624,17 +623,24 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.appRun = function(txId, name, isGlobal, inStr) {
-        if (txId == null) {
+        if (txId == null || name == null)) {
             return PromiseHelper.reject("Invalid args in appSet");
         }
-        return XcalarAppGet(name, hostType, duty, execStr);
+        return XcalarAppRun(name, isGlobal, inStr);
     };
 
     XIApi.appReap = function(txId, name, appGroupId) {
-        if (txId == null) {
-            return PromiseHelper.reject("Invalid args in appSet");
+        if (txId == null || name == null) {
+            return PromiseHelper.reject("Invalid args in appReap");
         }
         return XcalarAppReap(name, appGroupId);
+    };
+
+    XIApi.appExecute = function(txId, name, isGlobal, inStr) {
+        if (txId == null || name == null)) {
+            return PromiseHelper.reject("Invalid args in appRun");
+        }
+        return XcalarAppExecute(name, isGlobal, inStr);
     };
 
     // toIgnoreError: boolean, if set true, will always resolve

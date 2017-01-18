@@ -2685,7 +2685,7 @@ window.xcHelper = (function($, xcHelper) {
                 var res = JSON.parse(ret.outStr);
                 var parsedRes = res.map(parser);
                 deferred.resolve(parsedRes);
-            } catch (error){
+            } catch (error) {
                 deferred.reject(error);
             }
         })
