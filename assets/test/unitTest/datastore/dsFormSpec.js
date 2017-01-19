@@ -1,10 +1,16 @@
-function dsFormModuleTest() {
+describe("Dataset Form Test", function() {
+    var $mainTabCache;
     var $statusBox;
     var $filePath;
 
     before(function(){
         $statusBox = $("#statusBox");
         $filePath = $("#filePath");
+
+        $mainTabCache = $(".topMenuBarTab.active");
+        $("#dataStoresTab").click();
+        // turn off min mode, as it affectes DOM test
+        UnitTest.onMinMode();
     });
 
     describe("Show Form Test", function() {
@@ -76,7 +82,7 @@ function dsFormModuleTest() {
             isValidPathToBrowse = DSForm.__testOnly__.isValidPathToBrowse;
         });
 
-        it("Should allow browse invalid path", function() {
+        it("Should allow browse valid path", function() {
             var paths = [{
                 "protocol": "nfs:///",
                 "path"    : ""
@@ -140,4 +146,10 @@ function dsFormModuleTest() {
             DSForm.__testOnly__.resetForm();
         });
     });
-}
+
+    after(function() {
+        // go back to previous tab
+        $mainTabCache.click();
+        UnitTest.offMinMode();
+    });
+});

@@ -1,4 +1,4 @@
-describe('Workbook Test', function() {
+describe("Workbook Test", function() {
     var $workbookPanel;
 
     before(function(){
@@ -185,6 +185,7 @@ describe('Workbook Test', function() {
         it("Should delete workbook", function(done) {
             // delete two test created workbooks one by one
             var promises = [];
+            promises.push(deleteHelper.bind(this));
             promises.push(deleteHelper.bind(this));
 
             PromiseHelper.chain(promises)

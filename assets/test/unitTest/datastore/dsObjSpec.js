@@ -1,4 +1,5 @@
-function dsObjTest() {
+describe("DSObj Test", function() {
+    var $mainTabCache;
     var $gridView;
     var $statusBox;
 
@@ -10,6 +11,10 @@ function dsObjTest() {
         $gridView = $("#dsListSection").find(".gridItems");
         $statusBox = $("#statusBox");
         user = Support.getUser();
+
+        $mainTabCache = $(".topMenuBarTab.active");
+        $("#dataStoresTab").click();
+        UnitTest.onMinMode();
     });
 
     describe("Basic Function Test", function() {
@@ -200,7 +205,7 @@ function dsObjTest() {
         it("Should not create folder in uneditable folder", function() {
             var id = xcHelper.randName("folderId");
             var name = xcHelper.randName("folderName");
-            var parentFolder = DS.__testOnly__.createDS({
+            DS.__testOnly__.createDS({
                 "id"        : id,
                 "name"      : name,
                 "parentId"  : DSObjTerm.homeDirI,
@@ -413,7 +418,7 @@ function dsObjTest() {
             var e = jQuery.Event("dragstart", {"target": target});
             e.dataTransfer = {
                 "effectAllowed": "",
-                "setData": function() {}
+                "setData"      : function() {}
             };
             DS.onDragStart(e);
             expect(DS.__testOnly__.getDragDS().get(0)).to.equal(target);
@@ -548,5 +553,7 @@ function dsObjTest() {
 
     after(function() {
         $(".tooltip").hide(); // toggle list view test may have tooltip
+        $mainTabCache.click();
+        UnitTest.offMinMode();
     });
-}
+});

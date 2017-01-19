@@ -579,6 +579,7 @@ function viewRelatedFunctionTest() {
     });
 
     it("Should hide New Schedule Form", function() {
+        Scheduler.showNewScheduleFormView();
         assert.isTrue($newScheduleForm.is(":visible"));
         Scheduler.hideNewScheduleFormView();
         assert.isFalse($newScheduleForm.is(":visible"));

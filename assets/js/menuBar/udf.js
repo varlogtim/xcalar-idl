@@ -5,15 +5,17 @@ window.UDF = (function($, UDF) {
     var udfWidgets = [];
 
     // constant
-    var udfDefault = "# PLEASE TAKE NOTE: \n" +
+    var udfDefault = "# PLEASE TAKE NOTE: \n\n" +
                     "# UDFs can only support\n" +
                     "# return values of \n" +
-                    "# type String\n\n"+
+                    "# type String.\n\n"+
+                    "# Apps should include \n" +
+                    "# a main function.\n\n" +
                     "# Function names that \n" +
                     "# start with __ are\n" +
                     "# considered private\n"+
                     "# functions and will not\n" +
-                    "# be directly invokable\n\n";
+                    "# be directly invokable.\n\n";
     var defaultModule = "default";
 
     UDF.setup = function() {

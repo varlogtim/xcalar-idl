@@ -2,13 +2,21 @@ window.xcTracker = (function(xcTracker, $) {
     var cache = "";
 
     xcTracker.commit = function() {
+        var deferred = jQuery.Deferred();
+
         if (hasCachedData()) {
             commitCachedData()
             .then(clearCachedData)
+            .then(deferred.resolve)
             .fail(function(error) {
                 console.error("xcTracker commit fails", error);
+                deferred.reject(error);
             });
+        } else {
+            deferred.resolve();
         }
+
+        return deferred.promise();
     };
 
     // category is a string represnst which kind of data it is
@@ -49,6 +57,15 @@ window.xcTracker = (function(xcTracker, $) {
 
         return deferred.promise();
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        xcTracker.__testOnly__ = {};
+        xcTracker.__testOnly__.getCache = function() {
+            return cache;
+        };
+    }
+    /* End Of Unit Test Only */
 
     return xcTracker;
 }({}, jQuery));

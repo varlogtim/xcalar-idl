@@ -1,4 +1,12 @@
-function dsCartModuleTest() {
+describe("DSCart Test", function() {
+    var $mainTabCache;
+
+    before(function() {
+        $mainTabCache = $(".topMenuBarTab.active");
+        $("#dataStoresTab").click();
+        UnitTest.onMinMode();
+    });
+
     function getCartsLen(carts) {
         if (carts == null) {
             return 0;
@@ -416,7 +424,6 @@ function dsCartModuleTest() {
                 throw error;
             });
 
-
             function deleteHelper() {
                 // maybe some test fails and the table has
                 // not created yet
@@ -428,4 +435,10 @@ function dsCartModuleTest() {
             }
         });
     });
-}
+
+    after(function() {
+        // go back to previous tab
+        $mainTabCache.click();
+        UnitTest.offMinMode();
+    });
+});

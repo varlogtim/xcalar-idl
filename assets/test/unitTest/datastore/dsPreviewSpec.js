@@ -1,4 +1,4 @@
-function dsPreviewModuleTest() {
+describe("DSPreview Test", function() {
     // Note that this function is called in very early time
     // so do not initialize any resuable varible here
     // instead, initialize in the it() function
@@ -23,6 +23,8 @@ function dsPreviewModuleTest() {
 
     var loadArgs;
 
+    var $mainTabCache;
+
     before(function(){
         $previewTable = $("#previewTable");
 
@@ -43,10 +45,14 @@ function dsPreviewModuleTest() {
 
         $statusBox = $("#statusBox");
         loadArgs = DSPreview.__testOnly__.get().loadArgs;
+
+        $mainTabCache = $(".topMenuBarTab.active");
+        $("#dataStoresTab").click();
+        UnitTest.onMinMode();
     });
 
     describe("Basic Preview Function Test", function() {
-        it('parseTdHelper should work', function() {
+        it("parseTdHelper should work", function() {
             var parseTdHelper = DSPreview.__testOnly__.parseTdHelper;
             var testCases = [{
                 // test1: when not th, has delimiter
@@ -282,6 +288,11 @@ function dsPreviewModuleTest() {
             // has 1 row
             expect($previewTable.find("tbody tr").length).to.equal(2);
         });
+
+        it("Should get advance option", function() {
+            var advanceOption = DSPreview.getAdvanceOption();
+            expect(advanceOption).to.be.an.instanceof(DSFormAdvanceOption);
+        });
     });
 
     describe("Suggest Test", function() {
@@ -339,7 +350,7 @@ function dsPreviewModuleTest() {
             expect(detectFieldDelim()).equal("|");
         });
 
-        it("should detect correct header", function() {
+        it("Should detect correct header", function() {
             var detectHeader = DSPreview.__testOnly__.detectHeader;
 
             DSPreview.__testOnly__.set();
@@ -496,7 +507,7 @@ function dsPreviewModuleTest() {
         });
     });
 
-    describe('Basic form functionality test', function() {
+    describe("Basic form functionality test", function() {
         it("Should reset form", function() {
             $("#dsForm-skipRows").val(1);
             loadArgs.setFieldDelim("test..");
@@ -506,7 +517,7 @@ function dsPreviewModuleTest() {
             expect(loadArgs.getFieldDelim()).to.equal("");
         });
 
-        it('getNameFromPath() should work', function() {
+        it("getNameFromPath() should work", function() {
             var getNameFromPath = DSPreview.__testOnly__.getNameFromPath;
         
             var testName = xcHelper.randName("testName");
@@ -716,8 +727,8 @@ function dsPreviewModuleTest() {
             expect($udfFuncList.find("input").val()).to.be.empty;
 
             // module default:openExcel should exists
-            expect($udfModuleList.find('li:contains(default)')).not.to.be.empty;
-            expect($udfFuncList.find('li:contains(openExcel)')).not.to.be.empty;
+            expect($udfModuleList.find("li:contains(default)")).not.to.be.empty;
+            expect($udfFuncList.find("li:contains(openExcel)")).not.to.be.empty;
         });
 
         it("Should select a UDF module", function() {
@@ -905,5 +916,8 @@ function dsPreviewModuleTest() {
 
     after(function() {
         StatusBox.forceHide();
+
+        $mainTabCache.click();
+        UnitTest.offMinMode();
     });
-}
+});

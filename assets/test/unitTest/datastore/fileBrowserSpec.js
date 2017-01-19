@@ -1,12 +1,17 @@
-function fileBrowserModuleTest() {
+describe("File Browser Test", function() {
     var $fileBrowser;
     var $pathLists;
     var defaultPath;
+    var $mainTabCache;
 
     before(function(){
         $fileBrowser = $("#fileBrowser");
         $pathLists = $("#fileBrowserPathMenu");
         defaultPath = FileProtocol.hdfs;
+
+        $mainTabCache = $(".topMenuBarTab.active");
+        $("#dataStoresTab").click();
+        UnitTest.onMinMode();
     });
 
     describe('Basic function test', function() {
@@ -984,9 +989,15 @@ function fileBrowserModuleTest() {
         }
     });
 
+    after(function() {
+        // go back to previous tab
+        $mainTabCache.click();
+        UnitTest.offMinMode();
+    });
+
     function findGrid(name) {
         var selector = '.grid-unit .fileName[data-name="' + name + '"]';
         var $grid = $fileBrowser.find(selector).closest(".grid-unit");
         return $grid;
     }
-}
+});

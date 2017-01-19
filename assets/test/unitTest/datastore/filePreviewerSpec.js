@@ -1,8 +1,13 @@
-function filePreviewerTest() {
+describe("File Previewer Test", function() {
+    var $mainTabCache;
     var $fileBrowserPreview;
 
     before(function() {
         $fileBrowserPreview = $("#fileBrowserPreview");
+
+        $mainTabCache = $(".topMenuBarTab.active");
+        $("#dataStoresTab").click();
+        UnitTest.onMinMode();
     });
 
     describe("Previewer Id Test", function() {
@@ -195,10 +200,13 @@ function filePreviewerTest() {
 
         after(function() {
             $("#fileBrowser .cancel").click();
+
+            $mainTabCache.click();
+            UnitTest.offMinMode();
         });
     });
 
     function getOffsetNum() {
         return $fileBrowserPreview.find(".offsetNum").text();
     }
-}
+});

@@ -1,4 +1,4 @@
-function dsTableTest() {
+describe("DSTable Test", function() {
     var testDS;
     var testDSObj;
     var testDSId;
@@ -6,9 +6,15 @@ function dsTableTest() {
     var $dsTableContainer;
     var $tableWrap;
 
+    var $mainTabCache;
+
     before(function(done){
         $dsTableContainer = $("#dsTableContainer");
         $tableWrap = $("#dsTableWrap");
+
+        $mainTabCache = $(".topMenuBarTab.active");
+        $("#dataStoresTab").click();
+        UnitTest.onMinMode();
 
         UnitTest.addDS(testDatasets.fakeYelp, "unitTestDsTable")
         .then(function(dsName) {
@@ -253,7 +259,9 @@ function dsTableTest() {
     after(function(done) {
         UnitTest.deleteDS(testDS)
         .always(function() {
+            $mainTabCache.click();
+            UnitTest.offMinMode();
             done();
         });
     });
-}
+});
