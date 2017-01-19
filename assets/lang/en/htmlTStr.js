@@ -245,7 +245,9 @@ module.exports = {
     },
 
     "UDF": {
-        "ADD": "ADD UDF",
+        "ADD": "ADD",
+        "App": "APP",
+        "AppName": "App name (lowercase)",
         "Browse": "Browse File",
         "BlankFunc": "Blank Function",
         "Editor": "Editor",
@@ -256,7 +258,8 @@ module.exports = {
         "Module": "UDF Module",
         "NameHint": "Module name (lowercase)",
         "SelectTemplate": "Select Template",
-        "Template": "Template"
+        "Template": "Template",
+        "Udf": "UDF"
     },
 
     "bottomMenu": {

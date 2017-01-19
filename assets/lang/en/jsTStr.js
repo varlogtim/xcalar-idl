@@ -687,7 +687,10 @@ UDFTStr = {
     "Download": "Download UDF",
     "DelTitle": "Delete UDF",
     "DelMsg": "Are you sure you want to delete the udf module?",
-    "DelFail": "Delete UDF Failed"
+    "DelFail": "Delete UDF Failed",
+    // Must be kept consistent with htmlTStr.UDF
+    "NameHint": "Module name (lowercase)",
+    "AppName": "App name (lowercase)"
 };
 
 TblTStr = {

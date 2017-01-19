@@ -126,8 +126,27 @@
             <!-- bottom section -->
             <div class="bottomSection">
               <input id="udf-fnName" class="action" type="text" spellcheck="false" placeholder="<%= dicts.UDF.NameHint %>">
+              <div id="udf-uploadType" class="dropDownList openUpwards">
+                  <div id="arrow"></div>
+                  <div class="iconWrapper">
+                    <i class="icon xi-add-udf2" data-uploadType="UDF"></i>
+                  </div>
+                  <div id="udf-uploadTypeMenu" class="list">
+                    <ul>
+                      <li>
+                        <i class="icon xi-add-udf2" data-uploadType="UDF"></i>
+                        <span><%= dicts.UDF.Udf %></span>
+                      </li>
+                    </ul>
+                    <ul>
+                      <li>
+                        <i class="icon xi-add-app" data-uploadType="APP"></i>
+                        <span><%= dicts.UDF.App %></span>
+                      </li>
+                    </ul>
+                  </div>
+              </div>
               <button id="udf-fnUpload" class="btn upload iconBtn action" type="button">
-                <i class="icon xi-add-udf fa-15"></i>
                 <span class="text"><%= dicts.UDF.ADD %></span>
               </button>
             </div>

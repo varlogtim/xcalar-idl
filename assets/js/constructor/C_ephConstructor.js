@@ -2066,7 +2066,8 @@ MenuHelper.prototype = {
         if (options.onlyClickIcon) {
             self.$iconWrapper = $dropDownList.find('.iconWrapper');
             $dropDownList.on("click", ".iconWrapper", function() {
-                self.toggleList($(this).closest(".dropDownList"));
+                self.toggleList($(this).closest(".dropDownList"),
+                                $(this).closest(".dropDownList").hasClass("openUpwards"));
             });
         } else {
             $dropDownList.addClass('yesclickable');
@@ -2079,7 +2080,7 @@ MenuHelper.prototype = {
                     $(event.target).closest(self.exclude).length) {
                     return;
                 }
-                self.toggleList($(this));
+                self.toggleList($(this), $(this).hasClass("openUpwards"));
             });
         }
 
@@ -2136,7 +2137,7 @@ MenuHelper.prototype = {
         $sections.removeClass("open");
         $(document).off('mousedown.closeDropDown' + self.id);
     },
-    toggleList: function($curlDropDownList) {
+    toggleList: function($curlDropDownList, openUpwards) {
         var self = this;
         var $list = self.$list;
         if ($curlDropDownList.hasClass("open")) {    // close dropdown
@@ -2167,6 +2168,12 @@ MenuHelper.prototype = {
             }
             $curlDropDownList.addClass("open");
             $lists.show().addClass("openList");
+
+            if (openUpwards) {
+                // Count number of children and shift up by num * 30
+                var shift = $curlDropDownList.find("li").length * (-30);
+                $curlDropDownList.find(".list").css("top", shift);
+            }
 
             $(document).on('mousedown.closeDropDown' + self.id, function(event) {
                 $target = $(event.target);

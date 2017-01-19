@@ -171,14 +171,21 @@ window.UDF = (function($, UDF) {
 
         /* Template dropdown list */
         new MenuHelper($("#udf-fnList"), {
-            "onSelect"     : seletUDFFuncList,
+            "onSelect"     : selectUDFFuncList,
+            "container"    : "#udfSection",
+            "bounds"       : '#udfSection',
+            "bottomPadding": 2
+        }).setupListeners();
+
+        new MenuHelper($("#udf-uploadType"), {
+            "onSelect"     : selectTypeList,
             "container"    : "#udfSection",
             "bounds"       : '#udfSection',
             "bottomPadding": 2
         }).setupListeners();
         /* end of function input section */
 
-        function seletUDFFuncList($li) {
+        function selectUDFFuncList($li) {
             $li.parent().find("li").removeClass("selected");
             $li.addClass("selected");
 
@@ -211,10 +218,22 @@ window.UDF = (function($, UDF) {
                 }
 
                 if (funcStr == null) {
-                    funcStr = "#" + SideBarTStr.DownoladMsg;
+                    funcStr = "#" + SideBarTStr.DownloadMsg;
                 }
 
                 editor.setValue(funcStr);
+            }
+        }
+
+        function selectTypeList($li) {
+            var $curIcon = $li.closest(".dropDownList").find(".iconWrapper .icon").remove();
+
+            var cloned = $li.find(".icon")[0].cloneNode(false);
+            $li.closest(".dropDownList").find(".iconWrapper").append(cloned);
+            if ($li.find(".icon").attr("data-uploadType") === "UDF") {
+                $("#udf-fnName").attr("placeholder", UDFTStr.NameHint);
+            } else {
+                $("#udf-fnName").attr("placeholder", UDFTStr.AppName);
             }
         }
 
@@ -263,7 +282,10 @@ window.UDF = (function($, UDF) {
                 moduleName = fileName;
             }
 
-            uploadUDF(moduleName, entireString);
+            upload(moduleName, entireString,
+                   $("#udf-uploadType .iconWrapper .icon")
+                   .attr("data-uploadType"));
+
         });
         /* end of upload udf section */
 
@@ -464,7 +486,7 @@ window.UDF = (function($, UDF) {
         getEntireUDF(moduleName)
         .then(function(entireString) {
             if (entireString == null) {
-                Alert.error(SideBarTStr.DownloadError, SideBarTStr.DownoladMsg);
+                Alert.error(SideBarTStr.DownloadError, SideBarTStr.DownloadMsg);
             } else {
                 xcHelper.downloadAsFile(moduleName, entireString);
             }
@@ -496,7 +518,7 @@ window.UDF = (function($, UDF) {
         });
     }
 
-    function uploadUDF(moduleName, entireString) {
+    function upload(moduleName, entireString, type) {
         moduleName = moduleName.toLowerCase();
 
         if (!isEditableUDF(moduleName)) {
@@ -519,10 +541,10 @@ window.UDF = (function($, UDF) {
                 "focusOnConfirm": true
             });
         } else {
-            uploadHelper();
+            uploadHelper(type);
         }
 
-        function uploadHelper() {
+        function uploadHelper(type) {
             var isIconBtn = true;
             var $fnUpload = $("#udf-fnUpload");
             var hasToggleBtn = false;
@@ -533,38 +555,58 @@ window.UDF = (function($, UDF) {
                 xcHelper.toggleBtnInProgress($fnUpload, isIconBtn);
             }, 1000);
 
-            XcalarUploadPython(moduleName, entireString)
-            .then(function() {
-                UDF.storePython(moduleName, entireString);
-                KVStore.commit();
-                xcHelper.showSuccess();
+            if (type === "UDF") {
+                XcalarUploadPython(moduleName, entireString)
+                .then(function() {
+                    UDF.storePython(moduleName, entireString);
+                    KVStore.commit();
+                    xcHelper.showSuccess();
 
-                refreshUDF(true);
+                    refreshUDF(true);
 
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                // XXX might not actually be a syntax error
-                var syntaxErr = parseSytanxError(error);
-                if (syntaxErr != null) {
-                    var errMsg = xcHelper.replaceMsg(SideBarTStr.UDFError, syntaxErr);
-                    Alert.error(SideBarTStr.SyntaxError, errMsg);
-                    updateHints(syntaxErr);
-                } else {
-                    // when cannot parse the error
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    // XXX might not actually be a syntax error
+                    var syntaxErr = parseSytanxError(error);
+                    if (syntaxErr != null) {
+                        var errMsg = xcHelper.replaceMsg(SideBarTStr.UDFError, syntaxErr);
+                        Alert.error(SideBarTStr.SyntaxError, errMsg);
+                        updateHints(syntaxErr);
+                    } else {
+                        // when cannot parse the error
+                        Alert.error(SideBarTStr.UploadError, error);
+                    }
+
+                    deferred.reject(error);
+                })
+                .always(function() {
+                    if (hasToggleBtn) {
+                        // toggle back
+                        xcHelper.toggleBtnInProgress($fnUpload);
+                    } else {
+                        clearTimeout(timer);
+                    }
+                });
+            } else {
+                XcalarAppSet(moduleName, "Python", "Import", entireString)
+                .then(function() {
+                    xcHelper.showSuccess();
+                    deferred.resolve();
+                })
+                .fail(function(error) {
                     Alert.error(SideBarTStr.UploadError, error);
-                }
-
-                deferred.reject(error);
-            })
-            .always(function() {
-                if (hasToggleBtn) {
-                    // toggle back
-                    xcHelper.toggleBtnInProgress($fnUpload);
-                } else {
-                    clearTimeout(timer);
-                }
-            });
+                    deferred.reject();
+                })
+                .always(function() {
+                    if (hasToggleBtn) {
+                        // toggle back
+                        xcHelper.toggleBtnInProgress($fnUpload);
+                    } else {
+                        clearTimeout(timer);
+                    }
+                });
+            }
         }
 
         return deferred.promise();
@@ -638,7 +680,7 @@ window.UDF = (function($, UDF) {
         UDF.__testOnly__.getEntireUDF = getEntireUDF;
         UDF.__testOnly__.downloadUDF = downloadUDF;
         UDF.__testOnly__.parseSytanxError = parseSytanxError;
-        UDF.__testOnly__.uploadUDF = uploadUDF;
+        UDF.__testOnly__.uploadUDF = upload;
     }
     /* End Of Unit Test Only */
 
