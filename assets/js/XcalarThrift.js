@@ -84,6 +84,7 @@ function thriftLog() {
         thriftError.error = "Error: " + error;
         if (status !== StatusT.StatusCanceled) {
             console.error('(╯°□°）╯︵ ┻━┻ ' + msg);
+            xcConsole.log(msg);
         }
 
         errorLists.push(thriftError);

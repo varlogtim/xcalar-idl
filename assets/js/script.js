@@ -76,7 +76,6 @@ function documentReadyIndexFunction() {
 
 window.StartManager = (function(StartManager, $) {
     var setupStatus = SetupStatus.Setup;
-
     StartManager.setup = function() {
         // use promise for better unit test
         var deferred = jQuery.Deferred();
@@ -863,8 +862,11 @@ window.StartManager = (function(StartManager, $) {
         }
 
         window.onerror = function(error, url, line, column) {
-            var mouseDownTargetHTML = gMouseEvents.getLastMouseDownTarget()
-                                               .clone().empty()[0].outerHTML;
+            var mouseDownTargetHTML = "";
+            var $lastTarget = gMouseEvents.getLastMouseDownTarget();
+            if ($lastTarget && !$lastTarget.is(document)) {
+                mouseDownTargetHTML = $lastTarget.clone().empty()[0].outerHTML;
+            }                     
             var mouseDownTime = gMouseEvents.getLastMouseDownTime();
 
             var info = {
@@ -877,6 +879,8 @@ window.StartManager = (function(StartManager, $) {
                     "time": mouseDownTime
                 }
             };
+
+            xcConsole.log(error, url + ":" + line + ":" + column);
 
             SQL.errorLog("Console error", null, null, info);
         };

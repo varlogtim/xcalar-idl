@@ -2951,3 +2951,48 @@ html.microsoft {
         z-index: 0;
     }
 }
+
+#debugAlert {
+    position: absolute;
+    z-index: 2000;
+    top: 19%;
+    left: 40%;
+    min-width: 200px;
+    min-height: 100px;
+    width: 400px;
+    height: 200px;
+    background-color: @color-white;
+    font-size: 18px;
+    display: none;
+
+    .title {
+        text-align: center;
+        background-color: @color-error-border-light;
+        color: @color-white;
+        height: 30px;
+        line-height: 30px;
+    }
+    .clear {
+        position: absolute;
+        top:2px;
+        right: 32px;
+        cursor: pointer;
+    }
+    .close {
+        position: absolute;
+        top:2px;
+        right: 2px;
+        cursor: pointer;
+    }
+    .content {
+        b {
+            font-family: @font-base;
+        }
+        padding: 10px;
+        height: ~"calc(100% - 30px)";
+        overflow: auto;
+        font-size: 14px;
+        font-family: @font-code;
+        .text-selection;
+    }
+}
