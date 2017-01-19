@@ -112,6 +112,7 @@ window.DFCard = (function($, DFCard) {
         }).remove();
         // var dataflows = DF.getAllDataflows();
         $dfMenu.find('.numGroups').text(DF.getNumDataflows());
+        DFCard.refreshDFList();
         DFCard.focusFirstDF();
     };
 

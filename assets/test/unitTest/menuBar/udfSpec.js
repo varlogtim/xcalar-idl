@@ -388,6 +388,8 @@ describe("UDF Test", function() {
                 return uploadedApp === 1;
             };
 
+            var oldAppSetFunc = XcalarAppSet;
+
             XcalarAppSet = function() {
                 uploadedApp = 1;
                 return PromiseHelper.resolve();
@@ -407,8 +409,10 @@ describe("UDF Test", function() {
             .then(done)
             .fail(function() {
                 throw "error case";
+            })
+            .always(function() {
+                XcalarAppSet = oldAppSetFunc;
             });
-
         });
 
         it("Should switch to udf uploader", function(done) {
@@ -420,6 +424,8 @@ describe("UDF Test", function() {
             var checkFunc = function() {
                 return uploadedUdf === 1;
             };
+
+            var oldUploadFunc = XcalarUploadPython;
             XcalarUploadPython = function() {
                 uploadedUdf = 1;
                 return PromiseHelper.resolve();
@@ -441,6 +447,9 @@ describe("UDF Test", function() {
             .then(done)
             .fail(function() {
                 throw "error case";
+            })
+            .always(function() {
+                XcalarUploadPython = oldUploadFunc;
             });
         });
     });
