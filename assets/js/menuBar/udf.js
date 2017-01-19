@@ -538,7 +538,7 @@ window.UDF = (function($, UDF) {
             Alert.show({
                 "title"         : SideBarTStr.DupUDF,
                 "msg"           : msg,
-                "onConfirm"     : function() { uploadHelper(); },
+                "onConfirm"     : function() { uploadHelper("UDF"); },
                 "onCancel"      : function() { deferred.resolve(); },
                 "focusOnConfirm": true
             });
