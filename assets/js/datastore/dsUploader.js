@@ -165,9 +165,10 @@ window.DSUploader = (function($, DSUploader) {
             Alert.show({title: DSTStr.InvalidUpload, msg: DSTStr.OneFileUpload});
             return;
         }
-        var hasDuplicate = checkFileNameDuplicate(files[0].name);
-
-        if (hasDuplicate) {
+        
+        if (checkInvalidFileSize(files[0])) {
+            invalidSizeAlert(files);
+        } else if (checkFileNameDuplicate(files[0].name)) {
             duplicateNameAlert(files[0].name);
         } else {
             var name = files[0].name;
@@ -178,6 +179,7 @@ window.DSUploader = (function($, DSUploader) {
     function validateAndSubmitNewName(name, oldName) {
         name = name.trim();
         var hasDup = checkFileNameDuplicate(name);
+
         if (hasDup) {
             duplicateNameAlert(name);
         } else if (!name.length) {
@@ -211,30 +213,33 @@ window.DSUploader = (function($, DSUploader) {
         });
     }
 
+    function invalidSizeAlert(files) {
+        var msg = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
+                                            size: "2 GB"
+                                        });
+        Alert.error(CommonTxtTstr.InvalidSize, msg);
+    }
+
+    function invalidFolderAlert() {
+        Alert.error(DSTStr.InvalidFolder, DSTStr.InvalidFolderDesc);
+    }
+
     function checkFileNameDuplicate(name) {
         for (var i = 0; i < allFiles.length; i++) {
             if (name === allFiles[i].name) {
                 return true;
             }
         }
-
         return false;
     }
 
+    function checkInvalidFileSize(file) {
+        return file.size > (2 * GB);
+    }
+
     function loadFile(file, name, event) {
-        var reader = new FileReader();
         var folderFound = false;
-        reader.onload = function(event) {
-            var entireString = event.target.result;
-            console.log(entireString.length);
-            uploadFile(file, name, entireString);
-            return PromiseHelper.resolve();
-        };
-        reader.onError = function(event) {
-            console.log('caught it');
-            debugger;  
-        };
-        
+   
         if (event.dataTransfer.items && event.dataTransfer.items.length) {
            [].forEach.call(event.dataTransfer.items, function(item) {
                 var entry = item.webkitGetAsEntry();
@@ -244,25 +249,57 @@ window.DSUploader = (function($, DSUploader) {
                 }
            });
         }
+
         if (folderFound) {
-            console.warn('folder found');
+            invalidFolderAlert();
         } else {
-            reader.readAsBinaryString(file);
+            var size = file.size;
+            var mtime = file.lastModified;
+            var fileObj = {name: name, attr: {size: size, mtime: mtime}};
+            var loading = true;
+            var html = getOneFileHtml(fileObj, loading);
+            $innerContainer.append(html);
+
+            XcalarDemoFileCreate(name)
+            .then(function() {
+                return uploadFile(file, name);
+            });
         }
     }
 
-    function uploadFile(fileInfo, name, content) {
-        var size = fileInfo.size;
-        var mtime = fileInfo.lastModified;
-        var fileObj = {name: name, attr: {size: size, mtime: mtime}}
-        allFiles.push(fileObj);
-        var html = getOneFileHtml(fileObj);
-        $innerContainer.append(html);
-        console.log(arguments);
-        // need to send info to backend
+    function uploadFile(file, name) {
+        var deferred = jQuery.Deferred();
+        var dsUploadWorker = new Worker(paths.dsUploadWorker);
+        var dsFileUpload = new DSFileUpload(name, file.size,
+                                    uploadComplete.bind(null, file, name));
+
+        dsUploadWorker.postMessage(file); 
+        
+        dsUploadWorker.onmessage = function(ret) {
+            if (ret.data.status === "loading") {
+                dsFileUpload.add(ret.data.content, ret.data.chunkSize);
+            } else if (ret.data.status === "done") {
+                dsFileUpload.workerDone();
+
+                dsUploadWorker.terminate();
+                dsUploadWorker = undefined;
+            } else {
+                console.error(ret.data);
+                dsFileUpload.errored(ret.data);
+            }
+        }
     }
 
-    function getOneFileHtml(fileInfo) {
+    function uploadComplete(file, name) {
+        var size = file.size;
+        var mtime = file.lastModified;
+        var fileObj = {name: name, attr: {size: size, mtime: mtime}};
+        allFiles.push(fileObj);
+        $innerContainer.find('.grid-unit[data-name="' + name + '"]')
+                       .removeClass('isLoading');
+    }
+
+    function getOneFileHtml(fileInfo, isLoading) {
         var name = fileInfo.name;
         var size = xcHelper.sizeTranslator(fileInfo.attr.size);
         var mtime = fileInfo.attr.mtime;
@@ -275,10 +312,14 @@ window.DSUploader = (function($, DSUploader) {
             noSeconds: true
         };
         var date = xcHelper.timeStampTranslator(mtime, timeOptions) || "";
+        var status = "";
+        if (isLoading) {
+            status += " isLoading ";
+        }
 
         var html =
-            '<div title="' + name + '" class="' +
-                gridClass + ' grid-unit">' +
+            '<div data-name="' + name + '" title="' + name + '" class="' +
+                status + gridClass + ' grid-unit">' +
                 '<i class="gridIcon icon ' + iconClass + '"></i>' +
                 '<div class="label fileName" data-name="' + name + '">' +
                     name +
@@ -409,6 +450,11 @@ window.DSUploader = (function($, DSUploader) {
             html += getOneFileHtml(files[i]);
         }
         $innerContainer.html(html);
+    }
+
+    //xx temporary
+    function XcalarDemoFileCreate(fileName) {
+        return PromiseHelper.resolve();
     }
 
 

@@ -139,6 +139,7 @@ CommonTxtTstr = {
     'Value': 'Value',
     'XcWelcome': 'Have fun with Xcalar Design!',
     'NoUndone': 'This action cannot be undone',
+    'InvalidSize': 'Invalid size',
 
     // with replace
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated' +
@@ -628,6 +629,8 @@ DSTStr = {
     'NewName': 'New name',
     'DupFileName': 'Duplicate File Name',
     'DupFileNameDesc': 'File with the same name exists. Please rename your file.',
+    'InvalidFolder': 'Invalid Upload',
+    'InvalidFolderDesc': 'Cannot upload directories.',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',

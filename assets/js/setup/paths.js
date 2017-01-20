@@ -19,6 +19,7 @@ var paths = {
     XCExt           : 'assets/images/extension/logo-xc.png',
     CustomExt       : 'assets/images/extension/logo-custom.png',
     tableauExt      : 'assets/images/extension/logo-tableau.png',
+    dsUploadWorker  : 'assets/js/datastore/dsUploadWorker.js',
     helpUserGuide   : 'assets/help/user/Content/Home.htm',
     helpUserContent : 'assets/help/user/Content/',
     helpUserSearch  : 'assets/help/user/Content/SearchInsight.htm#search-',

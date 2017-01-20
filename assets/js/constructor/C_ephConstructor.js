@@ -2628,3 +2628,81 @@ ExtCategorySet.prototype = {
     window.xcSessionStorage = new XcStorage(sessionStorage);
 }());
 /* End of Storage */
+
+
+/* Datastore File Upload */
+// handles the queue of XcalarDemoFileAppend calls
+function DSFileUpload(name, size, onCompleteCallback) {
+    this.name = name;
+    this.chunks = [];
+    this.totalSize = size;
+    this.sizeCompleted = 0;
+    this.status = 'started';
+    this.isWorkerDone = false;
+    this.onCompleteCallback = onCompleteCallback;
+    this.__init();
+
+    return this;
+}
+
+DSFileUpload.prototype = {
+    __init: function() {
+        // nothing to init yet
+    },
+    add: function(content, chunkSize) {
+        this.chunks.push({content: content, size: chunkSize});
+        
+        if (this.chunks.length === 1) {
+            this.__stream();
+        }
+    },
+    getSizeCompleted: function() {
+        return this.sizeCompleted;
+    },
+    complete: function(callback) {
+        this.status = 'done';
+    },
+    workerDone: function() {
+        this.isWorkerDone = true;
+    },
+    errored: function() {
+        this.status = 'errored';
+    },
+    getStatus: function() {
+        return this.status;
+    },
+
+    __stream: function() {
+        var self = this;
+        self.status = 'inProgress';
+        XcalarDemoFileAppend(self.name, self.chunks[0].content)
+        .then(function() {
+            self.sizeCompleted += self.chunks[0].size;
+            console.log(self.sizeCompleted + ' out of ' + self.totalSize);
+            self.chunks.shift();
+            if (self.chunks.length) {
+                self.__stream();
+            } else if (self.isWorkerDone) {
+                self.onCompleteCallback();
+                self.complete();
+                console.log('upload done');
+            }
+        })
+        .fail(function() {
+            // xx need to handle fails
+        });
+
+        //xx temporary
+        function XcalarDemoFileAppend(fileName, fileContents) {
+            var deferred = jQuery.Deferred();
+
+            setTimeout(function() {
+                deferred.resolve();
+            }, 500);
+
+            return deferred.promise();
+        }
+    }
+};
+
+/* END DSFileUploader */

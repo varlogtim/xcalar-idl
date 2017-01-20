@@ -797,6 +797,12 @@ table.datasetTable {
 
     .grid-unit {
         cursor: pointer;
+        
+        &.isLoading {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
         > div {
             cursor: pointer;
         }
