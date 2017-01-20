@@ -346,6 +346,29 @@ describe("UDF Test", function() {
             UnitTest.hasAlertWithTitle(SideBarTStr.DupUDF);
         });
 
+        it("Should update with new func", function(done) {
+            var oldFunc = XcalarUpdatePython;
+            var updated = false;
+            XcalarUpdatePython = function() {
+                updated = true;
+                return PromiseHelper.resolve();
+            };
+            editor.setValue(func);
+            $fnName.val(uploadModule);
+            $("#udf-fnUpload").click();
+
+            var checkFunc = function() {
+                return updated === true;
+            };
+
+            UnitTest.hasAlertWithTitle(SideBarTStr.DupUDF, {"confirm": true});
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                XcalarUpdatePython = oldFunc;
+                done();
+            });
+        });
+
         it("Should delete udf", function(done) {
             var $udf = $udfManager.find(".udf:contains(" + uploadModule + ")");
             $udf.find(".delete").click();
