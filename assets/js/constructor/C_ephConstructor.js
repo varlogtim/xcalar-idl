@@ -75,12 +75,14 @@ function MouseEvents() {
     var $lastMDParents = $lastMouseDownTarget;
 
     this.setMouseDownTarget = function($element) {
-        $lastMouseDownTarget = $element;
-        if ($element) {
-            $lastMDParents = $lastMouseDownTarget.parents();
+        if (!$element) {
+            $lastMouseDownTarget = $();
         } else {
-            $lastMDParents = null;
+            $lastMouseDownTarget = $element;
         }
+            
+        $lastMDParents = $lastMouseDownTarget.parents();
+        
         lastTime = (new Date()).getTime();
 
         // store up to last 3 mousedowns
