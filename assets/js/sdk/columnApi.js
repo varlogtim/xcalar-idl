@@ -25,13 +25,13 @@ window.XcSDK.Column.prototype = {
 
     // returns name of cast function for colType
     getTypeForCast: function() {
-        if (this.colType == "integer") {
-            return "int"
-        } else if (this.colType == "boolean") {
-            return "bool"
+        if (this.colType === "integer") {
+            return "int";
+        } else if (this.colType === "boolean") {
+            return "bool";
         } else {
             // string and float
-            return this.colType
+            return this.colType;
         }
     },
 

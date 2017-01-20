@@ -30,8 +30,8 @@ window.ExportView = (function($, ExportView) {
         $colList = $exportView.find('.cols');
 
         var columnPicker = {
-            "state"  : "exportState",
-            "noEvent": true,
+            "state"        : "exportState",
+            "noEvent"      : true,
             "validColTypes": validTypes
         };
         formHelper = new FormHelper($exportView, {

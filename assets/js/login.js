@@ -5,7 +5,7 @@ if (!window.hasFlash || xcLocalStorage.getItem("noSplashLogin") === "true") {
     $("#splashContainer").hide();
 }
 
-$(document).ready(function() {    
+$(document).ready(function() {
     var hostname = "";
     setupHostName();
 

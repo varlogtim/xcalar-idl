@@ -159,7 +159,7 @@ window.Aggregates = (function(Aggregates, $) {
         } else {
             errorMsg = fails[0].error + ". " + ErrTStr.NoConstsDeleted;
             Transaction.fail(txId, {
-                "error": errorMsg,
+                "error"  : errorMsg,
                 "failMsg": StatusMessageTStr.DeleteConstFailed
             });
         }

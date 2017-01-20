@@ -824,7 +824,7 @@ window.StartManager = (function(StartManager, $) {
         });
 
         $(document).on('dragover', function(event) {
-            var dt = event.originalEvent.dataTransfer;  
+            var dt = event.originalEvent.dataTransfer;
             if (dt.types && (dt.types.indexOf ?
                 dt.types.indexOf('Files') !== -1 :
                 dt.types.contains('Files'))) {
@@ -866,7 +866,7 @@ window.StartManager = (function(StartManager, $) {
             var $lastTarget = gMouseEvents.getLastMouseDownTarget();
             if ($lastTarget && !$lastTarget.is(document)) {
                 mouseDownTargetHTML = $lastTarget.clone().empty()[0].outerHTML;
-            }                     
+            }
             var mouseDownTime = gMouseEvents.getLastMouseDownTime();
 
             var info = {

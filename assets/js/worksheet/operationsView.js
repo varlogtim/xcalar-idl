@@ -1086,7 +1086,6 @@ window.OperationsView = (function($, OperationsView) {
         var originalVal = val;
         val = val.toLowerCase();
         if (val.length) {
-            var count = 0;
             for (var i = 0; i < aggNames.length; i++) {
                 if (aggNames[i].toLowerCase().indexOf(val) > -1 ) {
                     list.push(aggNames[i]);

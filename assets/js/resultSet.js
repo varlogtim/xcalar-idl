@@ -73,7 +73,6 @@ function goToPage(rowNumber, numRowsToAdd, direction, info, loop,
     }
 
     var prepullTableHeight;
-    var setAbsolutePassed = false;
     gIsTableScrolling = true;
 
     generateDataColumnJson(table, rowPosition, numRowsToAdd)

@@ -53,9 +53,9 @@ window.JoinView = (function($, JoinView) {
         $renameSection = $("#joinView .renameSection");
 
         var columnPicker = {
-            "state"      : "joinState",
+            "state"        : "joinState",
             "validColTypes": validTypes,
-            "colCallback": function($target) {
+            "colCallback"  : function($target) {
                 if ($lastInputFocused &&
                     !$lastInputFocused.closest('.joinTableList').length) {
                     xcHelper.fillInputFromCell($target, $lastInputFocused);
@@ -682,7 +682,7 @@ window.JoinView = (function($, JoinView) {
                 "table": tableName
             });
             tooltipTime = 3000;
-        } else if (colRes.reason == "tableNotFound") {
+        } else if (colRes.reason === "tableNotFound") {
             errorText = ErrTStr.SourceTableNotExists;
         } else if (colRes.reason === 'type') {
             errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
@@ -1082,7 +1082,7 @@ window.JoinView = (function($, JoinView) {
             joinKeyDataToSubmit = prepJoinKeyDataSubmit(lCols, rCols,
                                                         lTableId, rTableId);
         } catch (err) {
-            console.log("Failed to prep join key data with err: " + err)
+            console.error("Failed to prep join key data with err:", err);
             joinKeyDataToSubmit = null;
         }
 
@@ -1607,19 +1607,20 @@ window.JoinView = (function($, JoinView) {
                                    leftColsToKeep, rightColsToKeep,
                                    leftRenameOut, rightRenameOut) {
         var i;
+        var idx;
         // Remove all leftColsToKeep from clashes
         var leftClashArray = xcHelper.deepCopy(clashes);
         var rightClashArray = xcHelper.deepCopy(clashes);
 
         for (i = 0; i < leftColsToKeep.length; i++) {
-            var idx = leftClashArray.indexOf(leftColsToKeep[i]);
+            idx = leftClashArray.indexOf(leftColsToKeep[i]);
             if (idx > -1) {
                 leftClashArray[idx] = undefined;
             }
         }
 
         for (i = 0; i < rightColsToKeep.length; i++) {
-            var idx = rightClashArray.indexOf(rightColsToKeep[i]);
+            idx = rightClashArray.indexOf(rightColsToKeep[i]);
             if (idx > -1) {
                 rightClashArray[idx] = undefined;
             }
@@ -1711,7 +1712,7 @@ window.JoinView = (function($, JoinView) {
         $joinView.removeClass('nextStep');
         updateJoinTableName();
         resetRenames();
-        }
+    }
 
     function updateJoinTableName() {
         var joinTableName = "";
@@ -1723,7 +1724,6 @@ window.JoinView = (function($, JoinView) {
 
         $leftTableDropdown.find('ul').html(tableLis);
         $rightTableDropdown.find('ul').html(tableLis);
-        var tableName;
 
         if (refresh) {
             var leftTableName = $leftTableDropdown.find('.text').val();

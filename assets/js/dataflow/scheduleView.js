@@ -152,7 +152,7 @@ window.Scheduler = (function(Scheduler, $) {
 
         // frequent section event
         var $freqSection = $dfgView.find(".frequencySection");
-        xcHelper.optionButtonEvent($freqSection, function(option) {
+        xcHelper.optionButtonEvent($freqSection, function() {
             var $datepickerPart = $newTimeSection.find(".datePickerPart");
             $datepickerPart.removeClass("inActive");
         });

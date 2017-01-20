@@ -228,7 +228,7 @@ window.UDF = (function($, UDF) {
         }
 
         function selectTypeList($li) {
-            var $curIcon = $li.closest(".dropDownList").find(".iconWrapper .icon").remove();
+            $li.closest(".dropDownList").find(".iconWrapper .icon").remove();
 
             var cloned = $li.find(".icon")[0].cloneNode(false);
             $li.closest(".dropDownList").find(".iconWrapper").append(cloned);

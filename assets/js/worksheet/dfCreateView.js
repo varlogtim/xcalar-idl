@@ -23,8 +23,8 @@ window.DFCreateView = (function($, DFCreateView) {
         formHelper = new FormHelper($dfView, {
             "focusOnOpen" : true,
             "columnPicker": {
-                "state"  : "dataflowState",
-                "noEvent": true,
+                "state"        : "dataflowState",
+                "noEvent"      : true,
                 "validColTypes": validTypes
             }
         });

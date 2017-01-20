@@ -54,7 +54,7 @@ window.xcConsole = (function(xcConsole, $) {
             stack[i] = stack[i].trim().slice(3).split(" ").join("   ");
         }
         return stack;
-    };
+    }
 
     function setupAlert() {
         var alert = '<div id="debugAlert">' +

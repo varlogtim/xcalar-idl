@@ -899,7 +899,7 @@ window.TableList = (function($, TableList) {
                         '</span>' +
                         '<span class="addTableBtn" data-toggle="tooltip" ' +
                         ' data-container="body"' +
-                        ' data-original-title="' + CommonTxtTstr.ClickSelect + 
+                        ' data-original-title="' + CommonTxtTstr.ClickSelect +
                         '">' +
                             '<i class="icon xi_table fa-18"></i>' +
                             '<i class="icon xi-ckbox-empty fa-18"></i>' +

@@ -1538,22 +1538,22 @@ FormHelper.prototype = {
         $(".xcTableWrap").addClass('columnPicker');
 
         // add noColumnPicker class to array and object columns
-        var $headers = $(".xcTable").find(".header")
+        var $headers = $(".xcTable").find(".header");
         var $arrayHeaders = $headers.filter(function() {
-            return $(this).hasClass("type-array"); 
+            return $(this).hasClass("type-array");
         }).addClass("noColumnPicker");
         var $objHeaders = $headers.filter(function() {
-            return $(this).hasClass("type-object"); 
+            return $(this).hasClass("type-object");
         }).addClass("noColumnPicker");
 
         xcTooltip.add($arrayHeaders, {
-            title: ColTStr.NoOperateArray,
+            title    : ColTStr.NoOperateArray,
             container: "body",
             placement: "bottom"
         });
 
         xcTooltip.add($objHeaders, {
-            title: ColTStr.NoOperateObject,
+            title    : ColTStr.NoOperateObject,
             container: "body",
             placement: "bottom"
         });
@@ -1563,7 +1563,7 @@ FormHelper.prototype = {
             var $otherHeaders = $();
 
             $(".xcTable").each(function() {
-                var $table = $(this)
+                var $table = $(this);
                 var table = gTables[xcHelper.parseTableId($table)];
                 var $invalidHeaders = $table.find(".header").filter(function() {
                     var $header = $(this);
@@ -1584,7 +1584,7 @@ FormHelper.prototype = {
             $otherHeaders.addClass("noColumnPicker");
 
             xcTooltip.add($otherHeaders, {
-                title: ColTStr.NoOperateGeneral,
+                title    : ColTStr.NoOperateGeneral,
                 container: "body",
                 placement: "bottom"
             });

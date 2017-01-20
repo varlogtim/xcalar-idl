@@ -2995,33 +2995,6 @@ function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
     return (deferred.promise());
 }
 
-function XcalarGetStats(numNodes) {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-    var deferred = jQuery.Deferred();
-    if (insertError(arguments.callee, deferred)) {
-        return (deferred.promise());
-    }
-
-    // XXX This is fako hacked up random code
-
-    var nodeStruct = [];
-    for (var i = 0; i < numNodes; i++) {
-        nodeStruct[i] = {};
-
-        var totFlash = Math.floor(Math.random() * 1000) * GB;
-        var usedFlash = Math.floor(Math.random() * totFlash);
-        var totDisk = Math.floor(Math.random() * 30 * 1000) * GB;
-        var usedDisk = Math.floor(Math.random() * totDisk);
-        nodeStruct[i].totFlash = totFlash;
-        nodeStruct[i].usedFlash = usedFlash;
-        nodeStruct[i].totDisk = totDisk;
-        nodeStruct[i].usedDisk = usedDisk;
-    }
-    return (deferred.resolve(nodeStruct));
-}
-
 function XcalarGetOpStats(dstTableName) {
     if (!dstTableName) {
         console.warn('no dsttablename');

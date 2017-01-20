@@ -6,10 +6,10 @@ window.DSForm = (function($, DSForm) {
     var $filePath;  // $("#filePath");
 
     DSForm.View = {
-        "Path"   : "DSForm",
+        "Path"    : "DSForm",
         "Uploader": "DSUploader",
-        "Browser": "FileBrowser",
-        "Preview": "DSPreview",
+        "Browser" : "FileBrowser",
+        "Preview" : "DSPreview",
     };
 
     DSForm.setup = function() {

@@ -253,8 +253,8 @@ window.Alert = (function($, Alert){
             $("#alertUserInput").val(options.userInput.autofill);
         } else {
             $("#alertUserInputArea").addClass('xc-hidden');
-             $("#alertUserInputArea").find('.label').empty();
-             $("#alertUserInput").val("");
+            $("#alertUserInputArea").find('.label').empty();
+            $("#alertUserInput").val("");
         }
 
         if (options.modal) {
