@@ -2632,14 +2632,15 @@ ExtCategorySet.prototype = {
 
 /* Datastore File Upload */
 // handles the queue of XcalarDemoFileAppend calls
-function DSFileUpload(name, size, onCompleteCallback) {
+function DSFileUpload(name, size, options) {
     this.name = name;
     this.chunks = [];
     this.totalSize = size;
     this.sizeCompleted = 0;
     this.status = 'started';
     this.isWorkerDone = false;
-    this.onCompleteCallback = onCompleteCallback;
+    this.onCompleteCallback = options.onComplete;
+    this.onUpdateCallback = options.onUpdate;
     this.__init();
 
     return this;
@@ -2671,13 +2672,13 @@ DSFileUpload.prototype = {
     getStatus: function() {
         return this.status;
     },
-
     __stream: function() {
         var self = this;
         self.status = 'inProgress';
         XcalarDemoFileAppend(self.name, self.chunks[0].content)
         .then(function() {
             self.sizeCompleted += self.chunks[0].size;
+            self.onUpdateCallback(self.sizeCompleted);
             console.log(self.sizeCompleted + ' out of ' + self.totalSize);
             self.chunks.shift();
             if (self.chunks.length) {

@@ -21,7 +21,7 @@ function parseFile(file) {
             var content = event.target.result;
             // content = new Uint8Array(content);
     
-            content = btoa(content);
+            // content = btoa(content);
             postMessage({status: "loading",
                         sizeCompleted: offset,
                         chunkSize: event.loaded,

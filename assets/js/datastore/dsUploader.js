@@ -4,7 +4,7 @@ window.DSUploader = (function($, DSUploader) {
     var $container; // $('#dsUploaderContainer');
     var $innerContainer; // innerdsUploader
     var droppedFiles = null;
-    var allFiles = [{name: "bin", attr: {size: 5 * MB, mtime: Date.now()}}];
+    var allFiles = [{name: "bin", status: "done", attr: {size: 5 * MB, mtime: Date.now()}}];
     window.gDsUploadEnabled = false;
     var reverseSort = false;
     var defaultSortKey = "type";
@@ -46,7 +46,7 @@ window.DSUploader = (function($, DSUploader) {
             allFiles = allFiles;
             sortFilesBy(sortKey);
             deferred.resolve();
-        }, 1000);
+        }, 500);
 
         return (deferred.promise());
     };
@@ -221,7 +221,7 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function invalidFolderAlert() {
-        Alert.error(DSTStr.InvalidFolder, DSTStr.InvalidFolderDesc);
+        Alert.error(DSTStr.InvalidUpload, DSTStr.InvalidFolderDesc);
     }
 
     function checkFileNameDuplicate(name) {
@@ -256,23 +256,30 @@ window.DSUploader = (function($, DSUploader) {
         } else {
             var size = file.size;
             var mtime = file.lastModified;
-            var fileObj = {name: name, attr: {size: size, mtime: mtime}};
+            var fileObj = {name: name, 
+                           attr: {size: size, mtime: mtime},
+                           status: "inProgress",
+                           sizeCompleted: 0
+                          };
+            allFiles.push(fileObj);
             var loading = true;
-            var html = getOneFileHtml(fileObj, loading);
+            var html = getOneFileHtml(fileObj);
             $innerContainer.append(html);
 
             XcalarDemoFileCreate(name)
             .then(function() {
-                return uploadFile(file, name);
+                return uploadFile(fileObj, file, name);
             });
         }
     }
 
-    function uploadFile(file, name) {
+    function uploadFile(fileObj, file, name) {
         var deferred = jQuery.Deferred();
         var dsUploadWorker = new Worker(paths.dsUploadWorker);
-        var dsFileUpload = new DSFileUpload(name, file.size,
-                                    uploadComplete.bind(null, file, name));
+        var dsFileUpload = new DSFileUpload(name, file.size, {
+            onComplete: uploadComplete.bind(null, fileObj, file, name),
+            onUpdate: updateProgress.bind(null, fileObj, file, name),
+        });
 
         dsUploadWorker.postMessage(file); 
         
@@ -291,17 +298,31 @@ window.DSUploader = (function($, DSUploader) {
         }
     }
 
-    function uploadComplete(file, name) {
-        var size = file.size;
-        var mtime = file.lastModified;
-        var fileObj = {name: name, attr: {size: size, mtime: mtime}};
-        allFiles.push(fileObj);
-        $innerContainer.find('.grid-unit[data-name="' + name + '"]')
-                       .removeClass('isLoading');
+    function uploadComplete(fileObj, file, name) {
+        var $icon = getDSIcon(name)
+        $icon.removeClass("isLoading").find(".fileSize").html(
+                                xcHelper.sizeTranslator(fileObj.attr.size));
+        $icon.find(".fileName").html(name);
+        fileObj.status = "done";
     }
 
-    function getOneFileHtml(fileInfo, isLoading) {
+    function updateProgress(fileObj, file, name, sizeCompleted) {
+        var $icon = getDSIcon(name);
+        $icon.find(".fileName").html(name + " (" + CommonTxtTstr.Uploading +
+                                     ")");
+        $icon.find(".fileSize").html("(" + xcHelper.sizeTranslator(sizeCompleted) +
+                                    "/" + xcHelper.sizeTranslator(file.size) +
+                                    ")");
+        fileObj.sizeCompleted = sizeCompleted;
+    }
+
+    function getDSIcon(name) {
+        return $innerContainer.find('.grid-unit[data-name="' + name + '"]');
+    }
+
+    function getOneFileHtml(fileInfo) {
         var name = fileInfo.name;
+        var displayName = name;
         var size = xcHelper.sizeTranslator(fileInfo.attr.size);
         var mtime = fileInfo.attr.mtime;
         var isDirectory = false;
@@ -314,8 +335,11 @@ window.DSUploader = (function($, DSUploader) {
         };
         var date = xcHelper.timeStampTranslator(mtime, timeOptions) || "";
         var status = "";
-        if (isLoading) {
+
+        if(fileInfo.status === "inProgress") {
             status += " isLoading ";
+            displayName = name + " (" + CommonTxtTstr.Uploading + ")";
+            size = "(" + fileInfo.sizeCompleted + "/" + size + ")";
         }
 
         var html =
@@ -323,7 +347,7 @@ window.DSUploader = (function($, DSUploader) {
                 status + gridClass + ' grid-unit">' +
                 '<i class="gridIcon icon ' + iconClass + '"></i>' +
                 '<div class="label fileName" data-name="' + name + '">' +
-                    name +
+                    displayName +
                 '</div>' +
                 '<div class="fileDate">' + date + '</div>' +
                 '<div class="fileSize">' + size + '</div>' +
