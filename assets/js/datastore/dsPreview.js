@@ -130,6 +130,9 @@ window.DSPreview = (function($, DSPreview) {
 
     // restore: boolean, set to true if restoring after an error
     DSPreview.show = function(options, fromFormCard, dsId, restore) {
+
+        xcHelper.enableSubmit($form.find(".confirm"));
+
         DSForm.switchView(DSForm.View.Preview);
 
         if (dsId != null) {

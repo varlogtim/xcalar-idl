@@ -569,8 +569,8 @@ window.DS = (function ($, DS) {
         })
         .fail(function(error, loadError) {
             // show loadError if has, otherwise show error message
-            var disaplyError = loadError || error;
-            dsObj.setError(disaplyError);
+            var displayError = loadError || error;
+            dsObj.setError(displayError);
 
             if (error === StatusTStr[StatusT.StatusCanceled] ||
                 error.status === StatusT.StatusCanceled) {
