@@ -302,108 +302,47 @@ describe("DSPreview Test", function() {
 
         it("Should detect correct format", function() {
             var detectFormat = DSPreview.__testOnly__.detectFormat;
+            expect(detectFormat("Excel")).to.equal("Excel");
 
-            loadArgs.setFormat("Excel");
-            expect(detectFormat()).to.equal("Excel");
+            var data = "[{\"test\"}";
+            expect(detectFormat(null, data, "\n")).to.equal("JSON");
 
-            loadArgs.setFormat(null);
-            $previewTable.html('<tbody><tr><td class="td cell">[{"test"}</td></tr></tbody>');
-            expect(detectFormat()).to.equal("JSON");
+            data = "{\"test\": \"val\"}";
+            expect(detectFormat(null, data, "\n")).to.equal("JSON");
 
-            loadArgs.setFormat(null);
-            $previewTable.html('<tbody><tr><td class="td cell">{"test": "val"}<td></tr></tbody>');
-            expect(detectFormat()).to.equal("JSON");
-
-            loadArgs.setFormat(null);
-            $previewTable.html('<tbody><tr><td class="td cell">abc<td></tr></tbody>');
-            expect(detectFormat()).to.equal("CSV");
-        });
-
-        it("should detect correct delimiter", function() {
-            var detectFieldDelim = DSPreview.__testOnly__.detectFieldDelim;
-
-            DSPreview.__testOnly__.set();
-
-            // when nothing to delimit
-            $previewTable.html("");
-            expect(detectFieldDelim()).equal("");
-
-
-            // when delimiter on comma
-            $previewTable.html('<span class="has-comma"></span>');
-            expect(detectFieldDelim()).equal(",");
-
-            // when delimiter on tab
-            $previewTable.html('<span class="has-tab"></span>');
-            expect(detectFieldDelim()).equal("\t");
-
-            // when has few pips
-            $previewTable.html('<span class="has-pipe"></span>');
-            expect(detectFieldDelim()).equal("");
-
-            // when has a lot of pips
-            var html = "";
-            for (var i = 0; i < 50; i ++) {
-                html += '<span class="has-pipe"></span>';
-            }
-            $previewTable.html(html);
-            expect(detectFieldDelim()).equal("|");
+            data = "abc";
+            expect(detectFormat(null, data, "\n")).to.equal("CSV");
         });
 
         it("Should detect correct header", function() {
             var detectHeader = DSPreview.__testOnly__.detectHeader;
 
-            DSPreview.__testOnly__.set();
-
             // when nothing to delimit
-            $previewTable.html("");
-            expect(detectHeader()).to.be.false;
+            var linDelim = "\n";
+            var fieldDelim = "";
+            var data = "";
+            expect(detectHeader(data, linDelim, fieldDelim)).to.be.false;
 
 
             // when is not header
-            var html = '<tbody>' +
-                        '<tr>' +
-                            '<td></td><td>Col0</td>' +
-                        '</tr>' +
-                        '<tr>' +
-                            '<td></td><td>Col1</td>' +
-                        '</tr>';
-            $previewTable.html(html);
-            expect(detectHeader()).to.be.false;
+            data = "Col0\nCol1";
+            expect(detectHeader(data, linDelim, fieldDelim)).to.be.false;
 
-            html = '<tbody>' +
-                    '<tr>' +
-                        '<td></td><td></td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td></td><td>Col1</td>' +
-                    '</tr>';
-            $previewTable.html(html);
-            expect(detectHeader()).to.be.false;
 
-            html = '<tbody>' +
-                    '<tr>' +
-                        '<td></td><td>0</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td></td><td>Col1</td>' +
-                    '</tr>';
-            $previewTable.html(html);
-            expect(detectHeader()).to.be.false;
+            data = "\t\t\n\tCol1";
+            fieldDelim = "\t";
+            expect(detectHeader(data, linDelim, fieldDelim)).to.be.false;
+
+            data = "1\t2\nCol1\tCol2";
+            fieldDelim = "\t";
+            expect(detectHeader(data, linDelim, fieldDelim)).to.be.false;
 
             // has header
-            html = '<tbody>' +
-                    '<tr>' +
-                        '<td></td><td>ThisisHeader</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td></td><td>1</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td></td><td>2</td>' +
-                    '</tr>';
-            $previewTable.html(html);
-            expect(detectHeader()).to.be.true;
+            data = "ThisisHeader1\tThisisHeader2\n" +
+                    "1\t2\n" +
+                    "3\t4";
+            fieldDelim = "\t";
+            expect(detectHeader(data, linDelim, fieldDelim)).to.be.true;
         });
     });
 
@@ -732,12 +671,20 @@ describe("DSPreview Test", function() {
         });
 
         it("Should select a UDF module", function() {
+            DSPreview.__testOnly__.selectUDFModule(null);
+            expect($udfModuleList.find("input").val()).to.be.empty;
+            expect($udfFuncList.find("input").val()).to.be.empty;
+
             DSPreview.__testOnly__.selectUDFModule("default");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.be.empty;
         });
 
         it("Should select a UDF func", function() {
+            DSPreview.__testOnly__.selectUDFFunc(null);
+            expect($udfModuleList.find("input").val()).to.equal("default");
+            expect($udfFuncList.find("input").val()).to.be.empty;
+
             DSPreview.__testOnly__.selectUDFFunc("openExcel");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.equal("openExcel");
@@ -780,7 +727,7 @@ describe("DSPreview Test", function() {
             // test1
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
-            $statusBox.click();
+            StatusBox.forceHide();
 
             // test2
             var name = new Array(350).join("a");
@@ -788,7 +735,7 @@ describe("DSPreview Test", function() {
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.TooLong);
-            $statusBox.click();
+            StatusBox.forceHide();
 
             // test3
             var oldhas = DS.has;
@@ -797,7 +744,7 @@ describe("DSPreview Test", function() {
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.DSNameConfilct);
-            $statusBox.click();
+            StatusBox.forceHide();
             DS.has = oldhas;
 
             // test4
@@ -805,7 +752,7 @@ describe("DSPreview Test", function() {
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoSpecialCharOrSpace);
-            $statusBox.click();
+            StatusBox.forceHide();
 
             $dsName.val("test");
         });
@@ -815,7 +762,7 @@ describe("DSPreview Test", function() {
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
-            $statusBox.click();
+            StatusBox.forceHide();
 
             loadArgs.setFormat("CSV");
         });
@@ -828,7 +775,7 @@ describe("DSPreview Test", function() {
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
-            $statusBox.click();
+            StatusBox.forceHide();
 
             // empty func test
             $udfModuleList.find("input").val("default");
@@ -836,7 +783,7 @@ describe("DSPreview Test", function() {
             expect(validateForm()).to.be.null;
             assert.isTrue($statusBox.is(":visible"));
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
-            $statusBox.click();
+            StatusBox.forceHide();
 
             // valid test
             $udfFuncList.find("input").val("openExcel");
@@ -845,6 +792,45 @@ describe("DSPreview Test", function() {
             // remove UDF checkbox
             $udfCheckbox.find(".checkbox").click();
             expect(validateForm()).not.to.be.null;
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
+
+    describe("Restore Form Test", function() {
+        before(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+
+        it("Should restore form", function() {
+            DSPreview.__testOnly__.restoreForm({
+                "dsName"    : "test",
+                "moduleName": "default",
+                "funcName"  : "openExcel",
+                "format"    : "raw",
+                "hasHeader" : true,
+                "fieldDelim": "",
+                "lineDelim" : "\n",
+                "quoteChar" : "\"",
+                "skipRows"  : 1
+            });
+
+            expect($("#dsForm-dsName").val()).to.equal("test");
+
+            expect($udfCheckbox.find(".checkbox").hasClass("checked"))
+            .to.be.true;
+            expect($udfModuleList.find("input").val()).to.equal("default");
+            expect($udfFuncList.find("input").val()).to.equal("openExcel");
+
+            expect($formatText.data("format")).to.equal("TEXT");
+            expect($headerCheckBox.find(".checkbox").hasClass("checked"))
+            .to.be.true;
+
+            expect($lineText.val()).to.equal("\\n");
+            expect($fieldText.val()).to.equal("Null");
+            expect($("#dsForm-skipRows").val()).to.equal("1");
         });
 
         after(function() {

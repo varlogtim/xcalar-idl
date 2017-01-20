@@ -526,7 +526,164 @@ window.xcSuggest = (function($, xcSuggest) {
 
 // dsPreview.js
 
+// rawRows is an array of string
+// that represents unparsed data for each row
+xcSuggest.detectFormat = function(rawRows) {
+    if (isJSONArray(rawRows)) {
+        return DSFormat.JSON;
+    } else if (isSpecialJSON(rawRows)) {
+        return DSFormat.SpecialJSON;
+    } else {
+        return DSFormat.CSV;
+    }
+};
 
+function isJSONArray(rawRows) {
+    var str = rawRows[0].trim();
+    if (rawRows[1] != null) {
+        str += rawRows[1].trim();
+    }
+    // start with [ and next char is {(skip space, tab, new line)
+    var isValidPattern = /^\[[\s\t\r\n]+{?/.test(str) ||
+                        str.startsWith("[{");
+    return isValidPattern;
+}
+
+function isSpecialJSON(rawRows) {
+    var isValid = false;
+    for (var i = 0, len = rawRows.length; i < len; i++) {
+        var text = rawRows[i];
+        if (text.startsWith("{") && /{.+:.+},?/.test(text)) {
+            // continue the loop
+            // only when it has at least one valid case
+            // we make it true
+            isValid = true;
+        } else if (text === "") {
+            continue;
+        } else {
+            isValid = false;
+            break;
+        }
+    }
+
+    return isValid;
+}
+
+xcSuggest.detectDelim = function(rawStr) {
+    var commaCount = coutCharOccurrence(rawStr, ",");
+    var tabCount = coutCharOccurrence(rawStr, "\\t");
+    var pipCount = coutCharOccurrence(rawStr, "\\|");
+
+    // when has pip
+    if (pipCount > commaCount && pipCount > tabCount) {
+        return "|";
+    }
+
+    if (commaCount > 0 && tabCount > 0) {
+        if (commaCount >= tabCount) {
+            return ",";
+        } else {
+            return "\t";
+        }
+    } else {
+        // one of comma and tab or both are 0
+        if (commaCount > 0) {
+            return ",";
+        } else if (tabCount > 0) {
+            return "\t";
+        }
+    }
+
+    // cannot detect
+    return "";
+};
+
+function coutCharOccurrence(str, ch) {
+    var regEx = new RegExp(ch, "g");
+    return (str.match(regEx) || []).length;
+}
+
+// parsedRows is a two dimension that represents a table's data
+xcSuggest.detectHeader = function(parsedRows) {
+    var rowLen = parsedRows.length;
+    if (rowLen === 0) {
+        return false;
+    }
+
+    var headers = parsedRows[0];
+    var colLen = headers.length;
+    var text;
+    var score = 0;
+
+    for (var i = 0; i < colLen; i++) {
+        text = headers[i];
+        if ($.isNumeric(text)) {
+            // if row has number
+            // should not be header
+            return false;
+        } else if (text === "" || text == null) {
+            // ds may have case to have empty header
+            score -= 100;
+
+        }
+    }
+
+    var rowStart = 1;
+    for (var col = 0; col < colLen; col++) {
+        text = headers[col];
+        var headerLength = text.length;
+        var allTextSameLength = null;
+        var firstTextLength = null;
+
+        for (var row = rowStart; row < rowLen; row++) {
+            var tdText = parsedRows[row][col];
+            var quotePattern = /^['"].+["']$/;
+            if (quotePattern.test(tdText)) {
+                // strip "9" to 9
+                tdText = tdText.substring(1, tdText.length - 1);
+            }
+
+            if ($.isNumeric(tdText)) {
+                // header is string and td is number
+                // valid this td
+                score += 30;
+            } else if (tdText === "" || tdText == null) {
+                // td is null but header is not
+                score += 10;
+            } else {
+                // the diff btw header and td is bigger, better
+                var textLength = tdText.length;
+                var diff = Math.abs(headerLength - textLength);
+                if (diff === 0 && text === tdText) {
+                    score -= 20;
+                } else {
+                    score += diff;
+                }
+
+                if (firstTextLength == null) {
+                    firstTextLength = textLength;
+                } else if (allTextSameLength !== false) {
+                    allTextSameLength = (firstTextLength === textLength);
+                }
+            }
+        }
+
+        if (allTextSameLength &&
+            firstTextLength != null &&
+            headerLength !== firstTextLength)
+        {
+            // when all text has same length and header is different
+            // length, it's a high chance of header
+            score += 20 * rowLen;
+        }
+    }
+
+    if (rowLen === 0 || score / rowLen < 20) {
+        return false;
+    } else {
+        return true;
+    }
+}
 ////////////
 // End JSON Delim Suggestion
 // Begin Col Type

@@ -611,4 +611,94 @@ describe('xcSuggest', function() {
             .to.be.equal(0);
         });
     });
+
+    describe("Preview Data Detection Test", function() {
+        it("xcSuggest.detectFormat should work", function() {
+            var tests = [{
+                "data"  : ["[{\"test\"}"],
+                "expect": DSFormat.JSON
+            }, {
+                "data"  : ["[", "{\"test\"}"],
+                "expect": DSFormat.JSON
+            }, {
+                "data"  : ["{\"test\": \"val\"}"],
+                "expect": DSFormat.SpecialJSON
+            }, {
+                "data"  : ["", "{\"test\": \"val\"}"],
+                "expect": DSFormat.SpecialJSON
+            }, {
+                "data"  : ["abc"],
+                "expect": DSFormat.CSV
+            }];
+
+            tests.forEach(function(test) {
+                var rawRows = test.data;
+                expect(xcSuggest.detectFormat(rawRows)).to.equal(test.expect);
+            });
+        });
+
+        it("xcSuggest.detectDelim should work", function() {
+            var tests = [{
+                "data"  : "a,b,c,d",
+                "expect": ","
+            }, {
+                "data"  : "a\tb\tc\te",
+                "expect": "\t"
+            }, {
+                "data"  : "a,b,c\td",
+                "expect": ","
+            }, {
+                "data"  : "a\tb\tc,d",
+                "expect": "\t"
+            }, {
+                "data"  : "a\tb|c,d",
+                "expect": ","
+            }, {
+                "data"  : "a\tb|c,d",
+                "expect": ","
+            }, {
+                "data"  : "a|b|c,d",
+                "expect": "|"
+            }, {
+                "data"  : "abcd",
+                "expect": ""
+            }];
+
+            tests.forEach(function(test) {
+                var rawStr = test.data;
+                expect(xcSuggest.detectDelim(rawStr)).to.equal(test.expect);
+            });
+        });
+
+        it("xcSuggest.detectHeader should work", function() {
+            var tests = [{
+                "data"  : [],
+                "expect": false
+            }, {
+                "data"  : [["Col0"], ["Col1"]],
+                "expect": false
+            }, {
+                "data"  : [["1", "2"], ["Col1", "Col2"]],
+                "expect": false
+            }, {
+                "data"  : [["", "Col1"], ["1", "2"]],
+                "expect": false
+            }, {
+                "data"  : [["Col1", "Col2"], ["1", "2"]],
+                "expect": true
+            }, {
+                "data"  : [["Header1", "Header2"], ["a", "b"], ["a", "b"]],
+                "expect": true
+            }, {
+                "data"  : [["a", "b"], ["a", "b"], ["a", "b"]],
+                "expect": false
+            }];
+
+            tests.forEach(function(test) {
+                var parsedRows = test.data;
+                expect(xcSuggest.detectHeader(parsedRows))
+                .to.equal(test.expect);
+            });
+        });
+    });
 });

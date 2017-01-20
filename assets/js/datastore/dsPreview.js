@@ -528,7 +528,6 @@ window.DSPreview = (function($, DSPreview) {
         $("#lineText").val("\\n").removeClass("nullVal");
     }
 
-    // xx not tested
     function restoreForm(options) {
         $form.find("input").not($formatText).val("");
         $form.find(".checkbox.checked").removeClass("checked");
@@ -839,7 +838,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         // speical case: special json:
-        if (detectArgs.isSpecialJSON === true) {
+        if (format === formatMap.JSON && detectArgs.isSpecialJSON === true) {
             // if user specified udf, then use the udf.
             // otherwise, treat it as special json
             if (udfModule === "" || udfFunc === "") {
@@ -1163,7 +1162,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         promise
-        .then(function(result, isLoadFormatJSON) {
+        .then(function(result) {
             if (!result) {
                 var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 return PromiseHelper.reject(error);
@@ -1173,7 +1172,7 @@ window.DSPreview = (function($, DSPreview) {
 
             $loadHiddenSection.removeClass("hidden");
 
-            getPreviewTable(isLoadFormatJSON);
+            getPreviewTable();
 
             if (!noDetect) {
                 var currentLoadArgStr = JSON.stringify(loadArgs);
@@ -1315,7 +1314,7 @@ window.DSPreview = (function($, DSPreview) {
         })
         .then(function(result) {
             if (!result) {
-                deferred.resolve(null, isLoadFormatJSON);
+                deferred.resolve(null);
                 return;
             }
 
@@ -1323,11 +1322,11 @@ window.DSPreview = (function($, DSPreview) {
                 var rows = parseRows(result);
                 var buffer;
                 if (isLoadFormatJSON) {
-                    buffer = rows;
+                    buffer = JSON.stringify(rows);
                 } else {
                     buffer = parseRawString(rows);
                 }
-                deferred.resolve(buffer, isLoadFormatJSON);
+                deferred.resolve(buffer);
             } catch (err) {
                 console.error(err.stack);
                 deferred.reject({"error": DSTStr.NoParse});
@@ -1398,7 +1397,7 @@ window.DSPreview = (function($, DSPreview) {
         .fail(errorHandler);
     }
 
-    function getPreviewTable(isLoadFormatJSON) {
+    function getPreviewTable() {
         if (rawData == null) {
             // error case
             errorHandler(DSFormTStr.NoData);
@@ -1411,7 +1410,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var format = loadArgs.getFormat();
         if (format === formatMap.JSON) {
-            getJSONTable(rawData, isLoadFormatJSON);
+            getJSONTable(rawData);
             return;
         }
 
@@ -1599,17 +1598,11 @@ window.DSPreview = (function($, DSPreview) {
         return name;
     }
 
-    function getJSONTable(datas, isLoadFormatJSON) {
-        var json;
-        if (!isLoadFormatJSON) {
-            json = parseJSONData(datas);
-            if (json == null) {
-                // error case
-                return;
-            }
-        } else {
-            // already a good parsed json
-            json = datas;
+    function getJSONTable(datas) {
+        var json = parseJSONData(datas);
+        if (json == null) {
+            // error case
+            return;
         }
 
         $previewTable.html(getJSONTableHTML(json))
@@ -1788,7 +1781,7 @@ window.DSPreview = (function($, DSPreview) {
         return (tbody);
     }
 
-    function lineSplitHelper(data, delim) {
+    function lineSplitHelper(data, delim, rowsToSkip) {
         // XXX this O^2 plus the fieldDelim O^2 may be too slow
         // may need a better way to do it
         var dels = delim.split("");
@@ -1841,8 +1834,11 @@ window.DSPreview = (function($, DSPreview) {
             res.push(data.substring(startIndex, dataLen));
         }
 
-        var skipRows = getSkipRows();
-        res = res.slice(skipRows);
+        if (rowsToSkip == null || isNaN(rowsToSkip)) {
+            rowsToSkip = getSkipRows();
+        }
+
+        res = res.slice(rowsToSkip);
 
         return res;
     }
@@ -1967,235 +1963,84 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function smartDetect() {
-        if (loadArgs.getFormat() === formatMap.EXCEL) {
-            detectArgs.format = detectFormat();
-            applyLineDelim("\n");
-            applyQuote("\"");
-        } else {
-            toggleFormat("TEXT", null);
-            applyFieldDelim("");
-            applyLineDelim("\n");
-            applyQuote("\"");
-            getPreviewTable();
+        applyLineDelim("\n");
+        applyQuote("\"");
 
-            detectArgs.format = detectFormat();
+        // step 1: detect format
+        var lineDelim = loadArgs.getLineDelim();
+        var format = loadArgs.getFormat();
+        detectArgs.format = detectFormat(format, rawData, lineDelim);
 
-            var format = detectArgs.format;
-            var formatText;
-            for (var key in formatMap) {
-                if (formatMap[key] === format) {
-                    formatText = key;
-                    break;
-                }
+        var formatText;
+        for (var key in formatMap) {
+            if (formatMap[key] === detectArgs.format) {
+                formatText = key;
+                break;
             }
-
-            toggleFormat(formatText, null);
-            applyLineDelim("\n");
-            applyQuote("\"");
         }
+        toggleFormat(formatText, null);
 
+        // step 2: detect delimiter
         if (detectArgs.format === formatMap.EXCEL ||
             detectArgs.format === formatMap.CSV) {
-             // need to reset first
-            loadArgs.setHeader(false);
-
-            getPreviewTable();
             if (detectArgs.format === formatMap.EXCEL) {
                 detectArgs.fieldDelim = "\t";
             } else {
-                detectArgs.fieldDelim = detectFieldDelim();
+                detectArgs.fieldDelim = xcSuggest.detectDelim(rawData);
             }
 
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);
-                // only after update the table, can do the detect
-                getPreviewTable();
             }
 
-            detectArgs.hasHeader = detectHeader();
+            // step 3: detect header
+            detectArgs.hasHeader = detectHeader(rawData, lineDelim,
+                                                detectArgs.fieldDelim);
         } else {
             detectArgs.hasHeader = false;
-            getPreviewTable();
         }
 
         if (detectArgs.hasHeader) {
-            toggleHeader(true, true);
+            toggleHeader(true);
         } else {
             toggleHeader(false);
         }
+
+        // step 4: update preview after detection
+        getPreviewTable();
     }
 
-    function detectFieldDelim() {
-        var commaLen = $previewTable.find(".has-comma").length;
-        var tabLen = $previewTable.find(".has-tab").length;
-        var pipLen = $previewTable.find(".has-pipe").length;
-
-        // when has pip
-        if (pipLen >= rowsToFetch && pipLen > commaLen && pipLen > tabLen) {
-            return "|";
-        }
-
-        if (commaLen > 0 && tabLen > 0) {
-            if (commaLen >= tabLen) {
-                return ",";
-            } else {
-                return "\t";
-            }
-        } else {
-            // one of comma and tab or both are 0
-            if (commaLen > 0) {
-                return ",";
-            } else if (tabLen > 0) {
-                return "\t";
-            }
-        }
-
-        // cannot detect
-        return "";
-    }
-
-    function detectFormat() {
-        var format = loadArgs.getFormat();
+    function detectFormat(format, data, lineDelim) {
         if (format === formatMap.EXCEL) {
             return format;
-        } else if (isJSONArray()) {
-            return formatMap.JSON;
-        } else if (isSpecialJSON()) {
-            detectArgs.isSpecialJSON = true;
-            return formatMap.JSON;
         } else {
-            return formatMap.CSV;
-        }
-    }
+            var rows = lineSplitHelper(data, lineDelim, 0);
+            var detectRes = xcSuggest.detectFormat(rows);
 
-    function isJSONArray() {
-        var $cells = $previewTable.find("tbody tr:first-child .td");
-        return /\[{?/.test($cells.text());
-    }
-
-    function isSpecialJSON() {
-        if (isUseUDF()) {
-            // speical json should use udf to parse,
-            // so if already use udf, cannot be speical json
-            return false;
-        }
-
-        var isValid = false;
-        // format is {"test": ...},\n{"test2": ...}
-        $previewTable.find("tbody tr").each(function() {
-            var $cell = $(this).find(".cell");
-            // should only have one row
-            if ($cell.length === 1) {
-                var text = $cell.text().trim();
-                if (text.startsWith("{") && /{.+:.+},?/.test(text)) {
-                    // continue the loop
-                    // only when it has at least one valid case
-                    // we make it true
-                    isValid = true;
-                    return true;
-                }
-            } else if (text === "") {
-                return true;
+            if (detectRes === DSFormat.JSON) {
+                detectArgs.isSpecialJSON = false;
+                return formatMap.JSON;
+            } else if (!isUseUDF() && detectRes === DSFormat.SpecialJSON) {
+                // speical json should use udf to parse,
+                // so if already use udf, cannot be speical json
+                detectArgs.isSpecialJSON = true;
+                return formatMap.JSON;
             } else {
-                // not qualified, end loop
-                isValid = false;
-                return false;
+                return formatMap.CSV;
             }
-        });
-        return isValid;
+        }
     }
 
-    function detectHeader() {
-        var col;
-        var row;
-        var $trs = $previewTable.find("tbody tr");
-        var rowLen = $trs.length;
-        var headers = [];
-        var text;
-        var $headers = $trs.eq(0).children();
-        var colLen = $headers.length;
-        var score = 0;
+    function detectHeader(data, lineDelim, fieldDelim) {
+        var rows = lineSplitHelper(data, lineDelim);
+        var rowLen = Math.min(rowsToFetch, rows.length);
+        var parsedRows = [];
 
-        for (col = 1; col < colLen; col++) {
-            text = $headers.eq(col).text();
-            if ($.isNumeric(text)) {
-                // if row has number
-                // should not be header
-                return false;
-            } else if (text === "" || text == null) {
-                // ds may have case to have empty header
-                score -= 100;
-
-            }
-
-            headers[col] = text;
+        for (var i = 0; i < rowLen; i++) {
+            parsedRows[i] = lineSplitHelper(rows[i], fieldDelim, 0);
         }
 
-        var tds = [];
-        var rowStart = 1;
-
-        for (row = rowStart; row < rowLen; row++) {
-            tds[row] = [];
-            $tds = $trs.eq(row).children();
-            for (col = 1; col < colLen; col++) {
-                tds[row][col] = $tds.eq(col).text();
-            }
-        }
-
-        for (col = 1; col < colLen; col++) {
-            text = headers[col];
-            var headerLength = text.length;
-            var allTextSameLength = null;
-            var firstTextLength = null;
-
-            for (row = rowStart; row < rowLen; row++) {
-                var tdText = tds[row][col];
-                var quotePattern = /^['"].+["']$/;
-                if (quotePattern.test(tdText)) {
-                    // strip "9" to 9
-                    tdText = tdText.substring(1, tdText.length - 1);
-                }
-
-                if ($.isNumeric(tdText)) {
-                    // header is string and td is number
-                    // valid this td
-                    score += 30;
-                } else if (tdText === "" || tdText == null) {
-                    // td is null but header is not
-                    score += 10;
-                } else {
-                    // the diff btw header and td is bigger, better
-                    var textLength = tdText.length;
-                    var diff = Math.abs(headerLength - textLength);
-                    if (diff === 0 && text === tdText) {
-                        score -= 20;
-                    } else {
-                        score += diff;
-                    }
-
-                    if (firstTextLength == null) {
-                        firstTextLength = textLength;
-                    } else if (allTextSameLength !== false) {
-                        allTextSameLength = (firstTextLength === textLength);
-                    }
-                }
-            }
-
-            if (allTextSameLength &&
-                firstTextLength != null &&
-                headerLength !== firstTextLength)
-            {
-                // when all text has same length and header is different
-                // length, it's a high chance of header
-                score += 20 * rowLen;
-            }
-        }
-
-        if (rowLen === 0 || score / rowLen < 20) {
-            return false;
-        } else {
-            return true;
-        }
+        return xcSuggest.detectHeader(parsedRows);
     }
 
     /* Unit Test Only */
@@ -2209,12 +2054,12 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.highlightHelper = highlightHelper;
         DSPreview.__testOnly__.toggleHeader = toggleHeader;
         DSPreview.__testOnly__.detectFormat = detectFormat;
-        DSPreview.__testOnly__.detectFieldDelim = detectFieldDelim;
         DSPreview.__testOnly__.detectHeader = detectHeader;
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
         DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
 
         DSPreview.__testOnly__.resetForm = resetForm;
+        DSPreview.__testOnly__.restoreForm = restoreForm;
         DSPreview.__testOnly__.getNameFromPath = getNameFromPath;
         DSPreview.__testOnly__.getSkipRows = getSkipRows;
         DSPreview.__testOnly__.applyFieldDelim = applyFieldDelim;

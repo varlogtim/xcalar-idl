@@ -137,6 +137,12 @@ var DSObjTerm = {
     "OtherUserFolderId": ".other"
 };
 
+var DSFormat = {
+    "JSON": "JSON",
+    "SpecialJSON": "SpecialJSON",
+    "CSV": "CSV"
+};
+
 var FileProtocol = {
     "nfs": "nfs:///",
     "hdfs": "hdfs://",
