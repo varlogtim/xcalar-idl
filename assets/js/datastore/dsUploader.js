@@ -239,9 +239,10 @@ window.DSUploader = (function($, DSUploader) {
 
     function loadFile(file, name, event) {
         var folderFound = false;
-   
-        if (event.dataTransfer.items && event.dataTransfer.items.length) {
-           [].forEach.call(event.dataTransfer.items, function(item) {
+
+        if (event && event.dataTransfer.items &&
+            event.dataTransfer.items.length) {
+            [].forEach.call(event.dataTransfer.items, function(item) {
                 var entry = item.webkitGetAsEntry();
                 if (entry && entry.isDirectory) {
                     folderFound = true;
