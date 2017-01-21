@@ -412,9 +412,9 @@ describe("SQL Test", function() {
         });
 
         it("Should copy log", function(done) {
-            var oldFunc = xcHelper.assert;
+            var oldFunc = xcAssert;
             // it will fail the test
-            xcHelper.assert = function() { return true; };
+            xcAssert = function() { return true; };
 
             $sqlButtons.find(".copyLog").click();
             var $successMessageWrap = $("#successMessageWrap");
@@ -432,7 +432,7 @@ describe("SQL Test", function() {
                 throw "error case";
             })
             .always(function() {
-                xcHelper.assert = oldFunc;
+                xcAssert = oldFunc;
             });
         });
     });

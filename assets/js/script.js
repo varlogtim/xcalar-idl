@@ -921,7 +921,7 @@ window.StartManager = (function(StartManager, $) {
                 var rowToGo;
 
                 // validation check
-                xcHelper.assert((lastRowNum != null), "Error Case!");
+                xcAssert((lastRowNum != null), "Error Case!");
 
                 if (scrollType === "homeEnd") {
                     // isUp === true for home button, false for end button

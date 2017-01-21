@@ -503,8 +503,7 @@ window.UDF = (function($, UDF) {
     }
 
     function deleteUDF(moduleName) {
-        xcHelper.assert(storedUDF.hasOwnProperty(moduleName),
-                        "Delete UDF error");
+        xcAssert(storedUDF.hasOwnProperty(moduleName), "Delete UDF error");
 
         XcalarDeletePython(moduleName)
         .then(function() {

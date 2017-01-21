@@ -1119,6 +1119,7 @@ window.FileBrowser = (function($, FileBrowser) {
             hideBrowserMenu();
             if ($target.is("input") ||
                 ($lastTarget != null &&
+                $lastTarget.length > 0 &&
                 !$lastTargParents.filter("#fileBrowser").length &&
                 !$lastTargParents.filter("#dsForm-path").length &&
                 !$lastTargParents.filter("#importDataForm").length))

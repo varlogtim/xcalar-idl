@@ -160,7 +160,7 @@ window.DS = (function ($, DS) {
     };
 
     DS.focusOn = function($grid) {
-        xcHelper.assert($grid != null && $grid.length !== 0, "error case");
+        xcAssert($grid != null && $grid.length !== 0, "error case");
         if ($grid.hasClass("active") && $grid.hasClass("fetching")) {
             console.info("ds is fetching");
             return PromiseHelper.resolve();
@@ -303,7 +303,7 @@ window.DS = (function ($, DS) {
 
     // Remove dataset/folder
     DS.remove = function($grid) {
-        xcHelper.assert(($grid != null && $grid.length !== 0));
+        xcAssert(($grid != null && $grid.length !== 0));
 
         var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
@@ -357,7 +357,7 @@ window.DS = (function ($, DS) {
     };
 
     DS.cancel = function($grid) {
-        xcHelper.assert(($grid != null && $grid.length !== 0));
+        xcAssert(($grid != null && $grid.length !== 0));
         cancelDSHelper($grid.data("txid"), $grid);
         focsueOnTracker();
     };
@@ -430,7 +430,7 @@ window.DS = (function ($, DS) {
     function createDS(options, dsToReplace) {
         options = options || {};
         // validation check
-        xcHelper.assert((options.name != null), "Invalid Parameters");
+        xcAssert((options.name != null), "Invalid Parameters");
 
         // pre-process
         options.name = options.name.trim();

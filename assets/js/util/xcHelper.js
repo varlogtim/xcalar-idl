@@ -1,11 +1,4 @@
 window.xcHelper = (function($, xcHelper) {
-    xcHelper.assert = function(statement, error) {
-        error = error || "Assert failed";
-        if (!statement) {
-            throw error;
-        }
-    };
-
     xcHelper.reload = function() {
         location.reload();
     };
@@ -1280,7 +1273,7 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.lockTable = function(tableId, txId) {
         // lock worksheet as well
-        xcHelper.assert((tableId != null), "Invalid Parameters!");
+        xcAssert((tableId != null), "Invalid Parameters!");
         if (!gTables[tableId]) {
             return;
         }
@@ -1339,7 +1332,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.unlockTable = function(tableId) {
-        xcHelper.assert((tableId != null), "Invalid Parameters!");
+        xcAssert((tableId != null), "Invalid Parameters!");
 
         var table = gTables[tableId];
         if (!table) {

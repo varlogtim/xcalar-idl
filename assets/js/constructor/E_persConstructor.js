@@ -625,7 +625,7 @@ var TableMeta = (function(_super) {
         },
 
         addBookmark: function(rowNum) {
-            xcHelper.assert(Number.isInteger(rowNum));
+            xcAssert(Number.isInteger(rowNum));
 
             if (this.bookmarks.indexOf(rowNum) < 0) {
                 this.bookmarks.push(rowNum);
@@ -636,7 +636,7 @@ var TableMeta = (function(_super) {
         },
 
         removeBookmark: function(rowNum) {
-            xcHelper.assert(Number.isInteger(rowNum));
+            xcAssert(Number.isInteger(rowNum));
 
             var index = this.bookmarks.indexOf(rowNum);
             if (index >= 0) {
@@ -730,7 +730,7 @@ var ProgCol = (function(_super) {
         },
 
         setFrontColName: function(name) {
-            xcHelper.assert(typeof name === "string" && name !== "");
+            xcAssert(typeof name === "string" && name !== "");
             this.name = name;
         },
 
@@ -1776,8 +1776,7 @@ var Dataflow = (function(_super) {
         },
 
         addParameter: function(name) {
-            xcHelper.assert(!this.paramMap.hasOwnProperty(name),
-                            "Invalid name");
+            xcAssert(!this.paramMap.hasOwnProperty(name), "Invalid name");
             this.parameters.push(name);
             this.paramMap[name] = null;
         },
@@ -1805,7 +1804,7 @@ var Dataflow = (function(_super) {
             params.forEach(function(param) {
                 var name = param.name;
                 var val  = param.val;
-                xcHelper.assert(paramMap.hasOwnProperty(name), "Invalid name");
+                xcAssert(paramMap.hasOwnProperty(name), "Invalid name");
                 paramMap[name] = val;
             });
         },
@@ -1829,7 +1828,7 @@ var Dataflow = (function(_super) {
         removeParameter: function(name) {
             var index = this.parameters.indexOf(name);
 
-            xcHelper.assert((index >= 0), "Invalid name");
+            xcAssert((index >= 0), "Invalid name");
 
             this.parameters.splice(index, 1);
             delete this.paramMap[name];
@@ -2051,7 +2050,7 @@ var XcSubQuery = (function(_super) {
                 // XXX This happens if the call is a "drop"
                 // Since we don't have a dstDag call, we will just return 50%
                 deferred.resolve(50);
-                xcHelper.assert(self.name === "drop", "Unexpected operation!");
+                xcAssert(self.name === "drop", "Unexpected operation!");
             } else {
                 XcalarGetOpStats(self.dstTable)
                 .then(function(ret) {

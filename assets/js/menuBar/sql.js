@@ -62,14 +62,14 @@ window.SQL = (function($, SQL) {
             $("body").append($hiddenInput);
             var value;
             if ($machineTextarea.is(":visible")) {
-                xcHelper.assert(!$textarea.is(":visible"),
-                                "human and android cannot coexist!");
+                xcAssert(!$textarea.is(":visible"),
+                        "human and android cannot coexist!");
                 value = $machineTextarea.text();
             } else {
-                xcHelper.assert(!$machineTextarea.is(":visible"),
-                                "human and android cannot coexist!");
-                xcHelper.assert($textarea.is(":visible"),
-                                "At least one bar should be showing");
+                xcAssert(!$machineTextarea.is(":visible"),
+                        "human and android cannot coexist!");
+                xcAssert($textarea.is(":visible"),
+                        "At least one bar should be showing");
                 value = JSON.stringify(SQL.getAllLogs());
             }
 
@@ -247,7 +247,7 @@ window.SQL = (function($, SQL) {
 
     SQL.undo = function(step) {
         var deferred = jQuery.Deferred();
-        xcHelper.assert((isUndo === false), "Doing other undo/redo operation?");
+        xcAssert((isUndo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
             step = 1;
@@ -317,7 +317,7 @@ window.SQL = (function($, SQL) {
 
     SQL.redo = function(step) {
         var deferred = jQuery.Deferred();
-        xcHelper.assert((isRedo === false), "Doing other undo/redo operation?");
+        xcAssert((isRedo === false), "Doing other undo/redo operation?");
 
         if (step == null) {
             step = 1;
@@ -664,7 +664,7 @@ window.SQL = (function($, SQL) {
     }
 
     function undoLog(sql, cursor) {
-        xcHelper.assert((sql != null), "invalid sql");
+        xcAssert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
 
@@ -686,7 +686,7 @@ window.SQL = (function($, SQL) {
     }
 
     function redoLog(sql, cursor) {
-        xcHelper.assert((sql != null), "invalid sql");
+        xcAssert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
 

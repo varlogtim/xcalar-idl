@@ -163,7 +163,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 if (retStruct.sessions[0].state === "Active") {
                     // This happens when there are no active sessions. The
                     // first one we create gets auto activated
-                    xcHelper.assert(!WorkbookManager.getActiveWKBK());
+                    xcAssert(!WorkbookManager.getActiveWKBK());
                     XcalarDeactivateWorkbook(retStruct.sessions[0].name)
                     .always(function() {
                         deferred.resolve(wkbk.id);

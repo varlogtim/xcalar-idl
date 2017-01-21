@@ -2,7 +2,7 @@ window.Redo = (function($, Redo) {
     var redoFuncs = {};
 
     Redo.run = function(sql) {
-        xcHelper.assert((sql != null), "invalid sql");
+        xcAssert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
 

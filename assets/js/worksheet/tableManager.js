@@ -266,7 +266,7 @@ window.TblManager = (function($, TblManager) {
 
     TblManager.archiveTables = function(tableIds) {
         // a wrapper function to archive bunch of tables
-        xcHelper.assert((tableIds != null), "Invalid arguments");
+        xcAssert((tableIds != null), "Invalid arguments");
 
         if (!(tableIds instanceof Array)) {
             tableIds = [tableIds];
@@ -637,10 +637,10 @@ window.TblManager = (function($, TblManager) {
         options = options || {};
 
         var table = gTables[tableId];
-        xcHelper.assert(table != null);
+        xcAssert(table != null);
 
         var progCol = table.getCol(colNum);
-        xcHelper.assert(progCol != null);
+        xcAssert(progCol != null);
 
         var colName = progCol.getFrontColName();
         var width = progCol.getWidth();

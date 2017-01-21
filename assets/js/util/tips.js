@@ -270,7 +270,7 @@ window.Tips = (function($, Tips) {
     function setTooltip($target, options) {
         // options reference:
         // http://www.w3schools.com/bootstrap/bootstrap_ref_js_tooltip.asp
-        xcHelper.assert($target != null, "Invalid target!");
+        xcAssert($target != null, "Invalid target!");
 
         options = $.extend({}, defaultOpt, options);
 

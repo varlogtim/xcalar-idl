@@ -926,8 +926,7 @@ window.DFParamModal = (function($, DFParamModal){
         if (retinaNode != null && retinaNode.paramQuery != null) {
             var $templateVals = $editableRow.closest(".modalTopMain")
                                             .find(".template .boxed");
-            xcHelper.assert(retinaNode.paramQuery.length ===
-                            $templateVals.length);
+            xcAssert(retinaNode.paramQuery.length === $templateVals.length);
             var i = 0;
             var parameterizedVals = [];
             for (; i<retinaNode.paramQuery.length; i++) {

@@ -3,7 +3,7 @@ window.Undo = (function($, Undo) {
 
     // isMostRecent - boolean, true if it's the most recent operation performed
     Undo.run = function(sql, isMostRecent) {
-        xcHelper.assert((sql != null), "invalid sql");
+        xcAssert((sql != null), "invalid sql");
 
         var deferred = jQuery.Deferred();
 

@@ -1,20 +1,4 @@
 describe('xcHelper Test', function() {
-    it('xcHelper.assert should work', function() {
-        // case 1
-        try {
-            xcHelper.assert(1 === 2, "test error");
-        } catch (error) {
-            expect(error).to.equal("test error");
-        }
-
-        // case 2
-        try {
-            xcHelper.assert(1 === 2);
-        } catch (error) {
-            expect(error).to.equal("Assert failed");
-        }
-    });
-
     it('xcHelper.parseTableId should work', function() {
         // case 1
         var id = "test-id";

@@ -257,7 +257,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                     indexInput.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
-                    xcHelper.assert(indexInput.source.isTable);
+                    xcAssert(indexInput.source.isTable);
 
                     parentChildMap = Dag.getParentChildDagMap(nodeArray.node);
                     srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
@@ -308,7 +308,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                     indexInput1.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
-                    xcHelper.assert(indexInput1.source.isTable);
+                    xcAssert(indexInput1.source.isTable);
                     parentChildMap = Dag.getParentChildDagMap(na1.node);
                     unsortedName1 = Dag.getDagSourceNames(parentChildMap, 0,
                                                              na1.node)[0];
@@ -325,7 +325,7 @@ function getUnsortedTableName(tableName, otherTableName) {
                     indexInput2.ordering ===
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
-                    xcHelper.assert(indexInput2.source.isTable);
+                    xcAssert(indexInput2.source.isTable);
                     parentChildMap = Dag.getParentChildDagMap(na2.node);
                     unsortedName2 = Dag.getDagSourceNames(parentChildMap, 0,
                                                              na2.node)[0];

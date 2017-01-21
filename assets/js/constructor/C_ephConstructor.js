@@ -80,7 +80,7 @@ function MouseEvents() {
         } else {
             $lastMouseDownTarget = $element;
         }
-            
+
         $lastMDParents = $lastMouseDownTarget.parents();
         
         lastTime = (new Date()).getTime();

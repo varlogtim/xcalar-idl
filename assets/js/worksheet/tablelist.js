@@ -324,7 +324,7 @@ window.TableList = (function($, TableList) {
         var validAction = ["add", "delete"];
 
         // validation check
-        xcHelper.assert(validAction.indexOf(action) >= 0);
+        xcAssert(validAction.indexOf(action) >= 0);
         focusedListNum = null;
         var $tableList;
         var hiddenWS = false;
