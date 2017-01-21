@@ -997,9 +997,11 @@ window.JSONModal = (function($, JSONModal) {
             });
             if (allProjectMode) {
                 $jsonArea.find('.jsonWrap').last().addClass('projectMode');
+                autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
             }
         } else if (lastModeIsProject) {
             $jsonArea.find('.jsonWrap').last().addClass('projectMode');
+            autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
         }
     }
 
@@ -1963,6 +1965,7 @@ window.JSONModal = (function($, JSONModal) {
 
             if ($li.hasClass('projectionOpt')) {
                 $jsonWrap.addClass('projectMode');
+                autoSelectFieldsToProject($jsonWrap);
                 selectTab($jsonWrap.find('.seeAll'));
                 xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitProjection);
                 if ($jsonWrap.find('.compareIcon.on').length) {
@@ -1984,6 +1987,40 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on("mouseleave", ".menu li", function() {
             $(this).removeClass("hover");
         });
+    }
+
+    function autoSelectFieldsToProject($jsonWrap) {
+        var tableId = $jsonWrap.data('tableid');
+        var table = gTables[tableId];
+        var cols = table.getAllCols();
+        var colName;
+        var $immediatesGroup = $jsonWrap.find('.immediatesGroup');
+        var $prefixGroups = $jsonWrap.find('.prefixGroups');
+        var $group;
+        var prefixSelected = false;
+
+        for (var i = 0; i < cols.length; i++) {
+            if (cols[i].isDATACol() || cols[i].isEmptyCol()) {
+                continue;
+            }
+   
+            
+            if (cols[i].isImmediate()) {
+                colName = cols[i].getBackColName();
+                $group = $immediatesGroup;
+                var $checkbox = $group
+                                .find('.mainKey[data-key="' + colName + '"]')
+                                .children('.jsonCheckbox');
+                if ($checkbox.length && !$checkbox.hasClass('checked')) {
+                    // togglePrefixProject($checkbox);
+                    selectJsonKey($checkbox.siblings('.jKey'), {});
+                }
+                
+            } else if (!prefixSelected) {
+                togglePrefixProject($jsonWrap.find('.prefixCheckbox'));
+                prefixSelected = true;
+            }
+        }
     }
 
     /* Unit Test Only */
