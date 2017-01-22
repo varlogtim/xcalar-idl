@@ -795,6 +795,7 @@ OpModalTStr = {
     'ModifyMapDesc': 'Would you like to modify the map?',
     'NoArg': 'No Argument',
     'EmptyString': 'Empty String',
+    'WeirdQuotes': '[Unicode Quotes(“) detected. Please check quotation marks]',
 
     // with replace
     'ModifyDesc': 'Would you like to modify the <name>?',
