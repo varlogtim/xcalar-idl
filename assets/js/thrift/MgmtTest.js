@@ -2739,76 +2739,6 @@ PromiseHelper = (function(PromiseHelper, $) {
         testApiKeyAddOrReplace(test, "mykey", "myvalue2");
     }
 
-    function testSchedTask(test) {
-        var dummyArg = new XcalarApiSchedArgTypeT();
-        dummyArg.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
-
-        dummyArg.executeRetinaInput.retinaName = "dummyRetina";
-        dummyArg.executeRetinaInput.numParameters = 0;
-
-        xcalarScheduleTask(thriftHandle, "sched task", 1000, 0, 0,
-                           SchedTaskTypeT.StQuery, dummyArg)
-        .then(function() {
-            xcalarListSchedTask(thriftHandle, "sched task")
-            .done(function(listSchedTaskOutput) {
-                if (listSchedTaskOutput.numSchedTask != 1) {
-                    var reason = "wrong number of task. got \"" +
-                                 listSchedTaskOutput.numSchedTask +
-                                 "\" instead of \"1\"";
-                    test.fail(reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].name !=
-                           "sched task") {
-                    var reason = "wrong name of task. got \"" +
-                                 listSchedTaskOutput.schedTaskInfo[0].name +
-                                 "\" instead of \"sched task\"";
-                    test.fail(reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].numFailure !== 0) {
-                    var reason = "wrong numFailure of task. got \"" +
-                                 listSchedTaskOutput.schedTaskInfo[0].numFailure +
-                                 "\" instead of \"0\"";
-                    test.fail(reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].
-                           scheduleInfo.schedTimeInSecond != 1000) {
-                    var reason = "wrong schedule time of task. got \"" +
-                                 listSchedTaskOutput.schedTaskInfo[0].
-                                 scheduleInfo.schedTimeInSecond +
-                                 "\" instead of \"1000\"";
-                    test.fail(reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].type !=
-                           SchedTaskTypeT.StQuery) {
-                    var reason = "wrong task type. got \"" +
-                                 listSchedTaskOutput.schedTaskInfo[0].type +
-                                 "\" instead of " + SchedTaskTypeT.StQuery;
-                    test.fail(reason);
-                } else if (listSchedTaskOutput.schedTaskInfo[0].arg.
-                           executeRetinaInput.retinaName !=
-                           dummyArg.executeRetinaInput.retinaName) {
-                    var reason = "wrong retina name got \"" +
-                                 listSchedTaskOutput.schedTaskInfo[0].arg.
-                                 executeRetinaInput.retinaName +
-                                 "\" instead of " +
-                                 dummyArg.executeRetinaInput.retinaName;
-                    test.fail(reason);
-                }
-
-                xcalarDeleteSchedTask(thriftHandle, "sched task")
-                .done(function(status) {
-                  printResult(status);
-                  test.pass();
-                })
-                .fail(function(reason) {
-                    test.fail(StatusTStr[reason]);
-                });
-           })
-           .fail(function(reason) {
-               test.fail(StatusTStr[reason]);
-           });
-        }, function(reason) {
-            test.fail(StatusTStr[reason]);
-        }
-        );
-    }
-
     function testApiKeyAppend(test) {
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
@@ -3710,7 +3640,6 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testPerNodeOpStats, "get per node op stats", defaultTimeout, TestCaseDisabled);
 
     addTestCase(testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testSchedTask, "test schedtask", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLoadRegex, "loadRegex", defaultTimeout, TestCaseEnabled, "");

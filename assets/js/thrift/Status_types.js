@@ -541,7 +541,8 @@ StatusT = {
   'StatusJsonError' : 532,
   'StatusMsgStreamNotFound' : 533,
   'StatusUnderflow' : 534,
-  'StatusPageCacheFull' : 535
+  'StatusPageCacheFull' : 535,
+  'StatusSchedTaskFunctionalityRemoved' : 536
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1078,5 +1079,6 @@ StatusTStr = {0 : 'Success',
 532 : 'JSON error occurred',
 533 : 'Message stream not found',
 534 : 'Value too small for defined data type',
-535 : 'No space left in page cache'
+535 : 'No space left in page cache',
+536 : 'SchedTask functionality not supported anymore'
 };
