@@ -968,7 +968,10 @@ window.JoinView = (function($, JoinView) {
             }
 
             html += '<li class="checked" data-colnum="' + i + '">' +
-                        '<span class="text">' +
+                        '<span class="text tooltipOverflow" ' +
+                        'data-toggle="tooltip" data-container="body" ' +
+                        'data-original-title="' +
+                            progCol.getFrontColName(true) + '">' +
                             progCol.getFrontColName(true) +
                         '</span>' +
                         '<div class="checkbox checked">' +
