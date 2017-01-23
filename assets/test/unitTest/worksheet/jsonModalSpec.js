@@ -444,6 +444,10 @@ describe('JsonModal Test', function() {
         
             expect($jsonWrap.hasClass('projectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
+            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("12/12 fields selected to project");
+
+             // deselect prefixed fields
+            $jsonWrap.find('.prefixGroupTitle .checkbox').click();
             expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to project");
 
             // select prefixed fields
@@ -601,12 +605,10 @@ describe('JsonModal Test', function() {
     });
 
     after(function(done) {
-
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {
             UnitTest.offMinMode();
             done();
         });
-       
     });
 });

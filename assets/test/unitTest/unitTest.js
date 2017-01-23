@@ -231,6 +231,23 @@ window.UnitTest = (function(UnitTest, $) {
         return deferred.promise();
     };
 
+    UnitTest.deleteAllTables = function() {
+        var deferred = jQuery.Deferred();
+
+        DeleteTableModal.show(true)
+        .then(function() {
+            $('#deleteTableModal').find('.listSection .checkbox')
+                                  .addClass('checked');
+            return DeleteTableModal.__testOnly__.submitForm();
+        })
+        .then(function() {
+            return DeleteTableModal.__testOnly__.closeModal();
+        })
+        .then(deferred.resolve);
+        
+        return deferred.promise();
+    }
+
     UnitTest.onMinMode = function() {
         minModeCache = gMinModeOn;
         gMinModeOn = true;
