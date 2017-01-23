@@ -23,6 +23,7 @@ window.DSUploader = (function($, DSUploader) {
             return;
         } else {
             $("#dsForm-path").addClass('xc-hidden');
+            $("#importDataForm-content").find(".advanceOption").hide();
         }
 
         setupFileDisplay();
