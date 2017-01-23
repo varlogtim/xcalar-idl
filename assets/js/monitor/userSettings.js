@@ -7,32 +7,21 @@ window.UserSettings = (function($, UserSettings) {
     var commitIntervalSlider;
     var genSettings;
 
-    UserSettings.restore = function() {
+    UserSettings.restore = function(oldUserInfos, gInfosSetting) {
         var deferred = jQuery.Deferred();
         setup();
 
-        KVStore.getAndParse(KVStore.gUserKey, gKVScope.USER)
-        .then(function(res) {
-            userInfos.restore(res);
-            var dsInfo;
-            if (res != null) {
-                userPrefs = new UserPref(userInfos.getPrefInfo());
-                saveLastPrefs();
-                dsInfo = userInfos.getDSInfo();
-            } else {
-                userPrefs = new UserPref();
-                dsInfo = null;
-            }
-            restoreMainTabs();
+        userInfos = oldUserInfos;
 
-            var atStartup = true;
-            return DS.restore(dsInfo, atStartup);
-        })
+        userPrefs = new UserPref(userInfos.getPrefInfo());
+        saveLastPrefs();
+        restoreMainTabs();
+
+        var dsInfo = userInfos.getDSInfo();
+        var atStartup = true;
+        DS.restore(dsInfo, atStartup)
         .then(function() {
-            return (KVStore.getAndParse(KVStore.gSettingsKey, gKVScope.GLOB));
-        })
-        .then(function(res) {
-            genSettings = new GenSettings({}, res);
+            genSettings = new GenSettings({}, gInfosSetting);
             restoreSettingsPanel();
             deferred.resolve();
         })
@@ -142,7 +131,6 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     function setup() {
-        userInfos = new UserInfoConstructor();
         userPrefs = new UserPref();
         hasDSChange = false;
         addEventListeners();

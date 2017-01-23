@@ -10,6 +10,7 @@ window.KVStore = (function($, KVStore) {
     KVStore.setup = function(keys) {
         metaInfos = new METAConstructor();
         ephMetaInfos = new EMetaConstructor();
+
         for (var keyName in keys) {
             KVStore[keyName] = keys[keyName];
         }
@@ -77,7 +78,6 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.append = function(key, value, persist, scope) {
-
         var deferred = jQuery.Deferred();
 
         Support.commitCheck()
@@ -184,44 +184,53 @@ window.KVStore = (function($, KVStore) {
     KVStore.restore = function() {
         var deferred = jQuery.Deferred();
 
-        var gInfos = {};
-        var oldLogCursor;
-        // If the ephmeral datastructure is corrupt, we move ahead with the
-        // rest of the restore since ephemeral isn't that important
-        KVStore.getAndParse(KVStore.gEphStorageKey, gKVScope.EPHM)
-        .then(getPersistentKeys, getPersistentKeys);
+        var gInfosE = {};
+        var gInfosUser = {};
+        var gInfosSetting = {};
+        var gInfosMeta = {};
+        var isEmpty = false;
 
-        function getPersistentKeys(gInfosE) {
-            var isEmpty;
-            if (typeof(gInfosE) === "object") {
-                for (var key in gInfosE) {
-                    gInfos[key] = gInfosE[key];
-                }
-            } else {
-                console.error("Expect gInfosE to be an object but it's a " +
-                              typeof(gInfosE) + " instead. Not restoring.");
-            }
-            return UserSettings.restore()
+        getEmataInfo()
+        .then(function(eMeta) {
+            gInfosE = eMeta;
+            return getUserInfo();
+        })
+        .then(function(userMeta) {
+            gInfosUser = userMeta;
+            return getSettingInfo();
+        })
+        .then(function(settingMeta) {
+            gInfosSetting = settingMeta;
+            return getMetaInfo();
+        })
+        .then(function(meta) {
+            gInfosMeta = meta || {};
+            isEmpty = $.isEmptyObject(gInfosMeta);
+            return restore();
+        })
+        .then(deferred.resolve)
+        .fail(function(error) {
+            console.error("KVStore restore fails!", error);
+            deferred.reject(error);
+        });
+
+        function restore() {
+            var innerDeferred = jQuery.Deferred();
+
+            var userInfos = new UserInfoConstructor();
+            userInfos.restore(gInfosUser);
+
+            UserSettings.restore(userInfos, gInfosSetting)
             .then(function() {
-                return KVStore.getAndParse(KVStore.gStorageKey, gKVScope.META);
-            })
-            .then(function(gInfosPart) {
-                isEmpty = (gInfosPart == null);
-                gInfosPart = gInfosPart || {};
-
-                for (var key in gInfosPart) {
-                    gInfos[key] = gInfosPart[key];
-                }
                 try {
-                    metaInfos.restore(gInfos);
+                    metaInfos.restore(gInfosMeta);
                     WSManager.restore(metaInfos.getWSMeta());
                     TPrefix.restore(metaInfos.getTpfxMeta());
                     Aggregates.restore(metaInfos.getAggMeta());
                     TblManager.restoreTableMeta(metaInfos.getTableMeta());
                     DSCart.restore(metaInfos.getCartMeta());
                     Profile.restore(metaInfos.getStatsMeta());
-                    oldLogCursor = metaInfos.getLogCMeta();
-                    ephMetaInfos.restore(gInfos);
+                    ephMetaInfos.restore(gInfosE);
                     return DF.restore(ephMetaInfos.getDFMeta());
                 } catch (error) {
                     console.error(error.stack);
@@ -232,22 +241,68 @@ window.KVStore = (function($, KVStore) {
                 if (isEmpty) {
                     console.info("KVStore is empty!");
                 } else {
+                    var oldLogCursor = metaInfos.getLogCMeta();
                     return SQL.restore(oldLogCursor);
                 }
             })
             .then(function() {
                 // must come after sql.restore
                 QueryManager.restore(metaInfos.getQueryMeta());
-                deferred.resolve();
+                innerDeferred.resolve();
             })
-            .fail(function(error) {
-                console.error("KVStore restore fails!", error);
-                deferred.reject(error);
-            });
+            .fail(innerDeferred.reject);
+
+            return innerDeferred.promise();
         }
 
         return deferred.promise();
     };
+
+    function getInfo(infoKey, infoScope, ignoreFail) {
+        var deferred = jQuery.Deferred();
+
+        KVStore.getAndParse(infoKey, infoScope)
+        .then(function(info) {
+            if (typeof(info) === "object") {
+                deferred.resolve(info);
+            } else {
+                var error = "Expect info of" + infoKey +
+                            "to be an object but it's a " +
+                            typeof(info) + " instead. Not restoring.";
+                xcConsole.log(error);
+                deferred.resolve({});
+            }
+        })
+        .fail(function(error) {
+            xcConsole.log("get meta of", infoKey, "fails", error);
+            if (ignoreFail) {
+                deferred.resolve({});
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    function getEmataInfo() {
+        // If the ephmeral datastructure is corrupt, we move ahead with the
+        // rest of the restore since ephemeral isn't that important
+        var ignoreFail = true;
+        return getInfo(KVStore.gEphStorageKey, gKVScope.EPHM, ignoreFail);
+    }
+
+    function getUserInfo() {
+        return getInfo(KVStore.gUserKey, gKVScope.USER);
+    }
+
+    function getSettingInfo() {
+        return getInfo(KVStore.gSettingsKey, gKVScope.GLOB);
+    }
+
+    function getMetaInfo() {
+        return getInfo(KVStore.gStorageKey, gKVScope.META);
+    }
 
     KVStore.emptyAll = function(localEmpty) {
         var deferred = jQuery.Deferred();
