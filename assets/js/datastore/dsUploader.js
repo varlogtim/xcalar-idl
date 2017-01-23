@@ -10,6 +10,7 @@ window.DSUploader = (function($, DSUploader) {
     var defaultSortKey = "type";
     var sortKey = defaultSortKey;
     var cachedEvent;
+    var uploads = {};
 
     DSUploader.setup = function() {
         $dsUploader = $("#dsUploader");
@@ -54,8 +55,15 @@ window.DSUploader = (function($, DSUploader) {
     function setupFileDisplay() {
         $container.on("click", ".grid-unit", function(event) {
             var $grid = $(this);
-            event.stopPropagation();
-            submitForm($grid);
+            var $target = $(event.target);
+            // event.stopPropagation();
+            if ($target.closest('.cancel').length) {
+                cancelUpload($grid);
+            } else if ($target.closest('.delete').length) {
+                deleteFileConfirm($grid);
+            } else if (!$grid.hasClass('isLoading')) {
+                submitForm($grid);
+            }
         });
 
          // click on title to sort
@@ -167,9 +175,9 @@ window.DSUploader = (function($, DSUploader) {
         }
         
         if (checkInvalidFileSize(files[0])) {
-            invalidSizeAlert(files);
+            showAlert('invalidSize');
         } else if (checkFileNameDuplicate(files[0].name)) {
-            duplicateNameAlert(files[0].name);
+            showAlert('duplicateName', {name: files[0].name});
         } else {
             var name = files[0].name;
             loadFile(files[0], name, event);
@@ -181,47 +189,53 @@ window.DSUploader = (function($, DSUploader) {
         var hasDup = checkFileNameDuplicate(name);
 
         if (hasDup) {
-            duplicateNameAlert(name);
+            showAlert('duplicateName', {name: name});
         } else if (!name.length) {
-            invalidNameAlert(oldName);
+            showAlert('invalidName', {oldName: oldName});
         } else {
             loadFile(droppedFiles[0], name, cachedEvent);
         }
     }
 
-    function invalidNameAlert(oldName) {
-        Alert.show({
-            "title"    : DSTStr.InvalidFileName,
-            "msg"      : DSTStr.InvalidFileDesc,
-            "userInput": {"label":  DSTStr.NewName + ":", "autofill": oldName},
-            "onConfirm": function() {
-                var newName = $("#alertUserInput").val();
-                validateAndSubmitNewName(newName, oldName);
-            }
-        });
-    }
-
-    function duplicateNameAlert(name) {
-        Alert.show({
-            "title"    : DSTStr.DupFileName,
-            "msg"      : DSTStr.DupFileNameDesc,
-            "userInput": {"label": DSTStr.NewName + ":", "autofill": name},
-            "onConfirm": function() {
-                var newName = $("#alertUserInput").val();
-                validateAndSubmitNewName(newName, name);
-            }
-        });
-    }
-
-    function invalidSizeAlert(files) {
-        var msg = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
+    function showAlert(type, args) {
+        args = args || {};
+        switch (type) {
+            case ('invalidName'):
+                Alert.show({
+                    "title"    : DSTStr.InvalidFileName,
+                    "msg"      : DSTStr.InvalidFileDesc,
+                    "userInput": {"label":  DSTStr.NewName + ":", "autofill": args.oldName},
+                    "onConfirm": function() {
+                        var newName = $("#alertUserInput").val();
+                        validateAndSubmitNewName(newName, args.oldName);
+                    }
+                });
+                break;
+            case ('duplicateName'):
+                Alert.show({
+                    "title"    : DSTStr.DupFileName,
+                    "msg"      : DSTStr.DupFileNameDesc,
+                    "userInput": {"label": DSTStr.NewName + ":", "autofill": args.name},
+                    "onConfirm": function() {
+                        var newName = $("#alertUserInput").val();
+                        validateAndSubmitNewName(newName, args.name);
+                    }
+                });
+                break;
+            case ('invalidSize'):
+                var msg = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
                                             size: "2 GB"
                                         });
-        Alert.error(CommonTxtTstr.InvalidSize, msg);
-    }
-
-    function invalidFolderAlert() {
-        Alert.error(DSTStr.InvalidUpload, DSTStr.InvalidFolderDesc);
+                Alert.error(CommonTxtTstr.InvalidSize, msg);
+                break;
+            case ('invalidFolder'):
+                Alert.error(DSTStr.InvalidUpload, DSTStr.InvalidFolderDesc);
+                break;
+            case ('uploadComplete'):
+                Alert.error(DSTStr.UploadCompleted, DSTStr.UploadCompletedDesc);
+            default:
+                break;
+        }
     }
 
     function checkFileNameDuplicate(name) {
@@ -252,7 +266,7 @@ window.DSUploader = (function($, DSUploader) {
         }
 
         if (folderFound) {
-            invalidFolderAlert();
+            showAlert('invalidFolder');
         } else {
             var size = file.size;
             var mtime = file.lastModified;
@@ -279,11 +293,16 @@ window.DSUploader = (function($, DSUploader) {
         var dsFileUpload = new DSFileUpload(name, file.size, {
             onComplete: uploadComplete.bind(null, fileObj, file, name),
             onUpdate: updateProgress.bind(null, fileObj, file, name),
+            onError: onError.bind(null, fileObj, file, name)
         });
+        uploads[name] = dsFileUpload;
 
-        dsUploadWorker.postMessage(file); 
+        dsUploadWorker.postMessage(file);
         
         dsUploadWorker.onmessage = function(ret) {
+            if (dsFileUpload.getStatus === "canceled") {
+                return;
+            }
             if (ret.data.status === "loading") {
                 dsFileUpload.add(ret.data.content, ret.data.chunkSize);
             } else if (ret.data.status === "done") {
@@ -293,17 +312,18 @@ window.DSUploader = (function($, DSUploader) {
                 dsUploadWorker = undefined;
             } else {
                 console.error(ret.data);
-                dsFileUpload.errored(ret.data);
+                dsFileUpload.errorAdding(ret.data);
             }
         }
     }
 
     function uploadComplete(fileObj, file, name) {
-        var $icon = getDSIcon(name)
+        var $icon = getDSIcon(name);
         $icon.removeClass("isLoading").find(".fileSize").html(
                                 xcHelper.sizeTranslator(fileObj.attr.size));
         $icon.find(".fileName").html(name);
         fileObj.status = "done";
+        delete uploads[name];
     }
 
     function updateProgress(fileObj, file, name, sizeCompleted) {
@@ -314,6 +334,74 @@ window.DSUploader = (function($, DSUploader) {
                                     "/" + xcHelper.sizeTranslator(file.size) +
                                     ")");
         fileObj.sizeCompleted = sizeCompleted;
+    }
+
+    // xx temporary, should not delete file if error
+    function onError(fileObj, file, name) {
+        var $icon = getDSIcon(name);
+        $icon.remove();
+        removeFileFromCache(name);
+        uploads[name].cancel(); // xx temp, should not cancel and delete file
+        delete uploads[name];
+    }
+
+    function cancelUpload($icon) {
+        var name = $icon.data('name');
+
+         Alert.show({
+            "title"    : DSTStr.CancelUpload,
+            "msg"      : DSTStr.CancelUploadDesc,
+            "onConfirm": function() {
+                if ($icon.hasClass('isLoading')) {
+                    $icon.remove();
+                    removeFileFromCache(name);
+
+                    uploads[name].cancel();
+                    delete uploads[name];
+                } else {
+                    deleteFile($icon, name);
+                }
+            }
+        });
+    }
+
+    function deleteFileConfirm($icon) {
+        var name = $icon.data('name');
+        var msg = xcHelper.replaceMsg(DSTStr.DelUploadMsg, {"filename": name});
+
+        Alert.show({
+            "title"    : DSTStr.DelUpload,
+            "msg"      : msg,
+            "onConfirm": function() {
+                deleteFile($icon, name);
+            }
+        });
+    }
+
+    function deleteFile($icon, name) {
+        var deferred = jQuery.Deferred();
+
+        XcalarDemoFileDelete(name)
+        .then(function() {
+            $icon.remove();
+            removeFileFromCache(name);
+            deferred.resolve();
+        })
+        .fail(function(err) {
+            Alert.error(DSTStr.CouldNotDelete, err);
+            deferred.reject();
+        });
+
+        return deferred.promise();
+    }
+
+    function removeFileFromCache(name) {
+        for (var i = 0; i < allFiles.length; i++) {
+            if (allFiles[i].name === name) {
+                allFiles.splice(i, 1);
+                break;
+            }
+        }
     }
 
     function getDSIcon(name) {
@@ -351,6 +439,12 @@ window.DSUploader = (function($, DSUploader) {
                 '</div>' +
                 '<div class="fileDate">' + date + '</div>' +
                 '<div class="fileSize">' + size + '</div>' +
+                '<i class="icon xi-cancel cancel" data-toggle="tooltip" ' +
+                    'data-original-title="' + TooltipTStr.CancelUpload + '" ' +
+                    'data-container="body"></i>' +
+                '<i class="icon xi-trash delete" data-toggle="tooltip" ' +
+                    'data-original-title="' + TooltipTStr.DeleteFile + '" ' +
+                    'data-container="body"></i>' +
             '</div>';
 
         return (html);
@@ -482,6 +576,15 @@ window.DSUploader = (function($, DSUploader) {
         return PromiseHelper.resolve();
     }
 
+    function XcalarDemoFileDelete(fileName) {
+        var deferred = jQuery.Deferred();
+
+        setTimeout(function() {
+            deferred.resolve();
+        }, 500);
+
+        return deferred.promise();
+    }
 
     return (DSUploader);
 }(jQuery, {}));

@@ -85,6 +85,8 @@ TooltipTStr = {
     'CancelQuery': 'Cancel query',
     'AlreadyIcv': 'This table is already an erroneous rows(ER) table',
     'ParamValNoChange': 'This parameter value cannot be changed',
+    'DeleteFile': 'Delete file',
+    'CancelUpload': 'Cancel upload',
     // Sync with htmlTStr
     "IcvRestriction": 'Erroneous rows(ER) table only available for Map and Group By',
     "OnlyInOpMode": "Feature only available in Operational mode",
@@ -631,6 +633,13 @@ DSTStr = {
     'DupFileName': 'Duplicate File Name',
     'DupFileNameDesc': 'File with the same name exists. Please rename your file.',
     'InvalidFolderDesc': 'Cannot upload directories.',
+    'CouldNotDelete' : 'Dataset could not be deleted',
+    'DelUpload': 'Delete File',
+    'CancelUpload': 'Cancel Upload',
+    'CancelUploadDesc': 'Are you sure you want to cancel this upload?',
+    'UploadCompleted': 'Upload Completed',
+    'UploadCompletedDesc': 'Upload completed. Could not cancel.',
+    'UploadFailed': 'Upload Failed',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',
@@ -643,7 +652,8 @@ DSTStr = {
     'ShowAdvOpt': 'Show Advanced Option',
     'HideAdvOpt': 'Hide Advanced Option',
     'PointErr': 'Cannot Point to the dataset',
-    'OffsetErr': 'Offset is larger than the dataset size'
+    'OffsetErr': 'Offset is larger than the dataset size',
+    'DelUploadMsg': 'Are you sure you want to delete <filename>?'
 };
 
 DSFormTStr = {

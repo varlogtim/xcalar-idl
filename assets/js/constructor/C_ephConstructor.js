@@ -2638,9 +2638,12 @@ function DSFileUpload(name, size, options) {
     this.totalSize = size;
     this.sizeCompleted = 0;
     this.status = 'started';
+    this.cancelStatus = null;
     this.isWorkerDone = false;
     this.onCompleteCallback = options.onComplete;
     this.onUpdateCallback = options.onUpdate;
+    this.onErrorCallback = options.onError;
+
     this.__init();
 
     return this;
@@ -2651,6 +2654,10 @@ DSFileUpload.prototype = {
         // nothing to init yet
     },
     add: function(content, chunkSize) {
+        if (this.status === "canceled") {
+            return;
+        }
+
         this.chunks.push({content: content, size: chunkSize});
         
         if (this.chunks.length === 1) {
@@ -2663,34 +2670,78 @@ DSFileUpload.prototype = {
     complete: function(callback) {
         this.status = 'done';
     },
+    cancel: function() {
+        var deferred = jQuery.Deferred();
+        var self = this;
+        self.status = 'canceled';
+        self.chunks = [];
+
+        XcalarDemoFileDelete(self.name)
+        .then(deferred.resolve)
+        .fail(function() {
+            self.cancelStatus = 'failed';
+            deferred.reject();
+        });
+
+        function XcalarDemoFileDelete(fileName) {
+            var deferred = jQuery.Deferred();
+
+            setTimeout(function() {
+                deferred.resolve();
+            }, 500);
+
+            return deferred.promise();
+        }
+
+        return deferred.promise();
+    },
     workerDone: function() {
         this.isWorkerDone = true;
     },
-    errored: function() {
+    errorAdding: function(err) {
         this.status = 'errored';
+        Alert.error(DSTStr.UploadFailed, err);
+        this.onErrorCallback();
     },
     getStatus: function() {
         return this.status;
     },
     __stream: function() {
         var self = this;
-        self.status = 'inProgress';
+        self.status = "inProgress";
         XcalarDemoFileAppend(self.name, self.chunks[0].content)
         .then(function() {
+            if (self.status === "canceled") {
+                console.log('ok canceled');
+                if (self.cancelStatus === "failed") {
+                    // 2nd attempt to cancel
+                    XcalarDemoFileDelete(self.name)
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
+                }
+                return;
+            }
+
             self.sizeCompleted += self.chunks[0].size;
             self.onUpdateCallback(self.sizeCompleted);
-            console.log(self.sizeCompleted + ' out of ' + self.totalSize);
+            console.log(self.sizeCompleted + " out of " + self.totalSize);
             self.chunks.shift();
             if (self.chunks.length) {
                 self.__stream();
             } else if (self.isWorkerDone) {
                 self.onCompleteCallback();
                 self.complete();
-                console.log('upload done');
+                console.log("upload done");
             }
         })
-        .fail(function() {
-            // xx need to handle fails
+        .fail(function(err) {
+
+            Alert.error(DSTStr.UploadFailed, err);
+            // xx need to handle fails and storing the progress so we can 
+            // try from where we left off
+            
+            // xx deletes the file for now
+            self.onErrorCallback();
         });
 
         //xx temporary

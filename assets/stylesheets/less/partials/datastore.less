@@ -799,8 +799,15 @@ table.datasetTable {
         cursor: pointer;
         
         &.isLoading {
-            pointer-events: none;
-            opacity: 0.5;
+            .fileName {
+                opacity: 0.5;
+            }
+            .xi-cancel {
+                display: block;
+            }
+            .xi-trash {
+                display: none;
+            }
         }
 
         > div {
@@ -809,9 +816,23 @@ table.datasetTable {
 
         &:hover {
             background-color: @color-bg-light-blue-grey;
-            .gridIcon {
+            .gridIcon, .xi-cancel, .xi-trash  {
                 color: @color-font-softBlue;
             }
+        }
+        .fileSize {
+            width: ~"calc(33% - 90px)";
+        }
+        .xi-cancel, .xi-trash {
+            float: right;
+            width: 40px;
+            margin-right: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .xi-cancel {
+            display: none;
         }
     }
 
@@ -1089,7 +1110,7 @@ table.datasetTable {
             }
 
             .grid-unit {
-                .gridIcon {
+                .gridIcon, .xi-cancel, .xi-trash {
                     color: @color-border-pinkish-grey2;
                 }
 
