@@ -35,11 +35,87 @@ window.skRFPredictor = (function(skRFPredictor) {
     skRFPredictor.setup = function() {
         // Make more programmatic once more settings arise.
         var joinModelStr = skRFModels.joinModelStr;
-        predictors[MLSetting.SuggestJoinKey] = new RFModel(joinModelStr);
+        predictors[MLSetting.SuggestJoinKey] = new MetaModel(joinModelStr);
     };
 
     skRFPredictor.predict = function(setting, input) {
         return predictors[setting].predict(input);
+    };
+
+    function MetaModel(modelInput) {
+        var self = this;
+        var modelParsed;
+        if (typeof modelInput === 'string' || modelInput instanceof String) {
+            self.modelString = modelInput;
+            modelParsed = self.parseModel(modelInput);
+        } else {
+            self.modelString = null;
+            modelParsed = modelInput;
+        }
+        self.model = modelParsed.model;
+        self.modelMeta = modelParsed.modelMeta;
+    }
+
+    MetaModel.prototype = {
+        parseModel: function(modelJSON) {
+            // If anything in this library throws an error we should catch and swap
+            // to heuristic
+            var parsedString = JSON.parse(modelJSON);
+            var modelMeta = parsedString.modelMeta;
+            var model;
+            if (modelMeta.modelType === "RandomForest") {
+                model = new RFModel(parsedString.model);
+            } else if (modelMeta.modelType === "DecisionTree") {
+                model = new DTModel(parsedString.model);
+            } else {
+                throw ("modelType specified incorrectly: " +
+                    JSON.stringify(modelMeta.modelType));
+            }
+            return {
+                "model"    : model,
+                "modelMeta": modelMeta
+            };
+        },
+
+        processInputData: function(inputData) {
+            // InputData of the form (inputObj)
+            // where inputObj is something of form defined by modelmeta
+            var self = this;
+            var orderMap = self.modelMeta.inputMeta.orderMap;
+            var inputArray = [];
+            for (var featureName in orderMap) {
+                var featureVal = inputData[featureName];
+                // TODO: change this once categorical support exists
+                if (featureName === "type") {
+                    if (featureVal === "string") {
+                        featureVal = 1;
+                    } else if (featureVal === "integer" ||
+                               featureVal === "float" ||
+                               featureVal === "number") {
+                        featureVal = 0;
+                    } else {
+                        var errstr = ("Invalid column type: " + String(featureVal));
+                        console.log(errstr);
+                        throw (errstr);
+                    }
+                }
+                // End categorical support specifics
+                inputArray[orderMap[featureName]] = featureVal;
+            }
+            return inputArray;
+        },
+
+        predict_proba: function(X) {
+            var self = this;
+            var processed = self.processInputData(X);
+            return self.model.predict_proba(processed);
+        },
+
+        predict: function(X) {
+            var self = this;
+            var processed = self.processInputData(X);
+            return self.model.predict(processed);
+        },
     };
 
     function DTModel(modelInput) {
@@ -70,7 +146,15 @@ window.skRFPredictor = (function(skRFPredictor) {
         parseModel: function(modelJSON) {
             // If anything in this library throws an error we should catch and swap
             // to heuristic
-            var modelParsed = JSON.parse(modelJSON);
+            var parsedString = JSON.parse(modelJSON);
+            var modelParsed;
+            if (parsedString.model) {
+                // Case where we are given modelMeta
+                modelParsed = parsedString.model;
+            } else {
+                // Case where we are given raw modelstr
+                modelParsed = parsedString;
+            }
             modelParsed.children_left = modelParsed.children_left.map(function(entry, idx) {
                 return parseInt(entry, 10);
             });
@@ -217,7 +301,15 @@ window.skRFPredictor = (function(skRFPredictor) {
         parseModel: function(modelJSON) {
             // If anything in this library throws an error we should catch and swap
             // to heuristic
-            var modelParsed = JSON.parse(modelJSON);
+            var parsedString = JSON.parse(modelJSON);
+            var modelParsed;
+            if (parsedString.model) {
+                // Case where we are given modelMeta
+                modelParsed = parsedString.model;
+            } else {
+                // Case where we are given raw modelstr
+                modelParsed = parsedString;
+            }
             return modelParsed;
         },
 
@@ -232,7 +324,7 @@ window.skRFPredictor = (function(skRFPredictor) {
                 return dtModel.predict_proba(X);
             });
             var baseArray = [];
-            var numClasses = 3;
+            var numClasses = 2;
             while(numClasses--) baseArray[numClasses] = 0;
             var sumScores = allScores.reduce(function(a,b) {
                 // Declaring array for speed
@@ -253,6 +345,7 @@ window.skRFPredictor = (function(skRFPredictor) {
         predict: function(X) {
             var self = this;
             var scores = self.predict_proba(X);
+            // console.log(scores);
             var bestClass = scores.reduce(function(iMax, x, i, arr) {
                 if(x > arr[iMax]) {
                     return i;

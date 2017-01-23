@@ -30,15 +30,28 @@ window.xcSuggest = (function($, xcSuggest) {
         // For now, the ML and heuristic both use the same features.
 
         var featuresPerColumn = processJoinKeyInputs(inputs);
+        var suggestResults;
         if (useEngine) {
             try {
-                return suggestJoinKeyML(featuresPerColumn);
+                suggestResults = suggestJoinKeyML(featuresPerColumn);
+                if (suggestResults.maxScore <= -50) {
+                    xcConsole.log("ML Engine scores poorly: " +
+                        JSON.stringify(suggestResults) +
+                        "\nSwitching to heuristic.");
+                    suggestResults = undefined;
+                }
             } catch (err) {
-                console.log("ML Engine failed with error: " + err +
+                xcConsole.log("ML Engine failed with error: " + err +
                     "\nSwitching to heuristic.");
+                suggestResults = undefined;
             }
         }
-        return suggestJoinKeyHeuristic(featuresPerColumn);
+
+        if (suggestResults === undefined) {
+            suggestResults = suggestJoinKeyHeuristic(featuresPerColumn);
+        }
+        console.log("Suggest results: " + JSON.stringify(suggestResults));
+        return suggestResults;
     };
 
     xcSuggest.processJoinKeySubmitData = function(joinKeyInputs,
@@ -47,6 +60,7 @@ window.xcSuggest = (function($, xcSuggest) {
         var inputFeatures = processJoinKeyInputs(joinKeyInputs);
         addSuggestFeatures(mlInputData, inputFeatures);
         addSuggestLabels(mlInputData, curDestBackName);
+        addMetaData(mlInputData, joinKeyInputs);
         addIsValid(mlInputData);
         return mlInputData;
     };
@@ -56,9 +70,14 @@ window.xcSuggest = (function($, xcSuggest) {
     };
 
     xcSuggest.submitJoinKeyData = function(dataPerClause) {
-        var realSubmit = false; // Hardcoded flag, will change or remove
-        if (realSubmit) {
+        var realSubmit = "locStor"; // Hardcoded flag, will change or remove
+        if (realSubmit == "xcTracker") {
             xcTracker.track(XCTrackerCategory.SuggestJoinKey, dataPerClause);
+        } else if (realSubmit == "locStor") {
+            var d = new Date();
+            var curTime = String(d.getTime());
+            localStorage.setItem("MLDataTrain" + curTime,
+                JSON.stringify(dataPerClause));
         } else {
             console.log("DataSubSuccess: " + JSON.stringify(dataPerClause));
         }
@@ -162,23 +181,17 @@ window.xcSuggest = (function($, xcSuggest) {
 
     function suggestJoinKeyML(featuresPerColumn) {
         var colToSugg = null;
-
         // only score that more than 0 will be suggested, can be modified
         var maxScore = 0;
 
         for (var i = 0; i < featuresPerColumn.length; i++) {
             var curFeatures = featuresPerColumn[i];
             if (curFeatures !== null) {
-                var MLInput = [
-                    curFeatures.context1,
-                    curFeatures.context2,
-                    curFeatures.dist,
-                    curFeatures.type,
-                    curFeatures.match
-                ];
+                // No type mismatch
                 var prediction = MLEngine.predict(MLSetting.SuggestJoinKey,
-                                            MLInput);
+                                                  curFeatures);
                 var score;
+                // console.log(JSON.stringify(prediction));
                 if (prediction.classIdx === 1) {
                     score = prediction.score;
                 } else {
@@ -191,6 +204,8 @@ window.xcSuggest = (function($, xcSuggest) {
                 }
             }
         }
+
+        // console.log(maxScore);
         // Because suggestJoinKey expects score on range of integers
         // And the threshold is -50, change the score of this algorithm to
         // be on range of -100 to 0
@@ -502,6 +517,17 @@ window.xcSuggest = (function($, xcSuggest) {
         }
         inputData.labels = labels;
         return labels;
+    }
+
+    function addMetaData(inputData, joinKeyInputs) {
+        var srcColName = joinKeyInputs.srcColInfo.uniqueIdentifier;
+        var timeOfJoin = String(new Date());
+        var metaData = {
+            "srcColName": srcColName,
+            "timeOfJoin": timeOfJoin
+        };
+        inputData.metaData = metaData;
+        return metaData;
     }
 
     function addIsValid(inputData) {
