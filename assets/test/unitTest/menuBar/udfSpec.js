@@ -147,6 +147,10 @@ describe("UDF Test", function() {
         });
 
         it("Should handle syntax error", function(done) {
+            if (isBrowserMicrosoft) {
+                done();
+                return;
+            }
             XcalarUploadPython = function() {
                 return PromiseHelper.reject({
                     "error": syntaxErrror

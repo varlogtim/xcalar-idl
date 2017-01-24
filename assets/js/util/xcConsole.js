@@ -4,6 +4,9 @@ window.xcConsole = (function(xcConsole, $) {
     var logs = [];
 
     xcConsole.log = function() {
+        if (isBrowserMicrosoft) {
+            return;
+        }
         var stack = stackTrace();
         if (stack[0] && stack[0].indexOf("thriftLog") === 0) {
             if (!showThrift) {

@@ -595,6 +595,9 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.timeStampTranslator should work', function() {
+        if (isBrowserMicrosoft) {
+            return;
+        }
         // case 1
         var res = xcHelper.timeStampTranslator(1463788661);
         expect(res).to.equal("4:57:41 PM 5-20-2016");
@@ -988,6 +991,9 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.insertText should work', function() {
+        if (isBrowserMicrosoft) {
+            return;
+        }
         // case 1
         var $input = $('<input>');
         xcHelper.insertText($input, "test");

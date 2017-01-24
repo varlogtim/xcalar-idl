@@ -1,5 +1,5 @@
 Compatible.check();
-if (!window.hasFlash || xcLocalStorage.getItem("noSplashLogin") === "true") {
+if (window.isBrowserMicrosoft || !window.hasFlash || xcLocalStorage.getItem("noSplashLogin") === "true") {
     $("#loginContainer").show();
     $("#logo").show();
     $("#splashContainer").hide();

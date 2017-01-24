@@ -94,6 +94,9 @@ describe("File Previewer Test", function() {
         });
 
         it("Should get cell html", function() {
+            if (isBrowserMicrosoft) {
+                return;
+            }
             var getCell = FilePreviewer.__testOnly__.getCell;
             var cell = getCell("a", 0);
             var $cell = $(cell);
@@ -153,6 +156,9 @@ describe("File Previewer Test", function() {
         });
 
         it("Should update offset", function() {
+            if (isBrowserMicrosoft) {
+                return;
+            }
             // error case
             FilePreviewer.__testOnly__.updateOffset("abs");
             expect(getOffsetNum()).to.equal("0");
