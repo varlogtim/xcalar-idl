@@ -4,8 +4,8 @@ window.DSUploader = (function($, DSUploader) {
     var $container; // $('#dsUploaderContainer');
     var $innerContainer; // innerdsUploader
     var droppedFiles = null;
-    var allFiles = [{name: "bin", status: "done", attr: {size: 5 * MB, mtime: Date.now()}}];
-    window.gDsUploadEnabled = true;
+    var allFiles = [];
+    var dsUploaderEnabled = (XVM.getLicenseMode() === XcalarMode.Demo);
     var reverseSort = false;
     var defaultSortKey = "type";
     var sortKey = defaultSortKey;
@@ -18,7 +18,7 @@ window.DSUploader = (function($, DSUploader) {
         $container = $('#dsUploaderContainer');
         $innerContainer = $("#innerdsUploader");
 
-        if (!gDsUploadEnabled) {
+        if (!dsUploaderEnabled) {
             $dsUploader.addClass('xc-hidden');
             return;
         } else {
@@ -37,18 +37,18 @@ window.DSUploader = (function($, DSUploader) {
 
     DSUploader.refreshFiles = function() {
         var deferred = jQuery.Deferred();
-        if (!gDsUploadEnabled) {
+        if (!dsUploaderEnabled) {
             return;
         }
 
         xcHelper.showRefreshIcon($uploaderMain);
 
-        // xx temp until we get a real call
-        setTimeout(function() {
-            allFiles = allFiles;
+        XcalarListFiles("demo:///", false)
+        .then(function(results) {
+            allFiles = results.files;
             sortFilesBy(sortKey);
             deferred.resolve();
-        }, 500);
+        });
 
         return (deferred.promise());
     };
@@ -157,9 +157,8 @@ window.DSUploader = (function($, DSUploader) {
         });
     }
 
-    function submitForm() {
-        //xx temp path
-        var path = "nfs:///netstore/datasets/indexJoin/schedule/schedule.json";
+    function submitForm($name) {
+        var path = "demo:///" + $name.attr("data-name");
         var format = null;
         var options = {
             "path"  : path,
@@ -171,7 +170,8 @@ window.DSUploader = (function($, DSUploader) {
 
     function submitFiles(files, event) {
         if (files.length > 1) {
-            Alert.show({title: DSTStr.InvalidUpload, msg: DSTStr.OneFileUpload});
+            Alert.show({title: DSTStr.InvalidUpload,
+                        msg: DSTStr.OneFileUpload});
             return;
         }
 
@@ -194,6 +194,7 @@ window.DSUploader = (function($, DSUploader) {
         } else if (!name.length) {
             showAlert('invalidName', {oldName: oldName});
         } else {
+            // XXX FIXME DroppedFiles is undefined here?
             loadFile(droppedFiles[0], name, cachedEvent);
         }
     }
@@ -205,7 +206,8 @@ window.DSUploader = (function($, DSUploader) {
                 Alert.show({
                     "title"    : DSTStr.InvalidFileName,
                     "msg"      : DSTStr.InvalidFileDesc,
-                    "userInput": {"label":  DSTStr.NewName + ":", "autofill": args.oldName},
+                    "userInput": {"label":  DSTStr.NewName + ":",
+                                  "autofill": args.oldName},
                     "onConfirm": function() {
                         var newName = $("#alertUserInput").val();
                         validateAndSubmitNewName(newName, args.oldName);
@@ -216,7 +218,8 @@ window.DSUploader = (function($, DSUploader) {
                 Alert.show({
                     "title"    : DSTStr.DupFileName,
                     "msg"      : DSTStr.DupFileNameDesc,
-                    "userInput": {"label": DSTStr.NewName + ":", "autofill": args.name},
+                    "userInput": {"label": DSTStr.NewName + ":",
+                                  "autofill": args.name},
                     "onConfirm": function() {
                         var newName = $("#alertUserInput").val();
                         validateAndSubmitNewName(newName, args.name);
@@ -234,6 +237,7 @@ window.DSUploader = (function($, DSUploader) {
                 break;
             case ('uploadComplete'):
                 Alert.error(DSTStr.UploadCompleted, DSTStr.UploadCompletedDesc);
+                break;
             default:
                 break;
         }
@@ -271,7 +275,7 @@ window.DSUploader = (function($, DSUploader) {
         } else {
             var size = file.size;
             var mtime = file.lastModified;
-            var fileObj = {name: name, 
+            var fileObj = {name: name,
                            attr: {size: size, mtime: mtime},
                            status: "inProgress",
                            sizeCompleted: 0
@@ -299,7 +303,7 @@ window.DSUploader = (function($, DSUploader) {
         uploads[name] = dsFileUpload;
 
         dsUploadWorker.postMessage(file);
-        
+
         dsUploadWorker.onmessage = function(ret) {
             if (dsFileUpload.getStatus === "canceled") {
                 return;
@@ -315,7 +319,7 @@ window.DSUploader = (function($, DSUploader) {
                 console.error(ret.data);
                 dsFileUpload.errorAdding(ret.data);
             }
-        }
+        };
     }
 
     function uploadComplete(fileObj, file, name) {
@@ -570,21 +574,6 @@ window.DSUploader = (function($, DSUploader) {
             html += getOneFileHtml(files[i]);
         }
         $innerContainer.html(html);
-    }
-
-    //xx temporary
-    function XcalarDemoFileCreate(fileName) {
-        return PromiseHelper.resolve();
-    }
-
-    function XcalarDemoFileDelete(fileName) {
-        var deferred = jQuery.Deferred();
-
-        setTimeout(function() {
-            deferred.resolve();
-        }, 500);
-
-        return deferred.promise();
     }
 
     return (DSUploader);

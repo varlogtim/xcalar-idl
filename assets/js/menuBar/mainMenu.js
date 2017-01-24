@@ -354,7 +354,7 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.removeClass("open");
         $mainMenu.width(defaultWidth);
         $mainMenu.find(".commonSection").removeClass("active");
-        
+
         $('#container').removeClass('mainMenuOpen');
         $curTab.removeClass('mainMenuOpen');
         isMenuOpen = false;

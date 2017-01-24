@@ -2,8 +2,8 @@
 window.XVM = (function(XVM) {
     var majorVersion = "1";
     var minorVersion = "0";
-    var revisionVersion = "2";
-    var thriftInterfaceVersion = "16";
+    var revisionVersion = "3";
+    var thriftInterfaceVersion = "17";
     var kvVersion = "0"; // Currently unused
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
@@ -33,6 +33,8 @@ window.XVM = (function(XVM) {
     };
 
     XVM.getLicenseMode = function() {
+        // If you want to test file uploader, uncomment line below
+        // return (XcalarMode.Demo);
         return (licenseMode);
     };
 
@@ -63,6 +65,8 @@ window.XVM = (function(XVM) {
                         licenseMode = XcalarMode.Mod;
                     } else if (licKey.product === "XceOper") {
                         licenseMode = XcalarMode.Oper;
+                    } else if (licKey.product === "XceDemo") {
+                        licenseMode = XcalarMode.Demo;
                     } else if (licKey.product === "Xce") {
                         licenseMode = XcalarMode.Oper;
                     } else {

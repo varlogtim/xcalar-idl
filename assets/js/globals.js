@@ -3,6 +3,12 @@
 */
 
 // =================================== Globals =================================
+var KB = 1024;
+var MB = 1024 * KB;
+var GB = 1024 * MB;
+var TB = 1024 * GB;
+var PB = 1024 * TB;
+// ========================================================================== //
 var gNumEntriesPerPage = 20;
 var gMaxEntriesPerPage = 60;
 var gMinRowsPerScreen = 60;
@@ -57,6 +63,8 @@ var gPrefixSign = '::';
 var gDSPrefix = '.XcalarDS.';
 var gHiddenColumnWidth = 15;
 var gTurnOnPrefix = true;
+var gUploadChunkSize = 45 * MB;
+
 // ======== Support Parameters ======== //
 var gExportNoCheck = false;
 var gAlwaysDelete = false;
@@ -77,13 +85,7 @@ var gIcvMode = false;
 var gEnableIndexStyle = false;
 var gAdmin = false; // if admin user
 var gXcSupport = false; // if xcalar support user
-// ==================================== //
 
-var KB = 1024;
-var MB = 1024 * KB;
-var GB = 1024 * MB;
-var TB = 1024 * GB;
-var PB = 1024 * TB;
 
 // Shut up the console logs
 var verbose = false;

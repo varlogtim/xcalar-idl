@@ -41,12 +41,12 @@ window.DSForm = (function($, DSForm) {
             resetForm();
         }
 
-        if (gDsUploadEnabled) {
+        if (XVM.getLicenseMode() === XcalarMode.Demo) {
             DSForm.switchView(DSForm.View.Uploader);
         } else {
             DSForm.switchView(DSForm.View.Path);
         }
-      
+
         $filePath.focus();
     };
 

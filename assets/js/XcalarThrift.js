@@ -3498,7 +3498,7 @@ function XcalarAppReap(name, appGroupId) {
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAppReap", error);
-        SQL.errorLog("Support Generate", null, null, thriftError);
+        SQL.errorLog("App Reap", null, null, thriftError);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -3516,4 +3516,75 @@ function XcalarAppExecute(name, isGlobal, inStr) {
     .fail(deferred.reject);
 
     return deferred.promise();
+}
+
+function XcalarDemoFileCreate(fileName) {
+    var deferred = jQuery.Deferred();
+
+    xcalarDemoFileCreate(tHandle, fileName)
+    .then(function(retJson) {
+        if (retJson && retJson.error && retJson.error.length > 0) {
+            var thriftError = thriftLog("XcalarDemoFileCreate", error);
+            SQL.errorLog("Create Demo File", null, null, thriftError);
+            deferred.reject(thriftError);
+        } else {
+            deferred.resolve(retJson);
+        }
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDemoFileCreate", error);
+        SQL.errorLog("Create Demo File", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
+// Max size 45MB
+function XcalarDemoFileAppend(fileName, fileContents) {
+    var deferred = jQuery.Deferred();
+
+    if (fileContents.length > gUploadChunkSize) {
+        return PromiseHelper.reject("File chunk must be less than 45MB");
+    }
+
+    xcalarDemoFileAppend(tHandle, fileName, fileContents)
+    .then(function(retJson) {
+        if (retJson && retJson.error && retJson.error.length > 0) {
+            var thriftError = thriftLog("XcalarDemoFileAppend", error);
+            SQL.errorLog("Append to demo file", null, null, thriftError);
+            deferred.reject(thriftError);
+        } else {
+            deferred.resolve(retJson);
+        }
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDemoFileAppend", error);
+        SQL.errorLog("Append to demo file", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarDemoFileDelete(fileName) {
+    var deferred = jQuery.Deferred();
+
+    xcalarDemoFileDelete(tHandle, fileName)
+    .then(function(retJson) {
+        if (retJson && retJson.error && retJson.error.length > 0) {
+            var thriftError = thriftLog("XcalarDemoFileDelete", error);
+            SQL.errorLog("Delete demo file", null, null, thriftError);
+            deferred.reject(thriftError);
+        } else {
+            deferred.resolve(retJson);
+        }
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDemoFileDelete", error);
+        SQL.errorLog("Delete demo file", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
 }

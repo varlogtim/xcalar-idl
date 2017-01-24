@@ -2659,7 +2659,7 @@ DSFileUpload.prototype = {
         }
 
         this.chunks.push({content: content, size: chunkSize});
-        
+
         if (this.chunks.length === 1) {
             this.__stream();
         }
@@ -2737,23 +2737,12 @@ DSFileUpload.prototype = {
         .fail(function(err) {
 
             Alert.error(DSTStr.UploadFailed, err);
-            // xx need to handle fails and storing the progress so we can 
+            // xx need to handle fails and storing the progress so we can
             // try from where we left off
-            
+
             // xx deletes the file for now
             self.onErrorCallback();
         });
-
-        //xx temporary
-        function XcalarDemoFileAppend(fileName, fileContents) {
-            var deferred = jQuery.Deferred();
-
-            setTimeout(function() {
-                deferred.resolve();
-            }, 500);
-
-            return deferred.promise();
-        }
     }
 };
 

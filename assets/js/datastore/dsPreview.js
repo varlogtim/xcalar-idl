@@ -352,7 +352,7 @@ window.DSPreview = (function($, DSPreview) {
             resetForm();
             clearPreviewTable();
             if (backToFormCard) {
-                if (gDsUploadEnabled) {
+                if (XVM.getLicenseMode() === XcalarMode.Demo) {
                     DSUploader.show();
                 } else {
                     DSForm.show({"noReset": true});
