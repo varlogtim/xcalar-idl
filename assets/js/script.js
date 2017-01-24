@@ -87,6 +87,7 @@ window.StartManager = (function(StartManager, $) {
         setupThrift();
         // Support.setup() get username, so need to be at very eary time
         Support.setup();
+        XVM.setup();
 
         xcTooltip.setup();
         MainMenu.setup();
@@ -105,6 +106,7 @@ window.StartManager = (function(StartManager, $) {
         xcSuggest.setup();
 
         XVM.checkVersionMatch()
+        .then(XVM.checkKVVersion)
         .then(setupSession)
         .then(function() {
             DataStore.initialize();
@@ -139,7 +141,6 @@ window.StartManager = (function(StartManager, $) {
             'background-color: #5CB2E8; ' +
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
-            XVM.commitVersionInfo();
             XVM.alertLicenseExpire();
             // start heartbeat check
             Support.heartbeatCheck();

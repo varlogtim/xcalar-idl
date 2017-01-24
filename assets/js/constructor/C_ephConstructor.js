@@ -2674,7 +2674,7 @@ DSFileUpload.prototype = {
         var self = this;
         self.status = 'canceled';
         self.chunks = [];
-        // cannot call delete during an append so _stream checks for 
+        // cannot call delete during an append so _stream checks for
         // self.status === 'canceled' and stops streaming and deletes
     },
     errored: function() {

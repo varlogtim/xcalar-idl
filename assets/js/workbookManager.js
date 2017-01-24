@@ -4,20 +4,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
     var wkbkKey;
     var activeWKBKKey;
     var activeWKBKId;
-
     var wkbkSet;
 
     // initial setup
     WorkbookManager.setup = function() {
         var deferred = jQuery.Deferred();
-
-        username = Support.getUser();
-
-        // key that stores all workbook infos for the user
-        wkbkKey = generateKey(username, "workbookInfos");
-        // key that stores the current active workbook Id
-        activeWKBKKey = generateKey(username, "activeWorkbook");
-        wkbkSet = new WKBKSet();
+        initializeVariable(currentVersion);
 
         WorkbookManager.getWKBKsAsync()
         .then(syncSessionInfo)
@@ -39,6 +31,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
 
         return deferred.promise();
+    };
+
+    WorkbookManager.upgrade = function(oldWkbks) {
+        if (oldWkbks == null) {
+            return null;
+        }
+
+        var newWkbks = {};
+        for (var wkbkId in oldWkbks) {
+            var wkbk = oldWkbks[wkbkId];
+            newWkbks[wkbkId] = KVStore.upgrade(wkbk, "WKBK"); 
+        }
+
+        return newWkbks;
     };
 
     WorkbookManager.commit = function() {
@@ -562,41 +568,96 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    function setupKVStore(wkbkId) {
-        // retrieve key from username and wkbkId
-        var gInfoKey     = generateKey(wkbkId, "gInfo");
-        var gEphInfoKey  = generateKey("", "gEphInfo"); // Global key!!!
-        var gLogKey      = generateKey(wkbkId, "gLog");
-        var gErrKey      = generateKey(wkbkId, "gErr");
-        var gUserKey     = generateKey(username, 'gUser');
-        var gSettingsKey = generateKey("", 'gSettings'); // global key
-        var gPendingUploadsKey = generateKey("", 'gPUploads'); // global key
+    WorkbookManager.triggerUpgrade = function(version) {
+        var deferred = jQuery.Deferred();
+        var workbooks;
+        var sessions;
 
-        var keys = {
-            gStorageKey   : gInfoKey,
-            gEphStorageKey: gEphInfoKey, // Global key!!!
-            gLogKey       : gLogKey,
-            gErrKey       : gErrKey,
-            gUserKey      : gUserKey,
-            gSettingsKey  : gSettingsKey,
-            gPendingUploadsKey: gPendingUploadsKey
-        };
+        initializeVariable(version);
+
+        WorkbookManager.getWKBKsAsync()
+        .then(function(oldWorkbooks, sessionInfo) {
+            workbooks = oldWorkbooks;
+            sessions = sessionInfo;
+
+            return checkSessionWritable(sessions);
+        })
+        .then(function(isWrongNode) {
+            if (isWrongNode) {
+                // wrong node don't do upgrade
+                return;
+            } else {
+                var currentKeys = getKeysForUpgrade(sessions, version);
+                var upgradeKeys = getKeysForUpgrade(sessions, currentVersion);
+                return Upgrader.exec(currentKeys, upgradeKeys);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.fail);
+
+        return deferred.promise();
+    };
+
+    function initializeVariable(version) {
+        username = Support.getUser();
+        // key that stores all workbook infos for the user
+        wkbkKey = generateKey(username, "workbookInfos", version);
+        // key that stores the current active workbook Id
+        activeWKBKKey = generateKey(username, "activeWorkbook");
+        wkbkSet = new WKBKSet();
+    }
+
+    function setupKVStore(wkbkId) {
+        var globlKeys = getGlobalScopeKeys(currentVersion);
+        var userScopeKeys = getUserScopeKeys(currentVersion);
+        var wkbkScopeKeys = getWkbkScopeKeys(wkbkId, currentVersion);
+
+        var keys = $.extend({}, globlKeys, userScopeKeys, wkbkScopeKeys);
 
         KVStore.setup(keys);
     }
 
+    function getGlobalScopeKeys(version) {
+        var gEphInfoKey = generateKey("", "gEphInfo", version);
+        var gSettingsKey = generateKey("", "gSettings", version);
+        // gPendingUploadsKey don't need to versioning
+        var gPendingUploadsKey = generateKey("", "gPUploads");
+
+        return {
+            "gEphStorageKey"    : gEphInfoKey,
+            "gSettingsKey"      : gSettingsKey,
+            "gPendingUploadsKey": gPendingUploadsKey
+        };
+    }
+
+    function getUserScopeKeys(version) {
+        var gUserKey = generateKey(username, "gUser", version);
+        var gAuthKey = generateKey(username, "authentication", version);
+
+        return {
+            "gUserKey": gUserKey,
+            "gAuthKey": gAuthKey
+        };
+    }
+
+    function getWkbkScopeKeys(wkbkId, version) {
+        var gStorageKey = generateKey(wkbkId, "gInfo", version);
+        var gLogKey = generateKey(wkbkId, "gLog", version);
+        var gErrKey = generateKey(wkbkId, "gErr", version);
+
+        return {
+            "gStorageKey": gStorageKey,
+            "gLogKey"    : gLogKey,
+            "gErrKey"    : gErrKey
+        };
+    }
+
+    // sync sessionInfo with wkbkInfo
     function syncSessionInfo(oldWorkbooks, sessionInfo) {
         var deferred = jQuery.Deferred();
-        // sync sessionInfo with wkbkInfo
+
         try {
-            var numSessions = sessionInfo.numSessions;
-            var sessions = sessionInfo.sessions;
-            var wkbkName;
-            var wkbkId;
-            var wkbk;
             var loseOldMeta = false;
-            var activeWorkbooks = [];
-            var storedActiveId;
             var wrongNode = false;
 
             if (oldWorkbooks == null) {
@@ -604,112 +665,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 loseOldMeta = true;
             }
 
-            for (var i = 0; i < numSessions; i++) {
-                wkbkName = sessions[i].name;
-                if (sessions[i].state === "Active") {
-                    activeWorkbooks.push(sessions[i].name);
-                }
-                wkbkId = getWKBKId(wkbkName);
-
-                if (oldWorkbooks.hasOwnProperty(wkbkId)) {
-                    wkbk = new WKBK(oldWorkbooks[wkbkId]);
-                    delete oldWorkbooks[wkbkId];
-                } else {
-                    console.warn("Error!", wkbkName, "has no meta.");
-                    wkbk = new WKBK({
-                        "id"    : wkbkId,
-                        "name"  : wkbkName,
-                        "noMeta": true
-                    });
-                }
-
-                wkbkSet.put(wkbkId, wkbk);
-            }
-
-            for (var oldWkbkId in oldWorkbooks) {
-                console.warn("Error!", oldWkbkId, "is missing.");
-            }
-
-            // refresh workbook info
-            saveWorkbook()
-            .then(function() {
-                // XXX This does not work yet because of a backend bug
-                // where you are not able to deactivate a workbook from another
-                // node.
-                var innerDeferred = jQuery.Deferred();
-                var deferred;
-                // Test session kvstore write
-                if (activeWorkbooks.length === 1) {
-                    deferred = KVStore.put("testKey", "unused", false,
-                                XcalarApiKeyScopeT.XcalarApiKeyScopeSession);
-                } else {
-                    innerDeferred.resolve();
-                    return innerDeferred.promise();
-                }
-
-                deferred
-                .then(innerDeferred.resolve)
-                .fail(function() {
-                    wrongNode = true;
-                    innerDeferred.resolve();
-                });
-
-                return innerDeferred.promise();
-            })
-            .then(function() {
-                if (loseOldMeta) {
-                    // If we fail to get our old meta data, set activeWorkbook
-                    // to null
-                    return PromiseHelper.resolve(null);
-                } else {
-                    return KVStore.get(activeWKBKKey, gKVScope.WKBK);
+            checkSessionWritable(sessionInfo)
+            .then(function(isWrongNode) {
+                wrongNode = isWrongNode;
+                if (!wrongNode) {
+                    // wrong node should not touch KVStore
+                    return syncWorkbookMeta(oldWorkbooks, sessionInfo);
                 }
             })
-            .then(function(activeId) {
-                storedActiveId = activeId;
-                var deferred = jQuery.Deferred();
-                // Handle case where there are 2 or more active workbooks or
-                // where there is no active workbook but we think that there is
-                if (activeWorkbooks.length === 0 && activeId) {
-                    // We think there's an active workbook but there actually
-                    // isn't. Remove active and set it to null. next step
-                    // resolves this
-                    storedActiveId = undefined;
-                    return KVStore.delete(activeWKBKKey, gKVScope.WKBK);
-                } else if (activeWorkbooks.length > 1 || wrongNode) {
-                    // This clause needs to be in front of the other 2
-                    // This is something that we do not support
-                    // We will inactivate all the sessions and force user to
-                    // reselect
-                    storedActiveId = undefined;
-                    var defArray = [];
-                    for (var i = 0; i<activeWorkbooks.length; i++) {
-                        defArray.push(XcalarDeactivateWorkbook(
-                                                           activeWorkbooks[i]));
-                    }
-                    if (activeId) {
-                        defArray.push(KVStore.delete(activeWKBKKey,
-                                                     gKVScope.WKBK));
-                    }
-                    return PromiseHelper.when.apply(this, defArray);
-                } else if (activeWorkbooks.length === 1 && !activeId) {
-                    // Backend has active, we don't. Set it and go
-                    storedActiveId = getWKBKId(activeWorkbooks[0]);
-                    return KVStore.put(activeWKBKKey, storedActiveId, true,
-                                       gKVScope.WKBK);
-                } else if (activeWorkbooks.length === 1 && activeId &&
-                    getWKBKId(activeWorkbooks[0]) !== activeId) {
-                    // Backend's version of active is different from us.
-                    // We listen to backend
-                    storedActiveId = getWKBKId(activeWorkbooks[0]);
-                    return KVStore.put(activeWKBKKey, storedActiveId, true,
-                                       gKVScope.WKBK);
-                } else {
-                    deferred.resolve();
-                }
-                return deferred.promise();
-            })
             .then(function() {
+                var activeWorkbooks = getActiveWorkbooks(sessionInfo);
+                return checkActiveWorkbook(activeWorkbooks, loseOldMeta,
+                                            wrongNode);
+            })
+            .then(function(storedActiveId) {
                 deferred.resolve(storedActiveId, sessionInfo);
             })
             .fail(deferred.reject);
@@ -719,6 +688,179 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
 
         return deferred.promise();
+    }
+
+    function getActiveWorkbooks(sessionInfo) {
+        var numSessions = sessionInfo.numSessions;
+        var sessions = sessionInfo.sessions;
+        var activeWorkbooks = [];
+        for (var i = 0; i < numSessions; i++) {
+            if (sessions[i].state === "Active") {
+                activeWorkbooks.push(sessions[i].name);
+            }
+        }
+        return activeWorkbooks;
+    }
+
+    // resolve if it's wrong node or not
+    function checkSessionWritable(sessionInfo) {
+        var deferred = jQuery.Deferred();
+        var activeWorkbooks = getActiveWorkbooks(sessionInfo);
+        var shouldCheck = (activeWorkbooks.length === 1);
+
+        if (shouldCheck) {
+            // Test session kvstore write
+            var scope = XcalarApiKeyScopeT.XcalarApiKeyScopeSession;
+            KVStore.put("testKey", "unused", false, scope)
+            .then(function() {
+                deferred.resolve(false);
+            })
+            .fail(function() {
+                deferred.resolve(true);
+            });
+        } else {
+            deferred.resolve(false);
+        }
+
+        return deferred.promise();
+    }
+
+    function checkActiveWorkbook(activeWorkbooks, loseOldMeta, wrongNode) {
+        var deferred = jQuery.Deferred();
+        var storedActiveId;
+
+        getActiveWorkbookId(loseOldMeta)
+        .then(function(activeId) {
+            storedActiveId = activeId;
+            // Handle case where there are 2 or more active workbooks or
+            // where there is no active workbook but we think that there is
+            if (activeWorkbooks.length === 0 && activeId) {
+                // We think there's an active workbook but there actually
+                // isn't. Remove active and set it to null. next step
+                // resolves this
+                storedActiveId = undefined;
+                return KVStore.delete(activeWKBKKey, gKVScope.WKBK);
+            } else if (activeWorkbooks.length > 1 || wrongNode) {
+                // This clause needs to be in front of the other 2
+                // This is something that we do not support
+                // We will inactivate all the sessions and force user to
+                // reselect
+
+                // XXX For wrong node case
+                // This does not work yet because of a backend bug
+                // where you are not able to deactivate a workbook from another
+                // node.
+                storedActiveId = undefined;
+                var defArray = [];
+                for (var i = 0; i < activeWorkbooks.length; i++) {
+                    defArray.push(XcalarDeactivateWorkbook(activeWorkbooks[i]));
+                }
+                if (activeId) {
+                    defArray.push(KVStore.delete(activeWKBKKey,
+                                                 gKVScope.WKBK));
+                }
+                return PromiseHelper.when.apply(this, defArray);
+            } else if (activeWorkbooks.length === 1 && !activeId) {
+                // Backend has active, we don't. Set it and go
+                storedActiveId = getWKBKId(activeWorkbooks[0]);
+                return KVStore.put(activeWKBKKey, storedActiveId, true,
+                                   gKVScope.WKBK);
+            } else if (activeWorkbooks.length === 1 && activeId &&
+                getWKBKId(activeWorkbooks[0]) !== activeId) {
+                // Backend's version of active is different from us.
+                // We listen to backend
+                storedActiveId = getWKBKId(activeWorkbooks[0]);
+                return KVStore.put(activeWKBKKey, storedActiveId, true,
+                                   gKVScope.WKBK);
+            } else {
+                return;
+            }
+        })
+        .then(function() {
+            deferred.resolve(storedActiveId);
+        })
+        .fail(deferred.reject);
+
+
+        return deferred.promise();
+    }
+
+    function getActiveWorkbookId(loseOldMeta) {
+        if (loseOldMeta) {
+            // If we fail to get our old meta data, set activeWorkbook
+            // to null
+            return PromiseHelper.resolve(null);
+        } else {
+            return KVStore.get(activeWKBKKey, gKVScope.WKBK);
+        }
+    }
+
+    function syncWorkbookMeta(oldWorkbooks, sessionInfo) {
+        var numSessions = sessionInfo.numSessions;
+        var sessions = sessionInfo.sessions;
+
+        for (var i = 0; i < numSessions; i++) {
+            var wkbkName = sessions[i].name;
+            var wkbkId = getWKBKId(wkbkName);
+            var wkbk;
+
+            if (oldWorkbooks.hasOwnProperty(wkbkId)) {
+                wkbk = new WKBK(oldWorkbooks[wkbkId]);
+                delete oldWorkbooks[wkbkId];
+            } else {
+                console.warn("Error!", wkbkName, "has no meta.");
+                wkbk = new WKBK({
+                    "id"    : wkbkId,
+                    "name"  : wkbkName,
+                    "noMeta": true
+                });
+            }
+
+            wkbkSet.put(wkbkId, wkbk);
+        }
+
+        for (var oldWkbkId in oldWorkbooks) {
+            console.warn("Error!", oldWkbkId, "is missing.");
+        }
+
+        // refresh workbook info
+        return saveWorkbook();
+    }
+
+    function getKeysForUpgrade(sessionInfo, version) {
+        var globalKeys = getGlobalScopeKeys(version);
+        var userKeys = getUserScopeKeysForUpgrade(version);
+        var wkbkKeys = getWkbkScopeKeysForUpgrade(sessionInfo, version);
+
+        return {
+            "global": globalKeys,
+            "user"  : userKeys,
+            "wkbk"  : wkbkKeys
+        };
+    }
+
+    function getUserScopeKeysForUpgrade(version) {
+        var keys = getUserScopeKeys(version);
+        keys = $.extend(keys, {
+            "wkbkKey": wkbkKey
+        });
+
+        return keys;
+    }
+
+    function getWkbkScopeKeysForUpgrade(sessionInfo, version) {
+        var wkbks = {};
+        var numSessions = sessionInfo.numSessions;
+        var sessions = sessionInfo.sessions;
+
+        for (var i = 0; i < numSessions; i++) {
+            var wkbkName = sessions[i].name;
+            var wkbkId = getWKBKId(wkbkName);
+            var keys = getWkbkScopeKeys(wkbkId, version);
+            wkbks[wkbkId] = keys;
+        }
+
+        return wkbks;
     }
 
     function activateWorkbook(wkbkId, sessionInfo) {

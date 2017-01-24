@@ -12,8 +12,8 @@ window.UserSettings = (function($, UserSettings) {
         setup();
 
         userInfos = oldUserInfos;
+        userPrefs = userInfos.getPrefInfo();
 
-        userPrefs = new UserPref(userInfos.getPrefInfo());
         saveLastPrefs();
         restoreMainTabs();
 
@@ -52,12 +52,12 @@ window.UserSettings = (function($, UserSettings) {
 
             if (gXcSupport) {
                 kvKey = KVStore.gSettingsKey;
-                kvScope = KVStore.GLOB;
+                kvScope = gKVScope.GLOB;
                 genSettings.updateXcSettings(UserSettings.getPref('general'));
                 info = genSettings.getAdminAndXcSettings();
             } else if (Admin.isAdmin()) {
                 kvKey = KVStore.gSettingsKey;
-                kvScope = KVStore.GLOB;
+                kvScope = gKVScope.GLOB;
                 genSettings.updateAdminSettings(
                                         UserSettings.getPref('general'));
                 info = genSettings.getAdminAndXcSettings();

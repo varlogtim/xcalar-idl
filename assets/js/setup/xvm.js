@@ -4,17 +4,23 @@ window.XVM = (function(XVM) {
     var minorVersion = "0";
     var revisionVersion = "3";
     var thriftInterfaceVersion = "17";
-    var kvVersion = "0"; // Currently unused
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
                         thriftInterfaceVersion;
-    var versionKey = "xcalar-version";
+    var kvVersion; // equal to currentVersion;
+    var kvVersionKey;
     var backendVersion = "";
     var licenseKey = "";
     var licenseMode = "";
     var expirationDate = null;
-                     // interactive or operational
+
+    // interactive or operational
     //var licenseMode = XcalarMode.Oper;
+
+    XVM.setup = function() {
+        kvVersion = currentVersion;
+        kvVersionKey = "xcalar-version-" + Support.getUser();
+    };
 
     XVM.getVersion = function() {
         return (fullVersion);
@@ -108,6 +114,42 @@ window.XVM = (function(XVM) {
         return (deferred.promise());
     };
 
+    // check KVStore's version to see if need upgrade
+    XVM.checkKVVersion = function() {
+        var deferred = jQuery.Deferred();
+        var needUpgrade = false;
+
+        KVStore.get(kvVersionKey, gKVScope.VER)
+        .then(function(value) {
+            if (value == null) {
+                // when it's a first time set up
+                return XVM.commitKVVersion();
+            }
+
+            var version = Number(value);
+            if (isNaN(version) || version > kvVersion) {
+                xcConsole.error("Error of KVVersion", value);
+            } else if (version < kvVersion) {
+                needUpgrade = true;
+            }
+            // XXX test only
+            // needUpgrade = true;
+            if (needUpgrade)  {
+                return WorkbookManager.triggerUpgrade(version);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    // commit kvVersion
+    XVM.commitKVVersion = function() {
+        var version = JSON.stringify(kvVersion);
+        return KVStore.put(kvVersionKey, version, true, gKVScope.VER);
+    };
+
     XVM.alertLicenseExpire = function() {
         // for demo mode only
         if (XVM.getLicenseMode() !== XcalarMode.Demo) {
@@ -165,35 +207,6 @@ window.XVM = (function(XVM) {
         }
     };
 
-    XVM.commitVersionInfo = function() {
-        // the reason to put version info into kvStore
-        // is: when upgrade, we need to know the version
-        var versionInfo;
-
-        KVStore.get(versionKey, gKVScope.VER)
-        .then(function(value) {
-            if (value == null) {
-                versionInfo = new XcVersion({
-                    "fullVersion": fullVersion,
-                    "SHA"        : XVM.getSHA()
-                });
-                return KVStore.put(versionKey, JSON.stringify(versionInfo),
-                                    true, gKVScope.VER);
-            } else {
-                console.info("Current Version", value);
-            }
-        })
-        .then(function() {
-            if (versionInfo != null) {
-                // when can commit the version info
-                console.info("Commit Version Info", versionInfo);
-            }
-        })
-        .fail(function(error) {
-            console.error("Commit Version Info fails!", error);
-        });
-    };
-
     XVM.initMode = function() {
         // This function hides all the stuff that's not supposed to be there
         // according to the modes
@@ -204,11 +217,5 @@ window.XVM = (function(XVM) {
             $("#monitorDsSampleInput").closest(".optionSet").hide()
         }
     }
-
-    // upgrade the version info, do not implement yet!
-    XVM.upgrade = function() {
-
-    };
-
     return (XVM);
 }({}));

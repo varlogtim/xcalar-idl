@@ -457,6 +457,7 @@ window.QueryManager = (function(QueryManager, $) {
             queryLists[i - numQueries] = query;
             html += getQueryHTML(query, true);
         }
+
         if (html) {
             $queryList.find('.hint').addClass('xc-hidden')
                        .end().append(html);

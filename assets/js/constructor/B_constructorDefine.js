@@ -23,8 +23,10 @@ var __isOldVersion = function(options, constructorVersion) {
 
 var __getConstructor = function(constructorName, version) {
     var suffix = "";
-    if (version != null && version !== currentVersion) {
+    if (version != null) {
         suffix = "V" + version;
+        // constructor cannot already terminate with V+version
+        xcAssert(!constructorName.endsWith(version));
     }
 
     return window[constructorName + suffix];

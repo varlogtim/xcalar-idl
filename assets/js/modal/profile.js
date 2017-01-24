@@ -269,15 +269,7 @@ window.Profile = (function($, Profile, d3) {
     };
 
     Profile.restore = function(oldInfos) {
-        oldInfos = oldInfos || {};
-        statsInfos = {};
-        for (var tableId in oldInfos) {
-            statsInfos[tableId] = {};
-            var colInfos = oldInfos[tableId] || {};
-            for (var colName in colInfos) {
-                statsInfos[tableId][colName] = new ProfileInfo(colInfos[colName]);
-            }
-        }
+        statsInfos = oldInfos || {};
     };
 
     Profile.getCache = function() {

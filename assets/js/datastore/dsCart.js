@@ -160,7 +160,7 @@ window.DSCart = (function($, DSCart) {
         var isInBg = true;
         for (var dsId in carts) {
             // add cart use Array.unshift, so here should restore from end to 0
-            var cart = new Cart(carts[dsId]);
+            var cart = carts[dsId];
             var resotredCart = DSCart.addCart(cart.dsId, cart.tableName, isInBg);
             appendCartItem(resotredCart, cart.items);
         }

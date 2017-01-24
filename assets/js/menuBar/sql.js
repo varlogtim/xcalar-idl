@@ -132,6 +132,25 @@ window.SQL = (function($, SQL) {
         return (deferred.promise());
     };
 
+    SQL.upgrade = function(oldRawLogs) {
+        var oldLogs = parseRawLog(oldRawLogs);
+        if (oldLogs == null) {
+            return null;
+        }
+
+        var newLogs = [];
+        oldLogs.forEach(function(oldLog) {
+            var newLog = KVStore.upgrade(oldLog, "XcLog");
+            newLogs.push(newLog);
+        });
+
+        if (newLogs.length === 0) {
+            return "";
+        } else {
+            return stringifyLog(newLogs);
+        }
+    };
+
     SQL.add = function(title, options, cli, willCommit) {
         options = options || {};
         if ($.isEmptyObject(options)) {
@@ -493,72 +512,74 @@ window.SQL = (function($, SQL) {
         return (deferred.promise());
     }
 
+    function parseRawLog(rawLog) {
+        var parsedLogs = [];
+
+        if (rawLog == null) {
+            return parsedLogs;
+        }
+
+        try {
+            var len = rawLog.length;
+            if (rawLog.charAt(len - 1) === ",") {
+                rawLog = rawLog.substring(0, len - 1);
+            }
+            var sqlStr = "[" + rawLog + "]";
+            parsedLogs = JSON.parse(sqlStr);
+            return parsedLogs;
+        } catch (error) {
+            xcConsole.error("parse log failed", error);
+            return null;
+        }
+    }
+
+    function stringifyLog(logs) {
+        var logStr = JSON.stringify(logs);
+        // strip "[" and "]" and add comma
+        logStr = logStr.substring(1, logStr.length - 1) + ",";
+        return logStr;
+    }
+
+    // restore logs
     function restoreLogs(oldLogCursor) {
         var deferred = jQuery.Deferred();
-        var oldLogs = [];
-
-        // restore log
         KVStore.get(KVStore.gLogKey, gKVScope.LOG)
-        .then(function(value) {
-            if (value != null) {
-                try {
-                    var len = value.length;
-                    if (value.charAt(len - 1) === ",") {
-                        value = value.substring(0, len - 1);
-                    }
-                    var sqlStr = "[" + value + "]";
-                    oldLogs = JSON.parse(sqlStr);
-                } catch (err) {
-                    console.error("restore logs failed!", err);
-                    deferred.reject(sqlRestoreError);
-                }
-            }
-        })
-        .then(function() {
-            if (oldLogCursor == null || oldLogCursor >= oldLogs.length) {
-                // error case
-                console.error("Loose old cursor track");
-                oldLogCursor = oldLogs.length - 1;
-            }
-            for (var i = 0; i <= oldLogCursor; i++) {
-                var sql = new XcLog(oldLogs[i]);
-                addLog(sql, true);
-            }
-            lastSavedCursor = logCursor;
+        .then(function(rawLog) {
+            var oldLogs = parseRawLog(rawLog);
 
-            deferred.resolve();
+            if (oldLogs != null) {
+                if (oldLogCursor == null || oldLogCursor >= oldLogs.length) {
+                    // error case
+                    xcConsole.error("Loose old cursor track");
+                    oldLogCursor = oldLogs.length - 1;
+                }
+                for (var i = 0; i <= oldLogCursor; i++) {
+                    var sql = new XcLog(oldLogs[i]);
+                    addLog(sql, true);
+                }
+                lastSavedCursor = logCursor;
+
+                deferred.resolve();
+            } else {
+                deferred.reject(sqlRestoreError);
+            }
         })
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
+    // restore error logs
     function restoreErrors() {
         var deferred = jQuery.Deferred();
-        var oldErrors = [];
-
-        // restore log
         KVStore.get(KVStore.gErrKey, gKVScope.ERR)
-        .then(function(value) {
-            if (value != null) {
-                try {
-                    var len = value.length;
-                    if (value.charAt(len - 1) === ",") {
-                        value = value.substring(0, len - 1);
-                    }
-                    var errStr = "[" + value + "]";
-                    oldErrors = JSON.parse(errStr);
-                } catch (err) {
-                    console.error("restore error logs failed!", err);
-                    deferred.reject(sqlRestoreError);
-                }
-            } else {
-                // because if always has no error,
-                // console log will keep showing "key not found" warning
-                KVStore.put(KVStore.gErrKey, "", true, gKVScope.ERR);
+        .then(function(rawLog) {
+            var oldErrors = parseRawLog(rawLog);
+
+            if (oldErrors == null) {
+                return PromiseHelper.reject(sqlRestoreError);
             }
-        })
-        .then(function() {
+
             if (errors.length > 0) {
                 console.warn(errors);
             }
@@ -569,10 +590,11 @@ window.SQL = (function($, SQL) {
             });
 
             deferred.resolve();
+
         })
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function addLog(sql, isRestore, willCommit) {
@@ -588,10 +610,7 @@ window.SQL = (function($, SQL) {
             // may mess it up
             sqlToCommit = "";
 
-            var logStr = JSON.stringify(logs);
-            // strip "[" and "]" and add comma
-            logStr = logStr.substring(1, logStr.length - 1) + ",";
-   
+            var logStr = stringifyLog(logs);
             KVStore.put(KVStore.gLogKey, logStr, true, gKVScope.LOG)
             .then(function() {
                 localCommit();

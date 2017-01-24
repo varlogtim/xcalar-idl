@@ -26,10 +26,100 @@ var METAConstructorV1 = (function() {
         METAKeys.TPFX: (obj) table prefix meta
         METAKeys.QUERY: (obj) query meta
     */
-    function METAConstructorV1() {
-        this.version = versionV1;
-        return this;
+    function METAConstructorV1(oldMeta) {
+        oldMeta = oldMeta || {};
+
+        var self = this;
+        self.version = versionV1;
+
+        if (__isVersionV0(oldMeta)) {
+            METAConstructorV1.restore(self, oldMeta, versionV1);
+        }
+
+        return self;
     }
+
+    METAConstructorV1.restore = function(self, oldMeta, version) {
+        self[METAKeys.TI] = restoreTableMeta();
+        self[METAKeys.WS] = restoreWSMeta();
+        self[METAKeys.AGGS] = restoreAggs();
+        self[METAKeys.CART] = restoreCart();
+        self[METAKeys.STATS] = restoreProfile();
+        self[METAKeys.QUERY] = restoreQueyList();
+        // a simple key,value paris, no constructor
+        self[METAKeys.TPFX] = oldMeta[METAKeys.TPFX];
+        // a number, no constructor
+        self[METAKeys.LOGC] = oldMeta[METAKeys.LOGC];
+
+        // restore table meta
+        function restoreTableMeta() {
+            var oldTables = oldMeta[METAKeys.TI] || {};
+            var newTables = {};
+            var TableMetaCtor = __getConstructor("TableMeta", version);
+            for (var tableId in oldTables) {
+                newTables[tableId] = new TableMetaCtor(oldTables[tableId]);
+            }
+
+            return newTables;
+        }
+
+        // restore worksheet meta
+        function restoreWSMeta() {
+            var WSMetaCtor = __getConstructor("WSMETA", version);
+            return new WSMetaCtor(oldMeta[METAKeys.WS]);
+        }
+
+        // restore agg
+        function restoreAggs() {
+            var oldAggs = oldMeta[METAKeys.AGGS] || {};
+            var newAggs = {};
+            var AggCtor = __getConstructor("Agg", version);
+            for (var agg in oldAggs) {
+                newAggs[agg] = new AggCtor(oldAggs[agg]);
+            }
+            return newAggs;
+        }
+
+        // restore carts
+        function restoreCart() {
+            var oldCarts = oldMeta[METAKeys.CART] || {};
+            var newCarts = {};
+            var CartCtor = __getConstructor("Cart", version);
+            for (var cart in oldCarts) {
+                newCarts[cart] = new CartCtor(oldCarts[cart]);
+            }
+            return newCarts;
+        }
+
+        // restore profiles
+        function restoreProfile() {
+            var oldStats = oldMeta[METAKeys.STATS] || {};
+            var newStats = {};
+            var ProfileCtor = __getConstructor("ProfileInfo", version);
+            for (var tableId in oldStats) {
+                newStats[tableId] = {};
+                var colInfos = oldStats[tableId] || {};
+                for (var colName in colInfos) {
+                    var oldInfo = colInfos[colName];
+                    newStats[tableId][colName] = new ProfileCtor(oldInfo);
+                }
+            }
+            return newStats;
+        }
+
+        // restore queries
+        function restoreQueyList() {
+            var oldQueryList = oldMeta[METAKeys.QUERY] || [];
+            var newQueryList = [];
+            var QueryCtor = __getConstructor("XcQuery", version);
+
+            for (var i = 0, len = oldQueryList.length; i < len; i++) {
+                newQueryList[i] = new QueryCtor(oldQueryList[i]);
+            }
+
+            return newQueryList;
+        }
+    };
 
     METAConstructorV1.prototype = {
         getMetaKeys: function() {
@@ -50,10 +140,33 @@ var EMetaConstructorV1 = (function() {
         version: 1
         EMetaKeys.DF: (obj) dataflow meta
     */
-    function EMetaConstructorV1() {
-        this.version = versionV1;
-        return this;
+    function EMetaConstructorV1(oldMeta) {
+        oldMeta = oldMeta || {};
+
+        var self = this;
+        self.version = versionV1;
+
+        if (__isVersionV0(oldMeta)) {
+            EMetaConstructorV1.restore(self, oldMeta, versionV1);
+        }
+        return self;
     }
+
+    EMetaConstructorV1.restore = function(self, oldMeta, version) {
+        self[EMetaKeys.DF] = restoreRet();
+
+        function restoreRet() {
+            var oldRet = oldMeta[EMetaKeys.DF] || {};
+            var newRet = {};
+            var DFCtor = __getConstructor("Dataflow", version);
+
+            for (var retName in oldRet) {
+                newRet[retName] = new DFCtor(retName, oldRet[retName]);
+            }
+
+            return newRet;
+        }
+    };
 
     EMetaConstructorV1.prototype = {
         getMetaKeys: function() {
@@ -76,10 +189,33 @@ var UserInfoConstructorV1 = (function() {
         UserInfoKeys.DS: (obj) datasets meta
         UserInfoKeys.PREF: (obj) user preference meta
     */
-    function UserInfoConstructorV1() {
-        this.version = versionV1;
-        return this;
+    function UserInfoConstructorV1(oldMeta) {
+        oldMeta = oldMeta || {};
+
+        var self = this;
+        self.version = versionV1;
+
+        if (__isVersionV0(oldMeta)) {
+            UserInfoConstructorV1.restore(self, oldMeta, versionV1);
+        }
+
+        return self;
     }
+
+    UserInfoConstructorV1.restore = function(self, oldMeta, version) {
+        oldMeta = oldMeta || {};
+        // DS structure is complex, so let DS.restore
+        // and DS.upgrade to handle it
+        self[UserInfoKeys.DS] = oldMeta[UserInfoKeys.DS];
+        self[UserInfoKeys.PREF] = restoreUsrPref();
+
+        function restoreUsrPref() {
+            var oldPref = oldMeta[UserInfoKeys.PREF] || {};
+            var UserPrefCtor = __getConstructor("UserPref", version);
+            var newPref = new UserPrefCtor(oldPref);
+            return newPref;
+        }
+    };
 
     UserInfoConstructorV1.prototype = {
         getMetaKeys: function() {
@@ -88,25 +224,6 @@ var UserInfoConstructorV1 = (function() {
     };
 
     return UserInfoConstructorV1;
-}());
-
-// version.js
-var XcVersionV1 = (function() {
-    /* Attr:
-        version: 1,
-        fullVersion: (string) full version of GUI
-        SHA: (string) SHA key
-    */
-    function XcVersionV1(options) {
-        options = options || {};
-
-        this.version = versionV1;
-        this.fullVersion = options.fullVersion;
-        this.SHA = options.SHA;
-        return this;
-    }
-
-    return XcVersionV1;
 }());
 
 // authentication.js
@@ -302,10 +419,9 @@ var ProgColV1 = (function() {
         };
         options = $.extend(defaultOptions, options);
 
-        this.version = versionV1;
         for (var option in options) {
-            if (option !== "backName" && option !== "func"
-                && typeof options[option] !== "function") {
+            if (option !== "version" && option !== "backName" &&
+                option !== "func" && typeof options[option] !== "function") {
                 this[option] = options[option];
             }
         }
@@ -323,6 +439,7 @@ var ProgColV1 = (function() {
             this.func = new ColFuncV1(options.func);
         }
 
+        this.version = versionV1;
         return this;
     }
 
@@ -877,7 +994,7 @@ var DSObjV1 = (function() {
             this.quoteChar = options.quoteChar;
             this.skipRows = options.skipRows;
             this.isRegex = options.isRegex || false;
-        
+
             if (options.headers != null) {
                 this.headers = options.headers;
             }
@@ -885,13 +1002,6 @@ var DSObjV1 = (function() {
             if (options.error != null) {
                 this.error = options.error;
             }
-        }
-
-        if (this.parentId !== DSObjTerm.homeParentId) {
-            var parent = DS.getDSObj(this.parentId);
-            parent.eles.push(this);
-            // update totalChildren of all ancestors
-            this.updateDSCount();
         }
 
         return this;

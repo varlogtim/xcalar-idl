@@ -99,7 +99,7 @@ window.DSUploader = (function($, DSUploader) {
             pendingFiles.push(name);
         }
         KVStore.put(KVStore.gPendingUploadsKey, JSON.stringify(pendingFiles),
-                    true, KVStore.GLOB)
+                    true, gKVScope.GLOB)
         .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.resolve();

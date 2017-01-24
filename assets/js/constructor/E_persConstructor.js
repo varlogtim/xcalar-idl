@@ -2,21 +2,16 @@
 var METAConstructor = (function(_super) {
     var METAKeys = new _super().getMetaKeys();
 
-    function METAConstructor() {
-        _super.call(this);
-        return this;
+    function METAConstructor(oldMeta) {
+        oldMeta = oldMeta || {};
+        xcAssert(__isCurrentVersion(oldMeta));
+        var self = _super.call(this, oldMeta);
+
+        METAConstructor.restore(self, oldMeta);
+        return self;
     }
 
     __extends(METAConstructor, _super, {
-        restore: function(oldMeta) {
-            oldMeta = oldMeta || {};
-            for (var key in METAKeys) {
-                var entry = METAKeys[key];
-                this[entry] = oldMeta[entry];
-            }
-            return this;
-        },
-
         update: function() {
             // basic thing to store
             this[METAKeys.TI] = savegTables();
@@ -87,17 +82,16 @@ var METAConstructor = (function(_super) {
 var EMetaConstructor = (function(_super) {
     var EMetaKeys = new _super().getMetaKeys();
 
-    function EMetaConstructor() {
-        _super.call(this);
-        return this;
+    function EMetaConstructor(oldMeta) {
+        oldMeta = oldMeta || {};
+        xcAssert(__isCurrentVersion(oldMeta));
+        var self = _super.call(this);
+
+        EMetaConstructor.restore(self, oldMeta);
+        return self;
     }
 
     __extends(EMetaConstructor, _super, {
-        restore: function(oldEMeta) {
-            oldEMeta = oldEMeta || {};
-            this[EMetaKeys.DF] = oldEMeta[EMetaKeys.DF];
-        },
-
         update: function() {
             // update
             this[EMetaKeys.DF] = DF.getAllCommitKeys();
@@ -116,19 +110,16 @@ var EMetaConstructor = (function(_super) {
 var UserInfoConstructor = (function(_super) {
     var UserInfoKeys = new _super().getMetaKeys();
 
-    function UserInfoConstructor() {
-        _super.call(this);
-        return this;
+    function UserInfoConstructor(oldMeta) {
+        oldMeta = oldMeta || {};
+        xcAssert(__isCurrentVersion(oldMeta));
+        var self = _super.call(this);
+
+        UserInfoConstructor.restore(self, oldMeta);
+        return self;
     }
 
     __extends(UserInfoConstructor, _super, {
-        restore: function(oldMeta) {
-            oldMeta = oldMeta || {};
-            this[UserInfoKeys.DS] = oldMeta[UserInfoKeys.DS];
-            this[UserInfoKeys.PREF] = oldMeta[UserInfoKeys.PREF];
-            return this;
-        },
-
         update: function() {
             this[UserInfoKeys.DS] = DS.getHomeDir();
             this[UserInfoKeys.PREF] = UserSettings.getAllPrefs();
@@ -145,18 +136,6 @@ var UserInfoConstructor = (function(_super) {
 
     return UserInfoConstructor;
 }(UserInfoConstructorV1));
-
-// version.js
-var XcVersion = (function(_super) {
-    function XcVersion(options) {
-        _super.call(this, options);
-        return this;
-    }
-
-    __extends(XcVersion, _super);
-
-    return XcVersion;
-}(XcVersionV1));
 
 // authentication.js
 var XcAuth = (function(_super) {
@@ -990,10 +969,10 @@ var GenSettings = (function(_super) {
             this.xcSettings = $.extend({}, prevXcSettings, settings);
         },
         getAdminAndXcSettings: function() {
-            return {
+            return new GenSettings(null, {
                 "adminSettings": this.adminSettings,
                 "xcSettings"   : this.xcSettings
-            };
+            });
         }
     });
 
@@ -1292,6 +1271,15 @@ var DSObj = (function(_super) {
     }
 
     __extends(DSObj, _super, {
+        addToParent: function() {
+            if (this.parentId !== DSObjTerm.homeParentId) {
+                var parent = DS.getDSObj(this.parentId);
+                parent.eles.push(this);
+                // update totalChildren of all ancestors
+                this.updateDSCount();
+            }
+        },
+
         getId: function() {
             return this.id;
         },

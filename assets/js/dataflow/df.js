@@ -3,15 +3,12 @@ window.DF = (function($, DF) {
     var retStructs = []; // temp usage only
     var dfCache; // temp usage only
 
-    DF.restore = function(ret) {
+    DF.restore = function(retMeta) {
         // This call now has to return a promise
         var deferred = jQuery.Deferred();
         var retArray = [];
-        // XXX temp structure here, finally should move to KVStore for upgrade
-        dfCache = {};
-        for (var retinaName in ret) {
-            dfCache[retinaName] = new Dataflow(retinaName, ret[retinaName]);
-        }
+
+        dfCache = retMeta;
 
         XcalarListRetinas()
         .then(function(list) {

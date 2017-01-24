@@ -8,9 +8,6 @@ window.KVStore = (function($, KVStore) {
     // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
     // gSettingsKey
     KVStore.setup = function(keys) {
-        metaInfos = new METAConstructor();
-        ephMetaInfos = new EMetaConstructor();
-
         for (var keyName in keys) {
             KVStore[keyName] = keys[keyName];
         }
@@ -222,20 +219,20 @@ window.KVStore = (function($, KVStore) {
         function restore() {
             var innerDeferred = jQuery.Deferred();
 
-            var userInfos = new UserInfoConstructor();
-            userInfos.restore(gInfosUser);
-
+            var userInfos = new UserInfoConstructor(gInfosUser);
             UserSettings.restore(userInfos, gInfosSetting)
             .then(function() {
                 try {
-                    metaInfos.restore(gInfosMeta);
+                    metaInfos = new METAConstructor(gInfosMeta);
+                    ephMetaInfos = new EMetaConstructor(gInfosE);
+
                     WSManager.restore(metaInfos.getWSMeta());
                     TPrefix.restore(metaInfos.getTpfxMeta());
                     Aggregates.restore(metaInfos.getAggMeta());
                     TblManager.restoreTableMeta(metaInfos.getTableMeta());
                     DSCart.restore(metaInfos.getCartMeta());
                     Profile.restore(metaInfos.getStatsMeta());
-                    ephMetaInfos.restore(gInfosE);
+
                     return DF.restore(ephMetaInfos.getDFMeta());
                 } catch (error) {
                     console.error(error.stack);
@@ -318,6 +315,25 @@ window.KVStore = (function($, KVStore) {
     function getMetaInfo() {
         return getInfo(KVStore.gStorageKey, gKVScope.META);
     }
+
+    KVStore.upgrade = function(oldMeta, constorName) {
+        if (oldMeta == null) {
+            return null;
+        }
+
+        var persistedVersion = oldMeta.version;
+        xcAssert((persistedVersion != null) && (constorName != null));
+        var newMeta = oldMeta;
+        for (var i = 0; i < currentVersion - persistedVersion; i++) {
+            var versionToBe = (persistedVersion + (i + 1));
+            var constor = constorName + "V" + versionToBe;
+
+            xcAssert(window[constor] != null &&
+                    typeof window[constor] === "function");
+            newMeta = new window[constor](newMeta);
+        }
+        return newMeta;
+    };
 
     KVStore.emptyAll = function(localEmpty) {
         var deferred = jQuery.Deferred();

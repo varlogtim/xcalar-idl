@@ -91,6 +91,16 @@ describe("DSObj Test", function() {
                 throw error;
             });
         });
+
+        it("Should upgrade dsObj", function() {
+            var oldFolder = DS.getHomeDir();
+            oldFolder.version = 0;
+
+            var newFolder = DS.upgrade(oldFolder);
+            expect(newFolder.version).to.equal(currentVersion);
+            expect(newFolder.eles.length)
+            .to.equal(oldFolder.eles.length);
+        });
     });
 
     describe("Grid View Event Test", function() {

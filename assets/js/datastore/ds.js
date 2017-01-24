@@ -40,6 +40,23 @@ window.DS = (function ($, DS) {
         return restoreDS(oldHomeFolder, atStartUp);
     };
 
+    // recursive call to upgrade dsObj
+    DS.upgrade = function(dsObj) {
+        if (dsObj == null) {
+            return null;
+        }
+
+        var newDSObj = KVStore.upgrade(dsObj, "DSObj");
+        if (dsObj.isFolder && dsObj.eles.length > 0) {
+            var len = dsObj.eles.length;
+            for (var i = 0; i < len; i++) {
+                newDSObj.eles[i] = DS.upgrade(dsObj.eles[i]);
+            }
+        }
+
+        return newDSObj;
+    };
+
     DS.setupView = function() {
         // restore list view if saved and ellipsis the icon
         var preference = UserSettings.getPref('datasetListView');
@@ -462,6 +479,7 @@ window.DS = (function ($, DS) {
         }
 
         var dsObj = new DSObj(options);
+        dsObj.addToParent();
         var $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
                                        $(getDSHTML(dsObj));
 

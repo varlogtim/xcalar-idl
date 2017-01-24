@@ -35,6 +35,7 @@ var gMinTableWidth = 30;
   "LOG" : SQL Log (this use append) (XXX this should be XcalarApiKeyScopeSession, no support yet!)
   "Err" : SQL Error (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "FLAG": special commitFlag to make sure UI have right to write (should be XcalarApiKeyScopeSession),
+  "VER" : For KVVersion (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "GLOB": general global
  */
 var gKVScope = {
