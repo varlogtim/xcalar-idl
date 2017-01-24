@@ -1,5 +1,34 @@
 describe('xcSuggest', function() {
+    describe("Setup ML Engine", function() {
+        it("setup should work", function() {
+            expect(xcSuggest.setup()).to.be.true;
+            expect(xcSuggest.__testOnly__.getEngine()).to.not.be.undefined;
+        });
+    });
+
+    describe("Join Key Heuristic", function() {
+        it("Process Heuristic Inputs should work", function() {
+            // TODO: processJoinKeyInputsHeuristic
+        });
+
+        it("Suggest Heuristic should work", function() {
+            // TODO: suggestJoinKeyHeuristic
+        });
+    });
+
+    describe("Join Key ML", function() {
+        it("Process ML Inputs should work", function() {
+            // TODO: processJoinKeyInputsHeuristic
+        });
+
+        it("Suggest ML should work", function() {
+            // TODO: suggestJoinKeyML
+        });
+    });
+
     describe('Join Key & Support', function() {
+
+
         it('contextCheck should work', function() {
 
             var contextCheck = xcSuggest.__testOnly__.contextCheck;
@@ -494,7 +523,7 @@ describe('xcSuggest', function() {
             .to.be.null;
 
             expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoStr,[emptyColInfoStr])).colToSugg)
-            .to.be.equal(0);
+            .to.be.equal(0); // ML Fails this
             expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoStr,[emptyColInfoNum])).colToSugg)
             .to.be.null;
             expect(xcSuggest.suggestJoinKey(mkIn(emptyColInfoStr,[colInfoObject])).colToSugg)
@@ -535,6 +564,7 @@ describe('xcSuggest', function() {
             ])).colToSugg)
             .to.be.equal(1);
 
+            ///// BEGIN ML FAIL BLOCK /////
             expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[singletonColInfoStr])).colToSugg)
             .to.be.equal(0);
             expect(xcSuggest.suggestJoinKey(mkIn(singletonColInfoStr,[
@@ -600,6 +630,7 @@ describe('xcSuggest', function() {
                 colHasNullDisorderInfoChaStr
             ])).colToSugg)
             .to.be.equal(1);
+            ///// END ML FAIL BLOCK /////
 
             // Multitype tests
             expect(xcSuggest.suggestJoinKey(mkIn(colInfoNum,[
@@ -609,6 +640,26 @@ describe('xcSuggest', function() {
                 colHasNullDisorderInfoChaStr
                 ])).colToSugg)
             .to.be.equal(0);
+        });
+    });
+
+    describe("Join Key Data Submission", function() {
+        it("Suggest Data construction should work", function() {
+            // TODO: addSuggestFeatures, addSuggestLables,
+            //       addMetaData, addIsValid
+        });
+
+
+        it("Suggest Data Validation should work", function() {
+            // TODO: checkSuggestDataPortionsMatch,
+            //       checkSuggestDataPortionsValid,
+            //       checkSuggestDataPortionsFilled,
+            //       isValidJoinKeySubmitData
+        });
+
+        it("Submit Data should work", function() {
+            // TODO: processJoinKeySubmitData
+            //       submitJoinKeyData
         });
     });
 

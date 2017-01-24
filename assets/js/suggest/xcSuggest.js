@@ -17,6 +17,7 @@ window.xcSuggest = (function($, xcSuggest) {
     xcSuggest.setup = function() {
         MLEngine = window.skRFPredictor;
         MLEngine.setup();
+        return true;
     };
 
     xcSuggest.suggestJoinKey = function(inputs) {
@@ -435,6 +436,10 @@ window.xcSuggest = (function($, xcSuggest) {
         }
     }
 
+    function getEngine() {
+        return MLEngine;
+    }
+
     ///////////////// Data Submission Handling //////////
     function checkSuggestDataPortionsMatch(inputData) {
         // TODO: Add more checks
@@ -802,6 +807,7 @@ window.xcSuggest = (function($, xcSuggest) {
         xcSuggest.__testOnly__.getScore = getScore;
         xcSuggest.__testOnly__.calcSim = calcSim;
         xcSuggest.__testOnly__.getTitleDistance = getTitleDistance;
+        xcSuggest.__testOnly__.getEngine = getEngine;
     }
     /* End Of Unit Test Only */
 

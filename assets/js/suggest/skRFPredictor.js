@@ -324,7 +324,12 @@ window.skRFPredictor = (function(skRFPredictor) {
                 return dtModel.predict_proba(X);
             });
             var baseArray = [];
-            var numClasses = 2;
+            var numClasses;
+            if (allScores.length === 0) {
+                numClasses = 0;
+            } else {
+                numClasses = allScores[0].length;
+            }
             while(numClasses--) baseArray[numClasses] = 0;
             var sumScores = allScores.reduce(function(a,b) {
                 // Declaring array for speed
