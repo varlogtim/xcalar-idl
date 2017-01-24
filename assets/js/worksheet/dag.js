@@ -2955,7 +2955,9 @@ window.Dag = (function($, Dag) {
             } else {
                 tooltipTxt = CommonTxtTstr.ClickToOpts;
             }
-            html += '<div class="dagTable ' + state + '" ' +
+
+            if (dagNode.api == XcalarApisT.XcalarApiExport) {
+                html += '<div class="dagTable ' + state + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-index="' + index + '" ' +
                         'data-id="' + tableId + '">' +
@@ -2965,14 +2967,43 @@ window.Dag = (function($, Dag) {
                         'data-container="body" ' +
                         'title="' + tooltipTxt + '"' +
                         '></div>' +
+                        '<i class="icon xi-generate-sub"></i>'+
                         '<i class="icon xi_table"></i>'+
-                        '<span class="tableTitle" ' +
+                        '<span class="tableTitle exportFileName" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="bottom" ' +
+                            'data-container="body" ' +
+                            'title="' + tableName + '">' +
+                            tableName +
+                        '</span>' +
+                        '<span class="tableTitle exportTableName" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
                             'title="' + tableName + '">' +
                             tableName +
                         '</span>';
+            } else {
+                html += '<div class="dagTable ' + state + '" ' +
+                            'data-tablename="' + tableName + '" ' +
+                            'data-index="' + index + '" ' +
+                            'data-id="' + tableId + '">' +
+                            '<div class="dagTableIcon ' + icv + '" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="top" ' +
+                            'data-container="body" ' +
+                            'title="' + tooltipTxt + '"' +
+                            '></div>' +
+                            '<i class="icon xi_table"></i>'+
+                            '<span class="tableTitle exportFileName" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="bottom" ' +
+                                'data-container="body" ' +
+                                'title="' + tableName + '">' +
+                                tableName +
+                            '</span>';
+            }
+
         }
         html += '</div></div>';
 

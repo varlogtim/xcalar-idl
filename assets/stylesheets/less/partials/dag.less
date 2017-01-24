@@ -601,6 +601,24 @@ html.firefox, html.microsoft {
             white-space: normal;
             display: inline-block;
         }
+
+        &[data-advancedOpts="default"] {
+            .exportFileName, .xi-generate-sub {
+                display: inline-block;
+            }
+            .exportTableName, .xi_table {
+                display: none;
+            }
+        }
+
+        &[data-advancedOpts="import"] {
+            .exportFileName, .xi-generate-sub {
+                display: none;
+            }
+            .exportTableName, .xi_table {
+                display: inline-block;
+            }
+        }
     }
 
     .actionType {

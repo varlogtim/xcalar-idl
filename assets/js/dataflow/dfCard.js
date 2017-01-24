@@ -426,6 +426,22 @@ window.DFCard = (function($, DFCard) {
                 $(this).closest(".advancedOpts").removeClass("active");
             }
         });
+
+        $dfCard.on("input", ".advancedOpts input", function(event) {
+            var $name = $(this).closest(".dagWrap")
+                              .find(".dagTable.export .exportTableName");
+            $name.html($(this).val());
+            xcTooltip.changeText($name, $(this).val());
+        });
+
+        $dfCard.on("focus", ".advancedOpts input", function(event) {
+            $(this).closest(".advancedOpts").find('[data-option="import"]')
+                   .click();
+            var $name = $(this).closest(".dagWrap")
+                              .find(".dagTable.export .exportTableName");
+            $name.html($(this).val());
+            xcTooltip.changeText($name, $(this).val());
+        });
     }
 
     function deleteDataflow(retName) {
@@ -504,7 +520,23 @@ window.DFCard = (function($, DFCard) {
 
         applyDeltaTagsToDag(dataflowName, $dagWrap);
         Dag.addDagEventListeners($dagWrap);
-        xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"));
+        xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"),
+            function(selOption, $selRadioButton) {
+                var $dagNode = getDagWrap(dataflowName)
+                               .find(".actionType.export").next(".dagTable");
+                $dagNode.attr("data-advancedopts", selOption);
+                if (selOption === "import") {
+                    $(".advancedOpts input").focus();
+                    $dagNode.removeClass("parameterizable");
+                } else {
+                    $dagNode.addClass("parameterizable");
+                    setTimeout(function() {
+                        $selRadioButton.closest(".advancedOpts")
+                                       .toggleClass("active");
+                    }, 200);
+                }
+            }
+        );
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             $dagWrap.find('.parameterizable:not(.export)')
                     .addClass('noDropdown');
@@ -535,7 +567,8 @@ window.DFCard = (function($, DFCard) {
         }
         $exportTable.addClass("export").data("type", "export")
                     .attr("data-table", $exportTable.attr("data-tablename"))
-                    .data("paramValue", encodeURI(paramValue));
+                    .data("paramValue", encodeURI(paramValue))
+                    .attr("data-advancedOpts", "default");
 
         var $elem = $exportTable.find(".tableTitle");
         $elem.text(paramValue);
@@ -660,16 +693,22 @@ window.DFCard = (function($, DFCard) {
             }
             addMenuKeyboardNavigation($menu);
 
+            if (XVM.getLicenseMode() === XcalarMode.Mod) {
+                $menu.find('.createParamQuery').hide();
+            } else {
+                $menu.find('.createParamQuery').show();
+            }
+
             // If node is not export, hide showExportCols option
             if (!$(this).hasClass("export")) {
                 $menu.find(".showExportCols").hide();
             } else {
                 $menu.find(".showExportCols").show();
-            }
-            if (XVM.getLicenseMode() === XcalarMode.Mod) {
-                $menu.find('.createParamQuery').hide();
-            } else {
-                $menu.find('.createParamQuery').show();
+                if (!$(this).hasClass("parameterizable")) {
+                    $menu.find(".createParamQuery").hide();
+                } else {
+                    $menu.find(".createParamQuery").show();
+                }
             }
         });
 

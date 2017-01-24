@@ -174,7 +174,7 @@ window.DSUploader = (function($, DSUploader) {
             Alert.show({title: DSTStr.InvalidUpload, msg: DSTStr.OneFileUpload});
             return;
         }
-        
+
         if (checkInvalidFileSize(files[0])) {
             showAlert('invalidSize');
         } else if (checkFileNameDuplicate(files[0].name)) {
