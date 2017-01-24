@@ -12,7 +12,7 @@ window.xcSuggest = (function($, xcSuggest) {
     var MLEngine;
 
     // Turn off ML Engine
-    var useEngine = false;
+    var useEngine = true;
 
     xcSuggest.setup = function() {
         MLEngine = window.skRFPredictor;
