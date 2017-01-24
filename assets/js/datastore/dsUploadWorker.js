@@ -1,6 +1,6 @@
 function parseFile(file) {
     var fileSize = file.size;
-    var chunkSize = 40 * 1024 * 1024; // 40 MB
+    var chunkSize = 1 * 1024 * 1024; // 1 MB
     // var chunkSize = 40 * 1024; // 40 KB
     var offset = 0;
 
@@ -20,8 +20,8 @@ function parseFile(file) {
             offset += event.loaded;
             var content = event.target.result;
             // content = new Uint8Array(content);
-    
-            // content = btoa(content);
+            // console.log(offset);
+            content = btoa(content);
             postMessage({status: "loading",
                         sizeCompleted: offset,
                         chunkSize: event.loaded,

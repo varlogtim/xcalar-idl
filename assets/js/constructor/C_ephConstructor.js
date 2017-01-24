@@ -2643,6 +2643,7 @@ function DSFileUpload(name, size, options) {
     this.onCompleteCallback = options.onComplete;
     this.onUpdateCallback = options.onUpdate;
     this.onErrorCallback = options.onError;
+    this.times = [];
 
     this.__init();
 
@@ -2709,8 +2710,15 @@ DSFileUpload.prototype = {
     __stream: function() {
         var self = this;
         self.status = "inProgress";
+        var startTime = Date.now();
         XcalarDemoFileAppend(self.name, self.chunks[0].content)
         .then(function() {
+            self.times.push(Date.now() - startTime);
+            var total = self.times.reduce(function(total, time) {
+                return total + time;
+            });
+
+            // console.log((Date.now() - startTime) / 1000, total / 1000);
             if (self.status === "canceled") {
                 console.log('ok canceled');
                 if (self.cancelStatus === "failed") {

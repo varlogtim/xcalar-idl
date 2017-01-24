@@ -251,6 +251,11 @@ window.Alert = (function($, Alert){
             $("#alertUserInputArea").removeClass('xc-hidden');
             $("#alertUserInputArea").find('.label').html(options.userInput.label);
             $("#alertUserInput").val(options.userInput.autofill);
+            setTimeout(function() {
+                // otherwise it doesn't get focused and range doesn't get 
+                // selected
+                $("#alertUserInput").focus().range(0);
+            }, 0);
         } else {
             $("#alertUserInputArea").addClass('xc-hidden');
             $("#alertUserInputArea").find('.label').empty();

@@ -3524,7 +3524,7 @@ function XcalarDemoFileCreate(fileName) {
     xcalarDemoFileCreate(tHandle, fileName)
     .then(function(retJson) {
         if (retJson && retJson.error && retJson.error.length > 0) {
-            var thriftError = thriftLog("XcalarDemoFileCreate", error);
+            var thriftError = thriftLog("XcalarDemoFileCreate", retJson.error);
             SQL.errorLog("Create Demo File", null, null, thriftError);
             deferred.reject(thriftError);
         } else {
@@ -3543,7 +3543,6 @@ function XcalarDemoFileCreate(fileName) {
 // Max size 45MB
 function XcalarDemoFileAppend(fileName, fileContents) {
     var deferred = jQuery.Deferred();
-
     if (fileContents.length > gUploadChunkSize) {
         return PromiseHelper.reject("File chunk must be less than 45MB");
     }
@@ -3551,7 +3550,7 @@ function XcalarDemoFileAppend(fileName, fileContents) {
     xcalarDemoFileAppend(tHandle, fileName, fileContents)
     .then(function(retJson) {
         if (retJson && retJson.error && retJson.error.length > 0) {
-            var thriftError = thriftLog("XcalarDemoFileAppend", error);
+            var thriftError = thriftLog("XcalarDemoFileAppend", retJson.error);
             SQL.errorLog("Append to demo file", null, null, thriftError);
             deferred.reject(thriftError);
         } else {
@@ -3573,7 +3572,7 @@ function XcalarDemoFileDelete(fileName) {
     xcalarDemoFileDelete(tHandle, fileName)
     .then(function(retJson) {
         if (retJson && retJson.error && retJson.error.length > 0) {
-            var thriftError = thriftLog("XcalarDemoFileDelete", error);
+            var thriftError = thriftLog("XcalarDemoFileDelete", retJson.error);
             SQL.errorLog("Delete demo file", null, null, thriftError);
             deferred.reject(thriftError);
         } else {

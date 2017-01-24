@@ -42,12 +42,15 @@ window.DSUploader = (function($, DSUploader) {
             return;
         }
 
-        xcHelper.showRefreshIcon($uploaderMain);
+        var $waitingIcon = xcHelper.showRefreshIcon($uploaderMain, true);
 
         XcalarListFiles("demo:///", false)
         .then(function(results) {
             allFiles = results.files;
             sortFilesBy(sortKey);
+            $waitingIcon.fadeOut(100, function() {
+                $waitingIcon.remove();
+            });
             deferred.resolve();
         });
 
@@ -179,24 +182,24 @@ window.DSUploader = (function($, DSUploader) {
         if (checkInvalidFileSize(files[0])) {
             showAlert('invalidSize');
         } else if (checkFileNameDuplicate(files[0].name)) {
-            showAlert('duplicateName', {name: files[0].name});
+            showAlert('duplicateName', {name: files[0].name, file: files[0]});
         } else {
             var name = files[0].name;
             loadFile(files[0], name, event);
         }
     }
 
-    function validateAndSubmitNewName(name, oldName) {
+    function validateAndSubmitNewName(file, name, oldName) {
         name = name.trim();
         var hasDup = checkFileNameDuplicate(name);
 
         if (hasDup) {
-            showAlert('duplicateName', {name: name});
+            showAlert('duplicateName', {file: file, name: name});
         } else if (!name.length) {
-            showAlert('invalidName', {oldName: oldName});
+            showAlert('invalidName', {file: file, oldName: oldName});
         } else {
             // XXX FIXME DroppedFiles is undefined here?
-            loadFile(droppedFiles[0], name, cachedEvent);
+            loadFile(file, name, cachedEvent);
         }
     }
 
@@ -211,7 +214,8 @@ window.DSUploader = (function($, DSUploader) {
                                   "autofill": args.oldName},
                     "onConfirm": function() {
                         var newName = $("#alertUserInput").val();
-                        validateAndSubmitNewName(newName, args.oldName);
+                        validateAndSubmitNewName(args.file, newName,
+                                                args.oldName);
                     }
                 });
                 break;
@@ -223,7 +227,7 @@ window.DSUploader = (function($, DSUploader) {
                                   "autofill": args.name},
                     "onConfirm": function() {
                         var newName = $("#alertUserInput").val();
-                        validateAndSubmitNewName(newName, args.name);
+                        validateAndSubmitNewName(args.file, newName, args.name);
                     }
                 });
                 break;
@@ -289,6 +293,9 @@ window.DSUploader = (function($, DSUploader) {
             XcalarDemoFileCreate(name)
             .then(function() {
                 return uploadFile(fileObj, file, name);
+            })
+            .fail(function(err) {
+                Alert.error(DSTStr.UploadFailed, b);
             });
         }
     }

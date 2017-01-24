@@ -3937,7 +3937,7 @@ xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, f
 
     var inputObj = {"func": "demoAppend",
                     "fileName": fileName,
-                    "data": btoa(fileContents)};
+                    "data": fileContents};
 
     var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
 
