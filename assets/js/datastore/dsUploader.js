@@ -198,7 +198,6 @@ window.DSUploader = (function($, DSUploader) {
         } else if (!name.length) {
             showAlert('invalidName', {file: file, oldName: oldName});
         } else {
-            // XXX FIXME DroppedFiles is undefined here?
             loadFile(file, name, cachedEvent);
         }
     }
@@ -295,7 +294,7 @@ window.DSUploader = (function($, DSUploader) {
                 return uploadFile(fileObj, file, name);
             })
             .fail(function(err) {
-                Alert.error(DSTStr.UploadFailed, b);
+                Alert.error(DSTStr.UploadFailed, err);
             });
         }
     }
