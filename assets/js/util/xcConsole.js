@@ -16,17 +16,33 @@ window.xcConsole = (function(xcConsole, $) {
             args.push(arguments[i]);
         }
 
-        if (window.debugOn) {
-            console.log.apply(this, args.concat([stack]));
+        if (this.isError) {
+            // if error, we show stack trace in console no matter what
+            stack.shift();
+            console.error.apply(this, args.concat([stack]));
             logs.push({msg: args, stack: stack});
-            showAlert(args, stack);
-        } else {
-            var originMsg = [];
-            if (stack[0]) {
-                originMsg = stack[0].split(" ").pop();
+
+            if (window.debugOn) {
+                showAlert(args, stack, true);
             }
-            console.log.apply(this, args.concat(originMsg));
-        }
+        } else {
+            if (window.debugOn) {
+                console.log.apply(this, args.concat([stack]));
+                logs.push({msg: args, stack: stack});
+                showAlert(args, stack);
+            } else {
+                // if debug is off, we do not show stack trace in console
+                var originMsg = [];
+                if (stack[0]) {
+                    originMsg = stack[0].split(" ").pop();
+                }
+                console.log.apply(this, args.concat(originMsg));
+            }
+        }       
+    };
+
+    xcConsole.error = function() {
+        xcConsole.log.apply({isError: true}, arguments);
     };
 
     xcConsole.getLogs = function() {
@@ -93,7 +109,7 @@ window.xcConsole = (function(xcConsole, $) {
         });
     }
 
-    function showAlert(args, stack) {
+    function showAlert(args, stack, isError) {
         var $alert = $("#debugAlert");
         if (!$alert.length) {
             setupAlert();
@@ -101,11 +117,21 @@ window.xcConsole = (function(xcConsole, $) {
         }
         $alert.show();
         var stackStr = "";
+        var msg = "";
         for (var i = 0; i < stack.length; i++) {
-            stackStr += '<div>' +xcHelper.escapeHTMLSepcialChar(stack[i]) +
-                        '</div>';
+            msg = xcHelper.escapeHTMLSepcialChar(stack[i]);
+            msg = msg.replace(/\(/g, '<span style="color: #999;">');
+            msg = msg.replace(/\)/g, '</span>');
+            stackStr += '<div>' + msg + '</div>';
         }
-        var content = '<div><b>Info:</b><br/>' + JSON.stringify(args) +
+
+        var content = "";
+        if (isError) {
+            content = '<div style="color:red;">';
+        } else {
+            content = '<div>';
+        }
+        content += content + '<b>Info:</b><br/>' + JSON.stringify(args) +
                       '</div>' +
                       '<div><b>Stack:</b><br/>' + stackStr +
                       '</div>';
