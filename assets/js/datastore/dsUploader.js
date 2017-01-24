@@ -3,7 +3,6 @@ window.DSUploader = (function($, DSUploader) {
     var $uploaderMain; //  $('#dsUploaderMain');
     var $container; // $('#dsUploaderContainer');
     var $innerContainer; // innerdsUploader
-    var droppedFiles = null;
     var allFiles = [];
     var dsUploaderEnabled;
     var reverseSort = false;
@@ -133,10 +132,9 @@ window.DSUploader = (function($, DSUploader) {
             if (!files || !files.length) {
                 return;
             }
-            droppedFiles = files;
             cachedEvent = event.originalEvent;
             $('.fileDroppable').removeClass('fileDragging');
-            submitFiles(droppedFiles, event.originalEvent);
+            submitFiles(files, event.originalEvent);
         });
     }
 
@@ -162,7 +160,14 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function submitForm($name) {
-        var path = "demo:///" + $name.attr("data-name");
+        var name = $name.attr("data-name");
+
+        //xx temp
+        name = name.split("/");
+        name = name[name.length - 1];
+        // end temp
+
+        var path = "demo:///" + name;
         var format = null;
         var options = {
             "path"  : path,
@@ -278,23 +283,34 @@ window.DSUploader = (function($, DSUploader) {
             showAlert('invalidFolder');
         } else {
             var size = file.size;
-            var mtime = file.lastModified;
+            var mtime = Math.round(file.lastModified / 1000); // remove milliseconds
             var fileObj = {name: name,
                            attr: {size: size, mtime: mtime},
                            status: "inProgress",
                            sizeCompleted: 0
                           };
             allFiles.push(fileObj);
-            var loading = true;
-            var html = getOneFileHtml(fileObj);
+            var creating = true;
+            var html = getOneFileHtml(fileObj, creating);
             $innerContainer.append(html);
 
+            // xx need separate loading status for when file is creating
             XcalarDemoFileCreate(name)
             .then(function() {
+                var $icon = getDSIcon(name);
+                $icon.removeClass('isCreating');
                 return uploadFile(fileObj, file, name);
             })
             .fail(function(err) {
-                Alert.error(DSTStr.UploadFailed, err);
+                if (err.error && err.error.indexOf('already exists') > -1) {
+                    showAlert('duplicateName', {name: name, file: file});
+                } else {
+                    Alert.error(DSTStr.UploadFailed, err);
+                }
+                
+                var $icon = getDSIcon(name);
+                $icon.remove();
+                removeFileFromCache(name);
             });
         }
     }
@@ -393,6 +409,10 @@ window.DSUploader = (function($, DSUploader) {
     function deleteFile($icon, name) {
         var deferred = jQuery.Deferred();
 
+        //xx temp
+        name = name.split("/");
+        name = name[name.length - 1];
+
         XcalarDemoFileDelete(name)
         .then(function() {
             $icon.remove();
@@ -420,7 +440,7 @@ window.DSUploader = (function($, DSUploader) {
         return $innerContainer.find('.grid-unit[data-name="' + name + '"]');
     }
 
-    function getOneFileHtml(fileInfo) {
+    function getOneFileHtml(fileInfo, isCreating) {
         var name = fileInfo.name;
         var displayName = name;
         var size = xcHelper.sizeTranslator(fileInfo.attr.size);
@@ -430,16 +450,20 @@ window.DSUploader = (function($, DSUploader) {
         var gridClass = isDirectory ? "folder" : "ds";
         var iconClass = isDirectory ? "xi-folder" : "xi_data";
         var timeOptions = {
-            hasMilliseconds: true,
+            // hasMilliseconds: true,
             noSeconds: true
         };
         var date = xcHelper.timeStampTranslator(mtime, timeOptions) || "";
         var status = "";
 
-        if(fileInfo.status === "inProgress") {
+        if (fileInfo.status === "inProgress") {
             status += " isLoading ";
             displayName = name + " (" + CommonTxtTstr.Uploading + ")";
-            size = "(" + fileInfo.sizeCompleted + "/" + size + ")";
+            size = "(" + xcHelper.sizeTranslator(fileInfo.sizeCompleted) +
+                    "/" + size + ")";
+        }
+        if (isCreating) {
+            status += " isCreating ";
         }
 
         var html =

@@ -2677,22 +2677,8 @@ DSFileUpload.prototype = {
         self.status = 'canceled';
         self.chunks = [];
 
-        XcalarDemoFileDelete(self.name)
-        .then(deferred.resolve)
-        .fail(function() {
-            self.cancelStatus = 'failed';
-            deferred.reject();
-        });
-
-        function XcalarDemoFileDelete(fileName) {
-            var deferred = jQuery.Deferred();
-
-            setTimeout(function() {
-                deferred.resolve();
-            }, 500);
-
-            return deferred.promise();
-        }
+        // cannot call delete during an append so _stream checks for 
+        // self.status === 'canceled' and stops streaming and deletes
 
         return deferred.promise();
     },
@@ -2710,29 +2696,16 @@ DSFileUpload.prototype = {
     __stream: function() {
         var self = this;
         self.status = "inProgress";
-        var startTime = Date.now();
         XcalarDemoFileAppend(self.name, self.chunks[0].content)
         .then(function() {
-            self.times.push(Date.now() - startTime);
-            var total = self.times.reduce(function(total, time) {
-                return total + time;
-            });
-
-            // console.log((Date.now() - startTime) / 1000, total / 1000);
             if (self.status === "canceled") {
-                console.log('ok canceled');
-                if (self.cancelStatus === "failed") {
-                    // 2nd attempt to cancel
-                    XcalarDemoFileDelete(self.name)
-                    .then(deferred.resolve)
-                    .fail(deferred.reject);
-                }
+                console.log('canceling');
+                XcalarDemoFileDelete(self.name);
                 return;
             }
 
             self.sizeCompleted += self.chunks[0].size;
             self.onUpdateCallback(self.sizeCompleted);
-            console.log(self.sizeCompleted + " out of " + self.totalSize);
             self.chunks.shift();
             if (self.chunks.length) {
                 self.__stream();
