@@ -1551,7 +1551,37 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe("GenSettings and UserPref Constructor Test", function() {
+    describe("Agg Constructor Test", function() {
+        it("Should have 8 attributes", function() {
+            var agg = new Agg({
+                "aggName"    : "^fg",
+                "backColName": "schedule::teacher_id",
+                "dagName"    : "fg",
+                "op"         : "avg",
+                "tableId"    : "gM321",
+                "value"      : 2.1
+            });
+
+            expect(agg).to.be.an.instanceof(Agg);
+            expect(Object.keys(agg).length).to.equal(7);
+            expect(agg).to.have.property("version")
+            .and.to.equal(currentVersion);
+            expect(agg).to.have.property("aggName")
+            .and.to.equal("^fg");
+            expect(agg).to.have.property("backColName")
+            .and.to.equal("schedule::teacher_id");
+            expect(agg).to.have.property("dagName")
+            .and.to.equal("fg");
+            expect(agg).to.have.property("op")
+            .and.to.equal("avg");
+            expect(agg).to.have.property("tableId")
+            .and.to.equal("gM321");
+            expect(agg).to.have.property("value")
+            .and.to.equal(2.1);
+        });
+    });
+
+    describe("GenSettings Constructor Test", function() {
         it("Should have 4 attributes", function() {
             var genSettings = new GenSettings();
 

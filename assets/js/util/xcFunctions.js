@@ -111,7 +111,7 @@ window.xcFunction = (function($, xcFunction) {
                 "isAlert": true
             });
 
-            deferred.resolve(value, aggInfo.dagName);
+            deferred.resolve(aggInfo.value, aggInfo.dagName);
 
             return deferred.promise();
         }
@@ -163,9 +163,9 @@ window.xcFunction = (function($, xcFunction) {
 
             if (toDelete) {
                 // and to UI cache only
-                Aggregates.addAgg(tableId, backColName, aggrOp, aggRes, true);
+                Aggregates.addAgg(aggRes, true);
             } else {
-                Aggregates.addAgg(tableId, backColName, aggrOp, aggRes);
+                Aggregates.addAgg(aggRes);
                 TableList.refreshConstantList();
             }
 

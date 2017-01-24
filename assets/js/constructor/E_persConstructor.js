@@ -957,6 +957,16 @@ var ProgCol = (function(_super) {
     return ProgCol;
 }(ProgColV1));
 
+// aggregates.js
+var Agg = (function(_super) {
+    function Agg(options) {
+        _super.call(this, options);
+        return this;
+    }
+
+    return Agg;
+}(AggV1));
+
 // userSettings.js
 var GenSettings = (function(_super) {
     function GenSettings(userConfigParms, options) {

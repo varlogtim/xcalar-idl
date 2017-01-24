@@ -329,6 +329,33 @@ var ProgColV1 = (function() {
     return ProgColV1;
 }());
 
+// aggregates.js
+var AggV1 = (function() {
+    /* Attr
+        version: 1
+        op: (string) agg operation name
+        value: (number/string) agg result
+        tableId: (string) source table id
+        backColName: (string) source column name
+        dagName: (string) dst dag name
+        aggname: aggregate name
+    */
+    function AggV1(options) {
+        options = options || {};
+
+        this.version = versionV1;
+
+        this.op = options.op;
+        this.tableId = options.tableId;
+        this.backColName = options.backColName;
+        this.dagName = options.dagName;
+        this.aggName = options.aggName;
+        this.value = options.value;
+    }
+
+    return AggV1;
+}());
+
 // userSettings.js
 var GenSettingsV1 = (function() {
     /* Attr

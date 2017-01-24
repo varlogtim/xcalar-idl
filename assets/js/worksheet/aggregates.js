@@ -29,17 +29,16 @@ window.Aggregates = (function(Aggregates, $) {
     };
 
     Aggregates.getAgg = function(tableId, colName, aggOp) {
-        var key = tableId + "#" + colName + "#" + aggOp;
         var c;
         for (c in aggs) {
-            if (aggs[c].key === key) {
+            if (isTheAgg(aggs[c], tableId, colName, aggOp)) {
                 return aggs[c];
             }
         }
 
         // if not found, try temp agg
         for (c in tempAggs) {
-            if (tempAggs[c].key === key) {
+            if (isTheAgg(tempAggs[c], tableId, colName, aggOp)) {
                 return tempAggs[c];
             }
         }
@@ -47,7 +46,7 @@ window.Aggregates = (function(Aggregates, $) {
         return null;
     };
 
-    Aggregates.addAgg = function(tableId, colName, aggOp, aggRes, isTemp) {
+    Aggregates.addAgg = function(aggRes, isTemp) {
         var container = isTemp ? tempAggs : aggs;
         var name = aggRes.dagName;
 
@@ -56,12 +55,7 @@ window.Aggregates = (function(Aggregates, $) {
             // since update will make the old table info lost
             console.warn("Aggregate result already exists!");
         } else {
-            // used for checking duplicate aggs
-            // use this as key so that if later you want to sort,
-            // write a sort function that split by "#" and
-            // extract tableId/colNam/aggOp to sort by one of them
-            aggRes.key = tableId + "#" + colName + "#" + aggOp;
-            container[name] = aggRes;
+            container[name] = new Agg(aggRes);
             FnBar.updateAggMap(aggs);
         }
     };
@@ -165,6 +159,23 @@ window.Aggregates = (function(Aggregates, $) {
         }
         return (successTables);
     }
+
+    function isTheAgg(agg, tableId, colName, aggOp) {
+        if (agg.tableId === tableId &&
+            agg.backColName === colName &&
+            agg.op === aggOp) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        Aggregates.__testOnly__ = {};
+        Aggregates.__testOnly__.isTheAgg = isTheAgg;
+    }
+    /* End Of Unit Test Only */
 
     return (Aggregates);
 }({}, jQuery));
