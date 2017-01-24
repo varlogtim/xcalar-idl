@@ -5,14 +5,15 @@ window.DSUploader = (function($, DSUploader) {
     var $innerContainer; // innerdsUploader
     var droppedFiles = null;
     var allFiles = [];
-    var dsUploaderEnabled = (XVM.getLicenseMode() === XcalarMode.Demo);
+    var dsUploaderEnabled;
     var reverseSort = false;
     var defaultSortKey = "type";
     var sortKey = defaultSortKey;
     var cachedEvent;
     var uploads = {};
 
-    DSUploader.setup = function() {
+    DSUploader.initialize = function() {
+        dsUploaderEnabled = (XVM.getLicenseMode() === XcalarMode.Demo);
         $dsUploader = $("#dsUploader");
         $uploaderMain = $('#dsUploaderMain');
         $container = $('#dsUploaderContainer');

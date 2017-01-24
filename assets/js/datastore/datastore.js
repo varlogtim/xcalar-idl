@@ -6,7 +6,6 @@ window.DataStore = (function($, DataStore) {
         DS.setup();
         setupViews();
         DSForm.setup();
-        DSUploader.setup();
         DSTable.setup();
         DSCart.setup();
         DSExport.setup();
@@ -19,6 +18,7 @@ window.DataStore = (function($, DataStore) {
 
         DSTable.initialize();
         DSPreview.initialize();
+        DSUploader.initialize();
     };
 
     DataStore.checkSampleSize = function(previewSize) {
